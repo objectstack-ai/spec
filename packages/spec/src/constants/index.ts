@@ -1,6 +1,4 @@
 /**
- * @objectstack/spec-constants
- * 
  * ObjectStack Convention Constants
  * 
  * This package defines the "Law of Location" - where things must be in ObjectStack packages.

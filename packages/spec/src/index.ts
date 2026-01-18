@@ -4,20 +4,23 @@
  * ObjectStack Protocol & Specification
  * 
  * This package contains the core interfaces, schemas, and conventions for the ObjectStack ecosystem.
- * It defines the "Constitution" of the system - the shared language that ObjectOS, ObjectStudio,
- * ObjectCloud, and all third-party plugins use to communicate.
- * 
- * This package contains:
- * - TypeScript Interfaces (Shared types)
- * - Zod Schemas (Validation rules with type inference)
- * - Constants (Convention configurations)
- * 
- * Guiding Principle: "Strict Types, No Logic"
- * This package has NO database connections, NO UI components, and NO runtime business logic.
+ * All types and schemas are centralized here.
  */
 
-// Re-export from sub-packages for backward compatibility
-export * from '@objectstack/spec-meta';
+// Zod Schemas & Inferred Types (Meta)
+export * from './zod/meta/field.zod';
+export * from './zod/meta/entity.zod';
+export * from './zod/meta/view.zod';
+
+// Zod Schemas & Inferred Types (Bundle)
+export * from './zod/bundle/manifest.zod';
+
+// Runtime Constants
+export * from './constants';
+
+// Runtime Types (Interfaces only, no Zod)
+export * from './types/runtime';
+
 export * from '@objectstack/spec-plugin';
 export * from '@objectstack/spec-schemas';
 export * from '@objectstack/spec-constants';

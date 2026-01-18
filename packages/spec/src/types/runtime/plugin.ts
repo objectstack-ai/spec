@@ -102,47 +102,25 @@ export interface PluginContext {
 }
 
 /**
- * ObjectStackPlugin interface.
- * Every plugin must implement this interface to be loaded by ObjectOS.
- * 
- * Lifecycle:
- * 1. onInstall - Called once when the plugin is first installed
- * 2. onEnable - Called when the plugin is enabled (on every startup if auto-enabled)
- * 3. onDisable - Called when the plugin is disabled or before uninstall
+ * Plugin Lifecycle Interface.
+ * Every ObjectStack plugin must default export an object implementing this interface.
  */
 export interface ObjectStackPlugin {
   /**
-   * Called once when the plugin is first installed.
-   * Use this to set up initial data, create tables, register schemas, etc.
-   * 
-   * @param ctx - Plugin context with access to ql, os, and logger
-   * @returns Promise that resolves when installation is complete
+   * Called when the plugin is installed for the first time.
+   * Use this to run one-time setup tasks (e.g. creating database tables).
    */
-  onInstall(ctx: PluginContext): Promise<void>;
+  onInstall?: (context: PluginContext) => Promise<void>;
   
   /**
-   * Called when the plugin is enabled.
-   * This is called on every system startup if the plugin is set to auto-enable.
-   * Use this to register event handlers, start background tasks, etc.
-   * 
-   * @param ctx - Plugin context with access to ql, os, and logger
-   * @returns Promise that resolves when plugin is ready
+   * Called when the plugin is enabled (at startup or manually).
+   * Use this to register event listeners, start background tasks, etc.
    */
-  onEnable(ctx: PluginContext): Promise<void>;
+  onEnable?: (context: PluginContext) => Promise<void>;
   
   /**
-   * Called when the plugin is disabled.
-   * Use this to clean up resources, unregister handlers, stop background tasks, etc.
-   * Should gracefully handle being called multiple times.
-   * 
-   * @param ctx - Plugin context with access to ql, os, and logger
-   * @returns Promise that resolves when cleanup is complete
+   * Called when the plugin is disabled (at shutdown or manually).
+   * Use this to cleanup resources, stop tasks, remove listeners.
    */
-  onDisable(ctx: PluginContext): Promise<void>;
+  onDisable?: (context: PluginContext) => Promise<void>;
 }
-
-/**
- * Plugin factory function type.
- * A plugin module should export a default function that creates a plugin instance.
- */
-export type PluginFactory = () => ObjectStackPlugin;
