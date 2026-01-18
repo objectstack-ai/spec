@@ -16,6 +16,7 @@
     *   **Ignore Status Quo:** Do not let current implementation limitations constrain the design.
     *   **Benchmark:** Align with industry leaders (Salesforce, ServiceNow, Kubernetes) for structural decisions.
     *   **Philosophy:** "Data as Code", Idempotency, and Immutable Infrastructure are the defaults.
+    *   **Style:** Enforce `camelCase` for all schema property keys (e.g. `maxLength`, `referenceFilters` NOT `max_length`, `reference_filters`).
 
 ---
 
