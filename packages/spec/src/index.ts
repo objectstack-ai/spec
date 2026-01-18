@@ -14,6 +14,7 @@ export * from './data/validation.zod';
 export * from './data/permission.zod';
 export * from './data/workflow.zod';
 export * from './data/flow.zod';
+export * from './data/dataset.zod';
 
 // UI Protocol (Layout, Navigation, Interaction)
 export * from './ui/app.zod';
