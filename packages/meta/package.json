@@ -4,6 +4,10 @@
   "description": "ObjectStack Metamodel Type Definitions - Core interfaces for entities, fields, and views",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
