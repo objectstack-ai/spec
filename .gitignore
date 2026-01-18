@@ -3,12 +3,14 @@ node_modules/
 
 # Build output
 dist/
+*.tsbuildinfo
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
@@ -25,3 +27,12 @@ coverage/
 # Temporary files
 *.tmp
 .cache/
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+
+# Temporary files
+tmp/
+temp/
