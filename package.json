@@ -32,6 +32,6 @@
   },
   "packageManager": "pnpm@10.28.0",
   "dependencies": {
-    "@objectdocs/site": "^0.2.1"
+    "@objectdocs/cli": "^0.2.1"
   }
 }
