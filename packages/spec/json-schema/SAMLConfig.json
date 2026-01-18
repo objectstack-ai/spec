@@ -1,0 +1,44 @@
+{
+  "$ref": "#/definitions/SAMLConfig",
+  "definitions": {
+    "SAMLConfig": {
+      "type": "object",
+      "properties": {
+        "entryPoint": {
+          "type": "string",
+          "format": "uri",
+          "description": "IdP SSO URL"
+        },
+        "cert": {
+          "type": "string",
+          "description": "IdP Public Certificate"
+        },
+        "issuer": {
+          "type": "string",
+          "description": "Entity ID of the IdP"
+        },
+        "signatureAlgorithm": {
+          "type": "string",
+          "enum": [
+            "sha256",
+            "sha512"
+          ],
+          "default": "sha256"
+        },
+        "attributeMapping": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "entryPoint",
+        "cert",
+        "issuer"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

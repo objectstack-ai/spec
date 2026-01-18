@@ -1,0 +1,138 @@
+{
+  "$ref": "#/definitions/Policy",
+  "definitions": {
+    "Policy": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Policy Name"
+        },
+        "password": {
+          "type": "object",
+          "properties": {
+            "minLength": {
+              "type": "number",
+              "default": 8
+            },
+            "requireUppercase": {
+              "type": "boolean",
+              "default": true
+            },
+            "requireLowercase": {
+              "type": "boolean",
+              "default": true
+            },
+            "requireNumbers": {
+              "type": "boolean",
+              "default": true
+            },
+            "requireSymbols": {
+              "type": "boolean",
+              "default": false
+            },
+            "expirationDays": {
+              "type": "number",
+              "description": "Force password change every X days"
+            },
+            "historyCount": {
+              "type": "number",
+              "default": 3,
+              "description": "Prevent reusing last X passwords"
+            }
+          },
+          "additionalProperties": false
+        },
+        "network": {
+          "type": "object",
+          "properties": {
+            "trustedRanges": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "CIDR ranges allowed to access (e.g. 10.0.0.0/8)"
+            },
+            "blockUnknown": {
+              "type": "boolean",
+              "default": false,
+              "description": "Block all IPs not in trusted ranges"
+            },
+            "vpnRequired": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          "required": [
+            "trustedRanges"
+          ],
+          "additionalProperties": false
+        },
+        "session": {
+          "type": "object",
+          "properties": {
+            "idleTimeout": {
+              "type": "number",
+              "default": 30,
+              "description": "Minutes before idle session logout"
+            },
+            "absoluteTimeout": {
+              "type": "number",
+              "default": 480,
+              "description": "Max session duration (minutes)"
+            },
+            "forceMfa": {
+              "type": "boolean",
+              "default": false,
+              "description": "Require 2FA for all users"
+            }
+          },
+          "additionalProperties": false
+        },
+        "audit": {
+          "type": "object",
+          "properties": {
+            "logRetentionDays": {
+              "type": "number",
+              "default": 180
+            },
+            "sensitiveFields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Fields to redact in logs (e.g. password, ssn)"
+            },
+            "captureRead": {
+              "type": "boolean",
+              "default": false,
+              "description": "Log read access (High volume!)"
+            }
+          },
+          "required": [
+            "sensitiveFields"
+          ],
+          "additionalProperties": false
+        },
+        "isDefault": {
+          "type": "boolean",
+          "default": false,
+          "description": "Apply to all users by default"
+        },
+        "assignedProfiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Apply to specific profiles"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,270 @@
+{
+  "$ref": "#/definitions/Mapping",
+  "definitions": {
+    "Mapping": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$"
+        },
+        "label": {
+          "type": "string"
+        },
+        "sourceFormat": {
+          "type": "string",
+          "enum": [
+            "csv",
+            "json",
+            "xml",
+            "sql"
+          ],
+          "default": "csv"
+        },
+        "targetObject": {
+          "type": "string",
+          "description": "Target Object Name"
+        },
+        "fieldMapping": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "description": "Source column header(s)"
+              },
+              "target": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "description": "Target object field(s)"
+              },
+              "transform": {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "constant",
+                  "lookup",
+                  "split",
+                  "join",
+                  "javascript",
+                  "map"
+                ],
+                "default": "none"
+              },
+              "params": {
+                "type": "object",
+                "properties": {
+                  "value": {},
+                  "object": {
+                    "type": "string"
+                  },
+                  "fromField": {
+                    "type": "string"
+                  },
+                  "toField": {
+                    "type": "string"
+                  },
+                  "autoCreate": {
+                    "type": "boolean"
+                  },
+                  "valueMap": {
+                    "type": "object",
+                    "additionalProperties": {}
+                  },
+                  "separator": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "source",
+              "target"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "insert",
+            "update",
+            "upsert"
+          ],
+          "default": "insert"
+        },
+        "upsertKey": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields to match for upsert (e.g. email)"
+        },
+        "extractQuery": {
+          "type": "object",
+          "properties": {
+            "object": {
+              "type": "string",
+              "description": "Object name (e.g. account)"
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "field": {
+                        "type": "string"
+                      },
+                      "fields": {
+                        "type": "array",
+                        "items": {}
+                      },
+                      "alias": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "field"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              },
+              "description": "Fields to retrieve"
+            },
+            "filters": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "items": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "string",
+                      "enum": [
+                        "=",
+                        "!=",
+                        "<>",
+                        ">",
+                        ">=",
+                        "<",
+                        "<=",
+                        "startswith",
+                        "contains",
+                        "notcontains",
+                        "between",
+                        "in",
+                        "notin",
+                        "is_null",
+                        "is_not_null"
+                      ]
+                    },
+                    {}
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {}
+                    ]
+                  }
+                }
+              ],
+              "description": "Filtering criteria"
+            },
+            "sort": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "string"
+                  },
+                  "order": {
+                    "type": "string",
+                    "enum": [
+                      "asc",
+                      "desc"
+                    ],
+                    "default": "asc"
+                  }
+                },
+                "required": [
+                  "field"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Sorting instructions"
+            },
+            "top": {
+              "type": "number",
+              "description": "Limit results"
+            },
+            "skip": {
+              "type": "number",
+              "description": "Offset results"
+            }
+          },
+          "required": [
+            "object"
+          ],
+          "additionalProperties": false,
+          "description": "Query to run for export only"
+        },
+        "errorPolicy": {
+          "type": "string",
+          "enum": [
+            "skip",
+            "abort",
+            "retry"
+          ],
+          "default": "skip"
+        },
+        "batchSize": {
+          "type": "number",
+          "default": 1000
+        }
+      },
+      "required": [
+        "name",
+        "targetObject",
+        "fieldMapping"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

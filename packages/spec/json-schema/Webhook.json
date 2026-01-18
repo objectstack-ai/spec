@@ -1,0 +1,88 @@
+{
+  "$ref": "#/definitions/Webhook",
+  "definitions": {
+    "Webhook": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$"
+        },
+        "label": {
+          "type": "string"
+        },
+        "object": {
+          "type": "string",
+          "description": "Object to listen to"
+        },
+        "triggers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "create",
+              "update",
+              "delete",
+              "undelete",
+              "api"
+            ]
+          },
+          "description": "Events that trigger execution"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "External URL payload"
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "POST",
+            "PUT",
+            "GET"
+          ],
+          "default": "POST"
+        },
+        "secret": {
+          "type": "string",
+          "description": "Signing secret (HMAC)"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom headers (Auth)"
+        },
+        "payloadFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields to include. Empty = All"
+        },
+        "includeSession": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include user session info"
+        },
+        "retryCount": {
+          "type": "number",
+          "default": 3
+        },
+        "isActive": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "required": [
+        "name",
+        "object",
+        "triggers",
+        "url"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

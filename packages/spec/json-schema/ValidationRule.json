@@ -1,0 +1,211 @@
+{
+  "$ref": "#/definitions/ValidationRule",
+  "definitions": {
+    "ValidationRule": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "pattern": "^[a-z_][a-z0-9_]*$",
+              "description": "Unique rule name"
+            },
+            "active": {
+              "type": "boolean",
+              "default": true
+            },
+            "severity": {
+              "type": "string",
+              "enum": [
+                "error",
+                "warning",
+                "info"
+              ],
+              "default": "error"
+            },
+            "message": {
+              "type": "string",
+              "description": "Error message to display"
+            },
+            "type": {
+              "type": "string",
+              "const": "script"
+            },
+            "condition": {
+              "type": "string",
+              "description": "Formula expression. If TRUE, validation fails. (e.g. amount < 0)"
+            }
+          },
+          "required": [
+            "name",
+            "message",
+            "type",
+            "condition"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "pattern": "^[a-z_][a-z0-9_]*$",
+              "description": "Unique rule name"
+            },
+            "active": {
+              "type": "boolean",
+              "default": true
+            },
+            "severity": {
+              "type": "string",
+              "enum": [
+                "error",
+                "warning",
+                "info"
+              ],
+              "default": "error"
+            },
+            "message": {
+              "type": "string",
+              "description": "Error message to display"
+            },
+            "type": {
+              "type": "string",
+              "const": "unique"
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Fields that must be combined unique"
+            },
+            "scope": {
+              "type": "string",
+              "description": "Formula condition for scope (e.g. active = true)"
+            },
+            "caseSensitive": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          "required": [
+            "name",
+            "message",
+            "type",
+            "fields"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "pattern": "^[a-z_][a-z0-9_]*$",
+              "description": "Unique rule name"
+            },
+            "active": {
+              "type": "boolean",
+              "default": true
+            },
+            "severity": {
+              "type": "string",
+              "enum": [
+                "error",
+                "warning",
+                "info"
+              ],
+              "default": "error"
+            },
+            "message": {
+              "type": "string",
+              "description": "Error message to display"
+            },
+            "type": {
+              "type": "string",
+              "const": "state_machine"
+            },
+            "field": {
+              "type": "string",
+              "description": "State field (e.g. status)"
+            },
+            "transitions": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "description": "Map of { OldState: [AllowedNewStates] }"
+            }
+          },
+          "required": [
+            "name",
+            "message",
+            "type",
+            "field",
+            "transitions"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "pattern": "^[a-z_][a-z0-9_]*$",
+              "description": "Unique rule name"
+            },
+            "active": {
+              "type": "boolean",
+              "default": true
+            },
+            "severity": {
+              "type": "string",
+              "enum": [
+                "error",
+                "warning",
+                "info"
+              ],
+              "default": "error"
+            },
+            "message": {
+              "type": "string",
+              "description": "Error message to display"
+            },
+            "type": {
+              "type": "string",
+              "const": "format"
+            },
+            "field": {
+              "type": "string"
+            },
+            "regex": {
+              "type": "string"
+            },
+            "format": {
+              "type": "string",
+              "enum": [
+                "email",
+                "url",
+                "phone",
+                "json"
+              ]
+            }
+          },
+          "required": [
+            "name",
+            "message",
+            "type",
+            "field"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

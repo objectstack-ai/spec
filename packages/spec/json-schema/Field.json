@@ -1,0 +1,219 @@
+{
+  "$ref": "#/definitions/Field",
+  "definitions": {
+    "Field": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Machine name (snake_case)"
+        },
+        "label": {
+          "type": "string",
+          "description": "Human readable label"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "text",
+            "textarea",
+            "email",
+            "url",
+            "phone",
+            "password",
+            "markdown",
+            "html",
+            "number",
+            "currency",
+            "percent",
+            "date",
+            "datetime",
+            "time",
+            "boolean",
+            "select",
+            "multiselect",
+            "lookup",
+            "master_detail",
+            "image",
+            "file",
+            "avatar",
+            "formula",
+            "summary",
+            "autonumber"
+          ],
+          "description": "Field Data Type"
+        },
+        "description": {
+          "type": "string",
+          "description": "Tooltip/Help text"
+        },
+        "required": {
+          "type": "boolean",
+          "default": false,
+          "description": "Is required"
+        },
+        "multiple": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow multiple values (Stores as Array/JSON). Applicable for select, lookup, file, image."
+        },
+        "unique": {
+          "type": "boolean",
+          "default": false,
+          "description": "Is unique constraint"
+        },
+        "defaultValue": {
+          "description": "Default value"
+        },
+        "maxLength": {
+          "type": "number",
+          "description": "Max character length"
+        },
+        "minLength": {
+          "type": "number",
+          "description": "Min character length"
+        },
+        "precision": {
+          "type": "number",
+          "description": "Total digits"
+        },
+        "scale": {
+          "type": "number",
+          "description": "Decimal places"
+        },
+        "min": {
+          "type": "number",
+          "description": "Minimum value"
+        },
+        "max": {
+          "type": "number",
+          "description": "Maximum value"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Display label"
+              },
+              "value": {
+                "type": "string",
+                "description": "Stored value"
+              },
+              "color": {
+                "type": "string",
+                "description": "Color code for badges/charts"
+              },
+              "default": {
+                "type": "boolean",
+                "description": "Is default option"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Static options for select/multiselect"
+        },
+        "reference": {
+          "type": "string",
+          "description": "Target Object Name"
+        },
+        "referenceFilters": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Filters applied to lookup dialogs (e.g. \"active = true\")"
+        },
+        "writeRequiresMasterRead": {
+          "type": "boolean",
+          "description": "If true, user needs read access to master record to edit this field"
+        },
+        "deleteBehavior": {
+          "type": "string",
+          "enum": [
+            "set_null",
+            "cascade",
+            "restrict"
+          ],
+          "default": "set_null",
+          "description": "What happens if referenced record is deleted"
+        },
+        "expression": {
+          "type": "string",
+          "description": "Formula expression"
+        },
+        "formula": {
+          "type": "string",
+          "description": "Deprecated: Use expression"
+        },
+        "summaryOperations": {
+          "type": "object",
+          "properties": {
+            "object": {
+              "type": "string"
+            },
+            "field": {
+              "type": "string"
+            },
+            "function": {
+              "type": "string",
+              "enum": [
+                "count",
+                "sum",
+                "min",
+                "max",
+                "avg"
+              ]
+            }
+          },
+          "required": [
+            "object",
+            "field",
+            "function"
+          ],
+          "additionalProperties": false,
+          "description": "Roll-up summary definition"
+        },
+        "hidden": {
+          "type": "boolean",
+          "default": false,
+          "description": "Hidden from default UI"
+        },
+        "readonly": {
+          "type": "boolean",
+          "default": false,
+          "description": "Read-only in UI"
+        },
+        "encryption": {
+          "type": "boolean",
+          "default": false,
+          "description": "Encrypt at rest"
+        },
+        "index": {
+          "type": "boolean",
+          "default": false,
+          "description": "Create standard database index"
+        },
+        "externalId": {
+          "type": "boolean",
+          "default": false,
+          "description": "Is external ID for upsert operations"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "type"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

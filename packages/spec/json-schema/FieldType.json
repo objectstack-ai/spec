@@ -1,0 +1,36 @@
+{
+  "$ref": "#/definitions/FieldType",
+  "definitions": {
+    "FieldType": {
+      "type": "string",
+      "enum": [
+        "text",
+        "textarea",
+        "email",
+        "url",
+        "phone",
+        "password",
+        "markdown",
+        "html",
+        "number",
+        "currency",
+        "percent",
+        "date",
+        "datetime",
+        "time",
+        "boolean",
+        "select",
+        "multiselect",
+        "lookup",
+        "master_detail",
+        "image",
+        "file",
+        "avatar",
+        "formula",
+        "summary",
+        "autonumber"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

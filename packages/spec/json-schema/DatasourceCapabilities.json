@@ -1,0 +1,36 @@
+{
+  "$ref": "#/definitions/DatasourceCapabilities",
+  "definitions": {
+    "DatasourceCapabilities": {
+      "type": "object",
+      "properties": {
+        "joins": {
+          "type": "boolean",
+          "default": false
+        },
+        "transactions": {
+          "type": "boolean",
+          "default": false
+        },
+        "fullTextSearch": {
+          "type": "boolean",
+          "default": false
+        },
+        "aggregation": {
+          "type": "boolean",
+          "default": false
+        },
+        "dynamicSchema": {
+          "type": "boolean",
+          "default": false
+        },
+        "readOnly": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

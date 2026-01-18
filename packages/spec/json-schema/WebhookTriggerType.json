@@ -1,0 +1,16 @@
+{
+  "$ref": "#/definitions/WebhookTriggerType",
+  "definitions": {
+    "WebhookTriggerType": {
+      "type": "string",
+      "enum": [
+        "create",
+        "update",
+        "delete",
+        "undelete",
+        "api"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

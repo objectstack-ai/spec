@@ -1,0 +1,93 @@
+{
+  "$ref": "#/definitions/Datasource",
+  "definitions": {
+    "Datasource": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Unique datasource identifier"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label"
+        },
+        "driver": {
+          "type": "string",
+          "enum": [
+            "postgres",
+            "mysql",
+            "sqlserver",
+            "oracle",
+            "sqlite",
+            "mongo",
+            "redis",
+            "excel",
+            "csv",
+            "airtable",
+            "rest_api",
+            "graphql",
+            "odata",
+            "salesforce",
+            "sap",
+            "workday"
+          ],
+          "description": "Underlying driver type"
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Driver specific configuration"
+        },
+        "capabilities": {
+          "type": "object",
+          "properties": {
+            "joins": {
+              "type": "boolean",
+              "default": false
+            },
+            "transactions": {
+              "type": "boolean",
+              "default": false
+            },
+            "fullTextSearch": {
+              "type": "boolean",
+              "default": false
+            },
+            "aggregation": {
+              "type": "boolean",
+              "default": false
+            },
+            "dynamicSchema": {
+              "type": "boolean",
+              "default": false
+            },
+            "readOnly": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          "additionalProperties": false,
+          "description": "Capability overrides"
+        },
+        "description": {
+          "type": "string",
+          "description": "Internal description"
+        },
+        "active": {
+          "type": "boolean",
+          "default": true,
+          "description": "Is datasource enabled"
+        }
+      },
+      "required": [
+        "name",
+        "driver",
+        "config"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

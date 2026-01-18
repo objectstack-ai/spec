@@ -1,0 +1,28 @@
+{
+  "$ref": "#/definitions/CalendarConfig",
+  "definitions": {
+    "CalendarConfig": {
+      "type": "object",
+      "properties": {
+        "startDateField": {
+          "type": "string"
+        },
+        "endDateField": {
+          "type": "string"
+        },
+        "titleField": {
+          "type": "string"
+        },
+        "colorField": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "startDateField",
+        "titleField"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

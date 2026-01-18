@@ -1,0 +1,128 @@
+{
+  "$ref": "#/definitions/WorkflowRule",
+  "definitions": {
+    "WorkflowRule": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Unique workflow name"
+        },
+        "objectName": {
+          "type": "string",
+          "description": "Target Object"
+        },
+        "triggerType": {
+          "type": "string",
+          "enum": [
+            "on_create",
+            "on_update",
+            "on_create_or_update",
+            "on_delete",
+            "schedule"
+          ],
+          "description": "When to evaluate"
+        },
+        "criteria": {
+          "type": "string",
+          "description": "Formula condition. If TRUE, actions execute."
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Action name"
+                  },
+                  "type": {
+                    "type": "string",
+                    "const": "field_update"
+                  },
+                  "field": {
+                    "type": "string",
+                    "description": "Field to update"
+                  },
+                  "value": {
+                    "description": "Value or Formula to set"
+                  }
+                },
+                "required": [
+                  "name",
+                  "type",
+                  "field"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Action name"
+                  },
+                  "type": {
+                    "type": "string",
+                    "const": "email_alert"
+                  },
+                  "template": {
+                    "type": "string",
+                    "description": "Email template ID/DevName"
+                  },
+                  "recipients": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "List of recipient emails or user IDs"
+                  }
+                },
+                "required": [
+                  "name",
+                  "type",
+                  "template",
+                  "recipients"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "options": {}
+                },
+                "required": [
+                  "name",
+                  "type"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "description": "Immediate actions"
+        },
+        "active": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this workflow is active"
+        }
+      },
+      "required": [
+        "name",
+        "objectName",
+        "triggerType"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

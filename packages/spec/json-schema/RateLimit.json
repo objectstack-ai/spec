@@ -1,0 +1,26 @@
+{
+  "$ref": "#/definitions/RateLimit",
+  "definitions": {
+    "RateLimit": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "windowMs": {
+          "type": "number",
+          "default": 60000,
+          "description": "Time window in milliseconds"
+        },
+        "maxRequests": {
+          "type": "number",
+          "default": 100,
+          "description": "Max requests per window"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

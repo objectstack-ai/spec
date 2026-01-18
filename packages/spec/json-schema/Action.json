@@ -1,0 +1,156 @@
+{
+  "$ref": "#/definitions/Action",
+  "definitions": {
+    "Action": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Machine name (snake_case)"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Icon name"
+        },
+        "locations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "list_toolbar",
+              "list_item",
+              "record_header",
+              "record_more",
+              "record_related",
+              "global_nav"
+            ]
+          },
+          "description": "Locations where this action is visible"
+        },
+        "location": {},
+        "type": {
+          "type": "string",
+          "enum": [
+            "script",
+            "url",
+            "modal",
+            "flow",
+            "api"
+          ],
+          "default": "script",
+          "description": "Action functionality type"
+        },
+        "target": {
+          "type": "string",
+          "description": "URL, Script Name, Flow ID, or API Endpoint"
+        },
+        "execute": {
+          "type": "string",
+          "description": "Legacy execution logic"
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "text",
+                  "textarea",
+                  "email",
+                  "url",
+                  "phone",
+                  "password",
+                  "markdown",
+                  "html",
+                  "number",
+                  "currency",
+                  "percent",
+                  "date",
+                  "datetime",
+                  "time",
+                  "boolean",
+                  "select",
+                  "multiselect",
+                  "lookup",
+                  "master_detail",
+                  "image",
+                  "file",
+                  "avatar",
+                  "formula",
+                  "summary",
+                  "autonumber"
+                ]
+              },
+              "required": {
+                "type": "boolean",
+                "default": false
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "name",
+              "label",
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Input parameters required from user"
+        },
+        "confirmText": {
+          "type": "string",
+          "description": "Confirmation message before execution"
+        },
+        "successMessage": {
+          "type": "string",
+          "description": "Success message to show after execution"
+        },
+        "refreshAfter": {
+          "type": "boolean",
+          "default": false,
+          "description": "Refresh view after execution"
+        },
+        "visible": {
+          "type": "string",
+          "description": "Formula returning boolean"
+        }
+      },
+      "required": [
+        "name",
+        "label"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

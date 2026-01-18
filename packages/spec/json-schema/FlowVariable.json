@@ -1,0 +1,34 @@
+{
+  "$ref": "#/definitions/FlowVariable",
+  "definitions": {
+    "FlowVariable": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Variable name"
+        },
+        "type": {
+          "type": "string",
+          "description": "Data type (text, number, boolean, object, list)"
+        },
+        "isInput": {
+          "type": "boolean",
+          "default": false,
+          "description": "Is input parameter"
+        },
+        "isOutput": {
+          "type": "boolean",
+          "default": false,
+          "description": "Is output parameter"
+        }
+      },
+      "required": [
+        "name",
+        "type"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

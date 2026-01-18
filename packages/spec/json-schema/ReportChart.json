@@ -1,0 +1,45 @@
+{
+  "$ref": "#/definitions/ReportChart",
+  "definitions": {
+    "ReportChart": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "bar",
+            "column",
+            "line",
+            "pie",
+            "donut",
+            "scatter",
+            "funnel"
+          ],
+          "description": "Chart type"
+        },
+        "title": {
+          "type": "string"
+        },
+        "showLegend": {
+          "type": "boolean",
+          "default": true
+        },
+        "xAxis": {
+          "type": "string",
+          "description": "Grouping field for X-Axis"
+        },
+        "yAxis": {
+          "type": "string",
+          "description": "Summary field for Y-Axis"
+        }
+      },
+      "required": [
+        "type",
+        "xAxis",
+        "yAxis"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

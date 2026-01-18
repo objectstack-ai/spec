@@ -1,0 +1,14 @@
+{
+  "$ref": "#/definitions/OWDModel",
+  "definitions": {
+    "OWDModel": {
+      "type": "string",
+      "enum": [
+        "private",
+        "public_read",
+        "public_read_write"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

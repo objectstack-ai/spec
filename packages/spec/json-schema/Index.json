@@ -1,0 +1,30 @@
+{
+  "$ref": "#/definitions/Index",
+  "definitions": {
+    "Index": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Index name"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields included in the index"
+        },
+        "unique": {
+          "type": "boolean",
+          "description": "Whether the index is unique"
+        }
+      },
+      "required": [
+        "fields"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

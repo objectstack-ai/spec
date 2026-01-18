@@ -1,0 +1,153 @@
+{
+  "$ref": "#/definitions/ListView",
+  "definitions": {
+    "ListView": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "grid",
+            "kanban",
+            "calendar",
+            "gantt",
+            "map"
+          ],
+          "default": "grid"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields to display as columns"
+        },
+        "filter": {
+          "type": "array",
+          "description": "Filter criteria (JSON Rules)"
+        },
+        "sort": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "string"
+                  },
+                  "order": {
+                    "type": "string",
+                    "enum": [
+                      "asc",
+                      "desc"
+                    ]
+                  }
+                },
+                "required": [
+                  "field",
+                  "order"
+                ],
+                "additionalProperties": false
+              }
+            }
+          ]
+        },
+        "searchableFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields enabled for search"
+        },
+        "kanban": {
+          "type": "object",
+          "properties": {
+            "groupByField": {
+              "type": "string",
+              "description": "Field to group columns by (usually status/select)"
+            },
+            "summarizeField": {
+              "type": "string",
+              "description": "Field to sum at top of column (e.g. amount)"
+            },
+            "columns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Fields to show on cards"
+            }
+          },
+          "required": [
+            "groupByField",
+            "columns"
+          ],
+          "additionalProperties": false
+        },
+        "calendar": {
+          "type": "object",
+          "properties": {
+            "startDateField": {
+              "type": "string"
+            },
+            "endDateField": {
+              "type": "string"
+            },
+            "titleField": {
+              "type": "string"
+            },
+            "colorField": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "startDateField",
+            "titleField"
+          ],
+          "additionalProperties": false
+        },
+        "gantt": {
+          "type": "object",
+          "properties": {
+            "startDateField": {
+              "type": "string"
+            },
+            "endDateField": {
+              "type": "string"
+            },
+            "titleField": {
+              "type": "string"
+            },
+            "progressField": {
+              "type": "string"
+            },
+            "dependenciesField": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "startDateField",
+            "endDateField",
+            "titleField"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "columns"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

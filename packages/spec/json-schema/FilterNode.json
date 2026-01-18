@@ -1,0 +1,52 @@
+{
+  "$ref": "#/definitions/FilterNode",
+  "definitions": {
+    "FilterNode": {
+      "anyOf": [
+        {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "string",
+              "enum": [
+                "=",
+                "!=",
+                "<>",
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "startswith",
+                "contains",
+                "notcontains",
+                "between",
+                "in",
+                "notin",
+                "is_null",
+                "is_not_null"
+              ]
+            },
+            {}
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {}
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,28 @@
+{
+  "$ref": "#/definitions/MenuItem",
+  "definitions": {
+    "MenuItem": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string",
+          "description": "Display label for the menu item"
+        },
+        "path": {
+          "type": "string",
+          "description": "Navigation path (route) for the menu item"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Optional icon identifier for the menu item"
+        }
+      },
+      "required": [
+        "label",
+        "path"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

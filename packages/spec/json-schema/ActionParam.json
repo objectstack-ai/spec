@@ -1,0 +1,76 @@
+{
+  "$ref": "#/definitions/ActionParam",
+  "definitions": {
+    "ActionParam": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "text",
+            "textarea",
+            "email",
+            "url",
+            "phone",
+            "password",
+            "markdown",
+            "html",
+            "number",
+            "currency",
+            "percent",
+            "date",
+            "datetime",
+            "time",
+            "boolean",
+            "select",
+            "multiselect",
+            "lookup",
+            "master_detail",
+            "image",
+            "file",
+            "avatar",
+            "formula",
+            "summary",
+            "autonumber"
+          ]
+        },
+        "required": {
+          "type": "boolean",
+          "default": false
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "type"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

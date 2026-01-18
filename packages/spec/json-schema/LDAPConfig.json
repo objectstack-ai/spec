@@ -1,0 +1,39 @@
+{
+  "$ref": "#/definitions/LDAPConfig",
+  "definitions": {
+    "LDAPConfig": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "LDAP Server URL (ldap:// or ldaps://)"
+        },
+        "bindDn": {
+          "type": "string"
+        },
+        "bindCredentials": {
+          "type": "string"
+        },
+        "searchBase": {
+          "type": "string"
+        },
+        "searchFilter": {
+          "type": "string"
+        },
+        "groupSearchBase": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "url",
+        "bindDn",
+        "bindCredentials",
+        "searchBase",
+        "searchFilter"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

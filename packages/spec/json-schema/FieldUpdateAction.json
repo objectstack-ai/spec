@@ -1,0 +1,32 @@
+{
+  "$ref": "#/definitions/FieldUpdateAction",
+  "definitions": {
+    "FieldUpdateAction": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Action name"
+        },
+        "type": {
+          "type": "string",
+          "const": "field_update"
+        },
+        "field": {
+          "type": "string",
+          "description": "Field to update"
+        },
+        "value": {
+          "description": "Value or Formula to set"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "field"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,51 @@
+{
+  "$ref": "#/definitions/Feature",
+  "definitions": {
+    "Feature": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_.]*$",
+          "description": "Feature code (e.g. core.api_access)"
+        },
+        "label": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "boolean",
+            "counter",
+            "gauge"
+          ],
+          "default": "boolean"
+        },
+        "unit": {
+          "type": "string",
+          "enum": [
+            "count",
+            "bytes",
+            "seconds",
+            "percent"
+          ]
+        },
+        "requires": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "code",
+        "label"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,65 @@
+{
+  "$ref": "#/definitions/FlowNode",
+  "definitions": {
+    "FlowNode": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Node unique ID"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "start",
+            "end",
+            "decision",
+            "assignment",
+            "loop",
+            "create_record",
+            "update_record",
+            "delete_record",
+            "get_record",
+            "http_request",
+            "script",
+            "wait",
+            "subflow"
+          ],
+          "description": "Action type"
+        },
+        "label": {
+          "type": "string",
+          "description": "Node label"
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Node configuration"
+        },
+        "position": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "y"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "label"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

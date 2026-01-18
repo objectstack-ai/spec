@@ -1,0 +1,219 @@
+{
+  "$ref": "#/definitions/Report",
+  "definitions": {
+    "Report": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Report unique name"
+        },
+        "label": {
+          "type": "string",
+          "description": "Report label"
+        },
+        "description": {
+          "type": "string"
+        },
+        "objectName": {
+          "type": "string",
+          "description": "Primary object"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "tabular",
+            "summary",
+            "matrix",
+            "joined"
+          ],
+          "default": "tabular",
+          "description": "Report format type"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string",
+                "description": "Field name"
+              },
+              "label": {
+                "type": "string",
+                "description": "Override label"
+              },
+              "aggregate": {
+                "type": "string",
+                "enum": [
+                  "sum",
+                  "avg",
+                  "max",
+                  "min",
+                  "count",
+                  "unique"
+                ],
+                "description": "Aggregation function"
+              }
+            },
+            "required": [
+              "field"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Columns to display"
+        },
+        "groupingsDown": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string",
+                "description": "Field to group by"
+              },
+              "sortOrder": {
+                "type": "string",
+                "enum": [
+                  "asc",
+                  "desc"
+                ],
+                "default": "asc"
+              },
+              "dateGranularity": {
+                "type": "string",
+                "enum": [
+                  "day",
+                  "week",
+                  "month",
+                  "quarter",
+                  "year"
+                ],
+                "description": "For date fields"
+              }
+            },
+            "required": [
+              "field"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Row groupings"
+        },
+        "groupingsAcross": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string",
+                "description": "Field to group by"
+              },
+              "sortOrder": {
+                "type": "string",
+                "enum": [
+                  "asc",
+                  "desc"
+                ],
+                "default": "asc"
+              },
+              "dateGranularity": {
+                "type": "string",
+                "enum": [
+                  "day",
+                  "week",
+                  "month",
+                  "quarter",
+                  "year"
+                ],
+                "description": "For date fields"
+              }
+            },
+            "required": [
+              "field"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Column groupings (Matrix only)"
+        },
+        "filter": {
+          "type": "string",
+          "description": "Filter logic (e.g. \"1 AND (2 OR 3)\")"
+        },
+        "filterItems": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "field": {
+                "type": "string"
+              },
+              "operator": {
+                "type": "string"
+              },
+              "value": {}
+            },
+            "required": [
+              "id",
+              "field",
+              "operator"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Filter criteria lines"
+        },
+        "chart": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "bar",
+                "column",
+                "line",
+                "pie",
+                "donut",
+                "scatter",
+                "funnel"
+              ],
+              "description": "Chart type"
+            },
+            "title": {
+              "type": "string"
+            },
+            "showLegend": {
+              "type": "boolean",
+              "default": true
+            },
+            "xAxis": {
+              "type": "string",
+              "description": "Grouping field for X-Axis"
+            },
+            "yAxis": {
+              "type": "string",
+              "description": "Summary field for Y-Axis"
+            }
+          },
+          "required": [
+            "type",
+            "xAxis",
+            "yAxis"
+          ],
+          "additionalProperties": false,
+          "description": "Embedded chart configuration"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "objectName",
+        "columns"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

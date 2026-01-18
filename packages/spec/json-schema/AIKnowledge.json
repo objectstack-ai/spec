@@ -1,0 +1,30 @@
+{
+  "$ref": "#/definitions/AIKnowledge",
+  "definitions": {
+    "AIKnowledge": {
+      "type": "object",
+      "properties": {
+        "topics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Topics/Tags to recruit knowledge from"
+        },
+        "indexes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Vector Store Indexes"
+        }
+      },
+      "required": [
+        "topics",
+        "indexes"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

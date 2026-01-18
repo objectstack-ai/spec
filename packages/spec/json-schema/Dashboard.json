@@ -1,0 +1,117 @@
+{
+  "$ref": "#/definitions/Dashboard",
+  "definitions": {
+    "Dashboard": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Dashboard unique name"
+        },
+        "label": {
+          "type": "string",
+          "description": "Dashboard label"
+        },
+        "description": {
+          "type": "string",
+          "description": "Dashboard description"
+        },
+        "widgets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "description": "Widget title"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "metric",
+                  "bar",
+                  "line",
+                  "pie",
+                  "donut",
+                  "funnel",
+                  "table",
+                  "text"
+                ],
+                "default": "metric",
+                "description": "Visualization type"
+              },
+              "object": {
+                "type": "string",
+                "description": "Data source object name"
+              },
+              "filter": {
+                "description": "Data filter criteria"
+              },
+              "categoryField": {
+                "type": "string",
+                "description": "Field for grouping (X-Axis)"
+              },
+              "valueField": {
+                "type": "string",
+                "description": "Field for values (Y-Axis)"
+              },
+              "aggregate": {
+                "type": "string",
+                "enum": [
+                  "count",
+                  "sum",
+                  "avg",
+                  "min",
+                  "max"
+                ],
+                "default": "count",
+                "description": "Aggregate function"
+              },
+              "layout": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number"
+                  },
+                  "y": {
+                    "type": "number"
+                  },
+                  "w": {
+                    "type": "number"
+                  },
+                  "h": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "w",
+                  "h"
+                ],
+                "additionalProperties": false,
+                "description": "Grid layout position"
+              },
+              "options": {
+                "description": "Widget specific configuration"
+              }
+            },
+            "required": [
+              "layout"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Widgets to display"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "widgets"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

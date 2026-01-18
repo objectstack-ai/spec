@@ -1,0 +1,90 @@
+{
+  "$ref": "#/definitions/Manifest",
+  "definitions": {
+    "Manifest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique package identifier (reverse domain style)"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Package version (semantic versioning)"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "app",
+            "plugin",
+            "driver",
+            "module"
+          ],
+          "description": "Type of package"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable package name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Package description"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Array of required permission strings"
+        },
+        "menus": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Display label for the menu item"
+              },
+              "path": {
+                "type": "string",
+                "description": "Navigation path (route) for the menu item"
+              },
+              "icon": {
+                "type": "string",
+                "description": "Optional icon identifier for the menu item"
+              }
+            },
+            "required": [
+              "label",
+              "path"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Navigation menu structure"
+        },
+        "objects": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Glob patterns for ObjectQL schemas files"
+        },
+        "extensions": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Extension points and contributions"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "type",
+        "name"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

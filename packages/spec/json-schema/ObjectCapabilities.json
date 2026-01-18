@@ -1,0 +1,36 @@
+{
+  "$ref": "#/definitions/ObjectCapabilities",
+  "definitions": {
+    "ObjectCapabilities": {
+      "type": "object",
+      "properties": {
+        "trackHistory": {
+          "type": "boolean",
+          "default": false
+        },
+        "searchable": {
+          "type": "boolean",
+          "default": true
+        },
+        "apiEnabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "files": {
+          "type": "boolean",
+          "default": false
+        },
+        "feedEnabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "trash": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
