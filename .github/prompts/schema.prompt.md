@@ -4,6 +4,26 @@
 **Context:** You are defining the "DNA" of a metadata-driven low-code platform.
 **Location:** `packages/spec` repository.
 
+Mission: Build the "Post-SaaS Operating System" — an open-core, local-first ecosystem that virtualizes data (SQL/Redis/Excel) and unifies business logic.
+1. The "Galaxy" Architecture (Monorepo Structure)
+We use a Monorepo (pnpm + Turborepo) to manage the ecosystem, but components are designed to be published independently.
+Project & Responsibilities
+ * packages/protocol (The Constitution) [Apache 2.0]
+   * CRITICAL: Contains the shared manifest.schema.json, TypeScript interfaces, and plugin lifecycle hooks (onInstall, onEnable).
+   * Rule: All other packages depend on this. No circular dependencies.
+ * packages/objectql (Data Engine) [Apache 2.0]
+   * Universal Data Protocol. Compiles GraphQL-like queries into SQL/Redis commands.
+ * packages/objectos (Business Kernel) [AGPL v3]
+   * The Crown Jewel. Identity, RBAC, Workflow, and Audit Logging.
+   * License Note: Strict AGPL to prevent SaaS wrapping by competitors.
+ * packages/objectui (Projection Engine) [MIT]
+   * React/Shadcn UI components for Server-Driven UI (SDUI).
+ * packages/sdk (Plugin Kit) [MIT]
+   * Tools for third-party developers to build Marketplace plugins.
+ * drivers/* [Apache 2.0]
+   * driver-postgres, driver-redis, driver-excel.
+   * Must implement interfaces defined in packages/protocol.
+
 **PRIME DIRECTIVE:**
 
 1. **Zod First:** ALL definitions must start with a **Zod Schema**.
