@@ -82,4 +82,4 @@ pnpm dev
 
 ## 📄 License
 
-MIT © ObjectStack
+Apach2 2.0 © ObjectStack
