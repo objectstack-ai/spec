@@ -32,10 +32,10 @@ export const DashboardWidgetSchema = z.object({
   filter: z.any().optional().describe('Data filter criteria'),
   
   /** Category Field (X-Axis / Group By) */
-  category_field: z.string().optional().describe('Field for grouping (X-Axis)'),
+  categoryField: z.string().optional().describe('Field for grouping (X-Axis)'),
   
   /** Value Field (Y-Axis) */
-  value_field: z.string().optional().describe('Field for values (Y-Axis)'),
+  valueField: z.string().optional().describe('Field for values (Y-Axis)'),
   
   /** Aggregate operation */
   aggregate: z.enum(['count', 'sum', 'avg', 'min', 'max']).optional().default('count').describe('Aggregate function'),

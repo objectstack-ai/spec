@@ -2,6 +2,30 @@ import { z } from 'zod';
 import { FieldSchema } from './field.zod';
 
 /**
+ * Capability Flags
+ * Defines what system features are enabled for this object.
+ */
+export const ObjectCapabilities = z.object({
+  /** Enable history tracking (Audit Trail) */
+  trackHistory: z.boolean().default(false),
+  
+  /** Enable global search indexing */
+  searchable: z.boolean().default(true),
+  
+  /** Enable REST/GraphQL API access */
+  apiEnabled: z.boolean().default(true),
+  
+  /** Enable attachments/files */
+  files: z.boolean().default(false),
+  
+  /** Enable discussions/chatter */
+  feedEnabled: z.boolean().default(false),
+  
+  /** Enable Recycle Bin mechanics */
+  trash: z.boolean().default(true),
+});
+
+/**
  * Schema for database indexes.
  */
 export const IndexSchema = z.object({
@@ -11,36 +35,32 @@ export const IndexSchema = z.object({
 });
 
 /**
- * Schema for Objects (Models/Tables).
+ * Object Schema - Enterprise Data Model
  */
 export const ObjectSchema = z.object({
-  /** Machine name (snake_case) */
+  /** Identify */
   name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Machine name (snake_case)'),
-  
-  /** Human readable label */
-  label: z.string().optional().describe('Human readable label'),
-  
-  /** Documentation / Description */
-  description: z.string().optional().describe('Documentation / Description'),
-  
-  /** Icon name (Lucide) */
-  icon: z.string().optional().describe('Icon name (Lucide)'),
-  
-  /** Datasource name */
+  label: z.string().optional().describe('Singular Label (e.g. "Account")'),
+  pluralLabel: z.string().optional().describe('Plural Label (e.g. "Accounts")'),
+  description: z.string().optional().describe('Internal description'),
+  icon: z.string().optional().describe('Lucide icon name'),
+
+  /** Storage Config */
   datasource: z.string().default('default').describe('Datasource name'),
+  tableName: z.string().optional().describe('Physical DB table override'),
+  isSystem: z.boolean().default(false).describe('Is system object (protected)'),
   
-  /** Physical database table name override */
-  dbName: z.string().optional().describe('Physical database table name override'),
-  
-  /** Map of field definitions */
+  /** Fields Definition */
   fields: z.record(FieldSchema).describe('Map of field definitions'),
   
-  /** Database indexes */
+  /** Indexes */
   indexes: z.array(IndexSchema).optional().describe('Database indexes definition'),
+  
+  /** Key Fields */
+  nameField: z.string().optional().describe('Which field represents the record name/title (usually "name")'),
+  
+  /** Features & Capabilities */
+  enable: ObjectCapabilities.optional().describe('Enabled system capabilities'),
 });
 
-/**
- * TypeScript type inferred from ObjectSchema.
- * Note: 'Object' is a reserved word in JavaScript/TypeScript, so we use 'ServiceObject'.
- */
 export type ServiceObject = z.infer<typeof ObjectSchema>;

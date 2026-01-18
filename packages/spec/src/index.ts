@@ -22,6 +22,7 @@ export * from './ui/action.zod';
 
 // System Protocol (Manifest, Runtime, Constants)
 export * from './system/manifest.zod';
+export * from './system/translation.zod';
 export * from './system/constants';
 export * from './system/types';
 

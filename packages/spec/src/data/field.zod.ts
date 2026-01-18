@@ -2,79 +2,93 @@ import { z } from 'zod';
 
 /**
  * Field Type Enum
- * Defines the available data types for fields.
  */
 export const FieldType = z.enum([
-  // Basic
-  'text', 'textarea', 'markdown', 'html', 'password', 'email',
-  // Number
-  'number', 'currency', 'percent',
-  // Date
+  // Core Text
+  'text', 'textarea', 'email', 'url', 'phone', 'password',
+  // Rich Content
+  'markdown', 'html', 
+  // Numbers
+  'number', 'currency', 'percent', 
+  // Date & Time
   'date', 'datetime', 'time',
   // Logic
   'boolean',
-  // Choice
-  'select', 'multiselect',
+  // Selection
+  'select', 'multiselect', // Static options
   // Relational
-  'lookup', 'master_detail',
-  // Calculated
-  'formula', 'summary',
+  'lookup', 'master_detail', // Dynamic reference to other objects
   // Media
   'image', 'file', 'avatar',
-  // System
-  'id', 'owner', 'created_at', 'updated_at'
+  // Calculated / System
+  'formula', 'summary', 'autonumber'
 ]);
 
 export type FieldType = z.infer<typeof FieldType>;
 
 /**
- * Schema for select options (for select/multiselect types).
+ * Select Option Schema
  */
 export const SelectOptionSchema = z.object({
-  label: z.string().describe('Display label for the option'),
-  value: z.string().describe('Stored value for the option'),
+  label: z.string().describe('Display label'),
+  value: z.string().describe('Stored value'),
+  color: z.string().optional().describe('Color code for badges/charts'),
+  default: z.boolean().optional().describe('Is default option'),
 });
 
 /**
- * Base Schema for all fields.
- * Contains properties common to all field types.
+ * Field Schema - Best Practice Enterprise Pattern
  */
 export const FieldSchema = z.object({
-  /** Machine name of the field */
-  name: z.string().describe('Machine name of the field'),
-  
-  /** Human readable label */
-  label: z.string().optional().describe('Human readable label'),
-  
-  /** Field Data Type */
+  /** Identity */
+  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Machine name (snake_case)'),
+  label: z.string().describe('Human readable label'),
   type: FieldType.describe('Field Data Type'),
-  
-  /** Whether the field is required */
-  required: z.boolean().optional().describe('Whether the field is required'),
-  
-  /** Default value for the field */
-  defaultValue: z.any().optional().describe('Default value for the field'),
-  
-  /** Help text / tooltip description */
-  description: z.string().optional().describe('Help text / tooltip description'),
-  
-  /** Whether the field is hidden from UI */
-  hidden: z.boolean().optional().describe('Whether the field is hidden from UI'),
-  
-  /** Whether the field is read-only */
-  readonly: z.boolean().optional().describe('Whether the field is read-only'),
+  description: z.string().optional().describe('Tooltip/Help text'),
 
-  /** Options for select/multiselect types */
-  options: z.array(SelectOptionSchema).optional().describe('Options for select/multiselect types'),
+  /** Database Constraints */
+  required: z.boolean().default(false).describe('Is required'),
+  multiple: z.boolean().default(false).describe('Allow multiple values (Stores as Array/JSON). Applicable for select, lookup, file, image.'),
+  unique: z.boolean().default(false).describe('Is unique constraint'),
+  defaultValue: z.any().optional().describe('Default value'),
+  
+  /** Text/String Constraints */
+  maxLength: z.number().optional().describe('Max character length'),
+  minLength: z.number().optional().describe('Min character length'),
+  
+  /** Number Constraints */
+  precision: z.number().optional().describe('Total digits'),
+  scale: z.number().optional().describe('Decimal places'),
+  min: z.number().optional().describe('Minimum value'),
+  max: z.number().optional().describe('Maximum value'),
 
-  /** Target object name for lookup/master_detail types */
-  reference: z.string().optional().describe('Target object name for lookup/master_detail types'),
+  /** Selection Options */
+  options: z.array(SelectOptionSchema).optional().describe('Static options for select/multiselect'),
 
-  /** Expression for formula/summary types */
-  expression: z.string().optional().describe('Expression for formula/summary types'),
+  /** Relationship Config */
+  reference: z.string().optional().describe('Target Object Name'),
+  referenceFilters: z.array(z.string()).optional().describe('Filters applied to lookup dialogs (e.g. "active = true")'),
+  writeRequiresMasterRead: z.boolean().optional().describe('If true, user needs read access to master record to edit this field'),
+  deleteBehavior: z.enum(['set_null', 'cascade', 'restrict']).optional().default('set_null').describe('What happens if referenced record is deleted'),
+
+  /** Calculation */
+  expression: z.string().optional().describe('Formula expression'), // Changed from formula to expression to match common usage, but keeping one consistent is key. Let's use expression as generic.
+  formula: z.string().optional().describe('Deprecated: Use expression'), // Backwards compat or just keep.
+  summaryOperations: z.object({
+    object: z.string(),
+    field: z.string(),
+    function: z.enum(['count', 'sum', 'min', 'max', 'avg'])
+  }).optional().describe('Roll-up summary definition'),
+
+  /** Security & Visibility */
+  hidden: z.boolean().default(false).describe('Hidden from default UI'),
+  readonly: z.boolean().default(false).describe('Read-only in UI'),
+  encryption: z.boolean().default(false).describe('Encrypt at rest'),
+  
+  /** Indexing */
+  index: z.boolean().default(false).describe('Create standard database index'),
+  externalId: z.boolean().default(false).describe('Is external ID for upsert operations'),
 });
 
-/**
- * TypeScript type inferred from FieldSchema.
- */
 export type Field = z.infer<typeof FieldSchema>;
+export type SelectOption = z.infer<typeof SelectOptionSchema>;

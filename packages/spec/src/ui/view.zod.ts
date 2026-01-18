@@ -1,59 +1,95 @@
 import { z } from 'zod';
 
 /**
- * Schema for ListView configuration.
+ * Kanban Settings
+ */
+export const KanbanConfigSchema = z.object({
+  groupByField: z.string().describe('Field to group columns by (usually status/select)'),
+  summarizeField: z.string().optional().describe('Field to sum at top of column (e.g. amount)'),
+  columns: z.array(z.string()).describe('Fields to show on cards'),
+});
+
+/**
+ * Calendar Settings
+ */
+export const CalendarConfigSchema = z.object({
+  startDateField: z.string(),
+  endDateField: z.string().optional(),
+  titleField: z.string(),
+  colorField: z.string().optional(),
+});
+
+/**
+ * Gantt Settings
+ */
+export const GanttConfigSchema = z.object({
+  startDateField: z.string(),
+  endDateField: z.string(),
+  titleField: z.string(),
+  progressField: z.string().optional(),
+  dependenciesField: z.string().optional(),
+});
+
+/**
+ * List View Schema (Expanded)
  */
 export const ListViewSchema = z.object({
-  /** Fields to display as columns */
+  name: z.string().optional(), // Internal name
+  label: z.string().optional(), // Display label override
+  type: z.enum(['grid', 'kanban', 'calendar', 'gantt', 'map']).default('grid'),
+  
+  /** Shared Query Config */
   columns: z.array(z.string()).describe('Fields to display as columns'),
+  filter: z.array(z.any()).optional().describe('Filter criteria (JSON Rules)'),
+  sort: z.union([
+    z.string(), //Legacy "field desc"
+    z.array(z.object({
+      field: z.string(),
+      order: z.enum(['asc', 'desc'])
+    }))
+  ]).optional(),
   
-  /** Default sort order (e.g. "created_at desc") */
-  sort: z.string().optional().describe('Default sort order'),
-  
-  /** Filter criteria */
-  filter: z.any().optional().describe('Filter criteria'), // TODO: Define Filter Schema strictly later
-  
-  /** Fields enabled for search */
-  searchable_fields: z.array(z.string()).optional().describe('Fields enabled for search'),
+  /** Search */
+  searchableFields: z.array(z.string()).optional().describe('Fields enabled for search'),
+
+  /** Type Specific Config */
+  kanban: KanbanConfigSchema.optional(),
+  calendar: CalendarConfigSchema.optional(),
+  gantt: GanttConfigSchema.optional(),
 });
 
 /**
- * Schema for Form Group (Section).
+ * Form Layout Section
  */
-export const FormGroupSchema = z.object({
-  /** Group Label */
-  label: z.string().describe('Group Label'),
-  
-  /** Number of columns in this group (1 or 2) */
-  columns: z.enum(['1', '2']).optional().default('1').transform(val => parseInt(val) as 1 | 2).describe('Number of columns'),
-  
-  /** Fields included in this group */
-  fields: z.array(z.string()).describe('Fields included in this group'),
+export const FormSectionSchema = z.object({
+  label: z.string().optional(),
+  collapsible: z.boolean().default(false),
+  collapsed: z.boolean().default(false),
+  columns: z.enum(['1', '2', '3', '4']).default('2').transform(val => parseInt(val) as 1 | 2 | 3 | 4),
+  fields: z.array(z.string()), // or complex FieldConfig
 });
 
 /**
- * Schema for FormView configuration.
+ * Form View Schema
  */
 export const FormViewSchema = z.object({
-  /** Layout type */
-  layout: z.enum(['simple', 'tabbed', 'wizard']).default('simple').describe('Layout type'),
-  
-  /** Field groups */
-  groups: z.array(FormGroupSchema).optional().describe('Field groups'),
+  type: z.enum(['simple', 'tabbed', 'wizard']).default('simple'),
+  sections: z.array(FormSectionSchema).optional(), // For simple layout
+  groups: z.array(FormSectionSchema).optional(), // Legacy support -> alias to sections
 });
 
 /**
- * Schema for View definitions (Layouts).
+ * Master View Schema
+ * Can define multiple named views.
  */
 export const ViewSchema = z.object({
-    list: ListViewSchema.optional().describe('List view configuration'),
-    form: FormViewSchema.optional().describe('Form view configuration'),
+    list: ListViewSchema.optional(), // Default list view
+    form: FormViewSchema.optional(), // Default form view
+    list_views: z.record(ListViewSchema).optional().describe('Additional named list views'),
+    form_views: z.record(FormViewSchema).optional().describe('Additional named form views'),
 });
 
-/**
- * TypeScript type inferred from ViewSchema.
- */
 export type View = z.infer<typeof ViewSchema>;
 export type ListView = z.infer<typeof ListViewSchema>;
 export type FormView = z.infer<typeof FormViewSchema>;
-export type FormGroup = z.infer<typeof FormGroupSchema>;
+export type FormSection = z.infer<typeof FormSectionSchema>;

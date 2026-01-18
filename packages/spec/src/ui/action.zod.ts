@@ -1,31 +1,20 @@
 import { z } from 'zod';
+import { FieldType } from '../data/field.zod';
 
 /**
- * Action Type Definitions
- * Defines the type of execution for the action.
+ * Action Parameter Schema
+ * Defines inputs required before executing an action.
  */
-export const ActionType = z.enum([
-  'script',  // Execute a server-side script
-  'client',  // Execute a client-side function
-  'url',     // Open a URL
-  'flow',    // Trigger a workflow/process
-  'call_service' // Call a microservice
-]);
+export const ActionParamSchema = z.object({
+  name: z.string(),
+  label: z.string(),
+  type: FieldType,
+  required: z.boolean().default(false),
+  options: z.array(z.object({ label: z.string(), value: z.string() })).optional(),
+});
 
 /**
- * Action Location
- * Defines where the action button should appear.
- */
-export const ActionLocation = z.enum([
-  'record',            // Record detail page
-  'record_more',       // Record detail "More" menu
-  'list',             // List view toolbar
-  'list_item',        // List view row action
-  'global'            // Global header/sidebar
-]);
-
-/**
- * Schema for Actions (Buttons/Operations).
+ * Action Schema
  */
 export const ActionSchema = z.object({
   /** Machine name of the action */
@@ -34,31 +23,36 @@ export const ActionSchema = z.object({
   /** Display label */
   label: z.string().describe('Display label'),
   
-  /** Action functionality type */
-  type: ActionType.default('script').describe('Action functionality type'),
-  
-  /** Locations where this action is visible */
-  location: z.union([ActionLocation, z.array(ActionLocation)]).describe('Locations where this action is visible'),
-  
-  /** 
-   * The actual logic to execute.
-   * - For 'script': The script code or file path.
-   * - For 'url': The URL template.
-   * - For 'call_service': Service endpoint.
-   */
-  execute: z.string().optional().describe('Execution logic (script, url, or endpoint)'),
-  
-  /** Visibility condition expression (Formula returning boolean) */
-  visible: z.string().optional().describe('Visibility condition (Formula)'),
-  
-  /** Confirmation message before execution */
-  confirmText: z.string().optional().describe('Confirmation message before execution'),
-  
   /** Icon name (Lucide) */
   icon: z.string().optional().describe('Icon name'),
 
-  /** Success message after execution */
+  /** Where does this action appear? */
+  locations: z.array(z.enum([
+    'list_toolbar', 'list_item', 
+    'record_header', 'record_more', 'record_related',
+    'global_nav'
+  ])).optional().describe('Locations where this action is visible'),
+  
+  /** Legacy location support */
+  location: z.any().optional(),
+
+  /** What type of interaction? */
+  type: z.enum(['script', 'url', 'modal', 'flow', 'api']).default('script').describe('Action functionality type'),
+  
+  /** Payload / Target */
+  target: z.string().optional().describe('URL, Script Name, Flow ID, or API Endpoint'), // For URL/Flow types
+  execute: z.string().optional().describe('Legacy execution logic'),
+  
+  /** User Input Requirements */
+  params: z.array(ActionParamSchema).optional().describe('Input parameters required from user'),
+  
+  /** UX Behavior */
+  confirmText: z.string().optional().describe('Confirmation message before execution'),
   successMessage: z.string().optional().describe('Success message to show after execution'),
+  refreshAfter: z.boolean().default(false).describe('Refresh view after execution'),
+  
+  /** Access */
+  visible: z.string().optional().describe('Formula returning boolean'),
 });
 
 export type Action = z.infer<typeof ActionSchema>;
