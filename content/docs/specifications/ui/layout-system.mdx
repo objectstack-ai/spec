@@ -1,0 +1,212 @@
+---
+title: Layout System
+description: Building complex application structures with Stack, Grid, Tabs, Wizard, and Master-Detail layouts.
+---
+
+# Layout System
+
+In ObjectUI, layouts are **Recursive Containers**. A layout component doesn't hold data itself; it holds other components (`children`) and defines how they are arranged spatially.
+
+By combining simple primitives (Stack, Grid) with high-level patterns (Master-Detail, Wizard), you can construct any Enterprise interface.
+
+## 1. Atomic Layouts
+
+These are the building blocks, mapping directly to CSS Flexbox and Grid.
+
+### Stack (`layout.stack`)
+Arranges children vertically or horizontally (Flexbox).
+
+```json
+{
+  "type": "layout.stack",
+  "props": {
+    "direction": "vertical", // or "horizontal"
+    "gap": 4, // Tailwind spacing unit (1rem)
+    "align": "start"
+  },
+  "children": [ ... ]
+}
+
+```
+
+### Grid (`layout.grid`)
+
+Arranges children in a 2D responsive grid.
+
+```json
+{
+  "type": "layout.grid",
+  "props": {
+    "columns": { "sm": 1, "md": 2, "lg": 4 }, // Responsive breakpoints
+    "gap": 6
+  },
+  "children": [ ... ]
+}
+
+```
+
+### Card (`layout.card`)
+
+A standard surface container with header, body, and footer.
+
+```json
+{
+  "type": "layout.card",
+  "props": { "title": "Customer Info" },
+  "children": [ ... ]
+}
+
+```
+
+## 2. Navigation Layouts
+
+For organizing high-density information.
+
+### Tabs (`layout.tabs`)
+
+Lazy-loads content in separate panes.
+
+```json
+{
+  "type": "layout.tabs",
+  "props": { "defaultValue": "details" },
+  "children": [
+    {
+      "label": "Details",
+      "value": "details",
+      "content": { "type": "form", ... }
+    },
+    {
+      "label": "Related Tasks",
+      "value": "tasks",
+      "content": { "type": "view.grid", "object": "task", ... }
+    }
+  ]
+}
+
+```
+
+### Wizard / Stepper (`layout.wizard`)
+
+Guides the user through a multi-step process. The Engine automatically handles "Next/Back" logic and validation (e.g., you cannot go to Step 2 if Step 1 is invalid).
+
+```json
+{
+  "type": "layout.wizard",
+  "props": {
+    "onComplete": { "action": "submit_order" }
+  },
+  "children": [
+    {
+      "title": "Select Product",
+      "content": { "type": "form", "fields": ["product", "qty"] }
+    },
+    {
+      "title": "Shipping Info",
+      "content": { "type": "form", "fields": ["address", "city"] }
+    },
+    {
+      "title": "Payment",
+      "content": { "type": "form", "fields": ["cc_number"] }
+    }
+  ]
+}
+
+```
+
+## 3. Enterprise Patterns
+
+These are specialized layouts designed for ERP/CRM scenarios.
+
+### Master-Detail (`layout.master_detail`)
+
+The "Holy Grail" of data entry. It allows editing a parent record and its children (Line Items) on one screen.
+
+```json
+{
+  "type": "layout.master_detail",
+  "props": {
+    "master_object": "order",
+    "detail_object": "order_line",
+    "detail_field": "lines" // The One-to-Many relationship field
+  },
+  "children": [
+    {
+      "region": "master",
+      "content": { 
+        "type": "form", 
+        "fields": ["customer", "date", "status"] 
+      }
+    },
+    {
+      "region": "detail",
+      "content": { 
+        "type": "view.grid", 
+        "editable": true, // Enables inline editing
+        "columns": ["product", "quantity", "price", "subtotal"]
+      }
+    }
+  ]
+}
+
+```
+
+### Dashboard (`layout.dashboard`)
+
+A drag-and-drop grid specifically for widgets and charts.
+
+```json
+{
+  "type": "layout.dashboard",
+  "props": {
+    "editable": true // Allows user to resize/move widgets
+  },
+  "children": [
+    {
+      "x": 0, "y": 0, "w": 6, "h": 4,
+      "content": { "type": "chart.bar", "title": "Sales by Month" }
+    },
+    {
+      "x": 6, "y": 0, "w": 6, "h": 4,
+      "content": { "type": "view.list", "title": "Recent Activities" }
+    }
+  ]
+}
+
+```
+
+## 4. Responsive & Adaptive Rules
+
+ObjectUI layouts are "Mobile-First" by default, but you can define specific rules for different form factors.
+
+### The `hidden` Expression
+
+Every layout node supports a `hidden` property that evaluates a logic string.
+
+```json
+{
+  "type": "layout.card",
+  "props": { "title": "Admin Settings" },
+  "hidden": "!user.is_admin || screen.width < 768", // Only show to Admins on Desktop
+  "children": [...]
+}
+
+```
+
+### The `variant` Prop
+
+Layouts can change appearance based on context.
+
+* `layout.stack` with `variant: "split"` might render a Sidebar + Main Content on Desktop, but a Drawer Menu on Mobile.
+
+## Summary
+
+| Layout | Use Case |
+| --- | --- |
+| **Stack / Grid** | General purpose alignment. |
+| **Card / Section** | Grouping related fields visually. |
+| **Tabs** | Organizing large forms (e.g., "General", "Advanced", "Audit"). |
+| **Wizard** | Linear processes (Checkout, Onboarding). |
+| **Master-Detail** | Transactional documents (Invoices, Orders). |
+| **Dashboard** | KPI monitoring and high-level overview. |
+

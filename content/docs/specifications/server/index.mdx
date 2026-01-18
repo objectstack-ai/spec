@@ -1,0 +1,92 @@
+---
+title: ObjectOS Overview
+description: Introduction to the Business Operating System. The Kernel for Identity, Synchronization, and Orchestration.
+---
+
+# ObjectOS Protocol
+
+**ObjectOS** is the runtime **Kernel** of the ObjectStack ecosystem.
+
+While ObjectQL defines the *Structure* (Data) and ObjectUI defines the *Appearance* (View), ObjectOS defines the **Life**. It is responsible for orchestrating identity, enforcing security, managing data synchronization, and executing business logic.
+
+## The Kernel Metaphor
+
+Think of a standard web framework (like Express or NestJS) as a "bare-metal" environment where you have to manually wire up authentication, database connections, and API routes.
+
+ObjectOS acts like an **Operating System** for your business logic:
+1.  **Boot:** It loads the core services (Auth, HTTP, Sync).
+2.  **Mount:** It loads the ObjectQL Schema definitions into memory.
+3.  **Run:** It executes Plugins and Workflows in a sandboxed, governed environment.
+
+
+## Core Responsibilities
+
+ObjectOS solves the "Hard Problems" of enterprise backend development so you don't have to reinvent them.
+
+### 1. Identity & Governance (The Guard)
+It is not enough to just "log in." Enterprise apps need complex governance.
+* **Authentication:** Native support for OIDC, SAML, and JWT.
+* **RBAC:** Enforces Role-Based Access Control at the API gateway level.
+* **Audit:** Automatically records *who* did *what* to *which record* (Immutable Audit Logs).
+
+### 2. Local-First Synchronization (The Bridge)
+This is the distinguishing feature of ObjectOS. It acts as the **Replication Master** for offline-first clients.
+* **Differential Sync:** Calculates the "Delta" (changes) between the client's local DB and the server DB.
+* **Conflict Resolution:** Implements strategies like Last-Write-Wins (LWW) or Vector Clocks to handle concurrent edits from offline users.
+
+### 3. Workflow Orchestration (The Conductor)
+Business logic is modeled as **State Machines**, not spaghetti code.
+* ObjectOS manages the transition of a document (e.g., `Draft` -> `Pending` -> `Approved`).
+* It executes **Triggers** and **Webhooks** when state changes occur.
+
+### 4. Event Bus (The Nervous System)
+ObjectOS is fundamentally **Event-Driven**.
+* It provides a centralized `Broker` for inter-module communication.
+* *Example:* When the `CRM` plugin emits `deal.won`, the `Finance` plugin listens and generates an invoice automatically.
+
+## The Plugin Architecture
+
+ObjectOS follows a **Micro-Kernel Architecture**. The core is tiny; everything else is a **Plugin**.
+
+Even standard features like "User Management" or "File Uploads" are just plugins. This ensures the system is modular and bloat-free.
+
+### Anatomy of a Plugin
+
+A plugin is a self-contained package that declares its capabilities via a **Manifest**.
+
+```typescript
+// plugins/crm/manifest.ts
+export default definePlugin({
+  id: "steedos-crm",
+  version: "1.0.0",
+  
+  // Dependencies required by this plugin
+  dependsOn: ["@objectos/auth", "@objectos/notifications"],
+  
+  // Resources this plugin contributes to the OS
+  objects: ["./objects/*.object.yml"],
+  workflows: ["./workflows/*.workflow.yml"],
+  
+  // Lifecycle Hooks
+  async onLoad(ctx) {
+    ctx.logger.info("CRM Plugin Booted");
+  }
+});
+
+```
+
+## Why ObjectOS?
+
+| Problem | The ObjectOS Solution |
+| --- | --- |
+| **Spaghetti Code** | Logic is organized into **Plugins** and **Workflows**. |
+| **Security Holes** | Security is injected by the **Kernel** (RBAC, FLS), not written in controllers. |
+| **Offline Sync** | Built-in **Sync Engine** handles the complexity of local-first data. |
+| **Vendor Lock-in** | The OS abstracts the underlying infrastructure (DB, File Storage). |
+
+## Next Steps
+
+* **[Plugin System](plugin-manifest)**: How to build extensions.
+* **[Workflow Engine](workflow-engine)**: Automating business processes.
+* **[Sync Protocol](integration-etl)**: Understanding the replication mechanism.
+* **[Security Model](permission-governance)**: Authentication and RBAC deep dive.

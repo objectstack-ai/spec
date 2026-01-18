@@ -1,0 +1,373 @@
+---
+title: The AI Codex
+description: Best practices for AI-assisted ObjectStack development
+---
+
+# The AI Codex
+
+This guide helps developers leverage AI tools to enhance ObjectStack development efficiency.
+
+## Why AI Collaboration
+
+ObjectStack, as a protocol-driven platform, involves a lot of:
+- Schema definitions
+- UI protocol configurations
+- Repetitive CRUD code
+- API documentation generation
+
+These are all well-suited for AI assistance, significantly improving development efficiency.
+
+## Core Terminology
+
+Using consistent terminology when collaborating with AI is crucial. Here are ObjectStack's core terms:
+
+### Data Layer Terms
+
+- **Schema**: Data model definition in JSON format describing table structure
+- **Object**: Business object, corresponding to database table
+- **Field**: Object field, corresponding to database column
+- **Reference**: Relationship field, used to establish associations between objects
+- **Virtual Field**: Computed field not stored in database
+
+### Query Layer Terms
+
+- **ObjectQL**: Unified cross-database query language
+- **Query DSL**: Query Domain-Specific Language
+- **Filter**: Query filter conditions
+- **Aggregation**: Aggregation queries
+- **Driver**: Database driver, e.g., `@objectql/driver-mysql`
+
+### UI Layer Terms
+
+- **ObjectUI**: JSON-driven UI protocol
+- **Component**: Components like Form, Table, Card, etc.
+- **Action**: Interactive actions like API requests, page navigation, etc.
+- **Renderer**: Converts JSON protocol to actual UI
+
+### Platform Layer Terms
+
+- **ObjectOS**: Runtime platform
+- **Plugin**: Extension for functionality
+- **Hook**: Lifecycle hooks like beforeInsert, afterUpdate
+- **RBAC**: Role-Based Access Control
+- **FLS**: Field-Level Security
+
+## AI-Assisted Schema Design
+
+### Prompt Template
+
+```
+I need to create a Schema for [business scenario] in ObjectStack.
+
+Business requirements:
+- [Requirement 1]
+- [Requirement 2]
+- [Requirement 3]
+
+Please generate a JSON Schema compliant with ObjectStack specifications, including:
+1. All necessary field definitions
+2. Field types (text, number, date, reference, etc.)
+3. Field constraints (required, unique, etc.)
+4. Relationship definitions between objects
+```
+
+### Example Conversation
+
+**User**:
+```
+I need to create a Schema for an e-commerce order management system in ObjectStack.
+
+Business requirements:
+- Manage customer information (name, phone, email)
+- Manage product information (name, price, stock)
+- Manage orders (order number, customer, product list, total amount, status)
+- Order statuses include: pending, paid, shipped, completed, cancelled
+
+Please generate a JSON Schema compliant with ObjectStack specifications.
+```
+
+**AI Response**:
+```json
+{
+  "objects": {
+    "customers": {
+      "label": "Customer",
+      "fields": {
+        "name": { "type": "text", "label": "Name", "required": true },
+        "phone": { "type": "text", "label": "Phone" },
+        "email": { "type": "email", "label": "Email", "unique": true }
+      }
+    },
+    "products": {
+      "label": "Product",
+      "fields": {
+        "name": { "type": "text", "label": "Product Name", "required": true },
+        "price": { "type": "number", "label": "Price", "required": true },
+        "stock": { "type": "number", "label": "Stock", "default": 0 }
+      }
+    },
+    "orders": {
+      "label": "Order",
+      "fields": {
+        "order_no": { "type": "text", "label": "Order Number", "unique": true },
+        "customer": { "type": "reference", "ref": "customers", "label": "Customer" },
+        "items": { "type": "grid", "label": "Order Items", "fields": {
+          "product": { "type": "reference", "ref": "products" },
+          "quantity": { "type": "number", "default": 1 },
+          "price": { "type": "number" }
+        }},
+        "total": { "type": "number", "label": "Total Amount" },
+        "status": { 
+          "type": "select", 
+          "label": "Status",
+          "options": ["pending", "paid", "shipped", "completed", "cancelled"],
+          "default": "pending"
+        }
+      }
+    }
+  }
+}
+```
+
+## AI-Assisted UI Protocol Generation
+
+### Prompt Template
+
+```
+I need to create ObjectUI protocol for [object name].
+
+UI requirements:
+- [UI requirement 1]
+- [UI requirement 2]
+
+Please generate JSON protocol compliant with ObjectStack ObjectUI specifications.
+```
+
+### Example Conversation
+
+**User**:
+```
+I need to create a list page and detail form for the orders object.
+
+UI requirements:
+- List page displays order number, customer name, total amount, status
+- Support filtering by status
+- Clicking an order shows details
+- Detail form can edit order status
+```
+
+**AI Response**:
+```json
+{
+  "pages": {
+    "order_list": {
+      "type": "page",
+      "title": "Order List",
+      "components": [
+        {
+          "type": "table",
+          "object": "orders",
+          "columns": [
+            { "field": "order_no", "label": "Order No" },
+            { "field": "customer.name", "label": "Customer" },
+            { "field": "total", "label": "Total" },
+            { "field": "status", "label": "Status" }
+          ],
+          "filters": [
+            { "field": "status", "type": "select", "label": "Status" }
+          ],
+          "actions": [
+            { "type": "navigate", "target": "order_detail", "label": "View" }
+          ]
+        }
+      ]
+    },
+    "order_detail": {
+      "type": "page",
+      "title": "Order Detail",
+      "components": [
+        {
+          "type": "form",
+          "object": "orders",
+          "fields": [
+            { "name": "order_no", "label": "Order No", "readonly": true },
+            { "name": "customer", "label": "Customer", "readonly": true },
+            { "name": "total", "label": "Total", "readonly": true },
+            { "name": "status", "label": "Status", "type": "select" }
+          ],
+          "actions": [
+            { "type": "submit", "label": "Save" }
+          ]
+        }
+      ]
+    }
+  }
+}
+```
+
+## AI-Assisted Plugin Development
+
+### Prompt Template
+
+```
+I need to develop a server-side plugin for ObjectStack.
+
+Functional requirements:
+- [Requirement description]
+
+Please generate code compliant with ObjectStack plugin specifications, including:
+1. Plugin entry file
+2. Necessary lifecycle hooks
+3. Error handling
+```
+
+### Example Code Generation
+
+**User**:
+```
+I need to develop a plugin that automatically sends email notifications after order creation.
+```
+
+**AI Response**:
+```javascript
+// plugins/order-notification.js
+module.exports = {
+  name: 'order-notification',
+  
+  hooks: {
+    afterInsert: async (context, object, record) => {
+      if (object === 'orders') {
+        const { customer, total, order_no } = record;
+        
+        // Query customer email
+        const customerData = await context.db.query({
+          object: 'customers',
+          filters: { _id: customer },
+          fields: ['email', 'name']
+        });
+        
+        if (customerData && customerData[0]?.email) {
+          await context.email.send({
+            to: customerData[0].email,
+            subject: `Order Confirmation - ${order_no}`,
+            body: `
+              Dear ${customerData[0].name},
+              
+              Your order ${order_no} has been created successfully.
+              Order amount: $${total}
+              
+              Thank you for your purchase!
+            `
+          });
+        }
+      }
+    }
+  }
+};
+```
+
+## AI-Assisted Documentation Generation
+
+### Auto-Generate API Documentation
+
+Use TypeDoc or JSDoc to automatically generate documentation from code comments:
+
+```typescript
+/**
+ * Query object data
+ * @param {Object} options - Query options
+ * @param {string} options.object - Object name
+ * @param {Object} options.filters - Filter conditions
+ * @param {Object} options.sort - Sort rules
+ * @param {number} options.limit - Limit count
+ * @returns {Promise<Array>} Query results
+ * 
+ * @example
+ * const users = await db.query({
+ *   object: 'users',
+ *   filters: { age: { $gt: 18 } },
+ *   sort: { created_at: 'desc' },
+ *   limit: 10
+ * });
+ */
+async function query(options) {
+  // Implementation code
+}
+```
+
+Then run:
+```bash
+npx typedoc --out docs/api src/
+```
+
+## Best Practices
+
+### 1. Clear Context
+
+When conversing with AI, clearly specify:
+- Using ObjectStack concepts
+- Protocol specifications to follow
+- Target database type (if special requirements)
+
+### 2. Provide Complete Information
+
+Including:
+- Detailed description of business requirements
+- Relationships between data models
+- UI interaction flows
+- Special business rules
+
+### 3. Validate Generated Code
+
+AI-generated code needs:
+- Verification of ObjectStack compliance
+- Functional testing
+- Security and performance review
+
+### 4. Iterative Optimization
+
+If results are not ideal:
+- Provide more specific requirements
+- Give examples or references
+- Break down requirements step by step
+
+## Recommended Tools
+
+### Code Generation
+- **GitHub Copilot**: Code completion and generation
+- **ChatGPT / Claude**: Architecture design and problem solving
+- **Cursor**: AI-assisted programming IDE
+
+### Documentation Generation
+- **TypeDoc**: TypeScript API documentation
+- **JSDoc**: JavaScript API documentation
+- **Swagger/OpenAPI**: REST API documentation
+
+### Testing Assistance
+- **AI-generated test cases**: Cover edge cases
+- **AI code review**: Discover potential issues
+
+## Considerations
+
+### ⚠️ AI Limitations
+
+- AI may generate code not compliant with latest specifications
+- Manual verification of business logic correctness needed
+- Complex architecture design still requires human decision-making
+
+### ✅ AI Advantages
+
+- Quickly generate repetitive code
+- Provide multiple implementation options
+- Assist documentation writing
+- Code refactoring suggestions
+
+## Summary
+
+AI is a powerful assistant for ObjectStack development, but not a replacement. Best practices:
+
+1. **Use AI to accelerate**: Schema definitions, UI protocols, repetitive code
+2. **Manual review**: Business logic, security, performance optimization
+3. **Continuous learning**: Understand AI capabilities and boundaries, use appropriately
+
+By properly using AI tools, development efficiency can be improved 3-5x, allowing developers to focus more on core business logic.

@@ -1,0 +1,450 @@
+---
+title: The ObjectStack Manifesto
+description: The unshakable core principles that govern ObjectStack's existence and evolution
+---
+
+# The ObjectStack Manifesto
+
+ObjectStack exists to return data application development to its essence. To maintain a healthy and open ecosystem, we pledge to uphold the following unshakable core principles:
+
+## Principle I: Protocol Neutrality
+
+### The Principle
+
+**ObjectQL is neutral**: It must not contain any logic specific to a particular language (e.g., Node.js), database (e.g., MySQL), or runtime (e.g., Electron).
+
+### Standards First
+
+**Spec before Engine**: Any feature must first be defined in the Specification layer before being implemented in the Engine layer. We reject the "implement first, standardize later" black-box approach.
+
+### What This Means
+
+ObjectStack's protocol layer (ObjectQL, ObjectUI) consists purely of specification definitions, with no concrete implementation. This ensures:
+
+- ObjectQL protocol can have multiple implementations (JavaScript, Python, Java, etc.)
+- ObjectUI protocol can have multiple renderers (React, Vue, Angular, etc.)
+- Underlying databases can be switched freely (MySQL, PostgreSQL, Oracle, etc.)
+
+### Practice Guidelines
+
+**When designing protocols**:
+- Use standard JSON Schema format
+- Avoid introducing language or concepts-specific concepts
+- Keep protocols simple and extensible
+- Define in Spec layer first, implement in Engine layer second
+
+**When developing implementations**:
+- Strictly follow protocol specifications
+- Validate protocol compatibility through test suites
+- Implementations should be interchangeable without affecting applications
+- No implementation-specific logic should leak into the protocol layer
+
+### Example
+
+```json
+{
+  "type": "query",
+  "object": "users",
+  "filters": {
+    "age": { "$gt": 18 }
+  },
+  "sort": { "created_at": "desc" },
+  "limit": 10
+}
+```
+
+This ObjectQL query protocol can be:
+- Transpiled to MySQL queries by JavaScript implementation
+- Transpiled to PostgreSQL queries by Python implementation
+- Transpiled to Oracle queries by Java implementation
+
+**The protocol remains neutral; the implementation is replaceable.**
+
+## Principle II: Mechanism over Policy
+
+### The Principle
+
+**ObjectQL provides mechanisms only**: It defines the `allowRead` interface, but never mandates where user data must exist.
+
+**ObjectOS provides implementations**: User systems, file storage, and multi-tenancy logic belong to the OS layer. Polluting the Protocol layer with these is strictly forbidden.
+
+### Separation of Concerns
+
+We completely separate "what to do" (mechanism) from "how to do it" (policy/implementation).
+
+Developers only need to:
+- Define data models (Schema)
+- Define interface structure (UI Protocol)
+- Define business rules (Validation Rules)
+
+Without worrying about:
+- How data is stored
+- How interfaces are rendered
+- How queries are optimized
+- How permissions are enforced
+
+### Practice Guidelines
+
+**Schema Definition** (Mechanism):
+
+```json
+{
+  "object": "orders",
+  "fields": {
+    "order_id": { "type": "text", "primary": true },
+    "customer": { "type": "reference", "ref": "customers" },
+    "total": { "type": "number" },
+    "status": { "type": "select", "options": ["pending", "completed"] }
+  },
+  "permissions": {
+    "allowRead": "{{ formula }}"
+  }
+}
+```
+
+The protocol defines the **mechanism** (`allowRead` interface), while ObjectOS provides the **implementation** (user authentication, data filtering).
+
+Developers only define the data model and permissions interface, and the system automatically:
+- Creates database table structure
+- Generates CRUD APIs
+- Provides data validation
+- Establishes relationship mappings
+- Enforces permission rules
+
+**UI Definition** (Mechanism):
+
+```json
+{
+  "type": "page",
+  "components": [
+    {
+      "type": "form",
+      "fields": [
+        { "name": "customer", "label": "Customer", "type": "select" },
+        { "name": "total", "label": "Total", "type": "number" }
+      ]
+    }
+  ]
+}
+```
+
+Developers only define the interface structure, and the system automatically:
+- Renders form components
+- Handles data binding
+- Executes form validation
+- Manages state updates
+
+### Why This Matters
+
+1. **Protocol layer stays pure**: ObjectQL defines mechanisms like `allowRead`, not policies like "must use JWT authentication"
+2. **Implementation flexibility**: ObjectOS can implement user systems using JWT, OAuth, or custom solutions
+3. **No vendor lock-in**: User system logic belongs to OS layer, not hardcoded in protocol
+4. **Clear boundaries**: Mechanism (ObjectQL) vs. Implementation (ObjectOS) separation is strictly enforced
+
+### ❌ What We Reject
+
+**Bad Example**: Adding user authentication logic directly to ObjectQL protocol
+```json
+// ❌ FORBIDDEN: This pollutes the protocol layer
+{
+  "object": "users",
+  "authentication": {
+    "provider": "jwt",
+    "secret": "hardcoded-secret"
+  }
+}
+```
+
+**Good Example**: ObjectQL defines mechanism, ObjectOS provides implementation
+```json
+// ✅ CORRECT: Protocol defines the mechanism
+{
+  "object": "users",
+  "permissions": {
+    "allowRead": "{{ currentUser.id === record.id }}"
+  }
+}
+
+// ObjectOS implementation (separate layer) handles:
+// - What is "currentUser"?
+// - How is authentication performed?
+// - Where is user data stored?
+```
+
+## Principle III: Data Sovereignty
+
+### The Principle
+
+**Local-First**: All architectural designs must prioritize "offline availability". Any core functionality that depends on cloud connectivity to operate is **forbidden**.
+
+**Portability**: User data (Schema + Data) must be exportable in standard file formats (.oos / .json), never locked into any specific vendor's cloud platform.
+
+### Core Philosophy
+
+**"Data belongs to users, not platforms"**
+
+ObjectStack adheres to the Local-First philosophy:
+- Data is stored locally by default
+- Users can choose their own database
+- No mandatory cloud service binding
+- Supports fully offline data operation
+- Complete data portability guaranteed
+
+### Practice Guidelines
+
+**Local-First Architecture**:
+
+1. **Standalone Mode**:
+   - Use .oos files to store data (based on SQLite)
+   - Data completely local, no network required
+   - Suitable for personal application scenarios
+   - Works offline by design
+
+2. **Self-Hosted Mode**:
+   - Deploy to enterprise's own servers
+   - Use enterprise's existing databases (MySQL, Oracle, etc.)
+   - Enterprise has complete data control
+   - No dependency on external services
+
+3. **Hybrid Mode**:
+   - Local-first with optional cloud sync
+   - Supports end-to-end encryption
+   - Users can export data anytime
+   - Cloud is enhancement, not requirement
+
+### Data Migration Freedom
+
+**Zero-Friction Migration**:
+
+```bash
+# Export data in standard format
+objectstack export --format json --output my-data.json
+
+# Migrate from SQLite to MySQL
+objectstack migrate --from sqlite://app.oos --to mysql://localhost/mydb
+
+# Migrate from MySQL to PostgreSQL
+objectstack migrate --from mysql://... --to postgresql://...
+
+# Export as portable .oos file
+objectstack export --format oos --output my-app.oos
+```
+
+Due to protocol layer abstraction, data can freely migrate between different databases without vendor lock-in. User data (Schema + Data) can always be exported in standard formats.
+
+### What Is Forbidden
+
+❌ **Prohibited**: Core features that require cloud connectivity
+```
+// ❌ FORBIDDEN
+"This feature requires internet connection to function"
+"Data must be stored on our cloud servers"
+"Offline mode is not supported"
+```
+
+✅ **Required**: Core features must work offline
+```
+// ✅ CORRECT
+"Works offline by default, cloud sync is optional"
+"Data stored locally, you own and control it"
+"Export your data anytime in .oos or .json format"
+```
+
+### Privacy Protection
+
+- **Field-level encryption**: Sensitive fields can be encrypted in storage
+- **Field-level permissions**: Fine-grained data access control
+- **Audit logs**: Complete data access records
+- **Data erasure**: Support for complete user data deletion
+- **No telemetry lock-in**: Users control what data is shared
+
+### Open Source Commitment
+
+- Core protocol layer (ObjectQL, ObjectUI) uses MIT/Apache 2.0 open source license
+- Ensures protocol specifications are permanently open
+- Community can freely implement compatible engines
+- Avoids single vendor control
+- Data formats are publicly documented and open
+
+## Principle IV: Stability Pledge
+
+### The Principle
+
+**As foundational infrastructure, we pledge the stability of ObjectQL's core syntax.** For breaking changes, we will provide at least 2 major version migration windows.
+
+### Version Compatibility Commitment
+
+ObjectStack is not a typical application—it's infrastructure. Applications built on ObjectStack must have confidence that their foundation is stable.
+
+**Our Promise**:
+1. **Core syntax stability**: ObjectQL query syntax, schema definitions, and protocol formats are stable
+2. **Migration window**: Breaking changes require at least 2 major versions notice
+3. **Deprecation path**: Features marked deprecated will be supported for at least 2 major versions
+4. **Backward compatibility**: New features are additive, not destructive
+
+### What This Means in Practice
+
+**Version Policy**:
+- **Patch versions** (1.0.x): Bug fixes only, zero breaking changes
+- **Minor versions** (1.x.0): New features, backward compatible
+- **Major versions** (x.0.0): May include breaking changes, but with migration path
+
+**Breaking Change Process**:
+1. **Version N**: Feature marked as deprecated, warning added
+2. **Version N+1**: Deprecation warning continues, migration guide provided
+3. **Version N+2**: Feature can be removed, but migration tool provided
+
+**Example Timeline**:
+```
+v1.0.0: Feature X works normally
+v2.0.0: Feature X deprecated, warning added
+       "⚠️ Feature X is deprecated, use Feature Y instead"
+       Both X and Y work
+v3.0.0: Feature X still works with warning
+       Migration guide and automated migration tool provided
+v4.0.0: Feature X can be removed
+       Migration tool continues to work
+```
+
+### What We Guarantee
+
+✅ **Stable Core**:
+- ObjectQL query syntax
+- Schema definition format
+- Protocol message structure
+- Data type system
+- Permission model interface
+
+✅ **Migration Support**:
+- Automated migration tools
+- Comprehensive migration guides
+- Version compatibility testing
+- Community support during migrations
+
+### What Can Change
+
+The following can evolve without the 2-version window:
+- **Implementation details**: How engines execute queries internally
+- **Performance optimizations**: Query optimization strategies
+- **New features**: Additive features that don't break existing code
+- **Bug fixes**: Corrections to unintended behavior
+- **Documentation**: Clarifications and improvements
+
+### Why This Matters
+
+As infrastructure, ObjectStack powers applications that may live for years or decades. Breaking compatibility casually would:
+- ❌ Destroy trust in the platform
+- ❌ Force costly rewrites on users
+- ❌ Create fragmentation in the ecosystem
+- ❌ Violate the data sovereignty principle
+
+Our stability pledge ensures:
+- ✅ Long-term confidence in ObjectStack
+- ✅ Predictable upgrade paths
+- ✅ Lower total cost of ownership
+- ✅ Ecosystem coherence
+
+### Compatibility Testing
+
+Every ObjectStack release includes:
+- Backward compatibility test suite
+- Migration path validation
+- Version compatibility matrix
+- Breaking change documentation
+
+## The Unshakable Foundation
+
+These four principles are not technical details—they are **ObjectStack's core values**:
+
+1. **Protocol Neutrality**: Ensures freedom of technology choice
+2. **Mechanism over Policy**: Ensures clean architecture and flexibility
+3. **Data Sovereignty**: Ensures user rights and data freedom
+4. **Stability Pledge**: Ensures long-term reliability and trust
+
+Features that violate these principles, even if they have short-term benefits, **must not** be added to ObjectStack.
+
+## Design Decision Examples
+
+### ✅ Compliant Design
+
+**Scenario**: Adding full-text search functionality
+
+**Decision**:
+- Define unified full-text search syntax in protocol layer (Principle I: Protocol Neutrality)
+- Allow different implementations to use different search engines (Elasticsearch, Meilisearch, etc.)
+- Users can choose the search solution that suits them (Principle III: Data Sovereignty)
+- Keep search syntax backward compatible (Principle IV: Stability Pledge)
+
+**Why it complies**:
+- Protocol layer defines mechanism, not implementation
+- No vendor lock-in
+- Works offline with local search index
+- Stable, documented syntax
+
+### ❌ Non-Compliant Design
+
+**Scenario**: Adding cloud storage functionality
+
+**Decision**:
+- Mandatory use of a specific cloud service provider
+- Data must be uploaded to platform servers
+- No local storage option provided
+- Core features require internet connection
+
+**Why it violates**:
+- ❌ Violates Protocol Neutrality (Principle I): Binding to specific provider
+- ❌ Violates Data Sovereignty (Principle III): Mandatory cloud storage, requires internet
+- ❌ Violates Local-First mandate: Core feature depends on cloud connectivity
+
+**Compliant Alternative**:
+- Define storage abstraction protocol
+- Support local storage (SQLite, file system) as default
+- Cloud storage as optional plugin
+- All features work offline first
+
+## Practice Checklist
+
+When designing new features, ask yourself:
+
+**Protocol Neutrality**:
+- [ ] Is this feature defined in the Spec layer first?
+- [ ] Does it avoid language/database/runtime-specific logic?
+- [ ] Can it have multiple implementations?
+
+**Mechanism over Policy**:
+- [ ] Does it define mechanism (interface) rather than policy (implementation)?
+- [ ] Is implementation logic properly separated into ObjectOS layer?
+- [ ] Does it avoid polluting the Protocol layer?
+
+**Data Sovereignty**:
+- [ ] Does it work offline (Local-First)?
+- [ ] Can users export their data in standard formats?
+- [ ] Does it avoid vendor lock-in?
+- [ ] Do users maintain complete control over their data?
+
+**Stability Pledge**:
+- [ ] Is it backward compatible?
+- [ ] If breaking, is there a 2-version migration path?
+- [ ] Is the change documented with migration guide?
+
+## Enforcement
+
+This manifesto is enforced through:
+
+1. **Code Review**: All contributions must comply with these principles
+2. **Architecture Review**: Major features reviewed against manifesto
+3. **Community Governance**: Manifesto violations can be raised by anyone
+4. **Documentation**: All new features documented with manifesto compliance rationale
+
+## Summary
+
+The ObjectStack Manifesto is not just a technical guide—it's a **declaration of values**. It ensures:
+
+- **Technical Freedom**: Developers can choose the most suitable technology stack
+- **Architectural Purity**: Clean separation between mechanism and implementation
+- **Data Freedom**: Users fully own and control their data
+- **Evolution Freedom**: System can continuously evolve without breaking compatibility
+
+These principles are what fundamentally distinguish ObjectStack from other platforms. They are **unshakable** and **non-negotiable**.
+
+When in doubt, return to these four principles. They are the foundation upon which ObjectStack is built, and the promise we make to everyone who builds on ObjectStack.

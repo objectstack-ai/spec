@@ -1,0 +1,184 @@
+---
+title: Complex View Protocol
+description: "The specification for high-density collection views: Data Grid, Kanban, Gantt, and Calendar."
+---
+
+# Complex View Protocol
+
+While Basic Components deal with a single field, **Views** deal with **Collections** of records.
+
+ObjectUI defines a standard set of "Super Components" capable of visualizing lists of data. These are not just static tables; they are fully interactive engines supporting **Server-Side Pagination**, **Sorting**, **Filtering**, and **Inline Editing**.
+
+## 1. The Data Grid (`view.grid`)
+
+The Data Grid is the bread and butter of enterprise software. It maps an ObjectQL query result to a tabular layout.
+
+
+
+### Schema Definition
+
+```json
+{
+  "type": "view.grid",
+  "props": {
+    "object": "project", // The ObjectQL Data Source
+    "filter": [["status", "=", "active"]], // Default Scope
+    "columns": [
+      { 
+        "field": "name", 
+        "label": "Project Name", 
+        "width": 200, 
+        "sortable": true 
+      },
+      { 
+        "field": "budget", 
+        "type": "currency",
+        "aggregates": "sum" // Show total at footer
+      },
+      { 
+        "field": "owner.name", // Relational dot-notation
+        "label": "Owner" 
+      },
+      {
+        "field": "progress",
+        "type": "progress_bar" // Custom cell renderer
+      }
+    ],
+    "selection": "multiple", // checkbox | single | none
+    "actions": [
+      { "label": "Delete", "action": "delete_selected" },
+      { "label": "Export CSV", "action": "export_grid" }
+    ]
+  }
+}
+
+```
+
+### Key Capabilities
+
+* **Virtualization:** Can handle 10,000+ rows smoothly by only rendering the visible viewport.
+* **Server-Side State:** Sorting (`onClick` header) and Pagination (`Page 2`) automatically trigger new ObjectQL queries via the Engine.
+* **Inline Editing:** If `editable: true` is set on a column, the Grid switches the cell to an Input component on double-click.
+
+## 2. The Kanban Board (`view.kanban`)
+
+Visualizes work processes. It transforms a standard list into columns based on a `select` or `lookup` field.
+
+### Schema Definition
+
+```json
+{
+  "type": "view.kanban",
+  "props": {
+    "object": "task",
+    "group_by": "status", // The column driver (Todo, Doing, Done)
+    "columns": ["todo", "doing", "done"], // Explicit order
+    "card_template": {
+      "title": "{subject}",
+      "subtitle": "{due_date}",
+      "tags": ["priority"], // Renders colorful badges
+      "avatar": "owner.avatar_url",
+      "cover": "attachment_image"
+    }
+  }
+}
+
+```
+
+### Interaction Protocol
+
+* **Drag & Drop:** Moving a card from "Todo" to "Done" automatically dispatches an ObjectQL mutation: `UPDATE task SET status = 'done' WHERE id = ...`.
+* **Swimlanes:** Supports specific filtering to slice the board horizontally (e.g., swimlanes by "Assignee").
+
+## 3. The Gantt Chart (`view.gantt`)
+
+The most complex view to build manually. ObjectUI abstracts the timeline logic, dependencies, and critical path calculations.
+
+### Schema Definition
+
+```json
+{
+  "type": "view.gantt",
+  "props": {
+    "object": "project_task",
+    "mappings": {
+      "id": "_id",
+      "start_date": "start_at",
+      "end_date": "end_at",
+      "progress": "percent_complete",
+      "dependencies": "predecessors", // Links tasks (Finish-to-Start)
+      "parent": "parent_task" // For tree hierarchy
+    },
+    "scales": ["day", "week", "month"],
+    "work_days": ["Mon", "Tue", "Wed", "Thu", "Fri"]
+  }
+}
+
+```
+
+### Auto-Scheduling
+
+If configured, dragging a bar in the Gantt chart updates the `start_at` and `end_at` fields in the database. If dependencies are enabled, ObjectOS can trigger a "Reschedule" calculation to shift dependent tasks downstream.
+
+## 4. The Calendar (`view.calendar`)
+
+For resource scheduling, event management, and personal agendas.
+
+### Schema Definition
+
+```json
+{
+  "type": "view.calendar",
+  "props": {
+    "object": "event",
+    "mappings": {
+      "title": "subject",
+      "start": "start_time",
+      "end": "end_time",
+      "all_day": "is_all_day",
+      "color": "category_color" // Dynamic coloring
+    },
+    "default_view": "month",
+    "allow_resize": true // Drag bottom of event to change duration
+  }
+}
+
+```
+
+## 5. View Containers (The Wrapper)
+
+Views rarely exist in isolation. They are usually wrapped in a **View Container** that provides the standard "ERP Toolbar".
+
+```json
+{
+  "type": "layout.view_container",
+  "props": {
+    "title": "All Projects",
+    "searchable": true, // Adds global search bar
+    "filterable": true, // Adds filter builder button
+    "creatable": true   // Adds "New Project" button
+  },
+  "children": [
+    // The user can switch between these views using tabs
+    { "type": "view.grid", "label": "List" },
+    { "type": "view.kanban", "label": "Board" },
+    { "type": "view.gantt", "label": "Timeline" }
+  ]
+}
+
+```
+
+## Summary
+
+The ObjectUI View Protocol transforms complex data visualization into simple configuration.
+
+| View Type | Primary Use Case | Key Configuration |
+| --- | --- | --- |
+| **Grid** | High-density data management, Bulk actions. | `columns`, `sort` |
+| **Kanban** | Process tracking, Status movement. | `group_by`, `card_template` |
+| **Gantt** | Project scheduling, Dependency visualization. | `start_date`, `end_date`, `dependencies` |
+| **Calendar** | Time management, Booking. | `start`, `end`, `view_mode` |
+
+:::tip Performance
+All views in ObjectUI are **Lazy Loaded**. Even if you have 1 million Tasks, the Grid only fetches the first 50. The Gantt only fetches tasks within the visible time range. This ensures the UI remains snappy regardless of database size.
+:::

@@ -1,0 +1,201 @@
+---
+title: Report & PDF Protocol
+description: The specification for generating pixel-perfect printable documents (Invoices, Contracts) using HTML/CSS templates.
+---
+
+# Report & PDF Protocol
+
+In Enterprise software, the ability to generate **Pixel-Perfect Documents**—Invoices, Packing Slips, Contracts, and Purchase Orders—is critical.
+
+ObjectUI abandons proprietary binary formats (like Crystal Reports) in favor of **Standard Web Technologies**. We use HTML/CSS for layout and a templating engine (Handlebars/Liquid) for data injection, rendered server-side into PDF.
+
+## 1. The Template Definition
+
+A Report Template is stored as a metadata record. It defines the structure and style of the output document.
+
+### Schema Structure
+
+```yaml
+# templates/invoice.report.yml
+name: invoice_standard
+label: Standard Invoice (A4)
+object: invoice          # The data context
+engine: handlebars       # or 'liquid'
+orientation: portrait
+format: A4
+header_height: 30mm
+footer_height: 20mm
+
+```
+
+### The Layout (HTML + CSS)
+
+ObjectUI relies on **Paged Media CSS** (`@page`) to control physical paper properties.
+
+```html
+<div class="invoice-box">
+  <table cellpadding="0" cellspacing="0">
+    <tr class="top">
+      <td class="title">
+        <img src="{{company.logo_url}}" style="width:100%; max-width:300px;">
+      </td>
+      <td>
+        Invoice #: {{record.name}}<br>
+        Created: {{formatDate record.created_at "YYYY-MM-DD"}}<br>
+      </td>
+    </tr>
+  </table>
+  
+  <table class="items">
+    <tr class="heading">
+      <td>Item</td>
+      <td>Price</td>
+    </tr>
+    {{#each record.lines}}
+    <tr class="item">
+      <td>{{this.product_name}}</td>
+      <td>{{formatCurrency this.amount}}</td>
+    </tr>
+    {{/each}}
+  </table>
+</div>
+
+```
+
+```css
+/* Style Template */
+@page {
+  size: A4;
+  margin: 20mm;
+}
+.invoice-box {
+  max-width: 800px;
+  margin: auto;
+  font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+}
+/* ... standard CSS ... */
+
+```
+
+## 2. The Data Context
+
+When a report is generated, the ObjectQL Engine prepares a **Context Object**. This is the data available to your template variables `{{...}}`.
+
+### Automatic Context
+
+1. **`record`**: The current record being printed (e.g., the Invoice).
+2. **`user`**: The user generating the report (e.g., "Printed by Alice").
+3. **`company`**: Global tenant settings (Logo, Address, Tax ID).
+4. **`related`**: If configured, ObjectQL automatically fetches related lists (e.g., `invoice.lines`).
+
+### Data Fetching Configuration
+
+You can define an ObjectQL query to inject complex data that isn't directly on the record.
+
+```yaml
+# In the report definition
+data_query:
+  lines: 
+    object: invoice_line
+    filters: [["invoice_id", "=", "${record._id}"]]
+    sort: [["line_number", "asc"]]
+  history:
+    object: payment_history
+    filters: [["invoice_id", "=", "${record._id}"]]
+
+```
+
+## 3. The Generation Protocol
+
+How does the client request a PDF? It sends a standard Action.
+
+### Single Record Print
+
+The most common use case: "Print this Invoice".
+
+```json
+{
+  "action": "report.generate",
+  "params": {
+    "template": "invoice_standard",
+    "record_id": "inv_12345",
+    "format": "pdf", // pdf, html, png
+    "download": true // true = file download, false = open in new tab
+  }
+}
+
+```
+
+### Batch Printing
+
+Printing multiple records into a single merged PDF (e.g., "Print all Invoices for this month").
+
+```json
+{
+  "action": "report.generate_batch",
+  "params": {
+    "template": "packing_slip",
+    "filters": [["status", "=", "ready_to_ship"]],
+    "sort": [["customer_name", "asc"]]
+  }
+}
+
+```
+
+## 4. Special Features
+
+### Barcodes & QR Codes
+
+Enterprise reports often need machine-readable codes. The rendering engine provides built-in helpers.
+
+* **Syntax:** `{{qrCode record.tracking_number size=100}}`
+* **Syntax:** `{{barcode record.sku type="code128"}}`
+
+### Watermarking
+
+For draft or confidential documents.
+
+```yaml
+watermark:
+  text: "DRAFT"
+  opacity: 0.1
+  color: "#FF0000"
+  rotation: -45
+  condition: "record.status != 'paid'" # Logic-driven
+
+```
+
+### Digital Signatures
+
+The protocol supports placeholder zones for E-Signature integrations (like DocuSign).
+
+```html
+<div class="signature-box" data-sign-role="customer">
+  X __________________________
+</div>
+
+```
+
+## 5. Architecture: Headless Rendering
+
+How does it work under the hood?
+
+1. **Request:** ObjectUI sends the request to ObjectOS.
+2. **Data:** ObjectOS executes the ObjectQL queries to fetch the data context.
+3. **Merge:** The Templating Engine (Handlebars) merges Data + HTML.
+4. **Render:** ObjectOS spins up a **Headless Browser** (e.g., Puppeteer or Playwright).
+5. **Print:** The Headless Browser renders the HTML and executes the Chrome "Print to PDF" function.
+6. **Stream:** The binary PDF stream is sent back to the client.
+
+## Summary
+
+| Feature | ObjectUI Protocol | Traditional Reports |
+| --- | --- | --- |
+| **Technology** | Standard HTML/CSS | Proprietary Layouts |
+| **Data Source** | ObjectQL Context | Complex SQL Queries |
+| **Logic** | Handlebars/Liquid | Proprietary Scripting |
+| **Output** | PDF / HTML / Image | PDF Only |
+
+:::tip Customization
+Because templates are HTML/CSS, you can let end-users (who know basic web design) customize their own invoice layouts without needing a specialized developer.
+:::

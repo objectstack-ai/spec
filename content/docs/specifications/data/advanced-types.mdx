@@ -1,0 +1,158 @@
+---
+title: Advanced Types
+description: "Deep dive into Enterprise Data Types: Currency, Lookup, Formulas, and Summaries."
+---
+
+# Advanced Enterprise Types
+
+While basic types like `text` and `boolean` handle standard data, Enterprise applications require specialized types to handle money, relationships, and on-the-fly calculations.
+
+ObjectQL provides these "Smart Types" out of the box. They are not just storage definitions; they carry **Logic** and **Compilation Rules** that the engine enforces automatically.
+
+## 1. Currency (High-Precision Money)
+
+In financial systems, floating-point math (e.g., `0.1 + 0.2`) is dangerous due to rounding errors. ObjectQL's `currency` type ensures mathematical exactness.
+
+### Definition
+
+```yaml
+fields:
+  amount:
+    type: currency
+    label: Invoice Amount
+    precision: 18  # Total digits
+    scale: 2       # Decimal places
+    required: true
+
+```
+
+### Protocol Behavior
+
+* **Storage:** Compiles to `DECIMAL(18,2)` in SQL or `Decimal128` in MongoDB. It never uses `FLOAT` or `DOUBLE`.
+* **Runtime:** In the TypeScript runtime, values are treated as **Strings** or **BigInt** wrappers to prevent JavaScript's `number` type from introducing precision loss during API serialization.
+* **Formatting:** ObjectUI automatically renders this with the correct locale symbol (e.g., `$1,000.00`) based on the system configuration.
+
+## 2. Lookup (Foreign Key Relationships)
+
+The `lookup` type defines a Many-to-One relationship. Unlike simple SQL Foreign Keys, ObjectQL Lookups support **Polymorphism** and **Virtual Expansion**.
+
+### Definition
+
+```yaml
+fields:
+  owner:
+    type: lookup
+    reference_to: users
+    label: Project Owner
+    index: true
+
+```
+
+### Advanced: Polymorphic Lookups
+
+ObjectQL allows a field to point to *multiple* types of objects. This is essential for CRM features like "Regarding" on a Task (which could link to a Lead, Account, or Opportunity).
+
+```yaml
+fields:
+  related_to:
+    type: lookup
+    reference_to: [lead, account, opportunity] # Polymorphic Array
+
+```
+
+### Under the Hood
+
+* **Compiler:** When you query a Lookup field, the engine does not just return the ID. It allows for **Graph Expansion**:
+```json
+// Query Intent
+{ "expand": ["owner"] }
+
+```
+
+
+The compiler translates this into a highly optimized `LEFT JOIN users ON ...`.
+
+## 3. Formula (Database-Compiled Logic)
+
+Formula fields are **Read-Only Virtual Columns**. They allow you to define business logic in the schema that is compiled into the database query execution plan.
+
+### Why not use JavaScript?
+
+If you calculate `Total = Price * Qty` in JavaScript (Node.js), you cannot sort or filter by `Total` in the database. By using Formula fields, the calculation happens inside the DB engine, allowing high-performance sorting and filtering on millions of rows.
+
+### Definition
+
+Use the `${field_name}` syntax to reference other fields.
+
+```yaml
+fields:
+  price: { type: currency }
+  quantity: { type: number }
+  
+  # The Magic Field
+  subtotal:
+    type: formula
+    data_type: currency
+    formula: "${price} * ${quantity}"
+
+```
+
+### Compiler Output (PostgreSQL Example)
+
+When ObjectQL generates the SQL for this object, it injects the logic into the `SELECT` list:
+
+```sql
+SELECT 
+  t1.price, 
+  t1.quantity, 
+  (t1.price * t1.quantity) AS subtotal 
+FROM order_lines t1
+
+```
+
+## 4. Summary (Rollup Aggregations)
+
+Summary fields allow a parent object to calculate metrics from its child records (One-to-Many).
+
+### The Challenge
+
+In traditional development, calculating "Total Value of Open Orders" for a Customer requires writing a complex SQL query or a trigger.
+
+### The ObjectQL Solution
+
+Define the aggregation declaratively. The engine handles the sub-queries or materialized views.
+
+### Definition
+
+```yaml
+# Object: account
+fields:
+  # Metric: How much has this customer spent?
+  total_lifetime_value:
+    type: summary
+    summary_object: order        # The child object
+    summary_type: sum            # Operation: count, sum, min, max
+    summary_field: grand_total   # The field on child to aggregate
+    filters:                     # Conditional Aggregation
+      - ["status", "=", "paid"]
+
+```
+
+### Use Cases
+
+* **CRM:** "Number of Open Tickets" on a Customer profile.
+* **Project Management:** "Max Due Date" of all Tasks in a Project.
+* **Inventory:** "Sum of Quantity" from Stock Movements.
+
+## Summary of Capabilities
+
+| Type | Data Location | Computation Time | Primary Use Case |
+| --- | --- | --- | --- |
+| **Currency** | Physical Column | N/A | Financial transactions, Prices. |
+| **Lookup** | Physical Column (FK) | N/A | Linking records, Polymorphic relations. |
+| **Formula** | **Virtual** | Read Time (Query) | Row-level math, String concatenation. |
+| **Summary** | **Virtual** | Read Time (Query) | Parent-level aggregation (Sum/Count). |
+
+:::tip Performance Note
+Virtual fields (Formula & Summary) are powerful, but relying on them heavily for complex sorting on massive datasets can impact DB performance. For datasets >10M rows, consider using ObjectOS Triggers to materialize these values into physical columns.
+:::

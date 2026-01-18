@@ -1,0 +1,192 @@
+---
+title: Workflow Engine
+description: The Protocol for Business Process Management (BPM). State Machines, Approval Chains, and BPMN Mapping.
+---
+
+# Workflow Engine
+
+The **ObjectOS Workflow Engine** is a deterministic state machine that governs the lifecycle of business objects.
+
+Unlike ad-hoc scripts or scattered boolean flags, the Workflow Protocol centralizes the "Rules of the Road." It ensures that a `Purchase Order` cannot move from `Draft` to `Paid` without passing through `Approved`.
+
+## 1. The Workflow Protocol (FSM)
+
+At its core, a workflow is a **Finite State Machine (FSM)** defined in YAML.
+
+### Protocol Structure
+
+```yaml
+# workflows/contract_approval.workflow.yml
+name: contract_process
+object: contract
+initial_state: draft
+field: status  # The field on the object that stores the state
+
+states:
+  draft:
+    allow_edit: true
+    transitions:
+      submit: pending_review
+      
+  pending_review:
+    allow_edit: false
+    transitions:
+      approve: legal_review
+      reject: draft
+      
+  legal_review:
+    transitions:
+      sign: active
+      reject: draft
+      
+  active:
+    final: true
+
+```
+
+### Key Components
+
+* **States**: The distinct stages a record can be in.
+* **Transitions**: Directed paths between states (e.g., `submit`).
+* **Guards**: Rules that prevent a transition (e.g., "Only Managers can approve").
+* **Side Effects**: Actions triggered on entry/exit (e.g., "Send Email").
+
+## 2. Approval Chains (Human Tasks)
+
+Enterprise workflows often require human intervention. ObjectOS provides a dedicated **Approval Protocol** to handle the complexity of "Who needs to sign this?"
+
+### Specifying Approvers
+
+You can attach an `approval` block to any state.
+
+```yaml
+states:
+  pending_review:
+    type: approval
+    approval:
+      # Who can approve?
+      participants: 
+        - type: role
+          id: manager
+        - type: user
+          id: "${record.department_head}" # Dynamic resolution
+          
+      # How many signatures are needed?
+      strategy: any # 'any' (1 person) or 'all' (consensus)
+      
+    transitions:
+      approve: active
+      reject: draft
+
+```
+
+### The "Inbox" Concept
+
+When a record enters an `approval` state:
+
+1. ObjectOS generates **Work Items** (Tasks) for the participants.
+2. These appear in the user's "My Approvals" Inbox in ObjectUI.
+3. The record is strictly **Locked** (Read-Only) until the decision is made.
+
+## 3. Automation (Service Tasks)
+
+Not all steps are human. ObjectOS supports **Service Tasks** that execute code or call APIs automatically.
+
+```yaml
+states:
+  processing_payment:
+    type: service
+    action: "finance.charge_credit_card"
+    params:
+      amount: "${record.amount}"
+      token: "${record.payment_token}"
+    transitions:
+      success: paid
+      failure: payment_failed
+
+```
+
+## 4. BPMN 2.0 Mapping
+
+ObjectOS is designed to be compatible with **BPMN 2.0 (Business Process Model and Notation)**. This allows you to use visual modeling tools (like Camunda Modeler or BPmn.io) to generate the ObjectOS YAML Protocol.
+
+| ObjectOS Concept | BPMN 2.0 Element | Description |
+| --- | --- | --- |
+| **Workflow** | `Process` | The container of the definition. |
+| **State** | `UserTask` / `Task` | A stopping point waiting for action. |
+| **Initial State** | `StartEvent` | The entry point. |
+| **Final State** | `EndEvent` | The completion point. |
+| **Transition** | `SequenceFlow` | The arrow connecting nodes. |
+| **Guard** | `ExclusiveGateway` (XOR) | The diamond decision node. |
+| **Trigger** | `ServiceTask` | Automated logic execution. |
+
+## 5. Event Integration
+
+Workflows emit events that other parts of the system can listen to.
+
+* `workflow.state_changed`: Fired whenever state moves.
+* `workflow.step_started`: Fired when entering a state.
+* `workflow.completed`: Fired when reaching a final state.
+
+### Example: Notification Listener
+
+```typescript
+// plugins/notifications/listeners.ts
+broker.on('workflow.state_changed', async (ctx) => {
+  const { object, record_id, to_state } = ctx.params;
+  
+  if (object === 'contract' && to_state === 'active') {
+    await sendEmail(ctx.user.email, "Contract Signed!");
+  }
+});
+
+```
+
+## 6. Interaction API
+
+How does the frontend interact with the engine?
+
+### 1. Check Available Transitions
+
+ObjectUI asks: *"What buttons should I show?"*
+
+```json
+// Request
+POST /api/workflow/permissions
+{ "object": "contract", "id": "123" }
+
+// Response
+{
+  "allow_edit": false,
+  "transitions": [
+    { "name": "approve", "label": "Approve Contract", "variant": "success" },
+    { "name": "reject", "label": "Send Back", "variant": "danger" }
+  ]
+}
+
+```
+
+### 2. Execute Transition
+
+User clicks "Approve".
+
+```json
+// Request
+POST /api/workflow/transition
+{
+  "object": "contract",
+  "id": "123",
+  "transition": "approve",
+  "comment": "Looks good to me."
+}
+
+```
+
+## Summary
+
+The Workflow Engine turns "Process" into "Protocol".
+
+* **Deterministic:** Eliminates invalid state modifications.
+* **Audit-Ready:** Every transition is logged with timestamp and user.
+* **Visual:** Maps 1:1 to BPMN diagrams for business stakeholders.
+* **Integrated:** Seamlessly works with ObjectUI (buttons) and ObjectQL (locking).

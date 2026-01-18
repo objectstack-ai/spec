@@ -1,0 +1,191 @@
+---
+title: Analytics Protocol
+description: Defining Aggregations, Pivot Tables, and BI Data Sources using the ObjectQL Protocol.
+---
+
+# Analytics Protocol
+
+In traditional architectures, generating reports usually requires exporting data to a Data Warehouse or writing complex, non-portable SQL queries.
+
+ObjectQL bridges the gap between Transactional (OLTP) and Analytical (OLAP) workloads. It provides a **Declarative Analytics Protocol** that allows you to request grouped, summarized, and reshaped data directly from the operational database, or transparently route these requests to an analytical replica.
+
+## 1. The Aggregation AST
+
+Just as you query records, you can query **Aggregates**. The Aggregation Protocol is designed to be a database-agnostic abstraction over SQL `GROUP BY` or MongoDB Aggregation Pipelines.
+
+### Protocol Structure
+
+An aggregation request consists of three core components: **Dimensions** (Group By), **Measures** (Values), and **Filters** (Scope).
+
+```typescript
+// @objectql/types
+interface AggregateRequest {
+  object: string;           // Target Object (e.g., 'invoice')
+  filters?: FilterNode;     // Scope (e.g., 'year = 2024')
+  groupBy: string[];        // Dimensions (e.g., ['sales_rep', 'status'])
+  measures: Record<string, AggregateDef>; // Calculations
+}
+
+interface AggregateDef {
+  field: string;
+  method: 'sum' | 'avg' | 'min' | 'max' | 'count' | 'count_distinct';
+}
+
+```
+
+### Example: Sales Performance
+
+> *"Show me total sales and average deal size by Sales Rep for closed deals."*
+
+**The Protocol (JSON):**
+
+```json
+{
+  "object": "deal",
+  "filters": [["stage", "=", "closed_won"]],
+  "groupBy": ["owner"],
+  "measures": {
+    "total_revenue": { "field": "amount", "method": "sum" },
+    "avg_deal_size": { "field": "amount", "method": "avg" },
+    "deal_count": { "field": "_id", "method": "count" }
+  }
+}
+
+```
+
+**The Compilation (SQL):**
+
+```sql
+SELECT 
+  t1.owner, 
+  SUM(t1.amount) as total_revenue, 
+  AVG(t1.amount) as avg_deal_size,
+  COUNT(t1._id) as deal_count
+FROM deals t1
+WHERE t1.stage = 'closed_won'
+GROUP BY t1.owner
+
+```
+
+## 2. Date Histogram (Time-Series Analysis)
+
+Enterprise reports heavily rely on time-based grouping (e.g., "Sales per Month"). ObjectQL standardizes date truncation to ensure consistent behavior across databases.
+
+### Protocol Syntax
+
+Use the special logic function `date_trunc(field, interval)` within the `groupBy` array.
+
+```json
+{
+  "object": "log_entry",
+  "groupBy": ["date_trunc('created_at', 'month')"],
+  "measures": {
+    "error_count": { "field": "_id", "method": "count" }
+  }
+}
+
+```
+
+* **Postgres Driver:** Compiles to `DATE_TRUNC('month', created_at)`
+* **MySQL Driver:** Compiles to `DATE_FORMAT(created_at, '%Y-%m-01')`
+* **Mongo Driver:** Compiles to `$dateToString` with format.
+
+## 3. The Pivot Protocol (Cross-Tabulation)
+
+A Pivot Table transforms rows into columns. While most ORMs leave this to the frontend, ObjectQL defines the **Pivot Structure** in the protocol to enable server-side optimizations (and compatibility with Excel-like UI components).
+
+### Protocol Structure
+
+```typescript
+interface PivotRequest {
+  object: string;
+  rows: string[];    // The Y-Axis (e.g., Region)
+  columns: string[]; // The X-Axis (e.g., Year)
+  values: AggregateDef[]; // The Cell Data
+}
+
+```
+
+### Example: Sales by Region vs. Year
+
+```json
+{
+  "type": "pivot",
+  "object": "sales_order",
+  "rows": ["region"],
+  "columns": ["fiscal_year"],
+  "values": [{ "field": "amount", "method": "sum" }]
+}
+
+```
+
+### Response Format
+
+The engine returns a normalized structure ready for rendering grid components:
+
+```json
+{
+  "metadata": { "columns": ["2023", "2024", "2025"] },
+  "data": [
+    { "region": "North", "2023": 1000, "2024": 1500, "2025": 2000 },
+    { "region": "South", "2023": 800,  "2024": 900,  "2025": 1100 }
+  ]
+}
+
+```
+
+## 4. BI Data Sources (Headless BI)
+
+ObjectQL enables a **"Headless BI"** architecture. Instead of defining metrics in Tableau or PowerBI (where they are locked away), you define them in ObjectQL **Analytics Cubes**.
+
+### Defining a Cube (YAML)
+
+A Cube is a virtual view specifically designed for analysis.
+
+```yaml
+# src/analytics/sales_cube.yml
+name: sales_performance
+label: Sales Performance Cube
+base_object: deal
+dimensions:
+  - name: region
+    field: owner.region
+  - name: month
+    expression: "date_trunc('created_at', 'month')"
+measures:
+  - name: revenue
+    field: amount
+    method: sum
+  - name: win_rate
+    expression: "count(case when stage='won' then 1 end) / count(*)"
+
+```
+
+### Usage
+
+External BI tools can consume this Cube via the ObjectQL Analytics API.
+
+* **API:** `POST /api/analytics/cube/sales_performance/query`
+* **Benefit:** If you change the definition of "Revenue" in the YAML, every report (Dashboard, PDF, Excel Export) updates instantly.
+
+## 5. Performance & Materialization
+
+Running aggregations on millions of rows in real-time is resource-intensive. ObjectQL supports **Transparent Materialization**.
+
+### The `materialized` Flag
+
+```yaml
+# src/analytics/sales_cube.yml
+name: sales_performance
+materialized: true
+refresh_interval: "1h"
+
+```
+
+* **Behavior:** The ObjectOS Kernel automatically creates a **Materialized View** (in Postgres) or a separate Summary Collection (in Mongo).
+* **Routing:** When a client queries this Cube, the ObjectQL Compiler rewrites the query to hit the pre-calculated view instead of the raw table.
+* **Latency:** The query becomes instant (O(1)), at the cost of data freshness (e.g., 1-hour lag).
+
+:::tip Architect's Note
+For datasets exceeding 100M rows, ObjectQL Drivers can be configured to offload analytical queries to a dedicated OLAP engine (like ClickHouse or Snowflake) while keeping the Protocol identical. This allows you to scale infrastructure without rewriting application logic.
+:::

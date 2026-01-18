@@ -1,0 +1,171 @@
+---
+title: Wire Protocol
+description: The HTTP/WebSocket transport specification. Request envelopes, Response formats, and Error handling standards.
+---
+
+# Wire Protocol
+
+The **Wire Protocol** defines how ObjectQL ASTs and Mutations are serialized and transmitted over the network.
+
+While most developers use the official SDK (`@objectql/sdk`), understanding the wire protocol is essential for:
+1.  Building custom drivers or SDKs in other languages (Rust, Go, Swift).
+2.  Debugging raw API traffic.
+3.  Implementing low-level proxies or gateways.
+
+ObjectQL primarily uses **JSON over HTTP**, but the structure is designed to be transport-agnostic (compatible with WebSocket or gRPC).
+
+## 1. The Endpoint
+
+ObjectQL follows the **Single Entry Point** pattern (similar to GraphQL or RPC). You do not have different URLs for different objects.
+
+* **URL:** `POST /api/objectql/v1`
+* **Method:** `POST` (Preferred for both reads and writes to avoid URL length limits on complex filters).
+* **Content-Type:** `application/json`
+
+### Headers
+
+| Header | Description |
+| :--- | :--- |
+| `Authorization` | `Bearer <token>` (Standard OIDC/JWT) |
+| `X-Space-Id` | (Optional) Multi-tenancy context isolation. |
+| `X-ObjectQL-Version` | Protocol version (e.g., `1.0`). |
+
+## 2. Request Envelope
+
+The request body is a JSON object that wraps the operation.
+
+### A. Query Request (Read)
+
+To fetch data, you send a `query` operation containing the [Query AST](./ast-structure).
+
+```json
+// POST /api/objectql/v1
+{
+  "op": "query",
+  "payload": {
+    "object": "deal",
+    "fields": ["name", "amount", "stage"],
+    "filters": [["stage", "=", "negotiation"]],
+    "sort": [["amount", "desc"]],
+    "top": 10,
+    "skip": 0
+  }
+}
+
+```
+
+### B. Mutation Request (Write)
+
+To modify data, you send a `mutation` operation.
+
+```json
+// POST /api/objectql/v1
+{
+  "op": "mutation",
+  "payload": {
+    "object": "deal",
+    "method": "create", // create, update, delete
+    "data": {
+      "name": "Big Enterprise Deal",
+      "amount": 50000,
+      "owner": "usr_001"
+    }
+    // For Update: "id": "deal_123"
+  }
+}
+
+```
+
+## 3. Response Envelope
+
+ObjectQL guarantees a consistent response shape. It **never** returns a raw array or raw error string. Every response is wrapped in a `StandardResponse` envelope.
+
+### Success Response
+
+```json
+{
+  "data": [ ... ],       // The Result Array or Object
+  "error": null,         // Null indicates success
+  "meta": {              // Metadata
+    "count": 150,        // Total record count (if requested)
+    "debug_id": "req_xyz"
+  }
+}
+
+```
+
+### Error Response
+
+If the operation fails (Validation, Permission, or System Error), the HTTP Status Code will be `200 OK` (soft error) or `4xx/5xx` (hard error), but the body always contains the error details.
+
+```json
+{
+  "data": null,
+  "error": {
+    "code": "VALIDATION_FAILED",
+    "message": "Field 'amount' cannot be negative.",
+    "details": [
+      { "field": "amount", "issue": "min_value", "expected": 0 }
+    ]
+  },
+  "meta": { ... }
+}
+
+```
+
+## 4. Standard Error Codes
+
+ObjectQL defines a set of immutable error codes. Clients should programmatically switch based on `error.code`, not `error.message`.
+
+| Code | HTTP Status | Meaning |
+| --- | --- | --- |
+| `AUTH_REQUIRED` | 401 | Missing or invalid token. |
+| `PERMISSION_DENIED` | 403 | RBAC check failed (Object or Field level). |
+| `record_NOT_FOUND` | 404 | ID does not exist (for update/delete). |
+| `VALIDATION_FAILED` | 400 | Data violates Schema rules. |
+| `VERSION_CONFLICT` | 409 | Optimistic locking failure (Data stale). |
+| `INTERNAL_ERROR` | 500 | Database connection failure or unhandled exception. |
+
+## 5. Streaming Protocol (NDJSON)
+
+For large datasets (e.g., exporting 1 million rows), the standard JSON response consumes too much memory. ObjectQL supports **Newline Delimited JSON (NDJSON)**.
+
+* **Header:** `Accept: application/x-ndjson`
+* **Behavior:** The server flushes one JSON object per line as it reads from the database cursor.
+
+**Response Stream:**
+
+```json
+{"type": "meta", "count": 1000000}
+{"type": "record", "id": "1", "name": "A"}
+{"type": "record", "id": "2", "name": "B"}
+...
+{"type": "done"}
+
+```
+
+## 6. Multipart Protocol (File Uploads)
+
+Since JSON cannot efficiently handle binary files, ObjectQL uses `multipart/form-data` for file operations.
+
+**Request:**
+
+* **Part 1 (`operations`):** A JSON string describing the mutation.
+```json
+{ "op": "mutation", "object": "attachment", "method": "create", "data": { "file": null } }
+
+```
+
+
+* **Part 2 (`map`):** Mapping the file input to the JSON path.
+```json
+{ "0": ["data.file"] }
+
+```
+
+
+* **Part 3 (`0`):** The actual binary file stream.
+
+:::info Implementation Note
+This closely mirrors the **GraphQL Multipart Request Specification**. Standard libraries tailored for that spec will generally work with ObjectQL uploads with minor tweaks.
+:::

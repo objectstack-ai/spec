@@ -1,0 +1,85 @@
+---
+title: Terminology
+description: A glossary of key terms, concepts, and jargon used within the ObjectStack ecosystem.
+---
+
+# Terminology
+
+To navigate the ObjectStack ecosystem effectively, it is helpful to understand the specific vocabulary we use. While many terms are standard in computer science, some have specific nuances in our "Protocol-Driven" context.
+
+## The Ecosystem
+
+### ObjectStack
+The umbrella term for the entire suite of protocols and reference implementations. It encompasses the Data Layer (ObjectQL), the UI Layer (ObjectUI), and the Operating System (ObjectOS).
+
+### ObjectQL (The Data Protocol)
+A database-agnostic protocol for defining data structures and querying them. Unlike GraphQL (which is an API spec), ObjectQL is a **Database Compiler** that translates abstract intent into dialect-specific SQL (e.g., PostgreSQL, SQLite).
+
+### ObjectUI (The View Protocol)
+A JSON-based specification for describing user interfaces. It follows the **Server-Driven UI (SDUI)** pattern, where the backend dictates the layout, hierarchy, and behavior, and the frontend (React/Flutter) acts as a renderer.
+
+### ObjectOS (The Kernel)
+The runtime environment that orchestrates the ecosystem. It manages identity, plugin lifecycles, workflow execution, and data synchronization between client and server.
+
+---
+
+## Architecture Concepts
+
+### Protocol-Driven
+A development paradigm where logic is defined in static, declarative data formats (JSON/YAML) rather than imperative code. The goal is to separate the **Intent** (Business Logic) from the **Implementation** (Tech Stack).
+
+### Local-First
+An architectural pattern where the application reads and writes to a database embedded on the user's device (the Client) first. Network synchronization happens in the background. This ensures zero-latency interactions and offline availability.
+
+### Database Compiler
+A system that takes a high-level query AST (Abstract Syntax Tree) and compiles it into an optimized database query string (e.g., SQL). This contrasts with an ORM, which typically acts as a runtime wrapper object.
+
+### Virtual Column
+A field defined in the ObjectQL schema that does not exist physically in the database table but is computed on the fly.
+* *Example:* A SQL subquery or expression injected into the `SELECT` statement at compile time.
+
+---
+
+## Data & Schema
+
+### Object (Entity)
+The fundamental unit of data modeling in ObjectStack. Roughly equivalent to a "Table" in SQL or a "Collection" in NoSQL. An Object definition includes Fields, Actions, Triggers, and Permissions.
+
+### Driver
+An adapter plugin that allows ObjectQL to talk to a specific underlying storage engine.
+* *Example:* `@objectql/driver-postgres`, `@objectql/driver-sqlite`.
+
+### AST (Abstract Syntax Tree)
+The intermediate representation of a query or schema. ObjectQL parses a JSON request into an AST before the Compiler translates it into SQL. This allows for security injection and analysis before execution.
+
+### Manifest
+The entry point configuration file (usually `package.json` or `manifest.json`) for an ObjectOS Plugin. It declares dependencies, creates resources, and registers extensions.
+
+---
+
+## Interface & Logic
+
+### Layout
+A JSON structure defined in ObjectUI that describes the visual arrangement of components. Layouts can be nested and dynamic (e.g., Master-Detail, Grid, Kanban).
+
+### Workflow
+A business process defined as a **Finite State Machine (FSM)**. It consists of States (e.g., `draft`, `approved`), Transitions, and Guards.
+
+### Action
+A discrete unit of logic that can be triggered by a user (UI button) or a system event (Workflow transition). Actions are often defined in the schema and implemented in TypeScript.
+
+### Component Registry
+A map within the ObjectUI Runtime that links a string identifier (e.g., `"chart.bar"`) to a real React Component. This allows the JSON protocol to instantiate UI elements dynamically.
+
+---
+
+## Governance
+
+### Space (Workspace)
+A logical isolation unit for multi-tenancy. A single ObjectOS instance can host multiple Spaces. Data is physically segregated by a `space_id` column.
+
+### FLS (Field-Level Security)
+A granular permission model where access control is applied to individual fields (columns), not just the whole object (row).
+
+### TCK (Technology Compatibility Kit)
+A suite of tests that validates if a Driver or Renderer complies with the official ObjectStack Protocol. If a new driver passes the TCK, it is certified as compatible.

@@ -1,0 +1,199 @@
+---
+title: Plugin Manifest
+description: The specification for packaging capabilities. Manifest structure, Lifecycle hooks, and Dependency management.
+---
+
+# Plugin Manifest
+
+ObjectOS follows a **Micro-Kernel Architecture**. The Core Engine is minimal, providing only the basic runtime (Auth, DB Driver, HTTP Server).
+
+All business capabilities—CRM, Project Management, HR, and even system tools like "File Storage"—are delivered as **Plugins**.
+
+A Plugin is a deployable unit (usually an NPM package) that contains a **Manifest File**. This manifest tells the Kernel exactly what the plugin contributes to the system.
+
+## 1. The Manifest Structure (`plugin.config.yml`)
+
+The entry point of every plugin is its configuration file. This is the "Identity Card" of the module.
+
+```yaml
+# plugin.config.yml
+id: "@steedos/crm"
+version: "2.4.0"
+name: "Steedos CRM"
+description: "Enterprise Customer Relationship Management suite."
+author: "Steedos Labs"
+license: "MIT"
+
+# 1. Dependency Management
+dependencies:
+  "@objectos/auth": "^1.0.0"
+  "@steedos/common": "^2.0.0"
+
+# 2. Contribution Points (Protocol Loading)
+contributes:
+  objects: 
+    - "./objects/*.object.yml"
+  apps:
+    - "./apps/*.app.yml"
+  workflows:
+    - "./workflows/*.workflow.yml"
+  permissions:
+    - "./permissions/*.profile.yml"
+  translations:
+    - "./i18n/*.json"
+
+# 3. Server-Side Logic
+entry: "./src/index.ts"
+
+```
+
+## 2. Contribution Points
+
+The `contributes` section allows the Kernel to **Auto-Discovery** assets. You do not need to manually write `app.register(...)` code.
+
+### Standard Contributions
+
+| Type | Description | Path Convention |
+| --- | --- | --- |
+| **Objects** | Data Schema Definitions. | `src/objects/*.yml` |
+| **Apps** | Application grouping (Menu structure). | `src/apps/*.yml` |
+| **Triggers** | Backend logic hooks. | `src/triggers/*.ts` |
+| **API** | Custom REST/GraphQL endpoints. | `src/api/*.ts` |
+| **Client** | Custom UI Components (React). | `src/client/index.tsx` |
+| **Assets** | Static files (Images, CSS). | `public/` |
+
+### Extension Points
+
+Plugins can also define *new* contribution points.
+
+* *Example:* A "Payment Plugin" might expose a `payment_gateways` contribution point, allowing other plugins to register "Stripe" or "PayPal" adapters.
+
+## 3. Plugin Lifecycle
+
+ObjectOS manages the lifecycle of a plugin strictly to ensure stability.
+
+### The Lifecycle Interface (TypeScript)
+
+If your plugin needs to execute logic during startup (e.g., connecting to Redis, seeding initial data), you export a class implementing the `PluginLifecycle` interface.
+
+```typescript
+// src/index.ts
+import { Plugin, PluginContext } from '@objectos/types';
+
+export default class CRMPlugin implements Plugin {
+  
+  /**
+   * Phase 1: Load
+   * Validate configuration. Do not connect to DB yet.
+   */
+  async onLoad(ctx: PluginContext) {
+    ctx.logger.info("CRM Plugin Loaded");
+  }
+
+  /**
+   * Phase 2: Init (Install)
+   * Run once when the plugin is first installed.
+   * Good for seeding default data (e.g., default 'Lead Status' values).
+   */
+  async onInstall(ctx: PluginContext) {
+    await ctx.broker.call('data.create', {
+      object: 'lead_status',
+      data: { name: 'New', is_default: true }
+    });
+  }
+
+  /**
+   * Phase 3: Start
+   * The system is ready. Connect to external services.
+   */
+  async onStart(ctx: PluginContext) {
+    // Start a background worker
+    this.worker = new LeadScoringWorker();
+    await this.worker.start();
+  }
+
+  /**
+   * Phase 4: Stop
+   * Graceful shutdown.
+   */
+  async onStop(ctx: PluginContext) {
+    await this.worker.stop();
+  }
+}
+
+```
+
+## 4. Resource Isolation & Namespace
+
+To prevent plugins from conflicting (e.g., two plugins both defining a `settings` object), ObjectOS enforces namespacing conventions.
+
+* **Global Namespace:** Core objects (`user`, `space`, `role`).
+* **Plugin Namespace:** Custom objects should be prefixed if intended for public distribution (e.g., `stripe_payment_log`).
+
+However, for internal Enterprise projects, namespaces are often omitted for simpler APIs. The Manifest validator checks for **ID Collisions** at boot time and throws a `Hard Error` if two plugins claim the same Object name.
+
+## 5. Configuration & Environment
+
+Plugins should be 12-Factor App compliant. They should not store config in code.
+
+### Config Schema
+
+A plugin can declare what configuration it expects.
+
+```yaml
+# plugin.config.yml
+config_schema:
+  stripe_key:
+    type: string
+    required: true
+    secret: true
+    description: "API Key from Stripe Dashboard"
+
+```
+
+### Injection
+
+The OS injects these values from environment variables or the central `steedos-config.yml`.
+
+* Env Var: `STEEDOS_CRM_STRIPE_KEY=sk_test_...`
+* Access in Code: `ctx.config.stripe_key`
+
+## 6. Distribution (NPM)
+
+ObjectOS plugins are standard **NPM Packages**.
+
+### Development Flow
+
+1. **Create:** `npm create objectos-plugin my-plugin`
+2. **Develop:** `npm run dev` (Starts a local kernel with hot-reload).
+3. **Build:** `npm run build` (Compiles TS to JS, validates YAML).
+4. **Publish:** `npm publish` (Deploys to private or public registry).
+
+### Installation
+
+To add a plugin to your project:
+
+```bash
+npm install @steedos/crm
+
+```
+
+Then add it to your project's `steedos-config.yml`:
+
+```yaml
+plugins:
+  - "@steedos/crm"
+
+```
+
+## Summary
+
+The Plugin Manifest turns code into a **Product**.
+
+| Feature | Description |
+| --- | --- |
+| **Manifest** | Declarative inventory of capabilities (`plugin.yml`). |
+| **Auto-Loader** | No wiring required; just drop files in folders. |
+| **Lifecycle** | Structured hooks (`onInstall`, `onStart`) for robust logic. |
+| **Config** | Type-safe configuration injection. |
+| **Standard** | Based on NPM ecosystem for versioning and distribution. |

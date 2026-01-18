@@ -1,0 +1,70 @@
+---
+title: ObjectQL Overview
+description: Introduction to the Data Protocol. Understanding the Database Compiler architecture and the Abstract Syntax Tree (AST).
+---
+
+# ObjectQL Data Protocol
+
+**ObjectQL** is a database-agnostic protocol for defining, querying, and manipulating enterprise data.
+
+Unlike an ORM (which is a code library) or GraphQL (which is an API specification), ObjectQL functions as a **Database Compiler**. It creates a standardized abstraction layer over physical storage engines, allowing applications to define business intent in JSON/YAML and execute it efficiently on PostgreSQL, SQLite, MongoDB, or Oracle without code changes.
+
+## The Architecture: The Database Compiler
+
+The core innovation of ObjectQL is treating database interaction as a compilation process rather than a string concatenation process.
+
+
+
+The pipeline consists of four stages:
+
+1.  **Schema Definition (Input):** The developer defines the data shape using the **[Object Protocol](./schema-definition)** (YAML).
+2.  **Request Parsing (AST):** At runtime, queries are received as JSON and parsed into a strict **[Abstract Syntax Tree](./ast-structure)**.
+3.  **Semantic Analysis (Middleware):** The Kernel injects security predicates (RBAC), validates types, and applies logic hooks.
+4.  **Compilation (Output):** The **Driver** translates the optimized AST into the native dialect (e.g., PL/SQL) of the target database.
+
+## Core Concepts
+
+To understand the specifications that follow, you must be familiar with these three concepts:
+
+### 1. The Single Source of Truth
+In ObjectStack, the Database Schema (`CREATE TABLE`) is **not** the source of truth. The **ObjectQL Schema** is.
+* The ObjectQL engine is responsible for performing DDL migrations to keep the physical database in sync with the YAML definition.
+* This ensures that "Business Logic" (e.g., this field is a currency with 2 decimal places) is preserved across environments.
+
+### 2. The Universal AST
+ObjectQL defines a **Wire Protocol** based on JSON. This serves as the Intermediate Representation (IR).
+* **Intent:** `{ "op": "find", "from": "users", "where": ["age", ">", 18] }`
+* **Implementation:** Decoupled. The sender does not need to know if the receiver is using Postgres or a CSV file.
+
+### 3. Smart Types
+ObjectQL supports **Enterprise Data Types** that go beyond standard SQL.
+* **Master-Detail:** Automatic handling of parent-child cascading.
+* **Summary/Rollup:** Declarative aggregation (e.g., "Total Orders").
+* **Formula:** Virtual columns calculated on read.
+
+## Why not just SQL?
+
+SQL is powerful, but it is a **Language**, not a **Protocol**.
+
+| Feature | Raw SQL | ObjectQL Protocol |
+| :--- | :--- | :--- |
+| **Structure** | Unstructured String | Structured JSON AST |
+| **Security** | Vulnerable to Injection (if not careful) | Mathematically Injection-Proof |
+| **Portability** | Vendor Specific (PL/SQL vs T-SQL) | 100% Portable |
+| **Governance** | Hard to parse/intercept | Easy to inject permissions (AST Middleware) |
+| **Context** | Stateless | Aware of User Session & Tenants |
+
+## Specification Roadmap
+
+This section of the documentation defines the strict contracts for ObjectQL:
+
+* **[Schema Definition](./schema-definition)**: How to define Objects, Fields, and Relations in YAML.
+* **[Advanced Types](./advanced-types)**: Specifications for Currency, Lookups, and Formulas.
+* **[AST Structure](./ast-structure)**: The JSON wire format for queries.
+* **[Analytics Protocol](./analytics-protocol)**: Defining Aggregations, Pivot Tables, and BI Cubes.
+* **[Transaction Model](./transaction-model)**: Rules for atomicity and cross-object mutations.
+* **[Security Injection](./security-injection)**: How the compiler enforces RBAC and FLS.
+
+:::info Implementation Note
+While `steedos-server` is the reference implementation (Node.js), the ObjectQL Specification is language-independent. A compliant driver could be written in Go, Rust, or Java.
+:::
