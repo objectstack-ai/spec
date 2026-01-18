@@ -3,7 +3,9 @@
   "changelog": ["@changesets/cli/changelog", { "repo": "objectstack-ai/spec" }],
   "commit": false,
   "fixed": [],
-  "linked": [],
+  "linked": [
+    ["@objectstack/spec-meta", "@objectstack/spec-plugin", "@objectstack/spec-schemas", "@objectstack/spec-constants", "@objectstack/spec"]
+  ],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",

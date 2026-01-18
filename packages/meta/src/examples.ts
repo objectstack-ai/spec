@@ -5,7 +5,7 @@
  * to define entities and views.
  */
 
-import type { ObjectEntity, ObjectView } from './types/meta';
+import type { ObjectEntity, ObjectView } from './index';
 
 /**
  * Example: User Entity Definition

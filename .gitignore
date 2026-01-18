@@ -36,3 +36,7 @@ coverage/
 # Temporary files
 tmp/
 temp/
+
+# Package builds
+packages/*/dist/
+packages/*/*.tsbuildinfo
