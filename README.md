@@ -24,7 +24,7 @@ This package does NOT contain:
 ## 🚀 Installation
 
 ```bash
-npm install @objectstack/spec
+pnpm install @objectstack/spec
 ```
 
 ## 📦 What's Inside
@@ -116,16 +116,16 @@ console.log(PKG_CONVENTIONS.FILES.MANIFEST); // 'objectstack.config.ts'
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Build the project
-npm run build
+pnpm run build
 
 # Watch mode for development
-npm run dev
+pnpm run dev
 
 # Clean build artifacts
-npm run clean
+pnpm run clean
 ```
 
 ## 📄 License
@@ -204,7 +204,7 @@ interface ObjectView {
 ### Installation
 
 ```bash
-npm install @objectstack/spec
+pnpm install @objectstack/spec
 ```
 
 ### Importing Types
@@ -267,8 +267,8 @@ const userEntity: ObjectEntity = {
 ## Building
 
 ```bash
-npm install
-npm run build
+pnpm install
+pnpm run build
 ```
 
 This will compile TypeScript files to JavaScript and generate type declarations in the `dist/` directory.

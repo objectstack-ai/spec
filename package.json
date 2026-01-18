@@ -8,7 +8,7 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
-    "prepublishOnly": "npm run clean && npm run build"
+    "prepublishOnly": "pnpm run clean && pnpm run build"
   },
   "keywords": [
     "objectstack",
@@ -28,5 +28,6 @@
   },
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "packageManager": "pnpm@10.28.0"
 }
