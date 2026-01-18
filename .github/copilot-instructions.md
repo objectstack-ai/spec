@@ -8,126 +8,71 @@
 
 1. **Zod First:** ALL definitions must start with a **Zod Schema**. We need runtime validation for the CLI and JSON Schema generation for the IDE.
 2. **Type Derivation:** TypeScript interfaces must be inferred from Zod (`z.infer<typeof X>`).
-3. **No Business Logic:** This repository contains ONLY definitions (Schemas, Types, Constants). No database connections, no UI rendering code.
+3. **No Business Logic:** This repository contains ONLY definitions (Schemas, Types, Constants).
+4. **Naming Convention:**
+    *   **Configuration Keys (TS Props):** `camelCase` (e.g., `maxLength`, `referenceFilters`).
+    *   **Machine Names (Data Values):** `snake_case` (e.g., `name: 'first_name'`, `object: 'project_task'`).
 
 ---
 
 ## 📘 1. The Metamodel Standards (Knowledge Base)
 
-When implementing specific protocols, you must strictly adhere to these structural requirements:
+### **A. DATA PROTOCOL (`src/data/*.zod.ts`)**
+*Core Business Logic & Data Model*
 
-### **A. Protocol: FIELD (`src/zod/meta/field.zod.ts`)**
+*   **Field (`src/data/field.zod.ts`)**:
+    *   **Type Enum**: `text`, `textarea`, `number`, `boolean`, `select`, `lookup`, `formula`, ...
+    *   **Props**: `name` (snake_case), `label`, `type`, `multiple` (Array support), `reference` (Target Object).
+*   **Object (`src/data/object.zod.ts`)**:
+    *   **Props**: `name` (snake_case), `label`, `fields` (Map), `enable` (Capabilities: `trackHistory`, `apiEnabled`).
+*   **Logic**: `validation.zod.ts` (Rules), `permission.zod.ts` (ACL), `workflow.zod.ts` (Automation).
 
-The atomic unit of data.
+### **B. UI PROTOCOL (`src/ui/*.zod.ts`)**
+*Presentation & Interaction*
 
-* **Enum `FieldType`:**
-* Basic: `text`, `textarea`, `markdown`, `html`, `password`, `email`.
-* Number: `number`, `currency`, `percent`.
-* Date: `date`, `datetime`, `time`.
-* Logic: `boolean`.
-* Choice: `select`, `multiselect` (Requires `options: {label, value}[]`).
-* Relational: `lookup`, `master_detail` (Requires `reference`: target object name).
-* Calculated: `formula`, `summary` (Requires `expression`).
-* Media: `image`, `file`, `avatar`.
-* System: `id`, `owner`, `created_at`, `updated_at`.
+*   **View (`src/ui/view.zod.ts`)**:
+    *   **ListView**: `grid`, `kanban`, `calendar`, `gantt`.
+    *   **FormView**: `simple`, `tabbed`, `wizard`.
+*   **App (`src/ui/app.zod.ts`)**:
+    *   **Navigation**: Structured Menu Tree (`ObjectNavItem`, `DashboardNavItem`).
+    *   **Branding**: Logo, Colors.
+*   **Dashboard (`src/ui/dashboard.zod.ts`)**: Grid layout widgets.
+*   **Action (`src/ui/action.zod.ts`)**: Buttons, URL jumps, Screen Flows.
 
+### **C. SYSTEM PROTOCOL (`src/system/*.zod.ts`)**
+*Runtime Configuration*
 
-* **Standard Props:** `name` (required), `label`, `type`, `required`, `defaultValue`, `description` (tooltip), `hidden`, `readonly`.
-
-### **B. Protocol: ENTITY (`src/zod/meta/entity.zod.ts`)**
-
-Represents a business object or database table.
-
-* **Props:**
-* `name`: Machine name (snake_case, e.g., `project_task`).
-* `label`: Human name (e.g., "Project Task").
-* `description`: Documentation.
-* `icon`: Lucide icon name.
-* `datasource`: String (default: `'default'`).
-* `dbName`: Optional physical table name override.
-* `fields`: A Record/Map of `FieldSchema`.
-* `indexes`: Definition of database indexes.
-
-
-
-### **C. Protocol: VIEW/LAYOUT (`src/zod/meta/view.zod.ts`)**
-
-Defines how the entity is presented in ObjectUI.
-
-* **ListView:** `columns` (field names), `sort`, `filter`, `searchable_fields`.
-* **FormView:**
-* `layout`: `'simple' | 'tabbed' | 'wizard'`.
-* `groups`: Array of `{ label: string, columns: 1|2, fields: string[] }`.
-
-
-
-### **D. Protocol: MANIFEST (`src/zod/bundle/manifest.zod.ts`)**
-
-The `objectstack.config.ts` definition for Plugins/Apps.
-
-* **Props:**
-* `id`: Reverse domain (e.g., `com.objectstack.crm`).
-* `version`: SemVer string.
-* `type`: `'app' | 'plugin' | 'driver'`.
-* `permissions`: Array of permission strings (e.g., `['entity.read.customer']`).
-* `menus`: Recursive structure `{ label, path, icon, children[] }`.
-* `entities`: Glob patterns (e.g., `['./src/schemas/*.gql']`).
-
-
-
-### **E. Protocol: RUNTIME (`src/types/runtime/*.ts`)**
-
-*Note: These are pure TS interfaces, usually not Zod.*
-
-* **Plugin:** `onInstall`, `onEnable`, `onDisable`.
-* **Context:** `PluginContext` exposing `ql` (ObjectQL) and `os` (ObjectOS).
+*   **Manifest (`src/system/manifest.zod.ts`)**: Package definition (`objectstack.config.ts`).
+*   **Translation (`src/system/translation.zod.ts`)**: Internationalization (i18n).
 
 ---
 
 ## 🛠️ 2. Coding Patterns
 
-### **Zod Implementation Pattern**
-
-Always use `z.describe()` to ensure the generated JSON Schema has documentation.
+### **Naming Convention Example**
 
 ```typescript
-import { z } from 'zod';
+export const FieldSchema = z.object({
+  // CONFIGURATION KEY -> camelCase
+  maxLength: z.number().optional(),
+  defaultValue: z.any().optional(),
 
-// 1. Define Sub-schemas
-const SelectOption = z.object({
-  label: z.string(),
-  value: z.string()
+  // SYSTEM IENTIFIER RULES -> snake_case
+  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Machine name (snake_case)'),
 });
-
-// 2. Define Main Schema
-export const MySchema = z.object({
-  /** The unique machine name */
-  name: z.string().regex(/^[a-z_]+$/).describe("Machine name (snake_case)"),
-  
-  /** Configuration options */
-  options: z.array(SelectOption).optional()
-});
-
-// 3. Export Type
-export type MyType = z.infer<typeof MySchema>;
-
 ```
 
-### **File Structure**
+### **Directory Structure**
 
-* `src/zod/meta/`: Metamodel schemas (Field, Entity, View).
-* `src/zod/bundle/`: Packaging schemas (Manifest).
-* `src/types/runtime/`: Runtime-only interfaces.
-* `src/constants/`: Shared constants (e.g., reserved field names).
+*   `packages/spec/src/data/`: ObjectQL (Object, Field, Validation).
+*   `packages/spec/src/ui/`: ObjectUI (App, View, Action).
+*   `packages/spec/src/system/`: ObjectOS (Manifest, Config).
 
 ---
 
 ## 🤖 3. Interaction Shortcuts
 
-When the user gives these commands, execute the corresponding task:
-
-* **"Create Field Protocol"** → Implement `src/zod/meta/field.zod.ts` covering all FieldTypes and their specific props (options, reference).
-* **"Create Entity Protocol"** → Implement `src/zod/meta/entity.zod.ts` importing the Field schema.
-* **"Create View Protocol"** → Implement `src/zod/meta/view.zod.ts` for List and Form layouts.
-* **"Create Manifest Protocol"** → Implement `src/zod/bundle/manifest.zod.ts`.
-* **"Create Build Script"** → Write `scripts/build-schema.ts` to convert Zod schemas to `manifest.schema.json`.
+*   **"Create Field Protocol"** → Implement `src/data/field.zod.ts`.
+*   **"Create Object Protocol"** → Implement `src/data/object.zod.ts`.
+*   **"Create UI Protocol"** → Implement `src/ui/view.zod.ts`.
+*   **"Create App Protocol"** → Implement `src/ui/app.zod.ts`.
