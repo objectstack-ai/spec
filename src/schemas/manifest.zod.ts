@@ -62,10 +62,10 @@ export const ManifestSchema = z.object({
   menus: z.array(MenuItemSchema).optional().describe('Navigation menu structure'),
   
   /** 
-   * Glob patterns specifying ObjectQL schema files.
-   * Example: ["./src/schema/*.gql", "./schema/ ** /*.graphql"]
+   * Glob patterns specifying ObjectQL schemas files.
+   * Example: `["./src/schemas/*.gql", "./src/schemas/**\/*.graphql"]`
    */
-  entities: z.array(z.string()).optional().describe('Glob patterns for ObjectQL schema files'),
+  entities: z.array(z.string()).optional().describe('Glob patterns for ObjectQL schemas files'),
   
   /** 
    * Extension points contributed by this package.
