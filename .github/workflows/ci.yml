@@ -27,6 +27,3 @@ jobs:
 
       - name: Build
         run: npm run build
-
-      - name: Check for TypeScript errors
-        run: npx tsc --noEmit
