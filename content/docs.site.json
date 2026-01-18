@@ -13,7 +13,7 @@
   },
   "branding": {
     "logo": {
-      "text": "ObjectDocs",
+      "text": "ObjectStack",
       "light": "/logo.svg",
       "dark": "/logo.svg"
     },
@@ -28,21 +28,13 @@
       "transparentMode": "top",
       "links": [
         {
-          "text": "Concepts",
-          "url": "/docs/concepts/manifesto"
-        },
-        {
-          "text": "References",
-          "url": "/docs/references/Object"
-        },
-        {
           "text": "Website",
           "url": "https://www.objectstack.ai",
           "external": true
         }
       ],
       "socials": [
-        { "platform": "github", "url": "https://github.com/objectstack-ai" }
+        { "platform": "github", "url": "https://github.com/objectstack-ai/spec" }
       ]
     },
     "sidebar": {
@@ -64,7 +56,7 @@
   "page": {
     "showLastUpdate": true,
     "showEditLink": true,
-    "repoBaseUrl": "https://github.com/objectstack-ai/objectdocs"
+    "repoBaseUrl": "https://github.com/objectstack-ai/spec"
   },
   "content": {
     "math": false,

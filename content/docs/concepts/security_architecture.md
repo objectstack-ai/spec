@@ -1,3 +1,7 @@
+---
+title: Security Architecture
+---
+
 # ObjectStack Security Model: The "Defense in Depth" Architecture
 
 ObjectStack adopts the **"Salesforce-style"** metadata-driven security model. This is chosen over the Microsoft (Dataverse) model for its superior granularity and decoupling, which is essential for complex enterprise scenarios.

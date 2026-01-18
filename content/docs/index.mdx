@@ -1,122 +1,78 @@
-
-### 🟢 P0: 核心元模型 (The Metamodel)
-
-*没有这部分，ObjectQL 和 ObjectUI 无法通信，系统无法运转。这是“万物皆对象”的法律定义。*
-
-* **[ ] 1. 实体定义协议 (`EntitySchema`)**
-* **定义目标**: 描述一个“对象”长什么样。
-* **关键字段**: `name` (机器名), `label` (显示名), `dataSource` (存哪), `dbName` (物理表名)。
-* **用途**: ObjectQL 解析 `.gql` 文件后生成的 AST 结构；`/_api/metadata/objects/{name}` 的返回值。
-
-
-* **[ ] 2. 字段定义协议 (`FieldSchema`)**
-* **定义目标**: 描述对象里的“属性”。
-* **关键字段**: `type` (text/number/lookup...), `required`, `unique`, `defaultValue`。
-* **关键枚举**: `FieldType` (必须枚举所有支持的类型，如 `master_detail`, `formula`, `image`)。
-* **用途**: 告诉前端渲染什么组件，告诉后端怎么建表。
-
-
-* **[ ] 3. 视图/布局协议 (`LayoutSchema`)**
-* **定义目标**: 描述界面如何排列。
-* **关键结构**:
-* `ListView`: 列定义 (`columns`), 排序 (`sort`), 筛选 (`filters`)。
-* `FormView`: 区域 (`sections`), 字段分组 (`groups`)。
-
-
-* **用途**: ObjectUI 根据这个 JSON 渲染页面，而不是写死 React 代码。
-
-
-
+---
+title: ObjectStack Protocol
+description: The Standard for Post-SaaS Operating Systems
 ---
 
-### 🔵 P1: 插件与分发 (Packaging & Runtime)
+import { FileText, Database, Layout, Settings, Book } from 'lucide-react';
 
-*没有这部分，你的应用市场和插件机制就是空谈。*
+# ObjectStack Protocol
 
-* **[ ] 4. 插件清单协议 (`ManifestSchema`)**
-* **定义目标**: 描述一个软件包（插件/应用）。
-* **文件对应**: `objectstack.config.ts` 或 `package.json > objectstack`。
-* **关键字段**: `id`, `version`, `type` (app/plugin/driver), `permissions` (申请权限), `menus` (导航注入)。
-* **用途**: CLI 打包校验，应用商店展示。
+**ObjectStack Protocol** is the "DNA" and constitution of the ObjectStack platform. It defines the metadata standards, schemas, and runtime behaviors that power a metadata-driven, low-code operating system.
 
+<Callout type="info">
+  This specification serves as the Single Source of Truth for all ObjectStack implementations. All definitions are strictly typed using Zod and TypeScript.
+</Callout>
 
-* **[ ] 5. 生命周期接口 (`PluginLifecycle`)**
-* **定义目标**: 插件在运行时如何被加载。
-* **接口定义**: `interface ObjectStackPlugin`
-* **关键方法**: `onInstall(ctx)`, `onEnable(ctx)`, `onDisable(ctx)`。
-* **Context 定义**: `ctx.ql` (数据能力), `ctx.os` (系统能力), `ctx.logger`。
-* **用途**: ObjectOS 加载 `node_modules` 时的统一入口标准。
+## The Metamodel Architecture
 
+The protocol is divided into three fundamental pillars that decouple data, presentation, and system configuration.
 
-* **[ ] 6. 导航菜单协议 (`NavigationSchema`)**
-* **定义目标**: 描述侧边栏菜单结构。
-* **关键字段**: `label`, `icon`, `path`, `children`, `visible_on` (权限控制)。
-* **用途**: 多个插件的菜单合并渲染到 ObjectCloud / Studio 的侧边栏。
+<Cards>
+  <Card
+    icon={<Database />}
+    href="/docs/concepts/architecture"
+    title="Data Protocol"
+    description="Core business logic and data modeling. Defines Objects, Fields, Validation Rules, and Flows."
+  />
+  <Card
+    icon={<Layout />}
+    href="/docs/references/App"
+    title="UI Protocol"
+    description="Presentation layer specifications. Defines Views, Layouts, Menus (Apps), and Dashboards."
+  />
+  <Card
+    icon={<Settings />}
+    href="/docs/references/Datasource"
+    title="System Protocol"
+    description="Runtime configuration and environment binding. Defines Datasources, APIs, and Manifests."
+  />
+</Cards>
 
+## Core Principles
 
+### 1. Schema First
+Every protocol definition starts with a **Zod Schema**. This ensures runtime validation for the CLI and strict type derivation (`z.infer<T>`) for the IDE. We do not write code without a schema.
 
----
+### 2. Configuration as Code
+All business logic is expressed as serializable JSON/YAML configuration. This enables:
+- **Version Control**: Git-based history for business logic.
+- **Reviewability**: Pull requests for application changes.
+- **Portability**: Move applications between environments instantly.
 
-### 🟠 P2: 驱动与连接 (Drivers & Logic)
+### 3. Separation of Concerns
+We strictly separate the **Metamodel** (pure definitions) from the **Runtime** (execution engine). The `spec` package contains *only* definitions, constants, and types—no heavy business logic.
 
-*这部分决定了你的系统扩展性（能不能连 Excel，能不能写自定义代码）。*
+## Directory Structure
 
-* **[ ] 7. 数据驱动接口 (`DriverInterface`)**
-* **定义目标**: 任何数据库要想接入 ObjectQL，必须实现的标准。
-* **核心方法**:
-* `find(entity, query)`
-* `create(entity, data)`
-* `update(entity, id, data)`
-* `delete(entity, id)`
-* `syncSchema(entity)` (DDL 操作：建表/加字段)
+The specification is organized reflecting the protocol pillars:
 
+- **`src/data/`**: ObjectQL definitions (Object, Field, Validation).
+- **`src/ui/`**: ObjectUI definitions (App, View, Action).
+- **`src/system/`**: ObjectOS definitions (Manifest, Config).
 
-* **用途**: 让 `driver-postgres`, `driver-excel`, `driver-salesforce` 行为一致。
+## Next Steps
 
-
-* **[ ] 8. 触发器上下文协议 (`TriggerContext`)**
-* **定义目标**: 当用户写 `beforeInsert` 代码时，传入参数的标准。
-* **接口定义**:
-* `doc` (当前记录)
-* `previousDoc` (修改前的记录)
-* `userId` (谁在操作)
-
-
-* **用途**: 规范化业务逻辑代码的编写。
-
-
-* **[ ] 9. UI 组件契约 (`WidgetContract`)**
-* **定义目标**: 第三方开发者开发自定义 UI 组件（如：地图选择器）的标准。
-* **接口定义**: `interface FieldWidgetProps { value, onChange, readonly, options }`。
-* **用途**: 让社区开发的 React 组件能无缝嵌入到 ObjectUI 的表单中。
-
-
-
----
-
-### 💾 你的“立法”行动路线图
-
-建议你在 `packages/spec` 仓库中按以下文件结构落地这些协议：
-
-```text
-packages/spec/
-├── src/
-│   ├── types/
-│   │   ├── meta/           <-- P0: Metamodel
-│   │   │   ├── entity.ts   (EntitySchema)
-│   │   │   ├── field.ts    (FieldSchema)
-│   │   │   └── view.ts     (LayoutSchema)
-│   │   ├── bundle/         <-- P1: Packaging
-│   │   │   ├── manifest.ts (ManifestSchema)
-│   │   │   └── menu.ts     (NavigationSchema)
-│   │   ├── runtime/        <-- P2: Logic
-│   │   │   ├── plugin.ts   (Lifecycle)
-│   │   │   └── driver.ts   (DriverInterface)
-│   │   └── auth/           <-- from plugin-auth
-│   │       └── session.ts  (User/Session Interface)
-│   ├── zods/               <-- 对应的 Zod 实现 (用于运行时校验)
-│   └── constants/          <-- 目录约定 (paths)
-└── package.json
-
-```
-
+<Cards>
+  <Card
+    icon={<Book />}
+    href="/docs/concepts/manifesto"
+    title="Read the Manifesto"
+    description="Understand the philosophy behind the Post-SaaS Operating System."
+  />
+  <Card
+    icon={<FileText />}
+    href="/docs/references"
+    title="API Reference"
+    description="Explore the complete API and Schema reference documentation."
+  />
+</Cards>
