@@ -32,6 +32,9 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "fumadocs-mdx:collections/*": [
+        "./.source/*"
       ]
     }
   },
