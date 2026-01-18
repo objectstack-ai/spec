@@ -1,0 +1,91 @@
+import { z } from 'zod';
+
+/**
+ * Flow Node Types
+ */
+export const FlowNodeAction = z.enum([
+  'start',          // Trigger
+  'end',            // Return/Stop
+  'decision',       // If/Else logic
+  'assignment',     // Set Variable
+  'loop',           // For Each
+  'create_record',  // CRUD: Create
+  'update_record',  // CRUD: Update
+  'delete_record',  // CRUD: Delete
+  'get_record',     // CRUD: Get/Query
+  'http_request',   // Webhook/API Call
+  'script',         // Custom Script (JS/TS)
+  'wait',           // Delay/Sleep
+  'subflow'         // Call another flow
+]);
+
+/**
+ * Flow Variable Schema
+ * Variables available within the flow execution context.
+ */
+export const FlowVariableSchema = z.object({
+  name: z.string().describe('Variable name'),
+  type: z.string().describe('Data type (text, number, boolean, object, list)'),
+  isInput: z.boolean().default(false).describe('Is input parameter'),
+  isOutput: z.boolean().default(false).describe('Is output parameter'),
+});
+
+/**
+ * Flow Node Schema
+ * A single step in the visual logic graph.
+ */
+export const FlowNodeSchema = z.object({
+  id: z.string().describe('Node unique ID'),
+  type: FlowNodeAction.describe('Action type'),
+  label: z.string().describe('Node label'),
+  
+  /** Node Configuration Options (Specific to type) */
+  config: z.record(z.any()).optional().describe('Node configuration'),
+  
+  /** UI Position (for the canvas) */
+  position: z.object({ x: z.number(), y: z.number() }).optional(),
+});
+
+/**
+ * Flow Edge Schema
+ * Connections between nodes.
+ */
+export const FlowEdgeSchema = z.object({
+  id: z.string().describe('Edge unique ID'),
+  source: z.string().describe('Source Node ID'),
+  target: z.string().describe('Target Node ID'),
+  
+  /** Condition for this path (only for decision/branch nodes) */
+  condition: z.string().optional().describe('Expression returning boolean used for branching'),
+  
+  label: z.string().optional().describe('Label on the connector'),
+});
+
+/**
+ * Flow Schema
+ * Visual Business Logic Orchestration.
+ */
+export const FlowSchema = z.object({
+  /** Identity */
+  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Machine name'),
+  label: z.string().describe('Flow label'),
+  description: z.string().optional(),
+  
+  /** Trigger Type */
+  type: z.enum(['autolaunched', 'record_change', 'schedule', 'screen', 'api']).describe('Flow type'),
+  
+  /** Configuration Variables */
+  variables: z.array(FlowVariableSchema).optional().describe('Flow variables'),
+  
+  /** Graph Definition */
+  nodes: z.array(FlowNodeSchema).describe('Flow nodes'),
+  edges: z.array(FlowEdgeSchema).describe('Flow connections'),
+  
+  /** Execution Config */
+  active: z.boolean().default(false).describe('Is active'),
+  runAs: z.enum(['system', 'user']).default('user').describe('Execution context'),
+});
+
+export type Flow = z.infer<typeof FlowSchema>;
+export type FlowNode = z.infer<typeof FlowNodeSchema>;
+export type FlowEdge = z.infer<typeof FlowEdgeSchema>;

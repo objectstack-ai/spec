@@ -25,7 +25,8 @@
     *   **Props**: `name` (snake_case), `label`, `type`, `multiple` (Array support), `reference` (Target Object).
 *   **Object (`src/data/object.zod.ts`)**:
     *   **Props**: `name` (snake_case), `label`, `fields` (Map), `enable` (Capabilities: `trackHistory`, `apiEnabled`).
-*   **Logic**: `validation.zod.ts` (Rules), `permission.zod.ts` (ACL), `workflow.zod.ts` (Automation).
+*   **Flow (`src/data/flow.zod.ts`)**: Visual Logic Orchestration (`autolaunched`, `screen`, `schedule`).
+*   **Logic**: `validation.zod.ts` (Rules), `permission.zod.ts` (ACL), `workflow.zod.ts` (State Machine).
 
 ### **B. UI PROTOCOL (`src/ui/*.zod.ts`)**
 *Presentation & Interaction*
@@ -37,12 +38,15 @@
     *   **Navigation**: Structured Menu Tree (`ObjectNavItem`, `DashboardNavItem`).
     *   **Branding**: Logo, Colors.
 *   **Dashboard (`src/ui/dashboard.zod.ts`)**: Grid layout widgets.
+*   **Report (`src/ui/report.zod.ts`)**: Analytics (`tabular`, `summary`, `matrix`, `chart`).
 *   **Action (`src/ui/action.zod.ts`)**: Buttons, URL jumps, Screen Flows.
 
 ### **C. SYSTEM PROTOCOL (`src/system/*.zod.ts`)**
 *Runtime Configuration*
 
 *   **Manifest (`src/system/manifest.zod.ts`)**: Package definition (`objectstack.config.ts`).
+*   **Datasource (`src/system/datasource.zod.ts`)**: External Data Connections (SQL, NoSQL, SaaS).
+*   **API (`src/system/api.zod.ts`)**: REST/GraphQL Endpoint Definitions.
 *   **Translation (`src/system/translation.zod.ts`)**: Internationalization (i18n).
 
 ---
