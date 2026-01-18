@@ -14,3 +14,4 @@ export * from './field-type';
 export * from './object-field';
 export * from './object-entity';
 export * from './object-view';
+export * from './examples';
