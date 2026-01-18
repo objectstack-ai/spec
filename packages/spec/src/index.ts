@@ -21,6 +21,3 @@ export * from './constants';
 // Runtime Types (Interfaces only, no Zod)
 export * from './types/runtime';
 
-export * from '@objectstack/spec-plugin';
-export * from '@objectstack/spec-schemas';
-export * from '@objectstack/spec-constants';
