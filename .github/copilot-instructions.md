@@ -12,6 +12,10 @@
 4. **Naming Convention:**
     *   **Configuration Keys (TS Props):** `camelCase` (e.g., `maxLength`, `referenceFilters`).
     *   **Machine Names (Data Values):** `snake_case` (e.g., `name: 'first_name'`, `object: 'project_task'`).
+5. **Best Practice Mandate:**
+    *   **Ignore Status Quo:** Do not let current implementation limitations constrain the design.
+    *   **Benchmark:** Align with industry leaders (Salesforce, ServiceNow, Kubernetes) for structural decisions.
+    *   **Philosophy:** "Data as Code", Idempotency, and Immutable Infrastructure are the defaults.
 
 ---
 
