@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { DashboardWidgetSchema } from './dashboard.zod';
 
 /**
  * Page Region Schema
