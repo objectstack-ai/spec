@@ -1,14 +1,14 @@
 {
-  "name": "@objectstack/spec",
+  "name": "@objectstack/spec-monorepo",
   "version": "0.1.0",
-  "description": "ObjectStack Protocol & Specification - TypeScript Interfaces, JSON Schemas, and Convention Configurations",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "private": true,
+  "description": "ObjectStack Protocol & Specification - Monorepo for TypeScript Interfaces, JSON Schemas, and Convention Configurations",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "clean": "rm -rf dist",
-    "prepublishOnly": "pnpm run clean && pnpm run build"
+    "build": "pnpm -r --stream build",
+    "dev": "pnpm -r --parallel dev",
+    "clean": "pnpm -r --parallel clean && rm -rf dist",
+    "version": "changeset version",
+    "release": "pnpm run build && changeset publish"
   },
   "keywords": [
     "objectstack",
@@ -20,11 +20,9 @@
   "author": "ObjectStack",
   "license": "MIT",
   "devDependencies": {
+    "@changesets/cli": "^2.27.1",
     "@types/node": "^20.10.0",
     "typescript": "^5.3.0"
-  },
-  "dependencies": {
-    "zod": "^3.22.4"
   },
   "engines": {
     "node": ">=18.0.0"

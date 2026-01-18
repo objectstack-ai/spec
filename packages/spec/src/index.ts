@@ -16,27 +16,8 @@
  * This package has NO database connections, NO UI components, and NO runtime business logic.
  */
 
-// Export schemas
-export {
-  ManifestSchema,
-  MenuItemSchema,
-  type ObjectStackManifest,
-  type MenuItem,
-} from './schemas/manifest.zod';
-
-// Export types
-export {
-  type ObjectStackPlugin,
-  type PluginContext,
-  type PluginFactory,
-  type PluginLogger,
-  type ObjectQLClient,
-  type ObjectOSKernel,
-} from './types/plugin';
-
-// Export constants
-export {
-  PKG_CONVENTIONS,
-  type PackageDirectory,
-  type PackageFile,
-} from './constants/paths';
+// Re-export from sub-packages for backward compatibility
+export * from '@objectstack/spec-meta';
+export * from '@objectstack/spec-plugin';
+export * from '@objectstack/spec-schemas';
+export * from '@objectstack/spec-constants';

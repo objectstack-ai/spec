@@ -1,0 +1,33 @@
+{
+  "name": "@objectstack/spec-schemas",
+  "version": "0.1.0",
+  "description": "ObjectStack Zod Validation Schemas - Runtime validation for ObjectStack configurations",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "objectstack",
+    "schema",
+    "validation",
+    "zod"
+  ],
+  "author": "ObjectStack",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "zod": "^3.22.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
