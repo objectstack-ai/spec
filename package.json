@@ -10,7 +10,14 @@
   ],
   "scripts": {
     "build": "tsc",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "npm run build && changeset publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/objectstack-ai/spec.git"
   },
   "keywords": [
     "objectstack",
@@ -21,6 +28,7 @@
   "author": "ObjectStack",
   "license": "MIT",
   "devDependencies": {
+    "@changesets/cli": "^2.29.8",
     "typescript": "^5.9.3"
   }
 }
