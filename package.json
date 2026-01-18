@@ -1,0 +1,26 @@
+{
+  "name": "@objectstack/spec",
+  "version": "0.1.0",
+  "description": "ObjectStack Protocol & Specification - Type definitions and schemas",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "objectstack",
+    "specification",
+    "types",
+    "metamodel"
+  ],
+  "author": "ObjectStack",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
