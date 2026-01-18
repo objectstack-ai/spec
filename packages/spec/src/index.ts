@@ -7,23 +7,21 @@
  * All types and schemas are centralized here.
  */
 
-// Zod Schemas & Inferred Types (Meta)
-export * from './zod/meta/field.zod';
-export * from './zod/meta/object.zod';
-export * from './zod/meta/view.zod';
-export * from './zod/meta/action.zod';
-export * from './zod/meta/validation.zod';
-export * from './zod/meta/permission.zod';
-export * from './zod/meta/workflow.zod';
-export * from './zod/meta/app.zod';
-export * from './zod/meta/dashboard.zod';
+// Data Protocol (Schema, Validation, Logic)
+export * from './data/field.zod';
+export * from './data/object.zod';
+export * from './data/validation.zod';
+export * from './data/permission.zod';
+export * from './data/workflow.zod';
 
-// Zod Schemas & Inferred Types (Bundle)
-export * from './zod/bundle/manifest.zod';
+// UI Protocol (Layout, Navigation, Interaction)
+export * from './ui/app.zod';
+export * from './ui/view.zod';
+export * from './ui/dashboard.zod';
+export * from './ui/action.zod';
 
-// Runtime Constants
-export * from './constants';
-
-// Runtime Types (Interfaces only, no Zod)
-export * from './types/runtime';
+// System Protocol (Manifest, Runtime, Constants)
+export * from './system/manifest.zod';
+export * from './system/constants';
+export * from './system/types';
 
