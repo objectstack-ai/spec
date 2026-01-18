@@ -16,6 +16,9 @@ export * from './data/workflow.zod';
 export * from './data/flow.zod';
 export * from './data/dataset.zod';
 
+// AI Protocol (Agent, RAG)
+export * from './ai/agent.zod';
+
 // UI Protocol (Layout, Navigation, Interaction)
 export * from './ui/app.zod';
 export * from './ui/view.zod';
