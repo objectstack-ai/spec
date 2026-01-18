@@ -1,0 +1,16 @@
+---
+title: AIModelConfig
+description: AIModelConfig Schema Reference
+---
+
+# AIModelConfig
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **provider** | `Enum<'openai' \| 'azure_openai' \| 'anthropic' \| 'local'>` | optional |  |
+| **model** | `string` | ✅ | Model name (e.g. gpt-4, claude-3-opus) |
+| **temperature** | `number` | optional |  |
+| **maxTokens** | `number` | optional |  |
+| **topP** | `number` | optional |  |

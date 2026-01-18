@@ -5,8 +5,6 @@
 **Location:** `packages/spec` repository.
 
 Mission: Build the "Post-SaaS Operating System" — an open-core, local-first ecosystem that virtualizes data (SQL/Redis/Excel) and unifies business logic.
-1. The "Galaxy" Architecture (Monorepo Structure)
-We use a Monorepo (pnpm + Turborepo) to manage the ecosystem, but components are designed to be published independently.
 Project & Responsibilities
  * packages/protocol (The Constitution) [Apache 2.0]
    * CRITICAL: Contains the shared manifest.schema.json, TypeScript interfaces, and plugin lifecycle hooks (onInstall, onEnable).

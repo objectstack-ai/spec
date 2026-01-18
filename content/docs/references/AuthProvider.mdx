@@ -1,0 +1,18 @@
+---
+title: AuthProvider
+description: AuthProvider Schema Reference
+---
+
+# AuthProvider
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Provider ID |
+| **label** | `string` | ✅ | Button Label (e.g. "Login with Okta") |
+| **type** | `Enum<'oidc' \| 'saml' \| 'ldap' \| 'oauth2' \| 'local' \| 'mock'>` | ✅ |  |
+| **config** | `object \| object \| object \| Record<string, any>` | ✅ | Provider specific configuration |
+| **icon** | `string` | optional | Icon URL or helper class |
+| **active** | `boolean` | optional |  |
+| **registrationEnabled** | `boolean` | optional | Allow new users to sign up via this provider |

@@ -10,10 +10,11 @@
     "README.md"
   ],
   "scripts": {
-    "build": "pnpm gen:schema && tsc",
+    "build": "pnpm gen:schema && pnpm gen:docs && tsc",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
-    "gen:schema": "tsx scripts/build-schemas.ts"
+    "gen:schema": "tsx scripts/build-schemas.ts",
+    "gen:docs": "tsx scripts/build-docs.ts"
   },
   "keywords": [
     "objectstack",

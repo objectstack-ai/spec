@@ -1,0 +1,19 @@
+---
+title: Plan
+description: Plan Schema Reference
+---
+
+# Plan
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **code** | `string` | ✅ | Plan code (e.g. pro_v1) |
+| **label** | `string` | ✅ |  |
+| **active** | `boolean` | optional |  |
+| **features** | `string[]` | ✅ | List of enabled boolean features |
+| **limits** | `Record<string, number>` | ✅ | Map of metric codes to limit values (e.g. { storage_gb: 10 }) |
+| **currency** | `string` | optional |  |
+| **priceMonthly** | `number` | optional |  |
+| **priceYearly** | `number` | optional |  |

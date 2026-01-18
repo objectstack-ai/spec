@@ -1,0 +1,19 @@
+---
+title: UniquenessValidation
+description: UniquenessValidation Schema Reference
+---
+
+# UniquenessValidation
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique rule name |
+| **active** | `boolean` | optional |  |
+| **severity** | `Enum<'error' \| 'warning' \| 'info'>` | optional |  |
+| **message** | `string` | ✅ | Error message to display |
+| **type** | `string` | ✅ |  |
+| **fields** | `string[]` | ✅ | Fields that must be combined unique |
+| **scope** | `string` | optional | Formula condition for scope (e.g. active = true) |
+| **caseSensitive** | `boolean` | optional |  |

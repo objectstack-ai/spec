@@ -1,0 +1,20 @@
+---
+title: Manifest
+description: Manifest Schema Reference
+---
+
+# Manifest
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique package identifier (reverse domain style) |
+| **version** | `string` | ✅ | Package version (semantic versioning) |
+| **type** | `Enum<'app' \| 'plugin' \| 'driver' \| 'module'>` | ✅ | Type of package |
+| **name** | `string` | ✅ | Human-readable package name |
+| **description** | `string` | optional | Package description |
+| **permissions** | `string[]` | optional | Array of required permission strings |
+| **menus** | `object[]` | optional | Navigation menu structure |
+| **objects** | `string[]` | optional | Glob patterns for ObjectQL schemas files |
+| **extensions** | `Record<string, any>` | optional | Extension points and contributions |

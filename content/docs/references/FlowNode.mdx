@@ -1,0 +1,16 @@
+---
+title: FlowNode
+description: FlowNode Schema Reference
+---
+
+# FlowNode
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Node unique ID |
+| **type** | `Enum<'start' \| 'end' \| 'decision' \| 'assignment' \| 'loop' \| 'create_record' \| 'update_record' \| 'delete_record' \| 'get_record' \| 'http_request' \| 'script' \| 'wait' \| 'subflow'>` | ✅ | Action type |
+| **label** | `string` | ✅ | Node label |
+| **config** | `Record<string, any>` | optional | Node configuration |
+| **position** | `object` | optional |  |

@@ -1,0 +1,21 @@
+---
+title: Agent
+description: Agent Schema Reference
+---
+
+# Agent
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Agent unique identifier |
+| **label** | `string` | ✅ | Agent display name |
+| **avatar** | `string` | optional |  |
+| **role** | `string` | ✅ | The persona/role (e.g. "Senior Support Engineer") |
+| **instructions** | `string` | ✅ | System Prompt / Prime Directives |
+| **model** | `object` | optional |  |
+| **tools** | `object[]` | optional | Available tools |
+| **knowledge** | `object` | optional | RAG access |
+| **active** | `boolean` | optional |  |
+| **access** | `string[]` | optional | Who can chat with this agent |

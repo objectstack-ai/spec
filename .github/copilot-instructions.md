@@ -4,6 +4,8 @@
 **Context:** You are defining the "DNA" and "Constitution" of a metadata-driven low-code platform.
 **Location:** `packages/spec` repository.
 
+Mission: Build the "Post-SaaS Operating System" — an open-core, local-first ecosystem that virtualizes data (SQL/Redis/Excel) and unifies business logic.
+
 **PRIME DIRECTIVES:**
 
 1. **Zod First:** ALL definitions must start with a **Zod Schema**. We need runtime validation for the CLI and JSON Schema generation for the IDE.

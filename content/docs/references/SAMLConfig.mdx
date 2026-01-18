@@ -1,0 +1,16 @@
+---
+title: SAMLConfig
+description: SAMLConfig Schema Reference
+---
+
+# SAMLConfig
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **entryPoint** | `string` | ✅ | IdP SSO URL |
+| **cert** | `string` | ✅ | IdP Public Certificate |
+| **issuer** | `string` | ✅ | Entity ID of the IdP |
+| **signatureAlgorithm** | `Enum<'sha256' \| 'sha512'>` | optional |  |
+| **attributeMapping** | `Record<string, string>` | optional |  |

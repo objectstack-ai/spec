@@ -1,0 +1,23 @@
+---
+title: Webhook
+description: Webhook Schema Reference
+---
+
+# Webhook
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ |  |
+| **label** | `string` | optional |  |
+| **object** | `string` | ✅ | Object to listen to |
+| **triggers** | `Enum<'create' \| 'update' \| 'delete' \| 'undelete' \| 'api'>[]` | ✅ | Events that trigger execution |
+| **url** | `string` | ✅ | External URL payload |
+| **method** | `Enum<'POST' \| 'PUT' \| 'GET'>` | optional |  |
+| **secret** | `string` | optional | Signing secret (HMAC) |
+| **headers** | `Record<string, string>` | optional | Custom headers (Auth) |
+| **payloadFields** | `string[]` | optional | Fields to include. Empty = All |
+| **includeSession** | `boolean` | optional | Include user session info |
+| **retryCount** | `number` | optional |  |
+| **isActive** | `boolean` | optional |  |

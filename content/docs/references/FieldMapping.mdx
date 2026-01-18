@@ -1,0 +1,15 @@
+---
+title: FieldMapping
+description: FieldMapping Schema Reference
+---
+
+# FieldMapping
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **source** | `string \| string[]` | ✅ | Source column header(s) |
+| **target** | `string \| string[]` | ✅ | Target object field(s) |
+| **transform** | `Enum<'none' \| 'constant' \| 'lookup' \| 'split' \| 'join' \| 'javascript' \| 'map'>` | optional |  |
+| **params** | `object` | optional |  |

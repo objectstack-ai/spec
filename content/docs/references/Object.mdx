@@ -1,0 +1,23 @@
+---
+title: Object
+description: Object Schema Reference
+---
+
+# Object
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Machine name (snake_case) |
+| **label** | `string` | optional | Singular Label (e.g. "Account") |
+| **pluralLabel** | `string` | optional | Plural Label (e.g. "Accounts") |
+| **description** | `string` | optional | Internal description |
+| **icon** | `string` | optional | Lucide icon name |
+| **datasource** | `string` | optional | Datasource name |
+| **tableName** | `string` | optional | Physical DB table override |
+| **isSystem** | `boolean` | optional | Is system object (protected) |
+| **fields** | `Record<string, object>` | ✅ | Map of field definitions |
+| **indexes** | `object[]` | optional | Database indexes definition |
+| **nameField** | `string` | optional | Which field represents the record name/title (usually "name") |
+| **enable** | `object` | optional | Enabled system capabilities |

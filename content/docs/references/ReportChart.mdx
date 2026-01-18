@@ -1,0 +1,16 @@
+---
+title: ReportChart
+description: ReportChart Schema Reference
+---
+
+# ReportChart
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'bar' \| 'column' \| 'line' \| 'pie' \| 'donut' \| 'scatter' \| 'funnel'>` | ✅ | Chart type |
+| **title** | `string` | optional |  |
+| **showLegend** | `boolean` | optional |  |
+| **xAxis** | `string` | ✅ | Grouping field for X-Axis |
+| **yAxis** | `string` | ✅ | Summary field for Y-Axis |
