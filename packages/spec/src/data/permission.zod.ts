@@ -2,20 +2,31 @@ import { z } from 'zod';
 
 /**
  * Entity (Object) Level Permissions
+ * Defines CRUD + VAMA (View All / Modify All) access.
  */
 export const ObjectPermissionSchema = z.object({
-  /** Can create new records */
+  /** C: Create */
   allowCreate: z.boolean().default(false).describe('Create permission'),
-  /** Can read records */
+  /** R: Read (Owned records or Shared records) */
   allowRead: z.boolean().default(false).describe('Read permission'),
-  /** Can edit records */
+  /** U: Edit (Owned records or Shared records) */
   allowEdit: z.boolean().default(false).describe('Edit permission'),
-  /** Can delete records */
+  /** D: Delete (Owned records or Shared records) */
   allowDelete: z.boolean().default(false).describe('Delete permission'),
-  /** Can view all records (ignores sharing rules) */
-  viewAllNodes: z.boolean().default(false).describe('View All Data (admin)'),
-  /** Can modify all records (ignores sharing rules) */
-  modifyAllNodes: z.boolean().default(false).describe('Modify All Data (admin)'),
+  
+  /** 
+   * View All Records: Super-user read access. 
+   * Bypasses Sharing Rules and Ownership checks.
+   * Equivalent to Microsoft Dataverse "Organization" level read access.
+   */
+  viewAllRecords: z.boolean().default(false).describe('View All Data (Bypass Sharing)'),
+  
+  /** 
+   * Modify All Records: Super-user write access. 
+   * Bypasses Sharing Rules and Ownership checks.
+   * Equivalent to Microsoft Dataverse "Organization" level write access.
+   */
+  modifyAllRecords: z.boolean().default(false).describe('Modify All Data (Bypass Sharing)'),
 });
 
 /**
@@ -31,6 +42,11 @@ export const FieldPermissionSchema = z.object({
 /**
  * Permission Set Schema
  * Defines a collection of permissions that can be assigned to users.
+ * 
+ * DIFFERENTIATION:
+ * - Profile: The ONE primary functional definition of a user (e.g. Standard User).
+ * - Permission Set: Add-on capabilities assigned to users (e.g. Export Reports).
+ * - Role: (Defined in src/system/role.zod.ts) Defines data visibility hierarchy.
  */
 export const PermissionSetSchema = z.object({
   /** Unique permission set name */
