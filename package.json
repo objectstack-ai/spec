@@ -8,7 +8,10 @@
     "dev": "pnpm -r --parallel dev",
     "clean": "pnpm -r --parallel clean && rm -rf dist",
     "version": "changeset version",
-    "release": "pnpm run build && changeset publish"
+    "release": "pnpm run build && changeset publish",
+    "docs:dev": "objectdocs dev",
+    "docs:build": "objectdocs build",
+    "docs:start": "objectdocs start"
   },
   "keywords": [
     "objectstack",

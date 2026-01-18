@@ -1,90 +1,85 @@
-# @objectstack/spec
+# ObjectStack Protocol
 
+![ObjectStack Protocol](https://img.shields.io/badge/ObjectStack-Protocol-black)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> ObjectStack Protocol & Specification - The Constitution of the ObjectStack Ecosystem
+> **The "Constitution" of the Post-SaaS Operating System.**
 
-## 📜 Overview
+This repository contains the core specifications, schemas, and protocols that power the ObjectStack ecosystem. It defines how data, UI, and system configurations are expressed as code.
 
-This monorepo contains the **core interfaces, schemas, and conventions** for the ObjectStack ecosystem. It serves as the "Constitution" - the shared language that ObjectOS, ObjectStudio, ObjectCloud, and all third-party plugins use to communicate.
+## 📚 Documentation
 
-**Guiding Principle:** *"Strict Types, No Logic"*
+The official documentation is co-located in this repository.
 
-## 📦 Packages
+*   **[Concepts](./content/docs/concepts/):** Architecture, Manifesto, and Core Values.
+*   **[Specifications](./packages/spec/json-schema/):** Auto-generated JSON Schemas.
+*   **[API Reference](./content/docs/references/):** Detailed property references generated from code.
 
-This repository is organized as a monorepo with the following packages:
+## 📦 Monorepo Structure
 
-### Core Packages
+| Package | Description | Status |
+| :--- | :--- | :--- |
+| **[`@objectstack/spec`](packages/spec)** | **THE PROTOCOL**. Contains all Zod definitions, Types, and JSON Schemas. | 🟢 **Active** |
+| `content/docs` | The documentation site source. | 🟢 **Active** |
+| *Other packages* | *Legacy/Migration in progress* | 🟡 *Legacy* |
 
-- **[@objectstack/spec](./packages/spec)** - Main package that re-exports everything (use this for convenience)
-- **[@objectstack/spec-meta](./packages/meta)** - Metamodel type definitions (ObjectEntity, ObjectField, ObjectView)
-- **[@objectstack/spec-plugin](./packages/plugin)** - Plugin runtime interfaces (ObjectStackPlugin, PluginContext)
-- **[@objectstack/spec-schemas](./packages/schemas)** - Zod validation schemas (ManifestSchema, MenuItemSchema)
-- **[@objectstack/spec-constants](./packages/constants)** - Convention constants (PKG_CONVENTIONS)
+## 🛠️ The Protocol Architecture
 
-## 🚀 Installation
+The ObjectStack Protocol (`@objectstack/spec`) is divided into three layers:
 
-### Install the main package (recommended)
+### 1. Data Protocol (ObjectQL)
+Defines the "Shape of Data".
+- **Schema:** Objects, Fields, Validation.
+- **Logic:** Formulas, Rollups.
+- **Security:** Permissions, Sharing Rules.
+- **Query:** Abstract Syntax Tree (AST) for unified data access.
 
-```bash
-pnpm install @objectstack/spec
-```
+### 2. UI Protocol (ObjectUI)
+Defines the "Shape of Interaction".
+- **Views:** Grids, Kanbans, Calendars.
+- **Pages:** FlexiPage layouts (Regions & Components).
+- **Navigation:** Apps, Menus.
+- **Analytics:** Reports, Dashboards.
 
-### Install individual packages (for smaller bundle sizes)
+### 3. System Protocol (ObjectOS)
+Defines the "Runtime Environment".
+- **Manifest:** Application packaging (`objectstack.config.ts`).
+- **Identity:** Auth, Roles, Territories.
+- **Integration:** Webhooks, ETL Mappings.
 
-```bash
-pnpm install @objectstack/spec-meta
-pnpm install @objectstack/spec-plugin
-pnpm install @objectstack/spec-schemas
-pnpm install @objectstack/spec-constants
-```
+## 🚀 Development
 
-## 📚 Usage
+This project uses **PNPM** workspaces.
 
-### Using the main package
+### Prerequisites
+- Node.js >= 18
+- PNPM >= 8
 
-```typescript
-import { 
-  ObjectEntity,
-  ObjectStackPlugin,
-  ManifestSchema,
-  PKG_CONVENTIONS
-} from '@objectstack/spec';
-```
-
-### Using individual packages
-
-```typescript
-import { ObjectEntity } from '@objectstack/spec-meta';
-import { ObjectStackPlugin } from '@objectstack/spec-plugin';
-import { ManifestSchema } from '@objectstack/spec-schemas';
-import { PKG_CONVENTIONS } from '@objectstack/spec-constants';
-```
-
-## 🏗️ Development
+### Quick Start
 
 ```bash
-# Install dependencies
+# 1. Install dependencies
 pnpm install
 
-# Build all packages
-pnpm run build
+# 2. Build the Protocol (Generates Schemas & Docs)
+pnpm --filter @objectstack/spec build
+# Output:
+# - packages/spec/dist/        (Compiled TS)
+# - packages/spec/json-schema/ (JSON Schemas)
+# - content/docs/references/   (Markdown Docs)
 
-# Watch mode for development (all packages)
-pnpm run dev
-
-# Clean build artifacts
-pnpm run clean
+# 3. Start Documentation Site (Optional)
+# (Assuming a doc site runner is configured)
+pnpm dev
 ```
 
-### Building Individual Packages
+## 🤝 Contribution
 
-```bash
-# Build a specific package
-cd packages/meta && pnpm run build
-```
+1.  **Code First**: Always start by defining the Zod Schema in `packages/spec/src`.
+2.  **Generate**: Run `pnpm build` to update JSON Schemas and Documentation.
+3.  **Commit**: Submit PR with updated Code + Schemas + Docs.
 
 ## 📄 License
 
-MIT
+MIT © ObjectStack

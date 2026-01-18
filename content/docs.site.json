@@ -28,7 +28,15 @@
       "transparentMode": "top",
       "links": [
         {
-          "text": "Home",
+          "text": "Concepts",
+          "url": "/docs/concepts/manifesto"
+        },
+        {
+          "text": "References",
+          "url": "/docs/references/Object"
+        },
+        {
+          "text": "Website",
           "url": "https://www.objectstack.ai",
           "external": true
         }

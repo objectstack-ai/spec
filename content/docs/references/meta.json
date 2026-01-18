@@ -1,4 +1,33 @@
 {
   "label": "API References",
-  "order": 100
+  "order": 100,
+  "pages": [
+    "--- Data Protocol ---",
+    "Object",
+    "Field",
+    "PermissionSet",
+    "SharingRule",
+    "Query",
+    "Mapping",
+    "Flow",
+    "ValidationRule",
+    
+    "--- UI Protocol ---",
+    "App",
+    "Page",
+    "View",
+    "Dashboard",
+    "DashboardWidget",
+    "Report",
+    "Action",
+    
+    "--- System Protocol ---",
+    "Manifest",
+    "Datasource",
+    "Role",
+    "Territory",
+    "Policy",
+    "Webhook",
+    "TranslationBundle"
+  ]
 }
