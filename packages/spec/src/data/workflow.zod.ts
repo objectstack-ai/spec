@@ -52,10 +52,10 @@ export const WorkflowRuleSchema = z.object({
   name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Unique workflow name'),
   
   /** Target Object */
-  object_name: z.string().describe('Target Object'),
+  objectName: z.string().describe('Target Object'),
   
   /** When to evaluate the rule */
-  trigger_type: WorkflowTriggerType.describe('When to evaluate'),
+  triggerType: WorkflowTriggerType.describe('When to evaluate'),
   
   /** 
    * Condition to start the workflow.

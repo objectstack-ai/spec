@@ -85,8 +85,8 @@ export const FormViewSchema = z.object({
 export const ViewSchema = z.object({
     list: ListViewSchema.optional(), // Default list view
     form: FormViewSchema.optional(), // Default form view
-    list_views: z.record(ListViewSchema).optional().describe('Additional named list views'),
-    form_views: z.record(FormViewSchema).optional().describe('Additional named form views'),
+    listViews: z.record(ListViewSchema).optional().describe('Additional named list views'),
+    formViews: z.record(FormViewSchema).optional().describe('Additional named form views'),
 });
 
 export type View = z.infer<typeof ViewSchema>;

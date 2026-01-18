@@ -65,7 +65,7 @@ export const PermissionSetSchema = z.object({
   fields: z.record(FieldPermissionSchema).optional().describe('Field level security'),
   
   /** System permissions (e.g., "manage_users") */
-  system_permissions: z.array(z.string()).optional().describe('System level capabilities'),
+  systemPermissions: z.array(z.string()).optional().describe('System level capabilities'),
 });
 
 export type PermissionSet = z.infer<typeof PermissionSetSchema>;
