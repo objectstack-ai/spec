@@ -34,7 +34,7 @@ export * from './system/api.zod';
 export * from './system/identity.zod';
 export * from './system/policy.zod';
 export * from './system/role.zod';
-export * from './system/org_unit.zod';
+export * from './system/territory.zod';
 export * from './system/license.zod';
 export * from './system/translation.zod';
 export * from './system/constants';

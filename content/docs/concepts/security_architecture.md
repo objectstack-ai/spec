@@ -39,24 +39,24 @@ If you are coming from the Microsoft/Dynamics ecosystem:
 *   **Security Role (User Level)** -> `allowRead: true`
 *   **Security Role (BU Level)** -> `allowRead: true` + `Sharing Rule (Share with Role)`
 *   **Security Role (Org Level)** -> `viewAllRecords: true`
-*   **Business Unit** -> `Role` (Functional) / `OrgUnit` (Physical)
+*   **Business Unit** -> `Role` (Functional Hierarchy)
 
-## 4. The Chinese Enterprise Extension (中国企业适配)
+## 4. Advanced: Matrix Management (Territory Management)
 
-In the context of Chinese enterprises, the hierarchy is often strictly defined by **legal entities and departments** (Organization), which is distinct from the **reporting line** (Role).
+For large global enterprises where a single reporting line ("Role") is insufficient, ObjectStack implements the **Territory Management** protocol (`src/system/territory.zod.ts`).
 
-*   **OrgUnit (组织机构)**: `src/system/org_unit.zod.ts`
-    *   **Group (集团)**
-    *   **Company (分公司)**
-    *   **Department (部门)**
-*   **Role (角色)**: `src/system/role.zod.ts`
-    *   Defines titles regardless of department (e.g., "Department Manager", "Accountant").
+This solves the "Matrix Organization" problem without breaking the strict Role hierarchy.
 
-**Example Assignment:**
-*   User: "Zhang San"
-*   OrgUnit: "Shanghai Branch / Sales Dept"
-*   Role: "Sales Manager"
+*   **Role Hierarchy (HR/Reporting)**: "Who reports to whom?" (Stable)
+    *   Example: A Sales Rep reports to a Sales Manager.
+*   **Territory Hierarchy (Market/Revenue)**: "Who owns which market?" (Flexible, Multi-assignment)
+    *   Example: A Sales Rep might be assigned to both "West Coast (Geo)" and "Healthcare (Industry)".
 
-The **Sharing Engine** can then support rules like:
-> "Share records owned by [Shanghai Branch] with [Headquarters Audit Role]."
+**How it works:**
+1.  **Accounts/Deals** are assigned to **Territories** based on rules (e.g., `State = 'CA'`).
+2.  **Users** are assigned to **Territories**.
+3.  Users gain access to records in their Territories, *regardless* of their Role.
+
+This aligns with best practices from **Salesforce Enterprise Territory Management** and **Oracle Sales Cloud**.
+
 
