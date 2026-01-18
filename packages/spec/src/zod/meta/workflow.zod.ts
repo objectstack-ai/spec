@@ -51,8 +51,8 @@ export const WorkflowRuleSchema = z.object({
   /** Machine name */
   name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Unique workflow name'),
   
-  /** Target Entity */
-  entity_name: z.string().describe('Target Object/Entity'),
+  /** Target Object */
+  object_name: z.string().describe('Target Object'),
   
   /** When to evaluate the rule */
   trigger_type: WorkflowTriggerType.describe('When to evaluate'),

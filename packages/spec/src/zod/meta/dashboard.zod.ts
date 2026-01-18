@@ -25,8 +25,8 @@ export const DashboardWidgetSchema = z.object({
   /** Visualization Type */
   type: ChartType.default('metric').describe('Visualization type'),
   
-  /** Data Source Entity */
-  entity: z.string().optional().describe('Data source entity name'),
+  /** Data Source Object */
+  object: z.string().optional().describe('Data source object name'),
   
   /** Data Filter (ObjectQL JSON) */
   filter: z.any().optional().describe('Data filter criteria'),

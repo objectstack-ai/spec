@@ -1,64 +1,159 @@
 import { z } from 'zod';
 
 /**
- * Navigation Tab Type
+ * Base Navigation Item Schema
+ * Shared properties for all navigation types.
  */
-export const TabType = z.enum([
-  'entity',   // Standard object list view
-  'dashboard',// Dashboard page
-  'page',     // Custom page
-  'url'       // External link
-]);
+const BaseNavItemSchema = z.object({
+  /** Unique identifier for the item */
+  id: z.string().describe('Unique identifier for this navigation item'),
+  
+  /** Display label */
+  label: z.string().describe('Display proper label'),
+  
+  /** Icon name (Lucide) */
+  icon: z.string().optional().describe('Icon name'),
+
+  /** 
+   * Visibility condition. 
+   * Formula expression returning boolean. 
+   * e.g. "user.is_admin || user.department == 'sales'"
+   */
+  visible: z.string().optional().describe('Visibility formula condition'),
+});
 
 /**
- * Schema for App Navigation Items (Tabs)
+ * 1. Object Navigation Item
+ * Navigates to an object's list view.
  */
-export const AppTabSchema = z.object({
-  name: z.string().describe('Tab unique name'),
-  label: z.string().optional().describe('Override label'),
-  type: TabType.default('entity').describe('Tab type'),
-  
-  /** 
-   * Reference ID based on type:
-   * - entity: entity_name
-   * - dashboard: dashboard_name
-   * - page: page_component_name
-   * - url: https://...
-   */
-  reference: z.string().describe('Target reference ID'),
-  
-  icon: z.string().optional().describe('Icon name'),
+export const ObjectNavItemSchema = BaseNavItemSchema.extend({
+  type: z.literal('object'),
+  objectName: z.string().describe('Target object name'),
+  viewName: z.string().optional().describe('Default list view to open. Defaults to "all"'),
+});
+
+/**
+ * 2. Dashboard Navigation Item
+ * Navigates to a specific dashboard.
+ */
+export const DashboardNavItemSchema = BaseNavItemSchema.extend({
+  type: z.literal('dashboard'),
+  dashboardName: z.string().describe('Target dashboard name'),
+});
+
+/**
+ * 3. Page Navigation Item
+ * Navigates to a custom UI page/component.
+ */
+export const PageNavItemSchema = BaseNavItemSchema.extend({
+  type: z.literal('page'),
+  pageName: z.string().describe('Target custom page component name'),
+  params: z.record(z.any()).optional().describe('Parameters passed to the page context'),
+});
+
+/**
+ * 4. URL Navigation Item
+ * Navigates to an external or absolute URL.
+ */
+export const UrlNavItemSchema = BaseNavItemSchema.extend({
+  type: z.literal('url'),
+  url: z.string().describe('Target external URL'),
+  target: z.enum(['_self', '_blank']).default('_self').describe('Link target window'),
+});
+
+/**
+ * 5. Group Navigation Item
+ * A container for child navigation items (Sub-menu).
+ * Does not perform navigation itself.
+ */
+export const GroupNavItemSchema = BaseNavItemSchema.extend({
+  type: z.literal('group'),
+  expanded: z.boolean().default(false).describe('Default expansion state in sidebar'),
+  // children property is added in the recursive definition below
+});
+
+/**
+ * Recursive Union of all navigation item types.
+ * Allows constructing a navigation tree.
+ */
+export const NavigationItemSchema: z.ZodType<any> = z.lazy(() => 
+  z.union([
+    ObjectNavItemSchema,
+    DashboardNavItemSchema,
+    PageNavItemSchema,
+    UrlNavItemSchema,
+    GroupNavItemSchema.extend({
+      children: z.array(NavigationItemSchema).describe('Child navigation items'),
+    })
+  ])
+);
+
+/**
+ * App Branding Configuration
+ * Allows configuring the look and feel of the specific app.
+ */
+export const AppBrandingSchema = z.object({
+  primaryColor: z.string().optional().describe('Primary theme color hex code'),
+  logo: z.string().optional().describe('Custom logo URL for this app'),
+  favicon: z.string().optional().describe('Custom favicon URL for this app'),
 });
 
 /**
  * Schema for Applications (Apps).
- * An App is a container that groups tabs/entities for a specific business function.
+ * A logical container for business functionality (e.g., "Sales CRM", "HR Portal").
  */
 export const AppSchema = z.object({
-  /** Machine name */
+  /** Machine name (id) */
   name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('App unique machine name'),
   
-  /** Display label (e.g., "Sales CRM") */
+  /** Display label */
   label: z.string().describe('App display label'),
   
   /** Description */
   description: z.string().optional().describe('App description'),
   
   /** Icon name (Lucide) */
-  icon: z.string().optional().describe('App icon'),
+  icon: z.string().optional().describe('App icon used in the App Launcher'),
   
-  /** Active status */
+  /** Branding/Theming Configuration */
+  branding: AppBrandingSchema.optional().describe('App-specific branding'),
+  
+  /** Application status */
   active: z.boolean().default(true).describe('Whether the app is enabled'),
-  
-  /** Ordered list of tabs/menu items */
-  tabs: z.array(AppTabSchema).describe('Navigation structure'),
+
+  /** Is this the default app for new users? */
+  isDefault: z.boolean().default(false).describe('Is default app'),
   
   /** 
-   * Profiles/Roles that can access this app.
-   * If empty, accessible to everyone (or controlled by other means).
+   * Navigation Tree Structure.
+   * Replaces the old flat 'tabs' list with a structured menu.
    */
-  profiles: z.array(z.string()).optional().describe('Profiles that can access this app'),
+  navigation: z.array(NavigationItemSchema).describe('Structured navigation menu tree'),
+  
+  /** 
+   * App-level Home Page Override
+   * ID of the navigation item to act as the landing page.
+   * If not set, usually defaults to the first navigation item.
+   */
+  homePageId: z.string().optional().describe('ID of the navigation item to serve as landing page'),
+
+  /** 
+   * Access Control
+   * List of permissions required to access this app.
+   * Modern replacement for role/profile based assignment.
+   * Example: ["app.access.crm"]
+   */
+  requiredPermissions: z.array(z.string()).optional().describe('Permissions required to access this app'),
 });
 
+// Main Types
 export type App = z.infer<typeof AppSchema>;
-export type AppTab = z.infer<typeof AppTabSchema>;
+export type AppBranding = z.infer<typeof AppBrandingSchema>;
+export type NavigationItem = z.infer<typeof NavigationItemSchema>;
+
+// Discriminated Item Types (Helper exports)
+export type ObjectNavItem = z.infer<typeof ObjectNavItemSchema>;
+export type DashboardNavItem = z.infer<typeof DashboardNavItemSchema>;
+export type PageNavItem = z.infer<typeof PageNavItemSchema>;
+export type UrlNavItem = z.infer<typeof UrlNavItemSchema>;
+export type GroupNavItem = z.infer<typeof GroupNavItemSchema> & { children: NavigationItem[] };

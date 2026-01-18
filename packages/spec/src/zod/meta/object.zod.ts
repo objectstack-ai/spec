@@ -11,9 +11,9 @@ export const IndexSchema = z.object({
 });
 
 /**
- * Schema for Entities (Models/Tables).
+ * Schema for Objects (Models/Tables).
  */
-export const EntitySchema = z.object({
+export const ObjectSchema = z.object({
   /** Machine name (snake_case) */
   name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Machine name (snake_case)'),
   
@@ -40,6 +40,7 @@ export const EntitySchema = z.object({
 });
 
 /**
- * TypeScript type inferred from EntitySchema.
+ * TypeScript type inferred from ObjectSchema.
+ * Note: 'Object' is a reserved word in JavaScript/TypeScript, so we use 'ServiceObject'.
  */
-export type Entity = z.infer<typeof EntitySchema>;
+export type ServiceObject = z.infer<typeof ObjectSchema>;

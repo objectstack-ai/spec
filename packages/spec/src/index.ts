@@ -9,7 +9,7 @@
 
 // Zod Schemas & Inferred Types (Meta)
 export * from './zod/meta/field.zod';
-export * from './zod/meta/entity.zod';
+export * from './zod/meta/object.zod';
 export * from './zod/meta/view.zod';
 export * from './zod/meta/action.zod';
 export * from './zod/meta/validation.zod';
