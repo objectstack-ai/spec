@@ -40,3 +40,5 @@ temp/
 # Package builds
 packages/*/dist/
 packages/*/*.tsbuildinfo
+
+.next
