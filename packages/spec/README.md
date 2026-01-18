@@ -1,21 +1,18 @@
 # @objectstack/spec
 
+ObjectStack Protocol & Specification — The "Constitution" of the Ecosystem.
+
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> ObjectStack Protocol & Specification - The Constitution of the ObjectStack Ecosystem
+## 📜 Mission
 
-## 📜 Overview
-
-This is the **main package** that re-exports all ObjectStack specification packages for convenience and backward compatibility.
+This package defines the **DNA** of ObjectStack. It contains:
+1.  **Zod Schemas**: Runtime validation for the Kernel and CLI.
+2.  **TypeScript Interfaces**: `z.infer<>` types for the IDE and Plugin developers.
+3.  **JSON Schemas**: Auto-generated schemas for VS Code IntelliSense.
 
 **Guiding Principle:** *"Strict Types, No Logic"*
-
-This package aggregates:
-- `@objectstack/spec-meta` - Metamodel type definitions
-- `@objectstack/spec-plugin` - Plugin runtime interfaces
-- `@objectstack/spec-schemas` - Zod validation schemas
-- `@objectstack/spec-constants` - Convention constants
 
 ## 🚀 Installation
 
@@ -23,39 +20,76 @@ This package aggregates:
 pnpm install @objectstack/spec
 ```
 
-## 📦 What's Inside
+## 📦 Architecture
 
-This package provides a unified import for all ObjectStack specifications. You can import everything from this package, or use the individual packages for smaller bundle sizes.
+The specification is divided into three protocols:
+
+### 1. Data Protocol (`src/data`)
+*Core Business Logic & Data Modeling*
+*   `Object`, `Field`, `Validation`
+*   `Query` (AST), `Mapping` (ETL)
+*   `Permission`, `Sharing`, `Flow`
+
+### 2. UI Protocol (`src/ui`)
+*Presentation & Interaction*
+*   `App`, `Page`, `View` (Grid/Kanban)
+*   `Dashboard` (Widgets), `Report`
+*   `Action` (Triggers)
+
+### 3. System Protocol (`src/system`)
+*Runtime Configuration & Security*
+*   `Manifest` (Config), `Datasource`
+*   `Role` (Hierarchy), `Identity` (Auth)
+*   `Webhook` (Integration), `Policy` (Compliance)
 
 ## 📚 Usage
 
-### Using the main package (recommended for most use cases)
+### Validation (Runtime)
 
 ```typescript
-import { 
-  ObjectEntity, 
-  ObjectStackPlugin, 
-  ManifestSchema,
-  PKG_CONVENTIONS 
-} from '@objectstack/spec';
+import { ObjectSchema } from '@objectstack/spec';
+
+const result = ObjectSchema.safeParse(userConfig);
+if (!result.success) {
+  console.error("Invalid Object definition", result.error);
+}
 ```
 
-### Using individual packages (for smaller bundle sizes)
+### Type Definitions (Compile Time)
 
 ```typescript
-import { ObjectEntity } from '@objectstack/spec-meta';
-import { ObjectStackPlugin } from '@objectstack/spec-plugin';
-import { ManifestSchema } from '@objectstack/spec-schemas';
-import { PKG_CONVENTIONS } from '@objectstack/spec-constants';
+import type { Object, Field } from '@objectstack/spec';
+
+const myObject: Object = {
+  name: "project_task",
+  fields: { ... }
+};
 ```
 
-## 📦 Sub-packages
+### JSON Schema (Tooling)
+The package includes valid JSON Schemas in the `/json-schema` directory.
+These can be used with:
+*   [Ajv](https://ajv.js.org/) (High-performance validator)
+*   [React Json Schema Form](https://rjsf-team.github.io/) (Auto-forms)
+*   VS Code `json.schemas` setting for IntelliSense.
 
-- **[@objectstack/spec-meta](../meta)** - Metamodel type definitions
-- **[@objectstack/spec-plugin](../plugin)** - Plugin runtime interfaces
-- **[@objectstack/spec-schemas](../schemas)** - Zod validation schemas
-- **[@objectstack/spec-constants](../constants)** - Convention constants
+## 🛠️ Development
 
-## 📄 License
+### Build & Generate
 
-MIT
+```bash
+# Generate JSON Schemas + Markdown Docs + Compile TS
+pnpm build
+```
+
+### Directory Structure
+
+```text
+packages/spec/
+├── src/                # Source Truth (Zod)
+│   ├── data/           # ObjectQL Protocol
+│   ├── ui/             # ObjectUI Protocol
+│   └── system/         # ObjectOS Protocol
+├── json-schema/        # Auto-generated (npm run gen:schema)
+└── dist/               # Compiled JS/D.TS
+```
