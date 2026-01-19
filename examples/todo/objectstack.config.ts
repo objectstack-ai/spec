@@ -9,12 +9,19 @@ export default App.create({
   objects: [
     TodoTask
   ],
-  menus: [
+  navigation: [
     {
-        label: 'Tasks',
-        items: [
-            { type: 'object', object: 'todo_task' }
-        ]
+      id: 'group_tasks',
+      type: 'group',
+      label: 'Tasks',
+      children: [
+        { 
+          id: 'nav_todo_task',
+          type: 'object', 
+          objectName: 'todo_task',
+          label: 'My Tasks'
+        }
+      ]
     }
   ]
 });

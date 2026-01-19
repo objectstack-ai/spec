@@ -53,7 +53,7 @@ File: objectstack.config.ts (or strict JSON inside package.json)
 Schema Location: packages/protocol/schemas/manifest.schema.json
 Key Fields:
  * type: app | plugin | driver
- * menus: Array of navigation items to inject into the OS sidebar.
+ * navigation: Structured navigation menu tree.
  * permissions: Array of requested capabilities (e.g., finance.read).
  * entities: Path patterns to auto-load Schema files (e.g., ./src/schemas/*.gql).
  * lifecycle: Hooks for onInstall, onEnable.

@@ -13,7 +13,7 @@ You define what a "Package" looks like in ObjectStack.
    * id: Unique identifier (e.g., com.example.crm).
    * type: app | plugin | driver | module.
    * permissions: Array of permission strings requested (e.g., ["system.user.read"]).
-   * menus: Navigation structure injection.
+   * navigation: Structured navigation menu tree (for apps).
    * entities: Glob patterns for ObjectQL files (e.g., ["./src/schema/*.gql"]).
    * extensions: Extension points (e.g., contributions to the UI).
 2. Directory Conventions (Law of Location)
@@ -50,11 +50,6 @@ export const ManifestSchema = z.object({
   id: z.string().describe("Unique package identifier (reverse domain style)"),
   version: z.string().regex(/^\d+\.\d+\.\d+$/),
   type: z.enum(['app', 'plugin', 'driver']),
-  menus: z.array(z.object({
-    label: z.string(),
-    path: z.string(),
-    icon: z.string().optional()
-  })).optional()
 });
 
 export type ObjectStackManifest = z.infer<typeof ManifestSchema>;

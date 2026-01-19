@@ -1,19 +1,6 @@
 import { z } from 'zod';
 
 /**
- * Schema for menu items in ObjectStack packages.
- * Defines navigation structure that can be injected into the UI.
- */
-export const MenuItemSchema = z.object({
-  /** Display label for the menu item */
-  label: z.string().describe('Display label for the menu item'),
-  /** Navigation path (route) for the menu item */
-  path: z.string().describe('Navigation path (route) for the menu item'),
-  /** Optional icon identifier for the menu item */
-  icon: z.string().optional().describe('Optional icon identifier for the menu item'),
-});
-
-/**
  * Schema for the ObjectStack Manifest.
  * This defines the structure of a package configuration in the ObjectStack ecosystem.
  * All packages (apps, plugins, drivers, modules) must conform to this schema.
@@ -55,11 +42,6 @@ export const ManifestSchema = z.object({
    * Example: ["system.user.read", "system.data.write"]
    */
   permissions: z.array(z.string()).optional().describe('Array of required permission strings'),
-  
-  /** 
-   * Navigation menu structure that the package contributes to the UI.
-   */
-  menus: z.array(MenuItemSchema).optional().describe('Navigation menu structure'),
   
   /** 
    * Glob patterns specifying ObjectQL schemas files (typically *.object.yml or *.object.ts).

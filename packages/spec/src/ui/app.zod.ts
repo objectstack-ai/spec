@@ -133,11 +133,6 @@ export const AppSchema = z.object({
    */
   navigation: z.array(NavigationItemSchema).optional().describe('Structured navigation menu tree'),
   
-  /**
-   * Deprecated: Use navigation instead.
-   */
-  menus: z.array(z.any()).optional().describe('Deprecated: Use navigation instead'),
-  
   /** 
    * App-level Home Page Override
    * ID of the navigation item to act as the landing page.

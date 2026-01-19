@@ -40,7 +40,7 @@ Defines the "Shape of Data".
 Defines the "Shape of Interaction".
 - **Views:** Grids, Kanbans, Calendars.
 - **Pages:** FlexiPage layouts (Regions & Components).
-- **Navigation:** Apps, Menus.
+- **Navigation:** Apps, Navigation.
 - **Analytics:** Reports, Dashboards.
 
 ### 3. System Protocol (ObjectOS)

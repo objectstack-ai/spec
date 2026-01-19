@@ -109,29 +109,6 @@ describe('ManifestSchema', () => {
       expect(() => ManifestSchema.parse(manifest)).not.toThrow();
     });
 
-    it('should accept manifest with menus', () => {
-      const manifest: ObjectStackManifest = {
-        id: 'com.example.reports',
-        version: '1.5.2',
-        type: 'app',
-        name: 'Reports App',
-        menus: [
-          {
-            label: 'Reports',
-            path: '/reports',
-            icon: 'chart-bar',
-          },
-          {
-            label: 'Analytics',
-            path: '/analytics',
-            icon: 'trending-up',
-          },
-        ],
-      };
-
-      expect(() => ManifestSchema.parse(manifest)).not.toThrow();
-    });
-
     it('should accept manifest with object patterns', () => {
       const manifest: ObjectStackManifest = {
         id: 'com.example.sales',
@@ -188,33 +165,6 @@ describe('ManifestSchema', () => {
           'crm.account.write',
           'crm.contact.read',
           'crm.contact.write',
-        ],
-        menus: [
-          {
-            label: 'Home',
-            path: '/crm/home',
-            icon: 'home',
-          },
-          {
-            label: 'Leads',
-            path: '/crm/leads',
-            icon: 'users',
-          },
-          {
-            label: 'Opportunities',
-            path: '/crm/opportunities',
-            icon: 'target',
-          },
-          {
-            label: 'Accounts',
-            path: '/crm/accounts',
-            icon: 'building-2',
-          },
-          {
-            label: 'Contacts',
-            path: '/crm/contacts',
-            icon: 'user',
-          },
         ],
         objects: [
           './objects/lead.object.ts',

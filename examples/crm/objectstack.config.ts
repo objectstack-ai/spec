@@ -34,47 +34,44 @@ export default App.create({
   ],
   
   // Navigation menu structure
-  menus: [
+  navigation: [
     {
+      id: 'group_sales',
+      type: 'group',
       label: 'Sales',
-      items: [
-        { type: 'object', object: 'lead', label: 'Leads' },
-        { type: 'object', object: 'account', label: 'Accounts' },
-        { type: 'object', object: 'contact', label: 'Contacts' },
-        { type: 'object', object: 'opportunity', label: 'Opportunities' },
-        { type: 'divider' },
-        { type: 'dashboard', dashboard: 'sales_dashboard', label: 'Sales Dashboard' },
-        { type: 'report', report: 'opportunities_by_stage', label: 'Pipeline Report' },
+      children: [
+        { id: 'nav_lead', type: 'object', objectName: 'lead', label: 'Leads' },
+        { id: 'nav_account', type: 'object', objectName: 'account', label: 'Accounts' },
+        { id: 'nav_contact', type: 'object', objectName: 'contact', label: 'Contacts' },
+        { id: 'nav_opportunity', type: 'object', objectName: 'opportunity', label: 'Opportunities' },
+        { id: 'nav_sales_dashboard', type: 'dashboard', dashboardName: 'sales_dashboard', label: 'Sales Dashboard' },
       ]
     },
     {
+      id: 'group_service',
+      type: 'group',
       label: 'Service',
-      items: [
-        { type: 'object', object: 'case', label: 'Cases' },
-        { type: 'divider' },
-        { type: 'dashboard', dashboard: 'service_dashboard', label: 'Service Dashboard' },
-        { type: 'report', report: 'cases_by_status_priority', label: 'Case Report' },
+      children: [
+        { id: 'nav_case', type: 'object', objectName: 'case', label: 'Cases' },
+        { id: 'nav_service_dashboard', type: 'dashboard', dashboardName: 'service_dashboard', label: 'Service Dashboard' },
       ]
     },
     {
+      id: 'group_activities',
+      type: 'group',
       label: 'Activities',
-      items: [
-        { type: 'object', object: 'task', label: 'Tasks' },
+      children: [
+        { id: 'nav_task', type: 'object', objectName: 'task', label: 'Tasks' },
       ]
     },
     {
+      id: 'group_analytics',
+      type: 'group',
       label: 'Analytics',
-      items: [
-        { type: 'dashboard', dashboard: 'executive_dashboard', label: 'Executive Dashboard' },
-        { type: 'dashboard', dashboard: 'sales_dashboard', label: 'Sales Dashboard' },
-        { type: 'dashboard', dashboard: 'service_dashboard', label: 'Service Dashboard' },
-        { type: 'divider' },
-        { type: 'report', report: 'opportunities_by_stage', label: 'Opportunities by Stage' },
-        { type: 'report', report: 'won_opportunities_by_owner', label: 'Won Opportunities' },
-        { type: 'report', report: 'accounts_by_industry_type', label: 'Accounts Matrix' },
-        { type: 'report', report: 'cases_by_status_priority', label: 'Cases by Status' },
-        { type: 'report', report: 'sla_performance', label: 'SLA Performance' },
-        { type: 'report', report: 'leads_by_source', label: 'Leads by Source' },
+      children: [
+        { id: 'nav_exec_dashboard', type: 'dashboard', dashboardName: 'executive_dashboard', label: 'Executive Dashboard' },
+        { id: 'nav_analytics_sales_db', type: 'dashboard', dashboardName: 'sales_dashboard', label: 'Sales Dashboard' },
+        { id: 'nav_analytics_service_db', type: 'dashboard', dashboardName: 'service_dashboard', label: 'Service Dashboard' },
       ]
     }
   ],
