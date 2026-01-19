@@ -56,3 +56,11 @@ export const ActionSchema = z.object({
 });
 
 export type Action = z.infer<typeof ActionSchema>;
+export type ActionParam = z.infer<typeof ActionParamSchema>;
+
+/**
+ * Action Factory Helper
+ */
+export const Action = {
+  create: (config: z.input<typeof ActionSchema>): Action => ActionSchema.parse(config),
+} as const;
