@@ -5,6 +5,11 @@ import { i18n } from '@/lib/i18n';
 const LOCALE_COOKIE = 'FD_LOCALE';
 
 /**
+ * Helper to check if a language is supported
+ */
+const SUPPORTED_LANGUAGES = i18n.languages as readonly string[];
+
+/**
  * Language code mapping
  * Maps browser language codes to our supported language codes
  */
@@ -39,16 +44,12 @@ function normalizeLanguage(lang: string): string {
 function getPreferredLanguage(request: NextRequest): string {
   // Check cookie first
   const cookieLocale = request.cookies.get(LOCALE_COOKIE)?.value;
-  if (cookieLocale && (i18n.languages as readonly string[]).includes(cookieLocale)) {
+  if (cookieLocale && SUPPORTED_LANGUAGES.includes(cookieLocale)) {
     return cookieLocale;
   }
 
   // Then check Accept-Language header
-  const negotiatorHeaders: Record<string, string> = {};
-  request.headers.forEach((value, key) => {
-    negotiatorHeaders[key] = value;
-  });
-
+  const negotiatorHeaders = Object.fromEntries(request.headers.entries());
   const negotiator = new Negotiator({ headers: negotiatorHeaders });
   const browserLanguages = negotiator.languages();
   
@@ -57,7 +58,7 @@ function getPreferredLanguage(request: NextRequest): string {
   
   // Find the first match
   for (const lang of normalizedLanguages) {
-    if ((i18n.languages as readonly string[]).includes(lang)) {
+    if (SUPPORTED_LANGUAGES.includes(lang)) {
       return lang;
     }
   }
