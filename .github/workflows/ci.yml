@@ -97,6 +97,18 @@ jobs:
       - name: Build packages
         run: pnpm run build
 
+      - name: Verify build outputs
+        run: |
+          if [ ! -d "packages/spec/dist" ]; then
+            echo "Error: packages/spec/dist directory not found"
+            exit 1
+          fi
+          if [ ! -d "packages/spec/json-schema" ]; then
+            echo "Error: packages/spec/json-schema directory not found"
+            exit 1
+          fi
+          echo "Build outputs verified successfully"
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:

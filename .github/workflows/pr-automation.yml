@@ -75,7 +75,10 @@ jobs:
 
       - name: Check for changesets
         run: |
-          if [ -z "$(ls -A .changeset | grep -v README.md | grep -v config.json)" ]; then
+          CHANGESET_COUNT=$(find .changeset -name '*.md' ! -name 'README.md' | wc -l)
+          if [ "$CHANGESET_COUNT" -eq 0 ]; then
             echo "::warning::No changeset found. Please add a changeset if this PR includes user-facing changes."
             echo "Run 'pnpm changeset' to create one, or add the 'skip-changeset' label if not needed."
+          else
+            echo "Found $CHANGESET_COUNT changeset(s)"
           fi

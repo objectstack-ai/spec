@@ -70,4 +70,4 @@ jobs:
 
       - name: Check licenses
         run: |
-          npx license-checker --summary --exclude "MIT,Apache-2.0,ISC,BSD-2-Clause,BSD-3-Clause,0BSD,CC0-1.0,Unlicense,Python-2.0" || true
+          npx license-checker --summary --exclude "MIT,Apache-2.0,ISC,BSD-2-Clause,BSD-3-Clause,0BSD,CC0-1.0,Unlicense" || true
