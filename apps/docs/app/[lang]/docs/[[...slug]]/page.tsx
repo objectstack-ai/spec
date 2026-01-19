@@ -17,10 +17,10 @@ const components = {
 };
 
 export default async function Page(props: {
-  params: Promise<{ slug?: string[] }>;
+  params: Promise<{ lang: string; slug?: string[] }>;
 }) {
   const params = await props.params;
-  const page = await source.getPage(params.slug ?? []);
+  const page = source.getPage(params.slug ?? [], params.lang);
   if (!page) notFound();
 
   const data = page.data as any;
@@ -46,10 +46,10 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata(props: {
-  params: Promise<{ slug?: string[] }>;
+  params: Promise<{ lang: string; slug?: string[] }>;
 }): Promise<Metadata> {
   const params = await props.params;
-  const page = await source.getPage(params.slug ?? []);
+  const page = source.getPage(params.slug ?? [], params.lang);
   if (!page) notFound();
 
   return {

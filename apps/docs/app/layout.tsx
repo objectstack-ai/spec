@@ -1,7 +1,8 @@
 import './global.css';
-import { RootProvider } from 'fumadocs-ui/provider/next';
+import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
+import { i18n } from '@/lib/i18n';
 
 export const metadata: Metadata = {
   title: {
@@ -14,12 +15,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Layout({ children }: { children: ReactNode }) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <body>
-        <RootProvider>{children}</RootProvider>
-      </body>
-    </html>
-  );
+export default function RootLayout({ children }: { children: ReactNode }) {
+  // Root layout is only used for redirects with middleware
+  // The actual layout is in [lang]/layout.tsx
+  return children;
 }
