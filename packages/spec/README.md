@@ -125,7 +125,7 @@ Each test file includes:
 *   **Constraint Tests**: Validate naming conventions (snake_case), regex patterns, enums
 *   **Real-World Examples**: Complete, realistic examples from CRM, HR, Sales domains
 
-**Current Coverage**: 243 tests across 12 test files with 100% coverage for tested schemas.
+**Current Coverage**: 263 tests across 13 test files with 100% coverage for tested schemas.
 
 #### Writing Tests
 
