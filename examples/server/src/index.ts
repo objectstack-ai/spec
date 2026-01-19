@@ -33,7 +33,9 @@ app.get('/api/v1/meta/:type', (c) => {
     'objects': 'object',
     'apps': 'app',
     'flows': 'flow',
-    'reports': 'report'
+    'reports': 'report',
+    'plugins': 'plugin',
+    'kinds': 'kind'
   };
   const type = typeMap[typePlural] || typePlural;
   
@@ -41,13 +43,15 @@ app.get('/api/v1/meta/:type', (c) => {
   
   // Optional: Summary transformation based on type
   const summaries = items.map((item: any) => ({
+    id: item.id, // Some items use ID (plugins)
     name: item.name,
     label: item.label,
+    type: item.type,
     icon: item.icon,
     description: item.description,
     // Add dynamic links
     ...(type === 'object' ? { path: `/api/v1/data/${item.name}` } : {}),
-    self: `/api/v1/meta/${typePlural}/${item.name}`
+    self: `/api/v1/meta/${typePlural}/${item.name || item.id}`
   }));
 
   return c.json({ data: summaries });
@@ -66,7 +70,9 @@ app.get('/api/v1/meta/:type/:name', (c) => {
     'objects': 'object',
     'apps': 'app',
     'flows': 'flow',
-    'reports': 'report'
+    'reports': 'report',
+    'plugins': 'plugin',
+    'kinds': 'kind'
   };
   const type = typeMap[typePlural] || typePlural;
 

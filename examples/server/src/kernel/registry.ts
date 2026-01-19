@@ -1,27 +1,31 @@
-import { ServiceObject, App } from '@objectstack/spec';
+import { ServiceObject, App, ObjectStackManifest } from '@objectstack/spec';
 
 /**
  * Global Schema Registry
  * Unified storage for all metadata types (Objects, Apps, Flows, Layouts, etc.)
  */
 export class SchemaRegistry {
-  // Nested Map: Type -> Name -> MetadataItem
+  // Nested Map: Type -> Name/ID -> MetadataItem
   private static metadata = new Map<string, Map<string, any>>();
 
   /**
    * Universal Register Method
+   * @param type The category of metadata (e.g., 'object', 'app', 'plugin')
+   * @param item The metadata item itself
+   * @param keyField The property to use as the unique key (default: 'name')
    */
-  static registerItem<T extends { name: string }>(type: string, item: T) {
+  static registerItem<T>(type: string, item: T, keyField: keyof T = 'name' as keyof T) {
     if (!this.metadata.has(type)) {
       this.metadata.set(type, new Map());
     }
     const collection = this.metadata.get(type)!;
+    const key = String(item[keyField]);
 
-    if (collection.has(item.name)) {
-      console.warn(`[Registry] Overwriting ${type}: ${item.name}`);
+    if (collection.has(key)) {
+      console.warn(`[Registry] Overwriting ${type}: ${key}`);
     }
-    collection.set(item.name, item);
-    console.log(`[Registry] Registered ${type}: ${item.name}`);
+    collection.set(key, item);
+    console.log(`[Registry] Registered ${type}: ${key}`);
   }
 
   /**
@@ -46,7 +50,7 @@ export class SchemaRegistry {
    * Object Helpers
    */
   static registerObject(schema: ServiceObject) {
-    this.registerItem('object', schema);
+    this.registerItem('object', schema, 'name');
   }
 
   static getObject(name: string): ServiceObject | undefined {
@@ -61,7 +65,7 @@ export class SchemaRegistry {
    * App Helpers
    */
   static registerApp(app: App) {
-    this.registerItem('app', app);
+    this.registerItem('app', app, 'name');
   }
 
   static getApp(name: string): App | undefined {
@@ -70,5 +74,27 @@ export class SchemaRegistry {
 
   static getAllApps(): App[] {
     return this.listItems<App>('app');
+  }
+
+  /**
+   * Plugin Helpers
+   */
+  static registerPlugin(manifest: ObjectStackManifest) {
+    this.registerItem('plugin', manifest, 'id');
+  }
+
+  static getAllPlugins(): ObjectStackManifest[] {
+    return this.listItems<ObjectStackManifest>('plugin');
+  }
+
+  /**
+   * Kind (Metadata Type) Helpers
+   */
+  static registerKind(kind: { id: string, globs: string[] }) {
+    this.registerItem('kind', kind, 'id');
+  }
+  
+  static getAllKinds(): { id: string, globs: string[] }[] {
+    return this.listItems('kind');
   }
 }
