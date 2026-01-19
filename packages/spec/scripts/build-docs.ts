@@ -56,9 +56,9 @@ function scanCategories() {
     for (const file of files) {
       const content = fs.readFileSync(path.join(dir, file), 'utf-8');
       
-      // Match all exports that look like schemas
-      // We look for: export const Name = z.
-      const regex = /export const (\w+)\s*=\s*z\./g;
+      // Match export const Name = ... OR export const Name: Type = ...
+      // Captures name followed by optional whitespace and then either ':' or '='
+      const regex = /export const (\w+)\s*(?:[:=])/g;
       
       let match;
       while ((match = regex.exec(content)) !== null) {
