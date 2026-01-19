@@ -56,7 +56,9 @@ function generateMarkdown(schemaName: string, schema: any) {
     for (const [key, prop] of Object.entries(mainDef.properties) as [string, any][]) {
       const typeStr = formatType(prop).replace(/\|/g, '\\|'); // Escape pipes for table
       const isReq = required.has(key) ? '✅' : 'optional';
-      const desc = (prop.description || '').replace(/\n/g, ' ');
+      let desc = (prop.description || '').replace(/\n/g, ' ');
+      // Wrap inline examples containing braces in code spans to avoid MDX expression parsing
+      desc = desc.replace(/\{[^}]*\}/g, (m) => `\`${m}\``);
       
       md += `| **${key}** | \`${typeStr}\` | ${isReq} | ${desc} |\n`;
     }

@@ -4,7 +4,7 @@
   "private": true,
   "description": "ObjectStack Protocol & Specification - Monorepo for TypeScript Interfaces, JSON Schemas, and Convention Configurations",
   "scripts": {
-    "build": "pnpm -r --stream build",
+    "build": "pnpm --filter ./packages/spec build && pnpm -r --stream --filter '!./packages/spec' build",
     "dev": "pnpm -r --parallel dev",
     "clean": "pnpm -r --parallel clean && rm -rf dist",
     "version": "changeset version",
