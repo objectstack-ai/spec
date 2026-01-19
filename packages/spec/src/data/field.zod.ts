@@ -122,6 +122,15 @@ export const Field = {
   html: (config: FieldInput = {}) => ({ type: 'html', ...config } as const),
   password: (config: FieldInput = {}) => ({ type: 'password', ...config } as const),
   
+  /**
+   * Select field helper with backward-compatible API
+   * 
+   * @example Old API (array first)
+   * Field.select(['High', 'Low'], { label: 'Priority' })
+   * 
+   * @example New API (config object)
+   * Field.select({ options: [{label: 'High', value: 'high'}], label: 'Priority' })
+   */
   select: (optionsOrConfig: SelectOption[] | string[] | FieldInput & { options: SelectOption[] | string[] }, config?: FieldInput) => {
     // Support both old and new signatures:
     // Old: Field.select(['a', 'b'], { label: 'X' })
@@ -142,6 +151,15 @@ export const Field = {
     return { type: 'select', ...finalConfig, options } as const;
   },
   
+  /**
+   * Multiselect field helper with backward-compatible API
+   * 
+   * @example Old API (array first)
+   * Field.multiselect(['Tag1', 'Tag2'], { label: 'Tags' })
+   * 
+   * @example New API (config object)
+   * Field.multiselect({ options: [{label: 'Tag 1', value: 'tag1'}], label: 'Tags' })
+   */
   multiselect: (optionsOrConfig: SelectOption[] | string[] | FieldInput & { options: SelectOption[] | string[] }, config?: FieldInput) => {
     // Support both old and new signatures
     let options: SelectOption[];
