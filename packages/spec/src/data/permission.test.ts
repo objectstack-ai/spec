@@ -1,0 +1,412 @@
+import { describe, it, expect } from 'vitest';
+import {
+  PermissionSetSchema,
+  ObjectPermissionSchema,
+  FieldPermissionSchema,
+  type PermissionSet,
+  type ObjectPermission,
+  type FieldPermission,
+} from './permission.zod';
+
+describe('ObjectPermissionSchema', () => {
+  it('should apply default values to false', () => {
+    const result = ObjectPermissionSchema.parse({});
+    
+    expect(result.allowCreate).toBe(false);
+    expect(result.allowRead).toBe(false);
+    expect(result.allowEdit).toBe(false);
+    expect(result.allowDelete).toBe(false);
+    expect(result.viewAllRecords).toBe(false);
+    expect(result.modifyAllRecords).toBe(false);
+  });
+
+  it('should accept CRUD permissions', () => {
+    const permission: ObjectPermission = {
+      allowCreate: true,
+      allowRead: true,
+      allowEdit: true,
+      allowDelete: true,
+    };
+
+    expect(() => ObjectPermissionSchema.parse(permission)).not.toThrow();
+  });
+
+  it('should accept view all permissions', () => {
+    const permission: ObjectPermission = {
+      allowRead: true,
+      viewAllRecords: true,
+    };
+
+    expect(() => ObjectPermissionSchema.parse(permission)).not.toThrow();
+  });
+
+  it('should accept modify all permissions', () => {
+    const permission: ObjectPermission = {
+      allowEdit: true,
+      allowDelete: true,
+      modifyAllRecords: true,
+    };
+
+    expect(() => ObjectPermissionSchema.parse(permission)).not.toThrow();
+  });
+
+  it('should accept read-only permissions', () => {
+    const permission: ObjectPermission = {
+      allowRead: true,
+      allowCreate: false,
+      allowEdit: false,
+      allowDelete: false,
+    };
+
+    const result = ObjectPermissionSchema.parse(permission);
+    expect(result.allowRead).toBe(true);
+    expect(result.allowCreate).toBe(false);
+  });
+});
+
+describe('FieldPermissionSchema', () => {
+  it('should default readable to true', () => {
+    const result = FieldPermissionSchema.parse({});
+    
+    expect(result.readable).toBe(true);
+    expect(result.editable).toBe(false);
+  });
+
+  it('should accept read-only field permission', () => {
+    const permission: FieldPermission = {
+      readable: true,
+      editable: false,
+    };
+
+    expect(() => FieldPermissionSchema.parse(permission)).not.toThrow();
+  });
+
+  it('should accept editable field permission', () => {
+    const permission: FieldPermission = {
+      readable: true,
+      editable: true,
+    };
+
+    expect(() => FieldPermissionSchema.parse(permission)).not.toThrow();
+  });
+
+  it('should accept hidden field', () => {
+    const permission: FieldPermission = {
+      readable: false,
+      editable: false,
+    };
+
+    expect(() => FieldPermissionSchema.parse(permission)).not.toThrow();
+  });
+});
+
+describe('PermissionSetSchema', () => {
+  it('should accept minimal permission set', () => {
+    const permSet: PermissionSet = {
+      name: 'standard_user',
+      objects: {},
+    };
+
+    expect(() => PermissionSetSchema.parse(permSet)).not.toThrow();
+  });
+
+  it('should default isProfile to false', () => {
+    const permSet = {
+      name: 'export_reports',
+      objects: {},
+    };
+
+    const result = PermissionSetSchema.parse(permSet);
+    expect(result.isProfile).toBe(false);
+  });
+
+  it('should accept permission set with label', () => {
+    const permSet: PermissionSet = {
+      name: 'sales_user',
+      label: 'Sales User',
+      objects: {},
+    };
+
+    expect(() => PermissionSetSchema.parse(permSet)).not.toThrow();
+  });
+
+  it('should accept profile permission set', () => {
+    const profile: PermissionSet = {
+      name: 'system_admin',
+      label: 'System Administrator',
+      isProfile: true,
+      objects: {},
+    };
+
+    expect(() => PermissionSetSchema.parse(profile)).not.toThrow();
+  });
+
+  it('should accept permission set with object permissions', () => {
+    const permSet: PermissionSet = {
+      name: 'sales_manager',
+      label: 'Sales Manager',
+      objects: {
+        account: {
+          allowCreate: true,
+          allowRead: true,
+          allowEdit: true,
+          allowDelete: false,
+          viewAllRecords: true,
+          modifyAllRecords: false,
+        },
+        opportunity: {
+          allowCreate: true,
+          allowRead: true,
+          allowEdit: true,
+          allowDelete: true,
+          viewAllRecords: true,
+          modifyAllRecords: true,
+        },
+        contact: {
+          allowCreate: true,
+          allowRead: true,
+          allowEdit: true,
+          allowDelete: false,
+        },
+      },
+    };
+
+    expect(() => PermissionSetSchema.parse(permSet)).not.toThrow();
+  });
+
+  it('should accept permission set with field permissions', () => {
+    const permSet: PermissionSet = {
+      name: 'restricted_user',
+      objects: {
+        account: {
+          allowRead: true,
+        },
+      },
+      fields: {
+        'account.annual_revenue': {
+          readable: false,
+          editable: false,
+        },
+        'account.account_number': {
+          readable: true,
+          editable: false,
+        },
+      },
+    };
+
+    expect(() => PermissionSetSchema.parse(permSet)).not.toThrow();
+  });
+
+  it('should accept permission set with system permissions', () => {
+    const permSet: PermissionSet = {
+      name: 'admin_tools',
+      label: 'Admin Tools',
+      objects: {},
+      systemPermissions: [
+        'manage_users',
+        'view_setup',
+        'customize_application',
+        'modify_all_data',
+      ],
+    };
+
+    expect(() => PermissionSetSchema.parse(permSet)).not.toThrow();
+  });
+
+  describe('Real-World Permission Set Examples', () => {
+    it('should accept system administrator profile', () => {
+      const sysAdmin: PermissionSet = {
+        name: 'system_administrator',
+        label: 'System Administrator',
+        isProfile: true,
+        objects: {
+          user: {
+            allowCreate: true,
+            allowRead: true,
+            allowEdit: true,
+            allowDelete: true,
+            viewAllRecords: true,
+            modifyAllRecords: true,
+          },
+          account: {
+            allowCreate: true,
+            allowRead: true,
+            allowEdit: true,
+            allowDelete: true,
+            viewAllRecords: true,
+            modifyAllRecords: true,
+          },
+          opportunity: {
+            allowCreate: true,
+            allowRead: true,
+            allowEdit: true,
+            allowDelete: true,
+            viewAllRecords: true,
+            modifyAllRecords: true,
+          },
+        },
+        systemPermissions: [
+          'manage_users',
+          'view_all_data',
+          'modify_all_data',
+          'customize_application',
+          'view_setup',
+          'manage_roles',
+          'manage_profiles',
+        ],
+      };
+
+      expect(() => PermissionSetSchema.parse(sysAdmin)).not.toThrow();
+    });
+
+    it('should accept standard sales user profile', () => {
+      const salesUser: PermissionSet = {
+        name: 'standard_sales_user',
+        label: 'Standard Sales User',
+        isProfile: true,
+        objects: {
+          account: {
+            allowCreate: true,
+            allowRead: true,
+            allowEdit: true,
+            allowDelete: false,
+          },
+          contact: {
+            allowCreate: true,
+            allowRead: true,
+            allowEdit: true,
+            allowDelete: false,
+          },
+          opportunity: {
+            allowCreate: true,
+            allowRead: true,
+            allowEdit: true,
+            allowDelete: false,
+          },
+          lead: {
+            allowCreate: true,
+            allowRead: true,
+            allowEdit: true,
+            allowDelete: false,
+          },
+        },
+        fields: {
+          'opportunity.amount': {
+            readable: true,
+            editable: true,
+          },
+          'account.annual_revenue': {
+            readable: true,
+            editable: false,
+          },
+        },
+      };
+
+      expect(() => PermissionSetSchema.parse(salesUser)).not.toThrow();
+    });
+
+    it('should accept marketing user permission set', () => {
+      const marketingPermSet: PermissionSet = {
+        name: 'marketing_user',
+        label: 'Marketing User',
+        isProfile: false,
+        objects: {
+          campaign: {
+            allowCreate: true,
+            allowRead: true,
+            allowEdit: true,
+            allowDelete: false,
+          },
+          lead: {
+            allowCreate: true,
+            allowRead: true,
+            allowEdit: true,
+            allowDelete: false,
+          },
+        },
+        systemPermissions: [
+          'run_reports',
+          'export_reports',
+          'manage_campaigns',
+        ],
+      };
+
+      expect(() => PermissionSetSchema.parse(marketingPermSet)).not.toThrow();
+    });
+
+    it('should accept read-only analyst profile', () => {
+      const analyst: PermissionSet = {
+        name: 'read_only_analyst',
+        label: 'Read Only Analyst',
+        isProfile: true,
+        objects: {
+          account: {
+            allowRead: true,
+            viewAllRecords: true,
+          },
+          opportunity: {
+            allowRead: true,
+            viewAllRecords: true,
+          },
+          contact: {
+            allowRead: true,
+            viewAllRecords: true,
+          },
+          task: {
+            allowRead: true,
+            viewAllRecords: true,
+          },
+        },
+        systemPermissions: [
+          'run_reports',
+          'export_reports',
+        ],
+      };
+
+      expect(() => PermissionSetSchema.parse(analyst)).not.toThrow();
+    });
+
+    it('should accept service agent profile with restricted fields', () => {
+      const serviceAgent: PermissionSet = {
+        name: 'service_agent',
+        label: 'Service Agent',
+        isProfile: true,
+        objects: {
+          case: {
+            allowCreate: true,
+            allowRead: true,
+            allowEdit: true,
+            allowDelete: false,
+          },
+          account: {
+            allowRead: true,
+            allowEdit: false,
+          },
+          contact: {
+            allowRead: true,
+            allowEdit: false,
+          },
+        },
+        fields: {
+          'account.annual_revenue': {
+            readable: false,
+            editable: false,
+          },
+          'account.account_owner': {
+            readable: true,
+            editable: false,
+          },
+          'case.priority': {
+            readable: true,
+            editable: true,
+          },
+        },
+        systemPermissions: [
+          'view_knowledge_base',
+        ],
+      };
+
+      expect(() => PermissionSetSchema.parse(serviceAgent)).not.toThrow();
+    });
+  });
+});

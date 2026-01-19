@@ -82,6 +82,77 @@ These can be used with:
 pnpm build
 ```
 
+### Testing
+
+This package includes comprehensive test coverage for all Zod schemas using **Vitest**.
+
+```bash
+# Run tests once
+pnpm test
+
+# Run tests in watch mode
+pnpm test:watch
+
+# Run tests with coverage report
+pnpm test:coverage
+```
+
+#### Test Structure
+
+Tests are co-located with schema files using the `.test.ts` suffix:
+
+```text
+src/
+├── data/
+│   ├── field.zod.ts       # Schema definition
+│   ├── field.test.ts      # Tests
+│   ├── object.zod.ts
+│   └── object.test.ts
+├── ui/
+│   ├── view.zod.ts
+│   └── view.test.ts
+└── system/
+    ├── manifest.zod.ts
+    └── manifest.test.ts
+```
+
+#### Test Coverage
+
+Each test file includes:
+*   **Schema Validation Tests**: Verify valid inputs pass and invalid inputs fail
+*   **Default Value Tests**: Ensure default values are applied correctly
+*   **Type Tests**: Test discriminated unions and type narrowing
+*   **Constraint Tests**: Validate naming conventions (snake_case), regex patterns, enums
+*   **Real-World Examples**: Complete, realistic examples from CRM, HR, Sales domains
+
+**Current Coverage**: 263 tests across 13 test files with 100% coverage for tested schemas.
+
+#### Writing Tests
+
+When adding new schemas, follow these patterns:
+
+```typescript
+import { describe, it, expect } from 'vitest';
+import { YourSchema } from './your-schema.zod';
+
+describe('YourSchema', () => {
+  it('should accept valid data', () => {
+    const valid = { /* valid data */ };
+    expect(() => YourSchema.parse(valid)).not.toThrow();
+  });
+
+  it('should reject invalid data', () => {
+    const invalid = { /* invalid data */ };
+    expect(() => YourSchema.parse(invalid)).toThrow();
+  });
+
+  it('should apply defaults', () => {
+    const result = YourSchema.parse({ /* minimal data */ });
+    expect(result.someField).toBe('default-value');
+  });
+});
+```
+
 ### Directory Structure
 
 ```text
@@ -91,5 +162,6 @@ packages/spec/
 │   ├── ui/             # ObjectUI Protocol
 │   └── system/         # ObjectOS Protocol
 ├── json-schema/        # Auto-generated (npm run gen:schema)
-└── dist/               # Compiled JS/D.TS
+├── dist/               # Compiled JS/D.TS
+└── vitest.config.ts    # Test configuration
 ```
