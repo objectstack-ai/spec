@@ -5,7 +5,7 @@ import { baseOptions } from '@/app/layout.config';
 
 export default function HomePage() {
   return (
-    <HomeLayout {...baseOptions}>
+    <HomeLayout {...baseOptions} i18n>
       <main className="flex min-h-screen flex-col items-center justify-center text-center px-4 py-16 sm:py-24 md:py-32 overflow-hidden bg-background text-foreground selection:bg-primary/20">
         
         {/* Hero Section */}
