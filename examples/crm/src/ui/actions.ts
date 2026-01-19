@@ -1,7 +1,7 @@
-import { Action } from '@objectstack/spec';
+import type { Action } from '@objectstack/spec';
 
 // Convert Lead to Account, Contact, and Opportunity
-export const ConvertLeadAction = Action.create({
+export const ConvertLeadAction: Action = {
   name: 'convert_lead',
   label: 'Convert Lead',
   icon: 'arrow-right-circle',
@@ -12,10 +12,10 @@ export const ConvertLeadAction = Action.create({
   confirmText: 'Are you sure you want to convert this lead?',
   successMessage: 'Lead converted successfully!',
   refreshAfter: true,
-});
+};
 
 // Clone Opportunity
-export const CloneOpportunityAction = Action.create({
+export const CloneOpportunityAction: Action = {
   name: 'clone_opportunity',
   label: 'Clone Opportunity',
   icon: 'copy',
@@ -24,10 +24,10 @@ export const CloneOpportunityAction = Action.create({
   locations: ['record_header', 'record_more'],
   successMessage: 'Opportunity cloned successfully!',
   refreshAfter: true,
-});
+};
 
 // Mark Contact as Primary
-export const MarkPrimaryContactAction = Action.create({
+export const MarkPrimaryContactAction: Action = {
   name: 'mark_primary',
   label: 'Mark as Primary Contact',
   icon: 'star',
@@ -38,10 +38,10 @@ export const MarkPrimaryContactAction = Action.create({
   confirmText: 'Mark this contact as the primary contact for the account?',
   successMessage: 'Contact marked as primary!',
   refreshAfter: true,
-});
+};
 
 // Send Email to Contact
-export const SendEmailAction = Action.create({
+export const SendEmailAction: Action = {
   name: 'send_email',
   label: 'Send Email',
   icon: 'mail',
@@ -49,10 +49,11 @@ export const SendEmailAction = Action.create({
   target: 'email_composer',
   locations: ['record_header', 'list_item'],
   visible: 'email_opt_out = false',
-});
+  refreshAfter: false,
+};
 
 // Log a Call
-export const LogCallAction = Action.create({
+export const LogCallAction: Action = {
   name: 'log_call',
   label: 'Log a Call',
   icon: 'phone',
@@ -81,10 +82,10 @@ export const LogCallAction = Action.create({
   ],
   successMessage: 'Call logged successfully!',
   refreshAfter: true,
-});
+};
 
 // Escalate Case
-export const EscalateCaseAction = Action.create({
+export const EscalateCaseAction: Action = {
   name: 'escalate_case',
   label: 'Escalate Case',
   icon: 'alert-triangle',
@@ -103,10 +104,10 @@ export const EscalateCaseAction = Action.create({
   confirmText: 'This will escalate the case to the escalation team. Continue?',
   successMessage: 'Case escalated successfully!',
   refreshAfter: true,
-});
+};
 
 // Close Case
-export const CloseCaseAction = Action.create({
+export const CloseCaseAction: Action = {
   name: 'close_case',
   label: 'Close Case',
   icon: 'check-circle',
@@ -125,10 +126,10 @@ export const CloseCaseAction = Action.create({
   confirmText: 'Are you sure you want to close this case?',
   successMessage: 'Case closed successfully!',
   refreshAfter: true,
-});
+};
 
 // Mass Update Opportunity Stage
-export const MassUpdateStageAction = Action.create({
+export const MassUpdateStageAction: Action = {
   name: 'mass_update_stage',
   label: 'Update Stage',
   icon: 'layers',
@@ -154,10 +155,10 @@ export const MassUpdateStageAction = Action.create({
   ],
   successMessage: 'Opportunities updated successfully!',
   refreshAfter: true,
-});
+};
 
 // Export to CSV
-export const ExportToCsvAction = Action.create({
+export const ExportToCsvAction: Action = {
   name: 'export_csv',
   label: 'Export to CSV',
   icon: 'download',
@@ -165,10 +166,11 @@ export const ExportToCsvAction = Action.create({
   execute: 'exportToCSV',
   locations: ['list_toolbar'],
   successMessage: 'Export completed!',
-});
+  refreshAfter: false,
+};
 
 // Create Campaign from Leads
-export const CreateCampaignAction = Action.create({
+export const CreateCampaignAction: Action = {
   name: 'create_campaign',
   label: 'Add to Campaign',
   icon: 'send',
@@ -185,7 +187,7 @@ export const CreateCampaignAction = Action.create({
   ],
   successMessage: 'Leads added to campaign!',
   refreshAfter: true,
-});
+};
 
 export const CrmActions = {
   ConvertLeadAction,

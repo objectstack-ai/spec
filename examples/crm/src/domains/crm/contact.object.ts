@@ -9,15 +9,8 @@ export const Contact = ObjectSchema.create({
   
   fields: {
     // Name fields
-    salutation: Field.select({
+    salutation: Field.select(['Mr.', 'Ms.', 'Mrs.', 'Dr.', 'Prof.'], {
       label: 'Salutation',
-      options: [
-        { label: 'Mr.', value: 'mr' },
-        { label: 'Ms.', value: 'ms' },
-        { label: 'Mrs.', value: 'mrs' },
-        { label: 'Dr.', value: 'dr' },
-        { label: 'Prof.', value: 'prof' },
-      ]
     }),
     first_name: Field.text({ 
       label: 'First Name',
@@ -51,12 +44,14 @@ export const Contact = ObjectSchema.create({
       unique: true,
     }),
     
-    phone: Field.phone({ 
+    phone: Field.text({ 
       label: 'Phone',
+      format: 'phone',
     }),
     
-    mobile: Field.phone({
+    mobile: Field.text({
       label: 'Mobile',
+      format: 'phone',
     }),
     
     // Professional Information
@@ -64,18 +59,8 @@ export const Contact = ObjectSchema.create({
       label: 'Job Title',
     }),
     
-    department: Field.select({
+    department: Field.select(['Executive', 'Sales', 'Marketing', 'Engineering', 'Support', 'Finance', 'HR', 'Operations'], {
       label: 'Department',
-      options: [
-        { label: 'Executive', value: 'executive' },
-        { label: 'Sales', value: 'sales' },
-        { label: 'Marketing', value: 'marketing' },
-        { label: 'Engineering', value: 'engineering' },
-        { label: 'Support', value: 'support' },
-        { label: 'Finance', value: 'finance' },
-        { label: 'HR', value: 'hr' },
-        { label: 'Operations', value: 'operations' },
-      ]
     }),
     
     // Relationship fields
@@ -101,15 +86,8 @@ export const Contact = ObjectSchema.create({
       label: 'Birthdate',
     }),
     
-    lead_source: Field.select({
+    lead_source: Field.select(['Web', 'Referral', 'Event', 'Partner', 'Advertisement'], {
       label: 'Lead Source',
-      options: [
-        { label: 'Web', value: 'web' },
-        { label: 'Referral', value: 'referral' },
-        { label: 'Event', value: 'event' },
-        { label: 'Partner', value: 'partner' },
-        { label: 'Advertisement', value: 'advertisement' },
-      ]
     }),
     
     description: Field.markdown({

@@ -1,7 +1,7 @@
-import { Report } from '@objectstack/spec';
+import type { Report } from '@objectstack/spec';
 
 // Sales Report - Opportunities by Stage
-export const OpportunitiesByStageReport = Report.create({
+export const OpportunitiesByStageReport: Report = {
   name: 'opportunities_by_stage',
   label: 'Opportunities by Stage',
   description: 'Summary of opportunities grouped by stage',
@@ -64,10 +64,10 @@ export const OpportunitiesByStageReport = Report.create({
     xAxis: 'stage',
     yAxis: 'amount',
   }
-});
+};
 
 // Sales Report - Won Opportunities by Owner
-export const WonOpportunitiesByOwnerReport = Report.create({
+export const WonOpportunitiesByOwnerReport: Report = {
   name: 'won_opportunities_by_owner',
   label: 'Won Opportunities by Owner',
   description: 'Closed won opportunities grouped by owner',
@@ -119,10 +119,10 @@ export const WonOpportunitiesByOwnerReport = Report.create({
     xAxis: 'owner',
     yAxis: 'amount',
   }
-});
+};
 
 // Account Report - Accounts by Industry and Type (Matrix)
-export const AccountsByIndustryTypeReport = Report.create({
+export const AccountsByIndustryTypeReport: Report = {
   name: 'accounts_by_industry_type',
   label: 'Accounts by Industry and Type',
   description: 'Matrix report showing accounts by industry and type',
@@ -164,10 +164,10 @@ export const AccountsByIndustryTypeReport = Report.create({
       value: true,
     }
   ],
-});
+};
 
 // Support Report - Cases by Status and Priority
-export const CasesByStatusPriorityReport = Report.create({
+export const CasesByStatusPriorityReport: Report = {
   name: 'cases_by_status_priority',
   label: 'Cases by Status and Priority',
   description: 'Summary of cases by status and priority',
@@ -217,10 +217,10 @@ export const CasesByStatusPriorityReport = Report.create({
     xAxis: 'status',
     yAxis: 'case_number',
   }
-});
+};
 
 // Support Report - SLA Performance
-export const SlaPerformanceReport = Report.create({
+export const SlaPerformanceReport: Report = {
   name: 'sla_performance',
   label: 'SLA Performance Report',
   description: 'Analysis of SLA compliance',
@@ -269,10 +269,10 @@ export const SlaPerformanceReport = Report.create({
     xAxis: 'priority',
     yAxis: 'is_sla_violated',
   }
-});
+};
 
 // Lead Report - Leads by Source and Status
-export const LeadsBySourceReport = Report.create({
+export const LeadsBySourceReport: Report = {
   name: 'leads_by_source',
   label: 'Leads by Source and Status',
   description: 'Lead pipeline analysis',
@@ -323,10 +323,10 @@ export const LeadsBySourceReport = Report.create({
     xAxis: 'lead_source',
     yAxis: 'full_name',
   }
-});
+};
 
 // Contact Report - Contacts by Account
-export const ContactsByAccountReport = Report.create({
+export const ContactsByAccountReport: Report = {
   name: 'contacts_by_account',
   label: 'Contacts by Account',
   description: 'List of contacts grouped by account',
@@ -363,10 +363,10 @@ export const ContactsByAccountReport = Report.create({
       sortOrder: 'asc',
     }
   ],
-});
+};
 
 // Activity Report - Tasks by Owner
-export const TasksByOwnerReport = Report.create({
+export const TasksByOwnerReport: Report = {
   name: 'tasks_by_owner',
   label: 'Tasks by Owner',
   description: 'Task summary by owner',
@@ -414,7 +414,7 @@ export const TasksByOwnerReport = Report.create({
       value: false,
     }
   ],
-});
+};
 
 export const CrmReports = {
   OpportunitiesByStageReport,

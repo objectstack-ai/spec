@@ -1,6 +1,5 @@
 {
   "label": "Protocol Reference",
-  "root": true,
   "order": 100,
   "pages": [
     "data",

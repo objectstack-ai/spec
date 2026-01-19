@@ -9,14 +9,8 @@ export const Lead = ObjectSchema.create({
   
   fields: {
     // Personal Information
-    salutation: Field.select({
+    salutation: Field.select(['Mr.', 'Ms.', 'Mrs.', 'Dr.'], {
       label: 'Salutation',
-      options: [
-        { label: 'Mr.', value: 'mr' },
-        { label: 'Ms.', value: 'ms' },
-        { label: 'Mrs.', value: 'mrs' },
-        { label: 'Dr.', value: 'dr' },
-      ]
     }),
     
     first_name: Field.text({
@@ -47,16 +41,8 @@ export const Lead = ObjectSchema.create({
       label: 'Job Title',
     }),
     
-    industry: Field.select({
+    industry: Field.select(['Technology', 'Finance', 'Healthcare', 'Retail', 'Manufacturing', 'Education'], {
       label: 'Industry',
-      options: [
-        { label: 'Technology', value: 'technology' },
-        { label: 'Finance', value: 'finance' },
-        { label: 'Healthcare', value: 'healthcare' },
-        { label: 'Retail', value: 'retail' },
-        { label: 'Manufacturing', value: 'manufacturing' },
-        { label: 'Education', value: 'education' },
-      ]
     }),
     
     // Contact Information
@@ -66,12 +52,14 @@ export const Lead = ObjectSchema.create({
       unique: true,
     }),
     
-    phone: Field.phone({
+    phone: Field.text({
       label: 'Phone',
+      format: 'phone',
     }),
     
-    mobile: Field.phone({
+    mobile: Field.text({
       label: 'Mobile',
+      format: 'phone',
     }),
     
     website: Field.url({
@@ -79,7 +67,8 @@ export const Lead = ObjectSchema.create({
     }),
     
     // Lead Qualification
-    status: Field.select({
+    status: {
+      type: 'select',
       label: 'Lead Status',
       required: true,
       options: [
@@ -89,27 +78,20 @@ export const Lead = ObjectSchema.create({
         { label: 'Unqualified', value: 'unqualified', color: '#FF0000' },
         { label: 'Converted', value: 'converted', color: '#00AA00' },
       ]
-    }),
+    },
     
-    rating: Field.select({
+    rating: {
+      type: 'select',
       label: 'Rating',
       options: [
         { label: 'Hot', value: 'hot', color: '#FF0000' },
         { label: 'Warm', value: 'warm', color: '#FFA500' },
         { label: 'Cold', value: 'cold', color: '#4169E1' },
       ]
-    }),
+    },
     
-    lead_source: Field.select({
+    lead_source: Field.select(['Web', 'Referral', 'Event', 'Partner', 'Advertisement', 'Cold Call'], {
       label: 'Lead Source',
-      options: [
-        { label: 'Web', value: 'web' },
-        { label: 'Referral', value: 'referral' },
-        { label: 'Event', value: 'event' },
-        { label: 'Partner', value: 'partner' },
-        { label: 'Advertisement', value: 'advertisement' },
-        { label: 'Cold Call', value: 'cold_call' },
-      ]
     }),
     
     // Assignment

@@ -46,7 +46,8 @@ export const Opportunity = ObjectSchema.create({
     }),
     
     // Sales Process
-    stage: Field.select({
+    stage: {
+      type: 'select',
       label: 'Stage',
       required: true,
       options: [
@@ -58,7 +59,7 @@ export const Opportunity = ObjectSchema.create({
         { label: 'Closed Won', value: 'closed_won', color: '#00AA00' },
         { label: 'Closed Lost', value: 'closed_lost', color: '#FF0000' },
       ]
-    }),
+    },
     
     probability: Field.percent({
       label: 'Probability (%)',
@@ -79,36 +80,17 @@ export const Opportunity = ObjectSchema.create({
     }),
     
     // Additional Classification
-    type: Field.select({
+    type: Field.select(['New Business', 'Existing Customer - Upgrade', 'Existing Customer - Renewal', 'Existing Customer - Expansion'], {
       label: 'Opportunity Type',
-      options: [
-        { label: 'New Business', value: 'new_business' },
-        { label: 'Existing Customer - Upgrade', value: 'upgrade' },
-        { label: 'Existing Customer - Renewal', value: 'renewal' },
-        { label: 'Existing Customer - Expansion', value: 'expansion' },
-      ]
     }),
     
-    lead_source: Field.select({
+    lead_source: Field.select(['Web', 'Referral', 'Event', 'Partner', 'Advertisement', 'Cold Call'], {
       label: 'Lead Source',
-      options: [
-        { label: 'Web', value: 'web' },
-        { label: 'Referral', value: 'referral' },
-        { label: 'Event', value: 'event' },
-        { label: 'Partner', value: 'partner' },
-        { label: 'Advertisement', value: 'advertisement' },
-        { label: 'Cold Call', value: 'cold_call' },
-      ]
     }),
     
     // Competitor Analysis
-    competitors: Field.multiselect({
+    competitors: Field.multiselect(['Competitor A', 'Competitor B', 'Competitor C'], {
       label: 'Competitors',
-      options: [
-        { label: 'Competitor A', value: 'competitor_a' },
-        { label: 'Competitor B', value: 'competitor_b' },
-        { label: 'Competitor C', value: 'competitor_c' },
-      ],
       multiple: true,
     }),
     
@@ -139,15 +121,8 @@ export const Opportunity = ObjectSchema.create({
       defaultValue: false,
     }),
     
-    forecast_category: Field.select({
+    forecast_category: Field.select(['Pipeline', 'Best Case', 'Commit', 'Omitted', 'Closed'], {
       label: 'Forecast Category',
-      options: [
-        { label: 'Pipeline', value: 'pipeline' },
-        { label: 'Best Case', value: 'best_case' },
-        { label: 'Commit', value: 'commit' },
-        { label: 'Omitted', value: 'omitted' },
-        { label: 'Closed', value: 'closed' },
-      ]
     }),
   },
   

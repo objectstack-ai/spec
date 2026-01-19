@@ -1,7 +1,7 @@
-import { Dashboard } from '@objectstack/spec';
+import type { Dashboard } from '@objectstack/spec';
 
 // Sales Performance Dashboard
-export const SalesDashboard = Dashboard.create({
+export const SalesDashboard: Dashboard = {
   name: 'sales_dashboard',
   label: 'Sales Performance',
   description: 'Key sales metrics and pipeline overview',
@@ -130,6 +130,7 @@ export const SalesDashboard = Dashboard.create({
         ['stage', '!=', 'closed_won'],
         ['stage', '!=', 'closed_lost'],
       ],
+      aggregate: 'count',
       layout: { x: 8, y: 6, w: 4, h: 4 },
       options: {
         columns: ['name', 'amount', 'stage', 'close_date'],
@@ -139,10 +140,10 @@ export const SalesDashboard = Dashboard.create({
       }
     },
   ]
-});
+};
 
 // Customer Service Dashboard
-export const ServiceDashboard = Dashboard.create({
+export const ServiceDashboard: Dashboard = {
   name: 'service_dashboard',
   label: 'Customer Service',
   description: 'Support case metrics and performance',
@@ -256,6 +257,7 @@ export const ServiceDashboard = Dashboard.create({
         ['owner', '=', '{current_user}'],
         ['is_closed', '=', false],
       ],
+      aggregate: 'count',
       layout: { x: 8, y: 6, w: 4, h: 4 },
       options: {
         columns: ['case_number', 'subject', 'priority', 'status'],
@@ -265,10 +267,10 @@ export const ServiceDashboard = Dashboard.create({
       }
     },
   ]
-});
+};
 
 // Executive Dashboard
-export const ExecutiveDashboard = Dashboard.create({
+export const ExecutiveDashboard: Dashboard = {
   name: 'executive_dashboard',
   label: 'Executive Overview',
   description: 'High-level business metrics',
@@ -386,6 +388,7 @@ export const ExecutiveDashboard = Dashboard.create({
       title: 'Top Accounts by Revenue',
       type: 'table',
       object: 'account',
+      aggregate: 'count',
       layout: { x: 8, y: 6, w: 4, h: 4 },
       options: {
         columns: ['name', 'annual_revenue', 'type'],
@@ -395,7 +398,7 @@ export const ExecutiveDashboard = Dashboard.create({
       }
     },
   ]
-});
+};
 
 export const CrmDashboards = {
   SalesDashboard,

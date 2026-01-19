@@ -38,7 +38,8 @@ export const Case = ObjectSchema.create({
     }),
     
     // Case Management
-    status: Field.select({
+    status: {
+      type: 'select',
       label: 'Status',
       required: true,
       options: [
@@ -50,9 +51,10 @@ export const Case = ObjectSchema.create({
         { label: 'Resolved', value: 'resolved', color: '#00AA00' },
         { label: 'Closed', value: 'closed', color: '#006400' },
       ]
-    }),
+    },
     
-    priority: Field.select({
+    priority: {
+      type: 'select',
       label: 'Priority',
       required: true,
       options: [
@@ -61,27 +63,14 @@ export const Case = ObjectSchema.create({
         { label: 'High', value: 'high', color: '#FF4500' },
         { label: 'Critical', value: 'critical', color: '#FF0000' },
       ]
-    }),
+    },
     
-    type: Field.select({
+    type: Field.select(['Question', 'Problem', 'Feature Request', 'Bug'], {
       label: 'Case Type',
-      options: [
-        { label: 'Question', value: 'question' },
-        { label: 'Problem', value: 'problem' },
-        { label: 'Feature Request', value: 'feature_request' },
-        { label: 'Bug', value: 'bug' },
-      ]
     }),
     
-    origin: Field.select({
+    origin: Field.select(['Email', 'Phone', 'Web', 'Chat', 'Social Media'], {
       label: 'Case Origin',
-      options: [
-        { label: 'Email', value: 'email' },
-        { label: 'Phone', value: 'phone' },
-        { label: 'Web', value: 'web' },
-        { label: 'Chat', value: 'chat' },
-        { label: 'Social Media', value: 'social' },
-      ]
     }),
     
     // Assignment
@@ -144,15 +133,8 @@ export const Case = ObjectSchema.create({
     }),
     
     // Customer satisfaction
-    customer_rating: Field.select({
+    customer_rating: Field.select(['⭐ Very Dissatisfied', '⭐⭐ Dissatisfied', '⭐⭐⭐ Neutral', '⭐⭐⭐⭐ Satisfied', '⭐⭐⭐⭐⭐ Very Satisfied'], {
       label: 'Customer Rating',
-      options: [
-        { label: '⭐ Very Dissatisfied', value: '1' },
-        { label: '⭐⭐ Dissatisfied', value: '2' },
-        { label: '⭐⭐⭐ Neutral', value: '3' },
-        { label: '⭐⭐⭐⭐ Satisfied', value: '4' },
-        { label: '⭐⭐⭐⭐⭐ Very Satisfied', value: '5' },
-      ]
     }),
     
     customer_feedback: Field.textarea({

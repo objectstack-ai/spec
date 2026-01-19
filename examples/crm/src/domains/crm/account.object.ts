@@ -23,7 +23,8 @@ export const Account = ObjectSchema.create({
     }),
     
     // Select fields with custom options
-    type: Field.select({
+    type: {
+      type: 'select',
       label: 'Account Type',
       options: [
         { label: 'Prospect', value: 'prospect', color: '#FFA500', default: true },
@@ -31,9 +32,10 @@ export const Account = ObjectSchema.create({
         { label: 'Partner', value: 'partner', color: '#0000FF' },
         { label: 'Former Customer', value: 'former', color: '#999999' },
       ]
-    }),
+    },
     
-    industry: Field.select({
+    industry: {
+      type: 'select',
       label: 'Industry',
       options: [
         { label: 'Technology', value: 'technology' },
@@ -43,7 +45,7 @@ export const Account = ObjectSchema.create({
         { label: 'Manufacturing', value: 'manufacturing' },
         { label: 'Education', value: 'education' },
       ]
-    }),
+    },
     
     // Number fields
     annual_revenue: Field.currency({ 
