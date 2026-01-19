@@ -1,26 +1,27 @@
 {
-  "$ref": "#/definitions/Datasource",
+  "$ref": "#/definitions/DriverDefinition",
   "definitions": {
-    "Datasource": {
+    "DriverDefinition": {
       "type": "object",
       "properties": {
-        "name": {
+        "id": {
           "type": "string",
-          "pattern": "^[a-z_][a-z0-9_]*$",
-          "description": "Unique datasource identifier"
+          "description": "Unique driver identifier (e.g. \"postgres\")"
         },
         "label": {
           "type": "string",
-          "description": "Display label"
+          "description": "Display label (e.g. \"PostgreSQL\")"
         },
-        "driver": {
-          "type": "string",
-          "description": "Underlying driver type"
+        "description": {
+          "type": "string"
         },
-        "config": {
+        "icon": {
+          "type": "string"
+        },
+        "configSchema": {
           "type": "object",
           "additionalProperties": {},
-          "description": "Driver specific configuration"
+          "description": "JSON Schema for connection configuration"
         },
         "capabilities": {
           "type": "object",
@@ -50,23 +51,13 @@
               "default": false
             }
           },
-          "additionalProperties": false,
-          "description": "Capability overrides"
-        },
-        "description": {
-          "type": "string",
-          "description": "Internal description"
-        },
-        "active": {
-          "type": "boolean",
-          "default": true,
-          "description": "Is datasource enabled"
+          "additionalProperties": false
         }
       },
       "required": [
-        "name",
-        "driver",
-        "config"
+        "id",
+        "label",
+        "configSchema"
       ],
       "additionalProperties": false
     }

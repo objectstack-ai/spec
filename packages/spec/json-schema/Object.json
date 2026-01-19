@@ -28,11 +28,11 @@
         "datasource": {
           "type": "string",
           "default": "default",
-          "description": "Datasource name"
+          "description": "Target Datasource ID (e.g. \"postgres\", \"salesforce\"). references sys_datasource."
         },
         "tableName": {
           "type": "string",
-          "description": "Physical DB table override"
+          "description": "Physical table/collection name in the target datasource"
         },
         "isSystem": {
           "type": "boolean",

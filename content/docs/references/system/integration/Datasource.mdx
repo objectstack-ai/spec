@@ -9,7 +9,7 @@ description: Datasource Schema Reference
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | ✅ | Unique datasource identifier |
 | **label** | `string` | optional | Display label |
-| **driver** | `Enum<'postgres' \| 'mysql' \| 'sqlserver' \| 'oracle' \| 'sqlite' \| 'mongo' \| 'redis' \| 'excel' \| 'csv' \| 'airtable' \| 'rest_api' \| 'graphql' \| 'odata' \| 'salesforce' \| 'sap' \| 'workday'>` | ✅ | Underlying driver type |
+| **driver** | `string` | ✅ | Underlying driver type |
 | **config** | `Record<string, any>` | ✅ | Driver specific configuration |
 | **capabilities** | `object` | optional | Capability overrides |
 | **description** | `string` | optional | Internal description |

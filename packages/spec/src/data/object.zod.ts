@@ -45,9 +45,12 @@ const ObjectSchemaBase = z.object({
   description: z.string().optional().describe('Internal description'),
   icon: z.string().optional().describe('Lucide icon name'),
 
-  /** Storage Config */
-  datasource: z.string().default('default').describe('Datasource name'),
-  tableName: z.string().optional().describe('Physical DB table override'),
+  /** 
+   * Storage / Virtualization Config 
+   * Defines where the data actually lives.
+   */
+  datasource: z.string().default('default').describe('Target Datasource ID (e.g. "postgres", "salesforce"). references sys_datasource.'),
+  tableName: z.string().optional().describe('Physical table/collection name in the target datasource'),
   isSystem: z.boolean().default(false).describe('Is system object (protected)'),
   
   /** Fields Definition */

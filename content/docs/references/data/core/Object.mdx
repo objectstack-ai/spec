@@ -12,8 +12,8 @@ description: Object Schema Reference
 | **pluralLabel** | `string` | optional | Plural Label (e.g. "Accounts") |
 | **description** | `string` | optional | Internal description |
 | **icon** | `string` | optional | Lucide icon name |
-| **datasource** | `string` | optional | Datasource name |
-| **tableName** | `string` | optional | Physical DB table override |
+| **datasource** | `string` | optional | Target Datasource ID (e.g. "postgres", "salesforce"). references sys_datasource. |
+| **tableName** | `string` | optional | Physical table/collection name in the target datasource |
 | **isSystem** | `boolean` | optional | Is system object (protected) |
 | **fields** | `Record<string, object>` | ✅ | Map of field definitions |
 | **indexes** | `object[]` | optional | Database indexes definition |

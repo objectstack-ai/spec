@@ -266,10 +266,6 @@
           },
           "description": "Structured navigation menu tree"
         },
-        "menus": {
-          "type": "array",
-          "description": "Deprecated: Use navigation instead"
-        },
         "homePageId": {
           "type": "string",
           "description": "ID of the navigation item to serve as landing page"

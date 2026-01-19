@@ -3,24 +3,7 @@
   "definitions": {
     "DriverType": {
       "type": "string",
-      "enum": [
-        "postgres",
-        "mysql",
-        "sqlserver",
-        "oracle",
-        "sqlite",
-        "mongo",
-        "redis",
-        "excel",
-        "csv",
-        "airtable",
-        "rest_api",
-        "graphql",
-        "odata",
-        "salesforce",
-        "sap",
-        "workday"
-      ]
+      "description": "Underlying driver identifier"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

@@ -50,6 +50,11 @@ export const ManifestSchema = z.object({
   objects: z.array(z.string()).optional().describe('Glob patterns for ObjectQL schemas files'),
   
   /**
+   * Defines system level DataSources.
+   */
+  datasources: z.array(z.string()).optional().describe('Glob patterns for Datasource definitions'),
+
+  /**
    * Contribution Points (VS Code Style).
    * formalized way to extend the platform capabilities.
    */

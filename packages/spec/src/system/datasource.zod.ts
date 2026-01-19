@@ -1,16 +1,48 @@
 import { z } from 'zod';
 
 /**
- * Driver Type Enum
- * Defines the underlying technology of the datasource.
+ * Driver Type Enum (Built-in)
+ * Standard drivers supported by the core platform.
+ * Plugins can register additional drivers using different identifiers.
  */
-export const DriverType = z.enum([
+export const BuiltInDrivers = [
   'postgres', 'mysql', 'sqlserver', 'oracle', 'sqlite', // SQL
   'mongo', 'redis', // NoSQL
   'excel', 'csv', 'airtable', // Spreadsheet / Low-code
   'rest_api', 'graphql', 'odata', // Web Services
   'salesforce', 'sap', 'workday' // Enterprise SaaS
-]);
+] as const;
+
+/**
+ * Driver Identifier
+ * Can be a built-in driver or a plugin-contributed driver (e.g., "com.vendor.snowflake").
+ */
+export const DriverType = z.string().describe('Underlying driver identifier');
+
+/**
+ * Driver Definition Schema
+ * Metadata describing a Database Driver.
+ * Plugins use this to register new connectivity options.
+ */
+export const DriverDefinitionSchema = z.object({
+  id: z.string().describe('Unique driver identifier (e.g. "postgres")'),
+  label: z.string().describe('Display label (e.g. "PostgreSQL")'),
+  description: z.string().optional(),
+  icon: z.string().optional(),
+  
+  /**
+   * Configuration Schema (JSON Schema)
+   * Describes the structure of the `config` object needed for this driver.
+   * Used by the UI to generate the connection form.
+   */
+  configSchema: z.record(z.any()).describe('JSON Schema for connection configuration'),
+  
+  /**
+   * Default Capabilities
+   * What this driver supports out-of-the-box.
+   */
+  capabilities: z.lazy(() => DatasourceCapabilities).optional(),
+});
 
 /**
  * Datasource Capabilities Schema
