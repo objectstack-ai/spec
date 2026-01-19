@@ -1,5 +1,6 @@
 {
   "title": "Concepts",
+  "root": true,
   "pages": [
     "manifesto",
     "core-values",

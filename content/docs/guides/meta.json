@@ -1,5 +1,6 @@
 {
   "title": "Developer Guides",
+  "root": true,
   "pages": [
     "getting-started",
     "installation",

@@ -1,5 +1,6 @@
 {
   "title": "Specifications",
+  "root": true,
   "pages": [
     "data",
     "ui",

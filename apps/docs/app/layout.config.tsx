@@ -18,25 +18,25 @@ export const baseOptions: BaseLayoutProps = {
   },
   links: [
     {
-      text: 'Guides',
-      url: '/docs/guides/getting-started',
+      text: 'Documentation',
+      url: '/docs/',
       active: 'nested-url',
     },
-    {
-      text: 'Concepts',
-      url: '/docs/concepts/manifesto',
-      active: 'nested-url',
-    },
-    {
-      text: 'Specs',
-      url: '/docs/specifications/data/architecture',
-      active: 'nested-url',
-    },
-    {
-      text: 'Reference',
-      url: '/docs/references/data/core/Object',
-      active: 'nested-url',
-    },
+    // {
+    //   text: 'Concepts',
+    //   url: '/docs/concepts/manifesto',
+    //   active: 'nested-url',
+    // },
+    // {
+    //   text: 'Specs',
+    //   url: '/docs/specifications/data/architecture',
+    //   active: 'nested-url',
+    // },
+    // {
+    //   text: 'Reference',
+    //   url: '/docs/references/data/core/Object',
+    //   active: 'nested-url',
+    // },
   ],
   githubUrl: 'https://github.com/objectstack-ai/spec',
 };
