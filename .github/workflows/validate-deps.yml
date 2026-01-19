@@ -51,6 +51,8 @@ jobs:
           
       - name: Check for dependency issues
         run: |
+          # Fail the workflow if high-severity vulnerabilities are found
+          # This enforces security compliance before merging
           pnpm audit --audit-level=high
 
       - name: List outdated packages

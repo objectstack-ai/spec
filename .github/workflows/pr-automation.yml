@@ -75,6 +75,10 @@ jobs:
 
       - name: Check for changesets
         run: |
+          if [ ! -d ".changeset" ]; then
+            echo "::warning::.changeset directory not found. Skipping changeset check."
+            exit 0
+          fi
           CHANGESET_COUNT=$(find .changeset -name '*.md' ! -name 'README.md' | wc -l)
           if [ "$CHANGESET_COUNT" -eq 0 ]; then
             echo "::warning::No changeset found. Please add a changeset if this PR includes user-facing changes."
