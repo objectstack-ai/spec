@@ -78,3 +78,10 @@ export const DashboardSchema = z.object({
 
 export type Dashboard = z.infer<typeof DashboardSchema>;
 export type DashboardWidget = z.infer<typeof DashboardWidgetSchema>;
+
+/**
+ * Dashboard Factory Helper
+ */
+export const Dashboard = {
+  create: (config: z.input<typeof DashboardSchema>): Dashboard => DashboardSchema.parse(config),
+} as const;

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ActionSchema, ActionParamSchema, type Action } from './action.zod';
+import { ActionSchema, ActionParamSchema, Action, type Action as ActionType } from './action.zod';
 
 describe('ActionParamSchema', () => {
   it('should accept minimal action parameter', () => {
@@ -43,7 +43,7 @@ describe('ActionParamSchema', () => {
 describe('ActionSchema', () => {
   describe('Basic Action Properties', () => {
     it('should accept minimal action', () => {
-      const action: Action = {
+      const action: ActionType = {
         name: 'approve',
         label: 'Approve',
       };
@@ -66,7 +66,7 @@ describe('ActionSchema', () => {
     });
 
     it('should accept action with icon', () => {
-      const action: Action = {
+      const action: ActionType = {
         name: 'delete_record',
         label: 'Delete',
         icon: 'trash-2',
@@ -81,7 +81,7 @@ describe('ActionSchema', () => {
       const types = ['script', 'url', 'modal', 'flow', 'api'] as const;
       
       types.forEach(type => {
-        const action: Action = {
+        const action: ActionType = {
           name: 'test_action',
           label: 'Test',
           type,
@@ -112,7 +112,7 @@ describe('ActionSchema', () => {
         'global_nav',
       ] as const;
 
-      const action: Action = {
+      const action: ActionType = {
         name: 'multi_location',
         label: 'Multi Location',
         locations,
@@ -122,7 +122,7 @@ describe('ActionSchema', () => {
     });
 
     it('should accept single location', () => {
-      const action: Action = {
+      const action: ActionType = {
         name: 'toolbar_action',
         label: 'Toolbar Action',
         locations: ['list_toolbar'],
@@ -134,7 +134,7 @@ describe('ActionSchema', () => {
 
   describe('Action Targets', () => {
     it('should accept URL action with target', () => {
-      const action: Action = {
+      const action: ActionType = {
         name: 'open_external',
         label: 'Open External',
         type: 'url',
@@ -145,7 +145,7 @@ describe('ActionSchema', () => {
     });
 
     it('should accept flow action with target', () => {
-      const action: Action = {
+      const action: ActionType = {
         name: 'run_approval_flow',
         label: 'Run Approval',
         type: 'flow',
@@ -156,7 +156,7 @@ describe('ActionSchema', () => {
     });
 
     it('should accept API action with target', () => {
-      const action: Action = {
+      const action: ActionType = {
         name: 'call_api',
         label: 'Call API',
         type: 'api',
@@ -169,7 +169,7 @@ describe('ActionSchema', () => {
 
   describe('Action Parameters', () => {
     it('should accept action with parameters', () => {
-      const action: Action = {
+      const action: ActionType = {
         name: 'transfer_ownership',
         label: 'Transfer Ownership',
         type: 'script',
@@ -193,7 +193,7 @@ describe('ActionSchema', () => {
     });
 
     it('should accept action with select parameter', () => {
-      const action: Action = {
+      const action: ActionType = {
         name: 'change_status',
         label: 'Change Status',
         params: [
@@ -216,7 +216,7 @@ describe('ActionSchema', () => {
 
   describe('UX Behavior', () => {
     it('should accept action with confirmation', () => {
-      const action: Action = {
+      const action: ActionType = {
         name: 'delete_all',
         label: 'Delete All',
         confirmText: 'Are you sure you want to delete all records? This cannot be undone.',
@@ -226,7 +226,7 @@ describe('ActionSchema', () => {
     });
 
     it('should accept action with success message', () => {
-      const action: Action = {
+      const action: ActionType = {
         name: 'send_notification',
         label: 'Send Notification',
         successMessage: 'Notification sent successfully!',
@@ -236,7 +236,7 @@ describe('ActionSchema', () => {
     });
 
     it('should accept action that refreshes view', () => {
-      const action: Action = {
+      const action: ActionType = {
         name: 'update_status',
         label: 'Update Status',
         refreshAfter: true,
@@ -246,7 +246,7 @@ describe('ActionSchema', () => {
     });
 
     it('should accept action with all UX properties', () => {
-      const action: Action = {
+      const action: ActionType = {
         name: 'complete_task',
         label: 'Complete Task',
         confirmText: 'Mark this task as complete?',
@@ -260,7 +260,7 @@ describe('ActionSchema', () => {
 
   describe('Visibility Control', () => {
     it('should accept action with visibility formula', () => {
-      const action: Action = {
+      const action: ActionType = {
         name: 'approve',
         label: 'Approve',
         visible: 'status == "pending" && user.can_approve',
@@ -272,7 +272,7 @@ describe('ActionSchema', () => {
 
   describe('Real-World Action Examples', () => {
     it('should accept approve opportunity action', () => {
-      const approveAction: Action = {
+      const approveAction: ActionType = {
         name: 'approve_opportunity',
         label: 'Approve',
         icon: 'check-circle',
@@ -289,7 +289,7 @@ describe('ActionSchema', () => {
     });
 
     it('should accept transfer case action with parameters', () => {
-      const transferAction: Action = {
+      const transferAction: ActionType = {
         name: 'transfer_case',
         label: 'Transfer Case',
         icon: 'arrow-right',
@@ -323,7 +323,7 @@ describe('ActionSchema', () => {
     });
 
     it('should accept send email action', () => {
-      const emailAction: Action = {
+      const emailAction: ActionType = {
         name: 'send_quote',
         label: 'Send Quote',
         icon: 'mail',
@@ -355,7 +355,7 @@ describe('ActionSchema', () => {
     });
 
     it('should accept export to Excel action', () => {
-      const exportAction: Action = {
+      const exportAction: ActionType = {
         name: 'export_excel',
         label: 'Export to Excel',
         icon: 'file-spreadsheet',
@@ -369,7 +369,7 @@ describe('ActionSchema', () => {
     });
 
     it('should accept delete action with confirmation', () => {
-      const deleteAction: Action = {
+      const deleteAction: ActionType = {
         name: 'delete_record',
         label: 'Delete',
         icon: 'trash-2',
@@ -386,7 +386,7 @@ describe('ActionSchema', () => {
     });
 
     it('should accept clone record action', () => {
-      const cloneAction: Action = {
+      const cloneAction: ActionType = {
         name: 'clone_record',
         label: 'Clone',
         icon: 'copy',
@@ -409,7 +409,7 @@ describe('ActionSchema', () => {
     });
 
     it('should accept open external link action', () => {
-      const linkAction: Action = {
+      const linkAction: ActionType = {
         name: 'view_on_map',
         label: 'View on Map',
         icon: 'map-pin',
@@ -421,5 +421,52 @@ describe('ActionSchema', () => {
 
       expect(() => ActionSchema.parse(linkAction)).not.toThrow();
     });
+  });
+});
+
+describe('Action Factory', () => {
+  it('should create action with default values via factory', () => {
+    const action = Action.create({
+      name: 'test_action',
+      label: 'Test Action',
+    });
+    
+    expect(action.name).toBe('test_action');
+    expect(action.label).toBe('Test Action');
+    expect(action.type).toBe('script');
+    expect(action.refreshAfter).toBe(false);
+  });
+
+  it('should create action without refreshAfter property (uses default)', () => {
+    const action = Action.create({
+      name: 'send_email',
+      label: 'Send Email',
+      type: 'flow',
+      target: 'email_flow',
+    });
+    
+    expect(action.refreshAfter).toBe(false);
+  });
+
+  it('should create action with explicit refreshAfter', () => {
+    const action = Action.create({
+      name: 'update_record',
+      label: 'Update',
+      refreshAfter: true,
+    });
+    
+    expect(action.refreshAfter).toBe(true);
+  });
+
+  it('should validate snake_case name in factory', () => {
+    expect(() => Action.create({
+      name: 'invalidName',
+      label: 'Invalid',
+    })).toThrow();
+
+    expect(() => Action.create({
+      name: 'valid_name',
+      label: 'Valid',
+    })).not.toThrow();
   });
 });

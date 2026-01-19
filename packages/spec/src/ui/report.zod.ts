@@ -76,3 +76,13 @@ export const ReportSchema = z.object({
 });
 
 export type Report = z.infer<typeof ReportSchema>;
+export type ReportColumn = z.infer<typeof ReportColumnSchema>;
+export type ReportGrouping = z.infer<typeof ReportGroupingSchema>;
+export type ReportChart = z.infer<typeof ReportChartSchema>;
+
+/**
+ * Report Factory Helper
+ */
+export const Report = {
+  create: (config: z.input<typeof ReportSchema>): Report => ReportSchema.parse(config),
+} as const;
