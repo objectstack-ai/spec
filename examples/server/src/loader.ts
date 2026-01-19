@@ -20,25 +20,11 @@ export function loadPlugins() {
     const parsedApp = AppSchema.parse(app);
     SchemaRegistry.registerApp(parsedApp);
 
-    // 1. Scan and Register All Metadata
-    // Known keys to exclude from metadata scanning
-    const ignoredKeys = new Set(['name', 'label', 'description', 'version', 'branding', 'active', 'isDefault', 'navigation', 'menus', 'homePageId', 'requiredPermissions', 'icon', 'id']);
-
-    for (const [key, value] of Object.entries(app)) {
-      if (ignoredKeys.has(key)) continue;
-
-      if (Array.isArray(value)) {
-        // Singularize type name: remove trailing 's' if present
-        const type = key.endsWith('s') ? key.slice(0, -1) : key;
-        
-        value.forEach((item: any) => {
-           // Ensure item has a name
-           if (item && item.name) {
-             SchemaRegistry.registerItem(type, item);
-           }
-        });
-        console.log(`[Loader] Loaded ${value.length} ${type}s from ${app.name}`);
-      }
+    // 1. Register Objects
+    if (app.objects) {
+      app.objects.forEach((obj: any) => {
+         SchemaRegistry.registerObject(obj);
+      });
     }
     
     console.log(`[Loader] Loaded ${app.objects?.length || 0} objects from ${app.name}`);

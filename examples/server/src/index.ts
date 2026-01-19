@@ -21,38 +21,6 @@ console.log('--- Plugins Loaded ---');
 // 3. Define Unified Routes
 
 /**
- * Discovery Endpoint
- * Allows clients to dynamically discover API routes and capabilities.
- */
-const discoveryHandler = (c: any) => {
-  return c.json({
-    name: "ObjectStack Example Server",
-    version: "0.1.0",
-    environment: "development",
-    routes: {
-      data: "/api/v1/data",
-      metadata: "/api/v1/meta",
-      auth: "/api/v1/auth", // Not implemented yet
-      actions: "/api/v1/actions",
-      storage: "/api/v1/storage", // Not implemented yet
-    },
-    features: {
-      graphql: false,
-      search: true,
-      files: false
-    },
-    locale: {
-      default: "en-US",
-      supported: ["en-US", "zh-CN"],
-      timezone: "UTC"
-    }
-  });
-};
-
-app.get('/.well-known/objectstack', discoveryHandler);
-app.get('/api/v1/discovery', discoveryHandler);
-
-/**
  * Unified Metadata API: List Items by Type
  * GET /api/v1/meta/objects
  * GET /api/v1/meta/apps
@@ -60,13 +28,14 @@ app.get('/api/v1/discovery', discoveryHandler);
 app.get('/api/v1/meta/:type', (c) => {
   const typePlural = c.req.param('type');
   
-  // Dynamic singularization:
-  // 1. Check hardcoded map (for exceptions like 'indexes' -> 'index' if needed)
-  // 2. Or fallback to removing trailing 's'
+  // Simple singularization mapping (can be enhanced)
   const typeMap: Record<string, string> = {
-    // Add specific exceptions here if english pluralization rules fail
+    'objects': 'object',
+    'apps': 'app',
+    'flows': 'flow',
+    'reports': 'report'
   };
-  const type = typeMap[typePlural] || (typePlural.endsWith('s') ? typePlural.slice(0, -1) : typePlural);
+  const type = typeMap[typePlural] || typePlural;
   
   const items = SchemaRegistry.listItems(type);
   
@@ -93,8 +62,13 @@ app.get('/api/v1/meta/:type/:name', (c) => {
   const typePlural = c.req.param('type');
   const name = c.req.param('name');
   
-  const typeMap: Record<string, string> = {};
-  const type = typeMap[typePlural] || (typePlural.endsWith('s') ? typePlural.slice(0, -1) : typePlural);
+  const typeMap: Record<string, string> = {
+    'objects': 'object',
+    'apps': 'app',
+    'flows': 'flow',
+    'reports': 'report'
+  };
+  const type = typeMap[typePlural] || typePlural;
 
   const item = SchemaRegistry.getItem(type, name);
   if (!item) return c.json({ error: `Metadata not found: ${type}/${name}` }, 404);

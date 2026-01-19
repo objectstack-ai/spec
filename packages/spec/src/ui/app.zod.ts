@@ -159,7 +159,7 @@ export const AppSchema = z.object({
    */
   objects: z.array(z.any()).optional().describe('Objects belonging to this app'),
   apis: z.array(z.any()).optional().describe('Custom APIs belonging to this app'),
-}).passthrough();
+});
 
 export const App = Object.assign(AppSchema, {
   create: <T extends z.input<typeof AppSchema>>(config: T) => config,
