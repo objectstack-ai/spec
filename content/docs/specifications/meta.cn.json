@@ -1,0 +1,9 @@
+{
+  "title": "规范",
+  "root": true,
+  "pages": [
+    "data",
+    "ui",
+    "server"
+  ]
+}

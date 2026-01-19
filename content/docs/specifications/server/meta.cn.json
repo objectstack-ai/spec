@@ -1,0 +1,12 @@
+{
+  "title": "ObjectOS",
+  "pages": [
+    "kernel-architecture",
+    "permission-governance",
+    "workflow-engine",
+    "automation-rules",
+    "audit-compliance",
+    "integration-etl",
+    "plugin-manifest"
+  ]
+}

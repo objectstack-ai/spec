@@ -1,0 +1,54 @@
+---
+title: SDUI 协议
+description: 服务器驱动 UI 架构。ObjectStack 如何将"界面作为数据"来实现无限定制。
+---
+
+import { LayoutTemplate, Layers, Blocks, Smartphone } from 'lucide-react';
+
+**ObjectUI** 是视图层规范。它建立在**服务器驱动 UI（SDUI）**的原则之上。
+
+在传统的前端中，布局在 React/Vue 组件中硬编码（`<CustomerForm />`）。
+在 ObjectStack 中，前端是一个通用**渲染器**。它从服务器下载 JSON 布局定义并即时绘制。
+
+## UI 管道
+
+### 1. 布局请求
+客户端询问：*"给我编辑发票 #1024 的表单"*。
+```http
+GET /api/v4/ui/layouts/invoice/edit
+```
+
+### 2. 解析引擎
+服务器提供布局，合并三层定制：
+1.  **基础协议：** 在 `invoice.object.yml` 中定义的默认字段。
+2.  **管理员配置：** 通过页面构建器添加的自定义部分和字段。
+3.  **用户偏好：** 用户个性化的列宽和隐藏字段。
+
+### 3. 布局 JSON（响应）
+服务器响应组件树描述，而不是 HTML。
+```json
+{
+  "type": "page",
+  "layout": "two_column",
+  "regions": {
+    "main": [
+      { "type": "field_group", "label": "Basics", "children": ["name", "date"] },
+      { "type": "related_list", "object": "invoice_line", "label": "Line Items" }
+    ],
+    "sidebar": [
+      { "type": "widget", "component": "approval_history" }
+    ]
+  }
+}
+```
+
+### 4. 渲染器（客户端）
+通用 `PageRenderer` 组件遍历此 JSON 并实例化映射的组件（`FieldGroup`、`RelatedList`、`Widget`）。
+
+---
+
+## 为什么选择 SDUI？
+
+1.  **即时更新：** 在 Schema 中更改字段标签或移动部分，每个用户（Web、移动、外部门户）都会立即看到它，无需应用更新。
+2.  **平台原生：** 相同的 JSON 可以在 React 中渲染为 DOM 节点，在 SwiftUI/Kotlin 中渲染为原生视图，或在 TUI 中渲染为命令行。
+3.  **个性化：** 因为布局是按请求生成的，我们可以根据用户的角色或记录的状态隐藏整个部分（例如，如果状态为"草稿"，则隐藏"批准"按钮）。
