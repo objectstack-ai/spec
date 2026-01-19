@@ -9,20 +9,20 @@ export default function HomePage() {
       <main className="flex min-h-screen flex-col items-center justify-center text-center px-4 py-16 sm:py-24 md:py-32 overflow-hidden bg-background text-foreground selection:bg-primary/20">
         
         {/* Hero Section */}
-        <div className="relative z-10 max-w-4xl space-y-8">
+        <div className="relative z-10 max-w-5xl space-y-8">
           <div className="inline-flex items-center rounded-full border border-fd-primary/20 bg-fd-primary/5 px-3 py-1 text-sm text-fd-primary backdrop-blur-sm transition-colors hover:bg-fd-primary/10 hover:border-fd-primary/30">
             <span className="flex h-2 w-2 rounded-full bg-fd-primary mr-2 animate-pulse"></span>
             v1.0 Public Draft
           </div>
 
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl md:text-7xl bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent pb-2">
-            The Post-SaaS <br/> Operatings System
+          <h1 className="text-5xl font-extrabold tracking-tight sm:text-7xl md:text-8xl bg-gradient-to-br from-foreground via-foreground/90 to-fd-primary/60 bg-clip-text text-transparent pb-4">
+            The Post-SaaS <br/> Operating System
           </h1>
           
           <p className="mx-auto max-w-2xl text-lg text-fd-muted-foreground sm:text-xl leading-relaxed">
-            ObjectStack is an open-standard protocol for defining enterprise software.
+            Infrastructure as Code for Enterprise Applications.
             <br className="hidden sm:inline" />
-            Metadata-driven. Local-first. AI-native.
+            <span className="text-fd-foreground font-medium">Metadata-driven. Local-first. AI-native.</span>
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
@@ -36,10 +36,40 @@ export default function HomePage() {
               href="https://github.com/objectstack-ai/spec"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex h-12 items-center justify-center rounded-lg border border-fd-border bg-fd-background/50 px-8 text-sm font-medium shadow-sm transition-all hover:bg-fd-accent hover:text-fd-accent-foreground backdrop-blur-sm hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring disabled:pointer-events-none disabled:opacity-50"
+              className="inline-flex h-12 items-center justify-center rounded-lg border border-fd-border bg-fd-card/50 px-8 text-sm font-medium shadow-sm transition-all hover:bg-fd-accent hover:text-fd-accent-foreground backdrop-blur-sm hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring disabled:pointer-events-none disabled:opacity-50"
             >
               View on GitHub
             </a>
+          </div>
+
+          {/* Code Preview Decorator */}
+          <div className="relative mx-auto mt-12 w-full max-w-3xl transform rounded-xlbg-gradient-to-br from-fd-border/50 to-fd-border/10 p-2 opacity-90 transition-all hover:scale-[1.01] hover:opacity-100 sm:mt-16">
+            <div className="overflow-hidden rounded-xl border border-fd-border bg-fd-card shadow-2xl">
+              <div className="flex items-center gap-2 border-b border-fd-border bg-fd-muted/50 px-4 py-3">
+                <div className="h-3 w-3 rounded-full bg-red-500/80" />
+                <div className="h-3 w-3 rounded-full bg-yellow-500/80" />
+                <div className="h-3 w-3 rounded-full bg-green-500/80" />
+                <div className="ml-2 text-xs font-medium text-fd-muted-foreground font-mono">
+                  project-tracker.schema.ts
+                </div>
+              </div>
+              <div className="overflow-x-auto p-6 text-left">
+                <pre className="font-mono text-sm leading-6">
+                  <span className="text-purple-400">import</span> <span className="text-fd-foreground">{'{'}</span> <span className="text-yellow-300">ObjectSchema</span> <span className="text-fd-foreground">{'}'}</span> <span className="text-purple-400">from</span> <span className="text-green-300">'@objectstack/spec'</span>;<br/><br/>
+                  <span className="text-purple-400">export const</span> <span className="text-blue-300">Project</span> <span className="text-purple-400">=</span> <span className="text-yellow-300">ObjectSchema</span>.<span className="text-blue-300">create</span>(<span className="text-fd-foreground">{'{'}</span><br/>
+                  &nbsp;&nbsp;name: <span className="text-green-300">'project_tracker'</span>,<br/>
+                  &nbsp;&nbsp;fields: <span className="text-fd-foreground">{'{'}</span><br/>
+                  &nbsp;&nbsp;&nbsp;&nbsp;title: <span className="text-yellow-300">Field</span>.<span className="text-blue-300">text</span>(),<br/>
+                  &nbsp;&nbsp;&nbsp;&nbsp;status: <span className="text-yellow-300">Field</span>.<span className="text-blue-300">select</span>([<span className="text-green-300">'draft'</span>, <span className="text-green-300">'active'</span>, <span className="text-green-300">'done'</span>]),<br/>
+                  &nbsp;&nbsp;&nbsp;&nbsp;owner: <span className="text-yellow-300">Field</span>.<span className="text-blue-300">lookup</span>(<span className="text-green-300">'user'</span>)<br/>
+                  &nbsp;&nbsp;<span className="text-fd-foreground">{'}'}</span>,<br/>
+                  &nbsp;&nbsp;enable: <span className="text-fd-foreground">{'{'}</span> <span className="text-blue-300">api</span>: <span className="text-red-300">true</span>, <span className="text-blue-300">audit</span>: <span className="text-red-300">true</span> <span className="text-fd-foreground">{'}'}</span><br/>
+                  <span className="text-fd-foreground">{'}'}</span>);
+                </pre>
+              </div>
+            </div>
+            {/* Glow Effect behind Code */}
+            <div className="absolute -inset-4 -z-10 bg-fd-primary/20 blur-3xl opacity-30 rounded-[50%]" />
           </div>
         </div>
 
