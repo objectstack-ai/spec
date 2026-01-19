@@ -1,0 +1,59 @@
+---
+title: Compiler Architecture
+description: The High-Level Architecture of ObjectQL. How the Database Compiler transforms declarative intent into physical execution.
+---
+
+import { Database, FileJson, ServerCog, ArrowRight } from 'lucide-react';
+
+**ObjectQL** determines the behavior of the Data Layer. It is designed as a **Compiler** that translates a universal JSON-Intermediate Representation (IR) into database-specific instructions (SQL, NoSQL, etc.).
+
+## The Architecture Pipeline
+
+The ObjectStack Data Engine operates in four distinct stages. This separation of concerns is what allows the system to be database-agnostic while maintaining native performance.
+
+### 1. Definition Phase (The Schema)
+**Input:** YAML/JSON Schema Files (`*.object.yml`)
+**Role:** Defines the "Shape" and "Rules" of the data.
+**Artifacts:**
+*   **Object Definition:** Tables/Collections.
+*   **Field Definition:** Columns/Properties.
+*   **Validation Rules:** Integrity constraints.
+
+### 2. Composition Phase (The AST)
+**Input:** API Request / SDK Call
+**Role:** Parses the incoming intent into a normalized **Abstract Syntax Tree (AST)**.
+**Key Operations:**
+*   **Validation:** Ensuring the query matches the Schema.
+*   **Permission Injection:** Automatically adding filters (e.g., `AND owner = 'me'`) based on ACLs.
+*   **Normalization:** Converting syntactic sugar into strict logical expressions.
+
+### 3. Compilation Phase (The Driver)
+**Input:** Normalized Query AST
+**Role:** An underlying **Driver** (Postgres, SQLite, Mongo) takes the AST and compiles it into the native language of the database.
+**Examples:**
+*   *Postgres Driver:* `SELECT * FROM accounts WHERE type = 'customer'`
+*   *Mongo Driver:* `db.accounts.find({ type: 'customer' })`
+
+### 4. Execution Phase (The Result)
+**Input:** Native Cursor
+**Role:** Executes the physical query and formats the output back into standard JSON Protocol.
+
+---
+
+## The Trinity of Protocols
+
+ObjectQL is comprised of three core specifications:
+
+| Specification | Scope | Responsibility |
+| :--- | :--- | :--- |
+| **[Schema Definition](./schema-definition)** | Static | How to define Objects, Fields, and Relationships. |
+| **[AST Structure](./ast-structure)** | Runtime | The structure of the JSON Query Object (The "IR"). |
+| **[Wire Protocol](./wire-protocol)** | Transport | How Clients and Servers exchange these structures over HTTP. |
+
+## Design Constraints
+
+To maintain the "Write Once, Run Anywhere" promise, ObjectQL enforces the following constraints:
+
+1.  **No Leaky Abstractions:** You cannot execute raw SQL strings. All access must be via the AST.
+2.  **Idempotent Schema:** Applying a Schema definition twice must result in the same database state.
+3.  **Atomic Transactions:** All mutation operations (Insert/Update/Delete) must be transactional by default.

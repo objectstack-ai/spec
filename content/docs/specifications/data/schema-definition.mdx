@@ -1,184 +1,87 @@
 ---
 title: Schema Definition
-description: The core of ObjectQL. How to define Objects, Fields, and Relationships using declarative YAML protocols.
+description: The core of ObjectQL. How to define Objects, Fields, and Relationships using declarative protocols.
 ---
 
+In ObjectStack, data structure is defined via **Configuration**, not Code.
+The Schema Definition Protocol governs how you declare your Data Model (`Objects`) and your Data Dictionary (`Fields`).
 
-In ObjectQL, you do not write `CREATE TABLE` statements, nor do you define Mongoose Schemas or TypeORM Classes. Instead, you define **Objects** using a standard YAML (or JSON) protocol.
+> **Single Source of Truth:** This schema drives Database DDL, API Generation, UI Form Layouts, and Permission Scopes.
 
-This Schema is the **Single Source of Truth**. It drives not only the Database structure but also the API validation, the UI generation, and the permission checking.
+## 1. The Object Definition
 
-## 1. The Object Protocol
-
-An `Object` in ObjectQL represents a business entity (e.g., `Project`, `Invoice`, `Employee`). It maps roughly to a table in a relational database or a collection in a document database.
-
-### Basic Structure
+An Object represents a business entity (like a Table in SQL or Collection in NoSQL).
 
 ```yaml
-# src/objects/project.object.yml
-name: project               # Unique API identifier (snake_case)
-label: Project              # Human-readable label
-table_name: projects        # (Optional) Physical table name override
-icon: standard:account      # Icon for ObjectUI
-description: A high-level container for tasks and resources.
-hidden: false               # If true, hidden from the API discovery
-
-```
-
-## 2. Fields
-
-Fields define the columns and properties of the object. ObjectQL supports **Enterprise Data Types** out of the box, ensuring consistency across different underlying databases.
-
-### Core Data Types
-
-| Type | Description | Maps to (Postgres) | Maps to (Mongo) |
-| --- | --- | --- | --- |
-| `text` | Single line string | `VARCHAR` | `String` |
-| `textarea` | Multi-line text | `TEXT` | `String` |
-| `html` | Rich text | `TEXT` | `String` |
-| `number` | Double precision | `NUMERIC` | `Number` |
-| `currency` | High-precision money | `DECIMAL(18, 2)` | `Decimal128` |
-| `boolean` | True/False | `BOOLEAN` | `Boolean` |
-| `date` | Date only | `DATE` | `Date` |
-| `datetime` | Date and Time | `TIMESTAMP` | `Date` |
-| `select` | Enum / Dropdown | `VARCHAR` | `String` |
-
-### Field Configuration
-
-```yaml
+# project.object.yml
+name: project               # Machine Name (snake_case, unique)
+label: Project              # Human Label
+icon: standard:case         # Icon from SLDS or standard set
+bucket: main                # Database connection/shard key
+enable:                     # Capabilities
+  audit: true               # Track field history
+  workflow: true            # Allow process builder
+  full_text_search: true    # Index for global search
+description: "A business project or initiative."
 fields:
   name:
     type: text
     label: Project Name
     required: true
-    searchable: true        # Creates a database index automatically
-    index: true
-
   status:
     type: select
     options:
-      - label: Planning
-        value: planning
-      - label: In Progress
-        value: in_progress
-      - label: Completed
-        value: completed
-    default: planning
-
-  budget:
-    type: currency
-    scale: 2
-    precision: 18
-
+      - label: Draft
+        value: draft
+      - label: Active
+        value: active
 ```
 
-## 3. Relationships
+### Key Properties
 
-ObjectQL handles relationships by treating them as **Field Types**. The compiler automatically generates the necessary Foreign Keys and JOIN logic.
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `name` | `string` | **Required.** Unique identifier. Must be `snake_case`. |
+| `label` | `string` | **Required.** Display label for UI. |
+| `fields` | `Map<string, Field>` | Dictionary of fields. |
+| `datasource` | `string` | The external datasource ID (if not storing in default DB). |
 
-### Lookup (Many-to-One)
+## 2. The Field Definition
 
-The most common relationship. A task belongs to a project.
+Fields define the columns or attributes of the Object.
 
 ```yaml
-# src/objects/task.object.yml
-fields:
-  project:
-    type: lookup
-    reference_to: project   # Points to the 'name' of the target Object
-    required: true
-
+# In-line definition or separate .field.yml
+type: number
+scale: 2
+precision: 18
+defaultValue: 0
+required: true
+index: true           # Create DB Index
+unique: false         # Enforce Uniqueness
 ```
 
-* **Database Effect:** Creates a `project` column (FK) in the `tasks` table.
-* **UI Effect:** Renders a searchable dropdown or modal picker.
+### Core Field Types
+See [Advanced Types](./advanced-types) for the full list.
+*   `text`, `textarea`, `html`
+*   `number`, `currency`, `percent`
+*   `date`, `datetime`
+*   `boolean`
+*   `select` (Picklist)
+*   `lookup`, `master_detail` (Foreign Keys)
+*   `formula`, `summary` (Derived)
 
-### Master-Detail (Strong Ownership)
+## 3. The Validation Protocol
 
-Similar to Lookup, but implies **ownership**. If the Master record is deleted, the Detail records are deleted (Cascade Delete).
+Validation logic is declarative and runs on the server (and compiled to client-side logic where possible).
 
 ```yaml
-# src/objects/invoice_line.object.yml
-fields:
-  invoice:
-    type: master_detail
-    reference_to: invoice
-    write_requires_master_read: true # Security inheritance
-
+validation_rules:
+  - name: start_before_end
+    condition: "end_date < start_date"
+    message: "End Date must be after Start Date"
 ```
 
-### Hierarchical (Self-Reference)
+## 4. Derived Schemas
 
-An object linking to itself (e.g., an Org Chart or Folder Tree).
-
-```yaml
-fields:
-  parent_task:
-    type: lookup
-    reference_to: task
-
-```
-
-## 4. Virtual Fields (Computed)
-
-This is where ObjectQL shines as a **Compiler**. You can define fields that do not exist in the database but are calculated on-the-fly during the query.
-
-### Formula Fields
-
-Compiles to a SQL expression injected into the `SELECT` clause.
-
-```yaml
-fields:
-  # Logic: (Total - Cost) / Total
-  margin_percentage:
-    type: formula
-    data_type: number
-    formula: "({amount} - {cost}) / {amount}"
-    scale: 2
-
-```
-
-### Summary Fields (Rollups)
-
-Compiles to a SQL Subquery or Aggregation.
-
-```yaml
-# src/objects/project.object.yml
-fields:
-  # Counts all tasks linked to this project where status = 'closed'
-  closed_task_count:
-    type: summary
-    summary_object: task
-    summary_type: count
-    summary_field: _id
-    filters: [["status", "=", "closed"]]
-
-```
-
-## 5. The Compilation Process
-
-When you start the ObjectOS engine, it reads these YAML files and performs a **Schema Diff**:
-
-1. **Parse:** Convert YAML to AST.
-2. **Compare:** Check AST against current Database Information Schema.
-3. **Migrate:** Generate SQL DDL (`CREATE`, `ALTER`) to synchronize the DB.
-
-### Example Output
-
-For the YAML above, the Postgres driver might execute:
-
-```sql
-CREATE TABLE projects (
-    _id VARCHAR(50) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    status VARCHAR(50) DEFAULT 'planning',
-    budget DECIMAL(18, 2)
-);
-
-CREATE INDEX idx_projects_name ON projects(name);
-
-```
-
-:::info Database Agnostic
-Because the definition is in YAML, switching from PostgreSQL to MySQL requires **zero changes** to your schema files. You only change the Driver configuration.
-:::
+The Protocol allows for **Schema Derivation**. You can define a base object and extend it, though ObjectStack prefers **Composition** via mixins or separate relation tables over classical OOP inheritance.

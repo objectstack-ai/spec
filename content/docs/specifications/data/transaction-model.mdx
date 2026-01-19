@@ -1,188 +1,39 @@
 ---
 title: Transaction Model
-description: Ensuring data integrity with Cross-Object Transactions, Atomic Operations, and Optimistic Locking.
-sidebar_position: 5
-slug: /objectql/transaction-model
+description: ACID definitions and the Trigger Execution Pipeline.
 ---
 
+ObjectStack guarantees **Atomic** operations for all mutations.
 
-In Enterprise applications, data integrity is non-negotiable. A classic example is saving an **Order** and its **Line Items**. You cannot have an Order created without its Items, nor can you deduct inventory if the Order fails to save.
+## 1. Isolation Levels
+*   **Default:** `Read Committed`.
+*   ObjectQL drivers map this to the underlying database transaction capabilities.
 
-ObjectQL provides a **Declarative Transaction Protocol** to handle these scenarios without writing complex imperative code.
+## 2. The Execution Pipeline (Trigger Order)
 
-## 1. The Atomic Mutation Protocol
+When a record is saved, the Kernel executes the following idempotent steps.
 
-Standard REST APIs often force you to make multiple requests (`POST /orders`, then loop `POST /items`). If the network fails halfway, you have "Zombie Data."
+1.  **System Validation:** Check primitive types (string length, number format).
+2.  **Before Triggers:**
+    *   Execute `beforeInsert` / `beforeUpdate` scripts.
+    *   Useful for setting explicit default values or manipulating input.
+3.  **User Validation:**
+    *   Execute custom `Validation Rules` (declarative).
+    *   Execute `validate` scripts.
+4.  **Database Commit:**
+    *   The record is written to the DB.
+    *   Locks are held.
+5.  **After Triggers:**
+    *   Execute `afterInsert` / `afterUpdate` scripts.
+    *   Useful for updating related records (Rollups).
+6.  **Workflow & Automation:**
+    *   Evaluate Workflow Rules.
+    *   Launch Processes (Flows).
+    *   Enqueue Asynchronous Jobs.
+7.  **Final Commit:** Transaction complete.
 
-ObjectQL solves this with the **Atomic Mutation Packet**. You can bundle multiple operations into a single request. If *any* operation fails, the entire transaction rolls back.
+## 3. Atomic Batching
 
-### Nested Mutations (Parent-Child)
-The most common pattern is creating a Master record and its Details simultaneously.
-
-**Protocol Payload (JSON):**
-```json
-{
-  "operation": "create",
-  "object": "order",
-  "data": {
-    "customer": "cust_001",
-    "date": "2024-03-20",
-    "status": "draft",
-    // Nested writes are detected automatically
-    "lines": [
-      {
-        "product": "prod_A",
-        "quantity": 5,
-        "price": 100
-      },
-      {
-        "product": "prod_B",
-        "quantity": 2,
-        "price": 50
-      }
-    ]
-  }
-}
-
-```
-
-* **Behavior:** The ObjectQL Engine detects the `lines` relationship. It opens a Database Transaction, inserts the Order, gets the new `_id`, injects it into the Lines, inserts the Lines, and then Commits.
-
-### Batch Mutations (Mixed Objects)
-
-Sometimes you need to update unrelated objects in one go (e.g., "Approve Invoice" AND "Deduct Budget").
-
-**Protocol Payload (JSON):**
-
-```json
-{
-  "operation": "transaction",
-  "steps": [
-    {
-      "operation": "update",
-      "object": "invoice",
-      "id": "inv_123",
-      "data": { "status": "approved" }
-    },
-    {
-      "operation": "update",
-      "object": "budget",
-      "id": "bdg_999",
-      "data": { "amount_remaining": { "$inc": -5000 } }
-    }
-  ]
-}
-
-```
-
-## 2. Optimistic Locking (Concurrency Control)
-
-In a multi-user environment (e.g., two sales reps editing the same deal), "Last Write Wins" is dangerous. It leads to data loss.
-
-ObjectQL enforces **Optimistic Locking** by default via the `_version` field.
-
-### The Mechanism
-
-1. **Read:** When you fetch a record, ObjectQL returns a `_version` number (e.g., `v1`).
-2. **Write:** When you update, you **MUST** send back the `_version` you read.
-3. **Check:** The database executes: `UPDATE ... WHERE id = '...' AND _version = 1`.
-4. **Result:**
-* If rows affected = 1: Success. `_version` increments to 2.
-* If rows affected = 0: **Conflict Error**. Someone else updated it to `v2` already.
-
-
-
-### Protocol Example
-
-**Request:**
-
-```json
-{
-  "operation": "update",
-  "object": "deal",
-  "id": "deal_123",
-  "data": { "amount": 20000 },
-  "_version": 5  // I believe I am editing version 5
-}
-
-```
-
-**Response (Error):**
-
-```json
-{
-  "error": {
-    "code": "VERSION_CONFLICT",
-    "message": "Record has been modified by another user.",
-    "current_version": 6
-  }
-}
-
-```
-
-:::tip UI Handling
-ObjectUI handles this automatically. If it receives a `VERSION_CONFLICT`, it prompts the user to "Refresh and Re-apply".
-:::
-
-## 3. Server-Side Transaction Hooks
-
-Sometimes, the logic is too complex for the client. You need to define transaction boundaries on the server.
-
-You can define **Transactional Hooks** in your `*.trigger.ts` files. These hooks run *inside* the database transaction scope.
-
-```typescript
-// src/triggers/order.trigger.ts
-import { Trigger } from '@objectql/types';
-
-export const afterOrderApprove: Trigger = {
-  on: 'update',
-  object: 'order',
-  when: (newDoc, oldDoc) => newDoc.status === 'approved' && oldDoc.status !== 'approved',
-  
-  // This function receives a 'session' which is bound to the DB transaction
-  handler: async ({ id, session, broker }) => {
-    
-    // 1. Create Shipment (Must succeed)
-    await broker.call('data.create', {
-      object: 'shipment',
-      data: { order_id: id }
-    }, { session });
-
-    // 2. Notify Warehouse (Side effect, does not block transaction)
-    await broker.emit('warehouse.notify', { order_id: id });
-    
-    // If Step 1 throws an error, the Order update is ALSO rolled back.
-  }
-}
-
-```
-
-## 4. Isolation Levels
-
-ObjectQL generally defaults to **Read Committed** isolation level for relational databases.
-
-* **Dirty Reads:** Prevented. You never see uncommitted data from other transactions.
-* **Non-Repeatable Reads:** Allowed.
-* **Phantom Reads:** Allowed.
-
-For scenarios requiring strictly serialized access (e.g., generating sequential Invoice Numbers), use the **Atomic Increment** operator or a dedicated Sequence Object, rather than locking the whole table.
-
-```json
-// Atomic Increment Protocol
-{
-  "operation": "update",
-  "object": "counter",
-  "id": "invoice_seq",
-  "data": { "seq": { "$inc": 1 } }
-}
-
-```
-
-## Summary
-
-| Feature | Description | Benefit |
-| --- | --- | --- |
-| **Nested Mutation** | Save Parent + Children in one JSON. | Prevents orphan records. |
-| **Transaction Packet** | Bundle mixed operations. | Ensures cross-module consistency. |
-| **Optimistic Locking** | `_version` checking. | Prevents lost updates in multi-user apps. |
-| **Hooks** | Server-side logic in transaction. | Guarantees business rule integrity. |
+If you send an array of 100 records to be inserted, strict atomicity applies:
+*   **All or Nothing:** If record #99 fails validation, records #1-#98 are rolled back.
+*   **Exception:** If `allOrNone: false` header is set, partial success is allowed (common for bulk data loading).

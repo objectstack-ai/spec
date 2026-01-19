@@ -1,156 +1,85 @@
 ---
-title: The Core AST
-description: Understanding the Abstract Syntax Tree (AST) that powers the ObjectQL Protocol.
+title: AST Structure
+description: The JSON Intermediate Representation (IR) for ObjectQL Queries. The language spoken by the Database Compiler.
 ---
 
+The **ObjectQL Abstract Syntax Tree (AST)** is the runtime specification for data access. When you use the OQL SDK or GraphQL API, your request is parsed into this normalized JSON structure before it touches the database driver.
 
-ObjectQL is not just a URL query parameter parser. It is a **Database Compiler**.
+## The Query Object
 
-When you send a request to ObjectQL (via REST, GraphQL, or SDK), the first thing the engine does is parse your request into a normalized **Abstract Syntax Tree (AST)**.
-
-This AST serves as an **Intermediate Representation (IR)**. It decouples the *Intent* (what data you want) from the *Execution* (how the database retrieves it).
-
-## 1. The Root Node (`QueryAST`)
-
-Every data retrieval operation in ObjectQL resolves to a `QueryAST` object. This is the contract that every Driver (Postgres, Mongo, SQLite) must implement.
-
-### TypeScript Definition
+Every standard retrieval operation resolves to this structure:
 
 ```typescript
-// @objectql/types
-export interface QueryAST {
-  /** The target object (table) to query */
-  objectName: string;
-
-  /** Columns to retrieve. Strings for primitives, Objects for joins. */
-  fields: Array<string | QueryField>;
-
-  /** The recursive filtering tree */
-  filters?: FilterNode;
-
-  /** Sorting instructions */
-  sort?: SortNode[];
-
-  /** Pagination */
-  top?: number;
-  skip?: number;
+interface QueryAST {
+    fields?: string[];      // Projection (SELECT)
+    filters?: FilterNode;   // Predicates (WHERE)
+    sort?: string;          // Ordering (ORDER BY)
+    top?: number;           // Limit (LIMIT)
+    skip?: number;          // Offset (OFFSET)
+    expand?: string[];      // Joins (JOIN / $lookup)
 }
-
 ```
 
-## 2. Field Selection (The Graph)
+## 1. Filters (The WHERE Clause)
 
-ObjectQL allows for "Graph-like" field selection. You can retrieve primitive fields or traverse relationships (Joins) in a single request.
+The filtering logic uses LISP-like nested arrays (or simplified JSON syntax) to represent logical trees.
 
-### JSON Structure
+### Syntax
+`[ field, operator, value ]` or `[ clause, logic, clause ]`
 
+### Example
 ```json
-{
-  "fields": [
-    "name",
-    "status",
-    { 
-      "field": "owner", 
-      "fields": ["name", "email"] 
-    },
-    {
-      "field": "tasks",
-      "fields": ["subject", "due_date"]
-    }
-  ]
-}
-
-```
-
-### Compiler Behavior
-
-* **Primitives (`name`)**: Compiled to `SELECT "name"`.
-* **Lookups (`owner`)**: Compiled to `LEFT JOIN "users" ON ...` (Relational) or `$lookup` (Document).
-* **Virtual Fields**: If a selected field is a `formula`, the compiler injects the SQL expression.
-
-## 3. Filtering (The Logic Tree)
-
-Filters in ObjectQL are not simple key-value pairs. They are recursive trees capable of expressing complex boolean logic (`AND`, `OR`, `NOT`).
-
-### The Filter Node
-
-A filter is an array tuple: `[field, operator, value]`.
-
-| Index | Type | Description |
-| --- | --- | --- |
-| 0 | `string` | The field name (or dotted path `owner.name`) |
-| 1 | `string` | The operator (`=`, `<>`, `>`, `contains`, `in`) |
-| 2 | `any` | The value(s) to compare against |
-
-### Complex Logic (Groups)
-
-To create groups, simply nest arrays. The default joiner is `AND`. Use `"or"` strings to switch logic.
-
-**Example Intent:**
-
-> *"Find projects that are 'Active' AND (Owned by 'Alice' OR Budget > 10000)"*
-
-**AST JSON:**
-
-```json
+// WHERE (category = 'electronics') AND (price > 1000 OR featured = true)
 [
-  ["status", "=", "active"],
-  "or",
+  ["category", "=", "electronics"],
+  "and",
   [
-    ["owner.name", "=", "Alice"],
-    ["budget", ">", 10000]
+    ["price", ">", 1000],
+    "or",
+    ["featured", "=", true]
   ]
 ]
-
 ```
 
-## 4. Compilation Pipeline
+### Supported Operators
+| Operator | Suffix | Example |
+| :--- | :--- | :--- |
+| `=` | `eq` | Equals |
+| `<>` | `ne` | Not Equals |
+| `>` | `gt` | Greater Than |
+| `contains` | `like` | String matching |
+| `between` | - | Range check |
 
-How does this JSON become a database query? The ObjectOS Kernel runs a strictly ordered pipeline.
+## 2. Projection (The SELECT Clause)
 
-### Step A: Sanitization & Expansion
+Defines which fields to return.
+*   **Default:** Returns all fields if omitted.
+*   **Specific:** `["name", "email", "company"]`
 
-The Kernel injects **Implicit Filters** based on security context.
+## 3. Expansion (The JOIN Clause)
 
-* *Input:* `SELECT * FROM projects`
-* *Context:* User is in 'Region A'.
-* *Output AST:* `SELECT * FROM projects WHERE region = 'A'` (Modified AST).
-
-### Step B: Driver Compilation
-
-The Driver receives the *Final AST* and translates it to the dialect.
-
-**Driver Input (AST):**
+ObjectQL handles relationships via `expand`. It supports deep compilation strategies (performing standard SQL `JOIN` or multiple fetches based on performance optimization).
 
 ```json
+// Get Project and its related Manager info
 {
-  "objectName": "project",
-  "filters": [["owner.name", "=", "Alice"]]
+    "expand": ["manager", "customer.name"]
 }
-
 ```
 
-**Driver Output (PostgreSQL):**
+## 4. Sorting
 
-```sql
-SELECT t1.* FROM projects t1 
-LEFT JOIN users t2 ON t1.owner = t2.id
-WHERE t2.name = 'Alice'
+Standard SQL-like sort string.
+*   `"created_at desc"`
+*   `"priority desc, due_date asc"`
 
+## The Mutation AST
+
+For modifications, the AST structure changes slightly:
+
+```typescript
+interface MutationAST {
+    id?: string | number;   // Primary Key for Update/Delete
+    doc?: Record<string, any>; // The payload for Insert/Update
+}
 ```
-
-## 5. Why AST? (vs. Raw SQL)
-
-Why do we go through this complexity instead of just writing SQL?
-
-1. **Security:** It is mathematically impossible to perform SQL Injection via the AST. The compiler uses parameterized queries for every value node.
-2. **Portability:** The same AST runs on SQLite (Local) and Oracle (Enterprise).
-3. **Governance:** You can write "Middleware" that inspects the AST.
-* *Example:* "Block any query that tries to download more than 1000 rows of PII data." (You can't easily parse this from a raw SQL string, but it's trivial with an AST).
-
-
-
-:::tip Developer Note
-If you are building a custom UI component, do not manually construct these JSONs. Use the `@objectql/sdk` which provides a fluent builder:
-`const q = objectql("project").select(["name"]).where("status", "=", "active");`
-:::
