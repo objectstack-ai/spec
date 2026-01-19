@@ -1,25 +1,19 @@
 import { App } from '@objectstack/spec';
-import { Account } from './src/domains/crm/account.object';
-import { Contact } from './src/domains/crm/contact.object';
-import { Opportunity } from './src/domains/crm/opportunity.object';
+import { TodoTask } from './src/domains/todo/task.object';
 
 export default App.create({
-  name: 'crm_example',
-  label: 'CRM App',
-  description: 'A simple CRM example demonstrating ObjectStack Protocol',
+  name: 'todo_app',
+  label: 'Todo App',
+  description: 'A simple Todo example demonstrating ObjectStack Protocol',
   version: '1.0.0',
   objects: [
-    Account,
-    Contact,
-    Opportunity
+    TodoTask
   ],
   menus: [
     {
-        label: 'Sales',
+        label: 'Tasks',
         items: [
-            { type: 'object', object: 'account' },
-            { type: 'object', object: 'contact' },
-            { type: 'object', object: 'opportunity' }
+            { type: 'object', object: 'todo_task' }
         ]
     }
   ]

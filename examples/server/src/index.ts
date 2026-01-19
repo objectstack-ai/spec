@@ -120,7 +120,7 @@ app.delete('/api/v1/data/:object/:id', async (c) => {
 });
 
 // 4. Start Server
-const port = 3000;
+const port = 3001;
 console.log(`Server is running on http://localhost:${port}`);
 
 serve({

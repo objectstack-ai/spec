@@ -1,9 +1,12 @@
 import { ObjectSchema, Field } from '@objectstack/spec';
 
-export const Task = ObjectSchema.create({
-  name: 'task',
-  label: 'Task',
+export const TodoTask = ObjectSchema.create({
+  name: 'todo_task',
+  label: 'Todo Task',
   icon: 'check-square',
+  enable: {
+    apiEnabled: true,
+  },
   fields: {
     subject: Field.text({ required: true }),
     due_date: Field.date(),
