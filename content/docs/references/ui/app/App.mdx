@@ -9,11 +9,15 @@ description: App Schema Reference
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | ✅ | App unique machine name |
 | **label** | `string` | ✅ | App display label |
+| **version** | `string` | optional | App version |
 | **description** | `string` | optional | App description |
 | **icon** | `string` | optional | App icon used in the App Launcher |
 | **branding** | `object` | optional | App-specific branding |
 | **active** | `boolean` | optional | Whether the app is enabled |
 | **isDefault** | `boolean` | optional | Is default app |
-| **navigation** | `object \| object \| object \| object \| object[]` | ✅ | Structured navigation menu tree |
+| **navigation** | `object \| object \| object \| object \| object[]` | optional | Structured navigation menu tree |
+| **menus** | `any[]` | optional | Deprecated: Use navigation instead |
 | **homePageId** | `string` | optional | ID of the navigation item to serve as landing page |
 | **requiredPermissions** | `string[]` | optional | Permissions required to access this app |
+| **objects** | `any[]` | optional | Objects belonging to this app |
+| **apis** | `any[]` | optional | Custom APIs belonging to this app |

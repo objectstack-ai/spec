@@ -108,6 +108,9 @@ export const AppSchema = z.object({
   
   /** Display label */
   label: z.string().describe('App display label'),
+
+  /** App version */
+  version: z.string().optional().describe('App version'),
   
   /** Description */
   description: z.string().optional().describe('App description'),
@@ -128,7 +131,12 @@ export const AppSchema = z.object({
    * Navigation Tree Structure.
    * Replaces the old flat 'tabs' list with a structured menu.
    */
-  navigation: z.array(NavigationItemSchema).describe('Structured navigation menu tree'),
+  navigation: z.array(NavigationItemSchema).optional().describe('Structured navigation menu tree'),
+  
+  /**
+   * Deprecated: Use navigation instead.
+   */
+  menus: z.array(z.any()).optional().describe('Deprecated: Use navigation instead'),
   
   /** 
    * App-level Home Page Override

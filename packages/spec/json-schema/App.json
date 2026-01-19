@@ -13,6 +13,10 @@
           "type": "string",
           "description": "App display label"
         },
+        "version": {
+          "type": "string",
+          "description": "App version"
+        },
         "description": {
           "type": "string",
           "description": "App description"
@@ -262,6 +266,10 @@
           },
           "description": "Structured navigation menu tree"
         },
+        "menus": {
+          "type": "array",
+          "description": "Deprecated: Use navigation instead"
+        },
         "homePageId": {
           "type": "string",
           "description": "ID of the navigation item to serve as landing page"
@@ -272,12 +280,19 @@
             "type": "string"
           },
           "description": "Permissions required to access this app"
+        },
+        "objects": {
+          "type": "array",
+          "description": "Objects belonging to this app"
+        },
+        "apis": {
+          "type": "array",
+          "description": "Custom APIs belonging to this app"
         }
       },
       "required": [
         "name",
-        "label",
-        "navigation"
+        "label"
       ],
       "additionalProperties": false
     }
