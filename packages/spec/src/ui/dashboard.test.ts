@@ -3,7 +3,8 @@ import {
   DashboardSchema,
   DashboardWidgetSchema,
   ChartType,
-  type Dashboard,
+  Dashboard,
+  type Dashboard as DashboardType,
   type DashboardWidget,
 } from './dashboard.zod';
 
@@ -163,7 +164,7 @@ describe('DashboardWidgetSchema', () => {
 
 describe('DashboardSchema', () => {
   it('should accept minimal dashboard', () => {
-    const dashboard: Dashboard = {
+    const dashboard: DashboardType = {
       name: 'sales_overview',
       label: 'Sales Overview',
       widgets: [],
@@ -185,7 +186,7 @@ describe('DashboardSchema', () => {
   });
 
   it('should accept dashboard with description', () => {
-    const dashboard: Dashboard = {
+    const dashboard: DashboardType = {
       name: 'executive_dashboard',
       label: 'Executive Dashboard',
       description: 'High-level metrics for executive team',
@@ -197,7 +198,7 @@ describe('DashboardSchema', () => {
 
   describe('Real-World Dashboard Examples', () => {
     it('should accept sales pipeline dashboard', () => {
-      const salesDashboard: Dashboard = {
+      const salesDashboard: DashboardType = {
         name: 'sales_pipeline',
         label: 'Sales Pipeline',
         description: 'Overview of sales opportunities and pipeline health',
@@ -281,7 +282,7 @@ describe('DashboardSchema', () => {
     });
 
     it('should accept service desk dashboard', () => {
-      const serviceDashboard: Dashboard = {
+      const serviceDashboard: DashboardType = {
         name: 'service_desk',
         label: 'Service Desk Overview',
         description: 'Customer support metrics and case tracking',
@@ -367,7 +368,7 @@ describe('DashboardSchema', () => {
     });
 
     it('should accept executive dashboard with mixed widgets', () => {
-      const executiveDashboard: Dashboard = {
+      const executiveDashboard: DashboardType = {
         name: 'executive_overview',
         label: 'Executive Overview',
         description: 'Key business metrics at a glance',
@@ -437,5 +438,44 @@ describe('DashboardSchema', () => {
 
       expect(() => DashboardSchema.parse(executiveDashboard)).not.toThrow();
     });
+  });
+});
+
+describe('Dashboard Factory', () => {
+  it('should create dashboard with default widget values', () => {
+    const dashboard = Dashboard.create({
+      name: 'test_dashboard',
+      label: 'Test Dashboard',
+      widgets: [
+        {
+          title: 'Test Widget',
+          type: 'table',
+          object: 'account',
+          layout: { x: 0, y: 0, w: 12, h: 4 },
+        },
+      ],
+    });
+    
+    expect(dashboard.name).toBe('test_dashboard');
+    expect(dashboard.widgets).toHaveLength(1);
+    expect(dashboard.widgets[0].aggregate).toBe('count');
+  });
+
+  it('should create dashboard without aggregate (uses default)', () => {
+    const dashboard = Dashboard.create({
+      name: 'sales_dashboard',
+      label: 'Sales Dashboard',
+      widgets: [
+        {
+          title: 'Total Revenue',
+          type: 'metric',
+          object: 'opportunity',
+          valueField: 'amount',
+          layout: { x: 0, y: 0, w: 3, h: 2 },
+        },
+      ],
+    });
+    
+    expect(dashboard.widgets[0].aggregate).toBe('count');
   });
 });

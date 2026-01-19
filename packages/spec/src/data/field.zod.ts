@@ -111,6 +111,7 @@ export const Field = {
   percent: (config: FieldInput = {}) => ({ type: 'percent', ...config } as const),
   url: (config: FieldInput = {}) => ({ type: 'url', ...config } as const),
   email: (config: FieldInput = {}) => ({ type: 'email', ...config } as const),
+  phone: (config: FieldInput = {}) => ({ type: 'phone', ...config } as const),
   image: (config: FieldInput = {}) => ({ type: 'image', ...config } as const),
   file: (config: FieldInput = {}) => ({ type: 'file', ...config } as const),
   avatar: (config: FieldInput = {}) => ({ type: 'avatar', ...config } as const),
@@ -121,17 +122,65 @@ export const Field = {
   html: (config: FieldInput = {}) => ({ type: 'html', ...config } as const),
   password: (config: FieldInput = {}) => ({ type: 'password', ...config } as const),
   
-  select: (options: string[], config: FieldInput = {}) => ({ 
-    type: 'select', 
-    options: options.map(o => ({ label: o, value: o })), 
-    ...config 
-  } as const),
+  /**
+   * Select field helper with backward-compatible API
+   * 
+   * @example Old API (array first)
+   * Field.select(['High', 'Low'], { label: 'Priority' })
+   * 
+   * @example New API (config object)
+   * Field.select({ options: [{label: 'High', value: 'high'}], label: 'Priority' })
+   */
+  select: (optionsOrConfig: SelectOption[] | string[] | FieldInput & { options: SelectOption[] | string[] }, config?: FieldInput) => {
+    // Support both old and new signatures:
+    // Old: Field.select(['a', 'b'], { label: 'X' })
+    // New: Field.select({ options: [{label: 'A', value: 'a'}], label: 'X' })
+    let options: SelectOption[];
+    let finalConfig: FieldInput;
+    
+    if (Array.isArray(optionsOrConfig)) {
+      // Old signature: array as first param
+      options = optionsOrConfig.map(o => typeof o === 'string' ? { label: o, value: o } : o);
+      finalConfig = config || {};
+    } else {
+      // New signature: config object with options
+      options = (optionsOrConfig.options || []).map(o => typeof o === 'string' ? { label: o, value: o } : o);
+      // Remove options from config to avoid confusion
+      const { options: _, ...restConfig } = optionsOrConfig;
+      finalConfig = restConfig;
+    }
+    
+    return { type: 'select', options, ...finalConfig } as const;
+  },
   
-  multiselect: (options: string[], config: FieldInput = {}) => ({ 
-    type: 'multiselect', 
-    options: options.map(o => ({ label: o, value: o })), 
-    ...config 
-  } as const),
+  /**
+   * Multiselect field helper with backward-compatible API
+   * 
+   * @example Old API (array first)
+   * Field.multiselect(['Tag1', 'Tag2'], { label: 'Tags' })
+   * 
+   * @example New API (config object)
+   * Field.multiselect({ options: [{label: 'Tag 1', value: 'tag1'}], label: 'Tags' })
+   */
+  multiselect: (optionsOrConfig: SelectOption[] | string[] | FieldInput & { options: SelectOption[] | string[] }, config?: FieldInput) => {
+    // Support both old and new signatures
+    let options: SelectOption[];
+    let finalConfig: FieldInput;
+    
+    if (Array.isArray(optionsOrConfig)) {
+      // Old signature: array as first param
+      options = optionsOrConfig.map(o => typeof o === 'string' ? { label: o, value: o } : o);
+      finalConfig = config || {};
+    } else {
+      // New signature: config object with options
+      options = (optionsOrConfig.options || []).map(o => typeof o === 'string' ? { label: o, value: o } : o);
+      // Remove options from config to avoid confusion
+      const { options: _, ...restConfig } = optionsOrConfig;
+      finalConfig = restConfig;
+    }
+    
+    return { type: 'multiselect', options, ...finalConfig } as const;
+  },
   
   lookup: (reference: string, config: FieldInput = {}) => ({ 
     type: 'lookup', 
