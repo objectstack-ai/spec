@@ -11,13 +11,18 @@ export default async function Page(props: {
   const page = await source.getPage(params.slug ?? []);
   if (!page) notFound();
 
-  const Content = (page.data as any).body;
+  const data = page.data as any;
+  const Content = data.body;
 
   return (
-    <DocsPage>
+    <DocsPage toc={data.toc} full={data.full}>
       <DocsBody>
-        <h1>{page.data.title}</h1>
-        {page.data.description && <p>{page.data.description}</p>}
+        <h1 className="mb-2 text-3xl font-bold text-foreground">{page.data.title}</h1>
+        {page.data.description && (
+          <p className="mb-8 text-lg text-muted-foreground">
+            {page.data.description}
+          </p>
+        )}
         <Content components={defaultMdxComponents} />
       </DocsBody>
     </DocsPage>
