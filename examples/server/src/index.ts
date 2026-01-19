@@ -21,50 +21,59 @@ console.log('--- Plugins Loaded ---');
 // 3. Define Unified Routes
 
 /**
- * Metadata API: Get All Objects
+ * Unified Metadata API: List Items by Type
+ * GET /api/v1/meta/objects
+ * GET /api/v1/meta/apps
  */
-app.get('/api/v1/meta/objects', (c) => {
-  const objects = SchemaRegistry.getAll().map(obj => ({
-    name: obj.name,
-    label: obj.label,
-    icon: obj.icon,
-    path: `/api/v1/data/${obj.name}`
+app.get('/api/v1/meta/:type', (c) => {
+  const typePlural = c.req.param('type');
+  
+  // Simple singularization mapping (can be enhanced)
+  const typeMap: Record<string, string> = {
+    'objects': 'object',
+    'apps': 'app',
+    'flows': 'flow',
+    'reports': 'report'
+  };
+  const type = typeMap[typePlural] || typePlural;
+  
+  const items = SchemaRegistry.listItems(type);
+  
+  // Optional: Summary transformation based on type
+  const summaries = items.map((item: any) => ({
+    name: item.name,
+    label: item.label,
+    icon: item.icon,
+    description: item.description,
+    // Add dynamic links
+    ...(type === 'object' ? { path: `/api/v1/data/${item.name}` } : {}),
+    self: `/api/v1/meta/${typePlural}/${item.name}`
   }));
-  return c.json({ data: objects });
+
+  return c.json({ data: summaries });
 });
 
 /**
- * Metadata API: Get Single Object
+ * Unified Metadata API: Get Single Item
+ * GET /api/v1/meta/objects/account
+ * GET /api/v1/meta/apps/crm
  */
-app.get('/api/v1/meta/objects/:name', (c) => {
+app.get('/api/v1/meta/:type/:name', (c) => {
+  const typePlural = c.req.param('type');
   const name = c.req.param('name');
-  const schema = SchemaRegistry.get(name);
-  if (!schema) return c.json({ error: 'Not found' }, 404);
-  return c.json(schema);
-});
+  
+  const typeMap: Record<string, string> = {
+    'objects': 'object',
+    'apps': 'app',
+    'flows': 'flow',
+    'reports': 'report'
+  };
+  const type = typeMap[typePlural] || typePlural;
 
-/**
- * Metadata API: Get All Apps
- */
-app.get('/api/v1/meta/apps', (c) => {
-  const apps = SchemaRegistry.getAllApps().map(app => ({
-    name: app.name,
-    label: app.label,
-    icon: app.icon,
-    description: app.description,
-    path: `/api/v1/meta/apps/${app.name}`
-  }));
-  return c.json({ data: apps });
-});
-
-/**
- * Metadata API: Get Single App
- */
-app.get('/api/v1/meta/apps/:name', (c) => {
-  const name = c.req.param('name');
-  const app = SchemaRegistry.getApp(name);
-  if (!app) return c.json({ error: 'Not found' }, 404);
-  return c.json(app);
+  const item = SchemaRegistry.getItem(type, name);
+  if (!item) return c.json({ error: `Metadata not found: ${type}/${name}` }, 404);
+  
+  return c.json(item);
 });
 
 /**
@@ -144,7 +153,7 @@ app.delete('/api/v1/data/:object/:id', async (c) => {
 });
 
 // 4. Start Server
-const port = 3003;
+const port = 3004;
 console.log(`Server is running on http://localhost:${port}`);
 
 serve({

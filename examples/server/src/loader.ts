@@ -23,7 +23,7 @@ export function loadPlugins() {
     // 1. Register Objects
     if (app.objects) {
       app.objects.forEach((obj: any) => {
-         SchemaRegistry.register(obj);
+         SchemaRegistry.registerObject(obj);
       });
     }
     

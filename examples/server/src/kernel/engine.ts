@@ -65,7 +65,7 @@ export class DataEngine {
   }
 
   private ensureSchema(name: string): ServiceObject {
-    const schema = SchemaRegistry.get(name);
+    const schema = SchemaRegistry.getObject(name);
     if (!schema) throw new Error(`Unknown object: ${name}`);
     return schema;
   }
