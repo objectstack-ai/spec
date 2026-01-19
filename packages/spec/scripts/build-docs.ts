@@ -41,7 +41,6 @@ function generateMarkdown(schemaName: string, schema: any) {
 
   let md = `---\ntitle: ${schemaName}\ndescription: ${mainDef.description || schemaName + ' Schema Reference'}\n---\n\n`;
   
-  md += `# ${schemaName}\n\n`;
   if (mainDef.description) {
     md += `${mainDef.description}\n\n`;
   }
