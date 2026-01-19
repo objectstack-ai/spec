@@ -8,6 +8,7 @@ const DOCS_ROOT = path.resolve(__dirname, '../../../content/docs/references');
 
 const CATEGORIES: Record<string, string> = {
   data: 'Data Protocol',
+  api: 'API Protocol',
   ui: 'UI Protocol',
   system: 'System Protocol',
   ai: 'AI Protocol'
@@ -22,6 +23,10 @@ const SUB_CATEGORIES: Record<string, Record<string, string[]>> = {
     automation: ['WorkflowRule', 'WorkflowAction', 'FieldUpdateAction', 'EmailAlertAction', 'WorkflowTriggerType'],
     analytics: ['Dataset', 'DatasetMode'],
     types: ['FieldType', 'FieldMapping', 'SelectOption', 'FieldNode', 'TransformType', 'Query']
+  },
+  api: {
+    envelopes: ['BaseResponse', 'ApiError', 'ModificationResult', 'SingleRecordResponse', 'ListRecordResponse', 'BulkResponse', 'DeleteResponse'],
+    requests: ['CreateRequest', 'UpdateRequest', 'BulkRequest', 'ExportRequest', 'RecordData']
   },
   system: {
     identity: ['AuthProtocol', 'AuthProvider', 'OIDCConfig', 'SAMLConfig', 'LDAPConfig', 'Role', 'Policy', 'SessionPolicy', 'PasswordPolicy'],
@@ -49,6 +54,9 @@ const SUB_CATEGORY_TITLES: Record<string, string> = {
   'data/automation': 'Automation',
   'data/analytics': 'Analytics (Data)',
   'data/types': 'Types & Definitions',
+  // API
+  'api/envelopes': 'Response Envelopes',
+  'api/requests': 'Request Payloads',
   // System
   'system/config': 'Configuration',
   'system/identity': 'Identity & Auth',

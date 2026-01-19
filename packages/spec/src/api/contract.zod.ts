@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { QuerySchema } from './query.zod';
+import { QuerySchema } from '../data/query.zod';
 
 // ==========================================
 // 1. Base Envelopes

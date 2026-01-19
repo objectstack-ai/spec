@@ -16,6 +16,32 @@
           "type": "boolean",
           "default": true
         },
+        "apiMethods": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "get",
+              "list",
+              "create",
+              "update",
+              "delete",
+              "upsert",
+              "bulk_create",
+              "bulk_update",
+              "bulk_delete",
+              "bulk_upsert",
+              "aggregate",
+              "history",
+              "search",
+              "restore",
+              "purge",
+              "import",
+              "export"
+            ]
+          },
+          "description": "Allowed API operations"
+        },
         "files": {
           "type": "boolean",
           "default": false

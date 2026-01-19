@@ -1,0 +1,13 @@
+---
+title: SingleRecordResponse
+description: SingleRecordResponse Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `object` | optional | Error details if success is false |
+| **meta** | `object` | optional | Response metadata |
+| **data** | `Record<string, any>` | ✅ | The requested or modified record |

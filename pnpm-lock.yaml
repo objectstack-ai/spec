@@ -93,6 +93,16 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
+  examples/plugin-bi:
+    dependencies:
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../../packages/spec
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
   examples/server:
     dependencies:
       '@hono/node-server':

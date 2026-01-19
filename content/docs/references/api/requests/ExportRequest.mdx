@@ -1,0 +1,16 @@
+---
+title: ExportRequest
+description: ExportRequest Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (e.g. account) |
+| **fields** | `string \| object[]` | optional | Fields to retrieve |
+| **filters** | `any[] \| string \| any[]` | optional | Filtering criteria |
+| **sort** | `object[]` | optional | Sorting instructions |
+| **top** | `number` | optional | Limit results |
+| **skip** | `number` | optional | Offset results |
+| **format** | `Enum<'csv' \| 'json' \| 'xlsx'>` | optional |  |

@@ -1,0 +1,137 @@
+{
+  "$ref": "#/definitions/ExportRequest",
+  "definitions": {
+    "ExportRequest": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "Object name (e.g. account)"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "string"
+                  },
+                  "fields": {
+                    "type": "array",
+                    "items": {}
+                  },
+                  "alias": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "field"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "description": "Fields to retrieve"
+        },
+        "filters": {
+          "anyOf": [
+            {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "items": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "=",
+                    "!=",
+                    "<>",
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "startswith",
+                    "contains",
+                    "notcontains",
+                    "between",
+                    "in",
+                    "notin",
+                    "is_null",
+                    "is_not_null"
+                  ]
+                },
+                {}
+              ]
+            },
+            {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {}
+                ]
+              }
+            }
+          ],
+          "description": "Filtering criteria"
+        },
+        "sort": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "order": {
+                "type": "string",
+                "enum": [
+                  "asc",
+                  "desc"
+                ],
+                "default": "asc"
+              }
+            },
+            "required": [
+              "field"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Sorting instructions"
+        },
+        "top": {
+          "type": "number",
+          "description": "Limit results"
+        },
+        "skip": {
+          "type": "number",
+          "description": "Offset results"
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "csv",
+            "json",
+            "xlsx"
+          ],
+          "default": "csv"
+        }
+      },
+      "required": [
+        "object"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

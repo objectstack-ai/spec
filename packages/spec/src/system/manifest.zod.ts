@@ -67,6 +67,7 @@ export const ManifestSchema = z.object({
     kinds: z.array(z.object({
       id: z.string().describe('The generic identifier of the kind (e.g., "sys.bi.report")'),
       globs: z.array(z.string()).describe('File patterns to watch (e.g., ["**/*.report.ts"])'),
+      description: z.string().optional().describe('Description of what this kind represents'),
     })).optional(),
   }).optional().describe('Platform contributions'),
 
@@ -83,7 +84,3 @@ export const ManifestSchema = z.object({
  */
 export type ObjectStackManifest = z.infer<typeof ManifestSchema>;
 
-/**
- * TypeScript type for menu items.
- */
-export type MenuItem = z.infer<typeof MenuItemSchema>;
