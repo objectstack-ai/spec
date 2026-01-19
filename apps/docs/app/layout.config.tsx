@@ -16,12 +16,5 @@ export const baseOptions: BaseLayoutProps = {
     ),
     transparentMode: 'top',
   },
-  links: [
-    {
-      text: 'Documentation',
-      url: '/docs',
-      active: 'nested-url',
-    },
-  ],
   githubUrl: 'https://github.com/objectstack-ai/spec',
 };
