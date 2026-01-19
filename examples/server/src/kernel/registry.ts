@@ -42,6 +42,13 @@ export class SchemaRegistry {
     return Array.from(this.metadata.get(type)?.values() || []) as T[];
   }
 
+  /**
+   * Get all registered metadata types (Kinds)
+   */
+  static getRegisteredTypes(): string[] {
+    return Array.from(this.metadata.keys());
+  }
+
   // ==========================================
   // Typed Helper Methods (Shortcuts)
   // ==========================================

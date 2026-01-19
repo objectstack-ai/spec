@@ -21,6 +21,42 @@ console.log('--- Plugins Loaded ---');
 // 3. Define Unified Routes
 
 /**
+ * System Discovery API
+ * GET /api/v1
+ */
+app.get('/api/v1', (c) => {
+  return c.json({
+    name: 'ObjectOS Local Server',
+    version: '1.0.0',
+    environment: 'development',
+    routes: {
+      discovery: '/api/v1',
+      metadata: '/api/v1/meta',
+      data: '/api/v1/data',
+      auth: '/api/v1/auth'
+    },
+    capabilities: {
+      search: true,
+      files: true
+    }
+  });
+});
+
+/**
+ * Metadata Discovery API: List all available metadata types
+ * GET /api/v1/meta
+ */
+app.get('/api/v1/meta', (c) => {
+  const types = SchemaRegistry.getRegisteredTypes();
+  const summary = types.map(type => ({
+    type: type,
+    href: `/api/v1/meta/${type}`,
+    count: SchemaRegistry.listItems(type).length
+  }));
+  return c.json({ data: summary });
+});
+
+/**
  * Unified Metadata API: List Items by Type
  * GET /api/v1/meta/objects
  * GET /api/v1/meta/apps
