@@ -1,0 +1,46 @@
+---
+title: Project Structure
+description: Recommended directory layout for ObjectStack projects.
+---
+
+import { File, Folder } from 'lucide-react';
+
+To keep your metadata organized, we recommend the following folder structure ("The Domain Pattern").
+
+<Files>
+  <Folder name="src" defaultOpen>
+    <Folder name="domains" defaultOpen>
+      <Folder name="crm" defaultOpen>
+        <File name="contact.object.ts" />
+        <File name="account.object.ts" />
+        <File name="lead.object.ts" />
+      </Folder>
+      <Folder name="finance" defaultOpen>
+        <File name="invoice.object.ts" />
+        <File name="payment.object.ts" />
+      </Folder>
+    </Folder>
+    <Folder name="apps">
+      <File name="backoffice.app.ts" />
+      <File name="portal.app.ts" />
+    </Folder>
+    <Folder name="config">
+      <File name="datasources.ts" />
+      <File name="acl.ts" />
+    </Folder>
+  </Folder>
+  <File name="package.json" />
+  <File name="tsconfig.json" />
+  <File name="objectstack.config.ts" />
+</Files>
+
+## Key Concepts
+
+### Domains
+Organize your Objects by Business Domain (CRM, Finance, HR) rather than by technical type. This aligns with **Domain-Driven Design (DDD)** principles.
+
+### Naming Conventions
+
+*   **Files**: `kebab-case.suffix.ts` (e.g., `project-task.object.ts`, `main-dashboard.view.ts`)
+*   **Variables**: `PascalCase` (e.g., `ProjectTask`, `MainDashboard`)
+*   **Machine Names**: `snake_case` inside the definition (e.g., `name: 'project_task'`)

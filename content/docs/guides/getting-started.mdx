@@ -1,0 +1,79 @@
+---
+title: Getting Started
+description: Build your first ObjectStack application in 5 minutes.
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+ObjectStack is a protocol, but `@objectstack/spec` is the reference implementation library that provides the Zod schemas and strict types to build valid metadata.
+
+<Steps>
+
+<Step>
+## Initialize your project
+
+You can start from scratch or add ObjectStack to an existing TypeScript project.
+
+```bash
+mkdir my-app
+cd my-app
+npm init -y
+npm install typescript zod @objectstack/spec
+npx tsc --init
+```
+</Step>
+
+<Step>
+## Define your first Object
+
+Create a file named `src/objects/contact.schema.ts`.
+This is where the power of **Zod-First Definition** comes in. You get autocomplete and validation out of the box.
+
+```typescript
+import { ObjectSchema, Field } from '@objectstack/spec';
+
+export const Contact = ObjectSchema.create({
+  name: 'contact',
+  label: 'Contact',
+  fields: {
+    first_name: Field.text({ label: 'First Name', required: true }),
+    last_name: Field.text({ label: 'Last Name', required: true }),
+    email: Field.text({ format: 'email' }),
+    type: Field.select(['Customer', 'Partner', 'Vendor']),
+  },
+  enable: {
+    api: true,
+    audit: true
+  }
+});
+```
+</Step>
+
+<Step>
+## Validate the Protocol
+
+Create a build script `src/build.ts` to verify your definitions comply with the ObjectStack Protocol.
+
+```typescript
+import { Contact } from './objects/contact.schema';
+
+// This will throw a ZodError if your schema is invalid
+const protocol = Contact.parse(Contact);
+
+console.log(`✅ Object '${protocol.name}' is valid ObjectStack Metadata!`);
+console.log(JSON.stringify(protocol, null, 2));
+```
+</Step>
+
+<Step>
+## Next Steps
+
+Now that you have valid metadata, you can:
+
+1.  **Generate SQL**: Use the Protocol Compiler (Coming Soon) to generate `CREATE TABLE` statements.
+2.  **Generate UI**: Feed the JSON into the `<ObjectForm />` React component.
+3.  **Deploy**: Push the JSON to an ObjectOS Kernel.
+
+</Step>
+
+</Steps>

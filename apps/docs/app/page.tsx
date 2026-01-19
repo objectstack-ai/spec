@@ -27,19 +27,17 @@ export default function HomePage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link
-              href="/docs"
+              href="/docs/guides/getting-started"
               className="inline-flex h-12 items-center justify-center rounded-lg bg-fd-primary px-8 text-sm font-medium text-fd-primary-foreground shadow-lg shadow-fd-primary/20 transition-all hover:bg-fd-primary/90 hover:scale-105 hover:shadow-fd-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring disabled:pointer-events-none disabled:opacity-50"
             >
-              Read the Specification
+              Start Building
             </Link>
-            <a
-              href="https://github.com/objectstack-ai/spec"
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              href="/docs"
               className="inline-flex h-12 items-center justify-center rounded-lg border border-fd-border bg-fd-card/50 px-8 text-sm font-medium shadow-sm transition-all hover:bg-fd-accent hover:text-fd-accent-foreground backdrop-blur-sm hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring disabled:pointer-events-none disabled:opacity-50"
             >
-              View on GitHub
-            </a>
+              Read Specification
+            </Link>
           </div>
 
           {/* Code Preview Decorator */}
