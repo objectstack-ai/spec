@@ -43,4 +43,5 @@ export * from './system/webhook.zod';
 export * from './system/translation.zod';
 export * from './system/constants';
 export * from './system/types';
+export * from './system/discovery.zod';
 

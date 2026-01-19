@@ -7,6 +7,7 @@
     "automation-rules",
     "audit-compliance",
     "integration-etl",
+    "rest-api",
     "plugin-manifest"
   ]
 }
