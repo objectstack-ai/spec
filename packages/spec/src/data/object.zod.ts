@@ -14,6 +14,25 @@ export const ObjectCapabilities = z.object({
   
   /** Enable REST/GraphQL API access */
   apiEnabled: z.boolean().default(true),
+
+  /** 
+   * API Supported Operations
+   * Explicitly whitelist allowed operations.
+   * If not defined, all standard operations are allowed (if apiEnabled=true).
+   */
+  apiMethods: z.array(z.enum([
+    'get', 'list', 
+    'create', 'update', 'delete', 
+    'upsert',
+    'bulk_create', 'bulk_update', 'bulk_delete', 'bulk_upsert',
+    'aggregate',  // count, sum, group by
+    'history',    // audit trail access
+    'search',     // full text search
+    'restore',    // undelete from trash
+    'purge',       // hard delete
+    'import',     // data import
+    'export',     // data export
+  ])).optional().describe('Allowed API operations'),
   
   /** Enable attachments/files */
   files: z.boolean().default(false),
