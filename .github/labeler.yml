@@ -1,0 +1,67 @@
+# Auto-labeling configuration for PRs based on file paths
+
+# Documentation changes
+'documentation':
+  - changed-files:
+    - any-glob-to-any-file: 
+      - 'content/**/*'
+      - 'apps/docs/**/*'
+      - '**/*.md'
+      - 'README.md'
+
+# Data Protocol changes
+'protocol:data':
+  - changed-files:
+    - any-glob-to-any-file: 
+      - 'packages/spec/src/data/**/*'
+
+# UI Protocol changes
+'protocol:ui':
+  - changed-files:
+    - any-glob-to-any-file: 
+      - 'packages/spec/src/ui/**/*'
+
+# System Protocol changes
+'protocol:system':
+  - changed-files:
+    - any-glob-to-any-file: 
+      - 'packages/spec/src/system/**/*'
+
+# AI Protocol changes
+'protocol:ai':
+  - changed-files:
+    - any-glob-to-any-file: 
+      - 'packages/spec/src/ai/**/*'
+
+# CI/CD changes
+'ci/cd':
+  - changed-files:
+    - any-glob-to-any-file: 
+      - '.github/workflows/**/*'
+      - '.github/actions/**/*'
+      - '.github/dependabot.yml'
+
+# Dependencies
+'dependencies':
+  - changed-files:
+    - any-glob-to-any-file: 
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - '**/package.json'
+
+# Tests
+'tests':
+  - changed-files:
+    - any-glob-to-any-file: 
+      - '**/*.test.ts'
+      - '**/*.spec.ts'
+      - '**/vitest.config.ts'
+
+# Build/Tooling
+'tooling':
+  - changed-files:
+    - any-glob-to-any-file: 
+      - 'tsconfig.json'
+      - '**/tsconfig.json'
+      - 'packages/spec/scripts/**/*'
+      - '.changeset/**/*'

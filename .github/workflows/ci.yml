@@ -9,7 +9,8 @@ on:
       - main
 
 jobs:
-  build:
+  test:
+    name: Test
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -25,6 +26,8 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.0
 
       - name: Get pnpm store directory
         shell: bash
@@ -42,5 +45,75 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build
+      - name: Run tests
+        run: pnpm --filter @objectstack/spec test
+
+      - name: Generate coverage report
+        run: pnpm --filter @objectstack/spec test:coverage
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: packages/spec/coverage/
+          retention-days: 30
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.0
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
         run: pnpm run build
+
+      - name: Verify build outputs
+        run: |
+          if [ ! -d "packages/spec/dist" ]; then
+            echo "Error: packages/spec/dist directory not found"
+            exit 1
+          fi
+          if [ ! -d "packages/spec/json-schema" ]; then
+            echo "Error: packages/spec/json-schema directory not found"
+            exit 1
+          fi
+          echo "Build outputs verified successfully"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            packages/spec/dist/
+            packages/spec/json-schema/
+          retention-days: 30

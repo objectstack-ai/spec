@@ -1,0 +1,61 @@
+name: Validate Dependencies
+
+on:
+  pull_request:
+    paths:
+      - '**/package.json'
+      - 'pnpm-lock.yaml'
+  schedule:
+    # Run weekly on Monday at 03:00 UTC
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Validate Package Dependencies
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.0
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Verify lockfile is up to date
+        run: |
+          pnpm install --frozen-lockfile --prefer-offline
+          
+      - name: Check for dependency issues
+        run: |
+          # Fail the workflow if high-severity vulnerabilities are found
+          # This enforces security compliance before merging
+          pnpm audit --audit-level=high
+
+      - name: List outdated packages
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: |
+          pnpm outdated --recursive || true
