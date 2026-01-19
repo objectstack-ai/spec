@@ -18,6 +18,7 @@ export * from './data/flow.zod';
 export * from './data/dataset.zod';
 export * from './data/query.zod';
 export * from './data/mapping.zod';
+export * from './data/contract.zod';
 
 // AI Protocol (Agent, RAG)
 export * from './ai/agent.zod';
