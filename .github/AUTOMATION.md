@@ -68,9 +68,9 @@ Before submitting a PR:
 
 ## Monitoring
 
-- **CI/CD**: [Actions tab](../../actions)
-- **Security**: [Security tab → Code scanning](../../security/code-scanning)
-- **Dependencies**: [Security tab → Dependabot](../../security/dependabot)
+- **CI/CD**: [Actions tab](../actions)
+- **Security**: [Security tab → Code scanning](../security/code-scanning)
+- **Dependencies**: [Security tab → Dependabot](../security/dependabot)
 - **Coverage**: Download from workflow artifacts
 
 ---
