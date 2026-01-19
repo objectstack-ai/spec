@@ -144,6 +144,17 @@ export const AppSchema = z.object({
    * Example: ["app.access.crm"]
    */
   requiredPermissions: z.array(z.string()).optional().describe('Permissions required to access this app'),
+  
+  /** 
+   * Package Components (For config file convenience)
+   * In a real monorepo these might be auto-discovered, but here we allow explicit registration.
+   */
+  objects: z.array(z.any()).optional().describe('Objects belonging to this app'),
+  apis: z.array(z.any()).optional().describe('Custom APIs belonging to this app'),
+});
+
+export const App = Object.assign(AppSchema, {
+  create: <T extends z.input<typeof AppSchema>>(config: T) => config,
 });
 
 // Main Types

@@ -5,6 +5,7 @@ import { Opportunity } from './src/domains/crm/opportunity.object';
 import { Lead } from './src/domains/crm/lead.object';
 import { Case } from './src/domains/crm/case.object';
 import { Task } from './src/domains/crm/task.object';
+import { PipelineStatsApi, LeadConvertApi } from './src/server';
 
 import { CrmActions } from './src/ui/actions';
 import { CrmDashboards } from './src/ui/dashboards';
@@ -24,6 +25,12 @@ export default App.create({
     Lead,
     Case,
     Task
+  ],
+  
+  // Custom APIs
+  apis: [
+    PipelineStatsApi,
+    LeadConvertApi
   ],
   
   // Navigation menu structure

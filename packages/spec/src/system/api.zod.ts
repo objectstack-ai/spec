@@ -58,4 +58,8 @@ export const ApiEndpointSchema = z.object({
   cacheTtl: z.number().optional().describe('Response cache TTL in seconds'),
 });
 
+export const ApiEndpoint = Object.assign(ApiEndpointSchema, {
+  create: <T extends z.input<typeof ApiEndpointSchema>>(config: T) => config,
+});
+
 export type ApiEndpoint = z.infer<typeof ApiEndpointSchema>;
