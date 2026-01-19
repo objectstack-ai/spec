@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Add size label
-        uses: codelytv/pr-size-labeler@v1
+        uses: codelytv/pr-size-labeler@v1.10.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           xs_label: 'size/xs'
@@ -41,7 +41,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Label based on changed files
-        uses: actions/labeler@v5
+        uses: actions/labeler@v5.0.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           configuration-path: .github/labeler.yml

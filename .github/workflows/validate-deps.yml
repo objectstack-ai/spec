@@ -32,6 +32,19 @@ jobs:
         with:
           version: 10.28.0
 
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
       - name: Verify lockfile is up to date
         run: |
           pnpm install --frozen-lockfile --prefer-offline
@@ -44,30 +57,3 @@ jobs:
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: |
           pnpm outdated --recursive || true
-
-  license-check:
-    name: Check License Compatibility
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.28.0
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Check licenses
-        run: |
-          npx license-checker --summary --exclude "MIT,Apache-2.0,ISC,BSD-2-Clause,BSD-3-Clause,0BSD,CC0-1.0,Unlicense" || true
