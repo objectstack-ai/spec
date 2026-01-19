@@ -5,9 +5,19 @@ import { i18n } from '@/lib/i18n';
 const LOCALE_COOKIE = 'FD_LOCALE';
 
 /**
- * Helper to check if a language is supported
+ * Supported languages extracted from i18n configuration
  */
 const SUPPORTED_LANGUAGES = i18n.languages as readonly string[];
+
+/**
+ * Set locale cookie with consistent options
+ */
+function setLocaleCookie(response: NextResponse, locale: string): void {
+  response.cookies.set(LOCALE_COOKIE, locale, {
+    sameSite: 'lax',
+    path: '/',
+  });
+}
 
 /**
  * Language code mapping
@@ -93,7 +103,7 @@ export default function middleware(request: NextRequest) {
       const url = new URL(request.url);
       url.pathname = pathname.replace(`/${i18n.defaultLanguage}`, '') || '/';
       const response = NextResponse.redirect(url);
-      response.cookies.set(LOCALE_COOKIE, locale);
+      setLocaleCookie(response, locale);
       return response;
     }
     
@@ -114,7 +124,7 @@ export default function middleware(request: NextRequest) {
   const url = new URL(request.url);
   url.pathname = `/${preferredLanguage}${pathname}`;
   const response = NextResponse.redirect(url);
-  response.cookies.set(LOCALE_COOKIE, preferredLanguage);
+  setLocaleCookie(response, preferredLanguage);
   return response;
 }
 
