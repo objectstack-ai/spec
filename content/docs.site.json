@@ -2,8 +2,8 @@
   "meta": {
     "title": "Object Protocol",
     "description": "The Metadata-Driven Documentation Engine for the Low-Code Era.",
-    "url": "https://docs.objectstack.ai",
-    "favicon": "/favicon.ico"
+    "url": "https://protocol.objectstack.ai",
+    "favicon": "https://objectstack.ai/logo.svg"
   },
   "i18n": {
     "enabled": true,

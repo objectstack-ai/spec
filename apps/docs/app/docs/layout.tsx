@@ -18,6 +18,6 @@ export function generateMetadata(): Metadata {
       default: 'ObjectStack Protocol',
       template: '%s | ObjectStack Protocol',
     },
-    description: 'The Standard for Post-SaaS Operating Systems',
+    description: 'The Metadata-Driven Documentation Engine for the Low-Code Era.',
   };
 }

@@ -10,6 +10,14 @@ const config = {
   typescript: {
     ignoreBuildErrors: false,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'objectstack.ai',
+      },
+    ],
+  },
   webpack: (config, { isServer }) => {
     // Resolve the fumadocs virtual collection import to the local .source directory
     config.resolve = config.resolve || {};
