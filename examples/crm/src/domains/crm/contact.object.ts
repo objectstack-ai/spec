@@ -30,7 +30,7 @@ export const Contact = ObjectSchema.create({
     }),
     
     // Relationship: Link to Account (Master-Detail)
-    account: Field.master_detail('account', {
+    account: Field.masterDetail('account', {
       label: 'Account',
       required: true,
       writeRequiresMasterRead: true,

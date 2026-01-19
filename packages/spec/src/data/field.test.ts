@@ -412,7 +412,7 @@ describe('Field Factory Helpers', () => {
     });
 
     it('should create master_detail field', () => {
-      const masterDetailField = Field.master_detail('parent_object', {
+      const masterDetailField = Field.masterDetail('parent_object', {
         label: 'Parent',
         deleteBehavior: 'cascade',
       });

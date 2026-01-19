@@ -188,7 +188,7 @@ export const Field = {
     ...config 
   } as const),
   
-  master_detail: (reference: string, config: FieldInput = {}) => ({ 
+  masterDetail: (reference: string, config: FieldInput = {}) => ({ 
     type: 'master_detail', 
     reference, 
     ...config 
