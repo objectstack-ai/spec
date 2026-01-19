@@ -1,4 +1,5 @@
 import { SchemaRegistry } from './kernel/registry';
+import { AppSchema } from '@objectstack/spec';
 
 // In a real monorepo scenario, we might use path aliases or require.resolve
 // Here we use relative paths to demonstrate loading from the sibling packages
@@ -15,6 +16,10 @@ export function loadPlugins() {
     
     console.log(`[Loader] Loading App: ${app.name} (${app.label})`);
     
+    // 0. Register App
+    const parsedApp = AppSchema.parse(app);
+    SchemaRegistry.registerApp(parsedApp);
+
     // 1. Register Objects
     if (app.objects) {
       app.objects.forEach((obj: any) => {

@@ -44,6 +44,30 @@ app.get('/api/v1/meta/objects/:name', (c) => {
 });
 
 /**
+ * Metadata API: Get All Apps
+ */
+app.get('/api/v1/meta/apps', (c) => {
+  const apps = SchemaRegistry.getAllApps().map(app => ({
+    name: app.name,
+    label: app.label,
+    icon: app.icon,
+    description: app.description,
+    path: `/api/v1/meta/apps/${app.name}`
+  }));
+  return c.json({ data: apps });
+});
+
+/**
+ * Metadata API: Get Single App
+ */
+app.get('/api/v1/meta/apps/:name', (c) => {
+  const name = c.req.param('name');
+  const app = SchemaRegistry.getApp(name);
+  if (!app) return c.json({ error: 'Not found' }, 404);
+  return c.json(app);
+});
+
+/**
  * Data API: Find
  */
 app.get('/api/v1/data/:object', async (c) => {
@@ -120,7 +144,7 @@ app.delete('/api/v1/data/:object/:id', async (c) => {
 });
 
 // 4. Start Server
-const port = 3001;
+const port = 3003;
 console.log(`Server is running on http://localhost:${port}`);
 
 serve({
