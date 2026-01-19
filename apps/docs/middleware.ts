@@ -101,7 +101,8 @@ export default function middleware(request: NextRequest) {
     // If it's the default locale and hideLocale is 'default-locale', redirect to remove locale prefix
     if (locale === i18n.defaultLanguage && i18n.hideLocale === 'default-locale') {
       const url = new URL(request.url);
-      url.pathname = pathname.replace(`/${i18n.defaultLanguage}`, '') || '/';
+      // Remove locale prefix more precisely to avoid issues with partial matches
+      url.pathname = pathname.replace(new RegExp(`^/${i18n.defaultLanguage}(/|$)`), '$1') || '/';
       const response = NextResponse.redirect(url);
       setLocaleCookie(response, locale);
       return response;
@@ -116,13 +117,15 @@ export default function middleware(request: NextRequest) {
   // If preferred language is the default, rewrite internally (keep URL clean)
   if (preferredLanguage === i18n.defaultLanguage && i18n.hideLocale === 'default-locale') {
     const url = new URL(request.url);
-    url.pathname = `/${i18n.defaultLanguage}${pathname}`;
+    // Handle root path specially to avoid double slashes
+    url.pathname = pathname === '/' ? `/${i18n.defaultLanguage}` : `/${i18n.defaultLanguage}${pathname}`;
     return NextResponse.rewrite(url);
   }
 
   // For non-default languages, redirect to the localized path
   const url = new URL(request.url);
-  url.pathname = `/${preferredLanguage}${pathname}`;
+  // Handle root path specially to avoid double slashes
+  url.pathname = pathname === '/' ? `/${preferredLanguage}` : `/${preferredLanguage}${pathname}`;
   const response = NextResponse.redirect(url);
   setLocaleCookie(response, preferredLanguage);
   return response;
