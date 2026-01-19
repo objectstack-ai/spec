@@ -1,4 +1,8 @@
 packages:
-  - 'packages/*'
-  - 'apps/*'
-  - 'examples/*'
+  - packages/*
+  - apps/*
+  - examples/*
+
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
