@@ -1,4 +1,12 @@
 {
   "title": "Concepts",
-  "pages": ["core-values", "architecture", "enterprise-patterns", "terminology"]
+  "pages": [
+    "manifesto",
+    "core-values",
+    "architecture",
+    "security_architecture",
+    "enterprise-patterns",
+    "ai-codex",
+    "terminology"
+  ]
 }

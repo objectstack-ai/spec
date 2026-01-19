@@ -1,8 +1,8 @@
 {
   "title": "Specifications",
   "pages": [
-    "objectql",
-    "objectui",
-    "objectos"
+    "data",
+    "ui",
+    "server"
   ]
 }
