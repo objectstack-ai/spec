@@ -3,6 +3,18 @@ import type { Metadata } from 'next';
 import { DocsPage, DocsBody } from 'fumadocs-ui/page';
 import { notFound } from 'next/navigation';
 import defaultMdxComponents from 'fumadocs-ui/mdx';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { File, Folder, Files } from 'fumadocs-ui/components/files';
+
+const components = {
+  ...defaultMdxComponents,
+  Step,
+  Steps,
+  File,
+  Folder,
+  Files,
+  FileTree: Files,
+};
 
 export default async function Page(props: {
   params: Promise<{ slug?: string[] }>;
@@ -23,7 +35,7 @@ export default async function Page(props: {
             {page.data.description}
           </p>
         )}
-        <Content components={defaultMdxComponents} />
+        <Content components={components} />
       </DocsBody>
     </DocsPage>
   );
