@@ -3,10 +3,10 @@
   "root": true,
   "pages": [
     "app",
-    "pages",
     "views",
     "view_config",
     "analytics",
-    "interaction"
+    "interaction",
+    "pages"
   ]
 }

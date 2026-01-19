@@ -5,6 +5,7 @@
     "data",
     "ui",
     "system",
-    "ai"
+    "ai",
+    "misc"
   ]
 }

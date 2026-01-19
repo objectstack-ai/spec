@@ -13,8 +13,70 @@ const CATEGORIES: Record<string, string> = {
   ai: 'AI Protocol'
 };
 
+// Sub-category configuration
+const SUB_CATEGORIES: Record<string, Record<string, string[]>> = {
+  data: {
+    core: ['Object', 'Field', 'Index', 'ObjectCapabilities'],
+    logic: ['Flow', 'FlowEdge', 'FlowNode', 'FlowNodeAction', 'FlowVariable', 'FilterNode', 'FilterOperator', 'LogicOperator', 'SortNode', 'Mapping', 'ValidationRule', 'ScriptValidation', 'FormatValidation', 'StateMachineValidation', 'UniquenessValidation'],
+    security: ['PermissionSet', 'ObjectPermission', 'FieldPermission', 'SharingRule', 'SharingRuleType', 'SharingLevel', 'OWDModel'],
+    automation: ['WorkflowRule', 'WorkflowAction', 'FieldUpdateAction', 'EmailAlertAction', 'WorkflowTriggerType'],
+    analytics: ['Dataset', 'DatasetMode'],
+    types: ['FieldType', 'FieldMapping', 'SelectOption', 'FieldNode', 'TransformType', 'Query']
+  },
+  system: {
+    identity: ['AuthProtocol', 'AuthProvider', 'OIDCConfig', 'SAMLConfig', 'LDAPConfig', 'Role', 'Policy', 'SessionPolicy', 'PasswordPolicy'],
+    integration: ['ApiEndpoint', 'ApiMapping', 'Datasource', 'DatasourceCapabilities', 'DriverType', 'Webhook', 'WebhookReceiver', 'WebhookTriggerType', 'HttpMethod'],
+    config: ['Manifest', 'Feature', 'License', 'Plan', 'RateLimit', 'MenuItem'],
+    i18n: ['TranslationBundle', 'TranslationData', 'Locale'],
+    audit: ['AuditPolicy', 'MetricType', 'NetworkPolicy'],
+    geo: ['Territory', 'TerritoryModel', 'TerritoryType']
+  },
+  ui: {
+    app: ['App', 'AppBranding', 'NavigationItem', 'ObjectNavItem', 'DashboardNavItem', 'GroupNavItem', 'PageNavItem', 'UrlNavItem'],
+    views: ['View', 'ListView', 'FormView'],
+    view_config: ['KanbanConfig', 'GanttConfig', 'CalendarConfig', 'FormSection'],
+    analytics: ['Dashboard', 'DashboardWidget', 'Report', 'ReportChart', 'ReportColumn', 'ReportGrouping', 'ReportType', 'ChartType'],
+    interaction: ['Action', 'ActionParam'],
+    pages: ['Page', 'PageComponent', 'PageRegion']
+  }
+};
+
+const SUB_CATEGORY_TITLES: Record<string, string> = {
+  // Data
+  'data/core': 'Core Entities',
+  'data/logic': 'Logic & Validation',
+  'data/security': 'Security & Access',
+  'data/automation': 'Automation',
+  'data/analytics': 'Analytics (Data)',
+  'data/types': 'Types & Definitions',
+  // System
+  'system/config': 'Configuration',
+  'system/identity': 'Identity & Auth',
+  'system/integration': 'Integration',
+  'system/geo': 'Territory & Geo',
+  'system/i18n': 'Internationalization',
+  'system/audit': 'Audit & Compliance',
+  // UI
+  'ui/app': 'Application',
+  'ui/pages': 'Page Builder',
+  'ui/views': 'Views',
+  'ui/view_config': 'View Configuration',
+  'ui/analytics': 'Analytics (UI)',
+  'ui/interaction': 'Actions & Interaction'
+};
+
 // Map SchemaName -> Category Key (e.g. 'Object' -> 'data')
 const schemaCategoryMap = new Map<string, string>();
+const schemaSubCategoryMap = new Map<string, string>();
+
+// Reverse map sub-categories for lookup
+Object.entries(SUB_CATEGORIES).forEach(([topCat, subs]) => {
+  Object.entries(subs).forEach(([subCat, schemas]) => {
+    schemas.forEach(schema => {
+      schemaSubCategoryMap.set(schema, subCat);
+    });
+  });
+});
 
 
 // 1. Scan source files to build map
@@ -143,11 +205,36 @@ if (!fs.existsSync(DOCS_ROOT)) {
   fs.mkdirSync(DOCS_ROOT, { recursive: true });
 }
 
-// Generate meta.json for categories
+// Generate meta.json for categories and sub-categories
 Object.entries(CATEGORIES).forEach(([key, title]) => {
   const dir = path.join(DOCS_ROOT, key);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, 'meta.json'), JSON.stringify({ title }, null, 2));
+
+  const subCats = SUB_CATEGORIES[key] ? Object.keys(SUB_CATEGORIES[key]) : [];
+  
+  // Create top-level meta.json for the protocol
+  const meta: any = { 
+    title,
+    root: true // Mark as root to display folders nicely
+  };
+  
+  if (subCats.length > 0) {
+    // If we have specific sub-categories, enforce order using 'pages'
+    meta.pages = subCats;
+  }
+
+  fs.writeFileSync(path.join(dir, 'meta.json'), JSON.stringify(meta, null, 2));
+
+  // Create sub-category directories and meta.json files
+  if (SUB_CATEGORIES[key]) {
+    Object.keys(SUB_CATEGORIES[key]).forEach(subCat => {
+      const subDir = path.join(dir, subCat);
+      if (!fs.existsSync(subDir)) fs.mkdirSync(subDir, { recursive: true });
+      
+      const subTitle = SUB_CATEGORY_TITLES[`${key}/${subCat}`] || subCat;
+      fs.writeFileSync(path.join(subDir, 'meta.json'), JSON.stringify({ title: subTitle }, null, 2));
+    });
+  }
 });
 
 // Clean up: We DO NOT delete the root folder to be safe, but we should probably clear old mdx files in root?
@@ -162,19 +249,31 @@ files.forEach(file => {
   const mdx = generateMarkdown(schemaName, content);
   
   if (mdx) {
-    const category = schemaCategoryMap.get(schemaName) || 'misc';
-    const outDir = path.join(DOCS_ROOT, category);
+    let category = schemaCategoryMap.get(schemaName) || 'misc';
+    const subCategory = schemaSubCategoryMap.get(schemaName);
+    
+    // Determine output directory
+    let outDir = path.join(DOCS_ROOT, category);
+    if (subCategory) {
+      outDir = path.join(outDir, subCategory);
+    }
+
     if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
     
-    fs.writeFileSync(path.join(outDir, `${schemaName}.mdx`), mdx);
-    console.log(`✓ Generated docs for ${schemaName} in ${category}`);
+    // Use schema name as file name. 
+    // Note: We previously renamed Index -> index.mdx, but now we moved Index to core/Index.mdx
+    // so we can keep original casing.
+    const fileName = `${schemaName}.mdx`;
+    fs.writeFileSync(path.join(outDir, fileName), mdx);
+    
+    console.log(`✓ Generated docs for ${schemaName} in ${category}${subCategory ? '/' + subCategory : ''}`);
   }
 });
 
 // 4. Update Root meta.json
 // We want references to list categories in specific order
 const rootMetaProps = {
-  label: "API References",
+  label: "Protocol Reference",
   order: 100,
   pages: [
     "data",

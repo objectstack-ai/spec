@@ -2,12 +2,11 @@
   "title": "Data Protocol",
   "root": true,
   "pages": [
-    "index",
     "core",
-    "types",
     "logic",
     "security",
     "automation",
-    "analytics"
+    "analytics",
+    "types"
   ]
 }
