@@ -1,8 +1,9 @@
 ---
 title: Terminology
-description: A glossary of key terms, concepts, and jargon used within the ObjectStack ecosystem.
+description: The Glossary of the ObjectStack Ecosystem. Speaking the same language.
 ---
 
+import { Book, Server, Code, Database } from 'lucide-react';
 
 To navigate the ObjectStack ecosystem effectively, it is helpful to understand the specific vocabulary we use. While many terms are standard in computer science, some have specific nuances in our "Protocol-Driven" context.
 
@@ -33,7 +34,7 @@ An architectural pattern where the application reads and writes to a database em
 ### Database Compiler
 A system that takes a high-level query AST (Abstract Syntax Tree) and compiles it into an optimized database query string (e.g., SQL). This contrasts with an ORM, which typically acts as a runtime wrapper object.
 
-### Virtual Column
+### Virtual Field
 A field defined in the ObjectQL schema that does not exist physically in the database table but is computed on the fly.
 * *Example:* A SQL subquery or expression injected into the `SELECT` statement at compile time.
 

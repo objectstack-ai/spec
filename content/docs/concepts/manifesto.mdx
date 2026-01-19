@@ -1,103 +1,105 @@
 ---
 title: The ObjectStack Manifesto
-description: The unshakable core principles that govern ObjectStack's existence and evolution
+description: The unshakable core principles that govern the ObjectStack ecosystem. The Constitution of the Post-SaaS Era.
 ---
 
+import { ScrollText, Scale, Database, Code2 } from 'lucide-react';
 
-ObjectStack exists to return data application development to its essence. To maintain a healthy and open ecosystem, we pledge to uphold the following unshakable core principles:
+ObjectStack exists to return enterprise application development to its essence: **Data**.
+
+To maintain a healthy, decoupled, and future-proof ecosystem, we pledge to uphold the following unshakable core principles. These are not suggestions; they are the constraints that enable our freedom.
+
+<Cards>
+  <Card
+    icon={<Scale />}
+    title="I. Protocol Neutrality"
+    description="The Protocol is law. The Implementation is merely an opinion."
+  />
+  <Card
+    icon={<Code2 />}
+    title="II. Mechanism over Policy"
+    description="Provide the tools to build rules, do not hardcode the rules themselves."
+  />
+  <Card
+    icon={<Database />}
+    title="III. Data Sovereignty"
+    description="Data belongs to the user, not the SaaS provider."
+  />
+</Cards>
+
+---
 
 ## Principle I: Protocol Neutrality
 
-### The Principle
+**"The Protocol is neutral. The Engine is replaceable."**
 
-**ObjectQL is neutral**: It must not contain any logic specific to a particular language (e.g., Node.js), database (e.g., MySQL), or runtime (e.g., Electron).
+ObjectQL must not contain any logic specific to a particular language (e.g., Node.js), database (e.g., PostgreSQL), or runtime (e.g., Browser).
 
-### Standards First
+### The Law
+*   **Spec before Engine:** Any feature must first be defined in the Specification layer (`packages/spec`) before a single line of code is written in the Engine layer. We reject the "implement first, standardize later" approach.
+*   **Zero Leakage:** Implementation details (like React Hooks usage, or SQL specific syntax) must never leak into the Protocol definition.
 
-**Spec before Engine**: Any feature must first be defined in the Specification layer before being implemented in the Engine layer. We reject the "implement first, standardize later" black-box approach.
+### The Benefit
+This ensures that an ObjectStack application defined today can theoretically run on:
+*   A Node.js server with PostgreSQL (Today's Standard)
+*   A Python server with SQLite (AI/Data Science)
+*   A Rust WASM module in the browser (Local-First)
 
-### What This Means
-
-ObjectStack's protocol layer (ObjectQL, ObjectUI) consists purely of specification definitions, with no concrete implementation. This ensures:
-
-- ObjectQL protocol can have multiple implementations (JavaScript, Python, Java, etc.)
-- ObjectUI protocol can have multiple renderers (React, Vue, Angular, etc.)
-- Underlying databases can be switched freely (MySQL, PostgreSQL, Oracle, etc.)
-
-### Practice Guidelines
-
-**When designing protocols**:
-- Use standard JSON Schema format
-- Avoid introducing language or concepts-specific concepts
-- Keep protocols simple and extensible
-- Define in Spec layer first, implement in Engine layer second
-
-**When developing implementations**:
-- Strictly follow protocol specifications
-- Validate protocol compatibility through test suites
-- Implementations should be interchangeable without affecting applications
-- No implementation-specific logic should leak into the protocol layer
-
-### Example
-
-```json
-{
-  "type": "query",
-  "object": "users",
-  "filters": {
-    "age": { "$gt": 18 }
-  },
-  "sort": { "created_at": "desc" },
-  "limit": 10
-}
-```
-
-This ObjectQL query protocol can be:
-- Transpiled to MySQL queries by JavaScript implementation
-- Transpiled to PostgreSQL queries by Python implementation
-- Transpiled to Oracle queries by Java implementation
-
-**The protocol remains neutral; the implementation is replaceable.**
+---
 
 ## Principle II: Mechanism over Policy
 
-### The Principle
+**"Give them the physics, not the simulation."**
 
-**ObjectQL provides mechanisms only**: It defines the `allowRead` interface, but never mandates where user data must exist.
+ObjectStack provides the **Mechanisms** (The "How"):
+*   *"Here is how you define a validation rule."*
+*   *"Here is how you define a permission scope."*
 
-**ObjectOS provides implementations**: User systems, file storage, and multi-tenancy logic belong to the OS layer. Polluting the Protocol layer with these is strictly forbidden.
+ObjectStack never dictates the **Policy** (The "What"):
+*   *It never says "Passwords must be 8 characters".*
+*   *It never says "Users must belong to a Department".*
 
 ### Separation of Concerns
+We cleanly separate the **Definition** from the **Execution**.
 
-We completely separate "what to do" (mechanism) from "how to do it" (policy/implementation).
+| Layer | Responsibility | Example |
+| :--- | :--- | :--- |
+| **Protocol (Mechanism)** | Defines the capabilities. | `allowRead: string` (A slot for a formula) |
+| **App (Policy)** | Defines the business logic. | `allowRead: "$user.role == 'admin'"` |
+| **Engine (Execution)** | Enforces the logic. | Compiles formula to SQL `WHERE` clause. |
 
-Developers only need to:
-- Define data models (Schema)
-- Define interface structure (UI Protocol)
-- Define business rules (Validation Rules)
+---
 
-Without worrying about:
-- How data is stored
-- How interfaces are rendered
-- How queries are optimized
-- How permissions are enforced
+## Principle III: The Single Source of Truth
 
-### Practice Guidelines
+**"There is no 'Code'. There is only Schema."**
 
-**Schema Definition** (Mechanism):
+In a traditional application, the "truth" is scattered:
+1.  Database Schema (`table.sql`)
+2.  Backend Models (`User.ts`)
+3.  Frontend Validation (`schema.zod.ts`)
+4.  API Documentation (`swagger.json`)
 
-```json
-{
-  "object": "orders",
-  "fields": {
-    "order_id": { "type": "text", "primary": true },
-    "customer": { "type": "reference", "ref": "customers" },
-    "total": { "type": "number" },
-    "status": { "type": "select", "options": ["pending", "completed"] }
-  },
-  "permissions": {
-    "allowRead": "{{ formula }}"
-  }
+In ObjectStack, **The Object Protocol is the only truth.**
+*   The Database is a *derivative* of the Protocol.
+*   The UI is a *projection* of the Protocol.
+*   The API is a *consequence* of the Protocol.
+
+If you change the Protocol, the entire system (DB, API, UI) must adapt automatically.
+
+---
+
+## Principle IV: Local-First by Default
+
+**"The Cloud is a sync peer, not a master."**
+
+We reject the notion that software must stop working when the internet connection drops.
+*   **Latency is the enemy:** All interactions should be optimistic and instant (0ms).
+*   **Ownership is the goal:** The user's data essentially lives on their device. The server is just a hub for backup and collaboration.
+
+---
+
+> "We shape our tools, and thereafter our tools shape us." — Marshall McLuhan
 }
 ```
 

@@ -3,6 +3,7 @@ title: Core Values
 description: "Deep dive into the three pillars of ObjectStack: Protocol-Driven Architecture, Local-First Data Sovereignty, and Database Agnosticism."
 ---
 
+import { Database, Link, Laptop } from 'lucide-react';
 
 ObjectStack is built upon three non-negotiable architectural values. These are not just "features"; they are the constraints that guide every design decision we make.
 
@@ -21,7 +22,9 @@ When the business requirement changes, you must update code in three places. Thi
 ### The Protocol-Driven Solution
 ObjectStack centralizes the "Intent" into a single Protocol Definition (JSON/YAML). The implementation layers (React, Node.js, SQL) act merely as **Runtime Engines** that interpret this protocol.
 
-
+<Callout type="info">
+The UI is a Projection. The API is a Consequence.
+</Callout>
 
 * **The UI is a Projection:** ObjectUI does not "build" a form; it *projects* the ObjectQL schema into a visual representation.
 * **The API is a Consequence:** You do not write endpoints; ObjectOS *generates* the secure graph based on the access control protocol.
@@ -47,6 +50,16 @@ The synchronization with the cloud happens in the background, asynchronously.
 1.  **Instant Response:** The UI reacts immediately (optimistic UI), making enterprise apps feel as snappy as native desktop software.
 2.  **Offline Capability:** Field workers, airplanes, or spotty connections are no longer blockers.
 3.  **Data Sovereignty:** The data physically resides on the user's device. The cloud acts as a synchronization hub, not the sole gatekeeper.
+
+## 3. Database Agnosticism: The "Super-SQL"
+
+The industry is fragmented into SQL (Postgres, MySQL) and NoSQL (MongoDB, Redis) camps. Developers often lock themselves into one vendor's dialect.
+
+ObjectStack introduces **ObjectQL**, a unified query language that compiles to any backend.
+
+*   **Vendor Lock-in Freedom:** Start with SQLite for prototyping, migrate to PostgreSQL for production, and archive to Snowflake for analytics—without rewriting a single line of business logic.
+*   **Best-in-Class Drivers:** We don't implement databases; we implement *drivers* that treat databases as dumb storage engines. We handle the complex logic (RBAC, Validation) in the Application Layer (The Kernel).
+
 
 ## 3. Database Agnostic: The "Universal Compiler"
 

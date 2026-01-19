@@ -3,12 +3,29 @@ title: Architecture Overview
 description: Understanding the ObjectStack Trinity. How ObjectQL, ObjectOS, and ObjectUI collaborate to build the Enterprise Kernel.
 ---
 
+import { Layers, Database, Layout, ShieldCheck } from 'lucide-react';
 
 ObjectStack is not a monolithic framework. It is a composable ecosystem designed around a **Layered Architecture**. We call this the **"ObjectStack Trinity."**
 
 Each layer is decoupled and communicates via standard JSON protocols. This allows you to swap out implementations (e.g., swapping the React renderer for a Flutter renderer) without breaking the rest of the stack.
 
-
+<Cards>
+  <Card
+    icon={<Database />}
+    title="Data Layer (ObjectQL)"
+    description="The Universal Protocol for definition and access."
+  />
+  <Card
+    icon={<ShieldCheck />}
+    title="Control Layer (ObjectOS)"
+    description="The Business Kernel for orchestration and governance."
+  />
+  <Card
+    icon={<Layout />}
+    title="View Layer (ObjectUI)"
+    description="The Projection Engine for interaction and rendering."
+  />
+</Cards>
 
 ## The Trinity
 
@@ -48,6 +65,32 @@ At the top is ObjectUI. It is responsible for **Interaction** and **Rendering**.
 ## The Request Lifecycle
 
 To understand how these pieces fit together, let's trace a typical user interaction—for example, a Sales Rep updating a deal status while offline.
+
+1.  **Interaction (ObjectUI):**
+    *   User drags "Deal" to "Closed Won" column in Kanban.
+    *   UI Optimistically updates the screen (0ms).
+    *   UI dispatches an `update` action to the local ObjectOS Client.
+
+2.  **Kernel Guard (ObjectOS Client):**
+    *   Client Kernel checks: *Does user have permission to edit 'Status'?*
+    *   Kernel executes generic validation: *Is 'Status' a valid option?*
+    *   Transaction committed to SQLite (Local DB).
+
+3.  **Synchronization (ObjectOS Sync):**
+    *   Background process detects changes in SQLite.
+    *   Compresses change into an **Operation Payload**.
+    *   Sends payload to Server API.
+
+4.  **Server Execution (ObjectOS Server):**
+    *   Server Kernel authenticates the request.
+    *   Server Kernel runs "Before Update" triggers (e.g., Check credit limit).
+    *   Server passes AST to ObjectQL Compiler.
+
+5.  **Persistence (ObjectQL):**
+    *   Compiler generates `UPDATE deals SET status = 'closed_won' ...` for PostgreSQL.
+    *   Write is committed.
+    *   "After Update" triggers fire (send email to manager).
+
 
 ### Step 1: Interaction (ObjectUI)
 The user clicks "Mark as Won" in the UI.

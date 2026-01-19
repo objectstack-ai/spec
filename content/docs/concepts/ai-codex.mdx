@@ -1,53 +1,84 @@
 ---
 title: The AI Codex
-description: Best practices for AI-assisted ObjectStack development
+description: How to collaborate with Artificial Intelligence to build ObjectStack applications.
 ---
 
+import { Bot, Terminal, FileJson, Sparkles } from 'lucide-react';
 
-This guide helps developers leverage AI tools to enhance ObjectStack development efficiency.
+ObjectStack is designed to be **AI-Native**.
 
-## Why AI Collaboration
+Because our fundamental unit of construction is the **Protocol (JSON/YAML Schema)** rather than imperative code, Large Language Models (LLMs) are exceptionally good at understanding and generating ObjectStack applications.
 
-ObjectStack, as a protocol-driven platform, involves a lot of:
-- Schema definitions
-- UI protocol configurations
-- Repetitive CRUD code
-- API documentation generation
+This guide provides the "System Prompt" mental model for developers working with Copilot, ChatGPT, or Claude to build ObjectStack apps.
 
-These are all well-suited for AI assistance, significantly improving development efficiency.
+## Why ObjectStack is Friendly to AI
 
-## Core Terminology
+| Feature | Code-First Support | ObjectStack Support |
+| :--- | :--- | :--- |
+| **Context Window** | Low. Requires reading thousands of lines of TS/SQL. | High. Schema is dense and declarative. |
+| **Hallucination** | High. AI invents APIs that don't exist. | Low. Schema validation (Zod) rejects invalid output. |
+| **Refactoring** | Hard. Requires rewriting detailed logic. | Easy. Just change a JSON property key. |
 
-Using consistent terminology when collaborating with AI is crucial. Here are ObjectStack's core terms:
+## The "Chief Protocol Architect" Persona
 
-### Data Layer Terms
+When prompting an AI to help you build, assign it the role of **Chief Protocol Architect**.
 
-- **Schema**: Data model definition in JSON format describing table structure
-- **Object**: Business object, corresponding to database table
-- **Field**: Object field, corresponding to database column
-- **Reference**: Relationship field, used to establish associations between objects
-- **Virtual Field**: Computed field not stored in database
+### The System Prompt
 
-### Query Layer Terms
+Copy this into your custom instructions:
 
-- **ObjectQL**: Unified cross-database query language
-- **Query DSL**: Query Domain-Specific Language
-- **Filter**: Query filter conditions
-- **Aggregation**: Aggregation queries
-- **Driver**: Database driver, e.g., `@objectql/driver-mysql`
+```markdown
+You are an expert ObjectStack Architect.
+Your goal is to design declarative protocols, NOT imperative code.
 
-### UI Layer Terms
+1.  **Schema First:** Always start by defining the ObjectQL Schema (YAML/JSON).
+2.  **Files**: When asked for a feature, output the relevant `.object.yml` or `.view.yml` files.
+3.  **No SQL/React:** Do not write SQL queries or React components unless explicitly asked for a Driver or Renderer implementation.
+4.  **Style:** Use `snake_case` for machine names and `camelCase` for configuration keys.
+```
 
-- **ObjectUI**: JSON-driven UI protocol
-- **Component**: Components like Form, Table, Card, etc.
-- **Action**: Interactive actions like API requests, page navigation, etc.
-- **Renderer**: Converts JSON protocol to actual UI
+## Common Tasks
 
-### Platform Layer Terms
+### 1. Generating Schema from Requirements
 
-- **ObjectOS**: Runtime platform
-- **Plugin**: Extension for functionality
-- **Hook**: Lifecycle hooks like beforeInsert, afterUpdate
+**User:** "I need a CRM system to track leads and opportunities."
+
+**AI Response:**
+```yaml
+# objects/lead.yml
+name: lead
+fields:
+  status:
+    type: select
+    options: ['new', 'contacted', 'qualified']
+  annual_revenue:
+    type: currency
+    scale: 2
+
+# objects/opportunity.yml
+name: opportunity
+fields:
+  lead_id:
+    type: lookup
+    reference_to: lead
+```
+
+### 2. Generating UI Layouts
+
+**User:** "Create a dashboard for the Sales Manager."
+
+**AI Response:**
+```yaml
+# dashboards/sales_overview.yml
+layout: grid
+widgets:
+  - type: chart
+    title: "Revenue by Month"
+    query: "select sum(amount), month(close_date) from opportunity group by month"
+  - type: list
+    object: opportunity
+    filter: [["stage", "=", "closed_won"]]
+```
 - **RBAC**: Role-Based Access Control
 - **FLS**: Field-Level Security
 

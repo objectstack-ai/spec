@@ -3,6 +3,7 @@ title: Enterprise Patterns
 description: Handling complex ERP/CRM business logic (State Machines, Calculations, RBAC) using the Protocol-Driven approach.
 ---
 
+import { Sliders, GitMerge, Calculator, BookOpen } from 'lucide-react';
 
 A common misconception about "Low-Code" or "Protocol-Driven" platforms is that they are only suitable for simple CRUD applications.
 
@@ -14,17 +15,16 @@ Here is how we map common Enterprise Patterns to the ObjectStack architecture.
 
 In enterprise software, a record (e.g., a "Purchase Order") is rarely just static data. It is a living entity that moves through a lifecycle.
 
-**The Anti-Pattern:**
+### The Anti-Pattern
 Writing scattered `if/else` logic in controllers:
 ```javascript
 // Don't do this
 if (order.status === 'draft' && user.role === 'manager') {
   order.status = 'approved';
 }
-
 ```
 
-**The ObjectStack Pattern:**
+### The ObjectStack Pattern
 We define the lifecycle as a **Finite State Machine (FSM)** in the ObjectOS Protocol. This makes the business process deterministic and visualizeable.
 
 ```yaml
@@ -45,8 +45,45 @@ states:
       approve: "user.has_permission('approve_budget')"
   approved:
     final: true
-
 ```
+
+## 2. Dynamic Rollups (Calculated Fields)
+
+ERP systems often require "Master-Detail" math. *Example: An Order's Total is the sum of its Line Items.*
+
+### The Anti-Pattern
+Writing SQL `SUM()` queries manually in every report, or using Database Triggers that are hard to debug.
+
+### The ObjectStack Pattern
+We define **Summary Fields** in the Object Protocol. The ObjectQL Compiler handles the underlying complexity (either by real-time `JOIN` or background aggregation).
+
+```yaml
+# objects/order.yml
+fields:
+  total_amount:
+    type: summary
+    summary_object: line_items
+    summary_field: amount
+    summary_type: sum
+```
+
+## 3. Polymorphic Relationships
+
+CRM systems often need "Many-to-Any" relationships. *Example: A Task can be related to a Lead, a Contact, OR an Account.*
+
+### The ObjectStack Pattern
+We use the `reference` type with multiple targets.
+
+```yaml
+# objects/task.yml
+fields:
+  related_to:
+    type: lookup
+    reference_to: ['lead', 'contact', 'account', 'opportunity']
+```
+
+This instructs the ObjectQL compiler to generate the necessary polymorphic keys (e.g., `related_to_id` and `related_to_type` columns).
+
 
 * **Deterministic:** An order *cannot* jump from `draft` to `shipped` unless the protocol allows it.
 * **Audit:** The engine automatically logs every transition (Who moved it? When? Why?).
