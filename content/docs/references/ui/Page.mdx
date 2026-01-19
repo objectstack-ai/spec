@@ -1,0 +1,18 @@
+---
+title: Page
+description: Page Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ |  |
+| **label** | `string` | ✅ |  |
+| **description** | `string` | optional |  |
+| **type** | `Enum<'record' \| 'home' \| 'app' \| 'utility'>` | optional |  |
+| **object** | `string` | optional | Bound object (for Record pages) |
+| **template** | `string` | optional | Layout template name (e.g. "header-sidebar-main") |
+| **regions** | `object[]` | ✅ | Defined regions with components |
+| **isDefault** | `boolean` | optional |  |
+| **assignedProfiles** | `string[]` | optional |  |

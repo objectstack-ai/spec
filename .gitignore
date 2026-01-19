@@ -41,4 +41,13 @@ temp/
 packages/*/dist/
 packages/*/*.tsbuildinfo
 
+# Next.js
 .next
+out/
+next-env.d.ts
+.vercel
+
+# Fumadocs
+.source/
+apps/*/. source/
+apps/*/.next/

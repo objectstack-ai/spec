@@ -1,0 +1,18 @@
+---
+title: DashboardWidget
+description: DashboardWidget Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **title** | `string` | optional | Widget title |
+| **type** | `Enum<'metric' \| 'bar' \| 'line' \| 'pie' \| 'donut' \| 'funnel' \| 'table' \| 'text'>` | optional | Visualization type |
+| **object** | `string` | optional | Data source object name |
+| **filter** | `any` | optional | Data filter criteria |
+| **categoryField** | `string` | optional | Field for grouping (X-Axis) |
+| **valueField** | `string` | optional | Field for values (Y-Axis) |
+| **aggregate** | `Enum<'count' \| 'sum' \| 'avg' \| 'min' \| 'max'>` | optional | Aggregate function |
+| **layout** | `object` | ✅ | Grid layout position |
+| **options** | `any` | optional | Widget specific configuration |

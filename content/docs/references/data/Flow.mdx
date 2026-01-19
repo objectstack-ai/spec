@@ -1,0 +1,18 @@
+---
+title: Flow
+description: Flow Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Machine name |
+| **label** | `string` | ✅ | Flow label |
+| **description** | `string` | optional |  |
+| **type** | `Enum<'autolaunched' \| 'record_change' \| 'schedule' \| 'screen' \| 'api'>` | ✅ | Flow type |
+| **variables** | `object[]` | optional | Flow variables |
+| **nodes** | `object[]` | ✅ | Flow nodes |
+| **edges** | `object[]` | ✅ | Flow connections |
+| **active** | `boolean` | optional | Is active |
+| **runAs** | `Enum<'system' \| 'user'>` | optional | Execution context |

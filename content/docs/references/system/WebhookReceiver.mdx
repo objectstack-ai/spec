@@ -1,0 +1,15 @@
+---
+title: WebhookReceiver
+description: WebhookReceiver Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ |  |
+| **path** | `string` | ✅ | URL Path (e.g. /webhooks/stripe) |
+| **verificationType** | `Enum<'none' \| 'header_token' \| 'hmac' \| 'ip_whitelist'>` | optional |  |
+| **verificationParams** | `object` | optional |  |
+| **action** | `Enum<'trigger_flow' \| 'script' \| 'upsert_record'>` | optional |  |
+| **target** | `string` | ✅ | Flow ID or Script name |

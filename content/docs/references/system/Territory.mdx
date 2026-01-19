@@ -1,0 +1,19 @@
+---
+title: Territory
+description: Territory Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ |  |
+| **label** | `string` | ✅ | Territory Label (e.g. "West Coast") |
+| **modelId** | `string` | ✅ | Belongs to which Territory Model |
+| **parent** | `string` | optional | Parent Territory |
+| **type** | `Enum<'geography' \| 'industry' \| 'named_account' \| 'product_line'>` | optional |  |
+| **assignmentRule** | `string` | optional | Criteria based assignment rule |
+| **assignedUsers** | `string[]` | optional |  |
+| **accountAccess** | `Enum<'read' \| 'edit'>` | optional |  |
+| **opportunityAccess** | `Enum<'read' \| 'edit'>` | optional |  |
+| **caseAccess** | `Enum<'read' \| 'edit'>` | optional |  |

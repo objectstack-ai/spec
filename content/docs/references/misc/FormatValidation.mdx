@@ -1,0 +1,17 @@
+---
+title: FormatValidation
+description: FormatValidation Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique rule name |
+| **active** | `boolean` | optional |  |
+| **severity** | `Enum<'error' \| 'warning' \| 'info'>` | optional |  |
+| **message** | `string` | ✅ | Error message to display |
+| **type** | `string` | ✅ |  |
+| **field** | `string` | ✅ |  |
+| **regex** | `string` | optional |  |
+| **format** | `Enum<'email' \| 'url' \| 'phone' \| 'json'>` | optional |  |

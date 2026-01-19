@@ -1,0 +1,12 @@
+---
+title: AuditPolicy
+description: AuditPolicy Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **logRetentionDays** | `number` | optional |  |
+| **sensitiveFields** | `string[]` | ✅ | Fields to redact in logs (e.g. password, ssn) |
+| **captureRead** | `boolean` | optional | Log read access (High volume!) |

@@ -1,0 +1,19 @@
+---
+title: ListView
+description: ListView Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | optional |  |
+| **label** | `string` | optional |  |
+| **type** | `Enum<'grid' \| 'kanban' \| 'calendar' \| 'gantt' \| 'map'>` | optional |  |
+| **columns** | `string[]` | ✅ | Fields to display as columns |
+| **filter** | `any[]` | optional | Filter criteria (JSON Rules) |
+| **sort** | `string \| object[]` | optional |  |
+| **searchableFields** | `string[]` | optional | Fields enabled for search |
+| **kanban** | `object` | optional |  |
+| **calendar** | `object` | optional |  |
+| **gantt** | `object` | optional |  |

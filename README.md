@@ -10,18 +10,19 @@ This repository contains the core specifications, schemas, and protocols that po
 
 ## 📚 Documentation
 
-The official documentation is co-located in this repository.
+The official documentation is built with Fumadocs and Next.js.
 
-*   **[Concepts](./content/docs/concepts/):** Architecture, Manifesto, and Core Values.
-*   **[Specifications](./packages/spec/json-schema/):** Auto-generated JSON Schemas.
-*   **[API Reference](./content/docs/references/):** Detailed property references generated from code.
+*   **[Documentation Content](./content/docs/):** MDX documentation files (concepts, specifications, references).
+*   **[Documentation Site](./apps/docs/):** Fumadocs-powered Next.js app.
+*   **[Live Site](http://localhost:3000/docs):** Run `pnpm docs:dev` to view locally.
 
 ## 📦 Monorepo Structure
 
 | Package | Description | Status |
 | :--- | :--- | :--- |
 | **[`@objectstack/spec`](packages/spec)** | **THE PROTOCOL**. Contains all Zod definitions, Types, and JSON Schemas. | 🟢 **Active** |
-| `content/docs` | The documentation site source. | 🟢 **Active** |
+| **[`@objectstack/docs`](apps/docs)** | Documentation site built with Fumadocs and Next.js. | 🟢 **Active** |
+| `content/docs/` | Documentation content (MDX files). Shared resource. | 🟢 **Active** |
 | *Other packages* | *Legacy/Migration in progress* | 🟡 *Legacy* |
 
 ## 🛠️ The Protocol Architecture
@@ -67,11 +68,10 @@ pnpm --filter @objectstack/spec build
 # Output:
 # - packages/spec/dist/        (Compiled TS)
 # - packages/spec/json-schema/ (JSON Schemas)
-# - content/docs/references/   (Markdown Docs)
 
-# 3. Start Documentation Site (Optional)
-# (Assuming a doc site runner is configured)
-pnpm dev
+# 3. Start Documentation Site
+pnpm docs:dev
+# Visit http://localhost:3000/docs
 ```
 
 ## 🤝 Contribution

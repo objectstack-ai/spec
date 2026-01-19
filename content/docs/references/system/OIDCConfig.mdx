@@ -1,0 +1,14 @@
+---
+title: OIDCConfig
+description: OIDCConfig Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **issuer** | `string` | ✅ | OIDC Issuer URL (.well-known/openid-configuration) |
+| **clientId** | `string` | ✅ |  |
+| **clientSecret** | `string` | ✅ |  |
+| **scopes** | `string[]` | optional |  |
+| **attributeMapping** | `Record<string, string>` | optional | Map IdP claims to User fields |
