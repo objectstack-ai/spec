@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      lucide-react:
+        specifier: ^0.562.0
+        version: 0.562.0(react@19.2.3)
     devDependencies:
       '@changesets/cli':
         specifier: ^2.27.1

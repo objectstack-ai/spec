@@ -12,7 +12,8 @@ This repository contains the core specifications, schemas, and protocols that po
 
 The official documentation is built with Fumadocs and Next.js.
 
-*   **[Documentation Site](./apps/docs/):** Fumadocs-powered documentation (Concepts, Specifications, API Reference).
+*   **[Documentation Content](./content/docs/):** MDX documentation files (concepts, specifications, references).
+*   **[Documentation Site](./apps/docs/):** Fumadocs-powered Next.js app.
 *   **[Live Site](http://localhost:3000/docs):** Run `pnpm docs:dev` to view locally.
 
 ## 📦 Monorepo Structure
@@ -21,6 +22,7 @@ The official documentation is built with Fumadocs and Next.js.
 | :--- | :--- | :--- |
 | **[`@objectstack/spec`](packages/spec)** | **THE PROTOCOL**. Contains all Zod definitions, Types, and JSON Schemas. | 🟢 **Active** |
 | **[`@objectstack/docs`](apps/docs)** | Documentation site built with Fumadocs and Next.js. | 🟢 **Active** |
+| `content/docs/` | Documentation content (MDX files). Shared resource. | 🟢 **Active** |
 | *Other packages* | *Legacy/Migration in progress* | 🟡 *Legacy* |
 
 ## 🛠️ The Protocol Architecture

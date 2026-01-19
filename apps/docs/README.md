@@ -5,17 +5,18 @@ This is the documentation site for the ObjectStack Protocol, built with [Fumadoc
 ## Structure
 
 ```
+Repository Root:
+├── content/docs/     # Documentation content (MDX files)
+│   ├── concepts/
+│   ├── references/
+│   └── specifications/
+
 apps/docs/
 ├── app/              # Next.js app directory
 │   ├── docs/         # Documentation pages
 │   ├── layout.tsx    # Root layout
 │   └── source.ts     # Fumadocs source loader
-├── content/          # Documentation content (MDX files)
-│   └── docs/
-│       ├── concepts/
-│       ├── references/
-│       └── specifications/
-├── source.config.ts  # Fumadocs collection config
+├── source.config.ts  # Fumadocs collection config (references ../../content/docs)
 ├── next.config.mjs   # Next.js configuration
 ├── tailwind.config.js
 ├── postcss.config.mjs
@@ -63,10 +64,12 @@ pnpm start
 
 ## Content Management
 
-Documentation content is stored in `content/docs/` with the following structure:
+Documentation content is stored in the repository root at `/content/docs/` (shared location) with the following structure:
 
 - `concepts/` - Core concepts and architecture
 - `references/` - API and schema references
 - `specifications/` - Detailed specifications
 
 Each directory can have a `meta.json` file to configure navigation order and labels.
+
+**Note**: The content is stored at the root level to allow sharing with other tools and workflows. The Next.js app in `apps/docs/` references this content via relative path in `source.config.ts`.
