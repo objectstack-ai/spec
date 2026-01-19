@@ -133,15 +133,15 @@ export const ApiContracts = {
     input: QuerySchema,
     output: ListRecordResponseSchema
   },
-  bulk_create: {
+  bulkCreate: {
     input: BulkRequestSchema,
     output: BulkResponseSchema
   },
-  bulk_update: {
+  bulkUpdate: {
     input: BulkRequestSchema,
     output: BulkResponseSchema
   },
-  bulk_delete: {
+  bulkDelete: {
     input: z.object({ ids: z.array(z.string()) }),
     output: BulkResponseSchema
   }
