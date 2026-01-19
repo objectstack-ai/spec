@@ -3,7 +3,7 @@ import {
   FieldSchema, 
   FieldType, 
   SelectOptionSchema,
-  type Field,
+  Field,
   type SelectOption
 } from './field.zod';
 
@@ -301,6 +301,125 @@ describe('FieldSchema', () => {
       };
 
       expect(() => FieldSchema.parse(complexField)).not.toThrow();
+    });
+  });
+});
+
+describe('Field Factory Helpers', () => {
+  describe('Basic Field Types', () => {
+    it('should create phone field', () => {
+      const phoneField = Field.phone({ label: 'Mobile Phone', required: true });
+      
+      expect(phoneField.type).toBe('phone');
+      expect(phoneField.label).toBe('Mobile Phone');
+      expect(phoneField.required).toBe(true);
+    });
+
+    it('should create text field', () => {
+      const textField = Field.text({ label: 'Name', maxLength: 100 });
+      
+      expect(textField.type).toBe('text');
+      expect(textField.label).toBe('Name');
+      expect(textField.maxLength).toBe(100);
+    });
+
+    it('should create email field', () => {
+      const emailField = Field.email({ label: 'Email Address' });
+      
+      expect(emailField.type).toBe('email');
+      expect(emailField.label).toBe('Email Address');
+    });
+  });
+
+  describe('Select Field Factory', () => {
+    it('should create select field with string array (old API)', () => {
+      const selectField = Field.select(['High', 'Medium', 'Low'], { label: 'Priority' });
+      
+      expect(selectField.type).toBe('select');
+      expect(selectField.label).toBe('Priority');
+      expect(selectField.options).toHaveLength(3);
+      expect(selectField.options[0]).toEqual({ label: 'High', value: 'High' });
+    });
+
+    it('should create select field with SelectOption array in config (new API)', () => {
+      const selectField = Field.select({
+        label: 'Priority',
+        options: [
+          { label: 'High Priority', value: 'high', color: '#FF0000' },
+          { label: 'Low Priority', value: 'low', color: '#00FF00' },
+        ],
+      });
+      
+      expect(selectField.type).toBe('select');
+      expect(selectField.label).toBe('Priority');
+      expect(selectField.options).toHaveLength(2);
+      expect(selectField.options[0].color).toBe('#FF0000');
+      expect(selectField.options[1].value).toBe('low');
+    });
+
+    it('should create select field with mixed string/object array (new API)', () => {
+      const selectField = Field.select({
+        label: 'Status',
+        options: [
+          { label: 'Active', value: 'active', color: '#00AA00' },
+          'Inactive',
+          'Pending',
+        ],
+      });
+      
+      expect(selectField.type).toBe('select');
+      expect(selectField.options).toHaveLength(3);
+      expect(selectField.options[0]).toEqual({ label: 'Active', value: 'active', color: '#00AA00' });
+      expect(selectField.options[1]).toEqual({ label: 'Inactive', value: 'Inactive' });
+      expect(selectField.options[2]).toEqual({ label: 'Pending', value: 'Pending' });
+    });
+  });
+
+  describe('Multiselect Field Factory', () => {
+    it('should create multiselect field with string array (old API)', () => {
+      const multiselectField = Field.multiselect(['Tag1', 'Tag2', 'Tag3'], { label: 'Tags' });
+      
+      expect(multiselectField.type).toBe('multiselect');
+      expect(multiselectField.label).toBe('Tags');
+      expect(multiselectField.options).toHaveLength(3);
+    });
+
+    it('should create multiselect field with SelectOption array (new API)', () => {
+      const multiselectField = Field.multiselect({
+        label: 'Categories',
+        options: [
+          { label: 'Technology', value: 'tech' },
+          { label: 'Business', value: 'biz' },
+        ],
+      });
+      
+      expect(multiselectField.type).toBe('multiselect');
+      expect(multiselectField.options).toHaveLength(2);
+      expect(multiselectField.options[0].value).toBe('tech');
+    });
+  });
+
+  describe('Lookup and Master-Detail Fields', () => {
+    it('should create lookup field', () => {
+      const lookupField = Field.lookup('account', { 
+        label: 'Account',
+        referenceFilters: ['status = "active"'],
+      });
+      
+      expect(lookupField.type).toBe('lookup');
+      expect(lookupField.reference).toBe('account');
+      expect(lookupField.label).toBe('Account');
+    });
+
+    it('should create master_detail field', () => {
+      const masterDetailField = Field.master_detail('parent_object', {
+        label: 'Parent',
+        deleteBehavior: 'cascade',
+      });
+      
+      expect(masterDetailField.type).toBe('master_detail');
+      expect(masterDetailField.reference).toBe('parent_object');
+      expect(masterDetailField.deleteBehavior).toBe('cascade');
     });
   });
 });
