@@ -1,179 +1,26 @@
 ---
 title: Integration & ETL
-description: The Protocol for Connectivity. Data Import/Export, Virtual Objects (External Data Sources), and API Mapping Standards.
+description: The Protocol for Data Synchronization and External Connectivity.
 ---
 
+ObjectOS is designed to prevent "Data Silos".
 
-No enterprise application is an island. It must ingest CSVs from suppliers, sync orders to SAP, and pull lead data from LinkedIn.
-
-ObjectOS provides a unified **Integration Protocol** to handle these scenarios. Instead of writing custom Python scripts or maintaining fragile middleware, you define **Data Mappings** and **Connectors** in standard YAML.
-
-## 1. The Import/Export Protocol (ETL)
-
-ObjectOS includes a built-in ETL (Extract, Transform, Load) engine designed for bulk operations.
-
-
-
-### Mapping Templates
-End-users hate mapping columns ("Does 'First Name' map to `fname` or `first_name`?"). You can pre-define **Mapping Templates**.
+## 1. External Data Sources (Virtual Objects)
+You can define an Object that maps to an external API instead of the local database.
 
 ```yaml
-# integration/mappings/lead_import_linkedin.map.yml
-name: linkedin_lead_import
-target_object: lead
-source_format: csv
-
-field_mapping:
-  - source: "Profile URL"
-    target: "linkedin_url"
-    
-  - source: "Full Name"
-    target: ["first_name", "last_name"]
-    transform: "split_name" # Built-in helper
-    
-  - source: "Company"
-    target: "company_id"
-    transform: "lookup" # Resolve String to Foreign Key ID
-    params:
-      object: "account"
-      field: "name"
-      auto_create: true # Create Account if not found
-
+# stripe_customer.object.yml
+datasource: stripe_api
+name: stripe_customer
+fields: ...
 ```
 
-### The Upsert Logic
+When you query `stripe_customer`, the Kernel translates the ObjectQL AST into a Stripe API call in real-time.
 
-Duplicate data is the enemy. The ETL protocol supports declarative de-duplication.
+## 2. API Mapping
+A declarative way to map incoming Webhooks or REST calls to internal Objects.
 
-```yaml
-mode: upsert
-upsert_key: ["email"] # If email exists, update; otherwise, insert.
-batch_size: 1000
-error_policy: skip # skip, abort, or retry
-
-```
-
-## 2. Virtual Objects (External Data Sources)
-
-Traditionally, if you wanted to show data from an external ERP (e.g., SAP Orders) in your app, you had to sync it (copying data = stale data).
-
-ObjectOS introduces **Virtual Objects**. You define the schema in ObjectQL, but the data stays in the external system. ObjectOS acts as a **Real-Time Proxy**.
-
-### Definition
-
-```yaml
-# objects/sap_order.object.yml
-name: sap_order
-label: SAP Sales Order
-datasource: sap_erp_connector # Points to a configured OData/REST source
-virtual: true # Data is NOT stored in ObjectOS DB
-
-fields:
-  order_number:
-    type: text
-    external_name: "OrderID" # Map to remote API field
-    
-  amount:
-    type: currency
-    external_name: "TotalNet"
-
-```
-
-### Transparent Querying
-
-When the frontend requests:
-`GET /api/objectql/sap_order?filters=[["amount", ">", 1000]]`
-
-The ObjectOS Kernel translates this on-the-fly into the external API call:
-`GET https://sap-gateway.com/Orders?$filter=TotalNet gt 1000`
-
-The UI component (Grid) doesn't know the difference. It just works.
-
-## 3. Webhook & Event Integration
-
-For real-time, event-driven integration.
-
-### Inbound Webhooks
-
-Instead of writing a Node.js route to handle Stripe payments, define a **Webhook Receiver**.
-
-```yaml
-# integration/webhooks/stripe_payment.yml
-path: /webhooks/stripe
-secret: "${env.STRIPE_SECRET}"
-
-actions:
-  - type: script
-    code: |
-      if (payload.type === 'payment_intent.succeeded') {
-        const email = payload.data.object.receipt_email;
-        // Call internal broker to update Subscription
-        await broker.call('subscription.renew', { email });
-      }
-
-```
-
-### Outbound Webhooks
-
-Push data to other systems when events occur in ObjectOS.
-
-```yaml
-# triggers/slack_notify.trigger.yml
-object: incident
-on: create
-action: webhook.send
-params:
-  url: "[https://hooks.slack.com/](https://hooks.slack.com/)..."
-  payload:
-    text: "New Incident: ${doc.title}"
-
-```
-
-## 4. OData & GraphQL Standards
-
-ObjectOS is not just a consumer of APIs; it is a **Producer** of standard APIs.
-
-To ensure your application works with the broader ecosystem (Excel, PowerBI, Salesforce), ObjectOS automatically exposes standard endpoints.
-
-### OData v4 Support
-
-Every ObjectQL Schema is automatically mapped to an OData Metadata document.
-
-* **URL:** `/api/odata/v4/$metadata`
-* **Benefit:** You can open Excel, go to "Data > Get Data > From OData Feed", paste your ObjectOS URL, and get a live, refreshable spreadsheet of your data. **No coding required.**
-
-### GraphQL Support
-
-For frontend developers who prefer GraphQL over ObjectQL JSON.
-
-* **URL:** `/graphql`
-* **Schema:** Generated instantly from Object definitions.
-
-## 5. The Transformation Engine
-
-Data rarely matches perfectly. ObjectOS provides a light expression language (based on JSONata) for **Payload Transformation**.
-
-**Scenario:** External API sends `{"user": {"first": "John", "last": "Doe"}}`, but you need `full_name`.
-
-**Transformation Definition:**
-
-```yaml
-transform:
-  full_name: "${data.user.first} & ' ' & ${data.user.last}"
-  status_code: "${data.isActive ? 'Active' : 'Inactive'}"
-
-```
-
-## Summary
-
-| Integration Type | Pattern | Use Case |
-| --- | --- | --- |
-| **ETL Import** | Batch / Scheduled | Migrating legacy data, Monthly supplier CSVs. |
-| **Virtual Object** | Real-Time Proxy | Viewing SAP Orders without copying them. |
-| **Webhook** | Event-Driven | Real-time Payment confirmation, Slack alerts. |
-| **OData/GraphQL** | Standard Protocol | BI Tools (PowerBI, Tableau), 3rd Party Clients. |
-
-:::tip Architecture Decision
-Use **Virtual Objects** when you need to view data but don't own it.
-Use **ETL/Sync** when you need to run complex queries, reports, or triggers on that data (since external APIs are often slow or limited in filtering).
-:::
+## 3. Data Loader (ETL)
+Standard protocol for Bulk Import/Export.
+*   **Format:** CSV, JSONL.
+*   **Mode:** Insert, Update, Upsert (match by External ID).

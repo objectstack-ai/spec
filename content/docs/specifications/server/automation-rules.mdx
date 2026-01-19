@@ -1,164 +1,31 @@
 ---
 title: Automation Rules
-description: The Protocol for Server-Side Logic. Database Triggers, Scheduled Jobs, and No-Code Automation Flows.
+description: The Protocol for Lightweight, Event-Driven Logic.
 ---
 
+Automation Rules differ from Workflows in that they are typically strictly **Event-Driven** and stateless.
 
-While Workflows guide a record through a lifecycle, **Automation Rules** handle the immediate logic and side effects of data changes.
-
-ObjectOS divides automation into three categories:
-1.  **Triggers (Code):** High-performance, synchronous TypeScript hooks for data integrity.
-2.  **Flows (Low-Code):** Declarative, asynchronous event chains (IFTTT style).
-3.  **Scheduled Jobs:** Time-based execution (CRON).
-
-## 1. Database Triggers (Synchronous Logic)
-
-Triggers are the "Reflexes" of the system. They intercept database operations **before** or **after** they happen. They execute within the same database transaction as the mutation.
-
-### Trigger Definition
-
-Triggers are defined in TypeScript files next to your Object definitions.
+## 1. Triggers (Code)
+Server-side scripts (TypeScript/Python) that run in the transaction transaction.
 
 ```typescript
-// triggers/order.trigger.ts
-import { Trigger } from '@objectos/types';
-
-export const validateDiscount: Trigger = {
-  name: 'validate_order_discount',
-  object: 'order',
-  on: ['create', 'update'],
-  when: 'before', // Runs before writing to DB
-  
-  handler: async ({ doc, previousDoc, session, broker }) => {
-    // 1. Logic: Discount cannot exceed 20% unless authorized
-    if (doc.discount > 0.20 && !session.hasRole('manager')) {
-      throw new Error("Discounts > 20% require Manager approval.");
+// project.trigger.ts
+export const beforeInsert = async (ctx) => {
+    if (ctx.doc.amount > 10000) {
+        ctx.doc.status = 'High Value';
     }
-
-    // 2. Logic: Auto-calculate final price
-    doc.final_price = doc.list_price * (1 - doc.discount);
-  }
 }
-
 ```
 
-### Key Capabilities
+## 2. Validation Rules (No-Code)
+Boolean expressions that block a save if they return `true`.
+Defined in the Object Schema (`validation` property).
 
-* **Validation:** Throwing an error aborts the entire transaction.
-* **Computation:** Modifying `doc` directly updates the data being saved.
-* **Snapshot Access:** You have access to `doc` (new state) and `previousDoc` (old state) to detect changes (e.g., `if (doc.status !== previousDoc.status)`).
+## 3. Auto-Response Rules
+Logic for sending immediate email replies (e.g., "Thanks for your Ticket").
 
-## 2. Automation Flows (Declarative Logic)
+## 4. Assignment Rules
+Logic for changing the `owner` of a record (e.g., "Round Robin" assignment for Leads).
 
-For logic that doesn't require hard coding, ObjectOS supports **Automation Flows**. These are defined in YAML (or built via a Visual Builder) and run **asynchronously** after the transaction commits.
-
-### The Flow Protocol
-
-```yaml
-# automations/notify_high_value_deal.yaml
-name: notify_high_value_deal
-label: Notify VP on Big Deals
-trigger:
-  type: data.changed
-  object: deal
-  condition: "doc.amount > 1000000 && doc.stage == 'closed_won'"
-
-actions:
-  - type: notification.send
-    params:
-      recipient: "role:vp_sales"
-      subject: "Big Win: ${doc.name}"
-      message: "Deal closed for ${formatCurrency(doc.amount)}!"
-
-  - type: record.create
-    params:
-      object: "audit_log"
-      data:
-        event: "big_deal_alert"
-        deal_id: "${doc._id}"
-
-```
-
-### Flow Components
-
-* **Trigger:** What starts the flow? (`data.changed`, `user.login`, `webhook.received`).
-* **Condition:** A logical expression (Expression Language) that must be true.
-* **Actions:** A sequential list of tasks (Send Email, Call API, Create Record).
-
-## 3. Scheduled Jobs (CRON)
-
-Enterprise systems need to do things when no one is watching. ObjectOS includes a distributed **Job Scheduler**.
-
-### Protocol Definition
-
-```yaml
-# jobs/monthly_invoicing.job.yml
-name: generate_monthly_invoices
-cron: "0 0 1 * *" # Run at midnight on the 1st of every month
-timeout: 3600 # 1 hour max
-retries: 3
-
-task:
-  action: "finance.batch_generate_invoices"
-  params:
-    period: "last_month"
-
-```
-
-* **Distributed:** In a cluster, the OS ensures the job runs on only **one** node (via Redis locks).
-* **Resilient:** Failed jobs are automatically retried based on the policy.
-
-## 4. Server-Side Scripting API
-
-Whether writing Triggers or Custom Actions, you interact with the ObjectOS Kernel via the standard **Broker API**. This ensures your code is safe and upgrade-proof.
-
-### The Broker Object
-
-The `broker` is your gateway to the rest of the OS.
-
-```typescript
-// Inside a Trigger or Service
-async function handler({ broker, session }) {
-  
-  // 1. Data Access (Respects Permissions)
-  const user = await broker.call('data.find', { 
-    object: 'user', 
-    id: 'u1' 
-  }, { session });
-
-  // 2. Cross-Service Calls
-  await broker.call('mail.send', { ... });
-
-  // 3. Emit Custom Events
-  broker.emit('custom.event', { foo: 'bar' });
-}
-
-```
-
-### The "Sudo" Mode
-
-Sometimes you need to bypass permissions (e.g., a system background job).
-
-```typescript
-// Create a System Session (Super Admin)
-const sudoSession = session.sudo();
-
-await broker.call('data.update', { ... }, { session: sudoSession });
-
-```
-
-## 5. Comparison: Trigger vs. Flow vs. Workflow
-
-| Feature | Database Trigger | Automation Flow | Workflow (BPM) |
-| --- | --- | --- | --- |
-| **Protocol** | TypeScript | YAML / JSON | YAML / BPMN |
-| **Timing** | Synchronous (Blocking) | Asynchronous (Background) | Long-Running (Days/Weeks) |
-| **Transactional** | Yes (Can Rollback) | No (Committed) | No |
-| **Use Case** | Data Integrity, Calculations | Notifications, Sync | Approvals, Lifecycle |
-| **Complexity** | High (Code) | Low (Config) | Medium (State Machine) |
-
-:::tip Best Practice
-Always prefer **Triggers** for data integrity (e.g., "Price cannot be negative").
-Always prefer **Workflows** for human processes (e.g., "Manager must approve").
-Use **Flows** for everything in between (e.g., "Send email on update").
-:::
+## 5. Escalation Rules
+Logic for time-based updates (e.g., "If Case not solved in 4h, notify Manager").

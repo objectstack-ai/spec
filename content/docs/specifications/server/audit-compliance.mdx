@@ -1,151 +1,23 @@
 ---
 title: Audit & Compliance
-description: The Protocol for Accountability. Field History Tracking, System Audit Trails, and Data Retention Policies.
+description: The Protocol for Accountability and Forensic Logging.
 ---
 
+For enterprise software, "Who did what and when" is non-negotiable.
 
-In the enterprise world, "Who changed this?" is the most expensive question to leave unanswered.
+## 1. Field History Tracking
+Configured per-field in the Object Schema.
+*   **Track Old/New:** Records the previous and new value.
+*   **Retention:** Definitions for how long to keep history (e.g., "10 Years").
 
-ObjectOS treats **Auditability** as a first-class citizen. Unlike frameworks where you have to manually write logs in your controllers, ObjectOS implements **Kernel-Level Auditing**. If a mutation passes through the ObjectOS engine, it *will* be logged, regardless of whether it came from the UI, the API, or a background job.
+## 2. Setup Audit Trail
+Logs all changes to **Metadata** (Schema).
+*   "User A changed the validation rule on Project."
+*   "User B deleted the 'Salary' field."
 
-## 1. Data History Tracking (Field-Level)
+## 3. Login History
+Logs every authentication attempt.
+*   **Context:** IP Address, Browser, Location, Status (Success/Fail).
 
-This mechanism tracks value changes within business records. It answers: *"Did the Deal Amount change from $10k to $5k, and who did it?"*
-
-### Configuration (Declarative)
-You do not need to write code to enable this. You simply flag the object or specific fields in the Schema.
-
-```yaml
-# objects/deal.object.yml
-name: deal
-label: Sales Deal
-enable_audit: true # Master switch
-
-fields:
-  name:
-    type: text
-  
-  amount:
-    type: currency
-    track_history: true # Track changes to this specific field
-    
-  stage:
-    type: select
-    track_history: true
-    
-  description:
-    type: textarea
-    track_history: false # Do not track large text blobs (save space)
-
-```
-
-### The History Protocol
-
-When a transaction commits, the Audit Engine calculates the **Delta** and writes to the `object_history` storage.
-
-```json
-{
-  "event_id": "evt_001",
-  "timestamp": "2026-01-20T10:00:00Z",
-  "actor": "user_123",
-  "ip_address": "192.168.1.1",
-  "object": "deal",
-  "record_id": "deal_abc",
-  "changes": [
-    {
-      "field": "amount",
-      "old_value": 10000,
-      "new_value": 5000
-    },
-    {
-      "field": "stage",
-      "old_value": "negotiation",
-      "new_value": "closed_won"
-    }
-  ]
-}
-
-```
-
-## 2. Setup Audit Trail (Metadata-Level)
-
-Beyond data, you must track changes to the **System Configuration**. This prevents "Shadow IT" modifications where an admin silently lowers security settings.
-
-ObjectOS automatically logs operations on:
-
-* **Schema:** Creating/Deleting Objects or Fields.
-* **Security:** Changing Permission Sets or Sharing Rules.
-* **Logic:** Modifying Workflows or Triggers.
-* **Users:** Password resets, Role assignments.
-
-### Example Log Entry
-
-> **User:** Alice (Admin)
-> **Action:** Permission Profile Update
-> **Target:** Sales Rep Profile
-> **Change:** `lead.export_permission` changed from `false` to `true`.
-
-## 3. Login & Access Logs
-
-For security compliance, access events are tracked separately.
-
-* **Login Success/Failure:** Tracks Timestamp, User, IP, User-Agent, and Auth Method (Password vs. SSO).
-* **API Access:** (Optional) Can be configured to log every API call for high-security environments (Warning: High Volume).
-
-## 4. Storage & Retention Policies
-
-Audit logs grow rapidly. ObjectOS provides a **Retention Protocol** to manage lifecycle cost-effectively.
-
-### Architecture
-
-Audit data is **never** stored in the same table as the transactional data.
-
-* **Hot Storage (Last 30 days):** Stored in the primary SQL DB for instant UI access.
-* **Cold Storage (Archive):** Offloaded to low-cost object storage (S3/Parquet) or a dedicated Log Service (Elasticsearch/Splunk).
-
-### Policy Configuration
-
-```yaml
-# config/audit_retention.yml
-policies:
-  - object: deal
-    retention_period: 3650 # 10 Years (Financial Regulation)
-    archive_after: 90 # Move to Cold Storage after 90 days
-    
-  - object: task
-    retention_period: 180 # 6 Months
-    purge_after: 180 # Hard delete
-
-```
-
-## 5. Compliance Features (GDPR/HIPAA)
-
-### The "Right to be Forgotten" (GDPR)
-
-When a user requests deletion, ObjectOS provides a `System.anonymize` utility.
-
-* It scrubs PII (Personally Identifiable Information) from the `users` table.
-* **Critical:** It does *not* delete the Audit Log rows (for legal integrity), but it masks the `actor` ID or replaces the name with "Anonymized User", ensuring historical integrity while respecting privacy.
-
-### Immutability
-
-The Audit Engine is designed to be **Append-Only**.
-
-* The API does not expose `UPDATE` or `DELETE` endpoints for the `audit_log` object.
-* Even System Admins cannot delete audit trails via the standard UI/API (requires direct database access, leaving its own trace).
-
-## 6. Snapshotting (Time Travel)
-
-For advanced scenarios, ObjectOS supports **Full Document Snapshotting**. Instead of storing diffs, it stores the entire JSON version of the record at every save.
-
-* **Use Case:** Legal Contracts or Medical Records where you need to "View Record exactly as it looked on Jan 1st, 2024".
-* **Config:** `enable_versioning: true`.
-
-## Summary
-
-ObjectOS Audit Protocol ensures that your application is "Enterprise Ready" out of the box.
-
-1. **Zero Code:** Just add `track_history: true`.
-2. **Granular:** Tracks specific fields, not just "Modified Date".
-3. **Governance:** Tracks the Admins (Setup Audit Trail).
-4. **Lifecycle:** Automates archiving and purging to manage database growth.
+## 4. System Log
+Debug logs for developers (Triggers, Flows).

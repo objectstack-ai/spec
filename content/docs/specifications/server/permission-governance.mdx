@@ -1,179 +1,36 @@
 ---
-title: Permission & Governance
-description: The Three-Layer Security Model. RBAC, Field-Level Security, and Record-Level Sharing Rules.
-sidebar_position: 3
-slug: /objectos/permission-governance
+title: Permission Governance
+description: The specification for the 3-Layer Security Model.
 ---
 
+ObjectStack enforces a strict security model that cannot be bypassed by client-side code.
 
-In ObjectStack, security is not implemented in API Controllers or UI logic. It is **Injected by the Kernel**.
+## 1. Profiles & Permission Sets (Functional Access)
+Controls *what* a user can do.
 
-When a developer writes a query `db.find('contract')`, they do not need to worry about *who* is running it. The ObjectOS Kernel automatically intercepts the request, analyzes the user's session, and rewrites the query to ensure they only see what they are allowed to see.
+### Permission Set
+A collection of booleans and grants.
+*   **Object Permissions:** `allow_read`, `allow_create`, `allow_edit`, `allow_delete`, `view_all`, `modify_all`.
+*   **Field Permissions:** `read`, `edit` (per field).
+*   **System Permissions:** `export_data`, `manage_users`.
 
-We call this the **Three-Layer Security Model**.
+### Profile
+A user can only have **one** Profile (Base), but multiple Permission Sets (Extensions).
 
+## 2. Organization-Wide Defaults (OWD)
+Controls the *baseline* visibility of data.
+*   **Private:** Users can only see records they own.
+*   **Public Read Only:** Users can see everything, but only edit their own.
+*   **Public Read/Write:** Open access.
 
+## 3. Sharing Rules (Record Access)
+Opens up access to specific subsets of data beyond the OWD.
 
-## Layer 1: Object-Level Security (RBAC)
-**"Can I enter the room?"**
+### Criteria-Based Sharing
+"Share all `Deals` where `Amount > 1M` with the `VP_Finance` role."
 
-This is the foundational Role-Based Access Control. It determines if a user can perform generic CRUD operations on an Object type.
+### Manual Sharing
+Ad-hoc sharing of a single record (e.g., "Add John to the Sales Team for this deal").
 
-### Profile Definition
-Permissions are bundled into **Profiles** or **Permission Sets**.
-
-```yaml
-# permissions/profiles/sales_rep.profile.yml
-name: sales_rep
-label: Sales Representative
-license: standard
-
-permissions:
-  - object: lead
-    allow_create: true
-    allow_read: true
-    allow_edit: true
-    allow_delete: false  # Reps cannot delete leads
-    allow_view_all: false # Can only see their own (see Layer 3)
-    allow_modify_all: false
-
-  - object: product
-    allow_read: true
-    allow_create: false  # Read-only
-
-```
-
-* **`allow_view_all`**: The "God Mode" flag. If true, ignores Sharing Rules (Layer 3).
-* **`allow_modify_all`**: Can edit/delete any record regardless of ownership.
-
-## Layer 2: Field-Level Security (FLS)
-
-**"Can I see the contents of this folder?"**
-
-Even if you have access to the `Employee` object, you might not have permission to see the `Salary` column.
-
-### FLS Protocol
-
-FLS is defined alongside object permissions. It controls visibility (`read`) and mutability (`edit`).
-
-```yaml
-# permissions/profiles/sales_rep.profile.yml (continued)
-field_permissions:
-  # Object: lead
-  lead.revenue:
-    read: true
-    edit: true
-  
-  # Object: employee
-  employee.salary:
-    read: false # The compiler physically removes this column from SELECT
-    edit: false
-
-```
-
-### Compiler Behavior
-
-If a user tries to query a forbidden field:
-
-1. **Strict Mode:** The API throws a `403 Forbidden` error.
-2. **Lenient Mode (Default):** The field is silently removed from the return payload (returning `undefined`), ensuring the UI doesn't crash but data remains secure.
-
-## Layer 3: Record-Level Security (Sharing)
-
-**"Which specific files can I open?"**
-
-This is the most complex and powerful layer. It answers: *"Why can Alice see Deal A but not Deal B?"*
-
-ObjectOS determines record visibility based on four mechanisms, evaluated in order:
-
-### 1. Organization-Wide Defaults (OWD)
-
-The baseline policy for the object.
-
-* **Public Read/Write:** Everyone can see and edit everything.
-* **Public Read Only:** Everyone can see, but only owners can edit.
-* **Private:** Users can only see records they own (or are granted access to).
-
-### 2. Ownership
-
-Every record has an `owner` field (User ID).
-
-* The **Owner** always has Full Access (Read/Edit/Delete/Transfer) to their records.
-
-### 3. Role Hierarchy
-
-ObjectOS supports a hierarchical tree (e.g., CEO > VP > Manager > Rep).
-
-* **Rule:** A manager inherits access to data owned by their subordinates.
-* If a Rep owns a Deal, their Manager can see it automatically.
-
-### 4. Sharing Rules (Criteria-Based)
-
-Exceptions to the hierarchy. Used to share data laterally or based on logic.
-
-```yaml
-# permissions/sharing/deal_high_value.sharing.yml
-name: share_high_value_deals
-object: deal
-type: criteria
-condition: "amount > 1000000" # If deal is over $1M
-
-access_level: read_only
-
-shared_with: 
-  role: "vp_finance" # Share with Finance VP even if they are in a different branch
-
-```
-
-## The Query Injection Mechanism
-
-How does this work efficiently? ObjectOS does **not** filter data in memory (which would be slow). It uses **Predicate Injection**.
-
-**Scenario:**
-User "Alice" (Role: Rep, ID: `u1`) queries `SELECT * FROM lead`.
-The `lead` object is **Private**.
-
-**Step 1: Kernel Analysis**
-
-* Alice has `allow_read: true` on `lead`. (Layer 1: Pass)
-* Alice requests `salary`, but `FLS: false`. Field removed. (Layer 2: Adjusted)
-* Alice is in the "Western Sales" role.
-
-**Step 2: Predicate Generation**
-The Security Engine generates a SQL `WHERE` clause:
-
-```sql
-(
-  -- Ownership
-  t1.owner = 'u1' 
-  OR 
-  -- Hierarchy (Alice's subordinates)
-  t1.owner IN ('u2', 'u3')
-  OR
-  -- Sharing Rules (Shared with Alice's group)
-  t1.id IN (SELECT record_id FROM objectos_shares WHERE user_or_group_id = 'group_western')
-)
-
-```
-
-**Step 3: Final Execution**
-The modified AST is sent to the Database Driver.
-
-## Sharing Computation
-
-For performance, complex sharing rules (like Group Membership and Sharing Criteria) are often pre-calculated into a **Share Table** (`objectos_shares`).
-
-* **Async Calculation:** When a User's Role changes or a Deal's Amount changes, a background job recalculates the `objectos_shares` entries.
-* **Instant Read:** The query simple joins the Share Table, keeping read latency low.
-
-## Summary: The Security Matrix
-
-| Layer | Controls | Configured via | Enforcement |
-| --- | --- | --- | --- |
-| **Object (RBAC)** | CRUD Operations | Profile (YAML) | API Gateway |
-| **Field (FLS)** | Column Visibility | Profile (YAML) | Query Compiler (AST) |
-| **Record (Sharing)** | Row Visibility | OWD / Rules / Hierarchy | SQL Injection (WHERE) |
-
-:::tip Developer Note
-When writing server-side code (Triggers/API), you usually run with the **User Session**. The security rules are applied automatically. If you need to access all data (e.g., for a background calculation), explicitly use `session.sudo()` or `sudo: true` to bypass Layer 3 checks.
-:::
+## 4. Territory Management
+A complex sharing model based on geometric or matrix hierarchies (e.g., "North America Sales" vs "Enterprise Sales").
