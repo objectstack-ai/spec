@@ -15,7 +15,7 @@ export const FieldType = z.enum([
   // Logic
   'boolean',
   // Selection
-  'select', 'multiselect', // Static options
+  'select', // Static options
   // Relational
   'lookup', 'master_detail', // Dynamic reference to other objects
   // Media
@@ -152,35 +152,7 @@ export const Field = {
     
     return { type: 'select', options, ...finalConfig } as const;
   },
-  
-  /**
-   * Multiselect field helper with backward-compatible API
-   * 
-   * @example Old API (array first)
-   * Field.multiselect(['Tag1', 'Tag2'], { label: 'Tags' })
-   * 
-   * @example New API (config object)
-   * Field.multiselect({ options: [{label: 'Tag 1', value: 'tag1'}], label: 'Tags' })
-   */
-  multiselect: (optionsOrConfig: SelectOption[] | string[] | FieldInput & { options: SelectOption[] | string[] }, config?: FieldInput) => {
-    // Support both old and new signatures
-    let options: SelectOption[];
-    let finalConfig: FieldInput;
-    
-    if (Array.isArray(optionsOrConfig)) {
-      // Old signature: array as first param
-      options = optionsOrConfig.map(o => typeof o === 'string' ? { label: o, value: o } : o);
-      finalConfig = config || {};
-    } else {
-      // New signature: config object with options
-      options = (optionsOrConfig.options || []).map(o => typeof o === 'string' ? { label: o, value: o } : o);
-      // Remove options from config to avoid confusion
-      const { options: _, ...restConfig } = optionsOrConfig;
-      finalConfig = restConfig;
-    }
-    
-    return { type: 'multiselect', options, ...finalConfig } as const;
-  },
+
   
   lookup: (reference: string, config: FieldInput = {}) => ({ 
     type: 'lookup', 

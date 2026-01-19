@@ -89,7 +89,7 @@ export const Opportunity = ObjectSchema.create({
     }),
     
     // Competitor Analysis
-    competitors: Field.multiselect(['Competitor A', 'Competitor B', 'Competitor C'], {
+    competitors: Field.select(['Competitor A', 'Competitor B', 'Competitor C'], {
       label: 'Competitors',
       multiple: true,
     }),

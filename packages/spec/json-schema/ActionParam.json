@@ -29,7 +29,6 @@
             "time",
             "boolean",
             "select",
-            "multiselect",
             "lookup",
             "master_detail",
             "image",

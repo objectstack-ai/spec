@@ -15,7 +15,7 @@ describe('FieldType', () => {
       'number', 'currency', 'percent',
       'date', 'datetime', 'time',
       'boolean',
-      'select', 'multiselect',
+      'select',
       'lookup', 'master_detail',
       'image', 'file', 'avatar',
       'formula', 'summary', 'autonumber'
@@ -148,20 +148,6 @@ describe('FieldSchema', () => {
 
       expect(() => FieldSchema.parse(selectField)).not.toThrow();
     });
-
-    it('should accept multiselect field', () => {
-      const multiselectField: Field = {
-        name: 'tags',
-        label: 'Tags',
-        type: 'multiselect',
-        multiple: true,
-        options: [
-          { label: 'Important', value: 'important' },
-          { label: 'Urgent', value: 'urgent' },
-        ],
-      };
-
-      expect(() => FieldSchema.parse(multiselectField)).not.toThrow();
     });
   });
 
@@ -372,30 +358,6 @@ describe('Field Factory Helpers', () => {
       expect(selectField.options[0]).toEqual({ label: 'Active', value: 'active', color: '#00AA00' });
       expect(selectField.options[1]).toEqual({ label: 'Inactive', value: 'Inactive' });
       expect(selectField.options[2]).toEqual({ label: 'Pending', value: 'Pending' });
-    });
-  });
-
-  describe('Multiselect Field Factory', () => {
-    it('should create multiselect field with string array (old API)', () => {
-      const multiselectField = Field.multiselect(['Tag1', 'Tag2', 'Tag3'], { label: 'Tags' });
-      
-      expect(multiselectField.type).toBe('multiselect');
-      expect(multiselectField.label).toBe('Tags');
-      expect(multiselectField.options).toHaveLength(3);
-    });
-
-    it('should create multiselect field with SelectOption array (new API)', () => {
-      const multiselectField = Field.multiselect({
-        label: 'Categories',
-        options: [
-          { label: 'Technology', value: 'tech' },
-          { label: 'Business', value: 'biz' },
-        ],
-      });
-      
-      expect(multiselectField.type).toBe('multiselect');
-      expect(multiselectField.options).toHaveLength(2);
-      expect(multiselectField.options[0].value).toBe('tech');
     });
   });
 
