@@ -1,0 +1,15 @@
+{
+  "name": "@objectstack/example-todo",
+  "version": "1.0.0",
+  "description": "Example Todo App using ObjectStack Protocol",
+  "private": true,
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@objectstack/spec": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

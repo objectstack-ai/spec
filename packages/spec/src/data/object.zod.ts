@@ -35,9 +35,9 @@ export const IndexSchema = z.object({
 });
 
 /**
- * Object Schema - Enterprise Data Model
+ * Base Object Schema Definition
  */
-export const ObjectSchema = z.object({
+const ObjectSchemaBase = z.object({
   /** Identify */
   name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Machine name (snake_case)'),
   label: z.string().optional().describe('Singular Label (e.g. "Account")'),
@@ -63,4 +63,11 @@ export const ObjectSchema = z.object({
   enable: ObjectCapabilities.optional().describe('Enabled system capabilities'),
 });
 
-export type ServiceObject = z.infer<typeof ObjectSchema>;
+/**
+ * Enhanced ObjectSchema with Factory
+ */
+export const ObjectSchema = Object.assign(ObjectSchemaBase, {
+  create: <T extends z.input<typeof ObjectSchemaBase>>(config: T) => config,
+});
+
+export type ServiceObject = z.infer<typeof ObjectSchemaBase>;

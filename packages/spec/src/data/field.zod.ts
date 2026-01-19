@@ -41,13 +41,15 @@ export const SelectOptionSchema = z.object({
  */
 export const FieldSchema = z.object({
   /** Identity */
-  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Machine name (snake_case)'),
-  label: z.string().describe('Human readable label'),
+  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Machine name (snake_case)').optional(),
+  label: z.string().optional().describe('Human readable label'),
   type: FieldType.describe('Field Data Type'),
   description: z.string().optional().describe('Tooltip/Help text'),
+  format: z.string().optional().describe('Format string (e.g. email, phone)'),
 
   /** Database Constraints */
   required: z.boolean().default(false).describe('Is required'),
+  searchable: z.boolean().default(false).describe('Is searchable'),
   multiple: z.boolean().default(false).describe('Allow multiple values (Stores as Array/JSON). Applicable for select, lookup, file, image.'),
   unique: z.boolean().default(false).describe('Is unique constraint'),
   defaultValue: z.any().optional().describe('Default value'),
@@ -72,8 +74,8 @@ export const FieldSchema = z.object({
   deleteBehavior: z.enum(['set_null', 'cascade', 'restrict']).optional().default('set_null').describe('What happens if referenced record is deleted'),
 
   /** Calculation */
-  expression: z.string().optional().describe('Formula expression'), // Changed from formula to expression to match common usage, but keeping one consistent is key. Let's use expression as generic.
-  formula: z.string().optional().describe('Deprecated: Use expression'), // Backwards compat or just keep.
+  expression: z.string().optional().describe('Formula expression'),
+  formula: z.string().optional().describe('Deprecated: Use expression'),
   summaryOperations: z.object({
     object: z.string(),
     field: z.string(),
@@ -92,3 +94,54 @@ export const FieldSchema = z.object({
 
 export type Field = z.infer<typeof FieldSchema>;
 export type SelectOption = z.infer<typeof SelectOptionSchema>;
+
+/**
+ * Field Factory Helper
+ */
+export type FieldInput = Omit<Partial<Field>, 'type'>;
+
+export const Field = {
+  text: (config: FieldInput = {}) => ({ type: 'text', ...config } as const),
+  textarea: (config: FieldInput = {}) => ({ type: 'textarea', ...config } as const),
+  number: (config: FieldInput = {}) => ({ type: 'number', ...config } as const),
+  boolean: (config: FieldInput = {}) => ({ type: 'boolean', ...config } as const),
+  date: (config: FieldInput = {}) => ({ type: 'date', ...config } as const),
+  datetime: (config: FieldInput = {}) => ({ type: 'datetime', ...config } as const),
+  currency: (config: FieldInput = {}) => ({ type: 'currency', ...config } as const),
+  percent: (config: FieldInput = {}) => ({ type: 'percent', ...config } as const),
+  url: (config: FieldInput = {}) => ({ type: 'url', ...config } as const),
+  email: (config: FieldInput = {}) => ({ type: 'email', ...config } as const),
+  image: (config: FieldInput = {}) => ({ type: 'image', ...config } as const),
+  file: (config: FieldInput = {}) => ({ type: 'file', ...config } as const),
+  avatar: (config: FieldInput = {}) => ({ type: 'avatar', ...config } as const),
+  formula: (config: FieldInput = {}) => ({ type: 'formula', ...config } as const),
+  summary: (config: FieldInput = {}) => ({ type: 'summary', ...config } as const),
+  autonumber: (config: FieldInput = {}) => ({ type: 'autonumber', ...config } as const),
+  markdown: (config: FieldInput = {}) => ({ type: 'markdown', ...config } as const),
+  html: (config: FieldInput = {}) => ({ type: 'html', ...config } as const),
+  password: (config: FieldInput = {}) => ({ type: 'password', ...config } as const),
+  
+  select: (options: string[], config: FieldInput = {}) => ({ 
+    type: 'select', 
+    options: options.map(o => ({ label: o, value: o })), 
+    ...config 
+  } as const),
+  
+  multiselect: (options: string[], config: FieldInput = {}) => ({ 
+    type: 'multiselect', 
+    options: options.map(o => ({ label: o, value: o })), 
+    ...config 
+  } as const),
+  
+  lookup: (reference: string, config: FieldInput = {}) => ({ 
+    type: 'lookup', 
+    reference, 
+    ...config 
+  } as const),
+  
+  master_detail: (reference: string, config: FieldInput = {}) => ({ 
+    type: 'master_detail', 
+    reference, 
+    ...config 
+  } as const),
+};

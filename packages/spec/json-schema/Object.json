@@ -88,10 +88,19 @@
                 "type": "string",
                 "description": "Tooltip/Help text"
               },
+              "format": {
+                "type": "string",
+                "description": "Format string (e.g. email, phone)"
+              },
               "required": {
                 "type": "boolean",
                 "default": false,
                 "description": "Is required"
+              },
+              "searchable": {
+                "type": "boolean",
+                "default": false,
+                "description": "Is searchable"
               },
               "multiple": {
                 "type": "boolean",
@@ -248,8 +257,6 @@
               }
             },
             "required": [
-              "name",
-              "label",
               "type"
             ],
             "additionalProperties": false

@@ -83,6 +83,26 @@ importers:
         specifier: 4.3.5
         version: 4.3.5
 
+  examples/crm:
+    dependencies:
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../../packages/spec
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
+  examples/todo:
+    dependencies:
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../../packages/spec
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
   packages/spec:
     dependencies:
       zod:
