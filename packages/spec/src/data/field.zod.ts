@@ -145,10 +145,12 @@ export const Field = {
     } else {
       // New signature: config object with options
       options = (optionsOrConfig.options || []).map(o => typeof o === 'string' ? { label: o, value: o } : o);
-      finalConfig = optionsOrConfig;
+      // Remove options from config to avoid confusion
+      const { options: _, ...restConfig } = optionsOrConfig;
+      finalConfig = restConfig;
     }
     
-    return { type: 'select', ...finalConfig, options } as const;
+    return { type: 'select', options, ...finalConfig } as const;
   },
   
   /**
@@ -172,10 +174,12 @@ export const Field = {
     } else {
       // New signature: config object with options
       options = (optionsOrConfig.options || []).map(o => typeof o === 'string' ? { label: o, value: o } : o);
-      finalConfig = optionsOrConfig;
+      // Remove options from config to avoid confusion
+      const { options: _, ...restConfig } = optionsOrConfig;
+      finalConfig = restConfig;
     }
     
-    return { type: 'multiselect', ...finalConfig, options } as const;
+    return { type: 'multiselect', options, ...finalConfig } as const;
   },
   
   lookup: (reference: string, config: FieldInput = {}) => ({ 
