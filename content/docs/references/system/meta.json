@@ -1,3 +1,12 @@
 {
-  "title": "System Protocol"
+  "title": "System Protocol",
+  "root": true,
+  "pages": [
+    "config",
+    "identity",
+    "integration",
+    "geo",
+    "i18n",
+    "audit"
+  ]
 }
