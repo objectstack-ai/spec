@@ -24,7 +24,7 @@ export const ObjectCapabilities = z.object({
     'get', 'list', 
     'create', 'update', 'delete', 
     'upsert',
-    'bulk_create', 'bulk_update', 'bulk_delete', 'bulk_upsert',
+    'bulkCreate', 'bulkUpdate', 'bulkDelete', 'bulkUpsert',
     'aggregate',  // count, sum, group by
     'history',    // audit trail access
     'search',     // full text search
