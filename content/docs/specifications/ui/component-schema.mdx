@@ -1,218 +1,34 @@
 ---
-title: Basic Components
-description: "The JSON Schema specification for atomic form elements: Input, Select, and DatePicker."
+title: Component Schema
+description: The Standard Component Library definitions embedded in ObjectUI.
 ---
 
+The Component Schema defines the available "Lego Blocks" that can be used to construct a page.
 
-In ObjectUI, every form element is a **Leaf Node** in the render tree. These nodes map directly to **Shadcn UI** primitives, ensuring accessibility and a modern aesthetic.
+## 1. Field Components
+These render individual data points.
+*   `input`: Text inputs.
+*   `textarea`: Multi-line text.
+*   `select`: Dropdowns.
+*   `lookup`: Modal search or combobox.
+*   `boolean`: Checkboxes or toggles.
 
-Unlike traditional React development where you write `<Input value={val} onChange={setVal} />`, in ObjectUI you define the **Structure** and the **Data Binding**, and the Engine handles the state management.
+## 2. Container Components
+These organize layout.
+*   `section`: Collapsible accordion.
+*   `tabs`: Tabbed interface.
+*   `card`: Box with header and footer.
+*   `grid`: Columnar layout system.
 
-## 1. The Universal Contract
+## 3. Data Components
+These render collections of data.
+*   `list_view`: Standard data table.
+*   `kanban`: Drag-and-drop board.
+*   `calendar`: Event view.
+*   `chart`: Visualizations.
 
-All form components (Inputs, Selects, Checkboxes) inherit from a base `FieldComponent` interface.
-
-### Base Properties
-
-| Property | Type | Description |
-| :--- | :--- | :--- |
-| `type` | `string` | The component identifier (e.g., `input.text`). |
-| `bind` | `string` | **Critical.** The path to the data field (e.g., `order.customer_name`). The engine uses this for two-way binding. |
-| `label` | `string` | The text label displayed above the input. |
-| `description` | `string` | Helper text displayed below the input (muted color). |
-| `placeholder` | `string` | Placeholder text. |
-| `disabled` | `boolean` | Static disabled state (or use dynamic expressions). |
-| `className` | `string` | **Tailwind** classes for overriding styles (e.g., `w-1/2 bg-gray-50`). |
-
----
-
-## 2. Text Input (`input.text`)
-
-The workhorse of any form. It handles string, number, and password inputs.
-
-### Schema Definition
-
-```json
-{
-  "type": "input.text",
-  "bind": "contact.email",
-  "props": {
-    "label": "Email Address",
-    "placeholder": "john@example.com",
-    "inputType": "email",  // text, password, email, url, tel
-    "autoFocus": true,
-    "startIcon": "mail"    // Lucide Icon Name
-  }
-}
-
-```
-
-### Shadcn Mapping
-
-* Renders a `<Label>` component.
-* Renders an `<Input>` component wrapped in a formatting div.
-* Renders a generic `<p className="text-destructive">` if validation errors exist in the context.
-
----
-
-## 3. Number Input (`input.number`)
-
-While `input.text` can handle numbers, `input.number` provides specific behaviors for numeric data types (Int/Float/Currency).
-
-### Schema Definition
-
-```json
-{
-  "type": "input.number",
-  "bind": "order.quantity",
-  "props": {
-    "label": "Quantity",
-    "min": 1,
-    "max": 100,
-    "step": 1,
-    "showStepper": true // Shows +/- buttons
-  }
-}
-
-```
-
-### Percent & Currency Support
-
-The renderer detects the metadata from **ObjectQL**. If the underlying field is `type: currency`, the component automatically formats the display (e.g., adds `$` prefix) while keeping the raw value as a number.
-
----
-
-## 4. Select (`input.select`)
-
-Handles single-select scenarios. For multi-select or complex relation lookups, see *Advanced Components*.
-
-### Static Options
-
-Options defined explicitly in the JSON.
-
-```json
-{
-  "type": "input.select",
-  "bind": "project.priority",
-  "props": {
-    "label": "Priority",
-    "options": [
-      { "label": "High", "value": "high", "icon": "flame" },
-      { "label": "Medium", "value": "medium" },
-      { "label": "Low", "value": "low" }
-    ]
-  }
-}
-
-```
-
-### Dynamic Options (Expression)
-
-Options derived from the current data context or global config.
-
-```json
-{
-  "type": "input.select",
-  "bind": "user.department",
-  "props": {
-    "label": "Department",
-    "options_expression": "root.settings.available_departments"
-  }
-}
-
-```
-
----
-
-## 5. Date Picker (`input.date`)
-
-Handles Dates (`YYYY-MM-DD`) and Datetimes (`ISO 8601`).
-
-### Schema Definition
-
-```json
-{
-  "type": "input.date",
-  "bind": "task.due_date",
-  "props": {
-    "label": "Due Date",
-    "mode": "single",      // single, range
-    "withTime": false,     // if true, shows time selector
-    "disablePast": true
-  }
-}
-
-```
-
-### Shadcn Mapping
-
-* Renders a `<Popover>` containing the `<Calendar>` component.
-* The raw value is always normalized to UTC string (`2023-10-01T00:00:00Z`) before saving.
-
----
-
-## 6. Switch & Checkbox (`input.boolean`)
-
-For boolean values.
-
-```json
-{
-  "type": "input.switch", // or "input.checkbox"
-  "bind": "user.is_active",
-  "props": {
-    "label": "Active User",
-    "description": "If disabled, user cannot log in."
-  }
-}
-
-```
-
----
-
-## 7. Handling Validation
-
-One of the biggest benefits of ObjectUI is **Unified Validation**. You do not write validation logic in the JSON schema for basic constraints.
-
-1. **Source:** The validation rules come from **ObjectQL** (e.g., `required: true`, `max: 50`).
-2. **Propagation:** When the user hits "Save", the Engine runs validation.
-3. **Display:** If an error returns `{ field: "contact.email", message: "Invalid format" }`, the Engine automatically injects this error state into the `input.text` component bound to `contact.email`.
-
-**You define the UI structure, the Backend defines the Rules.**
-
-## Example: A Complete Form
-
-Here is how these atoms come together in a layout:
-
-```json
-{
-  "type": "layout.stack",
-  "props": { "gap": 4 },
-  "children": [
-    { 
-      "type": "input.text", 
-      "bind": "title", 
-      "props": { "label": "Task Title", "required": true } 
-    },
-    {
-      "type": "layout.grid",
-      "props": { "columns": 2, "gap": 4 },
-      "children": [
-        { 
-          "type": "input.select", 
-          "bind": "priority", 
-          "props": { 
-            "label": "Priority", 
-            "options": [{ "label": "High", "value": "H" }, { "label": "Low", "value": "L" }] 
-          } 
-        },
-        { 
-          "type": "input.date", 
-          "bind": "due_date", 
-          "props": { "label": "Due Date" } 
-        }
-      ]
-    }
-  ]
-}
-
-```
+## 4. Action Components
+These trigger logic.
+*   `button`: Standard click action.
+*   `menu_item`: Dropdown action.
+*   `smart_action`: AI-suggested next step.

@@ -1,0 +1,54 @@
+---
+title: SDUI Protocol
+description: The Server-Driven UI Architecture. How ObjectStack treats "Interface as Data" to deliver infinite customization.
+---
+
+import { LayoutTemplate, Layers, Blocks, Smartphone } from 'lucide-react';
+
+**ObjectUI** is the View Layer specification. It is built on the principle of **Server-Driven UI (SDUI)**.
+
+In a traditional frontend, the layout is hardcoded in React/Vue components (`<CustomerForm />`).
+In ObjectStack, the frontend is a generic **Renderer**. It downloads a JSON layout definition from the server and paints it on the fly.
+
+## The UI Pipeline
+
+### 1. The Layout Request
+The client asks: *"Give me the form for editing Invoice #1024"*.
+```http
+GET /api/v4/ui/layouts/invoice/edit
+```
+
+### 2. The Resolution Engine
+The server provides the layout, merging three layers of customization:
+1.  **Base Protocol:** The default fields defined in `invoice.object.yml`.
+2.  **Admin Config:** Custom sections and fields added via the Page Builder.
+3.  **User Preference:** Column widths and hidden fields personalized by the user.
+
+### 3. The Layout JSON (The Response)
+The server responds with a component tree description, not HTML.
+```json
+{
+  "type": "page",
+  "layout": "two_column",
+  "regions": {
+    "main": [
+      { "type": "field_group", "label": "Basics", "children": ["name", "date"] },
+      { "type": "related_list", "object": "invoice_line", "label": "Line Items" }
+    ],
+    "sidebar": [
+      { "type": "widget", "component": "approval_history" }
+    ]
+  }
+}
+```
+
+### 4. The Renderer (The Client)
+The generic `PageRenderer` component traverses this JSON and instantiates the mapped components (`FieldGroup`, `RelatedList`, `Widget`).
+
+---
+
+## Why SDUI?
+
+1.  **Instant Updates:** Change a field label or move a section in the Schema, and every user (Web, Mobile, External Portal) sees it instantly without an app update.
+2.  **Platform Native:** The same JSON can be rendered as DOM nodes in React, native Views in SwiftUI/Kotlin, or command lines in a TUI.
+3.  **Personalization:** Because the layout is generated per-request, we can hide entire sections based on the user's role or the record's status (e.g., Hide "Approve" button if status is "Draft").

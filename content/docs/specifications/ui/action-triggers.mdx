@@ -1,206 +1,39 @@
 ---
 title: Action Triggers
-description: The client-side interaction protocol. Handling clicks, navigation, and API calls via JSON events.
+description: How user interactions trigger Server-Side logic or Client-Side transitions.
 ---
 
+Actions are the verbs of the system (Save, Submit, Approve).
 
-In ObjectUI, interactivity is defined by **Actions**, not functions.
+## 1. Action Types
 
-Because the UI Definition must be strictly serializable (JSON), we cannot pass JavaScript functions like `onClick={() => alert('Hello')}`. Instead, we declare **Action Objects** that the ObjectUI Runtime Engine interprets and executes.
+### Standard Actions
+Built-in CRUD operations.
+*   `standard_new`
+*   `standard_edit`
+*   `standard_delete`
 
-## 1. The Action Protocol
+### Flow Actions
+Launches a Screen Flow (Wizard).
+*   **Target:** `flow:approval_wizard`
+*   **Input:** Passes current `recordId`.
 
-An Action is a JSON object describing *what* should happen. Events like `onClick` or `onSuccess` accept either a single Action or an **Chain of Actions** (Array).
+### API Actions
+Calls a REST endpoint directly.
+*   **Target:** `api:sync_with_erp`
+*   **Feedback:** Shows toast message on success/failure.
 
-### Basic Structure
+### URL Actions
+Navigates to an external link.
+*   **Target:** `url:https://google.com?q={name}`
 
-```typescript
-interface ActionDef {
-  /** The operation identifier */
-  action: string;
-  
-  /** Arguments for the operation */
-  params?: Record<string, any>;
-  
-  /** Ask for user confirmation before executing */
-  confirm?: {
-    title: string;
-    message: string;
-    variant?: 'danger' | 'info';
-  };
-  
-  /** Condition to execute (Expression) */
-  when?: string;
-}
+## 2. Parameter Mapping
+You can map context data to action parameters.
 
+```yaml
+actions:
+  - name: google_search
+    label: Search on Google
+    type: url
+    url: "https://google.com/search?q={name}"
 ```
-
-### Example: A Delete Button
-
-```json
-{
-  "type": "button",
-  "props": {
-    "label": "Delete Project",
-    "variant": "destructive",
-    "onClick": [
-      {
-        "action": "api.mutation",
-        "confirm": {
-          "title": "Are you sure?",
-          "message": "This action cannot be undone.",
-          "variant": "danger"
-        },
-        "params": {
-          "object": "project",
-          "method": "delete",
-          "id": "${record._id}"
-        }
-      },
-      {
-        "action": "toast.success",
-        "params": { "message": "Project deleted successfully." }
-      },
-      {
-        "action": "navigate",
-        "params": { "url": "/projects" }
-      }
-    ]
-  }
-}
-
-```
-
-## 2. Standard Action Library
-
-The ObjectUI Runtime comes with a built-in standard library of actions. You do not need to write code for these.
-
-### UI & Navigation
-
-| Action | Params | Description |
-| --- | --- | --- |
-| `Maps` | `url`, `target` | Go to a URL or ObjectUI Route. |
-| `toast.success` | `message`, `duration` | Show a green success notification. |
-| `toast.error` | `message` | Show a red error notification. |
-| `modal.open` | `layout`, `title` | Open a JSON Layout in a dialog. |
-| `modal.close` | - | Close the top-most dialog. |
-| `drawer.open` | `layout`, `width` | Open a slide-over panel. |
-| `copy` | `text` | Copy text to clipboard. |
-
-### Data & API
-
-| Action | Params | Description |
-| --- | --- | --- |
-| `api.query` | `query`, `bind` | Run an ObjectQL query and bind result to a variable. |
-| `api.mutation` | `object`, `method`, `data` | Execute a create/update/delete. |
-| `form.submit` | `formId` | Trigger validation and submission of a specific form. |
-| `form.reset` | `formId` | Reset form fields to default values. |
-| `record.refresh` | - | Re-fetch the current record from the server. |
-
-## 3. Action Context & Variables
-
-Actions run in a **Context**. You can access dynamic data using the `${variable}` syntax.
-
-* **`${record}`**: The current data record (row) being displayed.
-* **`${user}`**: The current logged-in user session.
-* **`${scope}`**: Temporary variables passed from parent components.
-* **`${result}`**: The return value of the *previous* action in the chain.
-
-### Example: Using Previous Result
-
-```json
-[
-  // Step 1: Create a record
-  {
-    "action": "api.mutation",
-    "params": { "object": "task", "method": "create", "data": {...} }
-  },
-  // Step 2: Navigate to the new ID
-  {
-    "action": "navigate",
-    "params": { "url": "/tasks/${result.id}" }
-  }
-]
-
-```
-
-## 4. Client-Side Logic (`action.script`)
-
-Sometimes standard actions aren't enough. You need custom calculation or logic.
-ObjectUI provides a **Sandboxed Script Action**.
-
-> **Warning:** This is *not* `eval()`. It is a safe, limited expression parser. It cannot access `window`, `document`, or making arbitrary network requests.
-
-```json
-{
-  "action": "script",
-  "params": {
-    "code": "if (record.amount > 1000) { return 'high_value'; } return 'standard';"
-  },
-  "output_to": "temp.category"
-}
-
-```
-
-## 5. Action Containers
-
-Often, actions are grouped into a generic "Toolbar" or "Menu".
-
-### Toolbar (`layout.toolbar`)
-
-```json
-{
-  "type": "layout.toolbar",
-  "children": [
-    {
-      "type": "button",
-      "props": { "label": "Edit", "icon": "edit" },
-      "events": { "onClick": { "action": "modal.open", "params": { "layout": "edit_form" } } }
-    },
-    {
-      "type": "button",
-      "props": { "label": "More", "icon": "more_horizontal" },
-      "children": [
-        // Dropdown Menu Items
-        { "label": "Duplicate", "action": "api.mutation", ... },
-        { "label": "Archive", "action": "api.mutation", ... }
-      ]
-    }
-  ]
-}
-
-```
-
-## 6. Extending Actions
-
-You can register custom actions in your frontend application code. This allows you to bridge the gap between the JSON Protocol and specific React capabilities.
-
-```typescript
-// src/app.tsx
-import { registerAction } from '@objectui/runtime';
-
-registerAction('custom.printLabel', async (context, params) => {
-  const zpl = generateZPL(context.record);
-  await sendToBluetoothPrinter(zpl);
-});
-
-```
-
-**Usage in JSON:**
-
-```json
-{
-  "action": "custom.printLabel",
-  "params": { "format": "4x6" }
-}
-
-```
-
-## Summary
-
-The Action Protocol turns imperative behavior into declarative configuration.
-
-1. **Chaining:** Actions execute sequentially.
-2. **Context Aware:** They can read the current record state.
-3. **Safe:** No raw JavaScript injection; only whitelisted actions.
-4. **Confirmations:** Built-in UI patterns for dangerous operations.
