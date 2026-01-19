@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Database, FileJson, Layers, ShieldCheck, Zap, Globe } from 'lucide-react';
+import { Database, FileJson, Layers, ShieldCheck, Zap, Globe, Cpu, LayoutTemplate, Bot } from 'lucide-react';
 import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import { baseOptions } from '@/app/layout.config';
 
@@ -81,33 +81,69 @@ export default function HomePage() {
           <FeatureCard 
             icon={<Database className="h-6 w-6" />}
             title="ObjectQL Data Layer"
+            href="/docs/specifications/data/architecture"
             description="Strict JSON schemas for entities, fields, and relationships. It is the SQL you can send over the wire."
           />
           <FeatureCard 
             icon={<Layers className="h-6 w-6" />}
             title="ObjectUI View Layer"
+            href="/docs/specifications/ui/sdui-protocol"
             description="Server-Driven UI protocol defining forms, grids, and dashboards. Decouples logic from the frontend implementation."
           />
           <FeatureCard 
             icon={<Zap className="h-6 w-6" />}
             title="ObjectOS Kernel"
+            href="/docs/specifications/server/kernel-architecture"
             description="The runtime contract for permissions, workflows, and automation. Stateless business logic execution."
           />
           <FeatureCard 
             icon={<ShieldCheck className="h-6 w-6" />}
             title="Zero-Trust Security"
+            href="/docs/specifications/server/permission-governance"
             description="Policy-as-Code. ACLs and Field Level Security are compiled into the database query engine."
           />
           <FeatureCard 
             icon={<FileJson className="h-6 w-6" />}
             title="Zod-First Definition"
+            href="/docs/specifications/data/schema-definition"
             description="The entire protocol is defined in Zod. Runtime validation and static type inference come for free."
           />
           <FeatureCard 
             icon={<Globe className="h-6 w-6" />}
             title="Universal Backend"
+            href="/docs/concepts/architecture"
             description="Protocol adapters for Postgres, MongoDB, REST and GraphQL. Write once, run on any infrastructure."
           />
+        </div>
+
+        {/* Personas Section */}
+        <div className="mt-32 mb-16 w-full max-w-5xl px-4">
+          <h2 className="text-3xl font-bold tracking-tight mb-12 bg-gradient-to-r from-fd-foreground to-fd-muted-foreground bg-clip-text text-transparent">
+             Built for Builders
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+             <PersonaCard 
+                icon={<LayoutTemplate className="w-8 h-8 mb-4 text-blue-500" />}
+                title="Platform Architects"
+                description="Design scalable Internal Developer Platforms (IDP) that unify your data silos."
+                href="/docs/concepts/enterprise-patterns"
+                action="Explore Patterns"
+             />
+             <PersonaCard 
+                icon={<Bot className="w-8 h-8 mb-4 text-purple-500" />}
+                title="AI Engineers"
+                description="Feed LLMs with perfectly structured, deterministic JSON schemas they can actually understand."
+                href="/docs/concepts/ai-codex"
+                action="View Codex"
+             />
+             <PersonaCard 
+                icon={<Cpu className="w-8 h-8 mb-4 text-green-500" />}
+                title="Framework Builders"
+                description="Implement the protocol in your language. Write drivers for React, Vue, Flutter, or Go."
+                href="/docs/specifications/data/architecture"
+                action="Read Spec"
+             />
+          </div>
         </div>
 
       </main>
@@ -115,9 +151,9 @@ export default function HomePage() {
   );
 }
 
-function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
-  return (
-    <div className="group relative rounded-2xl border border-fd-border bg-fd-card p-6 shadow-sm transition-all hover:border-fd-primary/20 hover:shadow-md hover:shadow-fd-primary/5">
+function FeatureCard({ icon, title, description, href }: { icon: React.ReactNode; title: string; description: string; href?: string }) {
+  const CardContent = (
+    <div className="group relative h-full rounded-2xl border border-fd-border bg-fd-card p-6 shadow-sm transition-all hover:border-fd-primary/20 hover:shadow-md hover:shadow-fd-primary/5 cursor-pointer">
       <div className="mb-4 inline-flex items-center justify-center rounded-lg bg-fd-primary/10 p-2 text-fd-primary transition-colors group-hover:bg-fd-primary/20">
         {icon}
       </div>
@@ -129,4 +165,29 @@ function FeatureCard({ icon, title, description }: { icon: React.ReactNode; titl
       </p>
     </div>
   );
+
+  if (href) {
+    return (
+      <Link href={href} className="block h-full">
+        {CardContent}
+      </Link>
+    );
+  }
+
+  return CardContent;
+}
+
+function PersonaCard({ icon, title, description, href, action }: { icon: React.ReactNode; title: string; description: string; href: string; action: string }) {
+  return (
+    <Link href={href} className="flex flex-col items-start p-8 rounded-2xl bg-fd-secondary/30 border border-fd-border/50 hover:bg-fd-secondary/60 hover:border-fd-primary/30 transition-all group text-left">
+      {icon}
+      <h3 className="text-xl font-bold mb-3">{title}</h3>
+      <p className="text-fd-muted-foreground mb-6 text-sm leading-relaxed flex-grow text-left">
+        {description}
+      </p>
+      <div className="flex items-center text-sm font-semibold text-fd-primary mt-auto group-hover:translate-x-1 transition-transform">
+        {action} <span className="ml-1">→</span>
+      </div>
+    </Link>
+  )
 }
