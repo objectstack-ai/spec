@@ -12,17 +12,17 @@ export default function HomePage() {
         <div className="relative z-10 max-w-5xl space-y-8">
           <div className="inline-flex items-center rounded-full border border-fd-primary/20 bg-fd-primary/5 px-3 py-1 text-sm text-fd-primary backdrop-blur-sm transition-colors hover:bg-fd-primary/10 hover:border-fd-primary/30">
             <span className="flex h-2 w-2 rounded-full bg-fd-primary mr-2 animate-pulse"></span>
-            v1.0 Public Draft
+            Protocol Specification v1.0
           </div>
 
           <h1 className="text-5xl font-extrabold tracking-tight sm:text-7xl md:text-8xl bg-gradient-to-br from-foreground via-foreground/90 to-fd-primary/60 bg-clip-text text-transparent pb-4">
-            The Post-SaaS <br/> Operating System
+            The ObjectStack <br/> Protocol
           </h1>
           
           <p className="mx-auto max-w-2xl text-lg text-fd-muted-foreground sm:text-xl leading-relaxed">
-            Infrastructure as Code for Enterprise Applications.
+            The Open Standard for Metadata-Driven Enterprise Software.
             <br className="hidden sm:inline" />
-            <span className="text-fd-foreground font-medium">Metadata-driven. Local-first. AI-native.</span>
+            <span className="text-fd-foreground font-medium">Validatable. Database-Agnostic. AI-Native.</span>
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
@@ -50,20 +50,20 @@ export default function HomePage() {
                 <div className="h-3 w-3 rounded-full bg-yellow-500/80" />
                 <div className="h-3 w-3 rounded-full bg-green-500/80" />
                 <div className="ml-2 text-xs font-medium text-fd-muted-foreground font-mono">
-                  project-tracker.schema.ts
+                  contract.zod.ts
                 </div>
               </div>
               <div className="overflow-x-auto p-6 text-left">
                 <pre className="font-mono text-sm leading-6">
-                  <span className="text-purple-400">import</span> <span className="text-fd-foreground">{'{'}</span> <span className="text-yellow-300">ObjectSchema</span> <span className="text-fd-foreground">{'}'}</span> <span className="text-purple-400">from</span> <span className="text-green-300">'@objectstack/spec'</span>;<br/><br/>
-                  <span className="text-purple-400">export const</span> <span className="text-blue-300">Project</span> <span className="text-purple-400">=</span> <span className="text-yellow-300">ObjectSchema</span>.<span className="text-blue-300">create</span>(<span className="text-fd-foreground">{'{'}</span><br/>
-                  &nbsp;&nbsp;name: <span className="text-green-300">'project_tracker'</span>,<br/>
+                  <span className="text-purple-400">import</span> <span className="text-fd-foreground">{'{'}</span> <span className="text-yellow-300">ObjectProtocol</span> <span className="text-fd-foreground">{'}'}</span> <span className="text-purple-400">from</span> <span className="text-green-300">'@objectstack/spec'</span>;<br/><br/>
+                  <span className="text-purple-400">export const</span> <span className="text-blue-300">Issue</span> <span className="text-purple-400">=</span> <span className="text-yellow-300">ObjectProtocol</span>.<span className="text-blue-300">define</span>(<span className="text-fd-foreground">{'{'}</span><br/>
+                  &nbsp;&nbsp;code: <span className="text-green-300">'issue_tracker'</span>,<br/>
                   &nbsp;&nbsp;fields: <span className="text-fd-foreground">{'{'}</span><br/>
-                  &nbsp;&nbsp;&nbsp;&nbsp;title: <span className="text-yellow-300">Field</span>.<span className="text-blue-300">text</span>(),<br/>
-                  &nbsp;&nbsp;&nbsp;&nbsp;status: <span className="text-yellow-300">Field</span>.<span className="text-blue-300">select</span>([<span className="text-green-300">'draft'</span>, <span className="text-green-300">'active'</span>, <span className="text-green-300">'done'</span>]),<br/>
-                  &nbsp;&nbsp;&nbsp;&nbsp;owner: <span className="text-yellow-300">Field</span>.<span className="text-blue-300">lookup</span>(<span className="text-green-300">'user'</span>)<br/>
+                  &nbsp;&nbsp;&nbsp;&nbsp;summary: <span className="text-yellow-300">Field</span>.<span className="text-blue-300">text</span>(<span className="text-fd-foreground">{'{'}</span> required: <span className="text-red-300">true</span> <span className="text-fd-foreground">{'}'}</span>),<br/>
+                  &nbsp;&nbsp;&nbsp;&nbsp;priority: <span className="text-yellow-300">Field</span>.<span className="text-blue-300">select</span>([<span className="text-green-300">'P0'</span>, <span className="text-green-300">'P1'</span>, <span className="text-green-300">'P2'</span>]),<br/>
+                  &nbsp;&nbsp;&nbsp;&nbsp;assignee: <span className="text-yellow-300">Field</span>.<span className="text-blue-300">lookup</span>(<span className="text-green-300">'users'</span>)<br/>
                   &nbsp;&nbsp;<span className="text-fd-foreground">{'}'}</span>,<br/>
-                  &nbsp;&nbsp;enable: <span className="text-fd-foreground">{'{'}</span> <span className="text-blue-300">api</span>: <span className="text-red-300">true</span>, <span className="text-blue-300">audit</span>: <span className="text-red-300">true</span> <span className="text-fd-foreground">{'}'}</span><br/>
+                  &nbsp;&nbsp;policy: <span className="text-fd-foreground">{'{'}</span> <span className="text-blue-300">audit</span>: <span className="text-red-300">true</span>, <span className="text-blue-300">api_access</span>: <span className="text-green-300">'public'</span> <span className="text-fd-foreground">{'}'}</span><br/>
                   <span className="text-fd-foreground">{'}'}</span>);
                 </pre>
               </div>
@@ -81,32 +81,32 @@ export default function HomePage() {
           <FeatureCard 
             icon={<Database className="h-6 w-6" />}
             title="ObjectQL Data Layer"
-            description="A universal schema definition language (SDL) that abstracts SQL, NoSQL, and API datasources into a unified graph."
+            description="Strict JSON schemas for entities, fields, and relationships. It is the SQL you can send over the wire."
           />
           <FeatureCard 
             icon={<Layers className="h-6 w-6" />}
-            title="ObjectUI Presentation"
-            description="Declarative UI definitions for layouts, views, reports, and dashboards. Write once, render on Web, Mobile, and CLI."
+            title="ObjectUI View Layer"
+            description="Server-Driven UI protocol defining forms, grids, and dashboards. Decouples logic from the frontend implementation."
           />
           <FeatureCard 
             icon={<Zap className="h-6 w-6" />}
-            title="ObjectOS Runtime"
-            description="Power workflows, validations, permissions, and automation rules through a portable, stateless execution engine."
+            title="ObjectOS Kernel"
+            description="The runtime contract for permissions, workflows, and automation. Stateless business logic execution."
           />
           <FeatureCard 
             icon={<ShieldCheck className="h-6 w-6" />}
-            title="Enterprise Security"
-            description="Built-in RBAC, Field-level security, and audit logs defined directly in your metadata codebase."
+            title="Zero-Trust Security"
+            description="Policy-as-Code. ACLs and Field Level Security are compiled into the database query engine."
           />
           <FeatureCard 
             icon={<FileJson className="h-6 w-6" />}
-            title="100% Typed Metadata"
-            description="Every protocol definition is backed by Zod schemas and TypeScript interfaces, ensuring type-safety from definition to runtime."
+            title="Zod-First Definition"
+            description="The entire protocol is defined in Zod. Runtime validation and static type inference come for free."
           />
           <FeatureCard 
             icon={<Globe className="h-6 w-6" />}
-            title="Local-First Ecosystem"
-            description="Designed for edge computing and local execution. Git-ops ready with simple JSON/YAML file structures."
+            title="Universal Backend"
+            description="Protocol adapters for Postgres, MongoDB, REST and GraphQL. Write once, run on any infrastructure."
           />
         </div>
 

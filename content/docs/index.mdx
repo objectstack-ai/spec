@@ -1,77 +1,50 @@
 ---
-title: Overview
-description: The Standard for Post-SaaS Operating Systems
+title: Welcome to ObjectStack
+description: The Metadata-Driven Protocol for the Post-SaaS Era.
 ---
 
-import { FileText, Database, Layout, Settings, Book } from 'lucide-react';
+import { Book, Compass, FileText, Layers } from 'lucide-react';
 
+**ObjectStack** is not just a framework; it is a **Protocol** for building enterprise software. 
+It decouples the *Business Intent* (defined in JSON/YAML) from the *Technical Execution* (handled by the Kernel).
 
-**ObjectStack Protocol** is the "DNA" and constitution of the ObjectStack platform. It defines the metadata standards, schemas, and runtime behaviors that power a metadata-driven, low-code operating system.
+This documentation is the authoritative reference for the ObjectStack Protocol.
 
-<Callout type="info">
-  This specification serves as the Single Source of Truth for all ObjectStack implementations. All definitions are strictly typed using Zod and TypeScript.
-</Callout>
-
-## The Metamodel Architecture
-
-The protocol is divided into three fundamental pillars that decouple data, presentation, and system configuration.
+## How to navigate
 
 <Cards>
   <Card
-    icon={<Database />}
-    href="/docs/concepts/architecture"
-    title="Data Protocol"
-    description="Core business logic and data modeling. Defines Objects, Fields, Validation Rules, and Flows."
+    icon={<Compass />}
+    title="Concepts"
+    href="/docs/concepts/manifesto"
+    description="Start here. Understand the philosophy of 'Intent over Implementation' and the 'Local-First' architecture."
   />
   <Card
-    icon={<Layout />}
-    href="/docs/references/ui/App"
-    title="UI Protocol"
-    description="Presentation layer specifications. Defines Views, Layouts, Menus (Apps), and Dashboards."
+    icon={<Layers />}
+    title="Specifications"
+    href="/docs/specifications/data/architecture"
+    description="The Architecture Blueprints. Deep dive into ObjectQL (Data), ObjectUI (View), and ObjectOS (Control)."
   />
-  <Card
-    icon={<Settings />}
-    href="/docs/references/system/Datasource"
-    title="System Protocol"
-    description="Runtime configuration and environment binding. Defines Datasources, APIs, and Manifests."
-  />
-</Cards>
-
-## Core Principles
-
-### 1. Schema First
-Every protocol definition starts with a **Zod Schema**. This ensures runtime validation for the CLI and strict type derivation (`z.infer<T>`) for the IDE. We do not write code without a schema.
-
-### 2. Configuration as Code
-All business logic is expressed as serializable JSON/YAML configuration. This enables:
-- **Version Control**: Git-based history for business logic.
-- **Reviewability**: Pull requests for application changes.
-- **Portability**: Move applications between environments instantly.
-
-### 3. Separation of Concerns
-We strictly separate the **Metamodel** (pure definitions) from the **Runtime** (execution engine). The `spec` package contains *only* definitions, constants, and types—no heavy business logic.
-
-## Directory Structure
-
-The specification is organized reflecting the protocol pillars:
-
-- **`src/data/`**: ObjectQL definitions (Object, Field, Validation).
-- **`src/ui/`**: ObjectUI definitions (App, View, Action).
-- **`src/system/`**: ObjectOS definitions (Manifest, Config).
-
-## Next Steps
-
-<Cards>
   <Card
     icon={<Book />}
-    href="/docs/concepts/manifesto"
-    title="Read the Manifesto"
-    description="Understand the philosophy behind the Post-SaaS Operating System."
-  />
-  <Card
-    icon={<FileText />}
-    href="/docs/references"
-    title="API Reference"
-    description="Explore the complete API and Schema reference documentation."
+    title="Protocol Reference"
+    href="/docs/references/data/index"
+    description="The Dictionary. Comprehensive reference for every Schema, Field Type, and Configuration option."
   />
 </Cards>
+
+## The "Trinity" Architecture
+
+ObjectStack is built on three pillars that work in unison:
+
+| Pillar | Protocol | Responsibility |
+| :--- | :--- | :--- |
+| **Data Layer** | **[ObjectQL](/docs/specifications/data/architecture)** | Defines the shape of data (`Object`) and how to access it (`AST`). Agnostic to SQL/NoSQL. |
+| **Control Layer** | **[ObjectOS](/docs/specifications/server/kernel-architecture)** | The Kernel. Handles Identity, Security, Sync, and Automation. |
+| **View Layer** | **[ObjectUI](/docs/specifications/ui/sdui-protocol)** | The Projection. Defines the User Interface as abstract JSON layouts, enabling Server-Driven UI. |
+
+## For whom is this?
+
+*   **Platform Architects:** Who want to build internal developer platforms (IDP) that scale.
+*   **Protocol Implementers:** Who want to write a new Driver for ObjectQL (e.g., for FoundationDB) or a new Renderer for ObjectUI (e.g., for Flutter).
+*   **AI Agent Developers:** Who need a deterministic, structured generic language for AI to generate software.
