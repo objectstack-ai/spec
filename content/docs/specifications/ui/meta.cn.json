@@ -1,0 +1,11 @@
+{
+  "title": "ObjectUI",
+  "pages": [
+    "sdui-protocol",
+    "component-schema",
+    "view-protocol",
+    "layout-system",
+    "action-triggers",
+    "report-template"
+  ]
+}

@@ -1,0 +1,56 @@
+---
+title: 欢迎来到 ObjectStack
+description: 后 SaaS 时代的元数据驱动协议
+---
+
+import { Book, Compass, FileText, Layers } from 'lucide-react';
+
+**ObjectStack** 不仅仅是一个框架；它是构建企业软件的**协议**。
+它将*业务意图*（用 JSON/YAML 定义）与*技术执行*（由内核处理）解耦。
+
+本文档是 ObjectStack 协议的权威参考。
+
+## 如何导航
+
+<Cards>
+  <Card
+    icon={<FileText />}
+    title="快速开始"
+    href="/docs/guides/getting-started"
+    description="5 分钟内构建你的第一个对象。学习 SDK 的基础知识。"
+  />
+  <Card
+    icon={<Compass />}
+    title="概念"
+    href="/docs/concepts/manifesto"
+    description="理解「意图优于实现」的理念和「本地优先」架构。"
+  />
+  <Card
+    icon={<Layers />}
+    title="规范"
+    href="/docs/specifications/data/architecture"
+    description="架构蓝图。深入了解 ObjectQL（数据）、ObjectUI（视图）和 ObjectOS（控制）。"
+  />
+  <Card
+    icon={<Book />}
+    title="协议参考"
+    href="/docs/references/data/core/Object"
+    description="字典。每个 Schema、字段类型和配置选项的全面参考。"
+  />
+</Cards>
+
+## "三位一体"架构
+
+ObjectStack 建立在三个协同工作的支柱之上：
+
+| 支柱 | 协议 | 职责 |
+| :--- | :--- | :--- |
+| **数据层** | **[ObjectQL](/docs/specifications/data/architecture)** | 定义数据的形状（`Object`）以及如何访问它（`AST`）。不依赖于 SQL/NoSQL。 |
+| **控制层** | **[ObjectOS](/docs/specifications/server/kernel-architecture)** | 内核。处理身份、安全、同步和自动化。 |
+| **视图层** | **[ObjectUI](/docs/specifications/ui/sdui-protocol)** | 投影。将用户界面定义为抽象的 JSON 布局，实现服务器驱动 UI。 |
+
+## 这是为谁准备的？
+
+*   **平台架构师：** 想要构建可扩展的内部开发者平台（IDP）的人。
+*   **协议实现者：** 想要为 ObjectQL 编写新驱动程序（例如，用于 FoundationDB）或为 ObjectUI 编写新渲染器（例如，用于 Flutter）的人。
+*   **AI 代理开发者：** 需要一种确定性的、结构化的通用语言来让 AI 生成软件的人。

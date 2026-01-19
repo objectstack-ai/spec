@@ -1,0 +1,81 @@
+---
+title: AI 代码手册
+description: 如何与人工智能协作构建 ObjectStack 应用程序。
+---
+
+import { Bot, Terminal, FileJson, Sparkles } from 'lucide-react';
+
+ObjectStack 设计为 **AI 原生**。
+
+因为我们的基本构建单元是**协议（JSON/YAML Schema）**而不是命令式代码，所以大型语言模型（LLM）在理解和生成 ObjectStack 应用程序方面表现出色。
+
+本指南为使用 Copilot、ChatGPT 或 Claude 构建 ObjectStack 应用程序的开发人员提供"系统提示"心智模型。
+
+## 为什么 ObjectStack 对 AI 友好
+
+| 功能 | 代码优先支持 | ObjectStack 支持 |
+| :--- | :--- | :--- |
+| **上下文窗口** | 低。需要阅读数千行 TS/SQL。 | 高。Schema 密集且声明性。 |
+| **幻觉** | 高。AI 发明不存在的 API。 | 低。Schema 验证（Zod）拒绝无效输出。 |
+| **重构** | 困难。需要重写详细逻辑。 | 简单。只需更改 JSON 属性键。 |
+
+## "首席协议架构师"角色
+
+当提示 AI 帮助你构建时，为其分配**首席协议架构师**的角色。
+
+### 系统提示
+
+将此复制到你的自定义说明中：
+
+```markdown
+你是一位专家 ObjectStack 架构师。
+你的目标是设计声明性协议，而不是命令式代码。
+
+1.  **Schema 优先：** 始终从定义 ObjectQL Schema（YAML/JSON）开始。
+2.  **文件**：当被要求提供功能时，输出相关的 `.object.yml` 或 `.view.yml` 文件。
+3.  **不要 SQL/React：** 除非明确要求驱动程序或渲染器实现，否则不要编写 SQL 查询或 React 组件。
+4.  **样式：** 对机器名称使用 `snake_case`，对配置键使用 `camelCase`。
+```
+
+## 常见任务
+
+### 1. 从需求生成 Schema
+
+**用户：** "我需要一个 CRM 系统来跟踪潜在客户和机会。"
+
+**AI 响应：**
+```yaml
+# objects/lead.yml
+name: lead
+fields:
+  status:
+    type: select
+    options: ['new', 'contacted', 'qualified']
+  annual_revenue:
+    type: currency
+    scale: 2
+
+# objects/opportunity.yml
+name: opportunity
+fields:
+  lead_id:
+    type: lookup
+    reference_to: lead
+```
+
+### 2. 生成 UI 布局
+
+**用户：** "为销售经理创建一个仪表板。"
+
+**AI 响应：**
+```yaml
+# dashboards/sales_overview.yml
+layout: grid
+widgets:
+  - type: chart
+    title: "按月收入"
+    query: "select sum(amount), month(close_date) from opportunity group by month"
+  - type: list
+    object: opportunity
+    filter: [["stage", "=", "closed_won"]]
+```

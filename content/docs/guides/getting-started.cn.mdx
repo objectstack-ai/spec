@@ -1,0 +1,77 @@
+---
+title: 快速开始
+description: 5 分钟内构建你的第一个 ObjectStack 应用程序
+---
+
+ObjectStack 是一个协议，但 `@objectstack/spec` 是提供 Zod schemas 和严格类型的参考实现库，用于构建有效的元数据。
+
+<Steps>
+
+<Step>
+## 初始化你的项目
+
+你可以从头开始或将 ObjectStack 添加到现有的 TypeScript 项目中。
+
+```bash
+mkdir my-app
+cd my-app
+npm init -y
+npm install typescript zod @objectstack/spec
+npx tsc --init
+```
+</Step>
+
+<Step>
+## 定义你的第一个对象
+
+创建一个名为 `src/objects/contact.schema.ts` 的文件。
+这就是 **Zod 优先定义** 的强大之处。你可以开箱即用地获得自动完成和验证。
+
+```typescript
+import { ObjectSchema, Field } from '@objectstack/spec';
+
+export const Contact = ObjectSchema.create({
+  name: 'contact',
+  label: 'Contact',
+  fields: {
+    first_name: Field.text({ label: 'First Name', required: true }),
+    last_name: Field.text({ label: 'Last Name', required: true }),
+    email: Field.text({ format: 'email' }),
+    type: Field.select(['Customer', 'Partner', 'Vendor']),
+  },
+  enable: {
+    api: true,
+    audit: true
+  }
+});
+```
+</Step>
+
+<Step>
+## 验证协议
+
+创建一个构建脚本 `src/build.ts` 来验证你的定义是否符合 ObjectStack 协议。
+
+```typescript
+import { Contact } from './objects/contact.schema';
+
+// 如果你的 schema 无效，这将抛出 ZodError
+const protocol = Contact.parse(Contact);
+
+console.log(`✅ Object '${protocol.name}' is valid ObjectStack Metadata!`);
+console.log(JSON.stringify(protocol, null, 2));
+```
+</Step>
+
+<Step>
+## 下一步
+
+现在你有了有效的元数据，你可以：
+
+1.  **生成 SQL**：使用协议编译器（即将推出）生成 `CREATE TABLE` 语句。
+2.  **生成 UI**：将 JSON 传入 `<ObjectForm />` React 组件。
+3.  **部署**：将 JSON 推送到 ObjectOS 内核。
+
+</Step>
+
+</Steps>
