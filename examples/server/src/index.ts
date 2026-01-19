@@ -28,16 +28,7 @@ console.log('--- Plugins Loaded ---');
 app.get('/api/v1/meta/:type', (c) => {
   const typePlural = c.req.param('type');
   
-  // Simple singularization mapping (can be enhanced)
-  const typeMap: Record<string, string> = {
-    'objects': 'object',
-    'apps': 'app',
-    'flows': 'flow',
-    'reports': 'report',
-    'plugins': 'plugin',
-    'kinds': 'kind'
-  };
-  const type = typeMap[typePlural] || typePlural;
+  const type = typePlural; // Direct pass-through for exact match with Registry keys
   
   const items = SchemaRegistry.listItems(type);
   
@@ -66,15 +57,16 @@ app.get('/api/v1/meta/:type/:name', (c) => {
   const typePlural = c.req.param('type');
   const name = c.req.param('name');
   
-  const typeMap: Record<string, string> = {
-    'objects': 'object',
-    'apps': 'app',
-    'flows': 'flow',
-    'reports': 'report',
-    'plugins': 'plugin',
-    'kinds': 'kind'
-  };
-  const type = typeMap[typePlural] || typePlural;
+  // const typeMap: Record<string, string> = {
+  //   'objects': 'object',
+  //   'apps': 'app',
+  //   'flows': 'flow',
+  //   'reports': 'report',
+  //   'plugins': 'plugin',
+  //   'kinds': 'kind'
+  // };
+  // const type = typeMap[typePlural] || typePlural;
+  const type = typePlural; // Direct pass-through
 
   const item = SchemaRegistry.getItem(type, name);
   if (!item) return c.json({ error: `Metadata not found: ${type}/${name}` }, 404);

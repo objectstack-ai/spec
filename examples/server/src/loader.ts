@@ -28,6 +28,19 @@ export function loadPlugins() {
             SchemaRegistry.registerKind(kind);
           }
        }
+
+       // SIMULATION: Simulate the scanner loading a file matching the new Kind
+       // In a real system, this would be done by a file watcher detecting **/*.dataset.json
+       if (parsedPlugin.id === 'com.objectstack.bi') {
+          SchemaRegistry.registerItem('bi.dataset', {
+            name: 'quarterly_sales',
+            label: 'Quarterly Sales Data',
+            source: 'sql_warehouse',
+            query: 'SELECT * FROM sales WHERE quarter = "Q4"'
+          }, 'name');
+          console.log('[Loader] Simulated loading: quarterly_sales (bi.dataset)');
+       }
+
        continue;
     }
 
