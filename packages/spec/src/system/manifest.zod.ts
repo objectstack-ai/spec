@@ -49,6 +49,22 @@ export const ManifestSchema = z.object({
    */
   objects: z.array(z.string()).optional().describe('Glob patterns for ObjectQL schemas files'),
   
+  /**
+   * Contribution Points (VS Code Style).
+   * formalized way to extend the platform capabilities.
+   */
+  contributes: z.object({
+    /**
+     * Register new Metadata Kinds (CRDs).
+     * Enables the system to parse and validate new file types.
+     * Example: Registering a BI plugin to handle *.report.ts
+     */
+    kinds: z.array(z.object({
+      id: z.string().describe('The generic identifier of the kind (e.g., "sys.bi.report")'),
+      globs: z.array(z.string()).describe('File patterns to watch (e.g., ["**/*.report.ts"])'),
+    })).optional(),
+  }).optional().describe('Platform contributions'),
+
   /** 
    * Extension points contributed by this package.
    * Allows packages to extend UI components, add functionality, etc.

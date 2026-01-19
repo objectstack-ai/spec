@@ -196,6 +196,29 @@ describe('ManifestSchema', () => {
       expect(() => ManifestSchema.parse(crmManifest)).not.toThrow();
     });
 
+    it('should accept bi plugin with custom kinds', () => {
+      const biPlugin: ObjectStackManifest = {
+        id: 'com.objectstack.bi',
+        version: '1.0.0',
+        type: 'plugin',
+        name: 'Business Intelligence',
+        contributes: {
+            kinds: [
+                {
+                    id: 'bi.dataset',
+                    globs: ['**/*.dataset.json']
+                },
+                {
+                    id: 'bi.dashboard',
+                    globs: ['**/*.bi-dash.json']
+                }
+            ]
+        }
+      };
+      
+      expect(() => ManifestSchema.parse(biPlugin)).not.toThrow();
+    });
+
     it('should accept authentication plugin manifest', () => {
       const authPlugin: ObjectStackManifest = {
         id: 'com.objectstack.auth.saml',

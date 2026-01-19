@@ -54,6 +54,7 @@ Schema Location: packages/protocol/schemas/manifest.schema.json
 Key Fields:
  * type: app | plugin | driver
  * navigation: Structured navigation menu tree.
+ * contributes: Register platform extensions (e.g., custom kinds).
  * permissions: Array of requested capabilities (e.g., finance.read).
  * entities: Path patterns to auto-load Schema files (e.g., ./src/schemas/*.gql).
  * lifecycle: Hooks for onInstall, onEnable.

@@ -14,6 +14,7 @@ You define what a "Package" looks like in ObjectStack.
    * type: app | plugin | driver | module.
    * permissions: Array of permission strings requested (e.g., ["system.user.read"]).
    * navigation: Structured navigation menu tree (for apps).
+   * contributes: Register platform extensions (kind, etc).
    * entities: Glob patterns for ObjectQL files (e.g., ["./src/schema/*.gql"]).
    * extensions: Extension points (e.g., contributions to the UI).
 2. Directory Conventions (Law of Location)

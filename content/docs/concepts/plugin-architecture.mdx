@@ -1,0 +1,91 @@
+---
+title: Plugin Architecture
+description: The Extension Model and Microkernel Philosophy of ObjectStack.
+---
+
+# Plugin Architecture
+
+ObjectStack follows a strict **Microkernel Architecture**. The core platform provides only the minimal runtime environment (Kernel), while all business capabilities, including standard ones like CRM or Project Management, are delivered as **Packages** (Apps or Plugins).
+
+## 1. Philosophy: "Kernel + Plugins"
+
+*   **The Kernel**: Responsible for booting, identity, permission enforcement, and loading the manifest. It knows *nothing* about "Leads", "Tasks", or even "Kanban Boards" initially.
+*   **The Plugins**: Teach the Kernel new tricks.
+    *   **Apps**: Combinations of data and UI for end-users (e.g., "Sales App").
+    *   **Plugins**: Extensions to the system capabilities (e.g., "BI Engine", "SAML Auth", "Stripe Payment").
+
+This separation ensures the platform remains lightweight and un-opinionated, allowing it to evolve indefinitely.
+
+## 2. Anatomy of a Plugin
+
+A plugin is defined by its `Manifest` (objectstack.config.ts). The most critical part of a modern ObjectStack plugin is the `contributes` section.
+
+### The `contributes` Protocol
+
+Inspired by VS Code, we use a declarative approach to register capabilities.
+
+```typescript
+// objectstack.config.ts
+export default {
+  id: 'com.vendor.bi',
+  type: 'plugin',
+  
+  // DECLARATIVE: "I bring these new capabilities"
+  contributes: {
+    // 1. Define new Metadata Kinds (File Types)
+    kinds: [
+      { 
+        id: 'bi.dataset', 
+        globs: ['**/*.dataset.json'],
+        description: 'BI Dataset Definition'
+      }
+    ],
+    // 2. Define new UI Locations
+    views: [
+      {
+        id: 'bi.chart_renderer',
+        location: 'dashboard.widget'
+      }
+    ]
+  },
+  
+  // IMPERATIVE: "Here is the code to handle them"
+  lifecycle: './src/index.ts' 
+}
+```
+
+## 3. Extension Capabilities
+
+### A. New Metadata Kinds (CRDs)
+
+This is the most powerful feature. A plugin can introduce entirely new concepts to the platform.
+
+*   **Example**: A "BI Plugin" introduces `*.dataset.json` and `*.report.json`.
+*   **Mechanism**: The Kernel uses the `contributes.kinds` registry to map file extensions to the plugin's parser.
+*   **Result**: The IDE (cursor/vscode) and Runtime automatically recognize these files.
+
+### B. Service Providers
+
+Plugins can implement standard interfaces defined by the system.
+
+*   **Auth Providers**: `plugin extends AuthProvider` (SAML, OAuth).
+*   **Storage Drivers**: `plugin extends StorageDriver` (S3, MinIO).
+*   **Notification Channels**: `plugin extends NotificationChannel` (Slack, SMS).
+
+## 4. Plugin Lifecycle
+
+The runtime manages the plugin states:
+
+1.  **Resolve**: Read Manifest, validate dependencies.
+2.  **Install (`onInstall`)**: Run migration scripts, setup initial data.
+3.  **Boot (`onBoot`)**: Register generic services (before App load).
+4.  **Enable (`onEnable`)**: Active and serving traffic.
+
+```typescript
+export class BiPlugin implements PluginLifecycle {
+  async onEnable(context: PluginContext) {
+    // Register the heavy engine only when enabled
+    context.services.register('bi.engine', new BiAnalysisEngine());
+  }
+}
+```
