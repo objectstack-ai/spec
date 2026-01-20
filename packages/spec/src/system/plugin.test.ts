@@ -11,11 +11,38 @@ import {
 describe('PluginContextSchema', () => {
   it('should accept valid plugin context', () => {
     const context: PluginContextData = {
-      ql: {},
-      os: {},
-      logger: {},
+      ql: {
+        object: () => ({}),
+        query: async () => ({})
+      },
+      os: {
+        getCurrentUser: async () => ({ id: 'test-user' }),
+        getConfig: async () => 'test-config'
+      },
+      logger: {
+        debug: () => {},
+        info: () => {},
+        warn: () => {},
+        error: () => {}
+      },
+      storage: {
+        get: async () => null,
+        set: async () => {},
+        delete: async () => {}
+      },
+      i18n: {
+        t: () => '',
+        getLocale: () => 'en'
+      },
       metadata: {},
       events: {},
+      app: {
+        router: {
+          get: () => {},
+          post: () => {},
+          use: () => {}
+        }
+      }
     };
 
     expect(() => PluginContextSchema.parse(context)).not.toThrow();
@@ -23,11 +50,38 @@ describe('PluginContextSchema', () => {
 
   it('should accept context with all required properties', () => {
     const completeContext = {
-      ql: {},
-      os: {},
-      logger: {},
+      ql: {
+        object: () => ({}),
+        query: async () => ({})
+      },
+      os: {
+        getCurrentUser: async () => ({ id: 'test-user' }),
+        getConfig: async () => 'test-config'
+      },
+      logger: {
+        debug: () => {},
+        info: () => {},
+        warn: () => {},
+        error: () => {}
+      },
+      storage: {
+        get: async () => null,
+        set: async () => {},
+        delete: async () => {}
+      },
+      i18n: {
+        t: () => '',
+        getLocale: () => 'en'
+      },
       metadata: {},
       events: {},
+      app: {
+        router: {
+          get: () => {},
+          post: () => {},
+          use: () => {}
+        }
+      }
     };
 
     const result = PluginContextSchema.safeParse(completeContext);
@@ -41,14 +95,26 @@ describe('PluginContextSchema', () => {
           find: async () => [],
           create: async (data: any) => data,
         }),
+        query: async (soql: string) => ({ records: [] })
       },
       os: {
         getCurrentUser: async () => ({ id: 'user123' }),
         getConfig: async (key: string) => 'value',
       },
       logger: {
+        debug: (message: string) => console.log(message),
         info: (message: string) => console.log(message),
+        warn: (message: string) => console.warn(message),
         error: (message: string, error?: any) => console.error(message, error),
+      },
+      storage: {
+        get: async (key: string) => null,
+        set: async (key: string, value: any) => {},
+        delete: async (key: string) => {}
+      },
+      i18n: {
+        t: (key: string, params?: any) => key,
+        getLocale: () => 'en-US'
       },
       metadata: {
         getObject: async (name: string) => ({}),
@@ -58,6 +124,13 @@ describe('PluginContextSchema', () => {
         on: (event: string, handler: Function) => {},
         emit: (event: string, data?: any) => {},
       },
+      app: {
+        router: {
+          get: (path: string, handler: Function) => {},
+          post: (path: string, handler: Function) => {},
+          use: (pathOrHandler: string | Function, handler?: Function) => {}
+        }
+      }
     };
 
     expect(() => PluginContextSchema.parse(context)).not.toThrow();
@@ -216,11 +289,38 @@ describe('Plugin Lifecycle Scenarios', () => {
       // Simulate installation
       if (parsed.onInstall) {
         await parsed.onInstall({
-          ql: { object: () => ({ syncSchema: async () => {} }) },
-          os: {},
-          logger: { info: () => {}, error: () => {} },
+          ql: { 
+            object: () => ({ syncSchema: async () => {} }),
+            query: async () => ({})
+          },
+          os: {
+            getCurrentUser: async () => ({ id: 'test-user' }),
+            getConfig: async () => 'test-config'
+          },
+          logger: { 
+            debug: () => {},
+            info: () => {}, 
+            warn: () => {},
+            error: () => {} 
+          },
+          storage: {
+            get: async () => null,
+            set: async () => {},
+            delete: async () => {}
+          },
+          i18n: {
+            t: () => '',
+            getLocale: () => 'en'
+          },
           metadata: {},
           events: {},
+          app: {
+            router: {
+              get: () => {},
+              post: () => {},
+              use: () => {}
+            }
+          }
         } as any);
       }
       
@@ -246,11 +346,38 @@ describe('Plugin Lifecycle Scenarios', () => {
       const parsed = PluginSchema.parse(plugin);
       
       const mockContext = {
-        ql: {},
-        os: {},
-        logger: { info: () => {}, error: () => {} },
+        ql: {
+          object: () => ({}),
+          query: async () => ({})
+        },
+        os: {
+          getCurrentUser: async () => ({ id: 'test-user' }),
+          getConfig: async () => 'test-config'
+        },
+        logger: { 
+          debug: () => {},
+          info: () => {}, 
+          warn: () => {},
+          error: () => {} 
+        },
+        storage: {
+          get: async () => null,
+          set: async () => {},
+          delete: async () => {}
+        },
+        i18n: {
+          t: () => '',
+          getLocale: () => 'en'
+        },
         metadata: {},
         events: {},
+        app: {
+          router: {
+            get: () => {},
+            post: () => {},
+            use: () => {}
+          }
+        }
       } as any;
 
       // Enable
@@ -286,11 +413,38 @@ describe('Plugin Lifecycle Scenarios', () => {
       if (parsed.onUpgrade) {
         await parsed.onUpgrade(
           {
-            ql: {},
-            os: {},
-            logger: { info: () => {}, error: () => {} },
+            ql: {
+              object: () => ({}),
+              query: async () => ({})
+            },
+            os: {
+              getCurrentUser: async () => ({ id: 'test-user' }),
+              getConfig: async () => 'test-config'
+            },
+            logger: { 
+              debug: () => {},
+              info: () => {}, 
+              warn: () => {},
+              error: () => {} 
+            },
+            storage: {
+              get: async () => null,
+              set: async () => {},
+              delete: async () => {}
+            },
+            i18n: {
+              t: () => '',
+              getLocale: () => 'en'
+            },
             metadata: {},
             events: {},
+            app: {
+              router: {
+                get: () => {},
+                post: () => {},
+                use: () => {}
+              }
+            }
           } as any,
           '1.0.0',
           '2.0.0'
@@ -318,11 +472,38 @@ describe('Plugin Lifecycle Scenarios', () => {
       
       if (parsed.onUninstall) {
         await parsed.onUninstall({
-          ql: { object: () => ({ dropTable: async () => {} }) },
-          os: {},
-          logger: { info: () => {}, error: () => {} },
+          ql: { 
+            object: () => ({ dropTable: async () => {} }),
+            query: async () => ({})
+          },
+          os: {
+            getCurrentUser: async () => ({ id: 'test-user' }),
+            getConfig: async () => 'test-config'
+          },
+          logger: { 
+            debug: () => {},
+            info: () => {}, 
+            warn: () => {},
+            error: () => {} 
+          },
+          storage: {
+            get: async () => null,
+            set: async () => {},
+            delete: async () => {}
+          },
+          i18n: {
+            t: () => '',
+            getLocale: () => 'en'
+          },
           metadata: {},
           events: {},
+          app: {
+            router: {
+              get: () => {},
+              post: () => {},
+              use: () => {}
+            }
+          }
         } as any);
       }
       
