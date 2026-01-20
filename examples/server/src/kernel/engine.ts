@@ -7,9 +7,15 @@ export class DataEngine {
   private ql: ObjectQL;
 
   constructor() {
-    // In a real startup sequence, driver choice involves config loading
-    const driver = new InMemoryDriver();
-    this.ql = new ObjectQL(driver);
+    this.ql = new ObjectQL();
+
+    // 1. Initialize Driver (Usually loaded from plugins or config)
+    const memoryDriver = new InMemoryDriver();
+
+    // 2. Register Driver to Engine
+    this.ql.registerDriver(memoryDriver, true); // Set as default
+
+    // 3. Start Engine
     this.ql.init().catch(console.error);
     
     // Seed some data for demo
