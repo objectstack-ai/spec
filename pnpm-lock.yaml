@@ -180,9 +180,22 @@ importers:
 
   examples/todo:
     dependencies:
+      '@objectstack/client-sdk':
+        specifier: workspace:*
+        version: link:../../packages/client-sdk
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../packages/spec
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
+  packages/client-sdk:
+    dependencies:
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../spec
     devDependencies:
       typescript:
         specifier: ^5.0.0

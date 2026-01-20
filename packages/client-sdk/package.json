@@ -1,0 +1,16 @@
+{
+  "name": "@objectstack/client-sdk",
+  "version": "0.1.0",
+  "description": "Official Client SDK for ObjectStack Protocol",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@objectstack/spec": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
