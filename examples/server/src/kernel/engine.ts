@@ -3,22 +3,27 @@ import { SchemaRegistry } from './registry';
 import { InMemoryDriver } from '@objectstack/plugin-driver-memory';
 import { ObjectQL } from '@objectstack/objectql';
 
+/**
+ * Server Data Engine Wrapper
+ * 
+ * This class is now a thin wrapper that initializes the ObjectQL Engine 
+ * with the appropriate Server-Side configuration (Registry, Drivers).
+ * 
+ * The core logic has been moved to @objectstack/objectql.
+ */
 export class DataEngine {
-  private ql: ObjectQL;
+  public ql: ObjectQL;
 
   constructor() {
     this.ql = new ObjectQL();
 
-    // 1. Initialize Driver (Usually loaded from plugins or config)
+    // 1. Initialize Driver
     const memoryDriver = new InMemoryDriver();
+    this.ql.registerDriver(memoryDriver, true); 
 
-    // 2. Register Driver to Engine
-    this.ql.registerDriver(memoryDriver, true); // Set as default
-
-    // 3. Start Engine
+    // 2. Start Engine
     this.ql.init().catch(console.error);
     
-    // Seed some data for demo
     this.seed();
   }
 
@@ -26,73 +31,23 @@ export class DataEngine {
     await this.ql.insert('SystemStatus', { status: 'OK', uptime: 0 });
   }
   
+  // Forward methods to ObjectQL
   async find(objectName: string, query: any) {
     this.ensureSchema(objectName);
-    
-    // Delegate to ObjectQL
     const results = await this.ql.find(objectName, { top: 100 });
-    
-    return {
-      value: results,
-      count: results.length
-    };
+    return { value: results, count: results.length };
   }
 
   async get(objectName: string, id: string) {
     this.ensureSchema(objectName);
-    // Find One not fully implemented in engine wrapper yet, using find as mock
-    const results = await this.ql.find(objectName, { top: 1 });
+    // Find One
+    const results = await this.ql.find(objectName, { top: 1 }); // Mock implementation
     return results[0];
   }
 
   async create(objectName: string, data: any) {
      this.ensureSchema(objectName);
      return this.ql.insert(objectName, data);
-  }
-    const records = MEMORY_DB[objectName] || [];
-    const record = records.find(r => r._id === id);
-    if (!record) throw new Error(`Record not found: ${id}`);
-    return record;
-  }
-
-  async create(objectName: string, payload: any) {
-    const schema = this.ensureSchema(objectName);
-    
-    // Auto-generate ID and Timestamps
-    const record = {
-      _id: Math.random().toString(36).substring(7),
-      created_at: new Date().toISOString(),
-      ...payload
-    };
-
-    // TODO: Validate against schema.fields
-    
-    if (!MEMORY_DB[objectName]) MEMORY_DB[objectName] = [];
-    MEMORY_DB[objectName].push(record);
-    
-    return record;
-  }
-
-  async update(objectName: string, id: string, payload: any) {
-    this.ensureSchema(objectName);
-    const records = MEMORY_DB[objectName] || [];
-    const index = records.findIndex(r => r._id === id);
-    
-    if (index === -1) throw new Error(`Record not found: ${id}`);
-    
-    records[index] = { ...records[index], ...payload, updated_at: new Date().toISOString() };
-    return records[index];
-  }
-
-  async delete(objectName: string, id: string) {
-    this.ensureSchema(objectName);
-    const records = MEMORY_DB[objectName] || [];
-    const index = records.findIndex(r => r._id === id);
-    
-    if (index === -1) throw new Error(`Record not found: ${id}`);
-    
-    records.splice(index, 1);
-    return { success: true };
   }
 
   private ensureSchema(name: string): ServiceObject {
