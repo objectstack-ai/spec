@@ -1,23 +1,48 @@
 import { ServiceObject } from '@objectstack/spec';
 import { SchemaRegistry } from './registry';
-
-// Simple in-memory storage for demonstration
-const MEMORY_DB: Record<string, any[]> = {};
+import { InMemoryDriver } from '@objectstack/plugin-driver-memory';
+import { ObjectQL } from '@objectstack/objectql';
 
 export class DataEngine {
+  private ql: ObjectQL;
+
+  constructor() {
+    // In a real startup sequence, driver choice involves config loading
+    const driver = new InMemoryDriver();
+    this.ql = new ObjectQL(driver);
+    this.ql.init().catch(console.error);
+    
+    // Seed some data for demo
+    this.seed();
+  }
+
+  async seed() {
+    await this.ql.insert('SystemStatus', { status: 'OK', uptime: 0 });
+  }
   
   async find(objectName: string, query: any) {
     this.ensureSchema(objectName);
-    const records = MEMORY_DB[objectName] || [];
-    // In real world: Implement parsing of `query` (filter, sort, page)
+    
+    // Delegate to ObjectQL
+    const results = await this.ql.find(objectName, { top: 100 });
+    
     return {
-      value: records,
-      count: records.length
+      value: results,
+      count: results.length
     };
   }
 
   async get(objectName: string, id: string) {
     this.ensureSchema(objectName);
+    // Find One not fully implemented in engine wrapper yet, using find as mock
+    const results = await this.ql.find(objectName, { top: 1 });
+    return results[0];
+  }
+
+  async create(objectName: string, data: any) {
+     this.ensureSchema(objectName);
+     return this.ql.insert(objectName, data);
+  }
     const records = MEMORY_DB[objectName] || [];
     const record = records.find(r => r._id === id);
     if (!record) throw new Error(`Record not found: ${id}`);

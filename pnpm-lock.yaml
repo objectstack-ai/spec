@@ -108,7 +108,27 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
+  examples/objectql:
+    dependencies:
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../../packages/spec
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
   examples/plugin-bi:
+    dependencies:
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../../packages/spec
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
+  examples/plugin-driver-memory:
     dependencies:
       '@objectstack/spec':
         specifier: workspace:*
@@ -129,9 +149,15 @@ importers:
       '@objectstack/example-todo':
         specifier: workspace:*
         version: link:../todo
+      '@objectstack/objectql':
+        specifier: workspace:*
+        version: link:../objectql
       '@objectstack/plugin-bi':
         specifier: workspace:*
         version: link:../plugin-bi
+      '@objectstack/plugin-driver-memory':
+        specifier: workspace:*
+        version: link:../plugin-driver-memory
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../packages/spec

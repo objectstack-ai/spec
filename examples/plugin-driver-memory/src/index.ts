@@ -1,5 +1,7 @@
 import { InMemoryDriver } from './memory-driver';
 
+export { InMemoryDriver }; // Export class for direct usage
+
 // Note: In a real environment, you would import these from @objectstack/spec
 // But distinct PluginDefinition interface might not be strictly defined in schema yet, 
 // usually it mimics the Manifest structure + runtime hooks.

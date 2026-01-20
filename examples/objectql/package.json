@@ -1,0 +1,17 @@
+{
+  "name": "@objectstack/objectql",
+  "version": "0.0.1",
+  "description": "ObjectQL Reference Implementation",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w"
+  },
+  "dependencies": {
+    "@objectstack/spec": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
