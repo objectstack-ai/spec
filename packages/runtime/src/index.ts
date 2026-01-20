@@ -2,6 +2,7 @@
 export { ObjectQL } from './engine';
 export { SchemaRegistry } from './registry';
 export { DataEngine } from './data-engine';
+export { ObjectStackRuntimeProtocol } from './protocol';
 
 
 
