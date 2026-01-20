@@ -7,7 +7,6 @@ import { ServiceObject, App, ObjectStackManifest } from '@objectstack/spec';
 export class SchemaRegistry {
   // Nested Map: Type -> Name/ID -> MetadataItem
   private static metadata = new Map<string, Map<string, any>>();
-  private static _id = Math.random().toString(36).substring(7);
 
   /**
    * Universal Register Method
@@ -23,23 +22,17 @@ export class SchemaRegistry {
     const key = String(item[keyField]);
 
     if (collection.has(key)) {
-      console.warn(`[Registry:${this._id}] Overwriting ${type}: ${key}`);
+      console.warn(`[Registry] Overwriting ${type}: ${key}`);
     }
     collection.set(key, item);
-    console.log(`[Registry:${this._id}] Registered ${type}: ${key}`);
+    console.log(`[Registry] Registered ${type}: ${key}`);
   }
 
   /**
    * Universal Get Method
    */
   static getItem<T>(type: string, name: string): T | undefined {
-    const item = this.metadata.get(type)?.get(name) as T;
-    if (!item) {
-        console.log(`[Registry:${this._id}] MISSING ${type}: ${name}. Available: ${Array.from(this.metadata.get(type)?.keys() || [])}`);
-    } else {
-        console.log(`[Registry:${this._id}] FOUND ${type}: ${name}`);
-    }
-    return item;
+    return this.metadata.get(type)?.get(name) as T;
   }
 
   /**
