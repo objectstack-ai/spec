@@ -55,6 +55,19 @@ async function main() {
        console.log('✅ Deleted:', deleted);
     }
 
+    // 6. Advanced Query (AST)
+    console.log('\n🧠 Testing Advanced Query (Select & AST)...');
+    const advancedResult = await client.data.find('todo_task', {
+        select: ['subject', 'priority'],
+        filters: ['priority', '>=', 2],
+        sort: ['-priority']
+    });
+    console.log(`🎉 Found ${advancedResult.count} high priority tasks:`);
+    advancedResult.value.forEach((task: any) => {
+        console.log(` - ${task.subject} (P${task.priority}) [Has keys: ${Object.keys(task).join(', ')}]`);
+    });
+
+
 
   } catch (error) {
     console.error('❌ Error during test:', error);

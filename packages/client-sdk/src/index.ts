@@ -1,3 +1,5 @@
+import { QueryAST, FilterNode, SortNode, AggregationNode, WindowFunctionNode } from '@objectstack/spec';
+
 export interface ClientConfig {
   baseUrl: string;
   token?: string;
@@ -19,11 +21,14 @@ export interface DiscoveryResult {
 }
 
 export interface QueryOptions {
-  select?: string[];
-  filters?: Record<string, any>;
-  sort?: string | string[]; // 'name' or ['-created_at', 'name']
+  select?: string[]; // Simplified Selection
+  filters?: Record<string, any> | FilterNode; // Map or AST
+  sort?: string | string[] | SortNode[]; // 'name' or ['-created_at'] or AST
   top?: number;
   skip?: number;
+  // Advanced features
+  aggregations?: AggregationNode[];
+  groupBy?: string[];
 }
 
 export interface PaginatedResult<T = any> {
@@ -82,24 +87,66 @@ export class ObjectStackClient {
    * Data Operations
    */
   data = {
+    /**
+     * Advanced Query using ObjectStack Query Protocol
+     * Supports both simplified options and full AST
+     */
+    query: async <T = any>(object: string, query: Partial<QueryAST>): Promise<PaginatedResult<T>> => {
+      const route = this.getRoute('data');
+      // POST for complex query to avoid URL length limits and allow clean JSON AST
+      // Convention: POST /api/v1/data/:object/query
+      const res = await this.fetch(`${this.baseUrl}${route}/${object}/query`, {
+        method: 'POST',
+        body: JSON.stringify(query)
+      });
+      return res.json();
+    },
+
     find: async <T = any>(object: string, options: QueryOptions = {}): Promise<PaginatedResult<T>> => {
         const route = this.getRoute('data');
         const queryParams = new URLSearchParams();
         
+        // 1. Handle Pagination
         if (options.top) queryParams.set('top', options.top.toString());
         if (options.skip) queryParams.set('skip', options.skip.toString());
+
+        // 2. Handle Sort
         if (options.sort) {
-            const sortVal = Array.isArray(options.sort) ? options.sort.join(',') : options.sort;
-            queryParams.set('sort', sortVal);
+            // Check if it's AST 
+            if (Array.isArray(options.sort) && typeof options.sort[0] === 'object') {
+                 queryParams.set('sort', JSON.stringify(options.sort));
+            } else {
+                 const sortVal = Array.isArray(options.sort) ? options.sort.join(',') : options.sort;
+                 queryParams.set('sort', sortVal as string);
+            }
         }
         
-        // Flatten simple KV pairs if filters exists
+        // 3. Handle Select
+        if (options.select) {
+            queryParams.set('select', options.select.join(','));
+        }
+
+        // 4. Handle Filters (Simple vs AST)
         if (options.filters) {
-             Object.entries(options.filters).forEach(([k, v]) => {
-                 if (v !== undefined && v !== null) {
-                    queryParams.append(k, String(v));
-                 }
-             });
+             // If looks like AST (not plain object map)
+             // TODO: robust check. safely assuming map for simplified find, and recommending .query() for AST
+             if (this.isFilterAST(options.filters)) {
+                 queryParams.set('filters', JSON.stringify(options.filters));
+             } else {
+                 Object.entries(options.filters).forEach(([k, v]) => {
+                     if (v !== undefined && v !== null) {
+                        queryParams.append(k, String(v));
+                     }
+                 });
+             }
+        }
+        
+        // 5. Handle Aggregations & GroupBy (Pass through as JSON if present)
+        if (options.aggregations) {
+            queryParams.set('aggregations', JSON.stringify(options.aggregations));
+        }
+        if (options.groupBy) {
+             queryParams.set('groupBy', options.groupBy.join(','));
         }
 
         const res = await this.fetch(`${this.baseUrl}${route}/${object}?${queryParams.toString()}`);
@@ -121,6 +168,15 @@ export class ObjectStackClient {
         return res.json();
     },
 
+    createMany: async <T = any>(object: string, data: Partial<T>[]): Promise<T[]> => {
+        const route = this.getRoute('data');
+        const res = await this.fetch(`${this.baseUrl}${route}/${object}/batch`, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+        return res.json();
+    },
+
     update: async <T = any>(object: string, id: string, data: Partial<T>): Promise<T> => {
         const route = this.getRoute('data');
         const res = await this.fetch(`${this.baseUrl}${route}/${object}/${id}`, {
@@ -130,10 +186,29 @@ export class ObjectStackClient {
         return res.json();
     },
 
+    updateMany: async <T = any>(object: string, ids: string[], data: Partial<T>): Promise<number> => {
+        // Warning: This implies updating all IDs with the SAME data
+        const route = this.getRoute('data');
+        const res = await this.fetch(`${this.baseUrl}${route}/${object}/batch`, {
+            method: 'PATCH',
+            body: JSON.stringify({ ids, data })
+        });
+        return res.json(); // Returns count
+    },
+
     delete: async (object: string, id: string): Promise<{ success: boolean }> => {
         const route = this.getRoute('data');
         const res = await this.fetch(`${this.baseUrl}${route}/${object}/${id}`, {
             method: 'DELETE'
+        });
+        return res.json();
+    },
+
+    deleteMany: async(object: string, ids: string[]): Promise<{ count: number }> => {
+        const route = this.getRoute('data');
+        const res = await this.fetch(`${this.baseUrl}${route}/${object}/batch`, {
+             method: 'DELETE',
+             body: JSON.stringify({ ids })
         });
         return res.json();
     }
@@ -142,6 +217,13 @@ export class ObjectStackClient {
   /**
    * Private Helpers
    */
+
+  private isFilterAST(filter: any): boolean {
+    // Basic check: if array, it's [field, op, val] or [logic, node, node]
+    // If object but not basic KV map... harder to tell without schema
+    // For now, assume if it passes Array.isArray it's an AST root
+    return Array.isArray(filter);
+  }
 
   private async fetch(url: string, options: RequestInit = {}): Promise<Response> {
     const headers: Record<string, string> = {
