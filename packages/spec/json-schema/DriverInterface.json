@@ -1,0 +1,59 @@
+{
+  "$ref": "#/definitions/DriverInterface",
+  "definitions": {
+    "DriverInterface": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Driver name"
+        },
+        "version": {
+          "type": "string",
+          "description": "Driver version"
+        },
+        "supports": {
+          "type": "object",
+          "properties": {
+            "transactions": {
+              "type": "boolean",
+              "description": "Supports transactions"
+            },
+            "joins": {
+              "type": "boolean",
+              "description": "Supports SQL joins"
+            },
+            "fullTextSearch": {
+              "type": "boolean",
+              "description": "Supports full-text search"
+            },
+            "jsonFields": {
+              "type": "boolean",
+              "description": "Supports JSON field types"
+            },
+            "arrayFields": {
+              "type": "boolean",
+              "description": "Supports array field types"
+            }
+          },
+          "required": [
+            "transactions",
+            "joins",
+            "fullTextSearch",
+            "jsonFields",
+            "arrayFields"
+          ],
+          "additionalProperties": false,
+          "description": "Driver capabilities"
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "supports"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

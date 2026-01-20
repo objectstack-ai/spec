@@ -1,0 +1,39 @@
+{
+  "$ref": "#/definitions/DriverCapabilities",
+  "definitions": {
+    "DriverCapabilities": {
+      "type": "object",
+      "properties": {
+        "transactions": {
+          "type": "boolean",
+          "description": "Supports transactions"
+        },
+        "joins": {
+          "type": "boolean",
+          "description": "Supports SQL joins"
+        },
+        "fullTextSearch": {
+          "type": "boolean",
+          "description": "Supports full-text search"
+        },
+        "jsonFields": {
+          "type": "boolean",
+          "description": "Supports JSON field types"
+        },
+        "arrayFields": {
+          "type": "boolean",
+          "description": "Supports array field types"
+        }
+      },
+      "required": [
+        "transactions",
+        "joins",
+        "fullTextSearch",
+        "jsonFields",
+        "arrayFields"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
