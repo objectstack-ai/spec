@@ -201,11 +201,11 @@ export const Lead = ObjectSchema.create({
       sort: [{ field: 'created_date', order: 'desc' }],
     },
     hot_leads: {
-      label: 'Hot Leads',
+      label: 'High Score Leads',
       type: 'grid',
-      columns: ['full_name', 'company', 'email', 'phone', 'status', 'owner'],
+      columns: ['full_name', 'company', 'email', 'phone', 'status', 'rating', 'owner'],
       filter: [
-        ['rating', '=', 'hot'],
+        ['rating', '>=', 4],
         ['is_converted', '=', false],
       ],
     },
