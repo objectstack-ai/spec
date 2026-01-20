@@ -1,0 +1,21 @@
+{
+  "name": "@objectstack/server",
+  "version": "0.1.0",
+  "description": "Standard Server Runtime for ObjectStack",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "hono": "^4.0.0",
+    "@hono/node-server": "^1.0.0",
+    "@objectstack/objectql": "workspace:*",
+    "@objectstack/spec": "workspace:*",
+    "zod": "^3.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  }
+}

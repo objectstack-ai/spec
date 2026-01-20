@@ -7,6 +7,7 @@
     "build": "tsc"
   },
   "dependencies": {
+    "@objectstack/server": "workspace:*",
     "@objectstack/spec": "workspace:*",
     "@objectstack/example-crm": "workspace:*",
     "@objectstack/example-todo": "workspace:*",
