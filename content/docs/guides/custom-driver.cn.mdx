@@ -18,6 +18,17 @@ description: 学习如何使用驱动接口为 ObjectStack 实现自定义数据
 
 所有驱动程序必须实现规范中定义的 `DriverInterface`。
 
+### 重要：ID 兼容性规范
+
+ObjectStack 协议强制要求所有记录必须包含一个类型为 `string` 的 `id` 字段。
+底层数据库可能使用不同的惯例（例如 MongoDB 使用 `_id`，SQL 使用 `int` 类型的 ID）。
+**驱动程序负责将这些转换为标准的字符串 `id`。**
+
+- **输入**: 当 `update` 或 `delete` 方法接收 `id` 参数时，将其视为唯一主键。
+- **输出**: 当 `find`、`create` 或 `update` 返回记录时，确保：
+  - 必须包含 `id` 字段（字符串）。
+  - 应移除或映射实现特定的 ID（如 `_id`）。
+
 ```typescript
 import { DriverInterface, DriverOptions } from '@objectstack/spec';
 import { QueryAST, QueryResult } from '@objectstack/objectql';
@@ -49,8 +60,14 @@ export class MyCustomDriver implements DriverInterface {
 async find(object: string, query: QueryAST, options?: DriverOptions): Promise<QueryResult> {
     // 1. 将 QueryAST 转换为数据库的查询语言（例如 SQL）
     // 2. 执行查询
-    // 3. 返回对象数组结果
-    return []; 
+    const results = await db.query(...);
+
+    // 3. 规范化 ID (MongoDB 风格示例)
+    return results.map(doc => ({
+        ...doc,
+        id: doc._id.toString(), // 映射 _id -> id
+        _id: undefined          // 隐藏实现细节
+    })); 
 }
 ```
 

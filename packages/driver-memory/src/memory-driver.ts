@@ -87,6 +87,7 @@ export class InMemoryDriver implements DriverInterface {
   async create(object: string, data: Record<string, any>, options?: DriverOptions) {
     const table = this.getTable(object);
     
+    // COMPATIBILITY: Driver must return 'id' as string
     const newRecord = {
       id: this.generateId(),
       ...data,

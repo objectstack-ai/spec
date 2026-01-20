@@ -153,6 +153,8 @@ export const DriverInterfaceSchema = z.object({
    *   sort: [{ field: 'created_at', order: 'desc' }],
    *   top: 10
    * });
+   * @returns Array of records.
+   *          MUST return `id` as string. MUST NOT return implementation details like `_id`.
    */
   find: z.function()
     .args(z.string(), QuerySchema, DriverOptionsSchema.optional())
@@ -166,6 +168,8 @@ export const DriverInterfaceSchema = z.object({
    * @param object - The name of the object.
    * @param query - QueryAST.
    * @param options - Driver options.
+   * @returns The record or null.
+   *          MUST return `id` as string. MUST NOT return implementation details like `_id`.
    */
   findOne: z.function()
     .args(z.string(), QuerySchema, DriverOptionsSchema.optional())
@@ -179,6 +183,7 @@ export const DriverInterfaceSchema = z.object({
    * @param data - Key-value map of field data.
    * @param options - Driver options.
    * @returns The created record, including server-generated fields (id, created_at, etc.).
+   *          MUST return `id` as string. MUST NOT return implementation details like `_id`.
    */
   create: z.function()
     .args(z.string(), z.record(z.any()), DriverOptionsSchema.optional())
@@ -193,6 +198,7 @@ export const DriverInterfaceSchema = z.object({
    * @param data - The fields to update.
    * @param options - Driver options.
    * @returns The updated record.
+   *          MUST return `id` as string. MUST NOT return implementation details like `_id`.
    */
   update: z.function()
     .args(z.string(), z.string().or(z.number()), z.record(z.any()), DriverOptionsSchema.optional())
