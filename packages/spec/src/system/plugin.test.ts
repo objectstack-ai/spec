@@ -1,0 +1,332 @@
+import { describe, it, expect } from 'vitest';
+import { 
+  PluginContextSchema, 
+  PluginLifecycleSchema,
+  PluginSchema,
+  type PluginContextData,
+  type PluginLifecycleHooks,
+  type PluginDefinition,
+} from './plugin.zod';
+
+describe('PluginContextSchema', () => {
+  it('should accept valid plugin context', () => {
+    const context: PluginContextData = {
+      ql: {},
+      os: {},
+      logger: {},
+      metadata: {},
+      events: {},
+    };
+
+    expect(() => PluginContextSchema.parse(context)).not.toThrow();
+  });
+
+  it('should accept context with all required properties', () => {
+    const completeContext = {
+      ql: {},
+      os: {},
+      logger: {},
+      metadata: {},
+      events: {},
+    };
+
+    const result = PluginContextSchema.safeParse(completeContext);
+    expect(result.success).toBe(true);
+  });
+
+  it('should accept context with actual implementations', () => {
+    const context = {
+      ql: {
+        object: (name: string) => ({
+          find: async () => [],
+          create: async (data: any) => data,
+        }),
+      },
+      os: {
+        getCurrentUser: async () => ({ id: 'user123' }),
+        getConfig: async (key: string) => 'value',
+      },
+      logger: {
+        info: (message: string) => console.log(message),
+        error: (message: string, error?: any) => console.error(message, error),
+      },
+      metadata: {
+        getObject: async (name: string) => ({}),
+        getFields: async (object: string) => [],
+      },
+      events: {
+        on: (event: string, handler: Function) => {},
+        emit: (event: string, data?: any) => {},
+      },
+    };
+
+    expect(() => PluginContextSchema.parse(context)).not.toThrow();
+  });
+});
+
+describe('PluginLifecycleSchema', () => {
+  it('should accept empty lifecycle (all hooks optional)', () => {
+    const lifecycle: PluginLifecycleHooks = {};
+
+    expect(() => PluginLifecycleSchema.parse(lifecycle)).not.toThrow();
+  });
+
+  it('should accept lifecycle with onInstall hook', () => {
+    const lifecycle: PluginLifecycleHooks = {
+      onInstall: async (context: PluginContextData) => {
+        // Installation logic
+      },
+    };
+
+    expect(() => PluginLifecycleSchema.parse(lifecycle)).not.toThrow();
+  });
+
+  it('should accept lifecycle with onEnable hook', () => {
+    const lifecycle: PluginLifecycleHooks = {
+      onEnable: async (context: PluginContextData) => {
+        // Enable logic
+      },
+    };
+
+    expect(() => PluginLifecycleSchema.parse(lifecycle)).not.toThrow();
+  });
+
+  it('should accept lifecycle with onDisable hook', () => {
+    const lifecycle: PluginLifecycleHooks = {
+      onDisable: async (context: PluginContextData) => {
+        // Disable logic
+      },
+    };
+
+    expect(() => PluginLifecycleSchema.parse(lifecycle)).not.toThrow();
+  });
+
+  it('should accept lifecycle with onUninstall hook', () => {
+    const lifecycle: PluginLifecycleHooks = {
+      onUninstall: async (context: PluginContextData) => {
+        // Uninstall logic
+      },
+    };
+
+    expect(() => PluginLifecycleSchema.parse(lifecycle)).not.toThrow();
+  });
+
+  it('should accept lifecycle with onUpgrade hook', () => {
+    const lifecycle: PluginLifecycleHooks = {
+      onUpgrade: async (context: PluginContextData, fromVersion: string, toVersion: string) => {
+        // Upgrade logic
+      },
+    };
+
+    expect(() => PluginLifecycleSchema.parse(lifecycle)).not.toThrow();
+  });
+
+  it('should accept lifecycle with all hooks', () => {
+    const lifecycle: PluginLifecycleHooks = {
+      onInstall: async (context: PluginContextData) => {
+        await context.ql.object('plugin_data').syncSchema();
+      },
+      onEnable: async (context: PluginContextData) => {
+        context.logger.info('Plugin enabled');
+      },
+      onDisable: async (context: PluginContextData) => {
+        context.logger.info('Plugin disabled');
+      },
+      onUninstall: async (context: PluginContextData) => {
+        await context.ql.object('plugin_data').dropTable();
+      },
+      onUpgrade: async (context: PluginContextData, from: string, to: string) => {
+        context.logger.info(`Upgrading from ${from} to ${to}`);
+      },
+    };
+
+    expect(() => PluginLifecycleSchema.parse(lifecycle)).not.toThrow();
+  });
+});
+
+describe('PluginSchema', () => {
+  it('should accept plugin with minimal metadata', () => {
+    const plugin: PluginDefinition = {};
+
+    expect(() => PluginSchema.parse(plugin)).not.toThrow();
+  });
+
+  it('should accept plugin with id and version', () => {
+    const plugin: PluginDefinition = {
+      id: 'com.example.plugin',
+      version: '1.0.0',
+    };
+
+    expect(() => PluginSchema.parse(plugin)).not.toThrow();
+  });
+
+  it('should accept complete plugin definition', () => {
+    const plugin: PluginDefinition = {
+      id: 'com.example.bi-plugin',
+      version: '2.1.0',
+      onInstall: async (context) => {
+        await context.ql.object('bi_report').create({
+          name: 'Default Report',
+          type: 'chart',
+        });
+      },
+      onEnable: async (context) => {
+        context.events.on('record.created', async (data: any) => {
+          context.logger.info('Record created', data);
+        });
+      },
+      onDisable: async (context) => {
+        // Cleanup event handlers
+      },
+      onUninstall: async (context) => {
+        await context.ql.object('bi_report').delete({ plugin_id: 'com.example.bi-plugin' });
+      },
+      onUpgrade: async (context, from, to) => {
+        if (from === '1.0.0' && to === '2.0.0') {
+          // Migrate data
+          await context.ql.object('bi_report').update(
+            {},
+            { migrated: true }
+          );
+        }
+      },
+    };
+
+    expect(() => PluginSchema.parse(plugin)).not.toThrow();
+  });
+});
+
+describe('Plugin Lifecycle Scenarios', () => {
+  describe('Installation Flow', () => {
+    it('should handle plugin installation', async () => {
+      let installed = false;
+      
+      const plugin: Plugin = {
+        id: 'test.plugin',
+        version: '1.0.0',
+        onInstall: async (context) => {
+          installed = true;
+          await context.ql.object('test_object').syncSchema();
+        },
+      };
+
+      const parsed = PluginSchema.parse(plugin);
+      expect(parsed.onInstall).toBeDefined();
+      
+      // Simulate installation
+      if (parsed.onInstall) {
+        await parsed.onInstall({
+          ql: { object: () => ({ syncSchema: async () => {} }) },
+          os: {},
+          logger: { info: () => {}, error: () => {} },
+          metadata: {},
+          events: {},
+        } as any);
+      }
+      
+      expect(installed).toBe(true);
+    });
+  });
+
+  describe('Enable/Disable Flow', () => {
+    it('should handle plugin enable and disable', async () => {
+      let enabled = false;
+      
+      const plugin: Plugin = {
+        onEnable: async (context) => {
+          enabled = true;
+          context.logger.info('Plugin enabled');
+        },
+        onDisable: async (context) => {
+          enabled = false;
+          context.logger.info('Plugin disabled');
+        },
+      };
+
+      const parsed = PluginSchema.parse(plugin);
+      
+      const mockContext = {
+        ql: {},
+        os: {},
+        logger: { info: () => {}, error: () => {} },
+        metadata: {},
+        events: {},
+      } as any;
+
+      // Enable
+      if (parsed.onEnable) {
+        await parsed.onEnable(mockContext);
+      }
+      expect(enabled).toBe(true);
+
+      // Disable
+      if (parsed.onDisable) {
+        await parsed.onDisable(mockContext);
+      }
+      expect(enabled).toBe(false);
+    });
+  });
+
+  describe('Upgrade Flow', () => {
+    it('should handle version upgrade', async () => {
+      let upgradeCalled = false;
+      let upgradeFrom = '';
+      let upgradeTo = '';
+      
+      const plugin: Plugin = {
+        onUpgrade: async (context, from, to) => {
+          upgradeCalled = true;
+          upgradeFrom = from;
+          upgradeTo = to;
+        },
+      };
+
+      const parsed = PluginSchema.parse(plugin);
+      
+      if (parsed.onUpgrade) {
+        await parsed.onUpgrade(
+          {
+            ql: {},
+            os: {},
+            logger: { info: () => {}, error: () => {} },
+            metadata: {},
+            events: {},
+          } as any,
+          '1.0.0',
+          '2.0.0'
+        );
+      }
+      
+      expect(upgradeCalled).toBe(true);
+      expect(upgradeFrom).toBe('1.0.0');
+      expect(upgradeTo).toBe('2.0.0');
+    });
+  });
+
+  describe('Uninstallation Flow', () => {
+    it('should handle plugin uninstallation', async () => {
+      let uninstalled = false;
+      
+      const plugin: Plugin = {
+        onUninstall: async (context) => {
+          uninstalled = true;
+          await context.ql.object('test_object').dropTable();
+        },
+      };
+
+      const parsed = PluginSchema.parse(plugin);
+      
+      if (parsed.onUninstall) {
+        await parsed.onUninstall({
+          ql: { object: () => ({ dropTable: async () => {} }) },
+          os: {},
+          logger: { info: () => {}, error: () => {} },
+          metadata: {},
+          events: {},
+        } as any);
+      }
+      
+      expect(uninstalled).toBe(true);
+    });
+  });
+});

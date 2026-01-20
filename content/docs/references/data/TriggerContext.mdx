@@ -1,0 +1,17 @@
+---
+title: TriggerContext
+description: TriggerContext Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **action** | `Enum<'insert' \| 'update' \| 'delete'>` | ✅ | Database operation type |
+| **timing** | `Enum<'before' \| 'after'>` | ✅ | Trigger execution timing |
+| **doc** | `Record<string, any>` | ✅ | Current document/record |
+| **previousDoc** | `Record<string, any>` | optional | Previous document state |
+| **userId** | `string` | ✅ | Current user ID |
+| **user** | `Record<string, any>` | ✅ | Current user record |
+| **ql** | `any` | optional | ObjectQL data access API |
+| **logger** | `any` | optional | Logging interface |

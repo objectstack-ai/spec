@@ -1,0 +1,61 @@
+{
+  "$ref": "#/definitions/TriggerContext",
+  "definitions": {
+    "TriggerContext": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": [
+            "insert",
+            "update",
+            "delete"
+          ],
+          "description": "Database operation type"
+        },
+        "timing": {
+          "type": "string",
+          "enum": [
+            "before",
+            "after"
+          ],
+          "description": "Trigger execution timing"
+        },
+        "doc": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Current document/record"
+        },
+        "previousDoc": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Previous document state"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Current user ID"
+        },
+        "user": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Current user record"
+        },
+        "ql": {
+          "description": "ObjectQL data access API"
+        },
+        "logger": {
+          "description": "Logging interface"
+        }
+      },
+      "required": [
+        "action",
+        "timing",
+        "doc",
+        "userId",
+        "user"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

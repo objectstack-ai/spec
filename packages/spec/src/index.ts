@@ -18,6 +18,7 @@ export * from './data/flow.zod';
 export * from './data/dataset.zod';
 export * from './data/query.zod';
 export * from './data/mapping.zod';
+export * from './data/trigger.zod';
 
 // API Protocol (Envelopes, Contracts)
 export * from './api/contract.zod';
@@ -32,6 +33,7 @@ export * from './ui/dashboard.zod';
 export * from './ui/report.zod';
 export * from './ui/action.zod';
 export * from './ui/page.zod';
+export * from './ui/widget.zod';
 
 // System Protocol (Manifest, Runtime, Constants)
 export * from './system/manifest.zod';
@@ -47,4 +49,6 @@ export * from './system/translation.zod';
 export * from './system/constants';
 export * from './system/types';
 export * from './system/discovery.zod';
+export * from './system/plugin.zod';
+export * from './system/driver.zod';
 

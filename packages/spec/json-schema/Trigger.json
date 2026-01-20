@@ -1,0 +1,73 @@
+{
+  "$ref": "#/definitions/Trigger",
+  "definitions": {
+    "Trigger": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Trigger name (snake_case)"
+        },
+        "object": {
+          "type": "string",
+          "description": "Target object name"
+        },
+        "timing": {
+          "type": "string",
+          "enum": [
+            "before",
+            "after"
+          ],
+          "description": "Execution timing"
+        },
+        "action": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "insert",
+                "update",
+                "delete"
+              ]
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "insert",
+                  "update",
+                  "delete"
+                ]
+              }
+            }
+          ],
+          "description": "Database operation(s) to trigger on"
+        },
+        "description": {
+          "type": "string",
+          "description": "Trigger description"
+        },
+        "active": {
+          "type": "boolean",
+          "default": true,
+          "description": "Is trigger active"
+        },
+        "order": {
+          "type": "number",
+          "default": 0,
+          "description": "Execution order"
+        }
+      },
+      "required": [
+        "name",
+        "object",
+        "timing",
+        "action"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

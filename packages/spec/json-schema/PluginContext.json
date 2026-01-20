@@ -1,0 +1,27 @@
+{
+  "$ref": "#/definitions/PluginContext",
+  "definitions": {
+    "PluginContext": {
+      "type": "object",
+      "properties": {
+        "ql": {
+          "description": "ObjectQL data access API"
+        },
+        "os": {
+          "description": "ObjectOS system API"
+        },
+        "logger": {
+          "description": "Logging interface"
+        },
+        "metadata": {
+          "description": "Metadata registry"
+        },
+        "events": {
+          "description": "Event bus"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
