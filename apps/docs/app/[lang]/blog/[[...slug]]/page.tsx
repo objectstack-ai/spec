@@ -6,6 +6,16 @@ import { baseOptions } from '@/app/layout.config';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
+// Extended type for blog post data
+interface BlogPostData {
+  title: string;
+  description?: string;
+  author?: string;
+  date?: string;
+  tags?: string[];
+  body: React.ComponentType;
+}
+
 export default async function BlogPage({
   params,
 }: {
@@ -28,52 +38,55 @@ export default async function BlogPage({
           </div>
 
           <div className="grid gap-8 md:grid-cols-2">
-            {posts.map((post) => (
-              <Link
-                key={post.url}
-                href={post.url}
-                className="group block rounded-lg border border-fd-border bg-fd-card p-6 transition-all hover:border-fd-primary/30 hover:shadow-md"
-              >
-                <div className="mb-3">
-                  <h2 className="text-2xl font-semibold mb-2 group-hover:text-fd-primary transition-colors">
-                    {post.data.title}
-                  </h2>
-                  {post.data.description && (
-                    <p className="text-fd-foreground/70">
-                      {post.data.description}
-                    </p>
-                  )}
-                </div>
-                
-                <div className="flex items-center gap-4 text-sm text-fd-foreground/70">
-                  {post.data.date && (
-                    <time dateTime={post.data.date}>
-                      {new Date(post.data.date).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
-                    </time>
-                  )}
-                  {post.data.author && (
-                    <span>By {post.data.author}</span>
-                  )}
-                </div>
-
-                {post.data.tags && post.data.tags.length > 0 && (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {post.data.tags.map((tag: string) => (
-                      <span
-                        key={tag}
-                        className="inline-flex items-center rounded-full bg-fd-primary/10 px-2.5 py-0.5 text-xs font-medium text-fd-primary"
-                      >
-                        {tag}
-                      </span>
-                    ))}
+            {posts.map((post) => {
+              const postData = post.data as unknown as BlogPostData;
+              return (
+                <Link
+                  key={post.url}
+                  href={post.url}
+                  className="group block rounded-lg border border-fd-border bg-fd-card p-6 transition-all hover:border-fd-primary/30 hover:shadow-md"
+                >
+                  <div className="mb-3">
+                    <h2 className="text-2xl font-semibold mb-2 group-hover:text-fd-primary transition-colors">
+                      {postData.title}
+                    </h2>
+                    {postData.description && (
+                      <p className="text-fd-foreground/70">
+                        {postData.description}
+                      </p>
+                    )}
                   </div>
-                )}
-              </Link>
-            ))}
+                  
+                  <div className="flex items-center gap-4 text-sm text-fd-foreground/70">
+                    {postData.date && (
+                      <time dateTime={postData.date}>
+                        {new Date(postData.date).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                      </time>
+                    )}
+                    {postData.author && (
+                      <span>By {postData.author}</span>
+                    )}
+                  </div>
+
+                  {postData.tags && postData.tags.length > 0 && (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {postData.tags.map((tag: string) => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center rounded-full bg-fd-primary/10 px-2.5 py-0.5 text-xs font-medium text-fd-primary"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </Link>
+              );
+            })}
           </div>
 
           {posts.length === 0 && (
@@ -93,6 +106,7 @@ export default async function BlogPage({
     notFound();
   }
 
+  const pageData = page.data as unknown as BlogPostData;
   const MDX = page.data.body;
 
   return (
@@ -108,32 +122,32 @@ export default async function BlogPage({
 
         <article className="prose prose-neutral dark:prose-invert max-w-none">
           <header className="mb-8 pb-8 border-b border-fd-border">
-            <h1 className="text-4xl font-bold mb-4">{page.data.title}</h1>
+            <h1 className="text-4xl font-bold mb-4">{pageData.title}</h1>
             
-            {page.data.description && (
+            {pageData.description && (
               <p className="text-xl text-fd-foreground/80 mb-6">
-                {page.data.description}
+                {pageData.description}
               </p>
             )}
 
             <div className="flex items-center gap-4 text-sm text-fd-foreground/70">
-              {page.data.date && (
-                <time dateTime={page.data.date}>
-                  {new Date(page.data.date).toLocaleDateString('en-US', {
+              {pageData.date && (
+                <time dateTime={pageData.date}>
+                  {new Date(pageData.date).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
                   })}
                 </time>
               )}
-              {page.data.author && (
-                <span>By {page.data.author}</span>
+              {pageData.author && (
+                <span>By {pageData.author}</span>
               )}
             </div>
 
-            {page.data.tags && page.data.tags.length > 0 && (
+            {pageData.tags && pageData.tags.length > 0 && (
               <div className="mt-4 flex flex-wrap gap-2">
-                {page.data.tags.map((tag: string) => (
+                {pageData.tags.map((tag: string) => (
                   <span
                     key={tag}
                     className="inline-flex items-center rounded-full bg-fd-primary/10 px-3 py-1 text-sm font-medium text-fd-primary"

@@ -3,15 +3,19 @@ import { z } from 'zod';
 
 export const docs = defineDocs({
   dir: '../../content/docs',
-}) as any;
+});
+
+const blogSchema = frontmatterSchema.extend({
+  author: z.string().optional(),
+  date: z.coerce.string().optional(),
+  tags: z.array(z.string()).optional(),
+});
 
 export const blog = defineDocs({
   dir: '../../content/blog',
-  schema: frontmatterSchema.extend({
-    author: z.string().optional(),
-    date: z.string().date().optional(),
-    tags: z.array(z.string()).optional(),
-  }),
-}) as any;
+  docs: {
+    schema: blogSchema,
+  },
+});
 
 export default defineConfig();
