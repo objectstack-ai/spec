@@ -148,7 +148,6 @@ describe('FieldSchema', () => {
 
       expect(() => FieldSchema.parse(selectField)).not.toThrow();
     });
-    });
   });
 
   describe('Relationship Fields', () => {
