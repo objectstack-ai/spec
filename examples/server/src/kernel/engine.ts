@@ -67,6 +67,21 @@ export class DataEngine {
     // In real world, we wait for 'ready' event.
     try {
         await this.ql.insert('SystemStatus', { status: 'OK', uptime: 0 });
+
+        // Seed some Todo Tasks if table is empty
+        // Use try-catch because find might throw if object not registered (though it should be)
+        try {
+          const tasks = await this.ql.find('todo_task', { top: 1 });
+          if (tasks.length === 0) {
+               console.log('[DataEngine] Seeding initial Todo Data...');
+               await this.ql.insert('todo_task', { subject: 'Review PR #102', is_completed: true, priority: 3, due_date: new Date() });
+               await this.ql.insert('todo_task', { subject: 'Write Documentation', is_completed: false, priority: 2, due_date: new Date(Date.now() + 86400000) });
+               await this.ql.insert('todo_task', { subject: 'Fix specific Server bug', is_completed: false, priority: 1 });
+          }
+        } catch (e) {
+          console.warn('[DataEngine] Failed to seed todo_task', e);
+        }
+
     } catch(e) {
         console.warn('Seed failed (driver might not be ready):', e);
     }
