@@ -1,0 +1,119 @@
+---
+title: Building a Custom Driver
+description: Learn how to implement a custom database driver for ObjectStack using the Driver Interface.
+---
+
+# Building a Custom Driver
+
+Drivers are the bridge between the **ObjectQL** engine and the underlying data storage (SQL, NoSQL, APIs, etc.). By implementing the `DriverInterface`, you can connect ObjectStack to any data source.
+
+In this guide, we will walk through creating a simple **In-Memory Driver** as an example.
+
+## Prerequisites
+
+- Existing ObjectStack workspace or plugin package.
+- Dependency on `@objectstack/objectql` and `@objectstack/spec`.
+
+## 1. The Driver Interface
+
+All drivers must implement the `DriverInterface` defined in the specification.
+
+```typescript
+import { DriverInterface, DriverOptions } from '@objectstack/spec';
+import { QueryAST, QueryResult } from '@objectstack/objectql';
+
+export class MyCustomDriver implements DriverInterface {
+    name = 'MyCustomDriver';
+
+    async connect() {
+        // Initialize connection
+    }
+
+    async disconnect() {
+        // Close connection
+    }
+    
+    // ... CRUD Methods
+}
+```
+
+## 2. Implementing CRUD Operations
+
+You need to implement `find`, `insert`, `update`, and `delete` methods.
+
+### Find (Query)
+
+The `find` method receives a `QueryAST` object, which contains structured query information (filters, sorting, pagination).
+
+```typescript
+async find(object: string, query: QueryAST, options?: DriverOptions): Promise<QueryResult> {
+    // 1. Convert QueryAST to your database's query language (e.g., SQL)
+    // 2. Execute query
+    // 3. Return results as an array of objects
+    return []; 
+}
+```
+
+### Insert (Create)
+
+```typescript
+async insert(object: string, data: Record<string, any>, options?: DriverOptions) {
+    // Insert data into the storage
+    return data;
+}
+```
+
+### Update
+
+```typescript
+async update(object: string, id: string, data: Record<string, any>, options?: DriverOptions) {
+    // Update the record identified by `id`
+    return { id, ...data };
+}
+```
+
+### Delete
+
+```typescript
+async delete(object: string, id: string, options?: DriverOptions) {
+    // Remove the record
+}
+```
+
+## 3. Handling Types
+
+Use the types provided by `@objectstack/objectql` to ensure compatibility.
+
+- `QueryAST`: The universal abstract syntax tree for queries.
+- `QueryResult`: `Record<string, any>[]`.
+
+## 4. Registering the Driver
+
+In your plugin's runtime entry point (e.g., `index.ts`), export the driver so it can be used by the engine.
+
+```typescript
+import { MyCustomDriver } from './my-driver';
+
+export default {
+    drivers: [new MyCustomDriver()]
+};
+```
+
+## Example: In-Memory Driver
+
+See the reference implementation in `examples/plugin-driver-memory`.
+
+```typescript
+// examples/plugin-driver-memory/src/memory-driver.ts
+export class InMemoryDriver implements DriverInterface {
+  name = 'InMemory';
+  private store = new Map<string, Map<string, any>>();
+
+  async find(object: string, query: QueryAST) {
+    const table = this.store.get(object) || new Map();
+    // Simple filter implementation...
+    return Array.from(table.values());
+  }
+  // ...
+}
+```

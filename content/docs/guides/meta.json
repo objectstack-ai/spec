@@ -4,6 +4,7 @@
   "pages": [
     "getting-started",
     "installation",
-    "project-structure"
+    "project-structure",
+    "custom-driver"
   ]
 }

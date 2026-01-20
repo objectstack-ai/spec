@@ -1,0 +1,119 @@
+---
+title: 构建自定义驱动
+description: 学习如何使用驱动接口为 ObjectStack 实现自定义数据库驱动。
+---
+
+# 构建自定义驱动
+
+驱动程序（Driver）是 **ObjectQL** 引擎与底层数据存储（SQL、NoSQL、API 等）之间的桥梁。通过实现 `DriverInterface`，您可以将 ObjectStack 连接到任何数据源。
+
+本指南将以创建一个简单的 **内存驱动（In-Memory Driver）** 为例进行讲解。
+
+## 先决条件
+
+- 现有的 ObjectStack 工作区或插件包。
+- 依赖 `@objectstack/objectql` 和 `@objectstack/spec`。
+
+## 1. 驱动接口 (Driver Interface)
+
+所有驱动程序必须实现规范中定义的 `DriverInterface`。
+
+```typescript
+import { DriverInterface, DriverOptions } from '@objectstack/spec';
+import { QueryAST, QueryResult } from '@objectstack/objectql';
+
+export class MyCustomDriver implements DriverInterface {
+    name = 'MyCustomDriver';
+
+    async connect() {
+        // 初始化连接
+    }
+
+    async disconnect() {
+        // 关闭连接
+    }
+    
+    // ... CRUD 方法
+}
+```
+
+## 2. 实现 CRUD 操作
+
+您需要实现 `find`（查询）、`insert`（插入）、`update`（更新）和 `delete`（删除）方法。
+
+### Find (查询)
+
+`find` 方法接收一个 `QueryAST` 对象，其中包含结构化的查询信息（过滤、排序、分页）。
+
+```typescript
+async find(object: string, query: QueryAST, options?: DriverOptions): Promise<QueryResult> {
+    // 1. 将 QueryAST 转换为数据库的查询语言（例如 SQL）
+    // 2. 执行查询
+    // 3. 返回对象数组结果
+    return []; 
+}
+```
+
+### Insert (插入)
+
+```typescript
+async insert(object: string, data: Record<string, any>, options?: DriverOptions) {
+    // 将数据插入存储
+    return data;
+}
+```
+
+### Update (更新)
+
+```typescript
+async update(object: string, id: string, data: Record<string, any>, options?: DriverOptions) {
+    // 更新由 `id` 标识的记录
+    return { id, ...data };
+}
+```
+
+### Delete (删除)
+
+```typescript
+async delete(object: string, id: string, options?: DriverOptions) {
+    // 删除记录
+}
+```
+
+## 3. 类型处理
+
+使用 `@objectstack/objectql` 提供的类型以确保兼容性。
+
+- `QueryAST`: 通用的查询抽象语法树。
+- `QueryResult`: `Record<string, any>[]`.
+
+## 4. 注册驱动
+
+在插件的运行时入口点（例如 `index.ts`）导出驱动程序，以便引擎使用。
+
+```typescript
+import { MyCustomDriver } from './my-driver';
+
+export default {
+    drivers: [new MyCustomDriver()]
+};
+```
+
+## 示例：内存驱动
+
+请参考 `examples/plugin-driver-memory` 中的参考实现。
+
+```typescript
+// examples/plugin-driver-memory/src/memory-driver.ts
+export class InMemoryDriver implements DriverInterface {
+  name = 'InMemory';
+  private store = new Map<string, Map<string, any>>();
+
+  async find(object: string, query: QueryAST) {
+    const table = this.store.get(object) || new Map();
+    // 简单的过滤实现...
+    return Array.from(table.values());
+  }
+  // ...
+}
+```
