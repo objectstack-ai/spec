@@ -10,6 +10,12 @@ This repository contains the core specifications, schemas, and protocols that po
 
 ## 📚 Documentation
 
+### Planning & Architecture
+*   **[Development Roadmap](./DEVELOPMENT_ROADMAP.md):** Complete development plan considering all future possibilities.
+*   **[Priority Matrix](./PRIORITIES.md):** What to work on next, sprint planning guide.
+*   **[Architecture Diagrams](./ARCHITECTURE.md):** Visual reference for the complete system.
+
+### Technical Documentation
 The official documentation is built with Fumadocs and Next.js.
 
 *   **[Documentation Content](./content/docs/):** MDX documentation files (concepts, specifications, references).
@@ -76,9 +82,28 @@ pnpm docs:dev
 
 ## 🤝 Contribution
 
+### Getting Started
+1.  **Read the Roadmap**: Review [DEVELOPMENT_ROADMAP.md](./DEVELOPMENT_ROADMAP.md) to understand the vision.
+2.  **Check Priorities**: See [PRIORITIES.md](./PRIORITIES.md) for what to work on next.
+3.  **Understand Architecture**: Read [ARCHITECTURE.md](./ARCHITECTURE.md) for system overview.
+
+### Development Process
 1.  **Code First**: Always start by defining the Zod Schema in `packages/spec/src`.
-2.  **Generate**: Run `pnpm build` to update JSON Schemas and Documentation.
-3.  **Commit**: Submit PR with updated Code + Schemas + Docs.
+2.  **Write Tests**: Add comprehensive tests in `*.test.ts` files (target 80%+ coverage).
+3.  **Generate**: Run `pnpm build` to update JSON Schemas and Documentation.
+4.  **Commit**: Submit PR with updated Code + Schemas + Docs.
+
+### Naming Conventions
+- **Configuration Keys** (TypeScript properties): `camelCase` (e.g., `maxLength`, `referenceFilters`)
+- **Machine Names** (Data values): `snake_case` (e.g., `name: 'project_task'`, `object: 'account'`)
+
+### PR Checklist
+- [ ] Zod schema follows naming conventions
+- [ ] Comprehensive JSDoc comments with `@description`
+- [ ] Unit tests with 80%+ coverage
+- [ ] Documentation with examples
+- [ ] JSON schema generated successfully
+- [ ] All existing tests pass
 
 ## 📄 License
 
