@@ -108,17 +108,7 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
-  examples/plugin-bi:
-    dependencies:
-      '@objectstack/spec':
-        specifier: workspace:*
-        version: link:../../packages/spec
-    devDependencies:
-      typescript:
-        specifier: ^5.0.0
-        version: 5.9.3
-
-  examples/server:
+  examples/host:
     dependencies:
       '@objectstack/driver-memory':
         specifier: workspace:*
@@ -142,6 +132,16 @@ importers:
       ts-node:
         specifier: ^10.9.1
         version: 10.9.2(@types/node@20.19.30)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
+  examples/plugin-bi:
+    dependencies:
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../../packages/spec
+    devDependencies:
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
