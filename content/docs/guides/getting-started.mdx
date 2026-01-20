@@ -3,7 +3,7 @@ title: Getting Started
 description: Build your first ObjectStack application in 5 minutes.
 ---
 
-ObjectStack is a protocol, but `@objectstack/spec` is the reference implementation library that provides the Zod schemas and strict types to build valid metadata.
+ObjectStack is a protocol-first platform. The `@objectstack/spec` package provides Zod schemas and strict TypeScript types to build valid metadata definitions.
 
 <Steps>
 
@@ -24,7 +24,7 @@ npx tsc --init
 <Step>
 ## Define your first Object
 
-Create a file named `src/objects/contact.schema.ts`.
+Create a file named `src/domains/crm/contact.object.ts`.
 This is where the power of **Zod-First Definition** comes in. You get autocomplete and validation out of the box.
 
 ```typescript
@@ -33,16 +33,150 @@ import { ObjectSchema, Field } from '@objectstack/spec';
 export const Contact = ObjectSchema.create({
   name: 'contact',
   label: 'Contact',
+  pluralLabel: 'Contacts',
+  icon: 'user',
+  description: 'People associated with accounts',
+  nameField: 'full_name',
+  
   fields: {
-    first_name: Field.text({ label: 'First Name', required: true }),
-    last_name: Field.text({ label: 'Last Name', required: true }),
-    email: Field.text({ format: 'email' }),
-    type: Field.select(['Customer', 'Partner', 'Vendor']),
+    // Basic Information
+    first_name: Field.text({ 
+      label: 'First Name', 
+      required: true,
+      maxLength: 100,
+    }),
+    
+    last_name: Field.text({ 
+      label: 'Last Name', 
+      required: true,
+      maxLength: 100,
+    }),
+    
+    // Formula field - automatically calculated
+    full_name: Field.formula({ 
+      label: 'Full Name',
+      expression: 'CONCAT(first_name, " ", last_name)',
+    }),
+    
+    // Contact Information
+    email: Field.email({ 
+      label: 'Email',
+      unique: true,
+    }),
+    
+    phone: Field.phone({ 
+      label: 'Phone',
+    }),
+    
+    // Selection with predefined options
+    type: Field.select({
+      label: 'Contact Type',
+      options: [
+        { label: 'Customer', value: 'customer', default: true },
+        { label: 'Partner', value: 'partner' },
+        { label: 'Vendor', value: 'vendor' },
+      ],
+    }),
+    
+    // Relationship to Account
+    account: Field.masterDetail('account', {
+      label: 'Account',
+      required: true,
+      deleteBehavior: 'cascade',
+    }),
   },
+  
   enable: {
-    api: true,
-    audit: true
+    apiEnabled: true,
+    trackHistory: true,
   }
+});
+```
+</Step>
+
+<Step>
+## Add an Account Object
+
+Create `src/domains/crm/account.object.ts` for the parent object:
+
+```typescript
+import { ObjectSchema, Field } from '@objectstack/spec';
+
+export const Account = ObjectSchema.create({
+  name: 'account',
+  label: 'Account',
+  pluralLabel: 'Accounts',
+  icon: 'building',
+  nameField: 'name',
+  
+  fields: {
+    // Autonumber field
+    account_number: Field.autonumber({
+      label: 'Account Number',
+      format: 'ACC-{0000}',
+    }),
+    
+    name: Field.text({ 
+      label: 'Account Name', 
+      required: true,
+      searchable: true,
+      maxLength: 255,
+    }),
+    
+    // Currency field
+    annual_revenue: Field.currency({ 
+      label: 'Annual Revenue',
+      min: 0,
+    }),
+    
+    // Select with custom colors (for kanban boards)
+    type: Field.select({
+      label: 'Account Type',
+      options: [
+        { label: 'Prospect', value: 'prospect', color: '#FFA500', default: true },
+        { label: 'Customer', value: 'customer', color: '#00AA00' },
+        { label: 'Partner', value: 'partner', color: '#0000FF' },
+      ],
+    }),
+  },
+  
+  enable: {
+    apiEnabled: true,
+    trackHistory: true,
+  }
+});
+```
+</Step>
+
+<Step>
+## Create Application Manifest
+
+Create `objectstack.config.ts` to bundle your objects into an app:
+
+```typescript
+import { defineManifest } from '@objectstack/spec';
+import { Account } from './src/domains/crm/account.object';
+import { Contact } from './src/domains/crm/contact.object';
+
+export default defineManifest({
+  name: 'my_crm',
+  label: 'My CRM',
+  version: '1.0.0',
+  description: 'Simple CRM application',
+  
+  objects: [Account, Contact],
+  
+  navigation: {
+    tabs: [
+      {
+        label: 'Sales',
+        items: [
+          { type: 'object', object: 'account' },
+          { type: 'object', object: 'contact' },
+        ],
+      },
+    ],
+  },
 });
 ```
 </Step>
@@ -50,16 +184,89 @@ export const Contact = ObjectSchema.create({
 <Step>
 ## Validate the Protocol
 
-Create a build script `src/build.ts` to verify your definitions comply with the ObjectStack Protocol.
+Create a build script `src/build.ts` to verify your definitions:
 
 ```typescript
-import { Contact } from './objects/contact.schema';
+import config from '../objectstack.config';
 
 // This will throw a ZodError if your schema is invalid
-const protocol = Contact.parse(Contact);
+console.log(`✅ App '${config.label}' is valid!`);
+console.log(`📦 Objects: ${config.objects.map(o => o.name).join(', ')}`);
 
-console.log(`✅ Object '${protocol.name}' is valid ObjectStack Metadata!`);
-console.log(JSON.stringify(protocol, null, 2));
+// Export as JSON for runtime use
+import fs from 'fs';
+fs.writeFileSync(
+  'dist/manifest.json', 
+  JSON.stringify(config, null, 2)
+);
+```
+
+Run it:
+
+```bash
+npx tsx src/build.ts
+```
+</Step>
+
+<Step>
+## Explore Advanced Features
+
+Now that you have a working app, explore advanced features:
+
+### 1. Add Validation Rules
+
+```typescript
+validations: [
+  {
+    name: 'unique_email',
+    type: 'unique',
+    fields: ['email'],
+    message: 'Email already exists',
+  },
+  {
+    name: 'positive_revenue',
+    type: 'script',
+    expression: 'annual_revenue >= 0',
+    message: 'Revenue must be positive',
+  },
+]
+```
+
+### 2. Add Workflow Rules
+
+```typescript
+workflows: [
+  {
+    name: 'update_last_activity',
+    trigger: 'on_update',
+    actions: [
+      {
+        type: 'field_update',
+        field: 'last_activity_date',
+        value: 'TODAY()',
+      },
+    ],
+  },
+]
+```
+
+### 3. Configure Views
+
+```typescript
+views: {
+  list: {
+    type: 'grid',
+    columns: ['account_number', 'name', 'type', 'annual_revenue'],
+    filters: [
+      { field: 'type', operator: '=', value: 'customer' }
+    ],
+  },
+  kanban: {
+    type: 'kanban',
+    groupBy: 'type',
+    columns: ['name', 'annual_revenue'],
+  },
+}
 ```
 </Step>
 
@@ -68,10 +275,15 @@ console.log(JSON.stringify(protocol, null, 2));
 
 Now that you have valid metadata, you can:
 
-1.  **Generate SQL**: Use the Protocol Compiler (Coming Soon) to generate `CREATE TABLE` statements.
-2.  **Generate UI**: Feed the JSON into the `<ObjectForm />` React component.
-3.  **Deploy**: Push the JSON to an ObjectOS Kernel.
+1. **Explore Examples**: Check out the [CRM Example](/examples/crm) for a full-featured implementation
+2. **Learn Field Types**: See the [Field Types Guide](/docs/guides/field-types) for all 30+ field types
+3. **Build UI**: Use the metadata with ObjectStack runtime to generate interfaces
+4. **Deploy**: Push to an ObjectStack kernel for production use
 
+**Additional Resources:**
+- [Object Schema Reference](/docs/references/data/core/Object)
+- [Validation Rules](/docs/guides/validation-rules)
+- [Workflow Automation](/docs/guides/workflows)
 </Step>
 
 </Steps>
