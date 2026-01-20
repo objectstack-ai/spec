@@ -17,7 +17,7 @@ This documentation is the authoritative reference for the ObjectStack Protocol.
     icon={<FileText />}
     title="Getting Started"
     href="/docs/guides/getting-started"
-    description="Build your first Object in 5 minutes. Learn the basics of the SDK."
+    description="Build your first Object in 5 minutes. Learn the basics with practical examples."
   />
   <Card
     icon={<Compass />}
@@ -39,18 +39,33 @@ This documentation is the authoritative reference for the ObjectStack Protocol.
   />
 </Cards>
 
+## Quick Links
+
+### Essential Guides
+- **[Field Types](/docs/guides/field-types)** - 30+ field types with examples (text, number, select, lookup, formula, etc.)
+- **[View Configuration](/docs/guides/view-configuration)** - Grid, Kanban, Calendar, Gantt, and Form layouts
+- **[Workflows & Validation](/docs/guides/workflows-validation)** - Business rules and automation
+- **[Project Structure](/docs/guides/project-structure)** - Best practices for organizing your code
+
+### Examples
+- **[CRM Example](/examples/crm)** - Full-featured application with 6 objects, workflows, views, dashboards
+- **[Todo Example](/examples/todo)** - Quick-start minimal example
+
 ## The "Trinity" Architecture
 
-ObjectStack is built on three pillars that work in unison:
+ObjectStack is built on five core modules that work in unison:
 
-| Pillar | Protocol | Responsibility |
+| Module | Protocol | Responsibility |
 | :--- | :--- | :--- |
-| **Data Layer** | **[ObjectQL](/docs/specifications/data/architecture)** | Defines the shape of data (`Object`) and how to access it (`AST`). Agnostic to SQL/NoSQL. |
+| **Data Layer** | **[ObjectQL](/docs/specifications/data/architecture)** | Defines the shape of data (`Object`, `Field`) and how to access it (`Query AST`). Agnostic to SQL/NoSQL. |
+| **UI Layer** | **[ObjectUI](/docs/specifications/ui/sdui-protocol)** | The Projection. Defines User Interfaces as abstract JSON layouts (Views, Dashboards, Actions). |
 | **Control Layer** | **[ObjectOS](/docs/specifications/server/kernel-architecture)** | The Kernel. Handles Identity, Security, Sync, and Automation. |
-| **View Layer** | **[ObjectUI](/docs/specifications/ui/sdui-protocol)** | The Projection. Defines the User Interface as abstract JSON layouts, enabling Server-Driven UI. |
+| **AI Layer** | **AI Protocol** | AI agent definitions, tools, knowledge bases, and model configurations. |
+| **API Layer** | **API Protocol** | Standardized REST/GraphQL contracts with request/response envelopes. |
 
 ## For whom is this?
 
 *   **Platform Architects:** Who want to build internal developer platforms (IDP) that scale.
 *   **Protocol Implementers:** Who want to write a new Driver for ObjectQL (e.g., for FoundationDB) or a new Renderer for ObjectUI (e.g., for Flutter).
 *   **AI Agent Developers:** Who need a deterministic, structured generic language for AI to generate software.
+*   **Low-Code Builders:** Who want a powerful metadata-driven platform for rapid application development.
