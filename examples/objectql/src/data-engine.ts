@@ -27,8 +27,16 @@ export class DataEngine {
     
     // 0. Register Provided Plugins
     this.plugins.forEach(p => {
-        console.log(`[DataEngine] Loading Plugin: ${p.name}`);
+        console.log(`[DataEngine] Loading Plugin: ${p.id || p.name}`);
         SchemaRegistry.registerPlugin(p);
+        
+        // Register Objects from App/Plugin
+        if (p.objects) {
+            for (const obj of p.objects) {
+                SchemaRegistry.registerObject(obj);
+                console.log(`[DataEngine] Registered Object: ${obj.name}`);
+            }
+        }
     });
 
     // 1. Load Drivers (Default to Memory if none provided in plugins)
