@@ -2,8 +2,16 @@ import Link from 'next/link';
 import { Database, FileJson, Layers, ShieldCheck, Zap, Globe, Cpu, LayoutTemplate, Bot } from 'lucide-react';
 import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import { baseOptions } from '@/app/layout.config';
+import { getHomepageTranslations } from '@/lib/homepage-i18n';
 
-export default function HomePage() {
+export default async function HomePage({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang } = await params;
+  const t = getHomepageTranslations(lang);
+
   return (
     <HomeLayout {...baseOptions} i18n>
       <main className="flex min-h-screen flex-col items-center justify-center text-center px-4 py-16 sm:py-24 md:py-32 overflow-hidden bg-background text-foreground selection:bg-primary/20">
@@ -12,17 +20,17 @@ export default function HomePage() {
         <div className="relative z-10 max-w-5xl space-y-8">
           <div className="inline-flex items-center rounded-full border border-fd-primary/20 bg-fd-primary/5 px-3 py-1 text-sm text-fd-primary backdrop-blur-sm transition-colors hover:bg-fd-primary/10 hover:border-fd-primary/30">
             <span className="flex h-2 w-2 rounded-full bg-fd-primary mr-2 animate-pulse"></span>
-            Protocol Specification v1.0
+            {t.badge.status} {t.badge.version}
           </div>
 
           <h1 className="text-5xl font-extrabold tracking-tight sm:text-7xl md:text-8xl bg-gradient-to-br from-foreground via-foreground/90 to-fd-primary/60 bg-clip-text text-transparent pb-4">
-            The ObjectStack <br/> Protocol
+            {t.hero.title.line1} <br/> {t.hero.title.line2}
           </h1>
           
           <p className="mx-auto max-w-2xl text-lg text-fd-muted-foreground sm:text-xl leading-relaxed">
-            The Open Standard for Metadata-Driven Enterprise Software.
+            {t.hero.subtitle.line1}
             <br className="hidden sm:inline" />
-            <span className="text-fd-foreground font-medium">Validatable. Database-Agnostic. AI-Native.</span>
+            <span className="text-fd-foreground font-medium">{t.hero.subtitle.line2}</span>
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
@@ -30,13 +38,13 @@ export default function HomePage() {
               href="/docs/guides/getting-started"
               className="inline-flex h-12 items-center justify-center rounded-lg bg-fd-primary px-8 text-sm font-medium text-fd-primary-foreground shadow-lg shadow-fd-primary/20 transition-all hover:bg-fd-primary/90 hover:scale-105 hover:shadow-fd-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring disabled:pointer-events-none disabled:opacity-50"
             >
-              Start Building
+              {t.hero.cta.primary}
             </Link>
             <Link
               href="/docs"
               className="inline-flex h-12 items-center justify-center rounded-lg border border-fd-border bg-fd-card/50 px-8 text-sm font-medium shadow-sm transition-all hover:bg-fd-accent hover:text-fd-accent-foreground backdrop-blur-sm hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring disabled:pointer-events-none disabled:opacity-50"
             >
-              Read Specification
+              {t.hero.cta.secondary}
             </Link>
           </div>
 
@@ -48,7 +56,7 @@ export default function HomePage() {
                 <div className="h-3 w-3 rounded-full bg-yellow-500/80" />
                 <div className="h-3 w-3 rounded-full bg-green-500/80" />
                 <div className="ml-2 text-xs font-medium text-fd-muted-foreground font-mono">
-                  contract.zod.ts
+                  {t.codePreview.filename}
                 </div>
               </div>
               <div className="overflow-x-auto p-6 text-left">
@@ -78,68 +86,68 @@ export default function HomePage() {
         <div className="mt-24 grid grid-cols-1 gap-8 text-left sm:grid-cols-2 lg:grid-cols-3 max-w-6xl w-full">
           <FeatureCard 
             icon={<Database className="h-6 w-6" />}
-            title="ObjectQL Data Layer"
+            title={t.features.objectql.title}
             href="/docs/specifications/data/architecture"
-            description="Strict JSON schemas for entities, fields, and relationships. It is the SQL you can send over the wire."
+            description={t.features.objectql.description}
           />
           <FeatureCard 
             icon={<Layers className="h-6 w-6" />}
-            title="ObjectUI View Layer"
+            title={t.features.objectui.title}
             href="/docs/specifications/ui/sdui-protocol"
-            description="Server-Driven UI protocol defining forms, grids, and dashboards. Decouples logic from the frontend implementation."
+            description={t.features.objectui.description}
           />
           <FeatureCard 
             icon={<Zap className="h-6 w-6" />}
-            title="ObjectOS Kernel"
+            title={t.features.objectos.title}
             href="/docs/specifications/server/kernel-architecture"
-            description="The runtime contract for permissions, workflows, and automation. Stateless business logic execution."
+            description={t.features.objectos.description}
           />
           <FeatureCard 
             icon={<ShieldCheck className="h-6 w-6" />}
-            title="Zero-Trust Security"
+            title={t.features.security.title}
             href="/docs/specifications/server/permission-governance"
-            description="Policy-as-Code. ACLs and Field Level Security are compiled into the database query engine."
+            description={t.features.security.description}
           />
           <FeatureCard 
             icon={<FileJson className="h-6 w-6" />}
-            title="Zod-First Definition"
+            title={t.features.zodFirst.title}
             href="/docs/specifications/data/schema-definition"
-            description="The entire protocol is defined in Zod. Runtime validation and static type inference come for free."
+            description={t.features.zodFirst.description}
           />
           <FeatureCard 
             icon={<Globe className="h-6 w-6" />}
-            title="Universal Backend"
+            title={t.features.universal.title}
             href="/docs/concepts/architecture"
-            description="Protocol adapters for Postgres, MongoDB, REST and GraphQL. Write once, run on any infrastructure."
+            description={t.features.universal.description}
           />
         </div>
 
         {/* Personas Section */}
         <div className="mt-32 mb-16 w-full max-w-5xl px-4">
           <h2 className="text-3xl font-bold tracking-tight mb-12 bg-gradient-to-r from-fd-foreground to-fd-muted-foreground bg-clip-text text-transparent">
-             Built for Builders
+             {t.personas.heading}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
              <PersonaCard 
                 icon={<LayoutTemplate className="w-8 h-8 mb-4 text-blue-500" />}
-                title="Platform Architects"
-                description="Design scalable Internal Developer Platforms (IDP) that unify your data silos."
+                title={t.personas.architect.title}
+                description={t.personas.architect.description}
                 href="/docs/concepts/enterprise-patterns"
-                action="Explore Patterns"
+                action={t.personas.architect.action}
              />
              <PersonaCard 
                 icon={<Bot className="w-8 h-8 mb-4 text-purple-500" />}
-                title="AI Engineers"
-                description="Feed LLMs with perfectly structured, deterministic JSON schemas they can actually understand."
+                title={t.personas.aiEngineer.title}
+                description={t.personas.aiEngineer.description}
                 href="/docs/concepts/ai-codex"
-                action="View Codex"
+                action={t.personas.aiEngineer.action}
              />
              <PersonaCard 
                 icon={<Cpu className="w-8 h-8 mb-4 text-green-500" />}
-                title="Framework Builders"
-                description="Implement the protocol in your language. Write drivers for React, Vue, Flutter, or Go."
+                title={t.personas.frameworkBuilder.title}
+                description={t.personas.frameworkBuilder.description}
                 href="/docs/specifications/data/architecture"
-                action="Read Spec"
+                action={t.personas.frameworkBuilder.action}
              />
           </div>
         </div>
