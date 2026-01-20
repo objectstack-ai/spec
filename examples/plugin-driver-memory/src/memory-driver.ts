@@ -1,7 +1,8 @@
 import { 
   DriverInterface, 
   DriverOptions, 
-  QueryAST // Ensure this is exported from spec
+  QueryAST,
+  QueryInput 
 } from '@objectstack/spec';
 
 /**
@@ -57,7 +58,7 @@ export class InMemoryDriver implements DriverInterface {
   // CRUD
   // ===================================
 
-  async find(object: string, query: QueryAST, options?: DriverOptions) {
+  async find(object: string, query: QueryInput, options?: DriverOptions) {
     const table = this.getTable(object);
     
     // 💡 Naive Implementation
@@ -71,7 +72,7 @@ export class InMemoryDriver implements DriverInterface {
     return results;
   }
 
-  async findOne(object: string, query: QueryAST, options?: DriverOptions) {
+  async findOne(object: string, query: QueryInput, options?: DriverOptions) {
     const results = await this.find(object, { ...query, top: 1 }, options);
     return results[0] || null;
   }
@@ -118,7 +119,7 @@ export class InMemoryDriver implements DriverInterface {
     return true;
   }
 
-  async count(object: string, query?: QueryAST, options?: DriverOptions) {
+  async count(object: string, query?: QueryInput, options?: DriverOptions) {
     return this.getTable(object).length;
   }
 

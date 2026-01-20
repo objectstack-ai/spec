@@ -2,8 +2,7 @@ import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { logger } from 'hono/logger';
 import { cors } from 'hono/cors';
-import { loadPlugins } from './loader';
-import { SchemaRegistry } from './kernel/registry';
+import { SchemaRegistry } from '@objectstack/objectql';
 import { DataEngine } from './kernel/engine';
 
 // 1. Initialize Kernel

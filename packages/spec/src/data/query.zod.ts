@@ -174,6 +174,7 @@ export const QuerySchema = z.object({
 });
 
 export type QueryAST = z.infer<typeof QuerySchema>;
+export type QueryInput = z.input<typeof QuerySchema>;
 export type FilterNode = z.infer<typeof FilterNodeSchema>;
 export type SortNode = z.infer<typeof SortNodeSchema>;
 export type AggregationNode = z.infer<typeof AggregationNodeSchema>;

@@ -131,6 +131,7 @@ export class ObjectQL {
     // This is a simplified "Mock" transform. 
     // Real implementation would parse complex JSON or FilterBuilders.
     const ast: QueryAST = {
+       object, // Add missing required field
        // Pass through if it looks like AST, otherwise empty
        // In this demo, we assume the caller passes a simplified object or raw AST
        filters: filters.filters || undefined,
