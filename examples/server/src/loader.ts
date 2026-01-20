@@ -35,7 +35,7 @@ export async function loadPlugins() {
            // 2. Load Runtime (Dynamic Simulation)
            // In a real engine, this would use `import(manifest.extensions.runtime.entry)`
            if (manifest.id === 'com.objectstack.bi' && BiPluginRuntime) {
-              const pluginDef = BiPluginRuntime.default || BiPluginRuntime;
+              const pluginDef = (BiPluginRuntime as any).default || BiPluginRuntime;
               
               if (pluginDef.onEnable) {
                 console.log(`[Loader] Executing Plugin Runtime: ${manifest.id}`);

@@ -14,9 +14,7 @@ app.use('*', logger());
 app.use('*', cors());
 
 // 2. Load Plugins (CRM, Todo)
-console.log('--- Starting ObjectStack Server ---');
-await loadPlugins();
-console.log('--- Plugins Loaded ---');
+// Initialization moved to async startup below
 
 // 3. Define Unified Routes
 
@@ -188,9 +186,20 @@ app.delete('/api/v1/data/:object/:id', async (c) => {
 
 // 4. Start Server
 const port = 3004;
-console.log(`Server is running on http://localhost:${port}`);
 
-serve({
-  fetch: app.fetch,
-  port
-});
+(async () => {
+  console.log('--- Starting ObjectStack Server ---');
+  try {
+    await loadPlugins();
+    console.log('--- Plugins Loaded ---');
+  } catch (err) {
+    console.error('Failed to load plugins:', err);
+  }
+
+  console.log(`Server is running on http://localhost:${port}`);
+
+  serve({
+    fetch: app.fetch,
+    port
+  });
+})();
