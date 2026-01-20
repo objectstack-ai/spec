@@ -15,6 +15,9 @@ app.use('*', cors());
 
 // 2. Load Plugins (CRM, Todo)
 // Initialization moved to async startup below
+loadPlugins(dataEngine).then(() => {
+  console.log('[Server] Kernel Ready');
+}).catch(console.error);
 
 // 3. Define Unified Routes
 

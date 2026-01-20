@@ -1,6 +1,5 @@
 import { ServiceObject } from '@objectstack/spec';
 import { SchemaRegistry } from './registry';
-import { InMemoryDriver } from '@objectstack/plugin-driver-memory';
 import { ObjectQL } from '@objectstack/objectql';
 
 /**
@@ -17,18 +16,24 @@ export class DataEngine {
   constructor() {
     this.ql = new ObjectQL();
 
-    // 1. Initialize Driver
-    const memoryDriver = new InMemoryDriver();
-    this.ql.registerDriver(memoryDriver, true); 
-
+    // Driver is now registered via Plugin System (see context.drivers.register) in loader.ts
+    // We just wait for init
+    
     // 2. Start Engine
     this.ql.init().catch(console.error);
     
-    this.seed();
+    // Seed after a short delay (mocking async startup)
+    setTimeout(() => this.seed(), 500);
   }
 
   async seed() {
-    await this.ql.insert('SystemStatus', { status: 'OK', uptime: 0 });
+    // If no driver registered yet, this might fail or wait. 
+    // In real world, we wait for 'ready' event.
+    try {
+        await this.ql.insert('SystemStatus', { status: 'OK', uptime: 0 });
+    } catch(e) {
+        console.warn('Seed failed (driver might not be ready):', e);
+    }
   }
   
   // Forward methods to ObjectQL

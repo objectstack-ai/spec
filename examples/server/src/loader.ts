@@ -1,5 +1,6 @@
 import { SchemaRegistry } from './kernel/registry';
 import { AppSchema, ManifestSchema, App, ObjectStackManifest } from '@objectstack/spec';
+import { DataEngine } from './kernel/engine';
 
 // Import from packages
 // @ts-ignore
@@ -9,9 +10,12 @@ import TodoApp from '@objectstack/example-todo/objectstack.config';
 // @ts-ignore
 import BiPluginManifest from '@objectstack/plugin-bi/objectstack.config';
 import BiPluginRuntime from '@objectstack/plugin-bi';
+// @ts-ignore
+import DriverMemoryManifest from '@objectstack/plugin-driver-memory/objectstack.config';
+import DriverMemoryRuntime from '@objectstack/plugin-driver-memory';
 
-export async function loadPlugins() {
-  const packages: any[] = [CrmApp, TodoApp, BiPluginManifest];
+export async function loadPlugins(engine: DataEngine) {
+  const packages: any[] = [CrmApp, TodoApp, BiPluginManifest, DriverMemoryManifest];
 
   for (const pkg of packages) {
     if (!pkg) continue;
@@ -33,9 +37,12 @@ export async function loadPlugins() {
            }
 
            // 2. Load Runtime (Dynamic Simulation)
-           // In a real engine, this would use `import(manifest.extensions.runtime.entry)`
-           if (manifest.id === 'com.objectstack.bi' && BiPluginRuntime) {
-              const pluginDef = (BiPluginRuntime as any).default || BiPluginRuntime;
+           let runtime: any = null;
+           if (manifest.id === 'com.objectstack.bi') runtime = BiPluginRuntime;
+           if (manifest.id === 'com.objectstack.driver.memory') runtime = DriverMemoryRuntime;
+
+           if (runtime) {
+              const pluginDef = (runtime as any).default || runtime;
               
               if (pluginDef.onEnable) {
                 console.log(`[Loader] Executing Plugin Runtime: ${manifest.id}`);
@@ -43,48 +50,32 @@ export async function loadPlugins() {
                   logger: console,
                   os: {
                     // Mock System API
-                    registerService: (id: string, svc: any) => console.log(`[OS] Service Registered: ${id}`) 
+                    registerService: (id: string, svc: any) => console.log(`[OS] Service Registered: ${id}`),
+                    getConfig: () => ({})
                   },
-                  ql: {}, // Mock ObjectQL
-                  services: {
-                     register: (id: string, svc: any) => console.log(`[Services] Registered ${id}`)
-                  }
+                  // 💡 EXPOSE OBJECTQL ENGINE TO PLUGINS
+                  drivers: engine.ql, 
+                  app: { router: { get: () => {} } }, // Mock Router
+                  storage: { set: () => {} },
+                  services: { register: () => {} },
+                  i18n: {}
                 });
               }
            }
-
-           // 3. Simulate File Scanning (Mock)
-           if (parsedManifest.id === 'com.objectstack.bi') {
-              SchemaRegistry.registerItem('bi.dataset', {
-                name: 'quarterly_sales',
-                label: 'Quarterly Sales Data',
-                source: 'sql_warehouse',
-                query: 'SELECT * FROM sales WHERE quarter = "Q4"'
-              }, 'name');
-           }
-       } catch (e) {
-           console.error(`[Loader] Failed to load plugin ${manifest.id}`, e);
+       } catch (err) {
+           console.error(`[Loader] Failed to load plugin ${manifest.id}:`, err);
        }
-
-    } else {
-       // Assume it's a legacy App definition
-       console.log(`[Loader] Loading App: ${pkg.name}`);
-       
-       try {
-         const parsedApp = AppSchema.parse(pkg);
-         SchemaRegistry.registerApp(parsedApp); 
-         
-         // Register Objects
-         if (pkg.objects) {
-            pkg.objects.forEach((obj: any) => {
-                SchemaRegistry.registerObject(obj);
-            });
-            console.log(`[Loader] Loaded ${pkg.objects.length} objects from ${pkg.name}`);
+    } 
+    // App loading
+    else if (pkg.type === 'app' || pkg.type === undefined) {
+         try {
+             if (pkg.id) { // Simple check
+                 console.log(`[Loader] Loading App Manifest: ${pkg.id}`);
+                 SchemaRegistry.registerApp(pkg as App);
+             }
+         } catch (e) {
+             console.error('Failed to load app', e);
          }
-
-       } catch (e) {
-         console.warn(`[Loader] Failed to validate app ${pkg.name}`, e);
-       }
     }
   }
 }
