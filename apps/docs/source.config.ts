@@ -9,7 +9,7 @@ export const blog = defineDocs({
   dir: '../../content/blog',
   schema: frontmatterSchema.extend({
     author: z.string().optional(),
-    date: z.string().or(z.date()).optional(),
+    date: z.string().date().optional(),
     tags: z.array(z.string()).optional(),
   }),
 }) as any;
