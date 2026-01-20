@@ -1,31 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ManifestSchema, MenuItemSchema, type ObjectStackManifest, type MenuItem } from './manifest.zod';
-
-describe('MenuItemSchema', () => {
-  it('should accept minimal menu item', () => {
-    const menuItem: MenuItem = {
-      label: 'Dashboard',
-      path: '/dashboard',
-    };
-
-    expect(() => MenuItemSchema.parse(menuItem)).not.toThrow();
-  });
-
-  it('should accept menu item with icon', () => {
-    const menuItem: MenuItem = {
-      label: 'Settings',
-      path: '/settings',
-      icon: 'settings',
-    };
-
-    expect(() => MenuItemSchema.parse(menuItem)).not.toThrow();
-  });
-
-  it('should reject menu item without required fields', () => {
-    expect(() => MenuItemSchema.parse({ label: 'Test' })).toThrow();
-    expect(() => MenuItemSchema.parse({ path: '/test' })).toThrow();
-  });
-});
+import { ManifestSchema, type ObjectStackManifest } from './manifest.zod';
 
 describe('ManifestSchema', () => {
   describe('Basic Properties', () => {
