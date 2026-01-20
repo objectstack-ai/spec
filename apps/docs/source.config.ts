@@ -1,4 +1,4 @@
-import { defineDocs, defineConfig } from 'fumadocs-mdx/config';
+import { defineDocs, defineConfig, frontmatterSchema } from 'fumadocs-mdx/config';
 import { z } from 'zod';
 
 export const docs = defineDocs({
@@ -7,15 +7,11 @@ export const docs = defineDocs({
 
 export const blog = defineDocs({
   dir: '../../content/blog',
-  docs: {
-    schema: (ctx) => {
-      return ctx.schema.extend({
-        author: z.string().optional(),
-        date: z.string().date().or(z.date()).optional(),
-        tags: z.array(z.string()).optional(),
-      });
-    },
-  },
+  schema: frontmatterSchema.extend({
+    author: z.string().optional(),
+    date: z.string().or(z.date()).optional(),
+    tags: z.array(z.string()).optional(),
+  }),
 }) as any;
 
 export default defineConfig();
