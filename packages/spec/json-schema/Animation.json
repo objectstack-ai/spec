@@ -1,0 +1,56 @@
+{
+  "$ref": "#/definitions/Animation",
+  "definitions": {
+    "Animation": {
+      "type": "object",
+      "properties": {
+        "duration": {
+          "type": "object",
+          "properties": {
+            "fast": {
+              "type": "string",
+              "description": "Fast animation (e.g., 150ms)"
+            },
+            "base": {
+              "type": "string",
+              "description": "Base animation (e.g., 300ms)"
+            },
+            "slow": {
+              "type": "string",
+              "description": "Slow animation (e.g., 500ms)"
+            }
+          },
+          "additionalProperties": false
+        },
+        "timing": {
+          "type": "object",
+          "properties": {
+            "linear": {
+              "type": "string",
+              "description": "Linear timing function"
+            },
+            "ease": {
+              "type": "string",
+              "description": "Ease timing function"
+            },
+            "easeIn": {
+              "type": "string",
+              "description": "Ease-in timing function"
+            },
+            "easeOut": {
+              "type": "string",
+              "description": "Ease-out timing function"
+            },
+            "easeInOut": {
+              "type": "string",
+              "description": "Ease-in-out timing function"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

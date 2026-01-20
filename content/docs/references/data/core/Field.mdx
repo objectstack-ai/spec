@@ -9,7 +9,7 @@ description: Field Schema Reference
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | optional | Machine name (snake_case) |
 | **label** | `string` | optional | Human readable label |
-| **type** | `Enum<'text' \| 'textarea' \| 'email' \| 'url' \| 'phone' \| 'password' \| 'markdown' \| 'html' \| 'number' \| 'currency' \| 'percent' \| 'date' \| 'datetime' \| 'time' \| 'boolean' \| 'select' \| 'lookup' \| 'master_detail' \| 'image' \| 'file' \| 'avatar' \| 'formula' \| 'summary' \| 'autonumber'>` | ✅ | Field Data Type |
+| **type** | `Enum<'text' \| 'textarea' \| 'email' \| 'url' \| 'phone' \| 'password' \| 'markdown' \| 'html' \| 'richtext' \| 'number' \| 'currency' \| 'percent' \| 'date' \| 'datetime' \| 'time' \| 'boolean' \| 'select' \| 'lookup' \| 'master_detail' \| 'image' \| 'file' \| 'avatar' \| 'formula' \| 'summary' \| 'autonumber' \| 'location' \| 'address' \| 'code' \| 'color' \| 'rating' \| 'signature'>` | ✅ | Field Data Type |
 | **description** | `string` | optional | Tooltip/Help text |
 | **format** | `string` | optional | Format string (e.g. email, phone) |
 | **required** | `boolean` | optional | Is required |
@@ -31,6 +31,17 @@ description: Field Schema Reference
 | **expression** | `string` | optional | Formula expression |
 | **formula** | `string` | optional | Deprecated: Use expression |
 | **summaryOperations** | `object` | optional | Roll-up summary definition |
+| **language** | `string` | optional | Programming language for syntax highlighting (e.g., javascript, python, sql) |
+| **theme** | `string` | optional | Code editor theme (e.g., dark, light, monokai) |
+| **lineNumbers** | `boolean` | optional | Show line numbers in code editor |
+| **maxRating** | `number` | optional | Maximum rating value (default: 5) |
+| **allowHalf** | `boolean` | optional | Allow half-star ratings |
+| **displayMap** | `boolean` | optional | Display map widget for location field |
+| **allowGeocoding** | `boolean` | optional | Allow address-to-coordinate conversion |
+| **addressFormat** | `Enum<'us' \| 'uk' \| 'international'>` | optional | Address format template |
+| **colorFormat** | `Enum<'hex' \| 'rgb' \| 'rgba' \| 'hsl'>` | optional | Color value format |
+| **allowAlpha** | `boolean` | optional | Allow transparency/alpha channel |
+| **presetColors** | `string[]` | optional | Preset color options |
 | **hidden** | `boolean` | optional | Hidden from default UI |
 | **readonly** | `boolean` | optional | Read-only in UI |
 | **encryption** | `boolean` | optional | Encrypt at rest |

@@ -1,0 +1,14 @@
+---
+title: JoinNode
+description: JoinNode Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'inner' \| 'left' \| 'right' \| 'full'>` | ✅ | Join type |
+| **object** | `string` | ✅ | Object/table to join |
+| **alias** | `string` | optional | Table alias |
+| **on** | `any[] \| string \| any[] \| string \| any[][]` | ✅ | Join condition |
+| **subquery** | `object` | optional | Subquery instead of object |

@@ -7,7 +7,7 @@ export const FieldType = z.enum([
   // Core Text
   'text', 'textarea', 'email', 'url', 'phone', 'password',
   // Rich Content
-  'markdown', 'html', 
+  'markdown', 'html', 'richtext',
   // Numbers
   'number', 'currency', 'percent', 
   // Date & Time
@@ -21,7 +21,14 @@ export const FieldType = z.enum([
   // Media
   'image', 'file', 'avatar',
   // Calculated / System
-  'formula', 'summary', 'autonumber'
+  'formula', 'summary', 'autonumber',
+  // Enhanced Types
+  'location', // GPS coordinates
+  'address', // Structured address
+  'code', // Code with syntax highlighting
+  'color', // Color picker
+  'rating', // Star rating
+  'signature' // Digital signature
 ]);
 
 export type FieldType = z.infer<typeof FieldType>;
@@ -34,6 +41,31 @@ export const SelectOptionSchema = z.object({
   value: z.string().describe('Stored value'),
   color: z.string().optional().describe('Color code for badges/charts'),
   default: z.boolean().optional().describe('Is default option'),
+});
+
+/**
+ * Location Coordinates Schema
+ * GPS coordinates for location field type
+ */
+export const LocationCoordinatesSchema = z.object({
+  latitude: z.number().min(-90).max(90).describe('Latitude coordinate'),
+  longitude: z.number().min(-180).max(180).describe('Longitude coordinate'),
+  altitude: z.number().optional().describe('Altitude in meters'),
+  accuracy: z.number().optional().describe('Accuracy in meters'),
+});
+
+/**
+ * Address Schema
+ * Structured address for address field type
+ */
+export const AddressSchema = z.object({
+  street: z.string().optional().describe('Street address'),
+  city: z.string().optional().describe('City name'),
+  state: z.string().optional().describe('State/Province'),
+  postalCode: z.string().optional().describe('Postal/ZIP code'),
+  country: z.string().optional().describe('Country name or code'),
+  countryCode: z.string().optional().describe('ISO country code (e.g., US, GB)'),
+  formatted: z.string().optional().describe('Formatted address string'),
 });
 
 /**
@@ -82,6 +114,28 @@ export const FieldSchema = z.object({
     function: z.enum(['count', 'sum', 'min', 'max', 'avg'])
   }).optional().describe('Roll-up summary definition'),
 
+  /** Enhanced Field Type Configurations */
+  // Code field config
+  language: z.string().optional().describe('Programming language for syntax highlighting (e.g., javascript, python, sql)'),
+  theme: z.string().optional().describe('Code editor theme (e.g., dark, light, monokai)'),
+  lineNumbers: z.boolean().optional().describe('Show line numbers in code editor'),
+  
+  // Rating field config
+  maxRating: z.number().optional().describe('Maximum rating value (default: 5)'),
+  allowHalf: z.boolean().optional().describe('Allow half-star ratings'),
+  
+  // Location field config
+  displayMap: z.boolean().optional().describe('Display map widget for location field'),
+  allowGeocoding: z.boolean().optional().describe('Allow address-to-coordinate conversion'),
+  
+  // Address field config
+  addressFormat: z.enum(['us', 'uk', 'international']).optional().describe('Address format template'),
+  
+  // Color field config
+  colorFormat: z.enum(['hex', 'rgb', 'rgba', 'hsl']).optional().describe('Color value format'),
+  allowAlpha: z.boolean().optional().describe('Allow transparency/alpha channel'),
+  presetColors: z.array(z.string()).optional().describe('Preset color options'),
+
   /** Security & Visibility */
   hidden: z.boolean().default(false).describe('Hidden from default UI'),
   readonly: z.boolean().default(false).describe('Read-only in UI'),
@@ -94,6 +148,8 @@ export const FieldSchema = z.object({
 
 export type Field = z.infer<typeof FieldSchema>;
 export type SelectOption = z.infer<typeof SelectOptionSchema>;
+export type LocationCoordinates = z.infer<typeof LocationCoordinatesSchema>;
+export type Address = z.infer<typeof AddressSchema>;
 
 /**
  * Field Factory Helper
@@ -163,6 +219,44 @@ export const Field = {
   masterDetail: (reference: string, config: FieldInput = {}) => ({ 
     type: 'master_detail', 
     reference, 
+    ...config 
+  } as const),
+
+  // Enhanced Field Type Helpers
+  location: (config: FieldInput = {}) => ({ 
+    type: 'location', 
+    ...config 
+  } as const),
+  
+  address: (config: FieldInput = {}) => ({ 
+    type: 'address', 
+    ...config 
+  } as const),
+  
+  richtext: (config: FieldInput = {}) => ({ 
+    type: 'richtext', 
+    ...config 
+  } as const),
+  
+  code: (language?: string, config: FieldInput = {}) => ({ 
+    type: 'code', 
+    language,
+    ...config 
+  } as const),
+  
+  color: (config: FieldInput = {}) => ({ 
+    type: 'color', 
+    ...config 
+  } as const),
+  
+  rating: (maxRating: number = 5, config: FieldInput = {}) => ({ 
+    type: 'rating', 
+    maxRating,
+    ...config 
+  } as const),
+  
+  signature: (config: FieldInput = {}) => ({ 
+    type: 'signature', 
     ...config 
   } as const),
 };

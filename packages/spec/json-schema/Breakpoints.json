@@ -1,0 +1,36 @@
+{
+  "$ref": "#/definitions/Breakpoints",
+  "definitions": {
+    "Breakpoints": {
+      "type": "object",
+      "properties": {
+        "xs": {
+          "type": "string",
+          "description": "Extra small breakpoint (e.g., 480px)"
+        },
+        "sm": {
+          "type": "string",
+          "description": "Small breakpoint (e.g., 640px)"
+        },
+        "md": {
+          "type": "string",
+          "description": "Medium breakpoint (e.g., 768px)"
+        },
+        "lg": {
+          "type": "string",
+          "description": "Large breakpoint (e.g., 1024px)"
+        },
+        "xl": {
+          "type": "string",
+          "description": "Extra large breakpoint (e.g., 1280px)"
+        },
+        "2xl": {
+          "type": "string",
+          "description": "2X large breakpoint (e.g., 1536px)"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

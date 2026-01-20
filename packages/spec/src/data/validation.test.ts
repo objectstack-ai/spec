@@ -321,4 +321,225 @@ describe('ValidationRuleSchema (Discriminated Union)', () => {
       });
     });
   });
+
+  describe('CrossFieldValidationSchema', () => {
+    it('should accept cross-field date validation', () => {
+      const crossFieldValidation = {
+        type: 'cross_field' as const,
+        name: 'end_after_start',
+        message: 'End date must be after start date',
+        condition: 'end_date > start_date',
+        fields: ['start_date', 'end_date'],
+      };
+
+      expect(() => ValidationRuleSchema.parse(crossFieldValidation)).not.toThrow();
+    });
+
+    it('should accept complex cross-field validation', () => {
+      const validation = {
+        type: 'cross_field' as const,
+        name: 'discount_validation',
+        message: 'Discount cannot exceed 50% for amounts over $1000',
+        condition: 'amount > 1000 AND discount_percent > 50',
+        fields: ['amount', 'discount_percent'],
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+  });
+
+  describe('AsyncValidationSchema', () => {
+    it('should accept async validation with URL', () => {
+      const asyncValidation = {
+        type: 'async' as const,
+        name: 'check_username_available',
+        message: 'Username is already taken',
+        field: 'username',
+        validatorUrl: 'https://api.example.com/validate/username',
+        timeout: 3000,
+        debounce: 500,
+      };
+
+      expect(() => ValidationRuleSchema.parse(asyncValidation)).not.toThrow();
+    });
+
+    it('should accept async validation with function reference', () => {
+      const asyncValidation = {
+        type: 'async' as const,
+        name: 'verify_vat_number',
+        message: 'Invalid VAT number',
+        field: 'vat_number',
+        validatorFunction: 'validateVatNumber',
+        params: { country: 'GB' },
+      };
+
+      expect(() => ValidationRuleSchema.parse(asyncValidation)).not.toThrow();
+    });
+
+    it('should apply default timeout', () => {
+      const validation = {
+        type: 'async' as const,
+        name: 'test_async',
+        message: 'Test',
+        field: 'email',
+        validatorUrl: 'https://api.example.com/validate',
+      };
+
+      const result = ValidationRuleSchema.parse(validation);
+      if (result.type === 'async') {
+        expect(result.timeout).toBe(5000);
+      }
+    });
+  });
+
+  describe('CustomValidatorSchema', () => {
+    it('should accept custom field validator', () => {
+      const customValidation = {
+        type: 'custom' as const,
+        name: 'custom_business_rule',
+        message: 'Custom validation failed',
+        field: 'business_field',
+        validatorFunction: 'validateBusinessRule',
+      };
+
+      expect(() => ValidationRuleSchema.parse(customValidation)).not.toThrow();
+    });
+
+    it('should accept custom validator with params', () => {
+      const validation = {
+        type: 'custom' as const,
+        name: 'complex_validation',
+        message: 'Validation failed',
+        field: 'data',
+        validatorFunction: 'complexValidator',
+        params: {
+          threshold: 100,
+          mode: 'strict',
+        },
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should accept record-level custom validator', () => {
+      const validation = {
+        type: 'custom' as const,
+        name: 'record_level_check',
+        message: 'Record validation failed',
+        validatorFunction: 'validateEntireRecord',
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+  });
+
+  describe('ConditionalValidationSchema', () => {
+    it('should accept conditional validation with then clause', () => {
+      const conditionalValidation = {
+        type: 'conditional' as const,
+        name: 'enterprise_validation',
+        message: 'Enterprise accounts require approval',
+        when: 'account_type = "enterprise"',
+        then: {
+          type: 'script' as const,
+          name: 'require_approval',
+          message: 'Approval required for enterprise accounts',
+          condition: 'approval_status = null',
+        },
+      };
+
+      expect(() => ValidationRuleSchema.parse(conditionalValidation)).not.toThrow();
+    });
+
+    it('should accept conditional validation with otherwise clause', () => {
+      const validation = {
+        type: 'conditional' as const,
+        name: 'amount_validation',
+        message: 'Amount validation',
+        when: 'type = "wholesale"',
+        then: {
+          type: 'script' as const,
+          name: 'wholesale_min',
+          message: 'Wholesale orders must be at least $1000',
+          condition: 'amount < 1000',
+        },
+        otherwise: {
+          type: 'script' as const,
+          name: 'retail_min',
+          message: 'Retail orders must be at least $10',
+          condition: 'amount < 10',
+        },
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should accept nested conditional validation', () => {
+      const validation = {
+        type: 'conditional' as const,
+        name: 'nested_validation',
+        message: 'Complex conditional validation',
+        when: 'country = "US"',
+        then: {
+          type: 'conditional' as const,
+          name: 'state_validation',
+          message: 'State-specific validation',
+          when: 'state = "CA"',
+          then: {
+            type: 'script' as const,
+            name: 'ca_tax',
+            message: 'California requires tax ID',
+            condition: 'tax_id = null',
+          },
+        },
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+  });
+
+  describe('Advanced Validation Examples', () => {
+    it('should accept comprehensive validation ruleset', () => {
+      const advancedRules: ValidationRule[] = [
+        {
+          type: 'cross_field',
+          name: 'date_range',
+          message: 'End date must be after start date',
+          condition: 'end_date > start_date',
+          fields: ['start_date', 'end_date'],
+        },
+        {
+          type: 'async',
+          name: 'email_available',
+          message: 'Email is already registered',
+          field: 'email',
+          validatorUrl: '/api/validate/email',
+          debounce: 300,
+        },
+        {
+          type: 'custom',
+          name: 'business_logic',
+          message: 'Business logic validation failed',
+          validatorFunction: 'validateBusinessRules',
+        },
+        {
+          type: 'conditional',
+          name: 'type_based_validation',
+          message: 'Type-based validation',
+          when: 'type = "special"',
+          then: {
+            type: 'cross_field',
+            name: 'special_amount',
+            message: 'Special orders must have amount between min and max',
+            condition: 'amount >= min_amount AND amount <= max_amount',
+            fields: ['amount', 'min_amount', 'max_amount'],
+          },
+        },
+      ];
+
+      advancedRules.forEach(rule => {
+        expect(() => ValidationRuleSchema.parse(rule)).not.toThrow();
+      });
+    });
+  });
 });

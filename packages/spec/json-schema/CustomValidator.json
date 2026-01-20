@@ -1,0 +1,57 @@
+{
+  "$ref": "#/definitions/CustomValidator",
+  "definitions": {
+    "CustomValidator": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Unique rule name"
+        },
+        "active": {
+          "type": "boolean",
+          "default": true
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "error",
+            "warning",
+            "info"
+          ],
+          "default": "error"
+        },
+        "message": {
+          "type": "string",
+          "description": "Error message to display"
+        },
+        "type": {
+          "type": "string",
+          "const": "custom"
+        },
+        "field": {
+          "type": "string",
+          "description": "Field to validate (optional for record-level validation)"
+        },
+        "validatorFunction": {
+          "type": "string",
+          "description": "Function name or reference to custom validator"
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Additional parameters for the validator"
+        }
+      },
+      "required": [
+        "name",
+        "message",
+        "type",
+        "validatorFunction"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

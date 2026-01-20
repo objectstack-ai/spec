@@ -1,0 +1,42 @@
+{
+  "$ref": "#/definitions/AggregationNode",
+  "definitions": {
+    "AggregationNode": {
+      "type": "object",
+      "properties": {
+        "function": {
+          "type": "string",
+          "enum": [
+            "count",
+            "sum",
+            "avg",
+            "min",
+            "max",
+            "count_distinct",
+            "array_agg",
+            "string_agg"
+          ],
+          "description": "Aggregation function"
+        },
+        "field": {
+          "type": "string",
+          "description": "Field to aggregate (optional for COUNT(*))"
+        },
+        "alias": {
+          "type": "string",
+          "description": "Result column alias"
+        },
+        "distinct": {
+          "type": "boolean",
+          "description": "Apply DISTINCT before aggregation"
+        }
+      },
+      "required": [
+        "function",
+        "alias"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -11,14 +11,15 @@ describe('FieldType', () => {
   it('should accept valid field types', () => {
     const validTypes = [
       'text', 'textarea', 'email', 'url', 'phone', 'password',
-      'markdown', 'html',
+      'markdown', 'html', 'richtext',
       'number', 'currency', 'percent',
       'date', 'datetime', 'time',
       'boolean',
       'select',
       'lookup', 'master_detail',
       'image', 'file', 'avatar',
-      'formula', 'summary', 'autonumber'
+      'formula', 'summary', 'autonumber',
+      'location', 'address', 'code', 'color', 'rating', 'signature'
     ];
 
     validTypes.forEach(type => {
@@ -381,6 +382,116 @@ describe('Field Factory Helpers', () => {
       expect(masterDetailField.type).toBe('master_detail');
       expect(masterDetailField.reference).toBe('parent_object');
       expect(masterDetailField.deleteBehavior).toBe('cascade');
+    });
+  });
+
+  describe('Enhanced Field Types', () => {
+    it('should accept location field type', () => {
+      expect(() => FieldType.parse('location')).not.toThrow();
+    });
+
+    it('should accept address field type', () => {
+      expect(() => FieldType.parse('address')).not.toThrow();
+    });
+
+    it('should accept richtext field type', () => {
+      expect(() => FieldType.parse('richtext')).not.toThrow();
+    });
+
+    it('should accept code field type', () => {
+      expect(() => FieldType.parse('code')).not.toThrow();
+    });
+
+    it('should accept color field type', () => {
+      expect(() => FieldType.parse('color')).not.toThrow();
+    });
+
+    it('should accept rating field type', () => {
+      expect(() => FieldType.parse('rating')).not.toThrow();
+    });
+
+    it('should accept signature field type', () => {
+      expect(() => FieldType.parse('signature')).not.toThrow();
+    });
+
+    it('should create location field with config', () => {
+      const locationField = Field.location({
+        label: 'Office Location',
+        displayMap: true,
+        allowGeocoding: true,
+      });
+      
+      expect(locationField.type).toBe('location');
+      expect(locationField.label).toBe('Office Location');
+      expect(locationField.displayMap).toBe(true);
+    });
+
+    it('should create address field with format', () => {
+      const addressField = Field.address({
+        label: 'Mailing Address',
+        addressFormat: 'us',
+        required: true,
+      });
+      
+      expect(addressField.type).toBe('address');
+      expect(addressField.addressFormat).toBe('us');
+      expect(addressField.required).toBe(true);
+    });
+
+    it('should create richtext field', () => {
+      const richtextField = Field.richtext({
+        label: 'Description',
+        maxLength: 5000,
+      });
+      
+      expect(richtextField.type).toBe('richtext');
+      expect(richtextField.label).toBe('Description');
+    });
+
+    it('should create code field with language', () => {
+      const codeField = Field.code('javascript', {
+        label: 'Script',
+        lineNumbers: true,
+        theme: 'dark',
+      });
+      
+      expect(codeField.type).toBe('code');
+      expect(codeField.language).toBe('javascript');
+      expect(codeField.lineNumbers).toBe(true);
+    });
+
+    it('should create color field with format', () => {
+      const colorField = Field.color({
+        label: 'Brand Color',
+        colorFormat: 'hex',
+        allowAlpha: false,
+        presetColors: ['#FF0000', '#00FF00', '#0000FF'],
+      });
+      
+      expect(colorField.type).toBe('color');
+      expect(colorField.colorFormat).toBe('hex');
+      expect(colorField.presetColors).toHaveLength(3);
+    });
+
+    it('should create rating field with max rating', () => {
+      const ratingField = Field.rating(10, {
+        label: 'Customer Satisfaction',
+        allowHalf: true,
+      });
+      
+      expect(ratingField.type).toBe('rating');
+      expect(ratingField.maxRating).toBe(10);
+      expect(ratingField.allowHalf).toBe(true);
+    });
+
+    it('should create signature field', () => {
+      const signatureField = Field.signature({
+        label: 'Customer Signature',
+        required: true,
+      });
+      
+      expect(signatureField.type).toBe('signature');
+      expect(signatureField.required).toBe(true);
     });
   });
 });

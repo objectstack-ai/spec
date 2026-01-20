@@ -1,0 +1,142 @@
+{
+  "$ref": "#/definitions/Typography",
+  "definitions": {
+    "Typography": {
+      "type": "object",
+      "properties": {
+        "fontFamily": {
+          "type": "object",
+          "properties": {
+            "base": {
+              "type": "string",
+              "description": "Base font family (default: system fonts)"
+            },
+            "heading": {
+              "type": "string",
+              "description": "Heading font family"
+            },
+            "mono": {
+              "type": "string",
+              "description": "Monospace font family for code"
+            }
+          },
+          "additionalProperties": false
+        },
+        "fontSize": {
+          "type": "object",
+          "properties": {
+            "xs": {
+              "type": "string",
+              "description": "Extra small font size (e.g., 0.75rem)"
+            },
+            "sm": {
+              "type": "string",
+              "description": "Small font size (e.g., 0.875rem)"
+            },
+            "base": {
+              "type": "string",
+              "description": "Base font size (e.g., 1rem)"
+            },
+            "lg": {
+              "type": "string",
+              "description": "Large font size (e.g., 1.125rem)"
+            },
+            "xl": {
+              "type": "string",
+              "description": "Extra large font size (e.g., 1.25rem)"
+            },
+            "2xl": {
+              "type": "string",
+              "description": "2X large font size (e.g., 1.5rem)"
+            },
+            "3xl": {
+              "type": "string",
+              "description": "3X large font size (e.g., 1.875rem)"
+            },
+            "4xl": {
+              "type": "string",
+              "description": "4X large font size (e.g., 2.25rem)"
+            }
+          },
+          "additionalProperties": false
+        },
+        "fontWeight": {
+          "type": "object",
+          "properties": {
+            "light": {
+              "type": "number",
+              "description": "Light weight (default: 300)"
+            },
+            "normal": {
+              "type": "number",
+              "description": "Normal weight (default: 400)"
+            },
+            "medium": {
+              "type": "number",
+              "description": "Medium weight (default: 500)"
+            },
+            "semibold": {
+              "type": "number",
+              "description": "Semibold weight (default: 600)"
+            },
+            "bold": {
+              "type": "number",
+              "description": "Bold weight (default: 700)"
+            }
+          },
+          "additionalProperties": false
+        },
+        "lineHeight": {
+          "type": "object",
+          "properties": {
+            "tight": {
+              "type": "string",
+              "description": "Tight line height (e.g., 1.25)"
+            },
+            "normal": {
+              "type": "string",
+              "description": "Normal line height (e.g., 1.5)"
+            },
+            "relaxed": {
+              "type": "string",
+              "description": "Relaxed line height (e.g., 1.75)"
+            },
+            "loose": {
+              "type": "string",
+              "description": "Loose line height (e.g., 2)"
+            }
+          },
+          "additionalProperties": false
+        },
+        "letterSpacing": {
+          "type": "object",
+          "properties": {
+            "tighter": {
+              "type": "string",
+              "description": "Tighter letter spacing (e.g., -0.05em)"
+            },
+            "tight": {
+              "type": "string",
+              "description": "Tight letter spacing (e.g., -0.025em)"
+            },
+            "normal": {
+              "type": "string",
+              "description": "Normal letter spacing (e.g., 0)"
+            },
+            "wide": {
+              "type": "string",
+              "description": "Wide letter spacing (e.g., 0.025em)"
+            },
+            "wider": {
+              "type": "string",
+              "description": "Wider letter spacing (e.g., 0.05em)"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
