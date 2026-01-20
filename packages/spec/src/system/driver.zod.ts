@@ -1,4 +1,27 @@
 import { z } from 'zod';
+import { QuerySchema } from '../data/query.zod';
+
+/**
+ * Common Driver Options
+ * Passed to most driver methods to control behavior (transactions, timeouts, etc.)
+ */
+export const DriverOptionsSchema = z.object({
+  /**
+   * Transaction handle/identifier.
+   * If provided, the operation must run within this transaction.
+   */
+  transaction: z.any().optional().describe('Transaction handle'),
+
+  /**
+   * Operation timeout in milliseconds.
+   */
+  timeout: z.number().optional().describe('Timeout in ms'),
+
+  /**
+   * Whether to bypass cache and force a fresh read.
+   */
+  skipCache: z.boolean().optional().describe('Bypass cache'),
+});
 
 /**
  * Driver Capabilities Schema
@@ -39,229 +62,268 @@ export const DriverCapabilitiesSchema = z.object({
 });
 
 /**
- * Driver Interface Schema
+ * Unified Database Driver Interface
  * 
- * This is the unified interface that all database drivers must implement.
- * It enables ObjectQL to work with any database (SQL, NoSQL, SaaS) through a consistent API.
- * 
- * Drivers abstract the underlying database implementation and provide a standard
- * set of CRUD, DDL, and transaction operations.
- * 
- * @example
- * const postgresDriver: DriverInterface = {
- *   name: 'postgresql',
- *   version: '1.0.0',
- *   supports: {
- *     transactions: true,
- *     joins: true,
- *     fullTextSearch: true,
- *     jsonFields: true,
- *     arrayFields: true,
- *   },
- *   // ... implement all required methods
- * };
+ * This is the contract that all storage adapters (Postgres, Mongo, Excel, Salesforce) must implement.
+ * It abstracts the underlying engine, enabling ObjectStack to be "Database Agnostic".
  */
 export const DriverInterfaceSchema = z.object({
   /**
-   * Driver name (e.g., 'postgresql', 'mongodb', 'mysql', 'salesforce').
+   * Driver name (e.g., 'postgresql', 'mongodb', 'rest_api').
    */
-  name: z.string().describe('Driver name'),
+  name: z.string().describe('Driver unique name'),
 
   /**
-   * Driver version following semantic versioning.
+   * Driver version.
    */
   version: z.string().describe('Driver version'),
+
+  /**
+   * Capabilities descriptor.
+   */
+  supports: DriverCapabilitiesSchema,
+
+  // ============================================================================
+  // Lifecycle Management
+  // ============================================================================
+
+  /**
+   * Initialize connection pool or authenticate.
+   */
+  connect: z.function()
+    .returns(z.promise(z.void()))
+    .describe('Establish connection'),
+
+  /**
+   * Close connections and cleanup resources.
+   */
+  disconnect: z.function()
+    .returns(z.promise(z.void()))
+    .describe('Close connection'),
+
+  /**
+   * Check connection health.
+   * @returns true if healthy, false otherwise.
+   */
+  checkHealth: z.function()
+    .returns(z.promise(z.boolean()))
+    .describe('Health check'),
+
+  // ============================================================================
+  // Raw Execution (Escape Hatch)
+  // ============================================================================
+
+  /**
+   * Execute a raw command/query native to the driver.
+   * Useful for complex reports, stored procedures, or DDL not covered by standard sync.
+   * 
+   * @param command - The raw command (e.g., SQL string, shell command, or remote API payload).
+   * @param parameters - Optional array of bound parameters for safe execution (prevention of injection).
+   * @param options - Driver options (transaction context, timeout).
+   * @returns Promise resolving to the raw result from the driver.
+   * 
+   * @example
+   * // SQL Driver
+   * await driver.execute('SELECT * FROM complex_view WHERE id = ?', [123]);
+   * 
+   * // Mongo Driver
+   * await driver.execute({ aggregate: 'orders', pipeline: [...] });
+   */
+  execute: z.function()
+    .args(z.any(), z.array(z.any()).optional(), DriverOptionsSchema.optional())
+    .returns(z.promise(z.any()))
+    .describe('Execute raw command'),
 
   // ============================================================================
   // CRUD Operations
   // ============================================================================
 
   /**
-   * Find multiple records matching the query.
+   * Find multiple records matching the structured query.
+   * Parsing the QueryAST is the responsibility of the driver implementation.
    * 
-   * @param object - Object name (e.g., 'account')
-   * @param query - Query object with filters, sorting, pagination
-   * @returns Promise resolving to array of records
+   * @param object - The name of the object/table to query (e.g. 'account').
+   * @param query - The structured QueryAST (filters, sorts, joins, pagination).
+   * @param options - Driver options.
+   * @returns Array of records.
    * 
    * @example
-   * await driver.find('account', { 
-   *   filters: { status: 'active' },
-   *   sort: { created_at: 'desc' },
-   *   limit: 10 
+   * await driver.find('account', {
+   *   filters: [['status', '=', 'active'], 'and', ['amount', '>', 500]],
+   *   sort: [{ field: 'created_at', order: 'desc' }],
+   *   top: 10
    * });
    */
   find: z.function()
-    .args(z.string(), z.any())
+    .args(z.string(), QuerySchema, DriverOptionsSchema.optional())
     .returns(z.promise(z.array(z.record(z.any()))))
-    .describe('Find multiple records'),
+    .describe('Find records'),
 
   /**
-   * Find a single record by ID or query.
+   * Find a single record by query.
+   * Similar to find(), but returns only the first match or null.
    * 
-   * @param object - Object name
-   * @param idOrQuery - Record ID or query object
-   * @returns Promise resolving to single record or null
+   * @param object - The name of the object.
+   * @param query - QueryAST.
+   * @param options - Driver options.
    */
   findOne: z.function()
-    .args(z.string(), z.any())
+    .args(z.string(), QuerySchema, DriverOptionsSchema.optional())
     .returns(z.promise(z.record(z.any()).nullable()))
-    .describe('Find single record'),
+    .describe('Find one record'),
 
   /**
    * Create a new record.
    * 
-   * @param object - Object name
-   * @param data - Record data
-   * @returns Promise resolving to created record with generated fields (id, timestamps)
+   * @param object - The object name.
+   * @param data - Key-value map of field data.
+   * @param options - Driver options.
+   * @returns The created record, including server-generated fields (id, created_at, etc.).
    */
   create: z.function()
-    .args(z.string(), z.record(z.any()))
+    .args(z.string(), z.record(z.any()), DriverOptionsSchema.optional())
     .returns(z.promise(z.record(z.any())))
-    .describe('Create new record'),
+    .describe('Create record'),
 
   /**
-   * Update an existing record.
+   * Update an existing record by ID.
    * 
-   * @param object - Object name
-   * @param id - Record ID
-   * @param data - Updated fields
-   * @returns Promise resolving to updated record
+   * @param object - The object name.
+   * @param id - The unique identifier of the record.
+   * @param data - The fields to update.
+   * @param options - Driver options.
+   * @returns The updated record.
    */
   update: z.function()
-    .args(z.string(), z.any(), z.record(z.any()))
+    .args(z.string(), z.string().or(z.number()), z.record(z.any()), DriverOptionsSchema.optional())
     .returns(z.promise(z.record(z.any())))
-    .describe('Update existing record'),
+    .describe('Update record'),
 
   /**
-   * Delete a record.
+   * Delete a record by ID.
    * 
-   * @param object - Object name
-   * @param id - Record ID
-   * @returns Promise resolving to deletion result
+   * @param object - The object name.
+   * @param id - The unique identifier of the record.
+   * @param options - Driver options.
+   * @returns True if deleted, false if not found.
    */
   delete: z.function()
-    .args(z.string(), z.any())
-    .returns(z.promise(z.any()))
+    .args(z.string(), z.string().or(z.number()), DriverOptionsSchema.optional())
+    .returns(z.promise(z.boolean()))
     .describe('Delete record'),
 
   /**
-   * Create multiple records in a single operation.
+   * Count records matching a query.
    * 
-   * @param object - Object name
-   * @param dataArray - Array of record data
-   * @returns Promise resolving to array of created records
+   * @param object - The object name.
+   * @param query - Optional filtering criteria.
+   * @param options - Driver options.
+   * @returns Total count.
+   */
+  count: z.function()
+    .args(z.string(), QuerySchema.optional(), DriverOptionsSchema.optional())
+    .returns(z.promise(z.number()))
+    .describe('Count records'),
+
+  // ============================================================================
+  // Bulk Operations
+  // ============================================================================
+
+  /**
+   * Create multiple records in a single batch.
+   * Optimized for performance.
+   * 
+   * @param object - The object name.
+   * @param dataArray - Array of record data.
+   * @returns Array of created records.
    */
   bulkCreate: z.function()
-    .args(z.string(), z.array(z.record(z.any())))
-    .returns(z.promise(z.array(z.record(z.any()))))
-    .describe('Create multiple records'),
+    .args(z.string(), z.array(z.record(z.any())), DriverOptionsSchema.optional())
+    .returns(z.promise(z.array(z.record(z.any())))),
 
   /**
-   * Update multiple records in a single operation.
+   * Update multiple records in a single batch.
    * 
-   * @param object - Object name
-   * @param updates - Array of {id, data} objects
-   * @returns Promise resolving to array of updated records
+   * @param object - The object name.
+   * @param updates - Array of objects containing {id, data}.
+   * @returns Array of updated records.
    */
   bulkUpdate: z.function()
-    .args(z.string(), z.array(z.any()))
-    .returns(z.promise(z.array(z.record(z.any()))))
-    .describe('Update multiple records'),
+    .args(z.string(), z.array(z.object({ id: z.string().or(z.number()), data: z.record(z.any()) })), DriverOptionsSchema.optional())
+    .returns(z.promise(z.array(z.record(z.any())))),
 
   /**
-   * Delete multiple records in a single operation.
+   * Delete multiple records in a single batch.
    * 
-   * @param object - Object name
-   * @param ids - Array of record IDs
-   * @returns Promise resolving to deletion result
+   * @param object - The object name.
+   * @param ids - Array of record IDs.
    */
   bulkDelete: z.function()
-    .args(z.string(), z.array(z.any()))
-    .returns(z.promise(z.any()))
-    .describe('Delete multiple records'),
+    .args(z.string(), z.array(z.string().or(z.number())), DriverOptionsSchema.optional())
+    .returns(z.promise(z.void())),
 
   // ============================================================================
-  // DDL (Data Definition Language) Operations
-  // ============================================================================
-
-  /**
-   * Synchronize database schema with object definition.
-   * Creates or updates tables, columns, indexes to match the object schema.
-   * 
-   * @param object - Object name
-   * @param schema - Object schema definition
-   * @returns Promise resolving when schema is synchronized
-   */
-  syncSchema: z.function()
-    .args(z.string(), z.any())
-    .returns(z.promise(z.void()))
-    .describe('Synchronize database schema'),
-
-  /**
-   * Drop a table/collection from the database.
-   * 
-   * @param object - Object name
-   * @returns Promise resolving when table is dropped
-   */
-  dropTable: z.function()
-    .args(z.string())
-    .returns(z.promise(z.void()))
-    .describe('Drop table/collection'),
-
-  // ============================================================================
-  // Transaction Support (Optional)
+  // Transaction Management
   // ============================================================================
 
   /**
    * Begin a new database transaction.
-   * Required if supports.transactions is true.
-   * 
-   * @returns Promise resolving to transaction handle
+   * @returns A transaction handle to be passed to subsequent operations via `options.transaction`.
    */
   beginTransaction: z.function()
     .returns(z.promise(z.any()))
-    .optional()
-    .describe('Begin database transaction'),
+    .describe('Start transaction'),
 
   /**
-   * Commit the current transaction.
-   * Required if supports.transactions is true.
-   * 
-   * @param transaction - Transaction handle from beginTransaction
-   * @returns Promise resolving when transaction is committed
+   * Commit the transaction.
+   * @param transaction - The transaction handle.
    */
   commit: z.function()
     .args(z.any())
     .returns(z.promise(z.void()))
-    .optional()
     .describe('Commit transaction'),
 
   /**
-   * Rollback the current transaction.
-   * Required if supports.transactions is true.
-   * 
-   * @param transaction - Transaction handle from beginTransaction
-   * @returns Promise resolving when transaction is rolled back
+   * Rollback the transaction.
+   * @param transaction - The transaction handle.
    */
   rollback: z.function()
     .args(z.any())
     .returns(z.promise(z.void()))
-    .optional()
     .describe('Rollback transaction'),
 
   // ============================================================================
-  // Capabilities Declaration
+  // Schema Management
   // ============================================================================
 
   /**
-   * Driver capabilities.
-   * Declares what features this driver supports.
+   * Synchronize the database schema with the Object definition.
+   * This is an idempotent operation: it should create tables if missing, 
+   * add columns if missing, and update indexes.
+   * 
+   * @param object - The object name.
+   * @param schema - The full Object Schema (fields, indexes, etc).
+   * @param options - Driver options.
    */
-  supports: DriverCapabilitiesSchema.describe('Driver capabilities'),
+  syncSchema: z.function()
+    .args(z.string(), z.any(), DriverOptionsSchema.optional())
+    .returns(z.promise(z.void()))
+    .describe('Sync object schema to DB'),
+  
+  /**
+   * Drop the underlying table or collection for an object.
+   * WARNING: Destructive operation.
+   * 
+   * @param object - The object name.
+   */
+  dropTable: z.function()
+    .args(z.string(), DriverOptionsSchema.optional())
+    .returns(z.promise(z.void())),
 });
 
 /**
  * TypeScript types
  */
+export type DriverOptions = z.infer<typeof DriverOptionsSchema>;
 export type DriverCapabilities = z.infer<typeof DriverCapabilitiesSchema>;
 export type DriverInterface = z.infer<typeof DriverInterfaceSchema>;

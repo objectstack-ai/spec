@@ -6,7 +6,7 @@
       "properties": {
         "name": {
           "type": "string",
-          "description": "Driver name"
+          "description": "Driver unique name"
         },
         "version": {
           "type": "string",
@@ -43,8 +43,7 @@
             "jsonFields",
             "arrayFields"
           ],
-          "additionalProperties": false,
-          "description": "Driver capabilities"
+          "additionalProperties": false
         }
       },
       "required": [
