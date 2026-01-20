@@ -22,7 +22,7 @@ export default async function BlogPage({
         <main className="container max-w-5xl mx-auto px-4 py-16">
           <div className="mb-12">
             <h1 className="text-4xl font-bold mb-4">Blog</h1>
-            <p className="text-lg text-fd-muted-foreground">
+            <p className="text-lg text-fd-foreground/80">
               Insights, updates, and best practices from the ObjectStack team.
             </p>
           </div>
@@ -39,13 +39,13 @@ export default async function BlogPage({
                     {post.data.title}
                   </h2>
                   {post.data.description && (
-                    <p className="text-fd-muted-foreground">
+                    <p className="text-fd-foreground/70">
                       {post.data.description}
                     </p>
                   )}
                 </div>
                 
-                <div className="flex items-center gap-4 text-sm text-fd-muted-foreground">
+                <div className="flex items-center gap-4 text-sm text-fd-foreground/70">
                   {post.data.date && (
                     <time dateTime={post.data.date}>
                       {new Date(post.data.date).toLocaleDateString('en-US', {
@@ -78,7 +78,7 @@ export default async function BlogPage({
 
           {posts.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-fd-muted-foreground">No blog posts yet. Check back soon!</p>
+              <p className="text-fd-foreground/70">No blog posts yet. Check back soon!</p>
             </div>
           )}
         </main>
@@ -100,7 +100,7 @@ export default async function BlogPage({
       <main className="container max-w-4xl mx-auto px-4 py-16">
         <Link 
           href="/blog"
-          className="inline-flex items-center gap-2 text-sm text-fd-muted-foreground hover:text-fd-foreground mb-8 transition-colors"
+          className="inline-flex items-center gap-2 text-sm text-fd-foreground/70 hover:text-fd-foreground mb-8 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Blog
@@ -111,12 +111,12 @@ export default async function BlogPage({
             <h1 className="text-4xl font-bold mb-4">{page.data.title}</h1>
             
             {page.data.description && (
-              <p className="text-xl text-fd-muted-foreground mb-6">
+              <p className="text-xl text-fd-foreground/80 mb-6">
                 {page.data.description}
               </p>
             )}
 
-            <div className="flex items-center gap-4 text-sm text-fd-muted-foreground">
+            <div className="flex items-center gap-4 text-sm text-fd-foreground/70">
               {page.data.date && (
                 <time dateTime={page.data.date}>
                   {new Date(page.data.date).toLocaleDateString('en-US', {
