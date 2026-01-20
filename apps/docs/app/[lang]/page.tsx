@@ -27,10 +27,10 @@ export default async function HomePage({
             {t.hero.title.line1} <br/> {t.hero.title.line2}
           </h1>
           
-          <p className="mx-auto max-w-2xl text-lg text-fd-muted-foreground sm:text-xl leading-relaxed">
+          <p className="mx-auto max-w-2xl text-lg text-fd-foreground/80 sm:text-xl leading-relaxed">
             {t.hero.subtitle.line1}
             <br className="hidden sm:inline" />
-            <span className="text-fd-foreground font-medium">{t.hero.subtitle.line2}</span>
+            <span className="text-fd-foreground font-semibold">{t.hero.subtitle.line2}</span>
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
@@ -124,7 +124,7 @@ export default async function HomePage({
 
         {/* Personas Section */}
         <div className="mt-32 mb-16 w-full max-w-5xl px-4">
-          <h2 className="text-3xl font-bold tracking-tight mb-12 bg-gradient-to-r from-fd-foreground to-fd-muted-foreground bg-clip-text text-transparent">
+          <h2 className="text-3xl font-bold tracking-tight mb-12 bg-gradient-to-r from-fd-foreground to-fd-foreground/70 bg-clip-text text-transparent">
              {t.personas.heading}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -166,7 +166,7 @@ function FeatureCard({ icon, title, description, href }: { icon: React.ReactNode
       <h3 className="mb-2 text-lg font-semibold text-fd-card-foreground group-hover:text-fd-primary transition-colors">
         {title}
       </h3>
-      <p className="text-sm text-fd-muted-foreground leading-relaxed">
+      <p className="text-sm text-fd-foreground/70 leading-relaxed">
         {description}
       </p>
     </div>
@@ -188,7 +188,7 @@ function PersonaCard({ icon, title, description, href, action }: { icon: React.R
     <Link href={href} className="flex flex-col items-start p-8 rounded-2xl bg-fd-secondary/30 border border-fd-border/50 hover:bg-fd-secondary/60 hover:border-fd-primary/30 transition-all group text-left">
       {icon}
       <h3 className="text-xl font-bold mb-3">{title}</h3>
-      <p className="text-fd-muted-foreground mb-6 text-sm leading-relaxed flex-grow text-left">
+      <p className="text-fd-foreground/70 mb-6 text-sm leading-relaxed flex-grow text-left">
         {description}
       </p>
       <div className="flex items-center text-sm font-semibold text-fd-primary mt-auto group-hover:translate-x-1 transition-transform">
