@@ -1,21 +1,20 @@
 {
-  "name": "@objectstack/server",
+  "name": "@objectstack/dev-server",
   "version": "0.1.0",
-  "description": "Standard Server Runtime for ObjectStack",
+  "description": "Lightweight Development Server for ObjectStack UI Development",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc"
   },
   "dependencies": {
-    "hono": "^4.0.0",
-    "@hono/node-server": "^1.0.0",
     "@objectstack/runtime": "workspace:*",
     "@objectstack/spec": "workspace:*",
-    "zod": "^3.0.0"
+    "hono": "^4.0.0",
+    "@hono/node-server": "^1.2.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.0",
-    "@types/node": "^20.0.0"
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
   }
 }

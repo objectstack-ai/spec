@@ -120,9 +120,9 @@ importers:
 
   examples/server:
     dependencies:
-      '@hono/node-server':
-        specifier: ^1.0.0
-        version: 1.19.9(hono@4.11.4)
+      '@objectstack/dev-server':
+        specifier: workspace:*
+        version: link:../../packages/dev-server
       '@objectstack/driver-memory':
         specifier: workspace:*
         version: link:../../packages/driver-memory
@@ -138,24 +138,9 @@ importers:
       '@objectstack/runtime':
         specifier: workspace:*
         version: link:../../packages/runtime
-      '@objectstack/server':
-        specifier: workspace:*
-        version: link:../../packages/server
-      '@objectstack/spec':
-        specifier: workspace:*
-        version: link:../../packages/spec
-      hono:
-        specifier: ^4.0.0
-        version: 4.11.4
-      zod:
-        specifier: ^3.0.0
-        version: 3.25.76
     devDependencies:
-      '@types/node':
-        specifier: ^20.0.0
-        version: 20.19.30
       ts-node:
-        specifier: ^10.0.0
+        specifier: ^10.9.1
         version: 10.9.2(@types/node@20.19.30)(typescript@5.9.3)
       typescript:
         specifier: ^5.0.0
@@ -184,6 +169,28 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
+  packages/dev-server:
+    dependencies:
+      '@hono/node-server':
+        specifier: ^1.2.0
+        version: 1.19.9(hono@4.11.4)
+      '@objectstack/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../spec
+      hono:
+        specifier: ^4.0.0
+        version: 4.11.4
+    devDependencies:
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.30
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
   packages/driver-memory:
     dependencies:
       '@objectstack/spec':
@@ -200,31 +207,6 @@ importers:
         specifier: workspace:*
         version: link:../spec
     devDependencies:
-      typescript:
-        specifier: ^5.0.0
-        version: 5.9.3
-
-  packages/server:
-    dependencies:
-      '@hono/node-server':
-        specifier: ^1.0.0
-        version: 1.19.9(hono@4.11.4)
-      '@objectstack/runtime':
-        specifier: workspace:*
-        version: link:../runtime
-      '@objectstack/spec':
-        specifier: workspace:*
-        version: link:../spec
-      hono:
-        specifier: ^4.0.0
-        version: 4.11.4
-      zod:
-        specifier: ^3.0.0
-        version: 3.25.76
-    devDependencies:
-      '@types/node':
-        specifier: ^20.0.0
-        version: 20.19.30
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
