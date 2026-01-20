@@ -140,6 +140,16 @@ export const ManifestSchema = z.object({
   }).optional().describe('Platform contributions'),
 
   /** 
+   * Initial data seeding configuration.
+   * Defines default records to be inserted when the package is installed.
+   */
+  data: z.array(z.object({
+    object: z.string().describe('Target Object Name'),
+    records: z.array(z.record(z.any())).describe('List of records to insert'),
+    mode: z.enum(['upsert', 'insert', 'ignore']).default('upsert').describe('Seeding mode')
+  })).optional().describe('Initial seed data'),
+
+  /** 
    * Extension points contributed by this package.
    * Allows packages to extend UI components, add functionality, etc.
    */

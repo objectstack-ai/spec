@@ -260,6 +260,42 @@
           "additionalProperties": false,
           "description": "Platform contributions"
         },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "object": {
+                "type": "string",
+                "description": "Target Object Name"
+              },
+              "records": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": {}
+                },
+                "description": "List of records to insert"
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "upsert",
+                  "insert",
+                  "ignore"
+                ],
+                "default": "upsert",
+                "description": "Seeding mode"
+              }
+            },
+            "required": [
+              "object",
+              "records"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Initial seed data"
+        },
         "extensions": {
           "type": "object",
           "additionalProperties": {},

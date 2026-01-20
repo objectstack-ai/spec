@@ -68,18 +68,34 @@ export class DataEngine {
     try {
         await this.ql.insert('SystemStatus', { status: 'OK', uptime: 0 });
 
-        // Seed some Todo Tasks if table is empty
-        // Use try-catch because find might throw if object not registered (though it should be)
-        try {
-          const tasks = await this.ql.find('todo_task', { top: 1 });
-          if (tasks.length === 0) {
-               console.log('[DataEngine] Seeding initial Todo Data...');
-               await this.ql.insert('todo_task', { subject: 'Review PR #102', is_completed: true, priority: 3, due_date: new Date() });
-               await this.ql.insert('todo_task', { subject: 'Write Documentation', is_completed: false, priority: 2, due_date: new Date(Date.now() + 86400000) });
-               await this.ql.insert('todo_task', { subject: 'Fix specific Server bug', is_completed: false, priority: 1 });
-          }
-        } catch (e) {
-          console.warn('[DataEngine] Failed to seed todo_task', e);
+        // Iterate over all registered plugins/apps and check for 'data' property in manifest
+        const plugins = SchemaRegistry.getRegisteredTypes(); // This returns types like 'plugin', 'app'
+        
+        // This is a bit hacky because we don't have a direct "getAllManifests" API exposed easily
+        // We will iterate known apps for now, or improve Registry API later.
+        // Actually, SchemaRegistry.listItems('app') returns the manifests!
+        
+        const apps = [...SchemaRegistry.listItems('app'), ...SchemaRegistry.listItems('plugin')];
+        
+        for (const appItem of apps) {
+            const app = appItem as any; // Cast to access data prop safely
+            if (app.data && Array.isArray(app.data)) {
+                console.log(`[DataEngine] Seeding data for ${app.name || app.id}...`);
+                for (const seed of app.data) {
+                     try {
+                        // Check if data exists
+                        const existing = await this.ql.find(seed.object, { top: 1 });
+                        if (existing.length === 0) {
+                             console.log(`[DataEngine] Inserting ${seed.records.length} records into ${seed.object}`);
+                             for (const record of seed.records) {
+                                 await this.ql.insert(seed.object, record);
+                             }
+                        }
+                     } catch (e) {
+                         console.warn(`[DataEngine] Failed to seed ${seed.object}`, e);
+                     }
+                }
+            }
         }
 
     } catch(e) {
