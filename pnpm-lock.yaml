@@ -211,8 +211,8 @@ importers:
         version: 4.11.4
     devDependencies:
       '@objectstack/runtime':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: workspace:*
+        version: link:../runtime
       '@types/node':
         specifier: ^20.0.0
         version: 20.19.30
@@ -953,13 +953,6 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
-
-  '@objectstack/runtime@0.1.0':
-    resolution: {integrity: sha512-UB+y6y78LuW88RqAIWZKkSr5BAn/TDd3ySGtlvWOQ9D54cY7rE03HM2K2ckub/K7eyEWCpwjeqJ1ovMoWwo3LQ==}
-
-  '@objectstack/spec@0.1.1':
-    resolution: {integrity: sha512-gBeC7PiNxhz2UytY6MHmqB7i13FfRq/xrTXWkM8aobhDkd4REI9DnigaKJctmpuJumc5GWLG9lZgb2voj1rEFg==}
-    engines: {node: '>=18.0.0'}
 
   '@orama/orama@3.1.18':
     resolution: {integrity: sha512-a61ljmRVVyG5MC/698C8/FfFDw5a8LOIvyOLW5fztgUXqUpc1jOfQzOitSCbge657OgXXThmY3Tk8fpiDb4UcA==}
@@ -3944,14 +3937,6 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
-
-  '@objectstack/runtime@0.1.0':
-    dependencies:
-      '@objectstack/spec': 0.1.1
-
-  '@objectstack/spec@0.1.1':
-    dependencies:
-      zod: 3.25.76
 
   '@orama/orama@3.1.18': {}
 

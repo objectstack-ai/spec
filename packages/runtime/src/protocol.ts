@@ -76,6 +76,7 @@ export class ObjectStackRuntimeProtocol {
 
     // 4. Metadata: Get Single Item
     getMetaItem(typePlural: string, name: string) {
+        console.log(`[Protocol] getMetaItem called for ${typePlural}/${name}`);
         const typeMap: Record<string, string> = {
             'objects': 'object',
             'apps': 'app',
@@ -85,6 +86,7 @@ export class ObjectStackRuntimeProtocol {
             'kinds': 'kind'
         };
         const type = typeMap[typePlural] || typePlural;
+        console.log(`[Protocol] Resolved type: ${type}`);
         const item = SchemaRegistry.getItem(type, name);
         if (!item) throw new Error(`Metadata not found: ${type}/${name}`);
         return item;
