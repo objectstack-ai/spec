@@ -10,6 +10,13 @@ import { DataEngine } from './kernel/engine';
 const app = new Hono();
 const dataEngine = new DataEngine(); // Engine loads plugins internally now
 
+app.use('*', logger());
+app.use('*', cors());
+
+// Default Route: Serve Client Lite
+app.get('/', serveStatic({ root: './public', path: 'index.html' }));
+app.get('/index.html', serveStatic({ root: './public', path: 'index.html' }));
+
 // 3. Define Unified Routes
 
 /**
@@ -85,16 +92,16 @@ app.get('/api/v1/meta/:type/:name', (c) => {
   const typePlural = c.req.param('type');
   const name = c.req.param('name');
   
-  // const typeMap: Record<string, string> = {
-  //   'objects': 'object',
-  //   'apps': 'app',
-  //   'flows': 'flow',
-  //   'reports': 'report',
-  //   'plugins': 'plugin',
-  //   'kinds': 'kind'
-  // };
-  // const type = typeMap[typePlural] || typePlural;
-  const type = typePlural; // Direct pass-through
+  const typeMap: Record<string, string> = {
+    'objects': 'object',
+    'apps': 'app',
+    'flows': 'flow',
+    'reports': 'report',
+    'plugins': 'plugin',
+    'kinds': 'kind'
+  };
+  const type = typeMap[typePlural] || typePlural;
+  // const type = typePlural; // Direct pass-through
 
   const item = SchemaRegistry.getItem(type, name);
   if (!item) return c.json({ error: `Metadata not found: ${type}/${name}` }, 404);

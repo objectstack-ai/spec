@@ -13,6 +13,8 @@
         .badge { padding: 4px 8px; border-radius: 12px; font-size: 12px; }
         .badge-done { background: #e3fcef; color: #0d7f56; }
         .badge-todo { background: #fff8c5; color: #9a6700; }
+        .badge-true { background: #e3fcef; color: #0d7f56; }
+        .badge-false { background: #fff8c5; color: #9a6700; }
     </style>
 </head>
 <body>
@@ -83,9 +85,13 @@
                         let cellContent = val;
                         
                         // 根据 Schema 类型或 View 组件进行特殊渲染
-                        if ((col.widget === 'badge' || fieldConfig.type === 'select') && val) {
+                        if ((col.widget === 'badge' || fieldConfig.type === 'select' || typeof val === 'boolean') && val !== undefined) {
                             const badgeClass = `badge-${String(val).toLowerCase()}`;
                             cellContent = `<span class="badge ${badgeClass}">${val}</span>`;
+                        } else if (fieldConfig.type === 'date' && val) {
+                             cellContent = new Date(val).toLocaleDateString();
+                        } else if (fieldConfig.type === 'rating') {
+                             cellContent = '★'.repeat(Number(val)) + '☆'.repeat(3 - Number(val));
                         }
                         
                         html += `<td>${cellContent}</td>`;
@@ -101,8 +107,8 @@
         // 启动应用
         const ui = new ObjectUIRenderer('app');
         // 'Todo' 是 TodoApp 里的对象名 (注意大小写，SchemaRegistry 也许是敏感的，取决于 TodoApp 定义)
-        // 假设 TodoApp 定义的是 'Todo'
-        ui.renderList('Todo'); 
+        // TodoApp 定义的是 'todo_task'
+        ui.renderList('todo_task'); 
 
     </script>
 </body>

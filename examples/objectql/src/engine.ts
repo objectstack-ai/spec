@@ -33,20 +33,34 @@ export class ObjectQL {
   async use(manifestPart: any, runtimePart?: any) {
     // 1. Validate / Register Manifest
     if (manifestPart) {
+      // 1. Handle Module Imports (commonjs/esm interop)
+      // If the passed object is a module namespace with a default export, use that.
+      const manifest = manifestPart.default || manifestPart;
+
       // In a real scenario, we might strictly parse this using Zod
       // For now, simple ID check
-      const id = manifestPart.id;
+      const id = manifest.id || manifest.name;
       if (!id) {
-        console.warn('[ObjectQL] Plugin manifest missing ID', manifestPart);
-        return;
+        console.warn(`[ObjectQL] Plugin manifest missing ID (keys: ${Object.keys(manifest)})`, manifest);
+        // Don't return, try to proceed if it looks like an App (Apps might use 'name' instead of 'id')
+        // return; 
       }
       
       console.log(`[ObjectQL] Loading Plugin: ${id}`);
-      SchemaRegistry.registerPlugin(manifestPart as ObjectStackManifest);
+      SchemaRegistry.registerPlugin(manifest as ObjectStackManifest);
+
+      // Register Objects from App/Plugin
+      if (manifest.objects) {
+        for (const obj of manifest.objects) {
+            // Ensure object name is registered globally
+            SchemaRegistry.registerObject(obj);
+            console.log(`[ObjectQL] Registered Object: ${obj.name}`);
+        }
+      }
 
       // Register contributions
-       if (manifestPart.contributes?.kinds) {
-          for (const kind of manifestPart.contributes.kinds) {
+       if (manifest.contributes?.kinds) {
+          for (const kind of manifest.contributes.kinds) {
             SchemaRegistry.registerKind(kind);
           }
        }
