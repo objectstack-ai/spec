@@ -26,36 +26,36 @@ export function CodePreview({ filename, className }: CodePreviewProps) {
         <div className="overflow-x-auto p-6 text-left bg-gradient-to-br from-card to-muted/20">
           <pre className="font-mono text-sm leading-7">
             <code>
-              <span className="text-purple-400 font-semibold">import</span>{' '}
+              <span className="text-purple-600 dark:text-purple-400 font-semibold">import</span>{' '}
               <span className="text-foreground">{'{'}</span>{' '}
-              <span className="text-yellow-300">ObjectProtocol</span>{' '}
+              <span className="text-amber-600 dark:text-yellow-300">ObjectProtocol</span>{' '}
               <span className="text-foreground">{'}'}</span>{' '}
-              <span className="text-purple-400 font-semibold">from</span>{' '}
-              <span className="text-green-300">&apos;@objectstack/spec&apos;</span>;
+              <span className="text-purple-600 dark:text-purple-400 font-semibold">from</span>{' '}
+              <span className="text-green-600 dark:text-green-300">&apos;@objectstack/spec&apos;</span>;
               <br/><br/>
-              <span className="text-purple-400 font-semibold">export const</span>{' '}
-              <span className="text-blue-300">Issue</span>{' '}
-              <span className="text-purple-400">=</span>{' '}
-              <span className="text-yellow-300">ObjectProtocol</span>.
-              <span className="text-blue-300">define</span>
+              <span className="text-purple-600 dark:text-purple-400 font-semibold">export const</span>{' '}
+              <span className="text-blue-600 dark:text-blue-300">Issue</span>{' '}
+              <span className="text-purple-600 dark:text-purple-400">=</span>{' '}
+              <span className="text-amber-600 dark:text-yellow-300">ObjectProtocol</span>.
+              <span className="text-blue-600 dark:text-blue-300">define</span>
               <span className="text-foreground">(</span>
               <span className="text-foreground">{'{'}</span>
               <br/>
-              &nbsp;&nbsp;<span className="text-sky-300">code</span>: <span className="text-green-300">&apos;issue_tracker&apos;</span>,
+              &nbsp;&nbsp;<span className="text-cyan-600 dark:text-sky-300">code</span>: <span className="text-green-600 dark:text-green-300">&apos;issue_tracker&apos;</span>,
               <br/>
-              &nbsp;&nbsp;<span className="text-sky-300">fields</span>: <span className="text-foreground">{'{'}</span>
+              &nbsp;&nbsp;<span className="text-cyan-600 dark:text-sky-300">fields</span>: <span className="text-foreground">{'{'}</span>
               <br/>
-              &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-sky-300">summary</span>: <span className="text-yellow-300">Field</span>.<span className="text-blue-300">text</span>(<span className="text-foreground">{'{'}</span> <span className="text-sky-300">required</span>: <span className="text-red-300">true</span> <span className="text-foreground">{'}'}</span>),
+              &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-cyan-600 dark:text-sky-300">summary</span>: <span className="text-amber-600 dark:text-yellow-300">Field</span>.<span className="text-blue-600 dark:text-blue-300">text</span>(<span className="text-foreground">{'{'}</span> <span className="text-cyan-600 dark:text-sky-300">required</span>: <span className="text-red-600 dark:text-red-300">true</span> <span className="text-foreground">{'}'}</span>),
               <br/>
-              &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-sky-300">priority</span>: <span className="text-yellow-300">Field</span>.<span className="text-blue-300">select</span>([<span className="text-green-300">&apos;P0&apos;</span>, <span className="text-green-300">&apos;P1&apos;</span>, <span className="text-green-300">&apos;P2&apos;</span>]),
+              &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-cyan-600 dark:text-sky-300">priority</span>: <span className="text-amber-600 dark:text-yellow-300">Field</span>.<span className="text-blue-600 dark:text-blue-300">select</span>([<span className="text-green-600 dark:text-green-300">&apos;P0&apos;</span>, <span className="text-green-600 dark:text-green-300">&apos;P1&apos;</span>, <span className="text-green-600 dark:text-green-300">&apos;P2&apos;</span>]),
               <br/>
-              &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-sky-300">assignee</span>: <span className="text-yellow-300">Field</span>.<span className="text-blue-300">lookup</span>(<span className="text-green-300">&apos;users&apos;</span>)
+              &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-cyan-600 dark:text-sky-300">assignee</span>: <span className="text-amber-600 dark:text-yellow-300">Field</span>.<span className="text-blue-600 dark:text-blue-300">lookup</span>(<span className="text-green-600 dark:text-green-300">&apos;users&apos;</span>)
               <br/>
               &nbsp;&nbsp;<span className="text-foreground">{'}'}</span>,
               <br/>
-              &nbsp;&nbsp;<span className="text-sky-300">policy</span>: <span className="text-foreground">{'{'}</span>{' '}
-              <span className="text-sky-300">audit</span>: <span className="text-red-300">true</span>, {' '}
-              <span className="text-sky-300">api_access</span>: <span className="text-green-300">&apos;public&apos;</span>{' '}
+              &nbsp;&nbsp;<span className="text-cyan-600 dark:text-sky-300">policy</span>: <span className="text-foreground">{'{'}</span>{' '}
+              <span className="text-cyan-600 dark:text-sky-300">audit</span>: <span className="text-red-600 dark:text-red-300">true</span>, {' '}
+              <span className="text-cyan-600 dark:text-sky-300">api_access</span>: <span className="text-green-600 dark:text-green-300">&apos;public&apos;</span>{' '}
               <span className="text-foreground">{'}'}</span>
               <br/>
               <span className="text-foreground">{'}'}</span>);
