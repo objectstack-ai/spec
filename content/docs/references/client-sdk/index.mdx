@@ -1,0 +1,97 @@
+---
+title: Client SDK
+description: The official TypeScript client for ObjectStack.
+---
+
+# Client SDK
+
+The `@objectstack/client-sdk` is the official TypeScript client for ObjectStack. It provides a typed, protocol-aware interface to interact with your ObjectStack Server.
+
+## Features
+
+- **Auto-Discovery**: Connects to your ObjectStack server and automatically configures API endpoints.
+- **Typed Metadata**: Retrieve Object and View definitions with full type support.
+- **Unified Data Access**: Simple and Advanced CRUD operations for any object in your schema.
+
+## Installation
+
+```bash
+pnpm add @objectstack/client-sdk
+```
+
+## Usage
+
+```typescript
+import { ObjectStackClient } from '@objectstack/client-sdk';
+
+// 1. Initialize
+const client = new ObjectStackClient({
+  baseUrl: 'http://localhost:3004', // Your ObjectStack Server URL
+  token: 'optional-auth-token'
+});
+
+async function main() {
+  // 2. Connect (Fetches system capabilities)
+  await client.connect();
+
+  // 3. Metadata Access
+  const todoSchema = await client.meta.getObject('todo_task');
+  console.log('Fields:', todoSchema.fields);
+
+  // 4. Advanced Query
+  const tasks = await client.data.find<{ subject: string; priority: number }>('todo_task', {
+    select: ['subject', 'priority'], // Field Selection
+    filters: ['priority', '>=', 2],  // ObjectStack Filter AST
+    sort: ['-priority'],             // Sorting
+    top: 10
+  });
+  
+  // 5. Create Data
+  const newTask = await client.data.create('todo_task', {
+    subject: 'New Task',
+    priority: 1
+  });
+
+  // 6. Batch Operations
+  await client.data.deleteMany('todo_task', ['id1', 'id2']);
+}
+```
+
+## API Reference
+
+### Initialization
+```typescript
+const client = new ObjectStackClient(config: ClientConfig);
+```
+- `config.baseUrl`: URL of the ObjectStack Server.
+- `config.token`: (Optional) Bearer token for authentication.
+- `config.fetch`: (Optional) Custom fetch implementation.
+
+### `client.connect()`
+Initializes the client by fetching the system discovery manifest from `/api/v1`. This maps dynamic routes for metadata, data, and UI services.
+
+### `client.meta`
+- `getObject(name: string)`: Get object schema.
+- `getView(name: string)`: Get view configuration (e.g. for automatic UI generation).
+
+### `client.data`
+- `find<T>(object, options)`: Advanced query.
+- `get<T>(object, id)`: Get single record by ID.
+- `query<T>(object, ast)`: Execute complex query using full AST (support for Joins, Aggregations).
+- `create<T>(object, data)`: Create record.
+- `createMany<T>(object, data[])`: Batch create.
+- `update<T>(object, id, data)`: Update record.
+- `updateMany<T>(object, ids[], data)`: Batch update.
+- `delete(object, id)`: Delete record.
+- `deleteMany(object, ids[])`: Batch delete.
+
+### Query Options (`QueryOptions`)
+The `find` method accepts an options object to control the query:
+
+| Property | Type | Description | Example |
+| :--- | :--- | :--- | :--- |
+| `select` | `string[]` | Fields to retrieve | `['name', 'email']` |
+| `filters` | `Map` or `AST` | Filtering criteria | `['status', '=', 'active']` |
+| `sort` | `string` or `string[]` | Sort order | `['-created_at']` |
+| `top` | `number` | Limit records | `20` |
+| `skip` | `number` | Offset (Pagination) | `0` |

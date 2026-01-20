@@ -5,6 +5,7 @@
     "data",
     "ui",
     "system",
+    "client-sdk",
     "ai",
     "misc"
   ]
