@@ -80,15 +80,11 @@ export const Lead = ObjectSchema.create({
       ]
     },
     
-    rating: {
-      type: 'select',
-      label: 'Rating',
-      options: [
-        { label: 'Hot', value: 'hot', color: '#FF0000' },
-        { label: 'Warm', value: 'warm', color: '#FFA500' },
-        { label: 'Cold', value: 'cold', color: '#4169E1' },
-      ]
-    },
+    rating: Field.rating(5, {
+      label: 'Lead Score',
+      description: 'Lead quality score (1-5 stars)',
+      allowHalf: true,
+    }),
     
     lead_source: Field.select(['Web', 'Referral', 'Event', 'Partner', 'Advertisement', 'Cold Call'], {
       label: 'Lead Source',
@@ -127,12 +123,11 @@ export const Lead = ObjectSchema.create({
       readonly: true,
     }),
     
-    // Address
-    street: Field.textarea({ label: 'Street' }),
-    city: Field.text({ label: 'City' }),
-    state: Field.text({ label: 'State/Province' }),
-    postal_code: Field.text({ label: 'Postal Code' }),
-    country: Field.text({ label: 'Country' }),
+    // Address (using new address field type)
+    address: Field.address({
+      label: 'Address',
+      addressFormat: 'international',
+    }),
     
     // Additional Info
     annual_revenue: Field.currency({
@@ -148,6 +143,12 @@ export const Lead = ObjectSchema.create({
       label: 'Description',
     }),
     
+    // Custom notes with rich text formatting
+    notes: Field.richtext({
+      label: 'Notes',
+      description: 'Rich text notes with formatting',
+    }),
+    
     // Flags
     do_not_call: Field.boolean({
       label: 'Do Not Call',
@@ -159,6 +160,14 @@ export const Lead = ObjectSchema.create({
       defaultValue: false,
     }),
   },
+  
+  // Database indexes for performance
+  indexes: [
+    { fields: ['email'], unique: true },
+    { fields: ['owner'], unique: false },
+    { fields: ['status'], unique: false },
+    { fields: ['company'], unique: false },
+  ],
   
   enable: {
     trackHistory: true,
@@ -235,13 +244,13 @@ export const Lead = ObjectSchema.create({
         {
           label: 'Address',
           columns: 2,
-          fields: ['street', 'city', 'state', 'postal_code', 'country'],
+          fields: ['address'],
         },
         {
           label: 'Additional Information',
           columns: 2,
           collapsible: true,
-          fields: ['do_not_call', 'email_opt_out', 'description'],
+          fields: ['do_not_call', 'email_opt_out', 'description', 'notes'],
         },
         {
           label: 'Conversion Information',
@@ -273,10 +282,10 @@ export const Lead = ObjectSchema.create({
   
   workflows: [
     {
-      name: 'auto_qualify_hot_leads',
+      name: 'auto_qualify_high_score_leads',
       objectName: 'lead',
       triggerType: 'on_create_or_update',
-      criteria: 'rating = "hot" AND status = "new"',
+      criteria: 'rating >= 4 AND status = "new"',
       active: true,
       actions: [
         {
@@ -288,16 +297,16 @@ export const Lead = ObjectSchema.create({
       ],
     },
     {
-      name: 'notify_owner_on_hot_lead',
+      name: 'notify_owner_on_high_score_lead',
       objectName: 'lead',
       triggerType: 'on_create_or_update',
-      criteria: 'ISCHANGED(rating) AND rating = "hot"',
+      criteria: 'ISCHANGED(rating) AND rating >= 4.5',
       active: true,
       actions: [
         {
           name: 'email_owner',
           type: 'email_alert',
-          template: 'hot_lead_notification',
+          template: 'high_score_lead_notification',
           recipients: ['{owner.email}'],
         }
       ],

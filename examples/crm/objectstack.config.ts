@@ -16,6 +16,7 @@ export default App.create({
   label: 'CRM App',
   description: 'Comprehensive CRM example demonstrating all ObjectStack Protocol features',
   version: '2.0.0',
+  icon: 'briefcase',
   
   // All objects in the app
   objects: [
@@ -85,17 +86,10 @@ export default App.create({
   // Reports
   reports: Object.values(CrmReports),
   
-  // App-level settings
-  settings: {
-    theme: {
-      primaryColor: '#4169E1',
-      logo: '/assets/crm-logo.png',
-    },
-    features: {
-      enableGlobalSearch: true,
-      enableNotifications: true,
-      enableMobileApp: true,
-      enableOfflineMode: true,
-    }
+  // App-level branding
+  branding: {
+    primaryColor: '#4169E1',
+    logo: '/assets/crm-logo.png',
+    favicon: '/assets/crm-favicon.ico',
   }
 });

@@ -6,6 +6,11 @@ export default App.create({
   label: 'Todo App',
   description: 'A simple Todo example demonstrating ObjectStack Protocol',
   version: '1.0.0',
+  icon: 'check-square',
+  branding: {
+    primaryColor: '#10B981',
+    logo: '/assets/todo-logo.png',
+  },
   objects: [
     TodoTask
   ],

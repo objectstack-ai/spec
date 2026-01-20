@@ -6,6 +6,7 @@ export const Opportunity = ObjectSchema.create({
   pluralLabel: 'Opportunities',
   icon: 'dollar-sign',
   description: 'Sales opportunities and deals in the pipeline',
+  nameField: 'name',
   
   fields: {
     // Basic Information
@@ -125,6 +126,15 @@ export const Opportunity = ObjectSchema.create({
       label: 'Forecast Category',
     }),
   },
+  
+  // Database indexes for performance
+  indexes: [
+    { fields: ['name'], unique: false },
+    { fields: ['account'], unique: false },
+    { fields: ['owner'], unique: false },
+    { fields: ['stage'], unique: false },
+    { fields: ['close_date'], unique: false },
+  ],
   
   // Enable advanced features
   enable: {

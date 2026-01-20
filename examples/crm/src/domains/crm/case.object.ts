@@ -133,12 +133,19 @@ export const Case = ObjectSchema.create({
     }),
     
     // Customer satisfaction
-    customer_rating: Field.select(['⭐ Very Dissatisfied', '⭐⭐ Dissatisfied', '⭐⭐⭐ Neutral', '⭐⭐⭐⭐ Satisfied', '⭐⭐⭐⭐⭐ Very Satisfied'], {
-      label: 'Customer Rating',
+    customer_rating: Field.rating(5, {
+      label: 'Customer Satisfaction',
+      description: 'Customer satisfaction rating (1-5 stars)',
     }),
     
     customer_feedback: Field.textarea({
       label: 'Customer Feedback',
+    }),
+    
+    // Customer signature (for case resolution acknowledgment)
+    customer_signature: Field.signature({
+      label: 'Customer Signature',
+      description: 'Digital signature acknowledging case resolution',
     }),
     
     // Internal notes
@@ -154,6 +161,15 @@ export const Case = ObjectSchema.create({
       readonly: true,
     }),
   },
+  
+  // Database indexes for performance
+  indexes: [
+    { fields: ['case_number'], unique: true },
+    { fields: ['account'], unique: false },
+    { fields: ['owner'], unique: false },
+    { fields: ['status'], unique: false },
+    { fields: ['priority'], unique: false },
+  ],
   
   enable: {
     trackHistory: true,
@@ -245,7 +261,7 @@ export const Case = ObjectSchema.create({
         {
           label: 'Resolution',
           columns: 1,
-          fields: ['resolution', 'customer_rating', 'customer_feedback'],
+          fields: ['resolution', 'customer_rating', 'customer_feedback', 'customer_signature'],
         },
         {
           label: 'SLA & Metrics',
