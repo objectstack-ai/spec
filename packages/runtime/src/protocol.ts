@@ -1,4 +1,4 @@
-import { SchemaRegistry } from './registry';
+import { SchemaRegistry } from '@objectstack/objectql';
 import { ObjectStackKernel } from './kernel';
 
 export interface ApiRequest {

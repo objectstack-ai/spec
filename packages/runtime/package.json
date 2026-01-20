@@ -9,6 +9,7 @@
     "dev": "tsc -w"
   },
   "dependencies": {
+    "@objectstack/objectql": "workspace:*",
     "@objectstack/spec": "workspace:*"
   },
   "devDependencies": {

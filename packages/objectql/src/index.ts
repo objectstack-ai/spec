@@ -1,5 +1,8 @@
-import { DriverInterface, DriverOptions, QueryAST, ObjectStackManifest, ManifestSchema } from '@objectstack/spec';
+import { DriverInterface, DriverOptions, QueryAST, ObjectStackManifest } from '@objectstack/spec';
 import { SchemaRegistry } from './registry';
+
+// Export Registry for consumers
+export { SchemaRegistry } from './registry';
 
 /**
  * Host Context provided to plugins
@@ -17,7 +20,6 @@ export interface PluginContext {
 export class ObjectQL {
   private drivers = new Map<string, DriverInterface>();
   private defaultDriver: string | null = null;
-  private plugins = new Map<string, any>();
   
   // Host provided context additions (e.g. Server router)
   private hostContext: Record<string, any> = {};
@@ -110,7 +112,7 @@ export class ObjectQL {
   /**
    * Helper to get the target driver
    */
-  private getDriver(object: string): DriverInterface {
+  private getDriver(_object: string): DriverInterface {
     // TODO: Look up Object definition to see if it specifies a specific datasource/driver
     // For now, always return default
     if (!this.defaultDriver) {

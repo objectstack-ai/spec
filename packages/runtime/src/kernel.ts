@@ -1,6 +1,5 @@
 import { ServiceObject } from '@objectstack/spec';
-import { SchemaRegistry } from './registry';
-import { ObjectQL } from './engine';
+import { SchemaRegistry, ObjectQL } from '@objectstack/objectql';
 
 /**
  * ObjectStack Kernel (Microkernel)
