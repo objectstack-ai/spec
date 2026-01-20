@@ -34,6 +34,7 @@ export * from './ui/report.zod';
 export * from './ui/action.zod';
 export * from './ui/page.zod';
 export * from './ui/widget.zod';
+export * from './ui/theme.zod';
 
 // System Protocol (Manifest, Runtime, Constants)
 export * from './system/manifest.zod';

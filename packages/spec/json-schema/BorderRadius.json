@@ -1,0 +1,44 @@
+{
+  "$ref": "#/definitions/BorderRadius",
+  "definitions": {
+    "BorderRadius": {
+      "type": "object",
+      "properties": {
+        "none": {
+          "type": "string",
+          "description": "No border radius (0)"
+        },
+        "sm": {
+          "type": "string",
+          "description": "Small border radius (e.g., 0.125rem)"
+        },
+        "base": {
+          "type": "string",
+          "description": "Base border radius (e.g., 0.25rem)"
+        },
+        "md": {
+          "type": "string",
+          "description": "Medium border radius (e.g., 0.375rem)"
+        },
+        "lg": {
+          "type": "string",
+          "description": "Large border radius (e.g., 0.5rem)"
+        },
+        "xl": {
+          "type": "string",
+          "description": "Extra large border radius (e.g., 0.75rem)"
+        },
+        "2xl": {
+          "type": "string",
+          "description": "2X large border radius (e.g., 1rem)"
+        },
+        "full": {
+          "type": "string",
+          "description": "Full border radius (50%)"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

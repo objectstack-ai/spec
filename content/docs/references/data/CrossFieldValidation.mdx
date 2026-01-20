@@ -1,0 +1,16 @@
+---
+title: CrossFieldValidation
+description: CrossFieldValidation Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique rule name |
+| **active** | `boolean` | optional |  |
+| **severity** | `Enum<'error' \| 'warning' \| 'info'>` | optional |  |
+| **message** | `string` | ✅ | Error message to display |
+| **type** | `string` | ✅ |  |
+| **condition** | `string` | ✅ | Formula expression comparing fields (e.g. "end_date > start_date") |
+| **fields** | `string[]` | ✅ | Fields involved in the validation |

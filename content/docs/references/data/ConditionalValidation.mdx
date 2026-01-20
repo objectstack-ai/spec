@@ -1,0 +1,17 @@
+---
+title: ConditionalValidation
+description: ConditionalValidation Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique rule name |
+| **active** | `boolean` | optional |  |
+| **severity** | `Enum<'error' \| 'warning' \| 'info'>` | optional |  |
+| **message** | `string` | ✅ | Error message to display |
+| **type** | `string` | ✅ |  |
+| **when** | `string` | ✅ | Condition formula (e.g. "type = 'enterprise'") |
+| **then** | `object \| object \| object \| object \| object \| object \| object \| any` | ✅ | Validation rule to apply when condition is true |
+| **otherwise** | `object \| object \| object \| object \| object \| object \| object \| any` | optional | Validation rule to apply when condition is false |

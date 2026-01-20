@@ -64,6 +64,7 @@
                   "password",
                   "markdown",
                   "html",
+                  "richtext",
                   "number",
                   "currency",
                   "percent",
@@ -79,7 +80,13 @@
                   "avatar",
                   "formula",
                   "summary",
-                  "autonumber"
+                  "autonumber",
+                  "location",
+                  "address",
+                  "code",
+                  "color",
+                  "rating",
+                  "signature"
                 ],
                 "description": "Field Data Type"
               },
@@ -228,6 +235,64 @@
                 ],
                 "additionalProperties": false,
                 "description": "Roll-up summary definition"
+              },
+              "language": {
+                "type": "string",
+                "description": "Programming language for syntax highlighting (e.g., javascript, python, sql)"
+              },
+              "theme": {
+                "type": "string",
+                "description": "Code editor theme (e.g., dark, light, monokai)"
+              },
+              "lineNumbers": {
+                "type": "boolean",
+                "description": "Show line numbers in code editor"
+              },
+              "maxRating": {
+                "type": "number",
+                "description": "Maximum rating value (default: 5)"
+              },
+              "allowHalf": {
+                "type": "boolean",
+                "description": "Allow half-star ratings"
+              },
+              "displayMap": {
+                "type": "boolean",
+                "description": "Display map widget for location field"
+              },
+              "allowGeocoding": {
+                "type": "boolean",
+                "description": "Allow address-to-coordinate conversion"
+              },
+              "addressFormat": {
+                "type": "string",
+                "enum": [
+                  "us",
+                  "uk",
+                  "international"
+                ],
+                "description": "Address format template"
+              },
+              "colorFormat": {
+                "type": "string",
+                "enum": [
+                  "hex",
+                  "rgb",
+                  "rgba",
+                  "hsl"
+                ],
+                "description": "Color value format"
+              },
+              "allowAlpha": {
+                "type": "boolean",
+                "description": "Allow transparency/alpha channel"
+              },
+              "presetColors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Preset color options"
               },
               "hidden": {
                 "type": "boolean",

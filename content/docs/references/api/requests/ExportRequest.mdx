@@ -9,8 +9,14 @@ description: ExportRequest Schema Reference
 | :--- | :--- | :--- | :--- |
 | **object** | `string` | ✅ | Object name (e.g. account) |
 | **fields** | `string \| object[]` | optional | Fields to retrieve |
+| **aggregations** | `object[]` | optional | Aggregation functions (GROUP BY) |
+| **windowFunctions** | `object[]` | optional | Window functions with OVER clause |
 | **filters** | `any[] \| string \| any[]` | optional | Filtering criteria |
+| **joins** | `object[]` | optional | Table joins |
+| **groupBy** | `string[]` | optional | GROUP BY fields |
+| **having** | `any[] \| string \| any[]` | optional | HAVING clause for aggregation filtering |
 | **sort** | `object[]` | optional | Sorting instructions |
 | **top** | `number` | optional | Limit results |
 | **skip** | `number` | optional | Offset results |
+| **distinct** | `boolean` | optional | SELECT DISTINCT flag |
 | **format** | `Enum<'csv' \| 'json' \| 'xlsx'>` | optional |  |

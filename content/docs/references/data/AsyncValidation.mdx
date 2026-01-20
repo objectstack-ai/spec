@@ -1,0 +1,20 @@
+---
+title: AsyncValidation
+description: AsyncValidation Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique rule name |
+| **active** | `boolean` | optional |  |
+| **severity** | `Enum<'error' \| 'warning' \| 'info'>` | optional |  |
+| **message** | `string` | ✅ | Error message to display |
+| **type** | `string` | ✅ |  |
+| **field** | `string` | ✅ | Field to validate |
+| **validatorUrl** | `string` | optional | External API endpoint for validation |
+| **validatorFunction** | `string` | optional | Reference to custom validator function |
+| **timeout** | `number` | optional | Timeout in milliseconds |
+| **debounce** | `number` | optional | Debounce delay in milliseconds |
+| **params** | `Record<string, any>` | optional | Additional parameters to pass to validator |

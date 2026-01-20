@@ -1,0 +1,455 @@
+{
+  "$ref": "#/definitions/JoinNode",
+  "definitions": {
+    "JoinNode": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "inner",
+            "left",
+            "right",
+            "full"
+          ],
+          "description": "Join type"
+        },
+        "object": {
+          "type": "string",
+          "description": "Object/table to join"
+        },
+        "alias": {
+          "type": "string",
+          "description": "Table alias"
+        },
+        "on": {
+          "anyOf": [
+            {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "items": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "=",
+                    "!=",
+                    "<>",
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "startswith",
+                    "contains",
+                    "notcontains",
+                    "between",
+                    "in",
+                    "notin",
+                    "is_null",
+                    "is_not_null"
+                  ]
+                },
+                {}
+              ]
+            },
+            {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "type": "array",
+                        "minItems": 3,
+                        "maxItems": 3,
+                        "items": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "=",
+                              "!=",
+                              "<>",
+                              ">",
+                              ">=",
+                              "<",
+                              "<=",
+                              "startswith",
+                              "contains",
+                              "notcontains",
+                              "between",
+                              "in",
+                              "notin",
+                              "is_null",
+                              "is_not_null"
+                            ]
+                          },
+                          {}
+                        ]
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {}
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "description": "Join condition"
+        },
+        "subquery": {
+          "type": "object",
+          "properties": {
+            "object": {
+              "type": "string",
+              "description": "Object name (e.g. account)"
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "field": {
+                        "type": "string"
+                      },
+                      "fields": {
+                        "type": "array",
+                        "items": {}
+                      },
+                      "alias": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "field"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              },
+              "description": "Fields to retrieve"
+            },
+            "aggregations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "function": {
+                    "type": "string",
+                    "enum": [
+                      "count",
+                      "sum",
+                      "avg",
+                      "min",
+                      "max",
+                      "count_distinct",
+                      "array_agg",
+                      "string_agg"
+                    ],
+                    "description": "Aggregation function"
+                  },
+                  "field": {
+                    "type": "string",
+                    "description": "Field to aggregate (optional for COUNT(*))"
+                  },
+                  "alias": {
+                    "type": "string",
+                    "description": "Result column alias"
+                  },
+                  "distinct": {
+                    "type": "boolean",
+                    "description": "Apply DISTINCT before aggregation"
+                  }
+                },
+                "required": [
+                  "function",
+                  "alias"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Aggregation functions (GROUP BY)"
+            },
+            "windowFunctions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "function": {
+                    "type": "string",
+                    "enum": [
+                      "row_number",
+                      "rank",
+                      "dense_rank",
+                      "percent_rank",
+                      "lag",
+                      "lead",
+                      "first_value",
+                      "last_value",
+                      "sum",
+                      "avg",
+                      "count",
+                      "min",
+                      "max"
+                    ],
+                    "description": "Window function name"
+                  },
+                  "field": {
+                    "type": "string",
+                    "description": "Field to operate on (for aggregate window functions)"
+                  },
+                  "alias": {
+                    "type": "string",
+                    "description": "Result column alias"
+                  },
+                  "over": {
+                    "type": "object",
+                    "properties": {
+                      "partitionBy": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "PARTITION BY fields"
+                      },
+                      "orderBy": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "order": {
+                              "type": "string",
+                              "enum": [
+                                "asc",
+                                "desc"
+                              ],
+                              "default": "asc"
+                            }
+                          },
+                          "required": [
+                            "field"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "description": "ORDER BY specification"
+                      },
+                      "frame": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "rows",
+                              "range"
+                            ]
+                          },
+                          "start": {
+                            "type": "string",
+                            "description": "Frame start (e.g., \"UNBOUNDED PRECEDING\", \"1 PRECEDING\")"
+                          },
+                          "end": {
+                            "type": "string",
+                            "description": "Frame end (e.g., \"CURRENT ROW\", \"1 FOLLOWING\")"
+                          }
+                        },
+                        "additionalProperties": false,
+                        "description": "Window frame specification"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Window specification (OVER clause)"
+                  }
+                },
+                "required": [
+                  "function",
+                  "alias",
+                  "over"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Window functions with OVER clause"
+            },
+            "filters": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "items": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "string",
+                      "enum": [
+                        "=",
+                        "!=",
+                        "<>",
+                        ">",
+                        ">=",
+                        "<",
+                        "<=",
+                        "startswith",
+                        "contains",
+                        "notcontains",
+                        "between",
+                        "in",
+                        "notin",
+                        "is_null",
+                        "is_not_null"
+                      ]
+                    },
+                    {}
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {}
+                    ]
+                  }
+                }
+              ],
+              "description": "Filtering criteria"
+            },
+            "joins": {
+              "type": "array",
+              "items": {},
+              "description": "Table joins"
+            },
+            "groupBy": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "GROUP BY fields"
+            },
+            "having": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "items": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "string",
+                      "enum": [
+                        "=",
+                        "!=",
+                        "<>",
+                        ">",
+                        ">=",
+                        "<",
+                        "<=",
+                        "startswith",
+                        "contains",
+                        "notcontains",
+                        "between",
+                        "in",
+                        "notin",
+                        "is_null",
+                        "is_not_null"
+                      ]
+                    },
+                    {}
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {}
+                    ]
+                  }
+                }
+              ],
+              "description": "HAVING clause for aggregation filtering"
+            },
+            "sort": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "string"
+                  },
+                  "order": {
+                    "type": "string",
+                    "enum": [
+                      "asc",
+                      "desc"
+                    ],
+                    "default": "asc"
+                  }
+                },
+                "required": [
+                  "field"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Sorting instructions"
+            },
+            "top": {
+              "type": "number",
+              "description": "Limit results"
+            },
+            "skip": {
+              "type": "number",
+              "description": "Offset results"
+            },
+            "distinct": {
+              "type": "boolean",
+              "description": "SELECT DISTINCT flag"
+            }
+          },
+          "required": [
+            "object"
+          ],
+          "additionalProperties": false,
+          "description": "Subquery instead of object"
+        }
+      },
+      "required": [
+        "type",
+        "object",
+        "on"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

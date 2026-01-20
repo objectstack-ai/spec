@@ -1,0 +1,17 @@
+---
+title: CustomValidator
+description: CustomValidator Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique rule name |
+| **active** | `boolean` | optional |  |
+| **severity** | `Enum<'error' \| 'warning' \| 'info'>` | optional |  |
+| **message** | `string` | ✅ | Error message to display |
+| **type** | `string` | ✅ |  |
+| **field** | `string` | optional | Field to validate (optional for record-level validation) |
+| **validatorFunction** | `string` | ✅ | Function name or reference to custom validator |
+| **params** | `Record<string, any>` | optional | Additional parameters for the validator |

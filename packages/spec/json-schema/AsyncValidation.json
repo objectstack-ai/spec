@@ -1,0 +1,70 @@
+{
+  "$ref": "#/definitions/AsyncValidation",
+  "definitions": {
+    "AsyncValidation": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Unique rule name"
+        },
+        "active": {
+          "type": "boolean",
+          "default": true
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "error",
+            "warning",
+            "info"
+          ],
+          "default": "error"
+        },
+        "message": {
+          "type": "string",
+          "description": "Error message to display"
+        },
+        "type": {
+          "type": "string",
+          "const": "async"
+        },
+        "field": {
+          "type": "string",
+          "description": "Field to validate"
+        },
+        "validatorUrl": {
+          "type": "string",
+          "description": "External API endpoint for validation"
+        },
+        "validatorFunction": {
+          "type": "string",
+          "description": "Reference to custom validator function"
+        },
+        "timeout": {
+          "type": "number",
+          "default": 5000,
+          "description": "Timeout in milliseconds"
+        },
+        "debounce": {
+          "type": "number",
+          "description": "Debounce delay in milliseconds"
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Additional parameters to pass to validator"
+        }
+      },
+      "required": [
+        "name",
+        "message",
+        "type",
+        "field"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

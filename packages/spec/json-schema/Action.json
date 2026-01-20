@@ -75,6 +75,7 @@
                   "password",
                   "markdown",
                   "html",
+                  "richtext",
                   "number",
                   "currency",
                   "percent",
@@ -90,7 +91,13 @@
                   "avatar",
                   "formula",
                   "summary",
-                  "autonumber"
+                  "autonumber",
+                  "location",
+                  "address",
+                  "code",
+                  "color",
+                  "rating",
+                  "signature"
                 ]
               },
               "required": {

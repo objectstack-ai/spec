@@ -1,0 +1,13 @@
+---
+title: WindowFunctionNode
+description: WindowFunctionNode Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **function** | `Enum<'row_number' \| 'rank' \| 'dense_rank' \| 'percent_rank' \| 'lag' \| 'lead' \| 'first_value' \| 'last_value' \| 'sum' \| 'avg' \| 'count' \| 'min' \| 'max'>` | ✅ | Window function name |
+| **field** | `string` | optional | Field to operate on (for aggregate window functions) |
+| **alias** | `string` | ✅ | Result column alias |
+| **over** | `object` | ✅ | Window specification (OVER clause) |
