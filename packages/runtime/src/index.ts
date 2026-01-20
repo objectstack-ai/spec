@@ -1,7 +1,7 @@
 // Export core engine
 export { ObjectQL } from './engine';
 export { SchemaRegistry } from './registry';
-export { DataEngine } from './data-engine';
+export { ObjectStackKernel } from './kernel';
 export { ObjectStackRuntimeProtocol } from './protocol';
 
 

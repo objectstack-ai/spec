@@ -1,7 +1,7 @@
-import { DataEngine } from './data-engine';
+import { ObjectStackKernel } from './kernel';
 
 export interface RuntimeContext {
-    engine: DataEngine;
+    engine: ObjectStackKernel;
 }
 
 export interface RuntimePlugin {

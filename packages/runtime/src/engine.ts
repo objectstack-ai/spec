@@ -68,7 +68,7 @@ export class ObjectQL {
        // Register Data Seeding (Lazy execution or immediate?)
        // We store it in a temporary registry or execute immediately if engine is ready.
        // Since `use` is init time, we might need to store it and run later in `seed()`.
-       // For this MVP, let's attach it to the manifest object in registry so DataEngine can find it.
+       // For this MVP, let's attach it to the manifest object in registry so Kernel can find it.
     }
 
     // 2. Execute Runtime

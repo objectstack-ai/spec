@@ -1,5 +1,5 @@
 import { SchemaRegistry } from './registry';
-import { DataEngine } from './data-engine';
+import { ObjectStackKernel } from './kernel';
 
 export interface ApiRequest {
     params: Record<string, string>;
@@ -8,9 +8,9 @@ export interface ApiRequest {
 }
 
 export class ObjectStackRuntimeProtocol {
-    private engine: DataEngine;
+    private engine: ObjectStackKernel;
 
-    constructor(engine: DataEngine) {
+    constructor(engine: ObjectStackKernel) {
         this.engine = engine;
     }
 

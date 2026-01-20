@@ -3,7 +3,7 @@ import { serveStatic } from '@hono/node-server/serve-static';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
-import { DataEngine, ObjectStackRuntimeProtocol, RuntimePlugin } from '@objectstack/runtime';
+import { ObjectStackKernel, ObjectStackRuntimeProtocol, RuntimePlugin } from '@objectstack/runtime';
 
 export interface HonoServerOptions {
   port?: number;
@@ -32,7 +32,7 @@ export class HonoServerPlugin implements RuntimePlugin {
     };
   }
 
-  async onStart(ctx: { engine: DataEngine }) {
+  async onStart(ctx: { engine: ObjectStackKernel }) {
     const app = new Hono();
     const protocol = new ObjectStackRuntimeProtocol(ctx.engine);
 

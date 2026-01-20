@@ -1,4 +1,4 @@
-import { DataEngine } from '@objectstack/runtime';
+import { ObjectStackKernel } from '@objectstack/runtime';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { HonoServerPlugin } from '@objectstack/plugin-hono-server';
 
@@ -9,7 +9,7 @@ import BiPluginManifest from '@objectstack/plugin-bi/objectstack.config';
 (async () => {
   console.log('🚀 Booting Kernel...');
 
-  const kernel = new DataEngine([
+  const kernel = new ObjectStackKernel([
       CrmApp, 
       TodoApp, 
       BiPluginManifest,

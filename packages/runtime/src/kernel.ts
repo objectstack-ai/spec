@@ -3,14 +3,12 @@ import { SchemaRegistry } from './registry';
 import { ObjectQL } from './engine';
 
 /**
- * Server Data Engine Wrapper
+ * ObjectStack Kernel (Microkernel)
  * 
- * This class is now a thin wrapper that initializes the ObjectQL Engine 
- * with the appropriate Server-Side configuration (Registry, Drivers).
- * 
- * The core logic has been moved to @objectstack/objectql.
+ * The central container orchestrating the application lifecycle,
+ * plugins, and the core ObjectQL engine.
  */
-export class DataEngine {
+export class ObjectStackKernel {
   public ql: ObjectQL;
   private plugins: any[];
 
@@ -23,26 +21,26 @@ export class DataEngine {
   }
 
   async start() {
-    console.log('[DataEngine] Starting...');
+    console.log('[Kernel] Starting...');
     
     // 0. Register Provided Plugins
     for (const p of this.plugins) {
         // Check if it is a Runtime Plugin (System Capability)
         if ('onStart' in p || 'install' in p) {
-             console.log(`[DataEngine] Loading Runtime Plugin: ${p.name}`);
+             console.log(`[Kernel] Loading Runtime Plugin: ${p.name}`);
              if (p.install) await p.install({ engine: this });
              continue;
         }
         
         // Otherwise treat as App Manifest
-        console.log(`[DataEngine] Loading App Manifest: ${p.id || p.name}`);
+        console.log(`[Kernel] Loading App Manifest: ${p.id || p.name}`);
         SchemaRegistry.registerPlugin(p);
         
         // Register Objects from App/Plugin
         if (p.objects) {
             for (const obj of p.objects) {
                 SchemaRegistry.registerObject(obj);
-                console.log(`[DataEngine] Registered Object: ${obj.name}`);
+                console.log(`[Kernel] Registered Object: ${obj.name}`);
             }
         }
     }
@@ -72,7 +70,7 @@ export class DataEngine {
     // 4. Start Runtime Plugins
     for (const p of this.plugins) {
         if (('onStart' in p) && typeof p.onStart === 'function') {
-            console.log(`[DataEngine] Starting Plugin: ${p.name}`);
+            console.log(`[Kernel] Starting Plugin: ${p.name}`);
             await p.onStart({ engine: this });
         }
     }
@@ -101,19 +99,19 @@ export class DataEngine {
         for (const appItem of apps) {
             const app = appItem as any; // Cast to access data prop safely
             if (app.data && Array.isArray(app.data)) {
-                console.log(`[DataEngine] Seeding data for ${app.name || app.id}...`);
+                console.log(`[Kernel] Seeding data for ${app.name || app.id}...`);
                 for (const seed of app.data) {
                      try {
                         // Check if data exists
                         const existing = await this.ql.find(seed.object, { top: 1 });
                         if (existing.length === 0) {
-                             console.log(`[DataEngine] Inserting ${seed.records.length} records into ${seed.object}`);
+                             console.log(`[Kernel] Inserting ${seed.records.length} records into ${seed.object}`);
                              for (const record of seed.records) {
                                  await this.ql.insert(seed.object, record);
                              }
                         }
                      } catch (e) {
-                         console.warn(`[DataEngine] Failed to seed ${seed.object}`, e);
+                         console.warn(`[Kernel] Failed to seed ${seed.object}`, e);
                      }
                 }
             }
