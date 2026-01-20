@@ -1,4 +1,5 @@
 import { serve } from '@hono/node-server';
+import { serveStatic } from '@hono/node-server/serve-static';
 import { Hono } from 'hono';
 import { logger } from 'hono/logger';
 import { cors } from 'hono/cors';
@@ -8,9 +9,6 @@ import { DataEngine } from './kernel/engine';
 // 1. Initialize Kernel
 const app = new Hono();
 const dataEngine = new DataEngine(); // Engine loads plugins internally now
-
-app.use('*', logger());
-app.use('*', cors());
 
 // 3. Define Unified Routes
 
@@ -105,6 +103,22 @@ app.get('/api/v1/meta/:type/:name', (c) => {
 });
 
 /**
+ * UI Protocol API: Get View Definition
+ * GET /api/v1/ui/view/:object
+ */
+app.get('/api/v1/ui/view/:object', (c) => {
+  const objectName = c.req.param('object');
+  const type = (c.req.query('type') as 'list' | 'form') || 'list';
+  try {
+    const view = dataEngine.getView(objectName, type);
+    if (!view) return c.json({ error: 'View not generated' }, 404);
+    return c.json(view);
+  } catch (e: any) {
+    return c.json({ error: e.message }, 400);
+  }
+});
+
+/**
  * Data API: Find
  */
 app.get('/api/v1/data/:object', async (c) => {
@@ -185,7 +199,8 @@ const port = 3004;
 
 (async () => {
   console.log('--- Starting ObjectStack Server ---');
-  // Plugin loading is now handled by DataEngine constructor/init
+  // Start Data Engine (Load Plugins -> Init Drivers -> Seed)
+  await dataEngine.start();
   
   console.log(`Server is running on http://localhost:${port}`);
 

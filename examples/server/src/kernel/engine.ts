@@ -28,20 +28,26 @@ export class DataEngine {
   constructor() {
     // 1. Initialize Engine with Host Context (Simulated OS services)
     this.ql = new ObjectQL({
-        os: { registerService: () => console.log('OS Service Registered') },
+        os: { 
+          registerService: () => console.log('OS Service Registered'),
+          getConfig: async (key: string) => ({}) // Mock Config
+        },
         app: { router: { get: () => {} } }, 
         storage: { set: () => {} },
         services: { register: () => {} },
         i18n: {}
     });
+  }
 
+  async start() {
     // 2. Load Plugins (Declarative)
-    this.loadPlugins();
+    await this.loadPlugins();
 
     // 3. Start Engine
-    this.ql.init().then(() => {
-        this.seed();
-    }).catch(console.error);
+    await this.ql.init();
+    
+    // 4. Seed Data
+    await this.seed();
   }
 
   async loadPlugins() {
@@ -93,6 +99,30 @@ export class DataEngine {
   async delete(objectName: string, id: string) {
     this.ensureSchema(objectName);
     return this.ql.delete(objectName, id);
+  }
+
+  // [New Methods for ObjectUI]
+  getMetadata(objectName: string) {
+    return this.ensureSchema(objectName);
+  }
+  
+  getView(objectName: string, viewType: 'list' | 'form' = 'list') {
+    const schema = this.ensureSchema(objectName);
+
+    // Auto-Scaffold Default View
+    if (viewType === 'list') {
+      return {
+        type: 'datagrid',
+        title: `${schema.label || objectName} List`,
+        columns: Object.keys(schema.fields || {}).map(key => ({
+            field: key,
+            label: schema.fields?.[key]?.label || key,
+            width: 150
+        })),
+        actions: ['create', 'edit', 'delete']
+      };
+    }
+    return null;
   }
 
   private ensureSchema(name: string): ServiceObject {

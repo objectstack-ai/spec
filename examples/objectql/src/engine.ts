@@ -60,7 +60,9 @@ export class ObjectQL {
             ql: this,
             logger: console,
             // Expose the driver registry helper explicitly if needed
-            drivers: this, // Since `registerDriver` is on `this`, we can alias it or expose `this`
+            drivers: {
+                register: (driver: DriverInterface) => this.registerDriver(driver)
+            },
             ...this.hostContext
           };
           
