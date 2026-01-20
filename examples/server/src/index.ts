@@ -8,16 +8,10 @@ import { DataEngine } from './kernel/engine';
 
 // 1. Initialize Kernel
 const app = new Hono();
-const dataEngine = new DataEngine();
+const dataEngine = new DataEngine(); // Engine loads plugins internally now
 
 app.use('*', logger());
 app.use('*', cors());
-
-// 2. Load Plugins (CRM, Todo)
-// Initialization moved to async startup below
-loadPlugins(dataEngine).then(() => {
-  console.log('[Server] Kernel Ready');
-}).catch(console.error);
 
 // 3. Define Unified Routes
 

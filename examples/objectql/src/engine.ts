@@ -1,21 +1,72 @@
-import { DriverInterface, DriverOptions, QueryAST } from '@objectstack/spec';
+import { DriverInterface, DriverOptions, QueryAST, ObjectStackManifest, ManifestSchema } from '@objectstack/spec';
+import { SchemaRegistry } from './registry';
+
+/**
+ * Host Context provided to plugins
+ */
+export interface PluginContext {
+  ql: ObjectQL;
+  logger: Console;
+  // Extensible map for host-specific globals (like HTTP Router, etc.)
+  [key: string]: any;
+}
 
 /**
  * ObjectQL Engine
- * 
- * The core orchestration layer that sits between the API/UI and the Data Driver.
- * It handles:
- * 1. Request Validation (using Schemas)
- * 2. Security Enforcement (ACLs, Sharing Rules)
- * 3. Workflow Triggers
- * 4. Driver Delegation
  */
 export class ObjectQL {
   private drivers = new Map<string, DriverInterface>();
   private defaultDriver: string | null = null;
+  private plugins = new Map<string, any>();
+  
+  // Host provided context additions (e.g. Server router)
+  private hostContext: Record<string, any> = {};
 
-  constructor() {
+  constructor(hostContext: Record<string, any> = {}) {
+    this.hostContext = hostContext;
     console.log(`[ObjectQL] Engine Instance Created`);
+  }
+
+  /**
+   * Load and Register a Plugin
+   */
+  async use(manifestPart: any, runtimePart?: any) {
+    // 1. Validate / Register Manifest
+    if (manifestPart) {
+      // In a real scenario, we might strictly parse this using Zod
+      // For now, simple ID check
+      const id = manifestPart.id;
+      if (!id) {
+        console.warn('[ObjectQL] Plugin manifest missing ID', manifestPart);
+        return;
+      }
+      
+      console.log(`[ObjectQL] Loading Plugin: ${id}`);
+      SchemaRegistry.registerPlugin(manifestPart as ObjectStackManifest);
+
+      // Register contributions
+       if (manifestPart.contributes?.kinds) {
+          for (const kind of manifestPart.contributes.kinds) {
+            SchemaRegistry.registerKind(kind);
+          }
+       }
+    }
+
+    // 2. Execute Runtime
+    if (runtimePart) {
+       const pluginDef = (runtimePart as any).default || runtimePart;
+       if (pluginDef.onEnable) {
+          const context: PluginContext = {
+            ql: this,
+            logger: console,
+            // Expose the driver registry helper explicitly if needed
+            drivers: this, // Since `registerDriver` is on `this`, we can alias it or expose `this`
+            ...this.hostContext
+          };
+          
+          await pluginDef.onEnable(context);
+       }
+    }
   }
 
   /**

@@ -1,6 +1,18 @@
 import { ServiceObject } from '@objectstack/spec';
-import { SchemaRegistry } from './registry';
-import { ObjectQL } from '@objectstack/objectql';
+import { SchemaRegistry, ObjectQL } from '@objectstack/objectql';
+
+// Import Packages/Plugins
+// @ts-ignore
+import CrmApp from '@objectstack/example-crm/objectstack.config';
+// @ts-ignore
+import TodoApp from '@objectstack/example-todo/objectstack.config';
+// @ts-ignore
+import BiPluginManifest from '@objectstack/plugin-bi/objectstack.config';
+import BiPluginRuntime from '@objectstack/plugin-bi';
+// @ts-ignore
+import DriverMemoryManifest from '@objectstack/plugin-driver-memory/objectstack.config';
+import DriverMemoryRuntime from '@objectstack/plugin-driver-memory';
+
 
 /**
  * Server Data Engine Wrapper
@@ -14,16 +26,34 @@ export class DataEngine {
   public ql: ObjectQL;
 
   constructor() {
-    this.ql = new ObjectQL();
+    // 1. Initialize Engine with Host Context (Simulated OS services)
+    this.ql = new ObjectQL({
+        os: { registerService: () => console.log('OS Service Registered') },
+        app: { router: { get: () => {} } }, 
+        storage: { set: () => {} },
+        services: { register: () => {} },
+        i18n: {}
+    });
 
-    // Driver is now registered via Plugin System (see context.drivers.register) in loader.ts
-    // We just wait for init
+    // 2. Load Plugins (Declarative)
+    this.loadPlugins();
+
+    // 3. Start Engine
+    this.ql.init().then(() => {
+        this.seed();
+    }).catch(console.error);
+  }
+
+  async loadPlugins() {
+    // Apps
+    await this.ql.use(CrmApp);
+    await this.ql.use(TodoApp);
     
-    // 2. Start Engine
-    this.ql.init().catch(console.error);
+    // Plugins (Manifest + Runtime)
+    await this.ql.use(BiPluginManifest, BiPluginRuntime);
     
-    // Seed after a short delay (mocking async startup)
-    setTimeout(() => this.seed(), 500);
+    // Drivers
+    await this.ql.use(DriverMemoryManifest, DriverMemoryRuntime);
   }
 
   async seed() {
