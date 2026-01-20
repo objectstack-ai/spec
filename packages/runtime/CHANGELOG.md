@@ -1,6 +1,6 @@
-# @objectstack/spec
+# @objectstack/runtime
 
-## 0.1.2
+## 0.1.1
 
 ### Patch Changes
 
@@ -14,8 +14,7 @@
   - Comprehensive documentation
   - Remove debug logs from registry and protocol modules
 
-## 0.1.1
-
-### Patch Changes
-
-- b58a0ef: Initial release of ObjectStack Protocol & Specification.
+- Updated dependencies
+  - @objectstack/spec@0.1.2
+  - @objectstack/objectql@0.1.1
+  - @objectstack/types@0.1.1
