@@ -5,58 +5,57 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { DataEngine, ObjectStackRuntimeProtocol, RuntimePlugin } from '@objectstack/runtime';
 
-export interface DevServerOptions {
+export interface HonoServerOptions {
   port?: number;
   staticRoot?: string;
   cors?: boolean;
+  logger?: boolean;
 }
 
 /**
- * ObjectStack Development Server Plugin
+ * Hono Server Runtime Plugin
  * 
- * Drop-in plugin to expose Kernel via HTTP for UI development.
- * NOT for production use.
+ * Exposes the ObjectStack Kernel via standard HTTP Protocol using Hono.
+ * Can be used for Production (Standalone) or Development.
  */
-export class DevServerPlugin implements RuntimePlugin {
-  name = 'dev-server';
-  private port: number;
-  private staticRoot: string;
-  private enableCors: boolean;
+export class HonoServerPlugin implements RuntimePlugin {
+  name = 'com.objectstack.server.hono';
+  
+  private options: HonoServerOptions;
 
-  constructor(options: DevServerOptions = {}) {
-    this.port = options.port || 3004;
-    this.staticRoot = options.staticRoot || './public';
-    this.enableCors = options.cors !== false;
+  constructor(options: HonoServerOptions = {}) {
+    this.options = { 
+        port: 3000, 
+        cors: true,
+        logger: true,
+        ...options 
+    };
   }
 
   async onStart(ctx: { engine: DataEngine }) {
     const app = new Hono();
     const protocol = new ObjectStackRuntimeProtocol(ctx.engine);
 
-    // 1. Dev Middlewares
-    app.use('*', logger());
-    if (this.enableCors) {
-        app.use('*', cors());
-    }
+    // 1. Middlewares
+    if (this.options.logger) app.use('*', logger());
+    if (this.options.cors) app.use('*', cors());
 
     // 2. Wiring Protocol (Automatic)
     // Discovery
     app.get('/api/v1', (c) => c.json(protocol.getDiscovery()));
     
-    // Meta (Types)
+    // Meta Protocol
     app.get('/api/v1/meta', (c) => c.json(protocol.getMetaTypes()));
-    // Meta (List)
     app.get('/api/v1/meta/:type', (c) => c.json(protocol.getMetaItems(c.req.param('type'))));
-    // Meta (Item)
-    app.get('/api/v1/meta/:type/:name', (c) => { 
+    app.get('/api/v1/meta/:type/:name', (c) => {
         try {
-            return c.json(protocol.getMetaItem(c.req.param('type'), c.req.param('name')))
+            return c.json(protocol.getMetaItem(c.req.param('type'), c.req.param('name')));
         } catch(e:any) {
             return c.json({error: e.message}, 404);
         }
     });
-
-    // Data (Read)
+    
+    // Data Protocol
     app.get('/api/v1/data/:object', async (c) => {
         try { return c.json(await protocol.findData(c.req.param('object'), c.req.query())); } 
         catch(e:any) { return c.json({error:e.message}, 400); }
@@ -65,8 +64,6 @@ export class DevServerPlugin implements RuntimePlugin {
         try { return c.json(await protocol.getData(c.req.param('object'), c.req.param('id'))); }
         catch(e:any) { return c.json({error:e.message}, 404); }
     });
-    
-    // Data (Write)
     app.post('/api/v1/data/:object', async (c) => {
         try { return c.json(await protocol.createData(c.req.param('object'), await c.req.json()), 201); }
         catch(e:any) { return c.json({error:e.message}, 400); }
@@ -80,7 +77,7 @@ export class DevServerPlugin implements RuntimePlugin {
         catch(e:any) { return c.json({error:e.message}, 400); }
     });
 
-    // UI View
+    // UI Protocol
     // @ts-ignore
     app.get('/api/v1/ui/view/:object', (c) => {
         try { 
@@ -90,18 +87,16 @@ export class DevServerPlugin implements RuntimePlugin {
         catch(e:any) { return c.json({error:e.message}, 404); }
     });
 
-    // 3. Static Files (UI Hosting)
-    if (this.staticRoot) {
-        app.get('/', serveStatic({ root: this.staticRoot, path: 'index.html' }));
-        app.get('/*', serveStatic({ root: this.staticRoot }));
+    // 3. Static Files (Optional)
+    if (this.options.staticRoot) {
+        app.get('/', serveStatic({ root: this.options.staticRoot, path: 'index.html' }));
+        app.get('/*', serveStatic({ root: this.options.staticRoot }));
     }
 
     console.log('');
-    console.log(`📦 ObjectStack Dev Server running at: http://localhost:${this.port}`);
-    console.log(`➜  API Discovery: http://localhost:${this.port}/api/v1`);
-    console.log(`➜  UI Playground: http://localhost:${this.port}/index.html`);
+    console.log(`🌍 ObjectStack Server (Hono) running at: http://localhost:${this.options.port}`);
     console.log('');
-
-    serve({ fetch: app.fetch, port: this.port });
+    
+    serve({ fetch: app.fetch, port: this.options.port });
   }
 }

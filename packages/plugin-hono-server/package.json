@@ -1,7 +1,7 @@
 {
-  "name": "@objectstack/dev-server",
+  "name": "@objectstack/plugin-hono-server",
   "version": "0.1.0",
-  "description": "Lightweight Development Server for ObjectStack UI Development",
+  "description": "Standard Hono Server Adapter for ObjectStack Runtime",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

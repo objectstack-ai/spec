@@ -1,6 +1,6 @@
 import { DataEngine } from '@objectstack/runtime';
 import { InMemoryDriver } from '@objectstack/driver-memory';
-import { DevServerPlugin } from '@objectstack/dev-server';
+import { HonoServerPlugin } from '@objectstack/plugin-hono-server';
 
 import CrmApp from '@objectstack/example-crm/objectstack.config';
 import TodoApp from '@objectstack/example-todo/objectstack.config';
@@ -15,8 +15,11 @@ import BiPluginManifest from '@objectstack/plugin-bi/objectstack.config';
       BiPluginManifest,
       new InMemoryDriver(),
       
-      // Load the Dev Server Plugin
-      new DevServerPlugin({ port: 3004 }) 
+      // Load the Hono Server Plugin
+      new HonoServerPlugin({ 
+        port: 3004, 
+        staticRoot: './public' 
+      }) 
   ]);
 
   await kernel.start();

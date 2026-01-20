@@ -120,9 +120,6 @@ importers:
 
   examples/server:
     dependencies:
-      '@objectstack/dev-server':
-        specifier: workspace:*
-        version: link:../../packages/dev-server
       '@objectstack/driver-memory':
         specifier: workspace:*
         version: link:../../packages/driver-memory
@@ -135,6 +132,9 @@ importers:
       '@objectstack/plugin-bi':
         specifier: workspace:*
         version: link:../plugin-bi
+      '@objectstack/plugin-hono-server':
+        specifier: workspace:*
+        version: link:../../packages/plugin-hono-server
       '@objectstack/runtime':
         specifier: workspace:*
         version: link:../../packages/runtime
@@ -169,7 +169,17 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
-  packages/dev-server:
+  packages/driver-memory:
+    dependencies:
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../spec
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
+  packages/plugin-hono-server:
     dependencies:
       '@hono/node-server':
         specifier: ^1.2.0
@@ -187,16 +197,6 @@ importers:
       '@types/node':
         specifier: ^20.0.0
         version: 20.19.30
-      typescript:
-        specifier: ^5.0.0
-        version: 5.9.3
-
-  packages/driver-memory:
-    dependencies:
-      '@objectstack/spec':
-        specifier: workspace:*
-        version: link:../spec
-    devDependencies:
       typescript:
         specifier: ^5.0.0
         version: 5.9.3

@@ -9,7 +9,7 @@
   "dependencies": {
     "@objectstack/runtime": "workspace:*",
     "@objectstack/driver-memory": "workspace:*",
-    "@objectstack/dev-server": "workspace:*",
+    "@objectstack/plugin-hono-server": "workspace:*",
     "@objectstack/example-crm": "workspace:*",
     "@objectstack/example-todo": "workspace:*",
     "@objectstack/plugin-bi": "workspace:*"
