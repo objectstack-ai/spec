@@ -47,6 +47,7 @@ export * from './system/territory.zod';
 export * from './system/license.zod';
 export * from './system/webhook.zod';
 export * from './system/translation.zod';
+export * from './system/driver.zod'; // Export Driver Protocol
 export * from './system/constants';
 export * from './system/types';
 export * from './system/discovery.zod';
