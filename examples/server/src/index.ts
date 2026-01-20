@@ -185,13 +185,8 @@ const port = 3004;
 
 (async () => {
   console.log('--- Starting ObjectStack Server ---');
-  try {
-    await loadPlugins();
-    console.log('--- Plugins Loaded ---');
-  } catch (err) {
-    console.error('Failed to load plugins:', err);
-  }
-
+  // Plugin loading is now handled by DataEngine constructor/init
+  
   console.log(`Server is running on http://localhost:${port}`);
 
   serve({

@@ -85,6 +85,16 @@ export class DataEngine {
      return this.ql.insert(objectName, data);
   }
 
+  async update(objectName: string, id: string, data: any) {
+    this.ensureSchema(objectName);
+    return this.ql.update(objectName, id, data);
+  }
+
+  async delete(objectName: string, id: string) {
+    this.ensureSchema(objectName);
+    return this.ql.delete(objectName, id);
+  }
+
   private ensureSchema(name: string): ServiceObject {
     const schema = SchemaRegistry.getObject(name);
     if (!schema) throw new Error(`Unknown object: ${name}`);
