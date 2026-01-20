@@ -5,7 +5,7 @@ async function main() {
 
   // 1. Initialize Client
   const client = new ObjectStackClient({
-    baseUrl: 'http://localhost:3004'
+    baseUrl: 'http://127.0.0.1:3004'
   });
 
   try {
@@ -21,12 +21,40 @@ async function main() {
 
     // 4. Query Data
     console.log('💾 Querying Data...');
-    const result = await client.data.find('todo_task', {});
-    
-    console.log(`🎉 Found ${result.data.length} tasks:`);
-    result.data.forEach((task: any) => {
-      console.log(` - [${task.status}] ${task.title}`);
+    const result = await client.data.find('todo_task', {
+       top: 10,
+       sort: 'status'
     });
+    
+    console.log(`🎉 Found ${result.count} tasks:`);
+    result.value.forEach((task: any) => {
+      console.log(` - [${task.is_completed ? 'x' : ' '}] ${task.subject} (Priority: ${task.priority})`);
+    });
+
+    // 5. CRUD Operations
+    console.log('\n✨ Creating new task...');
+    const newTask = await client.data.create('todo_task', {
+      subject: 'Test SDK Create',
+      is_completed: false,
+      priority: 3
+    });
+    console.log('✅ Created:', newTask);
+
+    // Update
+    if (newTask && (newTask as any).id) {
+       console.log('🔄 Updating task...');
+       const updated = await client.data.update('todo_task', (newTask as any).id, {
+         subject: 'Test SDK Create (Updated)',
+         is_completed: true
+       });
+       console.log('✅ Updated:', updated);
+
+       // Delete
+       console.log('🗑️ Deleting task...');
+       const deleted = await client.data.delete('todo_task', (newTask as any).id);
+       console.log('✅ Deleted:', deleted);
+    }
+
 
   } catch (error) {
     console.error('❌ Error during test:', error);
