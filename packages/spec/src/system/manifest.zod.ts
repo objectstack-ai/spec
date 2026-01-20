@@ -55,6 +55,29 @@ export const ManifestSchema = z.object({
   datasources: z.array(z.string()).optional().describe('Glob patterns for Datasource definitions'),
 
   /**
+   * Package Dependencies.
+   * Map of package IDs to version requirements.
+   */
+  dependencies: z.record(z.string()).optional().describe('Package dependencies'),
+
+  /**
+   * Plugin Configuration Schema.
+   * Defines the settings this plugin exposes to the user.
+   * Uses a simplified JSON Schema format.
+   */
+  configuration: z.object({
+    title: z.string().optional(),
+    properties: z.record(z.object({
+       type: z.enum(['string', 'number', 'boolean', 'array', 'object']).describe('Data type of the setting'),
+       default: z.any().optional().describe('Default value'),
+       description: z.string().optional().describe('Tooltip description'),
+       required: z.boolean().optional().describe('Is this setting required?'),
+       secret: z.boolean().optional().describe('If true, value is encrypted/masked (e.g. API Keys)'),
+       enum: z.array(z.string()).optional().describe('Allowed values for select inputs'),
+    })).describe('Map of configuration keys to their definitions')
+  }).optional().describe('Plugin configuration settings'),
+
+  /**
    * Contribution Points (VS Code Style).
    * formalized way to extend the platform capabilities.
    */
@@ -68,7 +91,31 @@ export const ManifestSchema = z.object({
       id: z.string().describe('The generic identifier of the kind (e.g., "sys.bi.report")'),
       globs: z.array(z.string()).describe('File patterns to watch (e.g., ["**/*.report.ts"])'),
       description: z.string().optional().describe('Description of what this kind represents'),
-    })).optional(),
+    })).optional().describe('New Metadata Types to recognize'),
+
+    /**
+     * Register System Hooks.
+     * Declares that this plugin listens to specific system events.
+     */
+    events: z.array(z.string()).optional().describe('Events this plugin listens to'),
+
+    /**
+     * Register UI Menus.
+     */
+    menus: z.record(z.array(z.object({
+       id: z.string(),
+       label: z.string(),
+       command: z.string().optional(),
+    }))).optional().describe('UI Menu contributions'),
+
+    /**
+     * Register Custom Themes.
+     */
+    themes: z.array(z.object({
+      id: z.string(),
+      label: z.string(),
+      path: z.string(),
+    })).optional().describe('Theme contributions'),
   }).optional().describe('Platform contributions'),
 
   /** 

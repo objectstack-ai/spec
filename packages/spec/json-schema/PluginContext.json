@@ -5,21 +5,71 @@
       "type": "object",
       "properties": {
         "ql": {
-          "description": "ObjectQL data access API"
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "description": "ObjectQL Data Access Client"
         },
         "os": {
-          "description": "ObjectOS system API"
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "description": "Access to System Core"
         },
         "logger": {
-          "description": "Logging interface"
+          "type": "object",
+          "properties": {
+            "debug": {
+              "description": "(message: string, ...meta: any[]) => void"
+            },
+            "info": {
+              "description": "(message: string, ...meta: any[]) => void"
+            },
+            "warn": {
+              "description": "(message: string, ...meta: any[]) => void"
+            },
+            "error": {
+              "description": "(message: string, ...meta: any[]) => void"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Structured Logger"
         },
         "metadata": {
           "description": "Metadata registry"
         },
         "events": {
           "description": "Event bus"
+        },
+        "app": {
+          "type": "object",
+          "properties": {
+            "router": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": false,
+              "description": "HTTP Router Interface"
+            },
+            "scheduler": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": false,
+              "description": "Job Scheduler Interface"
+            }
+          },
+          "required": [
+            "router"
+          ],
+          "additionalProperties": false,
+          "description": "App Runtime Capabilities"
         }
       },
+      "required": [
+        "ql",
+        "os",
+        "logger",
+        "app"
+      ],
       "additionalProperties": false
     }
   },

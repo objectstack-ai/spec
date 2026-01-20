@@ -1,0 +1,12 @@
+{
+  "$ref": "#/definitions/ObjectQLClient",
+  "definitions": {
+    "ObjectQLClient": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false,
+      "description": "ObjectQL Data Access Client"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

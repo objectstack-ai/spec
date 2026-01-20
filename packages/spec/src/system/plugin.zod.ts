@@ -1,6 +1,36 @@
 import { z } from 'zod';
 
 /**
+ * Interface schemas for Context Capabilities
+ */
+export const LoggerSchema = z.object({
+  debug: z.any().describe('(message: string, ...meta: any[]) => void'),
+  info: z.any().describe('(message: string, ...meta: any[]) => void'),
+  warn: z.any().describe('(message: string, ...meta: any[]) => void'),
+  error: z.any().describe('(message: string, ...meta: any[]) => void'),
+}).describe('Structured Logger');
+
+export const ObjectQLClientSchema = z.object({
+  object: z.function().args(z.string()).returns(z.any()).describe('Get query interface for an object'),
+  query: z.function().args(z.string()).returns(z.promise(z.any())).describe('Execute arbitrary SOQL-like query'),
+}).describe('ObjectQL Data Access Client');
+
+export const RouterSchema = z.object({
+  get: z.function().args(z.string(), z.function()).describe('Register GET route'),
+  post: z.function().args(z.string(), z.function()).describe('Register POST route'),
+  use: z.function().args(z.string().optional(), z.function()).describe('Register Middleware'),
+}).describe('HTTP Router Interface');
+
+export const SchedulerSchema = z.object({
+    schedule: z.function().args(z.string(), z.string(), z.function()).describe('Schedule a cron job'),
+}).describe('Job Scheduler Interface');
+
+export const SystemAPISchema = z.object({
+  getCurrentUser: z.function().returns(z.promise(z.any())),
+  getConfig: z.function().args(z.string()).returns(z.promise(z.any())),
+}).describe('Access to System Core');
+
+/**
  * Plugin Context Schema
  * 
  * This defines the runtime context available to plugins during their lifecycle.
@@ -24,7 +54,7 @@ export const PluginContextSchema = z.object({
    * await context.ql.object('account').find({ status: 'active' });
    * await context.ql.object('contact').create({ name: 'John Doe' });
    */
-  ql: z.any().describe('ObjectQL data access API'),
+  ql: ObjectQLClientSchema,
 
   /**
    * ObjectOS system API.
@@ -34,7 +64,7 @@ export const PluginContextSchema = z.object({
    * const user = await context.os.getCurrentUser();
    * const config = await context.os.getConfig('plugin.settings');
    */
-  os: z.any().describe('ObjectOS system API'),
+  os: SystemAPISchema,
 
   /**
    * Logging interface.
@@ -44,7 +74,7 @@ export const PluginContextSchema = z.object({
    * context.logger.info('Operation completed');
    * context.logger.error('Operation failed', { error });
    */
-  logger: z.any().describe('Logging interface'),
+  logger: LoggerSchema,
 
   /**
    * Metadata registry.
@@ -65,6 +95,15 @@ export const PluginContextSchema = z.object({
    * context.events.emit('custom.event', data);
    */
   events: z.any().describe('Event bus'),
+
+  /**
+   * Application Runtime Capabilities.
+   * Provides mechanisms to extend the running application (Routes, Jobs, etc).
+   */
+  app: z.object({
+    router: RouterSchema,
+    scheduler: SchedulerSchema.optional(),
+  }).describe('App Runtime Capabilities'),
 });
 
 /**

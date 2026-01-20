@@ -52,6 +52,72 @@
           },
           "description": "Glob patterns for Datasource definitions"
         },
+        "dependencies": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Package dependencies"
+        },
+        "configuration": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "properties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "string",
+                      "number",
+                      "boolean",
+                      "array",
+                      "object"
+                    ],
+                    "description": "Data type of the setting"
+                  },
+                  "default": {
+                    "description": "Default value"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Tooltip description"
+                  },
+                  "required": {
+                    "type": "boolean",
+                    "description": "Is this setting required?"
+                  },
+                  "secret": {
+                    "type": "boolean",
+                    "description": "If true, value is encrypted/masked (e.g. API Keys)"
+                  },
+                  "enum": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Allowed values for select inputs"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Map of configuration keys to their definitions"
+            }
+          },
+          "required": [
+            "properties"
+          ],
+          "additionalProperties": false,
+          "description": "Plugin configuration settings"
+        },
         "contributes": {
           "type": "object",
           "properties": {
@@ -81,7 +147,65 @@
                   "globs"
                 ],
                 "additionalProperties": false
-              }
+              },
+              "description": "New Metadata Types to recognize"
+            },
+            "events": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Events this plugin listens to"
+            },
+            "menus": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "command": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "label"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "description": "UI Menu contributions"
+            },
+            "themes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "label",
+                  "path"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Theme contributions"
             }
           },
           "additionalProperties": false,

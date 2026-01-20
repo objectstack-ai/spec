@@ -1,0 +1,25 @@
+{
+  "$ref": "#/definitions/Logger",
+  "definitions": {
+    "Logger": {
+      "type": "object",
+      "properties": {
+        "debug": {
+          "description": "(message: string, ...meta: any[]) => void"
+        },
+        "info": {
+          "description": "(message: string, ...meta: any[]) => void"
+        },
+        "warn": {
+          "description": "(message: string, ...meta: any[]) => void"
+        },
+        "error": {
+          "description": "(message: string, ...meta: any[]) => void"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Structured Logger"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
