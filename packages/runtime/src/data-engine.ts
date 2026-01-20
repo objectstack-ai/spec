@@ -26,8 +26,16 @@ export class DataEngine {
     console.log('[DataEngine] Starting...');
     
     // 0. Register Provided Plugins
-    this.plugins.forEach(p => {
-        console.log(`[DataEngine] Loading Plugin: ${p.id || p.name}`);
+    for (const p of this.plugins) {
+        // Check if it is a Runtime Plugin (System Capability)
+        if ('onStart' in p || 'install' in p) {
+             console.log(`[DataEngine] Loading Runtime Plugin: ${p.name}`);
+             if (p.install) await p.install({ engine: this });
+             continue;
+        }
+        
+        // Otherwise treat as App Manifest
+        console.log(`[DataEngine] Loading App Manifest: ${p.id || p.name}`);
         SchemaRegistry.registerPlugin(p);
         
         // Register Objects from App/Plugin
@@ -37,7 +45,7 @@ export class DataEngine {
                 console.log(`[DataEngine] Registered Object: ${obj.name}`);
             }
         }
-    });
+    }
 
     // 1. Load Drivers (Default to Memory if none provided in plugins)
     // TODO: Detect driver from plugins. For now, we still hard load memory driver if needed?
@@ -60,6 +68,14 @@ export class DataEngine {
 
     // 3. Seed Data
     await this.seed();
+
+    // 4. Start Runtime Plugins
+    for (const p of this.plugins) {
+        if (('onStart' in p) && typeof p.onStart === 'function') {
+            console.log(`[DataEngine] Starting Plugin: ${p.name}`);
+            await p.onStart({ engine: this });
+        }
+    }
   }
 
   async seed() {

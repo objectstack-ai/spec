@@ -14,6 +14,13 @@ import {
 export class InMemoryDriver implements DriverInterface {
   name = 'in-memory-driver';
   version = '0.0.1';
+
+  // Duck-typed RuntimePlugin hook
+  install(ctx: any) {
+    if (ctx.engine && ctx.engine.ql && typeof ctx.engine.ql.registerDriver === 'function') {
+        ctx.engine.ql.registerDriver(this);
+    }
+  }
   
   supports = {
     transactions: false, 

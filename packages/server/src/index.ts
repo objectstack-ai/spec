@@ -9,6 +9,7 @@ import { CoreRestApiPlugin } from './plugins/rest-api';
 
 export * from './plugin';
 export { CoreRestApiPlugin };
+export { HonoServerPlugin } from './hono-plugin';
 
 export interface ServerConfig {
   port?: number;

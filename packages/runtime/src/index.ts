@@ -8,3 +8,6 @@ export { ObjectStackRuntimeProtocol } from './protocol';
 
 // Re-export common types from spec for convenience
 export type { DriverInterface, DriverOptions, QueryAST } from '@objectstack/spec';
+
+export * from './types';
+
