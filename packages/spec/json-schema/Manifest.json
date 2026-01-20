@@ -206,6 +206,55 @@
                 "additionalProperties": false
               },
               "description": "Theme contributions"
+            },
+            "translations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "locale": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "locale",
+                  "path"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Translation resources"
+            },
+            "actions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Unique action name"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "input": {
+                    "description": "Input validation schema"
+                  },
+                  "output": {
+                    "description": "Output schema"
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Exposed server actions"
             }
           },
           "additionalProperties": false,

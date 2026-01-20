@@ -35,6 +35,18 @@
           "additionalProperties": false,
           "description": "Structured Logger"
         },
+        "storage": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "description": "Plugin Scoped Data Storage (KV)"
+        },
+        "i18n": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "description": "Internationalization Helper"
+        },
         "metadata": {
           "description": "Metadata registry"
         },
@@ -68,6 +80,8 @@
         "ql",
         "os",
         "logger",
+        "storage",
+        "i18n",
         "app"
       ],
       "additionalProperties": false

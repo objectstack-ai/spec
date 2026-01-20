@@ -30,6 +30,17 @@ export const SystemAPISchema = z.object({
   getConfig: z.function().args(z.string()).returns(z.promise(z.any())),
 }).describe('Access to System Core');
 
+export const ScopedStorageSchema = z.object({
+  get: z.function().args(z.string()).returns(z.promise(z.any())).describe('Get value by key'),
+  set: z.function().args(z.string(), z.any()).returns(z.promise(z.void())).describe('Set value for key'),
+  delete: z.function().args(z.string()).returns(z.promise(z.void())).describe('Delete key'),
+}).describe('Plugin Scoped Data Storage (KV)');
+
+export const I18nContextSchema = z.object({
+  t: z.function().args(z.string(), z.record(z.any()).optional()).returns(z.string()).describe('Translate a key'),
+  getLocale: z.function().returns(z.string()).describe('Get current context locale'),
+}).describe('Internationalization Helper');
+
 /**
  * Plugin Context Schema
  * 
@@ -75,6 +86,23 @@ export const PluginContextSchema = z.object({
    * context.logger.error('Operation failed', { error });
    */
   logger: LoggerSchema,
+
+  /**
+   * Scoped Storage.
+   * Key-Value store isolated for this plugin.
+   * 
+   * @example
+   * await context.storage.set('last_sync', Date.now());
+   */
+  storage: ScopedStorageSchema,
+
+  /**
+   * I18n Helper.
+   * 
+   * @example
+   * const msg = context.i18n.t('error.invalid_input');
+   */
+  i18n: I18nContextSchema,
 
   /**
    * Metadata registry.

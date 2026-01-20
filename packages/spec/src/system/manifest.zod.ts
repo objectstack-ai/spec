@@ -116,6 +116,27 @@ export const ManifestSchema = z.object({
       label: z.string(),
       path: z.string(),
     })).optional().describe('Theme contributions'),
+
+    /**
+     * Register Translations.
+     * Path to translation files (e.g. "locales/en.json").
+     */
+    translations: z.array(z.object({
+      locale: z.string(),
+      path: z.string(),
+    })).optional().describe('Translation resources'),
+
+    /**
+     * Register Server Actions.
+     * Invocable functions exposed to Flows or API.
+     */
+    actions: z.array(z.object({
+       name: z.string().describe('Unique action name'),
+       label: z.string().optional(),
+       description: z.string().optional(),
+       input: z.any().optional().describe('Input validation schema'),
+       output: z.any().optional().describe('Output schema'),
+    })).optional().describe('Exposed server actions'),
   }).optional().describe('Platform contributions'),
 
   /** 
