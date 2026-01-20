@@ -18,43 +18,113 @@ This separation ensures the platform remains lightweight and un-opinionated, all
 
 ## 2. Anatomy of a Plugin
 
-A plugin is defined by its `Manifest` (objectstack.config.ts). The most critical part of a modern ObjectStack plugin is the `contributes` section.
+A plugin is defined by its `Manifest` (objectstack.config.ts) and its runtime `Entry` (index.ts).
 
-### The `contributes` Protocol
+### The Manifest (`objectstack.config.ts`)
 
-Inspired by VS Code, we use a declarative approach to register capabilities.
+Critically, the manifest declares **Dependencies**, **Configuration Rules**, and **Contributions**.
 
 ```typescript
 // objectstack.config.ts
-export default {
+import { ObjectStackManifest } from '@objectstack/spec';
+
+const plugin: ObjectStackManifest = {
   id: 'com.vendor.bi',
+  version: '1.0.0',
   type: 'plugin',
   
-  // DECLARATIVE: "I bring these new capabilities"
+  // 1. Configuration Schema (Settings)
+  configuration: {
+    title: 'BI Engine Settings',
+    properties: {
+      'fullQueryMode': { 
+        type: 'boolean', 
+        default: false,
+        description: 'Allow unrestricted SQL queries' 
+      },
+      'apiKey': {
+        type: 'string',
+        secret: true
+      }
+    }
+  },
+
+  // 2. Dependencies
+  dependencies: {
+    'com.objectstack.core': '^2.0.0'
+  },
+
+  // 3. Contributions (Declarative Capabilities)
   contributes: {
-    // 1. Define new Metadata Kinds (File Types)
+    // Define new Metadata Kinds (File Types)
     kinds: [
       { 
         id: 'bi.dataset', 
         globs: ['**/*.dataset.json'],
-        description: 'BI Dataset Definition'
+        description: 'BI Dataset Definition' 
       }
     ],
-    // 2. Define new UI Locations
-    views: [
-      {
-        id: 'bi.chart_renderer',
-        location: 'dashboard.widget'
+    // UI Contributions
+    menus: {
+      'global/toolbar': [
+         { id: 'open_dashboard', label: 'Open BI Dashboard', command: 'bi.open' }
+      ]
+    },
+    // Server Actions (Exposed to Flows/API)
+    actions: [
+      { 
+        name: 'generate_forecast',
+        label: 'Generate Sales Forecast',
+        input: { startDate: 'date' }
       }
     ]
   },
   
-  // IMPERATIVE: "Here is the code to handle them"
-  lifecycle: './src/index.ts' 
+  // 4. Runtime Entry
+  extensions: {
+    runtime: { entry: './src/index.ts' }
+  }
 }
 ```
 
-## 3. Extension Capabilities
+## 3. Runtime Context
+
+Plugins receive a rich strictly-typed `PluginContext` during their lifecycle. This context is the bridge to the host operating system.
+
+```typescript
+// src/index.ts
+import { PluginDefinition, PluginContextData } from '@objectstack/spec';
+
+const definition: PluginDefinition = {
+  id: 'com.vendor.bi',
+  
+  onEnable: async (context: PluginContextData) => {
+    // A. Access Type-Safe Context
+    const { logger, ql, os, app, storage, i18n } = context;
+
+    logger.info('Starting BI Engine...');
+
+    // B. Use Scoped Storage (KV Store)
+    const lastRun = await storage.get('last_run_timestamp');
+
+    // C. Register Runtime Routes
+    app.router.get('/bi/stats', async () => {
+       return { active_reports: 10 };
+    });
+
+    // D. Interact with Core Data
+    const data = await ql.object('account').find({ industry: 'Tech' });
+
+    // E. Read Configuration
+    const config = await os.getConfig('com.vendor.bi');
+    if (config.fullQueryMode) { 
+       logger.warn('Running in Full Query Mode');
+    }
+  }
+}
+```
+
+## 4. Extension Capabilities
 
 ### A. New Metadata Kinds (CRDs)
 
