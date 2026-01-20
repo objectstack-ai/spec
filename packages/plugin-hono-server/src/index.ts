@@ -3,7 +3,8 @@ import { serveStatic } from '@hono/node-server/serve-static';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
-import { ObjectStackKernel, ObjectStackRuntimeProtocol, RuntimePlugin } from '@objectstack/runtime';
+import { ObjectStackRuntimeProtocol } from '@objectstack/runtime';
+import { RuntimePlugin, IKernel } from '@objectstack/types';
 
 export interface HonoServerOptions {
   port?: number;
@@ -32,9 +33,10 @@ export class HonoServerPlugin implements RuntimePlugin {
     };
   }
 
-  async onStart(ctx: { engine: ObjectStackKernel }) {
+  async onStart(ctx: { engine: IKernel }) {
     const app = new Hono();
-    const protocol = new ObjectStackRuntimeProtocol(ctx.engine);
+    // TODO: Protocol needs access to actual Kernel instance or we make Protocol an interface too
+    const protocol = new ObjectStackRuntimeProtocol(ctx.engine as any);
 
     // 1. Middlewares
     if (this.options.logger) app.use('*', logger());

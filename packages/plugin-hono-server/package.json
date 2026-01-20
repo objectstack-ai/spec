@@ -8,13 +8,17 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@objectstack/runtime": "workspace:*",
+    "@hono/node-server": "^1.2.0",
     "@objectstack/spec": "workspace:*",
-    "hono": "^4.0.0",
-    "@hono/node-server": "^1.2.0"
+    "@objectstack/types": "workspace:*",
+    "hono": "^4.0.0"
   },
   "devDependencies": {
+    "@objectstack/runtime": "^0.1.0",
     "@types/node": "^20.0.0",
     "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "@objectstack/runtime": "^0.1.0"
   }
 }
