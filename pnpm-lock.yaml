@@ -148,9 +148,9 @@ importers:
 
   examples/todo:
     dependencies:
-      '@objectstack/client-sdk':
+      '@objectstack/client':
         specifier: workspace:*
-        version: link:../../packages/client-sdk
+        version: link:../../packages/client
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../packages/spec
@@ -159,7 +159,7 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
-  packages/client-sdk:
+  packages/client:
     dependencies:
       '@objectstack/spec':
         specifier: workspace:*

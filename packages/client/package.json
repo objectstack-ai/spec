@@ -1,5 +1,5 @@
 {
-  "name": "@objectstack/client-sdk",
+  "name": "@objectstack/client",
   "version": "0.1.0",
   "description": "Official Client SDK for ObjectStack Protocol",
   "main": "dist/index.js",

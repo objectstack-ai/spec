@@ -1,4 +1,4 @@
-# @objectstack/client-sdk
+# @objectstack/client
 
 The official TypeScript client for ObjectStack.
 
@@ -11,13 +11,13 @@ The official TypeScript client for ObjectStack.
 ## Installation
 
 ```bash
-pnpm add @objectstack/client-sdk
+pnpm add @objectstack/client
 ```
 
 ## Usage
 
 ```typescript
-import { ObjectStackClient } from '@objectstack/client-sdk';
+import { ObjectStackClient } from '@objectstack/client';
 
 // 1. Initialize
 const client = new ObjectStackClient({

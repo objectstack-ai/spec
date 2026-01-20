@@ -5,7 +5,7 @@ description: ObjectStack 官方 TypeScript 客户端
 
 # Client SDK
 
-`@objectstack/client-sdk` 是 ObjectStack 的官方 TypeScript 客户端。它提供了一个类型安全、感知协议的接口，用于与 ObjectStack Server 进行交互。
+`@objectstack/client` 是 ObjectStack 的官方 TypeScript 客户端。它提供了一个类型安全、感知协议的接口，用于与 ObjectStack Server 进行交互。
 
 ## 核心特性
 
@@ -16,13 +16,13 @@ description: ObjectStack 官方 TypeScript 客户端
 ## 安装
 
 ```bash
-pnpm add @objectstack/client-sdk
+pnpm add @objectstack/client
 ```
 
 ## 使用指南
 
 ```typescript
-import { ObjectStackClient } from '@objectstack/client-sdk';
+import { ObjectStackClient } from '@objectstack/client';
 
 // 1. 初始化
 const client = new ObjectStackClient({

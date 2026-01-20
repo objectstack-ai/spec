@@ -1,4 +1,4 @@
-import { ObjectStackClient } from '@objectstack/client-sdk';
+import { ObjectStackClient } from '@objectstack/client';
 
 async function main() {
   console.log('🚀 Starting Client SDK Test...');

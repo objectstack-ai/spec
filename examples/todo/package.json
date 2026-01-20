@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@objectstack/spec": "workspace:*",
-    "@objectstack/client-sdk": "workspace:*"
+    "@objectstack/client": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.0.0"
