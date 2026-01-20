@@ -201,7 +201,7 @@ describe('Plugin Lifecycle Scenarios', () => {
     it('should handle plugin installation', async () => {
       let installed = false;
       
-      const plugin: Plugin = {
+      const plugin: PluginDefinition = {
         id: 'test.plugin',
         version: '1.0.0',
         onInstall: async (context) => {
@@ -232,7 +232,7 @@ describe('Plugin Lifecycle Scenarios', () => {
     it('should handle plugin enable and disable', async () => {
       let enabled = false;
       
-      const plugin: Plugin = {
+      const plugin: PluginDefinition = {
         onEnable: async (context) => {
           enabled = true;
           context.logger.info('Plugin enabled');
@@ -273,7 +273,7 @@ describe('Plugin Lifecycle Scenarios', () => {
       let upgradeFrom = '';
       let upgradeTo = '';
       
-      const plugin: Plugin = {
+      const plugin: PluginDefinition = {
         onUpgrade: async (context, from, to) => {
           upgradeCalled = true;
           upgradeFrom = from;
@@ -307,7 +307,7 @@ describe('Plugin Lifecycle Scenarios', () => {
     it('should handle plugin uninstallation', async () => {
       let uninstalled = false;
       
-      const plugin: Plugin = {
+      const plugin: PluginDefinition = {
         onUninstall: async (context) => {
           uninstalled = true;
           await context.ql.object('test_object').dropTable();
