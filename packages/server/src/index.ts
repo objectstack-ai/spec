@@ -3,7 +3,7 @@ import { serveStatic } from '@hono/node-server/serve-static';
 import { Hono } from 'hono';
 import { logger } from 'hono/logger';
 import { cors } from 'hono/cors';
-import { SchemaRegistry, DataEngine } from '@objectstack/objectql';
+import { SchemaRegistry, DataEngine } from '@objectstack/runtime';
 import { ServerPlugin } from './plugin';
 import { CoreRestApiPlugin } from './plugins/rest-api';
 

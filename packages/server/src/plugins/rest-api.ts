@@ -1,6 +1,6 @@
 import { Context } from 'hono';
 import { ServerPlugin } from '../plugin';
-import { SchemaRegistry } from '@objectstack/objectql';
+import { SchemaRegistry } from '@objectstack/runtime';
 
 export const CoreRestApiPlugin: ServerPlugin = {
   name: 'core-rest-api',

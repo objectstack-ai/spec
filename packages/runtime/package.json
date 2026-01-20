@@ -1,7 +1,7 @@
 {
-  "name": "@objectstack/objectql",
-  "version": "0.0.1",
-  "description": "ObjectQL Reference Implementation",
+  "name": "@objectstack/runtime",
+  "version": "0.1.0",
+  "description": "ObjectStack Core Runtime & Query Engine",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

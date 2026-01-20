@@ -108,16 +108,6 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
-  examples/objectql:
-    dependencies:
-      '@objectstack/spec':
-        specifier: workspace:*
-        version: link:../../packages/spec
-    devDependencies:
-      typescript:
-        specifier: ^5.0.0
-        version: 5.9.3
-
   examples/plugin-bi:
     dependencies:
       '@objectstack/spec':
@@ -149,15 +139,15 @@ importers:
       '@objectstack/example-todo':
         specifier: workspace:*
         version: link:../todo
-      '@objectstack/objectql':
-        specifier: workspace:*
-        version: link:../objectql
       '@objectstack/plugin-bi':
         specifier: workspace:*
         version: link:../plugin-bi
       '@objectstack/plugin-driver-memory':
         specifier: workspace:*
         version: link:../plugin-driver-memory
+      '@objectstack/runtime':
+        specifier: workspace:*
+        version: link:../../packages/runtime
       '@objectstack/server':
         specifier: workspace:*
         version: link:../../packages/server
@@ -204,14 +194,24 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
+  packages/runtime:
+    dependencies:
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../spec
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
   packages/server:
     dependencies:
       '@hono/node-server':
         specifier: ^1.0.0
         version: 1.19.9(hono@4.11.4)
-      '@objectstack/objectql':
+      '@objectstack/runtime':
         specifier: workspace:*
-        version: link:../../examples/objectql
+        version: link:../runtime
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../spec
