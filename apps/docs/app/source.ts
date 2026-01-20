@@ -5,10 +5,10 @@ import { i18n } from '@/lib/i18n';
 export const source = loader({
   baseUrl: '/docs',
   i18n,
-  source: (docs as any).toFumadocsSource(),
+  source: docs.toFumadocsSource(),
 });
 
 export const blog = loader({
   baseUrl: '/blog',
-  source: (blogCollection as any).toFumadocsSource(),
+  source: blogCollection.toFumadocsSource(),
 });
