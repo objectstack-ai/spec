@@ -47,7 +47,7 @@ export class DataEngine {
     // For Backwards Compat / Easy Dev, try dynamic import of memory driver if installed
     try {
         // @ts-ignore
-        const { InMemoryDriver } = await import('@objectstack/plugin-driver-memory');
+        const { InMemoryDriver } = await import('@objectstack/driver-memory');
         const driver = new InMemoryDriver();
         this.ql.registerDriver(driver);
     } catch (e) {

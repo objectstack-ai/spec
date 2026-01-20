@@ -118,21 +118,14 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
-  examples/plugin-driver-memory:
-    dependencies:
-      '@objectstack/spec':
-        specifier: workspace:*
-        version: link:../../packages/spec
-    devDependencies:
-      typescript:
-        specifier: ^5.0.0
-        version: 5.9.3
-
   examples/server:
     dependencies:
       '@hono/node-server':
         specifier: ^1.0.0
         version: 1.19.9(hono@4.11.4)
+      '@objectstack/driver-memory':
+        specifier: workspace:*
+        version: link:../../packages/driver-memory
       '@objectstack/example-crm':
         specifier: workspace:*
         version: link:../crm
@@ -142,9 +135,6 @@ importers:
       '@objectstack/plugin-bi':
         specifier: workspace:*
         version: link:../plugin-bi
-      '@objectstack/plugin-driver-memory':
-        specifier: workspace:*
-        version: link:../plugin-driver-memory
       '@objectstack/runtime':
         specifier: workspace:*
         version: link:../../packages/runtime
@@ -185,6 +175,16 @@ importers:
         version: 5.9.3
 
   packages/client-sdk:
+    dependencies:
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../spec
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
+  packages/driver-memory:
     dependencies:
       '@objectstack/spec':
         specifier: workspace:*

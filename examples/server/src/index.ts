@@ -1,4 +1,5 @@
 import { ObjectStackServer } from '@objectstack/server';
+import { InMemoryDriver } from '@objectstack/driver-memory';
 
 // Standard Plugins
 import CrmApp from '@objectstack/example-crm/objectstack.config';
@@ -18,6 +19,10 @@ import BiPluginManifest from '@objectstack/plugin-bi/objectstack.config';
          BiPluginManifest
      ]
   });
+
+  // Explicitly register the driver
+  const driver = new InMemoryDriver();
+  server.engine.ql.registerDriver(driver);
 
   await server.start();
 })();
