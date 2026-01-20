@@ -4,15 +4,32 @@ export const TodoTask = ObjectSchema.create({
   name: 'todo_task',
   label: 'Todo Task',
   icon: 'check-square',
+  nameField: 'subject',
   enable: {
     apiEnabled: true,
+    trackHistory: true,
   },
   fields: {
     subject: Field.text({ required: true }),
     due_date: Field.date(),
     is_completed: Field.boolean({ defaultValue: false }),
-    priority: Field.select(['High', 'Normal', 'Low'], { 
-      defaultValue: 'Normal' 
+    priority: Field.rating(3, { 
+      label: 'Priority',
+      description: 'Task priority (1-3 stars)',
+    }),
+    category_color: Field.color({
+      label: 'Category Color',
+      colorFormat: 'hex',
+      presetColors: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00'],
+    }),
+    code_snippet: Field.code('javascript', {
+      label: 'Code Snippet',
+      description: 'Optional code to implement',
+      lineNumbers: true,
+    }),
+    notes: Field.richtext({
+      label: 'Notes',
+      description: 'Rich text notes with formatting',
     }),
   },
   // actions: {

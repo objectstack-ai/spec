@@ -6,6 +6,7 @@ export const Account = ObjectSchema.create({
   pluralLabel: 'Accounts',
   icon: 'building',
   description: 'Companies and organizations doing business with us',
+  nameField: 'name',
   
   fields: {
     // AutoNumber field - Unique account identifier
@@ -23,8 +24,7 @@ export const Account = ObjectSchema.create({
     }),
     
     // Select fields with custom options
-    type: {
-      type: 'select',
+    type: Field.select({
       label: 'Account Type',
       options: [
         { label: 'Prospect', value: 'prospect', color: '#FFA500', default: true },
@@ -32,10 +32,9 @@ export const Account = ObjectSchema.create({
         { label: 'Partner', value: 'partner', color: '#0000FF' },
         { label: 'Former Customer', value: 'former', color: '#999999' },
       ]
-    },
+    }),
     
-    industry: {
-      type: 'select',
+    industry: Field.select({
       label: 'Industry',
       options: [
         { label: 'Technology', value: 'technology' },
@@ -45,7 +44,7 @@ export const Account = ObjectSchema.create({
         { label: 'Manufacturing', value: 'manufacturing' },
         { label: 'Education', value: 'education' },
       ]
-    },
+    }),
     
     // Number fields
     annual_revenue: Field.currency({ 
@@ -69,12 +68,18 @@ export const Account = ObjectSchema.create({
       label: 'Website',
     }),
     
-    // Address fields
-    billing_street: Field.textarea({ label: 'Billing Street' }),
-    billing_city: Field.text({ label: 'Billing City' }),
-    billing_state: Field.text({ label: 'Billing State/Province' }),
-    billing_postal_code: Field.text({ label: 'Billing Postal Code' }),
-    billing_country: Field.text({ label: 'Billing Country' }),
+    // Structured Address field (new field type)
+    billing_address: Field.address({
+      label: 'Billing Address',
+      addressFormat: 'international',
+    }),
+    
+    // Office Location (new field type)
+    office_location: Field.location({
+      label: 'Office Location',
+      displayMap: true,
+      allowGeocoding: true,
+    }),
     
     // Relationship fields
     owner: Field.lookup('user', {
@@ -104,18 +109,27 @@ export const Account = ObjectSchema.create({
       readonly: true,
     }),
     
-    // Formula field - combines first and last name
-    full_address: Field.formula({
-      label: 'Full Billing Address',
-      expression: 'CONCAT(billing_street, ", ", billing_city, ", ", billing_state, " ", billing_postal_code, ", ", billing_country)',
+    // Brand color (new field type)
+    brand_color: Field.color({
+      label: 'Brand Color',
+      colorFormat: 'hex',
+      presetColors: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'],
     }),
   },
+  
+  // Database indexes for performance
+  indexes: [
+    { fields: ['name'], unique: false },
+    { fields: ['owner'], unique: false },
+    { fields: ['type', 'is_active'], unique: false },
+  ],
   
   // Enable advanced features
   enable: {
     trackHistory: true,     // Track field changes
     searchable: true,       // Include in global search
     apiEnabled: true,       // Expose via REST/GraphQL
+    apiMethods: ['get', 'list', 'create', 'update', 'delete', 'search', 'export'], // Whitelist allowed API operations
     files: true,            // Allow file attachments
     feedEnabled: true,      // Enable activity feed/chatter
     trash: true,            // Recycle bin support
@@ -176,12 +190,12 @@ export const Account = ObjectSchema.create({
         {
           label: 'Contact Details',
           columns: 2,
-          fields: ['phone', 'website']
+          fields: ['phone', 'website', 'brand_color']
         },
         {
-          label: 'Billing Address',
+          label: 'Location & Address',
           columns: 2,
-          fields: ['billing_street', 'billing_city', 'billing_state', 'billing_postal_code', 'billing_country', 'full_address']
+          fields: ['billing_address', 'office_location']
         },
         {
           label: 'Additional Information',
