@@ -9,28 +9,21 @@ import { Cpu, ShieldCheck, RefreshCw, Zap } from 'lucide-react';
 
 它充当位于 API 和数据库驱动程序之间的中间件内核，确保每次数据访问都经过身份验证、授权并符合业务规则。
 
-## 内核层
+## 架构组件
 
-### 1. 身份层（谁？）
-在任何逻辑运行之前，内核解析行为者。
-*   **身份验证：** OIDC、SAML 或 LDAP。
-*   **会话管理：** 无状态 JWT 或会话存储。
-*   **上下文注入：** 将 `userId`、`role` 和 `organization` 加载到请求上下文中。
+```mermaid
+graph TD
+    A[外部 API 请求] --> B(Host / Adapter Layer);
+    B --> C{ObjectStack Kernel};
+    C --> D[Plugin: Identity Provider];
+    C --> E[Plugin: Authorization Engine];
+    C --> F[ObjectQL Engine];
+    F --> G[Schema Registry];
+    F --> H[Driver Layer];
+```
 
-### 2. 策略层（他们可以吗？）
-内核强制执行**"纵深防御"**安全模型。
-*   **配置文件检查：** 此用户是否有使用此应用的许可证？
-*   **对象权限：** 他们可以 `READ` `Contract` 对象吗？
-*   **字段级安全（FLS）：** 他们可以看到 `contract_value` 吗？
-*   **共享规则：** 他们可以访问*此特定记录*吗？
-
-### 3. 逻辑层（会发生什么？）
-这是"业务逻辑"容器。
-*   **触发器：** 同步逻辑（`beforeInsert`）。
-*   **流程：** 可视化编排（`审批流程`）。
-*   **作业：** 异步任务（`发送电子邮件`）。
-
-### 4. 同步层（它在哪里？）
-ObjectOS 设计为**本地优先**操作。
-*   **变更数据捕获（CDC）：** 跟踪每个事务的"增量"。
-*   **复制：** 将这些增量同步到边缘设备（SQLite）或数据仓库（Snowflake）。
+*   **Host (Adapter)**: 适配不同的运行环境（Hono/Node, Next.js/Edge, Electron）。
+*   **Kernel**: 核心控制器，负责加载插件、管理上下文。
+*   **Plugins**: 可插拔的能力模块（如 Auth, Audit, Workflow）。
+*   **ObjectQL**: 纯逻辑引擎，负责数据查询解析与验证。
+*   **Driver**: 实际的 I/O 执行者。

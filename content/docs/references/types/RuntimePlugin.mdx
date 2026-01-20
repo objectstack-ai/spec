@@ -1,0 +1,45 @@
+---
+title: RuntimePlugin (Interface)
+description: 运行时插件接口
+---
+
+所有扩展 ObjectStack 功能的模块必须实现此接口。
+
+## 接口定义
+
+```typescript
+export interface RuntimePlugin {
+    /**
+     * 插件唯一标识符
+     * 推荐格式: com.organization.plugin-name
+     */
+    name: string;
+
+    /**
+     * 安装阶段
+     * 在 Kernel 初始化时调用，用于注册 Hook 或扩展 Schema
+     */
+    install?: (ctx: RuntimeContext) => void | Promise<void>;
+
+    /**
+     * 启动阶段
+     * 在 Kernel 启动时调用，用于初始化服务（如启动 HTTP Server）
+     */
+    onStart?: (ctx: RuntimeContext) => void | Promise<void>;
+}
+```
+
+## 依赖关系
+
+插件应声明它依赖于 `@objectstack/types` 而不是具体运行时。
+
+```json
+{
+  "dependencies": {
+    "@objectstack/types": "*"
+  },
+  "peerDependencies": {
+    "@objectstack/runtime": "*"
+  }
+}
+```

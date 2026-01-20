@@ -1,0 +1,30 @@
+---
+title: IKernel (Interface)
+description: Kernel 接口契约
+---
+
+`IKernel` 是插件与宿主系统交互的核心接口。为了保持插件的独立性和可测试性，插件不应直接依赖 Kernel 的具体实现类，而应依赖此接口。
+
+## 接口定义
+
+```typescript
+export interface IKernel {
+    /**
+     * 启动内核
+     * 初始化所有已注册的插件和驱动
+     */
+    start(): Promise<void>;
+
+    /**
+     * 获取 ObjectQL 引擎实例
+     */
+    getEngine(): ObjectQL;
+
+    /**
+     * 获取上下文对象
+     */
+    getContext(): RuntimeContext;
+    
+    // ... 更多生命周期方法
+}
+```

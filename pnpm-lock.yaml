@@ -119,6 +119,9 @@ importers:
       '@objectstack/example-todo':
         specifier: workspace:*
         version: link:../todo
+      '@objectstack/objectql':
+        specifier: workspace:*
+        version: link:../../packages/objectql
       '@objectstack/plugin-bi':
         specifier: workspace:*
         version: link:../plugin-bi
