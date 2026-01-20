@@ -1,0 +1,852 @@
+---
+title: "Protocol-First Development: Why ObjectStack Chose Open Standards Over Proprietary Platforms"
+description: An in-depth exploration of protocol-first architecture, examining why open standards triumph over proprietary platforms for long-term sustainability, and how ObjectStack implements this philosophy.
+author: ObjectStack Team
+date: 2024-01-22
+tags: [protocol, architecture, open-source, philosophy, technical]
+---
+
+# Protocol-First Development: Why ObjectStack Chose Open Standards Over Proprietary Platforms
+
+## Introduction: The Platform Trap
+
+Every enterprise software company faces a critical decision: build a **platform** or build a **protocol**?
+
+- **Platforms** offer control, revenue, and ecosystem lock-in
+- **Protocols** offer freedom, interoperability, and long-term sustainability
+
+This article examines why ObjectStack chose the protocol path, analyzing the technical, economic, and philosophical implications of this decision. We'll explore real-world examples, architectural patterns, and the emerging trend of "protocol-first" development in the post-SaaS era.
+
+## Part I: Platforms vs. Protocols - A Historical Perspective
+
+### The Platform Era (2000-2020)
+
+The cloud revolution was built on platforms:
+
+**Salesforce (2000):**
+- Pioneered SaaS model
+- Closed platform with proprietary Force.com
+- $30B+ revenue through platform lock-in
+- Apex language, SOQL, Visualforce—all proprietary
+
+**AWS (2006):**
+- Dominated cloud infrastructure
+- Proprietary APIs (despite open-source under the hood)
+- Vendor lock-in through service dependencies
+- $85B+ revenue in 2023
+
+**Shopify (2006):**
+- E-commerce platform
+- Liquid templates, proprietary APIs
+- App ecosystem under platform control
+- $5.6B revenue in 2022
+
+**Common Pattern:**
+1. Solve a real problem exceptionally well
+2. Create proprietary tools and APIs
+3. Build ecosystem around platform
+4. Extract rent from ecosystem participants
+
+**The Hidden Cost:**
+- Businesses become dependent
+- Migration becomes nearly impossible
+- Platform dictates evolution
+- Pricing power tilts to platform
+
+### The Protocol Renaissance (2020+)
+
+A counter-movement emerged:
+
+**Stripe (Open Banking APIs):**
+```typescript
+// Stripe doesn't own payment rails
+// They implement standard protocols:
+interface PaymentProtocol {
+  createPaymentIntent(amount: number, currency: string): Promise<PaymentIntent>;
+  confirmPayment(intentId: string): Promise<PaymentResult>;
+  refund(chargeId: string, amount?: number): Promise<Refund>;
+}
+
+// Multiple providers can implement this:
+class StripeProvider implements PaymentProtocol { ... }
+class AdyenProvider implements PaymentProtocol { ... }
+class SquareProvider implements PaymentProtocol { ... }
+```
+
+**Why This Matters:**
+- Switching providers is possible (though painful)
+- Competition drives innovation
+- Standards evolve through consensus
+- No single point of control
+
+**Kubernetes (Container Orchestration):**
+```yaml
+# Kubernetes manifests are portable
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+      - name: app
+        image: myapp:v1.0
+```
+
+**Key Innovation:**
+- CNCF governance (not single vendor)
+- Run on AWS, GCP, Azure, on-prem
+- Ecosystem innovation unconstrained
+- True multi-cloud portability
+
+**ActivityPub (Social Networking):**
+```json
+{
+  "@context": "https://www.w3.org/ns/activitystreams",
+  "type": "Create",
+  "actor": "https://mastodon.social/@alice",
+  "object": {
+    "type": "Note",
+    "content": "Hello, decentralized world!"
+  }
+}
+```
+
+**Breakthrough:**
+- Mastodon, Pixelfed, PeerTube interoperate
+- No platform controls the network
+- Users own their data and identity
+- Network effects without monopoly
+
+### The Philosophical Divide
+
+| Aspect | Platform Thinking | Protocol Thinking |
+|--------|------------------|-------------------|
+| **Value Capture** | "Build moats" | "Build bridges" |
+| **Innovation** | "Controlled by us" | "Permissionless" |
+| **Data** | "Locked in our system" | "User-owned, portable" |
+| **Competition** | "Eliminate rivals" | "Interoperate" |
+| **Evolution** | "We decide" | "Community decides" |
+| **Sustainability** | "Quarterly profits" | "Long-term utility" |
+
+## Part II: Why ObjectStack Chose Protocol-First
+
+### Decision #1: Zod Over Custom DSL
+
+**The Platform Approach (e.g., Salesforce):**
+```xml
+<!-- Salesforce metadata format -->
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Project__c</fullName>
+    <label>Project</label>
+    <fields>
+        <fullName>Title__c</fullName>
+        <type>Text</type>
+        <length>255</length>
+        <required>true</required>
+    </fields>
+</CustomObject>
+```
+
+**Problems:**
+- Proprietary XML format
+- Salesforce-specific tooling required
+- No type safety in source code
+- Can't use standard validators
+
+**The ObjectStack Approach:**
+```typescript
+import { z } from 'zod';
+import { ObjectProtocol, Field } from '@objectstack/spec';
+
+export const ProjectSchema = ObjectProtocol.define({
+  name: 'project',
+  label: 'Project',
+  fields: {
+    title: Field.text({
+      required: true,
+      maxLength: 255,
+      label: 'Title'
+    })
+  }
+});
+
+// Automatic TypeScript type
+type Project = z.infer<typeof ProjectSchema>;
+
+// Automatic JSON Schema
+const jsonSchema = zodToJsonSchema(ProjectSchema);
+
+// Automatic runtime validation
+const validated = ProjectSchema.parse(data);
+```
+
+**Benefits:**
+- Zod is open-source, widely adopted
+- TypeScript integration is native
+- Works with any JavaScript toolchain
+- Extensible via standard Zod APIs
+- LLMs already understand Zod syntax
+
+**Why This Matters:**
+When you build on open standards, you inherit an entire ecosystem:
+
+```typescript
+// Use any Zod-compatible library
+import { zodToJsonSchema } from 'zod-to-json-schema';
+import { generateMock } from '@anatine/zod-mock';
+import { zodToOpenAPI } from '@asteasolutions/zod-to-openapi';
+
+// Generate API documentation
+const openApiSpec = zodToOpenAPI(ProjectSchema);
+
+// Generate mock data for testing
+const mockProject = generateMock(ProjectSchema);
+
+// Validate forms automatically
+function FormField({ schema }: { schema: z.ZodType }) {
+  const [error, setError] = useState<string | null>(null);
+  
+  const handleChange = (value: any) => {
+    try {
+      schema.parse(value);
+      setError(null);
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+  
+  return <Input onChange={handleChange} error={error} />;
+}
+```
+
+### Decision #2: SQL/NoSQL Over Proprietary Storage
+
+**The Platform Approach:**
+```javascript
+// Salesforce SOQL (proprietary query language)
+SELECT Id, Name, (SELECT Title FROM Projects__r) 
+FROM Account 
+WHERE Industry = 'Technology'
+```
+
+**Limitations:**
+- Only works with Salesforce
+- Can't use database-native features
+- Governor limits constrain queries
+- No way to optimize storage
+
+**The ObjectStack Approach:**
+```typescript
+// Define the protocol
+interface QueryProtocol {
+  find(object: string, filters: Filter[]): Promise<Record[]>;
+  findOne(object: string, id: string): Promise<Record>;
+  create(object: string, data: Record): Promise<Record>;
+  update(object: string, id: string, data: Partial<Record>): Promise<Record>;
+  delete(object: string, id: string): Promise<void>;
+}
+
+// Implement for PostgreSQL
+class PostgresAdapter implements QueryProtocol {
+  async find(object: string, filters: Filter[]) {
+    const query = this.buildQuery(object, filters);
+    return this.db.query(query);
+  }
+  
+  private buildQuery(object: string, filters: Filter[]) {
+    // Translate protocol filters to SQL
+    const where = filters.map(f => `${f.field} ${f.operator} $${f.value}`);
+    return {
+      text: `SELECT * FROM ${object} WHERE ${where.join(' AND ')}`,
+      values: filters.map(f => f.value)
+    };
+  }
+}
+
+// Implement for MongoDB
+class MongoAdapter implements QueryProtocol {
+  async find(object: string, filters: Filter[]) {
+    const query = this.buildQuery(filters);
+    return this.db.collection(object).find(query).toArray();
+  }
+  
+  private buildQuery(filters: Filter[]) {
+    // Translate protocol filters to MongoDB query
+    const query: any = {};
+    filters.forEach(f => {
+      query[f.field] = { [`$${f.operator}`]: f.value };
+    });
+    return query;
+  }
+}
+```
+
+**Benefits:**
+- Use battle-tested databases
+- Leverage native features (indexes, views, CTEs)
+- No artificial query limits
+- Optimize per workload
+- Easy migration between databases
+
+**Real-World Impact:**
+
+```typescript
+// Complex analytics query in PostgreSQL
+const adapter = new PostgresAdapter(db);
+
+// This would hit Salesforce's governor limits
+const results = await adapter.find('opportunity', [
+  { field: 'amount', operator: '>', value: 100000 },
+  { field: 'stage', operator: 'in', value: ['Negotiation', 'Closed Won'] }
+]);
+
+// But in Postgres, we can do this efficiently:
+await db.query(`
+  WITH monthly_revenue AS (
+    SELECT 
+      DATE_TRUNC('month', close_date) AS month,
+      SUM(amount) AS revenue
+    FROM opportunities
+    WHERE stage = 'Closed Won'
+    GROUP BY month
+  )
+  SELECT 
+    month,
+    revenue,
+    AVG(revenue) OVER (ORDER BY month ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS three_month_avg
+  FROM monthly_revenue
+  ORDER BY month DESC
+`);
+```
+
+### Decision #3: Open Specification Over Closed Source
+
+**The Platform Approach:**
+- Source code is proprietary
+- APIs documented but not specified
+- Changes at vendor's discretion
+- No community governance
+
+**The ObjectStack Approach:**
+```typescript
+// Everything is open source and versioned
+// github.com/objectstack-ai/spec
+
+export const FieldTypes = {
+  text: z.object({
+    type: z.literal('text'),
+    maxLength: z.number().optional(),
+    minLength: z.number().optional(),
+    pattern: z.string().optional(),
+    required: z.boolean().default(false),
+    multiple: z.boolean().default(false)
+  }),
+  
+  number: z.object({
+    type: z.literal('number'),
+    min: z.number().optional(),
+    max: z.number().optional(),
+    precision: z.number().optional(),
+    required: z.boolean().default(false)
+  }),
+  
+  // ... all field types defined in Zod
+};
+
+// Version is explicit
+export const PROTOCOL_VERSION = '1.0.0';
+
+// Breaking changes require major version bump
+// New fields can be added (backward compatible)
+// Deprecations follow semantic versioning
+```
+
+**Benefits of Open Specification:**
+
+1. **Multiple Implementations:**
+```typescript
+// Reference implementation (TypeScript)
+class TypeScriptRuntime implements ObjectStackRuntime { ... }
+
+// Community implementations
+class RustRuntime implements ObjectStackRuntime { ... }
+class GoRuntime implements ObjectStackRuntime { ... }
+class PythonRuntime implements ObjectStackRuntime { ... }
+```
+
+2. **Community Extensions:**
+```typescript
+// Anyone can propose new field types
+export const GeoLocationField = Field.custom({
+  type: 'geolocation',
+  schema: z.object({
+    latitude: z.number().min(-90).max(90),
+    longitude: z.number().min(-180).max(180),
+    accuracy: z.number().optional()
+  }),
+  ui: {
+    widget: 'map-picker',
+    defaultZoom: 10
+  }
+});
+
+// If widely adopted, can be added to core spec
+```
+
+3. **Transparent Evolution:**
+```markdown
+# ObjectStack RFC Process
+
+1. Anyone can propose an RFC (Request for Comments)
+2. Community discussion on GitHub
+3. Implementation prototypes
+4. Consensus building
+5. Merge into specification
+6. Versioned release
+
+Example: RFC-0042: "Add Support for Computed Fields"
+Status: Draft → Under Review → Accepted → Implemented
+```
+
+## Part III: Technical Deep Dive - Protocol Design Patterns
+
+### Pattern 1: Schema Versioning
+
+**Challenge:** How do we evolve the protocol without breaking existing implementations?
+
+**Solution:** Semantic Versioning + Capability Negotiation
+
+```typescript
+export interface ObjectMetadata {
+  // Protocol version this definition uses
+  protocolVersion: string;  // e.g., "1.2.0"
+  
+  // Schema definition
+  name: string;
+  fields: Record<string, FieldDefinition>;
+  
+  // Optional: New features (backward compatible)
+  computed?: ComputedFieldDefinition[];  // Added in v1.1.0
+  workflows?: WorkflowDefinition[];      // Added in v1.2.0
+}
+
+// Runtime capability check
+class Runtime {
+  supports(feature: string): boolean {
+    const [major, minor] = this.version.split('.');
+    const capabilities = {
+      '1.0': ['basic_fields', 'validation'],
+      '1.1': ['basic_fields', 'validation', 'computed_fields'],
+      '1.2': ['basic_fields', 'validation', 'computed_fields', 'workflows']
+    };
+    return capabilities[`${major}.${minor}`]?.includes(feature) || false;
+  }
+  
+  async load(metadata: ObjectMetadata) {
+    if (this.isCompatible(metadata.protocolVersion)) {
+      return this.interpret(metadata);
+    } else {
+      throw new Error(`Protocol version ${metadata.protocolVersion} not supported`);
+    }
+  }
+}
+```
+
+### Pattern 2: Extension Points
+
+**Challenge:** How do we allow customization without forking the protocol?
+
+**Solution:** Well-defined extension mechanisms
+
+```typescript
+// Core protocol
+export interface FieldDefinition {
+  type: string;
+  required?: boolean;
+  // ... standard properties
+  
+  // Extension point
+  extensions?: Record<string, unknown>;
+}
+
+// Custom extension
+const CustomField = Field.text({
+  required: true,
+  extensions: {
+    'com.acme.encryption': {
+      algorithm: 'AES-256',
+      keyRotation: '90d'
+    },
+    'com.acme.pii': {
+      category: 'sensitive',
+      retentionDays: 365
+    }
+  }
+});
+
+// Runtime can ignore unknown extensions
+class Runtime {
+  interpret(field: FieldDefinition) {
+    // Handle core properties
+    this.setupField(field);
+    
+    // Optionally handle known extensions
+    if (field.extensions?.['com.acme.encryption']) {
+      this.setupEncryption(field);
+    }
+    
+    // Ignore unknown extensions (forward compatibility)
+  }
+}
+```
+
+### Pattern 3: Adapter Architecture
+
+**Challenge:** How do we support multiple databases without bloating the core?
+
+**Solution:** Clean adapter interfaces
+
+```typescript
+// Core protocol defines the interface
+export interface StorageAdapter {
+  // Lifecycle
+  initialize(metadata: ObjectMetadata[]): Promise<void>;
+  migrate(from: ObjectMetadata, to: ObjectMetadata): Promise<void>;
+  
+  // CRUD operations
+  create(object: string, data: Record): Promise<Record>;
+  read(object: string, id: string): Promise<Record>;
+  update(object: string, id: string, data: Partial<Record>): Promise<Record>;
+  delete(object: string, id: string): Promise<void>;
+  
+  // Queries
+  find(object: string, query: Query): Promise<Record[]>;
+  count(object: string, query: Query): Promise<number>;
+  
+  // Transactions
+  transaction<T>(fn: (tx: Transaction) => Promise<T>): Promise<T>;
+}
+
+// Implementations can optimize per database
+class PostgresAdapter implements StorageAdapter {
+  async find(object: string, query: Query) {
+    // Leverage PostgreSQL-specific features
+    const sql = this.compileToSQL(query);
+    
+    // Use EXPLAIN to check query plan
+    const plan = await this.db.query(`EXPLAIN ${sql}`);
+    if (!this.isIndexed(plan)) {
+      console.warn(`Query on ${object} might be slow - consider adding index`);
+    }
+    
+    return this.db.query(sql);
+  }
+}
+
+class MongoAdapter implements StorageAdapter {
+  async find(object: string, query: Query) {
+    // Leverage MongoDB aggregation pipeline
+    const pipeline = this.compileToAggregation(query);
+    
+    // Use explain() to check query plan
+    const plan = await this.db.collection(object).explain();
+    if (!plan.executionStats.totalDocsExamined < plan.executionStats.nReturned * 10) {
+      console.warn(`Query on ${object} scanning too many documents`);
+    }
+    
+    return this.db.collection(object).aggregate(pipeline).toArray();
+  }
+}
+```
+
+## Part IV: The Economics of Protocol-First
+
+### Platform Economics (Salesforce Model)
+
+```
+Revenue = Subscriptions + Transaction Fees + Partner App Store Cuts
+
+Margins = High (70%+) due to:
+- Vendor lock-in
+- Limited competition
+- Switching costs
+```
+
+**For Customers:**
+```
+Total Cost = Subscription + Implementation + Custom Development + 
+             Integration + Training + Vendor Apps
+
+Hidden Costs:
+- Technical debt (can't easily migrate)
+- Feature delays (wait for vendor)
+- Lost opportunities (constraints limit innovation)
+```
+
+### Protocol Economics (ObjectStack Model)
+
+```
+Value = Σ(All Implementations) - Vendor Lock-in Costs
+
+Network Effects = Implementations × Integrations × Extensions
+
+Competition = Open (better implementations win)
+```
+
+**For Customers:**
+```
+Total Cost = Implementation Choice + Development + Integration
+
+Benefits:
+- Competitive pricing (multiple vendors)
+- Faster innovation (permissionless extensions)
+- Risk reduction (can switch implementations)
+- True multi-cloud/hybrid
+```
+
+### The Long Game
+
+**Platforms optimize for:**
+- Quarterly revenue
+- Market share
+- Ecosystem control
+
+**Protocols optimize for:**
+- Adoption
+- Interoperability
+- Long-term utility
+
+**Historical Precedent:**
+- HTTP beat Gopher, WAIS, Archie
+- SMTP beat X.400
+- TCP/IP beat OSI
+- REST beat SOAP
+
+**Why?** Protocols that solve real problems with minimal constraints tend to win over time.
+
+## Part V: Real-World Implementation Guide
+
+### Building on ObjectStack: A Practical Example
+
+Let's build a project management system using ObjectStack:
+
+**Step 1: Define Core Objects**
+
+```typescript
+// objects/project.ts
+export const Project = ObjectProtocol.define({
+  name: 'project',
+  label: 'Project',
+  fields: {
+    name: Field.text({ required: true, maxLength: 100 }),
+    description: Field.textarea({ maxLength: 5000 }),
+    owner: Field.lookup({ reference: 'user', required: true }),
+    status: Field.select({
+      options: ['planning', 'active', 'on_hold', 'completed', 'cancelled'],
+      default: 'planning'
+    }),
+    start_date: Field.date(),
+    end_date: Field.date(),
+    budget: Field.currency({ precision: 2 }),
+    team_members: Field.lookup({ reference: 'user', multiple: true })
+  },
+  enable: {
+    trackHistory: true,
+    apiEnabled: true,
+    searchEnabled: true
+  }
+});
+
+// objects/task.ts
+export const Task = ObjectProtocol.define({
+  name: 'task',
+  label: 'Task',
+  fields: {
+    title: Field.text({ required: true }),
+    description: Field.textarea(),
+    project: Field.lookup({ reference: 'project', required: true }),
+    assignee: Field.lookup({ reference: 'user' }),
+    status: Field.select({
+      options: ['todo', 'in_progress', 'review', 'done'],
+      default: 'todo'
+    }),
+    priority: Field.select({
+      options: ['low', 'medium', 'high', 'critical'],
+      default: 'medium'
+    }),
+    due_date: Field.date(),
+    estimated_hours: Field.number({ min: 0, precision: 1 }),
+    actual_hours: Field.number({ min: 0, precision: 1 })
+  },
+  enable: {
+    trackHistory: true,
+    apiEnabled: true
+  }
+});
+```
+
+**Step 2: Define Views**
+
+```typescript
+// views/project-list.ts
+export const ProjectListView = {
+  type: 'list',
+  object: 'project',
+  columns: [
+    { field: 'name', width: 300 },
+    { field: 'owner', width: 150 },
+    { field: 'status', width: 120 },
+    { field: 'start_date', width: 120 },
+    { field: 'budget', width: 120 }
+  ],
+  filters: [
+    { field: 'status', operator: '!=', value: 'cancelled' }
+  ],
+  sorts: [
+    { field: 'start_date', direction: 'desc' }
+  ],
+  actions: [
+    { type: 'create', label: 'New Project' },
+    { type: 'export', label: 'Export to CSV' }
+  ]
+};
+
+// views/project-kanban.ts
+export const ProjectKanbanView = {
+  type: 'kanban',
+  object: 'task',
+  groupBy: 'status',
+  cardFields: ['title', 'assignee', 'due_date', 'priority'],
+  filters: [
+    { field: 'project', operator: '=', value: '${current_project_id}' }
+  ]
+};
+```
+
+**Step 3: Define Workflows**
+
+```typescript
+// workflows/project-approval.ts
+export const ProjectApprovalWorkflow = {
+  name: 'project_approval',
+  trigger: {
+    object: 'project',
+    events: ['create', 'update'],
+    conditions: [
+      { field: 'budget', operator: '>', value: 50000 }
+    ]
+  },
+  actions: [
+    {
+      type: 'update_field',
+      field: 'status',
+      value: 'pending_approval'
+    },
+    {
+      type: 'send_email',
+      to: { lookup: 'owner.manager.email' },
+      template: 'project_approval_request',
+      data: {
+        project_name: '${record.name}',
+        budget: '${record.budget}',
+        approval_link: '${record.approval_url}'
+      }
+    },
+    {
+      type: 'create_task',
+      object: 'approval',
+      data: {
+        type: 'project_approval',
+        project: '${record.id}',
+        approver: '${record.owner.manager.id}',
+        status: 'pending'
+      }
+    }
+  ]
+};
+```
+
+**Step 4: Choose Your Stack**
+
+```typescript
+// Runtime configuration
+import { Runtime } from '@objectstack/runtime';
+import { PostgresAdapter } from '@objectstack/adapter-postgres';
+import { ReactRenderer } from '@objectstack/renderer-react';
+
+const runtime = new Runtime({
+  storage: new PostgresAdapter({
+    host: process.env.DB_HOST,
+    database: 'projectmgmt',
+    ssl: true
+  }),
+  renderer: new ReactRenderer({
+    theme: 'default',
+    customComponents: {
+      'gantt-chart': GanttChartComponent
+    }
+  }),
+  objects: [Project, Task],
+  views: [ProjectListView, ProjectKanbanView],
+  workflows: [ProjectApprovalWorkflow]
+});
+
+// Deploy
+await runtime.initialize();
+await runtime.serve(3000);
+```
+
+**The Magic:**
+- Same definitions work with MongoDB: `new MongoAdapter()`
+- Same definitions work with MySQL: `new MySQLAdapter()`
+- Same definitions work with Supabase: `new SupabaseAdapter()`
+- Frontend can be React, Vue, or Flutter
+- Everything is type-safe and validated
+
+## Conclusion: The Post-Platform Future
+
+We're entering a new era of software development:
+
+**Old Paradigm (Platform Era):**
+```
+Build on Platform → Get Locked In → Pay Rent Forever
+```
+
+**New Paradigm (Protocol Era):**
+```
+Implement Protocol → Choose Best Implementation → Switch When Better Option Exists
+```
+
+ObjectStack embodies this shift:
+- **Open specification** instead of proprietary APIs
+- **Multiple implementations** instead of single vendor
+- **Community governance** instead of corporate control
+- **Portability** instead of lock-in
+
+**The Vision:**
+
+In 10 years, we believe:
+- Metadata-driven development will be the norm, not the exception
+- Developers will define business logic in protocols, not code
+- AI will generate ObjectStack definitions from requirements
+- Businesses will own their data and logic, not rent it
+- Competition will drive innovation, not stifle it
+
+**The Path Forward:**
+
+1. **Adopt:** Start using ObjectStack for new projects
+2. **Contribute:** Help evolve the protocol
+3. **Implement:** Build adapters for your stack
+4. **Extend:** Create custom field types and widgets
+5. **Teach:** Share knowledge with the community
+
+The platform era gave us scalability. The protocol era will give us freedom.
+
+Join us in building it.
+
+---
+
+*Ready to build on ObjectStack? Check out our [Getting Started Guide](/docs/guides/getting-started) or join the conversation on [GitHub Discussions](https://github.com/objectstack-ai/spec/discussions).*
