@@ -29,31 +29,55 @@ The official documentation is built with Fumadocs and Next.js.
 | **[`@objectstack/spec`](packages/spec)** | **THE PROTOCOL**. Contains all Zod definitions, Types, and JSON Schemas. | 🟢 **Active** |
 | **[`@objectstack/docs`](apps/docs)** | Documentation site built with Fumadocs and Next.js. | 🟢 **Active** |
 | `content/docs/` | Documentation content (MDX files). Shared resource. | 🟢 **Active** |
+| **Examples** | Reference implementations demonstrating protocol features | |
+| └─ [`examples/crm`](examples/crm) | **Full-featured CRM** - 6 objects, workflows, validations, views, dashboards, reports | 🟢 **Complete** |
+| └─ [`examples/todo`](examples/todo) | **Quick-start** - Simple task management with 7 field types | 🟢 **Active** |
+| └─ [`examples/host`](examples/host) | Server runtime with kernel/plugin loading pattern | 🟡 **Experimental** |
+| └─ [`examples/plugin-bi`](examples/plugin-bi) | Business Intelligence plugin example | 🟡 **Experimental** |
 | *Other packages* | *Legacy/Migration in progress* | 🟡 *Legacy* |
 
 ## 🛠️ The Protocol Architecture
 
-The ObjectStack Protocol (`@objectstack/spec`) is divided into three layers:
+The ObjectStack Protocol (`@objectstack/spec`) is divided into five core modules:
 
 ### 1. Data Protocol (ObjectQL)
-Defines the "Shape of Data".
-- **Schema:** Objects, Fields, Validation.
-- **Logic:** Formulas, Rollups.
-- **Security:** Permissions, Sharing Rules.
-- **Query:** Abstract Syntax Tree (AST) for unified data access.
+Defines the "Shape of Data" and business logic.
+- **Schema:** Objects, Fields (23+ types including text, number, select, lookup, formula, autonumber, etc.)
+- **Logic:** Workflows, Triggers, Validation Rules, Formulas
+- **Security:** Permissions, Sharing Rules
+- **Query:** Abstract Syntax Tree (AST) for unified data access across drivers
+- **Automation:** Flow definitions, Dataset mappings
 
 ### 2. UI Protocol (ObjectUI)
-Defines the "Shape of Interaction".
-- **Views:** Grids, Kanbans, Calendars.
-- **Pages:** FlexiPage layouts (Regions & Components).
-- **Navigation:** Apps, Navigation.
-- **Analytics:** Reports, Dashboards.
+Defines the "Shape of Interaction" for rendering interfaces.
+- **Views:** Grid, Kanban, Calendar, Gantt, List configurations
+- **Pages:** FlexiPage layouts with regions and components
+- **Navigation:** App menus and navigation structures
+- **Analytics:** Reports (Tabular, Summary, Matrix), Dashboards with widgets
+- **Actions:** Script, URL, Modal, Flow-triggered actions
+- **Theming:** Color palettes, typography, breakpoints, animations
 
 ### 3. System Protocol (ObjectOS)
-Defines the "Runtime Environment".
-- **Manifest:** Application packaging (`objectstack.config.ts`).
-- **Identity:** Auth, Roles, Territories.
-- **Integration:** Webhooks, ETL Mappings.
+Defines the "Runtime Environment" and platform capabilities.
+- **Manifest:** Application packaging (`objectstack.config.ts`)
+- **Identity:** Authentication, Roles, Territories, Licenses
+- **Integration:** Webhooks, API contracts, ETL Mappings
+- **Datasource:** Driver definitions for SQL, NoSQL, SaaS connectors
+- **Discovery:** Plugin discovery and loading mechanisms
+- **I18n:** Translation and internationalization support
+
+### 4. AI Protocol
+Defines AI agent integration capabilities.
+- **Agent:** AI agent definitions and configurations
+- **Tools:** AI tool integrations
+- **Knowledge:** Knowledge base structures
+- **Models:** AI model configurations
+
+### 5. API Protocol
+Defines standardized API contracts.
+- **Envelopes:** Response structures (BaseResponse, ListRecordResponse, etc.)
+- **Requests:** Request payloads (CreateRequest, UpdateRequest, BulkRequest, etc.)
+- **Contracts:** API endpoint definitions and specifications
 
 ## 🚀 Development
 

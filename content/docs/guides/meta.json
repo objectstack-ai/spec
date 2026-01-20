@@ -5,6 +5,9 @@
     "getting-started",
     "installation",
     "project-structure",
+    "field-types",
+    "view-configuration",
+    "workflows-validation",
     "custom-driver"
   ]
 }

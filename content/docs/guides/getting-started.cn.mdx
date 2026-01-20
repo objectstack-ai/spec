@@ -3,12 +3,12 @@ title: 快速开始
 description: 5 分钟内构建你的第一个 ObjectStack 应用程序
 ---
 
-ObjectStack 是一个协议，但 `@objectstack/spec` 是提供 Zod schemas 和严格类型的参考实现库，用于构建有效的元数据。
+ObjectStack 是协议优先的平台。`@objectstack/spec` 包提供了 Zod 模式和严格的 TypeScript 类型来构建有效的元数据定义。
 
 <Steps>
 
 <Step>
-## 初始化你的项目
+## 初始化项目
 
 你可以从头开始或将 ObjectStack 添加到现有的 TypeScript 项目中。
 
@@ -22,27 +22,161 @@ npx tsc --init
 </Step>
 
 <Step>
-## 定义你的第一个对象
+## 定义第一个对象
 
-创建一个名为 `src/objects/contact.schema.ts` 的文件。
-这就是 **Zod 优先定义** 的强大之处。你可以开箱即用地获得自动完成和验证。
+创建文件 `src/domains/crm/contact.object.ts`。
+这就是 **Zod 优先定义** 的强大之处。你可以获得开箱即用的自动完成和验证。
 
 ```typescript
 import { ObjectSchema, Field } from '@objectstack/spec';
 
 export const Contact = ObjectSchema.create({
   name: 'contact',
-  label: 'Contact',
+  label: '联系人',
+  pluralLabel: '联系人',
+  icon: 'user',
+  description: '与账户关联的人员',
+  nameField: 'full_name',
+  
   fields: {
-    first_name: Field.text({ label: 'First Name', required: true }),
-    last_name: Field.text({ label: 'Last Name', required: true }),
-    email: Field.text({ format: 'email' }),
-    type: Field.select(['Customer', 'Partner', 'Vendor']),
+    // 基本信息
+    first_name: Field.text({ 
+      label: '名', 
+      required: true,
+      maxLength: 100,
+    }),
+    
+    last_name: Field.text({ 
+      label: '姓', 
+      required: true,
+      maxLength: 100,
+    }),
+    
+    // 公式字段 - 自动计算
+    full_name: Field.formula({ 
+      label: '全名',
+      expression: 'CONCAT(first_name, " ", last_name)',
+    }),
+    
+    // 联系信息
+    email: Field.email({ 
+      label: '电子邮件',
+      unique: true,
+    }),
+    
+    phone: Field.phone({ 
+      label: '电话',
+    }),
+    
+    // 带预定义选项的选择字段
+    type: Field.select({
+      label: '联系人类型',
+      options: [
+        { label: '客户', value: 'customer', default: true },
+        { label: '合作伙伴', value: 'partner' },
+        { label: '供应商', value: 'vendor' },
+      ],
+    }),
+    
+    // 与账户的关系
+    account: Field.masterDetail('account', {
+      label: '账户',
+      required: true,
+      deleteBehavior: 'cascade',
+    }),
   },
+  
   enable: {
-    api: true,
-    audit: true
+    apiEnabled: true,
+    trackHistory: true,
   }
+});
+```
+</Step>
+
+<Step>
+## 添加账户对象
+
+创建 `src/domains/crm/account.object.ts` 作为父对象：
+
+```typescript
+import { ObjectSchema, Field } from '@objectstack/spec';
+
+export const Account = ObjectSchema.create({
+  name: 'account',
+  label: '账户',
+  pluralLabel: '账户',
+  icon: 'building',
+  nameField: 'name',
+  
+  fields: {
+    // 自动编号字段
+    account_number: Field.autonumber({
+      label: '账户编号',
+      format: 'ACC-{0000}',
+    }),
+    
+    name: Field.text({ 
+      label: '账户名称', 
+      required: true,
+      searchable: true,
+      maxLength: 255,
+    }),
+    
+    // 货币字段
+    annual_revenue: Field.currency({ 
+      label: '年收入',
+      min: 0,
+    }),
+    
+    // 带自定义颜色的选择字段（用于看板）
+    type: Field.select({
+      label: '账户类型',
+      options: [
+        { label: '潜在客户', value: 'prospect', color: '#FFA500', default: true },
+        { label: '客户', value: 'customer', color: '#00AA00' },
+        { label: '合作伙伴', value: 'partner', color: '#0000FF' },
+      ],
+    }),
+  },
+  
+  enable: {
+    apiEnabled: true,
+    trackHistory: true,
+  }
+});
+```
+</Step>
+
+<Step>
+## 创建应用程序清单
+
+创建 `objectstack.config.ts` 将对象打包到应用中：
+
+```typescript
+import { defineManifest } from '@objectstack/spec';
+import { Account } from './src/domains/crm/account.object';
+import { Contact } from './src/domains/crm/contact.object';
+
+export default defineManifest({
+  name: 'my_crm',
+  label: '我的 CRM',
+  version: '1.0.0',
+  description: '简单的 CRM 应用程序',
+  
+  objects: [Account, Contact],
+  
+  navigation: {
+    tabs: [
+      {
+        label: '销售',
+        items: [
+          { type: 'object', object: 'account' },
+          { type: 'object', object: 'contact' },
+        ],
+      },
+    ],
+  },
 });
 ```
 </Step>
@@ -50,16 +184,89 @@ export const Contact = ObjectSchema.create({
 <Step>
 ## 验证协议
 
-创建一个构建脚本 `src/build.ts` 来验证你的定义是否符合 ObjectStack 协议。
+创建构建脚本 `src/build.ts` 来验证你的定义：
 
 ```typescript
-import { Contact } from './objects/contact.schema';
+import config from '../objectstack.config';
 
-// 如果你的 schema 无效，这将抛出 ZodError
-const protocol = Contact.parse(Contact);
+// 如果模式无效，这将抛出 ZodError
+console.log(`✅ 应用 '${config.label}' 有效！`);
+console.log(`📦 对象: ${config.objects.map(o => o.name).join(', ')}`);
 
-console.log(`✅ Object '${protocol.name}' is valid ObjectStack Metadata!`);
-console.log(JSON.stringify(protocol, null, 2));
+// 导出为 JSON 供运行时使用
+import fs from 'fs';
+fs.writeFileSync(
+  'dist/manifest.json', 
+  JSON.stringify(config, null, 2)
+);
+```
+
+运行它：
+
+```bash
+npx tsx src/build.ts
+```
+</Step>
+
+<Step>
+## 探索高级功能
+
+现在你有了一个可工作的应用，探索高级功能：
+
+### 1. 添加验证规则
+
+```typescript
+validations: [
+  {
+    name: 'unique_email',
+    type: 'unique',
+    fields: ['email'],
+    message: '电子邮件已存在',
+  },
+  {
+    name: 'positive_revenue',
+    type: 'script',
+    expression: 'annual_revenue >= 0',
+    message: '收入必须为正数',
+  },
+]
+```
+
+### 2. 添加工作流规则
+
+```typescript
+workflows: [
+  {
+    name: 'update_last_activity',
+    trigger: 'on_update',
+    actions: [
+      {
+        type: 'field_update',
+        field: 'last_activity_date',
+        value: 'TODAY()',
+      },
+    ],
+  },
+]
+```
+
+### 3. 配置视图
+
+```typescript
+views: {
+  list: {
+    type: 'grid',
+    columns: ['account_number', 'name', 'type', 'annual_revenue'],
+    filters: [
+      { field: 'type', operator: '=', value: 'customer' }
+    ],
+  },
+  kanban: {
+    type: 'kanban',
+    groupBy: 'type',
+    columns: ['name', 'annual_revenue'],
+  },
+}
 ```
 </Step>
 
@@ -68,10 +275,15 @@ console.log(JSON.stringify(protocol, null, 2));
 
 现在你有了有效的元数据，你可以：
 
-1.  **生成 SQL**：使用协议编译器（即将推出）生成 `CREATE TABLE` 语句。
-2.  **生成 UI**：将 JSON 传入 `<ObjectForm />` React 组件。
-3.  **部署**：将 JSON 推送到 ObjectOS 内核。
+1. **探索示例**：查看 [CRM 示例](/examples/crm) 了解完整功能实现
+2. **学习字段类型**：参见 [字段类型指南](/docs/guides/field-types) 了解所有 30+ 种字段类型
+3. **构建 UI**：使用 ObjectStack 运行时的元数据来生成界面
+4. **部署**：推送到 ObjectStack 内核用于生产环境
 
+**其他资源：**
+- [对象模式参考](/docs/references/data/core/Object)
+- [验证规则](/docs/guides/validation-rules)
+- [工作流自动化](/docs/guides/workflows)
 </Step>
 
 </Steps>

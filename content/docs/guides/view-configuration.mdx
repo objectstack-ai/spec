@@ -1,0 +1,807 @@
+---
+title: View Configuration
+description: Complete guide to configuring Grid, Kanban, Calendar, Gantt views and forms in ObjectStack
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# View Configuration Guide
+
+ObjectStack provides **5 list view types** and **3 form layouts** to visualize and interact with data. This guide covers all configuration options with practical examples.
+
+## List View Types
+
+1. **Grid** - Traditional table/spreadsheet view
+2. **Kanban** - Card-based workflow board
+3. **Calendar** - Date-based visualization
+4. **Gantt** - Timeline/project management view
+5. **Map** - Geographic location view
+
+---
+
+## 1. Grid View
+
+Traditional table view with rows and columns.
+
+### Basic Configuration
+
+```typescript
+import { ObjectSchema, Field } from '@objectstack/spec';
+
+export const Account = ObjectSchema.create({
+  name: 'account',
+  label: 'Account',
+  
+  fields: {
+    account_number: Field.autonumber({ label: 'Account Number', format: 'ACC-{0000}' }),
+    name: Field.text({ label: 'Account Name' }),
+    type: Field.select({
+      label: 'Type',
+      options: [
+        { label: 'Customer', value: 'customer' },
+        { label: 'Partner', value: 'partner' },
+      ],
+    }),
+    annual_revenue: Field.currency({ label: 'Annual Revenue' }),
+    industry: Field.select({ label: 'Industry', options: ['Tech', 'Finance', 'Healthcare'] }),
+    created_at: Field.datetime({ label: 'Created' }),
+  },
+  
+  views: {
+    list: {
+      type: 'grid',
+      columns: ['account_number', 'name', 'type', 'annual_revenue', 'industry'],
+      sort: [
+        { field: 'created_at', order: 'desc' }
+      ],
+    },
+  },
+});
+```
+
+### Advanced Grid Configuration
+
+```typescript
+views: {
+  // Default grid view
+  list: {
+    type: 'grid',
+    columns: ['name', 'type', 'annual_revenue', 'owner'],
+    
+    // Filter configuration
+    filter: [
+      { field: 'type', operator: '=', value: 'customer' },
+      { field: 'annual_revenue', operator: '>', value: 100000 },
+    ],
+    
+    // Sorting
+    sort: [
+      { field: 'annual_revenue', order: 'desc' },
+      { field: 'name', order: 'asc' },
+    ],
+    
+    // Search configuration
+    searchableFields: ['name', 'account_number'],
+  },
+  
+  // Additional named views
+  listViews: {
+    // High-value customers
+    high_value: {
+      name: 'high_value',
+      label: 'High Value Customers',
+      type: 'grid',
+      columns: ['name', 'annual_revenue', 'owner', 'last_activity'],
+      filter: [
+        { field: 'type', operator: '=', value: 'customer' },
+        { field: 'annual_revenue', operator: '>=', value: 500000 },
+      ],
+      sort: [{ field: 'annual_revenue', order: 'desc' }],
+    },
+    
+    // Recently created
+    recent: {
+      name: 'recent',
+      label: 'Recently Created',
+      type: 'grid',
+      columns: ['name', 'type', 'created_at', 'owner'],
+      sort: [{ field: 'created_at', order: 'desc' }],
+    },
+  },
+}
+```
+
+### Filter Operators
+
+Available filter operators:
+
+```typescript
+// Comparison
+{ field: 'amount', operator: '=', value: 1000 }
+{ field: 'amount', operator: '!=', value: 0 }
+{ field: 'amount', operator: '>', value: 5000 }
+{ field: 'amount', operator: '>=', value: 1000 }
+{ field: 'amount', operator: '<', value: 10000 }
+{ field: 'amount', operator: '<=', value: 50000 }
+
+// String
+{ field: 'name', operator: 'contains', value: 'tech' }
+{ field: 'name', operator: 'startsWith', value: 'A' }
+{ field: 'name', operator: 'endsWith', value: 'Inc' }
+
+// NULL checks
+{ field: 'description', operator: 'isNull' }
+{ field: 'description', operator: 'isNotNull' }
+
+// Multi-value
+{ field: 'type', operator: 'in', value: ['customer', 'partner'] }
+{ field: 'type', operator: 'notIn', value: ['former'] }
+```
+
+---
+
+## 2. Kanban View
+
+Card-based workflow board grouped by a select field.
+
+### Basic Configuration
+
+```typescript
+export const Opportunity = ObjectSchema.create({
+  name: 'opportunity',
+  label: 'Opportunity',
+  
+  fields: {
+    name: Field.text({ label: 'Opportunity Name' }),
+    stage: Field.select({
+      label: 'Stage',
+      options: [
+        { label: 'Prospecting', value: 'prospecting', color: '#FFA500' },
+        { label: 'Qualification', value: 'qualification', color: '#FFD700' },
+        { label: 'Proposal', value: 'proposal', color: '#4169E1' },
+        { label: 'Negotiation', value: 'negotiation', color: '#9370DB' },
+        { label: 'Closed Won', value: 'closed_won', color: '#00AA00' },
+        { label: 'Closed Lost', value: 'closed_lost', color: '#DC143C' },
+      ],
+    }),
+    amount: Field.currency({ label: 'Amount' }),
+    account: Field.lookup('account', { label: 'Account' }),
+    close_date: Field.date({ label: 'Close Date' }),
+  },
+  
+  views: {
+    list: {
+      type: 'kanban',
+      columns: ['name', 'account', 'amount', 'close_date'], // Fields shown on cards
+      
+      kanban: {
+        groupByField: 'stage',  // Creates columns for each stage
+        summarizeField: 'amount', // Sum amounts at top of each column
+      },
+    },
+  },
+});
+```
+
+### Advanced Kanban
+
+```typescript
+views: {
+  listViews: {
+    sales_pipeline: {
+      name: 'sales_pipeline',
+      label: 'Sales Pipeline',
+      type: 'kanban',
+      
+      // Card fields
+      columns: ['name', 'account', 'amount', 'probability', 'owner'],
+      
+      // Kanban configuration
+      kanban: {
+        groupByField: 'stage',
+        summarizeField: 'amount', // Show total $ per column
+      },
+      
+      // Filter to active opportunities only
+      filter: [
+        { field: 'is_active', operator: '=', value: true },
+      ],
+      
+      // Sort cards within columns
+      sort: [
+        { field: 'amount', order: 'desc' },
+      ],
+    },
+  },
+}
+```
+
+### Kanban Features
+
+- **Drag & Drop**: Users can drag cards between columns (updates `groupByField`)
+- **Column Headers**: Show count and sum (if `summarizeField` defined)
+- **Colors**: Use option colors from select field for column headers
+- **Filters**: Apply filters to show subset of records
+
+---
+
+## 3. Calendar View
+
+Date-based visualization for events, tasks, and deadlines.
+
+### Basic Configuration
+
+```typescript
+export const Event = ObjectSchema.create({
+  name: 'event',
+  label: 'Event',
+  
+  fields: {
+    title: Field.text({ label: 'Event Title' }),
+    start_date: Field.datetime({ label: 'Start Date' }),
+    end_date: Field.datetime({ label: 'End Date' }),
+    event_type: Field.select({
+      label: 'Type',
+      options: [
+        { label: 'Meeting', value: 'meeting', color: '#4169E1' },
+        { label: 'Webinar', value: 'webinar', color: '#00AA00' },
+        { label: 'Conference', value: 'conference', color: '#FFA500' },
+      ],
+    }),
+    location: Field.text({ label: 'Location' }),
+  },
+  
+  views: {
+    list: {
+      type: 'calendar',
+      columns: ['title', 'location'], // Extra fields shown in tooltip
+      
+      calendar: {
+        startDateField: 'start_date',  // Required
+        endDateField: 'end_date',      // Optional (single-day events if omitted)
+        titleField: 'title',           // Event label
+        colorField: 'event_type',      // Color events by type
+      },
+    },
+  },
+});
+```
+
+### Single-Day Events
+
+For tasks or activities without end dates:
+
+```typescript
+export const Task = ObjectSchema.create({
+  name: 'task',
+  label: 'Task',
+  
+  fields: {
+    subject: Field.text({ label: 'Subject' }),
+    due_date: Field.date({ label: 'Due Date' }),
+    priority: Field.select({
+      options: [
+        { label: 'High', value: 'high', color: '#DC143C' },
+        { label: 'Normal', value: 'normal', color: '#4169E1' },
+        { label: 'Low', value: 'low', color: '#999999' },
+      ],
+    }),
+  },
+  
+  views: {
+    list: {
+      type: 'calendar',
+      columns: ['subject'],
+      
+      calendar: {
+        startDateField: 'due_date',
+        // No endDateField - shows as single-day events
+        titleField: 'subject',
+        colorField: 'priority',
+      },
+    },
+  },
+});
+```
+
+### Calendar Features
+
+- **Multiple Views**: Month, Week, Day, Agenda
+- **Color Coding**: By select field option colors
+- **Multi-Day Events**: Span multiple days if `endDateField` provided
+- **Drag & Drop**: Update dates by dragging events
+- **Filters**: Show subset of events
+
+---
+
+## 4. Gantt View
+
+Timeline/project management view for tasks with dependencies.
+
+### Configuration
+
+```typescript
+export const ProjectTask = ObjectSchema.create({
+  name: 'project_task',
+  label: 'Project Task',
+  
+  fields: {
+    task_name: Field.text({ label: 'Task Name' }),
+    start_date: Field.date({ label: 'Start Date' }),
+    end_date: Field.date({ label: 'End Date' }),
+    progress: Field.percent({ label: 'Progress' }),
+    dependencies: Field.text({ label: 'Dependencies' }), // Comma-separated task IDs
+    assigned_to: Field.lookup('user', { label: 'Assigned To' }),
+  },
+  
+  views: {
+    list: {
+      type: 'gantt',
+      columns: ['task_name', 'assigned_to'], // Shown in left panel
+      
+      gantt: {
+        startDateField: 'start_date',     // Required
+        endDateField: 'end_date',         // Required
+        titleField: 'task_name',          // Bar label
+        progressField: 'progress',        // Optional (shows % complete)
+        dependenciesField: 'dependencies', // Optional (draws arrows)
+      },
+      
+      sort: [
+        { field: 'start_date', order: 'asc' },
+      ],
+    },
+  },
+});
+```
+
+### Gantt Features
+
+- **Timeline Bars**: Visual representation of task duration
+- **Progress Indicator**: Shows completion percentage
+- **Dependencies**: Arrows between related tasks
+- **Critical Path**: Highlight blocking tasks
+- **Drag & Drop**: Adjust dates and dependencies
+- **Zoom Levels**: Day, Week, Month, Quarter, Year
+
+---
+
+## 5. Map View
+
+Geographic visualization for location-based data.
+
+### Configuration
+
+```typescript
+export const Store = ObjectSchema.create({
+  name: 'store',
+  label: 'Store',
+  
+  fields: {
+    store_name: Field.text({ label: 'Store Name' }),
+    address: Field.address({ label: 'Address' }),
+    location: Field.location({ label: 'Coordinates' }),
+    store_type: Field.select({
+      options: [
+        { label: 'Flagship', value: 'flagship', color: '#FFD700' },
+        { label: 'Standard', value: 'standard', color: '#4169E1' },
+        { label: 'Outlet', value: 'outlet', color: '#999999' },
+      ],
+    }),
+  },
+  
+  views: {
+    list: {
+      type: 'map',
+      columns: ['store_name', 'address'], // Info shown in popup
+      
+      map: {
+        locationField: 'location', // GPS coordinates
+        titleField: 'store_name',
+        colorField: 'store_type', // Marker color
+      },
+    },
+  },
+});
+```
+
+---
+
+## Form Views
+
+Three layout types for record detail pages:
+
+1. **Simple** - Single page with sections
+2. **Tabbed** - Multiple tabs for grouped fields
+3. **Wizard** - Step-by-step multi-page form
+
+---
+
+## 1. Simple Form
+
+Single-page layout with collapsible sections.
+
+### Configuration
+
+```typescript
+export const Contact = ObjectSchema.create({
+  name: 'contact',
+  label: 'Contact',
+  
+  fields: {
+    // ... field definitions
+  },
+  
+  views: {
+    form: {
+      type: 'simple',
+      sections: [
+        {
+          label: 'Basic Information',
+          columns: 2, // 2-column layout
+          fields: ['first_name', 'last_name', 'email', 'phone'],
+        },
+        {
+          label: 'Address',
+          columns: 2,
+          collapsible: true,
+          collapsed: false,
+          fields: ['street', 'city', 'state', 'postal_code', 'country'],
+        },
+        {
+          label: 'Additional Details',
+          columns: 1, // Full-width fields
+          collapsible: true,
+          collapsed: true, // Collapsed by default
+          fields: ['notes', 'description'],
+        },
+      ],
+    },
+  },
+});
+```
+
+### Section Configuration
+
+```typescript
+{
+  label: 'Section Title',      // Optional header
+  columns: 2,                   // 1, 2, 3, or 4 columns
+  collapsible: true,            // Can be collapsed
+  collapsed: false,             // Initial state
+  fields: ['field1', 'field2'], // Fields to include
+}
+```
+
+---
+
+## 2. Tabbed Form
+
+Multi-tab layout for complex objects with many fields.
+
+### Configuration
+
+```typescript
+export const Account = ObjectSchema.create({
+  name: 'account',
+  label: 'Account',
+  
+  fields: {
+    // ... many fields
+  },
+  
+  views: {
+    form: {
+      type: 'tabbed',
+      sections: [
+        {
+          label: 'Overview', // Tab 1
+          columns: 2,
+          fields: [
+            'account_number',
+            'name',
+            'type',
+            'industry',
+            'annual_revenue',
+            'website',
+          ],
+        },
+        {
+          label: 'Contact Information', // Tab 2
+          columns: 2,
+          fields: [
+            'phone',
+            'email',
+            'billing_address',
+            'shipping_address',
+          ],
+        },
+        {
+          label: 'Description', // Tab 3
+          columns: 1,
+          fields: ['description', 'notes'],
+        },
+      ],
+    },
+  },
+});
+```
+
+---
+
+## 3. Wizard Form
+
+Multi-step form for guided data entry.
+
+### Configuration
+
+```typescript
+export const Lead = ObjectSchema.create({
+  name: 'lead',
+  label: 'Lead',
+  
+  fields: {
+    // ... field definitions
+  },
+  
+  views: {
+    form: {
+      type: 'wizard',
+      sections: [
+        {
+          label: 'Step 1: Basic Info', // Wizard step 1
+          fields: ['first_name', 'last_name', 'company', 'title'],
+        },
+        {
+          label: 'Step 2: Contact Details', // Step 2
+          fields: ['email', 'phone', 'address'],
+        },
+        {
+          label: 'Step 3: Qualification', // Step 3
+          fields: ['lead_source', 'industry', 'annual_revenue', 'status'],
+        },
+      ],
+    },
+  },
+});
+```
+
+### Wizard Features
+
+- **Progress Indicator**: Shows current step
+- **Navigation**: Previous/Next buttons
+- **Validation**: Each step validated before proceeding
+- **Summary**: Review all data before submit
+
+---
+
+## Multiple Views
+
+Define multiple views for different use cases.
+
+### Example
+
+```typescript
+export const Opportunity = ObjectSchema.create({
+  name: 'opportunity',
+  label: 'Opportunity',
+  
+  fields: {
+    // ... fields
+  },
+  
+  views: {
+    // Default list view (Grid)
+    list: {
+      type: 'grid',
+      columns: ['name', 'account', 'amount', 'stage', 'close_date'],
+      sort: [{ field: 'close_date', order: 'asc' }],
+    },
+    
+    // Default form view
+    form: {
+      type: 'tabbed',
+      sections: [
+        { label: 'Details', fields: ['name', 'account', 'amount'] },
+        { label: 'Timeline', fields: ['stage', 'close_date'] },
+      ],
+    },
+    
+    // Additional list views
+    listViews: {
+      // Kanban pipeline
+      pipeline: {
+        name: 'pipeline',
+        label: 'Sales Pipeline',
+        type: 'kanban',
+        columns: ['name', 'amount', 'close_date'],
+        kanban: {
+          groupByField: 'stage',
+          summarizeField: 'amount',
+        },
+      },
+      
+      // Calendar of close dates
+      timeline: {
+        name: 'timeline',
+        label: 'Timeline',
+        type: 'calendar',
+        columns: ['name', 'amount'],
+        calendar: {
+          startDateField: 'close_date',
+          titleField: 'name',
+          colorField: 'stage',
+        },
+      },
+      
+      // My opportunities
+      my_opportunities: {
+        name: 'my_opportunities',
+        label: 'My Opportunities',
+        type: 'grid',
+        columns: ['name', 'account', 'amount', 'stage'],
+        filter: [
+          { field: 'owner', operator: '=', value: '$current_user' },
+        ],
+      },
+    },
+    
+    // Additional form views
+    formViews: {
+      // Quick create form
+      quick_create: {
+        type: 'simple',
+        sections: [
+          {
+            label: 'Essential Fields',
+            columns: 2,
+            fields: ['name', 'account', 'amount', 'close_date', 'stage'],
+          },
+        ],
+      },
+    },
+  },
+});
+```
+
+---
+
+## Best Practices
+
+### List Views
+
+1. **Column Selection**: Show 4-7 columns for optimal readability
+2. **Default Sort**: Always define a default sort order
+3. **Filters**: Pre-filter common views (e.g., "My Records", "Active Only")
+4. **Searchable**: Enable search on key text fields
+5. **Named Views**: Create specific views for common use cases
+
+### Kanban
+
+1. **Group Field**: Use select fields with 3-7 options (too many = cluttered)
+2. **Card Fields**: Show 3-5 key fields on cards
+3. **Colors**: Define colors for select options
+4. **Summarize**: Add monetary totals for sales/revenue tracking
+
+### Calendar
+
+1. **Date Fields**: Use datetime for multi-day events, date for single-day
+2. **Color Coding**: Use select field with meaningful colors
+3. **Title Field**: Choose concise, descriptive field
+4. **Filters**: Allow filtering by type, owner, etc.
+
+### Gantt
+
+1. **Dependencies**: Use structured format (comma-separated IDs or JSON)
+2. **Progress**: Percentage field (0-100)
+3. **Sort**: Sort by start date for logical flow
+4. **Granularity**: Choose appropriate zoom level (day/week/month)
+
+### Forms
+
+1. **Sections**: Group related fields logically
+2. **Columns**: Use 2 columns for most sections, 1 for wide fields (textarea, rich text)
+3. **Collapsible**: Make optional sections collapsible
+4. **Tabs**: Use tabs when >15 fields
+5. **Wizard**: Use for complex multi-step processes
+
+---
+
+## Real-World Example
+
+Complete view configuration for CRM Opportunity:
+
+```typescript
+export const Opportunity = ObjectSchema.create({
+  name: 'opportunity',
+  label: 'Opportunity',
+  pluralLabel: 'Opportunities',
+  
+  fields: {
+    name: Field.text({ label: 'Name' }),
+    account: Field.lookup('account', { label: 'Account' }),
+    amount: Field.currency({ label: 'Amount' }),
+    stage: Field.select({
+      label: 'Stage',
+      options: [
+        { label: 'Prospecting', value: 'prospecting', color: '#FFA500' },
+        { label: 'Qualification', value: 'qualification', color: '#FFD700' },
+        { label: 'Proposal', value: 'proposal', color: '#4169E1' },
+        { label: 'Closed Won', value: 'closed_won', color: '#00AA00' },
+        { label: 'Closed Lost', value: 'closed_lost', color: '#DC143C' },
+      ],
+    }),
+    probability: Field.percent({ label: 'Probability' }),
+    close_date: Field.date({ label: 'Close Date' }),
+    owner: Field.lookup('user', { label: 'Owner' }),
+    description: Field.textarea({ label: 'Description' }),
+  },
+  
+  views: {
+    // Default grid
+    list: {
+      type: 'grid',
+      columns: ['name', 'account', 'amount', 'stage', 'close_date', 'owner'],
+      sort: [{ field: 'close_date', order: 'asc' }],
+      searchableFields: ['name', 'account'],
+    },
+    
+    // Default form
+    form: {
+      type: 'simple',
+      sections: [
+        {
+          label: 'Opportunity Information',
+          columns: 2,
+          fields: ['name', 'account', 'amount', 'close_date'],
+        },
+        {
+          label: 'Stage & Forecast',
+          columns: 2,
+          fields: ['stage', 'probability', 'owner'],
+        },
+        {
+          label: 'Description',
+          columns: 1,
+          fields: ['description'],
+        },
+      ],
+    },
+    
+    // Named views
+    listViews: {
+      pipeline: {
+        type: 'kanban',
+        columns: ['name', 'amount', 'close_date'],
+        kanban: {
+          groupByField: 'stage',
+          summarizeField: 'amount',
+        },
+        filter: [
+          { field: 'stage', operator: 'notIn', value: ['closed_won', 'closed_lost'] },
+        ],
+      },
+      
+      closing_soon: {
+        type: 'grid',
+        columns: ['name', 'account', 'amount', 'close_date', 'probability'],
+        filter: [
+          { field: 'close_date', operator: '<=', value: '$30_days_from_now' },
+          { field: 'stage', operator: '!=', value: 'closed_won' },
+          { field: 'stage', operator: '!=', value: 'closed_lost' },
+        ],
+        sort: [{ field: 'close_date', order: 'asc' }],
+      },
+    },
+  },
+});
+```
+
+---
+
+## Next Steps
+
+- [Field Types Guide](/docs/guides/field-types)
+- [Workflows & Validation](/docs/guides/workflows-validation)
+- [Dashboard Configuration](/docs/guides/dashboards)
+- [CRM Example](/examples/crm) - See all view types in action

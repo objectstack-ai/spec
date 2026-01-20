@@ -1,0 +1,756 @@
+---
+title: 字段类型参考
+description: ObjectStack 所有字段类型的完整指南，包含示例和配置选项
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# 字段类型参考
+
+ObjectStack 支持 **30+ 种字段类型**，涵盖文本、数字、日期、选择、关联、媒体、计算和增强类型。本指南为每种类型提供实用示例。
+
+## 核心文本字段
+
+### Text (文本)
+单行文本输入，用于短字符串。
+
+```typescript
+import { Field } from '@objectstack/spec';
+
+// 基础文本字段
+name: Field.text({ 
+  label: '姓名', 
+  required: true,
+  maxLength: 255,
+})
+
+// 可搜索文本字段
+account_name: Field.text({ 
+  label: '账户名称',
+  searchable: true,
+  unique: true,
+})
+```
+
+**配置选项：**
+- `required` - 设为必填字段
+- `maxLength` - 最大字符限制
+- `minLength` - 最小字符限制
+- `searchable` - 启用全文搜索
+- `unique` - 强制唯一性约束
+- `defaultValue` - 设置默认值
+
+---
+
+### Textarea (多行文本)
+多行文本输入，用于较长内容。
+
+```typescript
+description: Field.textarea({ 
+  label: '描述',
+  maxLength: 5000,
+  rows: 5, // UI 初始高度提示
+})
+```
+
+---
+
+### Email (电子邮件)
+带验证的电子邮件地址字段。
+
+```typescript
+email: Field.email({ 
+  label: '电子邮件',
+  required: true,
+  unique: true,
+})
+```
+
+<Callout type="info">
+  自动验证邮箱格式：`user@domain.com`
+</Callout>
+
+---
+
+### URL (网址)
+网站/链接字段，带 URL 验证。
+
+```typescript
+website: Field.url({ 
+  label: '网站',
+  placeholder: 'https://example.com',
+})
+```
+
+---
+
+### Phone (电话)
+带格式验证的电话号码字段。
+
+```typescript
+phone: Field.phone({ 
+  label: '电话号码',
+  format: 'international', // 或 'us', 'uk'
+})
+```
+
+---
+
+### Password (密码)
+带加密的安全密码字段。
+
+```typescript
+api_key: Field.password({ 
+  label: 'API 密钥',
+  encryption: true, // 静态加密
+  readonly: true,
+})
+```
+
+<Callout type="warn">
+  密码字段在 UI 中自动掩码，如果 `encryption: true` 则加密存储
+</Callout>
+
+---
+
+## 富内容字段
+
+### Markdown
+支持预览的 Markdown 文本编辑器。
+
+```typescript
+documentation: Field.markdown({ 
+  label: '文档',
+  description: '支持完整 Markdown 语法',
+})
+```
+
+---
+
+### HTML
+原始 HTML 编辑器（谨慎使用）。
+
+```typescript
+html_content: Field.html({ 
+  label: 'HTML 内容',
+  description: '原始 HTML - 渲染前需要净化',
+})
+```
+
+<Callout type="warn">
+  渲染前务必净化 HTML 内容，防止 XSS 攻击
+</Callout>
+
+---
+
+### Rich Text (富文本)
+带格式化工具栏的所见即所得编辑器。
+
+```typescript
+notes: Field.richtext({ 
+  label: '备注',
+  description: '富文本支持格式化、列表、链接',
+})
+```
+
+**支持：**
+- 粗体、斜体、下划线
+- 标题、列表、引用
+- 链接和图片
+- 表格
+
+---
+
+## 数字字段
+
+### Number (数字)
+整数或小数的数值字段。
+
+```typescript
+quantity: Field.number({ 
+  label: '数量',
+  min: 0,
+  max: 1000,
+  defaultValue: 1,
+})
+
+// 小数
+temperature: Field.number({ 
+  label: '温度',
+  precision: 5, // 总位数
+  scale: 2,     // 小数位
+})
+```
+
+---
+
+### Currency (货币)
+带货币符号的金额值。
+
+```typescript
+annual_revenue: Field.currency({ 
+  label: '年收入',
+  precision: 18,
+  scale: 2,
+  min: 0,
+})
+```
+
+**显示：** `$1,234.56`（带货币符号格式化）
+
+---
+
+### Percent (百分比)
+百分比值（0-100 或 0-1）。
+
+```typescript
+probability: Field.percent({ 
+  label: '赢单概率',
+  min: 0,
+  max: 100,
+  scale: 1, // 一位小数
+})
+```
+
+**显示：** `75.5%`
+
+---
+
+## 日期和时间字段
+
+### Date (日期)
+日期选择器（无时间组件）。
+
+```typescript
+due_date: Field.date({ 
+  label: '截止日期',
+  defaultValue: 'today',
+})
+
+birthday: Field.date({ 
+  label: '生日',
+  min: '1900-01-01',
+  max: 'today',
+})
+```
+
+**格式：** `YYYY-MM-DD`
+
+---
+
+### DateTime (日期时间)
+支持时区的日期时间选择器。
+
+```typescript
+created_at: Field.datetime({ 
+  label: '创建时间',
+  readonly: true,
+  defaultValue: 'now',
+})
+```
+
+**格式：** `YYYY-MM-DD HH:mm:ss`
+
+---
+
+### Time (时间)
+时间选择器（无日期组件）。
+
+```typescript
+meeting_time: Field.time({ 
+  label: '会议时间',
+  format: '24h', // 或 '12h'
+})
+```
+
+**格式：** `HH:mm:ss`
+
+---
+
+## 布尔字段
+
+### Boolean (布尔值)
+真/假值的复选框。
+
+```typescript
+is_active: Field.boolean({ 
+  label: '激活',
+  defaultValue: true,
+})
+
+is_completed: Field.boolean({ 
+  label: '已完成',
+  defaultValue: false,
+})
+```
+
+**显示：** 复选框或切换开关
+
+---
+
+## 选择字段
+
+### Select (选择)
+带预定义选项的下拉菜单。
+
+```typescript
+// 简单选项（字符串数组）
+priority: Field.select({
+  label: '优先级',
+  options: ['低', '中', '高', '紧急'],
+})
+
+// 高级选项（带值和颜色）
+status: Field.select({
+  label: '状态',
+  options: [
+    { label: '开放', value: 'open', color: '#00AA00', default: true },
+    { label: '进行中', value: 'in_progress', color: '#FFA500' },
+    { label: '已关闭', value: 'closed', color: '#999999' },
+  ],
+})
+
+// 多选
+tags: Field.select({
+  label: '标签',
+  multiple: true, // 允许多选
+  options: ['错误', '功能', '增强', '文档'],
+})
+```
+
+**配置：**
+- `options` - 字符串标签数组或选项对象
+- `multiple` - 允许多选（存储为数组）
+- `color` - 徽章和图表的颜色
+
+---
+
+## 关联字段
+
+### Lookup (查找)
+引用另一个对象（多对一）。
+
+```typescript
+// 基础查找
+account: Field.lookup('account', { 
+  label: '账户',
+  required: true,
+})
+
+// 过滤查找
+contact: Field.lookup('contact', { 
+  label: '联系人',
+  referenceFilters: ['account_id = $parent.account_id'], // 按父记录过滤
+})
+
+// 多重查找
+related_cases: Field.lookup('case', { 
+  label: '相关案例',
+  multiple: true, // 多对多
+})
+```
+
+**配置：**
+- `reference` - 目标对象名称（snake_case）
+- `referenceFilters` - 查找对话框的过滤条件
+- `deleteBehavior` - `'set_null'`、`'cascade'` 或 `'restrict'`
+- `multiple` - 允许多个引用
+
+---
+
+### Master-Detail (主从)
+带级联删除的父子关系。
+
+```typescript
+account: Field.masterDetail('account', { 
+  label: '账户',
+  required: true,
+  deleteBehavior: 'cascade', // 删除父记录时删除子记录
+  writeRequiresMasterRead: true, // 安全强制
+})
+```
+
+<Callout type="info">
+  **主从关系 vs 查找：**
+  - **主从关系：** 紧密耦合，级联删除，子记录继承安全性
+  - **查找：** 松散耦合，删除时置空，独立安全性
+</Callout>
+
+---
+
+## 媒体字段
+
+### Image (图片)
+带预览的图片上传。
+
+```typescript
+product_image: Field.image({ 
+  label: '产品图片',
+  multiple: false,
+  maxFileSize: 5 * 1024 * 1024, // 5MB
+  acceptedFormats: ['image/jpeg', 'image/png', 'image/webp'],
+})
+
+// 多图片
+gallery: Field.image({ 
+  label: '图库',
+  multiple: true,
+  maxFiles: 10,
+})
+```
+
+---
+
+### File (文件)
+任意文件类型的文件上传字段。
+
+```typescript
+attachment: Field.file({ 
+  label: '附件',
+  maxFileSize: 25 * 1024 * 1024, // 25MB
+  acceptedFormats: ['application/pdf', 'application/msword'],
+})
+```
+
+---
+
+### Avatar (头像)
+个人资料图片/头像上传。
+
+```typescript
+profile_picture: Field.avatar({ 
+  label: '头像',
+  maxFileSize: 2 * 1024 * 1024, // 2MB
+  cropAspectRatio: 1, // 正方形裁剪
+})
+```
+
+---
+
+## 计算字段
+
+### Formula (公式)
+基于表达式的计算字段。
+
+```typescript
+full_name: Field.formula({ 
+  label: '全名',
+  expression: 'CONCAT(first_name, " ", last_name)',
+  readonly: true,
+})
+
+full_address: Field.formula({ 
+  label: '完整地址',
+  expression: 'CONCAT(street, ", ", city, ", ", state, " ", postal_code)',
+})
+
+days_open: Field.formula({ 
+  label: '开放天数',
+  expression: 'DAYS_BETWEEN(created_at, NOW())',
+  type: 'number',
+})
+```
+
+<Callout type="info">
+  公式字段自动计算且只读。可用函数请参见 [公式函数](/docs/references/data/formulas)。
+</Callout>
+
+---
+
+### Summary (汇总)
+从关联记录聚合数据。
+
+```typescript
+total_opportunities: Field.summary({ 
+  label: '总机会金额',
+  summaryOperations: {
+    object: 'opportunity',
+    field: 'amount',
+    function: 'sum',
+  },
+})
+
+open_cases_count: Field.summary({ 
+  label: '开放案例数',
+  summaryOperations: {
+    object: 'case',
+    field: 'id',
+    function: 'count',
+  },
+})
+```
+
+**可用函数：**
+- `count` - 计数关联记录
+- `sum` - 求和数值字段
+- `avg` - 平均数值字段
+- `min` - 最小值
+- `max` - 最大值
+
+---
+
+### Autonumber (自动编号)
+自动递增的唯一标识符。
+
+```typescript
+account_number: Field.autonumber({ 
+  label: '账户编号',
+  format: 'ACC-{0000}', // ACC-0001, ACC-0002, 等
+})
+
+case_id: Field.autonumber({ 
+  label: '案例 ID',
+  format: 'CASE-{YYYY}-{00000}', // CASE-2024-00001
+})
+```
+
+**格式标记：**
+- `{0000}` - 补零数字
+- `{YYYY}` - 年份
+- `{MM}` - 月份
+- `{DD}` - 日期
+
+---
+
+## 增强字段类型
+
+### Location (位置)
+带地图显示的 GPS 坐标。
+
+```typescript
+coordinates: Field.location({ 
+  label: '位置',
+  displayMap: true,
+  allowGeocoding: true, // 将地址转换为坐标
+})
+```
+
+**数据结构：**
+```typescript
+{
+  latitude: 37.7749,
+  longitude: -122.4194,
+  altitude: 100, // 可选
+  accuracy: 10,  // 可选（米）
+}
+```
+
+---
+
+### Address (地址)
+结构化地址字段。
+
+```typescript
+billing_address: Field.address({ 
+  label: '账单地址',
+  addressFormat: 'us', // 'us'、'uk' 或 'international'
+})
+```
+
+**数据结构：**
+```typescript
+{
+  street: '123 Main St',
+  city: 'San Francisco',
+  state: 'CA',
+  postalCode: '94105',
+  country: 'United States',
+  countryCode: 'US',
+  formatted: '123 Main St, San Francisco, CA 94105',
+}
+```
+
+---
+
+### Code (代码)
+带语法高亮的代码编辑器。
+
+```typescript
+code_snippet: Field.code('javascript', {
+  label: '代码片段',
+  lineNumbers: true,
+  theme: 'monokai',
+})
+
+sql_query: Field.code('sql', {
+  label: 'SQL 查询',
+  readonly: false,
+})
+```
+
+**支持的语言：**
+- `javascript`、`typescript`、`python`、`java`、`sql`、`html`、`css`、`json`、`yaml`、`markdown` 等
+
+---
+
+### Color (颜色)
+支持多种格式的颜色选择器。
+
+```typescript
+category_color: Field.color({ 
+  label: '分类颜色',
+  colorFormat: 'hex', // 'hex'、'rgb'、'rgba'、'hsl'
+  presetColors: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00'],
+  allowAlpha: false,
+})
+
+theme_color: Field.color({ 
+  label: '主题颜色',
+  colorFormat: 'rgba',
+  allowAlpha: true, // 支持透明度
+})
+```
+
+---
+
+### Rating (评分)
+星级评分字段。
+
+```typescript
+priority: Field.rating(3, { 
+  label: '优先级',
+  description: '1-3 星',
+})
+
+satisfaction: Field.rating(5, { 
+  label: '客户满意度',
+  allowHalf: true, // 允许 0.5 增量
+})
+```
+
+**配置：**
+- 第一个参数：`maxRating`（默认：5）
+- `allowHalf` - 允许半星评分（例如 3.5）
+
+---
+
+### Signature (签名)
+数字签名捕获。
+
+```typescript
+customer_signature: Field.signature({ 
+  label: '客户签名',
+  required: true,
+  readonly: false,
+})
+```
+
+**存储为：** Base64 编码的图片数据
+
+---
+
+## 字段配置参考
+
+### 通用属性
+
+所有字段都支持这些通用属性：
+
+```typescript
+{
+  // 标识
+  name: 'field_name',        // snake_case 机器名称
+  label: '字段标签',          // 人类可读标签
+  description: '帮助文本',    // 工具提示/帮助文本
+  
+  // 约束
+  required: false,            // 是否必填
+  unique: false,              // 强制唯一性
+  defaultValue: null,         // 默认值
+  
+  // UI 行为
+  hidden: false,              // 从默认 UI 隐藏
+  readonly: false,            // UI 中只读
+  searchable: false,          // 启用搜索索引
+  
+  // 数据库
+  index: false,               // 创建数据库索引
+  externalId: false,          // 用于 upsert 操作
+  encryption: false,          // 静态加密
+}
+```
+
+---
+
+## 最佳实践
+
+### 命名约定
+
+```typescript
+// ✅ 正确：字段名使用 snake_case
+account_name: Field.text({ label: '账户名称' })
+annual_revenue: Field.currency({ label: '年收入' })
+
+// ❌ 错误：camelCase 或 PascalCase
+accountName: Field.text({ label: '账户名称' })
+AnnualRevenue: Field.currency({ label: '年收入' })
+```
+
+### 必填字段
+
+```typescript
+// ✅ 正确：必填关键字段
+name: Field.text({ 
+  label: '名称', 
+  required: true,
+  maxLength: 255,
+})
+
+// ✅ 正确：可选字段提供灵活性
+middle_name: Field.text({ 
+  label: '中间名',
+  required: false,
+})
+```
+
+### 可搜索字段
+
+```typescript
+// ✅ 正确：关键字段可搜索
+account_name: Field.text({ 
+  searchable: true,
+  label: '账户名称',
+})
+
+// ❌ 错误：不要索引大文本字段
+description: Field.textarea({ 
+  searchable: true, // 可能影响性能
+})
+```
+
+### 默认值
+
+```typescript
+// ✅ 正确：使用有意义的默认值
+status: Field.select({
+  options: [
+    { label: '开放', value: 'open', default: true },
+    { label: '关闭', value: 'closed' },
+  ],
+})
+
+created_at: Field.datetime({ 
+  defaultValue: 'now',
+  readonly: true,
+})
+```
+
+---
+
+## CRM 示例
+
+参见 **[CRM 示例](/examples/crm)** 了解所有字段类型的实际使用：
+
+- **账户：** 自动编号、公式、货币、带颜色的选择
+- **联系人：** 主从关系、公式（全名）、头像、电子邮件、电话
+- **机会：** 工作流自动化、状态机、百分比、日期时间
+- **案例：** 评分（满意度）、SLA 跟踪、公式计算
+- **任务：** 代码、颜色、评分、位置、签名
+
+---
+
+## 下一步
+
+- [对象架构指南](/docs/guides/object-schema)
+- [验证规则](/docs/guides/validation-rules)
+- [工作流自动化](/docs/guides/workflows)
+- [字段 API 参考](/docs/references/data/core/Field)

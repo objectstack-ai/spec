@@ -1,0 +1,734 @@
+---
+title: Validation Rules & Workflows
+description: Complete guide to validation rules and workflow automation in ObjectStack
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Validation Rules & Workflows
+
+ObjectStack provides powerful **validation rules** and **workflow automation** to enforce business logic and automate repetitive tasks. This guide covers all validation types and workflow patterns with practical examples.
+
+## Validation Rules
+
+Validation rules ensure data quality by checking record values before save. They can be defined at the object level and execute automatically.
+
+### Types of Validation Rules
+
+ObjectStack supports **7 validation types**, each optimized for specific use cases:
+
+1. **Script Validation** - Generic formula-based validation
+2. **Uniqueness Validation** - Enforce unique constraints
+3. **State Machine Validation** - Control state transitions
+4. **Format Validation** - Regex or format checking
+5. **Cross-Field Validation** - Compare multiple fields
+6. **Async Validation** - Remote API validation
+7. **Custom Validator** - User-defined functions
+
+---
+
+## 1. Script Validation
+
+Generic formula-based validation for any business logic.
+
+### Configuration
+
+```typescript
+import { ObjectSchema, Field } from '@objectstack/spec';
+
+export const Opportunity = ObjectSchema.create({
+  name: 'opportunity',
+  label: 'Opportunity',
+  
+  fields: {
+    amount: Field.currency({ label: 'Amount' }),
+    probability: Field.percent({ label: 'Probability' }),
+    close_date: Field.date({ label: 'Close Date' }),
+  },
+  
+  validations: [
+    {
+      name: 'positive_amount',
+      type: 'script',
+      condition: 'amount < 0',  // When TRUE, validation FAILS
+      message: 'Amount must be greater than or equal to 0',
+      severity: 'error',
+      active: true,
+    },
+    {
+      name: 'probability_range',
+      type: 'script',
+      condition: 'probability < 0 OR probability > 100',
+      message: 'Probability must be between 0 and 100',
+      severity: 'error',
+    },
+    {
+      name: 'future_close_date',
+      type: 'script',
+      condition: 'close_date < TODAY()',
+      message: 'Close date cannot be in the past',
+      severity: 'warning', // Warning instead of error
+    },
+  ],
+});
+```
+
+<Callout type="info">
+  **Important:** The `condition` is inverted logic - it defines when validation **FAILS**. If the condition evaluates to `TRUE`, the validation error is shown.
+</Callout>
+
+### Expression Examples
+
+```typescript
+// Number comparisons
+condition: 'revenue < 1000'
+condition: 'quantity <= 0'
+condition: 'discount > 50'
+
+// String checks
+condition: 'LEN(name) < 3'
+condition: 'ISBLANK(description)'
+condition: 'NOT(CONTAINS(email, "@"))'
+
+// Date validations
+condition: 'end_date < start_date'
+condition: 'due_date < TODAY()'
+condition: 'DAYS_BETWEEN(start_date, end_date) > 365'
+
+// Complex logic
+condition: 'stage = "Closed Won" AND amount = 0'
+condition: '(priority = "High" OR priority = "Critical") AND NOT(ISBLANK(assigned_to))'
+```
+
+---
+
+## 2. Uniqueness Validation
+
+Optimized validation for enforcing unique constraints, better than script validation for uniqueness checks.
+
+### Configuration
+
+```typescript
+export const Account = ObjectSchema.create({
+  name: 'account',
+  label: 'Account',
+  
+  fields: {
+    name: Field.text({ label: 'Account Name' }),
+    email: Field.email({ label: 'Email' }),
+    account_number: Field.text({ label: 'Account Number' }),
+    active: Field.boolean({ label: 'Active' }),
+  },
+  
+  validations: [
+    // Single field uniqueness
+    {
+      name: 'unique_email',
+      type: 'unique',
+      fields: ['email'],
+      message: 'Email address already exists',
+      caseSensitive: false, // Ignore case
+    },
+    
+    // Compound uniqueness (multiple fields)
+    {
+      name: 'unique_account_number',
+      type: 'unique',
+      fields: ['account_number'],
+      message: 'Account number must be unique',
+      caseSensitive: true,
+    },
+    
+    // Scoped uniqueness (unique within subset)
+    {
+      name: 'unique_name_active',
+      type: 'unique',
+      fields: ['name'],
+      scope: 'active = true', // Only check uniqueness among active accounts
+      message: 'Active account with this name already exists',
+    },
+  ],
+});
+```
+
+### Use Cases
+
+- Email addresses
+- Username fields
+- Product SKUs
+- Invoice numbers
+- Unique combinations (e.g., name + region)
+
+---
+
+## 3. State Machine Validation
+
+Control allowed state transitions to prevent invalid workflow progressions.
+
+### Configuration
+
+```typescript
+export const Opportunity = ObjectSchema.create({
+  name: 'opportunity',
+  label: 'Opportunity',
+  
+  fields: {
+    stage: Field.select({
+      label: 'Stage',
+      options: [
+        { label: 'Prospecting', value: 'prospecting' },
+        { label: 'Qualification', value: 'qualification' },
+        { label: 'Proposal', value: 'proposal' },
+        { label: 'Negotiation', value: 'negotiation' },
+        { label: 'Closed Won', value: 'closed_won' },
+        { label: 'Closed Lost', value: 'closed_lost' },
+      ],
+    }),
+  },
+  
+  validations: [
+    {
+      name: 'stage_transition',
+      type: 'state_machine',
+      field: 'stage',
+      message: 'Invalid stage transition',
+      transitions: {
+        // From -> To (allowed states)
+        'prospecting': ['qualification', 'closed_lost'],
+        'qualification': ['prospecting', 'proposal', 'closed_lost'],
+        'proposal': ['qualification', 'negotiation', 'closed_lost'],
+        'negotiation': ['proposal', 'closed_won', 'closed_lost'],
+        'closed_won': [], // No transitions allowed (terminal state)
+        'closed_lost': [], // No transitions allowed (terminal state)
+      },
+    },
+  ],
+});
+```
+
+### Diagram
+
+```
+Prospecting → Qualification → Proposal → Negotiation → Closed Won
+     ↓             ↓            ↓           ↓
+  Closed Lost ← Closed Lost ← Closed Lost ← Closed Lost
+```
+
+---
+
+## 4. Format Validation
+
+Validate field formats using regex or predefined patterns.
+
+### Configuration
+
+```typescript
+export const Contact = ObjectSchema.create({
+  name: 'contact',
+  label: 'Contact',
+  
+  fields: {
+    phone: Field.phone({ label: 'Phone' }),
+    website: Field.url({ label: 'Website' }),
+    postal_code: Field.text({ label: 'Postal Code' }),
+    json_data: Field.textarea({ label: 'JSON Data' }),
+  },
+  
+  validations: [
+    // Regex validation
+    {
+      name: 'us_postal_code',
+      type: 'format',
+      field: 'postal_code',
+      regex: '^\\d{5}(-\\d{4})?$', // 12345 or 12345-6789
+      message: 'Invalid US postal code format',
+    },
+    
+    // Predefined format
+    {
+      name: 'valid_phone',
+      type: 'format',
+      field: 'phone',
+      format: 'phone',
+      message: 'Invalid phone number format',
+    },
+    
+    {
+      name: 'valid_json',
+      type: 'format',
+      field: 'json_data',
+      format: 'json',
+      message: 'Invalid JSON format',
+    },
+  ],
+});
+```
+
+### Available Formats
+
+- `email` - Email address
+- `url` - Website URL
+- `phone` - Phone number
+- `json` - Valid JSON
+
+---
+
+## 5. Cross-Field Validation
+
+Validate relationships between multiple fields.
+
+### Configuration
+
+```typescript
+export const Event = ObjectSchema.create({
+  name: 'event',
+  label: 'Event',
+  
+  fields: {
+    start_date: Field.datetime({ label: 'Start Date' }),
+    end_date: Field.datetime({ label: 'End Date' }),
+    min_attendees: Field.number({ label: 'Min Attendees' }),
+    max_attendees: Field.number({ label: 'Max Attendees' }),
+    budget: Field.currency({ label: 'Budget' }),
+    actual_cost: Field.currency({ label: 'Actual Cost' }),
+  },
+  
+  validations: [
+    {
+      name: 'end_after_start',
+      type: 'cross_field',
+      fields: ['start_date', 'end_date'],
+      condition: 'end_date <= start_date',
+      message: 'End date must be after start date',
+    },
+    
+    {
+      name: 'max_greater_than_min',
+      type: 'cross_field',
+      fields: ['min_attendees', 'max_attendees'],
+      condition: 'max_attendees < min_attendees',
+      message: 'Maximum attendees must be greater than minimum',
+    },
+    
+    {
+      name: 'budget_check',
+      type: 'cross_field',
+      fields: ['budget', 'actual_cost'],
+      condition: 'actual_cost > budget',
+      message: 'Actual cost exceeds budget',
+      severity: 'warning', // Allow save but warn
+    },
+  ],
+});
+```
+
+---
+
+## 6. Async Validation
+
+Validate data against external APIs or databases.
+
+### Configuration
+
+```typescript
+export const User = ObjectSchema.create({
+  name: 'user',
+  label: 'User',
+  
+  fields: {
+    username: Field.text({ label: 'Username' }),
+    tax_id: Field.text({ label: 'Tax ID' }),
+  },
+  
+  validations: [
+    {
+      name: 'check_username_availability',
+      type: 'async',
+      field: 'username',
+      validatorUrl: '/api/validate/username',
+      timeout: 5000,
+      debounce: 500, // Wait 500ms after typing stops
+      message: 'Username is already taken',
+      params: {
+        minLength: 3,
+      },
+    },
+    
+    {
+      name: 'verify_tax_id',
+      type: 'async',
+      field: 'tax_id',
+      validatorFunction: 'validateTaxId', // Custom function
+      timeout: 10000,
+      message: 'Invalid tax ID',
+    },
+  ],
+});
+```
+
+---
+
+## 7. Custom Validator
+
+User-defined validation logic with code references.
+
+### Configuration
+
+```typescript
+export const Order = ObjectSchema.create({
+  name: 'order',
+  label: 'Order',
+  
+  fields: {
+    items: Field.textarea({ label: 'Order Items (JSON)' }),
+    total: Field.currency({ label: 'Total' }),
+  },
+  
+  validations: [
+    {
+      name: 'validate_order_total',
+      type: 'custom',
+      validatorFunction: 'validateOrderTotal',
+      message: 'Order total does not match line items',
+      params: {
+        includeTax: true,
+        includeShipping: true,
+      },
+    },
+  ],
+});
+```
+
+---
+
+## Workflow Automation
+
+Workflows automate actions when records are created, updated, or deleted.
+
+### Workflow Components
+
+1. **Trigger** - When to execute (on_create, on_update, on_delete, schedule)
+2. **Criteria** - Condition to check (optional)
+3. **Actions** - What to execute (field_update, email_alert, etc.)
+
+---
+
+## Workflow Examples
+
+### 1. Field Update on Create
+
+```typescript
+export const Lead = ObjectSchema.create({
+  name: 'lead',
+  label: 'Lead',
+  
+  fields: {
+    status: Field.select({
+      options: ['New', 'Contacted', 'Qualified', 'Converted'],
+    }),
+    created_date: Field.datetime({ label: 'Created Date' }),
+    last_contacted: Field.datetime({ label: 'Last Contacted' }),
+  },
+  
+  workflows: [
+    {
+      name: 'set_default_status',
+      objectName: 'lead',
+      triggerType: 'on_create',
+      actions: [
+        {
+          name: 'set_status_new',
+          type: 'field_update',
+          field: 'status',
+          value: 'New',
+        },
+        {
+          name: 'set_created_date',
+          type: 'field_update',
+          field: 'created_date',
+          value: 'NOW()',
+        },
+      ],
+      active: true,
+    },
+  ],
+});
+```
+
+---
+
+### 2. Conditional Workflow
+
+```typescript
+export const Opportunity = ObjectSchema.create({
+  name: 'opportunity',
+  label: 'Opportunity',
+  
+  fields: {
+    stage: Field.select({ options: ['...'] }),
+    amount: Field.currency({ label: 'Amount' }),
+    owner: Field.lookup('user', { label: 'Owner' }),
+    approved: Field.boolean({ label: 'Approved' }),
+  },
+  
+  workflows: [
+    {
+      name: 'require_approval_large_deals',
+      objectName: 'opportunity',
+      triggerType: 'on_update',
+      criteria: 'amount > 100000 AND stage = "Closed Won"', // Only for big deals
+      actions: [
+        {
+          name: 'set_approval_required',
+          type: 'field_update',
+          field: 'approved',
+          value: 'false',
+        },
+        {
+          name: 'notify_manager',
+          type: 'email_alert',
+          template: 'approval_required_email',
+          recipients: ['sales_manager@company.com'],
+        },
+      ],
+      active: true,
+    },
+  ],
+});
+```
+
+---
+
+### 3. Email Alert Workflow
+
+```typescript
+export const Case = ObjectSchema.create({
+  name: 'case',
+  label: 'Case',
+  
+  fields: {
+    priority: Field.select({ options: ['Low', 'Medium', 'High', 'Critical'] }),
+    status: Field.select({ options: ['Open', 'In Progress', 'Resolved'] }),
+    contact: Field.lookup('contact', { label: 'Contact' }),
+  },
+  
+  workflows: [
+    {
+      name: 'escalate_critical_cases',
+      objectName: 'case',
+      triggerType: 'on_create_or_update',
+      criteria: 'priority = "Critical" AND status = "Open"',
+      actions: [
+        {
+          name: 'notify_support_team',
+          type: 'email_alert',
+          template: 'critical_case_alert',
+          recipients: ['support_team@company.com', 'manager@company.com'],
+        },
+      ],
+      active: true,
+    },
+  ],
+});
+```
+
+---
+
+### 4. Update Timestamp Workflow
+
+```typescript
+export const Account = ObjectSchema.create({
+  name: 'account',
+  label: 'Account',
+  
+  fields: {
+    last_activity_date: Field.datetime({ label: 'Last Activity' }),
+    last_modified_date: Field.datetime({ label: 'Last Modified' }),
+  },
+  
+  workflows: [
+    {
+      name: 'update_last_activity',
+      objectName: 'account',
+      triggerType: 'on_update',
+      actions: [
+        {
+          name: 'set_last_activity',
+          type: 'field_update',
+          field: 'last_activity_date',
+          value: 'NOW()',
+        },
+      ],
+      active: true,
+    },
+  ],
+});
+```
+
+---
+
+## Best Practices
+
+### Validation Rules
+
+1. **Use Specific Types**: Use `unique` instead of `script` for uniqueness, `state_machine` instead of complex conditions
+2. **Clear Messages**: Provide actionable error messages that guide users
+3. **Severity Levels**: Use `warning` for soft validations, `error` for hard stops
+4. **Performance**: Avoid complex formulas in validations, use indexes for uniqueness checks
+5. **Testing**: Test all edge cases and state transitions
+
+### Workflows
+
+1. **Criteria First**: Use criteria to limit workflow execution, not blanket triggers
+2. **Avoid Loops**: Be careful with `on_update` workflows that update the same record
+3. **Batch-Safe**: Ensure workflows can handle bulk operations
+4. **Error Handling**: Workflows should not block saves on non-critical failures
+5. **Audit Trail**: Use field updates to maintain audit logs (last_modified_by, etc.)
+
+---
+
+## Formula Functions Reference
+
+Common functions used in validation conditions and workflow criteria:
+
+### String Functions
+- `CONCAT(str1, str2, ...)` - Concatenate strings
+- `LEN(str)` - String length
+- `ISBLANK(str)` - Check if empty
+- `CONTAINS(str, substring)` - Check if contains
+- `UPPER(str)`, `LOWER(str)` - Case conversion
+
+### Date Functions
+- `TODAY()` - Current date
+- `NOW()` - Current datetime
+- `DAYS_BETWEEN(date1, date2)` - Days between dates
+- `ADDDAYS(date, num)` - Add days to date
+
+### Logic Functions
+- `AND(cond1, cond2, ...)` - Logical AND
+- `OR(cond1, cond2, ...)` - Logical OR
+- `NOT(cond)` - Logical NOT
+- `IF(condition, true_value, false_value)` - Conditional
+
+### Number Functions
+- `ABS(num)` - Absolute value
+- `ROUND(num, decimals)` - Round number
+- `MAX(num1, num2, ...)` - Maximum
+- `MIN(num1, num2, ...)` - Minimum
+
+---
+
+## Real-World Example: CRM Opportunity
+
+Complete example combining validations and workflows:
+
+```typescript
+export const Opportunity = ObjectSchema.create({
+  name: 'opportunity',
+  label: 'Opportunity',
+  
+  fields: {
+    name: Field.text({ label: 'Name', required: true }),
+    account: Field.lookup('account', { label: 'Account', required: true }),
+    amount: Field.currency({ label: 'Amount' }),
+    close_date: Field.date({ label: 'Close Date' }),
+    probability: Field.percent({ label: 'Probability' }),
+    stage: Field.select({
+      options: [
+        { label: 'Prospecting', value: 'prospecting' },
+        { label: 'Qualification', value: 'qualification' },
+        { label: 'Proposal', value: 'proposal' },
+        { label: 'Negotiation', value: 'negotiation' },
+        { label: 'Closed Won', value: 'closed_won' },
+        { label: 'Closed Lost', value: 'closed_lost' },
+      ],
+    }),
+    approved: Field.boolean({ label: 'Approved' }),
+    last_stage_change: Field.datetime({ label: 'Last Stage Change' }),
+  },
+  
+  validations: [
+    // Basic validations
+    {
+      name: 'positive_amount',
+      type: 'script',
+      condition: 'amount < 0',
+      message: 'Amount must be positive',
+    },
+    
+    // State machine
+    {
+      name: 'stage_progression',
+      type: 'state_machine',
+      field: 'stage',
+      message: 'Invalid stage transition',
+      transitions: {
+        'prospecting': ['qualification', 'closed_lost'],
+        'qualification': ['prospecting', 'proposal', 'closed_lost'],
+        'proposal': ['qualification', 'negotiation', 'closed_lost'],
+        'negotiation': ['proposal', 'closed_won', 'closed_lost'],
+        'closed_won': [],
+        'closed_lost': [],
+      },
+    },
+    
+    // Cross-field validation
+    {
+      name: 'probability_stage_match',
+      type: 'cross_field',
+      fields: ['stage', 'probability'],
+      condition: 'stage = "Closed Won" AND probability < 100',
+      message: 'Closed Won opportunities must have 100% probability',
+    },
+  ],
+  
+  workflows: [
+    // Update timestamp on stage change
+    {
+      name: 'track_stage_changes',
+      objectName: 'opportunity',
+      triggerType: 'on_update',
+      criteria: 'ISCHANGED(stage)',
+      actions: [
+        {
+          name: 'update_timestamp',
+          type: 'field_update',
+          field: 'last_stage_change',
+          value: 'NOW()',
+        },
+      ],
+    },
+    
+    // Require approval for large deals
+    {
+      name: 'large_deal_approval',
+      objectName: 'opportunity',
+      triggerType: 'on_update',
+      criteria: 'amount > 500000 AND stage = "Negotiation"',
+      actions: [
+        {
+          name: 'request_approval',
+          type: 'field_update',
+          field: 'approved',
+          value: 'false',
+        },
+        {
+          name: 'notify_exec_team',
+          type: 'email_alert',
+          template: 'large_deal_approval',
+          recipients: ['ceo@company.com', 'cfo@company.com'],
+        },
+      ],
+    },
+  ],
+});
+```
+
+---
+
+## Next Steps
+
+- [Field Types Guide](/docs/guides/field-types)
+- [Object Schema Reference](/docs/references/data/core/Object)
+- [Formula Functions](/docs/references/data/formulas)
+- [CRM Example](/examples/crm) - See validations and workflows in action
