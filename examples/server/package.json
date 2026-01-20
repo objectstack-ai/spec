@@ -10,6 +10,7 @@
     "@objectstack/spec": "workspace:*",
     "@objectstack/example-crm": "workspace:*",
     "@objectstack/example-todo": "workspace:*",
+    "@objectstack/plugin-bi": "workspace:*",
     "hono": "^4.0.0",
     "@hono/node-server": "^1.0.0",
     "zod": "^3.0.0"

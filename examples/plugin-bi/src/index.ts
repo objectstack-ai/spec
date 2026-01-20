@@ -1,3 +1,4 @@
+import { PluginDefinition, PluginContextData } from '@objectstack/spec';
 
 export class BiEngine {
   constructor() {
@@ -14,18 +15,25 @@ export class BiEngine {
   }
 }
 
-/**
- * Plugin Lifecycle Hook
- * (Simulated interface)
- */
-export async function onEnable(context: any) {
-  console.log('[BI Plugin] Enabling BI Plugin...');
-  
-  // Register Service
-  const engine = new BiEngine();
-  if (context.services) {
-    context.services.register('bi.engine', engine);
-  }
+const plugin: PluginDefinition = {
+  id: 'com.objectstack.bi',
+  version: '1.0.0',
 
-  console.log('[BI Plugin] Services registered.');
-}
+  onEnable: async (context: PluginContextData) => {
+    const logger = context.logger || console;
+    logger.info('[BI Plugin] Enabling BI Plugin...');
+    
+    // Register Service
+    const engine = new BiEngine();
+    
+    // Access runtime capabilities not in strict schema
+    const runtime = context as any;
+    if (runtime.services) {
+      runtime.services.register('bi.engine', engine);
+    }
+
+    logger.info('[BI Plugin] Services registered.');
+  }
+};
+
+export default plugin;

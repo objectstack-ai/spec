@@ -15,7 +15,7 @@ app.use('*', cors());
 
 // 2. Load Plugins (CRM, Todo)
 console.log('--- Starting ObjectStack Server ---');
-loadPlugins();
+await loadPlugins();
 console.log('--- Plugins Loaded ---');
 
 // 3. Define Unified Routes

@@ -1,17 +1,17 @@
 import { SchemaRegistry } from './kernel/registry';
 import { AppSchema, ManifestSchema, App, ObjectStackManifest } from '@objectstack/spec';
 
-// In a real monorepo scenario, we might use path aliases or require.resolve
-// Here we use relative paths to demonstrate loading from the sibling packages
+// Import from packages
 // @ts-ignore
-import CrmApp from '../../crm/objectstack.config'; 
+import CrmApp from '@objectstack/example-crm/objectstack.config';
 // @ts-ignore
-import TodoApp from '../../todo/objectstack.config';
+import TodoApp from '@objectstack/example-todo/objectstack.config';
 // @ts-ignore
-import BiPlugin from '../../plugin-bi/objectstack.config';
+import BiPluginManifest from '@objectstack/plugin-bi/objectstack.config';
+import BiPluginRuntime from '@objectstack/plugin-bi';
 
-export function loadPlugins() {
-  const packages: any[] = [CrmApp, TodoApp, BiPlugin];
+export async function loadPlugins() {
+  const packages: any[] = [CrmApp, TodoApp, BiPluginManifest];
 
   for (const pkg of packages) {
     if (!pkg) continue;
@@ -19,28 +19,48 @@ export function loadPlugins() {
     // Check if it's a Manifest (Plugin/Package)
     if (pkg.type === 'plugin') {
        const manifest = pkg as ObjectStackManifest;
-       console.log(`[Loader] Loading Plugin: ${manifest.id}`);
+       console.log(`[Loader] Loading Plugin Manifest: ${manifest.id}`);
        
        try {
-           const parsedPlugin = ManifestSchema.parse(manifest);
-           SchemaRegistry.registerPlugin(parsedPlugin);
+           const parsedManifest = ManifestSchema.parse(manifest);
+           SchemaRegistry.registerPlugin(parsedManifest);
     
-           if (parsedPlugin.contributes?.kinds) {
-              for (const kind of parsedPlugin.contributes.kinds) {
+           // 1. Register Contributions (Static)
+           if (parsedManifest.contributes?.kinds) {
+              for (const kind of parsedManifest.contributes.kinds) {
                 SchemaRegistry.registerKind(kind);
               }
            }
 
-           // SIMULATION: Simulate the scanner loading a file matching the new Kind
-           // In a real system, this would be done by a file watcher detecting **/*.dataset.json
-           if (parsedPlugin.id === 'com.objectstack.bi') {
+           // 2. Load Runtime (Dynamic Simulation)
+           // In a real engine, this would use `import(manifest.extensions.runtime.entry)`
+           if (manifest.id === 'com.objectstack.bi' && BiPluginRuntime) {
+              const pluginDef = BiPluginRuntime.default || BiPluginRuntime;
+              
+              if (pluginDef.onEnable) {
+                console.log(`[Loader] Executing Plugin Runtime: ${manifest.id}`);
+                await pluginDef.onEnable({
+                  logger: console,
+                  os: {
+                    // Mock System API
+                    registerService: (id: string, svc: any) => console.log(`[OS] Service Registered: ${id}`) 
+                  },
+                  ql: {}, // Mock ObjectQL
+                  services: {
+                     register: (id: string, svc: any) => console.log(`[Services] Registered ${id}`)
+                  }
+                });
+              }
+           }
+
+           // 3. Simulate File Scanning (Mock)
+           if (parsedManifest.id === 'com.objectstack.bi') {
               SchemaRegistry.registerItem('bi.dataset', {
                 name: 'quarterly_sales',
                 label: 'Quarterly Sales Data',
                 source: 'sql_warehouse',
                 query: 'SELECT * FROM sales WHERE quarter = "Q4"'
               }, 'name');
-              console.log('[Loader] Simulated loading: quarterly_sales (bi.dataset)');
            }
        } catch (e) {
            console.error(`[Loader] Failed to load plugin ${manifest.id}`, e);
