@@ -67,8 +67,7 @@ export const Lead = ObjectSchema.create({
     }),
     
     // Lead Qualification
-    status: {
-      type: 'select',
+    status: Field.select({
       label: 'Lead Status',
       required: true,
       options: [
@@ -78,7 +77,7 @@ export const Lead = ObjectSchema.create({
         { label: 'Unqualified', value: 'unqualified', color: '#FF0000' },
         { label: 'Converted', value: 'converted', color: '#00AA00' },
       ]
-    },
+    }),
     
     rating: Field.rating(5, {
       label: 'Lead Score',

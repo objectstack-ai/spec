@@ -47,8 +47,7 @@ export const Opportunity = ObjectSchema.create({
     }),
     
     // Sales Process
-    stage: {
-      type: 'select',
+    stage: Field.select({
       label: 'Stage',
       required: true,
       options: [
@@ -60,7 +59,7 @@ export const Opportunity = ObjectSchema.create({
         { label: 'Closed Won', value: 'closed_won', color: '#00AA00' },
         { label: 'Closed Lost', value: 'closed_lost', color: '#FF0000' },
       ]
-    },
+    }),
     
     probability: Field.percent({
       label: 'Probability (%)',
@@ -141,6 +140,7 @@ export const Opportunity = ObjectSchema.create({
     trackHistory: true,    // Critical for tracking stage changes
     searchable: true,
     apiEnabled: true,
+    apiMethods: ['get', 'list', 'create', 'update', 'delete', 'aggregate', 'search'], // Whitelist allowed API operations
     files: true,           // Attach proposals, contracts
     feedEnabled: true,     // Team collaboration
     trash: true,

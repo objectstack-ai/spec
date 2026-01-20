@@ -24,8 +24,7 @@ export const Account = ObjectSchema.create({
     }),
     
     // Select fields with custom options
-    type: {
-      type: 'select',
+    type: Field.select({
       label: 'Account Type',
       options: [
         { label: 'Prospect', value: 'prospect', color: '#FFA500', default: true },
@@ -33,10 +32,9 @@ export const Account = ObjectSchema.create({
         { label: 'Partner', value: 'partner', color: '#0000FF' },
         { label: 'Former Customer', value: 'former', color: '#999999' },
       ]
-    },
+    }),
     
-    industry: {
-      type: 'select',
+    industry: Field.select({
       label: 'Industry',
       options: [
         { label: 'Technology', value: 'technology' },
@@ -46,7 +44,7 @@ export const Account = ObjectSchema.create({
         { label: 'Manufacturing', value: 'manufacturing' },
         { label: 'Education', value: 'education' },
       ]
-    },
+    }),
     
     // Number fields
     annual_revenue: Field.currency({ 
@@ -131,6 +129,7 @@ export const Account = ObjectSchema.create({
     trackHistory: true,     // Track field changes
     searchable: true,       // Include in global search
     apiEnabled: true,       // Expose via REST/GraphQL
+    apiMethods: ['get', 'list', 'create', 'update', 'delete', 'search', 'export'], // Whitelist allowed API operations
     files: true,            // Allow file attachments
     feedEnabled: true,      // Enable activity feed/chatter
     trash: true,            // Recycle bin support

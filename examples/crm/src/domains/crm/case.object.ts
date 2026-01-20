@@ -38,8 +38,7 @@ export const Case = ObjectSchema.create({
     }),
     
     // Case Management
-    status: {
-      type: 'select',
+    status: Field.select({
       label: 'Status',
       required: true,
       options: [
@@ -51,10 +50,9 @@ export const Case = ObjectSchema.create({
         { label: 'Resolved', value: 'resolved', color: '#00AA00' },
         { label: 'Closed', value: 'closed', color: '#006400' },
       ]
-    },
+    }),
     
-    priority: {
-      type: 'select',
+    priority: Field.select({
       label: 'Priority',
       required: true,
       options: [
@@ -63,7 +61,7 @@ export const Case = ObjectSchema.create({
         { label: 'High', value: 'high', color: '#FF4500' },
         { label: 'Critical', value: 'critical', color: '#FF0000' },
       ]
-    },
+    }),
     
     type: Field.select(['Question', 'Problem', 'Feature Request', 'Bug'], {
       label: 'Case Type',
