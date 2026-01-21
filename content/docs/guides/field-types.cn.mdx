@@ -3,7 +3,6 @@ title: 字段类型参考
 description: ObjectStack 所有字段类型的完整指南，包含示例和配置选项
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
 
 # 字段类型参考
 
@@ -66,9 +65,9 @@ email: Field.email({
 })
 ```
 
-<Callout type="info">
+> ℹ️ **Info:**  
   自动验证邮箱格式：`user@domain.com`
-</Callout>
+
 
 ---
 
@@ -107,9 +106,9 @@ api_key: Field.password({
 })
 ```
 
-<Callout type="warn">
+> ⚠️ **Warning:**  
   密码字段在 UI 中自动掩码，如果 `encryption: true` 则加密存储
-</Callout>
+
 
 ---
 
@@ -137,9 +136,9 @@ html_content: Field.html({
 })
 ```
 
-<Callout type="warn">
+> ⚠️ **Warning:**  
   渲染前务必净化 HTML 内容，防止 XSS 攻击
-</Callout>
+
 
 ---
 
@@ -370,11 +369,11 @@ account: Field.masterDetail('account', {
 })
 ```
 
-<Callout type="info">
+> ℹ️ **Info:**  
   **主从关系 vs 查找：**
   - **主从关系：** 紧密耦合，级联删除，子记录继承安全性
   - **查找：** 松散耦合，删除时置空，独立安全性
-</Callout>
+
 
 ---
 
@@ -451,9 +450,9 @@ days_open: Field.formula({
 })
 ```
 
-<Callout type="info">
+> ℹ️ **Info:**  
   公式字段自动计算且只读。可用函数请参见 [公式函数](/docs/references/data/formulas)。
-</Callout>
+
 
 ---
 
