@@ -4,11 +4,35 @@
     "DatasourceCapabilities": {
       "type": "object",
       "properties": {
-        "joins": {
+        "transactions": {
           "type": "boolean",
           "default": false
         },
-        "transactions": {
+        "queryFilters": {
+          "type": "boolean",
+          "default": false
+        },
+        "queryAggregations": {
+          "type": "boolean",
+          "default": false
+        },
+        "querySorting": {
+          "type": "boolean",
+          "default": false
+        },
+        "queryPagination": {
+          "type": "boolean",
+          "default": false
+        },
+        "queryWindowFunctions": {
+          "type": "boolean",
+          "default": false
+        },
+        "querySubqueries": {
+          "type": "boolean",
+          "default": false
+        },
+        "joins": {
           "type": "boolean",
           "default": false
         },
@@ -16,15 +40,11 @@
           "type": "boolean",
           "default": false
         },
-        "aggregation": {
+        "readOnly": {
           "type": "boolean",
           "default": false
         },
         "dynamicSchema": {
-          "type": "boolean",
-          "default": false
-        },
-        "readOnly": {
           "type": "boolean",
           "default": false
         }
