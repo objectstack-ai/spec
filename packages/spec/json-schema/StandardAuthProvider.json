@@ -389,6 +389,172 @@
               },
               "additionalProperties": false
             },
+            "enterprise": {
+              "type": "object",
+              "properties": {
+                "oidc": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "issuer": {
+                      "type": "string",
+                      "format": "uri",
+                      "description": "OIDC Issuer URL (.well-known/openid-configuration)"
+                    },
+                    "clientId": {
+                      "type": "string",
+                      "description": "OIDC client ID"
+                    },
+                    "clientSecret": {
+                      "type": "string",
+                      "description": "OIDC client secret"
+                    },
+                    "scopes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "default": [
+                        "openid",
+                        "profile",
+                        "email"
+                      ],
+                      "description": "OIDC scopes"
+                    },
+                    "attributeMapping": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "description": "Map IdP claims to User fields"
+                    },
+                    "displayName": {
+                      "type": "string",
+                      "description": "Display name for the provider button"
+                    },
+                    "icon": {
+                      "type": "string",
+                      "description": "Icon URL or identifier"
+                    }
+                  },
+                  "required": [
+                    "issuer",
+                    "clientId",
+                    "clientSecret"
+                  ],
+                  "additionalProperties": false,
+                  "description": "OpenID Connect configuration"
+                },
+                "saml": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "entryPoint": {
+                      "type": "string",
+                      "format": "uri",
+                      "description": "IdP SSO URL"
+                    },
+                    "cert": {
+                      "type": "string",
+                      "description": "IdP Public Certificate (PEM format)"
+                    },
+                    "issuer": {
+                      "type": "string",
+                      "description": "Entity ID of the IdP"
+                    },
+                    "signatureAlgorithm": {
+                      "type": "string",
+                      "enum": [
+                        "sha256",
+                        "sha512"
+                      ],
+                      "default": "sha256",
+                      "description": "Signature algorithm"
+                    },
+                    "attributeMapping": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "description": "Map SAML attributes to User fields"
+                    },
+                    "displayName": {
+                      "type": "string",
+                      "description": "Display name for the provider button"
+                    },
+                    "icon": {
+                      "type": "string",
+                      "description": "Icon URL or identifier"
+                    }
+                  },
+                  "required": [
+                    "entryPoint",
+                    "cert",
+                    "issuer"
+                  ],
+                  "additionalProperties": false,
+                  "description": "SAML 2.0 configuration"
+                },
+                "ldap": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "url": {
+                      "type": "string",
+                      "format": "uri",
+                      "description": "LDAP Server URL (ldap:// or ldaps://)"
+                    },
+                    "bindDn": {
+                      "type": "string",
+                      "description": "Bind DN for LDAP authentication"
+                    },
+                    "bindCredentials": {
+                      "type": "string",
+                      "description": "Bind credentials"
+                    },
+                    "searchBase": {
+                      "type": "string",
+                      "description": "Search base DN"
+                    },
+                    "searchFilter": {
+                      "type": "string",
+                      "description": "Search filter"
+                    },
+                    "groupSearchBase": {
+                      "type": "string",
+                      "description": "Group search base DN"
+                    },
+                    "displayName": {
+                      "type": "string",
+                      "description": "Display name for the provider button"
+                    },
+                    "icon": {
+                      "type": "string",
+                      "description": "Icon URL or identifier"
+                    }
+                  },
+                  "required": [
+                    "url",
+                    "bindDn",
+                    "bindCredentials",
+                    "searchBase",
+                    "searchFilter"
+                  ],
+                  "additionalProperties": false,
+                  "description": "LDAP/Active Directory configuration"
+                }
+              },
+              "additionalProperties": false
+            },
             "userFieldMapping": {
               "type": "object",
               "properties": {
@@ -461,6 +627,48 @@
               "required": [
                 "type"
               ],
+              "additionalProperties": false
+            },
+            "mapping": {
+              "type": "object",
+              "properties": {
+                "user": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "description": "User field mapping (e.g., { \"emailVerified\": \"email_verified\" })"
+                },
+                "session": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "default": {
+                    "sessionToken": "token",
+                    "expires": "expiresAt"
+                  },
+                  "description": "Session field mapping"
+                },
+                "account": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "default": {
+                    "providerAccountId": "accountId",
+                    "provider": "providerId"
+                  },
+                  "description": "Account field mapping"
+                },
+                "verificationToken": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "description": "VerificationToken field mapping"
+                }
+              },
               "additionalProperties": false
             },
             "plugins": {

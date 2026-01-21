@@ -10,14 +10,20 @@ import {
   CSRFConfigSchema,
   AccountLinkingConfigSchema,
   TwoFactorConfigSchema,
+  OIDCConfigSchema,
+  SAMLConfigSchema,
+  LDAPConfigSchema,
+  EnterpriseAuthConfigSchema,
   UserFieldMappingSchema,
   DatabaseAdapterSchema,
+  DatabaseMappingSchema,
   AuthPluginConfigSchema,
   AuthConfigSchema,
   StandardAuthProviderSchema,
   type AuthConfig,
   type StandardAuthProvider,
   type OAuthProvider,
+  type DatabaseMapping,
 } from "./auth.zod";
 
 describe('AuthStrategy', () => {
@@ -311,6 +317,183 @@ describe('TwoFactorConfigSchema', () => {
   });
 });
 
+describe('OIDCConfigSchema', () => {
+  it('should accept valid OIDC configuration', () => {
+    const config = {
+      enabled: true,
+      issuer: 'https://auth.example.com',
+      clientId: 'client-id',
+      clientSecret: 'client-secret',
+      scopes: ['openid', 'profile', 'email', 'groups'],
+      attributeMapping: {
+        email: 'email',
+        name: 'name',
+      },
+    };
+
+    expect(() => OIDCConfigSchema.parse(config)).not.toThrow();
+  });
+
+  it('should use default values', () => {
+    const config = {
+      issuer: 'https://auth.example.com',
+      clientId: 'client-id',
+      clientSecret: 'client-secret',
+    };
+    const result = OIDCConfigSchema.parse(config);
+    
+    expect(result.enabled).toBe(false);
+    expect(result.scopes).toEqual(['openid', 'profile', 'email']);
+  });
+
+  it('should validate issuer is a URL', () => {
+    const config = {
+      issuer: 'not-a-url',
+      clientId: 'client-id',
+      clientSecret: 'client-secret',
+    };
+
+    expect(() => OIDCConfigSchema.parse(config)).toThrow();
+  });
+});
+
+describe('SAMLConfigSchema', () => {
+  it('should accept valid SAML configuration', () => {
+    const config = {
+      enabled: true,
+      entryPoint: 'https://idp.example.com/saml/sso',
+      cert: '-----BEGIN CERTIFICATE-----\nMIIC...\n-----END CERTIFICATE-----',
+      issuer: 'https://idp.example.com',
+      signatureAlgorithm: 'sha256' as const,
+      attributeMapping: {
+        email: 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress',
+      },
+    };
+
+    expect(() => SAMLConfigSchema.parse(config)).not.toThrow();
+  });
+
+  it('should use default values', () => {
+    const config = {
+      entryPoint: 'https://idp.example.com/saml/sso',
+      cert: 'cert-content',
+      issuer: 'https://idp.example.com',
+    };
+    const result = SAMLConfigSchema.parse(config);
+    
+    expect(result.enabled).toBe(false);
+    expect(result.signatureAlgorithm).toBe('sha256');
+  });
+
+  it('should accept sha512 signature algorithm', () => {
+    const config = {
+      entryPoint: 'https://idp.example.com/saml/sso',
+      cert: 'cert-content',
+      issuer: 'https://idp.example.com',
+      signatureAlgorithm: 'sha512' as const,
+    };
+
+    expect(() => SAMLConfigSchema.parse(config)).not.toThrow();
+  });
+});
+
+describe('LDAPConfigSchema', () => {
+  it('should accept valid LDAP configuration', () => {
+    const config = {
+      enabled: true,
+      url: 'ldaps://ldap.example.com:636',
+      bindDn: 'CN=Service Account,OU=Users,DC=example,DC=com',
+      bindCredentials: 'password',
+      searchBase: 'OU=Users,DC=example,DC=com',
+      searchFilter: '(&(objectClass=user)(sAMAccountName={{username}}))',
+      groupSearchBase: 'OU=Groups,DC=example,DC=com',
+    };
+
+    expect(() => LDAPConfigSchema.parse(config)).not.toThrow();
+  });
+
+  it('should use default values', () => {
+    const config = {
+      url: 'ldap://ldap.example.com:389',
+      bindDn: 'CN=Service Account,OU=Users,DC=example,DC=com',
+      bindCredentials: 'password',
+      searchBase: 'OU=Users,DC=example,DC=com',
+      searchFilter: '(uid={{username}})',
+    };
+    const result = LDAPConfigSchema.parse(config);
+    
+    expect(result.enabled).toBe(false);
+  });
+
+  it('should accept ldap:// and ldaps:// URLs', () => {
+    const ldapConfig = {
+      url: 'ldap://ldap.example.com:389',
+      bindDn: 'cn=admin',
+      bindCredentials: 'password',
+      searchBase: 'dc=example,dc=com',
+      searchFilter: '(uid={{username}})',
+    };
+
+    const ldapsConfig = {
+      url: 'ldaps://ldap.example.com:636',
+      bindDn: 'cn=admin',
+      bindCredentials: 'password',
+      searchBase: 'dc=example,dc=com',
+      searchFilter: '(uid={{username}})',
+    };
+
+    expect(() => LDAPConfigSchema.parse(ldapConfig)).not.toThrow();
+    expect(() => LDAPConfigSchema.parse(ldapsConfig)).not.toThrow();
+  });
+});
+
+describe('EnterpriseAuthConfigSchema', () => {
+  it('should accept enterprise config with all providers', () => {
+    const config = {
+      oidc: {
+        enabled: true,
+        issuer: 'https://auth.example.com',
+        clientId: 'client-id',
+        clientSecret: 'client-secret',
+      },
+      saml: {
+        enabled: true,
+        entryPoint: 'https://idp.example.com/saml/sso',
+        cert: 'cert-content',
+        issuer: 'https://idp.example.com',
+      },
+      ldap: {
+        enabled: true,
+        url: 'ldaps://ldap.example.com:636',
+        bindDn: 'cn=admin',
+        bindCredentials: 'password',
+        searchBase: 'dc=example,dc=com',
+        searchFilter: '(uid={{username}})',
+      },
+    };
+
+    expect(() => EnterpriseAuthConfigSchema.parse(config)).not.toThrow();
+  });
+
+  it('should accept partial enterprise config', () => {
+    const config = {
+      oidc: {
+        enabled: true,
+        issuer: 'https://auth.example.com',
+        clientId: 'client-id',
+        clientSecret: 'client-secret',
+      },
+    };
+
+    expect(() => EnterpriseAuthConfigSchema.parse(config)).not.toThrow();
+  });
+
+  it('should accept empty enterprise config', () => {
+    const config = {};
+    expect(() => EnterpriseAuthConfigSchema.parse(config)).not.toThrow();
+  });
+});
+
 describe('UserFieldMappingSchema', () => {
   it('should accept custom field mappings', () => {
     const config = {
@@ -360,6 +543,93 @@ describe('DatabaseAdapterSchema', () => {
     const result = DatabaseAdapterSchema.parse(config);
     
     expect(result.tablePrefix).toBe('auth_');
+  });
+});
+
+describe('DatabaseMappingSchema', () => {
+  it('should accept valid database mapping configuration', () => {
+    const mapping: DatabaseMapping = {
+      user: {
+        emailVerified: 'email_verified',
+        createdAt: 'created_at',
+      },
+      session: {
+        sessionToken: 'token',
+        expires: 'expiresAt',
+      },
+      account: {
+        providerAccountId: 'accountId',
+        provider: 'providerId',
+      },
+      verificationToken: {
+        identifier: 'email',
+      },
+    };
+
+    expect(() => DatabaseMappingSchema.parse(mapping)).not.toThrow();
+  });
+
+  it('should use default mappings for session and account', () => {
+    const mapping = {};
+    const result = DatabaseMappingSchema.parse(mapping);
+    
+    // Session defaults
+    expect(result.session.sessionToken).toBe('token');
+    expect(result.session.expires).toBe('expiresAt');
+    
+    // Account defaults
+    expect(result.account.providerAccountId).toBe('accountId');
+    expect(result.account.provider).toBe('providerId');
+  });
+
+  it('should accept partial mapping overrides', () => {
+    const mapping = {
+      session: {
+        sessionToken: 'session_token',
+        // Let expires use default
+      },
+      account: {
+        // Override only one field
+        providerAccountId: 'provider_account_id',
+      },
+    };
+
+    const result = DatabaseMappingSchema.parse(mapping);
+    expect(result.session.sessionToken).toBe('session_token');
+    expect(result.account.providerAccountId).toBe('provider_account_id');
+  });
+
+  it('should accept custom user field mappings', () => {
+    const mapping = {
+      user: {
+        emailVerified: 'is_verified',
+        createdAt: 'created',
+        updatedAt: 'modified',
+      },
+    };
+
+    expect(() => DatabaseMappingSchema.parse(mapping)).not.toThrow();
+  });
+
+  it('should handle better-auth compatibility mappings', () => {
+    const betterAuthMapping = {
+      session: {
+        sessionToken: 'token',
+        expires: 'expiresAt',
+      },
+      account: {
+        providerAccountId: 'accountId',
+        provider: 'providerId',
+      },
+    };
+
+    const result = DatabaseMappingSchema.parse(betterAuthMapping);
+    
+    // Verify better-auth compatible mappings
+    expect(result.session.sessionToken).toBe('token');
+    expect(result.session.expires).toBe('expiresAt');
+    expect(result.account.providerAccountId).toBe('accountId');
+    expect(result.account.provider).toBe('providerId');
   });
 });
 
@@ -642,6 +912,96 @@ describe('AuthConfigSchema', () => {
     };
 
     expect(() => AuthConfigSchema.parse(config)).not.toThrow();
+  });
+
+  it('should accept configuration with enterprise authentication', () => {
+    const config = {
+      name: 'test_auth',
+      label: 'Test',
+      strategies: ['email_password'],
+      baseUrl: 'https://example.com',
+      secret: 'a'.repeat(32),
+      session: {},
+      rateLimit: {},
+      csrf: {},
+      accountLinking: {},
+      enterprise: {
+        oidc: {
+          enabled: true,
+          issuer: 'https://auth.example.com',
+          clientId: 'oidc-client-id',
+          clientSecret: 'oidc-client-secret',
+        },
+        saml: {
+          enabled: true,
+          entryPoint: 'https://idp.example.com/saml/sso',
+          cert: 'saml-cert',
+          issuer: 'https://idp.example.com',
+        },
+      },
+    };
+
+    expect(() => AuthConfigSchema.parse(config)).not.toThrow();
+  });
+
+  it('should accept configuration with database field mapping', () => {
+    const config = {
+      name: 'test_auth',
+      label: 'Test',
+      strategies: ['email_password'],
+      baseUrl: 'https://example.com',
+      secret: 'a'.repeat(32),
+      session: {},
+      rateLimit: {},
+      csrf: {},
+      accountLinking: {},
+      mapping: {
+        user: {
+          emailVerified: 'email_verified',
+        },
+        session: {
+          sessionToken: 'token',
+          expires: 'expiresAt',
+        },
+        account: {
+          providerAccountId: 'accountId',
+          provider: 'providerId',
+        },
+      },
+    };
+
+    expect(() => AuthConfigSchema.parse(config)).not.toThrow();
+  });
+
+  it('should accept configuration with better-auth compatible mapping', () => {
+    const config = {
+      name: 'better_auth_config',
+      label: 'Better Auth Compatible',
+      driver: 'better-auth',
+      strategies: ['email_password', 'oauth'],
+      baseUrl: 'https://example.com',
+      secret: 'a'.repeat(32),
+      session: {},
+      rateLimit: {},
+      csrf: {},
+      accountLinking: {},
+      mapping: {
+        session: {
+          sessionToken: 'token',
+          expires: 'expiresAt',
+        },
+        account: {
+          providerAccountId: 'accountId',
+          provider: 'providerId',
+        },
+      },
+    };
+
+    const result = AuthConfigSchema.parse(config);
+    
+    // Verify mapping is preserved
+    expect(result.mapping?.session?.sessionToken).toBe('token');
+    expect(result.mapping?.account?.providerAccountId).toBe('accountId');
   });
 
   it('should use default values for optional fields', () => {

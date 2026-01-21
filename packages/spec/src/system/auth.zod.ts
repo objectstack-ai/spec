@@ -206,6 +206,94 @@ export const TwoFactorConfigSchema = z.object({
 export type TwoFactorConfig = z.infer<typeof TwoFactorConfigSchema>;
 
 /**
+ * OIDC / OAuth2 Enterprise Configuration
+ * OpenID Connect configuration for enterprise SSO
+ */
+export const OIDCConfigSchema = z.object({
+  enabled: z.boolean().default(false),
+  
+  issuer: z.string().url().describe('OIDC Issuer URL (.well-known/openid-configuration)'),
+  
+  clientId: z.string().describe('OIDC client ID'),
+  
+  clientSecret: z.string().describe('OIDC client secret'),
+  
+  scopes: z.array(z.string()).default(['openid', 'profile', 'email']).describe('OIDC scopes'),
+  
+  attributeMapping: z.record(z.string()).optional().describe('Map IdP claims to User fields'),
+  
+  displayName: z.string().optional().describe('Display name for the provider button'),
+  
+  icon: z.string().optional().describe('Icon URL or identifier'),
+});
+
+export type OIDCConfig = z.infer<typeof OIDCConfigSchema>;
+
+/**
+ * SAML 2.0 Enterprise Configuration
+ * SAML configuration for legacy enterprise SSO
+ */
+export const SAMLConfigSchema = z.object({
+  enabled: z.boolean().default(false),
+  
+  entryPoint: z.string().url().describe('IdP SSO URL'),
+  
+  cert: z.string().describe('IdP Public Certificate (PEM format)'),
+  
+  issuer: z.string().describe('Entity ID of the IdP'),
+  
+  signatureAlgorithm: z.enum(['sha256', 'sha512']).default('sha256').describe('Signature algorithm'),
+  
+  attributeMapping: z.record(z.string()).optional().describe('Map SAML attributes to User fields'),
+  
+  displayName: z.string().optional().describe('Display name for the provider button'),
+  
+  icon: z.string().optional().describe('Icon URL or identifier'),
+});
+
+export type SAMLConfig = z.infer<typeof SAMLConfigSchema>;
+
+/**
+ * LDAP / Active Directory Enterprise Configuration
+ * LDAP configuration for on-premise directory services
+ */
+export const LDAPConfigSchema = z.object({
+  enabled: z.boolean().default(false),
+  
+  url: z.string().url().describe('LDAP Server URL (ldap:// or ldaps://)'),
+  
+  bindDn: z.string().describe('Bind DN for LDAP authentication'),
+  
+  bindCredentials: z.string().describe('Bind credentials'),
+  
+  searchBase: z.string().describe('Search base DN'),
+  
+  searchFilter: z.string().describe('Search filter'),
+  
+  groupSearchBase: z.string().optional().describe('Group search base DN'),
+  
+  displayName: z.string().optional().describe('Display name for the provider button'),
+  
+  icon: z.string().optional().describe('Icon URL or identifier'),
+});
+
+export type LDAPConfig = z.infer<typeof LDAPConfigSchema>;
+
+/**
+ * Enterprise Authentication Configuration
+ * Combines SAML, LDAP, and OIDC configurations for enterprise SSO
+ */
+export const EnterpriseAuthConfigSchema = z.object({
+  oidc: OIDCConfigSchema.optional().describe('OpenID Connect configuration'),
+  
+  saml: SAMLConfigSchema.optional().describe('SAML 2.0 configuration'),
+  
+  ldap: LDAPConfigSchema.optional().describe('LDAP/Active Directory configuration'),
+});
+
+export type EnterpriseAuthConfig = z.infer<typeof EnterpriseAuthConfigSchema>;
+
+/**
  * User Field Mapping Configuration
  * Maps authentication user fields to ObjectStack user object fields
  */
@@ -235,6 +323,72 @@ export const DatabaseAdapterSchema = z.object({
 });
 
 export type DatabaseAdapter = z.infer<typeof DatabaseAdapterSchema>;
+
+/**
+ * Default field mappings for better-auth compatibility
+ * These mappings bridge the gap between ObjectStack standard (Auth.js conventions)
+ * and better-auth's field naming conventions
+ */
+export const BETTER_AUTH_FIELD_MAPPINGS = {
+  session: {
+    sessionToken: 'token',
+    expires: 'expiresAt',
+  },
+  account: {
+    providerAccountId: 'accountId',
+    provider: 'providerId',
+  },
+} as const;
+
+/**
+ * Database Field Mapping Configuration
+ * Maps ObjectStack standard field names to driver-specific field names.
+ * 
+ * Useful when the underlying authentication driver (e.g., better-auth) uses
+ * different column names than the ObjectStack standard schemas (which follow
+ * Auth.js conventions).
+ * 
+ * @example
+ * ```typescript
+ * mapping: {
+ *   session: {
+ *     sessionToken: 'token',      // better-auth uses 'token'
+ *     expires: 'expiresAt'        // better-auth uses 'expiresAt'
+ *   },
+ *   account: {
+ *     providerAccountId: 'accountId',  // better-auth uses 'accountId'
+ *     provider: 'providerId'           // better-auth uses 'providerId'
+ *   }
+ * }
+ * ```
+ */
+export const DatabaseMappingSchema = z.object({
+  /**
+   * User model field mapping
+   * Maps ObjectStack User fields to driver fields
+   */
+  user: z.record(z.string()).optional().describe('User field mapping (e.g., { "emailVerified": "email_verified" })'),
+  
+  /**
+   * Session model field mapping
+   * Maps ObjectStack Session fields to driver fields
+   */
+  session: z.record(z.string()).default(BETTER_AUTH_FIELD_MAPPINGS.session).describe('Session field mapping'),
+  
+  /**
+   * Account model field mapping
+   * Maps ObjectStack Account fields to driver fields
+   */
+  account: z.record(z.string()).default(BETTER_AUTH_FIELD_MAPPINGS.account).describe('Account field mapping'),
+  
+  /**
+   * Verification token field mapping
+   * Maps ObjectStack VerificationToken fields to driver fields
+   */
+  verificationToken: z.record(z.string()).optional().describe('VerificationToken field mapping'),
+});
+
+export type DatabaseMapping = z.infer<typeof DatabaseMappingSchema>;
 
 /**
  * Authentication Plugin Configuration
@@ -367,6 +521,11 @@ export const AuthConfigSchema = z.object({
   twoFactor: TwoFactorConfigSchema.optional(),
   
   /**
+   * Enterprise authentication configuration (SAML, LDAP, OIDC)
+   */
+  enterprise: EnterpriseAuthConfigSchema.optional(),
+  
+  /**
    * User field mapping
    */
   userFieldMapping: UserFieldMappingSchema.default({}),
@@ -375,6 +534,16 @@ export const AuthConfigSchema = z.object({
    * Database adapter configuration
    */
   database: DatabaseAdapterSchema.optional(),
+  
+  /**
+   * Database field mapping configuration
+   * Maps ObjectStack standard field names to driver-specific field names.
+   * 
+   * This is distinct from the database adapter configuration and provides
+   * instructions for the driver to map our standard schema fields to the
+   * underlying engine's fields (e.g., better-auth uses 'token' instead of 'sessionToken').
+   */
+  mapping: DatabaseMappingSchema.optional(),
   
   /**
    * Additional authentication plugins

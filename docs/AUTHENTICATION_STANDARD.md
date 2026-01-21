@@ -26,6 +26,7 @@ The authentication standard can be implemented using various drivers:
 - **Passkey**: WebAuthn/FIDO2 biometric authentication
 - **OTP**: One-time password authentication (SMS, Email)
 - **Anonymous**: Guest/anonymous session support
+- **Enterprise SSO**: SAML 2.0, LDAP/Active Directory, and OIDC for enterprise single sign-on
 
 ### Security Features
 
@@ -160,6 +161,82 @@ const multiAuthConfig: AuthConfig = {
 };
 ```
 
+### Enterprise SSO Example
+
+```typescript
+const enterpriseAuthConfig: AuthConfig = {
+  name: 'enterprise_sso',
+  label: 'Enterprise SSO',
+  strategies: ['oauth'],
+  baseUrl: 'https://app.example.com',
+  secret: process.env.AUTH_SECRET!,
+  
+  // Standard OAuth for consumer providers
+  oauth: {
+    providers: [
+      { provider: 'google', clientId: '...', clientSecret: '...' },
+    ],
+  },
+  
+  // Enterprise authentication methods
+  enterprise: {
+    // OIDC (Modern standard for enterprise SSO)
+    oidc: {
+      enabled: true,
+      issuer: 'https://auth.company.com',
+      clientId: process.env.OIDC_CLIENT_ID!,
+      clientSecret: process.env.OIDC_CLIENT_SECRET!,
+      scopes: ['openid', 'profile', 'email', 'groups'],
+      attributeMapping: {
+        email: 'email',
+        name: 'name',
+        groups: 'roles',
+      },
+      displayName: 'Login with Corporate SSO',
+    },
+    
+    // SAML 2.0 (Legacy enterprise SSO)
+    saml: {
+      enabled: true,
+      entryPoint: 'https://idp.company.com/saml/sso',
+      cert: process.env.SAML_CERT!,
+      issuer: 'https://idp.company.com',
+      signatureAlgorithm: 'sha256',
+      attributeMapping: {
+        email: 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress',
+        name: 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name',
+      },
+      displayName: 'Login with SAML',
+    },
+    
+    // LDAP/Active Directory (On-premise)
+    ldap: {
+      enabled: true,
+      url: 'ldaps://ldap.company.com:636',
+      bindDn: 'CN=Service Account,OU=Users,DC=company,DC=com',
+      bindCredentials: process.env.LDAP_PASSWORD!,
+      searchBase: 'OU=Users,DC=company,DC=com',
+      searchFilter: '(&(objectClass=user)(sAMAccountName={{username}}))',
+      groupSearchBase: 'OU=Groups,DC=company,DC=com',
+      displayName: 'Login with Active Directory',
+    },
+  },
+  
+  session: {
+    expiresIn: 28800, // 8 hours for enterprise
+  },
+  
+  rateLimit: {
+    enabled: true,
+    maxAttempts: 5,
+  },
+  
+  csrf: {
+    enabled: true,
+  },
+};
+```
+
 ## Configuration Reference
 
 ### Core Configuration
@@ -283,6 +360,49 @@ twoFactor: {
 }
 ```
 
+### Enterprise Authentication
+
+```typescript
+enterprise: {
+  // OpenID Connect (Modern enterprise SSO)
+  oidc?: {
+    enabled: boolean;                // Enable OIDC
+    issuer: string;                  // OIDC Issuer URL
+    clientId: string;                // OIDC client ID
+    clientSecret: string;            // OIDC client secret
+    scopes?: string[];               // OIDC scopes (default: ['openid', 'profile', 'email'])
+    attributeMapping?: Record<string, string>; // Map IdP claims to user fields
+    displayName?: string;            // Button label
+    icon?: string;                   // Icon URL
+  },
+  
+  // SAML 2.0 (Legacy enterprise SSO)
+  saml?: {
+    enabled: boolean;                // Enable SAML
+    entryPoint: string;              // IdP SSO URL
+    cert: string;                    // IdP Public Certificate (PEM)
+    issuer: string;                  // Entity ID of the IdP
+    signatureAlgorithm?: 'sha256' | 'sha512'; // Signature algorithm
+    attributeMapping?: Record<string, string>; // Map SAML attributes to user fields
+    displayName?: string;            // Button label
+    icon?: string;                   // Icon URL
+  },
+  
+  // LDAP/Active Directory (On-premise)
+  ldap?: {
+    enabled: boolean;                // Enable LDAP
+    url: string;                     // LDAP Server URL (ldap:// or ldaps://)
+    bindDn: string;                  // Bind DN
+    bindCredentials: string;         // Bind credentials
+    searchBase: string;              // Search base DN
+    searchFilter: string;            // Search filter
+    groupSearchBase?: string;        // Group search base DN
+    displayName?: string;            // Button label
+    icon?: string;                   // Icon URL
+  }
+}
+```
+
 ### Lifecycle Hooks
 
 ```typescript
@@ -294,6 +414,88 @@ hooks: {
   beforeSignOut?: ({ sessionId }) => Promise<void>;
   afterSignOut?: ({ sessionId }) => Promise<void>;
 }
+```
+
+### Database Field Mapping
+
+The `mapping` configuration allows you to map ObjectStack standard field names (which follow Auth.js conventions) to driver-specific field names. This is particularly useful for ensuring compatibility with authentication libraries like `better-auth` that use different column naming conventions.
+
+```typescript
+mapping: {
+  // User model field mapping (optional)
+  user?: {
+    emailVerified: 'email_verified',  // Map to snake_case
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+  },
+  
+  // Session model field mapping (default better-auth compatible)
+  session: {
+    sessionToken: 'token',            // better-auth uses 'token'
+    expires: 'expiresAt',             // better-auth uses 'expiresAt'
+  },
+  
+  // Account model field mapping (default better-auth compatible)
+  account: {
+    providerAccountId: 'accountId',   // better-auth uses 'accountId'
+    provider: 'providerId',           // better-auth uses 'providerId'
+  },
+  
+  // Verification token field mapping (optional)
+  verificationToken?: {
+    identifier: 'email',
+  },
+}
+```
+
+**Default Mappings for better-auth Compatibility:**
+
+By default, the `session` and `account` mappings are pre-configured for `better-auth` compatibility:
+
+| ObjectStack Field | better-auth Field |
+|------------------|------------------|
+| `sessionToken` | `token` |
+| `expires` | `expiresAt` |
+| `providerAccountId` | `accountId` |
+| `provider` | `providerId` |
+
+You only need to specify the `mapping` configuration if you want to:
+- Use a different authentication driver with non-standard field names
+- Override the default better-auth mappings
+- Add custom mappings for user or verification token fields
+
+**Example with custom mappings:**
+
+```typescript
+const authConfig: AuthConfig = {
+  name: 'custom_auth',
+  label: 'Custom Auth',
+  driver: 'custom-driver',
+  strategies: ['email_password'],
+  baseUrl: 'https://example.com',
+  secret: process.env.AUTH_SECRET!,
+  
+  mapping: {
+    user: {
+      emailVerified: 'is_verified',
+      createdAt: 'created',
+      updatedAt: 'modified',
+    },
+    session: {
+      sessionToken: 'session_id',
+      expires: 'expires_at',
+    },
+    account: {
+      providerAccountId: 'external_id',
+      provider: 'auth_provider',
+    },
+  },
+  
+  session: {},
+  rateLimit: {},
+  csrf: {},
+  accountLinking: {},
+};
 ```
 
 ## Supported OAuth Providers
@@ -337,7 +539,13 @@ See [examples/auth-better-examples.ts](../examples/auth-better-examples.ts) for 
 
 ## Schema Files
 
-- **Zod Schema**: `packages/spec/src/system/auth.zod.ts`
+The authentication system is organized into three main files:
+
+1. **Configuration** (`packages/spec/src/system/auth.zod.ts`): Defines **how to login** - OAuth, Email, SAML, LDAP, better-auth driver settings
+2. **Data Models** (`packages/spec/src/system/identity.zod.ts`): Defines **who is logged in** - User, Session, Account schemas
+3. **Wire Protocol** (`packages/spec/src/system/auth-protocol.ts`): Defines **how to communicate** - API constants, headers, error codes
+
+Additional files:
 - **Tests**: `packages/spec/src/system/auth.test.ts`
 - **JSON Schema**: `packages/spec/json-schema/AuthConfig.json`
 - **Documentation**: `content/docs/references/system/AuthConfig.mdx`
@@ -347,14 +555,37 @@ See [examples/auth-better-examples.ts](../examples/auth-better-examples.ts) for 
 All schemas are defined using Zod and TypeScript types are inferred automatically:
 
 ```typescript
+// Authentication configuration types
 import type {
   AuthConfig,
   StandardAuthProvider,
   AuthStrategy,
   OAuthProvider,
   SessionConfig,
+  EnterpriseAuthConfig,
+  OIDCConfig,
+  SAMLConfig,
+  LDAPConfig,
   // ... and more
 } from '@objectstack/spec';
+
+// User and session data model types
+import type {
+  User,
+  Account,
+  Session,
+  VerificationToken,
+} from '@objectstack/spec';
+
+// Wire protocol types
+import type {
+  AuthHeaders,
+  AuthResponse,
+  AuthError,
+  TokenPayload,
+} from '@objectstack/spec';
+
+import { AUTH_CONSTANTS, AUTH_ERROR_CODES } from '@objectstack/spec';
 ```
 
 ## Naming Conventions
