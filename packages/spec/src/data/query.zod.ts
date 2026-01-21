@@ -47,7 +47,37 @@ export const SortNodeSchema = z.object({
 
 /**
  * Aggregation Function Enum
- * Standard aggregation functions.
+ * Standard aggregation functions for data analysis.
+ * 
+ * Supported Functions:
+ * - **count**: Count rows (SQL: COUNT(*) or COUNT(field))
+ * - **sum**: Sum numeric values (SQL: SUM(field))
+ * - **avg**: Average numeric values (SQL: AVG(field))
+ * - **min**: Minimum value (SQL: MIN(field))
+ * - **max**: Maximum value (SQL: MAX(field))
+ * - **count_distinct**: Count unique values (SQL: COUNT(DISTINCT field))
+ * - **array_agg**: Aggregate values into array (SQL: ARRAY_AGG(field))
+ * - **string_agg**: Concatenate values (SQL: STRING_AGG(field, delimiter))
+ * 
+ * @example
+ * // SQL: SELECT region, SUM(amount) FROM sales GROUP BY region
+ * {
+ *   object: 'sales',
+ *   fields: ['region'],
+ *   aggregations: [
+ *     { function: 'sum', field: 'amount', alias: 'total_sales' }
+ *   ],
+ *   groupBy: ['region']
+ * }
+ * 
+ * @example
+ * // Salesforce SOQL: SELECT COUNT(Id) FROM Account
+ * {
+ *   object: 'account',
+ *   aggregations: [
+ *     { function: 'count', alias: 'total_accounts' }
+ *   ]
+ * }
  */
 export const AggregationFunction = z.enum([
   'count', 'sum', 'avg', 'min', 'max',
@@ -56,7 +86,33 @@ export const AggregationFunction = z.enum([
 
 /**
  * Aggregation Node
- * Represents aggregated field with function.
+ * Represents an aggregated field with function.
+ * 
+ * Aggregations summarize data across groups of rows (GROUP BY).
+ * Used with `groupBy` to create analytical queries.
+ * 
+ * @example
+ * // SQL: SELECT customer_id, COUNT(*), SUM(amount) FROM orders GROUP BY customer_id
+ * {
+ *   object: 'order',
+ *   fields: ['customer_id'],
+ *   aggregations: [
+ *     { function: 'count', alias: 'order_count' },
+ *     { function: 'sum', field: 'amount', alias: 'total_amount' }
+ *   ],
+ *   groupBy: ['customer_id']
+ * }
+ * 
+ * @example
+ * // Salesforce SOQL: SELECT LeadSource, COUNT(Id) FROM Lead GROUP BY LeadSource
+ * {
+ *   object: 'lead',
+ *   fields: ['lead_source'],
+ *   aggregations: [
+ *     { function: 'count', alias: 'lead_count' }
+ *   ],
+ *   groupBy: ['lead_source']
+ * }
  */
 export const AggregationNodeSchema = z.object({
   function: AggregationFunction.describe('Aggregation function'),
@@ -67,12 +123,119 @@ export const AggregationNodeSchema = z.object({
 
 /**
  * Join Type Enum
+ * Standard SQL join types for combining tables.
+ * 
+ * Join Types:
+ * - **inner**: Returns only matching rows from both tables (SQL: INNER JOIN)
+ * - **left**: Returns all rows from left table, matching rows from right (SQL: LEFT JOIN)
+ * - **right**: Returns all rows from right table, matching rows from left (SQL: RIGHT JOIN)
+ * - **full**: Returns all rows from both tables (SQL: FULL OUTER JOIN)
+ * 
+ * @example
+ * // SQL: SELECT * FROM orders INNER JOIN customers ON orders.customer_id = customers.id
+ * {
+ *   object: 'order',
+ *   joins: [
+ *     {
+ *       type: 'inner',
+ *       object: 'customer',
+ *       on: ['order.customer_id', '=', 'customer.id']
+ *     }
+ *   ]
+ * }
+ * 
+ * @example
+ * // Salesforce SOQL-style: Find all customers and their orders (if any)
+ * {
+ *   object: 'customer',
+ *   joins: [
+ *     {
+ *       type: 'left',
+ *       object: 'order',
+ *       on: ['customer.id', '=', 'order.customer_id']
+ *     }
+ *   ]
+ * }
  */
 export const JoinType = z.enum(['inner', 'left', 'right', 'full']);
 
 /**
  * Join Node
- * Represents table joins.
+ * Represents table joins for combining data from multiple objects.
+ * 
+ * Joins connect related data across multiple tables using ON conditions.
+ * Supports both direct object joins and subquery joins.
+ * 
+ * @example
+ * // SQL: SELECT o.*, c.name FROM orders o INNER JOIN customers c ON o.customer_id = c.id
+ * {
+ *   object: 'order',
+ *   fields: ['id', 'amount'],
+ *   joins: [
+ *     {
+ *       type: 'inner',
+ *       object: 'customer',
+ *       alias: 'c',
+ *       on: ['order.customer_id', '=', 'c.id']
+ *     }
+ *   ]
+ * }
+ * 
+ * @example
+ * // SQL: Multi-table join
+ * // SELECT * FROM orders o
+ * // INNER JOIN customers c ON o.customer_id = c.id
+ * // LEFT JOIN shipments s ON o.id = s.order_id
+ * {
+ *   object: 'order',
+ *   joins: [
+ *     {
+ *       type: 'inner',
+ *       object: 'customer',
+ *       alias: 'c',
+ *       on: ['order.customer_id', '=', 'c.id']
+ *     },
+ *     {
+ *       type: 'left',
+ *       object: 'shipment',
+ *       alias: 's',
+ *       on: ['order.id', '=', 's.order_id']
+ *     }
+ *   ]
+ * }
+ * 
+ * @example
+ * // Salesforce SOQL: SELECT Name, (SELECT LastName FROM Contacts) FROM Account
+ * {
+ *   object: 'account',
+ *   fields: ['name'],
+ *   joins: [
+ *     {
+ *       type: 'left',
+ *       object: 'contact',
+ *       on: ['account.id', '=', 'contact.account_id']
+ *     }
+ *   ]
+ * }
+ * 
+ * @example
+ * // Subquery Join: Join with a filtered/aggregated dataset
+ * {
+ *   object: 'customer',
+ *   joins: [
+ *     {
+ *       type: 'left',
+ *       object: 'order',
+ *       alias: 'high_value_orders',
+ *       on: ['customer.id', '=', 'high_value_orders.customer_id'],
+ *       subquery: {
+ *         object: 'order',
+ *         fields: ['customer_id', 'total'],
+ *         filters: ['total', '>', 1000]
+ *       }
+ *     }
+ *   ]
+ * }
  */
 export const JoinNodeSchema: z.ZodType<any> = z.lazy(() => 
   z.object({
@@ -86,6 +249,58 @@ export const JoinNodeSchema: z.ZodType<any> = z.lazy(() =>
 
 /**
  * Window Function Enum
+ * Advanced analytical functions for row-based calculations.
+ * 
+ * Window Functions:
+ * - **row_number**: Sequential number within partition (SQL: ROW_NUMBER() OVER (...))
+ * - **rank**: Rank with gaps for ties (SQL: RANK() OVER (...))
+ * - **dense_rank**: Rank without gaps (SQL: DENSE_RANK() OVER (...))
+ * - **percent_rank**: Relative rank as percentage (SQL: PERCENT_RANK() OVER (...))
+ * - **lag**: Access previous row value (SQL: LAG(field) OVER (...))
+ * - **lead**: Access next row value (SQL: LEAD(field) OVER (...))
+ * - **first_value**: First value in window (SQL: FIRST_VALUE(field) OVER (...))
+ * - **last_value**: Last value in window (SQL: LAST_VALUE(field) OVER (...))
+ * - **sum/avg/count/min/max**: Aggregates over window (SQL: SUM(field) OVER (...))
+ * 
+ * @example
+ * // SQL: SELECT *, ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY amount DESC) as rank
+ * //      FROM orders
+ * {
+ *   object: 'order',
+ *   fields: ['id', 'customer_id', 'amount'],
+ *   windowFunctions: [
+ *     {
+ *       function: 'row_number',
+ *       alias: 'rank',
+ *       over: {
+ *         partitionBy: ['customer_id'],
+ *         orderBy: [{ field: 'amount', order: 'desc' }]
+ *       }
+ *     }
+ *   ]
+ * }
+ * 
+ * @example
+ * // SQL: Running total with SUM() OVER (...)
+ * {
+ *   object: 'transaction',
+ *   fields: ['date', 'amount'],
+ *   windowFunctions: [
+ *     {
+ *       function: 'sum',
+ *       field: 'amount',
+ *       alias: 'running_total',
+ *       over: {
+ *         orderBy: [{ field: 'date', order: 'asc' }],
+ *         frame: {
+ *           type: 'rows',
+ *           start: 'UNBOUNDED PRECEDING',
+ *           end: 'CURRENT ROW'
+ *         }
+ *       }
+ *     }
+ *   ]
+ * }
  */
 export const WindowFunction = z.enum([
   'row_number', 'rank', 'dense_rank', 'percent_rank',
@@ -96,6 +311,29 @@ export const WindowFunction = z.enum([
 /**
  * Window Specification
  * Defines PARTITION BY and ORDER BY for window functions.
+ * 
+ * Window specifications control how window functions compute values:
+ * - **partitionBy**: Divide rows into groups (like GROUP BY but without collapsing rows)
+ * - **orderBy**: Define order for ranking and offset functions
+ * - **frame**: Specify which rows to include in aggregate calculations
+ * 
+ * @example
+ * // Partition by department, order by salary
+ * {
+ *   partitionBy: ['department'],
+ *   orderBy: [{ field: 'salary', order: 'desc' }]
+ * }
+ * 
+ * @example
+ * // Moving average with frame specification
+ * {
+ *   orderBy: [{ field: 'date', order: 'asc' }],
+ *   frame: {
+ *     type: 'rows',
+ *     start: '6 PRECEDING',
+ *     end: 'CURRENT ROW'
+ *   }
+ * }
  */
 export const WindowSpecSchema = z.object({
   partitionBy: z.array(z.string()).optional().describe('PARTITION BY fields'),
@@ -110,6 +348,45 @@ export const WindowSpecSchema = z.object({
 /**
  * Window Function Node
  * Represents window function with OVER clause.
+ * 
+ * Window functions perform calculations across a set of rows related to the current row,
+ * without collapsing the result set (unlike GROUP BY aggregations).
+ * 
+ * @example
+ * // SQL: Top 3 products per category
+ * // SELECT *, ROW_NUMBER() OVER (PARTITION BY category ORDER BY sales DESC) as rank
+ * // FROM products
+ * {
+ *   object: 'product',
+ *   fields: ['name', 'category', 'sales'],
+ *   windowFunctions: [
+ *     {
+ *       function: 'row_number',
+ *       alias: 'category_rank',
+ *       over: {
+ *         partitionBy: ['category'],
+ *         orderBy: [{ field: 'sales', order: 'desc' }]
+ *       }
+ *     }
+ *   ]
+ * }
+ * 
+ * @example
+ * // SQL: Year-over-year comparison with LAG
+ * {
+ *   object: 'monthly_sales',
+ *   fields: ['month', 'revenue'],
+ *   windowFunctions: [
+ *     {
+ *       function: 'lag',
+ *       field: 'revenue',
+ *       alias: 'prev_year_revenue',
+ *       over: {
+ *         orderBy: [{ field: 'month', order: 'asc' }]
+ *       }
+ *     }
+ *   ]
+ * }
  */
 export const WindowFunctionNodeSchema = z.object({
   function: WindowFunction.describe('Window function name'),
@@ -136,6 +413,106 @@ export const FieldNodeSchema: z.ZodType<any> = z.lazy(() =>
 /**
  * Query AST Schema
  * The universal data retrieval contract defined in `ast-structure.mdx`.
+ * 
+ * This schema represents ObjectQL - a universal query language that abstracts
+ * SQL, NoSQL, and SaaS APIs into a single unified interface.
+ * 
+ * Key Features:
+ * - **Filtering**: WHERE clauses with nested logic
+ * - **Aggregations**: GROUP BY with COUNT, SUM, AVG, MIN, MAX
+ * - **Joins**: INNER, LEFT, RIGHT, FULL OUTER joins
+ * - **Window Functions**: ROW_NUMBER, RANK, LAG, LEAD, running totals
+ * - **Subqueries**: Nested queries in joins and filters
+ * - **Sorting & Pagination**: ORDER BY, LIMIT, OFFSET
+ * 
+ * @example
+ * // Simple query: SELECT name, email FROM account WHERE status = 'active'
+ * {
+ *   object: 'account',
+ *   fields: ['name', 'email'],
+ *   filters: ['status', '=', 'active']
+ * }
+ * 
+ * @example
+ * // Aggregation: SELECT region, SUM(amount) as total FROM sales GROUP BY region HAVING total > 10000
+ * {
+ *   object: 'sales',
+ *   fields: ['region'],
+ *   aggregations: [
+ *     { function: 'sum', field: 'amount', alias: 'total' }
+ *   ],
+ *   groupBy: ['region'],
+ *   having: ['total', '>', 10000]
+ * }
+ * 
+ * @example
+ * // Join: SELECT o.*, c.name FROM orders o INNER JOIN customers c ON o.customer_id = c.id
+ * {
+ *   object: 'order',
+ *   fields: ['id', 'amount'],
+ *   joins: [
+ *     {
+ *       type: 'inner',
+ *       object: 'customer',
+ *       alias: 'c',
+ *       on: ['order.customer_id', '=', 'c.id']
+ *     }
+ *   ]
+ * }
+ * 
+ * @example
+ * // Window Function: Top 5 orders per customer
+ * {
+ *   object: 'order',
+ *   fields: ['customer_id', 'amount', 'created_at'],
+ *   windowFunctions: [
+ *     {
+ *       function: 'row_number',
+ *       alias: 'customer_order_rank',
+ *       over: {
+ *         partitionBy: ['customer_id'],
+ *         orderBy: [{ field: 'amount', order: 'desc' }]
+ *       }
+ *     }
+ *   ]
+ * }
+ * 
+ * @example
+ * // Complex: Customer lifetime value with rankings
+ * {
+ *   object: 'customer',
+ *   fields: ['id', 'name'],
+ *   joins: [
+ *     {
+ *       type: 'left',
+ *       object: 'order',
+ *       alias: 'o',
+ *       on: ['customer.id', '=', 'o.customer_id']
+ *     }
+ *   ],
+ *   aggregations: [
+ *     { function: 'count', field: 'o.id', alias: 'order_count' },
+ *     { function: 'sum', field: 'o.amount', alias: 'lifetime_value' }
+ *   ],
+ *   groupBy: ['customer.id', 'customer.name'],
+ *   having: ['order_count', '>', 0],
+ *   sort: [{ field: 'lifetime_value', order: 'desc' }],
+ *   top: 100
+ * }
+ * 
+ * @example
+ * // Salesforce SOQL: SELECT Name, (SELECT LastName FROM Contacts) FROM Account
+ * {
+ *   object: 'account',
+ *   fields: ['name'],
+ *   joins: [
+ *     {
+ *       type: 'left',
+ *       object: 'contact',
+ *       on: ['account.id', '=', 'contact.account_id']
+ *     }
+ *   ]
+ * }
  */
 export const QuerySchema = z.object({
   /** Target Entity */
