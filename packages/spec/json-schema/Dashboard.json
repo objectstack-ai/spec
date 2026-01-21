@@ -46,6 +46,26 @@
                 "description": "Data source object name"
               },
               "filter": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": {}
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "$and": {
+                        "type": "array",
+                        "items": {}
+                      },
+                      "$or": {
+                        "type": "array",
+                        "items": {}
+                      },
+                      "$not": {}
+                    }
+                  }
+                ],
                 "description": "Data filter criteria"
               },
               "categoryField": {

@@ -41,21 +41,10 @@ export const OpportunitiesByStageReport: Report = {
     }
   ],
   
-  filter: '1 AND 2',
-  filterItems: [
-    {
-      id: 1,
-      field: 'stage',
-      operator: '!=',
-      value: 'closed_lost',
-    },
-    {
-      id: 2,
-      field: 'close_date',
-      operator: '>=',
-      value: '{current_year_start}',
-    }
-  ],
+  filter: {
+    stage: { $ne: 'closed_lost' },
+    close_date: { $gte: '{current_year_start}' }
+  },
   
   chart: {
     type: 'bar',
@@ -102,15 +91,9 @@ export const WonOpportunitiesByOwnerReport: Report = {
     }
   ],
   
-  filter: '1',
-  filterItems: [
-    {
-      id: 1,
-      field: 'stage',
-      operator: '=',
-      value: 'closed_won',
-    }
-  ],
+  filter: {
+    stage: 'closed_won'
+  },
   
   chart: {
     type: 'column',
@@ -155,15 +138,9 @@ export const AccountsByIndustryTypeReport: Report = {
     }
   ],
   
-  filter: '1',
-  filterItems: [
-    {
-      id: 1,
-      field: 'is_active',
-      operator: '=',
-      value: true,
-    }
-  ],
+  filter: {
+    is_active: true
+  },
 };
 
 // Support Report - Cases by Status and Priority
@@ -252,15 +229,9 @@ export const SlaPerformanceReport: Report = {
     }
   ],
   
-  filter: '1',
-  filterItems: [
-    {
-      id: 1,
-      field: 'is_closed',
-      operator: '=',
-      value: true,
-    }
-  ],
+  filter: {
+    is_closed: true
+  },
   
   chart: {
     type: 'column',
@@ -306,15 +277,9 @@ export const LeadsBySourceReport: Report = {
     }
   ],
   
-  filter: '1',
-  filterItems: [
-    {
-      id: 1,
-      field: 'is_converted',
-      operator: '=',
-      value: false,
-    }
-  ],
+  filter: {
+    is_converted: false
+  },
   
   chart: {
     type: 'pie',
@@ -405,15 +370,9 @@ export const TasksByOwnerReport: Report = {
     }
   ],
   
-  filter: '1',
-  filterItems: [
-    {
-      id: 1,
-      field: 'is_completed',
-      operator: '=',
-      value: false,
-    }
-  ],
+  filter: {
+    is_completed: false
+  },
 };
 
 export const CrmReports = {
