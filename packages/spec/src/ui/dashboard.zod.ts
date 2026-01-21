@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { FilterConditionSchema } from '../data/filter.zod';
 
 /**
  * Chart Type Enum
@@ -28,8 +29,8 @@ export const DashboardWidgetSchema = z.object({
   /** Data Source Object */
   object: z.string().optional().describe('Data source object name'),
   
-  /** Data Filter (ObjectQL JSON) */
-  filter: z.any().optional().describe('Data filter criteria'),
+  /** Data Filter (MongoDB-style FilterCondition) */
+  filter: FilterConditionSchema.optional().describe('Data filter criteria'),
   
   /** Category Field (X-Axis / Group By) */
   categoryField: z.string().optional().describe('Field for grouping (X-Axis)'),

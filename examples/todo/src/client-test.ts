@@ -55,11 +55,13 @@ async function main() {
        console.log('✅ Deleted:', deleted);
     }
 
-    // 6. Advanced Query (AST)
-    console.log('\n🧠 Testing Advanced Query (Select & AST)...');
+    // 6. Advanced Query (Modern Filter Syntax)
+    console.log('\n🧠 Testing Advanced Query (Select & Modern Filter)...');
     const advancedResult = await client.data.find('todo_task', {
         select: ['subject', 'priority'],
-        filters: ['priority', '>=', 2],
+        filters: {
+          priority: { $gte: 2 }  // Modern MongoDB-style filter syntax
+        },
         sort: ['-priority']
     });
     console.log(`🎉 Found ${advancedResult.count} high priority tasks:`);

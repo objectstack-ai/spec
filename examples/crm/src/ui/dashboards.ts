@@ -12,10 +12,9 @@ export const SalesDashboard: Dashboard = {
       title: 'Total Pipeline Value',
       type: 'metric',
       object: 'opportunity',
-      filter: [
-        ['stage', '!=', 'closed_won'],
-        ['stage', '!=', 'closed_lost'],
-      ],
+      filter: {
+        stage: { $nin: ['closed_won', 'closed_lost'] }
+      },
       valueField: 'amount',
       aggregate: 'sum',
       layout: { x: 0, y: 0, w: 3, h: 2 },
@@ -28,10 +27,10 @@ export const SalesDashboard: Dashboard = {
       title: 'Closed Won This Quarter',
       type: 'metric',
       object: 'opportunity',
-      filter: [
-        ['stage', '=', 'closed_won'],
-        ['close_date', '>=', '{current_quarter_start}'],
-      ],
+      filter: {
+        stage: 'closed_won',
+        close_date: { $gte: '{current_quarter_start}' }
+      },
       valueField: 'amount',
       aggregate: 'sum',
       layout: { x: 3, y: 0, w: 3, h: 2 },
@@ -44,10 +43,9 @@ export const SalesDashboard: Dashboard = {
       title: 'Open Opportunities',
       type: 'metric',
       object: 'opportunity',
-      filter: [
-        ['stage', '!=', 'closed_won'],
-        ['stage', '!=', 'closed_lost'],
-      ],
+      filter: {
+        stage: { $nin: ['closed_won', 'closed_lost'] }
+      },
       aggregate: 'count',
       layout: { x: 6, y: 0, w: 3, h: 2 },
       options: {
@@ -58,9 +56,9 @@ export const SalesDashboard: Dashboard = {
       title: 'Win Rate',
       type: 'metric',
       object: 'opportunity',
-      filter: [
-        ['close_date', '>=', '{current_quarter_start}'],
-      ],
+      filter: {
+        close_date: { $gte: '{current_quarter_start}' }
+      },
       valueField: 'stage',
       aggregate: 'count',
       layout: { x: 9, y: 0, w: 3, h: 2 },
@@ -75,10 +73,9 @@ export const SalesDashboard: Dashboard = {
       title: 'Pipeline by Stage',
       type: 'funnel',
       object: 'opportunity',
-      filter: [
-        ['stage', '!=', 'closed_won'],
-        ['stage', '!=', 'closed_lost'],
-      ],
+      filter: {
+        stage: { $nin: ['closed_won', 'closed_lost'] }
+      },
       categoryField: 'stage',
       valueField: 'amount',
       aggregate: 'sum',
@@ -91,10 +88,9 @@ export const SalesDashboard: Dashboard = {
       title: 'Opportunities by Owner',
       type: 'bar',
       object: 'opportunity',
-      filter: [
-        ['stage', '!=', 'closed_won'],
-        ['stage', '!=', 'closed_lost'],
-      ],
+      filter: {
+        stage: { $nin: ['closed_won', 'closed_lost'] }
+      },
       categoryField: 'owner',
       valueField: 'amount',
       aggregate: 'sum',
@@ -109,10 +105,10 @@ export const SalesDashboard: Dashboard = {
       title: 'Monthly Revenue Trend',
       type: 'line',
       object: 'opportunity',
-      filter: [
-        ['stage', '=', 'closed_won'],
-        ['close_date', '>=', '{last_12_months}'],
-      ],
+      filter: {
+        stage: 'closed_won',
+        close_date: { $gte: '{last_12_months}' }
+      },
       categoryField: 'close_date',
       valueField: 'amount',
       aggregate: 'sum',
@@ -126,10 +122,9 @@ export const SalesDashboard: Dashboard = {
       title: 'Top Opportunities',
       type: 'table',
       object: 'opportunity',
-      filter: [
-        ['stage', '!=', 'closed_won'],
-        ['stage', '!=', 'closed_lost'],
-      ],
+      filter: {
+        stage: { $nin: ['closed_won', 'closed_lost'] }
+      },
       aggregate: 'count',
       layout: { x: 8, y: 6, w: 4, h: 4 },
       options: {
@@ -154,7 +149,7 @@ export const ServiceDashboard: Dashboard = {
       title: 'Open Cases',
       type: 'metric',
       object: 'case',
-      filter: [['is_closed', '=', false]],
+      filter: { is_closed: false },
       aggregate: 'count',
       layout: { x: 0, y: 0, w: 3, h: 2 },
       options: {
@@ -165,10 +160,10 @@ export const ServiceDashboard: Dashboard = {
       title: 'Critical Cases',
       type: 'metric',
       object: 'case',
-      filter: [
-        ['priority', '=', 'critical'],
-        ['is_closed', '=', false],
-      ],
+      filter: {
+        priority: 'critical',
+        is_closed: false
+      },
       aggregate: 'count',
       layout: { x: 3, y: 0, w: 3, h: 2 },
       options: {
@@ -179,7 +174,7 @@ export const ServiceDashboard: Dashboard = {
       title: 'Avg Resolution Time (hrs)',
       type: 'metric',
       object: 'case',
-      filter: [['is_closed', '=', true]],
+      filter: { is_closed: true },
       valueField: 'resolution_time_hours',
       aggregate: 'avg',
       layout: { x: 6, y: 0, w: 3, h: 2 },
@@ -192,7 +187,7 @@ export const ServiceDashboard: Dashboard = {
       title: 'SLA Violations',
       type: 'metric',
       object: 'case',
-      filter: [['is_sla_violated', '=', true]],
+      filter: { is_sla_violated: true },
       aggregate: 'count',
       layout: { x: 9, y: 0, w: 3, h: 2 },
       options: {
@@ -205,7 +200,7 @@ export const ServiceDashboard: Dashboard = {
       title: 'Cases by Status',
       type: 'donut',
       object: 'case',
-      filter: [['is_closed', '=', false]],
+      filter: { is_closed: false },
       categoryField: 'status',
       aggregate: 'count',
       layout: { x: 0, y: 2, w: 4, h: 4 },
@@ -217,7 +212,7 @@ export const ServiceDashboard: Dashboard = {
       title: 'Cases by Priority',
       type: 'pie',
       object: 'case',
-      filter: [['is_closed', '=', false]],
+      filter: { is_closed: false },
       categoryField: 'priority',
       aggregate: 'count',
       layout: { x: 4, y: 2, w: 4, h: 4 },
@@ -239,9 +234,9 @@ export const ServiceDashboard: Dashboard = {
       title: 'Daily Case Volume',
       type: 'line',
       object: 'case',
-      filter: [
-        ['created_date', '>=', '{last_30_days}'],
-      ],
+      filter: {
+        created_date: { $gte: '{last_30_days}' }
+      },
       categoryField: 'created_date',
       aggregate: 'count',
       layout: { x: 0, y: 6, w: 8, h: 4 },
@@ -253,10 +248,10 @@ export const ServiceDashboard: Dashboard = {
       title: 'My Open Cases',
       type: 'table',
       object: 'case',
-      filter: [
-        ['owner', '=', '{current_user}'],
-        ['is_closed', '=', false],
-      ],
+      filter: {
+        owner: '{current_user}',
+        is_closed: false
+      },
       aggregate: 'count',
       layout: { x: 8, y: 6, w: 4, h: 4 },
       options: {
@@ -281,10 +276,10 @@ export const ExecutiveDashboard: Dashboard = {
       title: 'Total Revenue (YTD)',
       type: 'metric',
       object: 'opportunity',
-      filter: [
-        ['stage', '=', 'closed_won'],
-        ['close_date', '>=', '{current_year_start}'],
-      ],
+      filter: {
+        stage: 'closed_won',
+        close_date: { $gte: '{current_year_start}' }
+      },
       valueField: 'amount',
       aggregate: 'sum',
       layout: { x: 0, y: 0, w: 3, h: 2 },
@@ -297,7 +292,7 @@ export const ExecutiveDashboard: Dashboard = {
       title: 'Total Accounts',
       type: 'metric',
       object: 'account',
-      filter: [['is_active', '=', true]],
+      filter: { is_active: true },
       aggregate: 'count',
       layout: { x: 3, y: 0, w: 3, h: 2 },
       options: {
@@ -318,7 +313,7 @@ export const ExecutiveDashboard: Dashboard = {
       title: 'Total Leads',
       type: 'metric',
       object: 'lead',
-      filter: [['is_converted', '=', false]],
+      filter: { is_converted: false },
       aggregate: 'count',
       layout: { x: 9, y: 0, w: 3, h: 2 },
       options: {
@@ -331,10 +326,10 @@ export const ExecutiveDashboard: Dashboard = {
       title: 'Revenue by Industry',
       type: 'bar',
       object: 'opportunity',
-      filter: [
-        ['stage', '=', 'closed_won'],
-        ['close_date', '>=', '{current_year_start}'],
-      ],
+      filter: {
+        stage: 'closed_won',
+        close_date: { $gte: '{current_year_start}' }
+      },
       categoryField: 'account.industry',
       valueField: 'amount',
       aggregate: 'sum',
@@ -344,10 +339,10 @@ export const ExecutiveDashboard: Dashboard = {
       title: 'Quarterly Revenue Trend',
       type: 'line',
       object: 'opportunity',
-      filter: [
-        ['stage', '=', 'closed_won'],
-        ['close_date', '>=', '{last_4_quarters}'],
-      ],
+      filter: {
+        stage: 'closed_won',
+        close_date: { $gte: '{last_4_quarters}' }
+      },
       categoryField: 'close_date',
       valueField: 'amount',
       aggregate: 'sum',
@@ -362,9 +357,9 @@ export const ExecutiveDashboard: Dashboard = {
       title: 'New Accounts by Month',
       type: 'bar',
       object: 'account',
-      filter: [
-        ['created_date', '>=', '{last_6_months}'],
-      ],
+      filter: {
+        created_date: { $gte: '{last_6_months}' }
+      },
       categoryField: 'created_date',
       aggregate: 'count',
       layout: { x: 0, y: 6, w: 4, h: 4 },

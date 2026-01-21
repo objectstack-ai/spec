@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { FilterConditionSchema } from '../data/filter.zod';
 
 /**
  * Report Type Enum
@@ -62,14 +63,8 @@ export const ReportSchema = z.object({
   groupingsDown: z.array(ReportGroupingSchema).optional().describe('Row groupings'),
   groupingsAcross: z.array(ReportGroupingSchema).optional().describe('Column groupings (Matrix only)'),
   
-  /** Filtering */
-  filter: z.string().optional().describe('Filter logic (e.g. "1 AND (2 OR 3)")'),
-  filterItems: z.array(z.object({
-    id: z.number(),
-    field: z.string(),
-    operator: z.string(),
-    value: z.any()
-  })).optional().describe('Filter criteria lines'),
+  /** Filtering (MongoDB-style FilterCondition) */
+  filter: FilterConditionSchema.optional().describe('Filter criteria'),
   
   /** Visualization */
   chart: ReportChartSchema.optional().describe('Embedded chart configuration'),
