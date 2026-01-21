@@ -1,5 +1,333 @@
 ---
 title: FilterNode
-description: FilterNode Schema Reference
+description: Array-based filter syntax for query conditions (Legacy)
 ---
 
+# FilterNode
+
+FilterNode represents the legacy array-based filter syntax used in ObjectStack queries. This syntax is being deprecated in favor of the MongoDB-style `FilterCondition` syntax.
+
+## Overview
+
+FilterNode uses a simple array structure to represent filter conditions:
+- **Leaf Node**: `[field, operator, value]` for simple conditions
+- **Logic Node**: `[expression, "and"|"or", expression]` for logical combinations
+
+## Type Definition
+
+```typescript
+type FilterNode = 
+  | [string, FilterOperator, any]           // Leaf: Simple condition
+  | Array<string | FilterNode>;             // Logic: Logical combination
+```
+
+## Syntax Patterns
+
+### 1. Simple Condition (Leaf Node)
+
+```typescript
+[field, operator, value]
+```
+
+**Examples:**
+```typescript
+['status', '=', 'active']
+['age', '>=', 18]
+['email', 'contains', '@example.com']
+['role', 'in', ['admin', 'editor']]
+['deletedAt', 'is_null', true]
+```
+
+### 2. Logical Combinations
+
+```typescript
+[condition1, 'and'|'or', condition2]
+```
+
+**Examples:**
+```typescript
+// AND
+[
+  ['status', '=', 'active'],
+  'and',
+  ['age', '>=', 18]
+]
+
+// OR
+[
+  ['role', '=', 'admin'],
+  'or',
+  ['role', '=', 'editor']
+]
+
+// Nested logic
+[
+  ['status', '=', 'active'],
+  'and',
+  [
+    ['role', '=', 'admin'],
+    'or',
+    ['verified', '=', true]
+  ]
+]
+```
+
+## Available Operators
+
+See [FilterOperator](./FilterOperator.mdx) for complete operator documentation.
+
+**Common operators:**
+- Equality: `=`, `!=`, `<>`
+- Comparison: `>`, `>=`, `<`, `<=`
+- String: `contains`, `startswith`, `notcontains`
+- Set: `in`, `notin`, `between`
+- Special: `is_null`, `is_not_null`
+
+## Usage Examples
+
+### Basic Filtering
+
+```typescript
+// Equality
+const filter: FilterNode = ['status', '=', 'active'];
+
+// Comparison
+const filter: FilterNode = ['age', '>=', 18];
+
+// String matching
+const filter: FilterNode = ['email', 'contains', '@company.com'];
+
+// Set membership
+const filter: FilterNode = ['role', 'in', ['admin', 'editor', 'viewer']];
+```
+
+### Logical AND
+
+```typescript
+const filter: FilterNode = [
+  ['status', '=', 'active'],
+  'and',
+  ['verified', '=', true]
+];
+```
+
+### Logical OR
+
+```typescript
+const filter: FilterNode = [
+  ['role', '=', 'admin'],
+  'or',
+  ['permissions', 'contains', 'write']
+];
+```
+
+### Complex Nested Logic
+
+```typescript
+const filter: FilterNode = [
+  ['status', '=', 'active'],
+  'and',
+  [
+    [
+      ['priority', '=', 'high'],
+      'or',
+      ['urgent', '=', true]
+    ],
+    'and',
+    ['assignee', 'is_not_null', true]
+  ]
+];
+```
+
+### Real-World Examples
+
+#### Task Filter
+```typescript
+const taskFilter: FilterNode = [
+  [
+    ['status', '!=', 'completed'],
+    'and',
+    ['assignee', 'is_not_null', true]
+  ],
+  'and',
+  [
+    ['priority', '=', 'high'],
+    'or',
+    ['dueDate', '<', new Date()]
+  ]
+];
+```
+
+#### User Search
+```typescript
+const userSearch: FilterNode = [
+  [
+    ['name', 'contains', 'john'],
+    'or',
+    ['email', 'contains', 'john']
+  ],
+  'and',
+  ['status', '=', 'active']
+];
+```
+
+## Usage in Query AST
+
+FilterNode is used in the `filters` field of the Query AST:
+
+```typescript
+const query: Query = {
+  object: 'user',
+  fields: ['name', 'email', 'age'],
+  filters: [
+    ['status', '=', 'active'],
+    'and',
+    ['age', '>=', 18]
+  ],
+  sort: [{ field: 'createdAt', order: 'desc' }],
+  top: 10
+};
+```
+
+## Migration to Modern Syntax
+
+⚠️ **Deprecation Notice**: This array-based syntax is being replaced by the MongoDB-style `FilterCondition` syntax, which is more expressive and type-safe.
+
+### Simple Condition
+
+**Before (FilterNode):**
+```typescript
+['status', '=', 'active']
+```
+
+**After (FilterCondition):**
+```typescript
+{ status: 'active' }
+// or explicit
+{ status: { $eq: 'active' } }
+```
+
+### Comparison
+
+**Before (FilterNode):**
+```typescript
+['age', '>=', 18]
+```
+
+**After (FilterCondition):**
+```typescript
+{ age: { $gte: 18 } }
+```
+
+### String Matching
+
+**Before (FilterNode):**
+```typescript
+['email', 'contains', '@example.com']
+['username', 'startswith', 'admin_']
+```
+
+**After (FilterCondition):**
+```typescript
+{ email: { $contains: '@example.com' } }
+{ username: { $startsWith: 'admin_' } }
+```
+
+### Set Operations
+
+**Before (FilterNode):**
+```typescript
+['role', 'in', ['admin', 'editor']]
+```
+
+**After (FilterCondition):**
+```typescript
+{ role: { $in: ['admin', 'editor'] } }
+```
+
+### Logical AND
+
+**Before (FilterNode):**
+```typescript
+[
+  ['status', '=', 'active'],
+  'and',
+  ['age', '>=', 18]
+]
+```
+
+**After (FilterCondition):**
+```typescript
+{
+  status: 'active',
+  age: { $gte: 18 }
+}
+```
+
+### Logical OR
+
+**Before (FilterNode):**
+```typescript
+[
+  ['role', '=', 'admin'],
+  'or',
+  ['role', '=', 'editor']
+]
+```
+
+**After (FilterCondition):**
+```typescript
+{
+  $or: [
+    { role: 'admin' },
+    { role: 'editor' }
+  ]
+}
+```
+
+### Complex Nested Logic
+
+**Before (FilterNode):**
+```typescript
+[
+  ['status', '=', 'active'],
+  'and',
+  [
+    ['priority', '=', 'high'],
+    'or',
+    ['urgent', '=', true]
+  ]
+]
+```
+
+**After (FilterCondition):**
+```typescript
+{
+  status: 'active',
+  $or: [
+    { priority: 'high' },
+    { urgent: true }
+  ]
+}
+```
+
+## Limitations
+
+1. **Less Type-Safe**: Array structure is harder for TypeScript to validate
+2. **Less Readable**: Nested arrays become hard to read
+3. **Limited Operators**: Not all operators are available
+4. **No Nested Relations**: Cannot easily query nested object properties
+
+## Benefits of Modern Syntax
+
+1. **Type Safety**: Full TypeScript support with inference
+2. **Readability**: Object syntax is more natural and clear
+3. **Flexibility**: Supports nested relations and complex queries
+4. **Industry Standard**: MongoDB-style syntax is widely recognized
+
+## See Also
+
+- [FilterCondition](../FilterCondition.mdx) - Modern MongoDB-style filter syntax (Recommended)
+- [QueryFilter](../QueryFilter.mdx) - Top-level query filter wrapper
+- [FilterOperator](./FilterOperator.mdx) - Operator reference and migration guide
+- [Query](../types/Query.mdx) - Complete query specification

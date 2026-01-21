@@ -1,12 +1,342 @@
 ---
 title: NormalizedFilter
-description: NormalizedFilter Schema Reference
+description: Internal AST representation of filter conditions after normalization
 ---
+
+# NormalizedFilter
+
+NormalizedFilter is the internal Abstract Syntax Tree (AST) representation of filter conditions after converting all syntactic sugar to explicit operators. This simplified structure makes it easier for driver implementations to process filters consistently.
+
+## Overview
+
+During the normalization pass, implicit syntax is converted to explicit operator-based conditions:
+
+**Input (User-friendly):**
+```typescript
+{ age: 18, role: "admin" }
+```
+
+**Output (Normalized):**
+```typescript
+{
+  $and: [
+    { age: { $eq: 18 } },
+    { role: { $eq: "admin" } }
+  ]
+}
+```
+
+## Schema
+
+```typescript
+{
+  $and?: Array<FieldCondition | NormalizedFilter>,
+  $or?: Array<FieldCondition | NormalizedFilter>,
+  $not?: FieldCondition | NormalizedFilter
+}
+
+type FieldCondition = Record<string, FieldOperators>
+```
 
 ## Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **$and** | `Record<string, object> \| any[]` | optional |  |
-| **$or** | `Record<string, object> \| any[]` | optional |  |
-| **$not** | `Record<string, object> \| any` | optional |  |
+| **$and** | `Array<FieldCondition \| NormalizedFilter>` | optional | All conditions must be true (logical AND) |
+| **$or** | `Array<FieldCondition \| NormalizedFilter>` | optional | At least one condition must be true (logical OR) |
+| **$not** | `FieldCondition \| NormalizedFilter` | optional | Negates the condition (logical NOT) |
+
+## Normalization Process
+
+### Stage 1: Implicit Equality → Explicit $eq
+
+**Before:**
+```typescript
+{ status: "active", verified: true }
+```
+
+**After:**
+```typescript
+{
+  $and: [
+    { status: { $eq: "active" } },
+    { verified: { $eq: true } }
+  ]
+}
+```
+
+### Stage 2: Flatten Top-level AND
+
+**Before:**
+```typescript
+{
+  status: "active",
+  age: { $gte: 18 },
+  role: "admin"
+}
+```
+
+**After:**
+```typescript
+{
+  $and: [
+    { status: { $eq: "active" } },
+    { age: { $gte: 18 } },
+    { role: { $eq: "admin" } }
+  ]
+}
+```
+
+### Stage 3: Preserve Logical Operators
+
+**Before:**
+```typescript
+{
+  status: "active",
+  $or: [
+    { role: "admin" },
+    { permissions: { $contains: "write" } }
+  ]
+}
+```
+
+**After:**
+```typescript
+{
+  $and: [
+    { status: { $eq: "active" } },
+    {
+      $or: [
+        { role: { $eq: "admin" } },
+        { permissions: { $contains: "write" } }
+      ]
+    }
+  ]
+}
+```
+
+## Examples
+
+### Simple AND Condition
+
+**Input:**
+```typescript
+const filter: QueryFilter = {
+  where: {
+    status: "active",
+    age: { $gte: 18 }
+  }
+};
+```
+
+**Normalized:**
+```typescript
+{
+  $and: [
+    { status: { $eq: "active" } },
+    { age: { $gte: 18 } }
+  ]
+}
+```
+
+### OR with Nested AND
+
+**Input:**
+```typescript
+const filter: QueryFilter = {
+  where: {
+    $or: [
+      { role: "admin" },
+      {
+        $and: [
+          { verified: true },
+          { score: { $gt: 80 } }
+        ]
+      }
+    ]
+  }
+};
+```
+
+**Normalized:**
+```typescript
+{
+  $or: [
+    { role: { $eq: "admin" } },
+    {
+      $and: [
+        { verified: { $eq: true } },
+        { score: { $gt: 80 } }
+      ]
+    }
+  ]
+}
+```
+
+### NOT Condition
+
+**Input:**
+```typescript
+const filter: QueryFilter = {
+  where: {
+    $not: {
+      status: "deleted",
+      archived: true
+    }
+  }
+};
+```
+
+**Normalized:**
+```typescript
+{
+  $not: {
+    $and: [
+      { status: { $eq: "deleted" } },
+      { archived: { $eq: true } }
+    ]
+  }
+}
+```
+
+### Complex Nested Structure
+
+**Input:**
+```typescript
+const filter: QueryFilter = {
+  where: {
+    status: "active",
+    $and: [
+      { age: { $gte: 18 } },
+      {
+        $or: [
+          { role: "admin" },
+          { permissions: { $contains: "edit" } }
+        ]
+      }
+    ],
+    department: {
+      name: "Engineering"
+    }
+  }
+};
+```
+
+**Normalized:**
+```typescript
+{
+  $and: [
+    { status: { $eq: "active" } },
+    { age: { $gte: 18 } },
+    {
+      $or: [
+        { role: { $eq: "admin" } },
+        { permissions: { $contains: "edit" } }
+      ]
+    },
+    { "department.name": { $eq: "Engineering" } }  // Flattened path
+  ]
+}
+```
+
+## Benefits for Driver Implementation
+
+### 1. Consistent Structure
+Every filter is guaranteed to have explicit operators, eliminating ambiguity.
+
+### 2. Simplified Traversal
+Drivers can use a simple recursive pattern:
+```typescript
+function processFilter(filter: NormalizedFilter) {
+  if (filter.$and) return processAnd(filter.$and);
+  if (filter.$or) return processOr(filter.$or);
+  if (filter.$not) return processNot(filter.$not);
+  // Process field conditions
+}
+```
+
+### 3. SQL Generation Example
+```typescript
+function toSQL(filter: NormalizedFilter): string {
+  if (filter.$and) {
+    return filter.$and.map(toSQL).join(' AND ');
+  }
+  if (filter.$or) {
+    return filter.$or.map(toSQL).join(' OR ');
+  }
+  if (filter.$not) {
+    return `NOT (${toSQL(filter.$not)})`;
+  }
+  // Handle field conditions
+}
+```
+
+### 4. MongoDB Query Example
+```typescript
+function toMongo(filter: NormalizedFilter) {
+  if (filter.$and) {
+    return { $and: filter.$and.map(toMongo) };
+  }
+  if (filter.$or) {
+    return { $or: filter.$or.map(toMongo) };
+  }
+  if (filter.$not) {
+    return { $nor: [toMongo(filter.$not)] };
+  }
+  // Handle field conditions
+}
+```
+
+## Field Operators in Normalized Filters
+
+Each field condition uses explicit operators:
+
+```typescript
+{
+  $eq?: any,           // Equal to
+  $ne?: any,           // Not equal to
+  $gt?: number | Date, // Greater than
+  $gte?: number | Date,// Greater than or equal
+  $lt?: number | Date, // Less than
+  $lte?: number | Date,// Less than or equal
+  $in?: any[],         // In array
+  $nin?: any[],        // Not in array
+  $between?: [number | Date, number | Date], // Between range
+  $contains?: string,  // Contains substring
+  $startsWith?: string,// Starts with prefix
+  $endsWith?: string,  // Ends with suffix
+  $null?: boolean,     // Is/isn't null
+  $exist?: boolean     // Field exists
+}
+```
+
+## Usage in Driver Implementation
+
+Drivers should normalize user input before processing:
+
+```typescript
+import { normalizeFilter } from '@objectstack/spec';
+
+class MyDriver implements Driver {
+  async find(object: string, query: Query) {
+    // Normalize filter
+    const normalized = normalizeFilter(query.where);
+    
+    // Convert to database-specific query
+    const dbQuery = this.toNativeQuery(normalized);
+    
+    // Execute
+    return this.execute(dbQuery);
+  }
+  
+  private toNativeQuery(filter: NormalizedFilter) {
+    // Driver-specific implementation
+  }
+}
+```
+
+## See Also
+
+- [QueryFilter](./QueryFilter.mdx) - User-friendly filter syntax
+- [FilterCondition](./FilterCondition.mdx) - Recursive filter structure
+- [Driver Implementation Guide](/docs/guides/custom-driver.mdx) - Building custom drivers
