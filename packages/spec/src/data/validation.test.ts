@@ -5,6 +5,10 @@ import {
   UniquenessValidationSchema,
   StateMachineValidationSchema,
   FormatValidationSchema,
+  CrossFieldValidationSchema,
+  AsyncValidationSchema,
+  CustomValidatorSchema,
+  ConditionalValidationSchema,
   type ValidationRule,
 } from './validation.zod';
 
@@ -1074,6 +1078,457 @@ describe('ValidationRuleSchema (Discriminated Union)', () => {
       advancedRules.forEach(rule => {
         expect(() => ValidationRuleSchema.parse(rule)).not.toThrow();
       });
+    });
+  });
+});
+
+describe('ValidationRuleSchema - Edge Cases and Null Handling', () => {
+  it('should handle null and undefined in optional fields', () => {
+    const validation = {
+      type: 'script' as const,
+      name: 'test_validation',
+      message: 'Test message',
+      condition: 'amount > 0',
+      active: undefined, // Should default to true
+      severity: undefined, // Should default to 'error'
+    };
+
+    const result = ScriptValidationSchema.parse(validation);
+    expect(result.active).toBe(true);
+    expect(result.severity).toBe('error');
+  });
+
+  it('should handle empty arrays in UniquenessValidation', () => {
+    expect(() => UniquenessValidationSchema.parse({
+      type: 'unique',
+      name: 'test_unique',
+      message: 'Must be unique',
+      fields: [], // Empty array should be valid but probably not useful
+    })).not.toThrow();
+  });
+
+  it('should handle undefined scope in UniquenessValidation', () => {
+    const validation = {
+      type: 'unique' as const,
+      name: 'unique_email',
+      message: 'Email must be unique',
+      fields: ['email'],
+      scope: undefined,
+      caseSensitive: undefined, // Should default to true
+    };
+
+    const result = UniquenessValidationSchema.parse(validation);
+    expect(result.caseSensitive).toBe(true);
+  });
+
+  it('should handle empty state transitions', () => {
+    const validation = {
+      type: 'state_machine' as const,
+      name: 'state_validation',
+      message: 'Invalid state transition',
+      field: 'status',
+      transitions: {
+        'draft': [],
+        'published': ['draft', 'archived'],
+      },
+    };
+
+    expect(() => StateMachineValidationSchema.parse(validation)).not.toThrow();
+  });
+
+  it('should handle undefined regex and format in FormatValidation', () => {
+    const validation = {
+      type: 'format' as const,
+      name: 'format_check',
+      message: 'Invalid format',
+      field: 'email',
+      format: 'email' as const,
+      regex: undefined,
+    };
+
+    expect(() => FormatValidationSchema.parse(validation)).not.toThrow();
+  });
+
+  it('should handle various format types', () => {
+    const formats = ['email', 'url', 'phone', 'json'] as const;
+    
+    formats.forEach(format => {
+      const validation = {
+        type: 'format' as const,
+        name: `format_${format}`,
+        message: `Invalid ${format}`,
+        field: 'test_field',
+        format,
+      };
+
+      expect(() => FormatValidationSchema.parse(validation)).not.toThrow();
+    });
+  });
+
+  it('should handle empty fields array in CrossFieldValidation', () => {
+    const validation = {
+      type: 'cross_field' as const,
+      name: 'test_cross_field',
+      message: 'Validation failed',
+      condition: 'true',
+      fields: [], // Empty array
+    };
+
+    expect(() => CrossFieldValidationSchema.parse(validation)).not.toThrow();
+  });
+
+  it('should handle undefined optional fields in AsyncValidation', () => {
+    const validation = {
+      type: 'async' as const,
+      name: 'async_validation',
+      message: 'Validation failed',
+      field: 'email',
+      validatorUrl: '/api/validate',
+      validatorFunction: undefined,
+      debounce: undefined,
+      params: undefined,
+    };
+
+    const result = AsyncValidationSchema.parse(validation);
+    expect(result.timeout).toBe(5000); // Default timeout
+  });
+
+  it('should handle custom timeout in AsyncValidation', () => {
+    const validation = {
+      type: 'async' as const,
+      name: 'async_validation',
+      message: 'Validation failed',
+      field: 'email',
+      validatorUrl: '/api/validate',
+      timeout: 10000,
+    };
+
+    const result = AsyncValidationSchema.parse(validation);
+    expect(result.timeout).toBe(10000);
+  });
+
+  it('should handle undefined field in CustomValidator', () => {
+    const validation = {
+      type: 'custom' as const,
+      name: 'custom_validation',
+      message: 'Validation failed',
+      field: undefined, // Optional for record-level validation
+      validatorFunction: 'validateRecord',
+      params: undefined,
+    };
+
+    expect(() => CustomValidatorSchema.parse(validation)).not.toThrow();
+  });
+
+  it('should handle empty params object', () => {
+    const validation = {
+      type: 'custom' as const,
+      name: 'custom_validation',
+      message: 'Validation failed',
+      validatorFunction: 'validateRecord',
+      params: {},
+    };
+
+    expect(() => CustomValidatorSchema.parse(validation)).not.toThrow();
+  });
+
+  it('should handle undefined otherwise in ConditionalValidation', () => {
+    const validation = {
+      type: 'conditional' as const,
+      name: 'conditional_validation',
+      message: 'Conditional validation',
+      when: 'type = "special"',
+      then: {
+        type: 'script' as const,
+        name: 'special_validation',
+        message: 'Special type validation',
+        condition: 'amount > 100',
+      },
+      otherwise: undefined,
+    };
+
+    expect(() => ConditionalValidationSchema.parse(validation)).not.toThrow();
+  });
+
+  it('should reject missing required fields', () => {
+    expect(() => ScriptValidationSchema.parse({
+      type: 'script',
+      // Missing name, message, and condition
+    })).toThrow();
+  });
+
+  it('should reject invalid validation type', () => {
+    expect(() => ValidationRuleSchema.parse({
+      type: 'invalid_type',
+      name: 'test',
+      message: 'Test',
+    })).toThrow();
+  });
+
+  it('should reject invalid severity level', () => {
+    expect(() => ScriptValidationSchema.parse({
+      type: 'script',
+      name: 'test',
+      message: 'Test',
+      condition: 'true',
+      severity: 'invalid',
+    })).toThrow();
+  });
+});
+
+describe('ValidationRuleSchema - Type Coercion Edge Cases', () => {
+  it('should handle boolean active flag', () => {
+    const testCases = [
+      { active: true, expected: true },
+      { active: false, expected: false },
+    ];
+
+    testCases.forEach(({ active, expected }) => {
+      const validation = {
+        type: 'script' as const,
+        name: 'test',
+        message: 'Test',
+        condition: 'true',
+        active,
+      };
+
+      const result = ScriptValidationSchema.parse(validation);
+      expect(result.active).toBe(expected);
+    });
+  });
+
+  it('should handle caseSensitive boolean in uniqueness validation', () => {
+    const validation = {
+      type: 'unique' as const,
+      name: 'unique_test',
+      message: 'Must be unique',
+      fields: ['field1'],
+      caseSensitive: false,
+    };
+
+    const result = UniquenessValidationSchema.parse(validation);
+    expect(result.caseSensitive).toBe(false);
+  });
+
+  it('should handle distinct boolean in aggregation', () => {
+    const validation = {
+      type: 'async' as const,
+      name: 'async_test',
+      message: 'Validation failed',
+      field: 'test',
+      validatorUrl: '/api/validate',
+      debounce: 500,
+      timeout: 3000,
+    };
+
+    const result = AsyncValidationSchema.parse(validation);
+    expect(result.debounce).toBe(500);
+    expect(result.timeout).toBe(3000);
+  });
+
+  it('should handle various param types', () => {
+    const paramsTests = [
+      { params: { key: 'value' } },
+      { params: { nested: { key: 'value' } } },
+      { params: { array: [1, 2, 3] } },
+      { params: { boolean: true, number: 42, string: 'test' } },
+    ];
+
+    paramsTests.forEach(({ params }) => {
+      const validation = {
+        type: 'custom' as const,
+        name: 'custom_test',
+        message: 'Test',
+        validatorFunction: 'validate',
+        params,
+      };
+
+      expect(() => CustomValidatorSchema.parse(validation)).not.toThrow();
+    });
+  });
+
+  it('should handle nested conditional validations', () => {
+    const validation = {
+      type: 'conditional' as const,
+      name: 'nested_conditional',
+      message: 'Nested conditional',
+      when: 'type = "A"',
+      then: {
+        type: 'conditional' as const,
+        name: 'inner_conditional',
+        message: 'Inner conditional',
+        when: 'subtype = "B"',
+        then: {
+          type: 'script' as const,
+          name: 'final_validation',
+          message: 'Final validation',
+          condition: 'value > 0',
+        },
+      },
+    };
+
+    expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+  });
+
+  it('should handle complex state machine transitions', () => {
+    const validation = {
+      type: 'state_machine' as const,
+      name: 'complex_state',
+      message: 'Invalid state transition',
+      field: 'status',
+      transitions: {
+        'draft': ['review', 'cancelled'],
+        'review': ['approved', 'rejected', 'draft'],
+        'approved': ['published', 'draft'],
+        'rejected': ['draft'],
+        'published': ['archived'],
+        'archived': [],
+        'cancelled': [],
+      },
+    };
+
+    expect(() => StateMachineValidationSchema.parse(validation)).not.toThrow();
+  });
+
+  it('should handle format validation with regex', () => {
+    const validation = {
+      type: 'format' as const,
+      name: 'regex_format',
+      message: 'Invalid format',
+      field: 'custom_field',
+      regex: '^[A-Z]{3}-\\d{4}$', // Pattern like ABC-1234
+    };
+
+    expect(() => FormatValidationSchema.parse(validation)).not.toThrow();
+  });
+
+  it('should handle cross-field validation with complex conditions', () => {
+    const validation = {
+      type: 'cross_field' as const,
+      name: 'complex_cross_field',
+      message: 'Complex validation failed',
+      condition: '(end_date > start_date) AND (amount >= min_amount) AND (amount <= max_amount)',
+      fields: ['start_date', 'end_date', 'amount', 'min_amount', 'max_amount'],
+    };
+
+    expect(() => CrossFieldValidationSchema.parse(validation)).not.toThrow();
+  });
+
+  it('should handle async validation with all optional fields', () => {
+    const validation = {
+      type: 'async' as const,
+      name: 'comprehensive_async',
+      message: 'Async validation failed',
+      field: 'email',
+      validatorUrl: '/api/validate/email',
+      validatorFunction: 'validateEmail',
+      timeout: 2000,
+      debounce: 300,
+      params: {
+        checkDomain: true,
+        allowDisposable: false,
+      },
+    };
+
+    expect(() => AsyncValidationSchema.parse(validation)).not.toThrow();
+  });
+});
+
+describe('ValidationRuleSchema - Boundary Conditions', () => {
+  it('should handle very long validation names', () => {
+    const validation = {
+      type: 'script' as const,
+      name: 'very_long_validation_name_that_follows_snake_case_convention',
+      message: 'Test',
+      condition: 'true',
+    };
+
+    expect(() => ScriptValidationSchema.parse(validation)).not.toThrow();
+  });
+
+  it('should handle very long messages', () => {
+    const longMessage = 'This is a very long validation message that provides detailed information about what went wrong and how to fix it. '.repeat(10);
+    
+    const validation = {
+      type: 'script' as const,
+      name: 'test_long_message',
+      message: longMessage,
+      condition: 'true',
+    };
+
+    expect(() => ScriptValidationSchema.parse(validation)).not.toThrow();
+  });
+
+  it('should handle large number of fields in uniqueness validation', () => {
+    const validation = {
+      type: 'unique' as const,
+      name: 'composite_unique',
+      message: 'Combination must be unique',
+      fields: ['field1', 'field2', 'field3', 'field4', 'field5', 'field6', 'field7', 'field8'],
+    };
+
+    expect(() => UniquenessValidationSchema.parse(validation)).not.toThrow();
+  });
+
+  it('should handle large number of state transitions', () => {
+    const transitions: Record<string, string[]> = {};
+    for (let i = 0; i < 20; i++) {
+      transitions[`state_${i}`] = [`state_${(i + 1) % 20}`];
+    }
+
+    const validation = {
+      type: 'state_machine' as const,
+      name: 'large_state_machine',
+      message: 'Invalid transition',
+      field: 'status',
+      transitions,
+    };
+
+    expect(() => StateMachineValidationSchema.parse(validation)).not.toThrow();
+  });
+
+  it('should handle extreme timeout values', () => {
+    const testCases = [
+      { timeout: 100 }, // Very short
+      { timeout: 5000 }, // Default
+      { timeout: 30000 }, // Long
+      { timeout: 60000 }, // Very long
+    ];
+
+    testCases.forEach(({ timeout }) => {
+      const validation = {
+        type: 'async' as const,
+        name: 'timeout_test',
+        message: 'Test',
+        field: 'test',
+        validatorUrl: '/api/validate',
+        timeout,
+      };
+
+      expect(() => AsyncValidationSchema.parse(validation)).not.toThrow();
+    });
+  });
+
+  it('should handle debounce edge cases', () => {
+    const testCases = [
+      { debounce: 0 },
+      { debounce: 100 },
+      { debounce: 500 },
+      { debounce: 1000 },
+      { debounce: 5000 },
+    ];
+
+    testCases.forEach(({ debounce }) => {
+      const validation = {
+        type: 'async' as const,
+        name: 'debounce_test',
+        message: 'Test',
+        field: 'test',
+        validatorUrl: '/api/validate',
+        debounce,
+      };
+
+      expect(() => AsyncValidationSchema.parse(validation)).not.toThrow();
     });
   });
 });

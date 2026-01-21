@@ -1617,3 +1617,341 @@ describe('QuerySchema - Complex Queries', () => {
     expect(() => QuerySchema.parse(query)).not.toThrow();
   });
 });
+
+describe('QuerySchema - Edge Cases and Null Handling', () => {
+  it('should handle null values in filter expressions', () => {
+    const query: QueryAST = {
+      object: 'account',
+      fields: ['name'],
+      filters: ['deleted_at', 'is_null', null],
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+  });
+
+  it('should handle undefined for optional fields', () => {
+    const query: QueryAST = {
+      object: 'account',
+      fields: undefined,
+      filters: undefined,
+      sort: undefined,
+      aggregations: undefined,
+      joins: undefined,
+      groupBy: undefined,
+      having: undefined,
+      windowFunctions: undefined,
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+  });
+
+  it('should handle empty arrays', () => {
+    const query: QueryAST = {
+      object: 'account',
+      fields: [],
+      aggregations: [],
+      joins: [],
+      windowFunctions: [],
+      groupBy: [],
+      sort: [],
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+  });
+
+  it('should handle zero and negative values in pagination', () => {
+    const queries = [
+      { object: 'account', top: 0, skip: 0 },
+      { object: 'account', top: 1, skip: 0 },
+      { object: 'account', top: 100, skip: 1000 },
+    ];
+
+    queries.forEach(query => {
+      expect(() => QuerySchema.parse(query)).not.toThrow();
+    });
+  });
+
+  it('should handle complex nested null filters', () => {
+    const query: QueryAST = {
+      object: 'order',
+      fields: ['id'],
+      filters: [
+        ['approved_at', 'is_null', null],
+        'and',
+        ['rejected_at', 'is_null', null],
+      ],
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+  });
+
+  it('should handle optional alias in field nodes', () => {
+    const query: QueryAST = {
+      object: 'account',
+      fields: [
+        'name',
+        { field: 'owner', fields: ['name', 'email'] },
+        { field: 'manager', fields: ['name'], alias: 'mgr' },
+      ],
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+  });
+
+  it('should handle aggregation without field for COUNT', () => {
+    const query: QueryAST = {
+      object: 'order',
+      aggregations: [
+        { function: 'count', alias: 'total_count' },
+      ],
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+  });
+
+  it('should handle optional distinct flag in aggregation', () => {
+    const query: QueryAST = {
+      object: 'order',
+      aggregations: [
+        { function: 'count', field: 'customer_id', alias: 'unique_customers', distinct: true },
+        { function: 'sum', field: 'amount', alias: 'total_amount' }, // distinct undefined
+      ],
+      groupBy: ['region'],
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+  });
+
+  it('should handle optional properties in window functions', () => {
+    const query: QueryAST = {
+      object: 'sales',
+      fields: ['amount'],
+      windowFunctions: [
+        {
+          function: 'row_number',
+          alias: 'row_num',
+          over: {
+            // partitionBy and orderBy are optional
+          },
+        },
+        {
+          function: 'sum',
+          field: 'amount',
+          alias: 'total',
+          over: {
+            partitionBy: ['region'],
+            // orderBy is optional
+          },
+        },
+      ],
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+  });
+
+  it('should handle optional frame in window specification', () => {
+    const query: QueryAST = {
+      object: 'transactions',
+      fields: ['amount'],
+      windowFunctions: [
+        {
+          function: 'sum',
+          field: 'amount',
+          alias: 'running_total',
+          over: {
+            orderBy: [{ field: 'date', order: 'asc' }],
+            frame: {
+              type: 'rows',
+              start: 'UNBOUNDED PRECEDING',
+              end: 'CURRENT ROW',
+            },
+          },
+        },
+      ],
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+  });
+
+  it('should handle optional subquery in joins', () => {
+    const query: QueryAST = {
+      object: 'customer',
+      joins: [
+        {
+          type: 'left',
+          object: 'order',
+          on: ['customer.id', '=', 'order.customer_id'],
+        },
+        {
+          type: 'inner',
+          object: 'filtered_orders',
+          alias: 'fo',
+          on: ['customer.id', '=', 'fo.customer_id'],
+          subquery: {
+            object: 'order',
+            fields: ['customer_id', 'amount'],
+            filters: ['amount', '>', 1000],
+          },
+        },
+      ],
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+  });
+
+  it('should reject invalid object type', () => {
+    expect(() => QuerySchema.parse({
+      object: 123, // Should be string
+      fields: ['name'],
+    })).toThrow();
+  });
+
+  it('should reject invalid field types in array', () => {
+    expect(() => QuerySchema.parse({
+      object: 'account',
+      fields: [123, 456], // Should be strings or objects
+    })).toThrow();
+  });
+
+  it('should reject invalid aggregation function', () => {
+    expect(() => QuerySchema.parse({
+      object: 'order',
+      aggregations: [
+        { function: 'invalid_func', alias: 'test' },
+      ],
+    })).toThrow();
+  });
+
+  it('should reject invalid join type', () => {
+    expect(() => QuerySchema.parse({
+      object: 'order',
+      joins: [
+        {
+          type: 'invalid_join',
+          object: 'customer',
+          on: ['order.customer_id', '=', 'customer.id'],
+        },
+      ],
+    })).toThrow();
+  });
+
+  it('should reject invalid window function', () => {
+    expect(() => QuerySchema.parse({
+      object: 'sales',
+      windowFunctions: [
+        {
+          function: 'invalid_window_func',
+          alias: 'test',
+          over: {},
+        },
+      ],
+    })).toThrow();
+  });
+
+  it('should reject invalid sort order', () => {
+    expect(() => QuerySchema.parse({
+      object: 'account',
+      sort: [{ field: 'name', order: 'invalid' }],
+    })).toThrow();
+  });
+});
+
+describe('QuerySchema - Type Coercion Edge Cases', () => {
+  it('should handle various data types in filter values', () => {
+    const queries = [
+      { object: 'account', filters: ['age', '>', 18] }, // number
+      { object: 'account', filters: ['active', '=', true] }, // boolean
+      { object: 'account', filters: ['name', '=', 'John'] }, // string
+      { object: 'account', filters: ['tags', 'in', ['a', 'b', 'c']] }, // array
+      { object: 'account', filters: ['value', 'between', [0, 100]] }, // array
+    ];
+
+    queries.forEach(query => {
+      expect(() => QuerySchema.parse(query)).not.toThrow();
+    });
+  });
+
+  it('should handle boolean flags', () => {
+    const query: QueryAST = {
+      object: 'account',
+      fields: ['name'],
+      distinct: true,
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+
+    const query2: QueryAST = {
+      object: 'account',
+      fields: ['name'],
+      distinct: false,
+    };
+
+    expect(() => QuerySchema.parse(query2)).not.toThrow();
+  });
+
+  it('should handle default sort order', () => {
+    const query: QueryAST = {
+      object: 'account',
+      sort: [{ field: 'name' }], // order defaults to 'asc'
+    };
+
+    const result = QuerySchema.parse(query);
+    expect(result.sort?.[0].order).toBe('asc');
+  });
+
+  it('should handle mixed field types', () => {
+    const query: QueryAST = {
+      object: 'account',
+      fields: [
+        'simple_field',
+        {
+          field: 'related_field',
+          fields: ['nested_field'],
+          alias: 'rel',
+        },
+      ],
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+  });
+
+  it('should handle deeply nested filters', () => {
+    const query: QueryAST = {
+      object: 'order',
+      filters: [
+        [
+          ['status', '=', 'active'],
+          'and',
+          ['amount', '>', 100],
+        ],
+        'or',
+        [
+          ['priority', '=', 'high'],
+          'and',
+          ['urgent', '=', true],
+        ],
+      ],
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+  });
+
+  it('should handle complex having clauses', () => {
+    const query: QueryAST = {
+      object: 'order',
+      fields: ['customer_id'],
+      aggregations: [
+        { function: 'count', alias: 'order_count' },
+        { function: 'sum', field: 'amount', alias: 'total' },
+      ],
+      groupBy: ['customer_id'],
+      having: [
+        ['order_count', '>', 5],
+        'and',
+        ['total', '>', 1000],
+      ],
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+  });
+});
