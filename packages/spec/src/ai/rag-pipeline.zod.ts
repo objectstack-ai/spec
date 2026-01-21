@@ -31,7 +31,7 @@ export const EmbeddingModelSchema = z.object({
   model: z.string().describe('Model name (e.g., "text-embedding-3-large")'),
   dimensions: z.number().int().positive().describe('Embedding vector dimensions'),
   maxTokens: z.number().int().positive().optional().describe('Maximum tokens per embedding'),
-  batchSize: z.number().int().positive().default(100).describe('Batch size for embedding'),
+  batchSize: z.number().int().positive().optional().default(100).describe('Batch size for embedding'),
   endpoint: z.string().url().optional().describe('Custom endpoint URL'),
   apiKey: z.string().optional().describe('API key or reference to secret'),
 });
@@ -147,12 +147,12 @@ export const VectorStoreConfigSchema = z.object({
   
   /** Configuration */
   dimensions: z.number().int().positive().describe('Vector dimensions'),
-  metric: z.enum(['cosine', 'euclidean', 'dotproduct']).default('cosine'),
+  metric: z.enum(['cosine', 'euclidean', 'dotproduct']).optional().default('cosine'),
   
   /** Performance */
-  batchSize: z.number().int().positive().default(100),
-  connectionPoolSize: z.number().int().positive().default(10),
-  timeout: z.number().int().positive().default(30000).describe('Timeout in milliseconds'),
+  batchSize: z.number().int().positive().optional().default(100),
+  connectionPoolSize: z.number().int().positive().optional().default(10),
+  timeout: z.number().int().positive().optional().default(30000).describe('Timeout in milliseconds'),
 });
 
 /**
@@ -168,13 +168,13 @@ export const DocumentLoaderConfigSchema = z.object({
   fileTypes: z.array(z.string()).optional().describe('Accepted file extensions (e.g., [".pdf", ".md"])'),
   
   /** Processing */
-  recursive: z.boolean().default(false).describe('Process directories recursively'),
+  recursive: z.boolean().optional().default(false).describe('Process directories recursively'),
   maxFileSize: z.number().int().optional().describe('Maximum file size in bytes'),
   excludePatterns: z.array(z.string()).optional().describe('Patterns to exclude'),
   
   /** Text Extraction */
-  extractImages: z.boolean().default(false).describe('Extract text from images (OCR)'),
-  extractTables: z.boolean().default(false).describe('Extract and format tables'),
+  extractImages: z.boolean().optional().default(false).describe('Extract text from images (OCR)'),
+  extractTables: z.boolean().optional().default(false).describe('Extract and format tables'),
   
   /** Custom Loader */
   loaderConfig: z.record(z.any()).optional().describe('Custom loader-specific config'),

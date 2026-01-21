@@ -77,6 +77,11 @@ export const SalesModelRegistry: ModelRegistry = {
         provider: 'anthropic',
         capabilities: {
           textGeneration: true,
+          textEmbedding: false,
+          imageGeneration: false,
+          imageUnderstanding: false,
+          functionCalling: false,
+          codeGeneration: false,
           reasoning: true,
         },
         limits: {
@@ -84,10 +89,12 @@ export const SalesModelRegistry: ModelRegistry = {
           contextWindow: 200000,
         },
         pricing: {
+          currency: 'USD',
           inputCostPer1kTokens: 0.003,
           outputCostPer1kTokens: 0.015,
         },
         recommendedFor: ['creative_writing', 'personalization'],
+        deprecated: false,
       },
       status: 'active',
       priority: 10,
@@ -99,6 +106,7 @@ export const SalesModelRegistry: ModelRegistry = {
       id: 'email-v1',
       name: 'personalized_email',
       label: 'Personalized Sales Email',
+      version: '1.0.0',
       system: 'You are an expert sales writer. Create compelling, personalized emails.',
       user: `Write a personalized email to:
 Company: {{company_name}}
@@ -140,6 +148,7 @@ export const SalesIntelligenceRAG: RAGPipelineConfig = {
     provider: 'openai',
     model: 'text-embedding-3-small',
     dimensions: 1536,
+    batchSize: 100,
   },
   
   vectorStore: {
@@ -147,6 +156,9 @@ export const SalesIntelligenceRAG: RAGPipelineConfig = {
     indexName: 'SalesIntelligence',
     dimensions: 1536,
     metric: 'cosine',
+    batchSize: 100,
+    connectionPoolSize: 10,
+    timeout: 30000,
   },
   
   chunking: {

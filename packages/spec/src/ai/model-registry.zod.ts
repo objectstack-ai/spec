@@ -25,13 +25,13 @@ export const ModelProviderSchema = z.enum([
  * Model Capability
  */
 export const ModelCapabilitySchema = z.object({
-  textGeneration: z.boolean().default(true).describe('Supports text generation'),
-  textEmbedding: z.boolean().default(false).describe('Supports text embedding'),
-  imageGeneration: z.boolean().default(false).describe('Supports image generation'),
-  imageUnderstanding: z.boolean().default(false).describe('Supports image understanding'),
-  functionCalling: z.boolean().default(false).describe('Supports function calling'),
-  codeGeneration: z.boolean().default(false).describe('Supports code generation'),
-  reasoning: z.boolean().default(false).describe('Supports advanced reasoning'),
+  textGeneration: z.boolean().optional().default(true).describe('Supports text generation'),
+  textEmbedding: z.boolean().optional().default(false).describe('Supports text embedding'),
+  imageGeneration: z.boolean().optional().default(false).describe('Supports image generation'),
+  imageUnderstanding: z.boolean().optional().default(false).describe('Supports image understanding'),
+  functionCalling: z.boolean().optional().default(false).describe('Supports function calling'),
+  codeGeneration: z.boolean().optional().default(false).describe('Supports code generation'),
+  reasoning: z.boolean().optional().default(false).describe('Supports advanced reasoning'),
 });
 
 /**
@@ -51,7 +51,7 @@ export const ModelLimitsSchema = z.object({
  * Model Pricing
  */
 export const ModelPricingSchema = z.object({
-  currency: z.string().default('USD'),
+  currency: z.string().optional().default('USD'),
   inputCostPer1kTokens: z.number().optional().describe('Cost per 1K input tokens'),
   outputCostPer1kTokens: z.number().optional().describe('Cost per 1K output tokens'),
   embeddingCostPer1kTokens: z.number().optional().describe('Cost per 1K embedding tokens'),
@@ -82,7 +82,7 @@ export const ModelConfigSchema = z.object({
   /** Metadata */
   description: z.string().optional(),
   tags: z.array(z.string()).optional().describe('Tags for categorization'),
-  deprecated: z.boolean().default(false),
+  deprecated: z.boolean().optional().default(false),
   recommendedFor: z.array(z.string()).optional().describe('Use case recommendations'),
 });
 
@@ -130,7 +130,7 @@ export const PromptTemplateSchema = z.object({
   stopSequences: z.array(z.string()).optional(),
   
   /** Metadata */
-  version: z.string().default('1.0.0'),
+  version: z.string().optional().default('1.0.0'),
   description: z.string().optional(),
   category: z.string().optional().describe('Template category (e.g., "code_generation", "support")'),
   tags: z.array(z.string()).optional(),

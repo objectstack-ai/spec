@@ -96,6 +96,9 @@ export const SupportModelRegistry: ModelRegistry = {
         provider: 'openai',
         capabilities: {
           textGeneration: true,
+          textEmbedding: false,
+          imageGeneration: false,
+          imageUnderstanding: false,
           functionCalling: true,
           codeGeneration: false,
           reasoning: true,
@@ -108,10 +111,12 @@ export const SupportModelRegistry: ModelRegistry = {
           },
         },
         pricing: {
+          currency: 'USD',
           inputCostPer1kTokens: 0.01,
           outputCostPer1kTokens: 0.03,
         },
         tags: ['chat', 'support'],
+        deprecated: false,
       },
       status: 'active',
       priority: 10,
@@ -132,15 +137,22 @@ export const SupportModelRegistry: ModelRegistry = {
         capabilities: {
           textGeneration: false,
           textEmbedding: true,
+          imageGeneration: false,
+          imageUnderstanding: false,
+          functionCalling: false,
+          codeGeneration: false,
+          reasoning: false,
         },
         limits: {
           maxTokens: 8191,
           contextWindow: 8191,
         },
         pricing: {
+          currency: 'USD',
           embeddingCostPer1kTokens: 0.00013,
         },
         tags: ['embedding', 'rag'],
+        deprecated: false,
       },
       status: 'active',
       priority: 10,
@@ -152,6 +164,7 @@ export const SupportModelRegistry: ModelRegistry = {
       id: 'support-response-v1',
       name: 'support_response',
       label: 'Support Response Template',
+      version: '1.0.0',
       system: 'You are a helpful customer support agent. Be empathetic and solution-oriented.',
       user: `Customer: {{customer_name}}
 Question: {{question}}
@@ -195,6 +208,8 @@ export const KnowledgeBaseRAG: RAGPipelineConfig = {
     dimensions: 3072,
     metric: 'cosine',
     batchSize: 100,
+    connectionPoolSize: 10,
+    timeout: 30000,
   },
   
   chunking: {
@@ -226,6 +241,7 @@ export const KnowledgeBaseRAG: RAGPipelineConfig = {
       recursive: true,
       maxFileSize: 5242880, // 5MB
       excludePatterns: ['**/archive/**', '**/drafts/**'],
+      extractImages: false,
       extractTables: true,
     },
   ],

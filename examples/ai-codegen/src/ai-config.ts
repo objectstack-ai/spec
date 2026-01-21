@@ -1,4 +1,4 @@
-import type { Agent, ModelRegistry, PromptTemplate, RAGPipelineConfig } from '@objectstack/spec';
+import type { Agent, ModelRegistry, RAGPipelineConfig } from '@objectstack/spec';
 
 /**
  * ObjectStack Code Generator Agent
@@ -82,6 +82,10 @@ export const CodeGenModelRegistry: ModelRegistry = {
         provider: 'openai',
         capabilities: {
           textGeneration: true,
+          textEmbedding: false,
+          imageGeneration: false,
+          imageUnderstanding: false,
+          functionCalling: false,
           codeGeneration: true,
           reasoning: true,
         },
@@ -90,6 +94,7 @@ export const CodeGenModelRegistry: ModelRegistry = {
           contextWindow: 128000,
         },
         recommendedFor: ['code_generation', 'complex_reasoning'],
+        deprecated: false,
       },
       status: 'active',
       priority: 10,
@@ -101,6 +106,7 @@ export const CodeGenModelRegistry: ModelRegistry = {
       id: 'object-gen-v1',
       name: 'object_generator',
       label: 'Object Generator',
+      version: '1.0.0',
       system: `You are an expert at generating ObjectStack object definitions.
 
 Generate valid TypeScript code following ObjectStack Protocol.
@@ -141,6 +147,7 @@ export const ObjectStackDocsRAG: RAGPipelineConfig = {
     provider: 'openai',
     model: 'text-embedding-3-large',
     dimensions: 3072,
+    batchSize: 100,
   },
   
   vectorStore: {
@@ -148,6 +155,9 @@ export const ObjectStackDocsRAG: RAGPipelineConfig = {
     indexName: 'objectstack-docs',
     dimensions: 3072,
     metric: 'cosine',
+    batchSize: 100,
+    connectionPoolSize: 10,
+    timeout: 30000,
   },
   
   chunking: {
