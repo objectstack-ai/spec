@@ -1,0 +1,14 @@
+{
+  "name": "@objectstack/example-ai-analyst",
+  "version": "1.0.0",
+  "description": "AI-powered data analyst with natural language query capabilities",
+  "private": true,
+  "main": "objectstack.config.ts",
+  "scripts": {
+    "dev": "tsx watch objectstack.config.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@objectstack/spec": "workspace:*"
+  }
+}
