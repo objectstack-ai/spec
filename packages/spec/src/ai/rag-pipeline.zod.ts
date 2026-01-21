@@ -129,7 +129,7 @@ export const RerankingConfigSchema = z.object({
   enabled: z.boolean().default(false),
   model: z.string().optional().describe('Reranking model name'),
   provider: z.enum(['cohere', 'huggingface', 'custom']).optional(),
-  topK: z.number().int().positive().optional().describe('Final number of results after reranking'),
+  topK: z.number().int().positive().default(3).describe('Final number of results after reranking'),
 });
 
 /**
@@ -204,11 +204,17 @@ export const RAGPipelineConfigSchema = z.object({
   contextWindow: z.number().int().positive().optional().describe('LLM context window size'),
   
   /** Metadata Filtering */
-  metadataFilters: z.record(z.any()).optional().describe('Filters for retrieval'),
+  metadataFilters: z.record(z.union([
+    z.string(),
+    z.number(),
+    z.boolean(),
+    z.array(z.union([z.string(), z.number()])),
+  ])).optional().describe('Filters for retrieval (e.g., {category: "docs", status: "published"})'),
   
   /** Caching */
   enableCache: z.boolean().default(true),
   cacheTTL: z.number().int().positive().default(3600).describe('Cache TTL in seconds'),
+  cacheInvalidationStrategy: z.enum(['time_based', 'manual', 'on_update']).default('time_based').optional(),
 });
 
 /**
