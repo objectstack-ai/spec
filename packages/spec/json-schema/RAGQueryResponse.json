@@ -1,0 +1,108 @@
+{
+  "$ref": "#/definitions/RAGQueryResponse",
+  "definitions": {
+    "RAGQueryResponse": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string"
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "content": {
+                "type": "string"
+              },
+              "score": {
+                "type": "number"
+              },
+              "metadata": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "string",
+                    "description": "Document source (file path, URL, etc.)"
+                  },
+                  "sourceType": {
+                    "type": "string",
+                    "enum": [
+                      "file",
+                      "url",
+                      "api",
+                      "database",
+                      "custom"
+                    ]
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "author": {
+                    "type": "string"
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "description": "ISO timestamp"
+                  },
+                  "updatedAt": {
+                    "type": "string",
+                    "description": "ISO timestamp"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "category": {
+                    "type": "string"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "Document language (ISO 639-1 code)"
+                  },
+                  "custom": {
+                    "type": "object",
+                    "additionalProperties": {},
+                    "description": "Custom metadata fields"
+                  }
+                },
+                "required": [
+                  "source"
+                ],
+                "additionalProperties": false
+              },
+              "chunkId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "content",
+              "score"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "context": {
+          "type": "string",
+          "description": "Assembled context for LLM"
+        },
+        "tokensUsed": {
+          "type": "integer"
+        },
+        "retrievalTime": {
+          "type": "number",
+          "description": "Retrieval time in milliseconds"
+        }
+      },
+      "required": [
+        "query",
+        "results",
+        "context"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,17 @@
+---
+title: NLQTrainingExample
+description: NLQTrainingExample Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **query** | `string` | ✅ | Natural language query |
+| **context** | `object` | optional |  |
+| **expectedIntent** | `Enum<'select' \| 'aggregate' \| 'filter' \| 'sort' \| 'compare' \| 'trend' \| 'insight' \| 'create' \| 'update' \| 'delete'>` | ✅ |  |
+| **expectedObject** | `string` | optional |  |
+| **expectedAST** | `any` | optional | Expected ObjectQL AST |
+| **category** | `string` | optional | Example category |
+| **tags** | `string[]` | optional |  |
+| **notes** | `string` | optional |  |

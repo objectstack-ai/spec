@@ -1,0 +1,15 @@
+---
+title: NLQResponse
+description: NLQResponse Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **parseResult** | `object` | ✅ |  |
+| **results** | `Record<string, any>[]` | optional | Query results |
+| **totalCount** | `integer` | optional |  |
+| **executionTime** | `number` | optional | Execution time in milliseconds |
+| **needsClarification** | `boolean` | ✅ | Whether query needs clarification |
+| **suggestions** | `string[]` | optional | Query refinement suggestions |

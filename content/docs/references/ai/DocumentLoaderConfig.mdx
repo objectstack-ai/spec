@@ -1,0 +1,18 @@
+---
+title: DocumentLoaderConfig
+description: DocumentLoaderConfig Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'file' \| 'directory' \| 'url' \| 'api' \| 'database' \| 'custom'>` | ✅ |  |
+| **source** | `string` | ✅ | Source path, URL, or identifier |
+| **fileTypes** | `string[]` | optional | Accepted file extensions (e.g., [".pdf", ".md"]) |
+| **recursive** | `boolean` | optional | Process directories recursively |
+| **maxFileSize** | `integer` | optional | Maximum file size in bytes |
+| **excludePatterns** | `string[]` | optional | Patterns to exclude |
+| **extractImages** | `boolean` | optional | Extract text from images (OCR) |
+| **extractTables** | `boolean` | optional | Extract and format tables |
+| **loaderConfig** | `Record<string, any>` | optional | Custom loader-specific config |

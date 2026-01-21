@@ -1,0 +1,40 @@
+{
+  "$ref": "#/definitions/NLQFieldMapping",
+  "definitions": {
+    "NLQFieldMapping": {
+      "type": "object",
+      "properties": {
+        "naturalLanguage": {
+          "type": "string",
+          "description": "NL field name (e.g., \"customer name\")"
+        },
+        "objectField": {
+          "type": "string",
+          "description": "Actual field name (e.g., \"account.name\")"
+        },
+        "object": {
+          "type": "string",
+          "description": "Object name"
+        },
+        "field": {
+          "type": "string",
+          "description": "Field name"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "required": [
+        "naturalLanguage",
+        "objectField",
+        "object",
+        "field",
+        "confidence"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

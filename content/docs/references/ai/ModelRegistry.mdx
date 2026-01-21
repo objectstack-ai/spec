@@ -1,0 +1,14 @@
+---
+title: ModelRegistry
+description: ModelRegistry Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Registry name |
+| **models** | `Record<string, object>` | ✅ | Model entries by ID |
+| **promptTemplates** | `Record<string, object>` | optional | Prompt templates by name |
+| **defaultModel** | `string` | optional | Default model ID |
+| **enableAutoFallback** | `boolean` | optional | Auto-fallback on errors |

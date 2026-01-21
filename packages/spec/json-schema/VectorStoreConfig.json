@@ -1,0 +1,82 @@
+{
+  "$ref": "#/definitions/VectorStoreConfig",
+  "definitions": {
+    "VectorStoreConfig": {
+      "type": "object",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": [
+            "pinecone",
+            "weaviate",
+            "qdrant",
+            "milvus",
+            "chroma",
+            "pgvector",
+            "redis",
+            "opensearch",
+            "elasticsearch",
+            "custom"
+          ]
+        },
+        "indexName": {
+          "type": "string",
+          "description": "Index/collection name"
+        },
+        "namespace": {
+          "type": "string",
+          "description": "Namespace for multi-tenancy"
+        },
+        "host": {
+          "type": "string",
+          "description": "Vector store host"
+        },
+        "port": {
+          "type": "integer",
+          "description": "Vector store port"
+        },
+        "apiKey": {
+          "type": "string",
+          "description": "API key or reference to secret"
+        },
+        "dimensions": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "description": "Vector dimensions"
+        },
+        "metric": {
+          "type": "string",
+          "enum": [
+            "cosine",
+            "euclidean",
+            "dotproduct"
+          ],
+          "default": "cosine"
+        },
+        "batchSize": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "default": 100
+        },
+        "connectionPoolSize": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "default": 10
+        },
+        "timeout": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "default": 30000,
+          "description": "Timeout in milliseconds"
+        }
+      },
+      "required": [
+        "provider",
+        "indexName",
+        "dimensions"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

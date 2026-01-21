@@ -41,6 +41,14 @@ temp/
 packages/*/dist/
 packages/*/*.tsbuildinfo
 
+# Example builds
+examples/*/dist/
+examples/*/*.d.ts
+examples/*/*.d.ts.map
+examples/*/*.js
+!examples/*/*.config.js
+!examples/*/*.config.ts
+
 # Next.js
 .next
 out/
