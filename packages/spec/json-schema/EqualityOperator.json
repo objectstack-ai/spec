@@ -1,0 +1,14 @@
+{
+  "$ref": "#/definitions/EqualityOperator",
+  "definitions": {
+    "EqualityOperator": {
+      "type": "object",
+      "properties": {
+        "$eq": {},
+        "$ne": {}
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

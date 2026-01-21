@@ -17,6 +17,7 @@ export * from './data/workflow.zod';
 export * from './data/flow.zod';
 export * from './data/dataset.zod';
 export * from './data/query.zod';
+export * from './data/filter.zod'; // Unified Query DSL
 export * from './data/mapping.zod';
 export * from './data/trigger.zod';
 
