@@ -30,11 +30,57 @@ export const DriverOptionsSchema = z.object({
  * This allows ObjectQL to adapt its behavior based on underlying database capabilities.
  */
 export const DriverCapabilitiesSchema = z.object({
+  // ============================================================================
+  // Transaction & Connection Management
+  // ============================================================================
+  
   /**
    * Whether the driver supports database transactions.
    * If true, beginTransaction, commit, and rollback must be implemented.
    */
   transactions: z.boolean().describe('Supports transactions'),
+
+  // ============================================================================
+  // Query Operations
+  // ============================================================================
+  
+  /**
+   * Whether the driver supports WHERE clause filters.
+   * If false, ObjectQL will fetch all records and filter in memory.
+   * 
+   * Example: Memory driver might not support complex filter conditions.
+   */
+  queryFilters: z.boolean().describe('Supports WHERE clause filtering'),
+
+  /**
+   * Whether the driver supports aggregation functions (COUNT, SUM, AVG, etc.).
+   * If false, ObjectQL will compute aggregations in memory.
+   */
+  queryAggregations: z.boolean().describe('Supports GROUP BY and aggregation functions'),
+
+  /**
+   * Whether the driver supports ORDER BY sorting.
+   * If false, ObjectQL will sort results in memory.
+   */
+  querySorting: z.boolean().describe('Supports ORDER BY sorting'),
+
+  /**
+   * Whether the driver supports LIMIT/OFFSET pagination.
+   * If false, ObjectQL will fetch all records and paginate in memory.
+   */
+  queryPagination: z.boolean().describe('Supports LIMIT/OFFSET pagination'),
+
+  /**
+   * Whether the driver supports window functions (ROW_NUMBER, RANK, LAG, LEAD, etc.).
+   * If false, ObjectQL will compute window functions in memory.
+   */
+  queryWindowFunctions: z.boolean().describe('Supports window functions with OVER clause'),
+
+  /**
+   * Whether the driver supports subqueries (nested SELECT statements).
+   * If false, ObjectQL will execute queries separately and combine results.
+   */
+  querySubqueries: z.boolean().describe('Supports subqueries'),
 
   /**
    * Whether the driver supports SQL-style joins.
@@ -42,6 +88,10 @@ export const DriverCapabilitiesSchema = z.object({
    */
   joins: z.boolean().describe('Supports SQL joins'),
 
+  // ============================================================================
+  // Advanced Features
+  // ============================================================================
+  
   /**
    * Whether the driver supports full-text search.
    * If true, text search queries can be pushed to the database.

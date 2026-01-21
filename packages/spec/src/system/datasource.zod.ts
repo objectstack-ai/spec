@@ -51,18 +51,50 @@ export const DriverDefinitionSchema = z.object({
  * and what to compute in memory.
  */
 export const DatasourceCapabilities = z.object({
-  /** Can execute SQL-like joins natively? */
-  joins: z.boolean().default(false),
+  // ============================================================================
+  // Transaction & Connection Management
+  // ============================================================================
+  
   /** Can handle ACID transactions? */
   transactions: z.boolean().default(false),
+  
+  // ============================================================================
+  // Query Operations
+  // ============================================================================
+  
+  /** Can execute WHERE clause filters natively? */
+  queryFilters: z.boolean().default(false),
+  
+  /** Can perform aggregation (group by, sum, avg)? */
+  queryAggregations: z.boolean().default(false),
+  
+  /** Can perform ORDER BY sorting? */
+  querySorting: z.boolean().default(false),
+  
+  /** Can perform LIMIT/OFFSET pagination? */
+  queryPagination: z.boolean().default(false),
+  
+  /** Can perform window functions? */
+  queryWindowFunctions: z.boolean().default(false),
+  
+  /** Can perform subqueries? */
+  querySubqueries: z.boolean().default(false),
+  
+  /** Can execute SQL-like joins natively? */
+  joins: z.boolean().default(false),
+  
+  // ============================================================================
+  // Advanced Features
+  // ============================================================================
+  
   /** Can perform full-text search? */
   fullTextSearch: z.boolean().default(false),
-  /** Can perform aggregation (group by, sum, avg)? */
-  aggregation: z.boolean().default(false),
-  /** Is scheme-less (needs schema inference)? */
-  dynamicSchema: z.boolean().default(false),
+  
   /** Is read-only? */
   readOnly: z.boolean().default(false),
+  
+  /** Is scheme-less (needs schema inference)? */
+  dynamicSchema: z.boolean().default(false),
 });
 
 /**

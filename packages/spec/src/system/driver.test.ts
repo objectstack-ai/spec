@@ -10,6 +10,12 @@ describe('DriverCapabilitiesSchema', () => {
   it('should accept valid capabilities', () => {
     const capabilities: DriverCapabilities = {
       transactions: true,
+      queryFilters: true,
+      queryAggregations: true,
+      querySorting: true,
+      queryPagination: true,
+      queryWindowFunctions: true,
+      querySubqueries: true,
       joins: true,
       fullTextSearch: true,
       jsonFields: true,
@@ -22,6 +28,12 @@ describe('DriverCapabilitiesSchema', () => {
   it('should accept minimal capabilities', () => {
     const capabilities: DriverCapabilities = {
       transactions: false,
+      queryFilters: false,
+      queryAggregations: false,
+      querySorting: false,
+      queryPagination: false,
+      queryWindowFunctions: false,
+      querySubqueries: false,
       joins: false,
       fullTextSearch: false,
       jsonFields: false,
@@ -35,6 +47,7 @@ describe('DriverCapabilitiesSchema', () => {
     const incomplete = {
       transactions: true,
       joins: true,
+      queryFilters: true,
       // missing other fields
     };
 
@@ -79,6 +92,12 @@ describe('DriverInterfaceSchema', () => {
         dropTable: async () => {},
         supports: {
           transactions: true,
+          queryFilters: true,
+          queryAggregations: true,
+          querySorting: true,
+          queryPagination: true,
+          queryWindowFunctions: true,
+          querySubqueries: true,
           joins: true,
           fullTextSearch: true,
           jsonFields: true,
@@ -114,6 +133,12 @@ describe('DriverInterfaceSchema', () => {
       dropTable: async (object: string) => {},
       supports: {
         transactions: false,
+        queryFilters: false,
+        queryAggregations: false,
+        querySorting: false,
+        queryPagination: false,
+        queryWindowFunctions: false,
+        querySubqueries: false,
         joins: false,
         fullTextSearch: false,
         jsonFields: false,
@@ -212,6 +237,12 @@ describe('DriverInterfaceSchema', () => {
       dropTable: async () => {},
       supports: {
         transactions: false,
+        queryFilters: false,
+        queryAggregations: false,
+        querySorting: false,
+        queryPagination: false,
+        queryWindowFunctions: false,
+        querySubqueries: false,
         joins: false,
         fullTextSearch: false,
         jsonFields: false,
@@ -285,6 +316,12 @@ describe('DriverInterfaceSchema', () => {
       dropTable: async () => {},
       supports: {
         transactions: false,
+        queryFilters: false,
+        queryAggregations: false,
+        querySorting: false,
+        queryPagination: false,
+        queryWindowFunctions: false,
+        querySubqueries: false,
         joins: false,
         fullTextSearch: false,
         jsonFields: false,
@@ -341,6 +378,12 @@ describe('DriverInterfaceSchema', () => {
         dropTable: async () => {},
         supports: {
           transactions: false,
+          queryFilters: false,
+          queryAggregations: false,
+          querySorting: false,
+          queryPagination: false,
+          queryWindowFunctions: false,
+          querySubqueries: false,
           joins: false,
           fullTextSearch: false,
           jsonFields: false,
@@ -375,6 +418,12 @@ describe('DriverInterfaceSchema', () => {
         dropTable: async () => {},
         supports: {
           transactions: true,
+          queryFilters: true,
+          queryAggregations: true,
+          querySorting: true,
+          queryPagination: true,
+          queryWindowFunctions: false,
+          querySubqueries: true,
           joins: true,
           fullTextSearch: false,
           jsonFields: true,
@@ -411,6 +460,12 @@ describe('DriverInterfaceSchema', () => {
         dropTable: async (object) => {},
         supports: {
           transactions: true,
+          queryFilters: true,
+          queryAggregations: true,
+          querySorting: true,
+          queryPagination: true,
+          queryWindowFunctions: true,
+          querySubqueries: true,
           joins: true,
           fullTextSearch: true,
           jsonFields: true,
@@ -445,6 +500,12 @@ describe('DriverInterfaceSchema', () => {
         dropTable: async (object) => {},
         supports: {
           transactions: true,
+          queryFilters: true,
+          queryAggregations: true,
+          querySorting: true,
+          queryPagination: true,
+          queryWindowFunctions: false, // MongoDB has limited window function support
+          querySubqueries: true,
           joins: false, // MongoDB has limited join support
           fullTextSearch: true,
           jsonFields: true, // Native JSON support
@@ -479,6 +540,12 @@ describe('DriverInterfaceSchema', () => {
         dropTable: async (object) => {},
         supports: {
           transactions: false, // Salesforce doesn't support transactions
+          queryFilters: true, // SOQL WHERE clause
+          queryAggregations: true, // SOQL GROUP BY
+          querySorting: true, // SOQL ORDER BY
+          queryPagination: true, // SOQL LIMIT/OFFSET
+          queryWindowFunctions: false, // No window functions
+          querySubqueries: true, // SOQL supports subqueries
           joins: true, // SOQL supports relationships
           fullTextSearch: true, // SOSL
           jsonFields: false, // No native JSON type
@@ -513,6 +580,12 @@ describe('DriverInterfaceSchema', () => {
         dropTable: async (object) => {},
         supports: {
           transactions: true, // Redis supports transactions
+          queryFilters: false, // Limited query support - key-based lookup
+          queryAggregations: false, // No aggregation support
+          querySorting: false, // No native sorting
+          queryPagination: false, // No pagination support
+          queryWindowFunctions: false, // No window functions
+          querySubqueries: false, // No subqueries
           joins: false, // No join support
           fullTextSearch: false, // No native full-text search
           jsonFields: true, // RedisJSON module
@@ -521,6 +594,46 @@ describe('DriverInterfaceSchema', () => {
       };
 
       expect(() => DriverInterfaceSchema.parse(redisDriver)).not.toThrow();
+    });
+
+    it('should accept memory-like driver with limited query support', () => {
+      const memoryDriver: DriverInterface = {
+        name: 'memory',
+        version: '1.0.0',
+        connect: async () => {},
+        disconnect: async () => {},
+        checkHealth: async () => true,
+        execute: async () => ({}),
+        find: async (object, query) => [],
+        findOne: async (object, query) => null,
+        create: async (object, data) => data,
+        update: async (object, id, data) => data,
+        delete: async (object, id) => true,
+        count: async () => 0,
+        bulkCreate: async (object, data) => data,
+        bulkUpdate: async (object, updates) => updates,
+        bulkDelete: async (object, ids) => {},
+        beginTransaction: async () => ({}),
+        commit: async (tx) => {},
+        rollback: async (tx) => {},
+        syncSchema: async (object, schema) => {},
+        dropTable: async (object) => {},
+        supports: {
+          transactions: false, // No transactions in memory
+          queryFilters: false, // Memory driver doesn't support query conditions - all filtering done in memory
+          queryAggregations: false, // No aggregation support
+          querySorting: false, // No native sorting
+          queryPagination: false, // No pagination support
+          queryWindowFunctions: false, // No window functions
+          querySubqueries: false, // No subqueries
+          joins: false, // No join support - joins done in memory
+          fullTextSearch: false, // No full-text search
+          jsonFields: true, // Memory can store any type
+          arrayFields: true, // Memory can store any type
+        },
+      };
+
+      expect(() => DriverInterfaceSchema.parse(memoryDriver)).not.toThrow();
     });
   });
 });

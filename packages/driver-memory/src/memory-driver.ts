@@ -23,11 +23,22 @@ export class InMemoryDriver implements DriverInterface {
   }
   
   supports = {
+    // Transaction & Connection Management
     transactions: false, 
-    joins: false,        
-    fullTextSearch: false,
-    jsonFields: true,    
-    arrayFields: true,   
+    
+    // Query Operations
+    queryFilters: false,         // TODO: Not implemented - basic find() doesn't handle filters
+    queryAggregations: false,    // TODO: Not implemented - count() only returns total
+    querySorting: false,         // TODO: Not implemented - find() doesn't handle sorting
+    queryPagination: true,       // Basic pagination via 'top' is implemented
+    queryWindowFunctions: false, // TODO: Not implemented
+    querySubqueries: false,      // TODO: Not implemented
+    joins: false,                // TODO: Not implemented
+    
+    // Advanced Features
+    fullTextSearch: false,       // TODO: Not implemented
+    jsonFields: true,            // Native JS object support
+    arrayFields: true,           // Native JS array support
   };
 
   /**
