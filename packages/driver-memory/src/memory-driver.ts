@@ -27,16 +27,16 @@ export class InMemoryDriver implements DriverInterface {
     transactions: false, 
     
     // Query Operations
-    queryFilters: true,          // In-memory filtering works
-    queryAggregations: true,     // Can compute aggregations in memory
-    querySorting: true,          // Can sort in memory
-    queryPagination: true,       // Can paginate in memory
-    queryWindowFunctions: false, // Not implemented yet
-    querySubqueries: false,      // Not implemented yet
-    joins: false,                // Not implemented yet
+    queryFilters: false,         // TODO: Not implemented - basic find() doesn't handle filters
+    queryAggregations: false,    // TODO: Not implemented - count() only returns total
+    querySorting: false,         // TODO: Not implemented - find() doesn't handle sorting
+    queryPagination: true,       // Basic pagination via 'top' is implemented
+    queryWindowFunctions: false, // TODO: Not implemented
+    querySubqueries: false,      // TODO: Not implemented
+    joins: false,                // TODO: Not implemented
     
     // Advanced Features
-    fullTextSearch: false,       // Not implemented yet
+    fullTextSearch: false,       // TODO: Not implemented
     jsonFields: true,            // Native JS object support
     arrayFields: true,           // Native JS array support
   };
