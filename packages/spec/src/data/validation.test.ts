@@ -346,6 +346,186 @@ describe('ValidationRuleSchema (Discriminated Union)', () => {
 
       expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
     });
+
+    // Salesforce-style validation examples
+    it('should validate opportunity close date is after create date (Salesforce pattern)', () => {
+      const validation = {
+        type: 'cross_field' as const,
+        name: 'close_date_after_create',
+        message: 'Close Date must be greater than or equal to Create Date',
+        condition: 'close_date >= created_date',
+        fields: ['close_date', 'created_date'],
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should validate amount is within min/max range (Salesforce pattern)', () => {
+      const validation = {
+        type: 'cross_field' as const,
+        name: 'amount_in_range',
+        message: 'Amount must be between Minimum and Maximum values',
+        condition: 'amount >= min_amount AND amount <= max_amount',
+        fields: ['amount', 'min_amount', 'max_amount'],
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should validate discount does not exceed total amount', () => {
+      const validation = {
+        type: 'cross_field' as const,
+        name: 'discount_not_exceed_total',
+        message: 'Discount cannot exceed Total Amount',
+        condition: 'discount_amount <= total_amount',
+        fields: ['discount_amount', 'total_amount'],
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should validate shipping date is after order date', () => {
+      const validation = {
+        type: 'cross_field' as const,
+        name: 'shipping_after_order',
+        message: 'Shipping Date must be after Order Date',
+        condition: 'shipping_date > order_date',
+        fields: ['shipping_date', 'order_date'],
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should validate percentage fields sum to 100', () => {
+      const validation = {
+        type: 'cross_field' as const,
+        name: 'percentage_sum',
+        message: 'Percentages must sum to 100',
+        condition: 'percent_a + percent_b + percent_c = 100',
+        fields: ['percent_a', 'percent_b', 'percent_c'],
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should validate quantity does not exceed available stock', () => {
+      const validation = {
+        type: 'cross_field' as const,
+        name: 'quantity_check',
+        message: 'Order quantity cannot exceed available stock',
+        condition: 'order_quantity <= stock_available',
+        fields: ['order_quantity', 'stock_available'],
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should validate renewal date is after contract start date', () => {
+      const validation = {
+        type: 'cross_field' as const,
+        name: 'renewal_after_start',
+        message: 'Renewal Date must be after Contract Start Date',
+        condition: 'renewal_date > contract_start_date',
+        fields: ['renewal_date', 'contract_start_date'],
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should validate credit limit is not exceeded by balance', () => {
+      const validation = {
+        type: 'cross_field' as const,
+        name: 'credit_limit_check',
+        message: 'Balance cannot exceed Credit Limit',
+        condition: 'balance <= credit_limit',
+        fields: ['balance', 'credit_limit'],
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should validate hours worked does not exceed capacity', () => {
+      const validation = {
+        type: 'cross_field' as const,
+        name: 'hours_capacity_check',
+        message: 'Hours worked cannot exceed capacity',
+        condition: 'hours_worked <= capacity_hours',
+        fields: ['hours_worked', 'capacity_hours'],
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should validate multi-field dependency with OR condition', () => {
+      const validation = {
+        type: 'cross_field' as const,
+        name: 'approval_required',
+        message: 'Approval required if amount exceeds threshold or is high risk',
+        condition: 'amount > approval_threshold OR risk_level = "high"',
+        fields: ['amount', 'approval_threshold', 'risk_level'],
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should validate contract term aligns with billing period', () => {
+      const validation = {
+        type: 'cross_field' as const,
+        name: 'term_billing_alignment',
+        message: 'Contract term must be a multiple of billing period',
+        condition: 'contract_term_months % billing_period_months = 0',
+        fields: ['contract_term_months', 'billing_period_months'],
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should validate payment terms with credit check', () => {
+      const validation = {
+        type: 'cross_field' as const,
+        name: 'payment_credit_check',
+        message: 'Credit terms require minimum credit score',
+        condition: 'payment_terms = "credit" AND credit_score >= 650',
+        fields: ['payment_terms', 'credit_score'],
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should validate minimum margin requirement', () => {
+      const validation = {
+        type: 'cross_field' as const,
+        name: 'minimum_margin',
+        message: 'Selling price must maintain minimum 20% margin',
+        condition: '(selling_price - cost_price) / cost_price >= 0.20',
+        fields: ['selling_price', 'cost_price'],
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should handle edge case with empty fields array', () => {
+      const validation = {
+        type: 'cross_field' as const,
+        name: 'edge_case_validation',
+        message: 'Validation failed',
+        condition: 'true',
+        fields: [],
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should enforce required fields property', () => {
+      const invalidValidation = {
+        type: 'cross_field' as const,
+        name: 'invalid_validation',
+        message: 'Missing fields',
+        condition: 'field_a > field_b',
+      };
+
+      expect(() => ValidationRuleSchema.parse(invalidValidation)).toThrow();
+    });
   });
 
   describe('AsyncValidationSchema', () => {
@@ -389,6 +569,160 @@ describe('ValidationRuleSchema (Discriminated Union)', () => {
       if (result.type === 'async') {
         expect(result.timeout).toBe(5000);
       }
+    });
+
+    // Use Case: Email Uniqueness Check
+    it('should validate email uniqueness via API', () => {
+      const validation = {
+        type: 'async' as const,
+        name: 'unique_email_check',
+        message: 'This email address is already registered',
+        field: 'email',
+        validatorUrl: '/api/users/check-email',
+        timeout: 3000,
+        debounce: 500,
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    // Use Case: Username Availability Check
+    it('should validate username availability with debounce', () => {
+      const validation = {
+        type: 'async' as const,
+        name: 'username_availability',
+        message: 'This username is not available',
+        field: 'username',
+        validatorUrl: '/api/users/check-username',
+        debounce: 300,
+      };
+
+      const result = ValidationRuleSchema.parse(validation);
+      if (result.type === 'async') {
+        expect(result.debounce).toBe(300);
+        expect(result.timeout).toBe(5000); // default
+      }
+    });
+
+    // Use Case: Domain Name Availability
+    it('should check domain name availability', () => {
+      const validation = {
+        type: 'async' as const,
+        name: 'domain_available',
+        message: 'This domain is already taken or reserved',
+        field: 'domain_name',
+        validatorUrl: '/api/domains/check-availability',
+        timeout: 2000,
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    // Use Case: Tax ID Validation via Government API
+    it('should validate tax ID via external service', () => {
+      const validation = {
+        type: 'async' as const,
+        name: 'validate_tax_id',
+        message: 'Invalid Tax ID number',
+        field: 'tax_id',
+        validatorFunction: 'validateTaxIdWithIRS',
+        timeout: 10000, // Government APIs may be slow
+        params: { country: 'US' },
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    // Use Case: Credit Card Validation with Payment Gateway
+    it('should validate credit card via payment gateway', () => {
+      const validation = {
+        type: 'async' as const,
+        name: 'validate_card',
+        message: 'Invalid credit card',
+        field: 'card_number',
+        validatorUrl: 'https://api.stripe.com/v1/tokens/validate',
+        timeout: 5000,
+        params: { mode: 'validate_only' },
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    // Use Case: Address Validation
+    it('should validate address via geocoding service', () => {
+      const validation = {
+        type: 'async' as const,
+        name: 'validate_address',
+        message: 'Unable to verify address',
+        field: 'street_address',
+        validatorFunction: 'validateAddressWithGoogleMaps',
+        timeout: 4000,
+        params: { 
+          includeFields: ['city', 'state', 'zip'],
+          strictMode: true 
+        },
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    // Use Case: Coupon Code Validation
+    it('should validate coupon code availability', () => {
+      const validation = {
+        type: 'async' as const,
+        name: 'check_coupon',
+        message: 'Invalid or expired coupon code',
+        field: 'coupon_code',
+        validatorUrl: '/api/coupons/validate',
+        timeout: 2000,
+        params: { checkExpiration: true, checkUsageLimit: true },
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should accept async validation with custom timeout', () => {
+      const validation = {
+        type: 'async' as const,
+        name: 'slow_api_check',
+        message: 'Validation failed',
+        field: 'data',
+        validatorUrl: 'https://slow-api.example.com/validate',
+        timeout: 15000,
+      };
+
+      const result = ValidationRuleSchema.parse(validation);
+      if (result.type === 'async') {
+        expect(result.timeout).toBe(15000);
+      }
+    });
+
+    it('should accept async validation with additional params', () => {
+      const validation = {
+        type: 'async' as const,
+        name: 'complex_check',
+        message: 'Complex validation failed',
+        field: 'complex_field',
+        validatorUrl: '/api/validate/complex',
+        params: {
+          threshold: 100,
+          mode: 'strict',
+          includeMetadata: true,
+        },
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should enforce required field property', () => {
+      const invalidValidation = {
+        type: 'async' as const,
+        name: 'invalid_async',
+        message: 'Missing field',
+        validatorUrl: '/api/validate',
+      };
+
+      expect(() => ValidationRuleSchema.parse(invalidValidation)).toThrow();
     });
   });
 
@@ -495,6 +829,206 @@ describe('ValidationRuleSchema (Discriminated Union)', () => {
       };
 
       expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should validate only if customer type is premium', () => {
+      const validation = {
+        type: 'conditional' as const,
+        name: 'premium_discount_check',
+        message: 'Premium customer validation',
+        when: 'customer_type = "premium"',
+        then: {
+          type: 'cross_field' as const,
+          name: 'premium_discount_limit',
+          message: 'Premium customers can have maximum 30% discount',
+          condition: 'discount_percent <= 30',
+          fields: ['discount_percent'],
+        },
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should validate shipping address only when shipping required', () => {
+      const validation = {
+        type: 'conditional' as const,
+        name: 'shipping_validation',
+        message: 'Shipping validation',
+        when: 'requires_shipping = true',
+        then: {
+          type: 'script' as const,
+          name: 'shipping_address_required',
+          message: 'Shipping address is required',
+          condition: 'shipping_address = null OR shipping_address = ""',
+        },
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should apply different validation based on order value', () => {
+      const validation = {
+        type: 'conditional' as const,
+        name: 'order_value_validation',
+        message: 'Order value validation',
+        when: 'order_total > 10000',
+        then: {
+          type: 'script' as const,
+          name: 'high_value_approval',
+          message: 'Orders over $10,000 require manager approval',
+          condition: 'manager_approval = null',
+        },
+        otherwise: {
+          type: 'script' as const,
+          name: 'standard_validation',
+          message: 'Payment method required',
+          condition: 'payment_method = null',
+        },
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should validate tax fields only for taxable items', () => {
+      const validation = {
+        type: 'conditional' as const,
+        name: 'tax_validation',
+        message: 'Tax validation',
+        when: 'is_taxable = true',
+        then: {
+          type: 'script' as const,
+          name: 'tax_code_required',
+          message: 'Tax code is required for taxable items',
+          condition: 'tax_code = null',
+        },
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should conditionally require field based on another field value', () => {
+      const validation = {
+        type: 'conditional' as const,
+        name: 'conditional_required_field',
+        message: 'Conditional field requirement',
+        when: 'payment_method = "bank_transfer"',
+        then: {
+          type: 'script' as const,
+          name: 'bank_details_required',
+          message: 'Bank account details required for bank transfer',
+          condition: 'bank_account_number = null',
+        },
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should apply complex conditional with multiple field checks', () => {
+      const validation = {
+        type: 'conditional' as const,
+        name: 'subscription_validation',
+        message: 'Subscription validation',
+        when: 'subscription_type = "annual" AND customer_status = "active"',
+        then: {
+          type: 'cross_field' as const,
+          name: 'annual_discount',
+          message: 'Annual subscriptions get automatic 15% discount',
+          condition: 'discount_percent >= 15',
+          fields: ['discount_percent'],
+        },
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should validate insurance requirement based on product category', () => {
+      const validation = {
+        type: 'conditional' as const,
+        name: 'insurance_check',
+        message: 'Insurance validation',
+        when: 'product_category IN ("electronics", "jewelry", "artwork")',
+        then: {
+          type: 'script' as const,
+          name: 'insurance_required',
+          message: 'Insurance is required for high-value items',
+          condition: 'insurance_selected = false',
+        },
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should apply different validations for different regions', () => {
+      const validation = {
+        type: 'conditional' as const,
+        name: 'regional_validation',
+        message: 'Regional compliance validation',
+        when: 'region = "EU"',
+        then: {
+          type: 'script' as const,
+          name: 'gdpr_consent',
+          message: 'GDPR consent required for EU customers',
+          condition: 'gdpr_consent_given = false',
+        },
+        otherwise: {
+          type: 'script' as const,
+          name: 'tos_acceptance',
+          message: 'Terms of Service acceptance required',
+          condition: 'tos_accepted = false',
+        },
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should apply validation based on user role', () => {
+      const validation = {
+        type: 'conditional' as const,
+        name: 'role_based_validation',
+        message: 'Role-based validation',
+        when: 'user_role = "manager"',
+        then: {
+          type: 'script' as const,
+          name: 'manager_approval_limit',
+          message: 'Managers can approve up to $50,000',
+          condition: 'approval_amount > 50000',
+        },
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should enforce required field property in when clause', () => {
+      const validation = {
+        type: 'conditional' as const,
+        name: 'valid_conditional',
+        message: 'Valid conditional',
+        when: 'status = "active"',
+        then: {
+          type: 'script' as const,
+          name: 'test_rule',
+          message: 'Test',
+          condition: 'true',
+        },
+      };
+
+      expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
+    });
+
+    it('should fail without when clause', () => {
+      const invalidValidation = {
+        type: 'conditional' as const,
+        name: 'invalid_conditional',
+        message: 'Missing when clause',
+        then: {
+          type: 'script' as const,
+          name: 'test_rule',
+          message: 'Test',
+          condition: 'true',
+        },
+      };
+
+      expect(() => ValidationRuleSchema.parse(invalidValidation)).toThrow();
     });
   });
 
