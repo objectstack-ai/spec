@@ -23,11 +23,22 @@ export class InMemoryDriver implements DriverInterface {
   }
   
   supports = {
+    // Transaction & Connection Management
     transactions: false, 
-    joins: false,        
-    fullTextSearch: false,
-    jsonFields: true,    
-    arrayFields: true,   
+    
+    // Query Operations
+    queryFilters: true,          // In-memory filtering works
+    queryAggregations: true,     // Can compute aggregations in memory
+    querySorting: true,          // Can sort in memory
+    queryPagination: true,       // Can paginate in memory
+    queryWindowFunctions: false, // Not implemented yet
+    querySubqueries: false,      // Not implemented yet
+    joins: false,                // Not implemented yet
+    
+    // Advanced Features
+    fullTextSearch: false,       // Not implemented yet
+    jsonFields: true,            // Native JS object support
+    arrayFields: true,           // Native JS array support
   };
 
   /**
