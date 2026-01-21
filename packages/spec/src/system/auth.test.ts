@@ -15,8 +15,8 @@ import {
   AuthPluginConfigSchema,
   AuthConfigSchema,
   StandardAuthProviderSchema,
-  type AuthenticationConfig,
-  type AuthenticationProvider,
+  type AuthConfig,
+  type StandardAuthProvider,
   type OAuthProvider,
 } from "./auth.zod";
 

@@ -88,7 +88,7 @@ const authConfig: AuthConfig = {
 ### OAuth Example
 
 ```typescript
-const oauthConfig: BetterAuthConfig = {
+const oauthConfig: AuthConfig = {
   name: 'social_auth',
   label: 'Social Login',
   strategies: ['oauth'],
@@ -116,7 +116,7 @@ const oauthConfig: BetterAuthConfig = {
 ### Multi-Strategy Example
 
 ```typescript
-const multiAuthConfig: BetterAuthConfig = {
+const multiAuthConfig: AuthConfig = {
   name: 'multi_auth',
   label: 'Multi-Strategy Auth',
   strategies: ['email_password', 'oauth', 'magic_link'],
@@ -168,7 +168,7 @@ const multiAuthConfig: BetterAuthConfig = {
 |----------|------|----------|-------------|
 | `name` | `string` | ✅ | Configuration identifier (snake_case) |
 | `label` | `string` | ✅ | Human-readable label |
-| `strategies` | `BetterAuthStrategy[]` | ✅ | Enabled authentication strategies |
+| `strategies` | `AuthStrategy[]` | ✅ | Enabled authentication strategies |
 | `baseUrl` | `string` | ✅ | Application base URL |
 | `secret` | `string` | ✅ | Secret key for signing (min 32 chars) |
 
@@ -337,10 +337,10 @@ See [examples/auth-better-examples.ts](../examples/auth-better-examples.ts) for 
 
 ## Schema Files
 
-- **Zod Schema**: `packages/spec/src/system/auth-better.zod.ts`
-- **Tests**: `packages/spec/src/system/auth-better.test.ts`
-- **JSON Schema**: `packages/spec/json-schema/BetterAuthConfig.json`
-- **Documentation**: `content/docs/references/system/BetterAuthConfig.mdx`
+- **Zod Schema**: `packages/spec/src/system/auth.zod.ts`
+- **Tests**: `packages/spec/src/system/auth.test.ts`
+- **JSON Schema**: `packages/spec/json-schema/AuthConfig.json`
+- **Documentation**: `content/docs/references/system/AuthConfig.mdx`
 
 ## Type Safety
 
@@ -348,9 +348,9 @@ All schemas are defined using Zod and TypeScript types are inferred automaticall
 
 ```typescript
 import type {
-  BetterAuthConfig,
-  BetterAuthProvider,
-  BetterAuthStrategy,
+  AuthConfig,
+  StandardAuthProvider,
+  AuthStrategy,
   OAuthProvider,
   SessionConfig,
   // ... and more
@@ -362,13 +362,13 @@ import type {
 Following ObjectStack conventions:
 
 - **Configuration Keys** (TypeScript properties): `camelCase` (e.g., `maxAttempts`, `emailPassword`)
-- **Machine Names** (Data values): `snake_case` (e.g., `name: 'better_auth'`, `strategy: 'email_password'`)
+- **Machine Names** (Data values): `snake_case` (e.g., `name: 'main_auth'`, `strategy: 'email_password'`)
 
 ## Resources
 
 - [Better-Auth Documentation](https://better-auth.com)
 - [ObjectStack Documentation](https://objectstack.ai)
-- [JSON Schema Reference](../packages/spec/json-schema/BetterAuthConfig.json)
+- [JSON Schema Reference](../packages/spec/json-schema/AuthConfig.json)
 
 ## License
 
