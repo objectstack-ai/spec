@@ -16,12 +16,14 @@ import {
   EnterpriseAuthConfigSchema,
   UserFieldMappingSchema,
   DatabaseAdapterSchema,
+  DatabaseMappingSchema,
   AuthPluginConfigSchema,
   AuthConfigSchema,
   StandardAuthProviderSchema,
   type AuthConfig,
   type StandardAuthProvider,
   type OAuthProvider,
+  type DatabaseMapping,
 } from "./auth.zod";
 
 describe('AuthStrategy', () => {
@@ -544,6 +546,93 @@ describe('DatabaseAdapterSchema', () => {
   });
 });
 
+describe('DatabaseMappingSchema', () => {
+  it('should accept valid database mapping configuration', () => {
+    const mapping: DatabaseMapping = {
+      user: {
+        emailVerified: 'email_verified',
+        createdAt: 'created_at',
+      },
+      session: {
+        sessionToken: 'token',
+        expires: 'expiresAt',
+      },
+      account: {
+        providerAccountId: 'accountId',
+        provider: 'providerId',
+      },
+      verificationToken: {
+        identifier: 'email',
+      },
+    };
+
+    expect(() => DatabaseMappingSchema.parse(mapping)).not.toThrow();
+  });
+
+  it('should use default mappings for session and account', () => {
+    const mapping = {};
+    const result = DatabaseMappingSchema.parse(mapping);
+    
+    // Session defaults
+    expect(result.session.sessionToken).toBe('token');
+    expect(result.session.expires).toBe('expiresAt');
+    
+    // Account defaults
+    expect(result.account.providerAccountId).toBe('accountId');
+    expect(result.account.provider).toBe('providerId');
+  });
+
+  it('should accept partial mapping overrides', () => {
+    const mapping = {
+      session: {
+        sessionToken: 'session_token',
+        // Let expires use default
+      },
+      account: {
+        // Override only one field
+        providerAccountId: 'provider_account_id',
+      },
+    };
+
+    const result = DatabaseMappingSchema.parse(mapping);
+    expect(result.session.sessionToken).toBe('session_token');
+    expect(result.account.providerAccountId).toBe('provider_account_id');
+  });
+
+  it('should accept custom user field mappings', () => {
+    const mapping = {
+      user: {
+        emailVerified: 'is_verified',
+        createdAt: 'created',
+        updatedAt: 'modified',
+      },
+    };
+
+    expect(() => DatabaseMappingSchema.parse(mapping)).not.toThrow();
+  });
+
+  it('should handle better-auth compatibility mappings', () => {
+    const betterAuthMapping = {
+      session: {
+        sessionToken: 'token',
+        expires: 'expiresAt',
+      },
+      account: {
+        providerAccountId: 'accountId',
+        provider: 'providerId',
+      },
+    };
+
+    const result = DatabaseMappingSchema.parse(betterAuthMapping);
+    
+    // Verify better-auth compatible mappings
+    expect(result.session.sessionToken).toBe('token');
+    expect(result.session.expires).toBe('expiresAt');
+    expect(result.account.providerAccountId).toBe('accountId');
+    expect(result.account.provider).toBe('providerId');
+  });
+});
+
 describe('AuthPluginConfigSchema', () => {
   it('should accept valid plugin configuration', () => {
     const config = {
@@ -853,6 +942,66 @@ describe('AuthConfigSchema', () => {
     };
 
     expect(() => AuthConfigSchema.parse(config)).not.toThrow();
+  });
+
+  it('should accept configuration with database field mapping', () => {
+    const config = {
+      name: 'test_auth',
+      label: 'Test',
+      strategies: ['email_password'],
+      baseUrl: 'https://example.com',
+      secret: 'a'.repeat(32),
+      session: {},
+      rateLimit: {},
+      csrf: {},
+      accountLinking: {},
+      mapping: {
+        user: {
+          emailVerified: 'email_verified',
+        },
+        session: {
+          sessionToken: 'token',
+          expires: 'expiresAt',
+        },
+        account: {
+          providerAccountId: 'accountId',
+          provider: 'providerId',
+        },
+      },
+    };
+
+    expect(() => AuthConfigSchema.parse(config)).not.toThrow();
+  });
+
+  it('should accept configuration with better-auth compatible mapping', () => {
+    const config = {
+      name: 'better_auth_config',
+      label: 'Better Auth Compatible',
+      driver: 'better-auth',
+      strategies: ['email_password', 'oauth'],
+      baseUrl: 'https://example.com',
+      secret: 'a'.repeat(32),
+      session: {},
+      rateLimit: {},
+      csrf: {},
+      accountLinking: {},
+      mapping: {
+        session: {
+          sessionToken: 'token',
+          expires: 'expiresAt',
+        },
+        account: {
+          providerAccountId: 'accountId',
+          provider: 'providerId',
+        },
+      },
+    };
+
+    const result = AuthConfigSchema.parse(config);
+    
+    // Verify mapping is preserved
+    expect(result.mapping?.session?.sessionToken).toBe('token');
+    expect(result.mapping?.account?.providerAccountId).toBe('accountId');
   });
 
   it('should use default values for optional fields', () => {

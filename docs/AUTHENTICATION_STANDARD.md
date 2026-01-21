@@ -416,6 +416,88 @@ hooks: {
 }
 ```
 
+### Database Field Mapping
+
+The `mapping` configuration allows you to map ObjectStack standard field names (which follow Auth.js conventions) to driver-specific field names. This is particularly useful for ensuring compatibility with authentication libraries like `better-auth` that use different column naming conventions.
+
+```typescript
+mapping: {
+  // User model field mapping (optional)
+  user?: {
+    emailVerified: 'email_verified',  // Map to snake_case
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+  },
+  
+  // Session model field mapping (default better-auth compatible)
+  session: {
+    sessionToken: 'token',            // better-auth uses 'token'
+    expires: 'expiresAt',             // better-auth uses 'expiresAt'
+  },
+  
+  // Account model field mapping (default better-auth compatible)
+  account: {
+    providerAccountId: 'accountId',   // better-auth uses 'accountId'
+    provider: 'providerId',           // better-auth uses 'providerId'
+  },
+  
+  // Verification token field mapping (optional)
+  verificationToken?: {
+    identifier: 'email',
+  },
+}
+```
+
+**Default Mappings for better-auth Compatibility:**
+
+By default, the `session` and `account` mappings are pre-configured for `better-auth` compatibility:
+
+| ObjectStack Field | better-auth Field |
+|------------------|------------------|
+| `sessionToken` | `token` |
+| `expires` | `expiresAt` |
+| `providerAccountId` | `accountId` |
+| `provider` | `providerId` |
+
+You only need to specify the `mapping` configuration if you want to:
+- Use a different authentication driver with non-standard field names
+- Override the default better-auth mappings
+- Add custom mappings for user or verification token fields
+
+**Example with custom mappings:**
+
+```typescript
+const authConfig: AuthConfig = {
+  name: 'custom_auth',
+  label: 'Custom Auth',
+  driver: 'custom-driver',
+  strategies: ['email_password'],
+  baseUrl: 'https://example.com',
+  secret: process.env.AUTH_SECRET!,
+  
+  mapping: {
+    user: {
+      emailVerified: 'is_verified',
+      createdAt: 'created',
+      updatedAt: 'modified',
+    },
+    session: {
+      sessionToken: 'session_id',
+      expires: 'expires_at',
+    },
+    account: {
+      providerAccountId: 'external_id',
+      provider: 'auth_provider',
+    },
+  },
+  
+  session: {},
+  rateLimit: {},
+  csrf: {},
+  accountLinking: {},
+};
+```
+
 ## Supported OAuth Providers
 
 - Google (`google`)

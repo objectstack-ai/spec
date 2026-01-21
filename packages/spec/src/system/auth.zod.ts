@@ -325,6 +325,62 @@ export const DatabaseAdapterSchema = z.object({
 export type DatabaseAdapter = z.infer<typeof DatabaseAdapterSchema>;
 
 /**
+ * Database Field Mapping Configuration
+ * Maps ObjectStack standard field names to driver-specific field names.
+ * 
+ * Useful when the underlying authentication driver (e.g., better-auth) uses
+ * different column names than the ObjectStack standard schemas (which follow
+ * Auth.js conventions).
+ * 
+ * @example
+ * ```typescript
+ * mapping: {
+ *   session: {
+ *     sessionToken: 'token',      // better-auth uses 'token'
+ *     expires: 'expiresAt'        // better-auth uses 'expiresAt'
+ *   },
+ *   account: {
+ *     providerAccountId: 'accountId',  // better-auth uses 'accountId'
+ *     provider: 'providerId'           // better-auth uses 'providerId'
+ *   }
+ * }
+ * ```
+ */
+export const DatabaseMappingSchema = z.object({
+  /**
+   * User model field mapping
+   * Maps ObjectStack User fields to driver fields
+   */
+  user: z.record(z.string()).optional().describe('User field mapping (e.g., { "emailVerified": "email_verified" })'),
+  
+  /**
+   * Session model field mapping
+   * Maps ObjectStack Session fields to driver fields
+   */
+  session: z.record(z.string()).default({
+    sessionToken: 'token',
+    expires: 'expiresAt',
+  }).describe('Session field mapping'),
+  
+  /**
+   * Account model field mapping
+   * Maps ObjectStack Account fields to driver fields
+   */
+  account: z.record(z.string()).default({
+    providerAccountId: 'accountId',
+    provider: 'providerId',
+  }).describe('Account field mapping'),
+  
+  /**
+   * Verification token field mapping
+   * Maps ObjectStack VerificationToken fields to driver fields
+   */
+  verificationToken: z.record(z.string()).optional().describe('VerificationToken field mapping'),
+});
+
+export type DatabaseMapping = z.infer<typeof DatabaseMappingSchema>;
+
+/**
  * Authentication Plugin Configuration
  * Extends authentication with additional features
  */
@@ -468,6 +524,16 @@ export const AuthConfigSchema = z.object({
    * Database adapter configuration
    */
   database: DatabaseAdapterSchema.optional(),
+  
+  /**
+   * Database field mapping configuration
+   * Maps ObjectStack standard field names to driver-specific field names.
+   * 
+   * This is distinct from the database adapter configuration and provides
+   * instructions for the driver to map our standard schema fields to the
+   * underlying engine's fields (e.g., better-auth uses 'token' instead of 'sessionToken').
+   */
+  mapping: DatabaseMappingSchema.optional(),
   
   /**
    * Additional authentication plugins
