@@ -1,0 +1,56 @@
+{
+  "$ref": "#/definitions/SessionConfig",
+  "definitions": {
+    "SessionConfig": {
+      "type": "object",
+      "properties": {
+        "expiresIn": {
+          "type": "number",
+          "default": 604800,
+          "description": "Session expiry in seconds (default 7 days)"
+        },
+        "updateAge": {
+          "type": "number",
+          "default": 86400,
+          "description": "Session update interval in seconds (default 1 day)"
+        },
+        "cookieName": {
+          "type": "string",
+          "default": "better-auth.session_token",
+          "description": "Session cookie name"
+        },
+        "cookieSecure": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use secure cookies (HTTPS only)"
+        },
+        "cookieSameSite": {
+          "type": "string",
+          "enum": [
+            "strict",
+            "lax",
+            "none"
+          ],
+          "default": "lax",
+          "description": "SameSite cookie attribute"
+        },
+        "cookieDomain": {
+          "type": "string",
+          "description": "Cookie domain"
+        },
+        "cookiePath": {
+          "type": "string",
+          "default": "/",
+          "description": "Cookie path"
+        },
+        "cookieHttpOnly": {
+          "type": "boolean",
+          "default": true,
+          "description": "HttpOnly cookie attribute"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
