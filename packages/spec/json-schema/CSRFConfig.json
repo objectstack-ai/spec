@@ -1,0 +1,31 @@
+{
+  "$ref": "#/definitions/CSRFConfig",
+  "definitions": {
+    "CSRFConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "tokenLength": {
+          "type": "number",
+          "default": 32,
+          "description": "CSRF token length"
+        },
+        "cookieName": {
+          "type": "string",
+          "default": "csrf_token",
+          "description": "CSRF cookie name"
+        },
+        "headerName": {
+          "type": "string",
+          "default": "X-CSRF-Token",
+          "description": "CSRF header name"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

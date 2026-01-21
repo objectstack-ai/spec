@@ -1,0 +1,28 @@
+{
+  "$ref": "#/definitions/AuthPluginConfig",
+  "definitions": {
+    "AuthPluginConfig": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Plugin name"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Plugin-specific options"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

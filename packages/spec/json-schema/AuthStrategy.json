@@ -1,0 +1,17 @@
+{
+  "$ref": "#/definitions/AuthStrategy",
+  "definitions": {
+    "AuthStrategy": {
+      "type": "string",
+      "enum": [
+        "email_password",
+        "magic_link",
+        "oauth",
+        "passkey",
+        "otp",
+        "anonymous"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
