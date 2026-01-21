@@ -24,8 +24,11 @@ export * from './data/trigger.zod';
 // API Protocol (Envelopes, Contracts)
 export * from './api/contract.zod';
 
-// AI Protocol (Agent, RAG)
+// AI Protocol (Agent, RAG, Model Registry, NLQ)
 export * from './ai/agent.zod';
+export * from './ai/model-registry.zod';
+export * from './ai/rag-pipeline.zod';
+export * from './ai/nlq.zod';
 
 // UI Protocol (Layout, Navigation, Interaction)
 export * from './ui/app.zod';
