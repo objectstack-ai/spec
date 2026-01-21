@@ -44,6 +44,89 @@ The specification is divided into three protocols:
 
 ## 📚 Usage
 
+### Import Styles
+
+The package supports two import styles to prevent naming conflicts and improve code organization:
+
+#### 1. Flat Imports (Backward Compatible)
+
+All schemas and types can be imported directly from the package root:
+
+```typescript
+import { ObjectSchema, Field, User, App, Agent } from '@objectstack/spec';
+
+const result = ObjectSchema.safeParse(userConfig);
+if (!result.success) {
+  console.error("Invalid Object definition", result.error);
+}
+```
+
+**Pros:**
+- Simple, concise imports
+- Backward compatible with existing code
+- Good for importing a few specific types
+
+**Cons:**
+- Risk of naming conflicts as the API grows
+- Less clear which protocol domain a type belongs to
+
+#### 2. Namespaced Imports (Recommended for New Code)
+
+Import entire protocol domains for better organization:
+
+```typescript
+// Import protocol namespaces
+import * as Data from '@objectstack/spec/data';
+import * as UI from '@objectstack/spec/ui';
+import * as System from '@objectstack/spec/system';
+import * as AI from '@objectstack/spec/ai';
+import * as API from '@objectstack/spec/api';
+
+// Use with namespace prefix
+const user: System.User = {
+  id: 'user_123',
+  email: 'user@example.com',
+  // ...
+};
+
+const field: Data.Field = {
+  name: 'task_name',
+  type: 'text',
+  label: 'Task Name',
+  // ...
+};
+
+const agent: AI.Agent = {
+  name: 'sales_assistant',
+  // ...
+};
+```
+
+**Pros:**
+- Clear organization by protocol domain
+- Eliminates naming conflict concerns
+- Better IDE autocomplete (shows all types in a namespace)
+- Self-documenting code (immediately clear which protocol is being used)
+
+**Cons:**
+- Slightly more verbose
+- Requires namespace prefix for each type
+
+#### 3. Mixed Approach
+
+You can also mix both styles:
+
+```typescript
+// Import frequently used types directly
+import { Field, ObjectSchema } from '@objectstack/spec';
+
+// Import less common types via namespace
+import * as System from '@objectstack/spec/system';
+
+const field: Field = { /* ... */ };
+const user: System.User = { /* ... */ };
+```
+
 ### Validation (Runtime)
 
 ```typescript
@@ -55,15 +138,35 @@ if (!result.success) {
 }
 ```
 
+Or using namespaced imports:
+
+```typescript
+import * as Data from '@objectstack/spec/data';
+
+const result = Data.ObjectSchema.safeParse(userConfig);
+```
+
 ### Type Definitions (Compile Time)
 
 ```typescript
-import type { Object, Field } from '@objectstack/spec';
+import type { Field } from '@objectstack/spec';
+// Or: import type { Field } from '@objectstack/spec/data';
 
-const myObject: Object = {
-  name: "project_task",
-  fields: { ... }
+const myField: Field = {
+  name: "task_name",
+  type: "text",
+  label: "Task Name"
 };
+```
+
+Using namespaced imports for better organization:
+
+```typescript
+import type * as Data from '@objectstack/spec/data';
+import type * as UI from '@objectstack/spec/ui';
+
+const field: Data.Field = { /* ... */ };
+const view: UI.View = { /* ... */ };
 ```
 
 ### JSON Schema (Tooling)
