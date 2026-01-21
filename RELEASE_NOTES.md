@@ -10,7 +10,7 @@ All packages are ready for publishing to npm:
 - **@objectstack/runtime@0.2.0** - Runtime execution environment
 - **@objectstack/client@0.2.0** - Client library for ObjectStack
 - **@objectstack/driver-memory@0.2.0** - In-memory data storage driver
-- **@objectstack/plugin-hono-server@1.0.0** - Hono server plugin for REST API
+- **@objectstack/plugin-hono-server@0.2.0** - Hono server plugin for REST API
 
 ## ✨ Features
 
@@ -102,7 +102,7 @@ Dry-run output confirms all 7 packages are ready:
 - ✅ @objectstack/client@0.2.0
 - ✅ @objectstack/driver-memory@0.2.0
 - ✅ @objectstack/objectql@0.2.0
-- ✅ @objectstack/plugin-hono-server@1.0.0
+- ✅ @objectstack/plugin-hono-server@0.2.0
 - ✅ @objectstack/runtime@0.2.0
 - ✅ @objectstack/spec@0.2.0
 - ✅ @objectstack/types@0.2.0
