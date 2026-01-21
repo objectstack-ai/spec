@@ -272,13 +272,6 @@ export type Filter<T = any> = {
  */
 export type Scalar = string | number | boolean | Date | null;
 
-/**
- * Generic filter operators type.
- */
-export type FilterOperators<T = Scalar> = z.infer<typeof FieldOperatorsSchema> & {
-  $not?: FilterOperators<T>;
-};
-
 // Export inferred types
 export type FieldOperators = z.infer<typeof FieldOperatorsSchema>;
 export type QueryFilter = z.infer<typeof QueryFilterSchema>;
