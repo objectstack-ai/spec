@@ -258,12 +258,13 @@ export type AuthPluginConfig = z.infer<typeof AuthPluginConfigSchema>;
  * 
  * @example
  * ```typescript
- * const authConfig: AuthenticationConfig = {
+ * const authConfig: AuthConfig = {
  *   name: 'main_auth',
  *   label: 'Main Authentication',
  *   strategies: ['email_password', 'oauth'],
  *   baseUrl: 'https://app.example.com',
  *   secret: process.env.AUTH_SECRET,
+ *   driver: 'better-auth', // Optional, defaults to 'better-auth'
  *   emailPassword: {
  *     enabled: true,
  *     minPasswordLength: 8,
@@ -281,7 +282,7 @@ export type AuthPluginConfig = z.infer<typeof AuthPluginConfigSchema>;
  * };
  * ```
  */
-export const AuthenticationConfigSchema = z.object({
+export const AuthConfigSchema = z.object({
   /**
    * Unique identifier for this auth configuration
    * Must be in snake_case following ObjectStack conventions
@@ -294,6 +295,13 @@ export const AuthenticationConfigSchema = z.object({
    * Human-readable label
    */
   label: z.string().describe('Display label'),
+  
+  /**
+   * The underlying authentication implementation driver
+   * Default: 'better-auth' (the reference implementation)
+   * Can be: 'better-auth', 'auth-js', 'passport', or custom driver name
+   */
+  driver: z.string().default('better-auth').describe('The underlying authentication implementation driver'),
   
   /**
    * Enabled authentication strategies
@@ -467,18 +475,18 @@ export const AuthenticationConfigSchema = z.object({
 });
 
 /**
- * TypeScript type inferred from AuthenticationConfigSchema
+ * TypeScript type inferred from AuthConfigSchema
  */
-export type AuthenticationConfig = z.infer<typeof AuthenticationConfigSchema>;
+export type AuthConfig = z.infer<typeof AuthConfigSchema>;
 
 /**
- * Authentication Provider Schema
+ * Standard Authentication Provider Schema
  * Wraps the configuration for use in the identity system
  */
-export const AuthenticationProviderSchema = z.object({
-  type: z.literal('authentication').describe('Provider type identifier'),
+export const StandardAuthProviderSchema = z.object({
+  type: z.literal('standard_auth').describe('Provider type identifier'),
   
-  config: AuthenticationConfigSchema.describe('Authentication configuration'),
+  config: AuthConfigSchema.describe('Standard authentication configuration'),
 });
 
-export type AuthenticationProvider = z.infer<typeof AuthenticationProviderSchema>;
+export type StandardAuthProvider = z.infer<typeof StandardAuthProviderSchema>;

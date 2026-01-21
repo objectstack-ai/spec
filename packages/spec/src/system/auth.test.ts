@@ -13,12 +13,12 @@ import {
   UserFieldMappingSchema,
   DatabaseAdapterSchema,
   AuthPluginConfigSchema,
-  AuthenticationConfigSchema,
-  AuthenticationProviderSchema,
+  AuthConfigSchema,
+  StandardAuthProviderSchema,
   type AuthenticationConfig,
   type AuthenticationProvider,
   type OAuthProvider,
-} from './authentication.zod';
+} from "./auth.zod";
 
 describe('AuthStrategy', () => {
   it('should accept valid authentication strategies', () => {
@@ -378,9 +378,9 @@ describe('AuthPluginConfigSchema', () => {
   });
 });
 
-describe('AuthenticationConfigSchema', () => {
+describe('AuthConfigSchema', () => {
   it('should accept minimal valid configuration', () => {
-    const config: AuthenticationConfig = {
+    const config: AuthConfig = {
       name: 'main_auth',
       label: 'Main Authentication',
       strategies: ['email_password'],
@@ -392,11 +392,11 @@ describe('AuthenticationConfigSchema', () => {
       accountLinking: {},
     };
 
-    expect(() => AuthenticationConfigSchema.parse(config)).not.toThrow();
+    expect(() => AuthConfigSchema.parse(config)).not.toThrow();
   });
 
   it('should accept comprehensive configuration', () => {
-    const config: AuthenticationConfig = {
+    const config: AuthConfig = {
       name: 'main_auth',
       label: 'Main Authentication',
       strategies: ['email_password', 'oauth', 'magic_link'],
@@ -477,7 +477,7 @@ describe('AuthenticationConfigSchema', () => {
       allowRegistration: true,
     };
 
-    expect(() => AuthenticationConfigSchema.parse(config)).not.toThrow();
+    expect(() => AuthConfigSchema.parse(config)).not.toThrow();
   });
 
   it('should enforce snake_case for name field', () => {
@@ -493,14 +493,14 @@ describe('AuthenticationConfigSchema', () => {
       accountLinking: {},
     };
 
-    expect(() => AuthenticationConfigSchema.parse(invalidConfig)).toThrow();
+    expect(() => AuthConfigSchema.parse(invalidConfig)).toThrow();
 
     const validConfig = {
       ...invalidConfig,
       name: 'main_auth', // snake_case - valid
     };
 
-    expect(() => AuthenticationConfigSchema.parse(validConfig)).not.toThrow();
+    expect(() => AuthConfigSchema.parse(validConfig)).not.toThrow();
   });
 
   it('should require at least one strategy', () => {
@@ -516,7 +516,7 @@ describe('AuthenticationConfigSchema', () => {
       accountLinking: {},
     };
 
-    expect(() => AuthenticationConfigSchema.parse(config)).toThrow();
+    expect(() => AuthConfigSchema.parse(config)).toThrow();
   });
 
   it('should require secret to be at least 32 characters', () => {
@@ -532,7 +532,7 @@ describe('AuthenticationConfigSchema', () => {
       accountLinking: {},
     };
 
-    expect(() => AuthenticationConfigSchema.parse(config)).toThrow();
+    expect(() => AuthConfigSchema.parse(config)).toThrow();
   });
 
   it('should validate baseUrl is a valid URL', () => {
@@ -548,7 +548,7 @@ describe('AuthenticationConfigSchema', () => {
       accountLinking: {},
     };
 
-    expect(() => AuthenticationConfigSchema.parse(config)).toThrow();
+    expect(() => AuthConfigSchema.parse(config)).toThrow();
   });
 
   it('should accept configuration with hooks', () => {
@@ -572,7 +572,7 @@ describe('AuthenticationConfigSchema', () => {
       },
     };
 
-    expect(() => AuthenticationConfigSchema.parse(config)).not.toThrow();
+    expect(() => AuthConfigSchema.parse(config)).not.toThrow();
   });
 
   it('should accept configuration with security settings', () => {
@@ -595,7 +595,7 @@ describe('AuthenticationConfigSchema', () => {
       },
     };
 
-    expect(() => AuthenticationConfigSchema.parse(config)).not.toThrow();
+    expect(() => AuthConfigSchema.parse(config)).not.toThrow();
   });
 
   it('should accept configuration with email settings', () => {
@@ -619,7 +619,7 @@ describe('AuthenticationConfigSchema', () => {
       },
     };
 
-    expect(() => AuthenticationConfigSchema.parse(config)).not.toThrow();
+    expect(() => AuthConfigSchema.parse(config)).not.toThrow();
   });
 
   it('should accept configuration with UI customization', () => {
@@ -641,7 +641,7 @@ describe('AuthenticationConfigSchema', () => {
       },
     };
 
-    expect(() => AuthenticationConfigSchema.parse(config)).not.toThrow();
+    expect(() => AuthConfigSchema.parse(config)).not.toThrow();
   });
 
   it('should use default values for optional fields', () => {
@@ -653,7 +653,7 @@ describe('AuthenticationConfigSchema', () => {
       secret: 'a'.repeat(32),
     };
 
-    const result = AuthenticationConfigSchema.parse(config);
+    const result = AuthConfigSchema.parse(config);
     
     expect(result.active).toBe(true);
     expect(result.allowRegistration).toBe(true);
@@ -661,10 +661,10 @@ describe('AuthenticationConfigSchema', () => {
   });
 });
 
-describe('AuthenticationProviderSchema', () => {
+describe('StandardAuthProviderSchema', () => {
   it('should accept valid authentication provider', () => {
     const provider: AuthenticationProvider = {
-      type: 'authentication',
+      type: 'standard_auth',
       config: {
         name: 'main_auth',
         label: 'Main Auth',
@@ -687,10 +687,10 @@ describe('AuthenticationProviderSchema', () => {
       },
     };
 
-    expect(() => AuthenticationProviderSchema.parse(provider)).not.toThrow();
+    expect(() => StandardAuthProviderSchema.parse(provider)).not.toThrow();
   });
 
-  it('should require type to be "authentication"', () => {
+  it('should require type to be "standard_auth"', () => {
     const provider = {
       type: 'other_auth', // invalid
       config: {
@@ -706,13 +706,13 @@ describe('AuthenticationProviderSchema', () => {
       },
     };
 
-    expect(() => AuthenticationProviderSchema.parse(provider)).toThrow();
+    expect(() => StandardAuthProviderSchema.parse(provider)).toThrow();
   });
 });
 
 describe('Type inference', () => {
   it('should correctly infer AuthenticationConfig type', () => {
-    const config: AuthenticationConfig = {
+    const config: AuthConfig = {
       name: 'test_auth',
       label: 'Test Auth',
       strategies: ['email_password'],
@@ -729,9 +729,9 @@ describe('Type inference', () => {
     expect(config.strategies).toContain('email_password');
   });
 
-  it('should correctly infer AuthenticationProvider type', () => {
+  it('should correctly infer StandardAuthProvider type', () => {
     const provider: AuthenticationProvider = {
-      type: 'authentication',
+      type: 'standard_auth',
       config: {
         name: 'test_auth',
         label: 'Test',
@@ -746,7 +746,7 @@ describe('Type inference', () => {
     };
 
     // This test passes if TypeScript compiles without errors
-    expect(provider.type).toBe('authentication');
+    expect(provider.type).toBe('standard_auth');
     expect(provider.config.name).toBe('test_auth');
   });
 });

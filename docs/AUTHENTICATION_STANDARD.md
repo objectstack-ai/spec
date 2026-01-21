@@ -1,12 +1,20 @@
-# Authentication Protocol
+# ObjectStack Authentication Standard
 
-A comprehensive authentication specification for the ObjectStack ecosystem.
+The standard authentication protocol specification for the ObjectStack ecosystem.
 
 ## Overview
 
-This specification defines the standard authentication protocol for ObjectStack applications. It supports multiple authentication strategies, session management, and comprehensive security features.
+This document defines the **ObjectStack Authentication Standard**, a comprehensive, framework-agnostic authentication protocol for ObjectStack applications. This standard supports multiple authentication strategies, session management, and comprehensive security features.
 
-The specification is framework-agnostic and can be implemented with any authentication library (better-auth, Auth.js, Passport, etc.)
+The specification is designed as an **interface** that can be implemented by any authentication library. **better-auth** serves as the **Reference Implementation** (default driver) for this standard.
+
+### Implementation Drivers
+
+The authentication standard can be implemented using various drivers:
+- **better-auth** (default/reference implementation)
+- Auth.js
+- Passport
+- Custom implementations
 
 ## Features
 
@@ -54,11 +62,12 @@ pnpm add @objectstack/plugin-better-auth
 ### Basic Example
 
 ```typescript
-import type { AuthenticationConfig } from '@objectstack/spec';
+import type { AuthConfig } from '@objectstack/spec';
 
-const authConfig: AuthenticationConfig = {
+const authConfig: AuthConfig = {
   name: 'main_auth',
   label: 'Main Authentication',
+  driver: 'better-auth', // Optional, defaults to 'better-auth'
   strategies: ['email_password'],
   baseUrl: 'https://app.example.com',
   secret: process.env.AUTH_SECRET!,
