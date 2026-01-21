@@ -59,6 +59,12 @@ export const SortNodeSchema = z.object({
  * - **array_agg**: Aggregate values into array (SQL: ARRAY_AGG(field))
  * - **string_agg**: Concatenate values (SQL: STRING_AGG(field, delimiter))
  * 
+ * Performance Considerations:
+ * - COUNT(*) is typically faster than COUNT(field) as it doesn't check for nulls
+ * - COUNT DISTINCT may require additional memory for tracking unique values
+ * - Window aggregates (with OVER clause) can be more efficient than subqueries
+ * - Large GROUP BY operations benefit from proper indexing on grouped fields
+ * 
  * @example
  * // SQL: SELECT region, SUM(amount) FROM sales GROUP BY region
  * {

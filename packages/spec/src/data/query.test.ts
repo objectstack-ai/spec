@@ -1441,7 +1441,7 @@ describe('QuerySchema - Window Functions', () => {
   // Real-World Window Function Examples
   // ============================================================================
 
-  it('should accept query for top N per group (SQL: ROW_NUMBER() OVER (PARTITION BY ...))  ', () => {
+  it('should accept query for top N per group (SQL: ROW_NUMBER() OVER (PARTITION BY ...))', () => {
     const query: QueryAST = {
       object: 'product',
       fields: ['category_id', 'name', 'price'],
