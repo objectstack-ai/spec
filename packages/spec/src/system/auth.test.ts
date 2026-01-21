@@ -1019,6 +1019,71 @@ describe('AuthConfigSchema', () => {
     expect(result.allowRegistration).toBe(true);
     expect(result.plugins).toEqual([]);
   });
+
+  it('should accept configuration with organization settings', () => {
+    const config = {
+      name: 'test_auth',
+      label: 'Test',
+      strategies: ['email_password'],
+      baseUrl: 'https://example.com',
+      secret: 'a'.repeat(32),
+      session: {},
+      rateLimit: {},
+      csrf: {},
+      accountLinking: {},
+      organization: {
+        enabled: true,
+        allowUserToCreateOrg: true,
+        defaultRole: 'member',
+        creatorRole: 'owner',
+      },
+    };
+
+    expect(() => AuthConfigSchema.parse(config)).not.toThrow();
+  });
+
+  it('should use default values for organization settings', () => {
+    const config = {
+      name: 'test_auth',
+      label: 'Test',
+      strategies: ['email_password'],
+      baseUrl: 'https://example.com',
+      secret: 'a'.repeat(32),
+      session: {},
+      rateLimit: {},
+      csrf: {},
+      accountLinking: {},
+      organization: {},
+    };
+
+    const result = AuthConfigSchema.parse(config);
+    
+    expect(result.organization?.enabled).toBe(false);
+    expect(result.organization?.allowUserToCreateOrg).toBe(true);
+    expect(result.organization?.defaultRole).toBe('member');
+    expect(result.organization?.creatorRole).toBe('owner');
+  });
+
+  it('should accept configuration with organization disabled', () => {
+    const config = {
+      name: 'test_auth',
+      label: 'Test',
+      strategies: ['email_password'],
+      baseUrl: 'https://example.com',
+      secret: 'a'.repeat(32),
+      session: {},
+      rateLimit: {},
+      csrf: {},
+      accountLinking: {},
+      organization: {
+        enabled: false,
+      },
+    };
+
+    const result = AuthConfigSchema.parse(config);
+    
+    expect(result.organization?.enabled).toBe(false);
+  });
 });
 
 describe('StandardAuthProviderSchema', () => {

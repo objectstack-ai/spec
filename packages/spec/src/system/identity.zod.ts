@@ -159,6 +159,12 @@ export const SessionSchema = z.object({
   userId: z.string().describe('Associated user ID'),
   
   /**
+   * Active organization ID for this session
+   * Used for context switching in multi-tenant applications
+   */
+  activeOrganizationId: z.string().optional().describe('Active organization ID for context switching'),
+  
+  /**
    * Session expiry timestamp
    */
   expires: z.date().describe('Session expiry timestamp'),

@@ -521,6 +521,20 @@ export const AuthConfigSchema = z.object({
   twoFactor: TwoFactorConfigSchema.optional(),
   
   /**
+   * Organization (Multi-tenant) configuration
+   * Enables B2B SaaS scenarios where users belong to multiple teams/workspaces
+   */
+  organization: z.object({
+    enabled: z.boolean().default(false).describe('Enable organization/multi-tenant features'),
+    
+    allowUserToCreateOrg: z.boolean().default(true).describe('Allow users to create organizations'),
+    
+    defaultRole: z.string().default('member').describe('Default role for new members'),
+    
+    creatorRole: z.string().default('owner').describe('Role assigned to organization creator'),
+  }).optional().describe('Organization/multi-tenant configuration'),
+  
+  /**
    * Enterprise authentication configuration (SAML, LDAP, OIDC)
    */
   enterprise: EnterpriseAuthConfigSchema.optional(),
