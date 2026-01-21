@@ -5,7 +5,7 @@
   "description": "ObjectStack Protocol Documentation Site",
   "scripts": {
     "site:dev": "next dev",
-    "site:build": "next build",
+    "build": "next build",
     "site:start": "next start",
     "site:lint": "next lint"
   },
