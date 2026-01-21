@@ -59,7 +59,7 @@ async function main() {
     console.log('\n🧠 Testing Advanced Query (Select & Modern Filter)...');
     const advancedResult = await client.data.find('todo_task', {
         select: ['subject', 'priority'],
-        where: {
+        filters: {
           priority: { $gte: 2 }  // Modern MongoDB-style filter syntax
         },
         sort: ['-priority']

@@ -137,33 +137,27 @@
           "description": "Column groupings (Matrix only)"
         },
         "filter": {
-          "type": "string",
-          "description": "Filter logic (e.g. \"1 AND (2 OR 3)\")"
-        },
-        "filterItems": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "number"
-              },
-              "field": {
-                "type": "string"
-              },
-              "operator": {
-                "type": "string"
-              },
-              "value": {}
+          "allOf": [
+            {
+              "type": "object",
+              "additionalProperties": {}
             },
-            "required": [
-              "id",
-              "field",
-              "operator"
-            ],
-            "additionalProperties": false
-          },
-          "description": "Filter criteria lines"
+            {
+              "type": "object",
+              "properties": {
+                "$and": {
+                  "type": "array",
+                  "items": {}
+                },
+                "$or": {
+                  "type": "array",
+                  "items": {}
+                },
+                "$not": {}
+              }
+            }
+          ],
+          "description": "Filter criteria"
         },
         "chart": {
           "type": "object",
