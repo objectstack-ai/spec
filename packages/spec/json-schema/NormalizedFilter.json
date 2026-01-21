@@ -1,0 +1,348 @@
+{
+  "$ref": "#/definitions/NormalizedFilter",
+  "definitions": {
+    "NormalizedFilter": {
+      "type": "object",
+      "properties": {
+        "$and": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "$eq": {},
+                    "$ne": {},
+                    "$gt": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      ]
+                    },
+                    "$gte": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      ]
+                    },
+                    "$lt": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      ]
+                    },
+                    "$lte": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      ]
+                    },
+                    "$in": {
+                      "type": "array"
+                    },
+                    "$nin": {
+                      "type": "array"
+                    },
+                    "$between": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": [
+                        {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "string",
+                              "format": "date-time"
+                            }
+                          ]
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "string",
+                              "format": "date-time"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "$contains": {
+                      "type": "string"
+                    },
+                    "$startsWith": {
+                      "type": "string"
+                    },
+                    "$endsWith": {
+                      "type": "string"
+                    },
+                    "$null": {
+                      "type": "boolean"
+                    },
+                    "$exist": {
+                      "type": "boolean"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              {}
+            ]
+          }
+        },
+        "$or": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "$eq": {},
+                    "$ne": {},
+                    "$gt": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      ]
+                    },
+                    "$gte": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      ]
+                    },
+                    "$lt": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      ]
+                    },
+                    "$lte": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      ]
+                    },
+                    "$in": {
+                      "type": "array"
+                    },
+                    "$nin": {
+                      "type": "array"
+                    },
+                    "$between": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": [
+                        {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "string",
+                              "format": "date-time"
+                            }
+                          ]
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "string",
+                              "format": "date-time"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "$contains": {
+                      "type": "string"
+                    },
+                    "$startsWith": {
+                      "type": "string"
+                    },
+                    "$endsWith": {
+                      "type": "string"
+                    },
+                    "$null": {
+                      "type": "boolean"
+                    },
+                    "$exist": {
+                      "type": "boolean"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              {}
+            ]
+          }
+        },
+        "$not": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "$eq": {},
+                  "$ne": {},
+                  "$gt": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    ]
+                  },
+                  "$gte": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    ]
+                  },
+                  "$lt": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    ]
+                  },
+                  "$lte": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    ]
+                  },
+                  "$in": {
+                    "type": "array"
+                  },
+                  "$nin": {
+                    "type": "array"
+                  },
+                  "$between": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": [
+                      {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        ]
+                      },
+                      {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "$contains": {
+                    "type": "string"
+                  },
+                  "$startsWith": {
+                    "type": "string"
+                  },
+                  "$endsWith": {
+                    "type": "string"
+                  },
+                  "$null": {
+                    "type": "boolean"
+                  },
+                  "$exist": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            {}
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

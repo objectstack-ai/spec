@@ -1,0 +1,21 @@
+{
+  "$ref": "#/definitions/StringOperator",
+  "definitions": {
+    "StringOperator": {
+      "type": "object",
+      "properties": {
+        "$contains": {
+          "type": "string"
+        },
+        "$startsWith": {
+          "type": "string"
+        },
+        "$endsWith": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
