@@ -1,0 +1,15 @@
+{
+  "$ref": "#/definitions/InvitationStatus",
+  "definitions": {
+    "InvitationStatus": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "rejected",
+        "expired"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -183,6 +183,33 @@ describe('SessionSchema', () => {
 
     expect(() => SessionSchema.parse(session)).not.toThrow();
   });
+
+  it('should accept session with activeOrganizationId', () => {
+    const session = {
+      id: 'session_123',
+      sessionToken: 'session_token_xyz',
+      userId: 'user_123',
+      activeOrganizationId: 'org_123',
+      expires: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    expect(() => SessionSchema.parse(session)).not.toThrow();
+  });
+
+  it('should accept session without activeOrganizationId', () => {
+    const session = {
+      id: 'session_123',
+      sessionToken: 'session_token_xyz',
+      userId: 'user_123',
+      expires: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    expect(() => SessionSchema.parse(session)).not.toThrow();
+  });
 });
 
 describe('VerificationTokenSchema', () => {

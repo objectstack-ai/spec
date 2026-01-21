@@ -16,6 +16,10 @@
           "type": "string",
           "description": "Associated user ID"
         },
+        "activeOrganizationId": {
+          "type": "string",
+          "description": "Active organization ID for context switching"
+        },
         "expires": {
           "type": "string",
           "format": "date-time",

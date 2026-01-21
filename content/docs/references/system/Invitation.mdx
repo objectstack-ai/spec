@@ -1,0 +1,18 @@
+---
+title: Invitation
+description: Invitation Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique invitation identifier |
+| **organizationId** | `string` | ✅ | Organization ID |
+| **email** | `string` | ✅ | Invitee email address |
+| **role** | `string` | ✅ | Role to assign upon acceptance |
+| **status** | `Enum<'pending' \| 'accepted' \| 'rejected' \| 'expired'>` | optional | Invitation status |
+| **expiresAt** | `string` | ✅ | Invitation expiry timestamp |
+| **inviterId** | `string` | ✅ | User ID of the inviter |
+| **createdAt** | `string` | ✅ | Invitation creation timestamp |
+| **updatedAt** | `string` | ✅ | Last update timestamp |
