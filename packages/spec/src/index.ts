@@ -41,6 +41,7 @@ export * from './system/manifest.zod';
 export * from './system/datasource.zod';
 export * from './system/api.zod';
 export * from './system/identity.zod';
+export * from './system/authentication.zod';
 export * from './system/policy.zod';
 export * from './system/role.zod';
 export * from './system/territory.zod';

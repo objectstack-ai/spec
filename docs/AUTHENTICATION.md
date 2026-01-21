@@ -1,10 +1,12 @@
-# Better-Auth Authentication Plugin
+# Authentication Protocol
 
-A comprehensive authentication plugin for integrating [better-auth](https://better-auth.com) into the ObjectStack ecosystem.
+A comprehensive authentication specification for the ObjectStack ecosystem.
 
 ## Overview
 
-This plugin provides a complete authentication solution using better-auth as the underlying authentication library. Better-auth is a modern, framework-agnostic authentication library that supports multiple authentication strategies, session management, and comprehensive security features.
+This specification defines the standard authentication protocol for ObjectStack applications. It supports multiple authentication strategies, session management, and comprehensive security features.
+
+The specification is framework-agnostic and can be implemented with any authentication library (better-auth, Auth.js, Passport, etc.)
 
 ## Features
 
@@ -52,9 +54,11 @@ pnpm add @objectstack/plugin-better-auth
 ### Basic Example
 
 ```typescript
-import { createBetterAuthPlugin } from '@objectstack/plugin-better-auth';
+import type { AuthenticationConfig } from '@objectstack/spec';
 
-const authPlugin = createBetterAuthPlugin({
+const authConfig: AuthenticationConfig = {
+  name: 'main_auth',
+  label: 'Main Authentication',
   strategies: ['email_password'],
   baseUrl: 'https://app.example.com',
   secret: process.env.AUTH_SECRET!,
@@ -64,9 +68,12 @@ const authPlugin = createBetterAuthPlugin({
     requireEmailVerification: true,
     minPasswordLength: 8,
   },
-});
-
-export default authPlugin;
+  
+  session: {},
+  rateLimit: {},
+  csrf: {},
+  accountLinking: {},
+};
 ```
 
 ### OAuth Example

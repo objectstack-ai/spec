@@ -1,0 +1,14 @@
+---
+title: RateLimitConfig
+description: RateLimitConfig Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional |  |
+| **maxAttempts** | `number` | optional | Maximum login attempts |
+| **windowMs** | `number` | optional | Time window in milliseconds (default 15 min) |
+| **blockDuration** | `number` | optional | Block duration after max attempts in ms |
+| **skipSuccessfulRequests** | `boolean` | optional | Only count failed requests |
