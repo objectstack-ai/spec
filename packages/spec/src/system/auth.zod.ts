@@ -325,6 +325,22 @@ export const DatabaseAdapterSchema = z.object({
 export type DatabaseAdapter = z.infer<typeof DatabaseAdapterSchema>;
 
 /**
+ * Default field mappings for better-auth compatibility
+ * These mappings bridge the gap between ObjectStack standard (Auth.js conventions)
+ * and better-auth's field naming conventions
+ */
+export const BETTER_AUTH_FIELD_MAPPINGS = {
+  session: {
+    sessionToken: 'token',
+    expires: 'expiresAt',
+  },
+  account: {
+    providerAccountId: 'accountId',
+    provider: 'providerId',
+  },
+} as const;
+
+/**
  * Database Field Mapping Configuration
  * Maps ObjectStack standard field names to driver-specific field names.
  * 
@@ -357,19 +373,13 @@ export const DatabaseMappingSchema = z.object({
    * Session model field mapping
    * Maps ObjectStack Session fields to driver fields
    */
-  session: z.record(z.string()).default({
-    sessionToken: 'token',
-    expires: 'expiresAt',
-  }).describe('Session field mapping'),
+  session: z.record(z.string()).default(BETTER_AUTH_FIELD_MAPPINGS.session).describe('Session field mapping'),
   
   /**
    * Account model field mapping
    * Maps ObjectStack Account fields to driver fields
    */
-  account: z.record(z.string()).default({
-    providerAccountId: 'accountId',
-    provider: 'providerId',
-  }).describe('Account field mapping'),
+  account: z.record(z.string()).default(BETTER_AUTH_FIELD_MAPPINGS.account).describe('Account field mapping'),
   
   /**
    * Verification token field mapping
