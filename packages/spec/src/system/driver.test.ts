@@ -620,13 +620,13 @@ describe('DriverInterfaceSchema', () => {
         dropTable: async (object) => {},
         supports: {
           transactions: false, // No transactions in memory
-          queryFilters: false, // Memory driver doesn't support query conditions - all filtering done in-memory
+          queryFilters: false, // Memory driver doesn't support query conditions - all filtering done in memory
           queryAggregations: false, // No aggregation support
           querySorting: false, // No native sorting
           queryPagination: false, // No pagination support
           queryWindowFunctions: false, // No window functions
           querySubqueries: false, // No subqueries
-          joins: false, // No join support - joins done in-memory
+          joins: false, // No join support - joins done in memory
           fullTextSearch: false, // No full-text search
           jsonFields: true, // Memory can store any type
           arrayFields: true, // Memory can store any type
