@@ -97,7 +97,7 @@ describe('DashboardWidgetSchema', () => {
       title: 'Top Accounts',
       type: 'table',
       object: 'account',
-      filter: [{ field: 'annual_revenue', operator: '>', value: 1000000 }],
+      filter: { annual_revenue: { $gt: 1000000 } },  // Modern MongoDB-style filter
       layout: { x: 0, y: 6, w: 12, h: 4 },
     };
 
@@ -109,7 +109,7 @@ describe('DashboardWidgetSchema', () => {
       title: 'Active Opportunities',
       type: 'metric',
       object: 'opportunity',
-      filter: { field: 'status', operator: 'equals', value: 'active' },
+      filter: { status: 'active' },
       aggregate: 'count',
       layout: { x: 0, y: 0, w: 3, h: 2 },
     };
@@ -209,7 +209,7 @@ describe('DashboardSchema', () => {
             object: 'opportunity',
             valueField: 'amount',
             aggregate: 'sum',
-            filter: { field: 'is_closed', operator: 'equals', value: false },
+            filter: { is_closed: false },
             layout: { x: 0, y: 0, w: 3, h: 2 },
           },
           {
@@ -217,7 +217,7 @@ describe('DashboardSchema', () => {
             type: 'metric',
             object: 'opportunity',
             aggregate: 'count',
-            filter: { field: 'is_closed', operator: 'equals', value: false },
+            filter: { is_closed: false },
             layout: { x: 3, y: 0, w: 3, h: 2 },
           },
           {
@@ -236,7 +236,7 @@ describe('DashboardSchema', () => {
             object: 'opportunity',
             valueField: 'amount',
             aggregate: 'avg',
-            filter: { field: 'status', operator: 'equals', value: 'won' },
+            filter: { status: 'won' },
             layout: { x: 9, y: 0, w: 3, h: 2 },
           },
           {
@@ -246,7 +246,7 @@ describe('DashboardSchema', () => {
             categoryField: 'stage',
             valueField: 'amount',
             aggregate: 'sum',
-            filter: { field: 'is_closed', operator: 'equals', value: false },
+            filter: { is_closed: false },
             layout: { x: 0, y: 2, w: 8, h: 4 },
             options: {
               horizontal: true,
@@ -268,7 +268,7 @@ describe('DashboardSchema', () => {
             categoryField: 'close_date',
             valueField: 'amount',
             aggregate: 'sum',
-            filter: { field: 'close_date', operator: 'last_n_months', value: 12 },
+            filter: { close_date: '{last_12_months}' },
             layout: { x: 0, y: 6, w: 12, h: 4 },
             options: {
               smoothCurve: true,
@@ -292,7 +292,7 @@ describe('DashboardSchema', () => {
             type: 'metric',
             object: 'case',
             aggregate: 'count',
-            filter: { field: 'status', operator: 'not_equals', value: 'closed' },
+            filter: { status: { $ne: 'closed' } },
             layout: { x: 0, y: 0, w: 3, h: 2 },
             options: {
               color: '#FF6384',
@@ -303,10 +303,10 @@ describe('DashboardSchema', () => {
             type: 'metric',
             object: 'case',
             aggregate: 'count',
-            filter: [
-              { field: 'status', operator: 'equals', value: 'closed' },
-              { field: 'closed_date', operator: 'today' },
-            ],
+            filter: {  // Modern MongoDB-style filter
+              status: 'closed',
+              closed_date: '{today}'
+            },
             layout: { x: 3, y: 0, w: 3, h: 2 },
           },
           {
@@ -326,7 +326,7 @@ describe('DashboardSchema', () => {
             object: 'case',
             valueField: 'satisfaction_rating',
             aggregate: 'avg',
-            filter: { field: 'satisfaction_rating', operator: 'not_null' },
+            filter: { satisfaction_rating: { $null: false } },
             layout: { x: 9, y: 0, w: 3, h: 2 },
             options: {
               max: 5,
@@ -339,7 +339,7 @@ describe('DashboardSchema', () => {
             object: 'case',
             categoryField: 'priority',
             aggregate: 'count',
-            filter: { field: 'status', operator: 'not_equals', value: 'closed' },
+            filter: { status: { $ne: 'closed' } },
             layout: { x: 0, y: 2, w: 6, h: 4 },
           },
           {
@@ -354,7 +354,7 @@ describe('DashboardSchema', () => {
             title: 'Recent High Priority Cases',
             type: 'table',
             object: 'case',
-            filter: { field: 'priority', operator: 'equals', value: 'high' },
+            filter: { priority: 'high' },  // Modern MongoDB-style filter
             layout: { x: 0, y: 6, w: 12, h: 4 },
             options: {
               columns: ['case_number', 'subject', 'account', 'owner', 'created_date'],
@@ -379,10 +379,10 @@ describe('DashboardSchema', () => {
             object: 'opportunity',
             valueField: 'amount',
             aggregate: 'sum',
-            filter: [
-              { field: 'status', operator: 'equals', value: 'won' },
-              { field: 'close_date', operator: 'this_quarter' },
-            ],
+            filter: {  // Modern MongoDB-style filter
+              status: 'won',
+              close_date: '{this_quarter}'
+            },
             layout: { x: 0, y: 0, w: 4, h: 3 },
             options: {
               prefix: '$',
@@ -395,7 +395,7 @@ describe('DashboardSchema', () => {
             type: 'metric',
             object: 'account',
             aggregate: 'count',
-            filter: { field: 'created_date', operator: 'this_month' },
+            filter: { created_date: '{this_month}' },  // Modern MongoDB-style filter
             layout: { x: 4, y: 0, w: 4, h: 3 },
           },
           {
@@ -403,7 +403,7 @@ describe('DashboardSchema', () => {
             type: 'metric',
             object: 'user',
             aggregate: 'count',
-            filter: { field: 'is_active', operator: 'equals', value: true },
+            filter: { is_active: true },
             layout: { x: 8, y: 0, w: 4, h: 3 },
           },
           {
@@ -413,7 +413,7 @@ describe('DashboardSchema', () => {
             categoryField: 'product_line',
             valueField: 'amount',
             aggregate: 'sum',
-            filter: { field: 'status', operator: 'equals', value: 'won' },
+            filter: { status: 'won' },
             layout: { x: 0, y: 3, w: 8, h: 4 },
           },
           {
