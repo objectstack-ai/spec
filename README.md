@@ -10,6 +10,11 @@ This repository contains the core specifications, schemas, and protocols that po
 
 ## 📚 Documentation
 
+### 🎯 Latest Review (2026-01-21)
+*   **[Protocol Review Summary](./PROTOCOL_REVIEW_SUMMARY.md):** 📋 Bilingual executive summary (中文+English) - Quick overview of review findings
+*   **[Comprehensive Review Report](./PROTOCOL_REVIEW_REPORT.md):** 📊 Detailed analysis of all 35+ protocols, test coverage, and optimization opportunities
+*   **[Next Steps Action Plan](./NEXT_STEPS_ACTION_PLAN.md):** 🚀 16-week sprint plan with Q1 2026 goals and immediate actions
+
 ### Planning & Architecture
 *   **[Development Roadmap](./DEVELOPMENT_ROADMAP.md):** Complete development plan considering all future possibilities.
 *   **[Priority Matrix](./PRIORITIES.md):** What to work on next, sprint planning guide.
