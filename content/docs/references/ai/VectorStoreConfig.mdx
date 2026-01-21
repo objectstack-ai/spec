@@ -1,0 +1,20 @@
+---
+title: VectorStoreConfig
+description: VectorStoreConfig Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **provider** | `Enum<'pinecone' \| 'weaviate' \| 'qdrant' \| 'milvus' \| 'chroma' \| 'pgvector' \| 'redis' \| 'opensearch' \| 'elasticsearch' \| 'custom'>` | ✅ |  |
+| **indexName** | `string` | ✅ | Index/collection name |
+| **namespace** | `string` | optional | Namespace for multi-tenancy |
+| **host** | `string` | optional | Vector store host |
+| **port** | `integer` | optional | Vector store port |
+| **apiKey** | `string` | optional | API key or reference to secret |
+| **dimensions** | `integer` | ✅ | Vector dimensions |
+| **metric** | `Enum<'cosine' \| 'euclidean' \| 'dotproduct'>` | optional |  |
+| **batchSize** | `integer` | optional |  |
+| **connectionPoolSize** | `integer` | optional |  |
+| **timeout** | `integer` | optional | Timeout in milliseconds |

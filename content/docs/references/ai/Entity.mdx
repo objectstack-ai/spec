@@ -1,0 +1,14 @@
+---
+title: Entity
+description: Entity Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'object' \| 'field' \| 'value' \| 'operator' \| 'function' \| 'timeframe'>` | ✅ |  |
+| **text** | `string` | ✅ | Original text from query |
+| **value** | `any` | optional | Normalized value |
+| **confidence** | `number` | ✅ | Confidence score |
+| **span** | `any[]` | optional | Character span in query |

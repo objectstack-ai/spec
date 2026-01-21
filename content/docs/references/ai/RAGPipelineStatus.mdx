@@ -1,0 +1,15 @@
+---
+title: RAGPipelineStatus
+description: RAGPipelineStatus Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ |  |
+| **status** | `Enum<'active' \| 'indexing' \| 'error' \| 'disabled'>` | ✅ |  |
+| **documentsIndexed** | `integer` | ✅ |  |
+| **lastIndexed** | `string` | optional | ISO timestamp |
+| **errorMessage** | `string` | optional |  |
+| **health** | `object` | optional |  |

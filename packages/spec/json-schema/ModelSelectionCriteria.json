@@ -1,0 +1,50 @@
+{
+  "$ref": "#/definitions/ModelSelectionCriteria",
+  "definitions": {
+    "ModelSelectionCriteria": {
+      "type": "object",
+      "properties": {
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Required capabilities"
+        },
+        "maxCostPer1kTokens": {
+          "type": "number",
+          "description": "Maximum acceptable cost"
+        },
+        "minContextWindow": {
+          "type": "number",
+          "description": "Minimum context window size"
+        },
+        "provider": {
+          "type": "string",
+          "enum": [
+            "openai",
+            "azure_openai",
+            "anthropic",
+            "google",
+            "cohere",
+            "huggingface",
+            "local",
+            "custom"
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "excludeDeprecated": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

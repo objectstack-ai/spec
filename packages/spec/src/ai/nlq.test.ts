@@ -3,7 +3,7 @@ import {
   QueryIntentSchema,
   EntitySchema,
   TimeframeSchema,
-  FieldMappingSchema,
+  NLQFieldMappingSchema,
   QueryContextSchema,
   NLQParseResultSchema,
   NLQRequestSchema,
@@ -76,7 +76,7 @@ describe('TimeframeSchema', () => {
   });
 });
 
-describe('FieldMappingSchema', () => {
+describe('NLQFieldMappingSchema', () => {
   it('should accept field mapping', () => {
     const mapping = {
       naturalLanguage: 'customer name',
@@ -85,7 +85,7 @@ describe('FieldMappingSchema', () => {
       field: 'name',
       confidence: 0.92,
     };
-    expect(() => FieldMappingSchema.parse(mapping)).not.toThrow();
+    expect(() => NLQFieldMappingSchema.parse(mapping)).not.toThrow();
   });
 });
 

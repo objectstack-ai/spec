@@ -1,0 +1,106 @@
+{
+  "$ref": "#/definitions/NLQAnalytics",
+  "definitions": {
+    "NLQAnalytics": {
+      "type": "object",
+      "properties": {
+        "totalQueries": {
+          "type": "integer"
+        },
+        "successfulQueries": {
+          "type": "integer"
+        },
+        "failedQueries": {
+          "type": "integer"
+        },
+        "averageConfidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "intentDistribution": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "description": "Count by intent type"
+        },
+        "topQueries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string"
+              },
+              "count": {
+                "type": "integer"
+              },
+              "averageConfidence": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "query",
+              "count",
+              "averageConfidence"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "averageParseTime": {
+          "type": "number",
+          "description": "Average parse time in milliseconds"
+        },
+        "averageExecutionTime": {
+          "type": "number"
+        },
+        "lowConfidenceQueries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string"
+              },
+              "confidence": {
+                "type": "number"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "query",
+              "confidence",
+              "timestamp"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "startDate": {
+          "type": "string",
+          "description": "ISO timestamp"
+        },
+        "endDate": {
+          "type": "string",
+          "description": "ISO timestamp"
+        }
+      },
+      "required": [
+        "totalQueries",
+        "successfulQueries",
+        "failedQueries",
+        "averageConfidence",
+        "intentDistribution",
+        "topQueries",
+        "averageParseTime",
+        "lowConfidenceQueries",
+        "startDate",
+        "endDate"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

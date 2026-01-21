@@ -1,0 +1,64 @@
+{
+  "$ref": "#/definitions/RAGQueryRequest",
+  "definitions": {
+    "RAGQueryRequest": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "User query"
+        },
+        "pipelineName": {
+          "type": "string",
+          "description": "Pipeline to use"
+        },
+        "topK": {
+          "type": "integer",
+          "exclusiveMinimum": 0
+        },
+        "metadataFilters": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "conversationHistory": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "role": {
+                "type": "string",
+                "enum": [
+                  "user",
+                  "assistant",
+                  "system"
+                ]
+              },
+              "content": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "role",
+              "content"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "includeMetadata": {
+          "type": "boolean",
+          "default": true
+        },
+        "includeSources": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "required": [
+        "query",
+        "pipelineName"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

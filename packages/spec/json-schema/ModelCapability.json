@@ -1,0 +1,47 @@
+{
+  "$ref": "#/definitions/ModelCapability",
+  "definitions": {
+    "ModelCapability": {
+      "type": "object",
+      "properties": {
+        "textGeneration": {
+          "type": "boolean",
+          "default": true,
+          "description": "Supports text generation"
+        },
+        "textEmbedding": {
+          "type": "boolean",
+          "default": false,
+          "description": "Supports text embedding"
+        },
+        "imageGeneration": {
+          "type": "boolean",
+          "default": false,
+          "description": "Supports image generation"
+        },
+        "imageUnderstanding": {
+          "type": "boolean",
+          "default": false,
+          "description": "Supports image understanding"
+        },
+        "functionCalling": {
+          "type": "boolean",
+          "default": false,
+          "description": "Supports function calling"
+        },
+        "codeGeneration": {
+          "type": "boolean",
+          "default": false,
+          "description": "Supports code generation"
+        },
+        "reasoning": {
+          "type": "boolean",
+          "default": false,
+          "description": "Supports advanced reasoning"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

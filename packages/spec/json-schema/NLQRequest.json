@@ -1,0 +1,110 @@
+{
+  "$ref": "#/definitions/NLQRequest",
+  "definitions": {
+    "NLQRequest": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Natural language query"
+        },
+        "context": {
+          "type": "object",
+          "properties": {
+            "userId": {
+              "type": "string"
+            },
+            "userRole": {
+              "type": "string"
+            },
+            "currentObject": {
+              "type": "string",
+              "description": "Current object being viewed"
+            },
+            "currentRecordId": {
+              "type": "string",
+              "description": "Current record ID"
+            },
+            "conversationHistory": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string"
+                  },
+                  "timestamp": {
+                    "type": "string"
+                  },
+                  "intent": {
+                    "type": "string",
+                    "enum": [
+                      "select",
+                      "aggregate",
+                      "filter",
+                      "sort",
+                      "compare",
+                      "trend",
+                      "insight",
+                      "create",
+                      "update",
+                      "delete"
+                    ]
+                  }
+                },
+                "required": [
+                  "query",
+                  "timestamp"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "defaultLimit": {
+              "type": "integer",
+              "default": 100
+            },
+            "timezone": {
+              "type": "string",
+              "default": "UTC"
+            },
+            "locale": {
+              "type": "string",
+              "default": "en-US"
+            }
+          },
+          "additionalProperties": false
+        },
+        "includeAlternatives": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include alternative interpretations"
+        },
+        "maxAlternatives": {
+          "type": "integer",
+          "default": 3
+        },
+        "minConfidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.5,
+          "description": "Minimum confidence threshold"
+        },
+        "executeQuery": {
+          "type": "boolean",
+          "default": false,
+          "description": "Execute query and return results"
+        },
+        "maxResults": {
+          "type": "integer",
+          "description": "Maximum results to return"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

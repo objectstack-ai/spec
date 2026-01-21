@@ -50,9 +50,10 @@ export const TimeframeSchema = z.object({
 });
 
 /**
- * Field Mapping
+ * NLQ Field Mapping
+ * Maps natural language field names to actual object fields
  */
-export const FieldMappingSchema = z.object({
+export const NLQFieldMappingSchema = z.object({
   naturalLanguage: z.string().describe('NL field name (e.g., "customer name")'),
   objectField: z.string().describe('Actual field name (e.g., "account.name")'),
   object: z.string().describe('Object name'),
@@ -101,7 +102,7 @@ export const NLQParseResultSchema = z.object({
   
   /** Object & Field Resolution */
   targetObject: z.string().optional().describe('Primary object to query'),
-  fields: z.array(FieldMappingSchema).optional(),
+  fields: z.array(NLQFieldMappingSchema).optional(),
   
   /** Temporal Information */
   timeframe: TimeframeSchema.optional(),
@@ -291,7 +292,7 @@ export const QueryTemplateSchema = z.object({
 export type QueryIntent = z.infer<typeof QueryIntentSchema>;
 export type Entity = z.infer<typeof EntitySchema>;
 export type Timeframe = z.infer<typeof TimeframeSchema>;
-export type FieldMapping = z.infer<typeof FieldMappingSchema>;
+export type NLQFieldMapping = z.infer<typeof NLQFieldMappingSchema>;
 export type QueryContext = z.infer<typeof QueryContextSchema>;
 export type NLQParseResult = z.infer<typeof NLQParseResultSchema>;
 export type NLQRequest = z.infer<typeof NLQRequestSchema>;

@@ -1,0 +1,14 @@
+---
+title: ModelRegistryEntry
+description: ModelRegistryEntry Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **model** | `object` | ✅ |  |
+| **status** | `Enum<'active' \| 'deprecated' \| 'experimental' \| 'disabled'>` | optional |  |
+| **priority** | `integer` | optional | Priority for model selection |
+| **fallbackModels** | `string[]` | optional | Fallback model IDs |
+| **healthCheck** | `object` | optional |  |

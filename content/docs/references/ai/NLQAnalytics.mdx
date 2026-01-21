@@ -1,0 +1,20 @@
+---
+title: NLQAnalytics
+description: NLQAnalytics Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **totalQueries** | `integer` | ✅ |  |
+| **successfulQueries** | `integer` | ✅ |  |
+| **failedQueries** | `integer` | ✅ |  |
+| **averageConfidence** | `number` | ✅ |  |
+| **intentDistribution** | `Record<string, integer>` | ✅ | Count by intent type |
+| **topQueries** | `object[]` | ✅ |  |
+| **averageParseTime** | `number` | ✅ | Average parse time in milliseconds |
+| **averageExecutionTime** | `number` | optional |  |
+| **lowConfidenceQueries** | `object[]` | ✅ |  |
+| **startDate** | `string` | ✅ | ISO timestamp |
+| **endDate** | `string` | ✅ | ISO timestamp |

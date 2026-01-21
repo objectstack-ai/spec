@@ -1,0 +1,14 @@
+---
+title: RAGQueryResponse
+description: RAGQueryResponse Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **query** | `string` | ✅ |  |
+| **results** | `object[]` | ✅ |  |
+| **context** | `string` | ✅ | Assembled context for LLM |
+| **tokensUsed** | `integer` | optional |  |
+| **retrievalTime** | `number` | optional | Retrieval time in milliseconds |

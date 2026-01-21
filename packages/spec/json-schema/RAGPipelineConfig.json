@@ -1,0 +1,552 @@
+{
+  "$ref": "#/definitions/RAGPipelineConfig",
+  "definitions": {
+    "RAGPipelineConfig": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Pipeline name (snake_case)"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display name"
+        },
+        "description": {
+          "type": "string"
+        },
+        "embedding": {
+          "type": "object",
+          "properties": {
+            "provider": {
+              "type": "string",
+              "enum": [
+                "openai",
+                "cohere",
+                "huggingface",
+                "azure_openai",
+                "local",
+                "custom"
+              ]
+            },
+            "model": {
+              "type": "string",
+              "description": "Model name (e.g., \"text-embedding-3-large\")"
+            },
+            "dimensions": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "Embedding vector dimensions"
+            },
+            "maxTokens": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "Maximum tokens per embedding"
+            },
+            "batchSize": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 100,
+              "description": "Batch size for embedding"
+            },
+            "endpoint": {
+              "type": "string",
+              "format": "uri",
+              "description": "Custom endpoint URL"
+            },
+            "apiKey": {
+              "type": "string",
+              "description": "API key or reference to secret"
+            }
+          },
+          "required": [
+            "provider",
+            "model",
+            "dimensions"
+          ],
+          "additionalProperties": false
+        },
+        "vectorStore": {
+          "type": "object",
+          "properties": {
+            "provider": {
+              "type": "string",
+              "enum": [
+                "pinecone",
+                "weaviate",
+                "qdrant",
+                "milvus",
+                "chroma",
+                "pgvector",
+                "redis",
+                "opensearch",
+                "elasticsearch",
+                "custom"
+              ]
+            },
+            "indexName": {
+              "type": "string",
+              "description": "Index/collection name"
+            },
+            "namespace": {
+              "type": "string",
+              "description": "Namespace for multi-tenancy"
+            },
+            "host": {
+              "type": "string",
+              "description": "Vector store host"
+            },
+            "port": {
+              "type": "integer",
+              "description": "Vector store port"
+            },
+            "apiKey": {
+              "type": "string",
+              "description": "API key or reference to secret"
+            },
+            "dimensions": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "Vector dimensions"
+            },
+            "metric": {
+              "type": "string",
+              "enum": [
+                "cosine",
+                "euclidean",
+                "dotproduct"
+              ],
+              "default": "cosine"
+            },
+            "batchSize": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 100
+            },
+            "connectionPoolSize": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 10
+            },
+            "timeout": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 30000,
+              "description": "Timeout in milliseconds"
+            }
+          },
+          "required": [
+            "provider",
+            "indexName",
+            "dimensions"
+          ],
+          "additionalProperties": false
+        },
+        "chunking": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "fixed"
+                },
+                "chunkSize": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "description": "Fixed chunk size in tokens/chars"
+                },
+                "chunkOverlap": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "default": 0,
+                  "description": "Overlap between chunks"
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "tokens",
+                    "characters"
+                  ],
+                  "default": "tokens"
+                }
+              },
+              "required": [
+                "type",
+                "chunkSize"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "semantic"
+                },
+                "model": {
+                  "type": "string",
+                  "description": "Model for semantic chunking"
+                },
+                "minChunkSize": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "default": 100
+                },
+                "maxChunkSize": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "default": 1000
+                }
+              },
+              "required": [
+                "type"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "recursive"
+                },
+                "separators": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": [
+                    "\n\n",
+                    "\n",
+                    " ",
+                    ""
+                  ]
+                },
+                "chunkSize": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0
+                },
+                "chunkOverlap": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "default": 0
+                }
+              },
+              "required": [
+                "type",
+                "chunkSize"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "markdown"
+                },
+                "maxChunkSize": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "default": 1000
+                },
+                "respectHeaders": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Keep headers with content"
+                },
+                "respectCodeBlocks": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Keep code blocks intact"
+                }
+              },
+              "required": [
+                "type"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "retrieval": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "similarity"
+                },
+                "topK": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "default": 5,
+                  "description": "Number of results to retrieve"
+                },
+                "scoreThreshold": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "description": "Minimum similarity score"
+                }
+              },
+              "required": [
+                "type"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "mmr"
+                },
+                "topK": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "default": 5
+                },
+                "fetchK": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "default": 20,
+                  "description": "Initial fetch size"
+                },
+                "lambda": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "default": 0.5,
+                  "description": "Diversity vs relevance (0=diverse, 1=relevant)"
+                }
+              },
+              "required": [
+                "type"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "hybrid"
+                },
+                "topK": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "default": 5
+                },
+                "vectorWeight": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "default": 0.7,
+                  "description": "Weight for vector search"
+                },
+                "keywordWeight": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "default": 0.3,
+                  "description": "Weight for keyword search"
+                }
+              },
+              "required": [
+                "type"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "parent_document"
+                },
+                "topK": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "default": 5
+                },
+                "retrieveParent": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Retrieve full parent document"
+                }
+              },
+              "required": [
+                "type"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "reranking": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "model": {
+              "type": "string",
+              "description": "Reranking model name"
+            },
+            "provider": {
+              "type": "string",
+              "enum": [
+                "cohere",
+                "huggingface",
+                "custom"
+              ]
+            },
+            "topK": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 3,
+              "description": "Final number of results after reranking"
+            }
+          },
+          "additionalProperties": false
+        },
+        "loaders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "file",
+                  "directory",
+                  "url",
+                  "api",
+                  "database",
+                  "custom"
+                ]
+              },
+              "source": {
+                "type": "string",
+                "description": "Source path, URL, or identifier"
+              },
+              "fileTypes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Accepted file extensions (e.g., [\".pdf\", \".md\"])"
+              },
+              "recursive": {
+                "type": "boolean",
+                "default": false,
+                "description": "Process directories recursively"
+              },
+              "maxFileSize": {
+                "type": "integer",
+                "description": "Maximum file size in bytes"
+              },
+              "excludePatterns": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Patterns to exclude"
+              },
+              "extractImages": {
+                "type": "boolean",
+                "default": false,
+                "description": "Extract text from images (OCR)"
+              },
+              "extractTables": {
+                "type": "boolean",
+                "default": false,
+                "description": "Extract and format tables"
+              },
+              "loaderConfig": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Custom loader-specific config"
+              }
+            },
+            "required": [
+              "type",
+              "source"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Document loaders"
+        },
+        "maxContextTokens": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "default": 4000,
+          "description": "Maximum tokens in context"
+        },
+        "contextWindow": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "description": "LLM context window size"
+        },
+        "metadataFilters": {
+          "type": "object",
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                }
+              }
+            ]
+          },
+          "description": "Filters for retrieval (e.g., {category: \"docs\", status: \"published\"})"
+        },
+        "enableCache": {
+          "type": "boolean",
+          "default": true
+        },
+        "cacheTTL": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "default": 3600,
+          "description": "Cache TTL in seconds"
+        },
+        "cacheInvalidationStrategy": {
+          "type": "string",
+          "enum": [
+            "time_based",
+            "manual",
+            "on_update"
+          ],
+          "default": "time_based"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "embedding",
+        "vectorStore",
+        "chunking",
+        "retrieval"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
