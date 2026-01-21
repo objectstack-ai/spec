@@ -3,7 +3,6 @@ title: Field Types Reference
 description: Complete guide to all ObjectStack field types with examples and configuration options
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
 
 # Field Types Reference
 
@@ -66,9 +65,9 @@ email: Field.email({
 })
 ```
 
-<Callout type="info">
+> ℹ️ **Info:**  
   Automatically validates email format: `user@domain.com`
-</Callout>
+
 
 ---
 
@@ -107,9 +106,9 @@ api_key: Field.password({
 })
 ```
 
-<Callout type="warn">
+> ⚠️ **Warning:**  
   Password fields are automatically masked in UI and encrypted if `encryption: true`
-</Callout>
+
 
 ---
 
@@ -137,9 +136,9 @@ html_content: Field.html({
 })
 ```
 
-<Callout type="warn">
+> ⚠️ **Warning:**  
   Always sanitize HTML content before rendering to prevent XSS attacks
-</Callout>
+
 
 ---
 
@@ -370,11 +369,11 @@ account: Field.masterDetail('account', {
 })
 ```
 
-<Callout type="info">
+> ℹ️ **Info:**  
   **Master-Detail vs Lookup:**
   - **Master-Detail:** Tight coupling, cascade deletes, child inherits security
   - **Lookup:** Loose coupling, set null on delete, independent security
-</Callout>
+
 
 ---
 
@@ -451,9 +450,9 @@ days_open: Field.formula({
 })
 ```
 
-<Callout type="info">
+> ℹ️ **Info:**  
   Formula fields are automatically calculated and readonly. See [Formula Functions](/docs/references/data/formulas) for available functions.
-</Callout>
+
 
 ---
 
