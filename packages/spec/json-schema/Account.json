@@ -1,0 +1,87 @@
+{
+  "$ref": "#/definitions/Account",
+  "definitions": {
+    "Account": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique account identifier"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Associated user ID"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "oauth",
+            "oidc",
+            "email",
+            "credentials",
+            "saml",
+            "ldap"
+          ],
+          "description": "Account type"
+        },
+        "provider": {
+          "type": "string",
+          "description": "Provider name"
+        },
+        "providerAccountId": {
+          "type": "string",
+          "description": "Provider account ID"
+        },
+        "refreshToken": {
+          "type": "string",
+          "description": "OAuth refresh token"
+        },
+        "accessToken": {
+          "type": "string",
+          "description": "OAuth access token"
+        },
+        "expiresAt": {
+          "type": "number",
+          "description": "Token expiry timestamp (Unix)"
+        },
+        "tokenType": {
+          "type": "string",
+          "description": "OAuth token type"
+        },
+        "scope": {
+          "type": "string",
+          "description": "OAuth scope"
+        },
+        "idToken": {
+          "type": "string",
+          "description": "OAuth ID token"
+        },
+        "sessionState": {
+          "type": "string",
+          "description": "Session state"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Account creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update timestamp"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "type",
+        "provider",
+        "providerAccountId",
+        "createdAt",
+        "updatedAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

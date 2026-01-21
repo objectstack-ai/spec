@@ -41,8 +41,9 @@ export * from './ui/theme.zod';
 export * from './system/manifest.zod';
 export * from './system/datasource.zod';
 export * from './system/api.zod';
-export * from './system/identity.zod';
-export * from './system/auth.zod';
+export * from './system/identity.zod'; // User, Account, Session models
+export * from './system/auth.zod'; // Authentication configuration
+export * from './system/auth-protocol'; // Authentication wire protocol & constants
 export * from './system/policy.zod';
 export * from './system/role.zod';
 export * from './system/territory.zod';

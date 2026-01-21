@@ -1,0 +1,36 @@
+{
+  "$ref": "#/definitions/VerificationToken",
+  "definitions": {
+    "VerificationToken": {
+      "type": "object",
+      "properties": {
+        "identifier": {
+          "type": "string",
+          "description": "Token identifier (email or phone)"
+        },
+        "token": {
+          "type": "string",
+          "description": "Verification token"
+        },
+        "expires": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Token expiry timestamp"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Token creation timestamp"
+        }
+      },
+      "required": [
+        "identifier",
+        "token",
+        "expires",
+        "createdAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

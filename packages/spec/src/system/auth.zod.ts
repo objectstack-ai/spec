@@ -206,6 +206,94 @@ export const TwoFactorConfigSchema = z.object({
 export type TwoFactorConfig = z.infer<typeof TwoFactorConfigSchema>;
 
 /**
+ * OIDC / OAuth2 Enterprise Configuration
+ * OpenID Connect configuration for enterprise SSO
+ */
+export const OIDCConfigSchema = z.object({
+  enabled: z.boolean().default(false),
+  
+  issuer: z.string().url().describe('OIDC Issuer URL (.well-known/openid-configuration)'),
+  
+  clientId: z.string().describe('OIDC client ID'),
+  
+  clientSecret: z.string().describe('OIDC client secret'),
+  
+  scopes: z.array(z.string()).default(['openid', 'profile', 'email']).describe('OIDC scopes'),
+  
+  attributeMapping: z.record(z.string()).optional().describe('Map IdP claims to User fields'),
+  
+  displayName: z.string().optional().describe('Display name for the provider button'),
+  
+  icon: z.string().optional().describe('Icon URL or identifier'),
+});
+
+export type OIDCConfig = z.infer<typeof OIDCConfigSchema>;
+
+/**
+ * SAML 2.0 Enterprise Configuration
+ * SAML configuration for legacy enterprise SSO
+ */
+export const SAMLConfigSchema = z.object({
+  enabled: z.boolean().default(false),
+  
+  entryPoint: z.string().url().describe('IdP SSO URL'),
+  
+  cert: z.string().describe('IdP Public Certificate (PEM format)'),
+  
+  issuer: z.string().describe('Entity ID of the IdP'),
+  
+  signatureAlgorithm: z.enum(['sha256', 'sha512']).default('sha256').describe('Signature algorithm'),
+  
+  attributeMapping: z.record(z.string()).optional().describe('Map SAML attributes to User fields'),
+  
+  displayName: z.string().optional().describe('Display name for the provider button'),
+  
+  icon: z.string().optional().describe('Icon URL or identifier'),
+});
+
+export type SAMLConfig = z.infer<typeof SAMLConfigSchema>;
+
+/**
+ * LDAP / Active Directory Enterprise Configuration
+ * LDAP configuration for on-premise directory services
+ */
+export const LDAPConfigSchema = z.object({
+  enabled: z.boolean().default(false),
+  
+  url: z.string().url().describe('LDAP Server URL (ldap:// or ldaps://)'),
+  
+  bindDn: z.string().describe('Bind DN for LDAP authentication'),
+  
+  bindCredentials: z.string().describe('Bind credentials'),
+  
+  searchBase: z.string().describe('Search base DN'),
+  
+  searchFilter: z.string().describe('Search filter'),
+  
+  groupSearchBase: z.string().optional().describe('Group search base DN'),
+  
+  displayName: z.string().optional().describe('Display name for the provider button'),
+  
+  icon: z.string().optional().describe('Icon URL or identifier'),
+});
+
+export type LDAPConfig = z.infer<typeof LDAPConfigSchema>;
+
+/**
+ * Enterprise Authentication Configuration
+ * Combines SAML, LDAP, and OIDC configurations for enterprise SSO
+ */
+export const EnterpriseAuthConfigSchema = z.object({
+  oidc: OIDCConfigSchema.optional().describe('OpenID Connect configuration'),
+  
+  saml: SAMLConfigSchema.optional().describe('SAML 2.0 configuration'),
+  
+  ldap: LDAPConfigSchema.optional().describe('LDAP/Active Directory configuration'),
+});
+
+export type EnterpriseAuthConfig = z.infer<typeof EnterpriseAuthConfigSchema>;
+
+/**
  * User Field Mapping Configuration
  * Maps authentication user fields to ObjectStack user object fields
  */
@@ -365,6 +453,11 @@ export const AuthConfigSchema = z.object({
    * Two-factor authentication configuration
    */
   twoFactor: TwoFactorConfigSchema.optional(),
+  
+  /**
+   * Enterprise authentication configuration (SAML, LDAP, OIDC)
+   */
+  enterprise: EnterpriseAuthConfigSchema.optional(),
   
   /**
    * User field mapping

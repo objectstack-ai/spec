@@ -1,0 +1,51 @@
+{
+  "$ref": "#/definitions/User",
+  "definitions": {
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique user identifier"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "User email address"
+        },
+        "emailVerified": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether email is verified"
+        },
+        "name": {
+          "type": "string",
+          "description": "User display name"
+        },
+        "image": {
+          "type": "string",
+          "format": "uri",
+          "description": "Profile image URL"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Account creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update timestamp"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "createdAt",
+        "updatedAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

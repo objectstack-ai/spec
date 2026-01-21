@@ -10,6 +10,10 @@ import {
   CSRFConfigSchema,
   AccountLinkingConfigSchema,
   TwoFactorConfigSchema,
+  OIDCConfigSchema,
+  SAMLConfigSchema,
+  LDAPConfigSchema,
+  EnterpriseAuthConfigSchema,
   UserFieldMappingSchema,
   DatabaseAdapterSchema,
   AuthPluginConfigSchema,
@@ -308,6 +312,183 @@ describe('TwoFactorConfigSchema', () => {
     const result = TwoFactorConfigSchema.parse(config);
     
     expect(result.qrCodeSize).toBe(200);
+  });
+});
+
+describe('OIDCConfigSchema', () => {
+  it('should accept valid OIDC configuration', () => {
+    const config = {
+      enabled: true,
+      issuer: 'https://auth.example.com',
+      clientId: 'client-id',
+      clientSecret: 'client-secret',
+      scopes: ['openid', 'profile', 'email', 'groups'],
+      attributeMapping: {
+        email: 'email',
+        name: 'name',
+      },
+    };
+
+    expect(() => OIDCConfigSchema.parse(config)).not.toThrow();
+  });
+
+  it('should use default values', () => {
+    const config = {
+      issuer: 'https://auth.example.com',
+      clientId: 'client-id',
+      clientSecret: 'client-secret',
+    };
+    const result = OIDCConfigSchema.parse(config);
+    
+    expect(result.enabled).toBe(false);
+    expect(result.scopes).toEqual(['openid', 'profile', 'email']);
+  });
+
+  it('should validate issuer is a URL', () => {
+    const config = {
+      issuer: 'not-a-url',
+      clientId: 'client-id',
+      clientSecret: 'client-secret',
+    };
+
+    expect(() => OIDCConfigSchema.parse(config)).toThrow();
+  });
+});
+
+describe('SAMLConfigSchema', () => {
+  it('should accept valid SAML configuration', () => {
+    const config = {
+      enabled: true,
+      entryPoint: 'https://idp.example.com/saml/sso',
+      cert: '-----BEGIN CERTIFICATE-----\nMIIC...\n-----END CERTIFICATE-----',
+      issuer: 'https://idp.example.com',
+      signatureAlgorithm: 'sha256' as const,
+      attributeMapping: {
+        email: 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress',
+      },
+    };
+
+    expect(() => SAMLConfigSchema.parse(config)).not.toThrow();
+  });
+
+  it('should use default values', () => {
+    const config = {
+      entryPoint: 'https://idp.example.com/saml/sso',
+      cert: 'cert-content',
+      issuer: 'https://idp.example.com',
+    };
+    const result = SAMLConfigSchema.parse(config);
+    
+    expect(result.enabled).toBe(false);
+    expect(result.signatureAlgorithm).toBe('sha256');
+  });
+
+  it('should accept sha512 signature algorithm', () => {
+    const config = {
+      entryPoint: 'https://idp.example.com/saml/sso',
+      cert: 'cert-content',
+      issuer: 'https://idp.example.com',
+      signatureAlgorithm: 'sha512' as const,
+    };
+
+    expect(() => SAMLConfigSchema.parse(config)).not.toThrow();
+  });
+});
+
+describe('LDAPConfigSchema', () => {
+  it('should accept valid LDAP configuration', () => {
+    const config = {
+      enabled: true,
+      url: 'ldaps://ldap.example.com:636',
+      bindDn: 'CN=Service Account,OU=Users,DC=example,DC=com',
+      bindCredentials: 'password',
+      searchBase: 'OU=Users,DC=example,DC=com',
+      searchFilter: '(&(objectClass=user)(sAMAccountName={{username}}))',
+      groupSearchBase: 'OU=Groups,DC=example,DC=com',
+    };
+
+    expect(() => LDAPConfigSchema.parse(config)).not.toThrow();
+  });
+
+  it('should use default values', () => {
+    const config = {
+      url: 'ldap://ldap.example.com:389',
+      bindDn: 'CN=Service Account,OU=Users,DC=example,DC=com',
+      bindCredentials: 'password',
+      searchBase: 'OU=Users,DC=example,DC=com',
+      searchFilter: '(uid={{username}})',
+    };
+    const result = LDAPConfigSchema.parse(config);
+    
+    expect(result.enabled).toBe(false);
+  });
+
+  it('should accept ldap:// and ldaps:// URLs', () => {
+    const ldapConfig = {
+      url: 'ldap://ldap.example.com:389',
+      bindDn: 'cn=admin',
+      bindCredentials: 'password',
+      searchBase: 'dc=example,dc=com',
+      searchFilter: '(uid={{username}})',
+    };
+
+    const ldapsConfig = {
+      url: 'ldaps://ldap.example.com:636',
+      bindDn: 'cn=admin',
+      bindCredentials: 'password',
+      searchBase: 'dc=example,dc=com',
+      searchFilter: '(uid={{username}})',
+    };
+
+    expect(() => LDAPConfigSchema.parse(ldapConfig)).not.toThrow();
+    expect(() => LDAPConfigSchema.parse(ldapsConfig)).not.toThrow();
+  });
+});
+
+describe('EnterpriseAuthConfigSchema', () => {
+  it('should accept enterprise config with all providers', () => {
+    const config = {
+      oidc: {
+        enabled: true,
+        issuer: 'https://auth.example.com',
+        clientId: 'client-id',
+        clientSecret: 'client-secret',
+      },
+      saml: {
+        enabled: true,
+        entryPoint: 'https://idp.example.com/saml/sso',
+        cert: 'cert-content',
+        issuer: 'https://idp.example.com',
+      },
+      ldap: {
+        enabled: true,
+        url: 'ldaps://ldap.example.com:636',
+        bindDn: 'cn=admin',
+        bindCredentials: 'password',
+        searchBase: 'dc=example,dc=com',
+        searchFilter: '(uid={{username}})',
+      },
+    };
+
+    expect(() => EnterpriseAuthConfigSchema.parse(config)).not.toThrow();
+  });
+
+  it('should accept partial enterprise config', () => {
+    const config = {
+      oidc: {
+        enabled: true,
+        issuer: 'https://auth.example.com',
+        clientId: 'client-id',
+        clientSecret: 'client-secret',
+      },
+    };
+
+    expect(() => EnterpriseAuthConfigSchema.parse(config)).not.toThrow();
+  });
+
+  it('should accept empty enterprise config', () => {
+    const config = {};
+    expect(() => EnterpriseAuthConfigSchema.parse(config)).not.toThrow();
   });
 });
 
@@ -638,6 +819,36 @@ describe('AuthConfigSchema', () => {
         logo: 'https://example.com/logo.png',
         primaryColor: '#007bff',
         customCss: '.button { color: blue; }',
+      },
+    };
+
+    expect(() => AuthConfigSchema.parse(config)).not.toThrow();
+  });
+
+  it('should accept configuration with enterprise authentication', () => {
+    const config = {
+      name: 'test_auth',
+      label: 'Test',
+      strategies: ['email_password'],
+      baseUrl: 'https://example.com',
+      secret: 'a'.repeat(32),
+      session: {},
+      rateLimit: {},
+      csrf: {},
+      accountLinking: {},
+      enterprise: {
+        oidc: {
+          enabled: true,
+          issuer: 'https://auth.example.com',
+          clientId: 'oidc-client-id',
+          clientSecret: 'oidc-client-secret',
+        },
+        saml: {
+          enabled: true,
+          entryPoint: 'https://idp.example.com/saml/sso',
+          cert: 'saml-cert',
+          issuer: 'https://idp.example.com',
+        },
       },
     };
 

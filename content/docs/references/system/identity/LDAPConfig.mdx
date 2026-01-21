@@ -7,9 +7,12 @@ description: LDAPConfig Schema Reference
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional |  |
 | **url** | `string` | ✅ | LDAP Server URL (ldap:// or ldaps://) |
-| **bindDn** | `string` | ✅ |  |
-| **bindCredentials** | `string` | ✅ |  |
-| **searchBase** | `string` | ✅ |  |
-| **searchFilter** | `string` | ✅ |  |
-| **groupSearchBase** | `string` | optional |  |
+| **bindDn** | `string` | ✅ | Bind DN for LDAP authentication |
+| **bindCredentials** | `string` | ✅ | Bind credentials |
+| **searchBase** | `string` | ✅ | Search base DN |
+| **searchFilter** | `string` | ✅ | Search filter |
+| **groupSearchBase** | `string` | optional | Group search base DN |
+| **displayName** | `string` | optional | Display name for the provider button |
+| **icon** | `string` | optional | Icon URL or identifier |

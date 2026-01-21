@@ -7,8 +7,11 @@ description: OIDCConfig Schema Reference
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional |  |
 | **issuer** | `string` | ✅ | OIDC Issuer URL (.well-known/openid-configuration) |
-| **clientId** | `string` | ✅ |  |
-| **clientSecret** | `string` | ✅ |  |
-| **scopes** | `string[]` | optional |  |
+| **clientId** | `string` | ✅ | OIDC client ID |
+| **clientSecret** | `string` | ✅ | OIDC client secret |
+| **scopes** | `string[]` | optional | OIDC scopes |
 | **attributeMapping** | `Record<string, string>` | optional | Map IdP claims to User fields |
+| **displayName** | `string` | optional | Display name for the provider button |
+| **icon** | `string` | optional | Icon URL or identifier |
