@@ -19,9 +19,7 @@ Object Definition → Everything Auto-Generated
 
 ## Quick Comparison
 
-<Tabs items={['Traditional (Express + Sequelize)', 'ObjectStack Protocol']}>
-
-<Tab value="Traditional (Express + Sequelize)">
+### Traditional Approach (Express + Sequelize)
 
 ```typescript
 // 1. Define Model
@@ -49,9 +47,7 @@ const validateTask = (req, res, next) => {
 // Total: 4 files, ~150 lines of code
 ```
 
-</Tab>
-
-<Tab value="ObjectStack Protocol">
+### ObjectStack Protocol
 
 ```typescript
 // Everything in ONE definition
@@ -78,10 +74,6 @@ export const Task = ObjectSchema.create({
 
 // Total: 1 file, ~15 lines of code
 ```
-
-</Tab>
-
-</Tabs>
 
 ## Field Types You Know and Love
 

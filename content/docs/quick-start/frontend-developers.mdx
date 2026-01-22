@@ -16,9 +16,7 @@ ObjectStack: Define UI JSON → Instant Update (no rebuild!)
 
 ## Quick Comparison
 
-<Tabs items={['Traditional React', 'ObjectStack Protocol']}>
-
-<Tab value="Traditional React">
+### Traditional React
 
 ```tsx
 // 1. Build data grid component
@@ -71,9 +69,7 @@ function TaskForm({ taskId }) {
 // Total: 2 components, ~100 lines of code
 ```
 
-</Tab>
-
-<Tab value="ObjectStack Protocol">
+### ObjectStack Protocol
 
 ```typescript
 // Define UI as JSON - Renderer handles everything
@@ -112,10 +108,6 @@ export const TaskFormView = FormView.create({
 // ✅ Validation handled automatically
 // ✅ Loading/Error states handled automatically
 ```
-
-</Tab>
-
-</Tabs>
 
 ## View Types
 
