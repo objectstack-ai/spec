@@ -1,5 +1,6 @@
 {
   "title": "Standards",
+  "root": true,
   "pages": [
     "index",
     "naming-conventions",

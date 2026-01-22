@@ -1,5 +1,6 @@
 {
   "title": "Quick Start",
+  "root": true,
   "pages": [
     "build-first-app",
     "backend-developers",

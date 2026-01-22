@@ -1,11 +1,13 @@
 {
-  "label": "Protocol Reference",
-  "order": 100,
+  "title": "API Reference",
+  "root": true,
   "pages": [
     "data",
     "ui",
     "system",
     "ai",
+    "api",
+    "client-sdk",
     "misc"
   ]
 }
