@@ -1,49 +1,68 @@
 {
-  "$ref": "#/definitions/BreadcrumbComponent",
+  "$ref": "#/definitions/ListComponent",
   "definitions": {
-    "BreadcrumbComponent": {
+    "ListComponent": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "const": "breadcrumb"
+          "const": "list"
         },
         "props": {
           "type": "object",
           "properties": {
-            "items": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "label": {
-                    "type": "string",
-                    "description": "Breadcrumb label"
-                  },
-                  "href": {
-                    "type": "string",
-                    "description": "Breadcrumb link"
-                  },
-                  "icon": {
-                    "type": "string",
-                    "description": "Breadcrumb icon"
-                  }
-                },
-                "required": [
-                  "label"
-                ],
-                "additionalProperties": false
-              },
-              "description": "Breadcrumb items"
-            },
-            "separator": {
+            "dataSource": {
               "type": "string",
-              "description": "Breadcrumb separator"
+              "description": "Data source reference"
+            },
+            "itemLayout": {
+              "type": "string",
+              "enum": [
+                "horizontal",
+                "vertical"
+              ],
+              "description": "Item layout"
+            },
+            "bordered": {
+              "type": "boolean",
+              "description": "Show borders"
+            },
+            "size": {
+              "type": "string",
+              "enum": [
+                "small",
+                "medium",
+                "large"
+              ],
+              "description": "List size"
+            },
+            "split": {
+              "type": "boolean",
+              "description": "Split items with divider"
+            },
+            "loading": {
+              "type": "boolean",
+              "description": "Loading state"
+            },
+            "pagination": {
+              "type": "object",
+              "properties": {
+                "pageSize": {
+                  "type": "number",
+                  "description": "Page size"
+                },
+                "total": {
+                  "type": "number",
+                  "description": "Total items"
+                }
+              },
+              "required": [
+                "pageSize"
+              ],
+              "additionalProperties": false,
+              "description": "Pagination configuration"
             }
           },
-          "required": [
-            "items"
-          ],
           "additionalProperties": false
         },
         "events": {
@@ -166,8 +185,7 @@
         }
       },
       "required": [
-        "type",
-        "props"
+        "type"
       ],
       "additionalProperties": false
     }

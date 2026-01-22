@@ -1,32 +1,35 @@
 {
-  "$ref": "#/definitions/BreadcrumbComponent",
+  "$ref": "#/definitions/SelectComponent",
   "definitions": {
-    "BreadcrumbComponent": {
+    "SelectComponent": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "const": "breadcrumb"
+          "const": "select"
         },
         "props": {
           "type": "object",
           "properties": {
-            "items": {
+            "options": {
               "type": "array",
               "items": {
                 "type": "object",
                 "properties": {
                   "label": {
                     "type": "string",
-                    "description": "Breadcrumb label"
+                    "description": "Option label"
                   },
-                  "href": {
-                    "type": "string",
-                    "description": "Breadcrumb link"
+                  "value": {
+                    "description": "Option value"
+                  },
+                  "disabled": {
+                    "type": "boolean",
+                    "description": "Disabled option"
                   },
                   "icon": {
                     "type": "string",
-                    "description": "Breadcrumb icon"
+                    "description": "Option icon"
                   }
                 },
                 "required": [
@@ -34,15 +37,47 @@
                 ],
                 "additionalProperties": false
               },
-              "description": "Breadcrumb items"
+              "description": "Select options"
             },
-            "separator": {
+            "placeholder": {
               "type": "string",
-              "description": "Breadcrumb separator"
+              "description": "Placeholder text"
+            },
+            "defaultValue": {
+              "description": "Default value"
+            },
+            "multiple": {
+              "type": "boolean",
+              "description": "Multiple selection"
+            },
+            "searchable": {
+              "type": "boolean",
+              "description": "Allow search"
+            },
+            "allowClear": {
+              "type": "boolean",
+              "description": "Allow clear"
+            },
+            "size": {
+              "type": "string",
+              "enum": [
+                "small",
+                "medium",
+                "large"
+              ],
+              "description": "Select size"
+            },
+            "disabled": {
+              "type": "boolean",
+              "description": "Disabled state"
+            },
+            "loading": {
+              "type": "boolean",
+              "description": "Loading state"
             }
           },
           "required": [
-            "items"
+            "options"
           ],
           "additionalProperties": false
         },

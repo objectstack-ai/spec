@@ -1,12 +1,12 @@
 {
-  "$ref": "#/definitions/TimelineComponent",
+  "$ref": "#/definitions/MenuComponent",
   "definitions": {
-    "TimelineComponent": {
+    "MenuComponent": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "const": "timeline"
+          "const": "menu"
         },
         "props": {
           "type": "object",
@@ -16,140 +16,77 @@
               "items": {
                 "type": "object",
                 "properties": {
-                  "title": {
+                  "key": {
                     "type": "string",
-                    "description": "Event title"
+                    "description": "Menu item key"
                   },
-                  "timestamp": {
+                  "label": {
                     "type": "string",
-                    "description": "Event timestamp"
-                  },
-                  "description": {
-                    "type": "string",
-                    "description": "Event description"
+                    "description": "Menu item label"
                   },
                   "icon": {
                     "type": "string",
-                    "description": "Event icon"
+                    "description": "Menu item icon"
                   },
-                  "content": {
-                    "type": "object",
-                    "properties": {
-                      "type": {
-                        "type": "string",
-                        "enum": [
-                          "card",
-                          "tabs",
-                          "accordion",
-                          "modal",
-                          "drawer",
-                          "container",
-                          "divider",
-                          "space",
-                          "grid",
-                          "flex",
-                          "breadcrumb",
-                          "stepper",
-                          "menu",
-                          "sidebar",
-                          "pagination",
-                          "dropdown",
-                          "table",
-                          "list",
-                          "tree",
-                          "description",
-                          "statistic",
-                          "tag",
-                          "collapse",
-                          "carousel",
-                          "image",
-                          "avatar",
-                          "calendar_view",
-                          "form",
-                          "input",
-                          "select",
-                          "checkbox",
-                          "radio",
-                          "switch",
-                          "slider",
-                          "date_picker",
-                          "time_picker",
-                          "upload",
-                          "autocomplete",
-                          "cascader",
-                          "transfer",
-                          "color_picker",
-                          "rate",
-                          "alert",
-                          "message",
-                          "notification",
-                          "progress",
-                          "skeleton",
-                          "spin",
-                          "result",
-                          "empty",
-                          "button",
-                          "button_group",
-                          "icon_button",
-                          "split_button",
-                          "tooltip",
-                          "popover",
-                          "dialog",
-                          "confirm",
-                          "badge",
-                          "timeline",
-                          "steps",
-                          "anchor",
-                          "back_top",
-                          "watermark",
-                          "qrcode"
-                        ],
-                        "description": "Component type"
-                      },
-                      "props": {
-                        "type": "object",
-                        "additionalProperties": {},
-                        "description": "Component properties"
-                      },
-                      "events": {
-                        "type": "object",
-                        "additionalProperties": true,
-                        "description": "Event handlers"
-                      },
-                      "style": {
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        },
-                        "description": "Custom styles"
-                      },
-                      "children": {
-                        "type": "array",
-                        "items": {},
-                        "description": "Child components"
-                      }
-                    },
-                    "required": [
-                      "type"
-                    ],
-                    "additionalProperties": false,
-                    "description": "Event content"
+                  "href": {
+                    "type": "string",
+                    "description": "Link URL"
+                  },
+                  "disabled": {
+                    "type": "boolean",
+                    "description": "Disabled state"
+                  },
+                  "children": {
+                    "type": "array",
+                    "description": "Submenu items"
                   }
                 },
                 "required": [
-                  "title"
+                  "key",
+                  "label"
                 ],
                 "additionalProperties": false
               },
-              "description": "Timeline items"
+              "description": "Menu items"
             },
-            "orientation": {
+            "mode": {
               "type": "string",
               "enum": [
+                "horizontal",
                 "vertical",
-                "horizontal"
+                "inline"
               ],
-              "description": "Timeline orientation"
+              "description": "Menu mode"
+            },
+            "theme": {
+              "type": "string",
+              "enum": [
+                "light",
+                "dark"
+              ],
+              "description": "Menu theme"
+            },
+            "defaultSelectedKeys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Default selected keys"
+            },
+            "defaultOpenKeys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Default opened keys"
+            },
+            "collapsible": {
+              "type": "boolean",
+              "description": "Collapsible menu"
+            },
+            "collapsed": {
+              "type": "boolean",
+              "description": "Collapsed state"
             }
           },
           "required": [

@@ -14,6 +14,17 @@ import {
   BadgeComponentSchema,
   TooltipComponentSchema,
   PopoverComponentSchema,
+  TableComponentSchema,
+  FormComponentSchema,
+  MenuComponentSchema,
+  ButtonComponentSchema,
+  InputComponentSchema,
+  SelectComponentSchema,
+  ListComponentSchema,
+  TreeComponentSchema,
+  ProgressComponentSchema,
+  PaginationComponentSchema,
+  UploadComponentSchema,
   Component,
   type Component as ComponentType,
 } from './component.zod';
@@ -21,6 +32,7 @@ import {
 describe('ComponentType', () => {
   it('should accept all valid component types', () => {
     const validTypes = [
+      // Original types
       'card',
       'tabs',
       'accordion',
@@ -33,6 +45,60 @@ describe('ComponentType', () => {
       'badge',
       'tooltip',
       'popover',
+      // New enterprise types
+      'table',
+      'form',
+      'menu',
+      'button',
+      'input',
+      'select',
+      'list',
+      'tree',
+      'progress',
+      'pagination',
+      'upload',
+      'container',
+      'divider',
+      'space',
+      'grid',
+      'flex',
+      'sidebar',
+      'dropdown',
+      'description',
+      'statistic',
+      'tag',
+      'collapse',
+      'carousel',
+      'image',
+      'avatar',
+      'calendar_view',
+      'checkbox',
+      'radio',
+      'switch',
+      'slider',
+      'date_picker',
+      'time_picker',
+      'autocomplete',
+      'cascader',
+      'transfer',
+      'color_picker',
+      'rate',
+      'message',
+      'notification',
+      'skeleton',
+      'spin',
+      'result',
+      'empty',
+      'button_group',
+      'icon_button',
+      'split_button',
+      'dialog',
+      'confirm',
+      'steps',
+      'anchor',
+      'back_top',
+      'watermark',
+      'qrcode',
     ] as const;
 
     validTypes.forEach(type => {
@@ -41,7 +107,7 @@ describe('ComponentType', () => {
   });
 
   it('should reject invalid component types', () => {
-    const invalidTypes = ['button', 'input', 'select', 'invalid'];
+    const invalidTypes = ['invalid', 'custom', 'unknown'];
 
     invalidTypes.forEach(type => {
       expect(() => ComponentType.parse(type)).toThrow();
@@ -1062,6 +1128,241 @@ describe('Real-World Component Examples', () => {
     };
 
     expect(() => ComponentSchema.parse(drawer)).not.toThrow();
+  });
+});
+
+describe('Enterprise Components', () => {
+  describe('TableComponentSchema', () => {
+    it('should accept table with columns', () => {
+      const table = {
+        type: 'table' as const,
+        props: {
+          columns: [
+            { key: 'name', label: 'Name', sortable: true },
+            { key: 'email', label: 'Email', filterable: true },
+          ],
+          dataSource: 'users',
+          pagination: { pageSize: 20 },
+        },
+      };
+
+      expect(() => TableComponentSchema.parse(table)).not.toThrow();
+    });
+  });
+
+  describe('FormComponentSchema', () => {
+    it('should accept form with fields', () => {
+      const form = {
+        type: 'form' as const,
+        props: {
+          layout: 'vertical' as const,
+          fields: [
+            { name: 'username', label: 'Username', type: 'input', required: true },
+          ],
+          submitButton: { label: 'Submit', variant: 'primary' as const },
+        },
+      };
+
+      expect(() => FormComponentSchema.parse(form)).not.toThrow();
+    });
+  });
+
+  describe('MenuComponentSchema', () => {
+    it('should accept menu with nested items', () => {
+      const menu = {
+        type: 'menu' as const,
+        props: {
+          items: [
+            { key: 'dashboard', label: 'Dashboard', icon: 'home' },
+            {
+              key: 'users',
+              label: 'Users',
+              children: [{ key: 'users-list', label: 'User List' }],
+            },
+          ],
+          mode: 'vertical' as const,
+        },
+      };
+
+      expect(() => MenuComponentSchema.parse(menu)).not.toThrow();
+    });
+  });
+
+  describe('ButtonComponentSchema', () => {
+    it('should accept button with all properties', () => {
+      const button = {
+        type: 'button' as const,
+        props: {
+          label: 'Submit',
+          variant: 'primary' as const,
+          icon: 'check',
+          size: 'large' as const,
+          loading: false,
+        },
+      };
+
+      expect(() => ButtonComponentSchema.parse(button)).not.toThrow();
+    });
+  });
+
+  describe('InputComponentSchema', () => {
+    it('should accept input with properties', () => {
+      const input = {
+        type: 'input' as const,
+        props: {
+          type: 'email' as const,
+          placeholder: 'Enter email',
+          maxLength: 100,
+          allowClear: true,
+        },
+      };
+
+      expect(() => InputComponentSchema.parse(input)).not.toThrow();
+    });
+  });
+
+  describe('SelectComponentSchema', () => {
+    it('should accept select with options', () => {
+      const select = {
+        type: 'select' as const,
+        props: {
+          options: [
+            { label: 'Option 1', value: '1' },
+            { label: 'Option 2', value: '2' },
+          ],
+          multiple: true,
+          searchable: true,
+        },
+      };
+
+      expect(() => SelectComponentSchema.parse(select)).not.toThrow();
+    });
+  });
+
+  describe('ListComponentSchema', () => {
+    it('should accept list with configuration', () => {
+      const list = {
+        type: 'list' as const,
+        props: {
+          dataSource: 'tasks',
+          itemLayout: 'horizontal' as const,
+          bordered: true,
+        },
+      };
+
+      expect(() => ListComponentSchema.parse(list)).not.toThrow();
+    });
+  });
+
+  describe('TreeComponentSchema', () => {
+    it('should accept tree with data', () => {
+      const tree = {
+        type: 'tree' as const,
+        props: {
+          treeData: [
+            {
+              title: 'Parent',
+              key: '0',
+              children: [{ title: 'Child', key: '0-0' }],
+            },
+          ],
+          checkable: true,
+        },
+      };
+
+      expect(() => TreeComponentSchema.parse(tree)).not.toThrow();
+    });
+  });
+
+  describe('ProgressComponentSchema', () => {
+    it('should accept progress with percent', () => {
+      const progress = {
+        type: 'progress' as const,
+        props: {
+          percent: 75,
+          type: 'circle' as const,
+          status: 'active' as const,
+        },
+      };
+
+      expect(() => ProgressComponentSchema.parse(progress)).not.toThrow();
+    });
+
+    it('should reject invalid percent', () => {
+      const progress = {
+        type: 'progress' as const,
+        props: { percent: 150 },
+      };
+
+      expect(() => ProgressComponentSchema.parse(progress)).toThrow();
+    });
+  });
+
+  describe('PaginationComponentSchema', () => {
+    it('should accept pagination with configuration', () => {
+      const pagination = {
+        type: 'pagination' as const,
+        props: {
+          total: 100,
+          pageSize: 20,
+          showSizeChanger: true,
+        },
+      };
+
+      expect(() => PaginationComponentSchema.parse(pagination)).not.toThrow();
+    });
+  });
+
+  describe('UploadComponentSchema', () => {
+    it('should accept upload with configuration', () => {
+      const upload = {
+        type: 'upload' as const,
+        props: {
+          action: '/api/upload',
+          accept: '.jpg,.png',
+          multiple: true,
+          maxSize: 5242880,
+        },
+      };
+
+      expect(() => UploadComponentSchema.parse(upload)).not.toThrow();
+    });
+  });
+
+  describe('Enterprise Component Composition', () => {
+    it('should accept form with input and select', () => {
+      const form = {
+        type: 'form' as const,
+        children: [
+          { type: 'input' as const, props: { placeholder: 'Name' } },
+          {
+            type: 'select' as const,
+            props: {
+              options: [{ label: 'Active', value: 'active' }],
+            },
+          },
+        ],
+      };
+
+      expect(() => ComponentSchema.parse(form)).not.toThrow();
+    });
+
+    it('should accept dashboard with table', () => {
+      const dashboard = {
+        type: 'card' as const,
+        props: { title: 'Dashboard' },
+        children: [
+          {
+            type: 'table' as const,
+            props: {
+              columns: [{ key: 'name', label: 'Name' }],
+            },
+          },
+        ],
+      };
+
+      expect(() => ComponentSchema.parse(dashboard)).not.toThrow();
+    });
   });
 });
 

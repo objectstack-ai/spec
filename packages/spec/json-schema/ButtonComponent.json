@@ -1,48 +1,82 @@
 {
-  "$ref": "#/definitions/BreadcrumbComponent",
+  "$ref": "#/definitions/ButtonComponent",
   "definitions": {
-    "BreadcrumbComponent": {
+    "ButtonComponent": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "const": "breadcrumb"
+          "const": "button"
         },
         "props": {
           "type": "object",
           "properties": {
-            "items": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "label": {
-                    "type": "string",
-                    "description": "Breadcrumb label"
-                  },
-                  "href": {
-                    "type": "string",
-                    "description": "Breadcrumb link"
-                  },
-                  "icon": {
-                    "type": "string",
-                    "description": "Breadcrumb icon"
-                  }
-                },
-                "required": [
-                  "label"
-                ],
-                "additionalProperties": false
-              },
-              "description": "Breadcrumb items"
-            },
-            "separator": {
+            "label": {
               "type": "string",
-              "description": "Breadcrumb separator"
+              "description": "Button label"
+            },
+            "variant": {
+              "type": "string",
+              "enum": [
+                "primary",
+                "secondary",
+                "success",
+                "warning",
+                "danger",
+                "text",
+                "link"
+              ],
+              "description": "Button variant"
+            },
+            "icon": {
+              "type": "string",
+              "description": "Button icon"
+            },
+            "iconPosition": {
+              "type": "string",
+              "enum": [
+                "left",
+                "right"
+              ],
+              "description": "Icon position"
+            },
+            "size": {
+              "type": "string",
+              "enum": [
+                "small",
+                "medium",
+                "large"
+              ],
+              "description": "Button size"
+            },
+            "loading": {
+              "type": "boolean",
+              "description": "Loading state"
+            },
+            "disabled": {
+              "type": "boolean",
+              "description": "Disabled state"
+            },
+            "block": {
+              "type": "boolean",
+              "description": "Block button (full width)"
+            },
+            "danger": {
+              "type": "boolean",
+              "description": "Danger button"
+            },
+            "shape": {
+              "type": "string",
+              "enum": [
+                "default",
+                "circle",
+                "round"
+              ],
+              "description": "Button shape"
             }
           },
           "required": [
-            "items"
+            "label"
           ],
           "additionalProperties": false
         },

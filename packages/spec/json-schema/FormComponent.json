@@ -1,49 +1,129 @@
 {
-  "$ref": "#/definitions/BreadcrumbComponent",
+  "$ref": "#/definitions/FormComponent",
   "definitions": {
-    "BreadcrumbComponent": {
+    "FormComponent": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "const": "breadcrumb"
+          "const": "form"
         },
         "props": {
           "type": "object",
           "properties": {
-            "items": {
+            "layout": {
+              "type": "string",
+              "enum": [
+                "horizontal",
+                "vertical",
+                "inline"
+              ],
+              "description": "Form layout"
+            },
+            "fields": {
               "type": "array",
               "items": {
                 "type": "object",
                 "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Field name"
+                  },
                   "label": {
                     "type": "string",
-                    "description": "Breadcrumb label"
+                    "description": "Field label"
                   },
-                  "href": {
+                  "type": {
                     "type": "string",
-                    "description": "Breadcrumb link"
+                    "description": "Field type"
                   },
-                  "icon": {
+                  "required": {
+                    "type": "boolean",
+                    "description": "Required field"
+                  },
+                  "placeholder": {
                     "type": "string",
-                    "description": "Breadcrumb icon"
+                    "description": "Placeholder text"
+                  },
+                  "defaultValue": {
+                    "description": "Default value"
+                  },
+                  "validation": {
+                    "type": "object",
+                    "additionalProperties": {},
+                    "description": "Validation rules"
                   }
                 },
                 "required": [
-                  "label"
+                  "name",
+                  "label",
+                  "type"
                 ],
                 "additionalProperties": false
               },
-              "description": "Breadcrumb items"
+              "description": "Form fields"
             },
-            "separator": {
+            "submitButton": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "description": "Button label"
+                },
+                "variant": {
+                  "type": "string",
+                  "enum": [
+                    "primary",
+                    "secondary",
+                    "success",
+                    "danger"
+                  ],
+                  "description": "Button variant"
+                }
+              },
+              "required": [
+                "label"
+              ],
+              "additionalProperties": false,
+              "description": "Submit button configuration"
+            },
+            "cancelButton": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "description": "Button label"
+                },
+                "variant": {
+                  "type": "string",
+                  "enum": [
+                    "primary",
+                    "secondary",
+                    "success",
+                    "danger"
+                  ],
+                  "description": "Button variant"
+                }
+              },
+              "required": [
+                "label"
+              ],
+              "additionalProperties": false,
+              "description": "Cancel button configuration"
+            },
+            "labelWidth": {
+              "type": "number",
+              "description": "Label width"
+            },
+            "labelAlign": {
               "type": "string",
-              "description": "Breadcrumb separator"
+              "enum": [
+                "left",
+                "right"
+              ],
+              "description": "Label alignment"
             }
           },
-          "required": [
-            "items"
-          ],
           "additionalProperties": false
         },
         "events": {
@@ -166,8 +246,7 @@
         }
       },
       "required": [
-        "type",
-        "props"
+        "type"
       ],
       "additionalProperties": false
     }

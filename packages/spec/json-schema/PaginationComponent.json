@@ -1,48 +1,65 @@
 {
-  "$ref": "#/definitions/BreadcrumbComponent",
+  "$ref": "#/definitions/PaginationComponent",
   "definitions": {
-    "BreadcrumbComponent": {
+    "PaginationComponent": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "const": "breadcrumb"
+          "const": "pagination"
         },
         "props": {
           "type": "object",
           "properties": {
-            "items": {
+            "total": {
+              "type": "number",
+              "description": "Total items"
+            },
+            "pageSize": {
+              "type": "number",
+              "default": 10,
+              "description": "Items per page"
+            },
+            "current": {
+              "type": "number",
+              "default": 1,
+              "description": "Current page"
+            },
+            "showSizeChanger": {
+              "type": "boolean",
+              "description": "Show size changer"
+            },
+            "pageSizeOptions": {
               "type": "array",
               "items": {
-                "type": "object",
-                "properties": {
-                  "label": {
-                    "type": "string",
-                    "description": "Breadcrumb label"
-                  },
-                  "href": {
-                    "type": "string",
-                    "description": "Breadcrumb link"
-                  },
-                  "icon": {
-                    "type": "string",
-                    "description": "Breadcrumb icon"
-                  }
-                },
-                "required": [
-                  "label"
-                ],
-                "additionalProperties": false
+                "type": "number"
               },
-              "description": "Breadcrumb items"
+              "description": "Page size options"
             },
-            "separator": {
+            "showQuickJumper": {
+              "type": "boolean",
+              "description": "Show quick jumper"
+            },
+            "showTotal": {
+              "type": "boolean",
+              "description": "Show total items"
+            },
+            "simple": {
+              "type": "boolean",
+              "description": "Simple mode"
+            },
+            "size": {
               "type": "string",
-              "description": "Breadcrumb separator"
+              "enum": [
+                "small",
+                "medium",
+                "large"
+              ],
+              "description": "Pagination size"
             }
           },
           "required": [
-            "items"
+            "total"
           ],
           "additionalProperties": false
         },

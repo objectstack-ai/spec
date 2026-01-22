@@ -4,21 +4,102 @@ import { z } from 'zod';
  * Component Type Enum
  * 
  * Defines all reusable UI component types available in the ObjectStack UI system.
- * These components can be composed together to build complex user interfaces.
+ * These components can be composed together to build complex user interfaces for
+ * enterprise management software.
+ * 
+ * Categories:
+ * - Layout: card, tabs, accordion, modal, drawer, container, divider, space, grid, flex
+ * - Navigation: breadcrumb, stepper, menu, sidebar, pagination, dropdown
+ * - Data Display: table, list, tree, description, statistic, tag, collapse, carousel, image, avatar, calendar_view
+ * - Data Entry: form, input, select, checkbox, radio, switch, slider, date_picker, time_picker, upload, autocomplete, cascader, transfer, color_picker, rate
+ * - Feedback: alert, message, notification, progress, skeleton, spin, result, empty
+ * - Interaction: button, button_group, icon_button, split_button
+ * - Overlay: tooltip, popover, dialog, confirm
+ * - Other: badge, timeline, steps, anchor, back_top, watermark, qrcode
  */
 export const ComponentType = z.enum([
+  // Layout Components
   'card',
   'tabs',
   'accordion',
   'modal',
   'drawer',
-  'timeline',
-  'stepper',
+  'container',
+  'divider',
+  'space',
+  'grid',
+  'flex',
+  
+  // Navigation Components
   'breadcrumb',
+  'stepper',
+  'menu',
+  'sidebar',
+  'pagination',
+  'dropdown',
+  
+  // Data Display Components
+  'table',
+  'list',
+  'tree',
+  'description',
+  'statistic',
+  'tag',
+  'collapse',
+  'carousel',
+  'image',
+  'avatar',
+  'calendar_view',
+  
+  // Data Entry Components
+  'form',
+  'input',
+  'select',
+  'checkbox',
+  'radio',
+  'switch',
+  'slider',
+  'date_picker',
+  'time_picker',
+  'upload',
+  'autocomplete',
+  'cascader',
+  'transfer',
+  'color_picker',
+  'rate',
+  
+  // Feedback Components
   'alert',
-  'badge',
+  'message',
+  'notification',
+  'progress',
+  'skeleton',
+  'spin',
+  'result',
+  'empty',
+  
+  // Interaction Components
+  'button',
+  'button_group',
+  'icon_button',
+  'split_button',
+  
+  // Overlay Components
   'tooltip',
   'popover',
+  'dialog',
+  'confirm',
+  
+  // Timeline & Process Components
+  'badge',
+  'timeline',
+  'steps',
+  
+  // Other Components
+  'anchor',
+  'back_top',
+  'watermark',
+  'qrcode',
 ]);
 
 /**
@@ -602,6 +683,321 @@ export const PopoverComponentSchema = BaseComponentSchema.extend({
 });
 
 /**
+ * Table Component Schema
+ * 
+ * A data table component for displaying structured data with sorting, filtering, and pagination.
+ * Essential for enterprise data management.
+ * 
+ * @example
+ * ```typescript
+ * const table: TableComponent = {
+ *   type: 'table',
+ *   props: {
+ *     columns: [
+ *       { key: 'name', label: 'Name', sortable: true },
+ *       { key: 'email', label: 'Email' },
+ *       { key: 'status', label: 'Status', filterable: true }
+ *     ],
+ *     dataSource: 'users',
+ *     pagination: { pageSize: 20, showSizeChanger: true },
+ *     selection: { type: 'checkbox', selectedKeys: [] }
+ *   }
+ * }
+ * ```
+ */
+export const TableComponentSchema = BaseComponentSchema.extend({
+  type: z.literal('table'),
+  props: z.object({
+    /** Column definitions */
+    columns: z.array(z.object({
+      key: z.string().describe('Column key'),
+      label: z.string().describe('Column label'),
+      width: z.number().optional().describe('Column width'),
+      sortable: z.boolean().optional().describe('Enable sorting'),
+      filterable: z.boolean().optional().describe('Enable filtering'),
+      fixed: z.enum(['left', 'right']).optional().describe('Fixed column position'),
+      dataType: z.enum(['text', 'number', 'date', 'boolean', 'currency', 'percent']).optional().describe('Data type'),
+    })).describe('Table columns'),
+    
+    dataSource: z.string().optional().describe('Data source reference or object name'),
+    
+    pagination: z.object({
+      pageSize: z.number().default(10).describe('Page size'),
+      showSizeChanger: z.boolean().optional().describe('Show page size changer'),
+      pageSizeOptions: z.array(z.number()).optional().describe('Page size options'),
+    }).optional().describe('Pagination configuration'),
+    
+    selection: z.object({
+      type: z.enum(['checkbox', 'radio']).describe('Selection type'),
+      selectedKeys: z.array(z.string()).optional().describe('Selected row keys'),
+    }).optional().describe('Row selection configuration'),
+    
+    rowActions: z.array(z.any()).optional().describe('Actions for each row'),
+    size: z.enum(['small', 'medium', 'large']).optional().describe('Table size'),
+    bordered: z.boolean().optional().describe('Show borders'),
+    striped: z.boolean().optional().describe('Striped rows'),
+  }),
+}).extend({
+  children: z.lazy(() => z.array(ComponentSchema)).optional().describe('Child components'),
+});
+
+/**
+ * Form Component Schema
+ * 
+ * A form container for data entry with validation support.
+ * Critical for enterprise data management.
+ */
+export const FormComponentSchema = BaseComponentSchema.extend({
+  type: z.literal('form'),
+  props: z.object({
+    layout: z.enum(['horizontal', 'vertical', 'inline']).optional().describe('Form layout'),
+    
+    fields: z.array(z.object({
+      name: z.string().describe('Field name'),
+      label: z.string().describe('Field label'),
+      type: z.string().describe('Field type'),
+      required: z.boolean().optional().describe('Required field'),
+      placeholder: z.string().optional().describe('Placeholder text'),
+      defaultValue: z.any().optional().describe('Default value'),
+      validation: z.record(z.any()).optional().describe('Validation rules'),
+    })).optional().describe('Form fields'),
+    
+    submitButton: z.object({
+      label: z.string().describe('Button label'),
+      variant: z.enum(['primary', 'secondary', 'success', 'danger']).optional().describe('Button variant'),
+    }).optional().describe('Submit button configuration'),
+    
+    cancelButton: z.object({
+      label: z.string().describe('Button label'),
+      variant: z.enum(['primary', 'secondary', 'success', 'danger']).optional().describe('Button variant'),
+    }).optional().describe('Cancel button configuration'),
+    
+    labelWidth: z.number().optional().describe('Label width'),
+    labelAlign: z.enum(['left', 'right']).optional().describe('Label alignment'),
+  }).optional(),
+}).extend({
+  children: z.lazy(() => z.array(ComponentSchema)).optional().describe('Child components'),
+});
+
+/**
+ * Menu Component Schema
+ * 
+ * Navigation menu component for application structure.
+ */
+export const MenuComponentSchema = BaseComponentSchema.extend({
+  type: z.literal('menu'),
+  props: z.object({
+    items: z.array(z.lazy(() => z.object({
+      key: z.string().describe('Menu item key'),
+      label: z.string().describe('Menu item label'),
+      icon: z.string().optional().describe('Menu item icon'),
+      href: z.string().optional().describe('Link URL'),
+      disabled: z.boolean().optional().describe('Disabled state'),
+      children: z.array(z.any()).optional().describe('Submenu items'),
+    }))).describe('Menu items'),
+    
+    mode: z.enum(['horizontal', 'vertical', 'inline']).optional().describe('Menu mode'),
+    theme: z.enum(['light', 'dark']).optional().describe('Menu theme'),
+    defaultSelectedKeys: z.array(z.string()).optional().describe('Default selected keys'),
+    defaultOpenKeys: z.array(z.string()).optional().describe('Default opened keys'),
+    collapsible: z.boolean().optional().describe('Collapsible menu'),
+    collapsed: z.boolean().optional().describe('Collapsed state'),
+  }),
+}).extend({
+  children: z.lazy(() => z.array(ComponentSchema)).optional().describe('Child components'),
+});
+
+/**
+ * Button Component Schema
+ * 
+ * Interactive button component.
+ */
+export const ButtonComponentSchema = BaseComponentSchema.extend({
+  type: z.literal('button'),
+  props: z.object({
+    label: z.string().describe('Button label'),
+    variant: z.enum(['primary', 'secondary', 'success', 'warning', 'danger', 'text', 'link']).optional().describe('Button variant'),
+    icon: z.string().optional().describe('Button icon'),
+    iconPosition: z.enum(['left', 'right']).optional().describe('Icon position'),
+    size: z.enum(['small', 'medium', 'large']).optional().describe('Button size'),
+    loading: z.boolean().optional().describe('Loading state'),
+    disabled: z.boolean().optional().describe('Disabled state'),
+    block: z.boolean().optional().describe('Block button (full width)'),
+    danger: z.boolean().optional().describe('Danger button'),
+    shape: z.enum(['default', 'circle', 'round']).optional().describe('Button shape'),
+  }),
+}).extend({
+  children: z.lazy(() => z.array(ComponentSchema)).optional().describe('Child components'),
+});
+
+/**
+ * Input Component Schema
+ * 
+ * Text input field for data entry.
+ */
+export const InputComponentSchema = BaseComponentSchema.extend({
+  type: z.literal('input'),
+  props: z.object({
+    type: z.enum(['text', 'password', 'email', 'number', 'tel', 'url', 'search', 'textarea']).optional().describe('Input type'),
+    placeholder: z.string().optional().describe('Placeholder text'),
+    defaultValue: z.string().optional().describe('Default value'),
+    size: z.enum(['small', 'medium', 'large']).optional().describe('Input size'),
+    disabled: z.boolean().optional().describe('Disabled state'),
+    readonly: z.boolean().optional().describe('Read-only state'),
+    maxLength: z.number().optional().describe('Maximum length'),
+    showCount: z.boolean().optional().describe('Show character count'),
+    prefix: z.string().optional().describe('Prefix icon'),
+    suffix: z.string().optional().describe('Suffix icon'),
+    allowClear: z.boolean().optional().describe('Allow clear button'),
+    rows: z.number().optional().describe('Rows for textarea type'),
+  }).optional(),
+}).extend({
+  children: z.lazy(() => z.array(ComponentSchema)).optional().describe('Child components'),
+});
+
+/**
+ * Select Component Schema
+ * 
+ * Dropdown select component for choosing from options.
+ */
+export const SelectComponentSchema = BaseComponentSchema.extend({
+  type: z.literal('select'),
+  props: z.object({
+    options: z.array(z.object({
+      label: z.string().describe('Option label'),
+      value: z.any().describe('Option value'),
+      disabled: z.boolean().optional().describe('Disabled option'),
+      icon: z.string().optional().describe('Option icon'),
+    })).describe('Select options'),
+    
+    placeholder: z.string().optional().describe('Placeholder text'),
+    defaultValue: z.any().optional().describe('Default value'),
+    multiple: z.boolean().optional().describe('Multiple selection'),
+    searchable: z.boolean().optional().describe('Allow search'),
+    allowClear: z.boolean().optional().describe('Allow clear'),
+    size: z.enum(['small', 'medium', 'large']).optional().describe('Select size'),
+    disabled: z.boolean().optional().describe('Disabled state'),
+    loading: z.boolean().optional().describe('Loading state'),
+  }),
+}).extend({
+  children: z.lazy(() => z.array(ComponentSchema)).optional().describe('Child components'),
+});
+
+/**
+ * List Component Schema
+ * 
+ * List component for displaying a series of items.
+ */
+export const ListComponentSchema = BaseComponentSchema.extend({
+  type: z.literal('list'),
+  props: z.object({
+    dataSource: z.string().optional().describe('Data source reference'),
+    itemLayout: z.enum(['horizontal', 'vertical']).optional().describe('Item layout'),
+    bordered: z.boolean().optional().describe('Show borders'),
+    size: z.enum(['small', 'medium', 'large']).optional().describe('List size'),
+    split: z.boolean().optional().describe('Split items with divider'),
+    loading: z.boolean().optional().describe('Loading state'),
+    pagination: z.object({
+      pageSize: z.number().describe('Page size'),
+      total: z.number().optional().describe('Total items'),
+    }).optional().describe('Pagination configuration'),
+  }).optional(),
+}).extend({
+  children: z.lazy(() => z.array(ComponentSchema)).optional().describe('Child components'),
+});
+
+/**
+ * Tree Component Schema
+ * 
+ * Hierarchical tree structure component.
+ */
+export const TreeComponentSchema = BaseComponentSchema.extend({
+  type: z.literal('tree'),
+  props: z.object({
+    treeData: z.array(z.lazy(() => z.object({
+      title: z.string().describe('Node title'),
+      key: z.string().describe('Node key'),
+      icon: z.string().optional().describe('Node icon'),
+      disabled: z.boolean().optional().describe('Disabled node'),
+      children: z.array(z.any()).optional().describe('Child nodes'),
+    }))).optional().describe('Tree data'),
+    
+    checkable: z.boolean().optional().describe('Show checkbox on nodes'),
+    selectable: z.boolean().optional().describe('Selectable nodes'),
+    multiple: z.boolean().optional().describe('Multiple selection'),
+    defaultExpandedKeys: z.array(z.string()).optional().describe('Default expanded keys'),
+    defaultSelectedKeys: z.array(z.string()).optional().describe('Default selected keys'),
+    defaultCheckedKeys: z.array(z.string()).optional().describe('Default checked keys'),
+    showLine: z.boolean().optional().describe('Show tree line'),
+    showIcon: z.boolean().optional().describe('Show node icon'),
+  }).optional(),
+}).extend({
+  children: z.lazy(() => z.array(ComponentSchema)).optional().describe('Child components'),
+});
+
+/**
+ * Progress Component Schema
+ * 
+ * Progress indicator for showing completion status.
+ */
+export const ProgressComponentSchema = BaseComponentSchema.extend({
+  type: z.literal('progress'),
+  props: z.object({
+    percent: z.number().min(0).max(100).describe('Progress percentage'),
+    type: z.enum(['line', 'circle', 'dashboard']).optional().describe('Progress type'),
+    status: z.enum(['normal', 'active', 'success', 'exception']).optional().describe('Progress status'),
+    showInfo: z.boolean().optional().describe('Show progress info'),
+    strokeWidth: z.number().optional().describe('Stroke width'),
+    strokeColor: z.string().optional().describe('Stroke color'),
+  }),
+}).extend({
+  children: z.lazy(() => z.array(ComponentSchema)).optional().describe('Child components'),
+});
+
+/**
+ * Pagination Component Schema
+ * 
+ * Pagination control for navigating through pages.
+ */
+export const PaginationComponentSchema = BaseComponentSchema.extend({
+  type: z.literal('pagination'),
+  props: z.object({
+    total: z.number().describe('Total items'),
+    pageSize: z.number().default(10).describe('Items per page'),
+    current: z.number().default(1).describe('Current page'),
+    showSizeChanger: z.boolean().optional().describe('Show size changer'),
+    pageSizeOptions: z.array(z.number()).optional().describe('Page size options'),
+    showQuickJumper: z.boolean().optional().describe('Show quick jumper'),
+    showTotal: z.boolean().optional().describe('Show total items'),
+    simple: z.boolean().optional().describe('Simple mode'),
+    size: z.enum(['small', 'medium', 'large']).optional().describe('Pagination size'),
+  }),
+}).extend({
+  children: z.lazy(() => z.array(ComponentSchema)).optional().describe('Child components'),
+});
+
+/**
+ * Upload Component Schema
+ * 
+ * File upload component.
+ */
+export const UploadComponentSchema = BaseComponentSchema.extend({
+  type: z.literal('upload'),
+  props: z.object({
+    action: z.string().optional().describe('Upload URL'),
+    accept: z.string().optional().describe('Accepted file types'),
+    multiple: z.boolean().optional().describe('Multiple file upload'),
+    maxSize: z.number().optional().describe('Max file size'),
+    maxCount: z.number().optional().describe('Max file count'),
+    listType: z.enum(['text', 'picture', 'picture-card']).optional().describe('Upload list type'),
+    showUploadList: z.boolean().optional().describe('Show upload list'),
+    disabled: z.boolean().optional().describe('Disabled state'),
+  }).optional(),
+}).extend({
+  children: z.lazy(() => z.array(ComponentSchema)).optional().describe('Child components'),
+});
+
+/**
  * TypeScript Type Exports
  */
 export type ComponentTypeEnum = z.infer<typeof ComponentType>;
@@ -618,6 +1014,17 @@ export type AlertComponent = z.infer<typeof AlertComponentSchema>;
 export type BadgeComponent = z.infer<typeof BadgeComponentSchema>;
 export type TooltipComponent = z.infer<typeof TooltipComponentSchema>;
 export type PopoverComponent = z.infer<typeof PopoverComponentSchema>;
+export type TableComponent = z.infer<typeof TableComponentSchema>;
+export type FormComponent = z.infer<typeof FormComponentSchema>;
+export type MenuComponent = z.infer<typeof MenuComponentSchema>;
+export type ButtonComponent = z.infer<typeof ButtonComponentSchema>;
+export type InputComponent = z.infer<typeof InputComponentSchema>;
+export type SelectComponent = z.infer<typeof SelectComponentSchema>;
+export type ListComponent = z.infer<typeof ListComponentSchema>;
+export type TreeComponent = z.infer<typeof TreeComponentSchema>;
+export type ProgressComponent = z.infer<typeof ProgressComponentSchema>;
+export type PaginationComponent = z.infer<typeof PaginationComponentSchema>;
+export type UploadComponent = z.infer<typeof UploadComponentSchema>;
 
 /**
  * Component Factory Helper

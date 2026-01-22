@@ -1,49 +1,80 @@
 {
-  "$ref": "#/definitions/BreadcrumbComponent",
+  "$ref": "#/definitions/InputComponent",
   "definitions": {
-    "BreadcrumbComponent": {
+    "InputComponent": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "const": "breadcrumb"
+          "const": "input"
         },
         "props": {
           "type": "object",
           "properties": {
-            "items": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "label": {
-                    "type": "string",
-                    "description": "Breadcrumb label"
-                  },
-                  "href": {
-                    "type": "string",
-                    "description": "Breadcrumb link"
-                  },
-                  "icon": {
-                    "type": "string",
-                    "description": "Breadcrumb icon"
-                  }
-                },
-                "required": [
-                  "label"
-                ],
-                "additionalProperties": false
-              },
-              "description": "Breadcrumb items"
-            },
-            "separator": {
+            "type": {
               "type": "string",
-              "description": "Breadcrumb separator"
+              "enum": [
+                "text",
+                "password",
+                "email",
+                "number",
+                "tel",
+                "url",
+                "search",
+                "textarea"
+              ],
+              "description": "Input type"
+            },
+            "placeholder": {
+              "type": "string",
+              "description": "Placeholder text"
+            },
+            "defaultValue": {
+              "type": "string",
+              "description": "Default value"
+            },
+            "size": {
+              "type": "string",
+              "enum": [
+                "small",
+                "medium",
+                "large"
+              ],
+              "description": "Input size"
+            },
+            "disabled": {
+              "type": "boolean",
+              "description": "Disabled state"
+            },
+            "readonly": {
+              "type": "boolean",
+              "description": "Read-only state"
+            },
+            "maxLength": {
+              "type": "number",
+              "description": "Maximum length"
+            },
+            "showCount": {
+              "type": "boolean",
+              "description": "Show character count"
+            },
+            "prefix": {
+              "type": "string",
+              "description": "Prefix icon"
+            },
+            "suffix": {
+              "type": "string",
+              "description": "Suffix icon"
+            },
+            "allowClear": {
+              "type": "boolean",
+              "description": "Allow clear button"
+            },
+            "rows": {
+              "type": "number",
+              "description": "Rows for textarea type"
             }
           },
-          "required": [
-            "items"
-          ],
           "additionalProperties": false
         },
         "events": {
@@ -166,8 +197,7 @@
         }
       },
       "required": [
-        "type",
-        "props"
+        "type"
       ],
       "additionalProperties": false
     }

@@ -1,48 +1,56 @@
 {
-  "$ref": "#/definitions/BreadcrumbComponent",
+  "$ref": "#/definitions/ProgressComponent",
   "definitions": {
-    "BreadcrumbComponent": {
+    "ProgressComponent": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "const": "breadcrumb"
+          "const": "progress"
         },
         "props": {
           "type": "object",
           "properties": {
-            "items": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "label": {
-                    "type": "string",
-                    "description": "Breadcrumb label"
-                  },
-                  "href": {
-                    "type": "string",
-                    "description": "Breadcrumb link"
-                  },
-                  "icon": {
-                    "type": "string",
-                    "description": "Breadcrumb icon"
-                  }
-                },
-                "required": [
-                  "label"
-                ],
-                "additionalProperties": false
-              },
-              "description": "Breadcrumb items"
+            "percent": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Progress percentage"
             },
-            "separator": {
+            "type": {
               "type": "string",
-              "description": "Breadcrumb separator"
+              "enum": [
+                "line",
+                "circle",
+                "dashboard"
+              ],
+              "description": "Progress type"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "normal",
+                "active",
+                "success",
+                "exception"
+              ],
+              "description": "Progress status"
+            },
+            "showInfo": {
+              "type": "boolean",
+              "description": "Show progress info"
+            },
+            "strokeWidth": {
+              "type": "number",
+              "description": "Stroke width"
+            },
+            "strokeColor": {
+              "type": "string",
+              "description": "Stroke color"
             }
           },
           "required": [
-            "items"
+            "percent"
           ],
           "additionalProperties": false
         },

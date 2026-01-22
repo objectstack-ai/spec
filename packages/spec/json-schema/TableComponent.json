@@ -1,48 +1,146 @@
 {
-  "$ref": "#/definitions/BreadcrumbComponent",
+  "$ref": "#/definitions/TableComponent",
   "definitions": {
-    "BreadcrumbComponent": {
+    "TableComponent": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "const": "breadcrumb"
+          "const": "table"
         },
         "props": {
           "type": "object",
           "properties": {
-            "items": {
+            "columns": {
               "type": "array",
               "items": {
                 "type": "object",
                 "properties": {
+                  "key": {
+                    "type": "string",
+                    "description": "Column key"
+                  },
                   "label": {
                     "type": "string",
-                    "description": "Breadcrumb label"
+                    "description": "Column label"
                   },
-                  "href": {
-                    "type": "string",
-                    "description": "Breadcrumb link"
+                  "width": {
+                    "type": "number",
+                    "description": "Column width"
                   },
-                  "icon": {
+                  "sortable": {
+                    "type": "boolean",
+                    "description": "Enable sorting"
+                  },
+                  "filterable": {
+                    "type": "boolean",
+                    "description": "Enable filtering"
+                  },
+                  "fixed": {
                     "type": "string",
-                    "description": "Breadcrumb icon"
+                    "enum": [
+                      "left",
+                      "right"
+                    ],
+                    "description": "Fixed column position"
+                  },
+                  "dataType": {
+                    "type": "string",
+                    "enum": [
+                      "text",
+                      "number",
+                      "date",
+                      "boolean",
+                      "currency",
+                      "percent"
+                    ],
+                    "description": "Data type"
                   }
                 },
                 "required": [
+                  "key",
                   "label"
                 ],
                 "additionalProperties": false
               },
-              "description": "Breadcrumb items"
+              "description": "Table columns"
             },
-            "separator": {
+            "dataSource": {
               "type": "string",
-              "description": "Breadcrumb separator"
+              "description": "Data source reference or object name"
+            },
+            "pagination": {
+              "type": "object",
+              "properties": {
+                "pageSize": {
+                  "type": "number",
+                  "default": 10,
+                  "description": "Page size"
+                },
+                "showSizeChanger": {
+                  "type": "boolean",
+                  "description": "Show page size changer"
+                },
+                "pageSizeOptions": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "description": "Page size options"
+                }
+              },
+              "additionalProperties": false,
+              "description": "Pagination configuration"
+            },
+            "selection": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "checkbox",
+                    "radio"
+                  ],
+                  "description": "Selection type"
+                },
+                "selectedKeys": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Selected row keys"
+                }
+              },
+              "required": [
+                "type"
+              ],
+              "additionalProperties": false,
+              "description": "Row selection configuration"
+            },
+            "rowActions": {
+              "type": "array",
+              "description": "Actions for each row"
+            },
+            "size": {
+              "type": "string",
+              "enum": [
+                "small",
+                "medium",
+                "large"
+              ],
+              "description": "Table size"
+            },
+            "bordered": {
+              "type": "boolean",
+              "description": "Show borders"
+            },
+            "striped": {
+              "type": "boolean",
+              "description": "Striped rows"
             }
           },
           "required": [
-            "items"
+            "columns"
           ],
           "additionalProperties": false
         },

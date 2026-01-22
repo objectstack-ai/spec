@@ -1,49 +1,92 @@
 {
-  "$ref": "#/definitions/BreadcrumbComponent",
+  "$ref": "#/definitions/TreeComponent",
   "definitions": {
-    "BreadcrumbComponent": {
+    "TreeComponent": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "const": "breadcrumb"
+          "const": "tree"
         },
         "props": {
           "type": "object",
           "properties": {
-            "items": {
+            "treeData": {
               "type": "array",
               "items": {
                 "type": "object",
                 "properties": {
-                  "label": {
+                  "title": {
                     "type": "string",
-                    "description": "Breadcrumb label"
+                    "description": "Node title"
                   },
-                  "href": {
+                  "key": {
                     "type": "string",
-                    "description": "Breadcrumb link"
+                    "description": "Node key"
                   },
                   "icon": {
                     "type": "string",
-                    "description": "Breadcrumb icon"
+                    "description": "Node icon"
+                  },
+                  "disabled": {
+                    "type": "boolean",
+                    "description": "Disabled node"
+                  },
+                  "children": {
+                    "type": "array",
+                    "description": "Child nodes"
                   }
                 },
                 "required": [
-                  "label"
+                  "title",
+                  "key"
                 ],
                 "additionalProperties": false
               },
-              "description": "Breadcrumb items"
+              "description": "Tree data"
             },
-            "separator": {
-              "type": "string",
-              "description": "Breadcrumb separator"
+            "checkable": {
+              "type": "boolean",
+              "description": "Show checkbox on nodes"
+            },
+            "selectable": {
+              "type": "boolean",
+              "description": "Selectable nodes"
+            },
+            "multiple": {
+              "type": "boolean",
+              "description": "Multiple selection"
+            },
+            "defaultExpandedKeys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Default expanded keys"
+            },
+            "defaultSelectedKeys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Default selected keys"
+            },
+            "defaultCheckedKeys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Default checked keys"
+            },
+            "showLine": {
+              "type": "boolean",
+              "description": "Show tree line"
+            },
+            "showIcon": {
+              "type": "boolean",
+              "description": "Show node icon"
             }
           },
-          "required": [
-            "items"
-          ],
           "additionalProperties": false
         },
         "events": {
@@ -166,8 +209,7 @@
         }
       },
       "required": [
-        "type",
-        "props"
+        "type"
       ],
       "additionalProperties": false
     }
