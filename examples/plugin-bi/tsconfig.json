@@ -2,7 +2,9 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "."
+    "rootDir": ".",
+    "module": "ES2020",
+    "moduleResolution": "bundler"
   },
   "include": ["src/**/*", "objectstack.config.ts"]
 }
