@@ -254,7 +254,7 @@ describe('ReportSchema', () => {
   });
 
   it('should accept different report types', () => {
-    const types: Array<typeof ReportType._type> = ['tabular', 'summary', 'matrix', 'joined'];
+    const types: Array<z.infer<typeof ReportType>> = ['tabular', 'summary', 'matrix', 'joined'];
 
     types.forEach(type => {
       const report = ReportSchema.parse({

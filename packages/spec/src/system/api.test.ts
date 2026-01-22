@@ -186,7 +186,7 @@ describe('ApiEndpointSchema', () => {
   });
 
   it('should accept different HTTP methods', () => {
-    const methods: Array<typeof HttpMethod._type> = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
+    const methods: Array<z.infer<typeof HttpMethod>> = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
 
     methods.forEach(method => {
       const endpoint = ApiEndpointSchema.parse({
@@ -201,7 +201,7 @@ describe('ApiEndpointSchema', () => {
   });
 
   it('should accept different implementation types', () => {
-    const types: Array<typeof endpoint.type> = ['flow', 'script', 'object_operation', 'proxy'];
+    const types: Array<'flow' | 'script' | 'object_operation' | 'proxy'> = ['flow', 'script', 'object_operation', 'proxy'];
 
     types.forEach(type => {
       const endpoint = ApiEndpointSchema.parse({
@@ -257,7 +257,7 @@ describe('ApiEndpointSchema', () => {
   });
 
   it('should accept different object operations', () => {
-    const operations: Array<NonNullable<NonNullable<typeof endpoint.objectParams>['operation']>> = ['find', 'get', 'create', 'update', 'delete'];
+    const operations: Array<'find' | 'get' | 'create' | 'update' | 'delete'> = ['find', 'get', 'create', 'update', 'delete'];
 
     operations.forEach(operation => {
       const endpoint = ApiEndpointSchema.parse({
