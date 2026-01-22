@@ -6,79 +6,17 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": [
-            "card",
-            "tabs",
-            "accordion",
-            "modal",
-            "drawer",
-            "container",
-            "divider",
-            "space",
-            "grid",
-            "flex",
-            "breadcrumb",
-            "stepper",
-            "menu",
-            "sidebar",
-            "pagination",
-            "dropdown",
-            "table",
-            "list",
-            "tree",
-            "description",
-            "statistic",
-            "tag",
-            "collapse",
-            "carousel",
-            "image",
-            "avatar",
-            "calendar_view",
-            "form",
-            "input",
-            "select",
-            "checkbox",
-            "radio",
-            "switch",
-            "slider",
-            "date_picker",
-            "time_picker",
-            "upload",
-            "autocomplete",
-            "cascader",
-            "transfer",
-            "color_picker",
-            "rate",
-            "alert",
-            "message",
-            "notification",
-            "progress",
-            "skeleton",
-            "spin",
-            "result",
-            "empty",
-            "button",
-            "button_group",
-            "icon_button",
-            "split_button",
-            "tooltip",
-            "popover",
-            "dialog",
-            "confirm",
-            "badge",
-            "timeline",
-            "steps",
-            "anchor",
-            "back_top",
-            "watermark",
-            "qrcode"
-          ],
-          "description": "Component type"
+          "description": "Component type identifier"
         },
         "props": {
           "type": "object",
           "additionalProperties": {},
           "description": "Component properties"
+        },
+        "children": {
+          "type": "array",
+          "items": {},
+          "description": "Child components"
         },
         "events": {
           "type": "object",
@@ -91,11 +29,6 @@
             "type": "string"
           },
           "description": "Custom styles"
-        },
-        "children": {
-          "type": "array",
-          "items": {},
-          "description": "Child components"
         }
       },
       "required": [
