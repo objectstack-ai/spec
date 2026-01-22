@@ -1,56 +1,73 @@
 /**
  * Example: Using Namespaced Imports
  * 
- * This example demonstrates how to use the new namespaced import style
- * to organize code and prevent naming conflicts.
+ * This example demonstrates the three import styles supported by @objectstack/spec.
+ * Note: Flat imports are NO LONGER SUPPORTED. Use one of the styles below.
  */
 
 // ============================================================================
-// STYLE 1: Flat Imports (Backward Compatible)
+// STYLE 1: Namespace Imports from Root
 // ============================================================================
 
-import { Field, FieldType, ObjectSchema } from '@objectstack/spec';
+import { Data, UI, System, AI } from '@objectstack/spec';
 
-// Use directly without namespace
-const field1: Field = {
+// Use with namespace prefix
+const field1: Data.Field = {
   name: 'employee_name',
   label: 'Employee Name',
-  type: 'text' as FieldType,
-  required: true,
-};
-
-// ============================================================================
-// STYLE 2: Namespaced Imports (Recommended for New Code)
-// ============================================================================
-
-import * as Data from '@objectstack/spec/data';
-import * as UI from '@objectstack/spec/ui';
-import * as System from '@objectstack/spec/system';
-import * as AI from '@objectstack/spec/ai';
-
-// Use with namespace prefix for clarity
-const field2: Data.Field = {
-  name: 'task_title',
-  label: 'Task Title',
   type: 'text' as Data.FieldType,
   required: true,
 };
 
-// Define an object using namespaced types
-const taskObject: Data.ServiceObject = {
+// ============================================================================
+// STYLE 2: Namespace Imports via Subpath
+// ============================================================================
+
+import * as DataNS from '@objectstack/spec/data';
+import * as UINS from '@objectstack/spec/ui';
+import * as SystemNS from '@objectstack/spec/system';
+import * as AINS from '@objectstack/spec/ai';
+
+// Use with namespace prefix for clarity
+const field2: DataNS.Field = {
+  name: 'task_title',
+  label: 'Task Title',
+  type: 'text' as DataNS.FieldType,
+  required: true,
+};
+
+// ============================================================================
+// STYLE 3: Direct Subpath Imports
+// ============================================================================
+
+import { Field, FieldType, ObjectSchema, ServiceObject } from '@objectstack/spec/data';
+import { View } from '@objectstack/spec/ui';
+import { User } from '@objectstack/spec/system';
+import { Agent, ModelProvider } from '@objectstack/spec/ai';
+
+// Use directly without namespace prefix
+const field3: Field = {
+  name: 'task_description',
+  label: 'Task Description',
+  type: 'textarea' as FieldType,
+  required: false,
+};
+
+// Define an object using direct imports
+const taskObject: ServiceObject = {
   name: 'project_task',
   label: 'Task',
   fields: {
-    title: field2,
+    title: field3,
     description: {
       name: 'description',
       label: 'Description',
-      type: 'textarea' as Data.FieldType,
+      type: 'textarea' as FieldType,
     },
     status: {
       name: 'status',
       label: 'Status',
-      type: 'select' as Data.FieldType,
+      type: 'select' as FieldType,
       options: [
         { value: 'todo', label: 'To Do' },
         { value: 'in_progress', label: 'In Progress' },
@@ -60,14 +77,14 @@ const taskObject: Data.ServiceObject = {
     assignee: {
       name: 'assignee',
       label: 'Assignee',
-      type: 'lookup' as Data.FieldType,
+      type: 'lookup' as FieldType,
       reference: 'system_user',
     },
   },
 };
 
-// Validate using namespaced schema
-const result = Data.ObjectSchema.safeParse(taskObject);
+// Validate using direct import
+const result = ObjectSchema.safeParse(taskObject);
 
 if (result.success) {
   console.log('✓ Object definition is valid');
@@ -75,8 +92,8 @@ if (result.success) {
   console.error('✗ Validation errors:', result.error);
 }
 
-// Define UI components using namespaced types
-const taskView: UI.View = {
+// Define UI components using direct imports
+const taskView: View = {
   name: 'task_list',
   label: 'Task List',
   object: 'project_task',
@@ -88,8 +105,8 @@ const taskView: UI.View = {
   },
 };
 
-// Define system configuration using namespaced types
-const adminUser: System.User = {
+// Define system configuration using direct imports
+const adminUser: User = {
   id: 'user_admin_001',
   email: 'admin@example.com',
   name: 'System Admin',
@@ -99,13 +116,13 @@ const adminUser: System.User = {
   updatedAt: new Date(),
 };
 
-// Define AI agent using namespaced types
-const salesAgent: AI.Agent = {
+// Define AI agent using direct imports
+const salesAgent: Agent = {
   name: 'sales_assistant',
   label: 'Sales Assistant',
   description: 'AI agent to help with sales tasks',
   model: {
-    provider: 'openai' as AI.ModelProvider,
+    provider: 'openai' as ModelProvider,
     name: 'gpt-4',
   },
   tools: [],
@@ -114,17 +131,34 @@ const salesAgent: AI.Agent = {
 };
 
 // ============================================================================
-// BENEFITS OF NAMESPACED IMPORTS
+// COMPARISON OF THE THREE STYLES
 // ============================================================================
 
 /**
- * 1. Clear Domain Boundaries
+ * Style 1: Namespace from Root
+ * - Pro: Single import line for multiple protocols
+ * - Pro: Clear namespace boundaries
+ * - Con: Longer variable type declarations
+ * 
+ * Style 2: Namespace via Subpath
+ * - Pro: Better tree-shaking
+ * - Pro: Explicit about which protocols are used
+ * - Con: Multiple import lines
+ * 
+ * Style 3: Direct Subpath Imports
+ * - Pro: Most concise syntax
+ * - Pro: No namespace prefix needed
+ * - Con: Need to know which subpath contains each type
+ * 
+ * BENEFITS ACROSS ALL STYLES:
+ * 
+ * 1. Zero Naming Conflicts
+ *    - Namespace boundaries completely eliminate collision risk
+ *    - Safe to add new types without worrying about conflicts
+ * 
+ * 2. Clear Domain Boundaries
  *    - Immediately obvious which protocol a type belongs to
  *    - Easier to navigate and understand the codebase
- * 
- * 2. No Naming Conflicts
- *    - If Data.User and System.User both existed, no confusion
- *    - Safe to add new types without worrying about conflicts
  * 
  * 3. Better IDE Autocomplete
  *    - Type "Data." and see all data protocol types

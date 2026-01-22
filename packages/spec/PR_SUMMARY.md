@@ -8,7 +8,7 @@
 
 ## Solution Overview
 
-Implemented a **dual export strategy** that prevents naming conflicts while maintaining 100% backward compatibility.
+Implemented a **namespace-only export strategy** that completely eliminates naming conflicts. This is a **breaking change** that enforces organized imports by protocol domain.
 
 ## Key Changes
 
@@ -25,7 +25,19 @@ packages/spec/src/
 └── api/index.ts         # API Protocol (Contracts, Requests, etc.)
 ```
 
-### 2. Updated package.json
+### 2. Updated Root Index
+
+**Removed all flat exports** from `src/index.ts` and replaced with namespace exports:
+
+```typescript
+export * as Data from './data';
+export * as UI from './ui';
+export * as System from './system';
+export * as AI from './ai';
+export * as API from './api';
+```
+
+### 3. Updated package.json
 
 Added export mappings for each namespace:
 
@@ -42,45 +54,73 @@ Added export mappings for each namespace:
 }
 ```
 
-### 3. Enhanced Documentation
+### 4. Enhanced Documentation
 
-- **README.md**: Added comprehensive section on import styles
-- **EXPORT_ORGANIZATION.md**: Detailed guide on the new organization
-- **examples/**: Code examples demonstrating both import styles
+- **README.md**: Updated with three supported import styles
+- **EXPORT_ORGANIZATION.md**: Detailed migration guide
+- **examples/**: Updated code examples
 
 ## Import Styles Supported
 
-### Style 1: Flat Imports (Backward Compatible)
+### Style 1: Namespace Imports from Root
 
 ```typescript
-import { Field, User, App, Agent } from '@objectstack/spec';
-```
-
-✅ All 36 existing imports in the codebase continue to work
-
-### Style 2: Namespaced Imports (Recommended)
-
-```typescript
-import * as Data from '@objectstack/spec/data';
-import * as UI from '@objectstack/spec/ui';
-import * as System from '@objectstack/spec/system';
-import * as AI from '@objectstack/spec/ai';
-import * as API from '@objectstack/spec/api';
+import { Data, UI, System, AI, API } from '@objectstack/spec';
 
 const field: Data.Field = { /* ... */ };
 const user: System.User = { /* ... */ };
 ```
 
+### Style 2: Namespace Imports via Subpath
+
+```typescript
+import * as Data from '@objectstack/spec/data';
+import * as UI from '@objectstack/spec/ui';
+import * as System from '@objectstack/spec/system';
+
+const field: Data.Field = { /* ... */ };
+const user: System.User = { /* ... */ };
+```
+
+### Style 3: Direct Subpath Imports
+
+```typescript
+import { Field, FieldType } from '@objectstack/spec/data';
+import { User, Session } from '@objectstack/spec/system';
+
+const field: Field = { /* ... */ };
+const user: User = { /* ... */ };
+```
+
 ## Benefits
 
-1. **✅ Zero Breaking Changes**: All existing code continues to work without modification
-2. **✅ Prevents Future Conflicts**: Namespaces prevent naming collisions as API grows
+1. **✅ Eliminates All Naming Conflicts**: Namespace boundaries completely prevent collisions
+2. **✅ Clear Protocol Boundaries**: Immediately obvious which protocol a type belongs to
 3. **✅ Better Developer Experience**: 
    - Clear domain boundaries
    - Improved IDE autocomplete
    - Self-documenting code
 4. **✅ Scalable Architecture**: Easy to add new protocols without risk
-5. **✅ Flexible**: Developers can choose their preferred import style
+5. **✅ Tree-Shakeable**: Better optimization by modern bundlers
+
+## Breaking Change Notice
+
+**This is a breaking change.** Flat imports from the root are no longer supported.
+
+### Migration Required
+
+All imports like:
+```typescript
+import { Field, User, App } from '@objectstack/spec';
+```
+
+Must be changed to one of the three supported styles (see above).
+
+### Migration Steps
+
+1. Find all imports: `grep -r "from '@objectstack/spec'" src/`
+2. Replace with one of the three styles
+3. Test your application
 
 ## Verification Results
 
@@ -92,58 +132,35 @@ const user: System.User = { /* ... */ };
 - **Status**: ✅ Passed
 - **Vulnerabilities**: 0
 
-### Backward Compatibility
-- **Existing Imports Checked**: 36 files
-- **Breaking Changes**: 0
-- **Status**: ✅ 100% Compatible
-
 ### TypeScript Compilation
 - **Status**: ✅ No export errors
 - **Circular Dependencies**: None detected
 
 ## Files Changed
 
-- ✅ `packages/spec/src/index.ts` - Added documentation and reorganized exports
+- ✅ `packages/spec/src/index.ts` - Removed flat exports, added namespace exports
 - ✅ `packages/spec/src/data/index.ts` - New barrel export
 - ✅ `packages/spec/src/ui/index.ts` - New barrel export
 - ✅ `packages/spec/src/system/index.ts` - New barrel export
 - ✅ `packages/spec/src/ai/index.ts` - New barrel export
 - ✅ `packages/spec/src/api/index.ts` - New barrel export
 - ✅ `packages/spec/package.json` - Added export mappings
-- ✅ `packages/spec/README.md` - Enhanced documentation
-- ✅ `packages/spec/EXPORT_ORGANIZATION.md` - New comprehensive guide
-- ✅ `packages/spec/examples/namespaced-imports.example.ts` - Example code
+- ✅ `packages/spec/README.md` - Updated documentation
+- ✅ `packages/spec/EXPORT_ORGANIZATION.md` - Updated with migration guide
+- ✅ `packages/spec/examples/namespaced-imports.example.ts` - Updated examples
 - ✅ `packages/spec/examples/README.md` - Examples documentation
-
-## Migration Path
-
-### For Existing Code
-**No migration required!** All existing imports continue to work.
-
-### For New Code
-Recommended to use namespaced imports for better organization:
-
-```typescript
-// Before (still works)
-import { Field, User, App } from '@objectstack/spec';
-
-// After (recommended)
-import * as Data from '@objectstack/spec/data';
-import * as System from '@objectstack/spec/system';
-import * as UI from '@objectstack/spec/ui';
-```
 
 ## Future Considerations
 
 1. **Add Sub-namespaces**: Can create deeper organization (e.g., `@objectstack/spec/data/query`)
-2. **Deprecation Path**: If conflicts arise, can mark specific flat exports as deprecated
-3. **Convention Exports**: Can add convenience exports for commonly-used combinations
+2. **Convention Exports**: Can add convenience exports for commonly-used combinations
+3. **Further Categorization**: Organize large protocol domains into sub-categories
 
 ## Questions & Support
 
 See the following documentation for more details:
 - [README.md](README.md) - Quick start and usage examples
-- [EXPORT_ORGANIZATION.md](EXPORT_ORGANIZATION.md) - Comprehensive guide
+- [EXPORT_ORGANIZATION.md](EXPORT_ORGANIZATION.md) - Comprehensive migration guide
 - [examples/](examples/) - Working code examples
 
 ## Conclusion

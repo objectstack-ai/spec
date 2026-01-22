@@ -7,26 +7,27 @@ The `@objectstack/spec` package exports many schemas and types. As the API surfa
 2. **Poor discoverability**: With 200+ exports in a flat namespace, it's hard to find what you need
 3. **Unclear domain boundaries**: Not obvious which exports belong to which protocol
 
-## Solution: Dual Export Strategy
+## Solution: Namespace-Only Exports
 
-We now support **both flat and namespaced imports** to give developers flexibility while preventing future naming conflicts.
+This package **does NOT export types at the root level** to prevent naming conflicts. All exports are organized by protocol domain using namespaces.
 
-### 1. Flat Exports (Backward Compatible)
+### Import Styles
 
-All existing imports continue to work:
+#### Style 1: Namespace Imports from Root
 
 ```typescript
-import { Field, User, App, Agent } from '@objectstack/spec';
+import { Data, UI, System, AI, API } from '@objectstack/spec';
+
+const field: Data.Field = { /* ... */ };
+const user: System.User = { /* ... */ };
 ```
 
 **When to use:**
-- Migrating existing code
-- Importing a few specific types
-- Quick prototyping
+- Need multiple protocols in one file
+- Want single import statement
+- Clear namespace boundaries
 
-### 2. Namespaced Exports (Recommended)
-
-Import by protocol domain for better organization:
+#### Style 2: Namespace Imports via Subpath
 
 ```typescript
 import * as Data from '@objectstack/spec/data';
@@ -40,10 +41,24 @@ const user: System.User = { /* ... */ };
 ```
 
 **When to use:**
-- New code
-- Working with many types from the same protocol
-- Want to avoid any risk of naming conflicts
-- Want clear domain boundaries in your code
+- Better tree-shaking (only imports needed protocols)
+- Explicit about which protocols are used
+- Working with many types from same protocol
+
+#### Style 3: Direct Subpath Imports
+
+```typescript
+import { Field, FieldType } from '@objectstack/spec/data';
+import { User, Session } from '@objectstack/spec/system';
+
+const field: Field = { /* ... */ };
+const user: User = { /* ... */ };
+```
+
+**When to use:**
+- Most concise syntax
+- Importing specific types only
+- No namespace prefix needed
 
 ## Protocol Domains
 
@@ -85,48 +100,51 @@ API contracts and envelopes:
 
 ## Migration Guide
 
-### For Library Maintainers
+### Breaking Change Notice
 
-You don't need to change anything! All existing exports remain available. However, you may want to adopt namespaced imports in new code:
+**This is a breaking change.** Flat imports are no longer supported.
 
-**Before:**
+**Before (v0.1.x):**
 ```typescript
 import { Field, User, App } from '@objectstack/spec';
 ```
 
-**After (optional):**
+**After (v0.2.x+):**
 ```typescript
-import * as Data from '@objectstack/spec/data';
-import * as System from '@objectstack/spec/system';
-import * as UI from '@objectstack/spec/ui';
-
+// Option 1: Namespace from root
+import { Data, System, UI } from '@objectstack/spec';
 const field: Data.Field = { /* ... */ };
 const user: System.User = { /* ... */ };
-const app: UI.App = { /* ... */ };
-```
 
-### For Application Developers
-
-Choose the style that fits your needs:
-
-```typescript
-// Option 1: Flat imports (quick and simple)
-import { ObjectSchema, Field } from '@objectstack/spec';
-
-// Option 2: Namespaced imports (organized and safe)
+// Option 2: Namespace via subpath
 import * as Data from '@objectstack/spec/data';
-const result = Data.ObjectSchema.parse(config);
-
-// Option 3: Mixed approach
-import { Field } from '@objectstack/spec';
 import * as System from '@objectstack/spec/system';
+const field: Data.Field = { /* ... */ };
+const user: System.User = { /* ... */ };
+
+// Option 3: Direct subpath imports
+import { Field } from '@objectstack/spec/data';
+import { User } from '@objectstack/spec/system';
+const field: Field = { /* ... */ };
+const user: User = { /* ... */ };
 ```
+
+### Migration Steps
+
+1. **Find all imports from `@objectstack/spec`:**
+   ```bash
+   grep -r "from '@objectstack/spec'" src/
+   ```
+
+2. **Replace with one of the three styles above**
+
+3. **Test your application** to ensure all types are accessible
 
 ## Implementation Details
 
 ### Package.json Exports
 
-The `package.json` now includes export mappings:
+The `package.json` includes export mappings:
 
 ```json
 {
@@ -151,22 +169,23 @@ Each protocol domain has an `index.ts` barrel file that re-exports all schemas a
 - `src/ai/index.ts` - AI Protocol
 - `src/api/index.ts` - API Protocol
 
-The root `src/index.ts` continues to re-export everything for backward compatibility.
+The root `src/index.ts` exports only protocol namespaces (no flat exports).
 
 ## Benefits
 
-1. **Zero Breaking Changes**: All existing code continues to work
-2. **Prevents Conflicts**: Clear namespace boundaries prevent naming collisions
+1. **Eliminates Naming Conflicts**: Namespace boundaries prevent all naming collisions
+2. **Clear Protocol Boundaries**: Immediately obvious which protocol a type belongs to
 3. **Better IDE Support**: Autocomplete shows all types in a namespace
 4. **Self-Documenting**: Code clearly shows which protocol is being used
 5. **Scalable**: Can easily add new protocols without conflict risk
+6. **Tree-Shakeable**: Modern bundlers can better optimize imports
 
 ## Future Considerations
 
 As the API grows, we can:
 1. Add sub-namespaces (e.g., `@objectstack/spec/data/query` for query-specific types)
-2. Mark certain flat exports as deprecated if conflicts arise
-3. Add convenience exports for commonly-used combinations
+2. Add convenience exports for commonly-used combinations
+3. Further organize large protocol domains into sub-categories
 
 ## Questions?
 
