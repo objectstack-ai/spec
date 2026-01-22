@@ -9,6 +9,7 @@
     "view-configuration",
     "workflows-validation",
     "custom-driver",
-    "advanced"
+    "advanced",
+    "migration"
   ]
 }

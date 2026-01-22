@@ -16,10 +16,10 @@ This repository contains the core specifications, schemas, and protocols that po
 *   **[Contributing Guide](./CONTRIBUTING.md):** How to contribute to the project
 
 ### Architecture & Design
-*   **[Architecture Overview](./content/docs/architecture/):** Deep dive into the three-layer architecture
-*   **[Data Layer (ObjectQL)](./content/docs/architecture/data-layer.mdx):** Query language and data abstraction
-*   **[UI Layer (ObjectUI)](./content/docs/architecture/ui-layer.mdx):** Server-driven UI protocol
-*   **[System Layer (ObjectOS)](./content/docs/architecture/system-layer.mdx):** Runtime kernel and plugins
+*   **[Architecture Overview](./content/docs/specifications/architecture/):** Deep dive into the three-layer architecture
+*   **[Data Layer (ObjectQL)](./content/docs/specifications/architecture/data-layer.mdx):** Query language and data abstraction
+*   **[UI Layer (ObjectUI)](./content/docs/specifications/architecture/ui-layer.mdx):** Server-driven UI protocol
+*   **[System Layer (ObjectOS)](./content/docs/specifications/architecture/system-layer.mdx):** Runtime kernel and plugins
 
 ### Standards & Best Practices
 *   **[Naming Conventions](./content/docs/standards/naming-conventions.mdx):** Schema naming rules (camelCase vs snake_case)
