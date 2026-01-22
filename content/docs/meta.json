@@ -1,9 +1,13 @@
 {
   "title": "Documentation",
   "pages": [
+    "quick-start",
+    "tutorials",
     "guides",
     "concepts",
     "specifications",
-    "references"
+    "references",
+    "faq",
+    "troubleshooting"
   ]
 }

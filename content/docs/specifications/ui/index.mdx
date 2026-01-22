@@ -1,0 +1,278 @@
+---
+title: UI Protocol (ObjectUI)
+description: Comprehensive specification for the ObjectStack UI Layer - server-driven UI definitions and rendering.
+---
+
+import { Layout, Monitor, Palette, Zap } from 'lucide-react';
+
+The **UI Protocol (ObjectUI)** defines how user interfaces are expressed as metadata. Instead of hardcoding React/Vue components, you define UI as JSON configurations that renderers interpret.
+
+## Core Concept: Server-Driven UI (SDUI)
+
+```
+Traditional:  Code UI → Build → Deploy → Update Requires Rebuild
+ObjectUI:     Define JSON → Instant Update → No Rebuild Needed
+```
+
+## Core Components
+
+<Cards>
+  <Card
+    icon={<Monitor />}
+    title="SDUI Protocol"
+    href="/docs/specifications/ui/sdui-protocol"
+    description="Server-Driven UI architecture and philosophy"
+  />
+  <Card
+    icon={<Layout />}
+    title="Component Schema"
+    href="/docs/specifications/ui/component-schema"
+    description="How UI components are defined and composed"
+  />
+  <Card
+    icon={<Zap />}
+    title="View Protocol"
+    href="/docs/specifications/ui/view-protocol"
+    description="List views, forms, and data visualization"
+  />
+  <Card
+    icon={<Palette />}
+    title="Layout System"
+    href="/docs/specifications/ui/layout-system"
+    description="Grid-based responsive layout engine"
+  />
+</Cards>
+
+## Specifications
+
+### View Types
+
+1. **[SDUI Protocol](/docs/specifications/ui/sdui-protocol)**
+   - Server-Driven UI philosophy
+   - JSON-based component definitions
+   - Renderer architecture
+
+2. **[View Protocol](/docs/specifications/ui/view-protocol)**
+   - ListView (Grid, Kanban, Calendar, Gantt)
+   - FormView (Simple, Tabbed, Wizard)
+   - DetailView (Record pages)
+
+3. **[Component Schema](/docs/specifications/ui/component-schema)**
+   - Button, Input, Select components
+   - Custom component registration
+   - Component props and events
+
+### Layout & Styling
+
+4. **[Layout System](/docs/specifications/ui/layout-system)**
+   - Grid-based layouts
+   - Responsive breakpoints
+   - Flexbox patterns
+
+5. **[Action Triggers](/docs/specifications/ui/action-triggers)**
+   - Button actions
+   - URL navigation
+   - Flow launches
+   - Custom actions
+
+### Analytics & Reporting
+
+6. **[Report Template](/docs/specifications/ui/report-template)**
+   - Report types (Tabular, Summary, Matrix)
+   - Chart configurations
+   - Dashboard widgets
+
+## View Types Overview
+
+### ListView
+
+Display collections of records in various formats:
+
+```typescript
+ListView.create({
+  viewType: 'grid',      // or 'kanban' | 'calendar' | 'gantt'
+  columns: [...],
+  filters: {...},
+  sorting: [...],
+});
+```
+
+**Supported View Types:**
+- **Grid:** Traditional table with sorting, filtering, pagination
+- **Kanban:** Drag-and-drop board with swimlanes
+- **Calendar:** Timeline view with date-based events
+- **Gantt:** Project timeline with dependencies
+
+### FormView
+
+Edit individual records with custom layouts:
+
+```typescript
+FormView.create({
+  layout: {
+    sections: [
+      {
+        label: 'Basic Info',
+        columns: 2,
+        fields: ['name', 'email'],
+      },
+    ],
+  },
+});
+```
+
+**Features:**
+- Multi-section layouts
+- Conditional field visibility
+- Read-only fields
+- Custom validation
+
+### Dashboard
+
+Compose widgets for analytics:
+
+```typescript
+Dashboard.create({
+  layout: {
+    rows: [
+      {
+        widgets: [
+          Widget.metric({ ... }),
+          Widget.chart({ ... }),
+        ],
+      },
+    ],
+  },
+});
+```
+
+**Widget Types:**
+- Metric cards (KPIs)
+- Charts (Bar, Line, Pie, etc.)
+- Embedded list views
+- Custom widgets
+
+## Theming System
+
+ObjectUI includes a comprehensive theming system:
+
+```typescript
+Theme.create({
+  colors: {
+    primary: '#3B82F6',
+    secondary: '#8B5CF6',
+  },
+  typography: {
+    fontFamily: 'Inter, sans-serif',
+  },
+  spacing: {
+    unit: 8, // 8px grid
+  },
+});
+```
+
+**Customizable:**
+- Color palettes
+- Typography (fonts, sizes, weights)
+- Spacing and sizing
+- Border radius
+- Shadows
+- Z-index layers
+
+## Navigation
+
+Define app navigation structure:
+
+```typescript
+App.create({
+  navigation: [
+    NavigationItem.object({ label: 'Tasks', object: 'task' }),
+    NavigationItem.dashboard({ label: 'Home', dashboard: 'overview' }),
+    NavigationItem.group({ 
+      label: 'Reports',
+      items: [...],
+    }),
+  ],
+});
+```
+
+## Design Principles
+
+### 1. Declarative Over Imperative
+
+```typescript
+// ❌ Imperative (React)
+function TaskList() {
+  const [tasks, setTasks] = useState([]);
+  useEffect(() => { /* fetch */ }, []);
+  return <DataGrid rows={tasks} />;
+}
+
+// ✅ Declarative (ObjectUI)
+ListView.create({
+  object: 'task',
+  columns: [{ field: 'title' }],
+});
+```
+
+### 2. Configuration Over Code
+
+UI changes should not require rebuilding:
+
+```
+Change Config → Refresh Page → New UI ✅
+Change Code → Rebuild → Redeploy → New UI ❌
+```
+
+### 3. Responsive by Default
+
+All layouts use a 12-column grid system that adapts to screen size:
+
+```typescript
+Widget.metric({
+  width: 12,  // Mobile: Full width
+              // Tablet: Auto-adjust
+              // Desktop: 1/4 width
+});
+```
+
+### 4. Accessible by Default
+
+WCAG 2.1 AA compliance out of the box:
+- Keyboard navigation
+- Screen reader support
+- Color contrast ratios
+- Focus indicators
+
+## Renderer Implementations
+
+ObjectUI is a protocol. Multiple renderers can implement it:
+
+| Renderer | Status | Platform |
+| :--- | :--- | :--- |
+| `@objectstack/react-renderer` | 🚧 In Progress | Web (React) |
+| `@objectstack/vue-renderer` | 📋 Planned | Web (Vue) |
+| `@objectstack/flutter-renderer` | 📋 Planned | Mobile (Flutter) |
+| `@objectstack/native-renderer` | 📋 Planned | Mobile (React Native) |
+
+## Quick Links
+
+### For Implementers
+
+Building a renderer for ObjectUI? Start here:
+- [Renderer Interface](/docs/references/ui/Renderer)
+- [Component Registry](/docs/guides/custom-components)
+- [Test Suite](/docs/guides/renderer-testing)
+
+### For Users
+
+Using ObjectUI to build interfaces? See:
+- [View Configuration Guide](/docs/guides/view-configuration)
+- [Theming Guide](/docs/guides/theming)
+- [Dashboard Examples](/docs/tutorials/dashboards)
+
+## Related Documentation
+
+- **[Data Protocol](/docs/specifications/data/architecture)** - How to query data
+- **[System Protocol](/docs/specifications/server/kernel-architecture)** - Runtime environment
+- **[UI Reference](/docs/references/ui/views/View)** - Complete API reference

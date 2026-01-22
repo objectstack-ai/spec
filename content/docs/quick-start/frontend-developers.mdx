@@ -1,0 +1,562 @@
+---
+title: For Frontend Developers
+description: Learn ObjectStack from a frontend perspective - focus on UI configuration, server-driven UI, and component rendering.
+---
+
+Welcome frontend developers! If you're used to building admin panels, dashboards, or data-heavy UIs, ObjectStack will feel like a productivity superpower.
+
+## Core Concept
+
+ObjectStack uses **Server-Driven UI (SDUI)** - instead of hardcoding components, you define UI as JSON configurations that the renderer interprets.
+
+```
+Traditional: Code React components → Build → Deploy
+ObjectStack: Define UI JSON → Instant Update (no rebuild!)
+```
+
+## Quick Comparison
+
+<Tabs items={['Traditional React', 'ObjectStack Protocol']}>
+
+<Tab value="Traditional React">
+
+```tsx
+// 1. Build data grid component
+import { DataGrid } from '@mui/x-data-grid';
+
+function TaskList() {
+  const [tasks, setTasks] = useState([]);
+  
+  useEffect(() => {
+    fetch('/api/tasks').then(r => r.json()).then(setTasks);
+  }, []);
+  
+  return (
+    <DataGrid
+      rows={tasks}
+      columns={[
+        { field: 'title', headerName: 'Title', width: 200 },
+        { field: 'status', headerName: 'Status', width: 150 },
+        { field: 'dueDate', headerName: 'Due', width: 150 },
+      ]}
+      pageSize={25}
+    />
+  );
+}
+
+// 2. Build form component
+function TaskForm({ taskId }) {
+  const [task, setTask] = useState({});
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await fetch(`/api/tasks/${taskId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(task),
+    });
+  };
+  
+  return (
+    <form onSubmit={handleSubmit}>
+      <input 
+        value={task.title} 
+        onChange={e => setTask({ ...task, title: e.target.value })}
+      />
+      {/* More fields... */}
+      <button type="submit">Save</button>
+    </form>
+  );
+}
+
+// Total: 2 components, ~100 lines of code
+```
+
+</Tab>
+
+<Tab value="ObjectStack Protocol">
+
+```typescript
+// Define UI as JSON - Renderer handles everything
+export const TaskListView = ListView.create({
+  name: 'all_tasks',
+  label: 'All Tasks',
+  object: 'task',
+  
+  viewType: 'grid',
+  columns: [
+    { field: 'title', width: 200 },
+    { field: 'status', width: 150 },
+    { field: 'due_date', width: 150 },
+  ],
+  pageSize: 25,
+});
+
+export const TaskFormView = FormView.create({
+  name: 'task_edit',
+  label: 'Edit Task',
+  object: 'task',
+  
+  layout: {
+    sections: [
+      {
+        label: 'Details',
+        fields: ['title', 'status', 'due_date'],
+      },
+    ],
+  },
+});
+
+// Total: 2 definitions, ~20 lines
+// ✅ Data fetching handled automatically
+// ✅ State management handled automatically
+// ✅ Validation handled automatically
+// ✅ Loading/Error states handled automatically
+```
+
+</Tab>
+
+</Tabs>
+
+## View Types
+
+ObjectStack provides **5 pre-built view types**:
+
+### 1. Grid View (Data Table)
+
+```typescript
+const TaskGrid = ListView.create({
+  name: 'task_grid',
+  object: 'task',
+  viewType: 'grid',
+  
+  columns: [
+    { field: 'title', width: 300, sortable: true },
+    { field: 'status', width: 120, filterable: true },
+    { field: 'assignee', width: 200 },
+  ],
+  
+  // Features
+  enableSearch: true,
+  enableFilters: true,
+  enableExport: true,
+  enableBulkActions: true,
+  
+  // Default state
+  defaultSort: [{ field: 'created_at', direction: 'desc' }],
+  pageSize: 50,
+});
+```
+
+**Rendered Output:**
+- Sortable columns
+- Filterable columns
+- Search bar
+- Pagination
+- Bulk select + actions
+- Export to CSV/Excel
+
+### 2. Kanban View (Board)
+
+```typescript
+const TaskKanban = ListView.create({
+  name: 'task_board',
+  object: 'task',
+  viewType: 'kanban',
+  
+  kanbanConfig: {
+    groupByField: 'status',
+    
+    columns: [
+      { value: 'todo', label: 'To Do', color: 'gray' },
+      { value: 'in_progress', label: 'In Progress', color: 'blue' },
+      { value: 'done', label: 'Done', color: 'green' },
+    ],
+    
+    cardFields: ['title', 'assignee', 'due_date'],
+    
+    // Drag & drop enabled by default
+    enableDragDrop: true,
+  },
+});
+```
+
+**Rendered Output:**
+- Drag & drop cards between columns
+- Visual grouping
+- Card customization
+- Swimlanes (optional)
+
+### 3. Calendar View
+
+```typescript
+const TaskCalendar = ListView.create({
+  name: 'task_calendar',
+  object: 'task',
+  viewType: 'calendar',
+  
+  calendarConfig: {
+    dateField: 'due_date',
+    titleField: 'title',
+    
+    // Color-code events
+    colorField: 'priority',
+    colorMapping: {
+      high: 'red',
+      medium: 'yellow',
+      low: 'gray',
+    },
+    
+    // Views: day, week, month
+    defaultView: 'month',
+  },
+});
+```
+
+### 4. Gantt View (Timeline)
+
+```typescript
+const ProjectGantt = ListView.create({
+  name: 'project_timeline',
+  object: 'task',
+  viewType: 'gantt',
+  
+  ganttConfig: {
+    startDateField: 'start_date',
+    endDateField: 'end_date',
+    progressField: 'completion_percentage',
+    
+    // Dependencies
+    dependenciesField: 'blocked_by',
+    
+    // Grouping
+    groupByField: 'project',
+  },
+});
+```
+
+### 5. Form View
+
+```typescript
+const TaskForm = FormView.create({
+  name: 'task_form',
+  object: 'task',
+  
+  layout: {
+    sections: [
+      {
+        label: 'Basic Info',
+        columns: 2, // 2-column layout
+        fields: ['title', 'description'],
+      },
+      {
+        label: 'Assignment',
+        columns: 2,
+        fields: ['assignee', 'status', 'priority', 'due_date'],
+      },
+      {
+        label: 'Advanced',
+        collapsible: true, // Expandable section
+        fields: ['tags', 'metadata'],
+      },
+    ],
+  },
+  
+  // Conditional visibility
+  fieldVisibility: {
+    assignee: "status != 'todo'", // Show only when not todo
+  },
+  
+  // Read-only fields
+  readOnlyFields: ['created_by', 'created_at'],
+});
+```
+
+## Dashboard & Analytics
+
+Build dashboards with widgets:
+
+```typescript
+import { Dashboard, Widget } from '@objectstack/spec';
+
+export const TaskDashboard = Dashboard.create({
+  name: 'task_overview',
+  label: 'Task Overview',
+  
+  // Grid layout (12 columns)
+  layout: {
+    rows: [
+      {
+        widgets: [
+          // KPI Card - 3 columns wide
+          Widget.metric({
+            id: 'total_tasks',
+            title: 'Total Tasks',
+            object: 'task',
+            aggregation: 'count',
+            width: 3,
+          }),
+          
+          // KPI Card with trend
+          Widget.metric({
+            id: 'completed_tasks',
+            title: 'Completed This Month',
+            object: 'task',
+            aggregation: 'count',
+            filters: {
+              status: { eq: 'done' },
+              completed_at: { gte: 'START_OF_MONTH()' },
+            },
+            width: 3,
+            showTrend: true,
+          }),
+        ],
+      },
+      {
+        widgets: [
+          // Chart - 6 columns
+          Widget.chart({
+            id: 'tasks_by_status',
+            title: 'Tasks by Status',
+            chartType: 'pie',
+            object: 'task',
+            groupBy: 'status',
+            aggregation: 'count',
+            width: 6,
+          }),
+          
+          // Chart - 6 columns
+          Widget.chart({
+            id: 'tasks_over_time',
+            title: 'Tasks Created Over Time',
+            chartType: 'line',
+            object: 'task',
+            xAxis: { field: 'created_at', interval: 'day' },
+            yAxis: { aggregation: 'count' },
+            width: 6,
+          }),
+        ],
+      },
+      {
+        widgets: [
+          // Embedded list view - full width
+          Widget.listView({
+            id: 'recent_tasks',
+            title: 'Recent Tasks',
+            view: 'all_tasks',
+            limit: 10,
+            width: 12,
+          }),
+        ],
+      },
+    ],
+  },
+});
+```
+
+## Actions & Interactions
+
+Add buttons and actions to your views:
+
+```typescript
+import { Action } from '@objectstack/spec';
+
+// Custom button in list view
+const exportAction = Action.url({
+  name: 'export_csv',
+  label: 'Export to CSV',
+  url: '/api/export/task?format=csv',
+  icon: 'download',
+  
+  // Show in toolbar
+  displayLocation: 'toolbar',
+});
+
+// Quick action button
+const approveAction = Action.update({
+  name: 'approve_task',
+  label: 'Approve',
+  icon: 'check',
+  
+  // Update fields
+  updates: {
+    status: 'approved',
+    approved_by: '{$User.Id}',
+    approved_at: '{$Now}',
+  },
+  
+  // Confirmation dialog
+  confirmation: {
+    title: 'Approve Task?',
+    message: 'Are you sure you want to approve this task?',
+  },
+});
+
+// Launch a flow/modal
+const assignAction = Action.flow({
+  name: 'assign_task',
+  label: 'Assign to Me',
+  flowName: 'assign_task_flow',
+  
+  // Pass context
+  parameters: {
+    taskId: '{recordId}',
+    userId: '{$User.Id}',
+  },
+});
+```
+
+## Theming & Styling
+
+Customize the look and feel:
+
+```typescript
+import { Theme, ColorPalette } from '@objectstack/spec';
+
+export const customTheme = Theme.create({
+  colors: {
+    primary: '#3B82F6',
+    secondary: '#8B5CF6',
+    success: '#10B981',
+    warning: '#F59E0B',
+    error: '#EF4444',
+  },
+  
+  typography: {
+    fontFamily: 'Inter, sans-serif',
+    fontSize: {
+      xs: '12px',
+      sm: '14px',
+      base: '16px',
+      lg: '18px',
+      xl: '20px',
+    },
+  },
+  
+  spacing: {
+    unit: 8, // 8px base unit
+  },
+  
+  borderRadius: {
+    sm: '4px',
+    md: '8px',
+    lg: '12px',
+  },
+});
+```
+
+## App Navigation
+
+Define your app's navigation structure:
+
+```typescript
+import { App, NavigationItem } from '@objectstack/spec';
+
+export const myApp = App.create({
+  name: 'task_manager',
+  label: 'Task Manager',
+  
+  branding: {
+    logo: '/logo.svg',
+    primaryColor: '#3B82F6',
+  },
+  
+  navigation: [
+    // Dashboard link
+    NavigationItem.dashboard({
+      label: 'Home',
+      icon: 'home',
+      dashboard: 'task_overview',
+    }),
+    
+    // Object link (auto-generates CRUD pages)
+    NavigationItem.object({
+      label: 'Tasks',
+      icon: 'check-square',
+      object: 'task',
+      defaultView: 'all_tasks',
+    }),
+    
+    // Navigation group
+    NavigationItem.group({
+      label: 'Reports',
+      icon: 'bar-chart',
+      items: [
+        NavigationItem.page({
+          label: 'Task Analytics',
+          page: 'task_analytics',
+        }),
+      ],
+    }),
+    
+    // External URL
+    NavigationItem.url({
+      label: 'Help',
+      icon: 'help-circle',
+      url: 'https://docs.objectstack.dev',
+      openInNewTab: true,
+    }),
+  ],
+});
+```
+
+## Rendering the UI
+
+Your renderer consumes the UI definitions:
+
+```tsx
+// Example: React Renderer (conceptual)
+import { ObjectStackRenderer } from '@objectstack/react-renderer';
+import { TaskListView, TaskFormView } from './views';
+
+function App() {
+  return (
+    <ObjectStackRenderer
+      // Pass all view definitions
+      views={[TaskListView, TaskFormView]}
+      
+      // Kernel handles data fetching
+      kernel={kernel}
+      
+      // Optional: Custom component overrides
+      components={{
+        Button: CustomButton,
+        Input: CustomInput,
+      }}
+    />
+  );
+}
+```
+
+## Benefits for Frontend Developers
+
+✅ **No Boilerplate:** No more `useState`, `useEffect`, form handlers  
+✅ **Type-Safe:** Full TypeScript support  
+✅ **Instant Updates:** Change UI JSON, see results without rebuilding  
+✅ **Consistent UX:** All views follow the same design system  
+✅ **Responsive:** Mobile-first, works on all screen sizes  
+✅ **Accessible:** WCAG 2.1 AA compliant out of the box  
+
+## Next Steps for Frontend Developers
+
+<Cards>
+  <Card
+    title="View Configuration Guide"
+    href="/docs/guides/view-configuration"
+    description="Deep dive into all view types and options"
+  />
+  <Card
+    title="Component Schema"
+    href="/docs/specifications/ui/component-schema"
+    description="Build custom components and widgets"
+  />
+  <Card
+    title="Theming Guide"
+    href="/docs/guides/theming"
+    description="Customize colors, fonts, and styling"
+  />
+  <Card
+    title="UI Protocol Reference"
+    href="/docs/references/ui/views/View"
+    description="Complete API reference for all UI types"
+  />
+</Cards>

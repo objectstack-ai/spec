@@ -1,6 +1,7 @@
 {
   "title": "ObjectQL",
   "pages": [
+    "index",
     "architecture",
     "schema-definition",
     "advanced-types",

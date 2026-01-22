@@ -1,6 +1,7 @@
 {
   "title": "ObjectOS",
   "pages": [
+    "index",
     "kernel-architecture",
     "permission-governance",
     "workflow-engine",

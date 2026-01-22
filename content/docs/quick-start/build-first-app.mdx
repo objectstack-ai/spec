@@ -1,0 +1,367 @@
+---
+title: Build Your First App
+description: Complete hands-on tutorial - Build a task management application in 10 minutes using ObjectStack Protocol.
+---
+
+In this tutorial, you'll build a complete task management application with:
+- ✅ Task object with title, description, status, and assignee
+- ✅ Validation rules
+- ✅ Status workflow (Todo → In Progress → Done)
+- ✅ List and form views
+- ✅ Dashboard with statistics
+
+**Time to complete:** ~10 minutes  
+**Prerequisites:** Node.js 18+, basic TypeScript knowledge
+
+## Step 1: Project Setup
+
+Create a new project and install dependencies:
+
+```bash
+mkdir task-manager
+cd task-manager
+npm init -y
+npm install typescript zod @objectstack/spec
+npx tsc --init
+```
+
+Create the directory structure:
+
+```bash
+mkdir -p src/{objects,views,workflows}
+```
+
+## Step 2: Define the Task Object
+
+Create `src/objects/task.object.ts`:
+
+```typescript
+import { ObjectSchema, Field } from '@objectstack/spec';
+
+export const Task = ObjectSchema.create({
+  name: 'task',
+  label: 'Task',
+  pluralLabel: 'Tasks',
+  icon: 'check-square',
+  description: 'Track work items and their status',
+  
+  // This field will be used as the record name/title
+  nameField: 'title',
+  
+  // Enable features
+  enable: {
+    trackHistory: true,
+    apiEnabled: true,
+    searchEnabled: true,
+  },
+  
+  fields: {
+    // Text field - the task title
+    title: Field.text({ 
+      label: 'Title',
+      required: true,
+      maxLength: 200,
+      helpText: 'Brief description of the task',
+    }),
+    
+    // Long text for detailed description
+    description: Field.textarea({ 
+      label: 'Description',
+      maxLength: 5000,
+      rows: 5,
+    }),
+    
+    // Select field for status
+    status: Field.select({ 
+      label: 'Status',
+      required: true,
+      defaultValue: 'todo',
+      options: [
+        { value: 'todo', label: 'To Do', color: 'gray' },
+        { value: 'in_progress', label: 'In Progress', color: 'blue' },
+        { value: 'done', label: 'Done', color: 'green' },
+      ],
+    }),
+    
+    // Select field for priority
+    priority: Field.select({
+      label: 'Priority',
+      defaultValue: 'medium',
+      options: [
+        { value: 'low', label: 'Low', color: 'gray' },
+        { value: 'medium', label: 'Medium', color: 'yellow' },
+        { value: 'high', label: 'High', color: 'red' },
+      ],
+    }),
+    
+    // Date field for due date
+    due_date: Field.date({ 
+      label: 'Due Date',
+    }),
+    
+    // Lookup field for assignee (references user object)
+    assignee: Field.lookup({
+      label: 'Assignee',
+      reference: 'user',
+      displayField: 'full_name',
+    }),
+    
+    // Boolean field for completed status
+    completed: Field.boolean({
+      label: 'Completed',
+      defaultValue: false,
+    }),
+    
+    // Formula field - calculates if task is overdue
+    is_overdue: Field.formula({
+      label: 'Is Overdue',
+      returnType: 'boolean',
+      expression: 'AND(NOT(completed), due_date < TODAY())',
+    }),
+  },
+});
+```
+
+## Step 3: Add Validation Rules
+
+Create `src/workflows/task-validation.ts`:
+
+```typescript
+import { ValidationRule } from '@objectstack/spec';
+
+export const taskValidations = [
+  // Validation: Due date must be in the future for new tasks
+  ValidationRule.create({
+    name: 'future_due_date',
+    object: 'task',
+    active: true,
+    errorMessage: 'Due date must be in the future',
+    condition: 'AND(ISNEW(), due_date < TODAY())',
+  }),
+  
+  // Validation: Completed tasks must have status = 'done'
+  ValidationRule.create({
+    name: 'completed_status_match',
+    object: 'task',
+    active: true,
+    errorMessage: 'Completed tasks must have status "Done"',
+    condition: 'AND(completed, status != "done")',
+  }),
+];
+```
+
+## Step 4: Create a List View
+
+Create `src/views/task-list.view.ts`:
+
+```typescript
+import { ListView } from '@objectstack/spec';
+
+export const TaskListView = ListView.create({
+  name: 'all_tasks',
+  label: 'All Tasks',
+  object: 'task',
+  
+  // Default view type
+  viewType: 'grid',
+  
+  // Columns to display
+  columns: [
+    { field: 'title', width: 300 },
+    { field: 'status', width: 150 },
+    { field: 'priority', width: 120 },
+    { field: 'assignee', width: 200 },
+    { field: 'due_date', width: 150 },
+    { field: 'is_overdue', width: 120 },
+  ],
+  
+  // Default sorting
+  sorting: [
+    { field: 'due_date', direction: 'asc' },
+  ],
+  
+  // Default filter
+  filters: {
+    completed: { eq: false },
+  },
+  
+  // Enable features
+  enableSearch: true,
+  enableFilters: true,
+  enableBulkActions: true,
+});
+```
+
+## Step 5: Create a Kanban View
+
+Create `src/views/task-kanban.view.ts`:
+
+```typescript
+import { ListView } from '@objectstack/spec';
+
+export const TaskKanbanView = ListView.create({
+  name: 'task_kanban',
+  label: 'Task Board',
+  object: 'task',
+  
+  viewType: 'kanban',
+  
+  // Group by status field
+  kanbanConfig: {
+    groupByField: 'status',
+    cardFields: ['title', 'priority', 'assignee', 'due_date'],
+    
+    // Define the columns
+    columns: [
+      { value: 'todo', label: 'To Do' },
+      { value: 'in_progress', label: 'In Progress' },
+      { value: 'done', label: 'Done' },
+    ],
+  },
+});
+```
+
+## Step 6: Create a Form View
+
+Create `src/views/task-form.view.ts`:
+
+```typescript
+import { FormView } from '@objectstack/spec';
+
+export const TaskFormView = FormView.create({
+  name: 'task_edit',
+  label: 'Task Details',
+  object: 'task',
+  
+  // Form layout
+  layout: {
+    sections: [
+      {
+        label: 'Basic Information',
+        columns: 2,
+        fields: ['title', 'description'],
+      },
+      {
+        label: 'Scheduling',
+        columns: 2,
+        fields: ['status', 'priority', 'due_date', 'assignee'],
+      },
+      {
+        label: 'Completion',
+        columns: 1,
+        fields: ['completed', 'is_overdue'],
+      },
+    ],
+  },
+  
+  // Read-only fields (formula fields are auto read-only)
+  readOnlyFields: ['is_overdue'],
+});
+```
+
+## Step 7: Bundle Everything
+
+Create `src/index.ts`:
+
+```typescript
+import { Manifest } from '@objectstack/spec';
+import { Task } from './objects/task.object';
+import { taskValidations } from './workflows/task-validation';
+import { TaskListView, TaskKanbanView } from './views/task-list.view';
+import { TaskFormView } from './views/task-form.view';
+
+export const manifest = Manifest.create({
+  name: 'task_manager',
+  version: '1.0.0',
+  label: 'Task Manager',
+  description: 'Simple task management application',
+  
+  // Register all components
+  objects: [Task],
+  validations: taskValidations,
+  views: {
+    list: [TaskListView, TaskKanbanView],
+    form: [TaskFormView],
+  },
+});
+```
+
+## Step 8: Build and Validate
+
+Add to `package.json`:
+
+```json
+{
+  "scripts": {
+    "build": "tsc",
+    "validate": "node -e \"require('./dist/index.js')\""
+  }
+}
+```
+
+Build and validate:
+
+```bash
+npm run build
+npm run validate
+```
+
+✅ **Congratulations!** You've built your first ObjectStack application.
+
+## What You've Learned
+
+- ✅ How to define **Objects** with various field types
+- ✅ How to add **validation rules** with formulas
+- ✅ How to create **multiple view types** (Grid, Kanban, Form)
+- ✅ How to use **formula fields** for calculations
+- ✅ How to enable **platform features** (history tracking, search)
+
+## Next Steps
+
+<Cards>
+  <Card
+    title="Add a Workflow"
+    href="/docs/guides/workflows-validation"
+    description="Automate status transitions and notifications"
+  />
+  <Card
+    title="Create a Dashboard"
+    href="/docs/guides/dashboards"
+    description="Build analytics and reporting views"
+  />
+  <Card
+    title="Deploy Your App"
+    href="/docs/guides/deployment"
+    description="Learn how to run your ObjectStack app in production"
+  />
+  <Card
+    title="Explore CRM Example"
+    href="https://github.com/objectstack-ai/spec/tree/main/examples/crm"
+    description="See a full-featured application with 6 objects"
+  />
+</Cards>
+
+## Troubleshooting
+
+### TypeScript Errors
+
+Make sure your `tsconfig.json` has:
+
+```json
+{
+  "compilerOptions": {
+    "strict": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node"
+  }
+}
+```
+
+### Schema Validation Errors
+
+All schemas are validated at build time using Zod. Check the error message for which field failed validation.
+
+## Full Code
+
+The complete source code for this tutorial is available at:
+- [GitHub: examples/task-manager](https://github.com/objectstack-ai/spec/tree/main/examples/task-manager)

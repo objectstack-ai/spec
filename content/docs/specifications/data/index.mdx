@@ -1,0 +1,149 @@
+---
+title: Data Protocol (ObjectQL)
+description: Comprehensive specification for the ObjectStack Data Layer - defining schemas, queries, and business logic.
+---
+
+import { Database, GitBranch, Shield, Zap } from 'lucide-react';
+
+The **Data Protocol (ObjectQL)** is the foundation of ObjectStack. It defines how to:
+- Express data structures (Objects, Fields)
+- Query data (AST-based abstraction)
+- Implement business logic (Formulas, Workflows, Validation)
+- Secure data (Permissions, Sharing Rules)
+
+## Core Components
+
+<Cards>
+  <Card
+    icon={<Database />}
+    title="Architecture"
+    href="/docs/specifications/data/architecture"
+    description="High-level overview of the Data Layer design and philosophy"
+  />
+  <Card
+    icon={<GitBranch />}
+    title="Schema Definition"
+    href="/docs/specifications/data/schema-definition"
+    description="How to define Objects, Fields, and Relationships"
+  />
+  <Card
+    icon={<Zap />}
+    title="Query AST Structure"
+    href="/docs/specifications/data/ast-structure"
+    description="Abstract Syntax Tree for database-agnostic queries"
+  />
+  <Card
+    icon={<Shield />}
+    title="Advanced Types"
+    href="/docs/specifications/data/advanced-types"
+    description="Complex field types and their implementations"
+  />
+</Cards>
+
+## Specifications
+
+### Core Specifications
+
+1. **[Architecture Overview](/docs/specifications/data/architecture)**
+   - Design principles
+   - Layer responsibilities
+   - Driver model
+
+2. **[Schema Definition](/docs/specifications/data/schema-definition)**
+   - Object schema structure
+   - Field type definitions
+   - Relationship modeling
+
+3. **[Advanced Types](/docs/specifications/data/advanced-types)**
+   - Formula fields
+   - Lookup relationships
+   - Master-detail relationships
+   - Junction objects (many-to-many)
+
+### Query Layer
+
+4. **[AST Structure](/docs/specifications/data/ast-structure)**
+   - Query Abstract Syntax Tree
+   - Filter expressions
+   - Aggregations
+   - Joins and includes
+
+5. **[Analytics Protocol](/docs/specifications/data/analytics-protocol)**
+   - Grouping and aggregation
+   - Calculated fields
+   - Time-series queries
+
+### System Specifications
+
+6. **[Transaction Model](/docs/specifications/data/transaction-model)**
+   - ACID guarantees
+   - Isolation levels
+   - Distributed transactions
+
+7. **[Wire Protocol](/docs/specifications/data/wire-protocol)**
+   - Data serialization format
+   - Network protocol
+   - Compression and optimization
+
+## Quick Links
+
+### For Implementers
+
+Building a driver for ObjectStack? Start here:
+- [Driver Interface](/docs/references/system/Driver)
+- [Query Compiler](/docs/guides/custom-driver)
+- [Test Suite](/docs/guides/driver-testing)
+
+### For Users
+
+Using ObjectStack to build applications? See:
+- [Field Types Guide](/docs/guides/field-types)
+- [Query Examples](/docs/guides/querying-data)
+- [Business Logic](/docs/guides/workflows-validation)
+
+## Design Principles
+
+The Data Protocol follows these core principles:
+
+### 1. Database Agnostic
+
+ObjectQL queries compile to **any** backend:
+```
+ObjectQL Query → AST → Driver Translates → SQL/NoSQL/API
+```
+
+### 2. Type-Safe
+
+All schemas are Zod schemas with TypeScript inference:
+```typescript
+export const TaskSchema = ObjectSchema.create({ ... });
+type Task = z.infer<typeof TaskSchema>;
+```
+
+### 3. Declarative
+
+Express **what you want**, not **how to get it**:
+```typescript
+// Declarative query
+Query.create({
+  object: 'task',
+  filters: { status: { eq: 'open' } },
+});
+
+// Driver handles: SELECT * FROM tasks WHERE status = 'open'
+```
+
+### 4. Composable
+
+Build complex queries from simple building blocks:
+```typescript
+const baseQuery = { object: 'task' };
+const withFilter = { ...baseQuery, filters: { ... } };
+const withSort = { ...withFilter, sort: [...] };
+```
+
+## Related Documentation
+
+- **[UI Protocol](/docs/specifications/ui/sdui-protocol)** - How to render data
+- **[System Protocol](/docs/specifications/server/kernel-architecture)** - Runtime environment
+- **[API Protocol](/docs/references/api/envelopes/BaseResponse)** - REST/GraphQL contracts

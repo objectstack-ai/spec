@@ -1,6 +1,7 @@
 {
   "title": "ObjectUI",
   "pages": [
+    "index",
     "sdui-protocol",
     "component-schema",
     "view-protocol",
