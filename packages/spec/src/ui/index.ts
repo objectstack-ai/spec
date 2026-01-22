@@ -5,6 +5,7 @@
  * - App, Page, View (Grid/Kanban)
  * - Dashboard (Widgets), Report
  * - Action (Triggers)
+ * - Component (Reusable UI Components)
  */
 
 export * from './app.zod';
@@ -15,3 +16,4 @@ export * from './action.zod';
 export * from './page.zod';
 export * from './widget.zod';
 export * from './theme.zod';
+export * from './component.zod';

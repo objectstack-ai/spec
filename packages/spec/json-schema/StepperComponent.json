@@ -1,0 +1,182 @@
+{
+  "$ref": "#/definitions/StepperComponent",
+  "definitions": {
+    "StepperComponent": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "stepper"
+        },
+        "props": {
+          "type": "object",
+          "properties": {
+            "steps": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "description": "Step label"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Step description"
+                  },
+                  "icon": {
+                    "type": "string",
+                    "description": "Step icon"
+                  },
+                  "content": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "card",
+                          "tabs",
+                          "accordion",
+                          "modal",
+                          "drawer",
+                          "timeline",
+                          "stepper",
+                          "breadcrumb",
+                          "alert",
+                          "badge",
+                          "tooltip",
+                          "popover"
+                        ],
+                        "description": "Component type"
+                      },
+                      "props": {
+                        "type": "object",
+                        "additionalProperties": {},
+                        "description": "Component properties"
+                      },
+                      "events": {
+                        "type": "object",
+                        "additionalProperties": true,
+                        "description": "Event handlers"
+                      },
+                      "style": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "description": "Custom styles"
+                      },
+                      "children": {
+                        "type": "array",
+                        "items": {},
+                        "description": "Child components"
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Step content"
+                  }
+                },
+                "required": [
+                  "label"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Stepper steps"
+            },
+            "currentStep": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Current step index"
+            },
+            "orientation": {
+              "type": "string",
+              "enum": [
+                "horizontal",
+                "vertical"
+              ],
+              "description": "Stepper orientation"
+            }
+          },
+          "required": [
+            "steps"
+          ],
+          "additionalProperties": false
+        },
+        "events": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Event handlers"
+        },
+        "style": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom styles"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "card",
+                  "tabs",
+                  "accordion",
+                  "modal",
+                  "drawer",
+                  "timeline",
+                  "stepper",
+                  "breadcrumb",
+                  "alert",
+                  "badge",
+                  "tooltip",
+                  "popover"
+                ],
+                "description": "Component type"
+              },
+              "props": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Component properties"
+              },
+              "events": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Event handlers"
+              },
+              "style": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "Custom styles"
+              },
+              "children": {
+                "type": "array",
+                "items": {},
+                "description": "Child components"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Child components"
+        }
+      },
+      "required": [
+        "type",
+        "props"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,123 @@
+{
+  "$ref": "#/definitions/BadgeComponent",
+  "definitions": {
+    "BadgeComponent": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "badge"
+        },
+        "props": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string",
+              "description": "Badge label"
+            },
+            "variant": {
+              "type": "string",
+              "enum": [
+                "primary",
+                "secondary",
+                "success",
+                "warning",
+                "error",
+                "info"
+              ],
+              "description": "Badge variant"
+            },
+            "icon": {
+              "type": "string",
+              "description": "Badge icon"
+            },
+            "size": {
+              "type": "string",
+              "enum": [
+                "small",
+                "medium",
+                "large"
+              ],
+              "description": "Badge size"
+            }
+          },
+          "required": [
+            "label"
+          ],
+          "additionalProperties": false
+        },
+        "events": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Event handlers"
+        },
+        "style": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom styles"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "card",
+                  "tabs",
+                  "accordion",
+                  "modal",
+                  "drawer",
+                  "timeline",
+                  "stepper",
+                  "breadcrumb",
+                  "alert",
+                  "badge",
+                  "tooltip",
+                  "popover"
+                ],
+                "description": "Component type"
+              },
+              "props": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Component properties"
+              },
+              "events": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Event handlers"
+              },
+              "style": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "Custom styles"
+              },
+              "children": {
+                "type": "array",
+                "items": {},
+                "description": "Child components"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Child components"
+        }
+      },
+      "required": [
+        "type",
+        "props"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

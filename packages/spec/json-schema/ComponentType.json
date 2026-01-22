@@ -1,0 +1,23 @@
+{
+  "$ref": "#/definitions/ComponentType",
+  "definitions": {
+    "ComponentType": {
+      "type": "string",
+      "enum": [
+        "card",
+        "tabs",
+        "accordion",
+        "modal",
+        "drawer",
+        "timeline",
+        "stepper",
+        "breadcrumb",
+        "alert",
+        "badge",
+        "tooltip",
+        "popover"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

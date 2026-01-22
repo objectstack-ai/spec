@@ -1,0 +1,181 @@
+{
+  "$ref": "#/definitions/TimelineComponent",
+  "definitions": {
+    "TimelineComponent": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "timeline"
+        },
+        "props": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "Event title"
+                  },
+                  "timestamp": {
+                    "type": "string",
+                    "description": "Event timestamp"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Event description"
+                  },
+                  "icon": {
+                    "type": "string",
+                    "description": "Event icon"
+                  },
+                  "content": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "card",
+                          "tabs",
+                          "accordion",
+                          "modal",
+                          "drawer",
+                          "timeline",
+                          "stepper",
+                          "breadcrumb",
+                          "alert",
+                          "badge",
+                          "tooltip",
+                          "popover"
+                        ],
+                        "description": "Component type"
+                      },
+                      "props": {
+                        "type": "object",
+                        "additionalProperties": {},
+                        "description": "Component properties"
+                      },
+                      "events": {
+                        "type": "object",
+                        "additionalProperties": true,
+                        "description": "Event handlers"
+                      },
+                      "style": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "description": "Custom styles"
+                      },
+                      "children": {
+                        "type": "array",
+                        "items": {},
+                        "description": "Child components"
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Event content"
+                  }
+                },
+                "required": [
+                  "title"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Timeline items"
+            },
+            "orientation": {
+              "type": "string",
+              "enum": [
+                "vertical",
+                "horizontal"
+              ],
+              "description": "Timeline orientation"
+            }
+          },
+          "required": [
+            "items"
+          ],
+          "additionalProperties": false
+        },
+        "events": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Event handlers"
+        },
+        "style": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom styles"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "card",
+                  "tabs",
+                  "accordion",
+                  "modal",
+                  "drawer",
+                  "timeline",
+                  "stepper",
+                  "breadcrumb",
+                  "alert",
+                  "badge",
+                  "tooltip",
+                  "popover"
+                ],
+                "description": "Component type"
+              },
+              "props": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Component properties"
+              },
+              "events": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Event handlers"
+              },
+              "style": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "Custom styles"
+              },
+              "children": {
+                "type": "array",
+                "items": {},
+                "description": "Child components"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Child components"
+        }
+      },
+      "required": [
+        "type",
+        "props"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
