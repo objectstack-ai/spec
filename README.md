@@ -130,15 +130,15 @@ We welcome contributions! Please read our **[Contributing Guide](./CONTRIBUTING.
 1.  **Read the Docs**: Review [CONTRIBUTING.md](./CONTRIBUTING.md) for complete guidelines
 2.  **Check Priorities**: See [PRIORITIES.md](./internal/planning/PRIORITIES.md) for what to work on next
 3.  **Understand Architecture**: Read [ARCHITECTURE.md](./ARCHITECTURE.md) for system overview
-4.  **Follow Standards**: Review [docs/standards/](./docs/standards/) for coding standards
+4.  **Follow Standards**: Review [content/docs/standards/](./content/docs/standards/) for coding standards
 
 ### Key Standards
 
-- **Naming Conventions**: See [docs/standards/naming-conventions.md](./docs/standards/naming-conventions.md)
+- **Naming Conventions**: See [content/docs/standards/naming-conventions.mdx](./content/docs/standards/naming-conventions.mdx)
   - Configuration keys: `camelCase` (e.g., `maxLength`, `referenceFilters`)
   - Machine names: `snake_case` (e.g., `name: 'project_task'`, `object: 'account'`)
-- **API Design**: Follow [docs/standards/api-design.md](./docs/standards/api-design.md)
-- **Error Handling**: Use patterns from [docs/standards/error-handling.md](./docs/standards/error-handling.md)
+- **API Design**: Follow [content/docs/standards/api-design.mdx](./content/docs/standards/api-design.mdx)
+- **Error Handling**: Use patterns from [content/docs/standards/error-handling.mdx](./content/docs/standards/error-handling.mdx)
 
 ### PR Checklist
 
