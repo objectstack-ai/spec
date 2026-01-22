@@ -292,8 +292,8 @@ When designing protocols, benchmark against:
 
 ### Repository Documentation
 - [ARCHITECTURE.md](../../ARCHITECTURE.md) - System architecture
-- [DEVELOPMENT_ROADMAP.md](../../DEVELOPMENT_ROADMAP.md) - Development plan
-- [PRIORITIES.md](../../PRIORITIES.md) - Priority matrix
+- [DEVELOPMENT_ROADMAP.md](../../internal/planning/DEVELOPMENT_ROADMAP.md) - Development plan
+- [PRIORITIES.md](../../internal/planning/PRIORITIES.md) - Priority matrix
 - [README.md](../../README.md) - Project overview
 
 ### Protocol Documentation

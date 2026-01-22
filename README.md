@@ -15,29 +15,29 @@ This repository contains the core specifications, schemas, and protocols that po
 *   **[Installation Guide](./content/docs/guides/installation.mdx):** Setup instructions
 *   **[Contributing Guide](./CONTRIBUTING.md):** How to contribute to the project
 
-### Planning & Architecture
-*   **[Development Roadmap](./DEVELOPMENT_ROADMAP.md):** Complete development plan considering all future possibilities
-*   **[Priority Matrix](./PRIORITIES.md):** What to work on next, sprint planning guide
-*   **[Architecture Diagrams](./ARCHITECTURE.md):** Visual reference for the complete system
-*   **[Planning Index](./PLANNING_INDEX.md):** Complete guide to navigating planning documentation
+### Architecture & Design
+*   **[Architecture Overview](./content/docs/specifications/architecture/):** Deep dive into the three-layer architecture
+*   **[Data Layer (ObjectQL)](./content/docs/specifications/architecture/data-layer.mdx):** Query language and data abstraction
+*   **[UI Layer (ObjectUI)](./content/docs/specifications/architecture/ui-layer.mdx):** Server-driven UI protocol
+*   **[System Layer (ObjectOS)](./content/docs/specifications/architecture/system-layer.mdx):** Runtime kernel and plugins
 
-### Technical Documentation
+### Standards & Best Practices
+*   **[Naming Conventions](./content/docs/standards/naming-conventions.mdx):** Schema naming rules (camelCase vs snake_case)
+*   **[API Design](./content/docs/standards/api-design.mdx):** API design principles and patterns
+*   **[Error Handling](./content/docs/standards/error-handling.mdx):** Consistent error handling strategies
+*   **[Authentication](./content/docs/standards/authentication.mdx):** Authentication standards and implementation
+
+### Documentation Site
 The official documentation is built with Fumadocs and Next.js.
 
 *   **[Documentation Content](./content/docs/):** MDX documentation files (concepts, specifications, references)
 *   **[Documentation Site](./apps/docs/):** Fumadocs-powered Next.js app
-*   **[Technical Guides](./docs/):** In-depth technical guides and standards
 *   **[Live Site](http://localhost:3000/docs):** Run `pnpm docs:dev` to view locally
 
-### Architecture Deep Dives
-*   **[Data Layer (ObjectQL)](./docs/architecture/data-layer.md):** Query language and data abstraction
-*   **[UI Layer (ObjectUI)](./docs/architecture/ui-layer.md):** Server-driven UI protocol
-*   **[System Layer (ObjectOS)](./docs/architecture/system-layer.md):** Runtime kernel and plugins
-
-### Standards & Best Practices
-*   **[Naming Conventions](./docs/standards/naming-conventions.md):** Schema naming rules (camelCase vs snake_case)
-*   **[API Design](./docs/standards/api-design.md):** API design principles and patterns
-*   **[Error Handling](./docs/standards/error-handling.md):** Consistent error handling strategies
+### Planning & Internal Docs
+*   **[Development Roadmap](./internal/planning/DEVELOPMENT_ROADMAP.md):** Complete development plan
+*   **[Priority Matrix](./internal/planning/PRIORITIES.md):** What to work on next, sprint planning guide
+*   **[Planning Index](./internal/planning/PLANNING_INDEX.md):** Complete guide to navigating planning documentation
 
 ## 📦 Monorepo Structure
 
@@ -128,17 +128,17 @@ We welcome contributions! Please read our **[Contributing Guide](./CONTRIBUTING.
 ### Quick Start for Contributors
 
 1.  **Read the Docs**: Review [CONTRIBUTING.md](./CONTRIBUTING.md) for complete guidelines
-2.  **Check Priorities**: See [PRIORITIES.md](./PRIORITIES.md) for what to work on next
+2.  **Check Priorities**: See [PRIORITIES.md](./internal/planning/PRIORITIES.md) for what to work on next
 3.  **Understand Architecture**: Read [ARCHITECTURE.md](./ARCHITECTURE.md) for system overview
-4.  **Follow Standards**: Review [docs/standards/](./docs/standards/) for coding standards
+4.  **Follow Standards**: Review [content/docs/standards/](./content/docs/standards/) for coding standards
 
 ### Key Standards
 
-- **Naming Conventions**: See [docs/standards/naming-conventions.md](./docs/standards/naming-conventions.md)
+- **Naming Conventions**: See [content/docs/standards/naming-conventions.mdx](./content/docs/standards/naming-conventions.mdx)
   - Configuration keys: `camelCase` (e.g., `maxLength`, `referenceFilters`)
   - Machine names: `snake_case` (e.g., `name: 'project_task'`, `object: 'account'`)
-- **API Design**: Follow [docs/standards/api-design.md](./docs/standards/api-design.md)
-- **Error Handling**: Use patterns from [docs/standards/error-handling.md](./docs/standards/error-handling.md)
+- **API Design**: Follow [content/docs/standards/api-design.mdx](./content/docs/standards/api-design.mdx)
+- **Error Handling**: Use patterns from [content/docs/standards/error-handling.mdx](./content/docs/standards/error-handling.mdx)
 
 ### PR Checklist
 

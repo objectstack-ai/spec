@@ -474,6 +474,6 @@ Same Protocol → Different Renderers:
 ---
 
 **For more details, see:**
-- [DEVELOPMENT_ROADMAP.md](./DEVELOPMENT_ROADMAP.md) - Complete development plan
-- [PRIORITIES.md](./PRIORITIES.md) - What to work on next
+- [DEVELOPMENT_ROADMAP.md](./internal/planning/DEVELOPMENT_ROADMAP.md) - Complete development plan
+- [PRIORITIES.md](./internal/planning/PRIORITIES.md) - What to work on next
 - [packages/spec/README.md](./packages/spec/README.md) - Technical documentation

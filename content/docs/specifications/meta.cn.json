@@ -2,6 +2,8 @@
   "title": "规范",
   "root": true,
   "pages": [
+    "index",
+    "architecture",
     "data",
     "ui",
     "server"
