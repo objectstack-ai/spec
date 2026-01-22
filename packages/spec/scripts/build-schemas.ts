@@ -17,7 +17,7 @@ let count = 0;
 
 // Protocol now exports namespaces (Data, UI, System, AI, API)
 // We need to iterate through each namespace
-for (const [namespaceName, namespaceExports] of Object.entries(Protocol)) {
+for (const [_namespaceName, namespaceExports] of Object.entries(Protocol)) {
   if (typeof namespaceExports === 'object' && namespaceExports !== null) {
     // Iterate over all exports in each namespace
     for (const [key, value] of Object.entries(namespaceExports)) {
