@@ -5,6 +5,7 @@
     "manifesto",
     "core-values",
     "architecture",
+    "plugin-architecture",
     "security_architecture",
     "enterprise-patterns",
     "ai-codex",

@@ -1,0 +1,10 @@
+{
+  "title": "快速开始",
+  "root": true,
+  "pages": [
+    "build-first-app",
+    "backend-developers",
+    "frontend-developers",
+    "architects"
+  ]
+}
