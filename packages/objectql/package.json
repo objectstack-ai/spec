@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/objectql",
-  "version": "0.2.1",
+  "version": "1.0.0",
   "description": "Isomorphic ObjectQL Engine for ObjectStack",
   "main": "src/index.ts",
   "types": "src/index.ts",

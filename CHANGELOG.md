@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
-## [0.3.0] - 2026-01-22
+## [1.0.0] - 2026-01-22
 
 ### Added
 - Comprehensive documentation structure with CONTRIBUTING.md
@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated README.md with improved documentation navigation
 - Enhanced documentation organization following industry best practices
+- **BREAKING**: All packages now use unified versioning (all packages released together with same version number)
 
 ## [0.1.1] - 2026-01-20
 
@@ -138,6 +139,6 @@ Mark breaking changes clearly:
 
 ---
 
-[Unreleased]: https://github.com/objectstack-ai/spec/compare/v0.3.0...HEAD
-[0.3.0]: https://github.com/objectstack-ai/spec/compare/v0.1.1...v0.3.0
+[Unreleased]: https://github.com/objectstack-ai/spec/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/objectstack-ai/spec/compare/v0.1.1...v1.0.0
 [0.1.1]: https://github.com/objectstack-ai/spec/releases/tag/v0.1.1
