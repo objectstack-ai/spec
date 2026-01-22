@@ -1,0 +1,149 @@
+# Migration Guide: v0.1.x to v1.0.0
+
+> Guide for migrating from version 0.1.x to 1.0.0
+
+## Overview
+
+This guide helps you migrate your ObjectStack Protocol implementation from version 0.1.x to 1.0.0.
+
+## Breaking Changes
+
+### 1. Naming Convention Changes
+
+**Configuration keys now use camelCase:**
+
+```typescript
+// Before (0.1.x)
+const field = {
+  max_length: 100,
+  is_required: true,
+  default_value: '',
+};
+
+// After (1.0.0)
+const field = {
+  maxLength: 100,
+  isRequired: true,
+  defaultValue: '',
+};
+```
+
+**Machine names still use snake_case:**
+
+```typescript
+// Correct in both versions
+const object = {
+  name: 'customer_account',  // snake_case for machine names
+  fields: {
+    first_name: {  // snake_case for field names
+      maxLength: 100,  // camelCase for config
+    }
+  }
+};
+```
+
+### 2. Schema Changes
+
+**Field type changes:**
+
+```typescript
+// Before (0.1.x)
+type: 'string'
+
+// After (1.0.0)
+type: 'text'
+```
+
+### 3. API Response Structure
+
+**New envelope format:**
+
+```typescript
+// Before (0.1.x)
+{
+  data: { /* response */ },
+  error: null
+}
+
+// After (1.0.0)
+{
+  success: true,
+  data: { /* response */ },
+  metadata: {
+    timestamp: "2026-01-22T10:00:00Z",
+    requestId: "req_123"
+  }
+}
+```
+
+## Migration Steps
+
+### Step 1: Update Dependencies
+
+```bash
+# Update package.json
+pnpm update @objectstack/spec@^1.0.0
+
+# Install dependencies
+pnpm install
+```
+
+### Step 2: Update Schema Definitions
+
+Run the migration script:
+
+```bash
+pnpm migrate:schemas
+```
+
+Or manually update:
+
+```typescript
+// Update all configuration keys to camelCase
+// Keep machine names in snake_case
+```
+
+### Step 3: Update API Calls
+
+```typescript
+// Update response handling
+const response = await api.createRecord({
+  object: 'customer_account',
+  data: { /* ... */ }
+});
+
+// Before
+if (!response.error) { /* ... */ }
+
+// After
+if (response.success) { /* ... */ }
+```
+
+### Step 4: Test Your Application
+
+```bash
+# Run tests
+pnpm test
+
+# Build
+pnpm build
+```
+
+## Deprecation Warnings
+
+The following features are deprecated and will be removed in v2.0.0:
+
+- `old_api_format` - Use new envelope format
+- `snake_case_configs` - Use camelCase for configuration
+
+## Getting Help
+
+If you encounter issues:
+
+1. Check the [CHANGELOG.md](../../CHANGELOG.md)
+2. Review [CONTRIBUTING.md](../../CONTRIBUTING.md)
+3. Open an issue on GitHub
+
+---
+
+**Last Updated**: 2026-01-22
