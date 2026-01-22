@@ -1,0 +1,10 @@
+{
+  "title": "Standards",
+  "pages": [
+    "index",
+    "naming-conventions",
+    "api-design",
+    "error-handling",
+    "authentication"
+  ]
+}

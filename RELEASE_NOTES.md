@@ -83,7 +83,7 @@ Version tag `v0.2.0` has been created for this release.
 ## 📚 Documentation
 
 Full documentation is available at:
-- Development Roadmap: [DEVELOPMENT_ROADMAP.md](DEVELOPMENT_ROADMAP.md)
+- Development Roadmap: [DEVELOPMENT_ROADMAP.md](internal/planning/DEVELOPMENT_ROADMAP.md)
 - Architecture: [ARCHITECTURE.md](ARCHITECTURE.md)
 - Quick Start: [QUICK_START_IMPLEMENTATION.md](QUICK_START_IMPLEMENTATION.md)
 

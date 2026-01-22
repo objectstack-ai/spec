@@ -1,0 +1,38 @@
+---
+title: Architecture
+description: Deep dive into the ObjectStack Protocol Architecture
+---
+
+# Architecture
+
+The ObjectStack Protocol is built on three core layers that work together to provide a complete metadata-driven platform.
+
+## Core Layers
+
+### [Data Layer (ObjectQL)](/docs/architecture/data-layer)
+The Data Layer defines the "Shape of Data" and business logic. It includes:
+- **Schema**: Objects and Fields with 23+ field types
+- **Logic**: Workflows, Triggers, Validation Rules, Formulas
+- **Security**: Permissions and Sharing Rules
+- **Query**: Abstract Syntax Tree (AST) for unified data access
+
+### [UI Layer (ObjectUI)](/docs/architecture/ui-layer)
+The UI Layer defines the "Shape of Interaction" for rendering interfaces:
+- **Views**: Grid, Kanban, Calendar, Gantt, List configurations
+- **Pages**: FlexiPage layouts with regions and components
+- **Navigation**: App menus and navigation structures
+- **Analytics**: Reports and Dashboards with widgets
+
+### [System Layer (ObjectOS)](/docs/architecture/system-layer)
+The System Layer defines the "Runtime Environment":
+- **Manifest**: Application packaging
+- **Identity**: Authentication, Roles, Licenses
+- **Integration**: Webhooks, API contracts, ETL Mappings
+- **Datasource**: Driver definitions for SQL, NoSQL, SaaS connectors
+
+## Design Principles
+
+1. **Data as Code**: All configurations are expressed as declarative metadata
+2. **Intent over Implementation**: Describe what you want, not how to build it
+3. **Local-First**: Works offline, syncs when connected
+4. **Driver Agnostic**: Abstract away storage implementation details

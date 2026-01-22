@@ -52,8 +52,8 @@ pnpm test
 ### 1. Choose What to Work On
 
 Before starting, review:
-- **[PRIORITIES.md](./PRIORITIES.md)** - Current sprint priorities
-- **[DEVELOPMENT_ROADMAP.md](./DEVELOPMENT_ROADMAP.md)** - Long-term roadmap
+- **[PRIORITIES.md](./internal/planning/PRIORITIES.md)** - Current sprint priorities
+- **[DEVELOPMENT_ROADMAP.md](./internal/planning/DEVELOPMENT_ROADMAP.md)** - Long-term roadmap
 - **[GitHub Issues](https://github.com/objectstack-ai/spec/issues)** - Open issues
 
 ### 2. Create a Branch
@@ -406,7 +406,7 @@ Brief description of changes
 
 ### Getting Help
 
-- Review [PLANNING_INDEX.md](./PLANNING_INDEX.md) for documentation navigation
+- Review [PLANNING_INDEX.md](./internal/planning/PLANNING_INDEX.md) for documentation navigation
 - Check [ARCHITECTURE.md](./ARCHITECTURE.md) for system design
 - Read [QUICK_START_IMPLEMENTATION.md](./QUICK_START_IMPLEMENTATION.md) for implementation examples
 
