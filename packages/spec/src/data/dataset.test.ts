@@ -1,0 +1,236 @@
+import { describe, it, expect } from 'vitest';
+import { DatasetSchema, DatasetMode, type Dataset } from './dataset.zod';
+
+describe('DatasetMode', () => {
+  it('should accept valid dataset modes', () => {
+    const validModes = ['insert', 'update', 'upsert', 'replace', 'ignore'];
+    
+    validModes.forEach(mode => {
+      expect(() => DatasetMode.parse(mode)).not.toThrow();
+    });
+  });
+
+  it('should reject invalid modes', () => {
+    expect(() => DatasetMode.parse('merge')).toThrow();
+    expect(() => DatasetMode.parse('delete')).toThrow();
+    expect(() => DatasetMode.parse('')).toThrow();
+  });
+});
+
+describe('DatasetSchema', () => {
+  it('should accept valid minimal dataset', () => {
+    const validDataset: Dataset = {
+      object: 'user',
+      records: [
+        { name: 'John', email: 'john@example.com' },
+        { name: 'Jane', email: 'jane@example.com' }
+      ]
+    };
+
+    expect(() => DatasetSchema.parse(validDataset)).not.toThrow();
+  });
+
+  it('should accept dataset with all fields', () => {
+    const fullDataset: Dataset = {
+      object: 'account',
+      externalId: 'code',
+      mode: 'upsert',
+      env: ['prod', 'dev', 'test'],
+      records: [
+        { code: 'ACC001', name: 'Acme Corp' },
+        { code: 'ACC002', name: 'Beta Inc' }
+      ]
+    };
+
+    expect(() => DatasetSchema.parse(fullDataset)).not.toThrow();
+  });
+
+  it('should apply default values', () => {
+    const dataset = DatasetSchema.parse({
+      object: 'product',
+      records: [{ name: 'Widget' }]
+    });
+
+    expect(dataset.externalId).toBe('name');
+    expect(dataset.mode).toBe('upsert');
+    expect(dataset.env).toEqual(['prod', 'dev', 'test']);
+  });
+
+  it('should validate object name format (snake_case)', () => {
+    expect(() => DatasetSchema.parse({
+      object: 'valid_object_name',
+      records: []
+    })).not.toThrow();
+
+    expect(() => DatasetSchema.parse({
+      object: 'InvalidObject',
+      records: []
+    })).toThrow();
+
+    expect(() => DatasetSchema.parse({
+      object: 'invalid-object',
+      records: []
+    })).toThrow();
+  });
+
+  it('should accept different modes', () => {
+    const modes: Array<Dataset['mode']> = ['insert', 'update', 'upsert', 'replace', 'ignore'];
+    
+    modes.forEach(mode => {
+      const dataset = DatasetSchema.parse({
+        object: 'test_object',
+        mode,
+        records: []
+      });
+      expect(dataset.mode).toBe(mode);
+    });
+  });
+
+  it('should accept environment scopes', () => {
+    const dataset1 = DatasetSchema.parse({
+      object: 'test_object',
+      env: ['dev'],
+      records: []
+    });
+    expect(dataset1.env).toEqual(['dev']);
+
+    const dataset2 = DatasetSchema.parse({
+      object: 'test_object',
+      env: ['prod', 'test'],
+      records: []
+    });
+    expect(dataset2.env).toEqual(['prod', 'test']);
+  });
+
+  it('should reject invalid environment values', () => {
+    expect(() => DatasetSchema.parse({
+      object: 'test_object',
+      env: ['production'],
+      records: []
+    })).toThrow();
+
+    expect(() => DatasetSchema.parse({
+      object: 'test_object',
+      env: ['staging'],
+      records: []
+    })).toThrow();
+  });
+
+  it('should accept empty records array', () => {
+    const dataset = DatasetSchema.parse({
+      object: 'empty_table',
+      records: []
+    });
+
+    expect(dataset.records).toEqual([]);
+  });
+
+  it('should accept records with various data types', () => {
+    const dataset = DatasetSchema.parse({
+      object: 'mixed_data',
+      records: [
+        {
+          string: 'text',
+          number: 42,
+          boolean: true,
+          null_value: null,
+          object: { nested: 'value' },
+          array: [1, 2, 3]
+        }
+      ]
+    });
+
+    expect(dataset.records[0]).toHaveProperty('string', 'text');
+    expect(dataset.records[0]).toHaveProperty('number', 42);
+    expect(dataset.records[0]).toHaveProperty('boolean', true);
+  });
+
+  it('should validate externalId field name', () => {
+    const validExternalIds = ['name', 'code', 'external_id', 'username', 'slug'];
+    
+    validExternalIds.forEach(externalId => {
+      expect(() => DatasetSchema.parse({
+        object: 'test_object',
+        externalId,
+        records: []
+      })).not.toThrow();
+    });
+  });
+
+  it('should handle seed data use case', () => {
+    const seedData = DatasetSchema.parse({
+      object: 'country',
+      externalId: 'code',
+      mode: 'upsert',
+      env: ['prod', 'dev', 'test'],
+      records: [
+        { code: 'US', name: 'United States' },
+        { code: 'CA', name: 'Canada' },
+        { code: 'MX', name: 'Mexico' }
+      ]
+    });
+
+    expect(seedData.records).toHaveLength(3);
+    expect(seedData.mode).toBe('upsert');
+  });
+
+  it('should handle demo data use case', () => {
+    const demoData = DatasetSchema.parse({
+      object: 'project',
+      externalId: 'name',
+      mode: 'replace',
+      env: ['dev'],
+      records: [
+        { name: 'Demo Project 1', status: 'active' },
+        { name: 'Demo Project 2', status: 'completed' }
+      ]
+    });
+
+    expect(demoData.env).toEqual(['dev']);
+    expect(demoData.mode).toBe('replace');
+  });
+
+  it('should handle test data use case', () => {
+    const testData = DatasetSchema.parse({
+      object: 'test_user',
+      mode: 'ignore',
+      env: ['test'],
+      records: [
+        { name: 'Test User', email: 'test@example.com' }
+      ]
+    });
+
+    expect(testData.env).toEqual(['test']);
+    expect(testData.mode).toBe('ignore');
+  });
+
+  it('should reject dataset without required fields', () => {
+    expect(() => DatasetSchema.parse({
+      records: []
+    })).toThrow();
+
+    expect(() => DatasetSchema.parse({
+      object: 'test_object'
+    })).toThrow();
+  });
+
+  it('should reject invalid mode value', () => {
+    expect(() => DatasetSchema.parse({
+      object: 'test_object',
+      mode: 'invalid_mode',
+      records: []
+    })).toThrow();
+  });
+
+  it('should handle large datasets', () => {
+    const largeDataset = DatasetSchema.parse({
+      object: 'bulk_data',
+      records: Array.from({ length: 1000 }, (_, i) => ({
+        id: i,
+        name: `Record ${i}`
+      }))
+    });
+
+    expect(largeDataset.records).toHaveLength(1000);
+  });
+});

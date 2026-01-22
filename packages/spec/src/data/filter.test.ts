@@ -9,6 +9,7 @@ import {
   RangeOperatorSchema,
   StringOperatorSchema,
   SpecialOperatorSchema,
+  NormalizedFilterSchema,
   FILTER_OPERATORS,
   LOGICAL_OPERATORS,
   ALL_OPERATORS,
@@ -618,5 +619,137 @@ describe('Real-World Use Cases', () => {
       },
     };
     expect(() => QueryFilterSchema.parse(filter)).not.toThrow();
+  });
+});
+
+describe('NormalizedFilterSchema', () => {
+  it('should accept normalized $and condition', () => {
+    const filter = {
+      $and: [
+        { age: { $eq: 18 } },
+        { role: { $eq: 'admin' } }
+      ]
+    };
+    
+    expect(() => NormalizedFilterSchema.parse(filter)).not.toThrow();
+  });
+
+  it('should accept normalized $or condition', () => {
+    const filter = {
+      $or: [
+        { status: { $eq: 'active' } },
+        { status: { $eq: 'pending' } }
+      ]
+    };
+    
+    expect(() => NormalizedFilterSchema.parse(filter)).not.toThrow();
+  });
+
+  it('should accept normalized $not condition', () => {
+    const filter = {
+      $not: { deleted: { $eq: true } }
+    };
+    
+    expect(() => NormalizedFilterSchema.parse(filter)).not.toThrow();
+  });
+
+  it('should accept nested normalized filters in $and', () => {
+    const filter = {
+      $and: [
+        { age: { $gte: 18 } },
+        {
+          $or: [
+            { role: { $eq: 'admin' } },
+            { role: { $eq: 'moderator' } }
+          ]
+        }
+      ]
+    };
+    
+    expect(() => NormalizedFilterSchema.parse(filter)).not.toThrow();
+  });
+
+  it('should accept nested normalized filters in $or', () => {
+    const filter = {
+      $or: [
+        { status: { $eq: 'active' } },
+        {
+          $and: [
+            { status: { $eq: 'pending' } },
+            { verified: { $eq: true } }
+          ]
+        }
+      ]
+    };
+    
+    expect(() => NormalizedFilterSchema.parse(filter)).not.toThrow();
+  });
+
+  it('should accept nested normalized filter in $not', () => {
+    const filter = {
+      $not: {
+        $and: [
+          { deleted: { $eq: true } },
+          { archived: { $eq: true } }
+        ]
+      }
+    };
+    
+    expect(() => NormalizedFilterSchema.parse(filter)).not.toThrow();
+  });
+
+  it('should accept complex deeply nested normalized filters', () => {
+    const filter = {
+      $and: [
+        { active: { $eq: true } },
+        {
+          $or: [
+            { type: { $eq: 'premium' } },
+            {
+              $and: [
+                { type: { $eq: 'basic' } },
+                { credits: { $gte: 100 } }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    
+    expect(() => NormalizedFilterSchema.parse(filter)).not.toThrow();
+  });
+
+  it('should accept multiple operators in $and', () => {
+    const filter = {
+      $and: [
+        { age: { $gte: 18 } },
+        { age: { $lte: 65 } },
+        { role: { $in: ['user', 'admin'] } }
+      ]
+    };
+    
+    expect(() => NormalizedFilterSchema.parse(filter)).not.toThrow();
+  });
+
+  it('should accept empty optional operators', () => {
+    const filter = {};
+    expect(() => NormalizedFilterSchema.parse(filter)).not.toThrow();
+  });
+
+  it('should accept combination of all logical operators', () => {
+    const filter = {
+      $and: [
+        { active: { $eq: true } }
+      ],
+      $or: [
+        { role: { $eq: 'admin' } },
+        { role: { $eq: 'moderator' } }
+      ],
+      $not: {
+        deleted: { $eq: true }
+      }
+    };
+    
+    expect(() => NormalizedFilterSchema.parse(filter)).not.toThrow();
   });
 });
