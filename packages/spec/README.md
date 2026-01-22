@@ -141,44 +141,51 @@ const user: User = {
 ### Validation (Runtime)
 
 ```typescript
+// Style 1: Namespace from root
 import { Data } from '@objectstack/spec';
-// OR
-import { ObjectSchema } from '@objectstack/spec/data';
-
 const result = Data.ObjectSchema.safeParse(userConfig);
-// OR
+
+// Style 2: Namespace via subpath
+import * as Data from '@objectstack/spec/data';
+const result = Data.ObjectSchema.safeParse(userConfig);
+
+// Style 3: Direct subpath import
+import { ObjectSchema } from '@objectstack/spec/data';
 const result = ObjectSchema.safeParse(userConfig);
 
 if (!result.success) {
   console.error("Invalid Object definition", result.error);
 }
 ```
-import * as Data from '@objectstack/spec/data';
-
-const result = Data.ObjectSchema.safeParse(userConfig);
-```
 
 ### Type Definitions (Compile Time)
 
 ```typescript
+// Style 1: Namespace from root
 import type { Data } from '@objectstack/spec';
-// Or: import type { Field } from '@objectstack/spec/data';
-
 const myField: Data.Field = {
+  name: "task_name",
+  type: "text",
+  label: "Task Name"
+};
+
+// Style 2: Direct subpath import
+import type { Field } from '@objectstack/spec/data';
+const myField: Field = {
   name: "task_name",
   type: "text",
   label: "Task Name"
 };
 ```
 
-Using subpath imports:
+Using namespace imports for multiple protocols:
 
 ```typescript
-import type { Field } from '@objectstack/spec/data';
-import type { User } from '@objectstack/spec/system';
+import type * as Data from '@objectstack/spec/data';
+import type * as System from '@objectstack/spec/system';
 
-const field: Field = { /* ... */ };
-const user: User = { /* ... */ };
+const field: Data.Field = { /* ... */ };
+const user: System.User = { /* ... */ };
 ```
 
 ### JSON Schema (Tooling)
