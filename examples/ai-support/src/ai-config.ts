@@ -3,7 +3,7 @@ import type {
   ModelRegistry,
   RAGPipelineConfig,
   FieldSynonymConfig,
-} from '@objectstack/spec';
+} from '@objectstack/spec/ai';
 
 /**
  * AI Support Assistant - Agent Configuration

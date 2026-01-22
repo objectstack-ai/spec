@@ -1,4 +1,4 @@
-import type { Action } from '@objectstack/spec';
+import type { Action } from '@objectstack/spec/ui';
 
 // Convert Lead to Account, Contact, and Opportunity
 export const ConvertLeadAction: Action = {

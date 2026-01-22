@@ -1,4 +1,4 @@
-import type { Dashboard } from '@objectstack/spec';
+import type { Dashboard } from '@objectstack/spec/ui';
 
 // Sales Performance Dashboard
 export const SalesDashboard: Dashboard = {

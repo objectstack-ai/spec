@@ -1,4 +1,4 @@
-import type { Action } from '@objectstack/spec';
+import type { Action } from '@objectstack/spec/ui';
 export declare const ConvertLeadAction: Action;
 export declare const CloneOpportunityAction: Action;
 export declare const MarkPrimaryContactAction: Action;

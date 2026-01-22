@@ -1,4 +1,4 @@
-import { ObjectSchema, Field } from '@objectstack/spec';
+import { ObjectSchema, Field } from '@objectstack/spec/data';
 
 export const TodoTask = ObjectSchema.create({
   name: 'todo_task',

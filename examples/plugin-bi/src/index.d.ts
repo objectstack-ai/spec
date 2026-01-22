@@ -1,4 +1,4 @@
-import { PluginDefinition } from '@objectstack/spec';
+import { PluginDefinition } from '@objectstack/spec/system';
 export declare class BiEngine {
     constructor();
     registerDataset(path: string): void;

@@ -1,4 +1,5 @@
-import { DriverInterface, DriverOptions, QueryAST, ObjectStackManifest } from '@objectstack/spec';
+import { QueryAST } from '@objectstack/spec/data';
+import { DriverInterface, DriverOptions, ObjectStackManifest } from '@objectstack/spec/system';
 import { SchemaRegistry } from './registry';
 
 // Export Registry for consumers

@@ -1,4 +1,4 @@
-import { ApiEndpoint } from '@objectstack/spec';
+import { ApiEndpoint } from '@objectstack/spec/system';
 
 /**
  * Custom API: Close Won Opportunities

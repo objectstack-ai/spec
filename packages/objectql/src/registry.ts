@@ -1,4 +1,6 @@
-import { ServiceObject, App, ObjectStackManifest } from '@objectstack/spec';
+import { ServiceObject } from '@objectstack/spec/data';
+import { App } from '@objectstack/spec/ui';
+import { ObjectStackManifest } from '@objectstack/spec/system';
 
 /**
  * Global Schema Registry

@@ -1,4 +1,4 @@
-import { App } from '@objectstack/spec';
+import { App } from '@objectstack/spec/ui';
 import { TodoTask } from './src/domains/todo/task.object';
 
 export default App.create({
