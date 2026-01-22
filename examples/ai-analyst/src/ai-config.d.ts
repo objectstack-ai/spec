@@ -1,4 +1,4 @@
-import type { Agent, NLQModelConfig, QueryTemplate } from '@objectstack/spec';
+import type { Agent, NLQModelConfig, QueryTemplate } from '@objectstack/spec/ai';
 /**
  * AI Data Analyst Agent
  */

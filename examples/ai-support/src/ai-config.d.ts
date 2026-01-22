@@ -1,4 +1,4 @@
-import type { Agent, ModelRegistry, RAGPipelineConfig, FieldSynonymConfig } from '@objectstack/spec';
+import type { Agent, ModelRegistry, RAGPipelineConfig, FieldSynonymConfig } from '@objectstack/spec/ai';
 /**
  * AI Support Assistant - Agent Configuration
  */

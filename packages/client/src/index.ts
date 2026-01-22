@@ -1,4 +1,4 @@
-import { QueryAST, FilterNode, SortNode, AggregationNode, WindowFunctionNode } from '@objectstack/spec';
+import { QueryAST, FilterNode, SortNode, AggregationNode, WindowFunctionNode } from '@objectstack/spec/data';
 
 export interface ClientConfig {
   baseUrl: string;

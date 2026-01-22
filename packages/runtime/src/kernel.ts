@@ -1,4 +1,4 @@
-import { ServiceObject } from '@objectstack/spec';
+import { ServiceObject } from '@objectstack/spec/data';
 import { SchemaRegistry, ObjectQL } from '@objectstack/objectql';
 
 /**

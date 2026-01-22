@@ -1,4 +1,4 @@
-import type { Agent, ModelRegistry, RAGPipelineConfig } from '@objectstack/spec';
+import type { Agent, ModelRegistry, RAGPipelineConfig } from '@objectstack/spec/ai';
 /**
  * ObjectStack Code Generator Agent
  */

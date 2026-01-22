@@ -1,4 +1,4 @@
-import { ObjectSchema, Field } from '@objectstack/spec';
+import { ObjectSchema, Field } from '@objectstack/spec/data';
 
 export const Lead = ObjectSchema.create({
   name: 'lead',

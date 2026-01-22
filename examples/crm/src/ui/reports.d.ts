@@ -1,4 +1,4 @@
-import type { Report } from '@objectstack/spec';
+import type { Report } from '@objectstack/spec/ui';
 export declare const OpportunitiesByStageReport: Report;
 export declare const WonOpportunitiesByOwnerReport: Report;
 export declare const AccountsByIndustryTypeReport: Report;

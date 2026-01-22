@@ -1,4 +1,4 @@
-import { App } from '@objectstack/spec';
+import { App } from '@objectstack/spec/ui';
 import { Account } from './src/domains/crm/account.object';
 import { Contact } from './src/domains/crm/contact.object';
 import { Opportunity } from './src/domains/crm/opportunity.object';

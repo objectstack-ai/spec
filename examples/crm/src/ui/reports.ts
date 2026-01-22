@@ -1,4 +1,4 @@
-import type { Report } from '@objectstack/spec';
+import type { Report } from '@objectstack/spec/ui';
 
 // Sales Report - Opportunities by Stage
 export const OpportunitiesByStageReport: Report = {
