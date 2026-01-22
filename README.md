@@ -10,17 +10,34 @@ This repository contains the core specifications, schemas, and protocols that po
 
 ## 📚 Documentation
 
+### Quick Start
+*   **[Getting Started](./content/docs/guides/getting-started.mdx):** Quick introduction to ObjectStack Protocol
+*   **[Installation Guide](./content/docs/guides/installation.mdx):** Setup instructions
+*   **[Contributing Guide](./CONTRIBUTING.md):** How to contribute to the project
+
 ### Planning & Architecture
-*   **[Development Roadmap](./DEVELOPMENT_ROADMAP.md):** Complete development plan considering all future possibilities.
-*   **[Priority Matrix](./PRIORITIES.md):** What to work on next, sprint planning guide.
-*   **[Architecture Diagrams](./ARCHITECTURE.md):** Visual reference for the complete system.
+*   **[Development Roadmap](./DEVELOPMENT_ROADMAP.md):** Complete development plan considering all future possibilities
+*   **[Priority Matrix](./PRIORITIES.md):** What to work on next, sprint planning guide
+*   **[Architecture Diagrams](./ARCHITECTURE.md):** Visual reference for the complete system
+*   **[Planning Index](./PLANNING_INDEX.md):** Complete guide to navigating planning documentation
 
 ### Technical Documentation
 The official documentation is built with Fumadocs and Next.js.
 
-*   **[Documentation Content](./content/docs/):** MDX documentation files (concepts, specifications, references).
-*   **[Documentation Site](./apps/docs/):** Fumadocs-powered Next.js app.
-*   **[Live Site](http://localhost:3000/docs):** Run `pnpm docs:dev` to view locally.
+*   **[Documentation Content](./content/docs/):** MDX documentation files (concepts, specifications, references)
+*   **[Documentation Site](./apps/docs/):** Fumadocs-powered Next.js app
+*   **[Technical Guides](./docs/):** In-depth technical guides and standards
+*   **[Live Site](http://localhost:3000/docs):** Run `pnpm docs:dev` to view locally
+
+### Architecture Deep Dives
+*   **[Data Layer (ObjectQL)](./docs/architecture/data-layer.md):** Query language and data abstraction
+*   **[UI Layer (ObjectUI)](./docs/architecture/ui-layer.md):** Server-driven UI protocol
+*   **[System Layer (ObjectOS)](./docs/architecture/system-layer.md):** Runtime kernel and plugins
+
+### Standards & Best Practices
+*   **[Naming Conventions](./docs/standards/naming-conventions.md):** Schema naming rules (camelCase vs snake_case)
+*   **[API Design](./docs/standards/api-design.md):** API design principles and patterns
+*   **[Error Handling](./docs/standards/error-handling.md):** Consistent error handling strategies
 
 ## 📦 Monorepo Structure
 
@@ -104,30 +121,35 @@ pnpm docs:dev
 # Visit http://localhost:3000/docs
 ```
 
-## 🤝 Contribution
+## 🤝 Contributing
 
-### Getting Started
-1.  **Read the Roadmap**: Review [DEVELOPMENT_ROADMAP.md](./DEVELOPMENT_ROADMAP.md) to understand the vision.
-2.  **Check Priorities**: See [PRIORITIES.md](./PRIORITIES.md) for what to work on next.
-3.  **Understand Architecture**: Read [ARCHITECTURE.md](./ARCHITECTURE.md) for system overview.
+We welcome contributions! Please read our **[Contributing Guide](./CONTRIBUTING.md)** for detailed guidelines.
 
-### Development Process
-1.  **Code First**: Always start by defining the Zod Schema in `packages/spec/src`.
-2.  **Write Tests**: Add comprehensive tests in `*.test.ts` files (target 80%+ coverage).
-3.  **Generate**: Run `pnpm build` to update JSON Schemas and Documentation.
-4.  **Commit**: Submit PR with updated Code + Schemas + Docs.
+### Quick Start for Contributors
 
-### Naming Conventions
-- **Configuration Keys** (TypeScript properties): `camelCase` (e.g., `maxLength`, `referenceFilters`)
-- **Machine Names** (Data values): `snake_case` (e.g., `name: 'project_task'`, `object: 'account'`)
+1.  **Read the Docs**: Review [CONTRIBUTING.md](./CONTRIBUTING.md) for complete guidelines
+2.  **Check Priorities**: See [PRIORITIES.md](./PRIORITIES.md) for what to work on next
+3.  **Understand Architecture**: Read [ARCHITECTURE.md](./ARCHITECTURE.md) for system overview
+4.  **Follow Standards**: Review [docs/standards/](./docs/standards/) for coding standards
+
+### Key Standards
+
+- **Naming Conventions**: See [docs/standards/naming-conventions.md](./docs/standards/naming-conventions.md)
+  - Configuration keys: `camelCase` (e.g., `maxLength`, `referenceFilters`)
+  - Machine names: `snake_case` (e.g., `name: 'project_task'`, `object: 'account'`)
+- **API Design**: Follow [docs/standards/api-design.md](./docs/standards/api-design.md)
+- **Error Handling**: Use patterns from [docs/standards/error-handling.md](./docs/standards/error-handling.md)
 
 ### PR Checklist
+
 - [ ] Zod schema follows naming conventions
 - [ ] Comprehensive JSDoc comments with `@description`
 - [ ] Unit tests with 80%+ coverage
 - [ ] Documentation with examples
 - [ ] JSON schema generated successfully
 - [ ] All existing tests pass
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for complete details.
 
 ## 📄 License
 
