@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [0.3.0] - 2026-01-22
+
+### Added
 - Comprehensive documentation structure with CONTRIBUTING.md
 - Documentation hub at docs/README.md
 - Standards documentation (naming-conventions, api-design, error-handling)
@@ -20,14 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated README.md with improved documentation navigation
 - Enhanced documentation organization following industry best practices
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
 
 ## [0.1.1] - 2026-01-20
 
@@ -132,5 +138,6 @@ Mark breaking changes clearly:
 
 ---
 
-[Unreleased]: https://github.com/objectstack-ai/spec/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/objectstack-ai/spec/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/objectstack-ai/spec/compare/v0.1.1...v0.3.0
 [0.1.1]: https://github.com/objectstack-ai/spec/releases/tag/v0.1.1

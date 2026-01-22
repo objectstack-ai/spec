@@ -1,5 +1,23 @@
 # @objectstack/runtime
 
+## 0.2.1
+
+### Patch Changes
+
+- Documentation and project structure improvements
+
+  - Comprehensive documentation structure with CONTRIBUTING.md
+  - Documentation hub at docs/README.md
+  - Standards documentation (naming-conventions, api-design, error-handling)
+  - Architecture deep dives (data-layer, ui-layer, system-layer)
+  - Code of Conduct
+  - Enhanced documentation organization following industry best practices
+
+- Updated dependencies
+  - @objectstack/spec@0.3.0
+  - @objectstack/objectql@0.2.1
+  - @objectstack/types@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes
