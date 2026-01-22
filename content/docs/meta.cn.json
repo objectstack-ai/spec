@@ -1,9 +1,13 @@
 {
   "title": "文档",
   "pages": [
+    "quick-start",
+    "tutorials",
     "guides",
     "concepts",
     "specifications",
-    "references"
+    "references",
+    "faq",
+    "troubleshooting"
   ]
 }

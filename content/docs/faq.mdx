@@ -1,0 +1,312 @@
+---
+title: FAQ
+description: Frequently Asked Questions about ObjectStack Protocol.
+---
+
+## General Questions
+
+### What is ObjectStack?
+
+ObjectStack is a **metadata-driven protocol** for building enterprise applications. It lets you define your entire application—data models, business logic, and UI—as type-safe JSON/TypeScript configurations instead of writing code.
+
+Think of it as the "Salesforce Platform" or "ServiceNow Platform" but:
+- ✅ Open source
+- ✅ Self-hosted
+- ✅ Type-safe (TypeScript + Zod)
+- ✅ Database agnostic
+
+### Is ObjectStack a framework or a library?
+
+Neither! ObjectStack is a **protocol** (like HTTP or SQL). It defines:
+1. **Schemas** (what data looks like)
+2. **Contracts** (how systems communicate)
+3. **Standards** (naming conventions, best practices)
+
+You can build **implementations** of the protocol in any language (Node.js, Go, Python, etc.).
+
+### How is ObjectStack different from Prisma/TypeORM?
+
+| Feature | Prisma/TypeORM | ObjectStack |
+| :--- | :--- | :--- |
+| **Scope** | ORM (database only) | Full platform (data + UI + logic) |
+| **Business Logic** | Code-based | Declarative (formulas, workflows) |
+| **UI Generation** | None | Server-driven UI included |
+| **Validation** | Manual | Built-in validation rules |
+| **Multi-DB** | Schema-based | Driver-based (easier to extend) |
+
+**Use Prisma if:** You just need a type-safe ORM.  
+**Use ObjectStack if:** You want a complete metadata-driven platform.
+
+### How is ObjectStack different from Strapi/Directus?
+
+| Feature | Strapi/Directus | ObjectStack |
+| :--- | :--- | :--- |
+| **Focus** | Headless CMS | Enterprise platform |
+| **Business Logic** | Code plugins | Declarative (no-code) |
+| **Type Safety** | Partial | Full (Zod schemas) |
+| **Formulas** | None | Yes (like Excel/Salesforce) |
+| **Workflows** | Basic | Advanced (state machines) |
+| **Offline-First** | No | Yes |
+
+**Use Strapi if:** You're building a content website.  
+**Use ObjectStack if:** You're building CRUD-heavy apps (CRM, ERP, internal tools).
+
+### Can I use ObjectStack with my existing database?
+
+**Yes!** You have two options:
+
+1. **Generate ObjectStack schemas from your DB:**
+   ```bash
+   objectstack import --from postgres://...
+   ```
+
+2. **Write a custom driver** to wrap your existing DB.
+
+### Is ObjectStack production-ready?
+
+ObjectStack is currently in **beta**. The protocol is stable, but implementations are evolving.
+
+**Stable:**
+- ✅ Schema definitions (`@objectstack/spec`)
+- ✅ TypeScript types
+- ✅ JSON Schema export
+
+**In Development:**
+- 🚧 Reference Kernel implementation
+- 🚧 React renderer
+- 🚧 PostgreSQL driver
+
+**Recommendation:** Use for internal tools and non-critical applications. Wait for v1.0 for production SaaS.
+
+## Technical Questions
+
+### What databases are supported?
+
+ObjectStack uses a **driver model**. Official drivers:
+
+- ✅ **In-Memory Driver** (development/testing)
+- 🚧 **PostgreSQL Driver** (in progress)
+- 🚧 **MySQL Driver** (planned)
+- 🚧 **MongoDB Driver** (planned)
+
+You can build custom drivers for:
+- Any SQL database
+- Any NoSQL database
+- SaaS APIs (Salesforce, Airtable, etc.)
+- Excel files, CSV, etc.
+
+### Does ObjectStack support GraphQL?
+
+**Yes!** ObjectStack auto-generates both REST and GraphQL APIs from your schema definitions.
+
+### Can I customize the generated UI?
+
+**Yes!** You have multiple levels of customization:
+
+1. **Theme-level:** Colors, fonts, spacing
+2. **Component-level:** Override specific components (Button, Input, etc.)
+3. **Layout-level:** Change view configurations
+4. **Complete custom renderer:** Build your own UI that consumes ObjectStack APIs
+
+### How do I handle complex business logic?
+
+ObjectStack provides multiple ways:
+
+1. **Formula Fields:** Excel-like formulas for calculations
+   ```typescript
+   Field.formula({ expression: 'amount * (1 - discount / 100)' })
+   ```
+
+2. **Validation Rules:** Declarative constraints
+   ```typescript
+   ValidationRule.create({ condition: 'due_date > TODAY()' })
+   ```
+
+3. **Workflows:** Trigger actions on events
+   ```typescript
+   Workflow.create({ trigger: 'after_update', actions: [...] })
+   ```
+
+4. **Custom Code:** For truly complex logic, write TypeScript plugins
+
+### How does authentication work?
+
+ObjectStack supports **pluggable authentication providers**:
+
+- OAuth 2.0 / OIDC
+- SAML
+- JWT tokens
+- API keys
+- Custom providers
+
+Configure in your app manifest:
+
+```typescript
+Manifest.create({
+  authentication: {
+    provider: 'oauth2',
+    config: { /* provider config */ },
+  },
+});
+```
+
+### Is ObjectStack multi-tenant?
+
+**Yes!** ObjectStack supports multiple multi-tenancy strategies:
+
+1. **Schema-per-tenant:** Each tenant gets their own database schema
+2. **Row-level security:** Single schema with tenant isolation via RLS
+3. **Database-per-tenant:** Complete isolation
+
+Configure based on your needs.
+
+### How do I deploy ObjectStack apps?
+
+ObjectStack apps are standard Node.js applications. Deploy like any Node app:
+
+- **Docker:** `docker build` → `docker run`
+- **Kubernetes:** Standard K8s deployment
+- **Serverless:** AWS Lambda, Google Cloud Functions
+- **PaaS:** Heroku, Railway, Render
+
+See the [Deployment Guide](/docs/guides/deployment) for details.
+
+## Development Questions
+
+### Do I need to know Zod?
+
+**Helpful but not required.** If you've used Yup, Joi, or similar validation libraries, Zod will feel familiar.
+
+Basic example:
+```typescript
+import { z } from 'zod';
+
+const schema = z.object({
+  name: z.string(),
+  age: z.number().min(0),
+});
+```
+
+ObjectStack provides helper functions to hide Zod complexity:
+
+```typescript
+// Instead of raw Zod
+const raw = z.object({ title: z.string() });
+
+// Use ObjectStack helpers
+const Task = ObjectSchema.create({
+  fields: {
+    title: Field.text({ label: 'Title' }),
+  }
+});
+```
+
+### How do I debug ObjectStack apps?
+
+1. **Schema validation errors:** Zod provides detailed error messages
+2. **Runtime logs:** ObjectStack kernel logs all operations
+3. **Query debugging:** Enable query logging to see generated SQL
+4. **UI debugging:** Inspect JSON configs in browser devtools
+
+### Can I use ObjectStack with React/Vue/Svelte?
+
+**Yes!** ObjectStack is UI-framework agnostic.
+
+**Option 1:** Use official renderers
+- `@objectstack/react-renderer` (recommended)
+- `@objectstack/vue-renderer` (planned)
+
+**Option 2:** Consume REST/GraphQL APIs from any framework
+
+```tsx
+// React example
+function TaskList() {
+  const { data } = useFetch('/api/v1/objects/task');
+  return <div>{/* your UI */}</div>;
+}
+```
+
+### How do I contribute to ObjectStack?
+
+See the [Contributing Guide](https://github.com/objectstack-ai/spec/blob/main/CONTRIBUTING.md).
+
+We welcome:
+- Bug reports
+- Documentation improvements
+- Driver implementations
+- Renderer implementations
+- Example applications
+
+## Business Questions
+
+### What's the license?
+
+**Apache 2.0** (open source, permissive).
+
+You can:
+- ✅ Use commercially
+- ✅ Modify and distribute
+- ✅ Use in proprietary software
+- ✅ Sublicense
+
+### Is there commercial support?
+
+Not yet. Commercial support and managed hosting are planned for the future.
+
+For now:
+- Community support via GitHub Discussions
+- Professional consulting available (contact team)
+
+### Can I build a SaaS product with ObjectStack?
+
+**Absolutely!** ObjectStack is designed for multi-tenant SaaS platforms.
+
+Many use cases:
+- Internal developer platforms
+- Vertical SaaS (industry-specific apps)
+- White-label solutions
+- Agency client portals
+
+### Who is behind ObjectStack?
+
+ObjectStack is an **open-source project** created by the ObjectStack AI team. See [GitHub Contributors](https://github.com/objectstack-ai/spec/graphs/contributors).
+
+## Common Errors
+
+### "Schema validation failed"
+
+**Cause:** Your schema definition doesn't match the Zod schema.
+
+**Solution:** Check the error message for which field failed. Common issues:
+- Missing required fields
+- Wrong field type
+- Invalid enum value
+
+### "Driver not found"
+
+**Cause:** Kernel can't find the database driver.
+
+**Solution:**
+```typescript
+import { MemoryDriver } from '@objectstack/driver-memory';
+
+kernel.registerDriver('memory', new MemoryDriver());
+```
+
+### "Circular dependency in lookup fields"
+
+**Cause:** Two objects reference each other, creating a cycle.
+
+**Solution:** Use lazy references:
+```typescript
+Field.lookup({
+  reference: () => import('./other-object'),
+})
+```
+
+## Still Have Questions?
+
+- 📖 Check the [Guides](/docs/guides/getting-started)
+- 💬 Ask in [GitHub Discussions](https://github.com/objectstack-ai/spec/discussions)
+- 🐛 Report bugs in [GitHub Issues](https://github.com/objectstack-ai/spec/issues)
+- 📧 Email: support@objectstack.dev (for urgent issues)

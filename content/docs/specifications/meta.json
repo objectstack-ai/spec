@@ -2,6 +2,7 @@
   "title": "Specifications",
   "root": true,
   "pages": [
+    "index",
     "data",
     "ui",
     "server"

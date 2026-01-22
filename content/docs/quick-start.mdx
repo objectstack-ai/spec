@@ -1,0 +1,117 @@
+---
+title: Quick Start
+description: Get started with ObjectStack in under 5 minutes. Choose your path based on your role and goals.
+---
+
+import { Code, Layers, Palette, Zap } from 'lucide-react';
+
+Welcome to ObjectStack! This quick start guide will help you get up and running based on your role and what you want to accomplish.
+
+## Choose Your Path
+
+<Cards>
+  <Card
+    icon={<Zap />}
+    title="I want to build an app"
+    href="/docs/quick-start/build-first-app"
+    description="Complete tutorial: Build a task management app in 10 minutes"
+  />
+  <Card
+    icon={<Code />}
+    title="I'm a backend developer"
+    href="/docs/quick-start/backend-developers"
+    description="Learn how to define Objects, Fields, and Business Logic"
+  />
+  <Card
+    icon={<Palette />}
+    title="I'm a frontend developer"
+    href="/docs/quick-start/frontend-developers"
+    description="Understand Views, Pages, and UI Components"
+  />
+  <Card
+    icon={<Layers />}
+    title="I'm a platform architect"
+    href="/docs/quick-start/architects"
+    description="Deep dive into the protocol architecture and design decisions"
+  />
+</Cards>
+
+## 30-Second Overview
+
+ObjectStack is a **metadata-driven protocol** that lets you define your entire application—data models, business logic, and UI—as **type-safe JSON/TypeScript** configurations.
+
+```typescript
+// Define a data model
+export const Task = ObjectSchema.create({
+  name: 'task',
+  label: 'Task',
+  fields: {
+    title: Field.text({ label: 'Title', required: true }),
+    status: Field.select({ 
+      label: 'Status',
+      options: ['todo', 'in_progress', 'done']
+    }),
+    due_date: Field.date({ label: 'Due Date' }),
+  }
+});
+```
+
+**That's it!** You've just defined a complete data model with:
+- ✅ TypeScript type safety
+- ✅ Runtime validation (via Zod)
+- ✅ Automatic API generation
+- ✅ Database schema migration
+- ✅ Admin UI generation
+
+## What Makes ObjectStack Different?
+
+| Traditional Approach | ObjectStack Protocol |
+| :--- | :--- |
+| Write Models + Controllers + Views | **Define metadata once** |
+| SQL migrations by hand | **Auto-generated from schema** |
+| Build CRUD APIs manually | **REST/GraphQL auto-generated** |
+| Hardcoded UI components | **Server-driven UI from JSON** |
+| Scattered business logic | **Declarative rules & workflows** |
+
+## Next Steps
+
+<Steps>
+
+### 1. Install the package
+
+```bash
+npm install @objectstack/spec zod
+```
+
+### 2. Choose your learning path
+
+- **Quick & Practical:** [Build Your First App](/docs/quick-start/build-first-app) - Hands-on tutorial
+- **Conceptual Understanding:** [Core Concepts](/docs/concepts/manifesto) - Philosophy and architecture
+- **Complete Reference:** [Developer Guides](/docs/guides/getting-started) - Comprehensive documentation
+
+### 3. Explore examples
+
+- [CRM Example](https://github.com/objectstack-ai/spec/tree/main/examples/crm) - Full-featured application
+- [Todo Example](https://github.com/objectstack-ai/spec/tree/main/examples/todo) - Minimal quick-start
+
+</Steps>
+
+## Common Use Cases
+
+### Internal Tools & Admin Panels
+Build CRUD applications with complex business logic in hours, not weeks.
+
+### CRM & ERP Systems
+Replicate Salesforce-like functionality with complete customization.
+
+### Workflow Automation Platforms
+Define approval flows, state machines, and automation rules declaratively.
+
+### Multi-tenant SaaS Platforms
+One codebase, infinite customizations through metadata configuration.
+
+## Need Help?
+
+- **Documentation:** You're reading it! Use the search bar above.
+- **GitHub Issues:** [Report bugs or request features](https://github.com/objectstack-ai/spec/issues)
+- **Examples:** Browse the `/examples` directory in the repository

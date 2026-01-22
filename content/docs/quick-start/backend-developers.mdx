@@ -1,0 +1,396 @@
+---
+title: For Backend Developers
+description: Learn ObjectStack from a backend perspective - focus on data modeling, business logic, and API generation.
+---
+
+Welcome backend developers! If you're familiar with ORMs (Sequelize, TypeORM, Prisma) or NoSQL ODMs (Mongoose), you'll find ObjectStack refreshingly familiar yet more powerful.
+
+## Core Concept
+
+ObjectStack replaces traditional:
+```
+Model → Migration → Controller → API Routes
+```
+
+With a single source of truth:
+```typescript
+Object Definition → Everything Auto-Generated
+```
+
+## Quick Comparison
+
+### Traditional Approach (Express + Sequelize)
+
+```typescript
+// 1. Define Model
+const Task = sequelize.define('Task', {
+  title: { type: DataTypes.STRING, allowNull: false },
+  status: { type: DataTypes.ENUM('todo', 'done') },
+  dueDate: { type: DataTypes.DATE },
+});
+
+// 2. Write Migration
+await queryInterface.createTable('tasks', { /* ... */ });
+
+// 3. Write Controller
+router.post('/tasks', async (req, res) => {
+  const task = await Task.create(req.body);
+  res.json(task);
+});
+
+// 4. Add Validation
+const validateTask = (req, res, next) => {
+  if (!req.body.title) return res.status(400).json({ error: 'Title required' });
+  next();
+};
+
+// Total: 4 files, ~150 lines of code
+```
+
+### ObjectStack Protocol
+
+```typescript
+// Everything in ONE definition
+export const Task = ObjectSchema.create({
+  name: 'task',
+  label: 'Task',
+  fields: {
+    title: Field.text({ label: 'Title', required: true }),
+    status: Field.select({ 
+      label: 'Status',
+      options: ['todo', 'in_progress', 'done']
+    }),
+    due_date: Field.date({ label: 'Due Date' }),
+  }
+});
+
+// That's it! You get:
+// ✅ TypeScript types
+// ✅ Runtime validation (Zod)
+// ✅ REST API (CRUD operations)
+// ✅ GraphQL API (optional)
+// ✅ Database schema
+// ✅ Admin UI
+
+// Total: 1 file, ~15 lines of code
+```
+
+## Field Types You Know and Love
+
+ObjectStack provides **23+ field types** with automatic validation:
+
+| ObjectStack Type | Similar To | Features |
+| :--- | :--- | :--- |
+| `Field.text()` | `VARCHAR` / `String` | Max length, pattern validation |
+| `Field.number()` | `INTEGER` / `Number` | Min, max, precision |
+| `Field.boolean()` | `BOOLEAN` | True/false |
+| `Field.date()` | `DATE` | Date only |
+| `Field.datetime()` | `TIMESTAMP` | Date + time |
+| `Field.select()` | `ENUM` | Predefined options |
+| `Field.lookup()` | `FOREIGN KEY` | Relations |
+| `Field.json()` | `JSON` / `JSONB` | Structured data |
+
+### Example: Complex Data Model
+
+```typescript
+import { ObjectSchema, Field } from '@objectstack/spec';
+
+export const Order = ObjectSchema.create({
+  name: 'order',
+  label: 'Order',
+  nameField: 'order_number',
+  
+  fields: {
+    // Auto-generated unique ID
+    order_number: Field.autonumber({
+      label: 'Order #',
+      format: 'ORD-{0000}',
+    }),
+    
+    // Foreign key relationship
+    customer: Field.lookup({
+      label: 'Customer',
+      reference: 'customer',
+      displayField: 'company_name',
+      required: true,
+    }),
+    
+    // Multi-select for tags
+    tags: Field.multiselect({
+      label: 'Tags',
+      options: ['urgent', 'wholesale', 'repeat_customer'],
+    }),
+    
+    // Decimal for currency
+    total_amount: Field.currency({
+      label: 'Total Amount',
+      precision: 2,
+      min: 0,
+    }),
+    
+    // Calculated field
+    discount_percentage: Field.formula({
+      label: 'Discount %',
+      returnType: 'number',
+      expression: '(original_amount - total_amount) / original_amount * 100',
+    }),
+    
+    // JSON for flexible data
+    metadata: Field.json({
+      label: 'Metadata',
+      schema: z.object({
+        source: z.enum(['web', 'mobile', 'api']),
+        utm_campaign: z.string().optional(),
+      }),
+    }),
+  },
+});
+```
+
+## Business Logic: Validation & Workflows
+
+### Validation Rules
+
+Like database constraints, but more powerful:
+
+```typescript
+import { ValidationRule } from '@objectstack/spec';
+
+export const orderValidations = [
+  // Business rule: Discount cannot exceed 50%
+  ValidationRule.create({
+    name: 'max_discount',
+    object: 'order',
+    errorMessage: 'Discount cannot exceed 50%',
+    condition: 'discount_percentage > 50',
+  }),
+  
+  // Cross-field validation
+  ValidationRule.create({
+    name: 'delivery_date_after_order',
+    object: 'order',
+    errorMessage: 'Delivery date must be after order date',
+    condition: 'delivery_date <= order_date',
+  }),
+];
+```
+
+### Workflows (Triggers)
+
+Like database triggers, but declarative:
+
+```typescript
+import { Workflow, WorkflowAction } from '@objectstack/spec';
+
+export const orderWorkflow = Workflow.create({
+  name: 'notify_on_high_value',
+  object: 'order',
+  trigger: 'after_insert',
+  
+  // Run when total > 10,000
+  condition: 'total_amount > 10000',
+  
+  actions: [
+    // Send email notification
+    WorkflowAction.sendEmail({
+      to: 'sales@company.com',
+      subject: 'High-value order created',
+      body: 'Order {order_number} for ${total_amount} created',
+    }),
+    
+    // Update related record
+    WorkflowAction.updateField({
+      object: 'customer',
+      recordId: '{customer.id}',
+      fields: {
+        last_high_value_order: '{id}',
+      },
+    }),
+  ],
+});
+```
+
+## API Generation
+
+Your ObjectStack definitions automatically generate REST APIs:
+
+```http
+# Auto-generated endpoints
+POST   /api/v1/objects/order           # Create
+GET    /api/v1/objects/order/:id       # Read
+PATCH  /api/v1/objects/order/:id       # Update
+DELETE /api/v1/objects/order/:id       # Delete
+GET    /api/v1/objects/order           # List with query
+
+# Advanced queries
+GET /api/v1/objects/order?filter[total_amount][gt]=1000
+GET /api/v1/objects/order?sort=-created_at&limit=10
+GET /api/v1/objects/order?include=customer,line_items
+```
+
+### Query Builder (Type-Safe)
+
+```typescript
+import { Query } from '@objectstack/spec';
+
+// Build complex queries
+const query = Query.create({
+  object: 'order',
+  
+  // WHERE clause
+  filters: {
+    total_amount: { gt: 1000 },
+    status: { in: ['pending', 'processing'] },
+    'customer.country': { eq: 'US' },
+  },
+  
+  // JOIN / Include related records
+  include: ['customer', 'line_items'],
+  
+  // ORDER BY
+  sort: [{ field: 'created_at', direction: 'desc' }],
+  
+  // LIMIT / OFFSET
+  limit: 20,
+  offset: 0,
+  
+  // SELECT (field projection)
+  fields: ['order_number', 'total_amount', 'customer.company_name'],
+});
+```
+
+## Database Agnostic
+
+ObjectStack **abstracts** the database layer:
+
+```typescript
+// Your code (driver-agnostic)
+const result = await kernel.query({
+  object: 'order',
+  filters: { status: { eq: 'pending' } },
+});
+
+// Works with ANY driver:
+// - PostgreSQL Driver
+// - MySQL Driver  
+// - MongoDB Driver
+// - Redis Driver
+// - In-Memory Driver
+// - Your Custom Driver
+```
+
+### Custom Driver Example
+
+```typescript
+import { Driver, DriverCapabilities } from '@objectstack/spec';
+
+export class MyCustomDriver implements Driver {
+  readonly capabilities: DriverCapabilities = {
+    queryFilters: ['eq', 'gt', 'lt', 'in'],
+    queryAggregations: ['count', 'sum', 'avg'],
+    transactions: true,
+  };
+  
+  async find(query: Query): Promise<Record[]> {
+    // Your implementation
+  }
+  
+  async create(object: string, data: Record): Promise<Record> {
+    // Your implementation
+  }
+  
+  // ... more methods
+}
+```
+
+## Advanced: Formula Engine
+
+ObjectStack includes a **SQL-like formula language**:
+
+```typescript
+// Formulas can reference fields, perform calculations
+Field.formula({
+  label: 'Calculated Total',
+  returnType: 'number',
+  
+  // Supports: math, logic, dates, text, lookups
+  expression: `
+    IF(
+      discount_code != NULL,
+      subtotal * (1 - discount_percentage / 100),
+      subtotal
+    ) + shipping_cost
+  `,
+})
+```
+
+### Available Formula Functions
+
+- **Math:** `SUM`, `AVG`, `MIN`, `MAX`, `ROUND`, `ABS`
+- **Logic:** `IF`, `AND`, `OR`, `NOT`, `ISNULL`
+- **Text:** `CONCAT`, `UPPER`, `LOWER`, `SUBSTRING`, `LEN`
+- **Date:** `TODAY`, `NOW`, `DATEADD`, `DATEDIFF`, `YEAR`, `MONTH`
+- **Lookup:** `LOOKUP`, `ROLLUP`
+
+## Testing Your Definitions
+
+ObjectStack schemas are **Zod schemas**:
+
+```typescript
+import { Task } from './objects/task';
+
+// Unit test example
+describe('Task Object', () => {
+  it('should validate required fields', () => {
+    const result = Task.safeParse({
+      title: 'My Task',
+      status: 'todo',
+    });
+    
+    expect(result.success).toBe(true);
+  });
+  
+  it('should reject invalid status', () => {
+    const result = Task.safeParse({
+      title: 'My Task',
+      status: 'invalid_status', // Not in enum
+    });
+    
+    expect(result.success).toBe(false);
+  });
+});
+```
+
+## Next Steps for Backend Developers
+
+<Cards>
+  <Card
+    title="Field Types Reference"
+    href="/docs/guides/field-types"
+    description="Complete guide to all 23+ field types"
+  />
+  <Card
+    title="Query AST Structure"
+    href="/docs/specifications/data/ast-structure"
+    description="Deep dive into the query abstraction layer"
+  />
+  <Card
+    title="Build a Custom Driver"
+    href="/docs/guides/custom-driver"
+    description="Connect ObjectStack to any database"
+  />
+  <Card
+    title="API Specification"
+    href="/docs/specifications/server/rest-api"
+    description="Generated REST API reference"
+  />
+</Cards>
+
+## Migration Guides
+
+Coming from another framework? We've got you covered:
+
+- [Prisma → ObjectStack](/docs/migration/prisma)
+- [TypeORM → ObjectStack](/docs/migration/typeorm)
+- [Sequelize → ObjectStack](/docs/migration/sequelize)
+- [Mongoose → ObjectStack](/docs/migration/mongoose)

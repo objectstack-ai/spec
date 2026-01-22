@@ -1,0 +1,245 @@
+---
+title: Protocol Specifications
+description: Complete technical specifications for the ObjectStack Protocol - the "constitution" of the metadata-driven platform.
+---
+
+import { Database, Layout, Server } from 'lucide-react';
+
+The ObjectStack Protocol is defined through three core specifications that work together to create a complete metadata-driven platform.
+
+## The Three-Layer Architecture
+
+<Cards>
+  <Card
+    icon={<Database />}
+    title="Data Protocol (ObjectQL)"
+    href="/docs/specifications/data"
+    description="Define data structures, queries, and business logic. Database-agnostic abstraction layer."
+  />
+  <Card
+    icon={<Layout />}
+    title="UI Protocol (ObjectUI)"
+    href="/docs/specifications/ui"
+    description="Server-driven UI definitions. Express interfaces as JSON, not code."
+  />
+  <Card
+    icon={<Server />}
+    title="System Protocol (ObjectOS)"
+    href="/docs/specifications/server"
+    description="Runtime kernel, plugins, security, and integration. The platform foundation."
+  />
+</Cards>
+
+## What Are Specifications?
+
+These documents define the **ObjectStack Protocol** - the rules and standards that all implementations must follow.
+
+Think of them as:
+- **The SQL Specification** → Defines what SQL should do
+- **The HTTP Specification** → Defines how web communication works
+- **The ObjectStack Specification** → Defines how metadata-driven platforms work
+
+## Who Should Read These?
+
+### Protocol Implementers
+
+Building an ObjectStack implementation?
+
+- **Kernel Developers:** Implement the runtime engine
+- **Driver Developers:** Connect new databases (PostgreSQL, MongoDB, etc.)
+- **Renderer Developers:** Build UI renderers (React, Vue, Flutter)
+
+Start with:
+1. [System Protocol - Kernel Architecture](/docs/specifications/server/kernel-architecture)
+2. [Data Protocol - Architecture](/docs/specifications/data/architecture)
+3. [UI Protocol - SDUI Protocol](/docs/specifications/ui/sdui-protocol)
+
+### Platform Architects
+
+Evaluating ObjectStack for your organization?
+
+- **CTOs:** Understand architectural decisions
+- **Tech Leads:** Evaluate scalability and security
+- **Solution Architects:** Design integration patterns
+
+Start with:
+1. [Data Protocol - Architecture](/docs/specifications/data/architecture)
+2. [System Protocol - Permission Governance](/docs/specifications/server/permission-governance)
+3. [UI Protocol - Component Schema](/docs/specifications/ui/component-schema)
+
+### Advanced Users
+
+Building complex applications with ObjectStack?
+
+- **Power Users:** Understand limits and capabilities
+- **Custom Plugin Developers:** Extend the platform
+- **Integration Engineers:** Connect external systems
+
+Start with:
+1. [Data Protocol - AST Structure](/docs/specifications/data/ast-structure)
+2. [System Protocol - Plugin Manifest](/docs/specifications/server/plugin-manifest)
+3. [UI Protocol - Action Triggers](/docs/specifications/ui/action-triggers)
+
+## Specification Structure
+
+Each specification follows a consistent structure:
+
+### 1. Overview
+
+- **Purpose:** What problem does this solve?
+- **Design Principles:** What are the guiding principles?
+- **Architecture Diagram:** Visual representation
+
+### 2. Core Concepts
+
+- **Schemas:** Zod definitions
+- **Types:** TypeScript interfaces
+- **Examples:** Real-world usage
+
+### 3. Implementation Notes
+
+- **Driver Responsibilities:** What must drivers implement?
+- **Renderer Responsibilities:** What must renderers handle?
+- **Kernel Integration:** How does it fit into the system?
+
+### 4. Reference
+
+- **API Documentation:** Complete type reference
+- **Test Suite:** Compliance tests
+- **Migration Guide:** Version upgrade paths
+
+## Key Design Principles
+
+### 1. Protocol Over Framework
+
+ObjectStack is a **protocol**, not a framework:
+
+```
+Protocol Definition (Zod schemas)
+       ↓
+Multiple Implementations
+  • Node.js Kernel
+  • Go Kernel
+  • Python Kernel
+  • Custom Kernel
+```
+
+### 2. Declarative Over Imperative
+
+Express **intent**, not **implementation**:
+
+```typescript
+// What you want (declarative)
+const Task = ObjectSchema.create({
+  fields: {
+    title: Field.text({ required: true }),
+  }
+});
+
+// How to do it (handled by kernel)
+// ✓ Generate SQL schema
+// ✓ Create API endpoints
+// ✓ Validate requests
+// ✓ Render UI
+```
+
+### 3. Type-Safe by Default
+
+All schemas are Zod + TypeScript:
+
+```typescript
+// Source: Zod schema
+export const TaskSchema = z.object({ ... });
+
+// Derived: TypeScript type
+type Task = z.infer<typeof TaskSchema>;
+
+// Derived: JSON Schema
+const jsonSchema = zodToJsonSchema(TaskSchema);
+```
+
+### 4. Database Agnostic
+
+ObjectQL compiles to any backend:
+
+```
+ObjectQL Query → AST → Driver Translates
+                       ↓
+              SQL | NoSQL | API
+```
+
+### 5. Extensible by Design
+
+Plugin architecture for unlimited extensibility:
+
+```typescript
+// Core is minimal
+const kernel = new Kernel();
+
+// Add capabilities via plugins
+kernel.loadPlugin(PostgresDriver);
+kernel.loadPlugin(AuthPlugin);
+kernel.loadPlugin(AnalyticsPlugin);
+```
+
+## Versioning & Compatibility
+
+ObjectStack follows **Semantic Versioning** (semver):
+
+```
+MAJOR.MINOR.PATCH
+  1  . 0  . 0
+```
+
+- **MAJOR:** Breaking changes to protocol
+- **MINOR:** New features (backward compatible)
+- **PATCH:** Bug fixes
+
+### Compatibility Guarantee
+
+- **Same MAJOR version:** 100% compatible
+- **Different MAJOR:** May require migration
+
+Example:
+- Schema written for **v1.x.x** works on **v1.5.0** ✅
+- Schema written for **v1.x.x** may need updates for **v2.0.0** ⚠️
+
+## Specification Roadmap
+
+### Current (v0.x)
+
+- ✅ Data Protocol (ObjectQL) - Core schemas
+- ✅ UI Protocol (ObjectUI) - View definitions
+- ✅ System Protocol (ObjectOS) - Kernel architecture
+- 🚧 AI Protocol - Agent definitions
+- 🚧 API Protocol - REST/GraphQL contracts
+
+### Future (v1.x)
+
+- 📋 Real-time Protocol - WebSocket/SSE specifications
+- 📋 Offline Protocol - Sync and conflict resolution
+- 📋 Search Protocol - Full-text search abstraction
+- 📋 Analytics Protocol - Advanced reporting
+
+## Contributing to Specifications
+
+Want to propose changes or additions?
+
+1. **Read:** [Contributing Guide](https://github.com/objectstack-ai/spec/blob/main/CONTRIBUTING.md)
+2. **Discuss:** [GitHub Discussions](https://github.com/objectstack-ai/spec/discussions)
+3. **Propose:** [Submit an RFC](https://github.com/objectstack-ai/spec/issues/new?template=rfc.md)
+
+### RFC Process
+
+1. **Draft:** Write RFC document
+2. **Discussion:** Community feedback (2 weeks)
+3. **Review:** Core team review
+4. **Decision:** Accept, Reject, or Iterate
+5. **Implementation:** Update specs + reference implementation
+
+## Related Documentation
+
+- **[Concepts](/docs/concepts/architecture)** - High-level philosophy
+- **[Guides](/docs/guides/getting-started)** - Practical how-to guides
+- **[References](/docs/references/data/core/Object)** - Complete API documentation
+- **[Examples](https://github.com/objectstack-ai/spec/tree/main/examples)** - Reference implementations

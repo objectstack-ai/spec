@@ -1,0 +1,499 @@
+---
+title: Troubleshooting
+description: Common issues and how to resolve them when working with ObjectStack.
+---
+
+This guide covers common issues you might encounter when working with ObjectStack and how to resolve them.
+
+## Installation Issues
+
+### `npm install @objectstack/spec` fails
+
+**Symptoms:**
+```
+npm ERR! code ERESOLVE
+npm ERR! ERESOLVE unable to resolve dependency tree
+```
+
+**Solutions:**
+
+1. **Clear npm cache:**
+   ```bash
+   npm cache clean --force
+   rm -rf node_modules package-lock.json
+   npm install
+   ```
+
+2. **Check Node.js version:**
+   ```bash
+   node --version  # Should be 18.0.0 or higher
+   ```
+
+3. **Use legacy peer deps (temporary workaround):**
+   ```bash
+   npm install --legacy-peer-deps
+   ```
+
+### TypeScript compilation errors
+
+**Symptoms:**
+```
+error TS2307: Cannot find module '@objectstack/spec'
+```
+
+**Solutions:**
+
+1. **Ensure correct tsconfig.json:**
+   ```json
+   {
+     "compilerOptions": {
+       "moduleResolution": "node",
+       "esModuleInterop": true,
+       "strict": true
+     }
+   }
+   ```
+
+2. **Restart TypeScript server** (VS Code: Cmd+Shift+P → "Restart TS Server")
+
+## Schema Definition Issues
+
+### Validation errors in object definitions
+
+**Symptoms:**
+```
+ZodError: [
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": ["name"]
+  }
+]
+```
+
+**Solution:**
+
+Check that all required fields are provided:
+
+```typescript
+// ❌ Wrong - missing required 'name' field
+const Task = ObjectSchema.create({
+  label: 'Task',
+  fields: { ... }
+});
+
+// ✅ Correct
+const Task = ObjectSchema.create({
+  name: 'task',     // ← Required
+  label: 'Task',
+  fields: { ... }
+});
+```
+
+### Field type errors
+
+**Symptoms:**
+```
+Type 'string' is not assignable to type 'FieldType'
+```
+
+**Solution:**
+
+Use Field helper functions, not raw strings:
+
+```typescript
+// ❌ Wrong
+fields: {
+  title: { type: 'text', label: 'Title' }
+}
+
+// ✅ Correct
+fields: {
+  title: Field.text({ label: 'Title' })
+}
+```
+
+### Circular dependency in lookups
+
+**Symptoms:**
+```
+ReferenceError: Cannot access 'Contact' before initialization
+```
+
+**Solution:**
+
+Use lazy imports for circular references:
+
+```typescript
+// File: account.object.ts
+export const Account = ObjectSchema.create({
+  fields: {
+    primary_contact: Field.lookup({
+      reference: 'contact',  // ← String reference, not import
+    })
+  }
+});
+
+// File: contact.object.ts
+export const Contact = ObjectSchema.create({
+  fields: {
+    account: Field.lookup({
+      reference: 'account',  // ← String reference
+    })
+  }
+});
+```
+
+## Runtime Issues
+
+### "Driver not registered"
+
+**Symptoms:**
+```
+Error: Driver 'postgres' not registered
+```
+
+**Solution:**
+
+Register the driver before using it:
+
+```typescript
+import { Kernel } from '@objectstack/kernel';
+import { PostgresDriver } from '@objectstack/driver-postgres';
+
+const kernel = new Kernel();
+
+// Register driver BEFORE creating queries
+kernel.registerDriver('postgres', new PostgresDriver({
+  host: 'localhost',
+  database: 'mydb',
+}));
+```
+
+### Query execution fails
+
+**Symptoms:**
+```
+Error: Query failed: syntax error near "SELECT"
+```
+
+**Solutions:**
+
+1. **Enable query logging to see generated SQL:**
+   ```typescript
+   const kernel = new Kernel({
+     logging: {
+       level: 'debug',
+       logQueries: true,
+     },
+   });
+   ```
+
+2. **Check driver capabilities:**
+   ```typescript
+   const driver = kernel.getDriver('postgres');
+   console.log(driver.capabilities);
+   
+   // Ensure your query uses supported features
+   ```
+
+3. **Simplify the query to isolate the issue:**
+   ```typescript
+   // Start simple
+   const simple = await kernel.query({
+     object: 'task',
+   });
+   
+   // Add complexity step by step
+   const withFilter = await kernel.query({
+     object: 'task',
+     filters: { status: { eq: 'open' } },
+   });
+   ```
+
+### Formula evaluation errors
+
+**Symptoms:**
+```
+Error: Formula evaluation failed: Unknown function 'INVALID'
+```
+
+**Solutions:**
+
+1. **Check formula syntax:**
+   ```typescript
+   // ❌ Wrong - invalid function
+   expression: 'INVALID(field)'
+   
+   // ✅ Correct - use supported functions
+   expression: 'IF(field > 0, field * 2, 0)'
+   ```
+
+2. **Verify field references:**
+   ```typescript
+   // ❌ Wrong - field doesn't exist
+   expression: 'nonexistent_field + 10'
+   
+   // ✅ Correct - reference actual fields
+   expression: 'quantity * unit_price'
+   ```
+
+3. **Check return type compatibility:**
+   ```typescript
+   Field.formula({
+     returnType: 'number',
+     // ❌ Wrong - returns string
+     expression: 'CONCAT(first_name, last_name)',
+     
+     // ✅ Correct - returns number
+     expression: 'quantity * unit_price',
+   })
+   ```
+
+## UI Rendering Issues
+
+### Views not displaying correctly
+
+**Symptoms:**
+- Blank screen
+- Missing columns
+- Incorrect data
+
+**Solutions:**
+
+1. **Verify view is registered:**
+   ```typescript
+   const manifest = Manifest.create({
+     views: {
+       list: [TaskListView],  // ← Must include your view
+     },
+   });
+   ```
+
+2. **Check field references in columns:**
+   ```typescript
+   // ❌ Wrong - field doesn't exist on object
+   columns: [
+     { field: 'nonexistent_field' }
+   ]
+   
+   // ✅ Correct - use actual field names
+   columns: [
+     { field: 'title' },  // ← Must match field in object
+     { field: 'status' },
+   ]
+   ```
+
+3. **Inspect browser console for errors**
+
+### Form validation not working
+
+**Symptoms:**
+- Form submits invalid data
+- No validation errors shown
+
+**Solutions:**
+
+1. **Ensure validation rules are registered:**
+   ```typescript
+   const manifest = Manifest.create({
+     validations: [
+       taskValidations,  // ← Include validation rules
+     ],
+   });
+   ```
+
+2. **Check validation rule conditions:**
+   ```typescript
+   ValidationRule.create({
+     // ❌ Wrong - inverted logic
+     condition: 'due_date < TODAY()',  // Triggers when date is in past
+     
+     // ✅ Correct - fixed logic
+     condition: 'due_date < TODAY()',
+     errorMessage: 'Due date cannot be in the past',
+   })
+   ```
+
+## Performance Issues
+
+### Slow query execution
+
+**Symptoms:**
+- Queries take several seconds
+- UI feels sluggish
+
+**Solutions:**
+
+1. **Add indexes to frequently queried fields:**
+   ```typescript
+   Field.text({
+     label: 'Email',
+     indexed: true,  // ← Creates database index
+   })
+   ```
+
+2. **Use pagination for large datasets:**
+   ```typescript
+   const query = Query.create({
+     object: 'task',
+     limit: 50,      // ← Limit results
+     offset: 0,
+   });
+   ```
+
+3. **Optimize formula fields:**
+   ```typescript
+   // ❌ Slow - complex nested formulas
+   expression: 'IF(IF(IF(...), ...), ...)'
+   
+   // ✅ Fast - simpler logic
+   expression: 'amount * (1 - discount / 100)'
+   ```
+
+4. **Enable query result caching:**
+   ```typescript
+   const kernel = new Kernel({
+     cache: {
+       enabled: true,
+       ttl: 60, // seconds
+     },
+   });
+   ```
+
+### Large bundle size
+
+**Symptoms:**
+- Slow initial page load
+- Large JavaScript bundle
+
+**Solutions:**
+
+1. **Use tree-shaking:**
+   ```typescript
+   // ❌ Imports everything
+   import * as ObjectStack from '@objectstack/spec';
+   
+   // ✅ Import only what you need
+   import { ObjectSchema, Field } from '@objectstack/spec';
+   ```
+
+2. **Code-split views:**
+   ```typescript
+   // Lazy-load views
+   const TaskView = lazy(() => import('./views/task-view'));
+   ```
+
+## Development Issues
+
+### Hot reload not working
+
+**Symptoms:**
+- Changes not reflected in browser
+- Need to manually refresh
+
+**Solutions:**
+
+1. **Check Next.js dev server is running:**
+   ```bash
+   pnpm docs:dev
+   ```
+
+2. **Clear Next.js cache:**
+   ```bash
+   rm -rf .next
+   pnpm docs:dev
+   ```
+
+### TypeScript autocomplete not working
+
+**Symptoms:**
+- No IntelliSense suggestions
+- Type errors not shown
+
+**Solutions:**
+
+1. **Restart TypeScript server** (VS Code: Cmd+Shift+P → "Restart TS Server")
+
+2. **Check tsconfig.json includes source files:**
+   ```json
+   {
+     "include": ["src/**/*", "*.ts"]
+   }
+   ```
+
+3. **Ensure @objectstack/spec is installed:**
+   ```bash
+   npm list @objectstack/spec
+   ```
+
+## Debugging Tips
+
+### Enable debug logging
+
+```typescript
+const kernel = new Kernel({
+  logging: {
+    level: 'debug',  // 'error' | 'warn' | 'info' | 'debug'
+    logQueries: true,
+    logValidation: true,
+  },
+});
+```
+
+### Inspect generated schemas
+
+```typescript
+import { zodToJsonSchema } from 'zod-to-json-schema';
+
+const jsonSchema = zodToJsonSchema(TaskSchema);
+console.log(JSON.stringify(jsonSchema, null, 2));
+```
+
+### Test schemas in isolation
+
+```typescript
+import { Task } from './objects/task';
+
+// Test valid data
+const validResult = Task.safeParse({
+  title: 'Test Task',
+  status: 'todo',
+});
+console.log(validResult); // { success: true, data: {...} }
+
+// Test invalid data
+const invalidResult = Task.safeParse({
+  title: '', // Empty string (might be invalid)
+  status: 'invalid_status',
+});
+console.log(invalidResult); // { success: false, error: {...} }
+```
+
+### Use browser DevTools
+
+1. **Network tab:** Inspect API requests/responses
+2. **Console tab:** View runtime errors
+3. **React DevTools:** Inspect component props (if using React renderer)
+
+## Getting Help
+
+If you're still stuck after trying these solutions:
+
+1. **Search existing issues:**
+   - [GitHub Issues](https://github.com/objectstack-ai/spec/issues)
+
+2. **Ask the community:**
+   - [GitHub Discussions](https://github.com/objectstack-ai/spec/discussions)
+
+3. **Report a bug:**
+   - [Create a new issue](https://github.com/objectstack-ai/spec/issues/new)
+   - Include:
+     - ObjectStack version
+     - Node.js version
+     - Error message and stack trace
+     - Minimal reproduction example
+
+4. **Check the FAQ:**
+   - [Frequently Asked Questions](/docs/faq)

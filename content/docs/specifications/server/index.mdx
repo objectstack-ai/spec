@@ -1,0 +1,382 @@
+---
+title: System Protocol (ObjectOS)
+description: Comprehensive specification for the ObjectStack System Layer - kernel architecture, plugins, and runtime environment.
+---
+
+import { Cpu, Package, Shield, Zap } from 'lucide-react';
+
+The **System Protocol (ObjectOS)** defines the runtime environment for ObjectStack applications. It specifies:
+- Kernel architecture and lifecycle
+- Plugin discovery and loading
+- Authentication and authorization
+- Integration and webhooks
+- Audit and compliance
+
+## Core Components
+
+<Cards>
+  <Card
+    icon={<Cpu />}
+    title="Kernel Architecture"
+    href="/docs/specifications/server/kernel-architecture"
+    description="Core runtime engine that orchestrates all components"
+  />
+  <Card
+    icon={<Package />}
+    title="Plugin Manifest"
+    href="/docs/specifications/server/plugin-manifest"
+    description="Package structure and plugin loading mechanism"
+  />
+  <Card
+    icon={<Shield />}
+    title="Permission Governance"
+    href="/docs/specifications/server/permission-governance"
+    description="Multi-layered access control and security"
+  />
+  <Card
+    icon={<Zap />}
+    title="REST API"
+    href="/docs/specifications/server/rest-api"
+    description="Auto-generated API specification"
+  />
+</Cards>
+
+## Specifications
+
+### Core System
+
+1. **[Kernel Architecture](/docs/specifications/server/kernel-architecture)**
+   - Kernel design and responsibilities
+   - Component lifecycle
+   - Event system
+   - Dependency injection
+
+2. **[Plugin Manifest](/docs/specifications/server/plugin-manifest)**
+   - Manifest structure (`objectstack.config.ts`)
+   - Plugin metadata
+   - Dependencies and versioning
+
+3. **[Workflow Engine](/docs/specifications/server/workflow-engine)**
+   - Trigger types (before/after insert/update/delete)
+   - Action execution
+   - Error handling
+
+### Security & Compliance
+
+4. **[Permission Governance](/docs/specifications/server/permission-governance)**
+   - Object-level permissions
+   - Field-level security
+   - Row-level sharing
+   - Territory management
+
+5. **[Audit & Compliance](/docs/specifications/server/audit-compliance)**
+   - Field history tracking
+   - Login history
+   - API usage logs
+   - Compliance reports (GDPR, SOC2)
+
+### Integration
+
+6. **[Automation Rules](/docs/specifications/server/automation-rules)**
+   - Field updates
+   - Email alerts
+   - Process automation
+
+7. **[Integration & ETL](/docs/specifications/server/integration-etl)**
+   - Webhook definitions
+   - External API calls
+   - Data transformation
+   - Batch processing
+
+### API Layer
+
+8. **[REST API](/docs/specifications/server/rest-api)**
+   - Endpoint structure
+   - Request/Response format
+   - Authentication
+   - Rate limiting
+
+## Kernel Architecture
+
+The Kernel is the central orchestrator of an ObjectStack application:
+
+```
+┌─────────────────────────────────────────┐
+│              Kernel                      │
+├─────────────────────────────────────────┤
+│  • Plugin Registry                       │
+│  • Driver Registry                       │
+│  • Event Bus                             │
+│  • Permission Engine                     │
+│  • Workflow Engine                       │
+└─────────────────────────────────────────┘
+         ↓           ↓           ↓
+    [Plugins]   [Drivers]  [Extensions]
+```
+
+### Kernel Responsibilities
+
+1. **Plugin Management:**
+   - Load and initialize plugins
+   - Resolve dependencies
+   - Hot-reload support
+
+2. **Request Routing:**
+   - API request handling
+   - Query execution
+   - Response formatting
+
+3. **Security:**
+   - Authentication verification
+   - Permission checking
+   - Data encryption
+
+4. **Event Coordination:**
+   - Publish/subscribe events
+   - Trigger workflow actions
+   - Audit logging
+
+## Plugin System
+
+ObjectStack uses a **plugin architecture** inspired by Eclipse RCP and Kubernetes Operators.
+
+### Plugin Structure
+
+```typescript
+export const MyPlugin: Plugin = {
+  name: 'my-plugin',
+  version: '1.0.0',
+  
+  // Dependencies
+  requires: ['core-plugin@^1.0.0'],
+  
+  // Lifecycle hooks
+  onLoad(kernel: IKernel) {
+    // Register components
+    kernel.registerDriver('custom', new CustomDriver());
+  },
+  
+  onUnload() {
+    // Cleanup
+  },
+  
+  // Provided capabilities
+  provides: {
+    drivers: [CustomDriver],
+    apis: [CustomAPI],
+  },
+};
+```
+
+### Plugin Types
+
+| Plugin Type | Purpose | Examples |
+| :--- | :--- | :--- |
+| **Driver** | Database connectivity | PostgreSQL, MongoDB, Redis |
+| **Auth Provider** | Authentication | OAuth, SAML, LDAP |
+| **Renderer** | UI rendering | React, Vue, Flutter |
+| **Integration** | External systems | Stripe, SendGrid, Twilio |
+| **Analytics** | Reporting engines | Metabase, Superset |
+
+## Permission System
+
+Multi-layered access control:
+
+### Layer 1: Object Permissions
+
+```typescript
+Permission.create({
+  profile: 'sales_user',
+  object: 'opportunity',
+  create: true,
+  read: true,
+  update: { criteria: 'OwnerId = $User.Id' },
+  delete: false,
+});
+```
+
+### Layer 2: Field Security
+
+```typescript
+FieldPermission.create({
+  profile: 'sales_user',
+  object: 'account',
+  field: 'annual_revenue',
+  read: false,
+  edit: false,
+});
+```
+
+### Layer 3: Record Sharing
+
+```typescript
+SharingRule.create({
+  object: 'account',
+  sharedTo: 'sales_team',
+  accessLevel: 'read',
+  criteria: { region: 'US' },
+});
+```
+
+## Workflow Engine
+
+Execute business logic automatically:
+
+```typescript
+Workflow.create({
+  name: 'notify_manager',
+  object: 'opportunity',
+  trigger: 'after_insert',
+  
+  condition: 'Amount > 100000',
+  
+  actions: [
+    WorkflowAction.sendEmail({
+      to: '{Owner.Manager.Email}',
+      subject: 'Large opportunity created',
+    }),
+    
+    WorkflowAction.updateField({
+      field: 'Status',
+      value: 'Requires Approval',
+    }),
+  ],
+});
+```
+
+### Trigger Types
+
+- `before_insert` - Before creating record
+- `after_insert` - After creating record
+- `before_update` - Before updating record
+- `after_update` - After updating record
+- `before_delete` - Before deleting record
+- `after_delete` - After deleting record
+
+## REST API Structure
+
+Auto-generated RESTful API:
+
+```http
+# CRUD Operations
+POST   /api/v1/objects/:object          # Create
+GET    /api/v1/objects/:object/:id      # Read
+PATCH  /api/v1/objects/:object/:id      # Update
+DELETE /api/v1/objects/:object/:id      # Delete
+
+# List & Query
+GET    /api/v1/objects/:object
+  ?filter[field][operator]=value
+  &sort=field:direction
+  &limit=20
+  &offset=0
+  &include=related_object
+
+# Bulk Operations
+POST   /api/v1/objects/:object/bulk     # Bulk create/update
+DELETE /api/v1/objects/:object/bulk     # Bulk delete
+
+# Metadata
+GET    /api/v1/metadata/objects         # List all objects
+GET    /api/v1/metadata/objects/:object # Object schema
+```
+
+## Audit & Compliance
+
+### Field History Tracking
+
+```typescript
+Object.create({
+  name: 'opportunity',
+  enable: {
+    trackHistory: true,
+    trackedFields: ['Amount', 'Stage', 'CloseDate'],
+  },
+});
+```
+
+**Captures:**
+- Who changed the field
+- When it was changed
+- Old value
+- New value
+
+### Login History
+
+Track user authentication events:
+- Login timestamp
+- IP address
+- User agent
+- Login status (success/failure)
+- MFA verification
+
+### API Usage Logs
+
+Monitor API consumption:
+- Endpoint called
+- Request/response size
+- Execution time
+- User context
+- Rate limit status
+
+## Design Principles
+
+### 1. Modularity
+
+Kernel is minimal. Everything else is a plugin:
+
+```
+Minimal Kernel + Plugins = Full Platform
+```
+
+### 2. Hot-Swappable
+
+Plugins can be loaded/unloaded at runtime:
+
+```typescript
+kernel.loadPlugin('analytics-plugin');
+kernel.unloadPlugin('old-integration');
+```
+
+### 3. Event-Driven
+
+Components communicate via events:
+
+```typescript
+kernel.on('record.created', (event) => {
+  // React to record creation
+});
+```
+
+### 4. Dependency Injection
+
+Kernel provides services to plugins:
+
+```typescript
+onLoad(kernel: IKernel) {
+  const logger = kernel.getLogger();
+  const cache = kernel.getCache();
+}
+```
+
+## Quick Links
+
+### For Implementers
+
+Building a kernel implementation? Start here:
+- [Kernel Interface](/docs/references/types/IKernel)
+- [Plugin Development](/docs/guides/plugin-development)
+- [Test Suite](/docs/guides/kernel-testing)
+
+### For Users
+
+Deploying ObjectStack applications? See:
+- [Installation Guide](/docs/guides/installation)
+- [Configuration Reference](/docs/guides/configuration)
+- [Deployment Guide](/docs/guides/deployment)
+
+## Related Documentation
+
+- **[Data Protocol](/docs/specifications/data/architecture)** - Data layer
+- **[UI Protocol](/docs/specifications/ui/sdui-protocol)** - UI layer
+- **[System Reference](/docs/references/system/config/Manifest)** - Configuration API
