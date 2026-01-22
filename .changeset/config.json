@@ -2,7 +2,17 @@
   "$schema": "https://unpkg.com/@changesets/config@3.1.2/schema.json",
   "changelog": ["@changesets/cli/changelog", { "repo": "objectstack-ai/spec" }],
   "commit": false,
-  "fixed": [],
+  "fixed": [
+    [
+      "@objectstack/spec",
+      "@objectstack/client",
+      "@objectstack/driver-memory",
+      "@objectstack/objectql",
+      "@objectstack/plugin-hono-server",
+      "@objectstack/runtime",
+      "@objectstack/types"
+    ]
+  ],
   "linked": [],
   "access": "public",
   "baseBranch": "main",
