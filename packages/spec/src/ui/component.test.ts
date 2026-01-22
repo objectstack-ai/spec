@@ -328,6 +328,102 @@ describe('ComponentSchema', () => {
     });
   });
 
+  describe('ID and Meta Fields', () => {
+    it('should accept component with id', () => {
+      const component = {
+        id: 'user-profile-card',
+        type: 'card',
+        props: { title: 'Profile' },
+      };
+
+      expect(() => ComponentSchema.parse(component)).not.toThrow();
+    });
+
+    it('should accept component with meta data', () => {
+      const component = {
+        type: 'widget',
+        props: { data: [] },
+        meta: {
+          x: 100,
+          y: 200,
+          locked: false,
+          label: 'Sales Chart',
+          bindingPath: 'dashboard.sales',
+        },
+      };
+
+      expect(() => ComponentSchema.parse(component)).not.toThrow();
+    });
+
+    it('should accept component with both id and meta', () => {
+      const component = {
+        id: 'editable-form-001',
+        type: 'form',
+        props: { action: '/submit' },
+        meta: {
+          position: { x: 50, y: 100 },
+          locked: true,
+          designerLabel: 'Contact Form',
+        },
+      };
+
+      expect(() => ComponentSchema.parse(component)).not.toThrow();
+    });
+
+    it('should accept nested components with ids', () => {
+      const component = {
+        id: 'dashboard',
+        type: 'container',
+        children: [
+          {
+            id: 'header-section',
+            type: 'header',
+            props: { title: 'Dashboard' },
+          },
+          {
+            id: 'content-section',
+            type: 'content',
+            children: [
+              {
+                id: 'widget-1',
+                type: 'chart',
+                props: { type: 'bar' },
+                meta: { gridPosition: { row: 0, col: 0 } },
+              },
+            ],
+          },
+        ],
+      };
+
+      expect(() => ComponentSchema.parse(component)).not.toThrow();
+    });
+
+    it('should accept meta with complex nested data', () => {
+      const component = {
+        type: 'data-grid',
+        meta: {
+          editorConfig: {
+            allowResize: true,
+            minWidth: 200,
+            maxWidth: 1000,
+          },
+          dataBinding: {
+            source: 'api.users',
+            filters: ['active', 'verified'],
+            transforms: [{ type: 'sort', field: 'name' }],
+          },
+          layout: {
+            position: { x: 0, y: 0 },
+            size: { width: 400, height: 300 },
+            zIndex: 10,
+          },
+        },
+      };
+
+      expect(() => ComponentSchema.parse(component)).not.toThrow();
+    });
+  });
+
   describe('Style and Events', () => {
     it('should accept component with both style and events', () => {
       const component = {

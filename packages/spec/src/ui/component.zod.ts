@@ -10,15 +10,18 @@ import { z } from 'zod';
  * This allows UI implementations to evolve independently while maintaining structural compatibility.
  * 
  * **Core Properties:**
+ * - `id`: Unique identifier for component instance (optional, for rendering engines and diff algorithms)
  * - `type`: Component type identifier (extensible string)
  * - `props`: Arbitrary component properties (implementation-defined)
  * - `children`: Recursive nesting of child components
  * - `events`: Event handler bindings
  * - `style`: Custom CSS styling
+ * - `meta`: Metadata for editors/designers (non-rendering information)
  * 
  * @example
  * ```typescript
  * const component: Component = {
+ *   id: 'user-profile-card',
  *   type: 'card',
  *   props: {
  *     title: 'User Profile',
@@ -27,6 +30,7 @@ import { z } from 'zod';
  *   },
  *   children: [
  *     {
+ *       id: 'premium-badge',
  *       type: 'badge',
  *       props: { label: 'Premium', variant: 'success' }
  *     }
@@ -37,17 +41,28 @@ import { z } from 'zod';
  *   },
  *   events: {
  *     onClick: () => {}
+ *   },
+ *   meta: {
+ *     x: 100,
+ *     y: 200,
+ *     locked: false,
+ *     bindingPath: 'user.profile'
  *   }
  * }
  * ```
  */
 export const ComponentSchema: z.ZodType<{
+  id?: string;
   type: string;
   props?: Record<string, unknown>;
   children?: Array<any>;
   events?: Record<string, Function>;
   style?: Record<string, string>;
+  meta?: Record<string, unknown>;
 }> = z.object({
+  /** Unique identifier for component instance - used by rendering engines, diff algorithms, and editors */
+  id: z.string().optional().describe('Component instance identifier'),
+  
   /** Component type identifier - extensible string to allow custom components */
   type: z.string().describe('Component type identifier'),
   
@@ -62,6 +77,9 @@ export const ComponentSchema: z.ZodType<{
   
   /** Custom CSS styles */
   style: z.record(z.string()).optional().describe('Custom styles'),
+  
+  /** Metadata for editors, designers, and plugin systems - not used in rendering */
+  meta: z.record(z.unknown()).optional().describe('Editor/designer metadata'),
 });
 
 /**

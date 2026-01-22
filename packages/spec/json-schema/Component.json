@@ -4,6 +4,10 @@
     "Component": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string",
+          "description": "Component instance identifier"
+        },
         "type": {
           "type": "string",
           "description": "Component type identifier"
@@ -29,6 +33,11 @@
             "type": "string"
           },
           "description": "Custom styles"
+        },
+        "meta": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Editor/designer metadata"
         }
       },
       "required": [
