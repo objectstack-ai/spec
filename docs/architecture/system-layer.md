@@ -1,0 +1,449 @@
+# ObjectOS - System Layer Architecture
+
+> Deep dive into the ObjectOS (Operating System) runtime architecture
+
+## Overview
+
+ObjectOS is the **runtime kernel** that orchestrates the entire ObjectStack ecosystem. It manages application lifecycle, plugins, identity, and system resources.
+
+## Key Components
+
+### 1. Manifest & Packaging (`src/system/manifest.zod.ts`)
+
+Application packaging and dependencies:
+
+```typescript
+// objectstack.config.ts
+export default {
+  name: 'sales_crm',
+  version: '1.0.0',
+  label: 'Sales CRM',
+  description: 'Customer relationship management system',
+  
+  dependencies: {
+    '@objectstack/core': '^1.0.0',
+    '@objectstack/plugin-analytics': '^0.5.0',
+  },
+  
+  objects: ['./src/objects/**/*.object.ts'],
+  flows: ['./src/flows/**/*.flow.ts'],
+  apps: ['./src/apps/**/*.app.ts'],
+  
+  features: ['workflows', 'reports', 'ai_assistant'],
+  
+  license: 'MIT',
+};
+```
+
+### 2. Plugin Architecture (`src/system/plugin.zod.ts`)
+
+Extensibility through plugins:
+
+```typescript
+interface Plugin {
+  name: string;
+  version: string;
+  
+  // Lifecycle hooks
+  onLoad?(context: PluginContext): Promise<void>;
+  onUnload?(): Promise<void>;
+  onActivate?(): Promise<void>;
+  onDeactivate?(): Promise<void>;
+  
+  // Extension points
+  registerRoutes?(router: Router): void;
+  registerDrivers?(): Driver[];
+  registerWidgets?(): FieldWidget[];
+  registerValidators?(): Validator[];
+}
+
+// Example plugin
+export class AnalyticsPlugin implements Plugin {
+  name = 'analytics';
+  version = '1.0.0';
+  
+  async onLoad(context: PluginContext) {
+    // Initialize analytics service
+    const analytics = new AnalyticsService(context.ql);
+    context.services.set('analytics', analytics);
+  }
+  
+  registerRoutes(router: Router) {
+    router.get('/analytics/reports', this.listReports);
+    router.post('/analytics/query', this.executeQuery);
+  }
+}
+```
+
+### 3. Identity & Authentication (`src/system/identity/`)
+
+User authentication and authorization:
+
+#### Authentication Strategies
+
+```typescript
+const authConfig = {
+  providers: [
+    {
+      type: 'email_password',
+      enabled: true,
+      requireEmailVerification: true,
+      passwordPolicy: {
+        minLength: 12,
+        requireUppercase: true,
+        requireLowercase: true,
+        requireNumbers: true,
+        requireSpecialChars: true,
+      },
+    },
+    {
+      type: 'oauth',
+      provider: 'google',
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    },
+    {
+      type: 'saml',
+      entityId: 'https://myapp.com/saml',
+      ssoUrl: 'https://idp.example.com/sso',
+      certificate: process.env.SAML_CERT,
+    },
+  ],
+  
+  session: {
+    lifetime: 86400,  // 24 hours
+    extendOnActivity: true,
+    singleSessionPerUser: false,
+  },
+  
+  twoFactor: {
+    enabled: true,
+    methods: ['totp', 'sms'],
+  },
+};
+```
+
+#### Role-Based Access Control
+
+```typescript
+const role = {
+  name: 'sales_manager',
+  label: 'Sales Manager',
+  permissionSets: ['sales_user', 'report_viewer'],
+  inheritsFrom: 'sales_user',
+};
+```
+
+### 4. Driver System (`src/system/driver.zod.ts`)
+
+Database abstraction layer:
+
+```typescript
+interface DriverInterface {
+  name: string;
+  type: 'sql' | 'nosql' | 'rest' | 'graphql';
+  
+  capabilities: {
+    transactions: boolean;
+    queryFilters: boolean;
+    queryAggregations: boolean;
+    querySorting: boolean;
+    queryPagination: boolean;
+    queryWindowFunctions: boolean;
+    querySubqueries: boolean;
+  };
+  
+  // CRUD operations
+  create(params: CreateParams): Promise<Record>;
+  read(params: ReadParams): Promise<Record>;
+  update(params: UpdateParams): Promise<Record>;
+  delete(params: DeleteParams): Promise<void>;
+  
+  // Query operations
+  query(params: QueryParams): Promise<QueryResult>;
+  
+  // Schema operations
+  syncSchema(objects: Object[]): Promise<void>;
+}
+
+// Example: PostgreSQL driver
+export class PostgreSQLDriver implements DriverInterface {
+  name = 'postgresql';
+  type = 'sql' as const;
+  
+  capabilities = {
+    transactions: true,
+    queryFilters: true,
+    queryAggregations: true,
+    querySorting: true,
+    queryPagination: true,
+    queryWindowFunctions: true,
+    querySubqueries: true,
+  };
+  
+  async query(params: QueryParams): Promise<QueryResult> {
+    const sql = this.buildSQL(params.query);
+    return this.execute(sql);
+  }
+}
+```
+
+### 5. API Gateway (`src/system/integration/`)
+
+External integrations and webhooks:
+
+```typescript
+const webhook = {
+  name: 'salesforce_sync',
+  url: 'https://api.salesforce.com/webhook',
+  events: ['record.created', 'record.updated'],
+  objects: ['customer_account', 'opportunity'],
+  headers: {
+    'Authorization': 'Bearer ${SALESFORCE_TOKEN}',
+    'Content-Type': 'application/json',
+  },
+  retryPolicy: {
+    maxRetries: 3,
+    backoffStrategy: 'exponential',
+  },
+};
+```
+
+### 6. Multi-Tenancy (`src/system/organization/`)
+
+Tenant isolation and management:
+
+```typescript
+const organization = {
+  id: 'org_123',
+  name: 'Acme Corporation',
+  subdomain: 'acme',
+  
+  limits: {
+    maxUsers: 100,
+    maxStorage: 10 * 1024 * 1024 * 1024,  // 10 GB
+    maxAPICallsPerDay: 100000,
+  },
+  
+  features: ['workflows', 'ai_assistant', 'advanced_analytics'],
+  
+  datasources: [
+    {
+      name: 'primary',
+      driver: 'postgresql',
+      connectionString: process.env.DATABASE_URL,
+    }
+  ],
+};
+```
+
+## System Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                     API Gateway                          │
+│  REST, GraphQL, WebSocket endpoints                     │
+└─────────────────────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────────┐
+│                  ObjectOS Kernel                         │
+│  ┌───────────────────────────────────────────────────┐  │
+│  │ Plugin Manager                                    │  │
+│  │ - Plugin discovery and loading                   │  │
+│  │ - Dependency resolution                           │  │
+│  │ - Lifecycle management                            │  │
+│  └───────────────────────────────────────────────────┘  │
+│  ┌───────────────────────────────────────────────────┐  │
+│  │ Identity Service                                  │  │
+│  │ - Authentication                                  │  │
+│  │ - Authorization                                   │  │
+│  │ - Session management                              │  │
+│  └───────────────────────────────────────────────────┘  │
+│  ┌───────────────────────────────────────────────────┐  │
+│  │ Data Access Layer (ObjectQL)                      │  │
+│  │ - Query building                                  │  │
+│  │ - Permission checking                             │  │
+│  │ - Validation                                      │  │
+│  └───────────────────────────────────────────────────┘  │
+│  ┌───────────────────────────────────────────────────┐  │
+│  │ Driver Manager                                    │  │
+│  │ - Driver registration                             │  │
+│  │ - Connection pooling                              │  │
+│  │ - Query translation                               │  │
+│  └───────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────────┐
+│               Storage Layer (Drivers)                    │
+│  PostgreSQL | MongoDB | MySQL | Redis | etc.            │
+└─────────────────────────────────────────────────────────┘
+```
+
+## Plugin System
+
+### Plugin Discovery
+
+1. **Static Registration**: Import and register plugins explicitly
+2. **Auto-Discovery**: Scan `node_modules/@objectstack/plugin-*`
+3. **Remote Registry**: Fetch plugins from marketplace
+
+### Plugin Lifecycle
+
+```
+┌────────────┐
+│  Installed │ ──register──> ┌──────────┐
+└────────────┘               │  Loaded  │
+                             └──────────┘
+                                  │
+                             activate │
+                                  ↓
+                             ┌──────────┐
+                             │  Active  │
+                             └──────────┘
+                                  │
+                           deactivate │
+                                  ↓
+                             ┌──────────┐
+                             │ Inactive │
+                             └──────────┘
+                                  │
+                              unload │
+                                  ↓
+                             ┌──────────┐
+                             │ Unloaded │
+                             └──────────┘
+```
+
+### Extension Points
+
+Plugins can extend:
+
+- **Routes**: Add custom API endpoints
+- **Drivers**: Add database/API connectors
+- **Widgets**: Add custom field widgets
+- **Validators**: Add validation logic
+- **Workflows**: Add workflow actions
+- **Reports**: Add chart types
+- **Themes**: Add UI themes
+
+## Security Features
+
+### 1. Authentication
+
+- Email/Password
+- OAuth 2.0 (Google, GitHub, etc.)
+- SAML 2.0
+- LDAP/Active Directory
+- Magic Links
+- Passkeys (WebAuthn)
+
+### 2. Authorization
+
+- Role-Based Access Control (RBAC)
+- Permission Sets
+- Organization-Wide Defaults (OWD)
+- Sharing Rules
+- Field-Level Security
+
+### 3. Audit & Compliance
+
+```typescript
+const auditPolicy = {
+  enabled: true,
+  retention: 90,  // days
+  events: [
+    'user.login',
+    'user.logout',
+    'record.created',
+    'record.updated',
+    'record.deleted',
+    'permission.changed',
+  ],
+  storage: {
+    driver: 'postgresql',
+    table: 'audit_logs',
+  },
+};
+```
+
+### 4. Rate Limiting
+
+```typescript
+const rateLimit = {
+  enabled: true,
+  limits: {
+    api: {
+      window: 60,  // seconds
+      max: 100,    // requests
+    },
+    login: {
+      window: 300,  // 5 minutes
+      max: 5,       // attempts
+    },
+  },
+};
+```
+
+## Performance Optimizations
+
+### 1. Caching
+
+- **Metadata Cache**: Object/field definitions
+- **Permission Cache**: User permissions
+- **Query Cache**: Frequently accessed data
+- **Session Cache**: User sessions
+
+### 2. Connection Pooling
+
+```typescript
+const datasource = {
+  driver: 'postgresql',
+  pool: {
+    min: 2,
+    max: 10,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,
+  },
+};
+```
+
+### 3. Lazy Loading
+
+- Load plugins on-demand
+- Defer non-critical initialization
+- Stream large datasets
+
+## Best Practices
+
+1. **Plugin Development**
+   - Keep plugins focused and modular
+   - Declare all dependencies
+   - Handle errors gracefully
+   - Provide clear documentation
+
+2. **Security**
+   - Use environment variables for secrets
+   - Implement rate limiting
+   - Enable audit logging
+   - Regular security updates
+
+3. **Performance**
+   - Use connection pooling
+   - Implement caching strategies
+   - Monitor resource usage
+   - Optimize database queries
+
+4. **Multi-Tenancy**
+   - Isolate tenant data
+   - Enforce quota limits
+   - Monitor per-tenant metrics
+   - Scale horizontally
+
+## Related Documentation
+
+- [Plugin Architecture](../../content/docs/concepts/plugin-architecture.mdx)
+- [Kernel Architecture](../../content/docs/specifications/server/kernel-architecture.mdx)
+- [Authentication Standard](../AUTHENTICATION_STANDARD.md)
+- [System Protocol References](../../content/docs/references/system/)
+
+For complete API reference, see [System Protocol References](../../content/docs/references/system/).

@@ -1,0 +1,179 @@
+# Error Handling Patterns
+
+> Consistent error handling strategies for ObjectStack Protocol
+
+## Error Categories
+
+### 1. Validation Errors
+
+Errors from schema validation or business logic validation.
+
+```typescript
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Validation failed for field 'email'",
+    "details": {
+      "field": "email",
+      "constraint": "format",
+      "value": "invalid-email",
+      "expected": "valid email format"
+    }
+  }
+}
+```
+
+### 2. Not Found Errors
+
+Resource does not exist.
+
+```typescript
+{
+  "success": false,
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Record not found",
+    "details": {
+      "object": "customer_account",
+      "id": "acc_999"
+    }
+  }
+}
+```
+
+### 3. Permission Errors
+
+Insufficient permissions to perform operation.
+
+```typescript
+{
+  "success": false,
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "Insufficient permissions to delete this record",
+    "details": {
+      "required": "DELETE",
+      "object": "customer_account",
+      "recordId": "acc_123"
+    }
+  }
+}
+```
+
+### 4. Conflict Errors
+
+Resource conflicts (e.g., uniqueness violations).
+
+```typescript
+{
+  "success": false,
+  "error": {
+    "code": "CONFLICT",
+    "message": "Email already exists",
+    "details": {
+      "field": "email",
+      "constraint": "unique",
+      "value": "user@example.com"
+    }
+  }
+}
+```
+
+## Error Schema
+
+All errors follow the `ApiError` schema:
+
+```typescript
+export const ApiErrorSchema = z.object({
+  code: z.string(),
+  message: z.string(),
+  details: z.record(z.any()).optional(),
+  stack: z.string().optional(),  // Only in development
+});
+```
+
+## Error Codes
+
+### Standard HTTP-Aligned Codes
+
+- `BAD_REQUEST` (400) - Invalid request
+- `UNAUTHORIZED` (401) - Authentication required
+- `FORBIDDEN` (403) - Insufficient permissions
+- `NOT_FOUND` (404) - Resource not found
+- `CONFLICT` (409) - Resource conflict
+- `VALIDATION_ERROR` (422) - Validation failed
+- `INTERNAL_ERROR` (500) - Server error
+
+### Domain-Specific Codes
+
+- `FIELD_REQUIRED` - Required field missing
+- `FIELD_INVALID` - Field validation failed
+- `DUPLICATE_VALUE` - Uniqueness constraint violated
+- `REFERENCE_INVALID` - Lookup reference invalid
+- `WORKFLOW_ERROR` - Workflow execution failed
+- `PERMISSION_DENIED` - Specific permission denied
+
+## Best Practices
+
+### 1. Always Include Context
+
+```typescript
+// ✅ Good - Includes context
+{
+  "code": "VALIDATION_ERROR",
+  "message": "Field 'email' must be a valid email address",
+  "details": {
+    "field": "email",
+    "value": "invalid-email",
+    "constraint": "format"
+  }
+}
+
+// ❌ Bad - No context
+{
+  "code": "VALIDATION_ERROR",
+  "message": "Invalid input"
+}
+```
+
+### 2. Use Consistent Error Structures
+
+Always return errors in the standard envelope:
+
+```typescript
+{
+  "success": false,
+  "error": { /* ApiError */ },
+  "metadata": { /* request metadata */ }
+}
+```
+
+### 3. Don't Leak Sensitive Information
+
+```typescript
+// ✅ Good - Safe error message
+{
+  "code": "UNAUTHORIZED",
+  "message": "Invalid credentials"
+}
+
+// ❌ Bad - Leaks information
+{
+  "code": "UNAUTHORIZED",
+  "message": "Password incorrect for user john@example.com"
+}
+```
+
+### 4. Include Stack Traces in Development Only
+
+```typescript
+if (process.env.NODE_ENV === 'development') {
+  error.stack = err.stack;
+}
+```
+
+## Related
+
+- [API Design Principles](./api-design.md)
+- [Security Best Practices](../guides/security/best-practices.md)
