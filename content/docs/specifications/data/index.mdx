@@ -44,17 +44,17 @@ The **Data Protocol (ObjectQL)** is the foundation of ObjectStack. It defines ho
 
 ### Core Specifications
 
-1. **[Architecture Overview](../../specifications/data/architecture)**
+1. **[Architecture Overview](/docs/specifications/data/architecture)**
    - Design principles
    - Layer responsibilities
    - Driver model
 
-2. **[Schema Definition](../../specifications/data/schema-definition)**
+2. **[Schema Definition](/docs/specifications/data/schema-definition)**
    - Object schema structure
    - Field type definitions
    - Relationship modeling
 
-3. **[Advanced Types](../../specifications/data/advanced-types)**
+3. **[Advanced Types](/docs/specifications/data/advanced-types)**
    - Formula fields
    - Lookup relationships
    - Master-detail relationships
@@ -62,25 +62,25 @@ The **Data Protocol (ObjectQL)** is the foundation of ObjectStack. It defines ho
 
 ### Query Layer
 
-4. **[AST Structure](../../specifications/data/ast-structure)**
+4. **[AST Structure](/docs/specifications/data/ast-structure)**
    - Query Abstract Syntax Tree
    - Filter expressions
    - Aggregations
    - Joins and includes
 
-5. **[Analytics Protocol](../../specifications/data/analytics-protocol)**
+5. **[Analytics Protocol](/docs/specifications/data/analytics-protocol)**
    - Grouping and aggregation
    - Calculated fields
    - Time-series queries
 
 ### System Specifications
 
-6. **[Transaction Model](../../specifications/data/transaction-model)**
+6. **[Transaction Model](/docs/specifications/data/transaction-model)**
    - ACID guarantees
    - Isolation levels
    - Distributed transactions
 
-7. **[Wire Protocol](../../specifications/data/wire-protocol)**
+7. **[Wire Protocol](/docs/specifications/data/wire-protocol)**
    - Data serialization format
    - Network protocol
    - Compression and optimization
@@ -90,16 +90,16 @@ The **Data Protocol (ObjectQL)** is the foundation of ObjectStack. It defines ho
 ### For Implementers
 
 Building a driver for ObjectStack? Start here:
-- [Driver Interface](../../references/system/Driver)
-- [Query Compiler](../../guides/custom-driver)
-- [Test Suite](../../guides/driver-testing)
+- [Driver Interface](/docs/references/system/Driver)
+- [Query Compiler](/docs/guides/custom-driver)
+- [Test Suite](/docs/guides/driver-testing)
 
 ### For Users
 
 Using ObjectStack to build applications? See:
-- [Field Types Guide](../../guides/field-types)
-- [Query Examples](../../guides/querying-data)
-- [Business Logic](../../guides/workflows-validation)
+- [Field Types Guide](/docs/guides/field-types)
+- [Query Examples](/docs/guides/querying-data)
+- [Business Logic](/docs/guides/workflows-validation)
 
 ## Design Principles
 
@@ -144,6 +144,6 @@ const withSort = { ...withFilter, sort: [...] };
 
 ## Related Documentation
 
-- **[UI Protocol](../../specifications/ui/sdui-protocol)** - How to render data
-- **[System Protocol](../../specifications/server/kernel-architecture)** - Runtime environment
-- **[API Protocol](../../references/api/envelopes/BaseResponse)** - REST/GraphQL contracts
+- **[UI Protocol](/docs/specifications/ui/sdui-protocol)** - How to render data
+- **[System Protocol](/docs/specifications/server/kernel-architecture)** - Runtime environment
+- **[API Protocol](/docs/references/api/envelopes/BaseResponse)** - REST/GraphQL contracts
