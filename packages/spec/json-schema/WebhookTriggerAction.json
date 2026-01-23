@@ -1,0 +1,58 @@
+{
+  "$ref": "#/definitions/WebhookTriggerAction",
+  "definitions": {
+    "WebhookTriggerAction": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Action name"
+        },
+        "type": {
+          "type": "string",
+          "const": "webhook_trigger"
+        },
+        "url": {
+          "type": "string",
+          "description": "Webhook URL to call"
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "POST",
+            "PUT"
+          ],
+          "default": "POST",
+          "description": "HTTP method"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom headers"
+        },
+        "payload": {
+          "description": "Webhook payload (uses record data if not specified)"
+        },
+        "retryOnFailure": {
+          "type": "boolean",
+          "default": true,
+          "description": "Retry if webhook fails"
+        },
+        "maxRetries": {
+          "type": "number",
+          "default": 3,
+          "description": "Maximum retry attempts"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "url"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

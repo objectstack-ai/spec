@@ -1,0 +1,15 @@
+---
+title: SmsNotificationAction
+description: SmsNotificationAction Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **provider** | `Enum<'twilio' \| 'vonage'>` | ✅ | SMS provider |
+| **recipients** | `string[]` | ✅ | List of phone numbers or user field references |
+| **message** | `string` | ✅ | SMS message text or template |
+| **fromNumber** | `string` | optional | Sender phone number (provider-specific) |

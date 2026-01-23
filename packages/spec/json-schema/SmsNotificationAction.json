@@ -1,0 +1,50 @@
+{
+  "$ref": "#/definitions/SmsNotificationAction",
+  "definitions": {
+    "SmsNotificationAction": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Action name"
+        },
+        "type": {
+          "type": "string",
+          "const": "sms_notification"
+        },
+        "provider": {
+          "type": "string",
+          "enum": [
+            "twilio",
+            "vonage"
+          ],
+          "description": "SMS provider"
+        },
+        "recipients": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of phone numbers or user field references"
+        },
+        "message": {
+          "type": "string",
+          "description": "SMS message text or template"
+        },
+        "fromNumber": {
+          "type": "string",
+          "description": "Sender phone number (provider-specific)"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "provider",
+        "recipients",
+        "message"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
