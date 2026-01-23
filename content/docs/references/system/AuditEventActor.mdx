@@ -1,0 +1,15 @@
+---
+title: AuditEventActor
+description: AuditEventActor Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'user' \| 'system' \| 'service' \| 'api_client' \| 'integration'>` | ✅ | Actor type |
+| **id** | `string` | ✅ | Actor identifier |
+| **name** | `string` | optional | Actor display name |
+| **email** | `string` | optional | Actor email address |
+| **ipAddress** | `string` | optional | Actor IP address |
+| **userAgent** | `string` | optional | User agent string |

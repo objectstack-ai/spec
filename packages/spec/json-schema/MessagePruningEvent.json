@@ -1,0 +1,92 @@
+{
+  "$ref": "#/definitions/MessagePruningEvent",
+  "definitions": {
+    "MessagePruningEvent": {
+      "type": "object",
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "description": "ISO 8601 timestamp"
+        },
+        "strategy": {
+          "type": "string",
+          "enum": [
+            "fifo",
+            "importance",
+            "semantic",
+            "sliding_window",
+            "summary"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "description": "Reason for pruning"
+        },
+        "prunedMessages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "messageId": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "system",
+                  "user",
+                  "assistant",
+                  "function",
+                  "tool"
+                ]
+              },
+              "tokens": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "importance": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "messageId",
+              "role",
+              "tokens"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "tokensFreed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "messagesRemoved": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "remainingTokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "remainingMessages": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "timestamp",
+        "strategy",
+        "reason",
+        "prunedMessages",
+        "tokensFreed",
+        "messagesRemoved",
+        "remainingTokens",
+        "remainingMessages"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

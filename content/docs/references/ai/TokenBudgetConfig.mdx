@@ -1,0 +1,22 @@
+---
+title: TokenBudgetConfig
+description: TokenBudgetConfig Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **maxTokens** | `integer` | ✅ | Maximum total tokens |
+| **maxPromptTokens** | `integer` | optional | Max tokens for prompt |
+| **maxCompletionTokens** | `integer` | optional | Max tokens for completion |
+| **reserveTokens** | `integer` | optional | Reserve tokens for system messages |
+| **bufferPercentage** | `number` | optional | Buffer percentage (0.1 = 10%) |
+| **strategy** | `Enum<'fifo' \| 'importance' \| 'semantic' \| 'sliding_window' \| 'summary'>` | optional |  |
+| **slidingWindowSize** | `integer` | optional | Number of recent messages to keep |
+| **minImportanceScore** | `number` | optional | Minimum importance to keep |
+| **semanticThreshold** | `number` | optional | Semantic similarity threshold |
+| **enableSummarization** | `boolean` | optional | Enable context summarization |
+| **summarizationThreshold** | `integer` | optional | Trigger summarization at N tokens |
+| **summaryModel** | `string` | optional | Model ID for summarization |
+| **warnThreshold** | `number` | optional | Warn at % of budget (0.8 = 80%) |

@@ -1,0 +1,458 @@
+{
+  "$ref": "#/definitions/ConversationSession",
+  "definitions": {
+    "ConversationSession": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique session ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "Session name/title"
+        },
+        "context": {
+          "type": "object",
+          "properties": {
+            "sessionId": {
+              "type": "string",
+              "description": "Conversation session ID"
+            },
+            "userId": {
+              "type": "string",
+              "description": "User identifier"
+            },
+            "agentId": {
+              "type": "string",
+              "description": "AI agent identifier"
+            },
+            "object": {
+              "type": "string",
+              "description": "Related object (e.g., \"case\", \"project\")"
+            },
+            "recordId": {
+              "type": "string",
+              "description": "Related record ID"
+            },
+            "scope": {
+              "type": "object",
+              "additionalProperties": {},
+              "description": "Additional context scope"
+            },
+            "systemMessage": {
+              "type": "string",
+              "description": "System prompt/instructions"
+            },
+            "metadata": {
+              "type": "object",
+              "additionalProperties": {}
+            }
+          },
+          "required": [
+            "sessionId"
+          ],
+          "additionalProperties": false
+        },
+        "modelId": {
+          "type": "string",
+          "description": "AI model ID"
+        },
+        "tokenBudget": {
+          "type": "object",
+          "properties": {
+            "maxTokens": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "Maximum total tokens"
+            },
+            "maxPromptTokens": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "Max tokens for prompt"
+            },
+            "maxCompletionTokens": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "Max tokens for completion"
+            },
+            "reserveTokens": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 500,
+              "description": "Reserve tokens for system messages"
+            },
+            "bufferPercentage": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0.1,
+              "description": "Buffer percentage (0.1 = 10%)"
+            },
+            "strategy": {
+              "type": "string",
+              "enum": [
+                "fifo",
+                "importance",
+                "semantic",
+                "sliding_window",
+                "summary"
+              ],
+              "default": "sliding_window"
+            },
+            "slidingWindowSize": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "Number of recent messages to keep"
+            },
+            "minImportanceScore": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Minimum importance to keep"
+            },
+            "semanticThreshold": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Semantic similarity threshold"
+            },
+            "enableSummarization": {
+              "type": "boolean",
+              "default": false,
+              "description": "Enable context summarization"
+            },
+            "summarizationThreshold": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "Trigger summarization at N tokens"
+            },
+            "summaryModel": {
+              "type": "string",
+              "description": "Model ID for summarization"
+            },
+            "warnThreshold": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0.8,
+              "description": "Warn at % of budget (0.8 = 80%)"
+            }
+          },
+          "required": [
+            "maxTokens"
+          ],
+          "additionalProperties": false
+        },
+        "messages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Unique message ID"
+              },
+              "timestamp": {
+                "type": "string",
+                "description": "ISO 8601 timestamp"
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "system",
+                  "user",
+                  "assistant",
+                  "function",
+                  "tool"
+                ]
+              },
+              "content": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "text",
+                            "image",
+                            "file",
+                            "code",
+                            "structured"
+                          ],
+                          "default": "text"
+                        },
+                        "text": {
+                          "type": "string",
+                          "description": "Text content"
+                        },
+                        "imageUrl": {
+                          "type": "string",
+                          "format": "uri",
+                          "description": "Image URL for vision models"
+                        },
+                        "fileUrl": {
+                          "type": "string",
+                          "format": "uri",
+                          "description": "File attachment URL"
+                        },
+                        "mimeType": {
+                          "type": "string",
+                          "description": "MIME type for files"
+                        },
+                        "metadata": {
+                          "type": "object",
+                          "additionalProperties": {},
+                          "description": "Additional metadata"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  }
+                ],
+                "description": "Message content (text or multimodal)"
+              },
+              "functionCall": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Function name"
+                  },
+                  "arguments": {
+                    "type": "string",
+                    "description": "JSON string of function arguments"
+                  },
+                  "result": {
+                    "type": "string",
+                    "description": "Function execution result"
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false,
+                "description": "Legacy function call"
+              },
+              "toolCalls": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Tool call ID"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "function"
+                      ],
+                      "default": "function"
+                    },
+                    "function": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "description": "Function name"
+                        },
+                        "arguments": {
+                          "type": "string",
+                          "description": "JSON string of function arguments"
+                        },
+                        "result": {
+                          "type": "string",
+                          "description": "Function execution result"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "arguments"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "function"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "Tool calls"
+              },
+              "toolCallId": {
+                "type": "string",
+                "description": "Tool call ID this message responds to"
+              },
+              "name": {
+                "type": "string",
+                "description": "Name of the function/user"
+              },
+              "tokens": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Tokens in prompt"
+                  },
+                  "completion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Tokens in completion"
+                  },
+                  "total": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Total tokens"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "Token usage for this message"
+              },
+              "pinned": {
+                "type": "boolean",
+                "default": false,
+                "description": "Prevent removal during pruning"
+              },
+              "importance": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "description": "Importance score for pruning"
+              },
+              "embedding": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "description": "Vector embedding for semantic search"
+              },
+              "metadata": {
+                "type": "object",
+                "additionalProperties": {}
+              }
+            },
+            "required": [
+              "id",
+              "timestamp",
+              "role",
+              "content"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "tokens": {
+          "type": "object",
+          "properties": {
+            "promptTokens": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "completionTokens": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "totalTokens": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "budgetLimit": {
+              "type": "integer",
+              "exclusiveMinimum": 0
+            },
+            "budgetUsed": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "budgetRemaining": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "budgetPercentage": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Usage as percentage of budget"
+            },
+            "messageCount": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "prunedMessageCount": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "summarizedMessageCount": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          },
+          "required": [
+            "budgetLimit",
+            "budgetRemaining",
+            "budgetPercentage"
+          ],
+          "additionalProperties": false
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "paused",
+            "completed",
+            "archived"
+          ],
+          "default": "active"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO 8601 timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO 8601 timestamp"
+        },
+        "expiresAt": {
+          "type": "string",
+          "description": "ISO 8601 timestamp"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {}
+        }
+      },
+      "required": [
+        "id",
+        "context",
+        "tokenBudget",
+        "createdAt",
+        "updatedAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

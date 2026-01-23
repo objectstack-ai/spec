@@ -1,0 +1,106 @@
+{
+  "$ref": "#/definitions/CostEntry",
+  "definitions": {
+    "CostEntry": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique cost entry ID"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "ISO 8601 timestamp"
+        },
+        "modelId": {
+          "type": "string",
+          "description": "AI model used"
+        },
+        "provider": {
+          "type": "string",
+          "description": "AI provider (e.g., \"openai\", \"anthropic\")"
+        },
+        "operation": {
+          "type": "string",
+          "description": "Operation type (e.g., \"chat_completion\", \"embedding\")"
+        },
+        "promptTokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "completionTokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "totalTokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "requestCount": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "default": 1
+        },
+        "promptCost": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Cost of prompt tokens"
+        },
+        "completionCost": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Cost of completion tokens"
+        },
+        "totalCost": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Total cost in base currency"
+        },
+        "currency": {
+          "type": "string",
+          "default": "USD"
+        },
+        "sessionId": {
+          "type": "string",
+          "description": "Conversation session ID"
+        },
+        "userId": {
+          "type": "string",
+          "description": "User who triggered the request"
+        },
+        "agentId": {
+          "type": "string",
+          "description": "AI agent ID"
+        },
+        "object": {
+          "type": "string",
+          "description": "Related object (e.g., \"case\", \"project\")"
+        },
+        "recordId": {
+          "type": "string",
+          "description": "Related record ID"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {}
+        }
+      },
+      "required": [
+        "id",
+        "timestamp",
+        "modelId",
+        "provider",
+        "operation",
+        "totalCost"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

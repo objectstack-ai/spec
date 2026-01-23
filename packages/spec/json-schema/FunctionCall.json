@@ -1,0 +1,28 @@
+{
+  "$ref": "#/definitions/FunctionCall",
+  "definitions": {
+    "FunctionCall": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Function name"
+        },
+        "arguments": {
+          "type": "string",
+          "description": "JSON string of function arguments"
+        },
+        "result": {
+          "type": "string",
+          "description": "Function execution result"
+        }
+      },
+      "required": [
+        "name",
+        "arguments"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

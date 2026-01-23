@@ -1,0 +1,29 @@
+---
+title: CostEntry
+description: CostEntry Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique cost entry ID |
+| **timestamp** | `string` | ✅ | ISO 8601 timestamp |
+| **modelId** | `string` | ✅ | AI model used |
+| **provider** | `string` | ✅ | AI provider (e.g., "openai", "anthropic") |
+| **operation** | `string` | ✅ | Operation type (e.g., "chat_completion", "embedding") |
+| **promptTokens** | `integer` | optional |  |
+| **completionTokens** | `integer` | optional |  |
+| **totalTokens** | `integer` | optional |  |
+| **requestCount** | `integer` | optional |  |
+| **promptCost** | `number` | optional | Cost of prompt tokens |
+| **completionCost** | `number` | optional | Cost of completion tokens |
+| **totalCost** | `number` | ✅ | Total cost in base currency |
+| **currency** | `string` | optional |  |
+| **sessionId** | `string` | optional | Conversation session ID |
+| **userId** | `string` | optional | User who triggered the request |
+| **agentId** | `string` | optional | AI agent ID |
+| **object** | `string` | optional | Related object (e.g., "case", "project") |
+| **recordId** | `string` | optional | Related record ID |
+| **tags** | `string[]` | optional |  |
+| **metadata** | `Record<string, any>` | optional |  |

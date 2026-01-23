@@ -1,0 +1,86 @@
+{
+  "$ref": "#/definitions/ConversationAnalytics",
+  "definitions": {
+    "ConversationAnalytics": {
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "type": "string"
+        },
+        "totalMessages": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "userMessages": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "assistantMessages": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "systemMessages": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "totalTokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "averageTokensPerMessage": {
+          "type": "number",
+          "minimum": 0
+        },
+        "peakTokenUsage": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pruningEvents": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "summarizationEvents": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "tokensSavedByPruning": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "tokensSavedBySummarization": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "duration": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Session duration in seconds"
+        },
+        "firstMessageAt": {
+          "type": "string",
+          "description": "ISO 8601 timestamp"
+        },
+        "lastMessageAt": {
+          "type": "string",
+          "description": "ISO 8601 timestamp"
+        }
+      },
+      "required": [
+        "sessionId",
+        "totalMessages",
+        "userMessages",
+        "assistantMessages",
+        "systemMessages",
+        "totalTokens",
+        "averageTokensPerMessage",
+        "peakTokenUsage"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

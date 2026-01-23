@@ -1,0 +1,17 @@
+---
+title: MessagePruningEvent
+description: MessagePruningEvent Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **timestamp** | `string` | ✅ | ISO 8601 timestamp |
+| **strategy** | `Enum<'fifo' \| 'importance' \| 'semantic' \| 'sliding_window' \| 'summary'>` | ✅ |  |
+| **reason** | `string` | ✅ | Reason for pruning |
+| **prunedMessages** | `object[]` | ✅ |  |
+| **tokensFreed** | `integer` | ✅ |  |
+| **messagesRemoved** | `integer` | ✅ |  |
+| **remainingTokens** | `integer` | ✅ |  |
+| **remainingMessages** | `integer` | ✅ |  |

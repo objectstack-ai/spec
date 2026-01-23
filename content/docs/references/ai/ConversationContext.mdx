@@ -1,0 +1,17 @@
+---
+title: ConversationContext
+description: ConversationContext Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **sessionId** | `string` | ✅ | Conversation session ID |
+| **userId** | `string` | optional | User identifier |
+| **agentId** | `string` | optional | AI agent identifier |
+| **object** | `string` | optional | Related object (e.g., "case", "project") |
+| **recordId** | `string` | optional | Related record ID |
+| **scope** | `Record<string, any>` | optional | Additional context scope |
+| **systemMessage** | `string` | optional | System prompt/instructions |
+| **metadata** | `Record<string, any>` | optional |  |
