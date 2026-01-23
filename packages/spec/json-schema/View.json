@@ -168,8 +168,13 @@
               "items": {
                 "type": "object",
                 "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "Section title"
+                  },
                   "label": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Legacy: use title instead"
                   },
                   "collapsible": {
                     "type": "boolean",
@@ -180,20 +185,18 @@
                     "default": false
                   },
                   "columns": {
-                    "type": "string",
-                    "enum": [
-                      "1",
-                      "2",
-                      "3",
-                      "4"
-                    ],
-                    "default": "2"
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 4,
+                    "default": 2,
+                    "description": "Number of columns (1-4)"
                   },
                   "fields": {
                     "type": "array",
                     "items": {
                       "type": "string"
-                    }
+                    },
+                    "description": "Field names to include in this section"
                   }
                 },
                 "required": [
@@ -207,8 +210,13 @@
               "items": {
                 "type": "object",
                 "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "Section title"
+                  },
                   "label": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Legacy: use title instead"
                   },
                   "collapsible": {
                     "type": "boolean",
@@ -219,20 +227,18 @@
                     "default": false
                   },
                   "columns": {
-                    "type": "string",
-                    "enum": [
-                      "1",
-                      "2",
-                      "3",
-                      "4"
-                    ],
-                    "default": "2"
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 4,
+                    "default": 2,
+                    "description": "Number of columns (1-4)"
                   },
                   "fields": {
                     "type": "array",
                     "items": {
                       "type": "string"
-                    }
+                    },
+                    "description": "Field names to include in this section"
                   }
                 },
                 "required": [
@@ -414,8 +420,13 @@
                 "items": {
                   "type": "object",
                   "properties": {
+                    "title": {
+                      "type": "string",
+                      "description": "Section title"
+                    },
                     "label": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "Legacy: use title instead"
                     },
                     "collapsible": {
                       "type": "boolean",
@@ -426,20 +437,18 @@
                       "default": false
                     },
                     "columns": {
-                      "type": "string",
-                      "enum": [
-                        "1",
-                        "2",
-                        "3",
-                        "4"
-                      ],
-                      "default": "2"
+                      "type": "number",
+                      "minimum": 1,
+                      "maximum": 4,
+                      "default": 2,
+                      "description": "Number of columns (1-4)"
                     },
                     "fields": {
                       "type": "array",
                       "items": {
                         "type": "string"
-                      }
+                      },
+                      "description": "Field names to include in this section"
                     }
                   },
                   "required": [
@@ -453,8 +462,13 @@
                 "items": {
                   "type": "object",
                   "properties": {
+                    "title": {
+                      "type": "string",
+                      "description": "Section title"
+                    },
                     "label": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "Legacy: use title instead"
                     },
                     "collapsible": {
                       "type": "boolean",
@@ -465,20 +479,18 @@
                       "default": false
                     },
                     "columns": {
-                      "type": "string",
-                      "enum": [
-                        "1",
-                        "2",
-                        "3",
-                        "4"
-                      ],
-                      "default": "2"
+                      "type": "number",
+                      "minimum": 1,
+                      "maximum": 4,
+                      "default": 2,
+                      "description": "Number of columns (1-4)"
                     },
                     "fields": {
                       "type": "array",
                       "items": {
                         "type": "string"
-                      }
+                      },
+                      "description": "Field names to include in this section"
                     }
                   },
                   "required": [

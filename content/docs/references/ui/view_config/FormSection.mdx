@@ -7,8 +7,9 @@ description: FormSection Schema Reference
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **label** | `string` | optional |  |
+| **title** | `string` | optional | Section title |
+| **label** | `string` | optional | Legacy: use title instead |
 | **collapsible** | `boolean` | optional |  |
 | **collapsed** | `boolean` | optional |  |
-| **columns** | `Enum<'1' \| '2' \| '3' \| '4'>` | optional |  |
-| **fields** | `string[]` | ✅ |  |
+| **columns** | `number` | optional | Number of columns (1-4) |
+| **fields** | `string[]` | ✅ | Field names to include in this section |

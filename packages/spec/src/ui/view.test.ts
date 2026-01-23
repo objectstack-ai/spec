@@ -211,7 +211,7 @@ describe('FormSectionSchema', () => {
       label: 'Contact Information',
       collapsible: true,
       collapsed: false,
-      columns: '3' as const,
+      columns: 3,
       fields: ['first_name', 'last_name', 'email', 'phone'],
     };
 
@@ -219,17 +219,41 @@ describe('FormSectionSchema', () => {
     expect(result.columns).toBe(3);
   });
 
-  it('should transform column strings to numbers', () => {
-    const columnOptions = ['1', '2', '3', '4'] as const;
+  it('should accept form section with title instead of label', () => {
+    const section = {
+      title: 'Contact Information',
+      collapsible: true,
+      columns: 3,
+      fields: ['first_name', 'last_name', 'email', 'phone'],
+    };
+
+    const result = FormSectionSchema.parse(section);
+    expect(result.title).toBe('Contact Information');
+    expect(result.columns).toBe(3);
+  });
+
+  it('should validate columns min and max constraints', () => {
+    const validColumns = [1, 2, 3, 4];
     
-    columnOptions.forEach(cols => {
+    validColumns.forEach(cols => {
       const section = {
         columns: cols,
         fields: ['field1'],
       };
       const result = FormSectionSchema.parse(section);
-      expect(result.columns).toBe(parseInt(cols));
+      expect(result.columns).toBe(cols);
     });
+
+    // Test invalid values
+    expect(() => FormSectionSchema.parse({
+      columns: 0,
+      fields: ['field1'],
+    })).toThrow();
+
+    expect(() => FormSectionSchema.parse({
+      columns: 5,
+      fields: ['field1'],
+    })).toThrow();
   });
 });
 
@@ -434,19 +458,19 @@ describe('ViewSchema', () => {
           sections: [
             {
               label: 'Opportunity Details',
-              columns: '2',
+              columns: 2,
               fields: ['name', 'account_id', 'amount', 'stage', 'close_date', 'probability'],
             },
             {
               label: 'Contact Information',
-              columns: '2',
+              columns: 2,
               fields: ['primary_contact', 'email', 'phone'],
             },
             {
               label: 'Additional Information',
               collapsible: true,
               collapsed: true,
-              columns: '2',
+              columns: 2,
               fields: ['description', 'next_step', 'lead_source'],
             },
           ],
@@ -492,7 +516,7 @@ describe('ViewSchema', () => {
             },
             {
               label: 'Schedule',
-              columns: '2',
+              columns: 2,
               fields: ['start_date', 'due_date', 'estimated_hours'],
             },
             {
