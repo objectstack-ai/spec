@@ -24,15 +24,14 @@ include_fragments = false
 verbose = true
 
 # Remap internal documentation links to actual file paths
-# Maps /docs/(.+) routes to content/docs/$1.mdx or content/docs/$1.md
-[[remap]]
-pattern = "^/docs/(.+)$"
-replace = "content/docs/$1.mdx"
-
-# Also check for .md files if .mdx doesn't exist
-[[remap]]
-pattern = "^/docs/(.+)$"
-replace = "content/docs/$1.md"
+# Maps /docs/* routes to content/docs/*.mdx or content/docs/*.md files
+# Lychee remap uses simple "pattern" = "replacement" syntax
+remap = [
+    # Primary remapping for .mdx files
+    "^/docs/(.*)$ content/docs/$1.mdx",
+    # Fallback for .md files  
+    "^/docs/(.*)$ content/docs/$1.md"
+]
 
 # Exclude patterns (loaded from .lycheeignore file)
 exclude_path = [".lycheeignore"]
