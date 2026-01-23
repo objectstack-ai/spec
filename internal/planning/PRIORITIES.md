@@ -1,12 +1,54 @@
 # ObjectStack Protocol - Priority Matrix
 
-> Quick reference for what to work on next. See [DEVELOPMENT_ROADMAP.md](./DEVELOPMENT_ROADMAP.md) for the complete plan.
+> Quick reference for what to work on next. See [DEVELOPMENT_ROADMAP.md](./DEVELOPMENT_ROADMAP.md) for the complete plan.  
+> **New:** See [PROTOCOL_REVIEW.md](./PROTOCOL_REVIEW.md) for comprehensive assessment and [OPTIMIZATION_ROADMAP.md](./OPTIMIZATION_ROADMAP.md) for detailed implementation plan.
 
-**Last Updated**: 2026-01-20
+**Last Updated**: 2026-01-23  
+**Status**: 75% Complete - Production-Ready with Critical Gaps
 
 ---
 
-## 🔥 Critical Path Items (Must Do Now)
+## 🚨 NEW: Post-Review Critical Priorities
+
+Based on the comprehensive protocol review completed on 2026-01-23, the following items are **blocking production deployment**:
+
+### 🔴 CRITICAL #1: Audit Log Schema (Compliance Blocker)
+**File**: `packages/spec/src/system/audit.zod.ts` (new)  
+**Effort**: 3 days  
+**Impact**: Required for SOX, HIPAA, GDPR compliance  
+**Blocks**: Enterprise sales, production deployment  
+
+**Why Critical**: No audit trail = cannot track who did what when = compliance failure.
+
+**See**: [OPTIMIZATION_ROADMAP.md - Sprint 1](./OPTIMIZATION_ROADMAP.md#sprint-1-weeks-1-2-audit--security)
+
+---
+
+### 🔴 CRITICAL #2: Multi-Tenancy Isolation Strategy (Security Blocker)
+**File**: `packages/spec/src/system/tenant.zod.ts` (expand existing)  
+**Effort**: 5 days  
+**Impact**: Secure multi-tenancy, data isolation  
+**Blocks**: SaaS deployments, production  
+
+**Why Critical**: Current tenant.zod.ts lacks isolation strategy documentation. Risk of cross-tenant data leakage.
+
+**See**: [OPTIMIZATION_ROADMAP.md - Sprint 1](./OPTIMIZATION_ROADMAP.md#critical-multi-tenancy-isolation-strategy)
+
+---
+
+### 🔴 CRITICAL #3: AI Safety & Guardrails (AI Safety Blocker)
+**File**: `packages/spec/src/ai/safety.zod.ts` (new)  
+**Effort**: 5 days  
+**Impact**: Prevent prompt injection, PII leakage, hallucinations  
+**Blocks**: AI feature production deployment  
+
+**Why Critical**: AI features without safety rails = security vulnerabilities, data leaks, compliance violations.
+
+**See**: [OPTIMIZATION_ROADMAP.md - Sprint 5](./OPTIMIZATION_ROADMAP.md#critical-ai-safety--guardrails)
+
+---
+
+## 🔥 Original Critical Path Items (Must Do Now)
 
 These are blocking the ecosystem and should be addressed immediately.
 
@@ -137,7 +179,75 @@ export const TriggerContextSchema = z.object({
 
 ---
 
-## 📊 High Priority Features (Do Next)
+## 🟡 NEW: High Priority Enhancements (Post-Review)
+
+### Workflow Action Expansion
+**File**: `packages/spec/src/data/workflow.zod.ts` (expand)  
+**Effort**: 3 days  
+**Value**: Enable SMS, Slack, webhooks, HTTP callouts  
+**Current**: Only fieldUpdate + email actions  
+**Target**: 10+ action types (SMS, Slack, Teams, webhooks, tasks, push notifications)
+
+**See**: [OPTIMIZATION_ROADMAP.md - Sprint 2](./OPTIMIZATION_ROADMAP.md#high-workflow-action-expansion)
+
+---
+
+### Formula Function Library Documentation
+**File**: `content/docs/references/formula-functions.mdx` (new)  
+**Effort**: 4 days  
+**Value**: 50+ functions documented with examples  
+**Current**: Formula fields exist but no function reference  
+**Target**: Complete function library (TEXT, MATH, DATE, LOGICAL, LOOKUP)
+
+**See**: [OPTIMIZATION_ROADMAP.md - Sprint 2](./OPTIMIZATION_ROADMAP.md#high-formula-function-library-documentation)
+
+---
+
+### Page Component Schema (FlexiPage Replacement)
+**File**: `packages/spec/src/ui/page.zod.ts` (expand)  
+**Effort**: 5 days  
+**Value**: Custom page layouts with regions and components  
+**Current**: Minimal page.zod.ts (only navigation reference)  
+**Target**: 15+ component types, Salesforce FlexiPage-style regions
+
+**See**: [OPTIMIZATION_ROADMAP.md - Sprint 3](./OPTIMIZATION_ROADMAP.md#high-page-component-schema)
+
+---
+
+### Report Grouping & Subtotals
+**File**: `packages/spec/src/ui/report.zod.ts` (expand)  
+**Effort**: 3 days  
+**Value**: Advanced analytics with grouping and roll-ups  
+**Current**: Basic report types defined  
+**Target**: 3-level grouping, subtotals, cross-filters, custom summary formulas
+
+**See**: [OPTIMIZATION_ROADMAP.md - Sprint 4](./OPTIMIZATION_ROADMAP.md#medium-report-grouping--subtotals)
+
+---
+
+### AI Conversation Memory
+**File**: `packages/spec/src/ai/conversation.zod.ts` (new)  
+**Effort**: 3 days  
+**Value**: Multi-turn AI conversations with token budgeting  
+**Current**: No conversation state management  
+**Target**: Message history, token tracking, auto-summarization
+
+**See**: [OPTIMIZATION_ROADMAP.md - Sprint 6](./OPTIMIZATION_ROADMAP.md#high-conversation-memory-schema)
+
+---
+
+### AI Cost Tracking
+**File**: `packages/spec/src/ai/cost.zod.ts` (new)  
+**Effort**: 3 days  
+**Value**: Monitor and control AI API costs  
+**Current**: RAG tracks tokens but no cost calculation  
+**Target**: Model pricing, usage breakdown, budget alerts
+
+**See**: [OPTIMIZATION_ROADMAP.md - Sprint 6](./OPTIMIZATION_ROADMAP.md#high-ai-cost-tracking)
+
+---
+
+## 📊 Original High Priority Features (Do Next)
 
 ### Query Enhancements
 **Files**: `packages/spec/src/data/query.zod.ts`  
@@ -194,7 +304,28 @@ export const TriggerContextSchema = z.object({
 
 ---
 
-## 🧪 Developer Experience Priorities
+## 🟢 NEW: Medium Priority Items (Post-Review)
+
+### Cursor-Based Pagination
+**File**: `packages/spec/src/api/contract.zod.ts` (expand)  
+**Effort**: 2 days  
+**Value**: Stable pagination for large datasets  
+
+### Field Projection (Sparse Fieldsets)
+**File**: `packages/spec/src/api/contract.zod.ts` (expand)  
+**Effort**: 2 days  
+**Value**: Request specific fields only (reduce payload size)  
+
+### API Versioning Strategy
+**File**: `packages/spec/src/system/api.zod.ts` (expand)  
+**Effort**: 2 days  
+**Value**: Support multiple API versions gracefully  
+
+**See**: [OPTIMIZATION_ROADMAP.md - Sprint 7](./OPTIMIZATION_ROADMAP.md#q4-2026-api-enhancements--polish)
+
+---
+
+## 🧪 Original Developer Experience Priorities
 
 ### Test Coverage Improvement
 **Files**: All `*.test.ts` files  
@@ -354,7 +485,53 @@ export const TriggerContextSchema = z.object({
 
 ---
 
-## 📅 Sprint Planning Guide
+## 📅 NEW: Updated Sprint Planning (Post-Review)
+
+### Q1 2026: Foundation & Compliance (Weeks 1-12)
+**Sprint 1-2 (Weeks 1-4): Audit & Security** 🔴 CRITICAL
+- [ ] Audit log schema (SOX/HIPAA/GDPR compliance)
+- [ ] Multi-tenancy isolation strategy (security)
+- [ ] Workflow action expansion (SMS, webhooks, etc.)
+- [ ] Formula function library documentation
+
+**Sprint 3-4 (Weeks 5-8): UI Enhancements** 🟡 HIGH
+- [ ] Page component schema (FlexiPage replacement)
+- [ ] Report grouping & subtotals
+- [ ] Widget component props expansion
+- [ ] Mobile layout configurations
+
+**Sprint 5-6 (Weeks 9-12): AI Safety & Management** 🔴 CRITICAL
+- [ ] AI safety & guardrails schema
+- [ ] Conversation memory schema
+- [ ] AI cost tracking schema
+- [ ] Tool calling format standardization
+
+### Q2-Q4 2026: See [OPTIMIZATION_ROADMAP.md](./OPTIMIZATION_ROADMAP.md)
+
+---
+
+## 📊 NEW: Updated Success Metrics
+
+| Metric | Before Review | Q1 2026 Target | Q2 Target | Q3 Target | Q4 Target |
+|--------|---------------|----------------|-----------|-----------|-----------|
+| **Protocol Completeness** | 75% | 85% | 90% | 95% | 98% |
+| **Production Ready Modules** | 2/5 | 4/5 | 5/5 | 5/5 | 5/5 |
+| **Compliance Ready** | ❌ | ✅ | ✅ | ✅ | ✅ |
+| **AI Safety** | ❌ | ✅ | ✅ | ✅ | ✅ |
+| **Test Coverage** | 70% | 80% | 85% | 90% | 95% |
+| **Documentation Pages** | 50 | 100 | 150 | 200 | 250 |
+
+---
+
+## 📚 Reference Documents
+
+- **[PROTOCOL_REVIEW.md](./PROTOCOL_REVIEW.md)**: Comprehensive assessment of all 45+ protocols
+- **[OPTIMIZATION_ROADMAP.md](./OPTIMIZATION_ROADMAP.md)**: Detailed Q1-Q4 2026 implementation plan
+- **[DEVELOPMENT_ROADMAP.md](./DEVELOPMENT_ROADMAP.md)**: Original complete development plan
+
+---
+
+## 📅 Original Sprint Planning Guide
 
 ### Sprint 1-2 (Weeks 1-4): Critical Path
 - [ ] Field Widget Contract
