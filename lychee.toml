@@ -1,0 +1,62 @@
+# Lychee Link Checker Configuration
+# This configuration enables checking of internal Fumadocs links by remapping
+# Next.js routes to actual file system paths
+
+# Maximum number of concurrent requests
+max_concurrency = 10
+
+# Accept status codes (2xx = success)
+accept = [200, 204, 206, 301, 302, 307, 308, 429]
+
+# Timeout for requests (in seconds)
+timeout = 30
+
+# Retry failed requests
+max_retries = 2
+
+# Follow redirects
+follow_redirects = true
+
+# Check anchors/fragments in links
+include_fragments = false
+
+# Verbose output
+verbose = true
+
+# Remap internal documentation links to actual file paths
+# Maps /docs/* routes to content/docs/*.mdx or content/docs/*.md files
+# Lychee remap uses simple "pattern" = "replacement" syntax
+remap = [
+    # Primary remapping for .mdx files
+    "^/docs/(.*)$ content/docs/$1.mdx",
+    # Fallback for .md files  
+    "^/docs/(.*)$ content/docs/$1.md"
+]
+
+# Exclude patterns (loaded from .lycheeignore file)
+exclude_path = [".lycheeignore"]
+
+# Additional exclude patterns for internal paths
+exclude = [
+    # Local development
+    "http://localhost*",
+    "http://127.0.0.1*",
+    
+    # Example/placeholder links
+    "https://example.com*",
+    "http://example.com*",
+    
+    # Social media (prevents anti-bot false positives)
+    "https://twitter.com*",
+    "https://x.com*",
+    
+    # Email links
+    "mailto:*"
+]
+
+# Cache results to speed up subsequent runs
+cache = true
+
+# Specify schemes to check (include file:// for local files)
+# Leaving this unset allows all schemes including file://
+# scheme = ["https", "http", "file"]
