@@ -1,0 +1,307 @@
+import { z } from 'zod';
+
+/**
+ * AI Conversation Memory Protocol
+ * 
+ * Multi-turn AI conversations with token budget management.
+ * Enables context preservation, conversation history, and token optimization.
+ */
+
+/**
+ * Message Role
+ */
+export const MessageRoleSchema = z.enum([
+  'system',
+  'user',
+  'assistant',
+  'function',
+  'tool',
+]);
+
+/**
+ * Message Content Type
+ */
+export const MessageContentTypeSchema = z.enum([
+  'text',
+  'image',
+  'file',
+  'code',
+  'structured',
+]);
+
+/**
+ * Message Content
+ */
+export const MessageContentSchema = z.object({
+  type: MessageContentTypeSchema.default('text'),
+  text: z.string().optional().describe('Text content'),
+  imageUrl: z.string().url().optional().describe('Image URL for vision models'),
+  fileUrl: z.string().url().optional().describe('File attachment URL'),
+  mimeType: z.string().optional().describe('MIME type for files'),
+  metadata: z.record(z.any()).optional().describe('Additional metadata'),
+});
+
+/**
+ * Function Call
+ */
+export const FunctionCallSchema = z.object({
+  name: z.string().describe('Function name'),
+  arguments: z.string().describe('JSON string of function arguments'),
+  result: z.string().optional().describe('Function execution result'),
+});
+
+/**
+ * Tool Call
+ */
+export const ToolCallSchema = z.object({
+  id: z.string().describe('Tool call ID'),
+  type: z.enum(['function']).default('function'),
+  function: FunctionCallSchema,
+});
+
+/**
+ * Conversation Message
+ */
+export const ConversationMessageSchema = z.object({
+  /** Identity */
+  id: z.string().describe('Unique message ID'),
+  timestamp: z.string().describe('ISO 8601 timestamp'),
+  
+  /** Content */
+  role: MessageRoleSchema,
+  content: z.union([
+    z.string(),
+    z.array(MessageContentSchema),
+  ]).describe('Message content (text or multimodal)'),
+  
+  /** Function/Tool Calls */
+  functionCall: FunctionCallSchema.optional().describe('Legacy function call'),
+  toolCalls: z.array(ToolCallSchema).optional().describe('Tool calls'),
+  toolCallId: z.string().optional().describe('Tool call ID this message responds to'),
+  
+  /** Metadata */
+  name: z.string().optional().describe('Name of the function/user'),
+  tokens: z.object({
+    prompt: z.number().int().nonnegative().optional().describe('Tokens in prompt'),
+    completion: z.number().int().nonnegative().optional().describe('Tokens in completion'),
+    total: z.number().int().nonnegative().optional().describe('Total tokens'),
+  }).optional().describe('Token usage for this message'),
+  
+  /** Context Management */
+  pinned: z.boolean().optional().default(false).describe('Prevent removal during pruning'),
+  importance: z.number().min(0).max(1).optional().describe('Importance score for pruning'),
+  embedding: z.array(z.number()).optional().describe('Vector embedding for semantic search'),
+  
+  /** Annotations */
+  metadata: z.record(z.any()).optional(),
+});
+
+/**
+ * Token Budget Strategy
+ */
+export const TokenBudgetStrategySchema = z.enum([
+  'fifo',              // First-in-first-out (oldest messages dropped)
+  'importance',        // Drop by importance score
+  'semantic',          // Keep semantically relevant messages
+  'sliding_window',    // Fixed window of recent messages
+  'summary',           // Summarize old context
+]);
+
+/**
+ * Token Budget Configuration
+ */
+export const TokenBudgetConfigSchema = z.object({
+  /** Budget Limits */
+  maxTokens: z.number().int().positive().describe('Maximum total tokens'),
+  maxPromptTokens: z.number().int().positive().optional().describe('Max tokens for prompt'),
+  maxCompletionTokens: z.number().int().positive().optional().describe('Max tokens for completion'),
+  
+  /** Buffer & Reserves */
+  reserveTokens: z.number().int().nonnegative().default(500).describe('Reserve tokens for system messages'),
+  bufferPercentage: z.number().min(0).max(1).default(0.1).describe('Buffer percentage (0.1 = 10%)'),
+  
+  /** Pruning Strategy */
+  strategy: TokenBudgetStrategySchema.default('sliding_window'),
+  
+  /** Strategy-Specific Options */
+  slidingWindowSize: z.number().int().positive().optional().describe('Number of recent messages to keep'),
+  minImportanceScore: z.number().min(0).max(1).optional().describe('Minimum importance to keep'),
+  semanticThreshold: z.number().min(0).max(1).optional().describe('Semantic similarity threshold'),
+  
+  /** Summarization */
+  enableSummarization: z.boolean().default(false).describe('Enable context summarization'),
+  summarizationThreshold: z.number().int().positive().optional().describe('Trigger summarization at N tokens'),
+  summaryModel: z.string().optional().describe('Model ID for summarization'),
+  
+  /** Monitoring */
+  warnThreshold: z.number().min(0).max(1).default(0.8).describe('Warn at % of budget (0.8 = 80%)'),
+});
+
+/**
+ * Token Usage Stats
+ */
+export const TokenUsageStatsSchema = z.object({
+  promptTokens: z.number().int().nonnegative().default(0),
+  completionTokens: z.number().int().nonnegative().default(0),
+  totalTokens: z.number().int().nonnegative().default(0),
+  
+  /** Budget Status */
+  budgetLimit: z.number().int().positive(),
+  budgetUsed: z.number().int().nonnegative().default(0),
+  budgetRemaining: z.number().int().nonnegative(),
+  budgetPercentage: z.number().min(0).max(1).describe('Usage as percentage of budget'),
+  
+  /** Message Stats */
+  messageCount: z.number().int().nonnegative().default(0),
+  prunedMessageCount: z.number().int().nonnegative().default(0),
+  summarizedMessageCount: z.number().int().nonnegative().default(0),
+});
+
+/**
+ * Conversation Context
+ */
+export const ConversationContextSchema = z.object({
+  /** Identity */
+  sessionId: z.string().describe('Conversation session ID'),
+  userId: z.string().optional().describe('User identifier'),
+  agentId: z.string().optional().describe('AI agent identifier'),
+  
+  /** Context Data */
+  object: z.string().optional().describe('Related object (e.g., "case", "project")'),
+  recordId: z.string().optional().describe('Related record ID'),
+  scope: z.record(z.any()).optional().describe('Additional context scope'),
+  
+  /** System Instructions */
+  systemMessage: z.string().optional().describe('System prompt/instructions'),
+  
+  /** Metadata */
+  metadata: z.record(z.any()).optional(),
+});
+
+/**
+ * Conversation Session
+ */
+export const ConversationSessionSchema = z.object({
+  /** Identity */
+  id: z.string().describe('Unique session ID'),
+  name: z.string().optional().describe('Session name/title'),
+  
+  /** Configuration */
+  context: ConversationContextSchema,
+  modelId: z.string().optional().describe('AI model ID'),
+  tokenBudget: TokenBudgetConfigSchema,
+  
+  /** Messages */
+  messages: z.array(ConversationMessageSchema).default([]),
+  
+  /** Token Tracking */
+  tokens: TokenUsageStatsSchema.optional(),
+  
+  /** Session Status */
+  status: z.enum(['active', 'paused', 'completed', 'archived']).default('active'),
+  
+  /** Timestamps */
+  createdAt: z.string().describe('ISO 8601 timestamp'),
+  updatedAt: z.string().describe('ISO 8601 timestamp'),
+  expiresAt: z.string().optional().describe('ISO 8601 timestamp'),
+  
+  /** Metadata */
+  tags: z.array(z.string()).optional(),
+  metadata: z.record(z.any()).optional(),
+});
+
+/**
+ * Conversation Summary
+ */
+export const ConversationSummarySchema = z.object({
+  /** Summary Content */
+  summary: z.string().describe('Conversation summary'),
+  keyPoints: z.array(z.string()).optional().describe('Key discussion points'),
+  
+  /** Token Savings */
+  originalTokens: z.number().int().nonnegative().describe('Original token count'),
+  summaryTokens: z.number().int().nonnegative().describe('Summary token count'),
+  tokensSaved: z.number().int().nonnegative().describe('Tokens saved'),
+  
+  /** Source Messages */
+  messageRange: z.object({
+    startIndex: z.number().int().nonnegative(),
+    endIndex: z.number().int().nonnegative(),
+  }).describe('Range of messages summarized'),
+  
+  /** Metadata */
+  generatedAt: z.string().describe('ISO 8601 timestamp'),
+  modelId: z.string().optional().describe('Model used for summarization'),
+});
+
+/**
+ * Message Pruning Event
+ */
+export const MessagePruningEventSchema = z.object({
+  /** Event Details */
+  timestamp: z.string().describe('ISO 8601 timestamp'),
+  strategy: TokenBudgetStrategySchema,
+  reason: z.string().describe('Reason for pruning'),
+  
+  /** Pruned Messages */
+  prunedMessages: z.array(z.object({
+    messageId: z.string(),
+    role: MessageRoleSchema,
+    tokens: z.number().int().nonnegative(),
+    importance: z.number().min(0).max(1).optional(),
+  })),
+  
+  /** Impact */
+  tokensFreed: z.number().int().nonnegative(),
+  messagesRemoved: z.number().int().nonnegative(),
+  
+  /** Post-Pruning State */
+  remainingTokens: z.number().int().nonnegative(),
+  remainingMessages: z.number().int().nonnegative(),
+});
+
+/**
+ * Conversation Analytics
+ */
+export const ConversationAnalyticsSchema = z.object({
+  /** Session Info */
+  sessionId: z.string(),
+  
+  /** Message Statistics */
+  totalMessages: z.number().int().nonnegative(),
+  userMessages: z.number().int().nonnegative(),
+  assistantMessages: z.number().int().nonnegative(),
+  systemMessages: z.number().int().nonnegative(),
+  
+  /** Token Statistics */
+  totalTokens: z.number().int().nonnegative(),
+  averageTokensPerMessage: z.number().nonnegative(),
+  peakTokenUsage: z.number().int().nonnegative(),
+  
+  /** Efficiency Metrics */
+  pruningEvents: z.number().int().nonnegative().default(0),
+  summarizationEvents: z.number().int().nonnegative().default(0),
+  tokensSavedByPruning: z.number().int().nonnegative().default(0),
+  tokensSavedBySummarization: z.number().int().nonnegative().default(0),
+  
+  /** Duration */
+  duration: z.number().nonnegative().optional().describe('Session duration in seconds'),
+  firstMessageAt: z.string().optional().describe('ISO 8601 timestamp'),
+  lastMessageAt: z.string().optional().describe('ISO 8601 timestamp'),
+});
+
+// Type exports
+export type MessageRole = z.infer<typeof MessageRoleSchema>;
+export type MessageContentType = z.infer<typeof MessageContentTypeSchema>;
+export type MessageContent = z.infer<typeof MessageContentSchema>;
+export type FunctionCall = z.infer<typeof FunctionCallSchema>;
+export type ToolCall = z.infer<typeof ToolCallSchema>;
+export type ConversationMessage = z.infer<typeof ConversationMessageSchema>;
+export type TokenBudgetStrategy = z.infer<typeof TokenBudgetStrategySchema>;
+export type TokenBudgetConfig = z.infer<typeof TokenBudgetConfigSchema>;
+export type TokenUsageStats = z.infer<typeof TokenUsageStatsSchema>;
+export type ConversationContext = z.infer<typeof ConversationContextSchema>;
+export type ConversationSession = z.infer<typeof ConversationSessionSchema>;
+export type ConversationSummary = z.infer<typeof ConversationSummarySchema>;
+export type MessagePruningEvent = z.infer<typeof MessagePruningEventSchema>;
+export type ConversationAnalytics = z.infer<typeof ConversationAnalyticsSchema>;
