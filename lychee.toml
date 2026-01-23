@@ -21,7 +21,8 @@ follow_redirects = true
 include_fragments = false
 
 # Verbose output
-verbose = true
+# Accepts log level: "error", "warn", "info", "debug", "trace"
+verbose = "info"
 
 # Remap internal documentation links to actual file paths
 # Maps /docs/* routes to content/docs/*.mdx or content/docs/*.md files
