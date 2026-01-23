@@ -52,14 +52,22 @@ const ZOD_FILE_TITLES: Record<string, string> = {
   'datasource': 'Datasources',
   'driver': 'Drivers',
   'auth': 'Authentication',
+  'identity': 'Identity',
+  'role': 'Roles',
+  'policy': 'Policies',
+  'organization': 'Organizations',
+  'tenant': 'Tenants',
   'webhook': 'Webhooks',
-  'api': 'API Configuration',
+  'events': 'Events',
+  'job': 'Jobs',
+  'realtime': 'Real-time Communication',
+  'discovery': 'Service Discovery',
+  'plugin': 'Plugins',
   'translation': 'Translations',
   'audit': 'Audit',
   'territory': 'Territories',
   'license': 'Licenses',
   'plan': 'Plans',
-  'rbac': 'Role-Based Access Control',
   // API
   'contract': 'API Contracts'
 };
@@ -171,7 +179,9 @@ function generateMarkdown(schemaName: string, schema: any) {
 }
 
 // 2. Clean up old documentation structure
-// Remove old .mdx files and subdirectories from category roots
+// IMPORTANT: This removes old .mdx files and subdirectories to ensure a clean state.
+// Only category roots are cleaned (data/, ui/, system/, ai/, api/). The root meta.json is preserved.
+// All necessary directories and files are regenerated in step 3, so this is safe.
 Object.keys(CATEGORIES).forEach(category => {
   const dir = path.join(DOCS_ROOT, category);
   if (fs.existsSync(dir)) {
@@ -180,14 +190,14 @@ Object.keys(CATEGORIES).forEach(category => {
       const entryPath = path.join(dir, entry);
       const stat = fs.statSync(entryPath);
       
-      // Remove old .mdx files from category root
+      // Remove old .mdx files from category root (these will be moved to subfolders)
       if (stat.isFile() && entry.endsWith('.mdx')) {
         fs.unlinkSync(entryPath);
         console.log(`Removed old file: ${category}/${entry}`);
       }
-      // Remove old subdirectories (but keep meta.json)
+      // Remove old subdirectories (will be recreated with correct structure in step 3)
+      // Note: meta.json is preserved as it's not a directory
       else if (stat.isDirectory()) {
-        // We'll recreate the directories we need, so remove all existing ones
         fs.rmSync(entryPath, { recursive: true, force: true });
         console.log(`Removed old directory: ${category}/${entry}`);
       }
