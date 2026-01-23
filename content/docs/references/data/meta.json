@@ -2,11 +2,17 @@
   "title": "Data Protocol",
   "root": true,
   "pages": [
-    "core",
-    "logic",
-    "security",
-    "automation",
-    "analytics",
-    "types"
+    "dataset",
+    "field",
+    "filter",
+    "flow",
+    "mapping",
+    "object",
+    "permission",
+    "query",
+    "sharing",
+    "trigger",
+    "validation",
+    "workflow"
   ]
 }

@@ -14,116 +14,84 @@ const CATEGORIES: Record<string, string> = {
   ai: 'AI Protocol'
 };
 
-// Sub-category configuration
-const SUB_CATEGORIES: Record<string, Record<string, string[]>> = {
-  data: {
-    core: ['Object', 'Field', 'Index', 'ObjectCapabilities'],
-    logic: ['Flow', 'FlowEdge', 'FlowNode', 'FlowNodeAction', 'FlowVariable', 'FilterNode', 'FilterOperator', 'LogicOperator', 'SortNode', 'Mapping', 'ValidationRule', 'ScriptValidation', 'FormatValidation', 'StateMachineValidation', 'UniquenessValidation'],
-    security: ['PermissionSet', 'ObjectPermission', 'FieldPermission', 'SharingRule', 'SharingRuleType', 'SharingLevel', 'OWDModel'],
-    automation: ['WorkflowRule', 'WorkflowAction', 'FieldUpdateAction', 'EmailAlertAction', 'WorkflowTriggerType'],
-    analytics: ['Dataset', 'DatasetMode'],
-    types: ['FieldType', 'FieldMapping', 'SelectOption', 'FieldNode', 'TransformType', 'Query']
-  },
-  api: {
-    envelopes: ['BaseResponse', 'ApiError', 'ModificationResult', 'SingleRecordResponse', 'ListRecordResponse', 'BulkResponse', 'DeleteResponse'],
-    requests: ['CreateRequest', 'UpdateRequest', 'BulkRequest', 'ExportRequest', 'RecordData']
-  },
-  system: {
-    identity: ['AuthProtocol', 'AuthProvider', 'OIDCConfig', 'SAMLConfig', 'LDAPConfig', 'Role', 'Policy', 'SessionPolicy', 'PasswordPolicy'],
-    integration: ['ApiEndpoint', 'ApiMapping', 'Datasource', 'DatasourceCapabilities', 'DriverType', 'Webhook', 'WebhookReceiver', 'WebhookTriggerType', 'HttpMethod'],
-    config: ['Manifest', 'Feature', 'License', 'Plan', 'RateLimit', 'MenuItem'],
-    i18n: ['TranslationBundle', 'TranslationData', 'Locale'],
-    audit: ['AuditPolicy', 'MetricType', 'NetworkPolicy'],
-    geo: ['Territory', 'TerritoryModel', 'TerritoryType']
-  },
-  ui: {
-    app: ['App', 'AppBranding', 'NavigationItem', 'ObjectNavItem', 'DashboardNavItem', 'GroupNavItem', 'PageNavItem', 'UrlNavItem'],
-    views: ['View', 'ListView', 'FormView'],
-    view_config: ['KanbanConfig', 'GanttConfig', 'CalendarConfig', 'FormSection'],
-    analytics: ['Dashboard', 'DashboardWidget', 'Report', 'ReportChart', 'ReportColumn', 'ReportGrouping', 'ReportType', 'ChartType'],
-    interaction: ['Action', 'ActionParam'],
-    pages: ['Page', 'PageComponent', 'PageRegion']
-  }
-};
-
-const SUB_CATEGORY_TITLES: Record<string, string> = {
+// Zod file to human-readable title mapping
+const ZOD_FILE_TITLES: Record<string, string> = {
   // Data
-  'data/core': 'Core Entities',
-  'data/logic': 'Logic & Validation',
-  'data/security': 'Security & Access',
-  'data/automation': 'Automation',
-  'data/analytics': 'Analytics (Data)',
-  'data/types': 'Types & Definitions',
-  // API
-  'api/envelopes': 'Response Envelopes',
-  'api/requests': 'Request Payloads',
-  // System
-  'system/config': 'Configuration',
-  'system/identity': 'Identity & Auth',
-  'system/integration': 'Integration',
-  'system/geo': 'Territory & Geo',
-  'system/i18n': 'Internationalization',
-  'system/audit': 'Audit & Compliance',
+  'object': 'Objects',
+  'field': 'Fields',
+  'flow': 'Flows',
+  'validation': 'Validation',
+  'permission': 'Permissions',
+  'sharing': 'Sharing Rules',
+  'workflow': 'Workflows',
+  'mapping': 'Mappings',
+  'filter': 'Filters',
+  'query': 'Queries',
+  'dataset': 'Datasets',
+  'trigger': 'Triggers',
+  // AI
+  'agent': 'Agents',
+  'conversation': 'Conversations',
+  'cost': 'Cost Management',
+  'model-registry': 'Model Registry',
+  'nlq': 'Natural Language Query',
+  'predictive': 'Predictive Models',
+  'rag-pipeline': 'RAG Pipelines',
+  'workflow-automation': 'Workflow Automation',
   // UI
-  'ui/app': 'Application',
-  'ui/pages': 'Page Builder',
-  'ui/views': 'Views',
-  'ui/view_config': 'View Configuration',
-  'ui/analytics': 'Analytics (UI)',
-  'ui/interaction': 'Actions & Interaction'
+  'app': 'Applications',
+  'view': 'Views',
+  'action': 'Actions',
+  'dashboard': 'Dashboards',
+  'report': 'Reports',
+  'page': 'Pages',
+  'theme': 'Themes',
+  'widget': 'Widgets',
+  // System
+  'manifest': 'Manifest',
+  'datasource': 'Datasources',
+  'driver': 'Drivers',
+  'auth': 'Authentication',
+  'identity': 'Identity',
+  'role': 'Roles',
+  'policy': 'Policies',
+  'organization': 'Organizations',
+  'tenant': 'Tenants',
+  'webhook': 'Webhooks',
+  'events': 'Events',
+  'job': 'Jobs',
+  'realtime': 'Real-time Communication',
+  'discovery': 'Service Discovery',
+  'plugin': 'Plugins',
+  'translation': 'Translations',
+  'audit': 'Audit',
+  'territory': 'Territories',
+  'license': 'Licenses',
+  'plan': 'Plans',
+  // API
+  'contract': 'API Contracts'
 };
 
-// Map SchemaName -> Category Key (e.g. 'Object' -> 'data')
+// Map SchemaName -> Category (e.g. 'Object' -> 'data')
 const schemaCategoryMap = new Map<string, string>();
-const schemaSubCategoryMap = new Map<string, string>();
+// Map SchemaName -> Zod file (e.g. 'Object' -> 'object')
+const schemaZodFileMap = new Map<string, string>();
+// Track all zod files per category
+const categoryZodFiles = new Map<string, Set<string>>();
 
-// Reverse map sub-categories for lookup
-Object.entries(SUB_CATEGORIES).forEach(([topCat, subs]) => {
-  Object.entries(subs).forEach(([subCat, schemas]) => {
-    schemas.forEach(schema => {
-      schemaSubCategoryMap.set(schema, subCat);
-    });
-  });
-});
-
-
-// 1. Scan source files to build map
-Object.keys(CATEGORIES).forEach(category => {
-  const dir = path.join(SRC_DIR, category);
-  if (fs.existsSync(dir)) {
-    const files = fs.readdirSync(dir).filter(f => f.endsWith('.ts'));
-    for (const file of files) {
-      const content = fs.readFileSync(path.join(dir, file), 'utf-8');
-      
-      // Regex to find exported const schemas (e.g. "export const ObjectSchema = ...")
-      // also matches "export const ObjectCapabilities = ..."
-      // We assume conventions are followed
-      const matches = content.matchAll(/export const (\w+)(?:Schema)?\s*=\s*z\./g);
-      for (const match of matches) {
-        // match[1] is the name (e.g. Object).
-        // Note: build-schemas.ts strips 'Schema' suffix. 
-        // We match (\w+) which captures 'ObjectSchema' or 'ObjectCapabilities'.
-        // logic in build-schemas: `key.endsWith('Schema') ? key.replace('Schema', '') : key`
-        
-        let schemaName = match[1]; // e.g. Object from ObjectSchema
-        if (!content.includes(`export const ${schemaName}Schema =`)) {
-           // Wait, regex above captures "Object" from "ObjectSchema" IF I put Schema in non-capturing group?
-           // No, (\w+) captures "ObjectSchema". (?:Schema)? is applied to verify/consume suffix but regex is tricky.
-           // Simplified regex: /export const (\w+)\s*=/
-           // Then apply naming logic.
-        }
-      }
-    }
-  }
-});
-// Redo scanning with simpler logic
+// Scan source files to build maps
 function scanCategories() {
   Object.keys(CATEGORIES).forEach(category => {
     const dir = path.join(SRC_DIR, category);
     if (!fs.existsSync(dir)) return;
 
-    const files = fs.readdirSync(dir).filter(f => f.endsWith('.ts'));
+    const zodFiles = new Set<string>();
+    const files = fs.readdirSync(dir).filter(f => f.endsWith('.zod.ts'));
+    
     for (const file of files) {
+      const zodFileName = file.replace('.zod.ts', '');
+      zodFiles.add(zodFileName);
+      
       const content = fs.readFileSync(path.join(dir, file), 'utf-8');
       
       // Match export const Name = ... OR export const Name: Type = ...
@@ -135,8 +103,11 @@ function scanCategories() {
         const rawName = match[1];
         const finalName = rawName.endsWith('Schema') ? rawName.replace('Schema', '') : rawName;
         schemaCategoryMap.set(finalName, category);
+        schemaZodFileMap.set(finalName, zodFileName);
       }
     }
+    
+    categoryZodFiles.set(category, zodFiles);
   });
 }
 
@@ -207,18 +178,44 @@ function generateMarkdown(schemaName: string, schema: any) {
   return md;
 }
 
-// 2. Prepare Directories
-const miscDir = path.join(DOCS_ROOT, 'misc');
+// 2. Clean up old documentation structure
+// IMPORTANT: This removes old .mdx files and subdirectories to ensure a clean state.
+// Only category roots are cleaned (data/, ui/, system/, ai/, api/). The root meta.json is preserved.
+// All necessary directories and files are regenerated in step 3, so this is safe.
+Object.keys(CATEGORIES).forEach(category => {
+  const dir = path.join(DOCS_ROOT, category);
+  if (fs.existsSync(dir)) {
+    const entries = fs.readdirSync(dir);
+    entries.forEach(entry => {
+      const entryPath = path.join(dir, entry);
+      const stat = fs.statSync(entryPath);
+      
+      // Remove old .mdx files from category root (these will be moved to subfolders)
+      if (stat.isFile() && entry.endsWith('.mdx')) {
+        fs.unlinkSync(entryPath);
+        console.log(`Removed old file: ${category}/${entry}`);
+      }
+      // Remove old subdirectories (will be recreated with correct structure in step 3)
+      // Note: meta.json is preserved as it's not a directory
+      else if (stat.isDirectory()) {
+        fs.rmSync(entryPath, { recursive: true, force: true });
+        console.log(`Removed old directory: ${category}/${entry}`);
+      }
+    });
+  }
+});
+
+// 3. Prepare Directories
 if (!fs.existsSync(DOCS_ROOT)) {
   fs.mkdirSync(DOCS_ROOT, { recursive: true });
 }
 
-// Generate meta.json for categories and sub-categories
+// Generate meta.json for categories and zod file subfolders
 Object.entries(CATEGORIES).forEach(([key, title]) => {
   const dir = path.join(DOCS_ROOT, key);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
-  const subCats = SUB_CATEGORIES[key] ? Object.keys(SUB_CATEGORIES[key]) : [];
+  const zodFiles = categoryZodFiles.get(key) || new Set<string>();
   
   // Create top-level meta.json for the protocol
   const meta: any = { 
@@ -226,59 +223,64 @@ Object.entries(CATEGORIES).forEach(([key, title]) => {
     root: true // Mark as root to display folders nicely
   };
   
-  if (subCats.length > 0) {
-    // If we have specific sub-categories, enforce order using 'pages'
-    meta.pages = subCats;
+  // Sort zod files alphabetically for consistent ordering
+  const sortedZodFiles = Array.from(zodFiles).sort();
+  
+  if (sortedZodFiles.length > 0) {
+    // Enforce order using 'pages'
+    meta.pages = sortedZodFiles;
   }
 
   fs.writeFileSync(path.join(dir, 'meta.json'), JSON.stringify(meta, null, 2));
 
-  // Create sub-category directories and meta.json files
-  if (SUB_CATEGORIES[key]) {
-    Object.keys(SUB_CATEGORIES[key]).forEach(subCat => {
-      const subDir = path.join(dir, subCat);
-      if (!fs.existsSync(subDir)) fs.mkdirSync(subDir, { recursive: true });
-      
-      const subTitle = SUB_CATEGORY_TITLES[`${key}/${subCat}`] || subCat;
-      fs.writeFileSync(path.join(subDir, 'meta.json'), JSON.stringify({ title: subTitle }, null, 2));
-    });
-  }
+  // Create zod file directories and meta.json files
+  sortedZodFiles.forEach(zodFile => {
+    const subDir = path.join(dir, zodFile);
+    if (!fs.existsSync(subDir)) fs.mkdirSync(subDir, { recursive: true });
+    
+    const subTitle = ZOD_FILE_TITLES[zodFile] || zodFile.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    fs.writeFileSync(path.join(subDir, 'meta.json'), JSON.stringify({ title: subTitle }, null, 2));
+  });
 });
 
-// Clean up: We DO NOT delete the root folder to be safe, but we should probably clear old mdx files in root?
-// Be careful not to delete meta.json in root if we want to preserve it, but we will overwrite it.
-
-// 3. Generate Docs
-const files = fs.readdirSync(SCHEMA_DIR).filter(f => f.endsWith('.json'));
-
-files.forEach(file => {
-  const schemaName = file.replace('.json', '');
-  const content = JSON.parse(fs.readFileSync(path.join(SCHEMA_DIR, file), 'utf-8'));
-  const mdx = generateMarkdown(schemaName, content);
+// 4. Generate Docs
+// Read JSON schema files from category subdirectories
+Object.keys(CATEGORIES).forEach(category => {
+  const categorySchemaDir = path.join(SCHEMA_DIR, category);
   
-  if (mdx) {
-    let category = schemaCategoryMap.get(schemaName) || 'misc';
-    const subCategory = schemaSubCategoryMap.get(schemaName);
-    
-    // Determine output directory
-    let outDir = path.join(DOCS_ROOT, category);
-    if (subCategory) {
-      outDir = path.join(outDir, subCategory);
-    }
-
-    if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
-    
-    // Use schema name as file name. 
-    // Note: We previously renamed Index -> index.mdx, but now we moved Index to core/Index.mdx
-    // so we can keep original casing.
-    const fileName = `${schemaName}.mdx`;
-    fs.writeFileSync(path.join(outDir, fileName), mdx);
-    
-    console.log(`✓ Generated docs for ${schemaName} in ${category}${subCategory ? '/' + subCategory : ''}`);
+  if (!fs.existsSync(categorySchemaDir)) {
+    console.log(`Warning: Schema directory ${categorySchemaDir} does not exist`);
+    return;
   }
+  
+  const files = fs.readdirSync(categorySchemaDir).filter(f => f.endsWith('.json'));
+  
+  files.forEach(file => {
+    const schemaName = file.replace('.json', '');
+    const schemaPath = path.join(categorySchemaDir, file);
+    const content = JSON.parse(fs.readFileSync(schemaPath, 'utf-8'));
+    const mdx = generateMarkdown(schemaName, content);
+    
+    if (mdx) {
+      const zodFile = schemaZodFileMap.get(schemaName);
+      
+      // Determine output directory
+      let outDir = path.join(DOCS_ROOT, category);
+      if (zodFile) {
+        outDir = path.join(outDir, zodFile);
+      }
+
+      if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+      
+      const fileName = `${schemaName}.mdx`;
+      fs.writeFileSync(path.join(outDir, fileName), mdx);
+      
+      console.log(`✓ Generated docs for ${schemaName} in ${category}${zodFile ? '/' + zodFile : ''}`);
+    }
+  });
 });
 
-// 4. Update Root meta.json
+// 5. Update Root meta.json
 // We want references to list categories in specific order
 const rootMetaProps = {
   label: "Protocol Reference",
@@ -288,10 +290,11 @@ const rootMetaProps = {
     "ui",
     "system",
     "ai",
+    "api",
     "misc" 
   ]
 };
 fs.writeFileSync(path.join(DOCS_ROOT, 'meta.json'), JSON.stringify(rootMetaProps, null, 2));
 
-console.log(`\nDocumentation generated in ${DOCS_ROOT} organized by protocol.`);
-console.log('NOTE: You may need to manually delete old flat .mdx files in references/ if any exist.');
+console.log(`\nDocumentation generated in ${DOCS_ROOT} organized by zod files.`);
+console.log('Each category is now organized into subfolders based on source zod files.');

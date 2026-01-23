@@ -2,11 +2,25 @@
   "title": "System Protocol",
   "root": true,
   "pages": [
-    "identity",
-    "integration",
-    "config",
-    "i18n",
+    "api",
     "audit",
-    "geo"
+    "auth",
+    "datasource",
+    "discovery",
+    "driver",
+    "events",
+    "identity",
+    "job",
+    "license",
+    "manifest",
+    "organization",
+    "plugin",
+    "policy",
+    "realtime",
+    "role",
+    "tenant",
+    "territory",
+    "translation",
+    "webhook"
   ]
 }
