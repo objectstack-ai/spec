@@ -1,0 +1,82 @@
+{
+  "$ref": "#/definitions/PredictionResult",
+  "definitions": {
+    "PredictionResult": {
+      "type": "object",
+      "properties": {
+        "modelName": {
+          "type": "string"
+        },
+        "modelVersion": {
+          "type": "string"
+        },
+        "recordId": {
+          "type": "string"
+        },
+        "prediction": {
+          "description": "The predicted value"
+        },
+        "confidence": {
+          "type": "number",
+          "description": "Confidence score (0-1)"
+        },
+        "probabilities": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          },
+          "description": "Class probabilities (for classification)"
+        },
+        "explanation": {
+          "type": "object",
+          "properties": {
+            "topFeatures": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "feature": {
+                    "type": "string"
+                  },
+                  "importance": {
+                    "type": "number"
+                  },
+                  "value": {}
+                },
+                "required": [
+                  "feature",
+                  "importance"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "reasoning": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "executionTime": {
+              "type": "number",
+              "description": "Execution time in milliseconds"
+            },
+            "timestamp": {
+              "type": "string",
+              "description": "ISO timestamp"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "modelName",
+        "modelVersion"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

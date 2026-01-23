@@ -1,0 +1,41 @@
+{
+  "$ref": "#/definitions/PostProcessingAction",
+  "definitions": {
+    "PostProcessingAction": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "field_update",
+            "send_email",
+            "create_record",
+            "update_related",
+            "trigger_flow",
+            "webhook"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "description": "Action name"
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Action-specific configuration"
+        },
+        "condition": {
+          "type": "string",
+          "description": "Execute only if condition is TRUE"
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "config"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,33 @@
+{
+  "$ref": "#/definitions/WorkflowFieldCondition",
+  "definitions": {
+    "WorkflowFieldCondition": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "Field name to monitor"
+        },
+        "operator": {
+          "type": "string",
+          "enum": [
+            "changed",
+            "changed_to",
+            "changed_from",
+            "is",
+            "is_not"
+          ],
+          "default": "changed"
+        },
+        "value": {
+          "description": "Value to compare against (for changed_to/changed_from/is/is_not)"
+        }
+      },
+      "required": [
+        "field"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
