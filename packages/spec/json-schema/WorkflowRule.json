@@ -93,16 +93,397 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Action name"
                   },
                   "type": {
-                    "type": "string"
+                    "type": "string",
+                    "const": "sms_notification"
                   },
-                  "options": {}
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "twilio",
+                      "vonage"
+                    ],
+                    "description": "SMS provider"
+                  },
+                  "recipients": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "List of phone numbers or user field references"
+                  },
+                  "message": {
+                    "type": "string",
+                    "description": "SMS message text or template"
+                  },
+                  "fromNumber": {
+                    "type": "string",
+                    "description": "Sender phone number (provider-specific)"
+                  }
                 },
                 "required": [
                   "name",
-                  "type"
+                  "type",
+                  "provider",
+                  "recipients",
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Action name"
+                  },
+                  "type": {
+                    "type": "string",
+                    "const": "slack_message"
+                  },
+                  "channel": {
+                    "type": "string",
+                    "description": "Slack channel ID or name (#channel)"
+                  },
+                  "message": {
+                    "type": "string",
+                    "description": "Message text with optional markdown"
+                  },
+                  "mentions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "User IDs or @username to mention"
+                  },
+                  "threadId": {
+                    "type": "string",
+                    "description": "Thread ID for replies"
+                  }
+                },
+                "required": [
+                  "name",
+                  "type",
+                  "channel",
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Action name"
+                  },
+                  "type": {
+                    "type": "string",
+                    "const": "teams_message"
+                  },
+                  "channel": {
+                    "type": "string",
+                    "description": "Teams channel ID"
+                  },
+                  "message": {
+                    "type": "string",
+                    "description": "Message text with optional markdown"
+                  },
+                  "mentions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "User IDs to mention"
+                  },
+                  "teamId": {
+                    "type": "string",
+                    "description": "Team ID (if not in default team)"
+                  }
+                },
+                "required": [
+                  "name",
+                  "type",
+                  "channel",
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Action name"
+                  },
+                  "type": {
+                    "type": "string",
+                    "const": "http_call"
+                  },
+                  "url": {
+                    "type": "string",
+                    "description": "Target URL"
+                  },
+                  "method": {
+                    "type": "string",
+                    "enum": [
+                      "GET",
+                      "POST",
+                      "PUT",
+                      "PATCH",
+                      "DELETE"
+                    ],
+                    "description": "HTTP method"
+                  },
+                  "headers": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "description": "Request headers"
+                  },
+                  "body": {
+                    "description": "Request body (object/string)"
+                  },
+                  "authentication": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "basic",
+                          "bearer",
+                          "api_key",
+                          "oauth2"
+                        ]
+                      },
+                      "credentials": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Authentication configuration"
+                  },
+                  "timeout": {
+                    "type": "number",
+                    "description": "Request timeout in milliseconds"
+                  }
+                },
+                "required": [
+                  "name",
+                  "type",
+                  "url",
+                  "method"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Action name"
+                  },
+                  "type": {
+                    "type": "string",
+                    "const": "webhook_trigger"
+                  },
+                  "url": {
+                    "type": "string",
+                    "description": "Webhook URL to call"
+                  },
+                  "method": {
+                    "type": "string",
+                    "enum": [
+                      "POST",
+                      "PUT"
+                    ],
+                    "default": "POST",
+                    "description": "HTTP method"
+                  },
+                  "headers": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "description": "Custom headers"
+                  },
+                  "payload": {
+                    "description": "Webhook payload (uses record data if not specified)"
+                  },
+                  "retryOnFailure": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Retry if webhook fails"
+                  },
+                  "maxRetries": {
+                    "type": "number",
+                    "default": 3,
+                    "description": "Maximum retry attempts"
+                  }
+                },
+                "required": [
+                  "name",
+                  "type",
+                  "url"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Action name"
+                  },
+                  "type": {
+                    "type": "string",
+                    "const": "task_creation"
+                  },
+                  "taskObject": {
+                    "type": "string",
+                    "description": "Task object name (e.g., \"task\", \"project_task\")"
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "Task subject/title"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Task description"
+                  },
+                  "assignedTo": {
+                    "type": "string",
+                    "description": "User ID or field reference for assignee"
+                  },
+                  "dueDate": {
+                    "type": "string",
+                    "description": "Due date (ISO string or formula)"
+                  },
+                  "priority": {
+                    "type": "string",
+                    "description": "Task priority"
+                  },
+                  "relatedTo": {
+                    "type": "string",
+                    "description": "Related record ID or field reference"
+                  },
+                  "additionalFields": {
+                    "type": "object",
+                    "additionalProperties": {},
+                    "description": "Additional custom fields"
+                  }
+                },
+                "required": [
+                  "name",
+                  "type",
+                  "taskObject",
+                  "subject"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Action name"
+                  },
+                  "type": {
+                    "type": "string",
+                    "const": "push_notification"
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "Notification title"
+                  },
+                  "body": {
+                    "type": "string",
+                    "description": "Notification body text"
+                  },
+                  "recipients": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "User IDs or device tokens"
+                  },
+                  "data": {
+                    "type": "object",
+                    "additionalProperties": {},
+                    "description": "Additional data payload"
+                  },
+                  "badge": {
+                    "type": "number",
+                    "description": "Badge count (iOS)"
+                  },
+                  "sound": {
+                    "type": "string",
+                    "description": "Notification sound"
+                  },
+                  "clickAction": {
+                    "type": "string",
+                    "description": "Action/URL when notification is clicked"
+                  }
+                },
+                "required": [
+                  "name",
+                  "type",
+                  "title",
+                  "body",
+                  "recipients"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Action name"
+                  },
+                  "type": {
+                    "type": "string",
+                    "const": "custom_script"
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "javascript",
+                      "typescript",
+                      "python"
+                    ],
+                    "default": "javascript",
+                    "description": "Script language"
+                  },
+                  "code": {
+                    "type": "string",
+                    "description": "Script code to execute"
+                  },
+                  "timeout": {
+                    "type": "number",
+                    "default": 30000,
+                    "description": "Execution timeout in milliseconds"
+                  },
+                  "context": {
+                    "type": "object",
+                    "additionalProperties": {},
+                    "description": "Additional context variables"
+                  }
+                },
+                "required": [
+                  "name",
+                  "type",
+                  "code"
                 ],
                 "additionalProperties": false
               }

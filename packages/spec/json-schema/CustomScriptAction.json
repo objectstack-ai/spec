@@ -1,0 +1,49 @@
+{
+  "$ref": "#/definitions/CustomScriptAction",
+  "definitions": {
+    "CustomScriptAction": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Action name"
+        },
+        "type": {
+          "type": "string",
+          "const": "custom_script"
+        },
+        "language": {
+          "type": "string",
+          "enum": [
+            "javascript",
+            "typescript",
+            "python"
+          ],
+          "default": "javascript",
+          "description": "Script language"
+        },
+        "code": {
+          "type": "string",
+          "description": "Script code to execute"
+        },
+        "timeout": {
+          "type": "number",
+          "default": 30000,
+          "description": "Execution timeout in milliseconds"
+        },
+        "context": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Additional context variables"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "code"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
