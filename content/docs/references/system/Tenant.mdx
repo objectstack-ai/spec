@@ -1,0 +1,14 @@
+---
+title: Tenant
+description: Tenant Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique tenant identifier |
+| **name** | `string` | ✅ | Tenant display name |
+| **isolationLevel** | `Enum<'shared_schema' \| 'isolated_schema' \| 'isolated_db'>` | ✅ | Data isolation strategy |
+| **customizations** | `Record<string, any>` | optional | Tenant-specific customizations |
+| **quotas** | `object` | optional | Resource quotas and limits |
