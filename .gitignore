@@ -30,6 +30,9 @@ coverage/
 yarn-debug.log*
 yarn-error.log*
 
+# Lychee link checker cache
+.lycheecache
+
 # Testing
 coverage/
 
