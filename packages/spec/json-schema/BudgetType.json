@@ -1,0 +1,17 @@
+{
+  "$ref": "#/definitions/BudgetType",
+  "definitions": {
+    "BudgetType": {
+      "type": "string",
+      "enum": [
+        "global",
+        "user",
+        "agent",
+        "object",
+        "project",
+        "department"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

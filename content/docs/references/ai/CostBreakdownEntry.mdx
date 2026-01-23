@@ -1,0 +1,17 @@
+---
+title: CostBreakdownEntry
+description: CostBreakdownEntry Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **dimension** | `Enum<'model' \| 'provider' \| 'user' \| 'agent' \| 'object' \| 'operation' \| 'date' \| 'hour' \| 'tag'>` | ✅ |  |
+| **value** | `string` | ✅ | Dimension value (e.g., model ID, user ID) |
+| **totalCost** | `number` | ✅ |  |
+| **requestCount** | `integer` | ✅ |  |
+| **totalTokens** | `integer` | optional |  |
+| **percentageOfTotal** | `number` | ✅ |  |
+| **periodStart** | `string` | optional |  |
+| **periodEnd** | `string` | optional |  |

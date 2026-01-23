@@ -1,0 +1,16 @@
+{
+  "$ref": "#/definitions/MessageRole",
+  "definitions": {
+    "MessageRole": {
+      "type": "string",
+      "enum": [
+        "system",
+        "user",
+        "assistant",
+        "function",
+        "tool"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

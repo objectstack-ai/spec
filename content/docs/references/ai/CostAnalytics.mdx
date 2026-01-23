@@ -1,0 +1,31 @@
+---
+title: CostAnalytics
+description: CostAnalytics Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **periodStart** | `string` | ✅ | ISO 8601 timestamp |
+| **periodEnd** | `string` | ✅ | ISO 8601 timestamp |
+| **totalCost** | `number` | ✅ |  |
+| **totalRequests** | `integer` | ✅ |  |
+| **totalTokens** | `integer` | optional |  |
+| **currency** | `string` | optional |  |
+| **averageCostPerRequest** | `number` | ✅ |  |
+| **averageCostPerToken** | `number` | optional |  |
+| **averageRequestsPerDay** | `number` | ✅ |  |
+| **costTrend** | `Enum<'increasing' \| 'decreasing' \| 'stable'>` | optional |  |
+| **trendPercentage** | `number` | optional | % change vs previous period |
+| **byModel** | `object[]` | optional |  |
+| **byProvider** | `object[]` | optional |  |
+| **byUser** | `object[]` | optional |  |
+| **byAgent** | `object[]` | optional |  |
+| **byOperation** | `object[]` | optional |  |
+| **byDate** | `object[]` | optional |  |
+| **topModels** | `object[]` | optional |  |
+| **topUsers** | `object[]` | optional |  |
+| **topAgents** | `object[]` | optional |  |
+| **tokensPerDollar** | `number` | optional |  |
+| **requestsPerDollar** | `number` | optional |  |

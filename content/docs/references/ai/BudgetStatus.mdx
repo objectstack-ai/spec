@@ -1,0 +1,24 @@
+---
+title: BudgetStatus
+description: BudgetStatus Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **budgetId** | `string` | ✅ |  |
+| **type** | `Enum<'global' \| 'user' \| 'agent' \| 'object' \| 'project' \| 'department'>` | ✅ |  |
+| **scope** | `string` | optional |  |
+| **periodStart** | `string` | ✅ | ISO 8601 timestamp |
+| **periodEnd** | `string` | ✅ | ISO 8601 timestamp |
+| **currentCost** | `number` | optional |  |
+| **maxCost** | `number` | ✅ |  |
+| **currency** | `string` | optional |  |
+| **percentageUsed** | `number` | ✅ | Usage as percentage (can exceed 1.0 if over budget) |
+| **remainingCost** | `number` | ✅ | Remaining budget (can be negative if exceeded) |
+| **isExceeded** | `boolean` | optional |  |
+| **isWarning** | `boolean` | optional |  |
+| **projectedCost** | `number` | optional | Projected cost for period |
+| **projectedOverage** | `number` | optional | Projected overage |
+| **lastUpdated** | `string` | ✅ | ISO 8601 timestamp |

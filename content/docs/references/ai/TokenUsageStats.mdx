@@ -1,0 +1,19 @@
+---
+title: TokenUsageStats
+description: TokenUsageStats Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **promptTokens** | `integer` | optional |  |
+| **completionTokens** | `integer` | optional |  |
+| **totalTokens** | `integer` | optional |  |
+| **budgetLimit** | `integer` | ✅ |  |
+| **budgetUsed** | `integer` | optional |  |
+| **budgetRemaining** | `integer` | ✅ |  |
+| **budgetPercentage** | `number` | ✅ | Usage as percentage of budget |
+| **messageCount** | `integer` | optional |  |
+| **prunedMessageCount** | `integer` | optional |  |
+| **summarizedMessageCount** | `integer` | optional |  |

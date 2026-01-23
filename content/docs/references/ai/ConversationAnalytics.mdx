@@ -1,0 +1,24 @@
+---
+title: ConversationAnalytics
+description: ConversationAnalytics Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **sessionId** | `string` | ✅ |  |
+| **totalMessages** | `integer` | ✅ |  |
+| **userMessages** | `integer` | ✅ |  |
+| **assistantMessages** | `integer` | ✅ |  |
+| **systemMessages** | `integer` | ✅ |  |
+| **totalTokens** | `integer` | ✅ |  |
+| **averageTokensPerMessage** | `number` | ✅ |  |
+| **peakTokenUsage** | `integer` | ✅ |  |
+| **pruningEvents** | `integer` | optional |  |
+| **summarizationEvents** | `integer` | optional |  |
+| **tokensSavedByPruning** | `integer` | optional |  |
+| **tokensSavedBySummarization** | `integer` | optional |  |
+| **duration** | `number` | optional | Session duration in seconds |
+| **firstMessageAt** | `string` | optional | ISO 8601 timestamp |
+| **lastMessageAt** | `string` | optional | ISO 8601 timestamp |

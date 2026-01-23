@@ -1,0 +1,73 @@
+{
+  "$ref": "#/definitions/AuditRetentionPolicy",
+  "definitions": {
+    "AuditRetentionPolicy": {
+      "type": "object",
+      "properties": {
+        "retentionDays": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "default": 180,
+          "description": "Retention period in days"
+        },
+        "archiveAfterRetention": {
+          "type": "boolean",
+          "default": true,
+          "description": "Archive logs after retention period"
+        },
+        "archiveStorage": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "s3",
+                "gcs",
+                "azure_blob",
+                "filesystem"
+              ],
+              "description": "Archive storage type"
+            },
+            "endpoint": {
+              "type": "string",
+              "description": "Storage endpoint URL"
+            },
+            "bucket": {
+              "type": "string",
+              "description": "Storage bucket/container name"
+            },
+            "path": {
+              "type": "string",
+              "description": "Storage path prefix"
+            },
+            "credentials": {
+              "type": "object",
+              "additionalProperties": {},
+              "description": "Storage credentials"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false,
+          "description": "Archive storage configuration"
+        },
+        "customRetention": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "description": "Custom retention by event type"
+        },
+        "minimumRetentionDays": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "description": "Minimum retention for compliance"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,16 @@
+{
+  "$ref": "#/definitions/MessageContentType",
+  "definitions": {
+    "MessageContentType": {
+      "type": "string",
+      "enum": [
+        "text",
+        "image",
+        "file",
+        "code",
+        "structured"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
