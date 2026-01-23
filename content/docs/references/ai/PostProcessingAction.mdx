@@ -1,0 +1,13 @@
+---
+title: PostProcessingAction
+description: PostProcessingAction Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'field_update' \| 'send_email' \| 'create_record' \| 'update_related' \| 'trigger_flow' \| 'webhook'>` | ✅ |  |
+| **name** | `string` | ✅ | Action name |
+| **config** | `Record<string, any>` | ✅ | Action-specific configuration |
+| **condition** | `string` | optional | Execute only if condition is TRUE |

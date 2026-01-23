@@ -1,0 +1,20 @@
+---
+title: AIWorkflowExecutionResult
+description: AIWorkflowExecutionResult Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **workflowName** | `string` | ✅ |  |
+| **recordId** | `string` | ✅ |  |
+| **status** | `Enum<'success' \| 'partial_success' \| 'failed' \| 'skipped'>` | ✅ |  |
+| **executionTime** | `number` | ✅ | Execution time in milliseconds |
+| **tasksExecuted** | `integer` | ✅ | Number of tasks executed |
+| **tasksSucceeded** | `integer` | ✅ | Number of tasks succeeded |
+| **tasksFailed** | `integer` | ✅ | Number of tasks failed |
+| **taskResults** | `object[]` | optional |  |
+| **error** | `string` | optional |  |
+| **startedAt** | `string` | ✅ | ISO timestamp |
+| **completedAt** | `string` | optional | ISO timestamp |

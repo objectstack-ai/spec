@@ -1,0 +1,21 @@
+{
+  "$ref": "#/definitions/AITaskType",
+  "definitions": {
+    "AITaskType": {
+      "type": "string",
+      "enum": [
+        "classify",
+        "extract",
+        "summarize",
+        "generate",
+        "predict",
+        "translate",
+        "sentiment",
+        "entity_recognition",
+        "anomaly_detection",
+        "recommendation"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

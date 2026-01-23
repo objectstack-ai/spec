@@ -1,0 +1,17 @@
+---
+title: PredictionResult
+description: PredictionResult Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **modelName** | `string` | ✅ |  |
+| **modelVersion** | `string` | ✅ |  |
+| **recordId** | `string` | optional |  |
+| **prediction** | `any` | optional | The predicted value |
+| **confidence** | `number` | optional | Confidence score (0-1) |
+| **probabilities** | `Record<string, number>` | optional | Class probabilities (for classification) |
+| **explanation** | `object` | optional |  |
+| **metadata** | `object` | optional |  |

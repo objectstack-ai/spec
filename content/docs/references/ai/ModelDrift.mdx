@@ -1,0 +1,16 @@
+---
+title: ModelDrift
+description: ModelDrift Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **modelName** | `string` | ✅ |  |
+| **driftType** | `Enum<'feature_drift' \| 'prediction_drift' \| 'performance_drift'>` | ✅ |  |
+| **severity** | `Enum<'low' \| 'medium' \| 'high' \| 'critical'>` | ✅ |  |
+| **detectedAt** | `string` | ✅ | ISO timestamp |
+| **metrics** | `object` | ✅ |  |
+| **recommendation** | `string` | optional |  |
+| **autoRetrainTriggered** | `boolean` | optional |  |

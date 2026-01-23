@@ -1,0 +1,88 @@
+{
+  "$ref": "#/definitions/TrainingConfig",
+  "definitions": {
+    "TrainingConfig": {
+      "type": "object",
+      "properties": {
+        "trainingDataRatio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.8,
+          "description": "Proportion of data for training"
+        },
+        "validationDataRatio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.1,
+          "description": "Proportion for validation"
+        },
+        "testDataRatio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.1,
+          "description": "Proportion for testing"
+        },
+        "dataFilter": {
+          "type": "string",
+          "description": "Formula to filter training data"
+        },
+        "minRecords": {
+          "type": "integer",
+          "default": 100,
+          "description": "Minimum records required"
+        },
+        "maxRecords": {
+          "type": "integer",
+          "description": "Maximum records to use"
+        },
+        "strategy": {
+          "type": "string",
+          "enum": [
+            "full",
+            "incremental",
+            "online",
+            "transfer_learning"
+          ],
+          "default": "full"
+        },
+        "crossValidation": {
+          "type": "boolean",
+          "default": true
+        },
+        "folds": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 10,
+          "default": 5,
+          "description": "Cross-validation folds"
+        },
+        "earlyStoppingEnabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "earlyStoppingPatience": {
+          "type": "integer",
+          "default": 10,
+          "description": "Epochs without improvement before stopping"
+        },
+        "maxTrainingTime": {
+          "type": "number",
+          "description": "Maximum training time in seconds"
+        },
+        "gpuEnabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "randomSeed": {
+          "type": "integer",
+          "description": "Random seed for reproducibility"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,39 @@
+{
+  "$ref": "#/definitions/PredictionRequest",
+  "definitions": {
+    "PredictionRequest": {
+      "type": "object",
+      "properties": {
+        "modelName": {
+          "type": "string",
+          "description": "Model to use for prediction"
+        },
+        "recordIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Specific records to predict (if not provided, uses all)"
+        },
+        "inputData": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Direct input data (alternative to recordIds)"
+        },
+        "returnConfidence": {
+          "type": "boolean",
+          "default": true
+        },
+        "returnExplanation": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "modelName"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
