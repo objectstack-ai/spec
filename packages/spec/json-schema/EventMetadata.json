@@ -1,0 +1,33 @@
+{
+  "$ref": "#/definitions/EventMetadata",
+  "definitions": {
+    "EventMetadata": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "description": "Event source (e.g., plugin name, system component)"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 datetime when event was created"
+        },
+        "userId": {
+          "type": "string",
+          "description": "User who triggered the event"
+        },
+        "tenantId": {
+          "type": "string",
+          "description": "Tenant identifier for multi-tenant systems"
+        }
+      },
+      "required": [
+        "source",
+        "timestamp"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

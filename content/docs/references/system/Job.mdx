@@ -1,0 +1,15 @@
+---
+title: Job
+description: Job Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique job identifier |
+| **name** | `string` | ✅ | Job name (snake_case) |
+| **schedule** | `object \| object \| object` | ✅ | Job schedule configuration |
+| **retryPolicy** | `object` | optional | Retry policy configuration |
+| **timeout** | `integer` | optional | Timeout in milliseconds |
+| **enabled** | `boolean` | optional | Whether the job is enabled |

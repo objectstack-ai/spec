@@ -1,0 +1,15 @@
+{
+  "$ref": "#/definitions/JobExecutionStatus",
+  "definitions": {
+    "JobExecutionStatus": {
+      "type": "string",
+      "enum": [
+        "running",
+        "success",
+        "failed",
+        "timeout"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

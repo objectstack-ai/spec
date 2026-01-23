@@ -1,0 +1,32 @@
+{
+  "$ref": "#/definitions/SubscriptionEvent",
+  "definitions": {
+    "SubscriptionEvent": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "record.created",
+            "record.updated",
+            "record.deleted",
+            "field.changed"
+          ],
+          "description": "Type of event to subscribe to"
+        },
+        "object": {
+          "type": "string",
+          "description": "Object name to subscribe to"
+        },
+        "filters": {
+          "description": "Filter conditions"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,127 @@
+{
+  "$ref": "#/definitions/Job",
+  "definitions": {
+    "Job": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique job identifier"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Job name (snake_case)"
+        },
+        "schedule": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "cron"
+                },
+                "expression": {
+                  "type": "string",
+                  "description": "Cron expression (e.g., \"0 0 * * *\" for daily at midnight)"
+                },
+                "timezone": {
+                  "type": "string",
+                  "default": "UTC",
+                  "description": "Timezone for cron execution (e.g., \"America/New_York\")"
+                }
+              },
+              "required": [
+                "type",
+                "expression"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "interval"
+                },
+                "intervalMs": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "description": "Interval in milliseconds"
+                }
+              },
+              "required": [
+                "type",
+                "intervalMs"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "once"
+                },
+                "at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "ISO 8601 datetime when to execute"
+                }
+              },
+              "required": [
+                "type",
+                "at"
+              ],
+              "additionalProperties": false
+            }
+          ],
+          "description": "Job schedule configuration"
+        },
+        "retryPolicy": {
+          "type": "object",
+          "properties": {
+            "maxRetries": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 3,
+              "description": "Maximum number of retry attempts"
+            },
+            "backoffMs": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 1000,
+              "description": "Initial backoff delay in milliseconds"
+            },
+            "backoffMultiplier": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "default": 2,
+              "description": "Multiplier for exponential backoff"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Retry policy configuration"
+        },
+        "timeout": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "description": "Timeout in milliseconds"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the job is enabled"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "schedule"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
