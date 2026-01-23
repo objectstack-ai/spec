@@ -1,0 +1,30 @@
+{
+  "$ref": "#/definitions/RetryPolicy",
+  "definitions": {
+    "RetryPolicy": {
+      "type": "object",
+      "properties": {
+        "maxRetries": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 3,
+          "description": "Maximum number of retry attempts"
+        },
+        "backoffMs": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "default": 1000,
+          "description": "Initial backoff delay in milliseconds"
+        },
+        "backoffMultiplier": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 2,
+          "description": "Multiplier for exponential backoff"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

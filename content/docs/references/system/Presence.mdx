@@ -1,0 +1,13 @@
+---
+title: Presence
+description: Presence Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **userId** | `string` | ✅ | User identifier |
+| **status** | `Enum<'online' \| 'away' \| 'offline'>` | ✅ | Current presence status |
+| **lastSeen** | `string` | ✅ | ISO 8601 datetime of last activity |
+| **metadata** | `Record<string, any>` | optional | Custom presence data (e.g., current page, custom status) |

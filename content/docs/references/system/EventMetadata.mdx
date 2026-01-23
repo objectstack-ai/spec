@@ -1,0 +1,13 @@
+---
+title: EventMetadata
+description: EventMetadata Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **source** | `string` | ✅ | Event source (e.g., plugin name, system component) |
+| **timestamp** | `string` | ✅ | ISO 8601 datetime when event was created |
+| **userId** | `string` | optional | User who triggered the event |
+| **tenantId** | `string` | optional | Tenant identifier for multi-tenant systems |

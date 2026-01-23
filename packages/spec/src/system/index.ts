@@ -24,5 +24,8 @@ export * from './translation.zod';
 export * from './driver.zod';
 export * from './discovery.zod';
 export * from './plugin.zod';
+export * from './realtime.zod';
+export * from './events.zod';
+export * from './job.zod';
 export * from './constants';
 export * from './types';

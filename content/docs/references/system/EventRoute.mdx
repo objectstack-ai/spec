@@ -1,0 +1,11 @@
+---
+title: EventRoute
+description: EventRoute Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **from** | `string` | ✅ | Source event pattern (supports wildcards, e.g., user.* or *.created) |
+| **to** | `string[]` | ✅ | Target event names to route to |
