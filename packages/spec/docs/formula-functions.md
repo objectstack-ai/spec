@@ -7,12 +7,22 @@ Formula fields in ObjectStack allow you to create calculated values using expres
 Formula fields use the `expression` property in field definitions:
 
 ```typescript
+// Direct subpath import (Style 3)
 import { Field } from '@objectstack/spec/data';
 
 const totalPrice = Field.formula({
   name: 'total_price',
   label: 'Total Price',
   expression: 'ROUND(unit_price * quantity, 2)'
+});
+
+// Alternative: Namespace import (Style 1)
+import { Data } from '@objectstack/spec';
+
+const discountedPrice = Data.Field.formula({
+  name: 'discounted_price',
+  label: 'Discounted Price',
+  expression: 'IF(quantity > 10, price * 0.9, price)'
 });
 ```
 
