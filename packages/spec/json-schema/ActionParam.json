@@ -39,11 +39,14 @@
             "summary",
             "autonumber",
             "location",
+            "geolocation",
             "address",
             "code",
             "color",
             "rating",
-            "signature"
+            "slider",
+            "signature",
+            "qrcode"
           ]
         },
         "required": {

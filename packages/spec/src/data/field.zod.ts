@@ -23,12 +23,15 @@ export const FieldType = z.enum([
   // Calculated / System
   'formula', 'summary', 'autonumber',
   // Enhanced Types
-  'location', // GPS coordinates
+  'location', // GPS coordinates (aka geolocation)
+  'geolocation', // Alternative name for location field
   'address', // Structured address
   'code', // Code with syntax highlighting
   'color', // Color picker
   'rating', // Star rating
-  'signature' // Digital signature
+  'slider', // Numeric slider
+  'signature', // Digital signature
+  'qrcode', // QR code / Barcode
 ]);
 
 export type FieldType = z.infer<typeof FieldType>;
@@ -135,6 +138,17 @@ export const FieldSchema = z.object({
   colorFormat: z.enum(['hex', 'rgb', 'rgba', 'hsl']).optional().describe('Color value format'),
   allowAlpha: z.boolean().optional().describe('Allow transparency/alpha channel'),
   presetColors: z.array(z.string()).optional().describe('Preset color options'),
+  
+  // Slider field config
+  step: z.number().optional().describe('Step increment for slider (default: 1)'),
+  showValue: z.boolean().optional().describe('Display current value on slider'),
+  marks: z.record(z.string()).optional().describe('Custom marks/labels at specific values (e.g., {0: "Low", 50: "Medium", 100: "High"})'),
+  
+  // QR Code / Barcode field config
+  barcodeFormat: z.enum(['qr', 'ean13', 'ean8', 'code128', 'code39', 'upca', 'upce']).optional().describe('Barcode format type'),
+  qrErrorCorrection: z.enum(['L', 'M', 'Q', 'H']).optional().describe('QR code error correction level (L=7%, M=15%, Q=25%, H=30%)'),
+  displayValue: z.boolean().optional().describe('Display human-readable value below barcode/QR code'),
+  allowScanning: z.boolean().optional().describe('Enable camera scanning for barcode/QR code input'),
 
   /** Security & Visibility */
   hidden: z.boolean().default(false).describe('Hidden from default UI'),
@@ -257,6 +271,21 @@ export const Field = {
   
   signature: (config: FieldInput = {}) => ({ 
     type: 'signature', 
+    ...config 
+  } as const),
+  
+  slider: (config: FieldInput = {}) => ({ 
+    type: 'slider', 
+    ...config 
+  } as const),
+  
+  qrcode: (config: FieldInput = {}) => ({ 
+    type: 'qrcode', 
+    ...config 
+  } as const),
+  
+  geolocation: (config: FieldInput = {}) => ({ 
+    type: 'geolocation', 
     ...config 
   } as const),
 };
