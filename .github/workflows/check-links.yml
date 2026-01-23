@@ -23,11 +23,9 @@ jobs:
       - name: Check links with lychee
         uses: lycheeverse/lychee-action@v2
         with:
-          # Scan all markdown and MDX files in content directory, plus root README
+          # Use configuration file for path remapping and settings
           args: >-
-            --verbose
-            --no-progress
-            --exclude-file .lycheeignore
+            --config lychee.toml
             'content/**/*.md'
             'content/**/*.mdx'
             'README.md'
