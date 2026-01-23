@@ -9,7 +9,7 @@ description: Field Schema Reference
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | optional | Machine name (snake_case) |
 | **label** | `string` | optional | Human readable label |
-| **type** | `Enum<'text' \| 'textarea' \| 'email' \| 'url' \| 'phone' \| 'password' \| 'markdown' \| 'html' \| 'richtext' \| 'number' \| 'currency' \| 'percent' \| 'date' \| 'datetime' \| 'time' \| 'boolean' \| 'select' \| 'lookup' \| 'master_detail' \| 'image' \| 'file' \| 'avatar' \| 'formula' \| 'summary' \| 'autonumber' \| 'location' \| 'address' \| 'code' \| 'color' \| 'rating' \| 'signature'>` | ✅ | Field Data Type |
+| **type** | `Enum<'text' \| 'textarea' \| 'email' \| 'url' \| 'phone' \| 'password' \| 'markdown' \| 'html' \| 'richtext' \| 'number' \| 'currency' \| 'percent' \| 'date' \| 'datetime' \| 'time' \| 'boolean' \| 'select' \| 'lookup' \| 'master_detail' \| 'image' \| 'file' \| 'avatar' \| 'formula' \| 'summary' \| 'autonumber' \| 'location' \| 'geolocation' \| 'address' \| 'code' \| 'color' \| 'rating' \| 'slider' \| 'signature' \| 'qrcode'>` | ✅ | Field Data Type |
 | **description** | `string` | optional | Tooltip/Help text |
 | **format** | `string` | optional | Format string (e.g. email, phone) |
 | **required** | `boolean` | optional | Is required |
@@ -42,6 +42,13 @@ description: Field Schema Reference
 | **colorFormat** | `Enum<'hex' \| 'rgb' \| 'rgba' \| 'hsl'>` | optional | Color value format |
 | **allowAlpha** | `boolean` | optional | Allow transparency/alpha channel |
 | **presetColors** | `string[]` | optional | Preset color options |
+| **step** | `number` | optional | Step increment for slider (default: 1) |
+| **showValue** | `boolean` | optional | Display current value on slider |
+| **marks** | `Record<string, string>` | optional | Custom marks/labels at specific values (e.g., `{0: "Low", 50: "Medium", 100: "High"}`) |
+| **barcodeFormat** | `Enum<'qr' \| 'ean13' \| 'ean8' \| 'code128' \| 'code39' \| 'upca' \| 'upce'>` | optional | Barcode format type |
+| **qrErrorCorrection** | `Enum<'L' \| 'M' \| 'Q' \| 'H'>` | optional | QR code error correction level (L=7%, M=15%, Q=25%, H=30%). Only applicable when barcodeFormat is "qr" |
+| **displayValue** | `boolean` | optional | Display human-readable value below barcode/QR code |
+| **allowScanning** | `boolean` | optional | Enable camera scanning for barcode/QR code input |
 | **hidden** | `boolean` | optional | Hidden from default UI |
 | **readonly** | `boolean` | optional | Read-only in UI |
 | **encryption** | `boolean` | optional | Encrypt at rest |

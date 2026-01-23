@@ -19,7 +19,7 @@ describe('FieldType', () => {
       'lookup', 'master_detail',
       'image', 'file', 'avatar',
       'formula', 'summary', 'autonumber',
-      'location', 'address', 'code', 'color', 'rating', 'signature'
+      'location', 'geolocation', 'address', 'code', 'color', 'rating', 'slider', 'signature', 'qrcode'
     ];
 
     validTypes.forEach(type => {
@@ -390,6 +390,10 @@ describe('Field Factory Helpers', () => {
       expect(() => FieldType.parse('location')).not.toThrow();
     });
 
+    it('should accept geolocation field type', () => {
+      expect(() => FieldType.parse('geolocation')).not.toThrow();
+    });
+
     it('should accept address field type', () => {
       expect(() => FieldType.parse('address')).not.toThrow();
     });
@@ -410,8 +414,16 @@ describe('Field Factory Helpers', () => {
       expect(() => FieldType.parse('rating')).not.toThrow();
     });
 
+    it('should accept slider field type', () => {
+      expect(() => FieldType.parse('slider')).not.toThrow();
+    });
+
     it('should accept signature field type', () => {
       expect(() => FieldType.parse('signature')).not.toThrow();
+    });
+
+    it('should accept qrcode field type', () => {
+      expect(() => FieldType.parse('qrcode')).not.toThrow();
     });
 
     it('should create location field with config', () => {
@@ -492,6 +504,56 @@ describe('Field Factory Helpers', () => {
       
       expect(signatureField.type).toBe('signature');
       expect(signatureField.required).toBe(true);
+    });
+
+    it('should create slider field with config', () => {
+      const sliderField = Field.slider({
+        label: 'Volume',
+        min: 0,
+        max: 100,
+        step: 5,
+        defaultValue: 50,
+        showValue: true,
+        marks: { '0': 'Silent', '50': 'Medium', '100': 'Loud' },
+      });
+      
+      expect(sliderField.type).toBe('slider');
+      expect(sliderField.label).toBe('Volume');
+      expect(sliderField.min).toBe(0);
+      expect(sliderField.max).toBe(100);
+      expect(sliderField.step).toBe(5);
+      expect(sliderField.showValue).toBe(true);
+      expect(sliderField.marks).toEqual({ '0': 'Silent', '50': 'Medium', '100': 'Loud' });
+    });
+
+    it('should create qrcode field with barcode format', () => {
+      const qrcodeField = Field.qrcode({
+        label: 'Product Barcode',
+        barcodeFormat: 'qr',
+        qrErrorCorrection: 'M',
+        displayValue: true,
+        allowScanning: true,
+      });
+      
+      expect(qrcodeField.type).toBe('qrcode');
+      expect(qrcodeField.label).toBe('Product Barcode');
+      expect(qrcodeField.barcodeFormat).toBe('qr');
+      expect(qrcodeField.qrErrorCorrection).toBe('M');
+      expect(qrcodeField.displayValue).toBe(true);
+      expect(qrcodeField.allowScanning).toBe(true);
+    });
+
+    it('should create geolocation field', () => {
+      const geolocationField = Field.geolocation({
+        label: 'Current Location',
+        displayMap: true,
+        allowGeocoding: false,
+      });
+      
+      expect(geolocationField.type).toBe('geolocation');
+      expect(geolocationField.label).toBe('Current Location');
+      expect(geolocationField.displayMap).toBe(true);
+      expect(geolocationField.allowGeocoding).toBe(false);
     });
   });
 });

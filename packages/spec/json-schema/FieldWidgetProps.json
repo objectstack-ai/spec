@@ -62,11 +62,14 @@
                 "summary",
                 "autonumber",
                 "location",
+                "geolocation",
                 "address",
                 "code",
                 "color",
                 "rating",
-                "signature"
+                "slider",
+                "signature",
+                "qrcode"
               ],
               "description": "Field Data Type"
             },
@@ -273,6 +276,52 @@
                 "type": "string"
               },
               "description": "Preset color options"
+            },
+            "step": {
+              "type": "number",
+              "description": "Step increment for slider (default: 1)"
+            },
+            "showValue": {
+              "type": "boolean",
+              "description": "Display current value on slider"
+            },
+            "marks": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "Custom marks/labels at specific values (e.g., {0: \"Low\", 50: \"Medium\", 100: \"High\"})"
+            },
+            "barcodeFormat": {
+              "type": "string",
+              "enum": [
+                "qr",
+                "ean13",
+                "ean8",
+                "code128",
+                "code39",
+                "upca",
+                "upce"
+              ],
+              "description": "Barcode format type"
+            },
+            "qrErrorCorrection": {
+              "type": "string",
+              "enum": [
+                "L",
+                "M",
+                "Q",
+                "H"
+              ],
+              "description": "QR code error correction level (L=7%, M=15%, Q=25%, H=30%). Only applicable when barcodeFormat is \"qr\""
+            },
+            "displayValue": {
+              "type": "boolean",
+              "description": "Display human-readable value below barcode/QR code"
+            },
+            "allowScanning": {
+              "type": "boolean",
+              "description": "Enable camera scanning for barcode/QR code input"
             },
             "hidden": {
               "type": "boolean",

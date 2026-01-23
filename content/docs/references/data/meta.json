@@ -1,5 +1,6 @@
 {
   "title": "Data Protocol",
+  "root": true,
   "pages": [
     "core",
     "logic",
