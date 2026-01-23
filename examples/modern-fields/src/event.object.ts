@@ -1,5 +1,4 @@
 import { ObjectSchema, Field } from '@objectstack/spec/data';
-import { ValidationRuleSchema } from '@objectstack/spec/data';
 
 /**
  * Event Object - Demonstrates Cross-Field Validation

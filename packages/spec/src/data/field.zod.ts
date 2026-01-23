@@ -145,8 +145,10 @@ export const FieldSchema = z.object({
   marks: z.record(z.string()).optional().describe('Custom marks/labels at specific values (e.g., {0: "Low", 50: "Medium", 100: "High"})'),
   
   // QR Code / Barcode field config
+  // Note: qrErrorCorrection is only applicable when barcodeFormat='qr'
+  // Runtime validation should enforce this constraint
   barcodeFormat: z.enum(['qr', 'ean13', 'ean8', 'code128', 'code39', 'upca', 'upce']).optional().describe('Barcode format type'),
-  qrErrorCorrection: z.enum(['L', 'M', 'Q', 'H']).optional().describe('QR code error correction level (L=7%, M=15%, Q=25%, H=30%)'),
+  qrErrorCorrection: z.enum(['L', 'M', 'Q', 'H']).optional().describe('QR code error correction level (L=7%, M=15%, Q=25%, H=30%). Only applicable when barcodeFormat is "qr"'),
   displayValue: z.boolean().optional().describe('Display human-readable value below barcode/QR code'),
   allowScanning: z.boolean().optional().describe('Enable camera scanning for barcode/QR code input'),
 

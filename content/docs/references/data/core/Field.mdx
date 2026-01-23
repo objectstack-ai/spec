@@ -46,7 +46,7 @@ description: Field Schema Reference
 | **showValue** | `boolean` | optional | Display current value on slider |
 | **marks** | `Record<string, string>` | optional | Custom marks/labels at specific values (e.g., `{0: "Low", 50: "Medium", 100: "High"}`) |
 | **barcodeFormat** | `Enum<'qr' \| 'ean13' \| 'ean8' \| 'code128' \| 'code39' \| 'upca' \| 'upce'>` | optional | Barcode format type |
-| **qrErrorCorrection** | `Enum<'L' \| 'M' \| 'Q' \| 'H'>` | optional | QR code error correction level (L=7%, M=15%, Q=25%, H=30%) |
+| **qrErrorCorrection** | `Enum<'L' \| 'M' \| 'Q' \| 'H'>` | optional | QR code error correction level (L=7%, M=15%, Q=25%, H=30%). Only applicable when barcodeFormat is "qr" |
 | **displayValue** | `boolean` | optional | Display human-readable value below barcode/QR code |
 | **allowScanning** | `boolean` | optional | Enable camera scanning for barcode/QR code input |
 | **hidden** | `boolean` | optional | Hidden from default UI |

@@ -333,7 +333,7 @@
                   "Q",
                   "H"
                 ],
-                "description": "QR code error correction level (L=7%, M=15%, Q=25%, H=30%)"
+                "description": "QR code error correction level (L=7%, M=15%, Q=25%, H=30%). Only applicable when barcodeFormat is \"qr\""
               },
               "displayValue": {
                 "type": "boolean",
