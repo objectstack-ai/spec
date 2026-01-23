@@ -2,11 +2,13 @@
   "title": "UI Protocol",
   "root": true,
   "pages": [
+    "action",
     "app",
-    "views",
-    "view_config",
-    "analytics",
-    "interaction",
-    "pages"
+    "dashboard",
+    "page",
+    "report",
+    "theme",
+    "view",
+    "widget"
   ]
 }

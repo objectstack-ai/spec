@@ -1,4 +1,14 @@
 {
   "title": "AI Protocol",
-  "root": true
+  "root": true,
+  "pages": [
+    "agent",
+    "conversation",
+    "cost",
+    "model-registry",
+    "nlq",
+    "predictive",
+    "rag-pipeline",
+    "workflow-automation"
+  ]
 }
