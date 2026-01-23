@@ -11,7 +11,7 @@ https://example.org
 http://example.com
 http://example.org
 
-# Social media (防止反爬虫机制误报)
+# Social media (prevents anti-bot false positives)
 https://twitter.com*
 https://x.com*
 
