@@ -145,7 +145,7 @@ export const CustomScriptActionSchema = z.object({
 
 /**
  * Generic Workflow Action Wrapper
- * Supports 10+ action types for comprehensive automation
+ * Supports 10 action types for comprehensive automation
  */
 export const WorkflowActionSchema = z.discriminatedUnion('type', [
     FieldUpdateActionSchema,
