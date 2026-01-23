@@ -271,7 +271,7 @@ export const AuditRetentionPolicySchema = z.object({
    * Retention period in days
    * Default: 180 days (GDPR 6-month requirement)
    */
-  retentionDays: z.number().int().positive().default(180).describe('Retention period in days'),
+  retentionDays: z.number().int().min(1).default(180).describe('Retention period in days'),
   
   /**
    * Whether to archive logs after retention period
@@ -510,10 +510,13 @@ export type AuditEventFilter = z.infer<typeof AuditEventFilterSchema>;
 export const AuditConfigSchema = z.object({
   /**
    * Unique identifier for this audit configuration
+   * Must be in snake_case following ObjectStack conventions
+   * Maximum length: 64 characters
    */
   name: z.string()
     .regex(/^[a-z_][a-z0-9_]*$/)
-    .describe('Configuration name (snake_case)'),
+    .max(64)
+    .describe('Configuration name (snake_case, max 64 chars)'),
   
   /**
    * Human-readable label
@@ -595,14 +598,12 @@ export const AuditConfigSchema = z.object({
   
   /**
    * Custom audit event handlers
+   * Note: Function handlers are for runtime configuration only and will not be serialized to JSON Schema
    */
   customHandlers: z.array(z.object({
     eventType: AuditEventType.describe('Event type to handle'),
-    handler: z.function()
-      .args(AuditEventSchema)
-      .returns(z.promise(z.void()))
-      .describe('Handler function'),
-  })).optional().describe('Custom event handlers'),
+    handlerId: z.string().describe('Unique identifier for the handler'),
+  })).optional().describe('Custom event handler references'),
   
   /**
    * Compliance mode configuration

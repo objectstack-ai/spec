@@ -125,10 +125,11 @@ export type Tenant = z.infer<typeof TenantSchema>;
  * 
  * EXAMPLE RLS POLICY (PostgreSQL):
  * ```sql
- * CREATE POLICY tenant_isolation ON customers
+ * -- Example: Apply RLS policy to a table (e.g., "app_data")
+ * CREATE POLICY tenant_isolation ON app_data
  *   USING (tenant_id = current_setting('app.current_tenant')::text);
  * 
- * ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
+ * ALTER TABLE app_data ENABLE ROW LEVEL SECURITY;
  * ```
  */
 export const RowLevelIsolationStrategySchema = z.object({
@@ -240,7 +241,8 @@ export const SchemaLevelIsolationStrategySchema = z.object({
   schema: z.object({
     /**
      * Schema naming pattern
-     * Use {tenant_id} as placeholder
+     * Use {tenant_id} as placeholder (must contain only alphanumeric and underscores)
+     * The tenant_id will be sanitized before substitution to prevent SQL injection
      */
     namingPattern: z.string().default('tenant_{tenant_id}').describe('Schema naming pattern'),
     
@@ -359,7 +361,8 @@ export const DatabaseLevelIsolationStrategySchema = z.object({
   database: z.object({
     /**
      * Database naming pattern
-     * Use {tenant_id} as placeholder
+     * Use {tenant_id} as placeholder (must contain only alphanumeric and underscores)
+     * The tenant_id will be sanitized before substitution to prevent SQL injection
      */
     namingPattern: z.string().default('tenant_{tenant_id}').describe('Database naming pattern'),
     

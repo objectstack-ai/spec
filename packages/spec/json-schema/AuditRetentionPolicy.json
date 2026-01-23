@@ -6,7 +6,7 @@
       "properties": {
         "retentionDays": {
           "type": "integer",
-          "exclusiveMinimum": 0,
+          "minimum": 1,
           "default": 180,
           "description": "Retention period in days"
         },

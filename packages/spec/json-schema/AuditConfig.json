@@ -7,7 +7,8 @@
         "name": {
           "type": "string",
           "pattern": "^[a-z_][a-z0-9_]*$",
-          "description": "Configuration name (snake_case)"
+          "maxLength": 64,
+          "description": "Configuration name (snake_case, max 64 chars)"
         },
         "label": {
           "type": "string",
@@ -195,7 +196,7 @@
           "properties": {
             "retentionDays": {
               "type": "integer",
-              "exclusiveMinimum": 0,
+              "minimum": 1,
               "default": 180,
               "description": "Retention period in days"
             },
@@ -523,14 +524,19 @@
                   "security.api_key_revoked"
                 ],
                 "description": "Event type to handle"
+              },
+              "handlerId": {
+                "type": "string",
+                "description": "Unique identifier for the handler"
               }
             },
             "required": [
-              "eventType"
+              "eventType",
+              "handlerId"
             ],
             "additionalProperties": false
           },
-          "description": "Custom event handlers"
+          "description": "Custom event handler references"
         },
         "compliance": {
           "type": "object",
