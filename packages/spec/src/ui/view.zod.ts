@@ -64,7 +64,7 @@ export const ListViewSchema = z.object({
 export const FormSectionSchema = z.object({
   title: z.string().optional().describe('Section title'),
   label: z.string().optional().describe('Legacy: use title instead'),
-  collapsible: z.boolean().optional().default(false),
+  collapsible: z.boolean().default(false),
   collapsed: z.boolean().default(false),
   columns: z.number().min(1).max(4).default(2).describe('Number of columns (1-4)'),
   fields: z.array(z.string()).describe('Field names to include in this section'),
