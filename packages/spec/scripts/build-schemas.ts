@@ -17,8 +17,16 @@ let count = 0;
 
 // Protocol now exports namespaces (Data, UI, System, AI, API)
 // We need to iterate through each namespace
-for (const [_namespaceName, namespaceExports] of Object.entries(Protocol)) {
+for (const [namespaceName, namespaceExports] of Object.entries(Protocol)) {
   if (typeof namespaceExports === 'object' && namespaceExports !== null) {
+    // Create category subdirectory (e.g., data, ui, system, ai, api)
+    const categoryDir = path.join(OUT_DIR, namespaceName.toLowerCase());
+    if (!fs.existsSync(categoryDir)) {
+      fs.mkdirSync(categoryDir, { recursive: true });
+    }
+
+    console.log(`\n[${namespaceName}]`);
+    
     // Iterate over all exports in each namespace
     for (const [key, value] of Object.entries(namespaceExports)) {
       // Check if it looks like a Zod Schema
@@ -32,10 +40,10 @@ for (const [_namespaceName, namespaceExports] of Object.entries(Protocol)) {
         });
 
         const fileName = `${schemaName}.json`;
-        const filePath = path.join(OUT_DIR, fileName);
+        const filePath = path.join(categoryDir, fileName);
 
         fs.writeFileSync(filePath, JSON.stringify(jsonSchema, null, 2));
-        console.log(`✓ ${fileName}`);
+        console.log(`✓ ${namespaceName.toLowerCase()}/${fileName}`);
         count++;
       }
     }
