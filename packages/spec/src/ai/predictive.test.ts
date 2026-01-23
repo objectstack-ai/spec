@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   PredictiveModelSchema,
   PredictiveModelTypeSchema,
-  FeatureSchema,
+  ModelFeatureSchema,
   HyperparametersSchema,
   TrainingConfigSchema,
   EvaluationMetricsSchema,
@@ -10,7 +10,7 @@ import {
   PredictionResultSchema,
   ModelDriftSchema,
   type PredictiveModel,
-  type Feature,
+  type ModelFeature,
   type PredictionRequest,
 } from './predictive.zod';
 
@@ -32,15 +32,15 @@ describe('PredictiveModelTypeSchema', () => {
   });
 });
 
-describe('FeatureSchema', () => {
+describe('ModelFeatureSchema', () => {
   it('should accept minimal feature', () => {
-    const feature: Feature = {
+    const feature: ModelFeature = {
       name: 'user_age',
       field: 'age',
       dataType: 'numeric',
     };
 
-    const result = FeatureSchema.parse(feature);
+    const result = ModelFeatureSchema.parse(feature);
     expect(result.transformation).toBe('none');
     expect(result.required).toBe(true);
   });
@@ -48,7 +48,7 @@ describe('FeatureSchema', () => {
   it('should enforce snake_case for feature name', () => {
     const validNames = ['user_age', 'total_revenue', '_internal_score'];
     validNames.forEach(name => {
-      expect(() => FeatureSchema.parse({
+      expect(() => ModelFeatureSchema.parse({
         name,
         field: 'test',
         dataType: 'numeric',
@@ -57,7 +57,7 @@ describe('FeatureSchema', () => {
 
     const invalidNames = ['userAge', 'User-Age', '123age'];
     invalidNames.forEach(name => {
-      expect(() => FeatureSchema.parse({
+      expect(() => ModelFeatureSchema.parse({
         name,
         field: 'test',
         dataType: 'numeric',
@@ -66,7 +66,7 @@ describe('FeatureSchema', () => {
   });
 
   it('should accept feature with transformation', () => {
-    const feature: Feature = {
+    const feature: ModelFeature = {
       name: 'normalized_revenue',
       field: 'annual_revenue',
       dataType: 'numeric',
@@ -74,11 +74,11 @@ describe('FeatureSchema', () => {
       label: 'Normalized Annual Revenue',
     };
 
-    expect(() => FeatureSchema.parse(feature)).not.toThrow();
+    expect(() => ModelFeatureSchema.parse(feature)).not.toThrow();
   });
 
   it('should accept categorical feature', () => {
-    const feature: Feature = {
+    const feature: ModelFeature = {
       name: 'industry_encoded',
       field: 'industry',
       dataType: 'categorical',
@@ -86,11 +86,11 @@ describe('FeatureSchema', () => {
       description: 'Industry category with one-hot encoding',
     };
 
-    expect(() => FeatureSchema.parse(feature)).not.toThrow();
+    expect(() => ModelFeatureSchema.parse(feature)).not.toThrow();
   });
 
   it('should accept feature from related object', () => {
-    const feature: Feature = {
+    const feature: ModelFeature = {
       name: 'account_revenue',
       field: 'annual_revenue',
       object: 'account',
@@ -98,7 +98,7 @@ describe('FeatureSchema', () => {
       transformation: 'log_transform',
     };
 
-    expect(() => FeatureSchema.parse(feature)).not.toThrow();
+    expect(() => ModelFeatureSchema.parse(feature)).not.toThrow();
   });
 });
 

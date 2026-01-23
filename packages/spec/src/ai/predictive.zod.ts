@@ -31,10 +31,10 @@ export const PredictiveModelTypeSchema = z.enum([
 ]);
 
 /**
- * Feature Definition
- * Describes an input feature for the model
+ * Model Feature Definition
+ * Describes an input feature for a predictive model
  */
-export const FeatureSchema = z.object({
+export const ModelFeatureSchema = z.object({
   /** Feature Identity */
   name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Feature name (snake_case)'),
   label: z.string().optional().describe('Human-readable label'),
@@ -183,7 +183,7 @@ export const PredictiveModelSchema = z.object({
   targetType: z.enum(['numeric', 'categorical', 'binary']).optional().describe('Target field type'),
   
   /** Features */
-  features: z.array(FeatureSchema).describe('Input features for the model'),
+  features: z.array(ModelFeatureSchema).describe('Input features for the model'),
   
   /** Hyperparameters */
   hyperparameters: HyperparametersSchema.optional(),
@@ -285,7 +285,7 @@ export const ModelDriftSchema = z.object({
 
 // Type exports
 export type PredictiveModelType = z.infer<typeof PredictiveModelTypeSchema>;
-export type Feature = z.infer<typeof FeatureSchema>;
+export type ModelFeature = z.infer<typeof ModelFeatureSchema>;
 export type Hyperparameters = z.infer<typeof HyperparametersSchema>;
 export type TrainingConfig = z.infer<typeof TrainingConfigSchema>;
 export type EvaluationMetrics = z.infer<typeof EvaluationMetricsSchema>;

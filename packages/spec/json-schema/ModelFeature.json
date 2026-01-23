@@ -1,0 +1,71 @@
+{
+  "$ref": "#/definitions/ModelFeature",
+  "definitions": {
+    "ModelFeature": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Feature name (snake_case)"
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable label"
+        },
+        "field": {
+          "type": "string",
+          "description": "Source field name"
+        },
+        "object": {
+          "type": "string",
+          "description": "Source object (if different from target)"
+        },
+        "dataType": {
+          "type": "string",
+          "enum": [
+            "numeric",
+            "categorical",
+            "text",
+            "datetime",
+            "boolean"
+          ],
+          "description": "Feature data type"
+        },
+        "transformation": {
+          "type": "string",
+          "enum": [
+            "none",
+            "normalize",
+            "standardize",
+            "one_hot_encode",
+            "label_encode",
+            "log_transform",
+            "binning",
+            "embedding"
+          ],
+          "default": "none"
+        },
+        "required": {
+          "type": "boolean",
+          "default": true
+        },
+        "defaultValue": {},
+        "description": {
+          "type": "string"
+        },
+        "importance": {
+          "type": "number",
+          "description": "Feature importance score (0-1)"
+        }
+      },
+      "required": [
+        "name",
+        "field",
+        "dataType"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
