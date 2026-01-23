@@ -1,0 +1,19 @@
+# Lychee Link Checker Ignore Rules
+# This file contains patterns for links that should be ignored during link checking
+
+# Local development links
+http://localhost*
+http://127.0.0.1*
+
+# Example/placeholder links
+https://example.com
+https://example.org
+http://example.com
+http://example.org
+
+# Social media (防止反爬虫机制误报)
+https://twitter.com*
+https://x.com*
+
+# Common false positives
+mailto:*
