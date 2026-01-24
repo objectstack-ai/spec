@@ -88,6 +88,18 @@ export const RouterConfigSchema = z.object({
   basePath: z.string().default('/api').describe('Global API prefix'),
   
   /**
+   * Standard Protocol Mounts (Relative to basePath)
+   */
+  mounts: z.object({
+    data: z.string().default('/data').describe('Data Protocol (CRUD)'),
+    metadata: z.string().default('/meta').describe('Metadata Protocol (Schemas)'),
+    auth: z.string().default('/auth').describe('Auth Protocol'),
+    automation: z.string().default('/automation').describe('Automation Protocol'),
+    storage: z.string().default('/storage').describe('Storage Protocol'),
+    graphql: z.string().default('/graphql').describe('GraphQL Endpoint'),
+  }).default({}), // Defaults match standardized spec
+
+  /**
    * Cross-Origin Resource Sharing
    */
   cors: z.object({

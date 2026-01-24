@@ -17,23 +17,23 @@ export const ApiCapabilitiesSchema = z.object({
  * This decouples the frontend from hardcoded URL paths.
  */
 export const ApiRoutesSchema = z.object({
-  /** Base URL for Object CRUD (Standard Data API) */
-  data: z.string().describe('e.g. /api/v1/data'),
+  /** Base URL for Object CRUD (Data Protocol) */
+  data: z.string().describe('e.g. /api/data'),
   
-  /** Base URL for Schema Definitions (Metadata API) */
-  metadata: z.string().describe('e.g. /api/v1/meta'),
+  /** Base URL for Schema Definitions (Metadata Protocol) */
+  metadata: z.string().describe('e.g. /api/meta'),
   
   /** Base URL for Authentication */
-  auth: z.string().describe('e.g. /api/v1/auth'),
+  auth: z.string().describe('e.g. /api/auth'),
   
-  /** Base URL for Server Actions/Flows */
-  actions: z.string().optional().describe('e.g. /api/v1/p'),
+  /** Base URL for Automation (Flows/Scripts) */
+  automation: z.string().optional().describe('e.g. /api/automation'),
   
   /** Base URL for File/Storage operations */
-  storage: z.string().optional().describe('e.g. /api/v1/storage'),
+  storage: z.string().optional().describe('e.g. /api/storage'),
   
   /** GraphQL Endpoint (if enabled) */
-  graphql: z.string().optional().describe('e.g. /api/v1/graphql'),
+  graphql: z.string().optional().describe('e.g. /graphql'),
 });
 
 /**
