@@ -1,7 +1,7 @@
 {
-  "$ref": "#/definitions/ProjectSubscription",
+  "$ref": "#/definitions/SpaceSubscription",
   "definitions": {
-    "ProjectSubscription": {
+    "SpaceSubscription": {
       "type": "object",
       "properties": {
         "planId": {

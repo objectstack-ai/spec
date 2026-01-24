@@ -3,9 +3,10 @@ import { BillOfMaterialsSchema } from './composer.zod';
 import { TenantIsolationLevel, TenantQuotaSchema } from './tenant.zod';
 
 /**
- * # Project Protocol
+ * # Space Protocol
  * 
- * Defines the SaaS-side representation of a Tenant/Project.
+ * Defines the SaaS-side representation of a Space (formerly Project).
+ * A Space is a logical container for business apps, data, and logic.
  * Corresponds to an entry in the Hub's database.
  */
 
@@ -21,9 +22,9 @@ export const SubscriptionStatus = z.enum([
 ]);
 
 /**
- * Project Subscription Info
+ * Space Subscription Info
  */
-export const ProjectSubscriptionSchema = z.object({
+export const SpaceSubscriptionSchema = z.object({
   planId: z.string().describe('Reference to Plan Code'),
   status: SubscriptionStatus,
   currentPeriodEnd: z.string().datetime().optional(),
@@ -49,9 +50,9 @@ export const DeploymentTargetSchema = z.object({
 });
 
 /**
- * Hub Project Schema
+ * Hub Space Schema
  */
-export const HubProjectSchema = z.object({
+export const HubSpaceSchema = z.object({
   id: z.string().uuid(),
   
   /**
@@ -66,14 +67,13 @@ export const HubProjectSchema = z.object({
   ownerId: z.string(),
 
   /**
-   * The Runtime Tenant Definition
-   * Defines the isolation level and quotas.
-   * Simplified: ID/Name are inherited from Project.
+   * The Runtime Instance Definition
+   * Defines the technical execution environment.
    */
-  tenant: z.object({
+  runtime: z.object({
     isolation: TenantIsolationLevel.describe('Data isolation strategy'),
     quotas: TenantQuotaSchema.optional().describe('Resource quotas'),
-  }).optional().describe('Runtime tenant configuration'),
+  }).optional().describe('Runtime instance configuration'),
   
   /**
    * The Desired State (Bill of Materials)
@@ -94,7 +94,7 @@ export const HubProjectSchema = z.object({
   /**
    * Commercial / Billing Info
    */
-  subscription: ProjectSubscriptionSchema.optional(),
+  subscription: SpaceSubscriptionSchema.optional(),
   
   /**
    * Infrastructure Settings
@@ -106,6 +106,6 @@ export const HubProjectSchema = z.object({
 });
 
 export type SubscriptionStatus = z.infer<typeof SubscriptionStatus>;
-export type ProjectSubscription = z.infer<typeof ProjectSubscriptionSchema>;
+export type SpaceSubscription = z.infer<typeof SpaceSubscriptionSchema>;
 export type DeploymentTarget = z.infer<typeof DeploymentTargetSchema>;
-export type HubProject = z.infer<typeof HubProjectSchema>;
+export type HubSpace = z.infer<typeof HubSpaceSchema>;

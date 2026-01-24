@@ -1,7 +1,7 @@
 {
-  "$ref": "#/definitions/HubProject",
+  "$ref": "#/definitions/HubSpace",
   "definitions": {
-    "HubProject": {
+    "HubSpace": {
       "type": "object",
       "properties": {
         "id": {
@@ -18,7 +18,7 @@
         "ownerId": {
           "type": "string"
         },
-        "tenant": {
+        "runtime": {
           "type": "object",
           "properties": {
             "isolation": {
@@ -57,7 +57,7 @@
             "isolation"
           ],
           "additionalProperties": false,
-          "description": "Runtime tenant configuration"
+          "description": "Runtime instance configuration"
         },
         "bom": {
           "type": "object",
