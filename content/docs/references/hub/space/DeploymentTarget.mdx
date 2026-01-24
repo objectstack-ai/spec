@@ -1,0 +1,13 @@
+---
+title: DeploymentTarget
+description: DeploymentTarget Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **provider** | `Enum<'vercel' \| 'docker' \| 'kubernetes'>` | ✅ |  |
+| **region** | `string` | optional |  |
+| **url** | `string` | optional | Public Access URL |
+| **env** | `Record<string, string>` | optional | Runtime Environment Variables |

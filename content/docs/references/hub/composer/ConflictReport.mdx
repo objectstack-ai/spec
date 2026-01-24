@@ -1,0 +1,14 @@
+---
+title: ConflictReport
+description: ConflictReport Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **resourceType** | `Enum<'object' \| 'field' \| 'api' \| 'ui'>` | ✅ | Type of colliding resource |
+| **resourceId** | `string` | ✅ | ID of the resource |
+| **sources** | `string[]` | ✅ | List of plugin IDs defining this resource |
+| **resolution** | `string` | ✅ | How it was resolved (e.g. "com.example.erp won") |
+| **severity** | `Enum<'info' \| 'warning' \| 'error'>` | ✅ | Severity of the conflict |

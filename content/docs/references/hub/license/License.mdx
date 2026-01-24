@@ -1,0 +1,18 @@
+---
+title: License
+description: License Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **spaceId** | `string` | ✅ | Target Space ID |
+| **planCode** | `string` | ✅ |  |
+| **issuedAt** | `string` | ✅ |  |
+| **expiresAt** | `string` | optional |  |
+| **status** | `Enum<'active' \| 'expired' \| 'suspended' \| 'trial'>` | ✅ |  |
+| **customFeatures** | `string[]` | optional |  |
+| **customLimits** | `Record<string, number>` | optional |  |
+| **plugins** | `string[]` | optional | List of enabled plugin package IDs |
+| **signature** | `string` | optional | Cryptographic signature of the license |

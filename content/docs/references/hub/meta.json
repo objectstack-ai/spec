@@ -1,0 +1,11 @@
+{
+  "title": "Hub Protocol",
+  "root": true,
+  "pages": [
+    "composer",
+    "license",
+    "marketplace",
+    "space",
+    "tenant"
+  ]
+}

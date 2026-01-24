@@ -1,0 +1,26 @@
+---
+title: MarketplacePlugin
+description: MarketplacePlugin Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ |  |
+| **label** | `string` | ✅ |  |
+| **description** | `string` | optional |  |
+| **readme** | `string` | optional |  |
+| **version** | `string` | ✅ |  |
+| **author** | `object` | optional |  |
+| **tags** | `string[]` | optional |  |
+| **category** | `Enum<'app' \| 'integration' \| 'theme' \| 'utility' \| 'driver'>` | optional |  |
+| **icon** | `string` | optional |  |
+| **screenshots** | `string[]` | optional |  |
+| **homepage** | `string` | optional |  |
+| **repository** | `string` | optional |  |
+| **bugs** | `string` | optional |  |
+| **downloads** | `integer` | optional |  |
+| **rating** | `number` | optional |  |
+| **pricing** | `object` | optional |  |
+| **verified** | `boolean` | optional | Is verified maintaned by ObjectStack |

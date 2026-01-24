@@ -1,0 +1,17 @@
+---
+title: ComposerResponse
+description: ComposerResponse Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ |  |
+| **manifest** | `object` | optional | The compiled System Manifest |
+| **manifestUrl** | `string` | optional | Presigned download URL |
+| **buildId** | `string` | ✅ |  |
+| **timestamp** | `string` | ✅ |  |
+| **duration** | `number` | ✅ | Compilation time in ms |
+| **conflicts** | `object[]` | optional |  |
+| **errors** | `string[]` | optional |  |

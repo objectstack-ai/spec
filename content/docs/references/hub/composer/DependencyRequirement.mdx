@@ -1,0 +1,13 @@
+---
+title: DependencyRequirement
+description: DependencyRequirement Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Plugin ID (e.g. "com.example.crm") |
+| **version** | `string` | optional | SemVer range or "latest" |
+| **configuration** | `Record<string, any>` | optional | Configuration overrides |
+| **features** | `Record<string, boolean>` | optional | Feature toggles |

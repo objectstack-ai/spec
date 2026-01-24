@@ -6,85 +6,19 @@ const SRC_DIR = path.resolve(__dirname, '../src');
 // DOCS_DIR output is now handled dynamically per category
 const DOCS_ROOT = path.resolve(__dirname, '../../../content/docs/references');
 
-const CATEGORIES: Record<string, string> = {
-  data: 'Data Protocol', // database, object, field, query
-  api: 'API Protocol', // rest, graphql, realtime
-  ui: 'UI Protocol', // app, view, dashboard
-  system: 'System Protocol', // manifest, config, license
-  ai: 'AI Protocol', // agent, model, rag
-  automation: 'Automation Protocol', // flow, workflow, process
-  permission: 'Security Protocol', // permission, sharing, role
-  driver: 'Driver Protocol', // database drivers
-  integration: 'Integration Protocol' // etl, webhooks
+// Dynamically discover categories from src directory
+const getCategoryTitle = (dir: string) => {
+  const upper = dir.toUpperCase();
+  if (['UI', 'AI', 'API'].includes(upper)) return `${upper} Protocol`;
+  return `${dir.charAt(0).toUpperCase() + dir.slice(1)} Protocol`;
 };
 
-// Zod file to human-readable title mapping
-const ZOD_FILE_TITLES: Record<string, string> = {
-  // Data
-  'object': 'Objects',
-  'field': 'Fields',
-  'dataset': 'Datasets',
-  'hook': 'Hooks',
-  'validation': 'Validation',
-  'mapping': 'Mappings',
-  'filter': 'Filters',
-  'query': 'Queries',
-
-  // Automation
-  'flow': 'Flows',
-  'workflow': 'Workflows',
-  
-  // Security
-  'permission': 'Permissions',
-  'sharing': 'Sharing Rules',
-  'role': 'Roles',
-  'policy': 'Policies',
-  'auth': 'Authentication',
-  'identity': 'Identity',
-  
-  // System
-  'manifest': 'Manifest',
-  'plugin': 'Plugins',
-  'license': 'License',
-  'audit': 'Audit Logs',
-  'datasource': 'Datasources',
-  'organization': 'Organizations',
-  'tenant': 'Tenants',
-  'webhook': 'Webhooks',
-  'events': 'Events',
-  'job': 'Jobs',
-  'discovery': 'Service Discovery',
-  'translation': 'Translations',
-  'territory': 'Territories',
-  'plan': 'Subscription Plans',
-
-  // UI
-  'app': 'Applications',
-  'view': 'Views',
-  'action': 'Actions',
-  'dashboard': 'Dashboards',
-  'report': 'Reports',
-  'page': 'Pages',
-  'theme': 'Themes',
-  'widget': 'Widgets',
-
-  // AI
-  'agent': 'Agents',
-  'conversation': 'Conversations',
-  'cost': 'Cost Management',
-  'model-registry': 'Model Registry',
-  'nlq': 'Natural Language Query',
-  'predictive': 'Predictive Models',
-  'rag-pipeline': 'RAG Pipelines',
-  'workflow-automation': 'Workflow Automation',
-
-  // Driver
-  'driver': 'Driver Interface',
-
-  // API
-  'contract': 'API Contracts',
-  'realtime': 'Real-time Communication'
-};
+const CATEGORIES = fs.readdirSync(SRC_DIR)
+  .filter(file => fs.statSync(path.join(SRC_DIR, file)).isDirectory())
+  .reduce((acc, dir) => {
+    acc[dir] = getCategoryTitle(dir);
+    return acc;
+  }, {} as Record<string, string>);
 
 // Map SchemaName -> Category (e.g. 'Object' -> 'data')
 const schemaCategoryMap = new Map<string, string>();
@@ -252,7 +186,7 @@ Object.entries(CATEGORIES).forEach(([key, title]) => {
     const subDir = path.join(dir, zodFile);
     if (!fs.existsSync(subDir)) fs.mkdirSync(subDir, { recursive: true });
     
-    const subTitle = ZOD_FILE_TITLES[zodFile] || zodFile.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    const subTitle = zodFile.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
     fs.writeFileSync(path.join(subDir, 'meta.json'), JSON.stringify({ title: subTitle }, null, 2));
   });
 });

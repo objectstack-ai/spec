@@ -1,0 +1,12 @@
+{
+  "title": "Kernel Protocol",
+  "root": true,
+  "pages": [
+    "context",
+    "logger",
+    "manifest",
+    "plugin",
+    "router",
+    "scoped-storage"
+  ]
+}

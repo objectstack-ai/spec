@@ -1,0 +1,14 @@
+---
+title: PluginPricing
+description: PluginPricing Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'free' \| 'one_time' \| 'recurring'>` | ✅ |  |
+| **currency** | `string` | optional |  |
+| **amount** | `number` | ✅ |  |
+| **interval** | `Enum<'month' \| 'year'>` | optional | Required if type is recurring |
+| **trialDays** | `integer` | optional |  |
