@@ -17,14 +17,14 @@ export default {
   version: '1.0.0',
 
   onEnable: async (context: any) => {
-    const { logger } = context;
+    const { logger, config, drivers } = context;
     logger.info('[Memory Driver] Initializing...');
 
     // Simulate driver registration
     // This assumes the runtime exposes a 'drivers' registry
-    if (context.drivers) {
-       const driver = new InMemoryDriver();
-       context.drivers.register(driver);
+    if (drivers) {
+       const driver = new InMemoryDriver(config); // Pass config to driver
+       drivers.register(driver);
        logger.info(`[Memory Driver] Registered driver: ${driver.name}`);
     } else {
        logger.warn('[Memory Driver] No driver registry found in context.');

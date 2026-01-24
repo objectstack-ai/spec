@@ -10,6 +10,11 @@ import { DriverInterface, DriverOptions } from '@objectstack/spec/driver';
 export class InMemoryDriver implements DriverInterface {
   name = 'in-memory-driver';
   version = '0.0.1';
+  private config: any;
+
+  constructor(config?: any) {
+    this.config = config || {};
+  }
 
   // Duck-typed RuntimePlugin hook
   install(ctx: any) {
