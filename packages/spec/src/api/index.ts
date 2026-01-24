@@ -7,3 +7,4 @@
  */
 
 export * from './contract.zod';
+export * from './endpoint.zod';

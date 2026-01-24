@@ -5,7 +5,7 @@ import {
   ApiMappingSchema,
   HttpMethod,
   ApiEndpoint,
-} from './api.zod';
+} from '../system/api.zod';
 
 describe('HttpMethod', () => {
   it('should accept valid HTTP methods', () => {
