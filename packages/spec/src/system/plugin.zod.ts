@@ -132,6 +132,20 @@ export const PluginContextSchema = z.object({
     router: RouterSchema,
     scheduler: SchedulerSchema.optional(),
   }).describe('App Runtime Capabilities'),
+
+  /**
+   * Driver Registry.
+   * Allows plugins to register new storage drivers.
+   * 
+   * @example
+   * context.drivers.register(new MongoDriver());
+   */
+  drivers: z.object({
+    register: z.function()
+        //.args(DriverInterfaceSchema) // Avoid circular dependency, use any or runtime check
+        .args(z.any()) 
+        .describe('Register a new driver instance'),
+  }).describe('Driver Management'),
 });
 
 /**

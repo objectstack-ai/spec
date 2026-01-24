@@ -71,21 +71,6 @@ export class SchemaRegistry {
   }
 
   /**
-   * App Helpers
-   */
-  static registerApp(app: App) {
-    this.registerItem('app', app, 'name');
-  }
-
-  static getApp(name: string): App | undefined {
-    return this.getItem<App>('app', name);
-  }
-
-  static getAllApps(): App[] {
-    return this.listItems<App>('app');
-  }
-
-  /**
    * Plugin Helpers
    */
   static registerPlugin(manifest: ObjectStackManifest) {

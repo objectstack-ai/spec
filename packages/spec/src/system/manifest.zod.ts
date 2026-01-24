@@ -137,6 +137,37 @@ export const ManifestSchema = z.object({
        input: z.any().optional().describe('Input validation schema'),
        output: z.any().optional().describe('Output schema'),
     })).optional().describe('Exposed server actions'),
+
+    /**
+     * Register Storage Drivers.
+     * Enables connecting to new types of datasources.
+     */
+    drivers: z.array(z.object({
+      id: z.string().describe('Driver unique identifier (e.g. "postgres", "mongo")'),
+      label: z.string().describe('Human readable name'),
+      description: z.string().optional(),
+    })).optional().describe('Driver contributions'),
+
+    /**
+     * Register Custom Field Types.
+     * Extends the data model with new widget types.
+     */
+    fieldTypes: z.array(z.object({
+      name: z.string().describe('Unique field type name (e.g. "vector")'),
+      label: z.string().describe('Display label'),
+      description: z.string().optional(),
+    })).optional().describe('Field Type contributions'),
+    
+    /**
+     * Register Custom Query Operators/Functions.
+     * Extends ObjectQL with new functions (e.g. distance()).
+     */
+    functions: z.array(z.object({
+      name: z.string().describe('Function name (e.g. "distance")'),
+      description: z.string().optional(),
+      args: z.array(z.string()).optional().describe('Argument types'),
+      returnType: z.string().optional(),
+    })).optional().describe('Query Function contributions'),
   }).optional().describe('Platform contributions'),
 
   /** 
