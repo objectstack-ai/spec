@@ -59,7 +59,7 @@ The ObjectStack Protocol (`@objectstack/spec`) is divided into five core modules
 
 ### 1. Data Protocol (ObjectQL)
 Defines the "Shape of Data" and business logic.
-- **Schema:** Objects, Fields (23+ types including text, number, select, lookup, formula, autonumber, etc.)
+- **Schema:** Objects, Fields (35 types including text, number, select, lookup, formula, autonumber, slider, qrcode, etc.)
 - **Logic:** Workflows, Triggers, Validation Rules, Formulas
 - **Security:** Permissions, Sharing Rules
 - **Query:** Abstract Syntax Tree (AST) for unified data access across drivers
@@ -73,22 +73,28 @@ Defines the "Shape of Interaction" for rendering interfaces.
 - **Analytics:** Reports (Tabular, Summary, Matrix), Dashboards with widgets
 - **Actions:** Script, URL, Modal, Flow-triggered actions
 - **Theming:** Color palettes, typography, breakpoints, animations
+- **Widgets:** Custom field components
 
 ### 3. System Protocol (ObjectOS)
 Defines the "Runtime Environment" and platform capabilities.
 - **Manifest:** Application packaging (`objectstack.config.ts`)
-- **Identity:** Authentication, Roles, Territories, Licenses
+- **Identity:** Authentication, Roles, Territories, Licenses, Organizations
 - **Integration:** Webhooks, API contracts, ETL Mappings
 - **Datasource:** Driver definitions for SQL, NoSQL, SaaS connectors
 - **Discovery:** Plugin discovery and loading mechanisms
 - **I18n:** Translation and internationalization support
+- **Platform:** Events, Real-time sync, Audit logging, Background jobs, Multi-tenancy
 
 ### 4. AI Protocol
 Defines AI agent integration capabilities.
 - **Agent:** AI agent definitions and configurations
-- **Tools:** AI tool integrations
-- **Knowledge:** Knowledge base structures
-- **Models:** AI model configurations
+- **Model Registry:** LLM registry and selection
+- **RAG Pipeline:** Retrieval-augmented generation
+- **NLQ:** Natural language query processing
+- **Conversation:** Conversation management and memory
+- **Cost Tracking:** AI cost tracking and budget management
+- **Predictive:** Predictive analytics models
+- **Workflow Automation:** AI-powered workflow automation
 
 ### 5. API Protocol
 Defines standardized API contracts.
