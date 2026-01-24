@@ -9,4 +9,3 @@
 
 export * from './permission.zod';
 export * from './sharing.zod';
-export * from './trigger.zod';

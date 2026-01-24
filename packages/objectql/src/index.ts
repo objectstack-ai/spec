@@ -7,6 +7,20 @@ import { SchemaRegistry } from './registry';
 export { SchemaRegistry } from './registry';
 
 /**
+ * Hook Context
+ */
+export interface HookContext {
+  object: string;
+  driver: DriverInterface;
+  method: 'find' | 'insert' | 'update' | 'delete' | 'count';
+  args: any; // The arguments passed to the method (can be modified)
+  result?: any; // The result of the operation (for after hooks)
+  error?: any; // The error if one occurred (for error hooks)
+}
+
+export type HookHandler = (context: HookContext) => Promise<void> | void;
+
+/**
  * Host Context provided to plugins
  */
 export interface PluginContext {
@@ -22,6 +36,14 @@ export interface PluginContext {
 export class ObjectQL {
   private drivers = new Map<string, DriverInterface>();
   private defaultDriver: string | null = null;
+  
+  // Hooks Registry
+  private hooks: Record<string, HookHandler[]> = {
+    'beforeFind': [], 'afterFind': [],
+    'beforeInsert': [], 'afterInsert': [],
+    'beforeUpdate': [], 'afterUpdate': [],
+    'beforeDelete': [], 'afterDelete': [],
+  };
   
   // Host provided context additions (e.g. Server router)
   private hostContext: Record<string, any> = {};
@@ -91,6 +113,27 @@ export class ObjectQL {
           
           await pluginDef.onEnable(context);
        }
+    }
+  }
+
+  /**
+   * Register a hook
+   * @param event The event name (e.g. 'beforeFind', 'afterInsert')
+   * @param handler The handler function
+   */
+  registerHook(event: string, handler: HookHandler) {
+    if (!this.hooks[event]) {
+        this.hooks[event] = [];
+    }
+    this.hooks[event].push(handler);
+    console.log(`[ObjectQL] Registered hook for ${event}`);
+  }
+
+  private async triggerHooks(event: string, context: HookContext) {
+    const handlers = this.hooks[event] || [];
+    for (const handler of handlers) {
+      // In a real system, we might want to catch errors here or allow them to bubble up
+      await handler(context);
     }
   }
 
@@ -189,27 +232,35 @@ export class ObjectQL {
     // Normalize QueryAST
     let ast: QueryAST;
     if (query.where || query.fields || query.orderBy || query.limit) {
-      // It's likely a QueryAST or partial QueryAST
-      // Ensure 'object' is set correctly
-      ast = {
-        object, // Force object name to match the call
-        ...query
-      } as QueryAST;
+      ast = { object, ...query } as QueryAST;
     } else {
-      // It's a direct filter object (Simplified syntax)
-      // e.g. find('account', { name: 'Acme' })
-      ast = {
+      ast = { object, where: query } as QueryAST;
+    }
+
+    if (ast.limit === undefined) ast.limit = 100;
+
+    // Trigger Before Hook
+    const hookContext: HookContext = {
         object,
-        where: query 
-      } as QueryAST;
-    }
+        driver,
+        method: 'find',
+        args: { ast, options } // Hooks can modify AST here
+    };
+    await this.triggerHooks('beforeFind', hookContext);
 
-    // Default limit protection
-    if (ast.limit === undefined) {
-       ast.limit = 100;
+    try {
+        const result = await driver.find(object, hookContext.args.ast, hookContext.args.options);
+        
+        // Trigger After Hook
+        hookContext.result = result;
+        await this.triggerHooks('afterFind', hookContext);
+        
+        return hookContext.result;
+    } catch (e) {
+        hookContext.error = e;
+        // await this.triggerHooks('error', hookContext);
+        throw e;
     }
-
-    return driver.find(object, ast, options);
   }
 
   async findOne(object: string, idOrQuery: string | any, options?: DriverOptions) {
@@ -247,21 +298,60 @@ export class ObjectQL {
        // validate(schema, data);
     }
     
-    // 2. Run "Before Insert" Triggers
+    // 2. Trigger Before Hook
+    const hookContext: HookContext = {
+        object,
+        driver,
+        method: 'insert',
+        args: { data, options }
+    };
+    await this.triggerHooks('beforeInsert', hookContext);
     
-    const result = await driver.create(object, data, options);
+    // 3. Execute Driver
+    const result = await driver.create(object, hookContext.args.data, hookContext.args.options);
     
-    // 3. Run "After Insert" Triggers
-    return result;
+    // 4. Trigger After Hook
+    hookContext.result = result;
+    await this.triggerHooks('afterInsert', hookContext);
+
+    return hookContext.result;
   }
 
   async update(object: string, id: string | number, data: Record<string, any>, options?: DriverOptions) {
     const driver = this.getDriver(object);
-    return driver.update(object, id, data, options);
+
+    const hookContext: HookContext = {
+        object,
+        driver,
+        method: 'update',
+        args: { id, data, options }
+    };
+    await this.triggerHooks('beforeUpdate', hookContext);
+
+    const result = await driver.update(object, hookContext.args.id, hookContext.args.data, hookContext.args.options);
+
+    hookContext.result = result;
+    await this.triggerHooks('afterUpdate', hookContext);
+    
+    return hookContext.result;
   }
 
   async delete(object: string, id: string | number, options?: DriverOptions) {
     const driver = this.getDriver(object);
-    return driver.delete(object, id, options);
+
+    const hookContext: HookContext = {
+        object,
+        driver,
+        method: 'delete',
+        args: { id, options }
+    };
+    await this.triggerHooks('beforeDelete', hookContext);
+
+    const result = await driver.delete(object, hookContext.args.id, hookContext.args.options);
+
+    hookContext.result = result;
+    await this.triggerHooks('afterDelete', hookContext);
+
+    return hookContext.result;
   }
 }
