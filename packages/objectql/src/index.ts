@@ -1,5 +1,6 @@
 import { QueryAST } from '@objectstack/spec/data';
-import { DriverInterface, DriverOptions, ObjectStackManifest } from '@objectstack/spec/system';
+import { ObjectStackManifest } from '@objectstack/spec/system';
+import { DriverInterface, DriverOptions } from '@objectstack/spec/driver';
 import { SchemaRegistry } from './registry';
 
 // Export Registry for consumers
@@ -158,9 +159,9 @@ export class ObjectQL {
        object, // Add missing required field
        // Pass through if it looks like AST, otherwise empty
        // In this demo, we assume the caller passes a simplified object or raw AST
-       filters: filters.filters || undefined,
-       top: filters.top || 100,
-       sort: filters.sort || []
+       where: filters.filters || filters.where || undefined,
+       limit: filters.limit || filters.top || 100,
+       orderBy: filters.orderBy || filters.sort || []
     };
 
     return driver.find(object, ast, options);

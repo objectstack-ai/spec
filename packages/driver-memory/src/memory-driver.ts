@@ -26,13 +26,15 @@ export class InMemoryDriver implements DriverInterface {
     queryFilters: false,         // TODO: Not implemented - basic find() doesn't handle filters
     queryAggregations: false,    // TODO: Not implemented - count() only returns total
     querySorting: false,         // TODO: Not implemented - find() doesn't handle sorting
-    queryPagination: true,       // Basic pagination via 'top' is implemented
+    queryPagination: true,       // Basic pagination via 'limit' is implemented
     queryWindowFunctions: false, // TODO: Not implemented
     querySubqueries: false,      // TODO: Not implemented
     joins: false,                // TODO: Not implemented
     
     // Advanced Features
     fullTextSearch: false,       // TODO: Not implemented
+    vectorSearch: false,         // TODO: Not implemented
+    geoSpatial: false,           // TODO: Not implemented
     jsonFields: true,            // Native JS object support
     arrayFields: true,           // Native JS array support
   };
@@ -79,15 +81,22 @@ export class InMemoryDriver implements DriverInterface {
     let results = [...table];
 
     // Simple limiting for demonstration
-    if (query.top) {
-      results = results.slice(0, query.top);
+    if (query.limit) {
+      results = results.slice(0, query.limit);
     }
 
     return results;
   }
 
+  async *findStream(object: string, query: QueryInput, options?: DriverOptions) {
+    const results = await this.find(object, query, options);
+    for (const record of results) {
+      yield record;
+    }
+  }
+
   async findOne(object: string, query: QueryInput, options?: DriverOptions) {
-    const results = await this.find(object, { ...query, top: 1 }, options);
+    const results = await this.find(object, { ...query, limit: 1 }, options);
     return results[0] || null;
   }
 
@@ -122,6 +131,23 @@ export class InMemoryDriver implements DriverInterface {
     
     table[index] = updatedRecord;
     return updatedRecord;
+  }
+
+  async upsert(object: string, data: Record<string, any>, conflictKeys?: string[], options?: DriverOptions) {
+    const table = this.getTable(object);
+    let existingRecord: any = null;
+
+    if (data.id) {
+        existingRecord = table.find(r => r.id === data.id);
+    } else if (conflictKeys && conflictKeys.length > 0) {
+        existingRecord = table.find(r => conflictKeys.every(key => r[key] === data[key]));
+    }
+
+    if (existingRecord) {
+        return this.update(object, existingRecord.id, data, options);
+    } else {
+        return this.create(object, data, options);
+    }
   }
 
   async delete(object: string, id: string | number, options?: DriverOptions) {
