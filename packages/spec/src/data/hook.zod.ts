@@ -58,9 +58,9 @@ export const HookSchema = z.object({
 
   /**
    * Handler Logic
-   * Reference to a registered function in the plugin system.
+   * Reference to a registered function in the plugin system OR a direct function (runtime only).
    */
-  handler: z.string().optional().describe('Function handler name (e.g. "my_plugin.validate_account")'),
+  handler: z.union([z.string(), z.any()]).optional().describe('Function handler name or direct function'),
 
   /**
    * Inline Script (Optional)

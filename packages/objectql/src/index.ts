@@ -289,16 +289,17 @@ export class ObjectQL {
     // 2. Trigger Before Hook
     const hookContext: HookContext = {
         object,
-        driver,
-        method: 'insert',
-        args: { data, options }
+        event: 'beforeInsert',
+        input: { data, options },
+        ql: this
     };
     await this.triggerHooks('beforeInsert', hookContext);
     
     // 3. Execute Driver
-    const result = await driver.create(object, hookContext.args.data, hookContext.args.options);
+    const result = await driver.create(object, hookContext.input.data, hookContext.input.options);
     
     // 4. Trigger After Hook
+    hookContext.event = 'afterInsert';
     hookContext.result = result;
     await this.triggerHooks('afterInsert', hookContext);
 
@@ -310,14 +311,15 @@ export class ObjectQL {
 
     const hookContext: HookContext = {
         object,
-        driver,
-        method: 'update',
-        args: { id, data, options }
+        event: 'beforeUpdate',
+        input: { id, data, options },
+        ql: this
     };
     await this.triggerHooks('beforeUpdate', hookContext);
 
-    const result = await driver.update(object, hookContext.args.id, hookContext.args.data, hookContext.args.options);
+    const result = await driver.update(object, hookContext.input.id, hookContext.input.data, hookContext.input.options);
 
+    hookContext.event = 'afterUpdate';
     hookContext.result = result;
     await this.triggerHooks('afterUpdate', hookContext);
     
@@ -329,14 +331,15 @@ export class ObjectQL {
 
     const hookContext: HookContext = {
         object,
-        driver,
-        method: 'delete',
-        args: { id, options }
+        event: 'beforeDelete',
+        input: { id, options },
+        ql: this
     };
     await this.triggerHooks('beforeDelete', hookContext);
 
-    const result = await driver.delete(object, hookContext.args.id, hookContext.args.options);
+    const result = await driver.delete(object, hookContext.input.id, hookContext.input.options);
 
+    hookContext.event = 'afterDelete';
     hookContext.result = result;
     await this.triggerHooks('afterDelete', hookContext);
 
