@@ -1,0 +1,12 @@
+---
+title: MoneyConfig
+description: MoneyConfig Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **precision** | `integer` | optional | Decimal precision (default: 2) |
+| **currencyMode** | `Enum<'dynamic' \| 'fixed'>` | optional | Currency mode: dynamic (user selectable) or fixed (single currency) |
+| **defaultCurrency** | `string` | optional | Default or fixed currency code (ISO 4217, e.g., USD, CNY, EUR) |

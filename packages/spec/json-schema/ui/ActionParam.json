@@ -25,6 +25,7 @@
             "number",
             "currency",
             "percent",
+            "money",
             "date",
             "datetime",
             "time",

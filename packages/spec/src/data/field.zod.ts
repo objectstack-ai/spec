@@ -9,7 +9,7 @@ export const FieldType = z.enum([
   // Rich Content
   'markdown', 'html', 'richtext',
   // Numbers
-  'number', 'currency', 'percent', 
+  'number', 'currency', 'percent', 'money', 
   // Date & Time
   'date', 'datetime', 'time',
   // Logic
@@ -55,6 +55,25 @@ export const LocationCoordinatesSchema = z.object({
   longitude: z.number().min(-180).max(180).describe('Longitude coordinate'),
   altitude: z.number().optional().describe('Altitude in meters'),
   accuracy: z.number().optional().describe('Accuracy in meters'),
+});
+
+/**
+ * Money Configuration Schema
+ * Configuration for money field type supporting multi-currency
+ */
+export const MoneyConfigSchema = z.object({
+  precision: z.number().int().min(0).max(10).default(2).describe('Decimal precision (default: 2)'),
+  currencyMode: z.enum(['dynamic', 'fixed']).default('dynamic').describe('Currency mode: dynamic (user selectable) or fixed (single currency)'),
+  defaultCurrency: z.string().length(3).default('CNY').describe('Default or fixed currency code (ISO 4217, e.g., USD, CNY, EUR)'),
+});
+
+/**
+ * Money Value Schema
+ * Runtime value structure for money fields
+ */
+export const MoneyValueSchema = z.object({
+  value: z.number().describe('Monetary amount'),
+  currency: z.string().length(3).describe('Currency code (ISO 4217)'),
 });
 
 /**
@@ -152,6 +171,9 @@ export const FieldSchema = z.object({
   displayValue: z.boolean().optional().describe('Display human-readable value below barcode/QR code'),
   allowScanning: z.boolean().optional().describe('Enable camera scanning for barcode/QR code input'),
 
+  // Money field config
+  moneyConfig: MoneyConfigSchema.optional().describe('Configuration for money field type'),
+
   /** Security & Visibility */
   hidden: z.boolean().default(false).describe('Hidden from default UI'),
   readonly: z.boolean().default(false).describe('Read-only in UI'),
@@ -166,6 +188,8 @@ export type Field = z.infer<typeof FieldSchema>;
 export type SelectOption = z.infer<typeof SelectOptionSchema>;
 export type LocationCoordinates = z.infer<typeof LocationCoordinatesSchema>;
 export type Address = z.infer<typeof AddressSchema>;
+export type MoneyConfig = z.infer<typeof MoneyConfigSchema>;
+export type MoneyValue = z.infer<typeof MoneyValueSchema>;
 
 /**
  * Field Factory Helper
@@ -288,6 +312,22 @@ export const Field = {
   
   geolocation: (config: FieldInput = {}) => ({ 
     type: 'geolocation', 
+    ...config 
+  } as const),
+
+  /**
+   * Money field helper with multi-currency support
+   * 
+   * @example Dynamic currency mode (default)
+   * Field.money({ label: 'Contract Amount', precision: 2 })
+   * 
+   * @example Fixed currency mode
+   * Field.money({ label: 'Price', moneyConfig: { currencyMode: 'fixed', defaultCurrency: 'USD' } })
+   * 
+   * @param config - Field configuration including optional moneyConfig
+   */
+  money: (config: FieldInput = {}) => ({ 
+    type: 'money', 
     ...config 
   } as const),
 };
