@@ -1,6 +1,37 @@
 import { z } from 'zod';
 
 /**
+ * HTTP Method Enum
+ */
+export const HttpMethodSchema = z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
+
+/**
+ * HTTP Request Configuration for API Provider
+ */
+export const HttpRequestSchema = z.object({
+  url: z.string().describe('API endpoint URL'),
+  method: HttpMethodSchema.optional().default('GET').describe('HTTP method'),
+  headers: z.record(z.string()).optional().describe('Custom HTTP headers'),
+  params: z.record(z.any()).optional().describe('Query parameters'),
+  body: z.record(z.any()).optional().describe('Request body for POST/PUT/PATCH'),
+});
+
+/**
+ * View Data Source Configuration
+ * Supports three modes:
+ * 1. 'object': Standard Protocol - Auto-connects to ObjectStack Metadata and Data APIs
+ * 2. 'api': Custom API - Explicitly provided API URLs
+ * 3. 'value': Static Data - Hardcoded data array
+ */
+export const ViewDataSchema = z.object({
+  provider: z.enum(['object', 'api', 'value']).default('object').describe('Data source provider type'),
+  object: z.string().optional().describe('Target object name (for "object" provider)'),
+  read: HttpRequestSchema.optional().describe('Configuration for fetching data (for "api" provider)'),
+  write: HttpRequestSchema.optional().describe('Configuration for submitting data (for "api" provider with forms/editable tables)'),
+  items: z.array(z.any()).optional().describe('Static data array (for "value" provider)'),
+});
+
+/**
  * Kanban Settings
  */
 export const KanbanConfigSchema = z.object({
@@ -38,6 +69,9 @@ export const ListViewSchema = z.object({
   label: z.string().optional(), // Display label override
   type: z.enum(['grid', 'kanban', 'calendar', 'gantt', 'map']).default('grid'),
   
+  /** Data Source Configuration */
+  data: ViewDataSchema.optional().describe('Data source configuration (defaults to "object" provider)'),
+  
   /** Shared Query Config */
   columns: z.array(z.string()).describe('Fields to display as columns'),
   filter: z.array(z.any()).optional().describe('Filter criteria (JSON Rules)'),
@@ -74,6 +108,10 @@ export const FormSectionSchema = z.object({
  */
 export const FormViewSchema = z.object({
   type: z.enum(['simple', 'tabbed', 'wizard']).default('simple'),
+  
+  /** Data Source Configuration */
+  data: ViewDataSchema.optional().describe('Data source configuration (defaults to "object" provider)'),
+  
   sections: z.array(FormSectionSchema).optional(), // For simple layout
   groups: z.array(FormSectionSchema).optional(), // Legacy support -> alias to sections
 });
@@ -93,3 +131,6 @@ export type View = z.infer<typeof ViewSchema>;
 export type ListView = z.infer<typeof ListViewSchema>;
 export type FormView = z.infer<typeof FormViewSchema>;
 export type FormSection = z.infer<typeof FormSectionSchema>;
+export type ViewData = z.infer<typeof ViewDataSchema>;
+export type HttpRequest = z.infer<typeof HttpRequestSchema>;
+export type HttpMethod = z.infer<typeof HttpMethodSchema>;
