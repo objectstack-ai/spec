@@ -241,8 +241,7 @@ const rootMetaProps = {
     "permission",
     "ai",
     "api",
-    "driver",
-    "integration"
+    "driver"
   ]
 };
 fs.writeFileSync(path.join(DOCS_ROOT, 'meta.json'), JSON.stringify(rootMetaProps, null, 2));
