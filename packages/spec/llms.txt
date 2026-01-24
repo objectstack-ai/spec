@@ -133,6 +133,21 @@ function GridView({ config }: { config: z.infer<typeof ViewSchema> }) {
 }
 ```
 
+### ObjectAI Implementation (Intelligence Layer)
+*Reference: `node_modules/@objectstack/spec/prompts/implement-objectai.md`*
+
+AI Agents and RAG pipelines must be schema-aware and permission-safe.
+
+```typescript
+import { AgentSchema, RAGPipelineSchema } from '@objectstack/spec/ai';
+
+// Agents are configured via Protocol, not arbitrary prompts
+const supportAgent = AgentSchema.parse({
+  role: 'support',
+  tools: ['search_knowledge_base', 'create_ticket']
+});
+```
+
 ### 1. Strict Type Compliance
 Use `z.infer` to derive types directly from the protocol. Do not manually re-declare interfaces.
 
