@@ -25,6 +25,10 @@
       "types": "./dist/kernel/index.d.ts",
       "default": "./dist/kernel/index.js"
     },
+    "./hub": {
+      "types": "./dist/hub/index.d.ts",
+      "default": "./dist/hub/index.js"
+    },
     "./ai": {
       "types": "./dist/ai/index.d.ts",
       "default": "./dist/ai/index.js"

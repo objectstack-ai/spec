@@ -1,0 +1,104 @@
+{
+  "$ref": "#/definitions/MarketplacePlugin",
+  "definitions": {
+    "MarketplacePlugin": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "readme": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "author": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string",
+              "format": "email"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "app",
+            "integration",
+            "theme",
+            "utility",
+            "driver"
+          ]
+        },
+        "icon": {
+          "type": "string",
+          "format": "uri"
+        },
+        "screenshots": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "homepage": {
+          "type": "string",
+          "format": "uri"
+        },
+        "repository": {
+          "type": "string",
+          "format": "uri"
+        },
+        "bugs": {
+          "type": "string",
+          "format": "uri"
+        },
+        "downloads": {
+          "type": "integer"
+        },
+        "rating": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "verified": {
+          "type": "boolean",
+          "default": false,
+          "description": "Is verified maintaned by ObjectStack"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "version"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

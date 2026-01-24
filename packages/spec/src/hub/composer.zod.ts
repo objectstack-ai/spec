@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ManifestSchema } from './manifest.zod';
+import { ManifestSchema } from '../kernel/manifest.zod';
 
 /**
  * # Cloud Composer Protocol
@@ -103,6 +103,12 @@ export const ComposerResponseSchema = z.object({
    * This is what the Runtime loads to boot.
    */
   manifest: ManifestSchema.optional().describe('The compiled System Manifest'),
+
+  /**
+   * Manifest URL
+   * Presigned URL to download the manifest if stored externally (e.g. Vercel KV/S3).
+   */
+  manifestUrl: z.string().url().optional().describe('Presigned download URL'),
   
   /**
    * Compilation Metadata
