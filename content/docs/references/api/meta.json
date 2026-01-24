@@ -5,6 +5,7 @@
     "contract",
     "discovery",
     "endpoint",
-    "realtime"
+    "realtime",
+    "router"
   ]
 }

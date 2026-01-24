@@ -6,7 +6,6 @@
     "logger",
     "manifest",
     "plugin",
-    "router",
     "scoped-storage"
   ]
 }

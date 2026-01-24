@@ -1,9 +1,5 @@
 import { z } from 'zod';
-
-/**
- * HTTP Method Enum
- */
-export const HttpMethod = z.enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH']);
+import { HttpMethod } from './router.zod';
 
 /**
  * Rate Limit Strategy
