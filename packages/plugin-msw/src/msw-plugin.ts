@@ -61,10 +61,11 @@ export class ObjectStackServer {
                 status: 200,
                 data: result
             };
-        } catch (error: any) {
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unknown error';
             return {
                 status: 404,
-                data: { error: error.message }
+                data: { error: message }
             };
         }
     }
@@ -81,10 +82,11 @@ export class ObjectStackServer {
                 status: 201,
                 data: result
             };
-        } catch (error: any) {
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unknown error';
             return {
                 status: 400,
-                data: { error: error.message }
+                data: { error: message }
             };
         }
     }
@@ -101,10 +103,11 @@ export class ObjectStackServer {
                 status: 200,
                 data: result
             };
-        } catch (error: any) {
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unknown error';
             return {
                 status: 400,
-                data: { error: error.message }
+                data: { error: message }
             };
         }
     }
@@ -121,10 +124,11 @@ export class ObjectStackServer {
                 status: 200,
                 data: result
             };
-        } catch (error: any) {
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unknown error';
             return {
                 status: 400,
-                data: { error: error.message }
+                data: { error: message }
             };
         }
     }
@@ -207,8 +211,9 @@ export class MSWPlugin implements RuntimePlugin {
                     return HttpResponse.json(
                         protocol.getMetaItem(params.type as string, params.name as string)
                     );
-                } catch (e: any) {
-                    return HttpResponse.json({ error: e.message }, { status: 404 });
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : 'Unknown error';
+                    return HttpResponse.json({ error: message }, { status: 404 });
                 }
             }),
 
@@ -226,8 +231,9 @@ export class MSWPlugin implements RuntimePlugin {
                         queryParams
                     );
                     return HttpResponse.json(result.data, { status: result.status });
-                } catch (e: any) {
-                    return HttpResponse.json({ error: e.message }, { status: 404 });
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : 'Unknown error';
+                    return HttpResponse.json({ error: message }, { status: 404 });
                 }
             }),
 
@@ -238,8 +244,9 @@ export class MSWPlugin implements RuntimePlugin {
                         params.id as string
                     );
                     return HttpResponse.json(result.data, { status: result.status });
-                } catch (e: any) {
-                    return HttpResponse.json({ error: e.message }, { status: 404 });
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : 'Unknown error';
+                    return HttpResponse.json({ error: message }, { status: 404 });
                 }
             }),
 
@@ -251,8 +258,9 @@ export class MSWPlugin implements RuntimePlugin {
                         body
                     );
                     return HttpResponse.json(result.data, { status: result.status });
-                } catch (e: any) {
-                    return HttpResponse.json({ error: e.message }, { status: 400 });
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : 'Unknown error';
+                    return HttpResponse.json({ error: message }, { status: 400 });
                 }
             }),
 
@@ -265,8 +273,9 @@ export class MSWPlugin implements RuntimePlugin {
                         body
                     );
                     return HttpResponse.json(result.data, { status: result.status });
-                } catch (e: any) {
-                    return HttpResponse.json({ error: e.message }, { status: 400 });
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : 'Unknown error';
+                    return HttpResponse.json({ error: message }, { status: 400 });
                 }
             }),
 
@@ -277,8 +286,9 @@ export class MSWPlugin implements RuntimePlugin {
                         params.id as string
                     );
                     return HttpResponse.json(result.data, { status: result.status });
-                } catch (e: any) {
-                    return HttpResponse.json({ error: e.message }, { status: 400 });
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : 'Unknown error';
+                    return HttpResponse.json({ error: message }, { status: 400 });
                 }
             }),
 
@@ -287,11 +297,11 @@ export class MSWPlugin implements RuntimePlugin {
                 try {
                     const url = new URL(request.url);
                     const viewType = url.searchParams.get('type') || 'list';
-                    // @ts-ignore
-                    const view = protocol.getUiView(params.object as string, viewType);
+                    const view = protocol.getUiView(params.object as string, viewType as 'list' | 'form');
                     return HttpResponse.json(view);
-                } catch (e: any) {
-                    return HttpResponse.json({ error: e.message }, { status: 404 });
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : 'Unknown error';
+                    return HttpResponse.json({ error: message }, { status: 404 });
                 }
             }),
 
