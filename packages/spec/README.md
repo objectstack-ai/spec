@@ -58,6 +58,17 @@ The specification is organized into five namespaces mapping to the three-layer a
 
 **Important:** This package does NOT export types at the root level to prevent naming conflicts. You must use one of the following import styles:
 
+### 🤖 AI-Ready Context
+
+This package includes a `prompts/` directory containing system instructions and architectural context. This is useful for:
+1.  **AI Agents**: Creating agents that understand ObjectStack.
+2.  **IDE Context**: Adding `node_modules/@objectstack/spec/prompts/*.md` to your Cursor/Copilot context.
+
+```typescript
+import context from '@objectstack/spec/prompts/architecture.md?raw'; // If using Vite/bundler
+// Or just read the file from disk
+```
+
 #### 1. Namespace Imports from Root
 
 Import protocol namespaces from the package root:

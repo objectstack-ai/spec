@@ -33,6 +33,7 @@
   "files": [
     "dist",
     "json-schema",
+    "prompts",
     "README.md"
   ],
   "scripts": {
