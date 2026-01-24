@@ -112,15 +112,50 @@ export class ObjectQL {
   }
 
   /**
+   * Helper to get object definition
+   */
+  getSchema(objectName: string) {
+    return SchemaRegistry.getObject(objectName);
+  }
+
+  /**
    * Helper to get the target driver
    */
-  private getDriver(_object: string): DriverInterface {
-    // TODO: Look up Object definition to see if it specifies a specific datasource/driver
-    // For now, always return default
-    if (!this.defaultDriver) {
-      throw new Error('[ObjectQL] No drivers registered!');
+  private getDriver(objectName: string): DriverInterface {
+    const object = SchemaRegistry.getObject(objectName);
+    
+    // 1. If object definition exists, check for explicit datasource
+    if (object) {
+      const datasourceName = object.datasource || 'default';
+      
+      // If configured for 'default', try to find the default driver
+      if (datasourceName === 'default') {
+        if (this.defaultDriver && this.drivers.has(this.defaultDriver)) {
+          return this.drivers.get(this.defaultDriver)!;
+        }
+        // Fallback: If 'default' not explicitly set, use the first available driver?
+        // Better to be strict.
+      } else {
+        // Specific datasource requested
+        if (this.drivers.has(datasourceName)) {
+            return this.drivers.get(datasourceName)!;
+        }
+        // If not found, fall back to default? Or error?
+        // Standard behavior: Error if specific datasource is missing.
+        throw new Error(`[ObjectQL] Datasource '${datasourceName}' configured for object '${objectName}' is not registered.`);
+      }
     }
-    return this.drivers.get(this.defaultDriver)!;
+
+    // 2. Fallback for ad-hoc objects or missing definitions
+    // If we have a default driver, use it.
+    if (this.defaultDriver) {
+      if (!object) {
+        console.warn(`[ObjectQL] Object '${objectName}' not found in registry. Using default driver.`);
+      }
+      return this.drivers.get(this.defaultDriver)!;
+    }
+
+    throw new Error(`[ObjectQL] No driver available for object '${objectName}'`);
   }
 
   /**
@@ -148,29 +183,70 @@ export class ObjectQL {
   // Data Access Methods
   // ============================================
 
-  async find(object: string, filters: any = {}, options?: DriverOptions) {
+  async find(object: string, query: any = {}, options?: DriverOptions) {
     const driver = this.getDriver(object);
-    console.log(`[ObjectQL] Finding ${object} on ${driver.name}...`);
     
-    // Transform simplified filters to QueryAST
-    // This is a simplified "Mock" transform. 
-    // Real implementation would parse complex JSON or FilterBuilders.
-    const ast: QueryAST = {
-       object, // Add missing required field
-       // Pass through if it looks like AST, otherwise empty
-       // In this demo, we assume the caller passes a simplified object or raw AST
-       where: filters.filters || filters.where || undefined,
-       limit: filters.limit || filters.top || 100,
-       orderBy: filters.orderBy || filters.sort || []
-    };
+    // Normalize QueryAST
+    let ast: QueryAST;
+    if (query.where || query.fields || query.orderBy || query.limit) {
+      // It's likely a QueryAST or partial QueryAST
+      // Ensure 'object' is set correctly
+      ast = {
+        object, // Force object name to match the call
+        ...query
+      } as QueryAST;
+    } else {
+      // It's a direct filter object (Simplified syntax)
+      // e.g. find('account', { name: 'Acme' })
+      ast = {
+        object,
+        where: query 
+      } as QueryAST;
+    }
+
+    // Default limit protection
+    if (ast.limit === undefined) {
+       ast.limit = 100;
+    }
 
     return driver.find(object, ast, options);
   }
 
+  async findOne(object: string, idOrQuery: string | any, options?: DriverOptions) {
+    const driver = this.getDriver(object);
+    
+    let ast: QueryAST;
+    if (typeof idOrQuery === 'string') {
+        ast = {
+            object,
+            where: { _id: idOrQuery }
+        };
+    } else {
+        // Assume query object
+        // reuse logic from find() or just wrap it
+        if (idOrQuery.where || idOrQuery.fields) {
+            ast = { object, ...idOrQuery };
+        } else {
+            ast = { object, where: idOrQuery };
+        }
+    }
+    // Limit 1 for findOne
+    ast.limit = 1;
+
+    return driver.findOne(object, ast, options);
+  }
+
   async insert(object: string, data: Record<string, any>, options?: DriverOptions) {
     const driver = this.getDriver(object);
-    console.log(`[ObjectQL] Creating ${object} on ${driver.name}...`);
-    // 1. Validate Schema
+    
+    // 1. Get Schema
+    const schema = SchemaRegistry.getObject(object);
+    
+    if (schema) {
+       // TODO: Validation Logic
+       // validate(schema, data);
+    }
+    
     // 2. Run "Before Insert" Triggers
     
     const result = await driver.create(object, data, options);
@@ -179,15 +255,13 @@ export class ObjectQL {
     return result;
   }
 
-  async update(object: string, id: string, data: Record<string, any>, options?: DriverOptions) {
+  async update(object: string, id: string | number, data: Record<string, any>, options?: DriverOptions) {
     const driver = this.getDriver(object);
-    console.log(`[ObjectQL] Updating ${object} ${id}...`);
     return driver.update(object, id, data, options);
   }
 
-  async delete(object: string, id: string, options?: DriverOptions) {
+  async delete(object: string, id: string | number, options?: DriverOptions) {
     const driver = this.getDriver(object);
-    console.log(`[ObjectQL] Deleting ${object} ${id}...`);
     return driver.delete(object, id, options);
   }
 }
