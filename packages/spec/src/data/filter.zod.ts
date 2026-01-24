@@ -22,6 +22,21 @@ import { z } from 'zod';
  * 4. Convention over Configuration: Implicit syntax for common queries
  */
 
+/**
+ * Field Reference
+ * Represents a reference to another field/column instead of a literal value.
+ * Used for joins (ON clause) and cross-field comparisons.
+ * 
+ * @example
+ * // user.id = order.owner_id
+ * { "$eq": { "$field": "order.owner_id" } }
+ */
+export const FieldReferenceSchema = z.object({
+  $field: z.string().describe('Field Reference/Column Name')
+});
+
+export type FieldReference = z.infer<typeof FieldReferenceSchema>;
+
 // ============================================================================
 // 3.1 Comparison Operators
 // ============================================================================
@@ -44,16 +59,16 @@ export const EqualityOperatorSchema = z.object({
  */
 export const ComparisonOperatorSchema = z.object({
   /** Greater than - SQL: > | MongoDB: $gt */
-  $gt: z.union([z.number(), z.date()]).optional(),
+  $gt: z.union([z.number(), z.date(), FieldReferenceSchema]).optional(),
   
   /** Greater than or equal to - SQL: >= | MongoDB: $gte */
-  $gte: z.union([z.number(), z.date()]).optional(),
+  $gte: z.union([z.number(), z.date(), FieldReferenceSchema]).optional(),
   
   /** Less than - SQL: < | MongoDB: $lt */
-  $lt: z.union([z.number(), z.date()]).optional(),
+  $lt: z.union([z.number(), z.date(), FieldReferenceSchema]).optional(),
   
   /** Less than or equal to - SQL: <= | MongoDB: $lte */
-  $lte: z.union([z.number(), z.date()]).optional(),
+  $lte: z.union([z.number(), z.date(), FieldReferenceSchema]).optional(),
 });
 
 // ============================================================================
@@ -78,8 +93,8 @@ export const SetOperatorSchema = z.object({
 export const RangeOperatorSchema = z.object({
   /** Between (inclusive) - takes [min, max] array */
   $between: z.tuple([
-    z.union([z.number(), z.date()]),
-    z.union([z.number(), z.date()])
+    z.union([z.number(), z.date(), FieldReferenceSchema]),
+    z.union([z.number(), z.date(), FieldReferenceSchema])
   ]).optional(),
 });
 
@@ -131,17 +146,17 @@ export const FieldOperatorsSchema = z.object({
   $ne: z.any().optional(),
   
   // Comparison (numeric/date)
-  $gt: z.union([z.number(), z.date()]).optional(),
-  $gte: z.union([z.number(), z.date()]).optional(),
-  $lt: z.union([z.number(), z.date()]).optional(),
-  $lte: z.union([z.number(), z.date()]).optional(),
+  $gt: z.union([z.number(), z.date(), FieldReferenceSchema]).optional(),
+  $gte: z.union([z.number(), z.date(), FieldReferenceSchema]).optional(),
+  $lt: z.union([z.number(), z.date(), FieldReferenceSchema]).optional(),
+  $lte: z.union([z.number(), z.date(), FieldReferenceSchema]).optional(),
   
   // Set & Range
   $in: z.array(z.any()).optional(),
   $nin: z.array(z.any()).optional(),
   $between: z.tuple([
-    z.union([z.number(), z.date()]),
-    z.union([z.number(), z.date()])
+    z.union([z.number(), z.date(), FieldReferenceSchema]),
+    z.union([z.number(), z.date(), FieldReferenceSchema])
   ]).optional(),
   
   // String-specific

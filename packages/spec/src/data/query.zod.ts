@@ -90,6 +90,7 @@ export const AggregationNodeSchema = z.object({
   field: z.string().optional().describe('Field to aggregate (optional for COUNT(*))'),
   alias: z.string().describe('Result column alias'),
   distinct: z.boolean().optional().describe('Apply DISTINCT before aggregation'),
+  filter: FilterConditionSchema.optional().describe('Filter/Condition to apply to the aggregation (FILTER WHERE clause)'),
 });
 
 /**
@@ -129,6 +130,18 @@ export const AggregationNodeSchema = z.object({
  * }
  */
 export const JoinType = z.enum(['inner', 'left', 'right', 'full']);
+
+/**
+ * Join Execution Strategy
+ * Hints to the query engine on how to execute the join.
+ * 
+ * Strategies:
+ * - **auto**: Engine decides best strategy (Default).
+ * - **database**: Push down join to the database (Requires same datasource).
+ * - **hash**: Load both sets into memory and hash join (Cross-datasource, memory intensive).
+ * - **loop**: Nested loop lookup (N+1 safe version). (Good for small right-side lookups).
+ */
+export const JoinStrategy = z.enum(['auto', 'database', 'hash', 'loop']);
 
 /**
  * Join Node
@@ -211,6 +224,7 @@ export const JoinType = z.enum(['inner', 'left', 'right', 'full']);
 export const JoinNodeSchema: z.ZodType<any> = z.lazy(() => 
   z.object({
     type: JoinType.describe('Join type'),
+    strategy: JoinStrategy.optional().describe('Execution strategy hint'),
     object: z.string().describe('Object/table to join'),
     alias: z.string().optional().describe('Table alias'),
     on: FilterConditionSchema.describe('Join condition'),
