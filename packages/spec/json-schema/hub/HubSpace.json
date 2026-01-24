@@ -180,6 +180,37 @@
             "stripeSubscriptionId": {
               "type": "string"
             },
+            "addons": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "pluginId": {
+                    "type": "string",
+                    "description": "Marketplace Plugin ID (NPM package name)"
+                  },
+                  "quantity": {
+                    "type": "number",
+                    "default": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "active",
+                      "past_due",
+                      "canceled",
+                      "trialing",
+                      "incomplete"
+                    ],
+                    "default": "active"
+                  }
+                },
+                "required": [
+                  "pluginId"
+                ],
+                "additionalProperties": false
+              }
+            },
             "usage": {
               "type": "object",
               "additionalProperties": {

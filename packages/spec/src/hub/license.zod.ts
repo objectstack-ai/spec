@@ -69,6 +69,9 @@ export const LicenseSchema = z.object({
   customFeatures: z.array(z.string()).optional(),
   customLimits: z.record(z.number()).optional(),
   
+  /** Authorized Add-ons */
+  plugins: z.array(z.string()).optional().describe('List of enabled plugin package IDs'),
+
   /** Signature */
   signature: z.string().optional().describe('Cryptographic signature of the license'),
 });

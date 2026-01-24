@@ -32,6 +32,15 @@ export const SpaceSubscriptionSchema = z.object({
   stripeSubscriptionId: z.string().optional(),
   
   /**
+   * Purchased Add-ons from Marketplace
+   */
+  addons: z.array(z.object({
+    pluginId: z.string().describe('Marketplace Plugin ID (NPM package name)'),
+    quantity: z.number().default(1),
+    status: SubscriptionStatus.default('active'),
+  })).optional(),
+
+  /**
    * Quota Usage Snapshot
    * Cached usage metrics for quick display/validation.
    */

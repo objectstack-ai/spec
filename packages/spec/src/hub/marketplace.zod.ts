@@ -17,6 +17,17 @@ export const PluginAuthorSchema = z.object({
 });
 
 /**
+ * Plugin Pricing Model Schema
+ */
+export const PluginPricingSchema = z.object({
+  type: z.enum(['free', 'one_time', 'recurring']),
+  currency: z.string().default('USD'),
+  amount: z.number().min(0),
+  interval: z.enum(['month', 'year']).optional().describe('Required if type is recurring'),
+  trialDays: z.number().int().optional(),
+});
+
+/**
  * Plugin Registry Entry Schema
  * Represents a listing in the Marketplace.
  */
@@ -76,6 +87,12 @@ export const MarketplacePluginSchema = z.object({
    */
   downloads: z.number().int().optional(),
   rating: z.number().min(0).max(5).optional(),
+
+  /**
+   * Commercial Information
+   */
+  pricing: PluginPricingSchema.optional(),
+
   verified: z.boolean().default(false).describe('Is verified maintaned by ObjectStack'),
 });
 

@@ -40,6 +40,13 @@
             "type": "number"
           }
         },
+        "plugins": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of enabled plugin package IDs"
+        },
         "signature": {
           "type": "string",
           "description": "Cryptographic signature of the license"
