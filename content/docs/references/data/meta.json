@@ -5,6 +5,7 @@
     "dataset",
     "field",
     "filter",
+    "hook",
     "mapping",
     "object",
     "query",

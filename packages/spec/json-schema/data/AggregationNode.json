@@ -29,6 +29,29 @@
         "distinct": {
           "type": "boolean",
           "description": "Apply DISTINCT before aggregation"
+        },
+        "filter": {
+          "allOf": [
+            {
+              "type": "object",
+              "additionalProperties": {}
+            },
+            {
+              "type": "object",
+              "properties": {
+                "$and": {
+                  "type": "array",
+                  "items": {}
+                },
+                "$or": {
+                  "type": "array",
+                  "items": {}
+                },
+                "$not": {}
+              }
+            }
+          ],
+          "description": "Filter/Condition to apply to the aggregation (FILTER WHERE clause)"
         }
       },
       "required": [

@@ -113,6 +113,16 @@
                 ],
                 "description": "Join type"
               },
+              "strategy": {
+                "type": "string",
+                "enum": [
+                  "auto",
+                  "database",
+                  "hash",
+                  "loop"
+                ],
+                "description": "Execution strategy hint"
+              },
               "object": {
                 "type": "string",
                 "description": "Object/table to join"
@@ -335,6 +345,29 @@
                         "distinct": {
                           "type": "boolean",
                           "description": "Apply DISTINCT before aggregation"
+                        },
+                        "filter": {
+                          "allOf": [
+                            {
+                              "type": "object",
+                              "additionalProperties": {}
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "$and": {
+                                  "type": "array",
+                                  "items": {}
+                                },
+                                "$or": {
+                                  "type": "array",
+                                  "items": {}
+                                },
+                                "$not": {}
+                              }
+                            }
+                          ],
+                          "description": "Filter/Condition to apply to the aggregation (FILTER WHERE clause)"
                         }
                       },
                       "required": [
@@ -528,6 +561,29 @@
               "distinct": {
                 "type": "boolean",
                 "description": "Apply DISTINCT before aggregation"
+              },
+              "filter": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": {}
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "$and": {
+                        "type": "array",
+                        "items": {}
+                      },
+                      "$or": {
+                        "type": "array",
+                        "items": {}
+                      },
+                      "$not": {}
+                    }
+                  }
+                ],
+                "description": "Filter/Condition to apply to the aggregation (FILTER WHERE clause)"
               }
             },
             "required": [

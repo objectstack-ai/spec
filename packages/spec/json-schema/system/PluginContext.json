@@ -74,6 +74,12 @@
           ],
           "additionalProperties": false,
           "description": "App Runtime Capabilities"
+        },
+        "drivers": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "description": "Driver Management"
         }
       },
       "required": [
@@ -82,7 +88,8 @@
         "logger",
         "storage",
         "i18n",
-        "app"
+        "app",
+        "drivers"
       ],
       "additionalProperties": false
     }

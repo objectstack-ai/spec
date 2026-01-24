@@ -8,6 +8,7 @@ description: JoinNode Schema Reference
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **type** | `Enum<'inner' \| 'left' \| 'right' \| 'full'>` | ✅ | Join type |
+| **strategy** | `Enum<'auto' \| 'database' \| 'hash' \| 'loop'>` | optional | Execution strategy hint |
 | **object** | `string` | ✅ | Object/table to join |
 | **alias** | `string` | optional | Table alias |
 | **on** | `any` | ✅ | Join condition |

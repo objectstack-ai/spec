@@ -255,6 +255,86 @@
                 "additionalProperties": false
               },
               "description": "Exposed server actions"
+            },
+            "drivers": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Driver unique identifier (e.g. \"postgres\", \"mongo\")"
+                  },
+                  "label": {
+                    "type": "string",
+                    "description": "Human readable name"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "label"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Driver contributions"
+            },
+            "fieldTypes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Unique field type name (e.g. \"vector\")"
+                  },
+                  "label": {
+                    "type": "string",
+                    "description": "Display label"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "label"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Field Type contributions"
+            },
+            "functions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Function name (e.g. \"distance\")"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Argument types"
+                  },
+                  "returnType": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Query Function contributions"
             }
           },
           "additionalProperties": false,

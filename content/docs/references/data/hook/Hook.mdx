@@ -1,0 +1,18 @@
+---
+title: Hook
+description: Hook Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Hook unique name (snake_case) |
+| **label** | `string` | optional | Description of what this hook does |
+| **object** | `string \| string[]` | ✅ | Target object(s) |
+| **events** | `Enum<'beforeFind' \| 'afterFind' \| 'beforeFindOne' \| 'afterFindOne' \| 'beforeCount' \| 'afterCount' \| 'beforeAggregate' \| 'afterAggregate' \| 'beforeInsert' \| 'afterInsert' \| 'beforeUpdate' \| 'afterUpdate' \| 'beforeDelete' \| 'afterDelete'>[]` | ✅ | Lifecycle events |
+| **handler** | `string` | optional | Function handler name (e.g. "my_plugin.validate_account") |
+| **script** | `string` | optional | Inline script body |
+| **priority** | `number` | optional | Execution priority |
+| **async** | `boolean` | optional | Run specifically as fire-and-forget |
+| **onError** | `Enum<'abort' \| 'log'>` | optional | Error handling strategy |

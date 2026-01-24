@@ -1,0 +1,15 @@
+{
+  "$ref": "#/definitions/JoinStrategy",
+  "definitions": {
+    "JoinStrategy": {
+      "type": "string",
+      "enum": [
+        "auto",
+        "database",
+        "hash",
+        "loop"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

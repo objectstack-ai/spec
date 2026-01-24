@@ -23,6 +23,19 @@
                         {
                           "type": "string",
                           "format": "date-time"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "$field": {
+                              "type": "string",
+                              "description": "Field Reference/Column Name"
+                            }
+                          },
+                          "required": [
+                            "$field"
+                          ],
+                          "additionalProperties": false
                         }
                       ]
                     },
@@ -34,6 +47,19 @@
                         {
                           "type": "string",
                           "format": "date-time"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "$field": {
+                              "type": "string",
+                              "description": "Field Reference/Column Name"
+                            }
+                          },
+                          "required": [
+                            "$field"
+                          ],
+                          "additionalProperties": false
                         }
                       ]
                     },
@@ -45,6 +71,19 @@
                         {
                           "type": "string",
                           "format": "date-time"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "$field": {
+                              "type": "string",
+                              "description": "Field Reference/Column Name"
+                            }
+                          },
+                          "required": [
+                            "$field"
+                          ],
+                          "additionalProperties": false
                         }
                       ]
                     },
@@ -56,6 +95,19 @@
                         {
                           "type": "string",
                           "format": "date-time"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "$field": {
+                              "type": "string",
+                              "description": "Field Reference/Column Name"
+                            }
+                          },
+                          "required": [
+                            "$field"
+                          ],
+                          "additionalProperties": false
                         }
                       ]
                     },
@@ -78,6 +130,19 @@
                             {
                               "type": "string",
                               "format": "date-time"
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "$field": {
+                                  "type": "string",
+                                  "description": "Field Reference/Column Name"
+                                }
+                              },
+                              "required": [
+                                "$field"
+                              ],
+                              "additionalProperties": false
                             }
                           ]
                         },
@@ -89,6 +154,19 @@
                             {
                               "type": "string",
                               "format": "date-time"
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "$field": {
+                                  "type": "string",
+                                  "description": "Field Reference/Column Name"
+                                }
+                              },
+                              "required": [
+                                "$field"
+                              ],
+                              "additionalProperties": false
                             }
                           ]
                         }
@@ -136,6 +214,19 @@
                         {
                           "type": "string",
                           "format": "date-time"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "$field": {
+                              "type": "string",
+                              "description": "Field Reference/Column Name"
+                            }
+                          },
+                          "required": [
+                            "$field"
+                          ],
+                          "additionalProperties": false
                         }
                       ]
                     },
@@ -147,6 +238,19 @@
                         {
                           "type": "string",
                           "format": "date-time"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "$field": {
+                              "type": "string",
+                              "description": "Field Reference/Column Name"
+                            }
+                          },
+                          "required": [
+                            "$field"
+                          ],
+                          "additionalProperties": false
                         }
                       ]
                     },
@@ -158,6 +262,19 @@
                         {
                           "type": "string",
                           "format": "date-time"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "$field": {
+                              "type": "string",
+                              "description": "Field Reference/Column Name"
+                            }
+                          },
+                          "required": [
+                            "$field"
+                          ],
+                          "additionalProperties": false
                         }
                       ]
                     },
@@ -169,6 +286,19 @@
                         {
                           "type": "string",
                           "format": "date-time"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "$field": {
+                              "type": "string",
+                              "description": "Field Reference/Column Name"
+                            }
+                          },
+                          "required": [
+                            "$field"
+                          ],
+                          "additionalProperties": false
                         }
                       ]
                     },
@@ -191,6 +321,19 @@
                             {
                               "type": "string",
                               "format": "date-time"
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "$field": {
+                                  "type": "string",
+                                  "description": "Field Reference/Column Name"
+                                }
+                              },
+                              "required": [
+                                "$field"
+                              ],
+                              "additionalProperties": false
                             }
                           ]
                         },
@@ -202,6 +345,19 @@
                             {
                               "type": "string",
                               "format": "date-time"
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "$field": {
+                                  "type": "string",
+                                  "description": "Field Reference/Column Name"
+                                }
+                              },
+                              "required": [
+                                "$field"
+                              ],
+                              "additionalProperties": false
                             }
                           ]
                         }
@@ -247,6 +403,19 @@
                       {
                         "type": "string",
                         "format": "date-time"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "$field": {
+                            "type": "string",
+                            "description": "Field Reference/Column Name"
+                          }
+                        },
+                        "required": [
+                          "$field"
+                        ],
+                        "additionalProperties": false
                       }
                     ]
                   },
@@ -258,6 +427,19 @@
                       {
                         "type": "string",
                         "format": "date-time"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "$field": {
+                            "type": "string",
+                            "description": "Field Reference/Column Name"
+                          }
+                        },
+                        "required": [
+                          "$field"
+                        ],
+                        "additionalProperties": false
                       }
                     ]
                   },
@@ -269,6 +451,19 @@
                       {
                         "type": "string",
                         "format": "date-time"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "$field": {
+                            "type": "string",
+                            "description": "Field Reference/Column Name"
+                          }
+                        },
+                        "required": [
+                          "$field"
+                        ],
+                        "additionalProperties": false
                       }
                     ]
                   },
@@ -280,6 +475,19 @@
                       {
                         "type": "string",
                         "format": "date-time"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "$field": {
+                            "type": "string",
+                            "description": "Field Reference/Column Name"
+                          }
+                        },
+                        "required": [
+                          "$field"
+                        ],
+                        "additionalProperties": false
                       }
                     ]
                   },
@@ -302,6 +510,19 @@
                           {
                             "type": "string",
                             "format": "date-time"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "$field": {
+                                "type": "string",
+                                "description": "Field Reference/Column Name"
+                              }
+                            },
+                            "required": [
+                              "$field"
+                            ],
+                            "additionalProperties": false
                           }
                         ]
                       },
@@ -313,6 +534,19 @@
                           {
                             "type": "string",
                             "format": "date-time"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "$field": {
+                                "type": "string",
+                                "description": "Field Reference/Column Name"
+                              }
+                            },
+                            "required": [
+                              "$field"
+                            ],
+                            "additionalProperties": false
                           }
                         ]
                       }
