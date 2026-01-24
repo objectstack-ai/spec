@@ -80,7 +80,7 @@ a single property or column in an Object (table).
 
 ## Field Types
 
-ObjectStack supports 23+ field types, organized into categories:
+ObjectStack supports 35 field types, organized into categories:
 
 ### Text Fields
 - **text**: Single-line text (max 255 characters)

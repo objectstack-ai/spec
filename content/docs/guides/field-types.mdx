@@ -6,7 +6,7 @@ description: Complete guide to all ObjectStack field types with examples and con
 
 # Field Types Reference
 
-ObjectStack supports **30+ field types** covering text, numbers, dates, selections, relationships, media, calculations, and enhanced types. This guide provides practical examples for each type.
+ObjectStack supports **35 field types** covering text, numbers, dates, selections, relationships, media, calculations, and enhanced types. This guide provides practical examples for each type.
 
 ## Core Text Fields
 
@@ -524,6 +524,8 @@ coordinates: Field.location({
 })
 ```
 
+> **Note:** `geolocation` is an alternative name for the `location` field type. Both refer to the same GPS coordinate field.
+
 **Data Structure:**
 ```typescript
 {
@@ -635,6 +637,66 @@ customer_signature: Field.signature({
 ```
 
 **Stored as:** Base64-encoded image data
+
+---
+
+### Slider
+Numeric slider for visual value selection.
+
+```typescript
+volume: Field.slider({ 
+  label: 'Volume Level',
+  min: 0,
+  max: 100,
+  step: 1,
+  defaultValue: 50,
+})
+
+price_range: Field.slider({ 
+  label: 'Price Range',
+  min: 0,
+  max: 10000,
+  step: 100,
+  marks: { 0: '$0', 5000: '$5K', 10000: '$10K' },
+})
+```
+
+**Configuration:**
+- `min` - Minimum value
+- `max` - Maximum value
+- `step` - Increment step size
+- `marks` - Optional labeled markers on the slider
+
+---
+
+### QR Code
+QR code / Barcode field for scanning and generation.
+
+```typescript
+product_barcode: Field.qrcode({ 
+  label: 'Product Barcode',
+  format: 'qr', // 'qr', 'barcode', 'ean13', 'code128'
+  readonly: false,
+})
+
+ticket_code: Field.qrcode({ 
+  label: 'Event Ticket',
+  format: 'qr',
+  autoGenerate: true, // Generate on record creation
+})
+```
+
+**Supported Formats:**
+- `qr` - QR Code (2D matrix barcode, best for URLs, text, and complex data)
+- `barcode` - Standard 1D barcode (linear format for simple numeric/text data)
+- `ean13` - EAN-13 barcode (13-digit product identifier, commonly used in retail)
+- `code128` - Code 128 barcode (high-density 1D format supporting full ASCII character set)
+
+**Use Cases:**
+- Product SKUs and inventory management (ean13, code128)
+- Event tickets and access control (qr)
+- Document tracking and verification (qr)
+- Shipping labels and logistics (code128)
 
 ---
 

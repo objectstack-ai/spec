@@ -36,7 +36,7 @@ This roadmap outlines the complete development plan for the ObjectStack Protocol
 
 #### Data Protocol (ObjectQL)
 - ✅ **Field Schema** (`src/data/field.zod.ts`)
-  - 25+ field types (text, number, lookup, formula, etc.)
+  - 35 field types (text, number, lookup, formula, slider, qrcode, etc.)
   - Comprehensive constraints (required, unique, min/max, etc.)
   - Relationship configuration (lookup, master-detail)
   - Formula and summary operations

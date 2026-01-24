@@ -58,6 +58,34 @@ export const LocationCoordinatesSchema = z.object({
 });
 
 /**
+ * Currency Configuration Schema
+ * Configuration for currency field type supporting multi-currency
+ * 
+ * Note: Currency codes are validated by length only (3 characters) to support:
+ * - Standard ISO 4217 codes (USD, EUR, CNY, etc.)
+ * - Cryptocurrency codes (BTC, ETH, etc.)
+ * - Custom business-specific codes
+ * Stricter validation can be implemented at the application layer based on business requirements.
+ */
+export const CurrencyConfigSchema = z.object({
+  precision: z.number().int().min(0).max(10).default(2).describe('Decimal precision (default: 2)'),
+  currencyMode: z.enum(['dynamic', 'fixed']).default('dynamic').describe('Currency mode: dynamic (user selectable) or fixed (single currency)'),
+  defaultCurrency: z.string().length(3).default('CNY').describe('Default or fixed currency code (ISO 4217, e.g., USD, CNY, EUR)'),
+});
+
+/**
+ * Currency Value Schema
+ * Runtime value structure for currency fields
+ * 
+ * Note: Currency codes are validated by length only (3 characters) to support flexibility.
+ * See CurrencyConfigSchema for details on currency code validation strategy.
+ */
+export const CurrencyValueSchema = z.object({
+  value: z.number().describe('Monetary amount'),
+  currency: z.string().length(3).describe('Currency code (ISO 4217)'),
+});
+
+/**
  * Address Schema
  * Structured address for address field type
  */
@@ -152,6 +180,9 @@ export const FieldSchema = z.object({
   displayValue: z.boolean().optional().describe('Display human-readable value below barcode/QR code'),
   allowScanning: z.boolean().optional().describe('Enable camera scanning for barcode/QR code input'),
 
+  // Currency field config
+  currencyConfig: CurrencyConfigSchema.optional().describe('Configuration for currency field type'),
+
   /** Security & Visibility */
   hidden: z.boolean().default(false).describe('Hidden from default UI'),
   readonly: z.boolean().default(false).describe('Read-only in UI'),
@@ -166,6 +197,8 @@ export type Field = z.infer<typeof FieldSchema>;
 export type SelectOption = z.infer<typeof SelectOptionSchema>;
 export type LocationCoordinates = z.infer<typeof LocationCoordinatesSchema>;
 export type Address = z.infer<typeof AddressSchema>;
+export type CurrencyConfig = z.infer<typeof CurrencyConfigSchema>;
+export type CurrencyValue = z.infer<typeof CurrencyValueSchema>;
 
 /**
  * Field Factory Helper

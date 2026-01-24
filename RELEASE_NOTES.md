@@ -1,4 +1,38 @@
-# Release v0.2.0 - Initial Public Release
+# Release Notes
+
+## v0.3.2 - Maintenance Release (2026-01-24)
+
+### 📦 Released Packages
+
+All packages have been updated to version **0.3.2**:
+
+- **@objectstack/spec@0.3.2** - Core protocol definitions and TypeScript types
+- **@objectstack/types@0.3.2** - Shared TypeScript type definitions
+- **@objectstack/objectql@0.3.2** - ObjectQL query language and runtime
+- **@objectstack/runtime@0.3.2** - Runtime execution environment
+- **@objectstack/client@0.3.2** - Client library for ObjectStack
+- **@objectstack/driver-memory@0.3.2** - In-memory data storage driver
+- **@objectstack/plugin-hono-server@0.3.2** - Hono server plugin for REST API
+- **@objectstack/plugin-msw@0.3.2** - MSW (Mock Service Worker) plugin
+
+### 📝 Changes
+
+This is a patch release focusing on:
+- Maintenance and stability improvements
+- Updated dependencies across all packages
+- Improved build consistency
+
+### 🚀 Publishing
+
+This release is ready for publishing to npm. When this PR is merged to `main`:
+1. The GitHub Actions release workflow will automatically detect the version bump
+2. Build all packages
+3. Publish to npm registry using NPM_TOKEN secret
+4. Create GitHub release with appropriate tags
+
+---
+
+## v0.2.0 - Initial Public Release
 
 ## 📦 Released Packages
 
@@ -18,7 +52,7 @@ This is the first public release of the ObjectStack ecosystem, providing:
 
 ### Core Capabilities
 - **Data Protocol (ObjectQL)**: Complete schema definitions for Objects and Fields
-  - 23+ field types (text, number, select, lookup, formula, autonumber, etc.)
+  - 35 field types (text, number, select, lookup, formula, autonumber, slider, qrcode, etc.)
   - Validation rules, workflows, and triggers
   - Permission system and sharing rules
   - Abstract query language for unified data access

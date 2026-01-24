@@ -3,8 +3,12 @@ import {
   FieldSchema, 
   FieldType, 
   SelectOptionSchema,
+  CurrencyConfigSchema,
+  CurrencyValueSchema,
   Field,
-  type SelectOption
+  type SelectOption,
+  type CurrencyConfig,
+  type CurrencyValue
 } from './field.zod';
 
 describe('FieldType', () => {
@@ -58,6 +62,107 @@ describe('SelectOptionSchema', () => {
   it('should reject option without required fields', () => {
     expect(() => SelectOptionSchema.parse({ label: 'Test' })).toThrow();
     expect(() => SelectOptionSchema.parse({ value: 'test' })).toThrow();
+  });
+});
+
+describe('CurrencyConfigSchema', () => {
+  it('should accept valid currency config with all fields', () => {
+    const validConfig: CurrencyConfig = {
+      precision: 2,
+      currencyMode: 'dynamic',
+      defaultCurrency: 'USD',
+    };
+
+    expect(() => CurrencyConfigSchema.parse(validConfig)).not.toThrow();
+  });
+
+  it('should apply default values', () => {
+    const config = CurrencyConfigSchema.parse({});
+    
+    expect(config.precision).toBe(2);
+    expect(config.currencyMode).toBe('dynamic');
+    expect(config.defaultCurrency).toBe('CNY');
+  });
+
+  it('should accept precision from 0 to 10', () => {
+    const validPrecisions = [0, 2, 4, 8, 10];
+    
+    validPrecisions.forEach(precision => {
+      expect(() => CurrencyConfigSchema.parse({ precision })).not.toThrow();
+    });
+  });
+
+  it('should reject invalid precision values', () => {
+    const invalidPrecisions = [-1, 11, 15, 1.5];
+    
+    invalidPrecisions.forEach(precision => {
+      expect(() => CurrencyConfigSchema.parse({ precision })).toThrow();
+    });
+  });
+
+  it('should accept both currency modes', () => {
+    expect(() => CurrencyConfigSchema.parse({ currencyMode: 'dynamic' })).not.toThrow();
+    expect(() => CurrencyConfigSchema.parse({ currencyMode: 'fixed' })).not.toThrow();
+  });
+
+  it('should reject invalid currency modes', () => {
+    expect(() => CurrencyConfigSchema.parse({ currencyMode: 'invalid' })).toThrow();
+  });
+
+  it('should enforce 3-character currency codes', () => {
+    const validCodes = ['USD', 'CNY', 'EUR', 'GBP', 'JPY'];
+    
+    validCodes.forEach(code => {
+      expect(() => CurrencyConfigSchema.parse({ defaultCurrency: code })).not.toThrow();
+    });
+  });
+
+  it('should reject invalid currency code lengths', () => {
+    const invalidCodes = ['US', 'USDD', 'C', ''];
+    
+    invalidCodes.forEach(code => {
+      expect(() => CurrencyConfigSchema.parse({ defaultCurrency: code })).toThrow();
+    });
+  });
+});
+
+describe('CurrencyValueSchema', () => {
+  it('should accept valid currency value', () => {
+    const validValue: CurrencyValue = {
+      value: 1000.50,
+      currency: 'USD',
+    };
+
+    expect(() => CurrencyValueSchema.parse(validValue)).not.toThrow();
+  });
+
+  it('should accept zero value', () => {
+    const zeroValue: CurrencyValue = {
+      value: 0,
+      currency: 'CNY',
+    };
+
+    expect(() => CurrencyValueSchema.parse(zeroValue)).not.toThrow();
+  });
+
+  it('should accept negative values', () => {
+    const negativeValue: CurrencyValue = {
+      value: -500.00,
+      currency: 'EUR',
+    };
+
+    expect(() => CurrencyValueSchema.parse(negativeValue)).not.toThrow();
+  });
+
+  it('should reject invalid currency codes', () => {
+    expect(() => CurrencyValueSchema.parse({ value: 100, currency: 'US' })).toThrow();
+    expect(() => CurrencyValueSchema.parse({ value: 100, currency: 'USDD' })).toThrow();
+  });
+
+  it('should reject missing required fields', () => {
+    expect(() => CurrencyValueSchema.parse({ value: 100 })).toThrow();
+    expect(() => CurrencyValueSchema.parse({ currency: 'USD' })).toThrow();
+    expect(() => CurrencyValueSchema.parse({})).toThrow();
   });
 });
 
@@ -554,6 +659,195 @@ describe('Field Factory Helpers', () => {
       expect(geolocationField.label).toBe('Current Location');
       expect(geolocationField.displayMap).toBe(true);
       expect(geolocationField.allowGeocoding).toBe(false);
+    });
+  });
+
+  describe('Currency Field Type with Multi-Currency Support', () => {
+    it('should create currency field with default config', () => {
+      const currencyField = Field.currency({
+        name: 'contract_amount',
+        label: 'Contract Amount',
+      });
+      
+      expect(currencyField.type).toBe('currency');
+      expect(currencyField.name).toBe('contract_amount');
+      expect(currencyField.label).toBe('Contract Amount');
+    });
+
+    it('should create currency field with dynamic currency mode (default)', () => {
+      const currencyField = Field.currency({
+        name: 'price',
+        label: 'Price',
+        currencyConfig: {
+          precision: 2,
+          currencyMode: 'dynamic',
+          defaultCurrency: 'USD',
+        },
+      });
+      
+      expect(currencyField.type).toBe('currency');
+      expect(currencyField.currencyConfig?.currencyMode).toBe('dynamic');
+      expect(currencyField.currencyConfig?.defaultCurrency).toBe('USD');
+      expect(currencyField.currencyConfig?.precision).toBe(2);
+    });
+
+    it('should create currency field with fixed currency mode', () => {
+      const currencyField = Field.currency({
+        name: 'salary',
+        label: 'Salary',
+        currencyConfig: {
+          precision: 2,
+          currencyMode: 'fixed',
+          defaultCurrency: 'CNY',
+        },
+      });
+      
+      expect(currencyField.type).toBe('currency');
+      expect(currencyField.currencyConfig?.currencyMode).toBe('fixed');
+      expect(currencyField.currencyConfig?.defaultCurrency).toBe('CNY');
+    });
+
+    it('should validate currency field with valid config', () => {
+      const validField = {
+        name: 'revenue',
+        label: 'Revenue',
+        type: 'currency' as const,
+        currencyConfig: {
+          precision: 4,
+          currencyMode: 'dynamic' as const,
+          defaultCurrency: 'EUR',
+        },
+      };
+
+      const result = FieldSchema.safeParse(validField);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.currencyConfig?.precision).toBe(4);
+        expect(result.data.currencyConfig?.currencyMode).toBe('dynamic');
+        expect(result.data.currencyConfig?.defaultCurrency).toBe('EUR');
+      }
+    });
+
+    it('should apply default values for currency config', () => {
+      const field = {
+        name: 'amount',
+        label: 'Amount',
+        type: 'currency' as const,
+        currencyConfig: {},
+      };
+
+      const result = FieldSchema.parse(field);
+      expect(result.currencyConfig?.precision).toBe(2);
+      expect(result.currencyConfig?.currencyMode).toBe('dynamic');
+      expect(result.currencyConfig?.defaultCurrency).toBe('CNY');
+    });
+
+    it('should reject invalid precision values', () => {
+      const invalidField = {
+        name: 'amount',
+        label: 'Amount',
+        type: 'currency' as const,
+        currencyConfig: {
+          precision: -1,
+        },
+      };
+
+      expect(() => FieldSchema.parse(invalidField)).toThrow();
+
+      const tooHighPrecision = {
+        name: 'amount',
+        label: 'Amount',
+        type: 'currency' as const,
+        currencyConfig: {
+          precision: 11,
+        },
+      };
+
+      expect(() => FieldSchema.parse(tooHighPrecision)).toThrow();
+    });
+
+    it('should reject invalid currency codes', () => {
+      const invalidField = {
+        name: 'price',
+        label: 'Price',
+        type: 'currency' as const,
+        currencyConfig: {
+          defaultCurrency: 'US', // Must be 3 characters
+        },
+      };
+
+      expect(() => FieldSchema.parse(invalidField)).toThrow();
+
+      const tooLongCurrency = {
+        name: 'price',
+        label: 'Price',
+        type: 'currency' as const,
+        currencyConfig: {
+          defaultCurrency: 'USDD',
+        },
+      };
+
+      expect(() => FieldSchema.parse(tooLongCurrency)).toThrow();
+    });
+
+    it('should accept valid currency modes', () => {
+      const dynamicMode = {
+        name: 'price1',
+        label: 'Price 1',
+        type: 'currency' as const,
+        currencyConfig: {
+          currencyMode: 'dynamic' as const,
+        },
+      };
+
+      const fixedMode = {
+        name: 'price2',
+        label: 'Price 2',
+        type: 'currency' as const,
+        currencyConfig: {
+          currencyMode: 'fixed' as const,
+        },
+      };
+
+      expect(() => FieldSchema.parse(dynamicMode)).not.toThrow();
+      expect(() => FieldSchema.parse(fixedMode)).not.toThrow();
+    });
+
+    it('should work with other field properties', () => {
+      const currencyField = Field.currency({
+        name: 'budget',
+        label: 'Project Budget',
+        required: true,
+        readonly: false,
+        description: 'Total budget for the project',
+        currencyConfig: {
+          precision: 2,
+          currencyMode: 'dynamic',
+          defaultCurrency: 'USD',
+        },
+      });
+      
+      expect(currencyField.type).toBe('currency');
+      expect(currencyField.required).toBe(true);
+      expect(currencyField.readonly).toBe(false);
+      expect(currencyField.description).toBe('Total budget for the project');
+    });
+
+    it('should support high precision for cryptocurrency', () => {
+      const cryptoField = Field.currency({
+        name: 'btc_balance',
+        label: 'Bitcoin Balance',
+        currencyConfig: {
+          precision: 8,  // Bitcoin uses 8 decimal places
+          currencyMode: 'fixed',
+          defaultCurrency: 'BTC',
+        },
+      });
+      
+      expect(cryptoField.type).toBe('currency');
+      expect(cryptoField.currencyConfig?.precision).toBe(8);
+      expect(cryptoField.currencyConfig?.currencyMode).toBe('fixed');
+      expect(cryptoField.currencyConfig?.defaultCurrency).toBe('BTC');
     });
   });
 });
