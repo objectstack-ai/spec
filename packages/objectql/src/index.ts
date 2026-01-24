@@ -1,22 +1,10 @@
-import { QueryAST } from '@objectstack/spec/data';
+import { QueryAST, HookContext, HookEvent } from '@objectstack/spec/data';
 import { ObjectStackManifest } from '@objectstack/spec/system';
 import { DriverInterface, DriverOptions } from '@objectstack/spec/driver';
 import { SchemaRegistry } from './registry';
 
 // Export Registry for consumers
 export { SchemaRegistry } from './registry';
-
-/**
- * Hook Context
- */
-export interface HookContext {
-  object: string;
-  driver: DriverInterface;
-  method: 'find' | 'insert' | 'update' | 'delete' | 'count';
-  args: any; // The arguments passed to the method (can be modified)
-  result?: any; // The result of the operation (for after hooks)
-  error?: any; // The error if one occurred (for error hooks)
-}
 
 export type HookHandler = (context: HookContext) => Promise<void> | void;
 
@@ -242,23 +230,23 @@ export class ObjectQL {
     // Trigger Before Hook
     const hookContext: HookContext = {
         object,
-        driver,
-        method: 'find',
-        args: { ast, options } // Hooks can modify AST here
+        event: 'beforeFind',
+        input: { ast, options }, // Hooks can modify AST here
+        ql: this
     };
     await this.triggerHooks('beforeFind', hookContext);
 
     try {
-        const result = await driver.find(object, hookContext.args.ast, hookContext.args.options);
+        const result = await driver.find(object, hookContext.input.ast, hookContext.input.options);
         
         // Trigger After Hook
+        hookContext.event = 'afterFind';
         hookContext.result = result;
         await this.triggerHooks('afterFind', hookContext);
         
         return hookContext.result;
     } catch (e) {
-        hookContext.error = e;
-        // await this.triggerHooks('error', hookContext);
+        // hookContext.error = e;
         throw e;
     }
   }
