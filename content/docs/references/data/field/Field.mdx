@@ -9,7 +9,7 @@ description: Field Schema Reference
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | optional | Machine name (snake_case) |
 | **label** | `string` | optional | Human readable label |
-| **type** | `Enum<'text' \| 'textarea' \| 'email' \| 'url' \| 'phone' \| 'password' \| 'markdown' \| 'html' \| 'richtext' \| 'number' \| 'currency' \| 'percent' \| 'money' \| 'date' \| 'datetime' \| 'time' \| 'boolean' \| 'select' \| 'lookup' \| 'master_detail' \| 'image' \| 'file' \| 'avatar' \| 'formula' \| 'summary' \| 'autonumber' \| 'location' \| 'geolocation' \| 'address' \| 'code' \| 'color' \| 'rating' \| 'slider' \| 'signature' \| 'qrcode'>` | ✅ | Field Data Type |
+| **type** | `Enum<'text' \| 'textarea' \| 'email' \| 'url' \| 'phone' \| 'password' \| 'markdown' \| 'html' \| 'richtext' \| 'number' \| 'currency' \| 'percent' \| 'date' \| 'datetime' \| 'time' \| 'boolean' \| 'select' \| 'lookup' \| 'master_detail' \| 'image' \| 'file' \| 'avatar' \| 'formula' \| 'summary' \| 'autonumber' \| 'location' \| 'geolocation' \| 'address' \| 'code' \| 'color' \| 'rating' \| 'slider' \| 'signature' \| 'qrcode'>` | ✅ | Field Data Type |
 | **description** | `string` | optional | Tooltip/Help text |
 | **format** | `string` | optional | Format string (e.g. email, phone) |
 | **required** | `boolean` | optional | Is required |
@@ -49,7 +49,7 @@ description: Field Schema Reference
 | **qrErrorCorrection** | `Enum<'L' \| 'M' \| 'Q' \| 'H'>` | optional | QR code error correction level (L=7%, M=15%, Q=25%, H=30%). Only applicable when barcodeFormat is "qr" |
 | **displayValue** | `boolean` | optional | Display human-readable value below barcode/QR code |
 | **allowScanning** | `boolean` | optional | Enable camera scanning for barcode/QR code input |
-| **moneyConfig** | `object` | optional | Configuration for money field type |
+| **currencyConfig** | `object` | optional | Configuration for currency field type |
 | **hidden** | `boolean` | optional | Hidden from default UI |
 | **readonly** | `boolean` | optional | Read-only in UI |
 | **encryption** | `boolean` | optional | Encrypt at rest |

@@ -68,7 +68,6 @@
                   "number",
                   "currency",
                   "percent",
-                  "money",
                   "date",
                   "datetime",
                   "time",
@@ -344,7 +343,7 @@
                 "type": "boolean",
                 "description": "Enable camera scanning for barcode/QR code input"
               },
-              "moneyConfig": {
+              "currencyConfig": {
                 "type": "object",
                 "properties": {
                   "precision": {
@@ -372,7 +371,7 @@
                   }
                 },
                 "additionalProperties": false,
-                "description": "Configuration for money field type"
+                "description": "Configuration for currency field type"
               },
               "hidden": {
                 "type": "boolean",

@@ -1,7 +1,7 @@
 {
-  "$ref": "#/definitions/MoneyConfig",
+  "$ref": "#/definitions/CurrencyConfig",
   "definitions": {
-    "MoneyConfig": {
+    "CurrencyConfig": {
       "type": "object",
       "properties": {
         "precision": {

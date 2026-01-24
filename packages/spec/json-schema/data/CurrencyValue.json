@@ -1,7 +1,7 @@
 {
-  "$ref": "#/definitions/MoneyValue",
+  "$ref": "#/definitions/CurrencyValue",
   "definitions": {
-    "MoneyValue": {
+    "CurrencyValue": {
       "type": "object",
       "properties": {
         "value": {
