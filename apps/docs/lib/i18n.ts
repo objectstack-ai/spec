@@ -9,7 +9,7 @@ import { defineI18n } from 'fumadocs-core/i18n';
  */
 export const i18n = defineI18n({
   defaultLanguage: 'en',
-  languages: ['en'],
+  languages: ['en', 'cn'],
   // Hide locale prefix for default language (e.g., /docs instead of /en/docs)
   hideLocale: 'default-locale',
 });
