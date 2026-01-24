@@ -21,15 +21,7 @@
         "tenant": {
           "type": "object",
           "properties": {
-            "id": {
-              "type": "string",
-              "description": "Unique tenant identifier"
-            },
-            "name": {
-              "type": "string",
-              "description": "Tenant display name"
-            },
-            "isolationLevel": {
+            "isolation": {
               "type": "string",
               "enum": [
                 "shared_schema",
@@ -37,11 +29,6 @@
                 "isolated_db"
               ],
               "description": "Data isolation strategy"
-            },
-            "customizations": {
-              "type": "object",
-              "additionalProperties": {},
-              "description": "Tenant-specific customizations"
             },
             "quotas": {
               "type": "object",
@@ -63,13 +50,11 @@
                 }
               },
               "additionalProperties": false,
-              "description": "Resource quotas and limits"
+              "description": "Resource quotas"
             }
           },
           "required": [
-            "id",
-            "name",
-            "isolationLevel"
+            "isolation"
           ],
           "additionalProperties": false,
           "description": "Runtime tenant configuration"
@@ -252,7 +237,6 @@
         "name",
         "slug",
         "ownerId",
-        "tenant",
         "bom",
         "createdAt",
         "updatedAt"

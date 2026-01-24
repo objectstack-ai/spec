@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { ObjectSchema } from '../data/object.zod';
+import { DatasourceSchema } from '../driver/datasource.zod';
 
 /**
  * Schema for the ObjectStack Manifest.
@@ -48,6 +50,17 @@ export const ManifestSchema = z.object({
    * Example: `["./src/objects/*.object.yml"]`
    */
   objects: z.array(z.string()).optional().describe('Glob patterns for ObjectQL schemas files'),
+
+  /**
+   * Inline/Compiled Definitions (Compiler Output).
+   * Populated by Cloud Composer or Build Tools.
+   * If present, Runtime should prioritize these over glob scanning.
+   */
+  definitions: z.object({
+    objects: z.record(ObjectSchema).optional().describe('Map of compiled Object Schemas (Name -> Schema)'),
+    datasource: z.record(DatasourceSchema).optional().describe('Map of compiled Datasource Schemas'),
+    // Add other resource types as needed (flows, views, apps)
+  }).optional().describe('Inline resource definitions (for serverless/compiled runtimes)'),
   
   /**
    * Defines system level DataSources.

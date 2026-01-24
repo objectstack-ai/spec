@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { BillOfMaterialsSchema } from './composer.zod';
-import { TenantSchema } from './tenant.zod';
+import { TenantIsolationLevel, TenantQuotaSchema } from './tenant.zod';
 
 /**
  * # Project Protocol
@@ -67,10 +67,13 @@ export const HubProjectSchema = z.object({
 
   /**
    * The Runtime Tenant Definition
-   * Defines the isolation level, quotas, and identity.
-   * This is the technical configuration that corresponding to this Project.
+   * Defines the isolation level and quotas.
+   * Simplified: ID/Name are inherited from Project.
    */
-  tenant: TenantSchema.describe('Runtime tenant configuration'),
+  tenant: z.object({
+    isolation: TenantIsolationLevel.describe('Data isolation strategy'),
+    quotas: TenantQuotaSchema.optional().describe('Resource quotas'),
+  }).optional().describe('Runtime tenant configuration'),
   
   /**
    * The Desired State (Bill of Materials)
