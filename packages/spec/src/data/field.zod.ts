@@ -60,6 +60,12 @@ export const LocationCoordinatesSchema = z.object({
 /**
  * Money Configuration Schema
  * Configuration for money field type supporting multi-currency
+ * 
+ * Note: Currency codes are validated by length only (3 characters) to support:
+ * - Standard ISO 4217 codes (USD, EUR, CNY, etc.)
+ * - Cryptocurrency codes (BTC, ETH, etc.)
+ * - Custom business-specific codes
+ * Stricter validation can be implemented at the application layer based on business requirements.
  */
 export const MoneyConfigSchema = z.object({
   precision: z.number().int().min(0).max(10).default(2).describe('Decimal precision (default: 2)'),
@@ -70,6 +76,9 @@ export const MoneyConfigSchema = z.object({
 /**
  * Money Value Schema
  * Runtime value structure for money fields
+ * 
+ * Note: Currency codes are validated by length only (3 characters) to support flexibility.
+ * See MoneyConfigSchema for details on currency code validation strategy.
  */
 export const MoneyValueSchema = z.object({
   value: z.number().describe('Monetary amount'),
