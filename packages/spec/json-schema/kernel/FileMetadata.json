@@ -1,0 +1,43 @@
+{
+  "$ref": "#/definitions/FileMetadata",
+  "definitions": {
+    "FileMetadata": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "size": {
+          "type": "integer"
+        },
+        "mimeType": {
+          "type": "string"
+        },
+        "lastModified": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "etag": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "name",
+        "size",
+        "mimeType",
+        "lastModified",
+        "created"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

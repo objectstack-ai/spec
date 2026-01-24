@@ -7,4 +7,10 @@
 
 export * from './manifest.zod';
 export * from './plugin.zod';
-export * from './composer.zod';
+export * from './logger.zod';
+export * from './context.zod';
+export * from './scoped-storage.zod';
+export * from './router.zod';
+
+
+

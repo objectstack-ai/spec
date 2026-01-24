@@ -1,0 +1,80 @@
+{
+  "$ref": "#/definitions/RouterConfig",
+  "definitions": {
+    "RouterConfig": {
+      "type": "object",
+      "properties": {
+        "basePath": {
+          "type": "string",
+          "default": "/api",
+          "description": "Global API prefix"
+        },
+        "cors": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "origin": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ],
+              "default": "*"
+            },
+            "methods": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "GET",
+                  "POST",
+                  "PUT",
+                  "DELETE",
+                  "PATCH",
+                  "HEAD",
+                  "OPTIONS"
+                ]
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "staticMounts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "URL mount path"
+              },
+              "dir": {
+                "type": "string",
+                "description": "Physical directory path"
+              },
+              "cacheControl": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "dir"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
