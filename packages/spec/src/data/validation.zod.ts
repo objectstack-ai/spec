@@ -49,12 +49,28 @@ import { z } from 'zod';
  * Base Validation Rule
  * 
  * All validation rules extend from this base schema with common properties.
+ * 
+ * ## Industry Standard Enhancements
+ * - **Label/Description**: Essential for governance in large systems with thousands of rules.
+ * - **Events**: granular control over triggering (Context-aware validation).
+ * - **Tags**: categorization for reporting and management.
  */
 const BaseValidationSchema = z.object({
-  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Unique rule name'),
+  // Identification
+  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Unique rule name (snake_case)'),
+  label: z.string().optional().describe('Human-readable label for the rule listing'),
+  description: z.string().optional().describe('Administrative notes explaining the business reason'),
+  
+  // Execution Control
   active: z.boolean().default(true),
+  events: z.array(z.enum(['insert', 'update', 'delete'])).default(['insert', 'update']).describe('Trigger contexts'),
+  
+  // Classification
+  tags: z.array(z.string()).optional().describe('Categorization tags (e.g., "compliance", "billing")'),
+  
+  // Feedback
   severity: z.enum(['error', 'warning', 'info']).default('error'),
-  message: z.string().describe('Error message to display'),
+  message: z.string().describe('Error message to display to the user'),
 });
 
 /**
@@ -168,7 +184,22 @@ export const CrossFieldValidationSchema = BaseValidationSchema.extend({
 });
 
 /**
- * 6. Async Validation
+ * 6. JSON Structure Validation
+ * Validates JSON fields against a JSON Schema.
+ * 
+ * ## Use Cases
+ * - Validating configuration objects stored in JSON fields
+ * - Enforcing API payload structures
+ * - Complex nested data validation
+ */
+export const JSONValidationSchema = BaseValidationSchema.extend({
+  type: z.literal('json_schema'),
+  field: z.string().describe('JSON field to validate'),
+  schema: z.record(z.any()).describe('JSON Schema object definition'),
+});
+
+/**
+ * 7. Async Validation
  * Remote validation via API call or database query.
  * 
  * ## Use Cases
@@ -278,14 +309,16 @@ export const CrossFieldValidationSchema = BaseValidationSchema.extend({
  *     checkExpiration: true,
  *     checkUsageLimit: true,
  *     userId: '{{current_user_id}}'
- *   }
- * }
- * ```
- * 
- * ## Best Practices
- * - Always set a reasonable `timeout` (default is 5000ms)
- * - Use `debounce` for fields that are typed (300-500ms recommended)
- * - Implement proper error handling on the server side
+ *method: z.enum(['GET', 'POST']).default('GET').describe('HTTP method for external call'),
+  headers: z.record(z.string()).optional().describe('Custom headers for the request'),
+  validatorFunction: z.string().optional().describe('Reference to custom validator function'),
+  timeout: z.number().optional().default(5000).describe('Timeout in milliseconds'),
+  debounce: z.number().optional().describe('Debounce delay in milliseconds'),
+  params: z.record(z.any()).optional().describe('Additional parameters to pass to validator'),
+});
+
+/**
+ * 8 Implement proper error handling on the server side
  * - Cache validation results when appropriate
  * - Consider rate limiting for external API calls
  */
@@ -303,14 +336,15 @@ export const AsyncValidationSchema = BaseValidationSchema.extend({
  * 7. Custom Validator Function
  * User-defined validation logic with code reference.
  */
-export const CustomValidatorSchema = BaseValidationSchema.extend({
-  type: z.literal('custom'),
-  field: z.string().optional().describe('Field to validate (optional for record-level validation)'),
-  validatorFunction: z.string().describe('Function name or reference to custom validator'),
-  params: z.record(z.any()).optional().describe('Additional parameters for the validator'),
-});
+expoJSONValidationSchema,
+    AsyncValidationSchema,
+    CustomValidatorSchema,
+    ConditionalValidationSchema,
+  ])
+);
 
 /**
+ * 9
  * Master Validation Rule Schema (forward declared for circular reference)
  */
 export const ValidationRuleSchema: z.ZodType<any> = z.lazy(() =>
@@ -497,7 +531,8 @@ export const ValidationRuleSchema: z.ZodType<any> = z.lazy(() =>
  *     type: 'cross_field',
  *     name: 'amount_approval',
  *     condition: 'amount > 100000 AND approval = null',
- *     fields: ['amount', 'approval']
+ *     fieldJSONValidation = z.infer<typeof JSONValidationSchema>;
+export type s: ['amount', 'approval']
  *   }
  * }
  * ```
