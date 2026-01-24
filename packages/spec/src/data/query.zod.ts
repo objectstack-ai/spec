@@ -1,40 +1,5 @@
 import { z } from 'zod';
-
-/**
- * Filter Operator Enum
- * Standard SQL/NoSQL operators supported by the engine.
- */
-export const FilterOperator = z.enum([
-  '=', '!=', '<>', 
-  '>', '>=', '<', '<=', 
-  'startswith', 'contains', 'notcontains', 
-  'between', 'in', 'notin', 
-  'is_null', 'is_not_null'
-]);
-
-/**
- * Filter Logic Operator
- */
-export const LogicOperator = z.enum(['and', 'or', 'not']);
-
-/**
- * Recursive Filter Node
- * Represents the "Where" clause.
- * 
- * Structure: [Field, Operator, Value] OR [Logic, Filter, Filter...]
- * Examples:
- * - Simple: ["amount", ">", 1000]
- * - Logic: [["status", "=", "closed"], "or", ["amount", ">", 1000]]
- */
-export const FilterNodeSchema: z.ZodType<any> = z.lazy(() => 
-  z.union([
-    // Leaf Node: [Field, Operator, Value]
-    z.tuple([z.string(), FilterOperator, z.any()]),
-    
-    // Logic Node: [Expression, "or", Expression]
-    z.array(z.union([z.string(), FilterNodeSchema]))
-  ])
-);
+import { FilterConditionSchema } from './filter.zod';
 
 /**
  * Sort Node
@@ -248,7 +213,7 @@ export const JoinNodeSchema: z.ZodType<any> = z.lazy(() =>
     type: JoinType.describe('Join type'),
     object: z.string().describe('Object/table to join'),
     alias: z.string().optional().describe('Table alias'),
-    on: FilterNodeSchema.describe('Join condition'),
+    on: FilterConditionSchema.describe('Join condition'),
     subquery: z.lazy(() => QuerySchema).optional().describe('Subquery instead of object'),
   })
 );
@@ -423,101 +388,28 @@ export const FieldNodeSchema: z.ZodType<any> = z.lazy(() =>
  * This schema represents ObjectQL - a universal query language that abstracts
  * SQL, NoSQL, and SaaS APIs into a single unified interface.
  * 
- * Key Features:
- * - **Filtering**: WHERE clauses with nested logic
- * - **Aggregations**: GROUP BY with COUNT, SUM, AVG, MIN, MAX
- * - **Joins**: INNER, LEFT, RIGHT, FULL OUTER joins
- * - **Window Functions**: ROW_NUMBER, RANK, LAG, LEAD, running totals
- * - **Subqueries**: Nested queries in joins and filters
- * - **Sorting & Pagination**: ORDER BY, LIMIT, OFFSET
+ * Updates (v2):
+ * - Aligned with modern ORM standards (Prisma/TypeORM)
+ * - Added `cursor` based pagination support
+ * - Renamed `top`/`skip` to `limit`/`offset`
+ * - Unified filtering syntax with `FilterConditionSchema`
  * 
  * @example
  * // Simple query: SELECT name, email FROM account WHERE status = 'active'
  * {
  *   object: 'account',
  *   fields: ['name', 'email'],
- *   filters: ['status', '=', 'active']
+ *   where: { status: 'active' }
  * }
  * 
  * @example
- * // Aggregation: SELECT region, SUM(amount) as total FROM sales GROUP BY region HAVING total > 10000
+ * // Pagination with Limit/Offset
  * {
- *   object: 'sales',
- *   fields: ['region'],
- *   aggregations: [
- *     { function: 'sum', field: 'amount', alias: 'total' }
- *   ],
- *   groupBy: ['region'],
- *   having: ['total', '>', 10000]
- * }
- * 
- * @example
- * // Join: SELECT o.*, c.name FROM orders o INNER JOIN customers c ON o.customer_id = c.id
- * {
- *   object: 'order',
- *   fields: ['id', 'amount'],
- *   joins: [
- *     {
- *       type: 'inner',
- *       object: 'customer',
- *       alias: 'c',
- *       on: ['order.customer_id', '=', 'c.id']
- *     }
- *   ]
- * }
- * 
- * @example
- * // Window Function: Top 5 orders per customer
- * {
- *   object: 'order',
- *   fields: ['customer_id', 'amount', 'created_at'],
- *   windowFunctions: [
- *     {
- *       function: 'row_number',
- *       alias: 'customer_order_rank',
- *       over: {
- *         partitionBy: ['customer_id'],
- *         orderBy: [{ field: 'amount', order: 'desc' }]
- *       }
- *     }
- *   ]
- * }
- * 
- * @example
- * // Complex: Customer lifetime value with rankings
- * {
- *   object: 'customer',
- *   fields: ['id', 'name'],
- *   joins: [
- *     {
- *       type: 'left',
- *       object: 'order',
- *       alias: 'o',
- *       on: ['customer.id', '=', 'o.customer_id']
- *     }
- *   ],
- *   aggregations: [
- *     { function: 'count', field: 'o.id', alias: 'order_count' },
- *     { function: 'sum', field: 'o.amount', alias: 'lifetime_value' }
- *   ],
- *   groupBy: ['customer.id', 'customer.name'],
- *   having: ['order_count', '>', 0],
- *   sort: [{ field: 'lifetime_value', order: 'desc' }],
- *   top: 100
- * }
- * 
- * @example
- * // Salesforce SOQL: SELECT Name, (SELECT LastName FROM Contacts) FROM Account
- * {
- *   object: 'account',
- *   fields: ['name'],
- *   joins: [
- *     {
- *       type: 'left',
- *       object: 'contact',
- *       on: ['account.id', '=', 'contact.account_id']
- *     }
- *   ]
+ *   object: 'post',
+ *   where: { published: true },
+ *   orderBy: [{ field: 'created_at', order: 'desc' }],
+ *   limit: 20,
+ *   offset: 40
  * }
  */
 export const QuerySchema = z.object({
@@ -527,30 +419,31 @@ export const QuerySchema = z.object({
   /** Select Clause */
   fields: z.array(FieldNodeSchema).optional().describe('Fields to retrieve'),
   
-  /** Aggregations */
-  aggregations: z.array(AggregationNodeSchema).optional().describe('Aggregation functions (GROUP BY)'),
+  /** Where Clause (Filtering) */
+  where: FilterConditionSchema.optional().describe('Filtering criteria (WHERE)'),
   
-  /** Window Functions */
-  windowFunctions: z.array(WindowFunctionNodeSchema).optional().describe('Window functions with OVER clause'),
+  /** Order By Clause (Sorting) */
+  orderBy: z.array(SortNodeSchema).optional().describe('Sorting instructions (ORDER BY)'),
   
-  /** Where Clause */
-  filters: FilterNodeSchema.optional().describe('Filtering criteria'),
+  /** Pagination */
+  limit: z.number().optional().describe('Max records to return (LIMIT)'),
+  offset: z.number().optional().describe('Records to skip (OFFSET)'),
+  cursor: z.record(z.any()).optional().describe('Cursor for keyset pagination'),
   
   /** Joins */
-  joins: z.array(JoinNodeSchema).optional().describe('Table joins'),
+  joins: z.array(JoinNodeSchema).optional().describe('Explicit Table Joins'),
+  
+  /** Aggregations */
+  aggregations: z.array(AggregationNodeSchema).optional().describe('Aggregation functions'),
   
   /** Group By Clause */
   groupBy: z.array(z.string()).optional().describe('GROUP BY fields'),
   
   /** Having Clause */
-  having: FilterNodeSchema.optional().describe('HAVING clause for aggregation filtering'),
+  having: FilterConditionSchema.optional().describe('HAVING clause for aggregation filtering'),
   
-  /** Order By Clause */
-  sort: z.array(SortNodeSchema).optional().describe('Sorting instructions'),
-  
-  /** Pagination */
-  top: z.number().optional().describe('Limit results'),
-  skip: z.number().optional().describe('Offset results'),
+  /** Window Functions */
+  windowFunctions: z.array(WindowFunctionNodeSchema).optional().describe('Window functions with OVER clause'),
   
   /** Subquery flag */
   distinct: z.boolean().optional().describe('SELECT DISTINCT flag'),
@@ -558,7 +451,6 @@ export const QuerySchema = z.object({
 
 export type QueryAST = z.infer<typeof QuerySchema>;
 export type QueryInput = z.input<typeof QuerySchema>;
-export type FilterNode = z.infer<typeof FilterNodeSchema>;
 export type SortNode = z.infer<typeof SortNodeSchema>;
 export type AggregationNode = z.infer<typeof AggregationNodeSchema>;
 export type JoinNode = z.infer<typeof JoinNodeSchema>;
