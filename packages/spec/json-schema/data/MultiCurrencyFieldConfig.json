@@ -1,0 +1,57 @@
+{
+  "$ref": "#/definitions/MultiCurrencyFieldConfig",
+  "definitions": {
+    "MultiCurrencyFieldConfig": {
+      "type": "object",
+      "properties": {
+        "defaultCurrency": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3,
+          "pattern": "^[A-Z]{3}$",
+          "description": "Default currency for new records"
+        },
+        "alwaysStoreConverted": {
+          "type": "boolean",
+          "default": true,
+          "description": "Always store converted values"
+        },
+        "allowCurrencyChange": {
+          "type": "boolean",
+          "default": true,
+          "description": "Allow changing currency after creation"
+        },
+        "restrictedCurrencies": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "pattern": "^[A-Z]{3}$",
+            "description": "ISO 4217 currency code (e.g., USD, EUR, GBP)"
+          },
+          "description": "Restrict to specific currencies"
+        },
+        "showConversion": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show conversion information in UI"
+        },
+        "roundingMode": {
+          "type": "string",
+          "enum": [
+            "half_up",
+            "half_down",
+            "half_even",
+            "up",
+            "down"
+          ],
+          "default": "half_up",
+          "description": "Rounding mode for calculations"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,60 @@
+{
+  "$ref": "#/definitions/Currency",
+  "definitions": {
+    "Currency": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3,
+          "pattern": "^[A-Z]{3}$",
+          "description": "ISO 4217 currency code"
+        },
+        "name": {
+          "type": "string",
+          "description": "Currency name (e.g., US Dollar, Euro)"
+        },
+        "symbol": {
+          "type": "string",
+          "description": "Currency symbol (e.g., $, €, £, ¥)"
+        },
+        "decimalPlaces": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4,
+          "default": 2,
+          "description": "Number of decimal places"
+        },
+        "isActive": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this currency is active"
+        },
+        "isCorporate": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this is the corporate/base currency"
+        },
+        "conversionRate": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 1,
+          "description": "Conversion rate to corporate currency"
+        },
+        "conversionRateUpdatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last conversion rate update timestamp"
+        }
+      },
+      "required": [
+        "code",
+        "name",
+        "symbol"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

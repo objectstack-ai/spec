@@ -1,0 +1,15 @@
+---
+title: ExchangeRate
+description: ExchangeRate Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **fromCurrency** | `string` | ✅ | Source currency code |
+| **toCurrency** | `string` | ✅ | Target currency code |
+| **rate** | `number` | ✅ | Exchange rate |
+| **effectiveDate** | `string` | ✅ | Effective start date for this rate |
+| **expiryDate** | `string` | optional | Expiry date for this rate |
+| **source** | `Enum<'manual' \| 'api' \| 'system'>` | optional | Exchange rate source |

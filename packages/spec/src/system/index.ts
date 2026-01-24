@@ -23,6 +23,7 @@ export * from './audit.zod';
 export * from './license.zod';
 export * from './webhook.zod';
 export * from './translation.zod';
+export * from './currency.zod';
 export * from './driver.zod';
 export * from './discovery.zod';
 export * from './plugin.zod';

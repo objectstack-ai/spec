@@ -1,0 +1,19 @@
+---
+title: CurrencySettings
+description: CurrencySettings Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional | Enable multi-currency support |
+| **corporateCurrency** | `string` | ✅ | Corporate/base currency code |
+| **activeCurrencies** | `object[]` | ✅ | Active currencies |
+| **defaultFormatting** | `object` | optional | Default currency formatting |
+| **allowUserCurrency** | `boolean` | optional | Allow users to select preferred currency |
+| **enableAutoConversion** | `boolean` | optional | Enable automatic currency conversion |
+| **enableDatedExchangeRates** | `boolean` | optional | Enable dated exchange rates |
+| **exchangeRates** | `object[]` | optional | Historical exchange rates |
+| **aggregationStrategy** | `Enum<'convert_to_corporate' \| 'convert_to_user' \| 'group_by_currency'>` | optional | Currency conversion strategy for aggregations |
+| **sortingStrategy** | `Enum<'convert_to_corporate' \| 'convert_to_user' \| 'native_value'>` | optional | Currency conversion strategy for sorting |

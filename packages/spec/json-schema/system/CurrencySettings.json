@@ -1,0 +1,229 @@
+{
+  "$ref": "#/definitions/CurrencySettings",
+  "definitions": {
+    "CurrencySettings": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable multi-currency support"
+        },
+        "corporateCurrency": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3,
+          "pattern": "^[A-Z]{3}$",
+          "description": "Corporate/base currency code"
+        },
+        "activeCurrencies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 3,
+                "pattern": "^[A-Z]{3}$",
+                "description": "ISO 4217 currency code"
+              },
+              "name": {
+                "type": "string",
+                "description": "Currency name (e.g., US Dollar, Euro)"
+              },
+              "symbol": {
+                "type": "string",
+                "description": "Currency symbol (e.g., $, €, £, ¥)"
+              },
+              "decimalPlaces": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 4,
+                "default": 2,
+                "description": "Number of decimal places"
+              },
+              "isActive": {
+                "type": "boolean",
+                "default": true,
+                "description": "Whether this currency is active"
+              },
+              "isCorporate": {
+                "type": "boolean",
+                "default": false,
+                "description": "Whether this is the corporate/base currency"
+              },
+              "conversionRate": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "default": 1,
+                "description": "Conversion rate to corporate currency"
+              },
+              "conversionRateUpdatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Last conversion rate update timestamp"
+              }
+            },
+            "required": [
+              "code",
+              "name",
+              "symbol"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Active currencies"
+        },
+        "defaultFormatting": {
+          "type": "object",
+          "properties": {
+            "format": {
+              "type": "string",
+              "enum": [
+                "symbol",
+                "code",
+                "name",
+                "symbol_code"
+              ],
+              "default": "symbol",
+              "description": "Currency display format"
+            },
+            "locale": {
+              "type": "string",
+              "default": "en-US",
+              "description": "Locale for number formatting (e.g., en-US, fr-FR, zh-CN)"
+            },
+            "showSymbol": {
+              "type": "boolean",
+              "default": true,
+              "description": "Show currency symbol"
+            },
+            "showCode": {
+              "type": "boolean",
+              "default": false,
+              "description": "Show currency code"
+            },
+            "decimalSeparator": {
+              "type": "string",
+              "enum": [
+                ".",
+                ","
+              ],
+              "default": ".",
+              "description": "Decimal separator"
+            },
+            "thousandsSeparator": {
+              "type": "string",
+              "enum": [
+                ",",
+                ".",
+                " ",
+                ""
+              ],
+              "default": ",",
+              "description": "Thousands separator"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Default currency formatting"
+        },
+        "allowUserCurrency": {
+          "type": "boolean",
+          "default": true,
+          "description": "Allow users to select preferred currency"
+        },
+        "enableAutoConversion": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable automatic currency conversion"
+        },
+        "enableDatedExchangeRates": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable dated exchange rates"
+        },
+        "exchangeRates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fromCurrency": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 3,
+                "pattern": "^[A-Z]{3}$",
+                "description": "Source currency code"
+              },
+              "toCurrency": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 3,
+                "pattern": "^[A-Z]{3}$",
+                "description": "Target currency code"
+              },
+              "rate": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "Exchange rate"
+              },
+              "effectiveDate": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Effective start date for this rate"
+              },
+              "expiryDate": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Expiry date for this rate"
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "manual",
+                  "api",
+                  "system"
+                ],
+                "default": "manual",
+                "description": "Exchange rate source"
+              }
+            },
+            "required": [
+              "fromCurrency",
+              "toCurrency",
+              "rate",
+              "effectiveDate"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Historical exchange rates"
+        },
+        "aggregationStrategy": {
+          "type": "string",
+          "enum": [
+            "convert_to_corporate",
+            "convert_to_user",
+            "group_by_currency"
+          ],
+          "default": "convert_to_corporate",
+          "description": "Currency conversion strategy for aggregations"
+        },
+        "sortingStrategy": {
+          "type": "string",
+          "enum": [
+            "convert_to_corporate",
+            "convert_to_user",
+            "native_value"
+          ],
+          "default": "convert_to_corporate",
+          "description": "Currency conversion strategy for sorting"
+        }
+      },
+      "required": [
+        "corporateCurrency",
+        "activeCurrencies"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -2,6 +2,7 @@
   "title": "Data Protocol",
   "root": true,
   "pages": [
+    "currency",
     "dataset",
     "field",
     "filter",

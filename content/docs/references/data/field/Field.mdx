@@ -49,6 +49,11 @@ description: Field Schema Reference
 | **qrErrorCorrection** | `Enum<'L' \| 'M' \| 'Q' \| 'H'>` | optional | QR code error correction level (L=7%, M=15%, Q=25%, H=30%). Only applicable when barcodeFormat is "qr" |
 | **displayValue** | `boolean` | optional | Display human-readable value below barcode/QR code |
 | **allowScanning** | `boolean` | optional | Enable camera scanning for barcode/QR code input |
+| **currencyCode** | `string` | optional | Default currency code for this field (ISO 4217) |
+| **allowCurrencyChange** | `boolean` | optional | Allow users to change currency on records (multi-currency only) |
+| **restrictedCurrencies** | `string[]` | optional | Restrict field to specific currencies (multi-currency only) |
+| **showConversion** | `boolean` | optional | Display conversion to corporate/user currency (multi-currency only) |
+| **roundingMode** | `Enum<'half_up' \| 'half_down' \| 'half_even' \| 'up' \| 'down'>` | optional | Rounding mode for currency calculations |
 | **hidden** | `boolean` | optional | Hidden from default UI |
 | **readonly** | `boolean` | optional | Read-only in UI |
 | **encryption** | `boolean` | optional | Encrypt at rest |

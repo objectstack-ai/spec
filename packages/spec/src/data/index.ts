@@ -19,3 +19,4 @@ export * from './query.zod';
 export * from './filter.zod';
 export * from './mapping.zod';
 export * from './trigger.zod';
+export * from './currency.zod';

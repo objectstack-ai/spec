@@ -1,0 +1,13 @@
+---
+title: CurrencyCalculationResult
+description: CurrencyCalculationResult Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **value** | `object` | ✅ | Calculated currency value |
+| **crossCurrency** | `boolean` | ✅ | Whether cross-currency calculation was performed |
+| **sources** | `object[]` | optional | Source values |
+| **method** | `Enum<'sum' \| 'average' \| 'min' \| 'max' \| 'count'>` | optional | Calculation method |

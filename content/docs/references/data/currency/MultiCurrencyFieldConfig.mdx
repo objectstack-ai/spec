@@ -1,0 +1,15 @@
+---
+title: MultiCurrencyFieldConfig
+description: MultiCurrencyFieldConfig Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **defaultCurrency** | `string` | optional | Default currency for new records |
+| **alwaysStoreConverted** | `boolean` | optional | Always store converted values |
+| **allowCurrencyChange** | `boolean` | optional | Allow changing currency after creation |
+| **restrictedCurrencies** | `string[]` | optional | Restrict to specific currencies |
+| **showConversion** | `boolean` | optional | Show conversion information in UI |
+| **roundingMode** | `Enum<'half_up' \| 'half_down' \| 'half_even' \| 'up' \| 'down'>` | optional | Rounding mode for calculations |

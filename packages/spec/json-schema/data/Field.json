@@ -303,6 +303,43 @@
           "type": "boolean",
           "description": "Enable camera scanning for barcode/QR code input"
         },
+        "currencyCode": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3,
+          "pattern": "^[A-Z]{3}$",
+          "description": "Default currency code for this field (ISO 4217)"
+        },
+        "allowCurrencyChange": {
+          "type": "boolean",
+          "description": "Allow users to change currency on records (multi-currency only)"
+        },
+        "restrictedCurrencies": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "pattern": "^[A-Z]{3}$",
+            "description": "ISO 4217 currency code (e.g., USD, EUR, GBP)"
+          },
+          "description": "Restrict field to specific currencies (multi-currency only)"
+        },
+        "showConversion": {
+          "type": "boolean",
+          "description": "Display conversion to corporate/user currency (multi-currency only)"
+        },
+        "roundingMode": {
+          "type": "string",
+          "enum": [
+            "half_up",
+            "half_down",
+            "half_even",
+            "up",
+            "down"
+          ],
+          "description": "Rounding mode for currency calculations"
+        },
         "hidden": {
           "type": "boolean",
           "default": false,

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { CurrencyCodeSchema } from '../system/currency.zod';
 
 /**
  * Field Type Enum
@@ -151,6 +152,13 @@ export const FieldSchema = z.object({
   qrErrorCorrection: z.enum(['L', 'M', 'Q', 'H']).optional().describe('QR code error correction level (L=7%, M=15%, Q=25%, H=30%). Only applicable when barcodeFormat is "qr"'),
   displayValue: z.boolean().optional().describe('Display human-readable value below barcode/QR code'),
   allowScanning: z.boolean().optional().describe('Enable camera scanning for barcode/QR code input'),
+  
+  // Currency field config (Multi-Currency Support)
+  currencyCode: CurrencyCodeSchema.optional().describe('Default currency code for this field (ISO 4217)'),
+  allowCurrencyChange: z.boolean().optional().describe('Allow users to change currency on records (multi-currency only)'),
+  restrictedCurrencies: z.array(CurrencyCodeSchema).optional().describe('Restrict field to specific currencies (multi-currency only)'),
+  showConversion: z.boolean().optional().describe('Display conversion to corporate/user currency (multi-currency only)'),
+  roundingMode: z.enum(['half_up', 'half_down', 'half_even', 'up', 'down']).optional().describe('Rounding mode for currency calculations'),
 
   /** Security & Visibility */
   hidden: z.boolean().default(false).describe('Hidden from default UI'),

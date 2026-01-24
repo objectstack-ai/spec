@@ -1,0 +1,48 @@
+{
+  "$ref": "#/definitions/CurrencyValue",
+  "definitions": {
+    "CurrencyValue": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "number",
+          "description": "Numeric amount"
+        },
+        "currency": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3,
+          "pattern": "^[A-Z]{3}$",
+          "description": "Currency code (ISO 4217)"
+        },
+        "convertedAmount": {
+          "type": "number",
+          "description": "Converted amount in corporate currency"
+        },
+        "convertedCurrency": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3,
+          "pattern": "^[A-Z]{3}$",
+          "description": "Corporate currency code"
+        },
+        "exchangeRate": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Exchange rate used for conversion"
+        },
+        "conversionDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the conversion was performed"
+        }
+      },
+      "required": [
+        "amount",
+        "currency"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

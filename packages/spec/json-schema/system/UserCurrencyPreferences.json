@@ -1,0 +1,80 @@
+{
+  "$ref": "#/definitions/UserCurrencyPreferences",
+  "definitions": {
+    "UserCurrencyPreferences": {
+      "type": "object",
+      "properties": {
+        "preferredCurrency": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3,
+          "pattern": "^[A-Z]{3}$",
+          "description": "Preferred display currency"
+        },
+        "formatting": {
+          "type": "object",
+          "properties": {
+            "format": {
+              "type": "string",
+              "enum": [
+                "symbol",
+                "code",
+                "name",
+                "symbol_code"
+              ],
+              "default": "symbol",
+              "description": "Currency display format"
+            },
+            "locale": {
+              "type": "string",
+              "default": "en-US",
+              "description": "Locale for number formatting (e.g., en-US, fr-FR, zh-CN)"
+            },
+            "showSymbol": {
+              "type": "boolean",
+              "default": true,
+              "description": "Show currency symbol"
+            },
+            "showCode": {
+              "type": "boolean",
+              "default": false,
+              "description": "Show currency code"
+            },
+            "decimalSeparator": {
+              "type": "string",
+              "enum": [
+                ".",
+                ","
+              ],
+              "default": ".",
+              "description": "Decimal separator"
+            },
+            "thousandsSeparator": {
+              "type": "string",
+              "enum": [
+                ",",
+                ".",
+                " ",
+                ""
+              ],
+              "default": ",",
+              "description": "Thousands separator"
+            }
+          },
+          "additionalProperties": false,
+          "description": "User-specific formatting preferences"
+        },
+        "alwaysConvert": {
+          "type": "boolean",
+          "default": false,
+          "description": "Always convert to preferred currency"
+        }
+      },
+      "required": [
+        "preferredCurrency"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

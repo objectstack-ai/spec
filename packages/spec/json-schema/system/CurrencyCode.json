@@ -1,0 +1,13 @@
+{
+  "$ref": "#/definitions/CurrencyCode",
+  "definitions": {
+    "CurrencyCode": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 3,
+      "pattern": "^[A-Z]{3}$",
+      "description": "ISO 4217 currency code (e.g., USD, EUR, GBP)"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

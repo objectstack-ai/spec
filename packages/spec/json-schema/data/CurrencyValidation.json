@@ -1,0 +1,49 @@
+{
+  "$ref": "#/definitions/CurrencyValidation",
+  "definitions": {
+    "CurrencyValidation": {
+      "type": "object",
+      "properties": {
+        "minAmount": {
+          "type": "number",
+          "description": "Minimum amount"
+        },
+        "maxAmount": {
+          "type": "number",
+          "description": "Maximum amount"
+        },
+        "minConvertedAmount": {
+          "type": "number",
+          "description": "Minimum amount in corporate currency"
+        },
+        "maxConvertedAmount": {
+          "type": "number",
+          "description": "Maximum amount in corporate currency"
+        },
+        "allowedCurrencies": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "pattern": "^[A-Z]{3}$",
+            "description": "ISO 4217 currency code (e.g., USD, EUR, GBP)"
+          },
+          "description": "Allowed currency codes"
+        },
+        "positiveOnly": {
+          "type": "boolean",
+          "default": false,
+          "description": "Require positive amounts only"
+        },
+        "nonZero": {
+          "type": "boolean",
+          "default": false,
+          "description": "Require non-zero amounts"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,17 @@
+---
+title: Currency
+description: Currency Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **code** | `string` | ✅ | ISO 4217 currency code |
+| **name** | `string` | ✅ | Currency name (e.g., US Dollar, Euro) |
+| **symbol** | `string` | ✅ | Currency symbol (e.g., $, €, £, ¥) |
+| **decimalPlaces** | `integer` | optional | Number of decimal places |
+| **isActive** | `boolean` | optional | Whether this currency is active |
+| **isCorporate** | `boolean` | optional | Whether this is the corporate/base currency |
+| **conversionRate** | `number` | optional | Conversion rate to corporate currency |
+| **conversionRateUpdatedAt** | `string` | optional | Last conversion rate update timestamp |

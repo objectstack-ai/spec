@@ -5,6 +5,7 @@
     "api",
     "audit",
     "auth",
+    "currency",
     "datasource",
     "discovery",
     "driver",
