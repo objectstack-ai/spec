@@ -7,15 +7,21 @@ description: Object Schema Reference
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Machine name (snake_case) |
-| **label** | `string` | optional | Singular Label (e.g. "Account") |
-| **pluralLabel** | `string` | optional | Plural Label (e.g. "Accounts") |
-| **description** | `string` | optional | Internal description |
-| **icon** | `string` | optional | Lucide icon name |
-| **datasource** | `string` | optional | Target Datasource ID (e.g. "postgres", "salesforce"). references sys_datasource. |
+| **name** | `string` | ✅ | Machine unique key (snake_case). Immutable. |
+| **label** | `string` | optional | Human readable singular label (e.g. "Account") |
+| **pluralLabel** | `string` | optional | Human readable plural label (e.g. "Accounts") |
+| **description** | `string` | optional | Developer documentation / description |
+| **icon** | `string` | optional | Icon name (Lucide/Material) for UI representation |
+| **tags** | `string[]` | optional | Categorization tags (e.g. "sales", "system", "reference") |
+| **active** | `boolean` | optional | Is the object active and usable |
+| **isSystem** | `boolean` | optional | Is system object (protected from deletion) |
+| **abstract** | `boolean` | optional | Is abstract base object (cannot be instantiated) |
+| **datasource** | `string` | optional | Target Datasource ID. "default" is the primary DB. |
 | **tableName** | `string` | optional | Physical table/collection name in the target datasource |
-| **isSystem** | `boolean` | optional | Is system object (protected) |
-| **fields** | `Record<string, object>` | ✅ | Map of field definitions |
-| **indexes** | `object[]` | optional | Database indexes definition |
-| **nameField** | `string` | optional | Which field represents the record name/title (usually "name") |
-| **enable** | `object` | optional | Enabled system capabilities |
+| **fields** | `Record<string, object>` | ✅ | Field definitions map |
+| **indexes** | `object[]` | optional | Database performance indexes |
+| **validations** | `object \| object \| object \| object \| object \| object \| object \| object \| object[]` | optional | Object-level validation rules |
+| **titleFormat** | `string` | optional | Title expression (e.g. "`{name}` - `{code}`"). Overrides nameField. |
+| **compactLayout** | `string[]` | optional | Primary fields for hover/cards/lookups |
+| **search** | `object` | optional | Search engine configuration |
+| **enable** | `object` | optional | Enabled system features modules |

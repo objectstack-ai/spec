@@ -1,0 +1,114 @@
+{
+  "$ref": "#/definitions/Discovery",
+  "definitions": {
+    "Discovery": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "environment": {
+          "type": "string",
+          "enum": [
+            "production",
+            "sandbox",
+            "development"
+          ]
+        },
+        "routes": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "string",
+              "description": "e.g. /api/v1/data"
+            },
+            "metadata": {
+              "type": "string",
+              "description": "e.g. /api/v1/meta"
+            },
+            "auth": {
+              "type": "string",
+              "description": "e.g. /api/v1/auth"
+            },
+            "actions": {
+              "type": "string",
+              "description": "e.g. /api/v1/p"
+            },
+            "storage": {
+              "type": "string",
+              "description": "e.g. /api/v1/storage"
+            },
+            "graphql": {
+              "type": "string",
+              "description": "e.g. /api/v1/graphql"
+            }
+          },
+          "required": [
+            "data",
+            "metadata",
+            "auth"
+          ],
+          "additionalProperties": false
+        },
+        "features": {
+          "type": "object",
+          "properties": {
+            "graphql": {
+              "type": "boolean",
+              "default": false
+            },
+            "search": {
+              "type": "boolean",
+              "default": false
+            },
+            "websockets": {
+              "type": "boolean",
+              "default": false
+            },
+            "files": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "locale": {
+          "type": "object",
+          "properties": {
+            "default": {
+              "type": "string"
+            },
+            "supported": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "timezone": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "default",
+            "supported",
+            "timezone"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "environment",
+        "routes",
+        "features",
+        "locale"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

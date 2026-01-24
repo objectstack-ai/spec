@@ -1,5 +1,18 @@
 # @objectstack/driver-memory
 
+## 0.3.3
+
+### Patch Changes
+
+- feat: Add ObjectAI implementation documentation
+
+  - Added comprehensive AI agent and RAG pipeline implementation documentation
+  - Defined AI protocol specifications and standards
+  - Enhanced project documentation with AI-related guides
+
+- Updated dependencies
+  - @objectstack/spec@0.3.3
+
 ## 0.3.2
 
 ### Patch Changes

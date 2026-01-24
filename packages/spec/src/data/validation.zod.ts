@@ -309,7 +309,22 @@ export const JSONValidationSchema = BaseValidationSchema.extend({
  *     checkExpiration: true,
  *     checkUsageLimit: true,
  *     userId: '{{current_user_id}}'
- *method: z.enum(['GET', 'POST']).default('GET').describe('HTTP method for external call'),
+ *   }
+ * }
+ * ```
+ * 
+ * **Best Practices:**
+ * - Always set reasonable timeouts
+ * - Use debounce for real-time validation
+ * - Implement proper error handling on the server side
+ * - Cache validation results when appropriate
+ * - Consider rate limiting for external API calls
+ */
+export const AsyncValidationSchema = BaseValidationSchema.extend({
+  type: z.literal('async'),
+  field: z.string().describe('Field to validate'),
+  validatorUrl: z.string().optional().describe('External API endpoint for validation'),
+  method: z.enum(['GET', 'POST']).optional().default('GET').describe('HTTP method for external call'),
   headers: z.record(z.string()).optional().describe('Custom headers for the request'),
   validatorFunction: z.string().optional().describe('Reference to custom validator function'),
   timeout: z.number().optional().default(5000).describe('Timeout in milliseconds'),
@@ -318,34 +333,25 @@ export const JSONValidationSchema = BaseValidationSchema.extend({
 });
 
 /**
- * 8 Implement proper error handling on the server side
- * - Cache validation results when appropriate
- * - Consider rate limiting for external API calls
+ * 8. Custom Validator Function
+ * User-defined validation logic with code reference.
+ * 
+ * ## Overview
+ * Custom validators allow you to define your own validation logic using JavaScript/TypeScript functions.
+ * This is useful for complex validation scenarios that don't fit into standard validation types.
  */
-export const AsyncValidationSchema = BaseValidationSchema.extend({
-  type: z.literal('async'),
+export const CustomValidatorSchema = BaseValidationSchema.extend({
+  type: z.literal('custom'),
   field: z.string().describe('Field to validate'),
-  validatorUrl: z.string().optional().describe('External API endpoint for validation'),
-  validatorFunction: z.string().optional().describe('Reference to custom validator function'),
-  timeout: z.number().optional().default(5000).describe('Timeout in milliseconds'),
-  debounce: z.number().optional().describe('Debounce delay in milliseconds'),
+  validatorFunction: z.string().describe('Reference to custom validator function'),
   params: z.record(z.any()).optional().describe('Additional parameters to pass to validator'),
 });
 
 /**
- * 7. Custom Validator Function
- * User-defined validation logic with code reference.
- */
-expoJSONValidationSchema,
-    AsyncValidationSchema,
-    CustomValidatorSchema,
-    ConditionalValidationSchema,
-  ])
-);
-
-/**
- * 9
- * Master Validation Rule Schema (forward declared for circular reference)
+ * Master Validation Rule Schema
+ * 
+ * This is a discriminated union of all validation types.
+ * Uses lazy evaluation to handle circular references (e.g., ConditionalValidationSchema).
  */
 export const ValidationRuleSchema: z.ZodType<any> = z.lazy(() =>
   z.discriminatedUnion('type', [
@@ -354,6 +360,7 @@ export const ValidationRuleSchema: z.ZodType<any> = z.lazy(() =>
     StateMachineValidationSchema,
     FormatValidationSchema,
     CrossFieldValidationSchema,
+    JSONValidationSchema,
     AsyncValidationSchema,
     CustomValidatorSchema,
     ConditionalValidationSchema,
@@ -550,6 +557,7 @@ export type UniquenessValidation = z.infer<typeof UniquenessValidationSchema>;
 export type StateMachineValidation = z.infer<typeof StateMachineValidationSchema>;
 export type FormatValidation = z.infer<typeof FormatValidationSchema>;
 export type CrossFieldValidation = z.infer<typeof CrossFieldValidationSchema>;
+export type JSONValidation = z.infer<typeof JSONValidationSchema>;
 export type AsyncValidation = z.infer<typeof AsyncValidationSchema>;
 export type CustomValidation = z.infer<typeof CustomValidatorSchema>;
 export type ConditionalValidation = z.infer<typeof ConditionalValidationSchema>;

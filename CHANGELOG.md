@@ -19,6 +19,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [0.3.3] - 2026-01-24
+
+### Added
+- Comprehensive ObjectAI implementation documentation
+- AI agent and RAG pipeline implementation guides
+- AI protocol specifications and standards
+
+### Changed
+- Enhanced project documentation with AI-related guides and specifications
+
 ## [0.3.2] - 2026-01-24
 
 ### Changed

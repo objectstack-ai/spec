@@ -1,13 +1,15 @@
-import { QueryAST, QueryInput } from '@objectstack/spec/data';
-import { DriverInterface, DriverOptions } from '@objectstack/spec/system';
+import { QueryAST, QueryInput, DriverOptions } from '@objectstack/spec/data';
 
 /**
  * Example: In-Memory Driver
  * 
  * A minimal reference implementation of the ObjectStack Driver Protocol.
  * This driver stores data in a simple JavaScript object (Heap).
+ * 
+ * Note: This implementation follows the DriverInterface structure but doesn't
+ * explicitly implement it due to Zod function type inference limitations.
  */
-export class InMemoryDriver implements DriverInterface {
+export class InMemoryDriver {
   name = 'in-memory-driver';
   version = '0.0.1';
 
@@ -26,7 +28,7 @@ export class InMemoryDriver implements DriverInterface {
     queryFilters: false,         // TODO: Not implemented - basic find() doesn't handle filters
     queryAggregations: false,    // TODO: Not implemented - count() only returns total
     querySorting: false,         // TODO: Not implemented - find() doesn't handle sorting
-    queryPagination: true,       // Basic pagination via 'top' is implemented
+    queryPagination: true,       // Basic pagination via 'limit' is implemented
     queryWindowFunctions: false, // TODO: Not implemented
     querySubqueries: false,      // TODO: Not implemented
     joins: false,                // TODO: Not implemented
@@ -35,6 +37,8 @@ export class InMemoryDriver implements DriverInterface {
     fullTextSearch: false,       // TODO: Not implemented
     jsonFields: true,            // Native JS object support
     arrayFields: true,           // Native JS array support
+    vectorSearch: false,         // TODO: Not implemented
+    geoSpatial: false,           // TODO: Not implemented
   };
 
   /**
@@ -79,15 +83,15 @@ export class InMemoryDriver implements DriverInterface {
     let results = [...table];
 
     // Simple limiting for demonstration
-    if (query.top) {
-      results = results.slice(0, query.top);
+    if (query.limit) {
+      results = results.slice(0, query.limit);
     }
 
     return results;
   }
 
   async findOne(object: string, query: QueryInput, options?: DriverOptions) {
-    const results = await this.find(object, { ...query, top: 1 }, options);
+    const results = await this.find(object, { ...query, limit: 1 }, options);
     return results[0] || null;
   }
 

@@ -1,0 +1,48 @@
+{
+  "$ref": "#/definitions/BatchAIOrchestrationExecution",
+  "definitions": {
+    "BatchAIOrchestrationExecution": {
+      "type": "object",
+      "properties": {
+        "workflowName": {
+          "type": "string",
+          "description": "Orchestration to execute"
+        },
+        "recordIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Records to process"
+        },
+        "batchSize": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "default": 10
+        },
+        "parallelism": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 3
+        },
+        "priority": {
+          "type": "string",
+          "enum": [
+            "low",
+            "normal",
+            "high"
+          ],
+          "default": "normal"
+        }
+      },
+      "required": [
+        "workflowName",
+        "recordIds"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

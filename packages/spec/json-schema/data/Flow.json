@@ -16,6 +16,27 @@
         "description": {
           "type": "string"
         },
+        "version": {
+          "type": "integer",
+          "default": 1,
+          "description": "Version number"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "active",
+            "obsolete",
+            "invalid"
+          ],
+          "default": "draft",
+          "description": "Deployment status"
+        },
+        "template": {
+          "type": "boolean",
+          "default": false,
+          "description": "Is logic template (Subflow)"
+        },
         "type": {
           "type": "string",
           "enum": [
@@ -143,6 +164,15 @@
                 "type": "string",
                 "description": "Expression returning boolean used for branching"
               },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "default",
+                  "fault"
+                ],
+                "default": "default",
+                "description": "Connection type: Standard (Success) or Fault (Error) path"
+              },
               "label": {
                 "type": "string",
                 "description": "Label on the connector"
@@ -160,7 +190,7 @@
         "active": {
           "type": "boolean",
           "default": false,
-          "description": "Is active"
+          "description": "Is active (Deprecated: use status)"
         },
         "runAs": {
           "type": "string",

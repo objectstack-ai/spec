@@ -1,4 +1,4 @@
-import { QueryAST, FilterNode, SortNode, AggregationNode, WindowFunctionNode } from '@objectstack/spec/data';
+import { QueryAST, SortNode, AggregationNode, WindowFunctionNode } from '@objectstack/spec/data';
 
 export interface ClientConfig {
   baseUrl: string;
@@ -22,7 +22,7 @@ export interface DiscoveryResult {
 
 export interface QueryOptions {
   select?: string[]; // Simplified Selection
-  filters?: Record<string, any> | FilterNode; // Map or AST
+  filters?: Record<string, any>; // Filter map (will be converted to QueryAST filters)
   sort?: string | string[] | SortNode[]; // 'name' or ['-created_at'] or AST
   top?: number;
   skip?: number;

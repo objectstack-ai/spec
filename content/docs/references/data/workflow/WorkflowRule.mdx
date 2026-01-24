@@ -12,4 +12,6 @@ description: WorkflowRule Schema Reference
 | **triggerType** | `Enum<'on_create' \| 'on_update' \| 'on_create_or_update' \| 'on_delete' \| 'schedule'>` | ✅ | When to evaluate |
 | **criteria** | `string` | optional | Formula condition. If TRUE, actions execute. |
 | **actions** | `object \| object \| object \| object \| object \| object \| object \| object \| object \| object[]` | optional | Immediate actions |
+| **timeTriggers** | `object[]` | optional | Scheduled actions relative to trigger or date field |
 | **active** | `boolean` | optional | Whether this workflow is active |
+| **reevaluateOnChange** | `boolean` | optional | Re-evaluate rule if field updates change the record validity |

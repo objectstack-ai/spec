@@ -7,11 +7,15 @@ description: CustomValidator Schema Reference
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Unique rule name |
+| **name** | `string` | ✅ | Unique rule name (snake_case) |
+| **label** | `string` | optional | Human-readable label for the rule listing |
+| **description** | `string` | optional | Administrative notes explaining the business reason |
 | **active** | `boolean` | optional |  |
+| **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | optional | Trigger contexts |
+| **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
 | **severity** | `Enum<'error' \| 'warning' \| 'info'>` | optional |  |
-| **message** | `string` | ✅ | Error message to display |
+| **message** | `string` | ✅ | Error message to display to the user |
 | **type** | `string` | ✅ |  |
-| **field** | `string` | optional | Field to validate (optional for record-level validation) |
-| **validatorFunction** | `string` | ✅ | Function name or reference to custom validator |
-| **params** | `Record<string, any>` | optional | Additional parameters for the validator |
+| **field** | `string` | ✅ | Field to validate |
+| **validatorFunction** | `string` | ✅ | Reference to custom validator function |
+| **params** | `Record<string, any>` | optional | Additional parameters to pass to validator |

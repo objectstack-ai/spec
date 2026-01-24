@@ -1,0 +1,34 @@
+{
+  "$ref": "#/definitions/DriverOptions",
+  "definitions": {
+    "DriverOptions": {
+      "type": "object",
+      "properties": {
+        "transaction": {
+          "description": "Transaction handle"
+        },
+        "timeout": {
+          "type": "number",
+          "description": "Timeout in ms"
+        },
+        "skipCache": {
+          "type": "boolean",
+          "description": "Bypass cache"
+        },
+        "traceContext": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "OpenTelemetry context or request ID"
+        },
+        "tenantId": {
+          "type": "string",
+          "description": "Tenant Isolation identifier"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

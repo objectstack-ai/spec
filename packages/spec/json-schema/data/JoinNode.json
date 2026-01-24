@@ -23,92 +23,86 @@
           "description": "Table alias"
         },
         "on": {
-          "anyOf": [
+          "allOf": [
             {
-              "type": "array",
-              "minItems": 3,
-              "maxItems": 3,
-              "items": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "string",
-                  "enum": [
-                    "=",
-                    "!=",
-                    "<>",
-                    ">",
-                    ">=",
-                    "<",
-                    "<=",
-                    "startswith",
-                    "contains",
-                    "notcontains",
-                    "between",
-                    "in",
-                    "notin",
-                    "is_null",
-                    "is_not_null"
-                  ]
-                },
-                {}
-              ]
+              "type": "object",
+              "additionalProperties": {}
             },
             {
-              "type": "array",
-              "items": {
-                "anyOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "anyOf": [
+              "type": "object",
+              "properties": {
+                "$and": {
+                  "type": "array",
+                  "items": {
+                    "allOf": [
                       {
-                        "type": "array",
-                        "minItems": 3,
-                        "maxItems": 3,
-                        "items": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "=",
-                              "!=",
-                              "<>",
-                              ">",
-                              ">=",
-                              "<",
-                              "<=",
-                              "startswith",
-                              "contains",
-                              "notcontains",
-                              "between",
-                              "in",
-                              "notin",
-                              "is_null",
-                              "is_not_null"
-                            ]
-                          },
-                          {}
-                        ]
+                        "type": "object",
+                        "additionalProperties": {}
                       },
                       {
-                        "type": "array",
-                        "items": {
-                          "anyOf": [
-                            {
-                              "type": "string"
-                            },
-                            {}
-                          ]
+                        "type": "object",
+                        "properties": {
+                          "$and": {
+                            "type": "array",
+                            "items": {}
+                          },
+                          "$or": {
+                            "type": "array",
+                            "items": {}
+                          },
+                          "$not": {}
                         }
                       }
                     ]
                   }
-                ]
+                },
+                "$or": {
+                  "type": "array",
+                  "items": {
+                    "allOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": {}
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "$and": {
+                            "type": "array",
+                            "items": {}
+                          },
+                          "$or": {
+                            "type": "array",
+                            "items": {}
+                          },
+                          "$not": {}
+                        }
+                      }
+                    ]
+                  }
+                },
+                "$not": {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "$and": {
+                          "type": "array",
+                          "items": {}
+                        },
+                        "$or": {
+                          "type": "array",
+                          "items": {}
+                        },
+                        "$not": {}
+                      }
+                    }
+                  ]
+                }
               }
             }
           ],
@@ -151,6 +145,71 @@
               },
               "description": "Fields to retrieve"
             },
+            "where": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": {}
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "$and": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "$or": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "$not": {}
+                  }
+                }
+              ],
+              "description": "Filtering criteria (WHERE)"
+            },
+            "orderBy": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "string"
+                  },
+                  "order": {
+                    "type": "string",
+                    "enum": [
+                      "asc",
+                      "desc"
+                    ],
+                    "default": "asc"
+                  }
+                },
+                "required": [
+                  "field"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Sorting instructions (ORDER BY)"
+            },
+            "limit": {
+              "type": "number",
+              "description": "Max records to return (LIMIT)"
+            },
+            "offset": {
+              "type": "number",
+              "description": "Records to skip (OFFSET)"
+            },
+            "cursor": {
+              "type": "object",
+              "additionalProperties": {},
+              "description": "Cursor for keyset pagination"
+            },
+            "joins": {
+              "type": "array",
+              "items": {},
+              "description": "Explicit Table Joins"
+            },
             "aggregations": {
               "type": "array",
               "items": {
@@ -189,7 +248,37 @@
                 ],
                 "additionalProperties": false
               },
-              "description": "Aggregation functions (GROUP BY)"
+              "description": "Aggregation functions"
+            },
+            "groupBy": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "GROUP BY fields"
+            },
+            "having": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": {}
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "$and": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "$or": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "$not": {}
+                  }
+                }
+              ],
+              "description": "HAVING clause for aggregation filtering"
             },
             "windowFunctions": {
               "type": "array",
@@ -292,144 +381,6 @@
                 "additionalProperties": false
               },
               "description": "Window functions with OVER clause"
-            },
-            "filters": {
-              "anyOf": [
-                {
-                  "type": "array",
-                  "minItems": 3,
-                  "maxItems": 3,
-                  "items": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "string",
-                      "enum": [
-                        "=",
-                        "!=",
-                        "<>",
-                        ">",
-                        ">=",
-                        "<",
-                        "<=",
-                        "startswith",
-                        "contains",
-                        "notcontains",
-                        "between",
-                        "in",
-                        "notin",
-                        "is_null",
-                        "is_not_null"
-                      ]
-                    },
-                    {}
-                  ]
-                },
-                {
-                  "type": "array",
-                  "items": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {}
-                    ]
-                  }
-                }
-              ],
-              "description": "Filtering criteria"
-            },
-            "joins": {
-              "type": "array",
-              "items": {},
-              "description": "Table joins"
-            },
-            "groupBy": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "description": "GROUP BY fields"
-            },
-            "having": {
-              "anyOf": [
-                {
-                  "type": "array",
-                  "minItems": 3,
-                  "maxItems": 3,
-                  "items": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "string",
-                      "enum": [
-                        "=",
-                        "!=",
-                        "<>",
-                        ">",
-                        ">=",
-                        "<",
-                        "<=",
-                        "startswith",
-                        "contains",
-                        "notcontains",
-                        "between",
-                        "in",
-                        "notin",
-                        "is_null",
-                        "is_not_null"
-                      ]
-                    },
-                    {}
-                  ]
-                },
-                {
-                  "type": "array",
-                  "items": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {}
-                    ]
-                  }
-                }
-              ],
-              "description": "HAVING clause for aggregation filtering"
-            },
-            "sort": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "field": {
-                    "type": "string"
-                  },
-                  "order": {
-                    "type": "string",
-                    "enum": [
-                      "asc",
-                      "desc"
-                    ],
-                    "default": "asc"
-                  }
-                },
-                "required": [
-                  "field"
-                ],
-                "additionalProperties": false
-              },
-              "description": "Sorting instructions"
-            },
-            "top": {
-              "type": "number",
-              "description": "Limit results"
-            },
-            "skip": {
-              "type": "number",
-              "description": "Offset results"
             },
             "distinct": {
               "type": "boolean",

@@ -7,11 +7,42 @@
         "name": {
           "type": "string",
           "pattern": "^[a-z_][a-z0-9_]*$",
-          "description": "Unique rule name"
+          "description": "Unique rule name (snake_case)"
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable label for the rule listing"
+        },
+        "description": {
+          "type": "string",
+          "description": "Administrative notes explaining the business reason"
         },
         "active": {
           "type": "boolean",
           "default": true
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "insert",
+              "update",
+              "delete"
+            ]
+          },
+          "default": [
+            "insert",
+            "update"
+          ],
+          "description": "Trigger contexts"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Categorization tags (e.g., \"compliance\", \"billing\")"
         },
         "severity": {
           "type": "string",
@@ -24,7 +55,7 @@
         },
         "message": {
           "type": "string",
-          "description": "Error message to display"
+          "description": "Error message to display to the user"
         },
         "type": {
           "type": "string",
@@ -32,22 +63,23 @@
         },
         "field": {
           "type": "string",
-          "description": "Field to validate (optional for record-level validation)"
+          "description": "Field to validate"
         },
         "validatorFunction": {
           "type": "string",
-          "description": "Function name or reference to custom validator"
+          "description": "Reference to custom validator function"
         },
         "params": {
           "type": "object",
           "additionalProperties": {},
-          "description": "Additional parameters for the validator"
+          "description": "Additional parameters to pass to validator"
         }
       },
       "required": [
         "name",
         "message",
         "type",
+        "field",
         "validatorFunction"
       ],
       "additionalProperties": false

@@ -1,0 +1,34 @@
+---
+title: AIOrchestration
+description: AIOrchestration Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Orchestration unique identifier (snake_case) |
+| **label** | `string` | ✅ | Display name |
+| **description** | `string` | optional |  |
+| **objectName** | `string` | ✅ | Target object for this orchestration |
+| **trigger** | `Enum<'record_created' \| 'record_updated' \| 'field_changed' \| 'scheduled' \| 'manual' \| 'webhook' \| 'batch'>` | ✅ |  |
+| **fieldConditions** | `object[]` | optional | Fields to monitor (for field_changed trigger) |
+| **schedule** | `object` | optional | Schedule configuration (for scheduled trigger) |
+| **webhookConfig** | `object` | optional | Webhook configuration (for webhook trigger) |
+| **entryCriteria** | `string` | optional | Formula condition - workflow only runs if TRUE |
+| **aiTasks** | `object[]` | ✅ | AI tasks to execute in sequence |
+| **postActions** | `object[]` | optional | Actions after AI tasks complete |
+| **executionMode** | `Enum<'sequential' \| 'parallel'>` | optional | How to execute multiple AI tasks |
+| **stopOnError** | `boolean` | optional | Stop workflow if any task fails |
+| **timeout** | `number` | optional | Maximum execution time in seconds |
+| **priority** | `Enum<'low' \| 'normal' \| 'high' \| 'critical'>` | optional |  |
+| **enableLogging** | `boolean` | optional |  |
+| **enableMetrics** | `boolean` | optional |  |
+| **notifyOnFailure** | `string[]` | optional | User IDs to notify on failure |
+| **active** | `boolean` | optional |  |
+| **version** | `string` | optional |  |
+| **tags** | `string[]` | optional |  |
+| **category** | `string` | optional | Workflow category (e.g., "support", "sales", "hr") |
+| **owner** | `string` | optional | User ID of workflow owner |
+| **createdAt** | `string` | optional | ISO timestamp |
+| **updatedAt** | `string` | optional | ISO timestamp |

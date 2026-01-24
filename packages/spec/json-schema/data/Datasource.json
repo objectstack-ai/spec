@@ -1,0 +1,130 @@
+{
+  "$ref": "#/definitions/Datasource",
+  "definitions": {
+    "Datasource": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Unique datasource identifier"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label"
+        },
+        "driver": {
+          "type": "string",
+          "description": "Underlying driver type"
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Driver specific configuration"
+        },
+        "pool": {
+          "type": "object",
+          "properties": {
+            "min": {
+              "type": "number",
+              "default": 0,
+              "description": "Minimum connections"
+            },
+            "max": {
+              "type": "number",
+              "default": 10,
+              "description": "Maximum connections"
+            },
+            "idleTimeoutMillis": {
+              "type": "number",
+              "default": 30000,
+              "description": "Idle timeout"
+            },
+            "connectionTimeoutMillis": {
+              "type": "number",
+              "default": 3000,
+              "description": "Connection establishment timeout"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Connection pool settings"
+        },
+        "readReplicas": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "description": "Read-only replica configurations"
+        },
+        "capabilities": {
+          "type": "object",
+          "properties": {
+            "transactions": {
+              "type": "boolean",
+              "default": false
+            },
+            "queryFilters": {
+              "type": "boolean",
+              "default": false
+            },
+            "queryAggregations": {
+              "type": "boolean",
+              "default": false
+            },
+            "querySorting": {
+              "type": "boolean",
+              "default": false
+            },
+            "queryPagination": {
+              "type": "boolean",
+              "default": false
+            },
+            "queryWindowFunctions": {
+              "type": "boolean",
+              "default": false
+            },
+            "querySubqueries": {
+              "type": "boolean",
+              "default": false
+            },
+            "joins": {
+              "type": "boolean",
+              "default": false
+            },
+            "fullTextSearch": {
+              "type": "boolean",
+              "default": false
+            },
+            "readOnly": {
+              "type": "boolean",
+              "default": false
+            },
+            "dynamicSchema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          "additionalProperties": false,
+          "description": "Capability overrides"
+        },
+        "description": {
+          "type": "string",
+          "description": "Internal description"
+        },
+        "active": {
+          "type": "boolean",
+          "default": true,
+          "description": "Is datasource enabled"
+        }
+      },
+      "required": [
+        "name",
+        "driver",
+        "config"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

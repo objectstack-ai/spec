@@ -24,6 +24,21 @@
           "default": false,
           "description": "Delete permission"
         },
+        "allowTransfer": {
+          "type": "boolean",
+          "default": false,
+          "description": "Change record ownership"
+        },
+        "allowRestore": {
+          "type": "boolean",
+          "default": false,
+          "description": "Restore from trash (Undelete)"
+        },
+        "allowPurge": {
+          "type": "boolean",
+          "default": false,
+          "description": "Permanently delete (Hard Delete/GDPR)"
+        },
         "viewAllRecords": {
           "type": "boolean",
           "default": false,

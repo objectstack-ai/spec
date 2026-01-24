@@ -5,9 +5,7 @@
       "type": "string",
       "enum": [
         "owner",
-        "criteria",
-        "manual",
-        "guest"
+        "criteria"
       ]
     }
   },

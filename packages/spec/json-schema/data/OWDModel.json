@@ -6,7 +6,8 @@
       "enum": [
         "private",
         "public_read",
-        "public_read_write"
+        "public_read_write",
+        "controlled_by_parent"
       ]
     }
   },

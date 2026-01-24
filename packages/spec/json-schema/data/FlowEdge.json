@@ -20,6 +20,15 @@
           "type": "string",
           "description": "Expression returning boolean used for branching"
         },
+        "type": {
+          "type": "string",
+          "enum": [
+            "default",
+            "fault"
+          ],
+          "default": "default",
+          "description": "Connection type: Standard (Success) or Fault (Error) path"
+        },
         "label": {
           "type": "string",
           "description": "Label on the connector"

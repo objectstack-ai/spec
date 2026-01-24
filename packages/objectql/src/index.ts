@@ -1,5 +1,5 @@
-import { QueryAST } from '@objectstack/spec/data';
-import { DriverInterface, DriverOptions, ObjectStackManifest } from '@objectstack/spec/system';
+import { QueryAST, DriverOptions } from '@objectstack/spec/data';
+import { ObjectStackManifest } from '@objectstack/spec/system';
 import { SchemaRegistry } from './registry';
 
 // Export Registry for consumers
@@ -19,7 +19,7 @@ export interface PluginContext {
  * ObjectQL Engine
  */
 export class ObjectQL {
-  private drivers = new Map<string, DriverInterface>();
+  private drivers = new Map<string, any>();
   private defaultDriver: string | null = null;
   
   // Host provided context additions (e.g. Server router)
@@ -83,7 +83,7 @@ export class ObjectQL {
             logger: console,
             // Expose the driver registry helper explicitly if needed
             drivers: {
-                register: (driver: DriverInterface) => this.registerDriver(driver)
+                register: (driver: any) => this.registerDriver(driver)
             },
             ...this.hostContext
           };
@@ -96,7 +96,7 @@ export class ObjectQL {
   /**
    * Register a new storage driver
    */
-  registerDriver(driver: DriverInterface, isDefault: boolean = false) {
+  registerDriver(driver: any, isDefault: boolean = false) {
     if (this.drivers.has(driver.name)) {
       console.warn(`[ObjectQL] Driver ${driver.name} is already registered. Skipping.`);
       return;
@@ -113,7 +113,7 @@ export class ObjectQL {
   /**
    * Helper to get the target driver
    */
-  private getDriver(_object: string): DriverInterface {
+  private getDriver(_object: string): any {
     // TODO: Look up Object definition to see if it specifies a specific datasource/driver
     // For now, always return default
     if (!this.defaultDriver) {
@@ -158,9 +158,9 @@ export class ObjectQL {
        object, // Add missing required field
        // Pass through if it looks like AST, otherwise empty
        // In this demo, we assume the caller passes a simplified object or raw AST
-       filters: filters.filters || undefined,
-       top: filters.top || 100,
-       sort: filters.sort || []
+       where: filters.where || undefined,
+       limit: filters.limit || 100,
+       orderBy: filters.orderBy || []
     };
 
     return driver.find(object, ast, options);

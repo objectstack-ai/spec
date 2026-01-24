@@ -3,6 +3,8 @@
   "root": true,
   "pages": [
     "dataset",
+    "datasource",
+    "driver",
     "field",
     "filter",
     "flow",

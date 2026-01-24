@@ -7,10 +7,14 @@ description: StateMachineValidation Schema Reference
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Unique rule name |
+| **name** | `string` | ✅ | Unique rule name (snake_case) |
+| **label** | `string` | optional | Human-readable label for the rule listing |
+| **description** | `string` | optional | Administrative notes explaining the business reason |
 | **active** | `boolean` | optional |  |
+| **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | optional | Trigger contexts |
+| **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
 | **severity** | `Enum<'error' \| 'warning' \| 'info'>` | optional |  |
-| **message** | `string` | ✅ | Error message to display |
+| **message** | `string` | ✅ | Error message to display to the user |
 | **type** | `string` | ✅ |  |
 | **field** | `string` | ✅ | State field (e.g. status) |
 | **transitions** | `Record<string, string[]>` | ✅ | Map of `{ OldState: [AllowedNewStates] }` |
