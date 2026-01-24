@@ -186,12 +186,11 @@ export class ObjectStackClient {
         return res.json();
     },
 
-    updateMany: async <T = any>(object: string, ids: string[], data: Partial<T>): Promise<number> => {
-        // Warning: This implies updating all IDs with the SAME data
+    updateMany: async <T = any>(object: string, data: Partial<T>, filters?: Record<string, any> | any[]): Promise<number> => {
         const route = this.getRoute('data');
         const res = await this.fetch(`${this.baseUrl}${route}/${object}/batch`, {
             method: 'PATCH',
-            body: JSON.stringify({ ids, data })
+            body: JSON.stringify({ data, filters })
         });
         return res.json(); // Returns count
     },
@@ -204,11 +203,11 @@ export class ObjectStackClient {
         return res.json();
     },
 
-    deleteMany: async(object: string, ids: string[]): Promise<{ count: number }> => {
+    deleteMany: async(object: string, filters?: Record<string, any> | any[]): Promise<{ count: number }> => {
         const route = this.getRoute('data');
         const res = await this.fetch(`${this.baseUrl}${route}/${object}/batch`, {
              method: 'DELETE',
-             body: JSON.stringify({ ids })
+             body: JSON.stringify({ filters })
         });
         return res.json();
     }
