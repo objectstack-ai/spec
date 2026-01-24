@@ -1,0 +1,8 @@
+{
+  "title": "Automation Protocol",
+  "root": true,
+  "pages": [
+    "flow",
+    "workflow"
+  ]
+}

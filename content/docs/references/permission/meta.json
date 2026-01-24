@@ -1,0 +1,8 @@
+{
+  "title": "Security Protocol",
+  "root": true,
+  "pages": [
+    "permission",
+    "sharing"
+  ]
+}

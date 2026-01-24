@@ -35,7 +35,7 @@
             "insert",
             "update"
           ],
-          "description": "Trigger contexts"
+          "description": "Validation contexts"
         },
         "tags": {
           "type": "array",

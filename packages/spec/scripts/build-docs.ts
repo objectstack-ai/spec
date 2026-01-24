@@ -7,11 +7,15 @@ const SRC_DIR = path.resolve(__dirname, '../src');
 const DOCS_ROOT = path.resolve(__dirname, '../../../content/docs/references');
 
 const CATEGORIES: Record<string, string> = {
-  data: 'Data Protocol',
-  api: 'API Protocol',
-  ui: 'UI Protocol',
-  system: 'System Protocol',
-  ai: 'AI Protocol'
+  data: 'Data Protocol', // database, object, field, query
+  api: 'API Protocol', // rest, graphql, realtime
+  ui: 'UI Protocol', // app, view, dashboard
+  system: 'System Protocol', // manifest, config, license
+  ai: 'AI Protocol', // agent, model, rag
+  automation: 'Automation Protocol', // flow, workflow, process
+  permission: 'Security Protocol', // permission, sharing, role
+  driver: 'Driver Protocol', // database drivers
+  integration: 'Integration Protocol' // etl, webhooks
 };
 
 // Zod file to human-readable title mapping
@@ -19,16 +23,31 @@ const ZOD_FILE_TITLES: Record<string, string> = {
   // Data
   'object': 'Objects',
   'field': 'Fields',
-  'flow': 'Flows',
-  'validation': 'Validation',
-  'permission': 'Permissions',
-  'sharing': 'Sharing Rules',
-  'workflow': 'Workflows',
   'mapping': 'Mappings',
   'filter': 'Filters',
   'query': 'Queries',
   'dataset': 'Datasets',
   'hook': 'Hooks',
+  'validation': 'Validation',
+
+  // Automation
+  'flow': 'Flows',
+  'workflow': 'Workflows',
+  
+  // Security
+  'permission': 'Permissions',
+  'sharing': 'Sharing Rules',
+  'role': 'Roles',
+  'policy': 'Policies',
+  
+  // System
+  'manifest': 'Manifest',
+  'plugin': 'Plugins',
+  'license': 'License',
+  'audit': 'Audit Logs',
+  
+  // Driver
+  'driver': 'Driver Interface',
   // AI
   'agent': 'Agents',
   'conversation': 'Conversations',

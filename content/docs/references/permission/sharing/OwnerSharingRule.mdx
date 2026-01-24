@@ -1,0 +1,18 @@
+---
+title: OwnerSharingRule
+description: OwnerSharingRule Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique rule name (snake_case) |
+| **label** | `string` | optional | Human-readable label |
+| **description** | `string` | optional | Administrative notes |
+| **object** | `string` | ✅ | Target Object Name |
+| **active** | `boolean` | optional |  |
+| **accessLevel** | `Enum<'read' \| 'edit' \| 'full'>` | optional |  |
+| **sharedWith** | `object` | ✅ | The recipient of the shared access |
+| **type** | `string` | ✅ |  |
+| **ownedBy** | `object` | ✅ | Source group/role whose records are being shared |

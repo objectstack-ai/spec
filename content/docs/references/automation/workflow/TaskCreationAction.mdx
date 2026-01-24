@@ -1,0 +1,19 @@
+---
+title: TaskCreationAction
+description: TaskCreationAction Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **taskObject** | `string` | ✅ | Task object name (e.g., "task", "project_task") |
+| **subject** | `string` | ✅ | Task subject/title |
+| **description** | `string` | optional | Task description |
+| **assignedTo** | `string` | optional | User ID or field reference for assignee |
+| **dueDate** | `string` | optional | Due date (ISO string or formula) |
+| **priority** | `string` | optional | Task priority |
+| **relatedTo** | `string` | optional | Related record ID or field reference |
+| **additionalFields** | `Record<string, any>` | optional | Additional custom fields |
