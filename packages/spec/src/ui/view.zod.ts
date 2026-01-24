@@ -1,6 +1,45 @@
 import { z } from 'zod';
 
 /**
+ * HTTP Method Enum
+ */
+export const HttpMethodSchema = z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
+
+/**
+ * HTTP Request Configuration for API Provider
+ */
+export const HttpRequestSchema = z.object({
+  url: z.string().describe('API endpoint URL'),
+  method: HttpMethodSchema.optional().default('GET').describe('HTTP method'),
+  headers: z.record(z.string()).optional().describe('Custom HTTP headers'),
+  params: z.record(z.unknown()).optional().describe('Query parameters'),
+  body: z.unknown().optional().describe('Request body for POST/PUT/PATCH'),
+});
+
+/**
+ * View Data Source Configuration
+ * Supports three modes:
+ * 1. 'object': Standard Protocol - Auto-connects to ObjectStack Metadata and Data APIs
+ * 2. 'api': Custom API - Explicitly provided API URLs
+ * 3. 'value': Static Data - Hardcoded data array
+ */
+export const ViewDataSchema = z.discriminatedUnion('provider', [
+  z.object({
+    provider: z.literal('object'),
+    object: z.string().describe('Target object name'),
+  }),
+  z.object({
+    provider: z.literal('api'),
+    read: HttpRequestSchema.optional().describe('Configuration for fetching data'),
+    write: HttpRequestSchema.optional().describe('Configuration for submitting data (for forms/editable tables)'),
+  }),
+  z.object({
+    provider: z.literal('value'),
+    items: z.array(z.unknown()).describe('Static data array'),
+  }),
+]);
+
+/**
  * List Column Configuration Schema
  * Detailed configuration for individual list view columns
  */

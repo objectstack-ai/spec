@@ -11,11 +11,16 @@ import {
   FormFieldSchema,
   SelectionConfigSchema,
   PaginationConfigSchema,
+  ViewDataSchema,
+  HttpRequestSchema,
+  HttpMethodSchema,
   type View,
   type ListView,
   type FormView,
   type ListColumn,
   type FormField,
+  type ViewData,
+  type HttpRequest,
 } from './view.zod';
 
 describe('HttpMethodSchema', () => {
@@ -781,6 +786,24 @@ describe('ListColumnSchema', () => {
       expect(() => ListColumnSchema.parse(column)).not.toThrow();
     });
   });
+
+  it('should reject negative width', () => {
+    const column = {
+      field: 'test_field',
+      width: -100,
+    };
+
+    expect(() => ListColumnSchema.parse(column)).toThrow();
+  });
+
+  it('should reject zero width', () => {
+    const column = {
+      field: 'test_field',
+      width: 0,
+    };
+
+    expect(() => ListColumnSchema.parse(column)).toThrow();
+  });
 });
 
 describe('SelectionConfigSchema', () => {
@@ -825,6 +848,57 @@ describe('PaginationConfigSchema', () => {
     };
 
     expect(() => PaginationConfigSchema.parse(pagination)).not.toThrow();
+  });
+
+  it('should reject negative pageSize', () => {
+    const pagination = {
+      pageSize: -10,
+    };
+
+    expect(() => PaginationConfigSchema.parse(pagination)).toThrow();
+  });
+
+  it('should reject zero pageSize', () => {
+    const pagination = {
+      pageSize: 0,
+    };
+
+    expect(() => PaginationConfigSchema.parse(pagination)).toThrow();
+  });
+
+  it('should reject non-integer pageSize', () => {
+    const pagination = {
+      pageSize: 25.5,
+    };
+
+    expect(() => PaginationConfigSchema.parse(pagination)).toThrow();
+  });
+
+  it('should reject negative values in pageSizeOptions', () => {
+    const pagination = {
+      pageSize: 25,
+      pageSizeOptions: [10, -25, 50],
+    };
+
+    expect(() => PaginationConfigSchema.parse(pagination)).toThrow();
+  });
+
+  it('should reject zero values in pageSizeOptions', () => {
+    const pagination = {
+      pageSize: 25,
+      pageSizeOptions: [10, 0, 50],
+    };
+
+    expect(() => PaginationConfigSchema.parse(pagination)).toThrow();
+  });
+
+  it('should reject non-integer values in pageSizeOptions', () => {
+    const pagination = {
+      pageSize: 25,
+      pageSizeOptions: [10, 25.5, 50],
+    };
+
+    expect(() => PaginationConfigSchema.parse(pagination)).toThrow();
   });
 });
 
@@ -975,6 +1049,54 @@ describe('FormFieldSchema', () => {
     };
 
     expect(() => FormFieldSchema.parse(field)).not.toThrow();
+  });
+
+  it('should reject colSpan less than 1', () => {
+    const field = {
+      field: 'test_field',
+      colSpan: 0,
+    };
+
+    expect(() => FormFieldSchema.parse(field)).toThrow();
+  });
+
+  it('should reject colSpan greater than 4', () => {
+    const field = {
+      field: 'test_field',
+      colSpan: 5,
+    };
+
+    expect(() => FormFieldSchema.parse(field)).toThrow();
+  });
+
+  it('should reject negative colSpan', () => {
+    const field = {
+      field: 'test_field',
+      colSpan: -1,
+    };
+
+    expect(() => FormFieldSchema.parse(field)).toThrow();
+  });
+
+  it('should reject non-integer colSpan', () => {
+    const field = {
+      field: 'test_field',
+      colSpan: 2.5,
+    };
+
+    expect(() => FormFieldSchema.parse(field)).toThrow();
+  });
+
+  it('should accept valid colSpan values (1-4)', () => {
+    const validColSpans = [1, 2, 3, 4];
+    
+    validColSpans.forEach(colSpan => {
+      const field: FormField = {
+        field: 'test_field',
+        colSpan,
+      };
+      expect(() => FormFieldSchema.parse(field)).not.toThrow();
+    });
   });
 });
 
