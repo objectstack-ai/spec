@@ -69,9 +69,10 @@
 │   ├── workflow.zod.ts       → State machine, transitions
 │   ├── flow.zod.ts           → Visual flow automation
 │   ├── query.zod.ts          → AST for queries (filter, sort, join)
+│   ├── filter.zod.ts         → Query filter conditions
 │   ├── dataset.zod.ts        → Virtual datasets
 │   ├── mapping.zod.ts        → ETL transformations
-│   └── trigger.zod.ts        → [MISSING] Trigger context
+│   └── trigger.zod.ts        → Trigger context
 │
 ├── UI Protocol (ObjectUI)
 │   ├── app.zod.ts            → App structure, navigation tree
@@ -80,8 +81,8 @@
 │   ├── report.zod.ts         → Report types, grouping
 │   ├── action.zod.ts         → Button actions, navigation
 │   ├── page.zod.ts           → FlexiPage regions, components
-│   ├── theme.zod.ts          → [MISSING] Color, typography, spacing
-│   └── widget.zod.ts         → [MISSING] Custom field components
+│   ├── theme.zod.ts          → Color, typography, spacing
+│   └── widget.zod.ts         → Custom field components
 │
 ├── System Protocol (ObjectOS)
 │   ├── manifest.zod.ts       → Package definition (objectstack.config.ts)
@@ -95,18 +96,24 @@
 │   ├── webhook.zod.ts        → HTTP callbacks
 │   ├── translation.zod.ts    → i18n definitions
 │   ├── discovery.zod.ts      → Metadata introspection
-│   ├── plugin.zod.ts         → [MISSING] Plugin lifecycle
-│   ├── driver.zod.ts         → [MISSING] Database driver interface
-│   ├── marketplace.zod.ts    → [PLANNED] App store metadata
-│   ├── tenant.zod.ts         → [PLANNED] Multi-tenancy
-│   ├── events.zod.ts         → [PLANNED] Event bus
-│   └── realtime.zod.ts       → [PLANNED] WebSocket sync
+│   ├── plugin.zod.ts         → Plugin lifecycle
+│   ├── driver.zod.ts         → Database driver interface
+│   ├── tenant.zod.ts         → Multi-tenancy
+│   ├── events.zod.ts         → Event bus
+│   ├── realtime.zod.ts       → WebSocket sync
+│   ├── organization.zod.ts   → Organization management
+│   ├── audit.zod.ts          → Audit logging
+│   └── job.zod.ts            → Background jobs
 │
 ├── AI Protocol
-│   ├── agent.zod.ts          → AI agent configuration
-│   ├── model.zod.ts          → [PLANNED] LLM registry
-│   ├── rag.zod.ts            → [PLANNED] RAG pipeline
-│   └── nlq.zod.ts            → [PLANNED] Natural language query
+│   ├── agent.zod.ts              → AI agent configuration
+│   ├── model-registry.zod.ts     → LLM registry
+│   ├── rag-pipeline.zod.ts       → RAG pipeline
+│   ├── nlq.zod.ts                → Natural language query
+│   ├── conversation.zod.ts       → Conversation management
+│   ├── cost.zod.ts               → AI cost tracking
+│   ├── predictive.zod.ts         → Predictive analytics
+│   └── workflow-automation.zod.ts → AI workflow automation
 │
 └── API Protocol
     └── contract.zod.ts       → Request/response envelopes
