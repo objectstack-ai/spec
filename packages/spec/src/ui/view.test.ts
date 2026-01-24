@@ -18,6 +18,112 @@ import {
   type FormField,
 } from './view.zod';
 
+describe('HttpMethodSchema', () => {
+  it('should accept valid HTTP methods', () => {
+    const methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as const;
+    
+    methods.forEach(method => {
+      expect(() => HttpMethodSchema.parse(method)).not.toThrow();
+    });
+  });
+
+  it('should reject invalid HTTP methods', () => {
+    expect(() => HttpMethodSchema.parse('INVALID')).toThrow();
+  });
+});
+
+describe('HttpRequestSchema', () => {
+  it('should accept minimal HTTP request config', () => {
+    const request: HttpRequest = {
+      url: '/api/data',
+    };
+
+    const result = HttpRequestSchema.parse(request);
+    expect(result.method).toBe('GET');
+  });
+
+  it('should accept full HTTP request config', () => {
+    const request: HttpRequest = {
+      url: '/api/data',
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      params: { filter: 'active' },
+      body: { name: 'test' },
+    };
+
+    expect(() => HttpRequestSchema.parse(request)).not.toThrow();
+  });
+});
+
+describe('ViewDataSchema', () => {
+  it('should accept object provider with object name', () => {
+    const data: ViewData = {
+      provider: 'object',
+      object: 'account',
+    };
+
+    expect(() => ViewDataSchema.parse(data)).not.toThrow();
+  });
+
+  it('should require object name for object provider', () => {
+    const data = {
+      provider: 'object',
+    };
+
+    expect(() => ViewDataSchema.parse(data)).toThrow();
+  });
+
+  it('should accept api provider with read configuration', () => {
+    const data: ViewData = {
+      provider: 'api',
+      read: {
+        url: '/api/accounts',
+        method: 'GET',
+        params: { status: 'active' },
+      },
+    };
+
+    expect(() => ViewDataSchema.parse(data)).not.toThrow();
+  });
+
+  it('should accept api provider with read and write configurations', () => {
+    const data: ViewData = {
+      provider: 'api',
+      read: {
+        url: '/api/accounts',
+        method: 'GET',
+      },
+      write: {
+        url: '/api/accounts',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      },
+    };
+
+    expect(() => ViewDataSchema.parse(data)).not.toThrow();
+  });
+
+  it('should accept value provider with static items', () => {
+    const data: ViewData = {
+      provider: 'value',
+      items: [
+        { id: 1, name: 'Item 1' },
+        { id: 2, name: 'Item 2' },
+      ],
+    };
+
+    expect(() => ViewDataSchema.parse(data)).not.toThrow();
+  });
+
+  it('should require items for value provider', () => {
+    const data = {
+      provider: 'value',
+    };
+
+    expect(() => ViewDataSchema.parse(data)).toThrow();
+  });
+});
+
 describe('KanbanConfigSchema', () => {
   it('should accept minimal kanban config', () => {
     const config = {
@@ -198,6 +304,72 @@ describe('ListViewSchema', () => {
 
     expect(() => ListViewSchema.parse(namedView)).not.toThrow();
   });
+
+  it('should accept list view with object provider', () => {
+    const listView: ListView = {
+      type: 'grid',
+      columns: ['name', 'email'],
+      data: {
+        provider: 'object',
+        object: 'contact',
+      },
+    };
+
+    expect(() => ListViewSchema.parse(listView)).not.toThrow();
+  });
+
+  it('should accept list view with api provider', () => {
+    const listView: ListView = {
+      type: 'grid',
+      columns: ['name', 'email', 'phone'],
+      data: {
+        provider: 'api',
+        read: {
+          url: '/api/contacts',
+          method: 'GET',
+        },
+      },
+    };
+
+    expect(() => ListViewSchema.parse(listView)).not.toThrow();
+  });
+
+  it('should accept list view with value provider', () => {
+    const listView: ListView = {
+      type: 'grid',
+      columns: ['name', 'status'],
+      data: {
+        provider: 'value',
+        items: [
+          { name: 'Task 1', status: 'Open' },
+          { name: 'Task 2', status: 'Closed' },
+        ],
+      },
+    };
+
+    expect(() => ListViewSchema.parse(listView)).not.toThrow();
+  });
+
+  it('should accept kanban view with custom api data source', () => {
+    const kanbanView: ListView = {
+      type: 'kanban',
+      columns: ['name', 'owner', 'amount'],
+      data: {
+        provider: 'api',
+        read: {
+          url: '/api/opportunities',
+          params: { view: 'pipeline' },
+        },
+      },
+      kanban: {
+        groupByField: 'stage',
+        summarizeField: 'amount',
+        columns: ['name', 'owner', 'close_date'],
+      },
+    };
+
+    expect(() => ListViewSchema.parse(kanbanView)).not.toThrow();
+  });
 });
 
 describe('FormSectionSchema', () => {
@@ -327,6 +499,65 @@ describe('FormViewSchema', () => {
     };
 
     expect(() => FormViewSchema.parse(wizardView)).not.toThrow();
+  });
+
+  it('should accept form view with object provider', () => {
+    const formView: FormView = {
+      type: 'simple',
+      data: {
+        provider: 'object',
+        object: 'account',
+      },
+      sections: [
+        {
+          label: 'Account Information',
+          fields: ['name', 'industry', 'revenue'],
+        },
+      ],
+    };
+
+    expect(() => FormViewSchema.parse(formView)).not.toThrow();
+  });
+
+  it('should accept form view with api provider', () => {
+    const formView: FormView = {
+      type: 'simple',
+      data: {
+        provider: 'api',
+        read: {
+          url: '/api/accounts/:id',
+          method: 'GET',
+        },
+        write: {
+          url: '/api/accounts/:id',
+          method: 'PUT',
+        },
+      },
+      sections: [
+        {
+          fields: ['name', 'email', 'phone'],
+        },
+      ],
+    };
+
+    expect(() => FormViewSchema.parse(formView)).not.toThrow();
+  });
+
+  it('should accept form view with value provider', () => {
+    const formView: FormView = {
+      type: 'simple',
+      data: {
+        provider: 'value',
+        items: [{ name: 'Default Account', type: 'Customer' }],
+      },
+      sections: [
+        {
+          fields: ['name', 'type'],
+        },
+      ],
+    };
+
+    expect(() => FormViewSchema.parse(formView)).not.toThrow();
   });
 });
 

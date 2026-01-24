@@ -69,6 +69,9 @@ export const ListViewSchema = z.object({
   label: z.string().optional(), // Display label override
   type: z.enum(['grid', 'kanban', 'calendar', 'gantt', 'map']).default('grid'),
   
+  /** Data Source Configuration */
+  data: ViewDataSchema.optional().describe('Data source configuration (defaults to "object" provider)'),
+  
   /** Shared Query Config */
   columns: z.union([
     z.array(z.string()), // Legacy: simple field names
@@ -140,6 +143,10 @@ export const FormSectionSchema = z.object({
  */
 export const FormViewSchema = z.object({
   type: z.enum(['simple', 'tabbed', 'wizard']).default('simple'),
+  
+  /** Data Source Configuration */
+  data: ViewDataSchema.optional().describe('Data source configuration (defaults to "object" provider)'),
+  
   sections: z.array(FormSectionSchema).optional(), // For simple layout
   groups: z.array(FormSectionSchema).optional(), // Legacy support -> alias to sections
 });
@@ -163,3 +170,6 @@ export type ListColumn = z.infer<typeof ListColumnSchema>;
 export type FormField = z.infer<typeof FormFieldSchema>;
 export type SelectionConfig = z.infer<typeof SelectionConfigSchema>;
 export type PaginationConfig = z.infer<typeof PaginationConfigSchema>;
+export type ViewData = z.infer<typeof ViewDataSchema>;
+export type HttpRequest = z.infer<typeof HttpRequestSchema>;
+export type HttpMethod = z.infer<typeof HttpMethodSchema>;
