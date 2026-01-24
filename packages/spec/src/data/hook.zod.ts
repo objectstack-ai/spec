@@ -63,13 +63,6 @@ export const HookSchema = z.object({
   handler: z.union([z.string(), z.any()]).optional().describe('Function handler name or direct function'),
 
   /**
-   * Inline Script (Optional)
-   * For simple logic without a full plugin.
-   * @deprecated Prefer 'handler' for better testability and type safety.
-   */
-  script: z.string().optional().describe('Inline script body'),
-
-  /**
    * Execution Order
    * Lower numbers run first.
    * - System Hooks: 0-99
