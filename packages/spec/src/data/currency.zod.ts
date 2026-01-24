@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CurrencyCodeSchema } from '../system/currency.zod';
+import { CurrencyCodeSchema, type CurrencyCode } from '../system/currency.zod';
 
 /**
  * Currency Value Schema (Data Layer)
@@ -199,7 +199,7 @@ export const CurrencyValue = {
   /**
    * Create a simple currency value
    */
-  create: (amount: number, currency: string): CurrencyValue => ({
+  create: (amount: number, currency: CurrencyCode): CurrencyValue => ({
     amount,
     currency,
   }),
@@ -209,9 +209,9 @@ export const CurrencyValue = {
    */
   createWithConversion: (
     amount: number,
-    currency: string,
+    currency: CurrencyCode,
     convertedAmount: number,
-    convertedCurrency: string,
+    convertedCurrency: CurrencyCode,
     exchangeRate: number,
   ): CurrencyValue => ({
     amount,
@@ -225,7 +225,7 @@ export const CurrencyValue = {
   /**
    * Zero value in specified currency
    */
-  zero: (currency: string = 'USD'): CurrencyValue => ({
+  zero: (currency: CurrencyCode = 'USD'): CurrencyValue => ({
     amount: 0,
     currency,
   }),
