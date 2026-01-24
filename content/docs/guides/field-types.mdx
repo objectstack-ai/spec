@@ -687,10 +687,16 @@ ticket_code: Field.qrcode({
 ```
 
 **Supported Formats:**
-- `qr` - QR Code
-- `barcode` - Standard barcode
-- `ean13` - EAN-13 barcode
-- `code128` - Code 128 barcode
+- `qr` - QR Code (2D matrix barcode, best for URLs, text, and complex data)
+- `barcode` - Standard 1D barcode (linear format for simple numeric/text data)
+- `ean13` - EAN-13 barcode (13-digit product identifier, commonly used in retail)
+- `code128` - Code 128 barcode (high-density 1D format supporting full ASCII character set)
+
+**Use Cases:**
+- Product SKUs and inventory management (ean13, code128)
+- Event tickets and access control (qr)
+- Document tracking and verification (qr)
+- Shipping labels and logistics (code128)
 
 ---
 
