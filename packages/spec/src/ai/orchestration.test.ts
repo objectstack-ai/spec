@@ -1,19 +1,19 @@
 import { describe, it, expect } from 'vitest';
 import {
-  AIWorkflowAutomationSchema,
-  AIWorkflowTriggerSchema,
+  AIOrchestrationSchema,
+  AIOrchestrationTriggerSchema,
   AITaskTypeSchema,
   AITaskSchema,
   WorkflowFieldConditionSchema,
   WorkflowScheduleSchema,
   PostProcessingActionSchema,
-  BatchAIWorkflowExecutionSchema,
-  AIWorkflowExecutionResultSchema,
-  type AIWorkflowAutomation,
+  BatchAIOrchestrationExecutionSchema,
+  AIOrchestrationExecutionResultSchema,
+  type AIOrchestration,
   type AITask,
-} from './workflow-automation.zod';
+} from './orchestration.zod';
 
-describe('AIWorkflowTriggerSchema', () => {
+describe('AIOrchestrationTriggerSchema', () => {
   it('should accept all trigger types', () => {
     const triggers = [
       'record_created',
@@ -26,7 +26,7 @@ describe('AIWorkflowTriggerSchema', () => {
     ] as const;
 
     triggers.forEach(trigger => {
-      expect(() => AIWorkflowTriggerSchema.parse(trigger)).not.toThrow();
+      expect(() => AIOrchestrationTriggerSchema.parse(trigger)).not.toThrow();
     });
   });
 });
@@ -253,10 +253,10 @@ describe('PostProcessingActionSchema', () => {
   });
 });
 
-describe('AIWorkflowAutomationSchema', () => {
+describe('AIOrchestrationSchema', () => {
   describe('Basic Properties', () => {
     it('should accept minimal workflow', () => {
-      const workflow: AIWorkflowAutomation = {
+      const workflow: AIOrchestration = {
         name: 'auto_classify_tickets',
         label: 'Auto-classify Support Tickets',
         objectName: 'support_ticket',
@@ -272,7 +272,7 @@ describe('AIWorkflowAutomationSchema', () => {
         ],
       };
 
-      const result = AIWorkflowAutomationSchema.parse(workflow);
+      const result = AIOrchestrationSchema.parse(workflow);
       expect(result.active).toBe(true);
       expect(result.version).toBe('1.0.0');
       expect(result.executionMode).toBe('sequential');
@@ -283,7 +283,7 @@ describe('AIWorkflowAutomationSchema', () => {
     it('should enforce snake_case for workflow name', () => {
       const validNames = ['auto_classify', 'lead_scoring', '_internal_workflow'];
       validNames.forEach(name => {
-        expect(() => AIWorkflowAutomationSchema.parse({
+        expect(() => AIOrchestrationSchema.parse({
           name,
           label: 'Test',
           objectName: 'test_object',
@@ -299,7 +299,7 @@ describe('AIWorkflowAutomationSchema', () => {
 
       const invalidNames = ['autoClassify', 'Auto-Classify', '123workflow'];
       invalidNames.forEach(name => {
-        expect(() => AIWorkflowAutomationSchema.parse({
+        expect(() => AIOrchestrationSchema.parse({
           name,
           label: 'Test',
           objectName: 'test_object',
@@ -317,7 +317,7 @@ describe('AIWorkflowAutomationSchema', () => {
 
   describe('Field Change Trigger', () => {
     it('should accept field change workflow', () => {
-      const workflow: AIWorkflowAutomation = {
+      const workflow: AIOrchestration = {
         name: 'priority_change_handler',
         label: 'Handle Priority Changes',
         objectName: 'ticket',
@@ -339,13 +339,13 @@ describe('AIWorkflowAutomationSchema', () => {
         ],
       };
 
-      expect(() => AIWorkflowAutomationSchema.parse(workflow)).not.toThrow();
+      expect(() => AIOrchestrationSchema.parse(workflow)).not.toThrow();
     });
   });
 
   describe('Scheduled Workflow', () => {
     it('should accept scheduled workflow', () => {
-      const workflow: AIWorkflowAutomation = {
+      const workflow: AIOrchestration = {
         name: 'daily_lead_scoring',
         label: 'Daily Lead Scoring',
         objectName: 'lead',
@@ -366,13 +366,13 @@ describe('AIWorkflowAutomationSchema', () => {
         ],
       };
 
-      expect(() => AIWorkflowAutomationSchema.parse(workflow)).not.toThrow();
+      expect(() => AIOrchestrationSchema.parse(workflow)).not.toThrow();
     });
   });
 
   describe('Complex Workflows', () => {
     it('should accept workflow with multiple AI tasks', () => {
-      const workflow: AIWorkflowAutomation = {
+      const workflow: AIOrchestration = {
         name: 'comprehensive_ticket_handler',
         label: 'Comprehensive Ticket Handler',
         objectName: 'support_ticket',
@@ -421,11 +421,11 @@ describe('AIWorkflowAutomationSchema', () => {
         ],
       };
 
-      expect(() => AIWorkflowAutomationSchema.parse(workflow)).not.toThrow();
+      expect(() => AIOrchestrationSchema.parse(workflow)).not.toThrow();
     });
 
     it('should accept workflow with all features', () => {
-      const workflow: AIWorkflowAutomation = {
+      const workflow: AIOrchestration = {
         name: 'advanced_automation',
         label: 'Advanced Automation Workflow',
         description: 'Comprehensive AI-powered automation',
@@ -474,19 +474,19 @@ describe('AIWorkflowAutomationSchema', () => {
         owner: 'user_123',
       };
 
-      expect(() => AIWorkflowAutomationSchema.parse(workflow)).not.toThrow();
+      expect(() => AIOrchestrationSchema.parse(workflow)).not.toThrow();
     });
   });
 });
 
-describe('BatchAIWorkflowExecutionSchema', () => {
+describe('BatchAIOrchestrationExecutionSchema', () => {
   it('should accept batch execution request', () => {
     const request = {
       workflowName: 'auto_classify_tickets',
       recordIds: ['rec_1', 'rec_2', 'rec_3'],
     };
 
-    const result = BatchAIWorkflowExecutionSchema.parse(request);
+    const result = BatchAIOrchestrationExecutionSchema.parse(request);
     expect(result.batchSize).toBe(10);
     expect(result.parallelism).toBe(3);
     expect(result.priority).toBe('normal');
@@ -501,17 +501,17 @@ describe('BatchAIWorkflowExecutionSchema', () => {
       priority: 'high' as const,
     };
 
-    expect(() => BatchAIWorkflowExecutionSchema.parse(request)).not.toThrow();
+    expect(() => BatchAIOrchestrationExecutionSchema.parse(request)).not.toThrow();
   });
 
   it('should enforce batch size limits', () => {
-    expect(() => BatchAIWorkflowExecutionSchema.parse({
+    expect(() => BatchAIOrchestrationExecutionSchema.parse({
       workflowName: 'test',
       recordIds: ['rec_1'],
       batchSize: 0,
     })).toThrow();
 
-    expect(() => BatchAIWorkflowExecutionSchema.parse({
+    expect(() => BatchAIOrchestrationExecutionSchema.parse({
       workflowName: 'test',
       recordIds: ['rec_1'],
       batchSize: 1001,
@@ -519,7 +519,7 @@ describe('BatchAIWorkflowExecutionSchema', () => {
   });
 });
 
-describe('AIWorkflowExecutionResultSchema', () => {
+describe('AIOrchestrationExecutionResultSchema', () => {
   it('should accept successful execution result', () => {
     const result = {
       workflowName: 'auto_classify_tickets',
@@ -533,7 +533,7 @@ describe('AIWorkflowExecutionResultSchema', () => {
       completedAt: '2024-01-01T10:00:01Z',
     };
 
-    expect(() => AIWorkflowExecutionResultSchema.parse(result)).not.toThrow();
+    expect(() => AIOrchestrationExecutionResultSchema.parse(result)).not.toThrow();
   });
 
   it('should accept result with task details', () => {
@@ -571,7 +571,7 @@ describe('AIWorkflowExecutionResultSchema', () => {
       completedAt: '2024-01-01T10:00:02Z',
     };
 
-    expect(() => AIWorkflowExecutionResultSchema.parse(result)).not.toThrow();
+    expect(() => AIOrchestrationExecutionResultSchema.parse(result)).not.toThrow();
   });
 
   it('should accept failed execution result', () => {
@@ -587,13 +587,13 @@ describe('AIWorkflowExecutionResultSchema', () => {
       startedAt: '2024-01-01T10:00:00Z',
     };
 
-    expect(() => AIWorkflowExecutionResultSchema.parse(result)).not.toThrow();
+    expect(() => AIOrchestrationExecutionResultSchema.parse(result)).not.toThrow();
   });
 });
 
 describe('Real-World Workflow Examples', () => {
   it('should accept customer support ticket automation', () => {
-    const workflow: AIWorkflowAutomation = {
+    const workflow: AIOrchestration = {
       name: 'auto_triage_support_tickets',
       label: 'Auto-Triage Support Tickets',
       description: 'Automatically classify, prioritize, and route support tickets',
@@ -654,11 +654,11 @@ describe('Real-World Workflow Examples', () => {
       tags: ['automation', 'ai', 'support'],
     };
 
-    expect(() => AIWorkflowAutomationSchema.parse(workflow)).not.toThrow();
+    expect(() => AIOrchestrationSchema.parse(workflow)).not.toThrow();
   });
 
   it('should accept lead scoring automation', () => {
-    const workflow: AIWorkflowAutomation = {
+    const workflow: AIOrchestration = {
       name: 'ai_lead_scoring',
       label: 'AI-Powered Lead Scoring',
       objectName: 'lead',
@@ -715,11 +715,11 @@ describe('Real-World Workflow Examples', () => {
       tags: ['lead-scoring', 'ml', 'automation'],
     };
 
-    expect(() => AIWorkflowAutomationSchema.parse(workflow)).not.toThrow();
+    expect(() => AIOrchestrationSchema.parse(workflow)).not.toThrow();
   });
 
   it('should accept document processing workflow', () => {
-    const workflow: AIWorkflowAutomation = {
+    const workflow: AIOrchestration = {
       name: 'process_invoice_documents',
       label: 'Process Invoice Documents',
       objectName: 'invoice',
@@ -784,6 +784,6 @@ describe('Real-World Workflow Examples', () => {
       tags: ['document-processing', 'ocr', 'automation'],
     };
 
-    expect(() => AIWorkflowAutomationSchema.parse(workflow)).not.toThrow();
+    expect(() => AIOrchestrationSchema.parse(workflow)).not.toThrow();
   });
 });

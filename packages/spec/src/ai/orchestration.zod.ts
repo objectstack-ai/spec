@@ -1,25 +1,26 @@
 import { z } from 'zod';
 
 /**
- * AI Workflow Automation Protocol
+ * AI Agentic Orchestration Protocol
  * 
- * Defines intelligent automation workflows that leverage AI/ML capabilities
- * to automate business processes with cognitive tasks like classification,
- * extraction, summarization, content generation, and prediction.
+ * Defines intelligent orchestration flows where AI Agents leverage cognitive skills
+ * to automate business processes with dynamic reasoning, planning, and execution.
+ * 
+ * Distinction from Standard Workflows:
+ * - Standard Workflow: Deterministic (If X then Y). defined in src/data/workflow.zod.ts
+ * - AI Orchestration: Probabilistic & Agentic (Goal -> Plan -> Execute).
  * 
  * Use Cases:
- * - Automatically classify support tickets by urgency and route to teams
- * - Extract key information from documents and populate fields
- * - Generate summaries of long text content
- * - Predict lead scores or customer churn risk
- * - Auto-fill forms based on natural language input
+ * - Complex Support Triage (Analyze sentiment + intent -> Draft response -> Route)
+ * - Intelligent Document Processing (OCR -> Extract Entities -> Validate -> Entry)
+ * - Research Agent (Search Web -> Summarize -> Generate Report)
  */
 
 /**
- * Workflow Trigger Types
- * Defines when an AI workflow should be initiated
+ * Orchestration Trigger Types
+ * Defines when an AI Agentic Flow should be initiated
  */
-export const AIWorkflowTriggerSchema = z.enum([
+export const AIOrchestrationTriggerSchema = z.enum([
   'record_created',      // When a new record is created
   'record_updated',      // When a record is updated
   'field_changed',       // When specific field(s) change
@@ -127,20 +128,20 @@ export const PostProcessingActionSchema = z.object({
 });
 
 /**
- * AI Workflow Automation Schema
+ * AI Agentic Orchestration Schema
  * Complete workflow definition with AI-powered tasks
  */
-export const AIWorkflowAutomationSchema = z.object({
+export const AIOrchestrationSchema = z.object({
   /** Identity */
-  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Workflow unique identifier (snake_case)'),
-  label: z.string().describe('Workflow display name'),
+  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Orchestration unique identifier (snake_case)'),
+  label: z.string().describe('Display name'),
   description: z.string().optional(),
   
   /** Target Object */
-  objectName: z.string().describe('Target object for this workflow'),
+  objectName: z.string().describe('Target object for this orchestration'),
   
   /** Trigger Configuration */
-  trigger: AIWorkflowTriggerSchema,
+  trigger: AIOrchestrationTriggerSchema,
   
   /** Trigger-specific configuration */
   fieldConditions: z.array(WorkflowFieldConditionSchema).optional().describe('Fields to monitor (for field_changed trigger)'),
@@ -185,11 +186,11 @@ export const AIWorkflowAutomationSchema = z.object({
 });
 
 /**
- * Batch AI Workflow Execution Request
+ * Batch AI Orchestration Execution Request
  * For processing multiple records at once
  */
-export const BatchAIWorkflowExecutionSchema = z.object({
-  workflowName: z.string().describe('Workflow to execute'),
+export const BatchAIOrchestrationExecutionSchema = z.object({
+  workflowName: z.string().describe('Orchestration to execute'),
   recordIds: z.array(z.string()).describe('Records to process'),
   batchSize: z.number().int().min(1).max(1000).optional().default(10),
   parallelism: z.number().int().min(1).max(10).optional().default(3),
@@ -197,10 +198,10 @@ export const BatchAIWorkflowExecutionSchema = z.object({
 });
 
 /**
- * AI Workflow Execution Result
- * Result of a single workflow execution
+ * AI Orchestration Execution Result
+ * Result of a single execution
  */
-export const AIWorkflowExecutionResultSchema = z.object({
+export const AIOrchestrationExecutionResultSchema = z.object({
   workflowName: z.string(),
   recordId: z.string(),
   status: z.enum(['success', 'partial_success', 'failed', 'skipped']),
@@ -224,12 +225,12 @@ export const AIWorkflowExecutionResultSchema = z.object({
 });
 
 // Type exports
-export type AIWorkflowTrigger = z.infer<typeof AIWorkflowTriggerSchema>;
+export type AIOrchestrationTrigger = z.infer<typeof AIOrchestrationTriggerSchema>;
 export type AITaskType = z.infer<typeof AITaskTypeSchema>;
 export type AITask = z.infer<typeof AITaskSchema>;
 export type WorkflowFieldCondition = z.infer<typeof WorkflowFieldConditionSchema>;
 export type WorkflowSchedule = z.infer<typeof WorkflowScheduleSchema>;
 export type PostProcessingAction = z.infer<typeof PostProcessingActionSchema>;
-export type AIWorkflowAutomation = z.infer<typeof AIWorkflowAutomationSchema>;
-export type BatchAIWorkflowExecution = z.infer<typeof BatchAIWorkflowExecutionSchema>;
-export type AIWorkflowExecutionResult = z.infer<typeof AIWorkflowExecutionResultSchema>;
+export type AIOrchestration = z.infer<typeof AIOrchestrationSchema>;
+export type BatchAIOrchestrationExecution = z.infer<typeof BatchAIOrchestrationExecutionSchema>;
+export type AIOrchestrationExecutionResult = z.infer<typeof AIOrchestrationExecutionResultSchema>;
