@@ -1,0 +1,88 @@
+{
+  "$ref": "#/definitions/HookContext",
+  "definitions": {
+    "HookContext": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique execution ID for tracing"
+        },
+        "object": {
+          "type": "string"
+        },
+        "event": {
+          "type": "string",
+          "enum": [
+            "beforeFind",
+            "afterFind",
+            "beforeFindOne",
+            "afterFindOne",
+            "beforeCount",
+            "afterCount",
+            "beforeAggregate",
+            "afterAggregate",
+            "beforeInsert",
+            "afterInsert",
+            "beforeUpdate",
+            "afterUpdate",
+            "beforeDelete",
+            "afterDelete",
+            "beforeUpdateMany",
+            "afterUpdateMany",
+            "beforeDeleteMany",
+            "afterDeleteMany"
+          ]
+        },
+        "input": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Mutable input parameters"
+        },
+        "result": {
+          "description": "Operation result (After hooks only)"
+        },
+        "previous": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Record state before operation"
+        },
+        "session": {
+          "type": "object",
+          "properties": {
+            "userId": {
+              "type": "string"
+            },
+            "tenantId": {
+              "type": "string"
+            },
+            "roles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "accessToken": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Current session context"
+        },
+        "transaction": {
+          "description": "Database transaction handle"
+        },
+        "ql": {
+          "description": "ObjectQL Engine Reference"
+        }
+      },
+      "required": [
+        "object",
+        "event",
+        "input"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

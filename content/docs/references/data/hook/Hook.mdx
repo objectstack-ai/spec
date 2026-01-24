@@ -10,9 +10,8 @@ description: Hook Schema Reference
 | **name** | `string` | ✅ | Hook unique name (snake_case) |
 | **label** | `string` | optional | Description of what this hook does |
 | **object** | `string \| string[]` | ✅ | Target object(s) |
-| **events** | `Enum<'beforeFind' \| 'afterFind' \| 'beforeFindOne' \| 'afterFindOne' \| 'beforeCount' \| 'afterCount' \| 'beforeAggregate' \| 'afterAggregate' \| 'beforeInsert' \| 'afterInsert' \| 'beforeUpdate' \| 'afterUpdate' \| 'beforeDelete' \| 'afterDelete'>[]` | ✅ | Lifecycle events |
-| **handler** | `string` | optional | Function handler name (e.g. "my_plugin.validate_account") |
-| **script** | `string` | optional | Inline script body |
+| **events** | `Enum<'beforeFind' \| 'afterFind' \| 'beforeFindOne' \| 'afterFindOne' \| 'beforeCount' \| 'afterCount' \| 'beforeAggregate' \| 'afterAggregate' \| 'beforeInsert' \| 'afterInsert' \| 'beforeUpdate' \| 'afterUpdate' \| 'beforeDelete' \| 'afterDelete' \| 'beforeUpdateMany' \| 'afterUpdateMany' \| 'beforeDeleteMany' \| 'afterDeleteMany'>[]` | ✅ | Lifecycle events |
+| **handler** | `string \| any` | optional | Function handler name or direct function |
 | **priority** | `number` | optional | Execution priority |
 | **async** | `boolean` | optional | Run specifically as fire-and-forget |
 | **onError** | `Enum<'abort' \| 'log'>` | optional | Error handling strategy |

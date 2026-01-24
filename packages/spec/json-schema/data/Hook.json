@@ -45,18 +45,23 @@
               "beforeUpdate",
               "afterUpdate",
               "beforeDelete",
-              "afterDelete"
+              "afterDelete",
+              "beforeUpdateMany",
+              "afterUpdateMany",
+              "beforeDeleteMany",
+              "afterDeleteMany"
             ]
           },
           "description": "Lifecycle events"
         },
         "handler": {
-          "type": "string",
-          "description": "Function handler name (e.g. \"my_plugin.validate_account\")"
-        },
-        "script": {
-          "type": "string",
-          "description": "Inline script body"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {}
+          ],
+          "description": "Function handler name or direct function"
         },
         "priority": {
           "type": "number",

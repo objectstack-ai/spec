@@ -17,7 +17,11 @@
         "beforeUpdate",
         "afterUpdate",
         "beforeDelete",
-        "afterDelete"
+        "afterDelete",
+        "beforeUpdateMany",
+        "afterUpdateMany",
+        "beforeDeleteMany",
+        "afterDeleteMany"
       ]
     }
   },
