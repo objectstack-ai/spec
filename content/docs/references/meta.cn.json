@@ -4,9 +4,13 @@
   "pages": [
     "data",
     "ui",
+    "auth",
+    "automation",
     "system",
+    "permission",
     "ai",
     "api",
+    "driver",
     "client-sdk",
     "misc"
   ]
