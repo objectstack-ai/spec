@@ -48,40 +48,9 @@ export const TenantQuotaSchema = z.object({
 
 export type TenantQuota = z.infer<typeof TenantQuotaSchema>;
 
-/**
- * Tenant Schema
- * Represents a tenant in a multi-tenant SaaS deployment
- */
-export const TenantSchema = z.object({
-  /**
-   * Unique tenant identifier
-   */
-  id: z.string().describe('Unique tenant identifier'),
-  
-  /**
-   * Tenant name (display name)
-   */
-  name: z.string().describe('Tenant display name'),
-  
-  /**
-   * Data isolation level for this tenant
-   * Determines how tenant data is segregated from other tenants
-   */
-  isolationLevel: TenantIsolationLevel.describe('Data isolation strategy'),
-  
-  /**
-   * Custom configurations and metadata specific to this tenant
-   * Can store tenant-specific settings, branding, features, etc.
-   */
-  customizations: z.record(z.any()).optional().describe('Tenant-specific customizations'),
-  
-  /**
-   * Resource quotas and limits for this tenant
-   */
-  quotas: TenantQuotaSchema.optional().describe('Resource quotas and limits'),
-});
-
-export type Tenant = z.infer<typeof TenantSchema>;
+// Tenant Schema REMOVED.
+// The concept of a "Tenant" is now an attribute of a "Space".
+// See HubSpaceSchema in space.zod.ts which embeds TenantIsolationLevel and TenantQuotaSchema.
 
 /**
  * Tenant Isolation Strategy Documentation
