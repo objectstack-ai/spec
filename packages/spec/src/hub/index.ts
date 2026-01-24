@@ -3,3 +3,4 @@ export * from './composer.zod';
 export * from './marketplace.zod';
 export * from './space.zod';
 export * from './tenant.zod';
+export * from './license.zod';

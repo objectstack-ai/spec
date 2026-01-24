@@ -50,12 +50,12 @@ export const PlanSchema = z.object({
 
 /**
  * License Schema
- * The actual entitlement object assigned to a Tenant.
+ * The actual entitlement object assigned to a Space.
  * Often signed as a JWT.
  */
 export const LicenseSchema = z.object({
   /** Identity */
-  tenantId: z.string(),
+  spaceId: z.string().describe('Target Space ID'),
   planCode: z.string(),
   
   /** Validity */
@@ -65,7 +65,7 @@ export const LicenseSchema = z.object({
   /** Status */
   status: z.enum(['active', 'expired', 'suspended', 'trial']),
   
-  /** Overrides (Specific to this tenant, exceeding the plan) */
+  /** Overrides (Specific to this space, exceeding the plan) */
   customFeatures: z.array(z.string()).optional(),
   customLimits: z.record(z.number()).optional(),
   

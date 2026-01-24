@@ -4,8 +4,9 @@
     "License": {
       "type": "object",
       "properties": {
-        "tenantId": {
-          "type": "string"
+        "spaceId": {
+          "type": "string",
+          "description": "Target Space ID"
         },
         "planCode": {
           "type": "string"
@@ -45,7 +46,7 @@
         }
       },
       "required": [
-        "tenantId",
+        "spaceId",
         "planCode",
         "issuedAt",
         "status"

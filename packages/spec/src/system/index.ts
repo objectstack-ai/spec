@@ -16,7 +16,6 @@ export * from './policy.zod';
 export * from './role.zod';
 export * from './territory.zod';
 export * from './audit.zod';
-export * from './license.zod';
 export * from './webhook.zod';
 export * from './translation.zod';
 export * from './events.zod';
