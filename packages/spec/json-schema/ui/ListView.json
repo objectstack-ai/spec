@@ -44,6 +44,7 @@
                   },
                   "width": {
                     "type": "number",
+                    "exclusiveMinimum": 0,
                     "description": "Column width in pixels"
                   },
                   "align": {
@@ -159,14 +160,16 @@
           "type": "object",
           "properties": {
             "pageSize": {
-              "type": "number",
+              "type": "integer",
+              "exclusiveMinimum": 0,
               "default": 25,
               "description": "Number of records per page"
             },
             "pageSizeOptions": {
               "type": "array",
               "items": {
-                "type": "number"
+                "type": "integer",
+                "exclusiveMinimum": 0
               },
               "description": "Available page size options"
             }

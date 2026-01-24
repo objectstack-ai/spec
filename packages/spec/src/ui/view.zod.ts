@@ -7,7 +7,7 @@ import { z } from 'zod';
 export const ListColumnSchema = z.object({
   field: z.string().describe('Field name (snake_case)'),
   label: z.string().optional().describe('Display label override'),
-  width: z.number().optional().describe('Column width in pixels'),
+  width: z.number().positive().optional().describe('Column width in pixels'),
   align: z.enum(['left', 'center', 'right']).optional().describe('Text alignment'),
   hidden: z.boolean().optional().describe('Hide column by default'),
   sortable: z.boolean().optional().describe('Allow sorting by this column'),
@@ -27,8 +27,8 @@ export const SelectionConfigSchema = z.object({
  * List View Pagination Configuration
  */
 export const PaginationConfigSchema = z.object({
-  pageSize: z.number().default(25).describe('Number of records per page'),
-  pageSizeOptions: z.array(z.number()).optional().describe('Available page size options'),
+  pageSize: z.number().int().positive().default(25).describe('Number of records per page'),
+  pageSizeOptions: z.array(z.number().int().positive()).optional().describe('Available page size options'),
 });
 
 /**
@@ -115,7 +115,7 @@ export const FormFieldSchema = z.object({
   readonly: z.boolean().optional().describe('Read-only override'),
   required: z.boolean().optional().describe('Required override'),
   hidden: z.boolean().optional().describe('Hidden override'),
-  colSpan: z.number().optional().describe('Column span in grid layout (1-4)'),
+  colSpan: z.number().int().min(1).max(4).optional().describe('Column span in grid layout (1-4)'),
   widget: z.string().optional().describe('Custom widget/component name'),
   dependsOn: z.string().optional().describe('Parent field name for cascading'),
   visibleOn: z.string().optional().describe('Visibility condition expression'),

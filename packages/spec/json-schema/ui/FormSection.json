@@ -64,7 +64,9 @@
                     "description": "Hidden override"
                   },
                   "colSpan": {
-                    "type": "number",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 4,
                     "description": "Column span in grid layout (1-4)"
                   },
                   "widget": {
