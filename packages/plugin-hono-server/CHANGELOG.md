@@ -1,5 +1,15 @@
 # @objectstack/plugin-hono-server
 
+## 0.3.2
+
+### Patch Changes
+
+- Patch release for maintenance and stability improvements
+- Updated dependencies
+  - @objectstack/runtime@0.3.2
+  - @objectstack/spec@0.3.2
+  - @objectstack/types@0.3.2
+
 ## 0.3.1
 
 ### Patch Changes
