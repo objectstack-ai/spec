@@ -1,14 +1,23 @@
 import { z } from 'zod';
 
 /**
+ * Organization-Wide Defaults (OWD)
+ * The baseline security posture for an object.
+ */
+export const OWDModel = z.enum([
+  'private',               // Only owner can see
+  'public_read',           // Everyone can see, owner can edit
+  'public_read_write',     // Everyone can see and edit
+  'controlled_by_parent'   // Access derived from parent record (Master-Detail)
+]);
+
+/**
  * Sharing Rule Type
  * How is the data shared?
  */
 export const SharingRuleType = z.enum([
   'owner',        // Based on record ownership (Role Hierarchy)
   'criteria',     // Based on field values (e.g. Status = 'Open')
-  'manual',       // Ad-hoc sharing (User specific)
-  'guest'         // Public access
 ]);
 
 /**
@@ -17,50 +26,75 @@ export const SharingRuleType = z.enum([
  */
 export const SharingLevel = z.enum([
   'read',      // Read Only
-  'edit'       // Read / Write
+  'edit',      // Read / Write
+  'full'       // Full Access (Transfer, Share, Delete)
 ]);
 
 /**
- * Sharing Rule Schema
- * Defines AUTOMATIC access grants based on logic.
- * The core engine of the governance layer.
+ * Recipient Type 
+ * Who receives the access?
  */
-export const SharingRuleSchema = z.object({
-  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Unique rule name'),
-  label: z.string().optional(),
+export const ShareRecipientType = z.enum([
+  'user',
+  'group',
+  'role',
+  'role_and_subordinates',
+  'guest' // for public sharing
+]);
+
+/**
+ * Base Sharing Rule
+ * Common metadata for all sharing strategies.
+ */
+const BaseSharingRuleSchema = z.object({
+  // Identification
+  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Unique rule name (snake_case)'),
+  label: z.string().optional().describe('Human-readable label'),
+  description: z.string().optional().describe('Administrative notes'),
+  
+  // Scope
+  object: z.string().describe('Target Object Name'),
   active: z.boolean().default(true),
   
-  /** Target Object */
-  object: z.string().describe('Object to share'),
-  
-  /** Grant Logic */
-  type: SharingRuleType.default('criteria'),
-  
-  /** 
-   * Criteria (for type='criteria') 
-   * SQL-like condition: "department = 'Sales' AND amount > 10000"
-   */
-  criteria: z.string().optional(),
-  
-  /** Access Level */
+  // Access
   accessLevel: SharingLevel.default('read'),
   
-  /** 
-   * Target Audience (Whom to share with)
-   * ID of a Group, Role, or User.
-   */
-  sharedWith: z.string().describe('Group/Role ID to share records with'),
+  // Recipient (Whom to share with)
+  sharedWith: z.object({
+    type: ShareRecipientType,
+    value: z.string().describe('ID or Code of the User/Group/Role'),
+  }).describe('The recipient of the shared access'),
 });
 
 /**
- * Organization-Wide Defaults (OWD)
- * The baseline security posture for an object.
+ * 1. Criteria-Based Sharing Rule
+ * Share records that meet specific field criteria.
  */
-export const OWDModel = z.enum([
-  'private',          // Only owner can see
-  'public_read',      // Everyone can see, owner can edit
-  'public_read_write' // Everyone can see and edit
+export const CriteriaSharingRuleSchema = BaseSharingRuleSchema.extend({
+  type: z.literal('criteria'),
+  condition: z.string().describe('Formula condition (e.g. "department = \'Sales\'")'),
+});
+
+/**
+ * 2. Owner-Based Sharing Rule
+ * Share records owned by a specific group of users.
+ */
+export const OwnerSharingRuleSchema = BaseSharingRuleSchema.extend({
+  type: z.literal('owner'),
+  ownedBy: z.object({
+    type: ShareRecipientType,
+    value: z.string(),
+  }).describe('Source group/role whose records are being shared'),
+});
+
+/**
+ * Master Sharing Rule Schema
+ */
+export const SharingRuleSchema: z.ZodType<any> = z.discriminatedUnion('type', [
+  CriteriaSharingRuleSchema,
+  OwnerSharingRuleSchema
 ]);
 
 export type SharingRule = z.infer<typeof SharingRuleSchema>;
-export type SharingRuleType = z.infer<typeof SharingRuleType>;
+export type CriteriaSharingRule = z.infer<typeof CriteriaSharingRuleSchema>;
+export type OwnerSharingRule = z.infer<typeof OwnerSharingRuleSchema>;
