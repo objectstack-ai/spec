@@ -13,7 +13,7 @@ export const HttpRequestSchema = z.object({
   method: HttpMethodSchema.optional().default('GET').describe('HTTP method'),
   headers: z.record(z.string()).optional().describe('Custom HTTP headers'),
   params: z.record(z.unknown()).optional().describe('Query parameters'),
-  body: z.record(z.unknown()).optional().describe('Request body for POST/PUT/PATCH'),
+  body: z.unknown().optional().describe('Request body for POST/PUT/PATCH'),
 });
 
 /**
@@ -35,7 +35,7 @@ export const ViewDataSchema = z.discriminatedUnion('provider', [
   }),
   z.object({
     provider: z.literal('value'),
-    items: z.array(z.any()).describe('Static data array'),
+    items: z.array(z.unknown()).describe('Static data array'),
   }),
 ]);
 
