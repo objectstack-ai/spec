@@ -3,6 +3,7 @@
   "root": true,
   "pages": [
     "permission",
-    "sharing"
+    "sharing",
+    "territory"
   ]
 }

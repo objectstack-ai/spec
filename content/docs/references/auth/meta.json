@@ -4,6 +4,7 @@
   "pages": [
     "config",
     "identity",
+    "organization",
     "policy",
     "role"
   ]

@@ -9,9 +9,6 @@
  */
 
 
-export * from './organization.zod';
-
-export * from './territory.zod';
 export * from './audit.zod';
 export * from './translation.zod';
 export * from './events.zod';
