@@ -1,0 +1,88 @@
+# @objectstack/spec Context for AI Agents
+
+> **SYSTEM NOTE**: This file provides a high-level summary of the ObjectStack Protocol to help LLMs understand the codebase structure and intent.
+
+## 1. Architecture Overview (The "Three-Layer Model")
+
+ObjectStack is a metadata-driven "Post-SaaS Operating System".
+It is divided into three layers, reflected in the import paths:
+
+### Layer 1: ObjectQL (`@objectstack/spec/data`)
+**The Business Kernel**. Defines "What Data Exists".
+- **`ObjectSchema`**: Defines database tables (postgres/mongo agnostic).
+- **`FieldSchema`**: Defines columns with types (`text`, `number`, `lookup`, `formula`).
+- **`QuerySchema`**: A JSON-based AST for querying data (replaces SQL).
+- **`DriverInterface`**: The contract for database adapters.
+
+### Layer 2: ObjectOS (`@objectstack/spec/system` & `@objectstack/spec/api`)
+**The Runtime Kernel**. Defines "How System Operates".
+- **`ManifestSchema`**: `objectstack.config.ts` configuration.
+- **`IdentitySchema`**: Users, Roles, and Authentication.
+- **`EventSchema`**: System bus and Webhooks.
+- **`EndpointSchema`**: API Gateway configuration.
+
+### Layer 3: ObjectUI (`@objectstack/spec/ui`)
+**The Presentation Layer**. Defines "How Users Interact".
+- **`AppSchema`**: Navigation menus and branding.
+- **`ViewSchema`**: Layouts for data (Grid, Kanban, Calendar).
+- **`ActionSchema`**: Buttons and triggers.
+
+---
+
+## 2. Coding Patterns (Zod First)
+
+All definitions are virtually **Zod Schemas**.
+- **Configuration Keys**: `camelCase` (e.g., `maxLength`, `referenceFilters`).
+- **Data Values**: `snake_case` (e.g., `object: 'project_task'`, `type: 'lookup'`).
+
+### Example: Defining an Object
+```typescript
+import { ObjectSchema } from '@objectstack/spec/data';
+
+// Describes a "Task" object
+const taskObject = {
+  name: 'project_task',  // snake_case table name
+  label: 'Project Task',
+  fields: {
+    status: { type: 'select', options: ['todo', 'done'] },
+    priority: { type: 'number', defaultValue: 0 }
+  }
+};
+```
+
+### Example: Building a Query
+```typescript
+import { QuerySchema } from '@objectstack/spec/data';
+
+// JSON-based SQL alternative
+const query = {
+  object: 'project_task',
+  filters: [
+    ['status', '=', 'todo'],
+    'and',
+    ['priority', '>', 1]
+  ],
+  sort: [{ field: 'created_at', order: 'desc' }],
+  top: 10
+};
+```
+
+---
+
+## 3. Key exports by Namespace
+
+### `import * as Data from '@objectstack/spec/data'`
+- `ObjectSchema`, `FieldSchema`: Logic & Storage definition.
+- `QuerySchema`, `FilterSchema`: Data retrieval AST.
+- `DriverInterface`, `DatasourceSchema`: Database connectivity.
+- `WorkflowSchema`, `FlowSchema`: Automation logic.
+
+### `import * as UI from '@objectstack/spec/ui'`
+- `ViewSchema`: `type: 'grid' | 'kanban' | 'calendar'`.
+- `FormSchema`: `layout: 'simple' | 'tabbed'`.
+- `DashboardSchema`: Widget composition.
+
+### `import * as System from '@objectstack/spec/system'`
+- `PluginSchema`: Module lifecycle.
+- `EventSchema`: Pub/Sub definitions.
+- `PolicySchema`: Security rules.

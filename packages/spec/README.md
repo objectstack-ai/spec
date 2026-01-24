@@ -63,6 +63,7 @@ The specification is organized into five namespaces mapping to the three-layer a
 This package includes a `prompts/` directory containing system instructions and architectural context. This is useful for:
 1.  **AI Agents**: Creating agents that understand ObjectStack.
 2.  **IDE Context**: Adding `node_modules/@objectstack/spec/prompts/*.md` to your Cursor/Copilot context.
+3.  **LLM Auto-Discovery**: The `llms.txt` file in the root provides a knowledge base for autonomous agents.
 
 ```typescript
 import context from '@objectstack/spec/prompts/architecture.md?raw'; // If using Vite/bundler
