@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { QuerySchema } from '../data/query.zod';
+import { QuerySchema } from './query.zod';
 
 /**
  * Common Driver Options

@@ -18,4 +18,6 @@ export * from './dataset.zod';
 export * from './query.zod';
 export * from './filter.zod';
 export * from './mapping.zod';
+export * from './driver.zod';
+export * from './datasource.zod';
 export * from './trigger.zod';
