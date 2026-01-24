@@ -46,6 +46,7 @@ export * as Driver from './driver';
 export * as Permission from './permission';
 export * as UI from './ui';
 export * as System from './system';
+export * as Kernel from './kernel';
 export * as AI from './ai';
 export * as API from './api';
 export * as Automation from './automation';
