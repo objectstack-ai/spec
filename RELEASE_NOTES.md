@@ -52,7 +52,7 @@ This is the first public release of the ObjectStack ecosystem, providing:
 
 ### Core Capabilities
 - **Data Protocol (ObjectQL)**: Complete schema definitions for Objects and Fields
-  - 23+ field types (text, number, select, lookup, formula, autonumber, etc.)
+  - 35 field types (text, number, select, lookup, formula, autonumber, slider, qrcode, etc.)
   - Validation rules, workflows, and triggers
   - Permission system and sharing rules
   - Abstract query language for unified data access
