@@ -1,4 +1,4 @@
-import { PluginDefinition, PluginContextData } from '@objectstack/spec/system';
+import { PluginDefinition, PluginContextData } from '@objectstack/spec/kernel';
 
 export class BiEngine {
   constructor() {

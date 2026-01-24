@@ -21,6 +21,10 @@
       "types": "./dist/system/index.d.ts",
       "default": "./dist/system/index.js"
     },
+    "./kernel": {
+      "types": "./dist/kernel/index.d.ts",
+      "default": "./dist/kernel/index.js"
+    },
     "./ai": {
       "types": "./dist/ai/index.d.ts",
       "default": "./dist/ai/index.js"

@@ -1,5 +1,5 @@
 import { ServiceObject } from '@objectstack/spec/data';
-import { ObjectStackManifest } from '@objectstack/spec/system';
+import { ObjectStackManifest } from '@objectstack/spec/kernel';
 
 /**
  * Global Schema Registry
