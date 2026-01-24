@@ -343,6 +343,36 @@
                 "type": "boolean",
                 "description": "Enable camera scanning for barcode/QR code input"
               },
+              "currencyConfig": {
+                "type": "object",
+                "properties": {
+                  "precision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10,
+                    "default": 2,
+                    "description": "Decimal precision (default: 2)"
+                  },
+                  "currencyMode": {
+                    "type": "string",
+                    "enum": [
+                      "dynamic",
+                      "fixed"
+                    ],
+                    "default": "dynamic",
+                    "description": "Currency mode: dynamic (user selectable) or fixed (single currency)"
+                  },
+                  "defaultCurrency": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "default": "CNY",
+                    "description": "Default or fixed currency code (ISO 4217, e.g., USD, CNY, EUR)"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "Configuration for currency field type"
+              },
               "hidden": {
                 "type": "boolean",
                 "default": false,
