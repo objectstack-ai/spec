@@ -7,8 +7,8 @@
     "cost",
     "model-registry",
     "nlq",
+    "orchestration",
     "predictive",
-    "rag-pipeline",
-    "workflow-automation"
+    "rag-pipeline"
   ]
 }

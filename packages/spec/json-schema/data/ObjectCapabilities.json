@@ -6,15 +6,18 @@
       "properties": {
         "trackHistory": {
           "type": "boolean",
-          "default": false
+          "default": false,
+          "description": "Enable field history tracking for audit compliance"
         },
         "searchable": {
           "type": "boolean",
-          "default": true
+          "default": true,
+          "description": "Index records for global search"
         },
         "apiEnabled": {
           "type": "boolean",
-          "default": true
+          "default": true,
+          "description": "Expose object via automatic APIs"
         },
         "apiMethods": {
           "type": "array",
@@ -27,10 +30,7 @@
               "update",
               "delete",
               "upsert",
-              "bulkCreate",
-              "bulkUpdate",
-              "bulkDelete",
-              "bulkUpsert",
+              "bulk",
               "aggregate",
               "history",
               "search",
@@ -40,19 +40,37 @@
               "export"
             ]
           },
-          "description": "Allowed API operations"
+          "description": "Whitelist of allowed API operations"
         },
         "files": {
           "type": "boolean",
-          "default": false
+          "default": false,
+          "description": "Enable file attachments and document management"
         },
-        "feedEnabled": {
+        "feeds": {
           "type": "boolean",
-          "default": false
+          "default": false,
+          "description": "Enable social feed, comments, and mentions (Chatter-like)"
+        },
+        "activities": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable standard tasks and events tracking"
         },
         "trash": {
           "type": "boolean",
-          "default": true
+          "default": true,
+          "description": "Enable soft-delete with restore capability"
+        },
+        "mru": {
+          "type": "boolean",
+          "default": true,
+          "description": "Track Most Recently Used (MRU) list for users"
+        },
+        "clone": {
+          "type": "boolean",
+          "default": true,
+          "description": "Allow record deep cloning"
         }
       },
       "additionalProperties": false

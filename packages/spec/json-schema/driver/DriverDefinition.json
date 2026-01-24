@@ -1,0 +1,86 @@
+{
+  "$ref": "#/definitions/DriverDefinition",
+  "definitions": {
+    "DriverDefinition": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique driver identifier (e.g. \"postgres\")"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label (e.g. \"PostgreSQL\")"
+        },
+        "description": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "configSchema": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "JSON Schema for connection configuration"
+        },
+        "capabilities": {
+          "type": "object",
+          "properties": {
+            "transactions": {
+              "type": "boolean",
+              "default": false
+            },
+            "queryFilters": {
+              "type": "boolean",
+              "default": false
+            },
+            "queryAggregations": {
+              "type": "boolean",
+              "default": false
+            },
+            "querySorting": {
+              "type": "boolean",
+              "default": false
+            },
+            "queryPagination": {
+              "type": "boolean",
+              "default": false
+            },
+            "queryWindowFunctions": {
+              "type": "boolean",
+              "default": false
+            },
+            "querySubqueries": {
+              "type": "boolean",
+              "default": false
+            },
+            "joins": {
+              "type": "boolean",
+              "default": false
+            },
+            "fullTextSearch": {
+              "type": "boolean",
+              "default": false
+            },
+            "readOnly": {
+              "type": "boolean",
+              "default": false
+            },
+            "dynamicSchema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "configSchema"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

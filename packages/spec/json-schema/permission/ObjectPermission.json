@@ -1,0 +1,57 @@
+{
+  "$ref": "#/definitions/ObjectPermission",
+  "definitions": {
+    "ObjectPermission": {
+      "type": "object",
+      "properties": {
+        "allowCreate": {
+          "type": "boolean",
+          "default": false,
+          "description": "Create permission"
+        },
+        "allowRead": {
+          "type": "boolean",
+          "default": false,
+          "description": "Read permission"
+        },
+        "allowEdit": {
+          "type": "boolean",
+          "default": false,
+          "description": "Edit permission"
+        },
+        "allowDelete": {
+          "type": "boolean",
+          "default": false,
+          "description": "Delete permission"
+        },
+        "allowTransfer": {
+          "type": "boolean",
+          "default": false,
+          "description": "Change record ownership"
+        },
+        "allowRestore": {
+          "type": "boolean",
+          "default": false,
+          "description": "Restore from trash (Undelete)"
+        },
+        "allowPurge": {
+          "type": "boolean",
+          "default": false,
+          "description": "Permanently delete (Hard Delete/GDPR)"
+        },
+        "viewAllRecords": {
+          "type": "boolean",
+          "default": false,
+          "description": "View All Data (Bypass Sharing)"
+        },
+        "modifyAllRecords": {
+          "type": "boolean",
+          "default": false,
+          "description": "Modify All Data (Bypass Sharing)"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -10,3 +10,4 @@ description: Index Schema Reference
 | **name** | `string` | optional | Index name |
 | **fields** | `string[]` | ✅ | Fields included in the index |
 | **unique** | `boolean` | optional | Whether the index is unique |
+| **type** | `Enum<'btree' \| 'hash' \| 'gin' \| 'gist'>` | optional | Index type (default: btree) |

@@ -38,194 +38,65 @@
           },
           "description": "Fields to retrieve"
         },
-        "aggregations": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "function": {
-                "type": "string",
-                "enum": [
-                  "count",
-                  "sum",
-                  "avg",
-                  "min",
-                  "max",
-                  "count_distinct",
-                  "array_agg",
-                  "string_agg"
-                ],
-                "description": "Aggregation function"
-              },
-              "field": {
-                "type": "string",
-                "description": "Field to aggregate (optional for COUNT(*))"
-              },
-              "alias": {
-                "type": "string",
-                "description": "Result column alias"
-              },
-              "distinct": {
-                "type": "boolean",
-                "description": "Apply DISTINCT before aggregation"
-              }
-            },
-            "required": [
-              "function",
-              "alias"
-            ],
-            "additionalProperties": false
-          },
-          "description": "Aggregation functions (GROUP BY)"
-        },
-        "windowFunctions": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "function": {
-                "type": "string",
-                "enum": [
-                  "row_number",
-                  "rank",
-                  "dense_rank",
-                  "percent_rank",
-                  "lag",
-                  "lead",
-                  "first_value",
-                  "last_value",
-                  "sum",
-                  "avg",
-                  "count",
-                  "min",
-                  "max"
-                ],
-                "description": "Window function name"
-              },
-              "field": {
-                "type": "string",
-                "description": "Field to operate on (for aggregate window functions)"
-              },
-              "alias": {
-                "type": "string",
-                "description": "Result column alias"
-              },
-              "over": {
-                "type": "object",
-                "properties": {
-                  "partitionBy": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    },
-                    "description": "PARTITION BY fields"
-                  },
-                  "orderBy": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "field": {
-                          "type": "string"
-                        },
-                        "order": {
-                          "type": "string",
-                          "enum": [
-                            "asc",
-                            "desc"
-                          ],
-                          "default": "asc"
-                        }
-                      },
-                      "required": [
-                        "field"
-                      ],
-                      "additionalProperties": false
-                    },
-                    "description": "ORDER BY specification"
-                  },
-                  "frame": {
-                    "type": "object",
-                    "properties": {
-                      "type": {
-                        "type": "string",
-                        "enum": [
-                          "rows",
-                          "range"
-                        ]
-                      },
-                      "start": {
-                        "type": "string",
-                        "description": "Frame start (e.g., \"UNBOUNDED PRECEDING\", \"1 PRECEDING\")"
-                      },
-                      "end": {
-                        "type": "string",
-                        "description": "Frame end (e.g., \"CURRENT ROW\", \"1 FOLLOWING\")"
-                      }
-                    },
-                    "additionalProperties": false,
-                    "description": "Window frame specification"
-                  }
-                },
-                "additionalProperties": false,
-                "description": "Window specification (OVER clause)"
-              }
-            },
-            "required": [
-              "function",
-              "alias",
-              "over"
-            ],
-            "additionalProperties": false
-          },
-          "description": "Window functions with OVER clause"
-        },
-        "filters": {
-          "anyOf": [
+        "where": {
+          "allOf": [
             {
-              "type": "array",
-              "minItems": 3,
-              "maxItems": 3,
-              "items": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "string",
-                  "enum": [
-                    "=",
-                    "!=",
-                    "<>",
-                    ">",
-                    ">=",
-                    "<",
-                    "<=",
-                    "startswith",
-                    "contains",
-                    "notcontains",
-                    "between",
-                    "in",
-                    "notin",
-                    "is_null",
-                    "is_not_null"
-                  ]
-                },
-                {}
-              ]
+              "type": "object",
+              "additionalProperties": {}
             },
             {
-              "type": "array",
-              "items": {
-                "anyOf": [
-                  {
-                    "type": "string"
-                  },
-                  {}
-                ]
+              "type": "object",
+              "properties": {
+                "$and": {
+                  "type": "array",
+                  "items": {}
+                },
+                "$or": {
+                  "type": "array",
+                  "items": {}
+                },
+                "$not": {}
               }
             }
           ],
-          "description": "Filtering criteria"
+          "description": "Filtering criteria (WHERE)"
+        },
+        "orderBy": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "order": {
+                "type": "string",
+                "enum": [
+                  "asc",
+                  "desc"
+                ],
+                "default": "asc"
+              }
+            },
+            "required": [
+              "field"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Sorting instructions (ORDER BY)"
+        },
+        "limit": {
+          "type": "number",
+          "description": "Max records to return (LIMIT)"
+        },
+        "offset": {
+          "type": "number",
+          "description": "Records to skip (OFFSET)"
+        },
+        "cursor": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Cursor for keyset pagination"
         },
         "joins": {
           "type": "array",
@@ -251,92 +122,86 @@
                 "description": "Table alias"
               },
               "on": {
-                "anyOf": [
+                "allOf": [
                   {
-                    "type": "array",
-                    "minItems": 3,
-                    "maxItems": 3,
-                    "items": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "string",
-                        "enum": [
-                          "=",
-                          "!=",
-                          "<>",
-                          ">",
-                          ">=",
-                          "<",
-                          "<=",
-                          "startswith",
-                          "contains",
-                          "notcontains",
-                          "between",
-                          "in",
-                          "notin",
-                          "is_null",
-                          "is_not_null"
-                        ]
-                      },
-                      {}
-                    ]
+                    "type": "object",
+                    "additionalProperties": {}
                   },
                   {
-                    "type": "array",
-                    "items": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "anyOf": [
+                    "type": "object",
+                    "properties": {
+                      "$and": {
+                        "type": "array",
+                        "items": {
+                          "allOf": [
                             {
-                              "type": "array",
-                              "minItems": 3,
-                              "maxItems": 3,
-                              "items": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "string",
-                                  "enum": [
-                                    "=",
-                                    "!=",
-                                    "<>",
-                                    ">",
-                                    ">=",
-                                    "<",
-                                    "<=",
-                                    "startswith",
-                                    "contains",
-                                    "notcontains",
-                                    "between",
-                                    "in",
-                                    "notin",
-                                    "is_null",
-                                    "is_not_null"
-                                  ]
-                                },
-                                {}
-                              ]
+                              "type": "object",
+                              "additionalProperties": {}
                             },
                             {
-                              "type": "array",
-                              "items": {
-                                "anyOf": [
-                                  {
-                                    "type": "string"
-                                  },
-                                  {}
-                                ]
+                              "type": "object",
+                              "properties": {
+                                "$and": {
+                                  "type": "array",
+                                  "items": {}
+                                },
+                                "$or": {
+                                  "type": "array",
+                                  "items": {}
+                                },
+                                "$not": {}
                               }
                             }
                           ]
                         }
-                      ]
+                      },
+                      "$or": {
+                        "type": "array",
+                        "items": {
+                          "allOf": [
+                            {
+                              "type": "object",
+                              "additionalProperties": {}
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "$and": {
+                                  "type": "array",
+                                  "items": {}
+                                },
+                                "$or": {
+                                  "type": "array",
+                                  "items": {}
+                                },
+                                "$not": {}
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "$not": {
+                        "allOf": [
+                          {
+                            "type": "object",
+                            "additionalProperties": {}
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "$and": {
+                                "type": "array",
+                                "items": {}
+                              },
+                              "$or": {
+                                "type": "array",
+                                "items": {}
+                              },
+                              "$not": {}
+                            }
+                          }
+                        ]
+                      }
                     }
                   }
                 ],
@@ -379,6 +244,67 @@
                     },
                     "description": "Fields to retrieve"
                   },
+                  "where": {
+                    "allOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": {}
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "$and": {
+                            "type": "array",
+                            "items": {}
+                          },
+                          "$or": {
+                            "type": "array",
+                            "items": {}
+                          },
+                          "$not": {}
+                        }
+                      }
+                    ],
+                    "description": "Filtering criteria (WHERE)"
+                  },
+                  "orderBy": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string"
+                        },
+                        "order": {
+                          "type": "string",
+                          "enum": [
+                            "asc",
+                            "desc"
+                          ],
+                          "default": "asc"
+                        }
+                      },
+                      "required": [
+                        "field"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "description": "Sorting instructions (ORDER BY)"
+                  },
+                  "limit": {
+                    "type": "number",
+                    "description": "Max records to return (LIMIT)"
+                  },
+                  "offset": {
+                    "type": "number",
+                    "description": "Records to skip (OFFSET)"
+                  },
+                  "cursor": {
+                    "type": "object",
+                    "additionalProperties": {},
+                    "description": "Cursor for keyset pagination"
+                  },
+                  "joins": {},
                   "aggregations": {
                     "type": "array",
                     "items": {
@@ -417,7 +343,37 @@
                       ],
                       "additionalProperties": false
                     },
-                    "description": "Aggregation functions (GROUP BY)"
+                    "description": "Aggregation functions"
+                  },
+                  "groupBy": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "GROUP BY fields"
+                  },
+                  "having": {
+                    "allOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": {}
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "$and": {
+                            "type": "array",
+                            "items": {}
+                          },
+                          "$or": {
+                            "type": "array",
+                            "items": {}
+                          },
+                          "$not": {}
+                        }
+                      }
+                    ],
+                    "description": "HAVING clause for aggregation filtering"
                   },
                   "windowFunctions": {
                     "type": "array",
@@ -521,109 +477,140 @@
                     },
                     "description": "Window functions with OVER clause"
                   },
-                  "filters": {
-                    "anyOf": [
-                      {
-                        "type": "array",
-                        "minItems": 3,
-                        "maxItems": 3,
-                        "items": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "=",
-                              "!=",
-                              "<>",
-                              ">",
-                              ">=",
-                              "<",
-                              "<=",
-                              "startswith",
-                              "contains",
-                              "notcontains",
-                              "between",
-                              "in",
-                              "notin",
-                              "is_null",
-                              "is_not_null"
-                            ]
-                          },
-                          {}
-                        ]
-                      },
-                      {
-                        "type": "array",
-                        "items": {
-                          "anyOf": [
-                            {
-                              "type": "string"
-                            },
-                            {}
-                          ]
-                        }
-                      }
-                    ],
-                    "description": "Filtering criteria"
-                  },
-                  "joins": {},
-                  "groupBy": {
+                  "distinct": {
+                    "type": "boolean",
+                    "description": "SELECT DISTINCT flag"
+                  }
+                },
+                "required": [
+                  "object"
+                ],
+                "additionalProperties": false,
+                "description": "Subquery instead of object"
+              }
+            },
+            "required": [
+              "type",
+              "object",
+              "on"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Explicit Table Joins"
+        },
+        "aggregations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "function": {
+                "type": "string",
+                "enum": [
+                  "count",
+                  "sum",
+                  "avg",
+                  "min",
+                  "max",
+                  "count_distinct",
+                  "array_agg",
+                  "string_agg"
+                ],
+                "description": "Aggregation function"
+              },
+              "field": {
+                "type": "string",
+                "description": "Field to aggregate (optional for COUNT(*))"
+              },
+              "alias": {
+                "type": "string",
+                "description": "Result column alias"
+              },
+              "distinct": {
+                "type": "boolean",
+                "description": "Apply DISTINCT before aggregation"
+              }
+            },
+            "required": [
+              "function",
+              "alias"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Aggregation functions"
+        },
+        "groupBy": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "GROUP BY fields"
+        },
+        "having": {
+          "allOf": [
+            {
+              "type": "object",
+              "additionalProperties": {}
+            },
+            {
+              "type": "object",
+              "properties": {
+                "$and": {
+                  "type": "array",
+                  "items": {}
+                },
+                "$or": {
+                  "type": "array",
+                  "items": {}
+                },
+                "$not": {}
+              }
+            }
+          ],
+          "description": "HAVING clause for aggregation filtering"
+        },
+        "windowFunctions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "function": {
+                "type": "string",
+                "enum": [
+                  "row_number",
+                  "rank",
+                  "dense_rank",
+                  "percent_rank",
+                  "lag",
+                  "lead",
+                  "first_value",
+                  "last_value",
+                  "sum",
+                  "avg",
+                  "count",
+                  "min",
+                  "max"
+                ],
+                "description": "Window function name"
+              },
+              "field": {
+                "type": "string",
+                "description": "Field to operate on (for aggregate window functions)"
+              },
+              "alias": {
+                "type": "string",
+                "description": "Result column alias"
+              },
+              "over": {
+                "type": "object",
+                "properties": {
+                  "partitionBy": {
                     "type": "array",
                     "items": {
                       "type": "string"
                     },
-                    "description": "GROUP BY fields"
+                    "description": "PARTITION BY fields"
                   },
-                  "having": {
-                    "anyOf": [
-                      {
-                        "type": "array",
-                        "minItems": 3,
-                        "maxItems": 3,
-                        "items": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "=",
-                              "!=",
-                              "<>",
-                              ">",
-                              ">=",
-                              "<",
-                              "<=",
-                              "startswith",
-                              "contains",
-                              "notcontains",
-                              "between",
-                              "in",
-                              "notin",
-                              "is_null",
-                              "is_not_null"
-                            ]
-                          },
-                          {}
-                        ]
-                      },
-                      {
-                        "type": "array",
-                        "items": {
-                          "anyOf": [
-                            {
-                              "type": "string"
-                            },
-                            {}
-                          ]
-                        }
-                      }
-                    ],
-                    "description": "HAVING clause for aggregation filtering"
-                  },
-                  "sort": {
+                  "orderBy": {
                     "type": "array",
                     "items": {
                       "type": "object",
@@ -645,122 +632,43 @@
                       ],
                       "additionalProperties": false
                     },
-                    "description": "Sorting instructions"
+                    "description": "ORDER BY specification"
                   },
-                  "top": {
-                    "type": "number",
-                    "description": "Limit results"
-                  },
-                  "skip": {
-                    "type": "number",
-                    "description": "Offset results"
-                  },
-                  "distinct": {
-                    "type": "boolean",
-                    "description": "SELECT DISTINCT flag"
+                  "frame": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "rows",
+                          "range"
+                        ]
+                      },
+                      "start": {
+                        "type": "string",
+                        "description": "Frame start (e.g., \"UNBOUNDED PRECEDING\", \"1 PRECEDING\")"
+                      },
+                      "end": {
+                        "type": "string",
+                        "description": "Frame end (e.g., \"CURRENT ROW\", \"1 FOLLOWING\")"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Window frame specification"
                   }
                 },
-                "required": [
-                  "object"
-                ],
                 "additionalProperties": false,
-                "description": "Subquery instead of object"
+                "description": "Window specification (OVER clause)"
               }
             },
             "required": [
-              "type",
-              "object",
-              "on"
+              "function",
+              "alias",
+              "over"
             ],
             "additionalProperties": false
           },
-          "description": "Table joins"
-        },
-        "groupBy": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "GROUP BY fields"
-        },
-        "having": {
-          "anyOf": [
-            {
-              "type": "array",
-              "minItems": 3,
-              "maxItems": 3,
-              "items": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "string",
-                  "enum": [
-                    "=",
-                    "!=",
-                    "<>",
-                    ">",
-                    ">=",
-                    "<",
-                    "<=",
-                    "startswith",
-                    "contains",
-                    "notcontains",
-                    "between",
-                    "in",
-                    "notin",
-                    "is_null",
-                    "is_not_null"
-                  ]
-                },
-                {}
-              ]
-            },
-            {
-              "type": "array",
-              "items": {
-                "anyOf": [
-                  {
-                    "type": "string"
-                  },
-                  {}
-                ]
-              }
-            }
-          ],
-          "description": "HAVING clause for aggregation filtering"
-        },
-        "sort": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "field": {
-                "type": "string"
-              },
-              "order": {
-                "type": "string",
-                "enum": [
-                  "asc",
-                  "desc"
-                ],
-                "default": "asc"
-              }
-            },
-            "required": [
-              "field"
-            ],
-            "additionalProperties": false
-          },
-          "description": "Sorting instructions"
-        },
-        "top": {
-          "type": "number",
-          "description": "Limit results"
-        },
-        "skip": {
-          "type": "number",
-          "description": "Offset results"
+          "description": "Window functions with OVER clause"
         },
         "distinct": {
           "type": "boolean",

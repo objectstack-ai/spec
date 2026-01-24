@@ -18,6 +18,16 @@
         "unique": {
           "type": "boolean",
           "description": "Whether the index is unique"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "btree",
+            "hash",
+            "gin",
+            "gist"
+          ],
+          "description": "Index type (default: btree)"
         }
       },
       "required": [

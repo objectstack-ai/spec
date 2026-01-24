@@ -5,14 +5,9 @@
     "dataset",
     "field",
     "filter",
-    "flow",
     "mapping",
     "object",
-    "permission",
     "query",
-    "sharing",
-    "trigger",
-    "validation",
-    "workflow"
+    "validation"
   ]
 }
