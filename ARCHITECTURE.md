@@ -23,31 +23,23 @@
 │                      ObjectOS (Control Layer)                    │
 │  Runtime Kernel - Define "How System Operates"                  │
 ├─────────────────────────────────────────────────────────────────┤
-│  • Manifest & Packaging  • Identity & Roles                     │
-│  • Plugin Lifecycle      • API Gateway                          │
-│  • Datasource Management • Webhook & Events                     │
-│  • Multi-tenancy         • License & Quota                      │
-│  • Real-time Sync        • Audit & Compliance                   │
+│  • Manifest & Packaging  • Identity & Roles (IAM)               │
+│  • Plugin Lifecycle      • Event Bus & Jobs                     │
+│  • API Gateway (Rest/GQL)• Real-time (Socket/SSE)               │
+│  • Multi-tenancy         • Audit & Compliance                   │
 └─────────────────────────────────────────────────────────────────┘
                               ▲
                               │ Execute
                               │
 ┌─────────────────────────────────────────────────────────────────┐
 │                       ObjectQL (Data Layer)                      │
-│  Abstract Query Language - Define "What Data Exists"            │
+│  Business Kernel - Define "What Data Exists"                    │
 ├─────────────────────────────────────────────────────────────────┤
-│  • Object & Field Schema • Query AST (Filter/Sort/Join)         │
+│  • Object & Field Schema • AI Agents & Orchestration            │
+│  • Query AST (Filter/Sort) • RAG & Vector Search                │
 │  • Validation Rules      • Permission & Sharing                 │
-│  • Workflow & Flow       • Trigger Context                      │
-│  • Formula & Rollup      • Dataset & Mapping                    │
+│  • Workflow & Flow       • Driver & Datasource (IO)             │
 └─────────────────────────────────────────────────────────────────┘
-                              ▲
-                              │ Translate
-                              │
-┌─────────────────────────────────────────────────────────────────┐
-│                       Driver Interface                           │
-│  Database Abstraction - Pluggable Data Backends                 │
-├─────────────────────────────────────────────────────────────────┤
 │  driver-postgres  │  driver-mongodb  │  driver-salesforce       │
 │  driver-mysql     │  driver-redis    │  driver-excel            │
 │  driver-sqlite    │  driver-s3       │  driver-airtable         │

@@ -22,25 +22,35 @@ pnpm install @objectstack/spec
 
 ## 📦 Architecture
 
-The specification is divided into three protocols:
+The specification is organized into five namespaces mapping to the three-layer architecture:
 
-### 1. Data Protocol (`src/data`)
-*Core Business Logic & Data Modeling*
+### 1. Data Protocol (`src/data`) - *ObjectQL*
+*Business Kernel & Data Logic*
 *   `Object`, `Field`, `Validation`
-*   `Query` (AST), `Mapping` (ETL)
+*   `Query` (AST), `Driver` (Interface), `Datasource`
 *   `Permission`, `Sharing`, `Flow`
 
-### 2. UI Protocol (`src/ui`)
+### 2. AI Protocol (`src/ai`) - *ObjectQL*
+*Intelligence & Orchestration*
+*   `Agent` (Orchestration), `RAG` (Retrieval)
+*   `Model` (Registry), `Prompt`
+
+### 3. UI Protocol (`src/ui`) - *ObjectUI*
 *Presentation & Interaction*
 *   `App`, `Page`, `View` (Grid/Kanban)
 *   `Dashboard` (Widgets), `Report`
 *   `Action` (Triggers)
 
-### 3. System Protocol (`src/system`)
-*Runtime Configuration & Security*
-*   `Manifest` (Config), `Datasource`
-*   `Role` (Hierarchy), `Identity` (Auth)
-*   `Webhook` (Integration), `Policy` (Compliance)
+### 4. System Protocol (`src/system`) - *ObjectOS*
+*Runtime Infrastructure & Security*
+*   `Manifest` (Config), `Identity` (Auth)
+*   `Role` (RBAC), `Tenant` (Isolation)
+*   `Events` (Bus), `Plugin` (Lifecycle)
+
+### 5. API Protocol (`src/api`) - *ObjectOS*
+*Connectivity & Contracts*
+*   `Contract` (DTOs), `Endpoint` (Gateway)
+*   `Discovery` (Metadata), `Realtime` (Socket)
 
 ## 📚 Usage
 

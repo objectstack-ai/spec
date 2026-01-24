@@ -75,9 +75,11 @@ export const FieldSchema = z.object({
 
 ### **Directory Structure**
 
-*   `packages/spec/src/data/`: ObjectQL (Object, Field, Validation).
+*   `packages/spec/src/data/`: ObjectQL (Object, Query, Driver).
+*   `packages/spec/src/ai/`: ObjectQL (Agent, RAG, Orchestration).
 *   `packages/spec/src/ui/`: ObjectUI (App, View, Action).
-*   `packages/spec/src/system/`: ObjectOS (Manifest, Config).
+*   `packages/spec/src/system/`: ObjectOS (Manifest, Identity, Events).
+*   `packages/spec/src/api/`: ObjectOS (Contract, Endpoint, Realtime).
 
 ---
 
