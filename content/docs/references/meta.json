@@ -4,9 +4,12 @@
   "pages": [
     "data",
     "ui",
+    "automation",
     "system",
+    "permission",
     "ai",
     "api",
-    "misc"
+    "driver",
+    "integration"
   ]
 }

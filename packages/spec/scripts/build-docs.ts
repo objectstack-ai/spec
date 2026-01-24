@@ -23,12 +23,12 @@ const ZOD_FILE_TITLES: Record<string, string> = {
   // Data
   'object': 'Objects',
   'field': 'Fields',
-  'mapping': 'Mappings',
-  'filter': 'Filters',
-  'query': 'Queries',
   'dataset': 'Datasets',
   'hook': 'Hooks',
   'validation': 'Validation',
+  'mapping': 'Mappings',
+  'filter': 'Filters',
+  'query': 'Queries',
 
   // Automation
   'flow': 'Flows',
@@ -39,24 +39,25 @@ const ZOD_FILE_TITLES: Record<string, string> = {
   'sharing': 'Sharing Rules',
   'role': 'Roles',
   'policy': 'Policies',
+  'auth': 'Authentication',
+  'identity': 'Identity',
   
   // System
   'manifest': 'Manifest',
   'plugin': 'Plugins',
   'license': 'License',
   'audit': 'Audit Logs',
-  
-  // Driver
-  'driver': 'Driver Interface',
-  // AI
-  'agent': 'Agents',
-  'conversation': 'Conversations',
-  'cost': 'Cost Management',
-  'model-registry': 'Model Registry',
-  'nlq': 'Natural Language Query',
-  'predictive': 'Predictive Models',
-  'rag-pipeline': 'RAG Pipelines',
-  'workflow-automation': 'Workflow Automation',
+  'datasource': 'Datasources',
+  'organization': 'Organizations',
+  'tenant': 'Tenants',
+  'webhook': 'Webhooks',
+  'events': 'Events',
+  'job': 'Jobs',
+  'discovery': 'Service Discovery',
+  'translation': 'Translations',
+  'territory': 'Territories',
+  'plan': 'Subscription Plans',
+
   // UI
   'app': 'Applications',
   'view': 'Views',
@@ -66,29 +67,23 @@ const ZOD_FILE_TITLES: Record<string, string> = {
   'page': 'Pages',
   'theme': 'Themes',
   'widget': 'Widgets',
-  // System
-  'manifest': 'Manifest',
-  'datasource': 'Datasources',
-  'driver': 'Drivers',
-  'auth': 'Authentication',
-  'identity': 'Identity',
-  'role': 'Roles',
-  'policy': 'Policies',
-  'organization': 'Organizations',
-  'tenant': 'Tenants',
-  'webhook': 'Webhooks',
-  'events': 'Events',
-  'job': 'Jobs',
-  'realtime': 'Real-time Communication',
-  'discovery': 'Service Discovery',
-  'plugin': 'Plugins',
-  'translation': 'Translations',
-  'audit': 'Audit',
-  'territory': 'Territories',
-  'license': 'Licenses',
-  'plan': 'Plans',
+
+  // AI
+  'agent': 'Agents',
+  'conversation': 'Conversations',
+  'cost': 'Cost Management',
+  'model-registry': 'Model Registry',
+  'nlq': 'Natural Language Query',
+  'predictive': 'Predictive Models',
+  'rag-pipeline': 'RAG Pipelines',
+  'workflow-automation': 'Workflow Automation',
+
+  // Driver
+  'driver': 'Driver Interface',
+
   // API
-  'contract': 'API Contracts'
+  'contract': 'API Contracts',
+  'realtime': 'Real-time Communication'
 };
 
 // Map SchemaName -> Category (e.g. 'Object' -> 'data')
@@ -307,10 +302,13 @@ const rootMetaProps = {
   pages: [
     "data",
     "ui",
+    "automation",
     "system",
+    "permission",
     "ai",
     "api",
-    "misc" 
+    "driver",
+    "integration"
   ]
 };
 fs.writeFileSync(path.join(DOCS_ROOT, 'meta.json'), JSON.stringify(rootMetaProps, null, 2));

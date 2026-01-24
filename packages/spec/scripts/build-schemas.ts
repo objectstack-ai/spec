@@ -6,6 +6,12 @@ import * as Protocol from '../src/index';
 
 const OUT_DIR = path.resolve(__dirname, '../json-schema');
 
+// Clean output directory ensures no stale files remain
+if (fs.existsSync(OUT_DIR)) {
+  console.log(`Cleaning output directory: ${OUT_DIR}`);
+  fs.rmSync(OUT_DIR, { recursive: true, force: true });
+}
+
 // Ensure output directory exists
 if (!fs.existsSync(OUT_DIR)) {
   fs.mkdirSync(OUT_DIR, { recursive: true });
