@@ -25,10 +25,67 @@
               "default": "grid"
             },
             "columns": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "field": {
+                        "type": "string",
+                        "description": "Field name (snake_case)"
+                      },
+                      "label": {
+                        "type": "string",
+                        "description": "Display label override"
+                      },
+                      "width": {
+                        "type": "number",
+                        "description": "Column width in pixels"
+                      },
+                      "align": {
+                        "type": "string",
+                        "enum": [
+                          "left",
+                          "center",
+                          "right"
+                        ],
+                        "description": "Text alignment"
+                      },
+                      "hidden": {
+                        "type": "boolean",
+                        "description": "Hide column by default"
+                      },
+                      "sortable": {
+                        "type": "boolean",
+                        "description": "Allow sorting by this column"
+                      },
+                      "resizable": {
+                        "type": "boolean",
+                        "description": "Allow resizing this column"
+                      },
+                      "wrap": {
+                        "type": "boolean",
+                        "description": "Allow text wrapping"
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "Renderer type override (e.g., \"currency\", \"date\")"
+                      }
+                    },
+                    "required": [
+                      "field"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              ],
               "description": "Fields to display as columns"
             },
             "filter": {
@@ -71,6 +128,54 @@
                 "type": "string"
               },
               "description": "Fields enabled for search"
+            },
+            "resizable": {
+              "type": "boolean",
+              "description": "Enable column resizing"
+            },
+            "striped": {
+              "type": "boolean",
+              "description": "Striped row styling"
+            },
+            "bordered": {
+              "type": "boolean",
+              "description": "Show borders"
+            },
+            "selection": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "single",
+                    "multiple"
+                  ],
+                  "default": "none",
+                  "description": "Selection mode"
+                }
+              },
+              "additionalProperties": false,
+              "description": "Row selection configuration"
+            },
+            "pagination": {
+              "type": "object",
+              "properties": {
+                "pageSize": {
+                  "type": "number",
+                  "default": 25,
+                  "description": "Number of records per page"
+                },
+                "pageSizeOptions": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "description": "Available page size options"
+                }
+              },
+              "additionalProperties": false,
+              "description": "Pagination configuration"
             },
             "kanban": {
               "type": "object",
@@ -192,7 +297,64 @@
                   "fields": {
                     "type": "array",
                     "items": {
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string",
+                              "description": "Field name (snake_case)"
+                            },
+                            "label": {
+                              "type": "string",
+                              "description": "Display label override"
+                            },
+                            "placeholder": {
+                              "type": "string",
+                              "description": "Placeholder text"
+                            },
+                            "helpText": {
+                              "type": "string",
+                              "description": "Help/hint text"
+                            },
+                            "readonly": {
+                              "type": "boolean",
+                              "description": "Read-only override"
+                            },
+                            "required": {
+                              "type": "boolean",
+                              "description": "Required override"
+                            },
+                            "hidden": {
+                              "type": "boolean",
+                              "description": "Hidden override"
+                            },
+                            "colSpan": {
+                              "type": "number",
+                              "description": "Column span in grid layout (1-4)"
+                            },
+                            "widget": {
+                              "type": "string",
+                              "description": "Custom widget/component name"
+                            },
+                            "dependsOn": {
+                              "type": "string",
+                              "description": "Parent field name for cascading"
+                            },
+                            "visibleOn": {
+                              "type": "string",
+                              "description": "Visibility condition expression"
+                            }
+                          },
+                          "required": [
+                            "field"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
                     }
                   }
                 },
@@ -231,7 +393,64 @@
                   "fields": {
                     "type": "array",
                     "items": {
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string",
+                              "description": "Field name (snake_case)"
+                            },
+                            "label": {
+                              "type": "string",
+                              "description": "Display label override"
+                            },
+                            "placeholder": {
+                              "type": "string",
+                              "description": "Placeholder text"
+                            },
+                            "helpText": {
+                              "type": "string",
+                              "description": "Help/hint text"
+                            },
+                            "readonly": {
+                              "type": "boolean",
+                              "description": "Read-only override"
+                            },
+                            "required": {
+                              "type": "boolean",
+                              "description": "Required override"
+                            },
+                            "hidden": {
+                              "type": "boolean",
+                              "description": "Hidden override"
+                            },
+                            "colSpan": {
+                              "type": "number",
+                              "description": "Column span in grid layout (1-4)"
+                            },
+                            "widget": {
+                              "type": "string",
+                              "description": "Custom widget/component name"
+                            },
+                            "dependsOn": {
+                              "type": "string",
+                              "description": "Parent field name for cascading"
+                            },
+                            "visibleOn": {
+                              "type": "string",
+                              "description": "Visibility condition expression"
+                            }
+                          },
+                          "required": [
+                            "field"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
                     }
                   }
                 },
@@ -267,10 +486,67 @@
                 "default": "grid"
               },
               "columns": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                },
+                "anyOf": [
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "description": "Field name (snake_case)"
+                        },
+                        "label": {
+                          "type": "string",
+                          "description": "Display label override"
+                        },
+                        "width": {
+                          "type": "number",
+                          "description": "Column width in pixels"
+                        },
+                        "align": {
+                          "type": "string",
+                          "enum": [
+                            "left",
+                            "center",
+                            "right"
+                          ],
+                          "description": "Text alignment"
+                        },
+                        "hidden": {
+                          "type": "boolean",
+                          "description": "Hide column by default"
+                        },
+                        "sortable": {
+                          "type": "boolean",
+                          "description": "Allow sorting by this column"
+                        },
+                        "resizable": {
+                          "type": "boolean",
+                          "description": "Allow resizing this column"
+                        },
+                        "wrap": {
+                          "type": "boolean",
+                          "description": "Allow text wrapping"
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "Renderer type override (e.g., \"currency\", \"date\")"
+                        }
+                      },
+                      "required": [
+                        "field"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                ],
                 "description": "Fields to display as columns"
               },
               "filter": {
@@ -313,6 +589,54 @@
                   "type": "string"
                 },
                 "description": "Fields enabled for search"
+              },
+              "resizable": {
+                "type": "boolean",
+                "description": "Enable column resizing"
+              },
+              "striped": {
+                "type": "boolean",
+                "description": "Striped row styling"
+              },
+              "bordered": {
+                "type": "boolean",
+                "description": "Show borders"
+              },
+              "selection": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "single",
+                      "multiple"
+                    ],
+                    "default": "none",
+                    "description": "Selection mode"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "Row selection configuration"
+              },
+              "pagination": {
+                "type": "object",
+                "properties": {
+                  "pageSize": {
+                    "type": "number",
+                    "default": 25,
+                    "description": "Number of records per page"
+                  },
+                  "pageSizeOptions": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "description": "Available page size options"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "Pagination configuration"
               },
               "kanban": {
                 "type": "object",
@@ -438,7 +762,64 @@
                     "fields": {
                       "type": "array",
                       "items": {
-                        "type": "string"
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string",
+                                "description": "Field name (snake_case)"
+                              },
+                              "label": {
+                                "type": "string",
+                                "description": "Display label override"
+                              },
+                              "placeholder": {
+                                "type": "string",
+                                "description": "Placeholder text"
+                              },
+                              "helpText": {
+                                "type": "string",
+                                "description": "Help/hint text"
+                              },
+                              "readonly": {
+                                "type": "boolean",
+                                "description": "Read-only override"
+                              },
+                              "required": {
+                                "type": "boolean",
+                                "description": "Required override"
+                              },
+                              "hidden": {
+                                "type": "boolean",
+                                "description": "Hidden override"
+                              },
+                              "colSpan": {
+                                "type": "number",
+                                "description": "Column span in grid layout (1-4)"
+                              },
+                              "widget": {
+                                "type": "string",
+                                "description": "Custom widget/component name"
+                              },
+                              "dependsOn": {
+                                "type": "string",
+                                "description": "Parent field name for cascading"
+                              },
+                              "visibleOn": {
+                                "type": "string",
+                                "description": "Visibility condition expression"
+                              }
+                            },
+                            "required": [
+                              "field"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
                       }
                     }
                   },
@@ -477,7 +858,64 @@
                     "fields": {
                       "type": "array",
                       "items": {
-                        "type": "string"
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string",
+                                "description": "Field name (snake_case)"
+                              },
+                              "label": {
+                                "type": "string",
+                                "description": "Display label override"
+                              },
+                              "placeholder": {
+                                "type": "string",
+                                "description": "Placeholder text"
+                              },
+                              "helpText": {
+                                "type": "string",
+                                "description": "Help/hint text"
+                              },
+                              "readonly": {
+                                "type": "boolean",
+                                "description": "Read-only override"
+                              },
+                              "required": {
+                                "type": "boolean",
+                                "description": "Required override"
+                              },
+                              "hidden": {
+                                "type": "boolean",
+                                "description": "Hidden override"
+                              },
+                              "colSpan": {
+                                "type": "number",
+                                "description": "Column span in grid layout (1-4)"
+                              },
+                              "widget": {
+                                "type": "string",
+                                "description": "Custom widget/component name"
+                              },
+                              "dependsOn": {
+                                "type": "string",
+                                "description": "Parent field name for cascading"
+                              },
+                              "visibleOn": {
+                                "type": "string",
+                                "description": "Visibility condition expression"
+                              }
+                            },
+                            "required": [
+                              "field"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
                       }
                     }
                   },

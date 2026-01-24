@@ -22,10 +22,67 @@
           "default": "grid"
         },
         "columns": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "string",
+                    "description": "Field name (snake_case)"
+                  },
+                  "label": {
+                    "type": "string",
+                    "description": "Display label override"
+                  },
+                  "width": {
+                    "type": "number",
+                    "description": "Column width in pixels"
+                  },
+                  "align": {
+                    "type": "string",
+                    "enum": [
+                      "left",
+                      "center",
+                      "right"
+                    ],
+                    "description": "Text alignment"
+                  },
+                  "hidden": {
+                    "type": "boolean",
+                    "description": "Hide column by default"
+                  },
+                  "sortable": {
+                    "type": "boolean",
+                    "description": "Allow sorting by this column"
+                  },
+                  "resizable": {
+                    "type": "boolean",
+                    "description": "Allow resizing this column"
+                  },
+                  "wrap": {
+                    "type": "boolean",
+                    "description": "Allow text wrapping"
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "Renderer type override (e.g., \"currency\", \"date\")"
+                  }
+                },
+                "required": [
+                  "field"
+                ],
+                "additionalProperties": false
+              }
+            }
+          ],
           "description": "Fields to display as columns"
         },
         "filter": {
@@ -68,6 +125,54 @@
             "type": "string"
           },
           "description": "Fields enabled for search"
+        },
+        "resizable": {
+          "type": "boolean",
+          "description": "Enable column resizing"
+        },
+        "striped": {
+          "type": "boolean",
+          "description": "Striped row styling"
+        },
+        "bordered": {
+          "type": "boolean",
+          "description": "Show borders"
+        },
+        "selection": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "none",
+                "single",
+                "multiple"
+              ],
+              "default": "none",
+              "description": "Selection mode"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Row selection configuration"
+        },
+        "pagination": {
+          "type": "object",
+          "properties": {
+            "pageSize": {
+              "type": "number",
+              "default": 25,
+              "description": "Number of records per page"
+            },
+            "pageSizeOptions": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "description": "Available page size options"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Pagination configuration"
         },
         "kanban": {
           "type": "object",
