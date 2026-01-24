@@ -86,3 +86,82 @@ const query = {
 - `PluginSchema`: Module lifecycle.
 - `EventSchema`: Pub/Sub definitions.
 - `PolicySchema`: Security rules.
+
+---
+
+## 4. Implementing the Protocol (Engine Devs)
+
+If you are building an ObjectQL engine or Driver in another repository:
+
+### ObjectQL Implementation (Data Layer)
+*Reference: `node_modules/@objectstack/spec/prompts/implement-objectql.md`*
+
+Use `z.infer` to derive types directly from the protocol. Do not manually re-declare interfaces.
+
+```typescript
+import { DriverInterfaceSchema, type DriverInterface } from '@objectstack/spec/data';
+// ...
+```
+
+### ObjectOS Implementation (System Layer)
+*Reference: `node_modules/@objectstack/spec/prompts/implement-objectos.md`*
+
+The Runtime Kernel must be bootstrapped from the Manifest.
+
+```typescript
+import { ManifestSchema, IdentitySchema } from '@objectstack/spec/system';
+import { type RequestEnvelope } from '@objectstack/spec/api';
+
+// 1. Boot: Validate Config
+const config = ManifestSchema.parse(rawConfig);
+
+// 2. Runtime: Validate Identity
+function handleRequest(user: z.infer<typeof IdentitySchema>) { ... }
+```
+
+### ObjectUI Implementation (View Layer)
+*Reference: `node_modules/@objectstack/spec/prompts/implement-objectui.md`*
+
+The UI must be Server-Driven (SDUI), rendering structures defined by the protocol.
+
+```typescript
+import { ViewSchema, ActionSchema } from '@objectstack/spec/ui';
+
+// ✅ Valid: Components accept Schema Props
+function GridView({ config }: { config: z.infer<typeof ViewSchema> }) {
+  // Render based on config.columns, config.filters...
+}
+```
+
+### 1. Strict Type Compliance
+Use `z.infer` to derive types directly from the protocol. Do not manually re-declare interfaces.
+
+```typescript
+import { DriverInterfaceSchema, type DriverInterface } from '@objectstack/spec/data';
+import { z } from 'zod';
+
+// ✅ CORRECT: Implementing the interface strictly
+export class PostgresDriver implements DriverInterface {
+  name = 'postgres';
+  version = '1.0.0';
+  supports = { transactions: true, ... };
+  
+  // Implementation matches the Zod schema exactly
+  async find(object: string, query: z.infer<typeof QuerySchema>) {
+    // ...
+  }
+}
+```
+
+### 2. Runtime Validation
+The engine **MUST** validate inputs against the Zod schemas before processing.
+
+```typescript
+import { ObjectSchema } from '@objectstack/spec/data';
+
+function registerObject(rawConfig: unknown) {
+  // CRITICAL: Parse strictly throws if protocol is violated
+  const config = ObjectSchema.parse(rawConfig);
+  // ... proceed
+}
+```
