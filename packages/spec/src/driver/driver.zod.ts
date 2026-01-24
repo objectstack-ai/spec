@@ -383,6 +383,33 @@ export const DriverInterfaceSchema = z.object({
     .args(z.string(), z.array(z.string().or(z.number())), DriverOptionsSchema.optional())
     .returns(z.promise(z.void())),
 
+  /**
+   * Update multiple records matching a query.
+   * Direct database push-down. DOES NOT trigger per-record hooks.
+   * 
+   * @param object - The object name.
+   * @param query - The filtering criteria.
+   * @param data - The data to update.
+   * @returns Count of modified records.
+   */
+  updateMany: z.function()
+    .args(z.string(), QuerySchema, z.record(z.any()), DriverOptionsSchema.optional())
+    .returns(z.promise(z.number()))
+    .optional(),
+
+  /**
+   * Delete multiple records matching a query.
+   * Direct database push-down. DOES NOT trigger per-record hooks.
+   * 
+   * @param object - The object name.
+   * @param query - The filtering criteria.
+   * @returns Count of deleted records.
+   */
+  deleteMany: z.function()
+    .args(z.string(), QuerySchema, DriverOptionsSchema.optional())
+    .returns(z.promise(z.number()))
+    .optional(),
+
   // ============================================================================
   // Transaction Management
   // ============================================================================

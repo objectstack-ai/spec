@@ -15,6 +15,10 @@ export const HookEvent = z.enum([
   'beforeInsert', 'afterInsert',
   'beforeUpdate', 'afterUpdate',
   'beforeDelete', 'afterDelete',
+  
+  // Bulk Operations (Query-based)
+  'beforeUpdateMany', 'afterUpdateMany',
+  'beforeDeleteMany', 'afterDeleteMany',
 ]);
 
 /**
@@ -115,6 +119,8 @@ export const HookContextSchema = z.object({
    * - insert: { doc: Record, options: DriverOptions }
    * - update: { id: ID, doc: Record, options: DriverOptions }
    * - delete: { id: ID, options: DriverOptions }
+   * - updateMany: { query: QueryAST, doc: Record, options: DriverOptions }
+   * - deleteMany: { query: QueryAST, options: DriverOptions }
    */
   input: z.record(z.any()).describe('Mutable input parameters'),
 
