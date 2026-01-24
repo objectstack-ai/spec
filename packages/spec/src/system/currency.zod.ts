@@ -268,12 +268,12 @@ export const Currency = {
   /**
    * Create a currency definition
    */
-  define: (code: string, name: string, symbol: string, options?: {
+  define: (code: CurrencyCode, name: string, symbol: string, options?: {
     decimalPlaces?: number;
     isActive?: boolean;
     isCorporate?: boolean;
     conversionRate?: number;
-  }) => ({
+  }): Currency => ({
     code,
     name,
     symbol,
@@ -286,14 +286,14 @@ export const Currency = {
   /**
    * Common currency definitions
    */
-  USD: () => Currency.define('USD', 'US Dollar', '$', { isCorporate: true }),
-  EUR: () => Currency.define('EUR', 'Euro', '€'),
-  GBP: () => Currency.define('GBP', 'British Pound', '£'),
-  JPY: () => Currency.define('JPY', 'Japanese Yen', '¥', { decimalPlaces: 0 }),
-  CNY: () => Currency.define('CNY', 'Chinese Yuan', '¥'),
-  AUD: () => Currency.define('AUD', 'Australian Dollar', 'A$'),
-  CAD: () => Currency.define('CAD', 'Canadian Dollar', 'C$'),
-  CHF: () => Currency.define('CHF', 'Swiss Franc', 'CHF'),
-  INR: () => Currency.define('INR', 'Indian Rupee', '₹'),
-  BRL: () => Currency.define('BRL', 'Brazilian Real', 'R$'),
+  USD: (): Currency => Currency.define('USD' as CurrencyCode, 'US Dollar', '$', { isCorporate: true }),
+  EUR: (): Currency => Currency.define('EUR' as CurrencyCode, 'Euro', '€'),
+  GBP: (): Currency => Currency.define('GBP' as CurrencyCode, 'British Pound', '£'),
+  JPY: (): Currency => Currency.define('JPY' as CurrencyCode, 'Japanese Yen', '¥', { decimalPlaces: 0 }),
+  CNY: (): Currency => Currency.define('CNY' as CurrencyCode, 'Chinese Yuan', '¥'),
+  AUD: (): Currency => Currency.define('AUD' as CurrencyCode, 'Australian Dollar', 'A$'),
+  CAD: (): Currency => Currency.define('CAD' as CurrencyCode, 'Canadian Dollar', 'C$'),
+  CHF: (): Currency => Currency.define('CHF' as CurrencyCode, 'Swiss Franc', 'CHF'),
+  INR: (): Currency => Currency.define('INR' as CurrencyCode, 'Indian Rupee', '₹'),
+  BRL: (): Currency => Currency.define('BRL' as CurrencyCode, 'Brazilian Real', 'R$'),
 };
