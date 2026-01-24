@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { 
-  PluginContextSchema, 
+import {
+  PluginContextSchema,
   PluginLifecycleSchema,
   PluginSchema,
   type PluginContextData,
-  type PluginLifecycleHooks,
+  type PluginLifecycleCallbacks,
   type PluginDefinition,
 } from './plugin.zod';
 
@@ -139,13 +139,13 @@ describe('PluginContextSchema', () => {
 
 describe('PluginLifecycleSchema', () => {
   it('should accept empty lifecycle (all hooks optional)', () => {
-    const lifecycle: PluginLifecycleHooks = {};
+    const lifecycle: PluginLifecycleCallbacks = {};
 
     expect(() => PluginLifecycleSchema.parse(lifecycle)).not.toThrow();
   });
 
   it('should accept lifecycle with onInstall hook', () => {
-    const lifecycle: PluginLifecycleHooks = {
+    const lifecycle: PluginLifecycleCallbacks = {
       onInstall: async (context: PluginContextData) => {
         // Installation logic
       },
@@ -155,7 +155,7 @@ describe('PluginLifecycleSchema', () => {
   });
 
   it('should accept lifecycle with onEnable hook', () => {
-    const lifecycle: PluginLifecycleHooks = {
+    const lifecycle: PluginLifecycleCallbacks = {
       onEnable: async (context: PluginContextData) => {
         // Enable logic
       },
@@ -165,7 +165,7 @@ describe('PluginLifecycleSchema', () => {
   });
 
   it('should accept lifecycle with onDisable hook', () => {
-    const lifecycle: PluginLifecycleHooks = {
+    const lifecycle: PluginLifecycleCallbacks = {
       onDisable: async (context: PluginContextData) => {
         // Disable logic
       },
@@ -175,7 +175,7 @@ describe('PluginLifecycleSchema', () => {
   });
 
   it('should accept lifecycle with onUninstall hook', () => {
-    const lifecycle: PluginLifecycleHooks = {
+    const lifecycle: PluginLifecycleCallbacks = {
       onUninstall: async (context: PluginContextData) => {
         // Uninstall logic
       },
@@ -185,7 +185,7 @@ describe('PluginLifecycleSchema', () => {
   });
 
   it('should accept lifecycle with onUpgrade hook', () => {
-    const lifecycle: PluginLifecycleHooks = {
+    const lifecycle: PluginLifecycleCallbacks = {
       onUpgrade: async (context: PluginContextData, fromVersion: string, toVersion: string) => {
         // Upgrade logic
       },
@@ -195,7 +195,7 @@ describe('PluginLifecycleSchema', () => {
   });
 
   it('should accept lifecycle with all hooks', () => {
-    const lifecycle: PluginLifecycleHooks = {
+    const lifecycle: PluginLifecycleCallbacks = {
       onInstall: async (context: PluginContextData) => {
         await context.ql.object('plugin_data').syncSchema();
       },

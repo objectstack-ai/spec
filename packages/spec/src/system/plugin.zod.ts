@@ -172,7 +172,7 @@ export const PluginLifecycleSchema = z.object({
     .args(PluginContextSchema)
     .returns(z.promise(z.void()))
     .optional()
-    .describe('Hook called on plugin installation'),
+    .describe('Lifecycle callback on plugin installation'),
 
   /**
    * Called when the plugin is enabled.
@@ -184,7 +184,7 @@ export const PluginLifecycleSchema = z.object({
     .args(PluginContextSchema)
     .returns(z.promise(z.void()))
     .optional()
-    .describe('Hook called when plugin is enabled'),
+    .describe('Lifecycle callback when plugin is enabled'),
 
   /**
    * Called when the plugin is disabled.
@@ -196,7 +196,7 @@ export const PluginLifecycleSchema = z.object({
     .args(PluginContextSchema)
     .returns(z.promise(z.void()))
     .optional()
-    .describe('Hook called when plugin is disabled'),
+    .describe('Lifecycle callback when plugin is disabled'),
 
   /**
    * Called when the plugin is uninstalled.
@@ -208,7 +208,7 @@ export const PluginLifecycleSchema = z.object({
     .args(PluginContextSchema)
     .returns(z.promise(z.void()))
     .optional()
-    .describe('Hook called on plugin uninstallation'),
+    .describe('Lifecycle callback on plugin uninstallation'),
 
   /**
    * Called when the plugin is upgraded to a new version.
@@ -222,7 +222,7 @@ export const PluginLifecycleSchema = z.object({
     .args(PluginContextSchema, z.string(), z.string())
     .returns(z.promise(z.void()))
     .optional()
-    .describe('Hook called on plugin upgrade'),
+    .describe('Lifecycle callback on plugin upgrade'),
 });
 
 /**
@@ -248,5 +248,5 @@ export const PluginSchema = PluginLifecycleSchema.extend({
  * TypeScript types
  */
 export type PluginContextData = z.infer<typeof PluginContextSchema>;
-export type PluginLifecycleHooks = z.infer<typeof PluginLifecycleSchema>;
+export type PluginLifecycleCallbacks = z.infer<typeof PluginLifecycleSchema>;
 export type PluginDefinition = z.infer<typeof PluginSchema>;
