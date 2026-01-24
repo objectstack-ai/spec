@@ -2,7 +2,12 @@ import { z } from 'zod';
 
 /**
  * Entity (Object) Level Permissions
- * Defines CRUD + VAMA (View All / Modify All) access.
+ * Defines CRUD + VAMA (View All / Modify All) + Lifecycle access.
+ * 
+ * Refined with enterprise data lifecycle controls:
+ * - Transfer (Ownership change)
+ * - Restore (Soft delete recovery)
+ * - Purge (Hard delete / Compliance)
  */
 export const ObjectPermissionSchema = z.object({
   /** C: Create */
@@ -14,6 +19,11 @@ export const ObjectPermissionSchema = z.object({
   /** D: Delete (Owned records or Shared records) */
   allowDelete: z.boolean().default(false).describe('Delete permission'),
   
+  /** Lifecycle Operations */
+  allowTransfer: z.boolean().default(false).describe('Change record ownership'),
+  allowRestore: z.boolean().default(false).describe('Restore from trash (Undelete)'),
+  allowPurge: z.boolean().default(false).describe('Permanently delete (Hard Delete/GDPR)'),
+
   /** 
    * View All Records: Super-user read access. 
    * Bypasses Sharing Rules and Ownership checks.

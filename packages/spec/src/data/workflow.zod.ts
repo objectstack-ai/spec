@@ -161,6 +161,26 @@ export const WorkflowActionSchema = z.discriminatedUnion('type', [
 ]);
 
 /**
+ * Time Trigger Definition
+ * Schedules actions to run relative to a specific time or date field.
+ */
+export const TimeTriggerSchema = z.object({
+  id: z.string().optional().describe('Unique identifier'),
+  
+  /** Timing Logic */
+  timeLength: z.number().int().describe('Duration amount (e.g. 1, 30)'),
+  timeUnit: z.enum(['minutes', 'hours', 'days']).describe('Unit of time'),
+  
+  /** Reference Point */
+  offsetDirection: z.enum(['before', 'after']).describe('Before or After the reference date'),
+  offsetFrom: z.enum(['trigger_date', 'date_field']).describe('Basis for calculation'),
+  dateField: z.string().optional().describe('Date field to calculate from (required if offsetFrom is date_field)'),
+  
+  /** Actions */
+  actions: z.array(WorkflowActionSchema).describe('Actions to execute at the scheduled time'),
+});
+
+/**
  * Schema for Workflow Rules (Automation)
  */
 export const WorkflowRuleSchema = z.object({
@@ -182,8 +202,18 @@ export const WorkflowRuleSchema = z.object({
   /** Actions to execute immediately */
   actions: z.array(WorkflowActionSchema).optional().describe('Immediate actions'),
   
+  /** 
+   * Time-Dependent Actions 
+   * Actions scheduled to run in the future.
+   */
+  timeTriggers: z.array(TimeTriggerSchema).optional().describe('Scheduled actions relative to trigger or date field'),
+  
   /** Active status */
   active: z.boolean().default(true).describe('Whether this workflow is active'),
+  
+  /** Recursion Control */
+  reevaluateOnChange: z.boolean().default(false).describe('Re-evaluate rule if field updates change the record validity'),
 });
 
 export type WorkflowRule = z.infer<typeof WorkflowRuleSchema>;
+export type TimeTrigger = z.infer<typeof TimeTriggerSchema>;

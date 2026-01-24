@@ -58,6 +58,7 @@ export const FlowEdgeSchema = z.object({
   /** Condition for this path (only for decision/branch nodes) */
   condition: z.string().optional().describe('Expression returning boolean used for branching'),
   
+  type: z.enum(['default', 'fault']).default('default').describe('Connection type: Standard (Success) or Fault (Error) path'),
   label: z.string().optional().describe('Label on the connector'),
 });
 
@@ -71,6 +72,11 @@ export const FlowSchema = z.object({
   label: z.string().describe('Flow label'),
   description: z.string().optional(),
   
+  /** Metadata & Versioning */
+  version: z.number().int().default(1).describe('Version number'),
+  status: z.enum(['draft', 'active', 'obsolete', 'invalid']).default('draft').describe('Deployment status'),
+  template: z.boolean().default(false).describe('Is logic template (Subflow)'),
+
   /** Trigger Type */
   type: z.enum(['autolaunched', 'record_change', 'schedule', 'screen', 'api']).describe('Flow type'),
   
@@ -82,7 +88,7 @@ export const FlowSchema = z.object({
   edges: z.array(FlowEdgeSchema).describe('Flow connections'),
   
   /** Execution Config */
-  active: z.boolean().default(false).describe('Is active'),
+  active: z.boolean().default(false).describe('Is active (Deprecated: use status)'),
   runAs: z.enum(['system', 'user']).default('user').describe('Execution context'),
 });
 
