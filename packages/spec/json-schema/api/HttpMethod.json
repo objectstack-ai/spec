@@ -8,7 +8,9 @@
         "POST",
         "PUT",
         "DELETE",
-        "PATCH"
+        "PATCH",
+        "HEAD",
+        "OPTIONS"
       ]
     }
   },

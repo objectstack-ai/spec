@@ -21,7 +21,9 @@
             "POST",
             "PUT",
             "DELETE",
-            "PATCH"
+            "PATCH",
+            "HEAD",
+            "OPTIONS"
           ],
           "description": "HTTP Method"
         },

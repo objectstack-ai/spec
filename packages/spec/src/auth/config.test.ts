@@ -24,7 +24,7 @@ import {
   type StandardAuthProvider,
   type OAuthProvider,
   type DatabaseMapping,
-} from "./auth.zod";
+} from "./config.zod";
 
 describe('AuthStrategy', () => {
   it('should accept valid authentication strategies', () => {

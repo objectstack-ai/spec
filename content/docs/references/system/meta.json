@@ -3,13 +3,9 @@
   "root": true,
   "pages": [
     "audit",
-    "auth",
     "events",
-    "identity",
     "job",
     "organization",
-    "policy",
-    "role",
     "territory",
     "translation"
   ]

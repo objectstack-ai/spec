@@ -9,6 +9,43 @@
           "default": "/api",
           "description": "Global API prefix"
         },
+        "mounts": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "string",
+              "default": "/data",
+              "description": "Data Protocol (CRUD)"
+            },
+            "metadata": {
+              "type": "string",
+              "default": "/meta",
+              "description": "Metadata Protocol (Schemas)"
+            },
+            "auth": {
+              "type": "string",
+              "default": "/auth",
+              "description": "Auth Protocol"
+            },
+            "automation": {
+              "type": "string",
+              "default": "/automation",
+              "description": "Automation Protocol"
+            },
+            "storage": {
+              "type": "string",
+              "default": "/storage",
+              "description": "Storage Protocol"
+            },
+            "graphql": {
+              "type": "string",
+              "default": "/graphql",
+              "description": "GraphQL Endpoint"
+            }
+          },
+          "additionalProperties": false,
+          "default": {}
+        },
         "cors": {
           "type": "object",
           "properties": {
