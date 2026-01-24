@@ -21,6 +21,18 @@ export const DriverOptionsSchema = z.object({
    * Whether to bypass cache and force a fresh read.
    */
   skipCache: z.boolean().optional().describe('Bypass cache'),
+
+  /**
+   * Distributed Tracing Context.
+   * Used for passing OpenTelemetry span context or request IDs for observability.
+   */
+  traceContext: z.record(z.string()).optional().describe('OpenTelemetry context or request ID'),
+
+  /**
+   * Tenant Identifier.
+   * For multi-tenant databases (row-level security or schema-per-tenant).
+   */
+  tenantId: z.string().optional().describe('Tenant Isolation identifier'),
 });
 
 /**
@@ -109,6 +121,17 @@ export const DriverCapabilitiesSchema = z.object({
    * If false, arrays will be stored as JSON strings or in separate tables.
    */
   arrayFields: z.boolean().describe('Supports array field types'),
+
+  /**
+   * Whether the driver supports vector embeddings and similarity search.
+   * Required for RAG (Retrieval-Augmented Generation) and AI features.
+   */
+  vectorSearch: z.boolean().default(false).describe('Supports vector embeddings and similarity search'),
+
+  /**
+   * Whether the driver supports geospatial queries.
+   */
+  geoSpatial: z.boolean().default(false).describe('Supports geospatial queries'),
 });
 
 /**
@@ -158,6 +181,20 @@ export const DriverInterfaceSchema = z.object({
   checkHealth: z.function()
     .returns(z.promise(z.boolean()))
     .describe('Health check'),
+  
+  /**
+   * Get Connection Pool Statistics.
+   * Useful for monitoring database load.
+   */
+  getPoolStats: z.function()
+    .returns(z.object({
+      total: z.number(),
+      idle: z.number(),
+      active: z.number(),
+      waiting: z.number(),
+    }).optional())
+    .optional()
+    .describe('Get connection pool statistics'),
 
   // ============================================================================
   // Raw Execution (Escape Hatch)
@@ -212,6 +249,20 @@ export const DriverInterfaceSchema = z.object({
     .describe('Find records'),
 
   /**
+   * Stream records matching the structured query.
+   * Optimized for large datasets to avoid memory overflow.
+   * 
+   * @param object - The name of the object.
+   * @param query - The structured QueryAST.
+   * @param options - Driver options.
+   * @returns AsyncIterable/ReadableStream of records.
+   */
+  findStream: z.function()
+    .args(z.string(), QuerySchema, DriverOptionsSchema.optional())
+    .returns(z.any()) // Zod cannot easily represent AsyncIterable<T>
+    .describe('Stream records (AsyncIterable)'),
+
+  /**
    * Find a single record by query.
    * Similar to find(), but returns only the first match or null.
    * 
@@ -254,6 +305,20 @@ export const DriverInterfaceSchema = z.object({
     .args(z.string(), z.string().or(z.number()), z.record(z.any()), DriverOptionsSchema.optional())
     .returns(z.promise(z.record(z.any())))
     .describe('Update record'),
+
+  /**
+   * Upsert (Update or Insert) a record.
+   * 
+   * @param object - The object name.
+   * @param data - The data to upsert.
+   * @param conflictKeys - Fields to check for conflict (uniqueness).
+   * @param options - Driver options.
+   * @returns The created or updated record.
+   */
+  upsert: z.function()
+    .args(z.string(), z.record(z.any()), z.array(z.string()).optional(), DriverOptionsSchema.optional())
+    .returns(z.promise(z.record(z.any())))
+    .describe('Upsert record'),
 
   /**
    * Delete a record by ID.
@@ -324,9 +389,13 @@ export const DriverInterfaceSchema = z.object({
 
   /**
    * Begin a new database transaction.
+   * @param options - Isolation level and other settings.
    * @returns A transaction handle to be passed to subsequent operations via `options.transaction`.
    */
   beginTransaction: z.function()
+    .args(z.object({
+      isolationLevel: z.enum(['READ UNCOMMITTED', 'READ COMMITTED', 'REPEATABLE READ', 'SERIALIZABLE', 'SNAPSHOT']).optional()
+    }).optional())
     .returns(z.promise(z.any()))
     .describe('Start transaction'),
 
@@ -375,6 +444,19 @@ export const DriverInterfaceSchema = z.object({
   dropTable: z.function()
     .args(z.string(), DriverOptionsSchema.optional())
     .returns(z.promise(z.void())),
+
+  /**
+   * Analyze query performance.
+   * Returns execution plan without executing the query (where possible).
+   * 
+   * @param object - The object name.
+   * @param query - The query to explain.
+   * @returns The execution plan details.
+   */
+  explain: z.function()
+    .args(z.string(), QuerySchema, DriverOptionsSchema.optional())
+    .returns(z.promise(z.any()))
+    .optional(),
 });
 
 /**

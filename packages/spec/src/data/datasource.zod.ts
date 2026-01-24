@@ -119,6 +119,24 @@ export const DatasourceSchema = z.object({
   config: z.record(z.any()).describe('Driver specific configuration'),
   
   /**
+   * Connection Pool Configuration
+   * Standard connection pooling settings.
+   */
+  pool: z.object({
+    min: z.number().default(0).describe('Minimum connections'),
+    max: z.number().default(10).describe('Maximum connections'),
+    idleTimeoutMillis: z.number().default(30000).describe('Idle timeout'),
+    connectionTimeoutMillis: z.number().default(3000).describe('Connection establishment timeout'),
+  }).optional().describe('Connection pool settings'),
+
+  /**
+   * Read Replicas
+   * Optional list of duplicate configurations for read-only operations.
+   * Useful for scaling read throughput.
+   */
+  readReplicas: z.array(z.record(z.any())).optional().describe('Read-only replica configurations'),
+
+  /**
    * Capability Overrides
    * Manually override what the driver claims to support.
    */
