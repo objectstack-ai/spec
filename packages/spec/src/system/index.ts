@@ -8,12 +8,9 @@
  * - Plugin Architecture
  */
 
-export * from './identity.zod';
-export * from './auth.zod';
-export * from './auth-protocol';
+
 export * from './organization.zod';
-export * from './policy.zod';
-export * from './role.zod';
+
 export * from './territory.zod';
 export * from './audit.zod';
 export * from './translation.zod';

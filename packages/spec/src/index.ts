@@ -10,10 +10,10 @@
  * 
  * ### Style 1: Namespace Imports from Root
  * ```typescript
- * import { Data, UI, System, AI, API } from '@objectstack/spec';
+ * import { Data, UI, System, Auth, AI, API } from '@objectstack/spec';
  * 
  * const field: Data.Field = { name: 'task_name', type: 'text' };
- * const user: System.User = { id: 'u1', email: 'user@example.com' };
+ * const user: Auth.User = { id: 'u1', email: 'user@example.com' };
  * ```
  * 
  * ### Style 2: Namespace Imports via Subpath
@@ -21,15 +21,16 @@
  * import * as Data from '@objectstack/spec/data';
  * import * as UI from '@objectstack/spec/ui';
  * import * as System from '@objectstack/spec/system';
+ * import * as Auth from '@objectstack/spec/auth';
  * 
  * const field: Data.Field = { name: 'task_name', type: 'text' };
- * const user: System.User = { id: 'u1', email: 'user@example.com' };
+ * const user: Auth.User = { id: 'u1', email: 'user@example.com' };
  * ```
  * 
  * ### Style 3: Direct Subpath Imports
  * ```typescript
  * import { Field, FieldType } from '@objectstack/spec/data';
- * import { User, Session } from '@objectstack/spec/system';
+ * import { User, Session } from '@objectstack/spec/auth';
  * 
  * const field: Field = { name: 'task_name', type: 'text' };
  * const user: User = { id: 'u1', email: 'user@example.com' };
@@ -46,6 +47,7 @@ export * as Driver from './driver';
 export * as Permission from './permission';
 export * as UI from './ui';
 export * as System from './system';
+export * as Auth from './auth';
 export * as Kernel from './kernel';
 export * as Hub from './hub';
 export * as AI from './ai';
