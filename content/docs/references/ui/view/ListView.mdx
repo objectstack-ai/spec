@@ -10,10 +10,16 @@ description: ListView Schema Reference
 | **name** | `string` | optional |  |
 | **label** | `string` | optional |  |
 | **type** | `Enum<'grid' \| 'kanban' \| 'calendar' \| 'gantt' \| 'map'>` | optional |  |
-| **columns** | `string[]` | ✅ | Fields to display as columns |
+| **data** | `object \| object \| object` | optional | Data source configuration (defaults to "object" provider) |
+| **columns** | `string[] \| object[]` | ✅ | Fields to display as columns |
 | **filter** | `any[]` | optional | Filter criteria (JSON Rules) |
 | **sort** | `string \| object[]` | optional |  |
 | **searchableFields** | `string[]` | optional | Fields enabled for search |
+| **resizable** | `boolean` | optional | Enable column resizing |
+| **striped** | `boolean` | optional | Striped row styling |
+| **bordered** | `boolean` | optional | Show borders |
+| **selection** | `object` | optional | Row selection configuration |
+| **pagination** | `object` | optional | Pagination configuration |
 | **kanban** | `object` | optional |  |
 | **calendar** | `object` | optional |  |
 | **gantt** | `object` | optional |  |

@@ -1,0 +1,26 @@
+{
+  "$ref": "#/definitions/PaginationConfig",
+  "definitions": {
+    "PaginationConfig": {
+      "type": "object",
+      "properties": {
+        "pageSize": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "default": 25,
+          "description": "Number of records per page"
+        },
+        "pageSizeOptions": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "description": "Available page size options"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
