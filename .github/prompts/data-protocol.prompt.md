@@ -345,7 +345,7 @@ export type Main = z.infer<typeof MainSchema>;
 ## Interaction Commands
 
 When user says:
-- **"Create Field Protocol"** → Implement complete `field.zod.ts` with all 23+ field types
+- **"Create Field Protocol"** → Implement complete `field.zod.ts` with all 35 field types
 - **"Create Object Protocol"** → Implement `object.zod.ts` with fields, capabilities, indexes
 - **"Create Validation Rules"** → Implement `validation.zod.ts` with rule engine
 - **"Create Permission System"** → Implement `permission.zod.ts` with CRUD + field-level security
