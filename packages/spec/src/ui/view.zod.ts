@@ -12,8 +12,8 @@ export const HttpRequestSchema = z.object({
   url: z.string().describe('API endpoint URL'),
   method: HttpMethodSchema.optional().default('GET').describe('HTTP method'),
   headers: z.record(z.string()).optional().describe('Custom HTTP headers'),
-  params: z.record(z.any()).optional().describe('Query parameters'),
-  body: z.record(z.any()).optional().describe('Request body for POST/PUT/PATCH'),
+  params: z.record(z.unknown()).optional().describe('Query parameters'),
+  body: z.record(z.unknown()).optional().describe('Request body for POST/PUT/PATCH'),
 });
 
 /**
@@ -23,13 +23,21 @@ export const HttpRequestSchema = z.object({
  * 2. 'api': Custom API - Explicitly provided API URLs
  * 3. 'value': Static Data - Hardcoded data array
  */
-export const ViewDataSchema = z.object({
-  provider: z.enum(['object', 'api', 'value']).default('object').describe('Data source provider type'),
-  object: z.string().optional().describe('Target object name (for "object" provider)'),
-  read: HttpRequestSchema.optional().describe('Configuration for fetching data (for "api" provider)'),
-  write: HttpRequestSchema.optional().describe('Configuration for submitting data (for "api" provider with forms/editable tables)'),
-  items: z.array(z.any()).optional().describe('Static data array (for "value" provider)'),
-});
+export const ViewDataSchema = z.discriminatedUnion('provider', [
+  z.object({
+    provider: z.literal('object'),
+    object: z.string().describe('Target object name'),
+  }),
+  z.object({
+    provider: z.literal('api'),
+    read: HttpRequestSchema.optional().describe('Configuration for fetching data'),
+    write: HttpRequestSchema.optional().describe('Configuration for submitting data (for forms/editable tables)'),
+  }),
+  z.object({
+    provider: z.literal('value'),
+    items: z.array(z.any()).describe('Static data array'),
+  }),
+]);
 
 /**
  * Kanban Settings

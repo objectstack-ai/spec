@@ -55,13 +55,6 @@ describe('HttpRequestSchema', () => {
 });
 
 describe('ViewDataSchema', () => {
-  it('should default to "object" provider when not specified', () => {
-    const data: ViewData = {};
-
-    const result = ViewDataSchema.parse(data);
-    expect(result.provider).toBe('object');
-  });
-
   it('should accept object provider with object name', () => {
     const data: ViewData = {
       provider: 'object',
@@ -69,6 +62,14 @@ describe('ViewDataSchema', () => {
     };
 
     expect(() => ViewDataSchema.parse(data)).not.toThrow();
+  });
+
+  it('should require object name for object provider', () => {
+    const data = {
+      provider: 'object',
+    };
+
+    expect(() => ViewDataSchema.parse(data)).toThrow();
   });
 
   it('should accept api provider with read configuration', () => {
@@ -111,6 +112,14 @@ describe('ViewDataSchema', () => {
     };
 
     expect(() => ViewDataSchema.parse(data)).not.toThrow();
+  });
+
+  it('should require items for value provider', () => {
+    const data = {
+      provider: 'value',
+    };
+
+    expect(() => ViewDataSchema.parse(data)).toThrow();
   });
 });
 
