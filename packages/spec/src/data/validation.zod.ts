@@ -52,7 +52,7 @@ import { z } from 'zod';
  * 
  * ## Industry Standard Enhancements
  * - **Label/Description**: Essential for governance in large systems with thousands of rules.
- * - **Events**: granular control over triggering (Context-aware validation).
+ * - **Events**: granular control over validation timing (Context-aware validation).
  * - **Tags**: categorization for reporting and management.
  */
 const BaseValidationSchema = z.object({
@@ -63,7 +63,7 @@ const BaseValidationSchema = z.object({
   
   // Execution Control
   active: z.boolean().default(true),
-  events: z.array(z.enum(['insert', 'update', 'delete'])).default(['insert', 'update']).describe('Trigger contexts'),
+  events: z.array(z.enum(['insert', 'update', 'delete'])).default(['insert', 'update']).describe('Validation contexts'),
   
   // Classification
   tags: z.array(z.string()).optional().describe('Categorization tags (e.g., "compliance", "billing")'),

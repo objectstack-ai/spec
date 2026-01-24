@@ -28,7 +28,7 @@ const ZOD_FILE_TITLES: Record<string, string> = {
   'filter': 'Filters',
   'query': 'Queries',
   'dataset': 'Datasets',
-  'trigger': 'Triggers',
+  'hook': 'Hooks',
   // AI
   'agent': 'Agents',
   'conversation': 'Conversations',

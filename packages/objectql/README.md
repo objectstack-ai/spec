@@ -8,7 +8,7 @@
 - **Cross-Datasource**: Routes queries to the correct driver (Postgres, MongoDB, Redis, etc.) based on Object definition.
 - **Unified API**: Single `find`, `insert`, `update`, `delete` API regardless of the underlying storage.
 - **Plugin System**: Load objects and logic via standard Manifests.
-- **Middleware**: (Planned) Support for Triggers, Hooks, and Validators.
+- **Middleware**: (Planned) Support for Hooks and Validators.
 
 ## Usage
 
