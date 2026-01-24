@@ -1,5 +1,11 @@
 # @objectstack/client
 
+## 0.3.1
+
+### Patch Changes
+
+- @objectstack/spec@0.3.1
+
 ## 0.3.0
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @objectstack/runtime
 
+## 0.3.1
+
+### Patch Changes
+
+- Organize zod schema files by folder structure and improve project documentation
+  - @objectstack/spec@0.3.1
+  - @objectstack/objectql@0.3.1
+  - @objectstack/types@0.3.1
+
 ## 0.3.0
 
 ### Patch Changes
