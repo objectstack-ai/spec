@@ -95,5 +95,72 @@ export const HookSchema = z.object({
   onError: z.enum(['abort', 'log']).default('abort').describe('Error handling strategy'),
 });
 
+/**
+ * Hook Runtime Context
+ * Defines what is available to the hook handler during execution.
+ * 
+ * Best Practices:
+ * - **Immutability**: `object`, `event`, `id` are immutable.
+ * - **Mutability**: `input` and `result` are mutable to allow transformation.
+ * - **Encapsulation**: `session` isolates auth info; `transaction` ensures atomicity.
+ */
+export const HookContextSchema = z.object({
+  /** Tracing ID */
+  id: z.string().optional().describe('Unique execution ID for tracing'),
+
+  /** Target Object Name */
+  object: z.string(),
+  
+  /** Current Lifecycle Event */
+  event: HookEvent,
+
+  /** 
+   * Input Parameters (Mutable)
+   * Modify this to change the behavior of the operation.
+   * 
+   * - find: { query: QueryAST, options: DriverOptions }
+   * - insert: { doc: Record, options: DriverOptions }
+   * - update: { id: ID, doc: Record, options: DriverOptions }
+   * - delete: { id: ID, options: DriverOptions }
+   */
+  input: z.record(z.any()).describe('Mutable input parameters'),
+
+  /** 
+   * Operation Result (Mutable)
+   * Available in 'after*' events. Modify this to transform the output.
+   */
+  result: z.any().optional().describe('Operation result (After hooks only)'),
+
+  /**
+   * Data Snapshot
+   * The state of the record BEFORE the operation (for update/delete).
+   */
+  previous: z.record(z.any()).optional().describe('Record state before operation'),
+
+  /**
+   * Execution Session
+   * Contains authentication and tenancy information.
+   */
+  session: z.object({
+    userId: z.string().optional(),
+    tenantId: z.string().optional(),
+    roles: z.array(z.string()).optional(),
+    accessToken: z.string().optional(),
+  }).optional().describe('Current session context'),
+  
+  /**
+   * Transaction Handle
+   * If the operation is part of a transaction, use this handle for side-effects.
+   */
+  transaction: z.any().optional().describe('Database transaction handle'),
+
+  /**
+   * Engine Access
+   * Reference to the ObjectQL engine for performing side effects.
+   */
+  ql: z.any().describe('ObjectQL Engine Reference'),
+});
+
 export type Hook = z.infer<typeof HookSchema>;
 export type HookEventType = z.infer<typeof HookEvent>;
+export type HookContext = z.infer<typeof HookContextSchema>;
