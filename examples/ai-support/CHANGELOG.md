@@ -1,5 +1,13 @@
 # @objectstack/example-ai-support
 
+## 1.0.4
+
+### Patch Changes
+
+- Patch release for maintenance and stability improvements
+- Updated dependencies
+  - @objectstack/spec@0.3.2
+
 ## 1.0.3
 
 ### Patch Changes
