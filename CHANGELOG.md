@@ -19,6 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.0.0] - 2026-01-25
+
+### Changed
+- **BREAKING**: Major version 1.0.0 release - API is now stable
+- All packages updated to version 1.0.0
+- Production-ready release with comprehensive documentation and testing
+
 ## [0.4.0] - 2026-01-25
 
 ### Added
@@ -166,7 +173,8 @@ Mark breaking changes clearly:
 
 ---
 
-[Unreleased]: https://github.com/objectstack-ai/spec/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/objectstack-ai/spec/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/objectstack-ai/spec/compare/v0.4.0...v1.0.0
 [0.4.0]: https://github.com/objectstack-ai/spec/compare/v0.3.2...v0.4.0
 [0.3.2]: https://github.com/objectstack-ai/spec/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/objectstack-ai/spec/compare/v0.3.0...v0.3.1

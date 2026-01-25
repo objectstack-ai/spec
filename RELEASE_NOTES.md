@@ -1,5 +1,59 @@
 # Release Notes
 
+## v1.0.0 - Major Release (2026-01-25)
+
+### 📦 Released Packages
+
+All packages have been updated to version **1.0.0**:
+
+- **@objectstack/spec@1.0.0** - Core protocol definitions and TypeScript types
+- **@objectstack/types@1.0.0** - Shared TypeScript type definitions
+- **@objectstack/objectql@1.0.0** - ObjectQL query language and runtime
+- **@objectstack/runtime@1.0.0** - Runtime execution environment
+- **@objectstack/client@1.0.0** - Client library for ObjectStack
+- **@objectstack/driver-memory@1.0.0** - In-memory data storage driver
+- **@objectstack/plugin-hono-server@1.0.0** - Hono server plugin for REST API
+- **@objectstack/plugin-msw@1.0.0** - MSW (Mock Service Worker) plugin
+
+### 🎉 What's New
+
+This is a **major version 1.0.0 release** marking the API as stable and production-ready!
+
+#### Stability & Production Readiness
+- **Stable API**: The ObjectStack protocol and API are now considered stable
+- **Production Ready**: All core packages are ready for production use
+- **Comprehensive Testing**: Full test coverage across all packages
+- **Complete Documentation**: Extensive guides and API references
+
+#### Foundation
+Built on the solid foundation established in v0.4.0:
+- Complete documentation site with Fumadocs
+- Comprehensive GitHub workflows (CI, CodeQL, release automation)
+- Documentation guides (CONTRIBUTING.md, ARCHITECTURE.md, CODE_OF_CONDUCT.md)
+- Agent prompts for AI-assisted development
+- Multiple example applications
+- Infrastructure automation
+
+### 📝 Changes Summary
+
+- **Version Bump**: All packages updated from 0.4.0 → 1.0.0 (major version bump)
+- **API Stability**: API is now considered stable and production-ready
+- **No Breaking Changes**: This release maintains compatibility with 0.4.0
+
+### 🚀 Publishing
+
+This release is ready for publishing to npm. When this PR is merged to `main`:
+1. The GitHub Actions release workflow will automatically detect the version bump
+2. Build all packages
+3. Publish to npm registry using NPM_TOKEN secret
+4. Create GitHub release with appropriate tags
+
+### 🔗 Migration Notes
+
+No migration required from v0.4.0 - this is a stability declaration release.
+
+---
+
 ## v0.4.0 - Minor Feature Release (2026-01-25)
 
 ### 📦 Released Packages

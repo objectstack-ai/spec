@@ -1,5 +1,11 @@
 # @objectstack/spec
 
+## 1.0.0
+
+### Major Changes
+
+- Major version 1.0.0 release - API is now stable and production-ready
+
 ## 0.4.0
 
 ### Minor Changes

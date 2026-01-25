@@ -1,5 +1,12 @@
 # @objectstack/objectql
 
+## 1.0.0
+
+### Major Changes
+
+- Updated dependencies
+  - @objectstack/spec@1.0.0
+
 ## 0.4.0
 
 ### Minor Changes
