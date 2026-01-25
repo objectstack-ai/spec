@@ -1,6 +1,6 @@
 # MSW Demo Example
 
-This example demonstrates how to use the `@objectstack/plugin-msw` package to mock ObjectStack APIs using Mock Service Worker (MSW).
+This example demonstrates how to use the `@objectstack/plugin-msw` package to mock ObjectStack APIs using Mock Service Worker (MSW), with React components using the official `@objectstack/client`.
 
 > **中文指南**: 查看 [GUIDE_CN.md](./GUIDE_CN.md) 获取完整的中文使用指南和案例说明。
 
@@ -8,8 +8,8 @@ This example demonstrates how to use the `@objectstack/plugin-msw` package to mo
 
 - **Browser Mode**: Shows how to use MSW in a browser environment with standalone handlers
 - **Server Mode**: Demonstrates MSW plugin integration with ObjectStack Runtime
-- **React Components**: Complete examples showing CRUD operations in frontend components
-- **Custom Hooks**: Reusable React hooks for data operations with MSW
+- **React Components**: Complete examples showing CRUD operations using `@objectstack/client`
+- **Custom Hooks**: Reusable React hooks wrapping `@objectstack/client` for data operations
 - **TypeScript Support**: Full type safety with TypeScript
 
 ## Files
@@ -22,13 +22,13 @@ This example demonstrates how to use the `@objectstack/plugin-msw` package to mo
 - `src/components/UserManagement.tsx` - Complete user management component with full CRUD operations
 - `src/components/UserList.tsx` - Simplified component using custom hooks
 
-### Custom Hooks
+### Custom Hooks (Using @objectstack/client)
 - `src/hooks/useObjectData.ts` - Reusable hooks for data operations:
-  - `useObjectData` - Fetch data from MSW-mocked endpoints
-  - `useCreateData` - Create records
-  - `useUpdateData` - Update records
-  - `useDeleteData` - Delete records
-  - `useMetadata` - Fetch metadata
+  - `useObjectData` - Fetch data using ObjectStack Client
+  - `useCreateData` - Create records using ObjectStack Client
+  - `useUpdateData` - Update records using ObjectStack Client
+  - `useDeleteData` - Delete records using ObjectStack Client
+  - `useMetadata` - Fetch metadata using ObjectStack Client
 
 ## Usage
 
@@ -91,20 +91,22 @@ export const UserComponent = () => {
 
 ### 3. React Component with Custom Hooks (Recommended)
 
+**Note**: Custom hooks use `@objectstack/client` internally for all API calls.
+
 ```typescript
 import React from 'react';
 import { useObjectData, useCreateData, useDeleteData } from './hooks/useObjectData';
 
 export const UserComponent = () => {
-  // Fetch data
+  // Fetch data using ObjectStack Client
   const { data: users, loading, error, refetch } = useObjectData('user');
   
-  // Create data
+  // Create data using ObjectStack Client
   const { execute: createUser } = useCreateData('user', {
     onSuccess: () => refetch(),
   });
   
-  // Delete data
+  // Delete data using ObjectStack Client
   const { execute: deleteUser } = useDeleteData('user', {
     onSuccess: () => refetch(),
   });

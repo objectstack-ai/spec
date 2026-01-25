@@ -4,9 +4,12 @@
 
 本案例展示如何在前端 React 组件中使用 MSW (Mock Service Worker) 数据源进行模拟 API 数据操作。MSW 允许你在开发和测试环境中拦截网络请求，无需真实的后端服务器。
 
+**重要**: 本示例使用 `@objectstack/client` 官方客户端进行 API 调用，遵循最佳实践。
+
 ## 🎯 主要特性
 
 - ✅ **完整的 CRUD 操作**: 创建、读取、更新、删除数据
+- ✅ **使用官方客户端**: 基于 `@objectstack/client` 进行 API 调用
 - ✅ **自定义 React Hooks**: 封装数据操作逻辑，提高代码复用性
 - ✅ **错误处理和加载状态**: 完善的用户体验
 - ✅ **TypeScript 类型安全**: 全面的类型支持
@@ -127,15 +130,17 @@ export const UserComponent = () => {
 
 ### 方式二：使用自定义 Hooks（推荐）
 
+**注意**: 自定义 Hooks 内部使用 `@objectstack/client` 进行 API 调用。
+
 ```typescript
 import React from 'react';
 import { useObjectData, useCreateData, useUpdateData, useDeleteData } from './hooks/useObjectData';
 
 export const UserComponent = () => {
-  // 数据获取
+  // 数据获取 - 使用 ObjectStack Client
   const { data: users, loading, error, refetch } = useObjectData('user');
   
-  // CRUD 操作
+  // CRUD 操作 - 都通过 ObjectStack Client
   const { execute: createUser } = useCreateData('user', {
     onSuccess: () => refetch(),
   });

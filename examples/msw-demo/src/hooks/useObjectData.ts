@@ -1,12 +1,13 @@
 /**
- * Custom React Hooks for MSW Data Operations
+ * Custom React Hooks for ObjectStack Data Operations
  * 
- * This file provides reusable hooks for working with MSW-mocked APIs.
- * These hooks handle common patterns like data fetching, mutations,
- * loading states, and error handling.
+ * This file provides reusable hooks for working with ObjectStack APIs
+ * using the @objectstack/client package. These hooks handle common patterns
+ * like data fetching, mutations, loading states, and error handling.
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { ObjectStackClient } from '@objectstack/client';
 
 /**
  * Response type for API operations
@@ -29,7 +30,19 @@ interface MutationResponse<T> {
 }
 
 /**
- * Hook for fetching data from MSW-mocked endpoints
+ * Get or create a singleton client instance
+ */
+let clientInstance: ObjectStackClient | null = null;
+
+function getClient(baseUrl: string = 'http://localhost:3000'): ObjectStackClient {
+  if (!clientInstance) {
+    clientInstance = new ObjectStackClient({ baseUrl });
+  }
+  return clientInstance;
+}
+
+/**
+ * Hook for fetching data using ObjectStack Client
  * 
  * @example
  * ```tsx
@@ -44,7 +57,7 @@ export function useObjectData<T = any>(
     autoFetch?: boolean;
   }
 ): ApiResponse<T> {
-  const { baseUrl = '/api/v1', autoFetch = true } = options || {};
+  const { baseUrl = 'http://localhost:3000', autoFetch = true } = options || {};
   
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(false);
@@ -55,17 +68,18 @@ export function useObjectData<T = any>(
     setError(null);
     
     try {
-      const url = id 
-        ? `${baseUrl}/data/${objectName}/${id}`
-        : `${baseUrl}/data/${objectName}`;
+      const client = getClient(baseUrl);
       
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch ${objectName}: ${response.statusText}`);
+      let result: any;
+      if (id) {
+        // Get single record
+        result = await client.data.get<T>(objectName, id);
+      } else {
+        // Get list of records
+        const response = await client.data.find<T>(objectName);
+        result = response.value; // Extract array from paginated result
       }
       
-      const result = await response.json();
       setData(result);
     } catch (err) {
       const message = err instanceof Error ? err.message : `Failed to fetch ${objectName}`;
@@ -91,7 +105,7 @@ export function useObjectData<T = any>(
 }
 
 /**
- * Hook for creating records via MSW-mocked POST endpoints
+ * Hook for creating records using ObjectStack Client
  * 
  * @example
  * ```tsx
@@ -107,7 +121,7 @@ export function useCreateData<T = any>(
     onError?: (error: string) => void;
   }
 ): MutationResponse<T> {
-  const { baseUrl = '/api/v1', onSuccess, onError } = options || {};
+  const { baseUrl = 'http://localhost:3000', onSuccess, onError } = options || {};
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -118,19 +132,8 @@ export function useCreateData<T = any>(
     setError(null);
     
     try {
-      const response = await fetch(`${baseUrl}/data/${objectName}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to create ${objectName}: ${response.statusText}`);
-      }
-      
-      const result = await response.json();
+      const client = getClient(baseUrl);
+      const result = await client.data.create<T>(objectName, payload);
       setData(result);
       
       if (onSuccess) {
@@ -162,12 +165,12 @@ export function useCreateData<T = any>(
 }
 
 /**
- * Hook for updating records via MSW-mocked PATCH endpoints
+ * Hook for updating records using ObjectStack Client
  * 
  * @example
  * ```tsx
  * const { execute: updateUser, loading } = useUpdateData('user');
- * await updateUser('123', { name: 'John Updated' });
+ * await updateUser({ id: '123', data: { name: 'John Updated' } });
  * ```
  */
 export function useUpdateData<T = any>(
@@ -178,7 +181,7 @@ export function useUpdateData<T = any>(
     onError?: (error: string) => void;
   }
 ): MutationResponse<{ id: string; data: Partial<T> }> {
-  const { baseUrl = '/api/v1', onSuccess, onError } = options || {};
+  const { baseUrl = 'http://localhost:3000', onSuccess, onError } = options || {};
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -189,19 +192,8 @@ export function useUpdateData<T = any>(
     setError(null);
     
     try {
-      const response = await fetch(`${baseUrl}/data/${objectName}/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to update ${objectName}: ${response.statusText}`);
-      }
-      
-      const result = await response.json();
+      const client = getClient(baseUrl);
+      const result = await client.data.update<T>(objectName, id, payload);
       setData(result);
       
       if (onSuccess) {
@@ -233,7 +225,7 @@ export function useUpdateData<T = any>(
 }
 
 /**
- * Hook for deleting records via MSW-mocked DELETE endpoints
+ * Hook for deleting records using ObjectStack Client
  * 
  * @example
  * ```tsx
@@ -249,7 +241,7 @@ export function useDeleteData(
     onError?: (error: string) => void;
   }
 ): MutationResponse<string> {
-  const { baseUrl = '/api/v1', onSuccess, onError } = options || {};
+  const { baseUrl = 'http://localhost:3000', onSuccess, onError } = options || {};
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -260,15 +252,8 @@ export function useDeleteData(
     setError(null);
     
     try {
-      const response = await fetch(`${baseUrl}/data/${objectName}/${id}`, {
-        method: 'DELETE',
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to delete ${objectName}: ${response.statusText}`);
-      }
-      
-      const result = await response.json();
+      const client = getClient(baseUrl);
+      const result = await client.data.delete(objectName, id);
       setData(result);
       
       if (onSuccess) {
@@ -300,7 +285,7 @@ export function useDeleteData(
 }
 
 /**
- * Hook for fetching metadata via MSW-mocked endpoints
+ * Hook for fetching metadata using ObjectStack Client
  * 
  * @example
  * ```tsx
@@ -315,7 +300,7 @@ export function useMetadata<T = any>(
     autoFetch?: boolean;
   }
 ): ApiResponse<T> {
-  const { baseUrl = '/api/v1', autoFetch = true } = options || {};
+  const { baseUrl = 'http://localhost:3000', autoFetch = true } = options || {};
   
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(false);
@@ -326,19 +311,15 @@ export function useMetadata<T = any>(
     setError(null);
     
     try {
-      let url = `${baseUrl}/meta/${metaType}`;
-      if (metaName) {
-        url += `/${metaName}`;
+      const client = getClient(baseUrl);
+      
+      // For now, only support 'object' type since that's what the client exposes
+      if (metaType === 'object' && metaName) {
+        const result = await client.meta.getObject(metaName);
+        setData(result);
+      } else {
+        throw new Error('useMetadata currently only supports fetching object metadata');
       }
-      
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch metadata: ${response.statusText}`);
-      }
-      
-      const result = await response.json();
-      setData(result);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to fetch metadata';
       setError(message);

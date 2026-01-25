@@ -9,6 +9,7 @@
     "clean": "rm -rf dist node_modules"
   },
   "dependencies": {
+    "@objectstack/client": "workspace:*",
     "@objectstack/driver-memory": "workspace:*",
     "@objectstack/example-crm": "workspace:*",
     "@objectstack/objectql": "workspace:*",
