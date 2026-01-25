@@ -1,0 +1,148 @@
+{
+  "$ref": "#/definitions/PricingSection",
+  "definitions": {
+    "PricingSection": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "pricing"
+        },
+        "id": {
+          "type": "string",
+          "description": "Section ID for anchor links"
+        },
+        "title": {
+          "type": "string",
+          "description": "Section title"
+        },
+        "description": {
+          "type": "string",
+          "description": "Section description"
+        },
+        "plans": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Plan name"
+              },
+              "description": {
+                "type": "string",
+                "description": "Plan description"
+              },
+              "price": {
+                "type": "string",
+                "description": "Price (e.g., \"$29\", \"Free\", \"Custom\")"
+              },
+              "period": {
+                "type": "string",
+                "description": "Billing period (e.g., \"/month\", \"/year\")"
+              },
+              "features": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "List of features"
+              },
+              "button": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "description": "Button text"
+                  },
+                  "href": {
+                    "type": "string",
+                    "description": "Button target URL or action"
+                  },
+                  "variant": {
+                    "type": "string",
+                    "enum": [
+                      "primary",
+                      "secondary",
+                      "outline",
+                      "ghost",
+                      "link"
+                    ],
+                    "default": "primary"
+                  },
+                  "size": {
+                    "type": "string",
+                    "enum": [
+                      "sm",
+                      "md",
+                      "lg"
+                    ],
+                    "default": "md"
+                  },
+                  "target": {
+                    "type": "string",
+                    "enum": [
+                      "_self",
+                      "_blank"
+                    ],
+                    "default": "_self"
+                  },
+                  "icon": {
+                    "type": "string",
+                    "description": "Icon name"
+                  }
+                },
+                "required": [
+                  "text",
+                  "href"
+                ],
+                "additionalProperties": false,
+                "description": "CTA button"
+              },
+              "highlighted": {
+                "type": "boolean",
+                "default": false,
+                "description": "Highlight as recommended plan"
+              },
+              "badge": {
+                "type": "string",
+                "description": "Badge text (e.g., \"Popular\", \"Best Value\")"
+              }
+            },
+            "required": [
+              "name",
+              "price",
+              "features",
+              "button"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Pricing plans"
+        },
+        "billingToggle": {
+          "type": "object",
+          "properties": {
+            "monthly": {
+              "type": "string",
+              "default": "Monthly",
+              "description": "Monthly billing label"
+            },
+            "yearly": {
+              "type": "string",
+              "default": "Yearly",
+              "description": "Yearly billing label"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Enable monthly/yearly toggle"
+        }
+      },
+      "required": [
+        "type",
+        "plans"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

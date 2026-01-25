@@ -1,0 +1,50 @@
+{
+  "$ref": "#/definitions/FooterLinkGroup",
+  "definitions": {
+    "FooterLinkGroup": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Link group title"
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Link label"
+              },
+              "href": {
+                "type": "string",
+                "description": "Link URL"
+              },
+              "target": {
+                "type": "string",
+                "enum": [
+                  "_self",
+                  "_blank"
+                ],
+                "default": "_self"
+              }
+            },
+            "required": [
+              "label",
+              "href"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Links"
+        }
+      },
+      "required": [
+        "title",
+        "links"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

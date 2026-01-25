@@ -1,0 +1,41 @@
+{
+  "$ref": "#/definitions/DropdownMenuItem",
+  "definitions": {
+    "DropdownMenuItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for menu item"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Icon name or URL"
+        },
+        "badge": {
+          "type": "string",
+          "description": "Badge text"
+        },
+        "visible": {
+          "type": "string",
+          "description": "Visibility formula condition"
+        },
+        "type": {
+          "type": "string",
+          "const": "dropdown"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "type"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,24 @@
+---
+title: LandingPage
+description: LandingPage Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Page identifier (snake_case) |
+| **title** | `string` | ✅ | Page title |
+| **slug** | `string` | ✅ | URL slug (e.g., "/", "/pricing", "/about") |
+| **description** | `string` | optional | Page description |
+| **seo** | `object` | optional | SEO and meta tags configuration |
+| **sections** | `object \| object \| object \| object \| object \| object \| object \| object \| object[]` | ✅ | Page content sections |
+| **navigation** | `string` | optional | Navigation name to use |
+| **footer** | `string` | optional | Footer name to use |
+| **published** | `boolean` | optional | Whether page is published |
+| **publishedAt** | `string` | optional | Publication timestamp |
+| **updatedAt** | `string` | optional | Last update timestamp |
+| **template** | `string` | optional | Custom template identifier |
+| **scripts** | `object[]` | optional | Custom scripts to inject |
+| **customCss** | `string` | optional | Custom CSS styles |
+| **variant** | `string` | optional | A/B testing variant identifier |

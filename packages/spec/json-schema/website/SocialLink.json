@@ -1,0 +1,41 @@
+{
+  "$ref": "#/definitions/SocialLink",
+  "definitions": {
+    "SocialLink": {
+      "type": "object",
+      "properties": {
+        "platform": {
+          "type": "string",
+          "enum": [
+            "facebook",
+            "twitter",
+            "linkedin",
+            "instagram",
+            "github",
+            "youtube",
+            "custom"
+          ]
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Social profile URL"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Custom icon name or URL"
+        },
+        "label": {
+          "type": "string",
+          "description": "Accessible label"
+        }
+      },
+      "required": [
+        "platform",
+        "url"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

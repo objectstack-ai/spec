@@ -1,0 +1,206 @@
+{
+  "$ref": "#/definitions/SeoConfig",
+  "definitions": {
+    "SeoConfig": {
+      "type": "object",
+      "properties": {
+        "meta": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "description": "SEO title (50-60 characters recommended)"
+            },
+            "description": {
+              "type": "string",
+              "description": "Meta description (150-160 characters recommended)"
+            },
+            "keywords": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "SEO keywords"
+            },
+            "canonical": {
+              "type": "string",
+              "format": "uri",
+              "description": "Canonical URL"
+            },
+            "robots": {
+              "type": "string",
+              "description": "Robots directive (e.g., \"index, follow\")"
+            },
+            "author": {
+              "type": "string",
+              "description": "Content author"
+            },
+            "language": {
+              "type": "string",
+              "description": "Language code (e.g., \"en\", \"zh-CN\")"
+            }
+          },
+          "required": [
+            "title",
+            "description"
+          ],
+          "additionalProperties": false,
+          "description": "Basic SEO meta tags"
+        },
+        "openGraph": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "description": "Open Graph title"
+            },
+            "description": {
+              "type": "string",
+              "description": "Open Graph description"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "website",
+                "article",
+                "product",
+                "profile"
+              ],
+              "default": "website"
+            },
+            "image": {
+              "type": "string",
+              "format": "uri",
+              "description": "Open Graph image URL (1200x630px recommended)"
+            },
+            "imageAlt": {
+              "type": "string",
+              "description": "Open Graph image alt text"
+            },
+            "siteName": {
+              "type": "string",
+              "description": "Site name"
+            },
+            "locale": {
+              "type": "string",
+              "description": "Locale (e.g., \"en_US\", \"zh_CN\")"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "description": "Canonical URL"
+            }
+          },
+          "required": [
+            "title",
+            "description",
+            "image"
+          ],
+          "additionalProperties": false,
+          "description": "Open Graph protocol tags"
+        },
+        "twitter": {
+          "type": "object",
+          "properties": {
+            "card": {
+              "type": "string",
+              "enum": [
+                "summary",
+                "summary_large_image",
+                "app",
+                "player"
+              ],
+              "default": "summary_large_image"
+            },
+            "title": {
+              "type": "string",
+              "description": "Twitter card title"
+            },
+            "description": {
+              "type": "string",
+              "description": "Twitter card description"
+            },
+            "image": {
+              "type": "string",
+              "format": "uri",
+              "description": "Twitter card image URL"
+            },
+            "imageAlt": {
+              "type": "string",
+              "description": "Twitter card image alt text"
+            },
+            "site": {
+              "type": "string",
+              "description": "Twitter @username for site"
+            },
+            "creator": {
+              "type": "string",
+              "description": "Twitter @username for creator"
+            }
+          },
+          "required": [
+            "title",
+            "description",
+            "image"
+          ],
+          "additionalProperties": false,
+          "description": "Twitter Card tags"
+        },
+        "structuredData": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "description": "Schema.org type (e.g., \"Organization\", \"Product\", \"Article\")"
+              },
+              "data": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Schema.org structured data object"
+              }
+            },
+            "required": [
+              "type",
+              "data"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Schema.org structured data"
+        },
+        "customMeta": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Meta tag name"
+              },
+              "content": {
+                "type": "string",
+                "description": "Meta tag content"
+              },
+              "property": {
+                "type": "string",
+                "description": "Meta tag property (for og: tags)"
+              }
+            },
+            "required": [
+              "name",
+              "content"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Custom meta tags"
+        }
+      },
+      "required": [
+        "meta"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

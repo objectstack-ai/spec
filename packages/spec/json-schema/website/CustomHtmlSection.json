@@ -1,0 +1,28 @@
+{
+  "$ref": "#/definitions/CustomHtmlSection",
+  "definitions": {
+    "CustomHtmlSection": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "custom_html"
+        },
+        "id": {
+          "type": "string",
+          "description": "Section ID for anchor links"
+        },
+        "html": {
+          "type": "string",
+          "description": "Custom HTML content"
+        }
+      },
+      "required": [
+        "type",
+        "html"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

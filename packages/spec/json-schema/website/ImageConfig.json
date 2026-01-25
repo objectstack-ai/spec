@@ -1,0 +1,51 @@
+{
+  "$ref": "#/definitions/ImageConfig",
+  "definitions": {
+    "ImageConfig": {
+      "type": "object",
+      "properties": {
+        "src": {
+          "type": "string",
+          "description": "Image source URL"
+        },
+        "alt": {
+          "type": "string",
+          "description": "Image alt text"
+        },
+        "width": {
+          "type": "number",
+          "description": "Image width in pixels"
+        },
+        "height": {
+          "type": "number",
+          "description": "Image height in pixels"
+        },
+        "objectFit": {
+          "type": "string",
+          "enum": [
+            "cover",
+            "contain",
+            "fill",
+            "none",
+            "scale-down"
+          ],
+          "default": "cover"
+        },
+        "loading": {
+          "type": "string",
+          "enum": [
+            "lazy",
+            "eager"
+          ],
+          "default": "lazy"
+        }
+      },
+      "required": [
+        "src",
+        "alt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

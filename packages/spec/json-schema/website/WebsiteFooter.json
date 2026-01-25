@@ -1,0 +1,143 @@
+{
+  "$ref": "#/definitions/WebsiteFooter",
+  "definitions": {
+    "WebsiteFooter": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Footer identifier (snake_case)"
+        },
+        "linkGroups": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "description": "Link group title"
+              },
+              "links": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "description": "Link label"
+                    },
+                    "href": {
+                      "type": "string",
+                      "description": "Link URL"
+                    },
+                    "target": {
+                      "type": "string",
+                      "enum": [
+                        "_self",
+                        "_blank"
+                      ],
+                      "default": "_self"
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "href"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "Links"
+              }
+            },
+            "required": [
+              "title",
+              "links"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Footer link groups"
+        },
+        "socialLinks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "platform": {
+                "type": "string",
+                "enum": [
+                  "facebook",
+                  "twitter",
+                  "linkedin",
+                  "instagram",
+                  "github",
+                  "youtube",
+                  "custom"
+                ]
+              },
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "description": "Social profile URL"
+              },
+              "icon": {
+                "type": "string",
+                "description": "Custom icon name or URL"
+              },
+              "label": {
+                "type": "string",
+                "description": "Accessible label"
+              }
+            },
+            "required": [
+              "platform",
+              "url"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Social media links"
+        },
+        "copyright": {
+          "type": "string",
+          "description": "Copyright text"
+        },
+        "description": {
+          "type": "string",
+          "description": "Footer description or tagline"
+        },
+        "newsletter": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "description": "Newsletter section title"
+            },
+            "description": {
+              "type": "string",
+              "description": "Newsletter description"
+            },
+            "placeholder": {
+              "type": "string",
+              "default": "Enter your email",
+              "description": "Email input placeholder"
+            },
+            "buttonText": {
+              "type": "string",
+              "default": "Subscribe",
+              "description": "Submit button text"
+            }
+          },
+          "required": [
+            "title"
+          ],
+          "additionalProperties": false,
+          "description": "Newsletter signup configuration"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

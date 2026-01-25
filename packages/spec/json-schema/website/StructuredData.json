@@ -1,0 +1,25 @@
+{
+  "$ref": "#/definitions/StructuredData",
+  "definitions": {
+    "StructuredData": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Schema.org type (e.g., \"Organization\", \"Product\", \"Article\")"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Schema.org structured data object"
+        }
+      },
+      "required": [
+        "type",
+        "data"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

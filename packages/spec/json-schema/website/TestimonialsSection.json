@@ -1,0 +1,90 @@
+{
+  "$ref": "#/definitions/TestimonialsSection",
+  "definitions": {
+    "TestimonialsSection": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "testimonials"
+        },
+        "id": {
+          "type": "string",
+          "description": "Section ID for anchor links"
+        },
+        "title": {
+          "type": "string",
+          "description": "Section title"
+        },
+        "description": {
+          "type": "string",
+          "description": "Section description"
+        },
+        "testimonials": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "quote": {
+                "type": "string",
+                "description": "Testimonial quote"
+              },
+              "author": {
+                "type": "string",
+                "description": "Author name"
+              },
+              "title": {
+                "type": "string",
+                "description": "Author title or role"
+              },
+              "company": {
+                "type": "string",
+                "description": "Author company"
+              },
+              "avatar": {
+                "type": "string",
+                "description": "Author avatar image URL"
+              },
+              "rating": {
+                "type": "number",
+                "minimum": 1,
+                "maximum": 5,
+                "description": "Rating out of 5"
+              }
+            },
+            "required": [
+              "quote",
+              "author"
+            ],
+            "additionalProperties": false
+          },
+          "description": "List of testimonials"
+        },
+        "style": {
+          "type": "string",
+          "enum": [
+            "grid",
+            "carousel",
+            "masonry"
+          ],
+          "default": "grid"
+        },
+        "columns": {
+          "type": "string",
+          "enum": [
+            "1",
+            "2",
+            "3"
+          ],
+          "default": "3"
+        }
+      },
+      "required": [
+        "type",
+        "testimonials"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

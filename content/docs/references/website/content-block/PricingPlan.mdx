@@ -1,0 +1,17 @@
+---
+title: PricingPlan
+description: PricingPlan Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Plan name |
+| **description** | `string` | optional | Plan description |
+| **price** | `string` | ✅ | Price (e.g., "$29", "Free", "Custom") |
+| **period** | `string` | optional | Billing period (e.g., "/month", "/year") |
+| **features** | `string[]` | ✅ | List of features |
+| **button** | `object` | ✅ | CTA button |
+| **highlighted** | `boolean` | optional | Highlight as recommended plan |
+| **badge** | `string` | optional | Badge text (e.g., "Popular", "Best Value") |

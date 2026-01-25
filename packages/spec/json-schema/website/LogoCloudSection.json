@@ -1,0 +1,59 @@
+{
+  "$ref": "#/definitions/LogoCloudSection",
+  "definitions": {
+    "LogoCloudSection": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "logo_cloud"
+        },
+        "id": {
+          "type": "string",
+          "description": "Section ID for anchor links"
+        },
+        "title": {
+          "type": "string",
+          "description": "Section title (e.g., \"Trusted by\")"
+        },
+        "logos": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "src": {
+                "type": "string",
+                "description": "Logo image URL"
+              },
+              "alt": {
+                "type": "string",
+                "description": "Company/partner name"
+              },
+              "href": {
+                "type": "string",
+                "description": "Optional link to company website"
+              }
+            },
+            "required": [
+              "src",
+              "alt"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Logo images"
+        },
+        "grayscale": {
+          "type": "boolean",
+          "default": true,
+          "description": "Display logos in grayscale"
+        }
+      },
+      "required": [
+        "type",
+        "logos"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

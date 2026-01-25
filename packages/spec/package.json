@@ -48,6 +48,10 @@
     "./ui": {
       "types": "./dist/ui/index.d.ts",
       "default": "./dist/ui/index.js"
+    },
+    "./website": {
+      "types": "./dist/website/index.d.ts",
+      "default": "./dist/website/index.js"
     }
   },
   "files": [

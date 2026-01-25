@@ -1,0 +1,64 @@
+{
+  "$ref": "#/definitions/ButtonMenuItem",
+  "definitions": {
+    "ButtonMenuItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for menu item"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Icon name or URL"
+        },
+        "badge": {
+          "type": "string",
+          "description": "Badge text"
+        },
+        "visible": {
+          "type": "string",
+          "description": "Visibility formula condition"
+        },
+        "type": {
+          "type": "string",
+          "const": "button"
+        },
+        "href": {
+          "type": "string",
+          "description": "Target URL"
+        },
+        "variant": {
+          "type": "string",
+          "enum": [
+            "primary",
+            "secondary",
+            "outline",
+            "ghost"
+          ],
+          "default": "primary"
+        },
+        "target": {
+          "type": "string",
+          "enum": [
+            "_self",
+            "_blank"
+          ],
+          "default": "_self"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "type",
+        "href"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,96 @@
+{
+  "$ref": "#/definitions/FeaturesSection",
+  "definitions": {
+    "FeaturesSection": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "features"
+        },
+        "id": {
+          "type": "string",
+          "description": "Section ID for anchor links"
+        },
+        "title": {
+          "type": "string",
+          "description": "Section title"
+        },
+        "description": {
+          "type": "string",
+          "description": "Section description"
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "icon": {
+                "type": "string",
+                "description": "Icon name or URL"
+              },
+              "title": {
+                "type": "string",
+                "description": "Feature title"
+              },
+              "description": {
+                "type": "string",
+                "description": "Feature description"
+              },
+              "link": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "description": "Link text"
+                  },
+                  "href": {
+                    "type": "string",
+                    "description": "Link URL"
+                  }
+                },
+                "required": [
+                  "text",
+                  "href"
+                ],
+                "additionalProperties": false,
+                "description": "Optional link to learn more"
+              }
+            },
+            "required": [
+              "title",
+              "description"
+            ],
+            "additionalProperties": false
+          },
+          "description": "List of features"
+        },
+        "columns": {
+          "type": "string",
+          "enum": [
+            "2",
+            "3",
+            "4"
+          ],
+          "default": "3",
+          "description": "Number of columns in grid"
+        },
+        "align": {
+          "type": "string",
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ],
+          "default": "center"
+        }
+      },
+      "required": [
+        "type",
+        "features"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

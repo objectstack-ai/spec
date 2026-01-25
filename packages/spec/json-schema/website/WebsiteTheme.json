@@ -1,0 +1,58 @@
+{
+  "$ref": "#/definitions/WebsiteTheme",
+  "definitions": {
+    "WebsiteTheme": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Theme name"
+        },
+        "primaryColor": {
+          "type": "string",
+          "description": "Primary brand color (hex)"
+        },
+        "secondaryColor": {
+          "type": "string",
+          "description": "Secondary brand color (hex)"
+        },
+        "fontFamily": {
+          "type": "object",
+          "properties": {
+            "heading": {
+              "type": "string",
+              "description": "Heading font family"
+            },
+            "body": {
+              "type": "string",
+              "description": "Body font family"
+            }
+          },
+          "additionalProperties": false
+        },
+        "borderRadius": {
+          "type": "string",
+          "enum": [
+            "none",
+            "sm",
+            "md",
+            "lg",
+            "full"
+          ],
+          "default": "md"
+        },
+        "darkMode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable dark mode"
+        }
+      },
+      "required": [
+        "name",
+        "primaryColor"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

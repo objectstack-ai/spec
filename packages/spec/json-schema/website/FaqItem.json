@@ -1,0 +1,24 @@
+{
+  "$ref": "#/definitions/FaqItem",
+  "definitions": {
+    "FaqItem": {
+      "type": "object",
+      "properties": {
+        "question": {
+          "type": "string",
+          "description": "FAQ question"
+        },
+        "answer": {
+          "type": "string",
+          "description": "FAQ answer (markdown or HTML)"
+        }
+      },
+      "required": [
+        "question",
+        "answer"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,16 @@
+---
+title: WebsiteNavigation
+description: WebsiteNavigation Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Navigation identifier (snake_case) |
+| **label** | `string` | ✅ | Navigation label |
+| **position** | `Enum<'header' \| 'footer' \| 'sidebar'>` | optional |  |
+| **logo** | `object` | optional | Logo configuration |
+| **items** | `object \| object \| object \| object[]` | ✅ | Navigation menu items |
+| **mobileCollapsible** | `boolean` | optional | Enable mobile hamburger menu |
+| **sticky** | `boolean` | optional | Enable sticky navigation on scroll |

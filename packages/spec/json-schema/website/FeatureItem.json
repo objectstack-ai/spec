@@ -1,0 +1,47 @@
+{
+  "$ref": "#/definitions/FeatureItem",
+  "definitions": {
+    "FeatureItem": {
+      "type": "object",
+      "properties": {
+        "icon": {
+          "type": "string",
+          "description": "Icon name or URL"
+        },
+        "title": {
+          "type": "string",
+          "description": "Feature title"
+        },
+        "description": {
+          "type": "string",
+          "description": "Feature description"
+        },
+        "link": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string",
+              "description": "Link text"
+            },
+            "href": {
+              "type": "string",
+              "description": "Link URL"
+            }
+          },
+          "required": [
+            "text",
+            "href"
+          ],
+          "additionalProperties": false,
+          "description": "Optional link to learn more"
+        }
+      },
+      "required": [
+        "title",
+        "description"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

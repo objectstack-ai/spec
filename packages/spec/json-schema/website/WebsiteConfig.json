@@ -1,0 +1,1729 @@
+{
+  "$ref": "#/definitions/WebsiteConfig",
+  "definitions": {
+    "WebsiteConfig": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Website identifier (snake_case)"
+        },
+        "title": {
+          "type": "string",
+          "description": "Website title"
+        },
+        "description": {
+          "type": "string",
+          "description": "Website description"
+        },
+        "baseUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Base URL (e.g., https://example.com)"
+        },
+        "locale": {
+          "type": "string",
+          "default": "en",
+          "description": "Default locale (e.g., \"en\", \"zh-CN\")"
+        },
+        "locales": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Supported locales for i18n"
+        },
+        "theme": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Theme name"
+            },
+            "primaryColor": {
+              "type": "string",
+              "description": "Primary brand color (hex)"
+            },
+            "secondaryColor": {
+              "type": "string",
+              "description": "Secondary brand color (hex)"
+            },
+            "fontFamily": {
+              "type": "object",
+              "properties": {
+                "heading": {
+                  "type": "string",
+                  "description": "Heading font family"
+                },
+                "body": {
+                  "type": "string",
+                  "description": "Body font family"
+                }
+              },
+              "additionalProperties": false
+            },
+            "borderRadius": {
+              "type": "string",
+              "enum": [
+                "none",
+                "sm",
+                "md",
+                "lg",
+                "full"
+              ],
+              "default": "md"
+            },
+            "darkMode": {
+              "type": "boolean",
+              "default": false,
+              "description": "Enable dark mode"
+            }
+          },
+          "required": [
+            "name",
+            "primaryColor"
+          ],
+          "additionalProperties": false,
+          "description": "Visual theme settings"
+        },
+        "navigations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z_][a-z0-9_]*$",
+                "description": "Navigation identifier (snake_case)"
+              },
+              "label": {
+                "type": "string",
+                "description": "Navigation label"
+              },
+              "position": {
+                "type": "string",
+                "enum": [
+                  "header",
+                  "footer",
+                  "sidebar"
+                ],
+                "default": "header"
+              },
+              "logo": {
+                "type": "object",
+                "properties": {
+                  "src": {
+                    "type": "string",
+                    "description": "Logo image URL"
+                  },
+                  "alt": {
+                    "type": "string",
+                    "description": "Logo alt text"
+                  },
+                  "href": {
+                    "type": "string",
+                    "default": "/",
+                    "description": "Logo link href"
+                  },
+                  "width": {
+                    "type": "number",
+                    "description": "Logo width in pixels"
+                  },
+                  "height": {
+                    "type": "number",
+                    "description": "Logo height in pixels"
+                  }
+                },
+                "required": [
+                  "src",
+                  "alt"
+                ],
+                "additionalProperties": false,
+                "description": "Logo configuration"
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Unique identifier for menu item"
+                        },
+                        "label": {
+                          "type": "string",
+                          "description": "Display label"
+                        },
+                        "icon": {
+                          "type": "string",
+                          "description": "Icon name or URL"
+                        },
+                        "badge": {
+                          "type": "string",
+                          "description": "Badge text"
+                        },
+                        "visible": {
+                          "type": "string",
+                          "description": "Visibility formula condition"
+                        },
+                        "type": {
+                          "type": "string",
+                          "const": "link"
+                        },
+                        "href": {
+                          "type": "string",
+                          "description": "Target URL (internal or external)"
+                        },
+                        "target": {
+                          "type": "string",
+                          "enum": [
+                            "_self",
+                            "_blank"
+                          ],
+                          "default": "_self",
+                          "description": "Link target"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "label",
+                        "type",
+                        "href"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Unique identifier for menu item"
+                        },
+                        "label": {
+                          "type": "string",
+                          "description": "Display label"
+                        },
+                        "icon": {
+                          "type": "string",
+                          "description": "Icon name or URL"
+                        },
+                        "badge": {
+                          "type": "string",
+                          "description": "Badge text"
+                        },
+                        "visible": {
+                          "type": "string",
+                          "description": "Visibility formula condition"
+                        },
+                        "type": {
+                          "type": "string",
+                          "const": "button"
+                        },
+                        "href": {
+                          "type": "string",
+                          "description": "Target URL"
+                        },
+                        "variant": {
+                          "type": "string",
+                          "enum": [
+                            "primary",
+                            "secondary",
+                            "outline",
+                            "ghost"
+                          ],
+                          "default": "primary"
+                        },
+                        "target": {
+                          "type": "string",
+                          "enum": [
+                            "_self",
+                            "_blank"
+                          ],
+                          "default": "_self"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "label",
+                        "type",
+                        "href"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Unique identifier for menu item"
+                        },
+                        "label": {
+                          "type": "string",
+                          "description": "Display label"
+                        },
+                        "icon": {
+                          "type": "string",
+                          "description": "Icon name or URL"
+                        },
+                        "badge": {
+                          "type": "string",
+                          "description": "Badge text"
+                        },
+                        "visible": {
+                          "type": "string",
+                          "description": "Visibility formula condition"
+                        },
+                        "type": {
+                          "type": "string",
+                          "const": "megamenu"
+                        },
+                        "columns": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "description": "Column heading"
+                              },
+                              "links": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string",
+                                      "description": "Unique identifier for menu item"
+                                    },
+                                    "label": {
+                                      "type": "string",
+                                      "description": "Display label"
+                                    },
+                                    "icon": {
+                                      "type": "string",
+                                      "description": "Icon name or URL"
+                                    },
+                                    "badge": {
+                                      "type": "string",
+                                      "description": "Badge text"
+                                    },
+                                    "visible": {
+                                      "type": "string",
+                                      "description": "Visibility formula condition"
+                                    },
+                                    "type": {
+                                      "type": "string",
+                                      "const": "link"
+                                    },
+                                    "href": {
+                                      "type": "string",
+                                      "description": "Target URL (internal or external)"
+                                    },
+                                    "target": {
+                                      "type": "string",
+                                      "enum": [
+                                        "_self",
+                                        "_blank"
+                                      ],
+                                      "default": "_self",
+                                      "description": "Link target"
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "label",
+                                    "type",
+                                    "href"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "description": "Links in this column"
+                              }
+                            },
+                            "required": [
+                              "links"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "description": "Mega menu columns"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "label",
+                        "type",
+                        "columns"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Unique identifier for menu item"
+                        },
+                        "label": {
+                          "type": "string",
+                          "description": "Display label"
+                        },
+                        "icon": {
+                          "type": "string",
+                          "description": "Icon name or URL"
+                        },
+                        "badge": {
+                          "type": "string",
+                          "description": "Badge text"
+                        },
+                        "visible": {
+                          "type": "string",
+                          "description": "Visibility formula condition"
+                        },
+                        "type": {
+                          "type": "string",
+                          "const": "dropdown"
+                        },
+                        "children": {
+                          "type": "array",
+                          "items": {},
+                          "description": "Child menu items"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "label",
+                        "type",
+                        "children"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "description": "Navigation menu items"
+              },
+              "mobileCollapsible": {
+                "type": "boolean",
+                "default": true,
+                "description": "Enable mobile hamburger menu"
+              },
+              "sticky": {
+                "type": "boolean",
+                "default": false,
+                "description": "Enable sticky navigation on scroll"
+              }
+            },
+            "required": [
+              "name",
+              "label",
+              "items"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Navigation menus"
+        },
+        "footers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z_][a-z0-9_]*$",
+                "description": "Footer identifier (snake_case)"
+              },
+              "linkGroups": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "description": "Link group title"
+                    },
+                    "links": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "label": {
+                            "type": "string",
+                            "description": "Link label"
+                          },
+                          "href": {
+                            "type": "string",
+                            "description": "Link URL"
+                          },
+                          "target": {
+                            "type": "string",
+                            "enum": [
+                              "_self",
+                              "_blank"
+                            ],
+                            "default": "_self"
+                          }
+                        },
+                        "required": [
+                          "label",
+                          "href"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "Links"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "links"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "Footer link groups"
+              },
+              "socialLinks": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "platform": {
+                      "type": "string",
+                      "enum": [
+                        "facebook",
+                        "twitter",
+                        "linkedin",
+                        "instagram",
+                        "github",
+                        "youtube",
+                        "custom"
+                      ]
+                    },
+                    "url": {
+                      "type": "string",
+                      "format": "uri",
+                      "description": "Social profile URL"
+                    },
+                    "icon": {
+                      "type": "string",
+                      "description": "Custom icon name or URL"
+                    },
+                    "label": {
+                      "type": "string",
+                      "description": "Accessible label"
+                    }
+                  },
+                  "required": [
+                    "platform",
+                    "url"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "Social media links"
+              },
+              "copyright": {
+                "type": "string",
+                "description": "Copyright text"
+              },
+              "description": {
+                "type": "string",
+                "description": "Footer description or tagline"
+              },
+              "newsletter": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "Newsletter section title"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Newsletter description"
+                  },
+                  "placeholder": {
+                    "type": "string",
+                    "default": "Enter your email",
+                    "description": "Email input placeholder"
+                  },
+                  "buttonText": {
+                    "type": "string",
+                    "default": "Subscribe",
+                    "description": "Submit button text"
+                  }
+                },
+                "required": [
+                  "title"
+                ],
+                "additionalProperties": false,
+                "description": "Newsletter signup configuration"
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Footer configurations"
+        },
+        "pages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z_][a-z0-9_]*$",
+                "description": "Page identifier (snake_case)"
+              },
+              "title": {
+                "type": "string",
+                "description": "Page title"
+              },
+              "slug": {
+                "type": "string",
+                "description": "URL slug (e.g., \"/\", \"/pricing\", \"/about\")"
+              },
+              "description": {
+                "type": "string",
+                "description": "Page description"
+              },
+              "seo": {
+                "type": "object",
+                "properties": {
+                  "meta": {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string",
+                        "description": "SEO title (50-60 characters recommended)"
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "Meta description (150-160 characters recommended)"
+                      },
+                      "keywords": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "SEO keywords"
+                      },
+                      "canonical": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "Canonical URL"
+                      },
+                      "robots": {
+                        "type": "string",
+                        "description": "Robots directive (e.g., \"index, follow\")"
+                      },
+                      "author": {
+                        "type": "string",
+                        "description": "Content author"
+                      },
+                      "language": {
+                        "type": "string",
+                        "description": "Language code (e.g., \"en\", \"zh-CN\")"
+                      }
+                    },
+                    "required": [
+                      "title",
+                      "description"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Basic SEO meta tags"
+                  },
+                  "openGraph": {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string",
+                        "description": "Open Graph title"
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "Open Graph description"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "website",
+                          "article",
+                          "product",
+                          "profile"
+                        ],
+                        "default": "website"
+                      },
+                      "image": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "Open Graph image URL (1200x630px recommended)"
+                      },
+                      "imageAlt": {
+                        "type": "string",
+                        "description": "Open Graph image alt text"
+                      },
+                      "siteName": {
+                        "type": "string",
+                        "description": "Site name"
+                      },
+                      "locale": {
+                        "type": "string",
+                        "description": "Locale (e.g., \"en_US\", \"zh_CN\")"
+                      },
+                      "url": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "Canonical URL"
+                      }
+                    },
+                    "required": [
+                      "title",
+                      "description",
+                      "image"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Open Graph protocol tags"
+                  },
+                  "twitter": {
+                    "type": "object",
+                    "properties": {
+                      "card": {
+                        "type": "string",
+                        "enum": [
+                          "summary",
+                          "summary_large_image",
+                          "app",
+                          "player"
+                        ],
+                        "default": "summary_large_image"
+                      },
+                      "title": {
+                        "type": "string",
+                        "description": "Twitter card title"
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "Twitter card description"
+                      },
+                      "image": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "Twitter card image URL"
+                      },
+                      "imageAlt": {
+                        "type": "string",
+                        "description": "Twitter card image alt text"
+                      },
+                      "site": {
+                        "type": "string",
+                        "description": "Twitter @username for site"
+                      },
+                      "creator": {
+                        "type": "string",
+                        "description": "Twitter @username for creator"
+                      }
+                    },
+                    "required": [
+                      "title",
+                      "description",
+                      "image"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Twitter Card tags"
+                  },
+                  "structuredData": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "description": "Schema.org type (e.g., \"Organization\", \"Product\", \"Article\")"
+                        },
+                        "data": {
+                          "type": "object",
+                          "additionalProperties": {},
+                          "description": "Schema.org structured data object"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "data"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "description": "Schema.org structured data"
+                  },
+                  "customMeta": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "description": "Meta tag name"
+                        },
+                        "content": {
+                          "type": "string",
+                          "description": "Meta tag content"
+                        },
+                        "property": {
+                          "type": "string",
+                          "description": "Meta tag property (for og: tags)"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "content"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "description": "Custom meta tags"
+                  }
+                },
+                "required": [
+                  "meta"
+                ],
+                "additionalProperties": false,
+                "description": "SEO and meta tags configuration"
+              },
+              "sections": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "hero"
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "Section ID for anchor links"
+                        },
+                        "headline": {
+                          "type": "string",
+                          "description": "Main headline"
+                        },
+                        "subheadline": {
+                          "type": "string",
+                          "description": "Subheadline or tagline"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "Description text"
+                        },
+                        "buttons": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string",
+                                "description": "Button text"
+                              },
+                              "href": {
+                                "type": "string",
+                                "description": "Button target URL or action"
+                              },
+                              "variant": {
+                                "type": "string",
+                                "enum": [
+                                  "primary",
+                                  "secondary",
+                                  "outline",
+                                  "ghost",
+                                  "link"
+                                ],
+                                "default": "primary"
+                              },
+                              "size": {
+                                "type": "string",
+                                "enum": [
+                                  "sm",
+                                  "md",
+                                  "lg"
+                                ],
+                                "default": "md"
+                              },
+                              "target": {
+                                "type": "string",
+                                "enum": [
+                                  "_self",
+                                  "_blank"
+                                ],
+                                "default": "_self"
+                              },
+                              "icon": {
+                                "type": "string",
+                                "description": "Icon name"
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "href"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "description": "CTA buttons"
+                        },
+                        "backgroundImage": {
+                          "type": "object",
+                          "properties": {
+                            "src": {
+                              "type": "string",
+                              "description": "Image source URL"
+                            },
+                            "alt": {
+                              "type": "string",
+                              "description": "Image alt text"
+                            },
+                            "width": {
+                              "type": "number",
+                              "description": "Image width in pixels"
+                            },
+                            "height": {
+                              "type": "number",
+                              "description": "Image height in pixels"
+                            },
+                            "objectFit": {
+                              "type": "string",
+                              "enum": [
+                                "cover",
+                                "contain",
+                                "fill",
+                                "none",
+                                "scale-down"
+                              ],
+                              "default": "cover"
+                            },
+                            "loading": {
+                              "type": "string",
+                              "enum": [
+                                "lazy",
+                                "eager"
+                              ],
+                              "default": "lazy"
+                            }
+                          },
+                          "required": [
+                            "src",
+                            "alt"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Hero background image"
+                        },
+                        "backgroundVideo": {
+                          "type": "object",
+                          "properties": {
+                            "src": {
+                              "type": "string",
+                              "description": "Video source URL"
+                            },
+                            "poster": {
+                              "type": "string",
+                              "description": "Video poster image"
+                            }
+                          },
+                          "required": [
+                            "src"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Hero background video"
+                        },
+                        "align": {
+                          "type": "string",
+                          "enum": [
+                            "left",
+                            "center",
+                            "right"
+                          ],
+                          "default": "center"
+                        },
+                        "overlayOpacity": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1,
+                          "default": 0.3
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "headline"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "features"
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "Section ID for anchor links"
+                        },
+                        "title": {
+                          "type": "string",
+                          "description": "Section title"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "Section description"
+                        },
+                        "features": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "icon": {
+                                "type": "string",
+                                "description": "Icon name or URL"
+                              },
+                              "title": {
+                                "type": "string",
+                                "description": "Feature title"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "Feature description"
+                              },
+                              "link": {
+                                "type": "object",
+                                "properties": {
+                                  "text": {
+                                    "type": "string",
+                                    "description": "Link text"
+                                  },
+                                  "href": {
+                                    "type": "string",
+                                    "description": "Link URL"
+                                  }
+                                },
+                                "required": [
+                                  "text",
+                                  "href"
+                                ],
+                                "additionalProperties": false,
+                                "description": "Optional link to learn more"
+                              }
+                            },
+                            "required": [
+                              "title",
+                              "description"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "description": "List of features"
+                        },
+                        "columns": {
+                          "type": "string",
+                          "enum": [
+                            "2",
+                            "3",
+                            "4"
+                          ],
+                          "default": "3",
+                          "description": "Number of columns in grid"
+                        },
+                        "align": {
+                          "type": "string",
+                          "enum": [
+                            "left",
+                            "center",
+                            "right"
+                          ],
+                          "default": "center"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "features"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "testimonials"
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "Section ID for anchor links"
+                        },
+                        "title": {
+                          "type": "string",
+                          "description": "Section title"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "Section description"
+                        },
+                        "testimonials": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "quote": {
+                                "type": "string",
+                                "description": "Testimonial quote"
+                              },
+                              "author": {
+                                "type": "string",
+                                "description": "Author name"
+                              },
+                              "title": {
+                                "type": "string",
+                                "description": "Author title or role"
+                              },
+                              "company": {
+                                "type": "string",
+                                "description": "Author company"
+                              },
+                              "avatar": {
+                                "type": "string",
+                                "description": "Author avatar image URL"
+                              },
+                              "rating": {
+                                "type": "number",
+                                "minimum": 1,
+                                "maximum": 5,
+                                "description": "Rating out of 5"
+                              }
+                            },
+                            "required": [
+                              "quote",
+                              "author"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "description": "List of testimonials"
+                        },
+                        "style": {
+                          "type": "string",
+                          "enum": [
+                            "grid",
+                            "carousel",
+                            "masonry"
+                          ],
+                          "default": "grid"
+                        },
+                        "columns": {
+                          "type": "string",
+                          "enum": [
+                            "1",
+                            "2",
+                            "3"
+                          ],
+                          "default": "3"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "testimonials"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "cta"
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "Section ID for anchor links"
+                        },
+                        "headline": {
+                          "type": "string",
+                          "description": "CTA headline"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "CTA description"
+                        },
+                        "buttons": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string",
+                                "description": "Button text"
+                              },
+                              "href": {
+                                "type": "string",
+                                "description": "Button target URL or action"
+                              },
+                              "variant": {
+                                "type": "string",
+                                "enum": [
+                                  "primary",
+                                  "secondary",
+                                  "outline",
+                                  "ghost",
+                                  "link"
+                                ],
+                                "default": "primary"
+                              },
+                              "size": {
+                                "type": "string",
+                                "enum": [
+                                  "sm",
+                                  "md",
+                                  "lg"
+                                ],
+                                "default": "md"
+                              },
+                              "target": {
+                                "type": "string",
+                                "enum": [
+                                  "_self",
+                                  "_blank"
+                                ],
+                                "default": "_self"
+                              },
+                              "icon": {
+                                "type": "string",
+                                "description": "Icon name"
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "href"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "description": "CTA buttons"
+                        },
+                        "backgroundColor": {
+                          "type": "string",
+                          "description": "Background color (hex, rgb, or preset)"
+                        },
+                        "align": {
+                          "type": "string",
+                          "enum": [
+                            "left",
+                            "center",
+                            "right"
+                          ],
+                          "default": "center"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "headline",
+                        "buttons"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "pricing"
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "Section ID for anchor links"
+                        },
+                        "title": {
+                          "type": "string",
+                          "description": "Section title"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "Section description"
+                        },
+                        "plans": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "description": "Plan name"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "Plan description"
+                              },
+                              "price": {
+                                "type": "string",
+                                "description": "Price (e.g., \"$29\", \"Free\", \"Custom\")"
+                              },
+                              "period": {
+                                "type": "string",
+                                "description": "Billing period (e.g., \"/month\", \"/year\")"
+                              },
+                              "features": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "List of features"
+                              },
+                              "button": {
+                                "type": "object",
+                                "properties": {
+                                  "text": {
+                                    "type": "string",
+                                    "description": "Button text"
+                                  },
+                                  "href": {
+                                    "type": "string",
+                                    "description": "Button target URL or action"
+                                  },
+                                  "variant": {
+                                    "type": "string",
+                                    "enum": [
+                                      "primary",
+                                      "secondary",
+                                      "outline",
+                                      "ghost",
+                                      "link"
+                                    ],
+                                    "default": "primary"
+                                  },
+                                  "size": {
+                                    "type": "string",
+                                    "enum": [
+                                      "sm",
+                                      "md",
+                                      "lg"
+                                    ],
+                                    "default": "md"
+                                  },
+                                  "target": {
+                                    "type": "string",
+                                    "enum": [
+                                      "_self",
+                                      "_blank"
+                                    ],
+                                    "default": "_self"
+                                  },
+                                  "icon": {
+                                    "type": "string",
+                                    "description": "Icon name"
+                                  }
+                                },
+                                "required": [
+                                  "text",
+                                  "href"
+                                ],
+                                "additionalProperties": false,
+                                "description": "CTA button"
+                              },
+                              "highlighted": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Highlight as recommended plan"
+                              },
+                              "badge": {
+                                "type": "string",
+                                "description": "Badge text (e.g., \"Popular\", \"Best Value\")"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "price",
+                              "features",
+                              "button"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "description": "Pricing plans"
+                        },
+                        "billingToggle": {
+                          "type": "object",
+                          "properties": {
+                            "monthly": {
+                              "type": "string",
+                              "default": "Monthly",
+                              "description": "Monthly billing label"
+                            },
+                            "yearly": {
+                              "type": "string",
+                              "default": "Yearly",
+                              "description": "Yearly billing label"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "description": "Enable monthly/yearly toggle"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "plans"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "content"
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "Section ID for anchor links"
+                        },
+                        "title": {
+                          "type": "string",
+                          "description": "Section title"
+                        },
+                        "content": {
+                          "type": "string",
+                          "description": "Content in markdown or HTML format"
+                        },
+                        "align": {
+                          "type": "string",
+                          "enum": [
+                            "left",
+                            "center",
+                            "right"
+                          ],
+                          "default": "left"
+                        },
+                        "maxWidth": {
+                          "type": "string",
+                          "enum": [
+                            "sm",
+                            "md",
+                            "lg",
+                            "xl",
+                            "full"
+                          ],
+                          "default": "lg"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "content"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "faq"
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "Section ID for anchor links"
+                        },
+                        "title": {
+                          "type": "string",
+                          "description": "Section title"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "Section description"
+                        },
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "question": {
+                                "type": "string",
+                                "description": "FAQ question"
+                              },
+                              "answer": {
+                                "type": "string",
+                                "description": "FAQ answer (markdown or HTML)"
+                              }
+                            },
+                            "required": [
+                              "question",
+                              "answer"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "description": "FAQ items"
+                        },
+                        "style": {
+                          "type": "string",
+                          "enum": [
+                            "accordion",
+                            "grid"
+                          ],
+                          "default": "accordion"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "items"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "logo_cloud"
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "Section ID for anchor links"
+                        },
+                        "title": {
+                          "type": "string",
+                          "description": "Section title (e.g., \"Trusted by\")"
+                        },
+                        "logos": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "src": {
+                                "type": "string",
+                                "description": "Logo image URL"
+                              },
+                              "alt": {
+                                "type": "string",
+                                "description": "Company/partner name"
+                              },
+                              "href": {
+                                "type": "string",
+                                "description": "Optional link to company website"
+                              }
+                            },
+                            "required": [
+                              "src",
+                              "alt"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "description": "Logo images"
+                        },
+                        "grayscale": {
+                          "type": "boolean",
+                          "default": true,
+                          "description": "Display logos in grayscale"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "logos"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "custom_html"
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "Section ID for anchor links"
+                        },
+                        "html": {
+                          "type": "string",
+                          "description": "Custom HTML content"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "html"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "description": "Page content sections"
+              },
+              "navigation": {
+                "type": "string",
+                "description": "Navigation name to use"
+              },
+              "footer": {
+                "type": "string",
+                "description": "Footer name to use"
+              },
+              "published": {
+                "type": "boolean",
+                "default": false,
+                "description": "Whether page is published"
+              },
+              "publishedAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Publication timestamp"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Last update timestamp"
+              },
+              "template": {
+                "type": "string",
+                "description": "Custom template identifier"
+              },
+              "scripts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "src": {
+                      "type": "string",
+                      "description": "Script source URL"
+                    },
+                    "inline": {
+                      "type": "string",
+                      "description": "Inline script content"
+                    },
+                    "position": {
+                      "type": "string",
+                      "enum": [
+                        "head",
+                        "body_start",
+                        "body_end"
+                      ],
+                      "default": "body_end"
+                    },
+                    "async": {
+                      "type": "boolean",
+                      "default": true
+                    },
+                    "defer": {
+                      "type": "boolean",
+                      "default": false
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "description": "Custom scripts to inject"
+              },
+              "customCss": {
+                "type": "string",
+                "description": "Custom CSS styles"
+              },
+              "variant": {
+                "type": "string",
+                "description": "A/B testing variant identifier"
+              }
+            },
+            "required": [
+              "name",
+              "title",
+              "slug",
+              "sections"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Landing pages"
+        },
+        "analytics": {
+          "type": "object",
+          "properties": {
+            "googleAnalytics": {
+              "type": "object",
+              "properties": {
+                "measurementId": {
+                  "type": "string",
+                  "description": "GA4 Measurement ID (e.g., G-XXXXXXXXXX)"
+                }
+              },
+              "required": [
+                "measurementId"
+              ],
+              "additionalProperties": false
+            },
+            "googleTagManager": {
+              "type": "object",
+              "properties": {
+                "containerId": {
+                  "type": "string",
+                  "description": "GTM Container ID (e.g., GTM-XXXXXXX)"
+                }
+              },
+              "required": [
+                "containerId"
+              ],
+              "additionalProperties": false
+            },
+            "facebookPixel": {
+              "type": "object",
+              "properties": {
+                "pixelId": {
+                  "type": "string",
+                  "description": "Facebook Pixel ID"
+                }
+              },
+              "required": [
+                "pixelId"
+              ],
+              "additionalProperties": false
+            },
+            "customScripts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Script name"
+                  },
+                  "src": {
+                    "type": "string",
+                    "description": "Script source URL"
+                  },
+                  "inline": {
+                    "type": "string",
+                    "description": "Inline script content"
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false,
+          "description": "Analytics and tracking"
+        },
+        "favicon": {
+          "type": "string",
+          "description": "Favicon URL"
+        },
+        "socialPreview": {
+          "type": "string",
+          "format": "uri",
+          "description": "Default social preview image"
+        },
+        "previewReleaseDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Preview release date (e.g., 2026-03-01)"
+        },
+        "version": {
+          "type": "string",
+          "description": "Website version"
+        }
+      },
+      "required": [
+        "name",
+        "title",
+        "baseUrl",
+        "pages"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

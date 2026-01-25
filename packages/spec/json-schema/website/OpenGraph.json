@@ -1,0 +1,57 @@
+{
+  "$ref": "#/definitions/OpenGraph",
+  "definitions": {
+    "OpenGraph": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Open Graph title"
+        },
+        "description": {
+          "type": "string",
+          "description": "Open Graph description"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "website",
+            "article",
+            "product",
+            "profile"
+          ],
+          "default": "website"
+        },
+        "image": {
+          "type": "string",
+          "format": "uri",
+          "description": "Open Graph image URL (1200x630px recommended)"
+        },
+        "imageAlt": {
+          "type": "string",
+          "description": "Open Graph image alt text"
+        },
+        "siteName": {
+          "type": "string",
+          "description": "Site name"
+        },
+        "locale": {
+          "type": "string",
+          "description": "Locale (e.g., \"en_US\", \"zh_CN\")"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Canonical URL"
+        }
+      },
+      "required": [
+        "title",
+        "description",
+        "image"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

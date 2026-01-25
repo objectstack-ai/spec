@@ -1,0 +1,11 @@
+{
+  "title": "Website Protocol",
+  "root": true,
+  "pages": [
+    "content-block",
+    "landing-page",
+    "navigation",
+    "seo",
+    "website"
+  ]
+}

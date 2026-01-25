@@ -1,0 +1,75 @@
+{
+  "$ref": "#/definitions/AnalyticsConfig",
+  "definitions": {
+    "AnalyticsConfig": {
+      "type": "object",
+      "properties": {
+        "googleAnalytics": {
+          "type": "object",
+          "properties": {
+            "measurementId": {
+              "type": "string",
+              "description": "GA4 Measurement ID (e.g., G-XXXXXXXXXX)"
+            }
+          },
+          "required": [
+            "measurementId"
+          ],
+          "additionalProperties": false
+        },
+        "googleTagManager": {
+          "type": "object",
+          "properties": {
+            "containerId": {
+              "type": "string",
+              "description": "GTM Container ID (e.g., GTM-XXXXXXX)"
+            }
+          },
+          "required": [
+            "containerId"
+          ],
+          "additionalProperties": false
+        },
+        "facebookPixel": {
+          "type": "object",
+          "properties": {
+            "pixelId": {
+              "type": "string",
+              "description": "Facebook Pixel ID"
+            }
+          },
+          "required": [
+            "pixelId"
+          ],
+          "additionalProperties": false
+        },
+        "customScripts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Script name"
+              },
+              "src": {
+                "type": "string",
+                "description": "Script source URL"
+              },
+              "inline": {
+                "type": "string",
+                "description": "Inline script content"
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

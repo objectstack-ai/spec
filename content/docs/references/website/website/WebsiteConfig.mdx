@@ -1,0 +1,24 @@
+---
+title: WebsiteConfig
+description: WebsiteConfig Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Website identifier (snake_case) |
+| **title** | `string` | ✅ | Website title |
+| **description** | `string` | optional | Website description |
+| **baseUrl** | `string` | ✅ | Base URL (e.g., https://example.com) |
+| **locale** | `string` | optional | Default locale (e.g., "en", "zh-CN") |
+| **locales** | `string[]` | optional | Supported locales for i18n |
+| **theme** | `object` | optional | Visual theme settings |
+| **navigations** | `object[]` | optional | Navigation menus |
+| **footers** | `object[]` | optional | Footer configurations |
+| **pages** | `object[]` | ✅ | Landing pages |
+| **analytics** | `object` | optional | Analytics and tracking |
+| **favicon** | `string` | optional | Favicon URL |
+| **socialPreview** | `string` | optional | Default social preview image |
+| **previewReleaseDate** | `string` | optional | Preview release date (e.g., 2026-03-01) |
+| **version** | `string` | optional | Website version |

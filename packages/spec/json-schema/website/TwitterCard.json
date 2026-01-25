@@ -1,0 +1,52 @@
+{
+  "$ref": "#/definitions/TwitterCard",
+  "definitions": {
+    "TwitterCard": {
+      "type": "object",
+      "properties": {
+        "card": {
+          "type": "string",
+          "enum": [
+            "summary",
+            "summary_large_image",
+            "app",
+            "player"
+          ],
+          "default": "summary_large_image"
+        },
+        "title": {
+          "type": "string",
+          "description": "Twitter card title"
+        },
+        "description": {
+          "type": "string",
+          "description": "Twitter card description"
+        },
+        "image": {
+          "type": "string",
+          "format": "uri",
+          "description": "Twitter card image URL"
+        },
+        "imageAlt": {
+          "type": "string",
+          "description": "Twitter card image alt text"
+        },
+        "site": {
+          "type": "string",
+          "description": "Twitter @username for site"
+        },
+        "creator": {
+          "type": "string",
+          "description": "Twitter @username for creator"
+        }
+      },
+      "required": [
+        "title",
+        "description",
+        "image"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,42 @@
+{
+  "$ref": "#/definitions/TestimonialItem",
+  "definitions": {
+    "TestimonialItem": {
+      "type": "object",
+      "properties": {
+        "quote": {
+          "type": "string",
+          "description": "Testimonial quote"
+        },
+        "author": {
+          "type": "string",
+          "description": "Author name"
+        },
+        "title": {
+          "type": "string",
+          "description": "Author title or role"
+        },
+        "company": {
+          "type": "string",
+          "description": "Author company"
+        },
+        "avatar": {
+          "type": "string",
+          "description": "Author avatar image URL"
+        },
+        "rating": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Rating out of 5"
+        }
+      },
+      "required": [
+        "quote",
+        "author"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
