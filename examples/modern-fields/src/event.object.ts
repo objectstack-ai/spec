@@ -12,10 +12,14 @@ export const Event = ObjectSchema.create({
   name: 'event',
   label: 'Event',
   icon: 'calendar',
-  nameField: 'title',
+  titleFormat: '{title}',
+  compactLayout: ['title', 'start_date', 'venue_address', 'status'],
   enable: {
     apiEnabled: true,
     trackHistory: true,
+    feeds: true,            // Enable social feed, comments, and mentions
+    activities: true,       // Enable tasks and events tracking
+    mru: true,              // Track Most Recently Used
   },
   fields: {
     title: Field.text({ 

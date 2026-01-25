@@ -12,10 +12,14 @@ export const Product = ObjectSchema.create({
   name: 'product',
   label: 'Product',
   icon: 'package',
-  nameField: 'name',
+  titleFormat: '{name}',
+  compactLayout: ['name', 'price', 'status', 'stock_level'],
   enable: {
     apiEnabled: true,
     trackHistory: true,
+    feeds: true,            // Enable social feed, comments, and mentions
+    activities: true,       // Enable tasks and events tracking
+    mru: true,              // Track Most Recently Used
   },
   fields: {
     // Basic fields

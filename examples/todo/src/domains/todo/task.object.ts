@@ -4,10 +4,14 @@ export const TodoTask = ObjectSchema.create({
   name: 'todo_task',
   label: 'Todo Task',
   icon: 'check-square',
-  nameField: 'subject',
+  titleFormat: '{subject}',
+  compactLayout: ['subject', 'due_date', 'priority', 'is_completed'],
   enable: {
     apiEnabled: true,
     trackHistory: true,
+    feeds: true,            // Enable social feed, comments, and mentions
+    activities: true,       // Enable tasks and events tracking
+    mru: true,              // Track Most Recently Used
   },
   fields: {
     subject: Field.text({ required: true }),

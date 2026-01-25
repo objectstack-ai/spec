@@ -155,113 +155,16 @@ export const Task = ObjectSchema.create({
     searchable: true,
     apiEnabled: true,
     files: true,
-    feedEnabled: true,
+    feeds: true,            // Enable social feed, comments, and mentions
+    activities: true,       // Enable tasks and events tracking
     trash: true,
+    mru: true,              // Track Most Recently Used
   },
   
-  nameField: 'subject',
+  titleFormat: '{subject}',
+  compactLayout: ['subject', 'status', 'priority', 'due_date', 'owner'],
   
-  list_views: {
-    all: {
-      label: 'All Tasks',
-      type: 'grid',
-      columns: ['subject', 'status', 'priority', 'due_date', 'owner'],
-      sort: [{ field: 'due_date', order: 'asc' }],
-      searchableFields: ['subject', 'description'],
-    },
-    my_tasks: {
-      label: 'My Tasks',
-      type: 'grid',
-      columns: ['subject', 'status', 'priority', 'due_date', 'related_to_type'],
-      filter: [['owner', '=', '{current_user}']],
-      sort: [{ field: 'due_date', order: 'asc' }],
-    },
-    open_tasks: {
-      label: 'Open Tasks',
-      type: 'grid',
-      columns: ['subject', 'priority', 'due_date', 'owner'],
-      filter: [['is_completed', '=', false]],
-      sort: [{ field: 'priority', order: 'desc' }],
-    },
-    overdue_tasks: {
-      label: 'Overdue Tasks',
-      type: 'grid',
-      columns: ['subject', 'priority', 'due_date', 'owner'],
-      filter: [
-        ['is_overdue', '=', true],
-        ['is_completed', '=', false],
-      ],
-      sort: [{ field: 'due_date', order: 'asc' }],
-    },
-    today_tasks: {
-      label: 'Today\'s Tasks',
-      type: 'grid',
-      columns: ['subject', 'status', 'priority', 'owner'],
-      filter: [
-        ['due_date', '=', 'TODAY()'],
-      ],
-    },
-    by_status: {
-      label: 'Tasks by Status',
-      type: 'kanban',
-      columns: ['subject', 'priority', 'due_date'],
-      filter: [['is_completed', '=', false]],
-      kanban: {
-        groupByField: 'status',
-        columns: ['subject', 'priority', 'due_date', 'owner'],
-      }
-    },
-    calendar: {
-      label: 'Task Calendar',
-      type: 'calendar',
-      columns: ['subject', 'priority', 'owner'],
-      calendar: {
-        startDateField: 'due_date',
-        titleField: 'subject',
-        colorField: 'priority',
-      }
-    },
-  },
-  
-  form_views: {
-    default: {
-      type: 'simple',
-      sections: [
-        {
-          label: 'Task Information',
-          columns: 2,
-          fields: ['subject', 'status', 'priority', 'type', 'owner'],
-        },
-        {
-          label: 'Description',
-          columns: 1,
-          fields: ['description'],
-        },
-        {
-          label: 'Dates & Progress',
-          columns: 2,
-          fields: ['due_date', 'reminder_date', 'completed_date', 'progress_percent'],
-        },
-        {
-          label: 'Time Tracking',
-          columns: 2,
-          fields: ['estimated_hours', 'actual_hours'],
-        },
-        {
-          label: 'Related To',
-          columns: 2,
-          fields: ['related_to_type', 'related_to_account', 'related_to_contact', 'related_to_opportunity', 'related_to_lead', 'related_to_case'],
-        },
-        {
-          label: 'Recurrence',
-          columns: 2,
-          collapsible: true,
-          collapsed: true,
-          fields: ['is_recurring', 'recurrence_type', 'recurrence_interval', 'recurrence_end_date'],
-        }
-      ]
-    }
-  },
+  // Removed: list_views and form_views belong in UI configuration, not object definition
   
   validations: [
     {

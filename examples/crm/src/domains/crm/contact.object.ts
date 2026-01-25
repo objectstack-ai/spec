@@ -123,84 +123,15 @@ export const Contact = ObjectSchema.create({
     searchable: true,
     apiEnabled: true,
     files: true,
-    feedEnabled: true,
+    feeds: true,            // Enable social feed, comments, and mentions
+    activities: true,       // Enable tasks and events tracking
     trash: true,
+    mru: true,              // Track Most Recently Used
   },
   
-  // Name field configuration
-  nameField: 'full_name',
-  
-  // List Views
-  list_views: {
-    all: {
-      label: 'All Contacts',
-      type: 'grid',
-      columns: ['full_name', 'account', 'title', 'email', 'phone', 'owner'],
-      sort: [{ field: 'last_name', order: 'asc' }],
-      searchableFields: ['first_name', 'last_name', 'email', 'phone'],
-    },
-    my_contacts: {
-      label: 'My Contacts',
-      type: 'grid',
-      columns: ['full_name', 'account', 'title', 'email', 'phone'],
-      filter: [['owner', '=', '{current_user}']],
-    },
-    primary_contacts: {
-      label: 'Primary Contacts',
-      type: 'grid',
-      columns: ['full_name', 'account', 'title', 'email', 'phone'],
-      filter: [['is_primary', '=', true]],
-    },
-    by_department: {
-      label: 'By Department',
-      type: 'kanban',
-      columns: ['full_name', 'account', 'title', 'email'],
-      kanban: {
-        groupByField: 'department',
-        columns: ['full_name', 'title', 'email', 'phone'],
-      }
-    },
-    birthdays: {
-      label: 'Birthdays',
-      type: 'calendar',
-      columns: ['full_name', 'account', 'phone'],
-      calendar: {
-        startDateField: 'birthdate',
-        titleField: 'full_name',
-        colorField: 'department',
-      }
-    }
-  },
-  
-  // Form Views
-  form_views: {
-    default: {
-      type: 'simple',
-      sections: [
-        {
-          label: 'Contact Information',
-          columns: 2,
-          fields: ['salutation', 'first_name', 'last_name', 'full_name', 'account', 'title', 'department'],
-        },
-        {
-          label: 'Contact Details',
-          columns: 2,
-          fields: ['email', 'phone', 'mobile', 'reports_to', 'owner'],
-        },
-        {
-          label: 'Mailing Address',
-          columns: 2,
-          fields: ['mailing_street', 'mailing_city', 'mailing_state', 'mailing_postal_code', 'mailing_country'],
-        },
-        {
-          label: 'Additional Information',
-          columns: 2,
-          collapsible: true,
-          fields: ['birthdate', 'lead_source', 'is_primary', 'do_not_call', 'email_opt_out', 'description'],
-        }
-      ]
-    }
-  },
+  // Display configuration
+  titleFormat: '{full_name}',
+  compactLayout: ['full_name', 'email', 'account', 'phone'],
   
   // Validation Rules
   validations: [

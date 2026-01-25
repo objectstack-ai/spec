@@ -173,94 +173,16 @@ export const Lead = ObjectSchema.create({
     searchable: true,
     apiEnabled: true,
     files: true,
-    feedEnabled: true,
+    feeds: true,            // Enable social feed, comments, and mentions
+    activities: true,       // Enable tasks and events tracking
     trash: true,
+    mru: true,              // Track Most Recently Used
   },
   
-  nameField: 'full_name',
+  titleFormat: '{full_name} - {company}',
+  compactLayout: ['full_name', 'company', 'email', 'status', 'owner'],
   
-  list_views: {
-    all: {
-      label: 'All Leads',
-      type: 'grid',
-      columns: ['full_name', 'company', 'email', 'phone', 'status', 'rating', 'owner'],
-      sort: [{ field: 'last_name', order: 'asc' }],
-      searchableFields: ['first_name', 'last_name', 'company', 'email'],
-    },
-    my_leads: {
-      label: 'My Leads',
-      type: 'grid',
-      columns: ['full_name', 'company', 'email', 'phone', 'status', 'rating'],
-      filter: [['owner', '=', '{current_user}']],
-    },
-    new_leads: {
-      label: 'New Leads',
-      type: 'grid',
-      columns: ['full_name', 'company', 'email', 'phone', 'lead_source', 'owner'],
-      filter: [['status', '=', 'new']],
-      sort: [{ field: 'created_date', order: 'desc' }],
-    },
-    hot_leads: {
-      label: 'High Score Leads',
-      type: 'grid',
-      columns: ['full_name', 'company', 'email', 'phone', 'status', 'rating', 'owner'],
-      filter: [
-        ['rating', '>=', 4],
-        ['is_converted', '=', false],
-      ],
-    },
-    by_status: {
-      label: 'Leads by Status',
-      type: 'kanban',
-      columns: ['full_name', 'company', 'email', 'rating'],
-      filter: [['is_converted', '=', false]],
-      kanban: {
-        groupByField: 'status',
-        columns: ['full_name', 'company', 'email', 'phone', 'rating'],
-      }
-    },
-  },
-  
-  form_views: {
-    default: {
-      type: 'simple',
-      sections: [
-        {
-          label: 'Lead Information',
-          columns: 2,
-          fields: ['salutation', 'first_name', 'last_name', 'full_name', 'company', 'title', 'owner'],
-        },
-        {
-          label: 'Contact Information',
-          columns: 2,
-          fields: ['email', 'phone', 'mobile', 'website'],
-        },
-        {
-          label: 'Lead Details',
-          columns: 2,
-          fields: ['status', 'rating', 'lead_source', 'industry', 'annual_revenue', 'number_of_employees'],
-        },
-        {
-          label: 'Address',
-          columns: 2,
-          fields: ['address'],
-        },
-        {
-          label: 'Additional Information',
-          columns: 2,
-          collapsible: true,
-          fields: ['do_not_call', 'email_opt_out', 'description', 'notes'],
-        },
-        {
-          label: 'Conversion Information',
-          columns: 2,
-          collapsible: true,
-          collapsed: true,
-          fields: ['is_converted', 'converted_account', 'converted_contact', 'converted_opportunity', 'converted_date'],
-        }
-      ]
-    }
-  },
+  // Removed: list_views and form_views belong in UI configuration, not object definition
   
   validations: [
     {

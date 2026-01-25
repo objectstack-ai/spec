@@ -6,7 +6,8 @@ export const Opportunity = ObjectSchema.create({
   pluralLabel: 'Opportunities',
   icon: 'dollar-sign',
   description: 'Sales opportunities and deals in the pipeline',
-  nameField: 'name',
+  titleFormat: '{name} - {stage}',
+  compactLayout: ['name', 'account', 'amount', 'stage', 'owner'],
   
   fields: {
     // Basic Information
@@ -142,111 +143,13 @@ export const Opportunity = ObjectSchema.create({
     apiEnabled: true,
     apiMethods: ['get', 'list', 'create', 'update', 'delete', 'aggregate', 'search'], // Whitelist allowed API operations
     files: true,           // Attach proposals, contracts
-    feedEnabled: true,     // Team collaboration
+    feeds: true,           // Team collaboration (Chatter-like)
+    activities: true,      // Enable tasks and events tracking
     trash: true,
+    mru: true,             // Track Most Recently Used
   },
   
-  // List Views - Multiple visualization types
-  list_views: {
-    all: {
-      label: 'All Opportunities',
-      type: 'grid',
-      columns: ['name', 'account', 'amount', 'close_date', 'stage', 'probability', 'owner'],
-      sort: [{ field: 'close_date', order: 'asc' }],
-      searchableFields: ['name', 'account'],
-    },
-    my_opportunities: {
-      label: 'My Opportunities',
-      type: 'grid',
-      columns: ['name', 'account', 'amount', 'close_date', 'stage', 'probability'],
-      filter: [['owner', '=', '{current_user}']],
-      sort: [{ field: 'close_date', order: 'asc' }],
-    },
-    closing_this_month: {
-      label: 'Closing This Month',
-      type: 'grid',
-      columns: ['name', 'account', 'amount', 'stage', 'probability', 'owner'],
-      filter: [
-        ['close_date', '>=', '{current_month_start}'],
-        ['close_date', '<=', '{current_month_end}'],
-        ['stage', '!=', 'closed_won'],
-        ['stage', '!=', 'closed_lost'],
-      ],
-      sort: [{ field: 'amount', order: 'desc' }],
-    },
-    won_opportunities: {
-      label: 'Won Opportunities',
-      type: 'grid',
-      columns: ['name', 'account', 'amount', 'close_date', 'owner'],
-      filter: [['stage', '=', 'closed_won']],
-      sort: [{ field: 'close_date', order: 'desc' }],
-    },
-    pipeline: {
-      label: 'Sales Pipeline',
-      type: 'kanban',
-      columns: ['name', 'account', 'amount', 'probability', 'close_date'],
-      filter: [
-        ['stage', '!=', 'closed_won'],
-        ['stage', '!=', 'closed_lost'],
-      ],
-      kanban: {
-        groupByField: 'stage',
-        summarizeField: 'amount',
-        columns: ['name', 'account', 'amount', 'close_date'],
-      }
-    },
-    timeline: {
-      label: 'Close Date Timeline',
-      type: 'gantt',
-      columns: ['name', 'account', 'amount', 'stage'],
-      filter: [
-        ['stage', '!=', 'closed_won'],
-        ['stage', '!=', 'closed_lost'],
-      ],
-      gantt: {
-        startDateField: 'created_date',
-        endDateField: 'close_date',
-        titleField: 'name',
-        progressField: 'probability',
-      }
-    }
-  },
-  
-  // Form Views
-  form_views: {
-    default: {
-      type: 'tabbed',
-      sections: [
-        {
-          label: 'Opportunity Information',
-          columns: 2,
-          fields: ['name', 'account', 'primary_contact', 'owner', 'amount', 'close_date'],
-        },
-        {
-          label: 'Sales Process',
-          columns: 2,
-          fields: ['stage', 'probability', 'forecast_category', 'expected_revenue', 'days_in_stage'],
-        },
-        {
-          label: 'Classification',
-          columns: 2,
-          fields: ['type', 'lead_source', 'campaign', 'competitors'],
-        },
-        {
-          label: 'Details',
-          columns: 1,
-          fields: ['description', 'next_step'],
-        },
-        {
-          label: 'System Information',
-          columns: 2,
-          collapsible: true,
-          collapsed: true,
-          fields: ['created_date', 'is_private'],
-        }
-      ]
-    }
-  },
+  // Removed: list_views and form_views belong in UI configuration, not object definition
   
   // Validation Rules
   validations: [
