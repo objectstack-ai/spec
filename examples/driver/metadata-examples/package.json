@@ -1,0 +1,16 @@
+{
+  "name": "@objectstack/example-driver",
+  "version": "1.0.0",
+  "description": "Comprehensive Driver Protocol examples demonstrating Data Sources, Drivers, MongoDB, and PostgreSQL configurations",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@objectstack/spec": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

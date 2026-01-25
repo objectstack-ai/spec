@@ -1,0 +1,16 @@
+{
+  "name": "@objectstack/example-hub",
+  "version": "1.0.0",
+  "description": "Comprehensive Hub Protocol examples demonstrating Composer, Licenses, Marketplace, Spaces, and Tenant Management",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@objectstack/spec": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
