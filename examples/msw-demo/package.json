@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/example-msw-demo",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "Example demonstrating MSW plugin usage with ObjectStack",
   "scripts": {

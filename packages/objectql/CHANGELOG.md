@@ -1,5 +1,20 @@
 # @objectstack/objectql
 
+## 0.3.3
+
+### Patch Changes
+
+- Workflow and configuration improvements
+
+  - Enhanced GitHub workflows for CI, release, and PR automation
+  - Added comprehensive prompt templates for different protocol areas
+  - Improved project documentation and automation guides
+  - Updated changeset configuration
+  - Added cursor rules for better development experience
+
+- Updated dependencies
+  - @objectstack/spec@0.3.3
+
 ## 0.3.2
 
 ### Patch Changes
