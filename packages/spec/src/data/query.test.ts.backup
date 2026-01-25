@@ -80,7 +80,7 @@ describe('QuerySchema - Basic', () => {
     const query: QueryAST = {
       object: 'account',
       fields: ['name', 'email'],
-      orderBy: [
+      sort: [
         { field: 'name', order: 'asc' },
         { field: 'created_at', order: 'desc' },
       ],
@@ -348,7 +348,7 @@ describe('QuerySchema - Aggregations', () => {
         { function: 'sum', field: 'amount', alias: 'total_amount' },
       ],
       groupBy: ['customer_id'],
-      orderBy: [{ field: 'total_amount', order: 'desc' }],
+      sort: [{ field: 'total_amount', order: 'desc' }],
     };
 
     expect(() => QuerySchema.parse(query)).not.toThrow();
@@ -362,7 +362,7 @@ describe('QuerySchema - Aggregations', () => {
         { function: 'count', alias: 'order_count' },
       ],
       groupBy: ['customer_id'],
-      orderBy: [{ field: 'order_count', order: 'desc' }],
+      sort: [{ field: 'order_count', order: 'desc' }],
       top: 10,
       skip: 0,
     };
@@ -425,7 +425,7 @@ describe('QuerySchema - Aggregations', () => {
       ],
       groupBy: ['customer_id'],
       having: { num_orders: { $gt: 1 } },
-      orderBy: [{ field: 'lifetime_value', order: 'desc' }],
+      sort: [{ field: 'lifetime_value', order: 'desc' }],
     };
 
     expect(() => QuerySchema.parse(query)).not.toThrow();
@@ -441,7 +441,7 @@ describe('QuerySchema - Aggregations', () => {
         { function: 'sum', field: 'line_total', alias: 'total_revenue' },
       ],
       groupBy: ['product_id'],
-      orderBy: [{ field: 'total_revenue', order: 'desc' }],
+      sort: [{ field: 'total_revenue', order: 'desc' }],
       top: 20,
     };
 
@@ -521,7 +521,7 @@ describe('QuerySchema - Joins', () => {
         {
           type: 'left',
           object: 'order',
-          on: { 'customer.id': { $eq: { $field: 'order.customer_id' } } },
+          on: ['customer.id', '=', 'order.customer_id'],
         },
       ],
     };
@@ -538,7 +538,7 @@ describe('QuerySchema - Joins', () => {
           type: 'left',
           object: 'order',
           alias: 'o',
-          on: { 'customer.id': { $eq: { $field: 'o.customer_id' } } },
+          on: ['customer.id', '=', 'o.customer_id'],
         },
       ],
     };
@@ -555,7 +555,7 @@ describe('QuerySchema - Joins', () => {
           type: 'left',
           object: 'order',
           alias: 'o',
-          on: { 'customer.id': { $eq: { $field: 'o.customer_id' } } },
+          on: ['customer.id', '=', 'o.customer_id'],
         },
       ],
       filters: ['o.id', 'is_null', null],
@@ -577,7 +577,7 @@ describe('QuerySchema - Joins', () => {
           type: 'right',
           object: 'customer',
           alias: 'c',
-          on: { 'order.customer_id': { $eq: { $field: 'c.id' } } },
+          on: ['order.customer_id', '=', 'c.id'],
         },
       ],
     };
@@ -593,7 +593,7 @@ describe('QuerySchema - Joins', () => {
         {
           type: 'right',
           object: 'customer',
-          on: { 'order.customer_id': { $eq: { $field: 'customer.id' } } },
+          on: ['order.customer_id', '=', 'customer.id'],
         },
       ],
     };
@@ -614,7 +614,7 @@ describe('QuerySchema - Joins', () => {
           type: 'full',
           object: 'order',
           alias: 'o',
-          on: { 'customer.id': { $eq: { $field: 'o.customer_id' } } },
+          on: ['customer.id', '=', 'o.customer_id'],
         },
       ],
     };
@@ -631,7 +631,7 @@ describe('QuerySchema - Joins', () => {
           type: 'full',
           object: 'order',
           alias: 'o',
-          on: { 'customer.id': { $eq: { $field: 'o.customer_id' } } },
+          on: ['customer.id', '=', 'o.customer_id'],
         },
       ],
       filters: [['customer.id', 'is_null', null], 'or', ['o.id', 'is_null', null]],
@@ -653,13 +653,13 @@ describe('QuerySchema - Joins', () => {
           type: 'inner',
           object: 'customer',
           alias: 'c',
-          on: { 'order.customer_id': { $eq: { $field: 'c.id' } } },
+          on: ['order.customer_id', '=', 'c.id'],
         },
         {
           type: 'inner',
           object: 'product',
           alias: 'p',
-          on: { 'order.product_id': { $eq: { $field: 'p.id' } } },
+          on: ['order.product_id', '=', 'p.id'],
         },
       ],
     };
@@ -676,19 +676,19 @@ describe('QuerySchema - Joins', () => {
           type: 'inner',
           object: 'customer',
           alias: 'c',
-          on: { 'order.customer_id': { $eq: { $field: 'c.id' } } },
+          on: ['order.customer_id', '=', 'c.id'],
         },
         {
           type: 'left',
           object: 'product',
           alias: 'p',
-          on: { 'order.product_id': { $eq: { $field: 'p.id' } } },
+          on: ['order.product_id', '=', 'p.id'],
         },
         {
           type: 'left',
           object: 'shipment',
           alias: 's',
-          on: { 'order.id': { $eq: { $field: 's.order_id' } } },
+          on: ['order.id', '=', 's.order_id'],
         },
       ],
     };
@@ -705,25 +705,25 @@ describe('QuerySchema - Joins', () => {
           type: 'inner',
           object: 'customer',
           alias: 'c',
-          on: { 'order.customer_id': { $eq: { $field: 'c.id' } } },
+          on: ['order.customer_id', '=', 'c.id'],
         },
         {
           type: 'inner',
           object: 'order_item',
           alias: 'oi',
-          on: { 'order.id': { $eq: { $field: 'oi.order_id' } } },
+          on: ['order.id', '=', 'oi.order_id'],
         },
         {
           type: 'inner',
           object: 'product',
           alias: 'p',
-          on: { 'oi.product_id': { $eq: { $field: 'p.id' } } },
+          on: ['oi.product_id', '=', 'p.id'],
         },
         {
           type: 'left',
           object: 'category',
           alias: 'cat',
-          on: { 'p.category_id': { $eq: { $field: 'cat.id' } } },
+          on: ['p.category_id', '=', 'cat.id'],
         },
       ],
     };
@@ -744,7 +744,7 @@ describe('QuerySchema - Joins', () => {
           type: 'left',
           object: 'employee',
           alias: 'manager',
-          on: { 'employee.manager_id': { $eq: { $field: 'manager.id' } } },
+          on: ['employee.manager_id', '=', 'manager.id'],
         },
       ],
     };
@@ -761,7 +761,7 @@ describe('QuerySchema - Joins', () => {
           type: 'left',
           object: 'category',
           alias: 'parent',
-          on: { 'category.parent_id': { $eq: { $field: 'parent.id' } } },
+          on: ['category.parent_id', '=', 'parent.id'],
         },
       ],
     };
@@ -783,7 +783,7 @@ describe('QuerySchema - Joins', () => {
           type: 'inner',
           object: 'customer',
           alias: 'c',
-          on: { 'order.customer_id': { $eq: { $field: 'c.id' } } },
+          on: ['order.customer_id', '=', 'c.id'],
         },
       ],
     };
@@ -800,12 +800,11 @@ describe('QuerySchema - Joins', () => {
           type: 'inner',
           object: 'customer',
           alias: 'c',
-          on: {
-            $and: [
-              { 'order.customer_id': { $eq: { $field: 'c.id' } } },
-              { 'c.status': 'active' },
-            ],
-          },
+          on: [
+            ['order.customer_id', '=', 'c.id'],
+            'and',
+            ['c.status', '=', 'active'],
+          ],
         },
       ],
     };
@@ -826,7 +825,7 @@ describe('QuerySchema - Joins', () => {
           type: 'inner',
           object: 'customer',
           alias: 'c',
-          on: { 'order.customer_id': { $eq: { $field: 'c.id' } } },
+          on: ['order.customer_id', '=', 'c.id'],
         },
       ],
       aggregations: [
@@ -852,7 +851,7 @@ describe('QuerySchema - Joins', () => {
           type: 'inner',
           object: 'customer',
           alias: 'high_value_customers',
-          on: { 'order.customer_id': { $eq: { $field: 'high_value_customers.id' } } },
+          on: ['order.customer_id', '=', 'high_value_customers.id'],
           subquery: {
             object: 'customer',
             fields: ['id'],
@@ -874,7 +873,7 @@ describe('QuerySchema - Joins', () => {
           type: 'left',
           object: 'order',
           alias: 'order_summary',
-          on: { 'customer.id': { $eq: { $field: 'order_summary.customer_id' } } },
+          on: ['customer.id', '=', 'order_summary.customer_id'],
           subquery: {
             object: 'order',
             fields: ['customer_id'],
@@ -903,7 +902,7 @@ describe('QuerySchema - Joins', () => {
         {
           type: 'left',
           object: 'contact',
-          on: { 'account.id': { $eq: { $field: 'contact.account_id' } } },
+          on: ['account.id', '=', 'contact.account_id'],
         },
       ],
     };
@@ -920,19 +919,19 @@ describe('QuerySchema - Joins', () => {
           type: 'inner',
           object: 'customer',
           alias: 'c',
-          on: { 'order.customer_id': { $eq: { $field: 'c.id' } } },
+          on: ['order.customer_id', '=', 'c.id'],
         },
         {
           type: 'inner',
           object: 'order_item',
           alias: 'oi',
-          on: { 'order.id': { $eq: { $field: 'oi.order_id' } } },
+          on: ['order.id', '=', 'oi.order_id'],
         },
         {
           type: 'inner',
           object: 'product',
           alias: 'p',
-          on: { 'oi.product_id': { $eq: { $field: 'p.id' } } },
+          on: ['oi.product_id', '=', 'p.id'],
         },
       ],
       aggregations: [
@@ -954,7 +953,7 @@ describe('QuerySchema - Joins', () => {
           type: 'left',
           object: 'order',
           alias: 'o',
-          on: { 'customer.id': { $eq: { $field: 'o.customer_id' } } },
+          on: ['customer.id', '=', 'o.customer_id'],
         },
       ],
       aggregations: [
@@ -963,7 +962,7 @@ describe('QuerySchema - Joins', () => {
         { function: 'max', field: 'o.created_at', alias: 'last_order_date' },
       ],
       groupBy: ['customer.id', 'customer.name', 'customer.email'],
-      orderBy: [{ field: 'lifetime_value', order: 'desc' }],
+      sort: [{ field: 'lifetime_value', order: 'desc' }],
     };
 
     expect(() => QuerySchema.parse(query)).not.toThrow();
@@ -1540,7 +1539,7 @@ describe('QuerySchema - Complex Queries', () => {
           type: 'inner',
           object: 'customer',
           alias: 'c',
-          on: { 'order.customer_id': { $eq: { $field: 'c.id' } } },
+          on: ['order.customer_id', '=', 'c.id'],
         },
       ],
       aggregations: [
@@ -1549,7 +1548,7 @@ describe('QuerySchema - Complex Queries', () => {
       ],
       groupBy: ['customer_id'],
       having: { order_count: { $gt: 5 } },
-      orderBy: [{ field: 'total_amount', order: 'desc' }],
+      sort: [{ field: 'total_amount', order: 'desc' }],
       top: 100,
     };
 
@@ -1566,7 +1565,7 @@ describe('QuerySchema - Complex Queries', () => {
         {
           type: 'inner',
           object: 'customer',
-          on: { 'order.customer_id': { $eq: { $field: 'customer.id' } } },
+          on: ['order.customer_id', '=', 'customer.id'],
         },
       ],
       aggregations: [
@@ -1584,7 +1583,7 @@ describe('QuerySchema - Complex Queries', () => {
       ],
       groupBy: ['customer_id'],
       having: { avg_amount: { $gt: 500 } },
-      orderBy: [{ field: 'avg_amount', order: 'desc' }],
+      sort: [{ field: 'avg_amount', order: 'desc' }],
       top: 50,
       skip: 0,
     };
@@ -1628,7 +1627,7 @@ describe('QuerySchema - Edge Cases and Null Handling', () => {
       joins: [],
       windowFunctions: [],
       groupBy: [],
-      orderBy: [],
+      sort: [],
     };
 
     expect(() => QuerySchema.parse(query)).not.toThrow();
@@ -1755,13 +1754,13 @@ describe('QuerySchema - Edge Cases and Null Handling', () => {
         {
           type: 'left',
           object: 'order',
-          on: { 'customer.id': { $eq: { $field: 'order.customer_id' } } },
+          on: ['customer.id', '=', 'order.customer_id'],
         },
         {
           type: 'inner',
           object: 'filtered_orders',
           alias: 'fo',
-          on: { 'customer.id': { $eq: { $field: 'fo.customer_id' } } },
+          on: ['customer.id', '=', 'fo.customer_id'],
           subquery: {
             object: 'order',
             fields: ['customer_id', 'amount'],
@@ -1804,7 +1803,7 @@ describe('QuerySchema - Edge Cases and Null Handling', () => {
         {
           type: 'invalid_join',
           object: 'customer',
-          on: { 'order.customer_id': { $eq: { $field: 'customer.id' } } },
+          on: ['order.customer_id', '=', 'customer.id'],
         },
       ],
     })).toThrow();
@@ -1826,7 +1825,7 @@ describe('QuerySchema - Edge Cases and Null Handling', () => {
   it('should reject invalid sort order', () => {
     expect(() => QuerySchema.parse({
       object: 'account',
-      orderBy: [{ field: 'name', order: 'invalid' }],
+      sort: [{ field: 'name', order: 'invalid' }],
     })).toThrow();
   });
 });
@@ -1867,11 +1866,11 @@ describe('QuerySchema - Type Coercion Edge Cases', () => {
   it('should handle default sort order', () => {
     const query: QueryAST = {
       object: 'account',
-      orderBy: [{ field: 'name' }], // order defaults to 'asc'
+      sort: [{ field: 'name' }], // order defaults to 'asc'
     };
 
     const result = QuerySchema.parse(query);
-    expect(result.orderBy?.[0].order).toBe('asc');
+    expect(result.sort?.[0].order).toBe('asc');
   });
 
   it('should handle mixed field types', () => {
