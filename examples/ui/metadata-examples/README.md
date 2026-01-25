@@ -12,6 +12,8 @@ These are **configuration examples** (not implementations) showing how to define
 - **page.examples.ts** - 9 page layouts: Record, Home, App, and Utility pages
 - **app.examples.ts** - 7 applications: Simple to comprehensive apps with hierarchical navigation
 - **theme.examples.ts** - 7 themes: Light, dark, colorful, minimal, and WCAG AAA compliant
+- **report.examples.ts** - 12 examples: Tabular, Summary, Matrix reports with charts and filtering
+- **widget.examples.ts** - 20 examples: Field widget props for text, number, date, selection, and custom widgets
 
 ## Usage
 

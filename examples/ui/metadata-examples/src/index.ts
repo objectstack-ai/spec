@@ -12,3 +12,5 @@ export * from './dashboard.examples';
 export * from './page.examples';
 export * from './app.examples';
 export * from './theme.examples';
+export * from './report.examples';
+export * from './widget.examples';
