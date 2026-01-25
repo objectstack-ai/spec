@@ -52,8 +52,8 @@ export const ActiveOpportunitiesReport: Report = {
   ],
   filter: {
     $and: [
-      { field: 'stage', operator: 'ne', value: 'Closed Won' },
-      { field: 'stage', operator: 'ne', value: 'Closed Lost' },
+      { stage: { $ne: 'Closed Won' } },
+      { stage: { $ne: 'Closed Lost' } },
     ],
   },
 };
@@ -102,9 +102,7 @@ export const SalesByRegionAndRepReport: Report = {
     { field: 'owner_name', sortOrder: 'asc' },
   ],
   filter: {
-    field: 'stage',
-    operator: 'eq',
-    value: 'Closed Won',
+    stage: { $eq: 'Closed Won' },
   },
 };
 
@@ -127,9 +125,7 @@ export const MonthlyRevenueReport: Report = {
     { field: 'close_date', sortOrder: 'desc', dateGranularity: 'month' },
   ],
   filter: {
-    field: 'stage',
-    operator: 'eq',
-    value: 'Closed Won',
+    stage: { $eq: 'Closed Won' },
   },
 };
 
@@ -158,9 +154,7 @@ export const SalesByProductAndQuarterReport: Report = {
     { field: 'close_date', sortOrder: 'asc', dateGranularity: 'quarter' },
   ],
   filter: {
-    field: 'stage',
-    operator: 'eq',
-    value: 'Closed Won',
+    stage: { $eq: 'Closed Won' },
   },
 };
 
@@ -237,9 +231,7 @@ export const QuarterlyGrowthTrendReport: Report = {
     { field: 'close_date', sortOrder: 'asc', dateGranularity: 'quarter' },
   ],
   filter: {
-    field: 'stage',
-    operator: 'eq',
-    value: 'Closed Won',
+    stage: { $eq: 'Closed Won' },
   },
   chart: {
     type: 'line',
@@ -300,11 +292,11 @@ export const HighValueOpportunitiesReport: Report = {
   ],
   filter: {
     $and: [
-      { field: 'amount', operator: 'gte', value: 100000 },
+      { amount: { $gte: 100000 } },
       {
         $or: [
-          { field: 'stage', operator: 'eq', value: 'Negotiation' },
-          { field: 'stage', operator: 'eq', value: 'Proposal' },
+          { stage: { $eq: 'Negotiation' } },
+          { stage: { $eq: 'Proposal' } },
         ],
       },
     ],
@@ -332,8 +324,6 @@ export const SalesPerformanceReport: Report = {
     { field: 'owner_name', sortOrder: 'desc' },
   ],
   filter: {
-    field: 'stage',
-    operator: 'eq',
-    value: 'Closed Won',
+    stage: { $eq: 'Closed Won' },
   },
 };

@@ -452,7 +452,7 @@ export const MigrationMapping: Mapping = {
   label: 'Migrate Products from Legacy System',
   sourceFormat: 'json',
   targetObject: 'product',
-  mode: 'replace',
+  mode: 'upsert',
   
   fieldMapping: [
     {
