@@ -1,5 +1,12 @@
 # @objectstack/example-ai-sales
 
+## 1.0.5
+
+### Patch Changes
+
+- Updated dependencies
+  - @objectstack/spec@0.3.3
+
 ## 1.0.4
 
 ### Patch Changes
