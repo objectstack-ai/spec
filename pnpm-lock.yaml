@@ -227,16 +227,6 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
-  examples/ui:
-    dependencies:
-      '@objectstack/spec':
-        specifier: workspace:*
-        version: link:../../packages/spec
-    devDependencies:
-      typescript:
-        specifier: ^5.0.0
-        version: 5.9.3
-
   packages/client:
     dependencies:
       '@objectstack/spec':

@@ -4,59 +4,29 @@ This directory contains comprehensive examples demonstrating the **UI Protocol**
 
 ## 📚 What's Inside
 
-This package contains three types of examples:
+This package contains three sub-packages demonstrating different aspects of the UI Protocol:
 
-1. **Metadata Examples** (`src/*.examples.ts`) - JSON/TypeScript configurations defining UI structure
-2. **Custom Components** (`custom-components/`) - React implementations of custom UI components
-3. **React Renderer** (`react-renderer/`) - How to render UI metadata using React
+### 1. **Metadata Examples** (`metadata-examples/`)
+TypeScript/JSON configurations defining UI structure - the "what" of the UI:
+- **view.examples.ts** - Grid, Kanban, Calendar, Gantt views
+- **page.examples.ts** - Record, Home, App pages
+- **dashboard.examples.ts** - Analytics dashboards with widgets
+- **action.examples.ts** - User interactions and workflows
+- **app.examples.ts** - Complete application structures
+- **theme.examples.ts** - Visual styling and theming
 
-### Metadata Examples (`src/`)
+### 2. **Custom Components** (`custom-components/`)
+React implementations showing how to build custom UI components:
+- CustomButton - Flexible button with variants and theming
+- CustomDataGrid - Advanced grid with sorting, filtering, pagination
+- Component registration system
 
-These demonstrate all major UI components of the ObjectStack Protocol:
-
-### 1. **Views** (`view.examples.ts`)
-Different ways to display and interact with data:
-- **Grid View**: Traditional table/spreadsheet layout
-- **Kanban View**: Card-based workflow boards
-- **Calendar View**: Time-based event visualization
-- **Gantt View**: Project timeline visualization
-- **Custom Data Sources**: Using API providers and static data
-
-### 2. **Pages** (`page.examples.ts`)
-Component composition patterns inspired by Salesforce Lightning Pages:
-- **Record Pages**: Contextual layouts for viewing/editing records
-- **Home Pages**: Dashboard-style landing pages
-- **App Pages**: Custom application screens
-- **Component Regions**: Flexible layout templates
-
-### 3. **Dashboards** (`dashboard.examples.ts`)
-Analytics and metrics visualization:
-- **Widget Types**: Metrics, charts (bar, line, pie, donut, funnel), tables
-- **Filters**: Dynamic data filtering
-- **Layout Grid**: Responsive dashboard layouts
-- **Real-time Metrics**: KPIs and business intelligence
-
-### 4. **Actions** (`action.examples.ts`)
-User interactions and workflows:
-- **Button Actions**: Custom buttons with various triggers
-- **Modal Actions**: Forms and dialogs
-- **Flow Actions**: Visual workflow execution
-- **Script Actions**: Custom JavaScript execution
-- **Batch Actions**: Mass operations on records
-
-### 5. **Apps** (`app.examples.ts`)
-Complete application structure:
-- **Navigation Trees**: Hierarchical menus with groups
-- **App Branding**: Custom colors, logos, themes
-- **Multi-app Architecture**: Switching between business contexts
-- **Permission-based Access**: Role-based app visibility
-
-### 6. **Themes** (`theme.examples.ts`)
-Visual styling and customization:
-- **Color Palettes**: Primary, secondary, accent colors
-- **Typography**: Font families and sizing
-- **Component Styles**: Button variants, borders, shadows
-- **Dark Mode**: Theme switching
+### 3. **React Renderer** (`react-renderer/`)
+Shows how to render UI metadata using React - the "how" of the UI:
+- PageRenderer - Renders Page metadata
+- ComponentRenderer - Renders individual components
+- Template expression resolver for data binding
+- Complete integration examples
 
 ## 🎯 Key Concepts
 
@@ -265,51 +235,56 @@ navigation: [
 ]
 ```
 
-## 📝 File Structure
+## 📝 Directory Structure
 
 ```
 examples/ui/
-├── package.json              # Package configuration  
-├── tsconfig.json             # TypeScript configuration
 ├── README.md                 # This file
-├── src/                      # Metadata examples (JSON/TypeScript)
-│   ├── view.examples.ts      # List, Form, Kanban, Calendar views
-│   ├── page.examples.ts      # Record, Home, App pages
-│   ├── dashboard.examples.ts # Widgets and analytics
-│   ├── action.examples.ts    # Buttons and interactions
-│   ├── app.examples.ts       # Application structure
-│   └── theme.examples.ts     # Visual styling
+├── metadata-examples/        # UI metadata configurations
+│   ├── README.md
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── src/
+│       ├── view.examples.ts      # List, Form, Kanban, Calendar views
+│       ├── page.examples.ts      # Record, Home, App pages
+│       ├── dashboard.examples.ts # Widgets and analytics
+│       ├── action.examples.ts    # Buttons and interactions
+│       ├── app.examples.ts       # Application structure
+│       └── theme.examples.ts     # Visual styling
 ├── custom-components/        # React component implementations
 │   ├── README.md
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── CustomButton.tsx
-│   │   │   └── CustomDataGrid.tsx
-│   │   └── registry.ts       # Component registration
-│   └── package.json
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── src/
+│       ├── components/
+│       │   ├── CustomButton.tsx
+│       │   └── CustomDataGrid.tsx
+│       └── registry.ts       # Component registration
 └── react-renderer/          # React renderer for metadata
     ├── README.md
-    ├── src/
-    │   ├── renderers/
-    │   │   ├── PageRenderer.tsx
-    │   │   └── ComponentRenderer.tsx
-    │   ├── utils/
-    │   │   └── templateResolver.ts
-    │   └── examples/
-    │       └── SimpleApp.tsx
-    └── package.json
+    ├── package.json
+    ├── tsconfig.json
+    └── src/
+        ├── renderers/
+        │   ├── PageRenderer.tsx
+        │   └── ComponentRenderer.tsx
+        ├── utils/
+        │   └── templateResolver.ts
+        └── examples/
+            └── SimpleApp.tsx
 ```
 
 ## 🚀 Quick Start
 
 ### 1. View Metadata Examples
 
-The TypeScript examples in `src/` show the metadata structure:
+Explore the TypeScript metadata configurations:
 
 ```bash
-# These are TypeScript files that demonstrate the protocol
-cat src/view.examples.ts
-cat src/app.examples.ts
+cd metadata-examples
+npm install
+npm run build
+# View the examples in src/
 ```
 
 ### 2. Custom Components
