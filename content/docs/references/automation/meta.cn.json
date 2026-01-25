@@ -1,0 +1,9 @@
+{
+  "title": "自动化协议",
+  "root": true,
+  "pages": [
+    "flow",
+    "webhook",
+    "workflow"
+  ]
+}

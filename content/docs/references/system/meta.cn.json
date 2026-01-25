@@ -1,5 +1,6 @@
 {
-  "title": "System Protocol",
+  "title": "系统协议",
+  "root": true,
   "pages": [
     "audit",
     "events",

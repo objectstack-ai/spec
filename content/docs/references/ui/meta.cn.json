@@ -1,5 +1,6 @@
 {
-  "title": "UI Protocol",
+  "title": "UI 协议",
+  "root": true,
   "pages": [
     "action",
     "app",
