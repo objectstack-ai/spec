@@ -1,43 +1,170 @@
 /**
  * MSW Browser Worker Setup
  * 
- * Simplified setup using ObjectStack plugin-msw.
- * All API endpoints are automatically mocked based on objectstack.config.ts
+ * Simplified setup using auto-generated handlers from objectstack.config.ts
+ * All API endpoints are automatically mocked based on your data model
  */
 
+import { setupWorker } from 'msw/browser';
+import { http, HttpResponse } from 'msw';
 import { ObjectStackKernel } from '@objectstack/runtime';
-import { MSWPlugin } from '@objectstack/plugin-msw';
+import { ObjectStackRuntimeProtocol } from '@objectstack/runtime';
 import appConfig from '../../objectstack.config';
 
 let runtime: ObjectStackKernel | null = null;
-let mswPlugin: MSWPlugin | null = null;
+let protocol: ObjectStackRuntimeProtocol | null = null;
 
 /**
- * Initialize and start the ObjectStack runtime with MSW plugin
+ * Initialize the ObjectStack runtime with your app configuration
+ */
+async function initializeRuntime() {
+  runtime = new ObjectStackKernel([appConfig]);
+  await runtime.start();
+  protocol = new ObjectStackRuntimeProtocol(runtime);
+  console.log('[MSW] ObjectStack runtime initialized');
+}
+
+/**
+ * Generate MSW handlers automatically from the runtime protocol
+ */
+function createHandlers(baseUrl: string = '/api/v1') {
+  if (!protocol) {
+    throw new Error('Runtime not initialized. Call initializeRuntime() first.');
+  }
+
+  return [
+    // Discovery endpoint
+    http.get(`${baseUrl}`, () => {
+      return HttpResponse.json(protocol!.getDiscovery());
+    }),
+
+    // Meta endpoints
+    http.get(`${baseUrl}/meta`, () => {
+      return HttpResponse.json(protocol!.getMetaTypes());
+    }),
+
+    http.get(`${baseUrl}/meta/:type`, ({ params }) => {
+      return HttpResponse.json(protocol!.getMetaItems(params.type as string));
+    }),
+
+    http.get(`${baseUrl}/meta/:type/:name`, ({ params }) => {
+      try {
+        return HttpResponse.json(
+          protocol!.getMetaItem(params.type as string, params.name as string)
+        );
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return HttpResponse.json({ error: message }, { status: 404 });
+      }
+    }),
+
+    // Data endpoints
+    http.get(`${baseUrl}/data/:object`, async ({ params, request }) => {
+      try {
+        const url = new URL(request.url);
+        const queryParams: Record<string, any> = {};
+        url.searchParams.forEach((value, key) => {
+          queryParams[key] = value;
+        });
+        
+        const result = await protocol!.findData(params.object as string, queryParams);
+        return HttpResponse.json(result);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return HttpResponse.json({ error: message }, { status: 404 });
+      }
+    }),
+
+    http.get(`${baseUrl}/data/:object/:id`, async ({ params }) => {
+      try {
+        const result = await protocol!.getData(
+          params.object as string,
+          params.id as string
+        );
+        return HttpResponse.json(result);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return HttpResponse.json({ error: message }, { status: 404 });
+      }
+    }),
+
+    http.post(`${baseUrl}/data/:object`, async ({ params, request }) => {
+      try {
+        const body = await request.json();
+        const result = await protocol!.createData(params.object as string, body);
+        return HttpResponse.json(result, { status: 201 });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return HttpResponse.json({ error: message }, { status: 400 });
+      }
+    }),
+
+    http.patch(`${baseUrl}/data/:object/:id`, async ({ params, request }) => {
+      try {
+        const body = await request.json();
+        const result = await protocol!.updateData(
+          params.object as string,
+          params.id as string,
+          body
+        );
+        return HttpResponse.json(result);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return HttpResponse.json({ error: message }, { status: 400 });
+      }
+    }),
+
+    http.delete(`${baseUrl}/data/:object/:id`, async ({ params }) => {
+      try {
+        const result = await protocol!.deleteData(
+          params.object as string,
+          params.id as string
+        );
+        return HttpResponse.json(result);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return HttpResponse.json({ error: message }, { status: 400 });
+      }
+    }),
+
+    // UI Protocol endpoint
+    http.get(`${baseUrl}/ui/view/:object`, ({ params, request }) => {
+      try {
+        const url = new URL(request.url);
+        const viewType = url.searchParams.get('type') || 'list';
+        const view = protocol!.getUiView(params.object as string, viewType as 'list' | 'form');
+        return HttpResponse.json(view);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return HttpResponse.json({ error: message }, { status: 404 });
+      }
+    }),
+  ];
+}
+
+/**
+ * Start the MSW worker with auto-generated handlers
  * 
  * This function:
- * 1. Creates an ObjectStack runtime with your app configuration
- * 2. Installs the MSW plugin to automatically mock all API endpoints
- * 3. Starts the runtime (which initializes data and starts MSW)
+ * 1. Initializes the ObjectStack runtime with your app config
+ * 2. Generates MSW handlers automatically
+ * 3. Starts the MSW worker
  */
 export async function startMockServer() {
-  // Create MSW Plugin
-  mswPlugin = new MSWPlugin({
-    enableBrowser: true,
-    baseUrl: '/api/v1',
-    logRequests: true
+  // Initialize runtime
+  await initializeRuntime();
+
+  // Create handlers from runtime protocol
+  const handlers = createHandlers('/api/v1');
+
+  // Start MSW worker
+  const worker = setupWorker(...handlers);
+  await worker.start({
+    onUnhandledRequest: 'bypass',
   });
 
-  // Create runtime with app config and MSW plugin
-  runtime = new ObjectStackKernel([
-    appConfig,  // Your app configuration with objects and seed data
-    mswPlugin   // MSW plugin to auto-mock all endpoints
-  ]);
-
-  // Start the runtime (this will initialize everything)
-  await runtime.start();
-
-  console.log('[MSW] ObjectStack runtime started with auto-mocked API endpoints');
+  console.log('[MSW] Auto-mocked API ready! All endpoints generated from objectstack.config.ts');
+  return worker;
 }
 
 /**
@@ -45,11 +172,4 @@ export async function startMockServer() {
  */
 export function getRuntime() {
   return runtime;
-}
-
-/**
- * Get the MSW worker (useful for advanced use cases)
- */
-export function getWorker() {
-  return mswPlugin?.getWorker();
 }

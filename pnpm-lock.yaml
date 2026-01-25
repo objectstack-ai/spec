@@ -276,9 +276,9 @@ importers:
       '@objectstack/client':
         specifier: workspace:*
         version: link:../../../packages/client
-      '@objectstack/plugin-msw':
+      '@objectstack/driver-memory':
         specifier: workspace:*
-        version: link:../../../packages/plugin-msw
+        version: link:../../../packages/driver-memory
       '@objectstack/runtime':
         specifier: workspace:*
         version: link:../../../packages/runtime
