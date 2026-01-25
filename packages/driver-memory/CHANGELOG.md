@@ -19,7 +19,7 @@
   - Enhanced project structure and organization
   - Improved documentation navigation and accessibility
 
-### Patch Changes
+### Minor Changes
 
 - Updated dependencies
   - @objectstack/spec@0.4.0

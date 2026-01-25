@@ -2,7 +2,7 @@
 
 ## 0.1.2
 
-### Patch Changes
+### Minor Changes
 
 - Updated dependencies
   - @objectstack/driver-memory@0.4.0

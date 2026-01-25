@@ -21,7 +21,7 @@
 
 ## 0.3.2
 
-### Patch Changes
+### Minor Changes
 
 - Patch release for maintenance and stability improvements
 
