@@ -9,8 +9,11 @@ describe('ObjectCapabilities', () => {
     expect(result.searchable).toBe(true);
     expect(result.apiEnabled).toBe(true);
     expect(result.files).toBe(false);
-    expect(result.feedEnabled).toBe(false);
+    expect(result.feeds).toBe(false);
+    expect(result.activities).toBe(false);
     expect(result.trash).toBe(true);
+    expect(result.mru).toBe(true);
+    expect(result.clone).toBe(true);
   });
 
   it('should accept custom capability values', () => {
@@ -19,8 +22,11 @@ describe('ObjectCapabilities', () => {
       searchable: false,
       apiEnabled: true,
       files: true,
-      feedEnabled: true,
+      feeds: true,
+      activities: false,
       trash: false,
+      mru: true,
+      clone: true,
     };
 
     const result = ObjectCapabilities.parse(capabilities);
