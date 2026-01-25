@@ -736,8 +736,7 @@ describe('ValidationRuleSchema (Discriminated Union)', () => {
         type: 'custom' as const,
         name: 'custom_business_rule',
         message: 'Custom validation failed',
-        field: 'business_field',
-        validatorFunction: 'validateBusinessRule',
+        handler: 'validateBusinessRule',
       };
 
       expect(() => ValidationRuleSchema.parse(customValidation)).not.toThrow();
@@ -748,8 +747,7 @@ describe('ValidationRuleSchema (Discriminated Union)', () => {
         type: 'custom' as const,
         name: 'complex_validation',
         message: 'Validation failed',
-        field: 'data',
-        validatorFunction: 'complexValidator',
+        handler: 'complexValidator',
         params: {
           threshold: 100,
           mode: 'strict',
@@ -764,7 +762,7 @@ describe('ValidationRuleSchema (Discriminated Union)', () => {
         type: 'custom' as const,
         name: 'record_level_check',
         message: 'Record validation failed',
-        validatorFunction: 'validateEntireRecord',
+        handler: 'validateEntireRecord',
       };
 
       expect(() => ValidationRuleSchema.parse(validation)).not.toThrow();
@@ -1058,7 +1056,7 @@ describe('ValidationRuleSchema (Discriminated Union)', () => {
           type: 'custom',
           name: 'business_logic',
           message: 'Business logic validation failed',
-          validatorFunction: 'validateBusinessRules',
+          handler: 'validateBusinessRules',
         },
         {
           type: 'conditional',
@@ -1212,8 +1210,7 @@ describe('ValidationRuleSchema - Edge Cases and Null Handling', () => {
       type: 'custom' as const,
       name: 'custom_validation',
       message: 'Validation failed',
-      field: undefined, // Optional for record-level validation
-      validatorFunction: 'validateRecord',
+      handler: 'validateRecord',
       params: undefined,
     };
 
@@ -1225,7 +1222,7 @@ describe('ValidationRuleSchema - Edge Cases and Null Handling', () => {
       type: 'custom' as const,
       name: 'custom_validation',
       message: 'Validation failed',
-      validatorFunction: 'validateRecord',
+      handler: 'validateRecord',
       params: {},
     };
 
@@ -1339,7 +1336,7 @@ describe('ValidationRuleSchema - Type Coercion Edge Cases', () => {
         type: 'custom' as const,
         name: 'custom_test',
         message: 'Test',
-        validatorFunction: 'validate',
+        handler: 'validate',
         params,
       };
 
