@@ -1,0 +1,14 @@
+{
+  "title": "AI 协议",
+  "root": true,
+  "pages": [
+    "agent",
+    "conversation",
+    "cost",
+    "model-registry",
+    "nlq",
+    "orchestration",
+    "predictive",
+    "rag-pipeline"
+  ]
+}

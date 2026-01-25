@@ -1,0 +1,11 @@
+{
+  "title": "认证协议",
+  "root": true,
+  "pages": [
+    "config",
+    "identity",
+    "organization",
+    "policy",
+    "role"
+  ]
+}

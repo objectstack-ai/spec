@@ -1,5 +1,5 @@
 
-import { HookContext, Hook } from '@steedos/spec';
+import { HookContext, Hook } from '@objectstack/spec/data';
 
 const leadHook: Hook = {
     name: 'lead_automation',

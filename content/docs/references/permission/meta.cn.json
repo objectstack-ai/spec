@@ -1,0 +1,9 @@
+{
+  "title": "权限协议",
+  "root": true,
+  "pages": [
+    "permission",
+    "sharing",
+    "territory"
+  ]
+}

@@ -6,5 +6,6 @@
     "module": "ES2020",
     "moduleResolution": "bundler"
   },
-  "include": ["src/**/*", "objectstack.config.ts"]
+  "include": ["src/**/*", "objectstack.config.ts"],
+  "exclude": ["node_modules", "dist"]
 }

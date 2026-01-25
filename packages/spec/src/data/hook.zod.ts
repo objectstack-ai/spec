@@ -160,6 +160,7 @@ export const HookContextSchema = z.object({
   ql: z.any().describe('ObjectQL Engine Reference'),
 });
 
-export type Hook = z.infer<typeof HookSchema>;
+export type Hook = z.input<typeof HookSchema>;
+export type ResolvedHook = z.output<typeof HookSchema>;
 export type HookEventType = z.infer<typeof HookEvent>;
 export type HookContext = z.infer<typeof HookContextSchema>;

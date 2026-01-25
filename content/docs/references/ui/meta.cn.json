@@ -1,0 +1,14 @@
+{
+  "title": "UI 协议",
+  "root": true,
+  "pages": [
+    "action",
+    "app",
+    "dashboard",
+    "page",
+    "report",
+    "theme",
+    "view",
+    "widget"
+  ]
+}
