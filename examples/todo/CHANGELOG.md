@@ -5,8 +5,8 @@
 ### Patch Changes
 
 - Updated dependencies
-  - @objectstack/spec@0.3.3
-  - @objectstack/client@0.3.3
+  - @objectstack/spec@1.0.0
+  - @objectstack/client@1.0.0
 
 ## 1.0.6
 

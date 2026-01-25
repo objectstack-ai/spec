@@ -1,10 +1,23 @@
 # @objectstack/spec
 
-## 0.3.3
+## 0.4.0
 
-### Patch Changes
+### Minor Changes
 
-- Patch release for maintenance and documentation improvements
+- Minor release with comprehensive documentation, GitHub workflows, and infrastructure improvements
+
+  ### Added
+
+  - Complete documentation site with Fumadocs
+  - Comprehensive GitHub workflows (CI, CodeQL, release automation)
+  - Documentation guides (CONTRIBUTING.md, CODE_OF_CONDUCT.md, ARCHITECTURE.md)
+  - Agent prompts for AI-assisted development
+  - Blog posts on architecture and best practices
+
+  ### Changed
+
+  - Enhanced project structure and organization
+  - Improved documentation navigation and accessibility
 
 ## 0.3.2
 

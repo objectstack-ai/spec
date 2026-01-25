@@ -19,11 +19,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
-## [0.3.3] - 2026-01-25
+## [0.4.0] - 2026-01-25
+
+### Added
+- Complete documentation site with Fumadocs
+- Comprehensive GitHub workflows (CI, CodeQL, release automation, dependency validation)
+- Documentation guides (CONTRIBUTING.md, CODE_OF_CONDUCT.md, ARCHITECTURE.md)
+- Agent prompts for AI-assisted development
+- Blog posts on metadata-driven architecture and protocol-first development
+- Comprehensive example applications (AI Analyst, AI Sales, AI Support, CRM, etc.)
 
 ### Changed
-- Patch release for maintenance and documentation improvements
-- Updated all packages to version 0.3.3
+- Enhanced project structure and organization
+- Improved documentation navigation and accessibility
+- Updated all packages to version 0.4.0
 
 ## [0.3.2] - 2026-01-24
 
@@ -157,8 +166,8 @@ Mark breaking changes clearly:
 
 ---
 
-[Unreleased]: https://github.com/objectstack-ai/spec/compare/v0.3.3...HEAD
-[0.3.3]: https://github.com/objectstack-ai/spec/compare/v0.3.2...v0.3.3
+[Unreleased]: https://github.com/objectstack-ai/spec/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/objectstack-ai/spec/compare/v0.3.2...v0.4.0
 [0.3.2]: https://github.com/objectstack-ai/spec/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/objectstack-ai/spec/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/objectstack-ai/spec/compare/v0.1.1...v0.3.0
