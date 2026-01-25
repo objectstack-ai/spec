@@ -2,7 +2,7 @@
  * MSW Browser Worker Setup
  * 
  * This file sets up Mock Service Worker in the browser to intercept
- * API calls and return mock data using ObjectStack's MSW plugin.
+ * API calls and return mock data following ObjectStack API conventions.
  */
 
 import { setupWorker } from 'msw/browser';
