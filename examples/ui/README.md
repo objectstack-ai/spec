@@ -4,7 +4,15 @@ This directory contains comprehensive examples demonstrating the **UI Protocol**
 
 ## 📚 What's Inside
 
-This example package demonstrates all major UI components of the ObjectStack Protocol:
+This package contains three types of examples:
+
+1. **Metadata Examples** (`src/*.examples.ts`) - JSON/TypeScript configurations defining UI structure
+2. **Custom Components** (`custom-components/`) - React implementations of custom UI components
+3. **React Renderer** (`react-renderer/`) - How to render UI metadata using React
+
+### Metadata Examples (`src/`)
+
+These demonstrate all major UI components of the ObjectStack Protocol:
 
 ### 1. **Views** (`view.examples.ts`)
 Different ways to display and interact with data:
@@ -261,17 +269,69 @@ navigation: [
 
 ```
 examples/ui/
-├── package.json           # Package configuration
-├── tsconfig.json          # TypeScript configuration
-├── README.md              # This file
-└── src/
-    ├── view.examples.ts      # List, Form, Kanban, Calendar views
-    ├── page.examples.ts      # Record, Home, App pages
-    ├── dashboard.examples.ts # Widgets and analytics
-    ├── action.examples.ts    # Buttons and interactions
-    ├── app.examples.ts       # Application structure
-    └── theme.examples.ts     # Visual styling
+├── package.json              # Package configuration  
+├── tsconfig.json             # TypeScript configuration
+├── README.md                 # This file
+├── src/                      # Metadata examples (JSON/TypeScript)
+│   ├── view.examples.ts      # List, Form, Kanban, Calendar views
+│   ├── page.examples.ts      # Record, Home, App pages
+│   ├── dashboard.examples.ts # Widgets and analytics
+│   ├── action.examples.ts    # Buttons and interactions
+│   ├── app.examples.ts       # Application structure
+│   └── theme.examples.ts     # Visual styling
+├── custom-components/        # React component implementations
+│   ├── README.md
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── CustomButton.tsx
+│   │   │   └── CustomDataGrid.tsx
+│   │   └── registry.ts       # Component registration
+│   └── package.json
+└── react-renderer/          # React renderer for metadata
+    ├── README.md
+    ├── src/
+    │   ├── renderers/
+    │   │   ├── PageRenderer.tsx
+    │   │   └── ComponentRenderer.tsx
+    │   ├── utils/
+    │   │   └── templateResolver.ts
+    │   └── examples/
+    │       └── SimpleApp.tsx
+    └── package.json
 ```
+
+## 🚀 Quick Start
+
+### 1. View Metadata Examples
+
+The TypeScript examples in `src/` show the metadata structure:
+
+```bash
+# These are TypeScript files that demonstrate the protocol
+cat src/view.examples.ts
+cat src/app.examples.ts
+```
+
+### 2. Custom Components
+
+See how to implement custom React components:
+
+```bash
+cd custom-components
+npm install
+npm run dev
+```
+
+### 3. React Renderer
+
+See how to render metadata with React:
+
+```bash
+cd react-renderer
+npm install
+npm run dev
+```
+
 
 ## 🤝 Related Examples
 

@@ -1,0 +1,26 @@
+{
+  "name": "@objectstack/example-custom-components",
+  "version": "1.0.0",
+  "description": "Custom UI component implementations for ObjectStack",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@objectstack/spec": "workspace:*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "lucide-react": "^0.562.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.0.0",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.8"
+  }
+}
