@@ -17,5 +17,8 @@ export {
   useMetadata,
 } from './hooks/useObjectData';
 
+// Demo App
+export { DemoApp, setupMSW, main } from './demo';
+
 // MSW Setup (from browser.ts)
 export { worker } from './browser';
