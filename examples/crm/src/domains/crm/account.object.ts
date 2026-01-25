@@ -6,7 +6,8 @@ export const Account = ObjectSchema.create({
   pluralLabel: 'Accounts',
   icon: 'building',
   description: 'Companies and organizations doing business with us',
-  nameField: 'name',
+  titleFormat: '{account_number} - {name}',
+  compactLayout: ['account_number', 'name', 'type', 'owner'],
   
   fields: {
     // AutoNumber field - Unique account identifier
@@ -131,81 +132,10 @@ export const Account = ObjectSchema.create({
     apiEnabled: true,       // Expose via REST/GraphQL
     apiMethods: ['get', 'list', 'create', 'update', 'delete', 'search', 'export'], // Whitelist allowed API operations
     files: true,            // Allow file attachments
-    feedEnabled: true,      // Enable activity feed/chatter
+    feeds: true,            // Enable activity feed/chatter (Chatter-like)
+    activities: true,       // Enable tasks and events tracking
     trash: true,            // Recycle bin support
-  },
-  
-  // List Views - Different visualization types
-  list_views: {
-    all: {
-      label: 'All Accounts',
-      type: 'grid',
-      columns: ['account_number', 'name', 'type', 'industry', 'annual_revenue', 'owner'],
-      sort: [{ field: 'name', order: 'asc' }],
-      searchableFields: ['name', 'account_number', 'phone', 'website'],
-    },
-    my_accounts: {
-      label: 'My Accounts',
-      type: 'grid',
-      columns: ['name', 'type', 'industry', 'annual_revenue', 'last_activity_date'],
-      filter: [['owner', '=', '{current_user}']],
-      sort: [{ field: 'last_activity_date', order: 'desc' }],
-    },
-    active_customers: {
-      label: 'Active Customers',
-      type: 'grid',
-      columns: ['name', 'industry', 'annual_revenue', 'number_of_employees'],
-      filter: [
-        ['type', '=', 'customer'],
-        ['is_active', '=', true]
-      ],
-    },
-    by_type: {
-      label: 'Accounts by Type',
-      type: 'kanban',
-      columns: ['name', 'industry', 'annual_revenue'],
-      kanban: {
-        groupByField: 'type',
-        summarizeField: 'annual_revenue',
-        columns: ['name', 'industry', 'owner'],
-      }
-    }
-  },
-  
-  // Form Views
-  form_views: {
-    default: {
-      type: 'tabbed',
-      sections: [
-        {
-          label: 'Account Information',
-          columns: 2,
-          fields: ['account_number', 'name', 'type', 'industry', 'owner', 'parent_account', 'is_active']
-        },
-        {
-          label: 'Financial Information',
-          columns: 2,
-          fields: ['annual_revenue', 'number_of_employees']
-        },
-        {
-          label: 'Contact Details',
-          columns: 2,
-          fields: ['phone', 'website', 'brand_color']
-        },
-        {
-          label: 'Location & Address',
-          columns: 2,
-          fields: ['billing_address', 'office_location']
-        },
-        {
-          label: 'Additional Information',
-          columns: 1,
-          collapsible: true,
-          collapsed: true,
-          fields: ['description', 'last_activity_date']
-        }
-      ]
-    }
+    mru: true,              // Track Most Recently Used
   },
   
   // Validation Rules

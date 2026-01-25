@@ -174,113 +174,16 @@ export const Case = ObjectSchema.create({
     searchable: true,
     apiEnabled: true,
     files: true,
-    feedEnabled: true,
+    feeds: true,            // Enable social feed, comments, and mentions
+    activities: true,       // Enable tasks and events tracking
     trash: true,
+    mru: true,              // Track Most Recently Used
   },
   
-  nameField: 'subject',
+  titleFormat: '{case_number} - {subject}',
+  compactLayout: ['case_number', 'subject', 'account', 'status', 'priority'],
   
-  list_views: {
-    all: {
-      label: 'All Cases',
-      type: 'grid',
-      columns: ['case_number', 'subject', 'account', 'contact', 'status', 'priority', 'owner'],
-      sort: [{ field: 'created_date', order: 'desc' }],
-      searchableFields: ['case_number', 'subject', 'description'],
-    },
-    my_cases: {
-      label: 'My Cases',
-      type: 'grid',
-      columns: ['case_number', 'subject', 'account', 'status', 'priority'],
-      filter: [['owner', '=', '{current_user}']],
-      sort: [{ field: 'priority', order: 'desc' }],
-    },
-    open_cases: {
-      label: 'Open Cases',
-      type: 'grid',
-      columns: ['case_number', 'subject', 'account', 'status', 'priority', 'owner'],
-      filter: [['is_closed', '=', false]],
-      sort: [{ field: 'priority', order: 'desc' }],
-    },
-    critical_cases: {
-      label: 'Critical Cases',
-      type: 'grid',
-      columns: ['case_number', 'subject', 'account', 'contact', 'status', 'owner'],
-      filter: [
-        ['priority', '=', 'critical'],
-        ['is_closed', '=', false],
-      ],
-      sort: [{ field: 'created_date', order: 'asc' }],
-    },
-    escalated_cases: {
-      label: 'Escalated Cases',
-      type: 'grid',
-      columns: ['case_number', 'subject', 'account', 'priority', 'escalation_reason', 'owner'],
-      filter: [['is_escalated', '=', true]],
-    },
-    by_status: {
-      label: 'Cases by Status',
-      type: 'kanban',
-      columns: ['case_number', 'subject', 'account', 'priority'],
-      filter: [['is_closed', '=', false]],
-      kanban: {
-        groupByField: 'status',
-        columns: ['case_number', 'subject', 'contact', 'priority'],
-      }
-    },
-    sla_violations: {
-      label: 'SLA Violations',
-      type: 'grid',
-      columns: ['case_number', 'subject', 'account', 'sla_due_date', 'owner'],
-      filter: [['is_sla_violated', '=', true]],
-      sort: [{ field: 'sla_due_date', order: 'asc' }],
-    }
-  },
-  
-  form_views: {
-    default: {
-      type: 'tabbed',
-      sections: [
-        {
-          label: 'Case Information',
-          columns: 2,
-          fields: ['case_number', 'subject', 'type', 'origin', 'priority', 'status', 'owner'],
-        },
-        {
-          label: 'Customer Information',
-          columns: 2,
-          fields: ['account', 'contact'],
-        },
-        {
-          label: 'Description',
-          columns: 1,
-          fields: ['description'],
-        },
-        {
-          label: 'Resolution',
-          columns: 1,
-          fields: ['resolution', 'customer_rating', 'customer_feedback', 'customer_signature'],
-        },
-        {
-          label: 'SLA & Metrics',
-          columns: 2,
-          fields: ['created_date', 'first_response_date', 'closed_date', 'resolution_time_hours', 'sla_due_date', 'is_sla_violated'],
-        },
-        {
-          label: 'Escalation',
-          columns: 2,
-          collapsible: true,
-          fields: ['is_escalated', 'escalation_reason', 'parent_case'],
-        },
-        {
-          label: 'Internal Information',
-          columns: 1,
-          collapsible: true,
-          fields: ['internal_notes'],
-        }
-      ]
-    }
-  },
+  // Removed: list_views and form_views belong in UI configuration, not object definition
   
   validations: [
     {
