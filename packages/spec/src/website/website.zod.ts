@@ -102,7 +102,7 @@ export const WebsiteConfigSchema = z.object({
   socialPreview: z.string().url().optional().describe('Default social preview image'),
   
   /** Preview release date */
-  previewReleaseDate: z.string().datetime().optional().describe('Preview release date (e.g., 2026-03-01)'),
+  previewReleaseDate: z.string().datetime().optional().describe('Preview release date (ISO 8601 format, e.g., 2026-03-01T00:00:00Z)'),
   
   /** Version */
   version: z.string().optional().describe('Website version'),

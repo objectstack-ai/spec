@@ -1709,7 +1709,7 @@
         "previewReleaseDate": {
           "type": "string",
           "format": "date-time",
-          "description": "Preview release date (e.g., 2026-03-01)"
+          "description": "Preview release date (ISO 8601 format, e.g., 2026-03-01T00:00:00Z)"
         },
         "version": {
           "type": "string",
