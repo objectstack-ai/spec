@@ -1,5 +1,6 @@
 {
   "title": "System Protocol",
+  "root": true,
   "pages": [
     "audit",
     "events",

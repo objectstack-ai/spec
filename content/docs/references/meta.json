@@ -4,7 +4,6 @@
   "pages": [
     "data",
     "ui",
-    "auth",
     "automation",
     "system",
     "permission",
