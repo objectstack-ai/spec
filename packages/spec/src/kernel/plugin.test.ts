@@ -320,6 +320,9 @@ describe('Plugin Lifecycle Scenarios', () => {
               post: () => {},
               use: () => {}
             }
+          },
+          drivers: {
+            register: () => {}
           }
         } as any);
       }
@@ -377,6 +380,9 @@ describe('Plugin Lifecycle Scenarios', () => {
             post: () => {},
             use: () => {}
           }
+        },
+        drivers: {
+          register: () => {}
         }
       } as any;
 
@@ -444,6 +450,9 @@ describe('Plugin Lifecycle Scenarios', () => {
                 post: () => {},
                 use: () => {}
               }
+            },
+            drivers: {
+              register: () => {}
             }
           } as any,
           '1.0.0',
@@ -503,6 +512,9 @@ describe('Plugin Lifecycle Scenarios', () => {
               post: () => {},
               use: () => {}
             }
+          },
+          drivers: {
+            register: () => {}
           }
         } as any);
       }
