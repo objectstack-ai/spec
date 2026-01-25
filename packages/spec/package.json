@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/spec",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "ObjectStack Protocol & Specification - TypeScript Interfaces, JSON Schemas, and Convention Configurations",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,8 +10,8 @@
       "default": "./dist/index.js"
     },
     "./driver": {
-        "types": "./dist/driver/index.d.ts",
-        "default": "./dist/driver/index.js"
+      "types": "./dist/driver/index.d.ts",
+      "default": "./dist/driver/index.js"
     },
     "./data": {
       "types": "./dist/data/index.d.ts",

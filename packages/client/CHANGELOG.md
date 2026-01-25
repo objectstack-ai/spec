@@ -1,5 +1,13 @@
 # @objectstack/client
 
+## 0.3.3
+
+### Patch Changes
+
+- Patch release for maintenance and documentation improvements
+- Updated dependencies
+  - @objectstack/spec@0.3.3
+
 ## 0.3.2
 
 ### Patch Changes

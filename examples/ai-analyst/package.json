@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/example-ai-analyst",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "AI-powered data analyst with natural language query capabilities",
   "private": true,
   "main": "objectstack.config.ts",
