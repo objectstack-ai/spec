@@ -233,12 +233,12 @@ describe('ExportRequestSchema', () => {
     const request = ExportRequestSchema.parse({
       object: 'account',
       fields: ['name', 'email'],
-      filters: ['status', '=', 'active'],
+      where: { status: 'active' },
       format: 'xlsx',
     });
 
     expect(request.format).toBe('xlsx');
-    expect(request.filters).toBeDefined();
+    expect(request.where).toBeDefined();
   });
 });
 

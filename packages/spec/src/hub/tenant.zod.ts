@@ -48,9 +48,66 @@ export const TenantQuotaSchema = z.object({
 
 export type TenantQuota = z.infer<typeof TenantQuotaSchema>;
 
-// Tenant Schema REMOVED.
-// The concept of a "Tenant" is now an attribute of a "Space".
-// See HubSpaceSchema in space.zod.ts which embeds TenantIsolationLevel and TenantQuotaSchema.
+/**
+ * Tenant Schema
+ * 
+ * @deprecated This schema is maintained for backward compatibility only.
+ * New implementations should use HubSpaceSchema which embeds tenant concepts.
+ * 
+ * **Migration Guide:**
+ * ```typescript
+ * // Old approach (deprecated):
+ * const tenant: Tenant = {
+ *   id: 'tenant_123',
+ *   name: 'My Tenant',
+ *   isolationLevel: 'shared_schema',
+ *   quotas: { maxUsers: 100 }
+ * };
+ * 
+ * // New approach (recommended):
+ * const space: HubSpace = {
+ *   id: '...uuid...',
+ *   name: 'My Tenant',
+ *   slug: 'my-tenant',
+ *   ownerId: 'user_id',
+ *   runtime: {
+ *     isolation: 'shared_schema',
+ *     quotas: { maxUsers: 100 }
+ *   },
+ *   bom: { ... }
+ * };
+ * ```
+ * 
+ * See HubSpaceSchema in space.zod.ts for the recommended approach.
+ */
+export const TenantSchema = z.object({
+  /**
+   * Unique tenant identifier
+   */
+  id: z.string().describe('Unique tenant identifier'),
+  
+  /**
+   * Tenant display name
+   */
+  name: z.string().describe('Tenant display name'),
+  
+  /**
+   * Data isolation level
+   */
+  isolationLevel: TenantIsolationLevel,
+  
+  /**
+   * Custom configuration values
+   */
+  customizations: z.record(z.any()).optional().describe('Custom configuration values'),
+  
+  /**
+   * Resource quotas
+   */
+  quotas: TenantQuotaSchema.optional(),
+});
+
+export type Tenant = z.infer<typeof TenantSchema>;
 
 /**
  * Tenant Isolation Strategy Documentation
