@@ -1,0 +1,16 @@
+{
+  "name": "@objectstack/example-ui",
+  "version": "1.0.0",
+  "description": "Comprehensive UI Protocol examples demonstrating Views, Pages, Dashboards, Actions, and Themes",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@objectstack/spec": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
