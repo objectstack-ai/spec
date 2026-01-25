@@ -11,8 +11,6 @@
   },
   "dependencies": {
     "@objectstack/client": "workspace:*",
-    "@objectstack/driver-memory": "workspace:*",
-    "@objectstack/runtime": "workspace:*",
     "@objectstack/spec": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

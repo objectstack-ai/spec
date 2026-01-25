@@ -1,10 +1,7 @@
-import { App } from '@objectstack/spec/ui';
-import { ObjectSchema, Field } from '@objectstack/spec/data';
-
 /**
  * Task Object Definition
  */
-const TaskObject = ObjectSchema.create({
+export const TaskObject = {
   name: 'task',
   label: 'Task',
   description: 'Task management object',
@@ -18,18 +15,18 @@ const TaskObject = ObjectSchema.create({
     mru: true,
   },
   fields: {
-    id: Field.text({ label: 'ID', required: true }),
-    subject: Field.text({ label: 'Subject', required: true }),
-    priority: Field.number({ label: 'Priority', defaultValue: 5 }),
-    isCompleted: Field.boolean({ label: 'Completed', defaultValue: false }),
-    createdAt: Field.datetime({ label: 'Created At' })
+    id: { name: 'id', label: 'ID', type: 'text', required: true },
+    subject: { name: 'subject', label: 'Subject', type: 'text', required: true },
+    priority: { name: 'priority', label: 'Priority', type: 'number', defaultValue: 5 },
+    isCompleted: { name: 'isCompleted', label: 'Completed', type: 'boolean', defaultValue: false },
+    createdAt: { name: 'createdAt', label: 'Created At', type: 'datetime' }
   }
-});
+};
 
 /**
  * App Configuration
  */
-export default App.create({
+export default {
   name: 'task_app',
   label: 'Task Management',
   description: 'MSW + React CRUD Example with ObjectStack',
@@ -56,34 +53,5 @@ export default App.create({
         }
       ]
     }
-  ],
-  data: [
-    {
-      object: 'task',
-      mode: 'upsert',
-      records: [
-        { 
-          id: '1',
-          subject: 'Complete MSW integration example', 
-          priority: 1, 
-          isCompleted: false, 
-          createdAt: new Date().toISOString() 
-        },
-        { 
-          id: '2',
-          subject: 'Test CRUD operations with React', 
-          priority: 2, 
-          isCompleted: false, 
-          createdAt: new Date().toISOString() 
-        },
-        { 
-          id: '3',
-          subject: 'Write documentation', 
-          priority: 3, 
-          isCompleted: true, 
-          createdAt: new Date().toISOString() 
-        }
-      ]
-    }
   ]
-});
+};
