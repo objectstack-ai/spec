@@ -3,6 +3,7 @@
   "pages": [
     "data",
     "ui",
+    "website",
     "auth",
     "automation",
     "system",

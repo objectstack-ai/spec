@@ -55,7 +55,7 @@ The official documentation is built with Fumadocs and Next.js.
 
 ## 🛠️ The Protocol Architecture
 
-The ObjectStack Protocol (`@objectstack/spec`) is divided into five core modules:
+The ObjectStack Protocol (`@objectstack/spec`) is divided into six core modules:
 
 ### 1. Data Protocol (ObjectQL)
 Defines the "Shape of Data" and business logic.
@@ -75,7 +75,16 @@ Defines the "Shape of Interaction" for rendering interfaces.
 - **Theming:** Color palettes, typography, breakpoints, animations
 - **Widgets:** Custom field components
 
-### 3. System Protocol (ObjectOS)
+### 3. Website Protocol
+Defines the "Shape of Marketing Websites" for landing pages and official sites.
+- **Landing Pages:** Hero sections, features, testimonials, pricing, CTAs, FAQ
+- **Navigation:** Website menus, dropdowns, mega menus, footers
+- **SEO:** Meta tags, Open Graph, Twitter Cards, structured data
+- **Analytics:** Google Analytics, GTM, Facebook Pixel integration
+- **Theming:** Brand colors, typography, dark mode
+- **Preview Release:** March 2026
+
+### 4. System Protocol (ObjectOS)
 Defines the "Runtime Environment" and platform capabilities.
 - **Manifest:** Application packaging (`objectstack.config.ts`)
 - **Identity:** Authentication, Roles, Territories, Licenses, Organizations
@@ -85,7 +94,7 @@ Defines the "Runtime Environment" and platform capabilities.
 - **I18n:** Translation and internationalization support
 - **Platform:** Events, Real-time sync, Audit logging, Background jobs, Multi-tenancy
 
-### 4. AI Protocol
+### 5. AI Protocol
 Defines AI agent integration capabilities.
 - **Agent:** AI agent definitions and configurations
 - **Model Registry:** LLM registry and selection
@@ -96,7 +105,7 @@ Defines AI agent integration capabilities.
 - **Predictive:** Predictive analytics models
 - **Workflow Automation:** AI-powered workflow automation
 
-### 5. API Protocol
+### 6. API Protocol
 Defines standardized API contracts.
 - **Envelopes:** Response structures (BaseResponse, ListRecordResponse, etc.)
 - **Requests:** Request payloads (CreateRequest, UpdateRequest, BulkRequest, etc.)

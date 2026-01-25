@@ -1,0 +1,11 @@
+{
+  "title": "网站表达协议",
+  "root": true,
+  "pages": [
+    "content-block",
+    "landing-page",
+    "navigation",
+    "seo",
+    "website"
+  ]
+}
