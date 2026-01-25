@@ -51,10 +51,34 @@ export type TenantQuota = z.infer<typeof TenantQuotaSchema>;
 /**
  * Tenant Schema
  * 
- * Legacy schema maintained for backward compatibility.
+ * @deprecated This schema is maintained for backward compatibility only.
  * New implementations should use HubSpaceSchema which embeds tenant concepts.
  * 
- * @deprecated Use HubSpaceSchema instead
+ * **Migration Guide:**
+ * ```typescript
+ * // Old approach (deprecated):
+ * const tenant: Tenant = {
+ *   id: 'tenant_123',
+ *   name: 'My Tenant',
+ *   isolationLevel: 'shared_schema',
+ *   quotas: { maxUsers: 100 }
+ * };
+ * 
+ * // New approach (recommended):
+ * const space: HubSpace = {
+ *   id: '...uuid...',
+ *   name: 'My Tenant',
+ *   slug: 'my-tenant',
+ *   ownerId: 'user_id',
+ *   runtime: {
+ *     isolation: 'shared_schema',
+ *     quotas: { maxUsers: 100 }
+ *   },
+ *   bom: { ... }
+ * };
+ * ```
+ * 
+ * See HubSpaceSchema in space.zod.ts for the recommended approach.
  */
 export const TenantSchema = z.object({
   /**
