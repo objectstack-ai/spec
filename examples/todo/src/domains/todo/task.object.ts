@@ -9,7 +9,9 @@ export const TodoTask = ObjectSchema.create({
   enable: {
     apiEnabled: true,
     trackHistory: true,
-    mru: true,
+    feeds: true,            // Enable social feed, comments, and mentions
+    activities: true,       // Enable tasks and events tracking
+    mru: true,              // Track Most Recently Used
   },
   fields: {
     subject: Field.text({ required: true }),
