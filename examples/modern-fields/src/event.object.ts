@@ -13,7 +13,7 @@ export const Event = ObjectSchema.create({
   label: 'Event',
   icon: 'calendar',
   titleFormat: '{title}',
-  compactLayout: ['title', 'start_date', 'location', 'status'],
+  compactLayout: ['title', 'start_date', 'venue_address', 'status'],
   enable: {
     apiEnabled: true,
     trackHistory: true,
