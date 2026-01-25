@@ -18,6 +18,6 @@
     "typescript": "^5.0.0"
   },
   "peerDependencies": {
-    "@objectstack/runtime": "^1.0.0"
+    "@objectstack/runtime": "^0.4.0"
   }
 }

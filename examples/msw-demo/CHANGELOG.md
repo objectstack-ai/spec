@@ -5,11 +5,11 @@
 ### Patch Changes
 
 - Updated dependencies
-  - @objectstack/driver-memory@1.0.0
-  - @objectstack/objectql@1.0.0
-  - @objectstack/runtime@1.0.0
+  - @objectstack/driver-memory@0.4.0
+  - @objectstack/objectql@0.4.0
+  - @objectstack/runtime@0.4.0
   - @objectstack/example-crm@1.0.7
-  - @objectstack/plugin-msw@1.0.0
+  - @objectstack/plugin-msw@0.4.0
 
 ## 0.1.1
 

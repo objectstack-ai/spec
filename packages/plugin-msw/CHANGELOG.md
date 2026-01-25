@@ -5,9 +5,9 @@
 ### Patch Changes
 
 - Updated dependencies
-  - @objectstack/spec@1.0.0
-  - @objectstack/runtime@1.0.0
-  - @objectstack/types@1.0.0
+  - @objectstack/spec@0.4.0
+  - @objectstack/runtime@0.4.0
+  - @objectstack/types@0.4.0
 
 ## 0.3.2
 
