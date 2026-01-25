@@ -42,6 +42,9 @@ describe('PluginContextSchema', () => {
           post: () => {},
           use: () => {}
         }
+      },
+      drivers: {
+        register: () => {}
       }
     };
 
@@ -81,6 +84,9 @@ describe('PluginContextSchema', () => {
           post: () => {},
           use: () => {}
         }
+      },
+      drivers: {
+        register: () => {}
       }
     };
 
@@ -130,6 +136,9 @@ describe('PluginContextSchema', () => {
           post: (path: string, handler: Function) => {},
           use: (pathOrHandler: string | Function, handler?: Function) => {}
         }
+      },
+      drivers: {
+        register: (driver: any) => {}
       }
     };
 
