@@ -111,27 +111,23 @@ describe('ObjectSchema', () => {
         pluralLabel: 'Contacts',
         fields: {
           first_name: {
-            name: 'first_name',
             label: 'First Name',
             type: 'text',
             required: true,
             maxLength: 50,
           },
           last_name: {
-            name: 'last_name',
             label: 'Last Name',
             type: 'text',
             required: true,
             maxLength: 50,
           },
           email: {
-            name: 'email',
             label: 'Email',
             type: 'email',
             unique: true,
           },
           phone: {
-            name: 'phone',
             label: 'Phone',
             type: 'phone',
           },
@@ -156,7 +152,6 @@ describe('ObjectSchema', () => {
         nameField: 'opportunity_name',
         fields: {
           opportunity_name: {
-            name: 'opportunity_name',
             label: 'Opportunity Name',
             type: 'text',
           },
@@ -173,12 +168,10 @@ describe('ObjectSchema', () => {
         name: 'user',
         fields: {
           email: {
-            name: 'email',
             label: 'Email',
             type: 'email',
           },
           username: {
-            name: 'username',
             label: 'Username',
             type: 'text',
           },
@@ -251,26 +244,22 @@ describe('ObjectSchema', () => {
         nameField: 'account_name',
         fields: {
           account_name: {
-            name: 'account_name',
             label: 'Account Name',
             type: 'text',
             required: true,
             maxLength: 255,
           },
           account_number: {
-            name: 'account_number',
             label: 'Account Number',
             type: 'text',
             unique: true,
             externalId: true,
           },
           website: {
-            name: 'website',
             label: 'Website',
             type: 'url',
           },
           industry: {
-            name: 'industry',
             label: 'Industry',
             type: 'select',
             options: [
@@ -280,14 +269,12 @@ describe('ObjectSchema', () => {
             ],
           },
           annual_revenue: {
-            name: 'annual_revenue',
             label: 'Annual Revenue',
             type: 'currency',
             precision: 18,
             scale: 2,
           },
           owner_id: {
-            name: 'owner_id',
             label: 'Account Owner',
             type: 'lookup',
             reference: 'user',
@@ -322,13 +309,11 @@ describe('ObjectSchema', () => {
         nameField: 'subject',
         fields: {
           subject: {
-            name: 'subject',
             label: 'Subject',
             type: 'text',
             required: true,
           },
           status: {
-            name: 'status',
             label: 'Status',
             type: 'select',
             options: [
@@ -338,7 +323,6 @@ describe('ObjectSchema', () => {
             ],
           },
           priority: {
-            name: 'priority',
             label: 'Priority',
             type: 'select',
             options: [
@@ -348,25 +332,21 @@ describe('ObjectSchema', () => {
             ],
           },
           project_id: {
-            name: 'project_id',
             label: 'Project',
             type: 'master_detail',
             reference: 'project',
             deleteBehavior: 'cascade',
           },
           assigned_to: {
-            name: 'assigned_to',
             label: 'Assigned To',
             type: 'lookup',
             reference: 'user',
           },
           due_date: {
-            name: 'due_date',
             label: 'Due Date',
             type: 'date',
           },
           completed_at: {
-            name: 'completed_at',
             label: 'Completed At',
             type: 'datetime',
           },
