@@ -1,5 +1,39 @@
 # Release Notes
 
+## v0.3.3 - Workflow and Configuration Improvements (2026-01-25)
+
+### 📦 Released Packages
+
+All packages have been updated to version **0.3.3**:
+
+- **@objectstack/spec@0.3.3** - Core protocol definitions and TypeScript types
+- **@objectstack/types@0.3.3** - Shared TypeScript type definitions
+- **@objectstack/objectql@0.3.3** - ObjectQL query language and runtime
+- **@objectstack/runtime@0.3.3** - Runtime execution environment
+- **@objectstack/client@0.3.3** - Client library for ObjectStack
+- **@objectstack/driver-memory@0.3.3** - In-memory data storage driver
+- **@objectstack/plugin-hono-server@0.3.3** - Hono server plugin for REST API
+- **@objectstack/plugin-msw@0.3.3** - MSW (Mock Service Worker) plugin
+
+### 📝 Changes
+
+This patch release includes:
+- Enhanced GitHub workflows for CI, release, and PR automation
+- Added comprehensive prompt templates for different protocol areas
+- Improved project documentation and automation guides
+- Updated changeset configuration for better version management
+- Added cursor rules for better development experience
+
+### 🚀 Publishing
+
+This release is ready for publishing to npm. When this PR is merged to `main`:
+1. The GitHub Actions release workflow will automatically detect the version bump
+2. Build all packages
+3. Publish to npm registry using NPM_TOKEN secret
+4. Create GitHub release with appropriate tags
+
+---
+
 ## v0.3.2 - Maintenance Release (2026-01-24)
 
 ### 📦 Released Packages

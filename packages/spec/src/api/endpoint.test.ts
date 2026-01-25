@@ -3,13 +3,13 @@ import {
   ApiEndpointSchema,
   RateLimitSchema,
   ApiMappingSchema,
-  HttpMethod,
   ApiEndpoint,
-} from '../system/api.zod';
+} from './endpoint.zod';
+import { HttpMethod } from './router.zod';
 
 describe('HttpMethod', () => {
   it('should accept valid HTTP methods', () => {
-    const validMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
+    const validMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
 
     validMethods.forEach(method => {
       expect(() => HttpMethod.parse(method)).not.toThrow();
@@ -17,8 +17,8 @@ describe('HttpMethod', () => {
   });
 
   it('should reject invalid HTTP methods', () => {
-    expect(() => HttpMethod.parse('HEAD')).toThrow();
-    expect(() => HttpMethod.parse('OPTIONS')).toThrow();
+    expect(() => HttpMethod.parse('TRACE')).toThrow();
+    expect(() => HttpMethod.parse('CONNECT')).toThrow();
     expect(() => HttpMethod.parse('get')).toThrow();
   });
 });
