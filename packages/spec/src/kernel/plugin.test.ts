@@ -42,6 +42,9 @@ describe('PluginContextSchema', () => {
           post: () => {},
           use: () => {}
         }
+      },
+      drivers: {
+        register: () => {}
       }
     };
 
@@ -81,6 +84,9 @@ describe('PluginContextSchema', () => {
           post: () => {},
           use: () => {}
         }
+      },
+      drivers: {
+        register: () => {}
       }
     };
 
@@ -130,6 +136,9 @@ describe('PluginContextSchema', () => {
           post: (path: string, handler: Function) => {},
           use: (pathOrHandler: string | Function, handler?: Function) => {}
         }
+      },
+      drivers: {
+        register: () => {}
       }
     };
 
@@ -320,6 +329,9 @@ describe('Plugin Lifecycle Scenarios', () => {
               post: () => {},
               use: () => {}
             }
+          },
+          drivers: {
+            register: () => {}
           }
         } as any);
       }
@@ -377,6 +389,9 @@ describe('Plugin Lifecycle Scenarios', () => {
             post: () => {},
             use: () => {}
           }
+        },
+        drivers: {
+          register: () => {}
         }
       } as any;
 
@@ -444,6 +459,9 @@ describe('Plugin Lifecycle Scenarios', () => {
                 post: () => {},
                 use: () => {}
               }
+            },
+            drivers: {
+              register: () => {}
             }
           } as any,
           '1.0.0',
@@ -503,6 +521,9 @@ describe('Plugin Lifecycle Scenarios', () => {
               post: () => {},
               use: () => {}
             }
+          },
+          drivers: {
+            register: () => {}
           }
         } as any);
       }
