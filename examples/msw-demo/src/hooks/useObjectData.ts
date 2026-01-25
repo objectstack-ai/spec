@@ -30,15 +30,16 @@ interface MutationResponse<T> {
 }
 
 /**
- * Get or create a singleton client instance
+ * Get or create a client instance for a given baseUrl
+ * Uses a Map to support multiple baseUrls
  */
-let clientInstance: ObjectStackClient | null = null;
+const clientInstances = new Map<string, ObjectStackClient>();
 
 function getClient(baseUrl: string = 'http://localhost:3000'): ObjectStackClient {
-  if (!clientInstance) {
-    clientInstance = new ObjectStackClient({ baseUrl });
+  if (!clientInstances.has(baseUrl)) {
+    clientInstances.set(baseUrl, new ObjectStackClient({ baseUrl }));
   }
-  return clientInstance;
+  return clientInstances.get(baseUrl)!;
 }
 
 /**
@@ -313,12 +314,29 @@ export function useMetadata<T = any>(
     try {
       const client = getClient(baseUrl);
       
-      // For now, only support 'object' type since that's what the client exposes
+      // Use client for 'object' type which is supported
       if (metaType === 'object' && metaName) {
         const result = await client.meta.getObject(metaName);
         setData(result);
+      } else if (metaType === 'view' && metaName) {
+        // Use client for view metadata
+        const objectName = metaName.split('/')[0]; // Assuming format like 'object/viewtype'
+        const viewType = metaName.split('/')[1] as 'list' | 'form' || 'list';
+        const result = await client.meta.getView(objectName, viewType);
+        setData(result);
       } else {
-        throw new Error('useMetadata currently only supports fetching object metadata');
+        // Fallback to direct fetch for other metadata types not yet supported by client
+        let url = `${baseUrl}/api/v1/meta/${metaType}`;
+        if (metaName) {
+          url += `/${metaName}`;
+        }
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch metadata: ${response.statusText}`);
+        }
+        const result = await response.json();
+        setData(result);
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to fetch metadata';
