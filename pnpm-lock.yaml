@@ -279,6 +279,9 @@ importers:
       '@objectstack/plugin-msw':
         specifier: workspace:*
         version: link:../../../packages/plugin-msw
+      '@objectstack/runtime':
+        specifier: workspace:*
+        version: link:../../../packages/runtime
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../../packages/spec
