@@ -133,9 +133,6 @@ export const Contact = ObjectSchema.create({
   titleFormat: '{full_name}',
   compactLayout: ['full_name', 'email', 'account', 'phone'],
   
-  // List Views - Note: These should be moved to UI layer in production
-  // Removed: list_views and form_views belong in UI configuration, not object definition
-  
   // Validation Rules
   validations: [
     {
