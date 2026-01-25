@@ -9,7 +9,7 @@ import {
 
 describe('SharingRuleType', () => {
   it('should accept valid sharing rule types', () => {
-    const validTypes = ['owner', 'criteria', 'manual', 'guest'];
+    const validTypes = ['owner', 'criteria'];
 
     validTypes.forEach(type => {
       expect(() => SharingRuleType.parse(type)).not.toThrow();
@@ -19,13 +19,15 @@ describe('SharingRuleType', () => {
   it('should reject invalid sharing rule types', () => {
     expect(() => SharingRuleType.parse('automatic')).toThrow();
     expect(() => SharingRuleType.parse('public')).toThrow();
+    expect(() => SharingRuleType.parse('manual')).toThrow();
+    expect(() => SharingRuleType.parse('guest')).toThrow();
     expect(() => SharingRuleType.parse('')).toThrow();
   });
 });
 
 describe('SharingLevel', () => {
   it('should accept valid sharing levels', () => {
-    const validLevels = ['read', 'edit'];
+    const validLevels = ['read', 'edit', 'full'];
 
     validLevels.forEach(level => {
       expect(() => SharingLevel.parse(level)).not.toThrow();
@@ -35,7 +37,6 @@ describe('SharingLevel', () => {
   it('should reject invalid sharing levels', () => {
     expect(() => SharingLevel.parse('write')).toThrow();
     expect(() => SharingLevel.parse('delete')).toThrow();
-    expect(() => SharingLevel.parse('full')).toThrow();
   });
 });
 
@@ -60,7 +61,12 @@ describe('SharingRuleSchema', () => {
     const rule: SharingRule = {
       name: 'sales_team_access',
       object: 'opportunity',
-      sharedWith: 'group_sales_team',
+      type: 'criteria',
+      condition: 'status = "Open"',
+      sharedWith: {
+        type: 'group',
+        value: 'sales_team',
+      },
     };
 
     expect(() => SharingRuleSchema.parse(rule)).not.toThrow();
@@ -70,19 +76,25 @@ describe('SharingRuleSchema', () => {
     expect(() => SharingRuleSchema.parse({
       name: 'valid_rule_name',
       object: 'account',
-      sharedWith: 'group_id',
+      type: 'criteria',
+      condition: 'status = "Active"',
+      sharedWith: { type: 'group', value: 'group_id' },
     })).not.toThrow();
 
     expect(() => SharingRuleSchema.parse({
       name: 'InvalidRule',
       object: 'account',
-      sharedWith: 'group_id',
+      type: 'criteria',
+      condition: 'status = "Active"',
+      sharedWith: { type: 'group', value: 'group_id' },
     })).toThrow();
 
     expect(() => SharingRuleSchema.parse({
       name: 'invalid-rule',
       object: 'account',
-      sharedWith: 'group_id',
+      type: 'criteria',
+      condition: 'status = "Active"',
+      sharedWith: { type: 'group', value: 'group_id' },
     })).toThrow();
   });
 
@@ -90,7 +102,9 @@ describe('SharingRuleSchema', () => {
     const rule = SharingRuleSchema.parse({
       name: 'test_rule',
       object: 'account',
-      sharedWith: 'group_id',
+      type: 'criteria',
+      condition: 'status = "Active"',
+      sharedWith: { type: 'group', value: 'group_id' },
     });
 
     expect(rule.active).toBe(true);
@@ -105,38 +119,48 @@ describe('SharingRuleSchema', () => {
       active: true,
       object: 'opportunity',
       type: 'criteria',
-      criteria: "stage = 'Closed Won' AND amount > 100000",
+      condition: "stage = 'Closed Won' AND amount > 100000",
       accessLevel: 'edit',
-      sharedWith: 'group_executive_team',
+      sharedWith: { type: 'group', value: 'executive_team' },
     });
 
     expect(rule.label).toBe('Full Sharing Rule');
-    expect(rule.criteria).toContain('Closed Won');
+    expect(rule.condition).toContain('Closed Won');
   });
 
   it('should accept different sharing rule types', () => {
-    const types: Array<SharingRule['type']> = ['owner', 'criteria', 'manual', 'guest'];
-
-    types.forEach(type => {
-      const rule = SharingRuleSchema.parse({
-        name: 'test_rule',
-        object: 'account',
-        type,
-        sharedWith: 'group_id',
-      });
-      expect(rule.type).toBe(type);
+    // Test criteria-based rule
+    const criteriaRule = SharingRuleSchema.parse({
+      name: 'test_criteria_rule',
+      object: 'account',
+      type: 'criteria',
+      condition: 'status = "Active"',
+      sharedWith: { type: 'group', value: 'group_id' },
     });
+    expect(criteriaRule.type).toBe('criteria');
+
+    // Test owner-based rule
+    const ownerRule = SharingRuleSchema.parse({
+      name: 'test_owner_rule',
+      object: 'account',
+      type: 'owner',
+      ownedBy: { type: 'role', value: 'sales_rep' },
+      sharedWith: { type: 'group', value: 'group_id' },
+    });
+    expect(ownerRule.type).toBe('owner');
   });
 
   it('should accept different access levels', () => {
-    const levels: Array<SharingRule['accessLevel']> = ['read', 'edit'];
+    const levels: Array<SharingRule['accessLevel']> = ['read', 'edit', 'full'];
 
     levels.forEach(level => {
       const rule = SharingRuleSchema.parse({
         name: 'test_rule',
         object: 'account',
+        type: 'criteria',
+        condition: 'status = "Active"',
         accessLevel: level,
-        sharedWith: 'group_id',
+        sharedWith: { type: 'group', value: 'group_id' },
       });
       expect(rule.accessLevel).toBe(level);
     });
@@ -147,8 +171,9 @@ describe('SharingRuleSchema', () => {
       name: 'owner_hierarchy_rule',
       object: 'account',
       type: 'owner',
+      ownedBy: { type: 'role', value: 'sales_rep' },
       accessLevel: 'read',
-      sharedWith: 'role_sales_manager',
+      sharedWith: { type: 'role', value: 'sales_manager' },
     });
 
     expect(rule.type).toBe('owner');
@@ -159,45 +184,49 @@ describe('SharingRuleSchema', () => {
       name: 'high_value_accounts',
       object: 'account',
       type: 'criteria',
-      criteria: "annual_revenue > 1000000 AND status = 'Active'",
+      condition: "annual_revenue > 1000000 AND status = 'Active'",
       accessLevel: 'read',
-      sharedWith: 'group_executive_team',
+      sharedWith: { type: 'group', value: 'executive_team' },
     });
 
     expect(rule.type).toBe('criteria');
-    expect(rule.criteria).toBeDefined();
+    expect(rule.condition).toBeDefined();
   });
 
-  it('should accept manual sharing rule', () => {
+  it('should accept user-specific sharing rule', () => {
     const rule = SharingRuleSchema.parse({
-      name: 'manual_share',
+      name: 'user_specific_share',
       object: 'opportunity',
-      type: 'manual',
+      type: 'criteria',
+      condition: 'stage != "Closed Won"',
       accessLevel: 'edit',
-      sharedWith: 'user_john_doe',
+      sharedWith: { type: 'user', value: 'john_doe' },
     });
 
-    expect(rule.type).toBe('manual');
+    expect(rule.sharedWith.type).toBe('user');
   });
 
   it('should accept guest sharing rule', () => {
     const rule = SharingRuleSchema.parse({
       name: 'public_access',
       object: 'knowledge_article',
-      type: 'guest',
+      type: 'criteria',
+      condition: 'published = true',
       accessLevel: 'read',
-      sharedWith: 'guest_users',
+      sharedWith: { type: 'guest', value: 'guest_users' },
     });
 
-    expect(rule.type).toBe('guest');
+    expect(rule.sharedWith.type).toBe('guest');
   });
 
   it('should accept inactive sharing rule', () => {
     const rule = SharingRuleSchema.parse({
       name: 'disabled_rule',
       object: 'account',
+      type: 'criteria',
+      condition: 'status = "Inactive"',
       active: false,
-      sharedWith: 'group_id',
+      sharedWith: { type: 'group', value: 'group_id' },
     });
 
     expect(rule.active).toBe(false);
@@ -209,12 +238,12 @@ describe('SharingRuleSchema', () => {
       label: 'West Coast Territory Access',
       object: 'account',
       type: 'criteria',
-      criteria: "billing_state IN ('CA', 'OR', 'WA')",
+      condition: "billing_state IN ('CA', 'OR', 'WA')",
       accessLevel: 'edit',
-      sharedWith: 'group_west_coast_sales',
+      sharedWith: { type: 'group', value: 'west_coast_sales' },
     });
 
-    expect(rule.criteria).toContain('CA');
+    expect(rule.condition).toContain('CA');
   });
 
   it('should handle department-based sharing', () => {
@@ -222,9 +251,9 @@ describe('SharingRuleSchema', () => {
       name: 'finance_department_access',
       object: 'invoice',
       type: 'criteria',
-      criteria: "department = 'Finance'",
+      condition: "department = 'Finance'",
       accessLevel: 'edit',
-      sharedWith: 'group_finance_team',
+      sharedWith: { type: 'group', value: 'finance_team' },
     });
 
     expect(rule.object).toBe('invoice');
@@ -235,9 +264,9 @@ describe('SharingRuleSchema', () => {
       name: 'readonly_access',
       object: 'contract',
       type: 'criteria',
-      criteria: "status = 'Executed'",
+      condition: "status = 'Executed'",
       accessLevel: 'read',
-      sharedWith: 'group_all_users',
+      sharedWith: { type: 'group', value: 'all_users' },
     });
 
     expect(rule.accessLevel).toBe('read');
@@ -248,9 +277,9 @@ describe('SharingRuleSchema', () => {
       name: 'edit_access',
       object: 'opportunity',
       type: 'criteria',
-      criteria: "stage != 'Closed Won'",
+      condition: "stage != 'Closed Won'",
       accessLevel: 'edit',
-      sharedWith: 'group_sales_reps',
+      sharedWith: { type: 'group', value: 'sales_reps' },
     });
 
     expect(rule.accessLevel).toBe('edit');
@@ -259,17 +288,23 @@ describe('SharingRuleSchema', () => {
   it('should reject sharing rule without required fields', () => {
     expect(() => SharingRuleSchema.parse({
       object: 'account',
-      sharedWith: 'group_id',
+      type: 'criteria',
+      condition: 'status = "Active"',
+      sharedWith: { type: 'group', value: 'group_id' },
     })).toThrow();
 
     expect(() => SharingRuleSchema.parse({
       name: 'test_rule',
-      sharedWith: 'group_id',
+      type: 'criteria',
+      condition: 'status = "Active"',
+      sharedWith: { type: 'group', value: 'group_id' },
     })).toThrow();
 
     expect(() => SharingRuleSchema.parse({
       name: 'test_rule',
       object: 'account',
+      type: 'criteria',
+      condition: 'status = "Active"',
     })).toThrow();
   });
 
@@ -278,7 +313,8 @@ describe('SharingRuleSchema', () => {
       name: 'test_rule',
       object: 'account',
       type: 'invalid_type',
-      sharedWith: 'group_id',
+      condition: 'status = "Active"',
+      sharedWith: { type: 'group', value: 'group_id' },
     })).toThrow();
   });
 
@@ -286,8 +322,10 @@ describe('SharingRuleSchema', () => {
     expect(() => SharingRuleSchema.parse({
       name: 'test_rule',
       object: 'account',
+      type: 'criteria',
+      condition: 'status = "Active"',
       accessLevel: 'delete',
-      sharedWith: 'group_id',
+      sharedWith: { type: 'group', value: 'group_id' },
     })).toThrow();
   });
 });
