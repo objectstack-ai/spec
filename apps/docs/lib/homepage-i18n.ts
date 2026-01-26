@@ -86,7 +86,7 @@ export interface HomepageTranslations {
 export const en: HomepageTranslations = {
   badge: {
     status: 'Protocol Specification',
-    version: 'v1.0',
+    version: 'v0.3.3 (Draft)',
   },
   hero: {
     title: {

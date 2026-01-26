@@ -52,6 +52,12 @@ export function HeroSection({ badge, title, subtitle, cta, className }: HeroSect
       {/* CTA Buttons */}
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
         <Link
+          href="/docs/introduction"
+          className="inline-flex h-12 items-center justify-center rounded-lg bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+        >
+          {cta.primary}
+        </Link>
+        <Link
           href="/docs"
           className="inline-flex h-12 items-center justify-center rounded-lg border border-border bg-card/50 px-8 text-sm font-medium shadow-sm transition-all hover:bg-accent hover:text-accent-foreground backdrop-blur-sm hover:scale-105 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
         >
