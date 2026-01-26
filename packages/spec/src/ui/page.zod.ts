@@ -16,15 +16,15 @@ export const PageRegionSchema = z.object({
  */
 export const PageComponentType = z.enum([
   // Structure
-  'page.header', 'page.footer', 'page.sidebar', 'page.tabs', 'page.accordion', 'page.card', 'page.section',
+  'page:header', 'page:footer', 'page:sidebar', 'page:tabs', 'page:accordion', 'page:card', 'page:section',
   // Record Context
-  'record.details', 'record.highlights', 'record.related_list', 'record.activity', 'record.chatter', 'record.path',
+  'record:details', 'record:highlights', 'record:related_list', 'record:activity', 'record:chatter', 'record:path',
   // Navigation
-  'app.launcher', 'nav.menu', 'nav.breadcrumb',
+  'app:launcher', 'nav:menu', 'nav:breadcrumb',
   // Utility
-  'global.search', 'global.notifications', 'user.profile',
+  'global:search', 'global:notifications', 'user:profile',
   // AI
-  'ai.chat_window', 'ai.suggestion'
+  'ai:chat_window', 'ai:suggestion'
 ]);
 
 /**

@@ -10,7 +10,7 @@
 
 You will be asked to build components in these 3 standard slots. Refer to `packages/spec` for the complete Zod definitions.
 
-### A. Field Widgets (`field.*`)
+### A. Field Widgets (`field:*`)
 Responsible for **Input** (Edit Mode) and **Display** (Read Mode) of a specific data type.
 *   **Contract:** Must implement `FieldWidgetProps` (Ref: `src/ui/widget.zod.ts`).
     ```typescript
@@ -34,11 +34,11 @@ Responsible for **Input** (Edit Mode) and **Display** (Read Mode) of a specific 
     *   **Visual:** `color` (Picker), `rating` (Star), `signature` (Canvas), `qrcode`, `progress`.
     *   **Structure:** `json` (Object Editor), `address` (Street/City/State), `location` (Map Pin).
 
-### B. View Layouts (`view.*`)
+### B. View Layouts (`view:*`)
 Responsible for rendering records. The specific `type` determines the Props contract.
 
 #### 1. List Views (Collection)
-*   **Keys:** `view.grid`, `view.kanban`, `view.map`, `view.calendar`, `view.gantt`, etc.
+*   **Keys:** `view:grid`, `view:kanban`, `view:map`, `view:calendar`, `view:gantt`, etc.
 *   **Contract:** Must implement `ListViewComponentProps`.
     ```typescript
     type ListViewComponentProps = {
@@ -52,7 +52,7 @@ Responsible for rendering records. The specific `type` determines the Props cont
 *   **Required Types (Ref: `src/ui/view.zod.ts`):** `grid`, `spreadsheet`, `kanban`, `gallery`, `calendar`, `timeline`, `gantt`, `map`.
 
 #### 2. Form Views (Detail)
-*   **Keys:** `view.simple`, `view.wizard`, `view.tabbed`, `view.drawer`, etc.
+*   **Keys:** `view:simple`, `view:wizard`, `view:tabbed`, `view:drawer`, etc.
 *   **Contract:** Must implement `FormViewComponentProps`.
     ```typescript
     type FormViewComponentProps = {
@@ -65,7 +65,7 @@ Responsible for rendering records. The specific `type` determines the Props cont
     ```
 *   **Required Types (Ref: `src/ui/view.zod.ts`):** `simple`, `tabbed`, `wizard`, `split`, `drawer`, `modal`.
 
-### D. Page Components (`page.*`)
+### D. Page Components (`page:*`)
 Reusable UI blocks for the Drag-and-Drop Page Builder.
 *   **Contract:** Must implement `PageComponentProps`.
     ```typescript
@@ -80,15 +80,15 @@ Reusable UI blocks for the Drag-and-Drop Page Builder.
     }
     ```
 *   **Standard Components Library:**
-    *   **Structure:** `page.header`, `page.footer`, `page.sidebar`, `page.tabs`, `page.accordion`, `page.card`.
+    *   **Structure:** `page:header`, `page:footer`, `page:sidebar`, `page:tabs`, `page:accordion`, `page:card`.
     *   **Record Context:** 
-        *   `record.details` (The form), `record.highlights` (Key fields header).
-        *   `record.related_list` (Sub-grid), `record.activity` (Timeline).
-        *   `record.chatter` (Feed), `record.path` (Status Steps).
-    *   **Navigation:** `app.launcher`, `nav.menu`, `nav.breadcrumb`.
-    *   **Utility:** `global.search`, `global.notifications`, `user.profile`.
+        *   `record:details` (The form), `record:highlights` (Key fields header).
+        *   `record:related_list` (Sub-grid), `record:activity` (Timeline).
+        *   `record:chatter` (Feed), `record:path` (Status Steps).
+    *   **Navigation:** `app:launcher`, `nav:menu`, `nav:breadcrumb`.
+    *   **Utility:** `global:search`, `global:notifications`, `user:profile`.
 
-### E. Dashboard Widgets (`widget.*`)
+### E. Dashboard Widgets (`widget:*`)
 Standalone cards placed on a dashboard grid.
 *   **Contract:** Must implement `DashboardWidgetProps` (Ref: `src/ui/dashboard.zod.ts`).
     ```typescript
@@ -105,18 +105,18 @@ Standalone cards placed on a dashboard grid.
     *   **Analysis:** `pivot` (Cross-Tab Table).
     *   **Content:** `table` (List), `text` (Note), `image`, `frame` (Embed).
 
-### F. Primitive Atoms (`atom.*`)
+### F. Primitive Atoms (`atom:*`)
 The fundamental building blocks used by all other widgets.
 *   **Contract:** Pure UI components (No metadata dependencies).
 *   **Required Library:**
-    *   `atom.icon` (Lucide Wrapper).
-    *   `atom.button` (Standard Actions).
-    *   `atom.spinner` (Loading State).
-    *   `atom.empty` (No Data Placeholder).
-    *   `atom.error` (Error Boundary/Message).
-    *   `atom.badge` (Status Indicators).
+    *   `atom:icon` (Lucide Wrapper).
+    *   `atom:button` (Standard Actions).
+    *   `atom:spinner` (Loading State).
+    *   `atom:empty` (No Data Placeholder).
+    *   `atom:error` (Error Boundary/Message).
+    *   `atom:badge` (Status Indicators).
 
-### G. Smart Actions (`action.*`)
+### G. Smart Actions (`action:*`)
 Executable elements bound to the Action Protocol. They handle permissions, loading states, and confirmation dialogs automatically.
 *   **Contract:** Must implement `ActionComponentProps` (Ref: `src/ui/action.zod.ts`).
     ```typescript
@@ -127,18 +127,18 @@ Executable elements bound to the Action Protocol. They handle permissions, loadi
     }
     ```
 *   **Required Components:**
-    *   `action.button`: Standalone smart button.
-    *   `action.group`: Toolbar or Button Group.
-    *   `action.menu`: Dropdown menu for overflow actions.
-    *   `action.icon`: Icon-only trigger (for dense lists).
+    *   `action:button`: Standalone smart button.
+    *   `action:group`: Toolbar or Button Group.
+    *   `action:menu`: Dropdown menu for overflow actions.
+    *   `action:icon`: Icon-only trigger (for dense lists).
 
-### H. AI Interface (`ai.*`)
+### H. AI Interface (`ai:*`)
 Conversational and Generative UI components.
 *   **Required Components:**
-    *   `ai.chat_window`: Standard conversational interface.
-    *   `ai.input`: Prompt input with auto-complete/context.
-    *   `ai.suggestion`: "Next Best Action" cards.
-    *   `ai.feedback`: Thumbs up/down + reasoning capture.
+    *   `ai:chat_window`: Standard conversational interface.
+    *   `ai:input`: Prompt input with auto-complete/context.
+    *   `ai:suggestion`: "Next Best Action" cards.
+    *   `ai:feedback`: Thumbs up/down + reasoning capture.
 
 ---
 

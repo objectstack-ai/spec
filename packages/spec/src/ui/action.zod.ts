@@ -57,10 +57,10 @@ export const ActionSchema = z.object({
    * but can be overridden.
    */
   component: z.enum([
-    'action.button', // Standard Button
-    'action.icon',   // Icon only
-    'action.menu',   // Dropdown menu
-    'action.group'   // Button Group
+    'action:button', // Standard Button
+    'action:icon',   // Icon only
+    'action:menu',   // Dropdown menu
+    'action:group'   // Button Group
   ]).optional().describe('Visual component override'),
   
   /** Legacy location support */
