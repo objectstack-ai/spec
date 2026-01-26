@@ -18,7 +18,7 @@ interface BlogPostData {
 
 const components = {
   ...defaultMdxComponents,
-};
+} as any;
 
 export default async function BlogPage({
   params,
