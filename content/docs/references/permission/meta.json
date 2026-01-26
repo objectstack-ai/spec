@@ -1,6 +1,6 @@
 {
   "title": "Permission Protocol",
-  "root": true,
+  
   "pages": [
     "permission",
     "sharing",

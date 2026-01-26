@@ -1,6 +1,6 @@
 {
   "title": "Auth Protocol",
-  "root": true,
+  
   "pages": [
     "config",
     "identity",

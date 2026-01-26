@@ -1,6 +1,6 @@
 {
   "title": "Hub Protocol",
-  "root": true,
+  
   "pages": [
     "composer",
     "license",

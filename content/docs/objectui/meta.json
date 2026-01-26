@@ -1,5 +1,6 @@
 {
   "title": "ObjectUI (UI Protocol)",
+  "root": true,
   "pages": [
     "concept",
     "layout-dsl",

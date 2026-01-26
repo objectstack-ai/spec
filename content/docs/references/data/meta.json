@@ -1,6 +1,6 @@
 {
   "title": "Data Protocol",
-  "root": true,
+  
   "pages": [
     "dataset",
     "field",

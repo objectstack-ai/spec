@@ -1,9 +1,12 @@
 {
-  "title": "📍 Introduction",
+  "title": "Introduction",
+  "root": true,
   "pages": [
-    "overview",
-    "design-principles", 
+    "index",
+    "manifesto",
+    "metadata-driven",
     "architecture",
-    "glossary"
+    "design-principles",
+    "terminology"
   ]
 }

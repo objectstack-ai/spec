@@ -1,6 +1,6 @@
 {
   "title": "Automation Protocol",
-  "root": true,
+  
   "pages": [
     "flow",
     "webhook",

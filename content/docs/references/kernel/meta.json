@@ -1,6 +1,6 @@
 {
   "title": "Kernel Protocol",
-  "root": true,
+  
   "pages": [
     "context",
     "logger",

@@ -1,6 +1,6 @@
 {
   "title": "UI 协议",
-  "root": true,
+  
   "pages": [
     "action",
     "app",

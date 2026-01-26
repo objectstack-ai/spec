@@ -2,18 +2,10 @@
   "title": "Documentation",
   "pages": [
     "introduction",
-    "core-concepts",
-    "protocols",
-    "development",
-    "transport",
-    "quick-start",
-    "tutorials",
-    "guides",
-    "concepts",
-    "specifications",
-    "standards",
-    "references",
-    "faq",
-    "troubleshooting"
+    "objectql",
+    "objectui",
+    "objectos",
+    "developers",
+    "references"
   ]
 }
