@@ -1,0 +1,52 @@
+{
+  "$ref": "#/definitions/SCIMError",
+  "definitions": {
+    "SCIMError": {
+      "type": "object",
+      "properties": {
+        "schemas": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "default": [
+            "urn:ietf:params:scim:api:messages:2.0:Error"
+          ],
+          "description": "SCIM schema URIs"
+        },
+        "status": {
+          "type": "integer",
+          "minimum": 400,
+          "maximum": 599,
+          "description": "HTTP status code"
+        },
+        "scimType": {
+          "type": "string",
+          "enum": [
+            "invalidFilter",
+            "tooMany",
+            "uniqueness",
+            "mutability",
+            "invalidSyntax",
+            "invalidPath",
+            "noTarget",
+            "invalidValue",
+            "invalidVers",
+            "sensitive"
+          ],
+          "description": "SCIM error type"
+        },
+        "detail": {
+          "type": "string",
+          "description": "Error detail message"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

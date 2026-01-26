@@ -15,5 +15,11 @@ export default defineConfig({
       '@objectstack/spec/system',
       '@objectstack/spec/ui'
     ]
+  },
+  build: {
+    commonjsOptions: {
+      include: [/node_modules/, /packages/],
+      transformMixedEsModules: true
+    }
   }
 });

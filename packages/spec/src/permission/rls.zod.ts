@@ -613,6 +613,7 @@ export const RLS = {
     operation: 'all',
     using: `${ownerField} = current_user.id`,
     enabled: true,
+    priority: 0,
   }),
 
   /**
@@ -626,6 +627,7 @@ export const RLS = {
     using: `${tenantField} = current_user.tenant_id`,
     check: `${tenantField} = current_user.tenant_id`,
     enabled: true,
+    priority: 0,
   }),
 
   /**
@@ -639,6 +641,7 @@ export const RLS = {
     using: condition,
     roles,
     enabled: true,
+    priority: 0,
   }),
 
   /**
@@ -652,5 +655,6 @@ export const RLS = {
     using: '1 = 1', // Always true
     roles,
     enabled: true,
+    priority: 0,
   }),
 } as const;

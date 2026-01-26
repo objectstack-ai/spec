@@ -1,0 +1,50 @@
+{
+  "$ref": "#/definitions/SCIMAddress",
+  "definitions": {
+    "SCIMAddress": {
+      "type": "object",
+      "properties": {
+        "formatted": {
+          "type": "string",
+          "description": "Formatted address"
+        },
+        "streetAddress": {
+          "type": "string",
+          "description": "Street address"
+        },
+        "locality": {
+          "type": "string",
+          "description": "City/Locality"
+        },
+        "region": {
+          "type": "string",
+          "description": "State/Region"
+        },
+        "postalCode": {
+          "type": "string",
+          "description": "Postal code"
+        },
+        "country": {
+          "type": "string",
+          "description": "Country"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "work",
+            "home",
+            "other"
+          ],
+          "description": "Address type"
+        },
+        "primary": {
+          "type": "boolean",
+          "default": false,
+          "description": "Primary address indicator"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

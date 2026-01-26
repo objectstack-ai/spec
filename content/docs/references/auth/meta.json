@@ -1,11 +1,11 @@
 {
   "title": "Auth Protocol",
-  "root": true,
   "pages": [
     "config",
     "identity",
     "organization",
     "policy",
-    "role"
+    "role",
+    "scim"
   ]
 }

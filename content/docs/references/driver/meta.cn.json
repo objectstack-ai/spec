@@ -1,6 +1,6 @@
 {
   "title": "驱动协议",
-  "root": true,
+  
   "pages": [
     "datasource",
     "driver",

@@ -168,7 +168,6 @@ Object.entries(CATEGORIES).forEach(([key, title]) => {
   // Create top-level meta.json for the protocol
   const meta: any = { 
     title,
-    root: true // Mark as root to display folders nicely
   };
   
   // Sort zod files alphabetically for consistent ordering
@@ -232,7 +231,7 @@ Object.keys(CATEGORIES).forEach(category => {
 // We want references to list categories in specific order
 const rootMetaProps = {
   label: "Protocol Reference",
-  order: 100,
+  root: true,
   pages: [
     "data",
     "ui",

@@ -1,0 +1,440 @@
+---
+title: Transport & Interaction
+description: HTTP, WebSocket, and real-time communication protocols for ObjectStack
+---
+
+import { Radio, Zap, Network, Shield, Globe, Code, AlertCircle } from 'lucide-react';
+
+# Transport & Interaction
+
+The **Transport & Interaction Protocol** defines how clients communicate with ObjectStack servers through standardized HTTP/REST APIs, real-time WebSocket connections, and event streaming interfaces.
+
+## Why This Protocol Exists
+
+**Problem:** Modern applications need multiple communication channels—REST for CRUD operations, WebSockets for live updates, webhooks for external integrations. Each requires different infrastructure:
+
+- **REST APIs:** Developers write hundreds of routes manually, struggle with inconsistent response formats, forget to validate inputs
+- **Real-time updates:** Building WebSocket servers requires Redis pub/sub, connection pooling, heartbeat logic, reconnection handling
+- **Error handling:** Every endpoint returns errors differently—some use status codes, others embed errors in `200 OK` responses
+- **API evolution:** Adding a field breaks clients, removing a field breaks others, versioning becomes a nightmare
+- **Security gaps:** One forgotten `if (!authenticated)` check creates a data breach
+
+Traditional approach: Write thousands of lines of Express/FastAPI/Spring Boot code, maintain separate REST and WebSocket codebases, pray nothing breaks during deployments.
+
+**Solution:** The Transport Protocol **auto-generates REST and WebSocket endpoints** from your data model. Every object you define gets CRUD operations, real-time subscriptions, and error handling automatically. Communication patterns are configuration, not code.
+
+## Business Value Delivered
+
+<Cards>
+  <Card
+    icon={<Zap />}
+    title="Ship APIs 10x Faster"
+    description="Define a data object, get REST + WebSocket endpoints instantly. Zero boilerplate code to write or maintain."
+  />
+  <Card
+    icon={<Shield />}
+    title="Zero Transport-Layer Bugs"
+    description="Authentication, validation, error handling, and rate limiting enforced by protocol—not developer discipline."
+  />
+  <Card
+    icon={<Globe />}
+    title="Multi-Channel by Default"
+    description="Every object supports REST, GraphQL, WebSocket, and webhooks. One definition, four communication channels."
+  />
+  <Card
+    icon={<Network />}
+    title="Production-Grade from Day One"
+    description="Built-in CORS, compression, caching, retry logic, and connection pooling. No DevOps required."
+  />
+</Cards>
+
+## What This Protocol Enables
+
+### 1. Auto-Generated REST Endpoints
+
+Define an object in Data Protocol → get REST endpoints automatically:
+
+```typescript
+// Define object
+const TaskObject = defineObject({
+  name: 'task',
+  label: 'Task',
+  fields: {
+    title: text({ required: true }),
+    status: select({ 
+      options: ['todo', 'in_progress', 'done'] 
+    }),
+    assignee: lookup({ reference: 'user' })
+  }
+});
+```
+
+**Auto-generated endpoints:**
+- `GET /api/data/task` - List tasks
+- `POST /api/data/task` - Create task
+- `GET /api/data/task/:id` - Get task by ID
+- `PATCH /api/data/task/:id` - Update task
+- `DELETE /api/data/task/:id` - Delete task
+
+**Advanced features included:**
+- **Filtering:** `GET /api/data/task?filter[status]=todo`
+- **Sorting:** `GET /api/data/task?sort=-created_at`
+- **Pagination:** `GET /api/data/task?page=2&per_page=25`
+- **Field selection:** `GET /api/data/task?fields=title,status`
+- **Relations:** `GET /api/data/task?include=assignee`
+
+**Real-world impact:** A project management SaaS launches with 15 objects (Task, Project, User, Comment, etc.). That's **75 REST endpoints** automatically. Add a new object? 5 more endpoints appear instantly. Zero code written.
+
+### 2. Real-Time WebSocket Subscriptions
+
+Subscribe to live data updates without polling:
+
+```javascript
+// Client subscribes to task updates
+const subscription = ws.subscribe('task', {
+  filter: { assignee_id: currentUser.id },
+  events: ['created', 'updated']
+});
+
+subscription.on('message', (event) => {
+  console.log('Task updated:', event.data);
+  updateUI(event.data);
+});
+```
+
+**Server pushes updates automatically:**
+- When a task is created: `{ event: 'created', object: 'task', data: {...} }`
+- When a task is updated: `{ event: 'updated', object: 'task', data: {...} }`
+- When a task is deleted: `{ event: 'deleted', object: 'task', id: '...' }`
+
+**Why it matters:** Traditional polling (`setInterval(() => fetch('/api/tasks'), 5000)`) wastes bandwidth and delays updates. WebSocket subscriptions deliver updates **instantly** with 95% less network overhead.
+
+**Real-world use case:** A collaborative task board has 50 concurrent users. With polling (5-second intervals), that's **36,000 requests/hour** hitting the database. With WebSockets, users subscribe once and receive push updates—**50 connections total**, 99% reduction in server load.
+
+### 3. Standardized Error Handling
+
+Every API response follows a consistent format:
+
+**Success Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "task_123",
+    "title": "Implement API",
+    "status": "in_progress"
+  }
+}
+```
+
+**Error Response:**
+```json
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Title is required",
+    "field": "title",
+    "details": {
+      "constraint": "required",
+      "value": null
+    }
+  }
+}
+```
+
+**Standard error codes:**
+- `VALIDATION_ERROR` - Input validation failed
+- `NOT_FOUND` - Resource doesn't exist
+- `UNAUTHORIZED` - Authentication required
+- `FORBIDDEN` - Insufficient permissions
+- `RATE_LIMITED` - Too many requests
+- `SERVER_ERROR` - Internal server error
+
+**Business value:** Frontend developers write error handling once. Every API call uses the same error structure. No more `if (response.error || response.errors || response.message)` conditional spaghetti.
+
+### 4. API Discovery and Self-Documentation
+
+Every ObjectStack server exposes a discovery endpoint that returns all available APIs:
+
+```http
+GET /.well-known/objectstack
+```
+
+```json
+{
+  "name": "Acme CRM Production",
+  "version": "2.1.0",
+  "environment": "production",
+  "routes": {
+    "data": "/api/v1/data",
+    "metadata": "/api/v1/meta",
+    "auth": "/api/v1/auth",
+    "realtime": "wss://api.acme.com/ws",
+    "graphql": "/api/v1/graphql"
+  },
+  "features": {
+    "graphql": true,
+    "websocket": true,
+    "webhooks": true,
+    "batch": true
+  },
+  "limits": {
+    "max_page_size": 100,
+    "rate_limit": 1000,
+    "rate_window": "1m"
+  }
+}
+```
+
+**Use cases:**
+- **Client initialization:** Apps request discovery on startup to configure API URLs
+- **SDK generation:** Auto-generate TypeScript/Python/Go SDKs from schema
+- **Partner integrations:** Third parties build integrations without outdated documentation
+
+**Real-world impact:** A company opens their API to partners. Instead of maintaining API docs (always outdated), partners hit `/api/discovery`, get current schema, build integrations without asking engineering for help.
+
+### 5. Rate Limiting and Quota Enforcement
+
+Prevent API abuse with declarative rate limits:
+
+```typescript
+// Configure rate limits per object
+const TaskObject = defineObject({
+  name: 'task',
+  api: {
+    rateLimit: {
+      query: { requests: 100, window: '1m' },
+      create: { requests: 10, window: '1m' },
+      update: { requests: 50, window: '1m' }
+    }
+  }
+});
+```
+
+**When limits are exceeded:**
+```http
+HTTP/1.1 429 Too Many Requests
+Content-Type: application/json
+Retry-After: 45
+
+{
+  "success": false,
+  "error": {
+    "code": "RATE_LIMITED",
+    "message": "Too many requests",
+    "retry_after": 45,
+    "limit": 100,
+    "window": "1m"
+  }
+}
+```
+
+**Per-user quota tracking:**
+- Free tier: 10,000 API calls/month
+- Pro tier: 1,000,000 API calls/month
+- Enterprise: Unlimited
+
+**Business value:** A freemium SaaS gives 10K API calls/month for free. Power users hit the limit in 2 weeks and upgrade to $99/month. Result: $50K/year revenue from API monetization.
+
+## Communication Channels
+
+ObjectStack supports multiple transport mechanisms:
+
+### HTTP/REST
+**Best for:** CRUD operations, stateless requests, third-party integrations
+
+**Characteristics:**
+- Request/response pattern
+- Stateless (each request independent)
+- Cacheable responses
+- Firewall-friendly (port 80/443)
+
+**Use cases:**
+- Mobile app fetching user profile
+- External system creating records via webhook
+- Browser-based CRUD operations
+
+### WebSocket
+**Best for:** Real-time dashboards, collaborative editing, live notifications
+
+**Characteristics:**
+- Bi-directional persistent connection
+- Low latency (no HTTP overhead per message)
+- Server can push without client request
+- Requires connection state management
+
+**Use cases:**
+- Chat applications
+- Live data dashboards
+- Multiplayer collaboration
+- IoT device communication
+
+### Server-Sent Events (SSE)
+**Best for:** One-way server-to-client streaming, simple real-time updates
+
+**Characteristics:**
+- Unidirectional (server to client only)
+- Automatic reconnection built-in
+- Works over HTTP (easier to proxy)
+- Less overhead than WebSocket for read-only updates
+
+**Use cases:**
+- Notification feeds
+- Live activity streams
+- Server status monitoring
+- Progress indicators
+
+### GraphQL
+**Best for:** Complex queries, mobile apps with bandwidth constraints
+
+**Characteristics:**
+- Query exactly the fields you need
+- Batch multiple resources in one request
+- Strongly typed schema
+- Client controls response shape
+
+**Use cases:**
+- Mobile apps minimizing payload size
+- Complex nested data fetching
+- Frontend-driven API exploration
+
+## Security Considerations
+
+### Authentication
+Every request requires authentication:
+
+```http
+GET /api/data/task
+Authorization: Bearer <JWT_TOKEN>
+```
+
+Supported auth methods:
+- **JWT tokens:** Stateless authentication
+- **API keys:** Third-party integrations
+- **OAuth 2.0:** External services
+- **Session cookies:** Browser-based apps
+
+### CORS Configuration
+Configure allowed origins:
+
+```typescript
+const api = defineApi({
+  cors: {
+    origins: ['https://app.acme.com', 'https://admin.acme.com'],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+    credentials: true,
+    maxAge: 86400
+  }
+});
+```
+
+### Input Validation
+All requests validated against schema:
+
+```http
+POST /api/data/task
+Content-Type: application/json
+
+{
+  "title": "",  // ❌ Validation fails
+  "status": "invalid"  // ❌ Not in enum
+}
+```
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Validation failed",
+    "fields": [
+      { "field": "title", "message": "Title is required" },
+      { "field": "status", "message": "Must be one of: todo, in_progress, done" }
+    ]
+  }
+}
+```
+
+### Permission Enforcement
+Row-level security applied to all operations:
+
+```typescript
+// User can only see their own tasks
+const query = {
+  object: 'task',
+  filter: { assignee_id: currentUser.id }  // Auto-injected
+};
+```
+
+Even if a client sends:
+```http
+GET /api/data/task?filter[assignee_id]=other_user_id
+```
+
+Permission layer rewrites to:
+```sql
+WHERE assignee_id = 'current_user_id'  -- Enforced by server
+```
+
+## Real-World Use Cases
+
+### Case 1: Mobile App Backend
+**Challenge:** A startup needs a backend API for iOS/Android apps. They have no backend engineers.
+
+**Transport Protocol Solution:** Define objects (User, Post, Comment), deploy ObjectStack, get REST APIs + WebSocket support. Mobile app authenticates via OAuth, calls `/api/data/post` to fetch feed, subscribes to WebSocket for live updates.
+
+**Value:** Shipped mobile app in 6 weeks with 1 full-stack engineer (vs. 3-month timeline with dedicated backend team).
+
+### Case 2: Real-Time Dashboard
+**Challenge:** A SaaS app has a revenue dashboard that polls `/api/revenue` every 5 seconds. 1,000 concurrent users = 12M API calls/hour, killing the database.
+
+**Transport Protocol Solution:** Switch dashboard to WebSocket subscriptions. Server pushes revenue updates only when data changes (e.g., new sale). Clients subscribe once, receive updates passively.
+
+**Value:** API load reduced by 95%. Database CPU usage dropped from 80% to 10%. $5K/month infrastructure savings.
+
+### Case 3: Third-Party Integration Platform
+**Challenge:** A CRM vendor wants partners to build integrations (Zapier, Make.com). Partners demand well-documented APIs.
+
+**Transport Protocol Solution:** Enable API discovery. Partners hit `/.well-known/objectstack`, get full schema, generate SDKs, build integrations without contacting engineering team.
+
+**Value:** 50+ partner integrations built in 6 months. Marketplace ecosystem drives 30% of new customer acquisition.
+
+## Integration with Other Protocols
+
+- **Data Protocol:** Transport exposes objects defined in Data Protocol; APIs auto-generated from schemas
+- **Permission Protocol:** Every API call filtered by user's row-level security and object permissions
+- **Auth Protocol:** Transport layer validates JWT tokens, API keys, OAuth credentials
+- **System Protocol:** API calls logged for audit; rate limit violations trigger alerts
+- **Automation Protocol:** Webhooks invoke workflows when API events occur
+
+**Key insight:** Transport Protocol is the **interface layer** of ObjectStack. It exposes your business logic (data, workflows, permissions) to the outside world—web apps, mobile apps, partners, IoT devices—with security and scalability built-in.
+
+## Next Steps
+
+<Cards>
+  <Card
+    icon={<Radio />}
+    title="HTTP API"
+    description="Learn REST endpoint conventions, request/response formats, and CRUD operations"
+    href="/docs/transport/http-api"
+  />
+  <Card
+    icon={<Zap />}
+    title="Real-Time Protocols"
+    description="Implement WebSocket subscriptions, SSE streams, and event-driven updates"
+    href="/docs/transport/realtime"
+  />
+  <Card
+    icon={<AlertCircle />}
+    title="Error Handling"
+    description="Master error codes, response formats, and debugging strategies"
+    href="/docs/transport/error-handling"
+  />
+  <Card
+    icon={<Code />}
+    title="API Reference"
+    description="Explore detailed API specifications and code examples"
+    href="/docs/references/api"
+  />
+</Cards>

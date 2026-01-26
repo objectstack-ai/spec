@@ -934,7 +934,7 @@ export const SCIM = {
   listResponse: <T>(resources: T[], totalResults?: number): SCIMListResponse => ({
     schemas: [SCIM_SCHEMAS.LIST_RESPONSE],
     totalResults: totalResults ?? resources.length,
-    Resources: resources,
+    Resources: resources as Array<SCIMResource | Record<string, any>>,
     startIndex: 1,
     itemsPerPage: resources.length,
   }),

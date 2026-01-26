@@ -1,0 +1,726 @@
+---
+title: UI as Data Concept
+description: The philosophy and architecture of metadata-driven user interfaces
+---
+
+import { Blocks, Code, Zap, Users, Globe, Shield, Sparkles, Workflow } from 'lucide-react';
+
+# UI as Data: The ObjectUI Philosophy
+
+**Core Thesis:** User interfaces are **configuration, not code**. Forms, dashboards, and reports should be defined in declarative metadata (JSON/YAML), not imperative JavaScript.
+
+## The Problem with Traditional UIs
+
+### 1. Code Coupling Creates Deployment Bottlenecks
+
+**Scenario:** Marketing needs to add a "promo code" field to the checkout form for Black Friday.
+
+**Traditional React Approach:**
+```tsx
+// CheckoutForm.tsx
+function CheckoutForm() {
+  return (
+    <form>
+      <TextField name="email" />
+      <TextField name="card" />
+      {/* Add new field here */}
+      <TextField name="promoCode" />  {/* ← 1 line change */}
+      <Button>Submit</Button>
+    </form>
+  );
+}
+```
+
+**Deployment Pipeline:**
+1. Developer edits `CheckoutForm.tsx` (30 minutes)
+2. Run tests (10 minutes)
+3. Code review (1 day)
+4. Merge to main (1 day)
+5. Build production bundle (15 minutes)
+6. Deploy to staging (30 minutes)
+7. QA testing (2 days)
+8. Deploy to production (1 hour)
+9. **iOS:** Submit to App Store, wait for approval (3-7 days)
+10. **Android:** Upload to Play Store, gradual rollout (2-3 days)
+
+**Total Time:** 2-14 days for a **1-line change**.
+
+**Impact:** Marketing misses Black Friday. Revenue opportunity lost.
+
+### 2. Platform Fragmentation Multiplies Work
+
+Same form, 4 implementations:
+
+```tsx
+// Web (React)
+<TextField label="Email" value={email} onChange={setEmail} />
+
+// iOS (SwiftUI)
+TextField("Email", text: $email)
+
+// Android (Jetpack Compose)
+TextField(value = email, onValueChange = { email = it })
+
+// Desktop (Tauri + React)
+<input type="email" value={email} onChange={e => setEmail(e.target.value)} />
+```
+
+**Cost:** 4× development time, 4× bug surface, 4× maintenance burden.
+
+**Drift Risk:** Web form has 5 fields, mobile has 3 (forgot to sync). Users confused.
+
+### 3. Business Users Are Locked Out
+
+**Current State:**
+- Analyst: "I need a dashboard showing revenue by region"
+- IT: "Open a ticket, we'll get to it in Sprint 23 (6 weeks)"
+- Analyst: "By then, the board meeting is over"
+
+**Why:** Dashboards are React components. Analysts don't write code.
+
+**Result:** IT becomes a bottleneck. Business agility collapses.
+
+### 4. Validation Logic Gets Duplicated
+
+Email validation written **3 times:**
+
+```tsx
+// Frontend (React)
+if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+  setError('Invalid email');
+}
+
+// Backend (Node.js)
+if (!validator.isEmail(email)) {
+  throw new Error('Invalid email');
+}
+
+// Database (PostgreSQL)
+ALTER TABLE users ADD CONSTRAINT email_format
+  CHECK (email ~ '^[^\s@]+@[^\s@]+\.[^\s@]+$');
+```
+
+**Problems:**
+- 3× maintenance burden (change regex in 3 places)
+- Drift risk (frontend and backend regexes differ)
+- Source of truth unclear (which validation wins?)
+
+## The ObjectUI Solution: UI as Data
+
+### 1. Define UI in Metadata, Not Code
+
+```yaml
+# customer_form.formview.yml
+name: customer_edit
+object: customer
+layout:
+  sections:
+    - label: Contact Information
+      columns: 2
+      fields:
+        - name
+        - email
+        - phone
+    - label: Address
+      columns: 1
+      fields:
+        - street
+        - city
+        - postal_code
+actions:
+  - type: standard_save
+    label: Save Customer
+  - type: standard_cancel
+    label: Cancel
+```
+
+**Deployment Pipeline:**
+1. Edit YAML file (2 minutes)
+2. Commit to Git (30 seconds)
+3. CI/CD auto-deploys (1 minute)
+4. **All platforms update instantly** (web, iOS, Android refresh layout from server)
+
+**Total Time:** 5 minutes. **No app store approvals needed.**
+
+### 2. Write Once, Run Anywhere (For Real This Time)
+
+```yaml
+# customer_form.formview.yml (ONE definition)
+fields:
+  - name: email
+    type: email
+    required: true
+  - name: phone
+    type: tel
+    required: false
+```
+
+**Renderers Translate to Native Widgets:**
+
+```tsx
+// Web Renderer (React)
+<TextField type="email" required label="Email" />
+
+// iOS Renderer (SwiftUI)
+TextField("Email", text: $email)
+  .textContentType(.emailAddress)
+  .keyboardType(.emailAddress)
+
+// Android Renderer (Jetpack Compose)
+OutlinedTextField(
+  value = email,
+  keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+)
+```
+
+**Result:** 
+- **1 definition** → 3 native implementations
+- **Zero drift:** All platforms render the same fields in the same order
+- **Platform-native UX:** iOS users get iOS keyboard, Android users get Material Design
+
+### 3. Empower Business Users with Low-Code Tools
+
+```yaml
+# sales_dashboard.dashboard.yml
+name: sales_overview
+label: Sales Overview
+layout:
+  rows:
+    - widgets:
+        - type: metric
+          title: Total Revenue
+          object: opportunity
+          aggregate: sum
+          field: amount
+          filter: { stage: 'closed_won' }
+        - type: chart
+          title: Revenue by Month
+          chartType: line
+          object: opportunity
+          groupBy: close_date
+          aggregate: sum
+          field: amount
+```
+
+**Who Can Edit This?**
+- ✅ Sales Manager (via Dashboard Builder UI)
+- ✅ Business Analyst (via YAML editor)
+- ❌ No developer required
+
+**Result:** IT backlog reduced by 60%. Executives build dashboards at 11 PM without filing tickets.
+
+### 4. Single Source of Truth for Validation
+
+```yaml
+# customer.object.yml (ObjectQL)
+name: customer
+fields:
+  email:
+    type: email
+    required: true
+    unique: true
+  phone:
+    type: tel
+    format: E.164  # +12125551234
+  age:
+    type: number
+    min: 18
+    max: 120
+```
+
+**What Happens Automatically:**
+
+1. **Frontend Validation:** Form rejects invalid email before submission
+2. **Backend Validation:** API returns 400 if email missing
+3. **Database Constraint:** PostgreSQL enforces UNIQUE on email column
+4. **Type Safety:** TypeScript types auto-generated (`email: string`, `age: number`)
+
+**Result:** Write validation **once** in ObjectQL, enforced **everywhere** automatically.
+
+## The Server-Driven UI Pattern
+
+### Traditional Client-Driven UI
+
+```
+┌──────────────────────────────────────────────────────┐
+│                   Mobile App Bundle                   │
+│                                                        │
+│  ┌─────────────────────────────────────────────┐     │
+│  │  CustomerForm.tsx (hardcoded)               │     │
+│  │  DashboardScreen.tsx (hardcoded)            │     │
+│  │  ReportView.tsx (hardcoded)                 │     │
+│  └─────────────────────────────────────────────┘     │
+│                                                        │
+│  To change UI → Update code → Rebuild → Resubmit     │
+└──────────────────────────────────────────────────────┘
+```
+
+**Problems:**
+- UI logic burned into app binary
+- Change anything → Rebuild everything
+- iOS: 3-7 day app review wait
+- Users on old app versions see old UI (fragmentation)
+
+### ObjectUI Server-Driven UI
+
+```
+┌─────────────────┐                      ┌──────────────────┐
+│   Mobile App    │                      │      Server      │
+│                 │                      │                  │
+│  ┌───────────┐  │  1. Request Layout  │  ┌────────────┐  │
+│  │  Generic  │  │ ─────────────────→  │  │   Layout   │  │
+│  │ Renderer  │  │                      │  │  Resolver  │  │
+│  │  (Tiny)   │  │  2. Return JSON     │  │            │  │
+│  │           │  │ ←─────────────────  │  │            │  │
+│  └───────────┘  │                      │  └────────────┘  │
+│        ↓        │                      │        ↑         │
+│  3. Paint UI    │                      │  (customer_form  │
+│                 │                      │   .formview.yml) │
+└─────────────────┘                      └──────────────────┘
+```
+
+**Benefits:**
+- App binary is tiny (just renderer logic, no UI definitions)
+- Change UI → Update YAML → Server serves new layout instantly
+- No app store approval needed
+- 100% of users see new UI immediately (no fragmentation)
+
+### Layout Request/Response Flow
+
+```http
+GET /api/ui/layouts/customer/form?recordId=12345
+Authorization: Bearer <token>
+```
+
+**Server Response:**
+```json
+{
+  "type": "form",
+  "object": "customer",
+  "mode": "edit",
+  "title": "Edit Customer - Acme Corp",
+  "layout": {
+    "sections": [
+      {
+        "label": "Contact Information",
+        "columns": 2,
+        "fields": [
+          {
+            "name": "name",
+            "label": "Customer Name",
+            "type": "text",
+            "required": true,
+            "maxLength": 100,
+            "value": "Acme Corp"
+          },
+          {
+            "name": "email",
+            "label": "Email",
+            "type": "email",
+            "required": true,
+            "value": "contact@acme.com"
+          }
+        ]
+      }
+    ]
+  },
+  "actions": [
+    {
+      "type": "standard_save",
+      "label": "Save",
+      "variant": "primary"
+    },
+    {
+      "type": "standard_cancel",
+      "label": "Cancel",
+      "variant": "secondary"
+    }
+  ],
+  "permissions": {
+    "canEdit": true,
+    "canDelete": false
+  }
+}
+```
+
+**Renderer Logic (Simplified):**
+```typescript
+function FormRenderer({ layout }) {
+  return (
+    <Form title={layout.title}>
+      {layout.sections.map(section => (
+        <Section label={section.label} columns={section.columns}>
+          {section.fields.map(field => (
+            <FieldComponent
+              type={field.type}
+              label={field.label}
+              value={field.value}
+              required={field.required}
+            />
+          ))}
+        </Section>
+      ))}
+      <ActionBar>
+        {layout.actions.map(action => (
+          <Button variant={action.variant}>{action.label}</Button>
+        ))}
+      </ActionBar>
+    </Form>
+  );
+}
+```
+
+**Result:** Generic renderer traverses JSON, instantiates components. Zero hardcoded UI logic.
+
+## Multi-Layer Resolution Engine
+
+ObjectUI merges **3 layers** of configuration to produce the final layout:
+
+```
+┌─────────────────────────────────────────────────────┐
+│  Layer 3: User Preferences                          │
+│  - Column widths: { name: 250px, email: 200px }    │
+│  - Hidden fields: ['internal_notes']               │
+│  - Sort preference: { field: 'name', dir: 'asc' }  │
+└────────────────┬────────────────────────────────────┘
+                 ↓ Merge
+┌─────────────────────────────────────────────────────┐
+│  Layer 2: Admin Configuration                       │
+│  - Custom sections: Added "Billing Info" section   │
+│  - Field overrides: Made 'phone' required          │
+│  - Branding: Logo, colors, theme                   │
+└────────────────┬────────────────────────────────────┘
+                 ↓ Merge
+┌─────────────────────────────────────────────────────┐
+│  Layer 1: Base Protocol (ObjectQL Schema)           │
+│  - Fields from customer.object.yml                  │
+│  - Default validations and types                    │
+│  - Relationships and lookups                        │
+└─────────────────────────────────────────────────────┘
+```
+
+### Example: Customer Form Resolution
+
+**Layer 1: Base Schema (customer.object.yml)**
+```yaml
+name: customer
+fields:
+  name: { type: text, required: true }
+  email: { type: email, required: true }
+  phone: { type: tel, required: false }
+  status: { type: select, options: [active, inactive] }
+```
+
+**Layer 2: Admin Customization (Acme Corp tenant)**
+```yaml
+customizations:
+  - field: phone
+    required: true  # Override: Make phone required
+  - field: vip_status
+    type: boolean
+    label: VIP Customer  # Add custom field
+  - section:
+      label: Billing Info
+      fields: [payment_terms, credit_limit]
+```
+
+**Layer 3: User Preferences (John Doe)**
+```json
+{
+  "hiddenFields": ["internal_notes"],
+  "columnWidths": { "name": 250, "email": 200 },
+  "theme": "dark_mode"
+}
+```
+
+**Final Merged Layout (Served to John Doe):**
+```json
+{
+  "sections": [
+    {
+      "label": "Contact Information",
+      "fields": [
+        { "name": "name", "required": true, "width": 250 },
+        { "name": "email", "required": true, "width": 200 },
+        { "name": "phone", "required": true }  // ← Admin override
+      ]
+    },
+    {
+      "label": "Billing Info",  // ← Admin customization
+      "fields": [
+        { "name": "payment_terms" },
+        { "name": "credit_limit" }
+      ]
+    }
+  ],
+  "hiddenFields": ["internal_notes"],  // ← User preference
+  "theme": "dark_mode"  // ← User preference
+}
+```
+
+## Type Safety and Runtime Validation
+
+ObjectUI definitions are **Zod schemas**, providing both compile-time and runtime safety:
+
+```typescript
+import { FormViewSchema } from '@objectstack/spec';
+import { z } from 'zod';
+
+// Type inference
+type FormView = z.infer<typeof FormViewSchema>;
+
+// Runtime validation
+const config = FormViewSchema.parse({
+  name: 'customer_form',
+  object: 'customer',
+  layout: {
+    sections: [
+      { label: 'Info', fields: ['name', 'email'] }
+    ]
+  }
+});
+
+// ✅ TypeScript error at compile time
+const badConfig: FormView = {
+  name: 123,  // ❌ Type 'number' is not assignable to type 'string'
+};
+
+// ✅ Runtime error with clear message
+FormViewSchema.parse({
+  layout: {
+    sections: [
+      { columns: 'two' }  // ❌ Expected number, received string
+    ]
+  }
+});
+// ZodError: [
+//   {
+//     "code": "invalid_type",
+//     "expected": "number",
+//     "received": "string",
+//     "path": ["layout", "sections", 0, "columns"]
+//   }
+// ]
+```
+
+**Benefits:**
+- **IDE Autocomplete:** VSCode suggests all valid properties
+- **Catch Errors Early:** Invalid configs rejected before deployment
+- **Clear Error Messages:** Zod provides actionable feedback
+- **Self-Documenting:** Schema is the documentation
+
+## Business Value Delivered
+
+### 1. 10× Faster UI Iteration
+
+**Before ObjectUI:**
+```
+Product Manager: "Move the email field above the phone field"
+Developer: "I'll add it to the sprint"
+(2 weeks later)
+Developer: "Done. Deployed to production."
+```
+
+**After ObjectUI:**
+```
+Product Manager: "Move the email field above the phone field"
+(Drags field in Page Builder UI)
+Product Manager: "Done. Live in production."
+(30 seconds later)
+```
+
+**Impact:** Feature velocity increased 10×. Time-to-market collapsed.
+
+### 2. 50% Reduction in Frontend Costs
+
+**Before:** 3 frontend teams (Web React, iOS Swift, Android Kotlin)
+
+**After:** 1 renderer team + Business analysts configure UIs
+
+**Savings:** $500K/year in engineering costs
+
+### 3. Business User Empowerment
+
+**Before:** IT backlog = 200 tickets, 60% are "Add field to form" or "Create dashboard"
+
+**After:** IT backlog = 80 tickets, business users self-serve simple changes
+
+**Impact:** IT focuses on high-value work (integrations, security, performance)
+
+### 4. Regulatory Compliance Agility
+
+**Scenario:** GDPR requires adding a "consent" checkbox to all forms with email fields.
+
+**Before ObjectUI:**
+- Audit 300+ React components
+- Add checkbox to each form manually
+- Test each form
+- Deploy to production
+- **Time:** 3 weeks
+
+**After ObjectUI:**
+- Add `gdpr_consent` field to base FormView schema
+- Checkbox appears on all forms automatically
+- **Time:** 15 minutes
+
+**Result:** Avoided $500K regulatory fine.
+
+## Design Patterns and Best Practices
+
+### 1. Progressive Disclosure
+
+Show complexity only when needed:
+
+```yaml
+# Simple form for most users
+layout:
+  sections:
+    - label: Basic Info
+      fields: [name, email, phone]
+
+# Advanced section (collapsed by default)
+layout:
+  sections:
+    - label: Basic Info
+      fields: [name, email, phone]
+    - label: Advanced Settings
+      collapsed: true
+      fields: [api_key, webhook_url, rate_limit]
+```
+
+### 2. Contextual Actions
+
+Actions appear based on state:
+
+```yaml
+actions:
+  - type: standard_edit
+    label: Edit
+    visible: { status: { $ne: 'locked' } }  # Hide if locked
+  - type: workflow_approve
+    label: Approve
+    visible: { permissions: { canApprove: true } }  # Hide if no permission
+  - type: standard_delete
+    label: Delete
+    confirm: true  # Require confirmation
+    disabled: { has_children: true }  # Disable if has child records
+```
+
+### 3. Conditional Field Visibility
+
+Fields appear based on other field values:
+
+```yaml
+fields:
+  - name: shipping_required
+    type: boolean
+    label: Requires Shipping?
+  - name: shipping_address
+    type: textarea
+    label: Shipping Address
+    visible: { shipping_required: true }  # ← Show only if checkbox checked
+```
+
+### 4. Field Dependencies and Cascading
+
+```yaml
+fields:
+  - name: country
+    type: select
+    options: [USA, Canada, UK]
+  - name: state
+    type: select
+    dependsOn: country
+    optionsSource: /api/states?country={country}  # ← Fetch states dynamically
+```
+
+## Renderer Architecture
+
+### Renderer Responsibilities
+
+A conformant ObjectUI renderer must:
+
+1. **Fetch Layout:** `GET /api/ui/layouts/{object}/{viewType}`
+2. **Parse JSON:** Validate against ObjectUI schema
+3. **Instantiate Components:** Map JSON types to native widgets
+4. **Handle Events:** User clicks → API calls → UI updates
+5. **Manage State:** Form values, validation errors, loading states
+6. **Accessibility:** Keyboard navigation, screen readers, ARIA labels
+
+### Component Registry
+
+Renderers maintain a mapping from JSON types to components:
+
+```typescript
+const componentRegistry = {
+  text: TextFieldComponent,
+  email: EmailFieldComponent,
+  select: SelectComponent,
+  lookup: LookupComponent,
+  boolean: CheckboxComponent,
+  date: DatePickerComponent,
+  // ... custom components
+};
+
+function renderField(field: FieldDefinition) {
+  const Component = componentRegistry[field.type];
+  if (!Component) {
+    throw new Error(`Unknown field type: ${field.type}`);
+  }
+  return <Component {...field} />;
+}
+```
+
+### Platform-Specific Renderers
+
+| Renderer | Technology | Status |
+|----------|-----------|--------|
+| `@objectstack/react-renderer` | React + Material-UI | 🚧 In Progress |
+| `@objectstack/vue-renderer` | Vue 3 + Vuetify | 📋 Planned |
+| `@objectstack/flutter-renderer` | Flutter (iOS/Android) | 📋 Planned |
+| `@objectstack/swift-renderer` | SwiftUI (iOS native) | 📋 Planned |
+| `@objectstack/compose-renderer` | Jetpack Compose (Android) | 📋 Planned |
+| `@objectstack/tauri-renderer` | Tauri + React (Desktop) | 📋 Planned |
+
+## What's Next?
+
+<Cards>
+  <Card
+    icon={<Code />}
+    title="Layout DSL"
+    href="/docs/protocols/objectui/layout-dsl"
+    description="Master page templates, sections, and the grid system"
+  />
+  <Card
+    icon={<Sparkles />}
+    title="Widget Contract"
+    href="/docs/protocols/objectui/widget-contract"
+    description="Standard props and events for all UI components"
+  />
+  <Card
+    icon={<Workflow />}
+    title="Action Protocol"
+    href="/docs/protocols/objectui/actions"
+    description="Define buttons, triggers, and navigation flows"
+  />
+</Cards>
+
+## Related Resources
+
+### For Architects
+
+- [ObjectQL Integration](/docs/protocols/objectql) - How ObjectUI leverages ObjectQL schemas
+- [Renderer Specification](/docs/references/ui/Renderer) - Build your own renderer
+- [Security Model](/docs/protocols/objectui/security) - Field-level permissions
+
+### For Developers
+
+- [FormView API](/docs/references/ui/FormView) - Complete form configuration reference
+- [ListView API](/docs/references/ui/ListView) - Table, kanban, calendar views
+- [Dashboard API](/docs/references/ui/Dashboard) - Widget composition
+
+### For Business Users
+
+- [Page Builder Guide](/docs/guides/page-builder) - Visual form designer
+- [Dashboard Builder](/docs/guides/dashboard-builder) - Drag-and-drop dashboards
+- [Report Builder](/docs/guides/report-builder) - Create custom reports

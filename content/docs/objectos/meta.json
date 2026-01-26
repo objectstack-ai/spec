@@ -1,0 +1,12 @@
+{
+  "title": "ObjectOS (System Protocol)",
+  "root": true,
+  "pages": [
+    "index",
+    "lifecycle",
+    "plugin-spec",
+    "config-resolution",
+    "i18n-standard",
+    "transport"
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "title": "AI 协议",
-  "root": true,
+  
   "pages": [
     "agent",
     "conversation",
