@@ -1,36 +1,40 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #000000;
+@layer base {
+  :root {
+    --background: #ffffff;
+    --foreground: #000000;
 
-  --accents-1: #fafafa;
-  --accents-2: #eaeaea;
-  --accents-3: #999999;
-  --accents-4: #888888;
-  --accents-5: #666666;
-  --accents-6: #444444;
-  --accents-7: #333333;
-  --accents-8: #111111;
+    --accents-1: #fafafa;
+    --accents-2: #eaeaea;
+    --accents-3: #999999;
+    --accents-4: #888888;
+    --accents-5: #666666;
+    --accents-6: #444444;
+    --accents-7: #333333;
+    --accents-8: #111111;
 
-  --success-lighter: #d3e5ff;
-  --success-light: #3291ff;
-  --success: #0070f3;
-  --success-dark: #0761d1;
+    --success-lighter: #d3e5ff;
+    --success-light: #3291ff;
+    --success: #0070f3;
+    --success-dark: #0761d1;
 
-  --error-lighter: #f7d4d6;
-  --error-light: #ff1a1a;
-  --error: #e00000;
-  --error-dark: #c50000;
+    --error-lighter: #f7d4d6;
+    --error-light: #ff1a1a;
+    --error: #e00000;
+    --error-dark: #c50000;
 
-  --warning-lighter: #ffefcf;
-  --warning-light: #f7b955;
-  --warning: #f5a623;
-  --warning-dark: #ab570a;
-}
+    --warning-lighter: #ffefcf;
+    --warning-light: #f7b955;
+    --warning: #f5a623;
+    --warning-dark: #ab570a;
+  }
 
-body {
-  @apply bg-background text-foreground antialiased font-sans;
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-family: 'Inter', sans-serif;
+  }
 }
