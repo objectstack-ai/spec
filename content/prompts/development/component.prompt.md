@@ -105,6 +105,17 @@ Standalone cards placed on a dashboard grid.
     *   **Analysis:** `pivot` (Cross-Tab Table).
     *   **Content:** `table` (List), `text` (Note), `image`, `frame` (Embed).
 
+### F. Primitive Atoms (`atom.*`)
+The fundamental building blocks used by all other widgets.
+*   **Contract:** Pure UI components (No metadata dependencies).
+*   **Required Library:**
+    *   `atom.icon` (Lucide Wrapper).
+    *   `atom.button` (Standard Actions).
+    *   `atom.spinner` (Loading State).
+    *   `atom.empty` (No Data Placeholder).
+    *   `atom.error` (Error Boundary/Message).
+    *   `atom.badge` (Status Indicators).
+
 ---
 
 ## 2. API Reference & Contracts
