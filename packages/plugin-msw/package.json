@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@objectstack/runtime": "workspace:*",
-    "@types/node": "^20.0.0",
+    "@types/node": "^25.0.10",
     "typescript": "^5.0.0"
   },
   "peerDependencies": {
