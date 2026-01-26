@@ -34,41 +34,38 @@ Responsible for **Input** (Edit Mode) and **Display** (Read Mode) of a specific 
     *   **Visual:** `color` (Picker), `rating` (Star), `signature` (Canvas), `qrcode`, `progress`.
     *   **Structure:** `json` (Object Editor), `address` (Street/City/State), `location` (Map Pin).
 
-### B. List View Layouts (`view.list.*`)
-Responsible for rendering a collection of records.
+### B. View Layouts (`view.*`)
+Responsible for rendering records. The specific `type` determines the Props contract.
+
+#### 1. List Views (Collection)
+*   **Keys:** `view.grid`, `view.kanban`, `view.map`, `view.calendar`, `view.gantt`, etc.
 *   **Contract:** Must implement `ListViewComponentProps`.
     ```typescript
     type ListViewComponentProps = {
-      config: ListView;           // Config (Ref:src/ui/view.zod.ts)
+      config: ListView;           // Config (e.g. { type: 'grid', columns: [...] })
       data: any[];                // Runtime Collection
       isLoading?: boolean;
       onAction?: (actionId: string, record: any) => void;
       onSelectionChange?: (selectedIds: string[]) => void;
     }
     ```
-*   **Required Types (Ref: `src/ui/view.zod.ts`):**
-    *   **Data:** `grid` (Standard Table), `spreadsheet` (Editable Cell).
-    *   **Cards:** `gallery` (Image Deck), `kanban` (Status Board).
-    *   **Time:** `calendar` (Schedule), `gantt` (Project), `timeline` (Activity Stream).
-    *   **Geo:** `map` (Cluster/Markers).
+*   **Required Types (Ref: `src/ui/view.zod.ts`):** `grid`, `spreadsheet`, `kanban`, `gallery`, `calendar`, `timeline`, `gantt`, `map`.
 
-### C. Form View Layouts (`view.form.*`)
-Responsible for rendering a single record detail.
+#### 2. Form Views (Detail)
+*   **Keys:** `view.simple`, `view.wizard`, `view.tabbed`, `view.drawer`, etc.
 *   **Contract:** Must implement `FormViewComponentProps`.
     ```typescript
     type FormViewComponentProps = {
-      config: FormView;           // Config (Ref:src/ui/view.zod.ts)
+      config: FormView;           // Config (e.g. { type: 'simple', sections: [...] })
       data: any;                  // Single Runtime Record
       isLoading?: boolean;
       onAction?: (actionId: string, record: any) => void;
       onChange?: (field: string, value: any) => void;
     }
     ```
-*   **Required Types:** 
-    *   `simple` (Vertical Flow), `tabbed` (Categorized), `wizard` (Step-by-Step).
-    *   `split` (Master-Detail), `drawer` (Side Panel), `modal` (Dialog).
+*   **Required Types (Ref: `src/ui/view.zod.ts`):** `simple`, `tabbed`, `wizard`, `split`, `drawer`, `modal`.
 
-### D. Dashboard Widgets (`widget.*`)
+### C. Dashboard Widgets (`widget.*`)
 Standalone cards placed on a dashboard grid.
 *   **Contract:** Must implement `DashboardWidgetProps` (Ref: `src/ui/dashboard.zod.ts`).
     ```typescript
