@@ -518,7 +518,10 @@ Three validation schemas enforce naming consistency:
 }
 ```
 
-**Reference**: See `packages/spec/src/shared/identifiers.zod.ts` for implementation.
+**For implementation details, see:**
+- [System Identifier Schema](/docs/references/shared/identifiers/SystemIdentifier)
+- [Snake Case Identifier Schema](/docs/references/shared/identifiers/SnakeCaseIdentifier)
+- [Event Name Schema](/docs/references/shared/identifiers/EventName)
 
 ---
 
