@@ -2,6 +2,7 @@
   "title": "Permission Protocol",
   "pages": [
     "permission",
+    "rls",
     "sharing",
     "territory"
   ]

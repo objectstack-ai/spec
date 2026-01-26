@@ -1,0 +1,55 @@
+{
+  "$ref": "#/definitions/SCIMEnterpriseUser",
+  "definitions": {
+    "SCIMEnterpriseUser": {
+      "type": "object",
+      "properties": {
+        "employeeNumber": {
+          "type": "string",
+          "description": "Employee number"
+        },
+        "costCenter": {
+          "type": "string",
+          "description": "Cost center"
+        },
+        "organization": {
+          "type": "string",
+          "description": "Organization"
+        },
+        "division": {
+          "type": "string",
+          "description": "Division"
+        },
+        "department": {
+          "type": "string",
+          "description": "Department"
+        },
+        "manager": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "string",
+              "description": "Manager ID"
+            },
+            "$ref": {
+              "type": "string",
+              "format": "uri",
+              "description": "Manager URI"
+            },
+            "displayName": {
+              "type": "string",
+              "description": "Manager name"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "additionalProperties": false,
+          "description": "Manager reference"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,16 @@
+{
+  "$ref": "#/definitions/RLSOperation",
+  "definitions": {
+    "RLSOperation": {
+      "type": "string",
+      "enum": [
+        "select",
+        "insert",
+        "update",
+        "delete",
+        "all"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

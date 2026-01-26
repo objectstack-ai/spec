@@ -1,0 +1,15 @@
+---
+title: RLSEvaluationResult
+description: RLSEvaluationResult Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **policyName** | `string` | ✅ | Policy name |
+| **granted** | `boolean` | ✅ | Whether access was granted |
+| **durationMs** | `number` | optional | Evaluation duration in milliseconds |
+| **error** | `string` | optional | Error message if evaluation failed |
+| **usingResult** | `boolean` | optional | USING clause evaluation result |
+| **checkResult** | `boolean` | optional | CHECK clause evaluation result |
