@@ -1,0 +1,11 @@
+{
+  "title": "AI Prompts",
+  "pages": [
+    "index",
+    "objectstack",
+    "app-development",
+    "plugin-development",
+    "component-development",
+    "driver-development"
+  ]
+}
