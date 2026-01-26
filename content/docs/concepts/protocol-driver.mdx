@@ -1,0 +1,281 @@
+---
+title: Driver Protocol
+description: Database adapters connecting ObjectStack to PostgreSQL, MongoDB, SQLite, and other storage engines.
+---
+
+import { HardDrive, Plug, Zap, Code } from 'lucide-react';
+
+# Driver Protocol
+
+The **Driver Protocol** defines the interface for database adapters that connect ObjectStack's Data Layer to various storage engines. Drivers translate the abstract query AST into database-specific queries (SQL, NoSQL, etc.).
+
+## Overview
+
+Drivers act as the bridge between ObjectStack's database-agnostic Data Protocol and specific database implementations. Each driver implements a standard interface, allowing you to switch databases without changing your business logic.
+
+<Cards>
+  <Card
+    icon={<HardDrive />}
+    title="Multi-Database Support"
+    description="PostgreSQL, MongoDB, SQLite, MySQL, Redis, and more."
+  />
+  <Card
+    icon={<Plug />}
+    title="Standard Interface"
+    description="All drivers implement the same DriverInterface contract."
+  />
+  <Card
+    icon={<Zap />}
+    title="Query Compilation"
+    description="Translates Data Protocol queries to native database queries."
+  />
+  <Card
+    icon={<Code />}
+    title="Extensible"
+    description="Create custom drivers for any data source."
+  />
+</Cards>
+
+## Key Concepts
+
+### 1. Driver Interface
+
+All drivers must implement the `DriverInterface`:
+
+```typescript
+import { Driver } from '@objectstack/spec';
+
+interface DriverInterface {
+  // Connection Management
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
+  
+  // CRUD Operations
+  create(object: string, data: Record<string, any>): Promise<any>;
+  find(object: string, query: Query): Promise<any[]>;
+  findOne(object: string, id: string): Promise<any>;
+  update(object: string, id: string, data: Record<string, any>): Promise<any>;
+  delete(object: string, id: string): Promise<void>;
+  
+  // Bulk Operations
+  bulkCreate(object: string, records: Record<string, any>[]): Promise<any[]>;
+  bulkUpdate(object: string, updates: Array<{id: string, data: any}>): Promise<any[]>;
+  bulkDelete(object: string, ids: string[]): Promise<void>;
+  
+  // Schema Management
+  createTable(object: ObjectSchema): Promise<void>;
+  alterTable(object: ObjectSchema): Promise<void>;
+  dropTable(object: string): Promise<void>;
+  
+  // Capabilities
+  getCapabilities(): DriverCapabilities;
+}
+```
+
+### 2. Driver Capabilities
+
+Each driver declares its capabilities:
+
+```typescript
+const capabilities: Driver.DriverCapabilities = {
+  // Query Features
+  queryFilters: ['equals', 'notEquals', 'in', 'greaterThan', 'lessThan', 'like'],
+  queryAggregations: ['sum', 'avg', 'count', 'min', 'max'],
+  querySorting: true,
+  queryPagination: true,
+  queryJoins: true,
+  queryWindowFunctions: false,
+  querySubqueries: true,
+  
+  // Transaction Support
+  transactions: true,
+  nestedTransactions: false,
+  
+  // Schema Features
+  alterSchema: true,
+  foreignKeys: true,
+  indexes: true,
+  fullTextSearch: true,
+  
+  // Data Types
+  supportedFieldTypes: ['text', 'number', 'boolean', 'date', 'datetime', 'json']
+};
+```
+
+### 3. Built-in Drivers
+
+ObjectStack provides official drivers for common databases:
+
+**SQL Databases:**
+- `@objectstack/driver-postgres` - PostgreSQL 12+
+- `@objectstack/driver-mysql` - MySQL 8+
+- `@objectstack/driver-sqlite` - SQLite 3+
+
+**NoSQL Databases:**
+- `@objectstack/driver-mongodb` - MongoDB 5+
+- `@objectstack/driver-redis` - Redis (key-value storage)
+
+**Cloud Databases:**
+- `@objectstack/driver-planetscale` - PlanetScale MySQL
+- `@objectstack/driver-neon` - Neon Postgres
+- `@objectstack/driver-supabase` - Supabase Postgres
+
+**Special Drivers:**
+- `@objectstack/driver-memory` - In-memory storage (testing)
+- `@objectstack/driver-excel` - Excel files as database
+- `@objectstack/driver-airtable` - Airtable as backend
+
+## Configuration
+
+### PostgreSQL Example
+
+```typescript
+import { Driver } from '@objectstack/spec';
+
+const datasource: Driver.Datasource = {
+  name: 'main_db',
+  driver: 'postgres',
+  config: {
+    host: 'localhost',
+    port: 5432,
+    database: 'my_app',
+    user: 'admin',
+    password: process.env.DB_PASSWORD,
+    ssl: true,
+    pool: {
+      min: 2,
+      max: 10
+    }
+  }
+};
+```
+
+### MongoDB Example
+
+```typescript
+const datasource: Driver.Datasource = {
+  name: 'documents_db',
+  driver: 'mongodb',
+  config: {
+    url: 'mongodb://localhost:27017',
+    database: 'my_app',
+    options: {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    }
+  }
+};
+```
+
+## Creating Custom Drivers
+
+You can create custom drivers for any data source:
+
+```typescript
+import { DriverInterface, Query } from '@objectstack/spec/driver';
+
+export class CustomDriver implements DriverInterface {
+  async connect(): Promise<void> {
+    // Initialize connection
+  }
+  
+  async find(object: string, query: Query): Promise<any[]> {
+    // 1. Translate query AST to native format
+    const nativeQuery = this.compileQuery(query);
+    
+    // 2. Execute query
+    const results = await this.executeQuery(nativeQuery);
+    
+    // 3. Transform results to standard format
+    return this.transformResults(results);
+  }
+  
+  private compileQuery(query: Query): any {
+    // Your database-specific query compilation logic
+  }
+  
+  getCapabilities(): DriverCapabilities {
+    return {
+      queryFilters: ['equals', 'in'],
+      queryAggregations: [],
+      querySorting: true,
+      queryPagination: true,
+      // ... other capabilities
+    };
+  }
+}
+```
+
+## Query Compilation
+
+Drivers compile Data Protocol queries to database-specific syntax:
+
+**Input (Data Protocol Query):**
+```typescript
+{
+  object: 'account',
+  fields: ['name', 'industry'],
+  filters: {
+    and: [
+      { field: 'industry', operator: 'equals', value: 'technology' },
+      { field: 'annual_revenue', operator: 'greaterThan', value: 1000000 }
+    ]
+  },
+  sort: [{ field: 'name', direction: 'asc' }],
+  limit: 10
+}
+```
+
+**Output (PostgreSQL):**
+```sql
+SELECT name, industry 
+FROM account 
+WHERE industry = 'technology' 
+  AND annual_revenue > 1000000 
+ORDER BY name ASC 
+LIMIT 10;
+```
+
+**Output (MongoDB):**
+```javascript
+db.account.find(
+  {
+    industry: 'technology',
+    annual_revenue: { $gt: 1000000 }
+  },
+  { name: 1, industry: 1 }
+)
+.sort({ name: 1 })
+.limit(10);
+```
+
+## Best Practices
+
+1. **Declare accurate capabilities** - Don't claim support for features you don't implement
+2. **Handle connection pooling** - Reuse connections for better performance
+3. **Implement transactions properly** - Ensure ACID compliance where possible
+4. **Optimize query compilation** - Cache compiled queries when safe
+5. **Provide meaningful error messages** - Help developers debug issues
+6. **Support batch operations** - Implement bulkCreate/bulkUpdate for efficiency
+
+## Testing Drivers
+
+Use the Technology Compatibility Kit (TCK) to validate your driver:
+
+```bash
+pnpm test:tck --driver=your-custom-driver
+```
+
+The TCK verifies:
+- CRUD operations
+- Query filtering
+- Sorting and pagination
+- Transaction support
+- Schema management
+
+## Learn More
+
+- [Custom Driver Guide](/docs/guides/custom-driver)
+- [Driver Interface Reference](/docs/references/driver/driver/DriverInterface)
+- [Datasource Configuration](/docs/references/driver/datasource/Datasource)
+- [PostgreSQL Driver](/docs/references/driver/postgres/PostgresConfig)

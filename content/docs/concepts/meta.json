@@ -5,6 +5,22 @@
     "manifesto",
     "core-values",
     "architecture",
+    {
+      "title": "Protocol Namespaces",
+      "pages": [
+        "protocol-data",
+        "protocol-driver",
+        "protocol-permission",
+        "protocol-ui",
+        "protocol-system",
+        "protocol-auth",
+        "protocol-kernel",
+        "protocol-hub",
+        "protocol-ai",
+        "protocol-api",
+        "protocol-automation"
+      ]
+    },
     "plugin-architecture",
     "security_architecture",
     "enterprise-patterns",

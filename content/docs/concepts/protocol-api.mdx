@@ -1,0 +1,142 @@
+---
+title: API Protocol
+description: REST contracts, API discovery, realtime subscriptions, and routing configuration.
+---
+
+import { Wifi, Code, Zap, Map } from 'lucide-react';
+
+# API Protocol
+
+The **API Protocol** defines external communication interfaces including REST contracts, API discovery, realtime subscriptions via WebSocket/SSE, and routing configuration.
+
+## Overview
+
+<Cards>
+  <Card
+    icon={<Code />}
+    title="REST Contracts"
+    description="Standard request/response envelopes for CRUD operations."
+  />
+  <Card
+    icon={<Map />}
+    title="API Discovery"
+    description="Self-documenting APIs with metadata introspection."
+  />
+  <Card
+    icon={<Wifi />}
+    title="Realtime Subscriptions"
+    description="WebSocket and Server-Sent Events for live updates."
+  />
+  <Card
+    icon={<Zap />}
+    title="Routing & Rate Limiting"
+    description="Route definitions and API throttling."
+  />
+</Cards>
+
+## Key Components
+
+### 1. REST Contracts
+
+```typescript
+import { API } from '@objectstack/spec';
+
+const createRequest: API.CreateRequest = {
+  object: 'account',
+  data: {
+    name: 'Acme Corp',
+    industry: 'Technology',
+    annual_revenue: 5000000
+  }
+};
+
+const response: API.SingleRecordResponse = {
+  success: true,
+  data: {
+    id: 'acc_123',
+    name: 'Acme Corp',
+    industry: 'Technology',
+    annual_revenue: 5000000,
+    created_at: '2024-01-15T10:30:00Z'
+  }
+};
+
+const listResponse: API.ListRecordResponse = {
+  success: true,
+  data: [/* records */],
+  pagination: {
+    page: 1,
+    perPage: 25,
+    total: 150
+  }
+};
+```
+
+### 2. API Discovery
+
+```typescript
+const discovery: API.Discovery = {
+  objects: [
+    {
+      name: 'account',
+      label: 'Account',
+      endpoints: {
+        list: 'GET /api/data/account',
+        create: 'POST /api/data/account',
+        get: 'GET /api/data/account/:id',
+        update: 'PATCH /api/data/account/:id',
+        delete: 'DELETE /api/data/account/:id'
+      }
+    }
+  ],
+  capabilities: {
+    bulkOperations: true,
+    graphql: true,
+    webhooks: true,
+    realtime: true
+  }
+};
+```
+
+### 3. Realtime Subscriptions
+
+```typescript
+const subscription: API.Subscription = {
+  channel: 'account.created',
+  filters: {
+    field: 'industry',
+    operator: 'equals',
+    value: 'Technology'
+  },
+  protocol: 'websocket'  // websocket | sse
+};
+
+const realtimeEvent: API.RealtimeEvent = {
+  type: 'record.created',
+  object: 'account',
+  recordId: 'acc_123',
+  data: {/* record data */},
+  timestamp: '2024-01-15T10:30:00Z'
+};
+```
+
+### 4. Routing
+
+```typescript
+const route: API.RouteDefinition = {
+  path: '/api/custom/convert-lead',
+  method: 'POST',
+  category: 'custom',
+  rateLimit: {
+    windowMs: 60000,  // 1 minute
+    maxRequests: 10
+  },
+  authentication: 'required'
+};
+```
+
+## Learn More
+
+- [API Contract Reference](/docs/references/api/contract/BaseResponse)
+- [Discovery Reference](/docs/references/api/discovery/Discovery)
+- [Realtime Events](/docs/references/api/realtime/RealtimeEvent)

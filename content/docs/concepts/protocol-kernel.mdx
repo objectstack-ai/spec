@@ -1,0 +1,186 @@
+---
+title: Kernel Protocol
+description: Plugin system, manifest definitions, lifecycle management, and runtime context for ObjectStack extensions.
+---
+
+import { Box, FileCode, Play, Settings } from 'lucide-react';
+
+# Kernel Protocol
+
+The **Kernel Protocol** defines the plugin system and runtime management for ObjectStack. It enables a microkernel architecture where the core platform provides minimal runtime, while all capabilities are delivered as plugins.
+
+## Overview
+
+<Cards>
+  <Card
+    icon={<Box />}
+    title="Plugin Lifecycle"
+    description="Install, enable, disable, and uninstall plugins with hooks."
+  />
+  <Card
+    icon={<FileCode />}
+    title="Manifest Definition"
+    description="Package metadata, dependencies, and contributions."
+  />
+  <Card
+    icon={<Settings />}
+    title="Runtime Context"
+    description="Access to logger, storage, ObjectQL, and system APIs."
+  />
+  <Card
+    icon={<Play />}
+    title="Extension Points"
+    description="Register new metadata kinds, routes, and services."
+  />
+</Cards>
+
+## Key Components
+
+### 1. Manifest
+
+```typescript
+import { Kernel } from '@objectstack/spec';
+
+const manifest: Kernel.Manifest = {
+  id: 'com.vendor.sales',
+  version: '1.0.0',
+  name: 'Sales CRM',
+  description: 'Complete sales management solution',
+  
+  // Dependencies
+  dependencies: {
+    '@objectstack/core': '^2.0.0',
+    'com.vendor.calendar': '>=1.5.0'
+  },
+  
+  // Configuration schema
+  configuration: {
+    apiKey: { type: 'string', secret: true },
+    enableNotifications: { type: 'boolean', default: true }
+  },
+  
+  // What this plugin provides
+  contributes: {
+    objects: ['account', 'opportunity', 'lead'],
+    views: ['sales_dashboard', 'pipeline_kanban'],
+    actions: ['convert_lead', 'close_opportunity']
+  }
+};
+```
+
+### 2. Plugin Lifecycle
+
+```typescript
+import { Kernel } from '@objectstack/spec';
+
+const plugin: Kernel.Plugin = {
+  id: 'com.vendor.sales',
+  
+  async onInstall(context) {
+    // Run migrations, setup initial data
+    await context.ql.object('account').createTable();
+  },
+  
+  async onEnable(context) {
+    // Register routes, start services
+    context.router.post('/api/convert-lead', handleConvertLead);
+    context.logger.info('Sales plugin enabled');
+  },
+  
+  async onDisable(context) {
+    // Cleanup, stop background jobs
+    await context.scheduler.stopAll();
+  },
+  
+  async onUninstall(context) {
+    // Drop tables, remove data (optional)
+    await context.ql.object('account').dropTable();
+  }
+};
+```
+
+### 3. Plugin Context
+
+The runtime provides rich context to plugins:
+
+```typescript
+const context: Kernel.PluginContext = {
+  // Logging
+  logger: {
+    info(message: string, meta?: any): void,
+    warn(message: string, meta?: any): void,
+    error(message: string, error?: Error): void
+  },
+  
+  // Data access
+  ql: ObjectQLClient,  // Query and modify data
+  
+  // HTTP routing
+  router: Router,  // Register API endpoints
+  
+  // Background jobs
+  scheduler: Scheduler,  // Schedule cron jobs
+  
+  // Key-value storage (scoped to plugin)
+  storage: ScopedStorage,
+  
+  // Internationalization
+  i18n: I18nContext,
+  
+  // System APIs
+  system: SystemAPI  // Events, audit, etc.
+};
+```
+
+### 4. Logger Configuration
+
+```typescript
+const loggerConfig: Kernel.LoggerConfig = {
+  level: 'info',  // debug | info | warn | error
+  format: 'json',  // json | text
+  destination: 'stdout',  // stdout | file | http
+  
+  // File output
+  file: {
+    path: '/var/log/objectstack/app.log',
+    maxSize: '10M',
+    maxFiles: 5,
+    compress: true
+  }
+};
+```
+
+### 5. Scoped Storage
+
+Plugins get isolated key-value storage:
+
+```typescript
+// Plugin-scoped storage
+await context.storage.set('last_sync', Date.now());
+const lastSync = await context.storage.get('last_sync');
+
+await context.storage.delete('temp_data');
+
+// List all keys
+const keys = await context.storage.keys();
+
+// Storage scopes
+const userScope = context.storage.scope('user', userId);
+await userScope.set('preferences', { theme: 'dark' });
+```
+
+## Best Practices
+
+1. **Declare accurate dependencies** - List all required plugins
+2. **Handle lifecycle gracefully** - Clean up resources in onDisable
+3. **Use scoped storage** - Don't pollute global state
+4. **Log appropriately** - Use correct log levels
+5. **Version your plugin** - Follow semantic versioning
+6. **Document configuration** - Provide schema for settings
+
+## Learn More
+
+- [Plugin Architecture](/docs/concepts/plugin-architecture)
+- [Manifest Reference](/docs/references/kernel/manifest/Manifest)
+- [Plugin Context Reference](/docs/references/kernel/plugin/PluginContext)
+- [Logger Configuration](/docs/references/kernel/logger/LoggerConfig)

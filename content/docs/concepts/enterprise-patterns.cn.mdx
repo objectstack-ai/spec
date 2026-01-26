@@ -25,7 +25,7 @@ if (order.status === 'draft' && user.role === 'manager') {
 ```
 
 ### ObjectStack 模式
-我们将生命周期定义为 ObjectOS 协议中的**有限状态机（FSM）**。这使业务流程具有确定性和可视化。
+我们将生命周期定义为自动化协议（工作流）中的**有限状态机（FSM）**。这使业务流程具有确定性和可视化。
 
 ```yaml
 # workflows/purchase_order.yaml
@@ -55,7 +55,7 @@ ERP 系统通常需要"主-明细"数学。*示例：订单的总额是其行项
 在每个报表中手动编写 SQL `SUM()` 查询，或使用难以调试的数据库触发器。
 
 ### ObjectStack 模式
-我们在对象协议中定义**汇总字段**。ObjectQL 编译器处理底层复杂性（通过实时 `JOIN` 或后台聚合）。
+我们在数据协议（对象 schema）中定义**汇总字段**。数据层编译器处理底层复杂性（通过实时 `JOIN` 或后台聚合）。
 
 ```yaml
 # objects/order.yml
@@ -82,7 +82,7 @@ fields:
     reference_to: ['lead', 'contact', 'account', 'opportunity']
 ```
 
-这指示 ObjectQL 编译器生成必要的多态键（例如，`related_to_id` 和 `related_to_type` 列）。
+这指示数据层编译器生成必要的多态键（例如，`related_to_id` 和 `related_to_type` 列）。
 
 ## 总结
 

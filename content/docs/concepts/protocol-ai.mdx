@@ -1,0 +1,154 @@
+---
+title: AI Protocol
+description: AI agents, RAG pipelines, natural language queries, predictive models, and cost tracking.
+---
+
+import { Brain, Search, MessageSquare, TrendingUp } from 'lucide-react';
+
+# AI Protocol
+
+The **AI Protocol** integrates artificial intelligence capabilities including AI agents, RAG (Retrieval-Augmented Generation) pipelines, natural language querying, and predictive analytics.
+
+## Overview
+
+<Cards>
+  <Card
+    icon={<Brain />}
+    title="AI Agents"
+    description="Autonomous agents with tools, knowledge bases, and orchestration."
+  />
+  <Card
+    icon={<Search />}
+    title="RAG Pipelines"
+    description="Vector search, embeddings, and retrieval-augmented generation."
+  />
+  <Card
+    icon={<MessageSquare />}
+    title="Natural Language Query"
+    description="Convert natural language to ObjectQL queries."
+  />
+  <Card
+    icon={<TrendingUp />}
+    title="Predictive Models"
+    description="Train and deploy ML models on your data."
+  />
+</Cards>
+
+## Key Components
+
+### 1. AI Agent
+
+```typescript
+import { AI } from '@objectstack/spec';
+
+const agent: AI.Agent = {
+  name: 'sales_assistant',
+  model: {
+    provider: 'openai',
+    model: 'gpt-4',
+    temperature: 0.7
+  },
+  tools: [
+    {
+      name: 'search_accounts',
+      description: 'Search for accounts in CRM',
+      schema: { /* parameters */ }
+    },
+    {
+      name: 'create_opportunity',
+      description: 'Create a new sales opportunity',
+      schema: { /* parameters */ }
+    }
+  ],
+  knowledge: [
+    {
+      type: 'object',
+      object: 'account',
+      fields: ['name', 'industry', 'annual_revenue']
+    },
+    {
+      type: 'document',
+      source: 's3://docs/sales-playbook.pdf'
+    }
+  ]
+};
+```
+
+### 2. RAG Pipeline
+
+```typescript
+const ragPipeline: AI.RAGPipelineConfig = {
+  name: 'product_docs_qa',
+  embeddingModel: {
+    provider: 'openai',
+    model: 'text-embedding-3-small'
+  },
+  vectorStore: {
+    provider: 'pinecone',
+    index: 'product-docs',
+    dimension: 1536
+  },
+  chunkingStrategy: {
+    type: 'recursive',
+    chunkSize: 1000,
+    overlap: 200
+  },
+  retrievalStrategy: {
+    type: 'similarity',
+    topK: 5,
+    threshold: 0.7
+  }
+};
+```
+
+### 3. Natural Language Query
+
+```typescript
+const nlqRequest: AI.NLQRequest = {
+  query: "Show me all accounts in California with revenue over $1M",
+  context: {
+    object: 'account',
+    userId: 'user_123'
+  }
+};
+
+const nlqResponse: AI.NLQResponse = {
+  parsedQuery: {
+    object: 'account',
+    filters: [
+      { field: 'billing_state', operator: 'equals', value: 'CA' },
+      { field: 'annual_revenue', operator: 'greaterThan', value: 1000000 }
+    ]
+  },
+  confidence: 0.95,
+  results: [/* ... */]
+};
+```
+
+### 4. Predictive Model
+
+```typescript
+const model: AI.PredictiveModel = {
+  name: 'churn_prediction',
+  type: 'classification',
+  features: [
+    { field: 'account.last_activity_days', type: 'numeric' },
+    { field: 'account.support_tickets_count', type: 'numeric' },
+    { field: 'account.contract_renewal_date', type: 'date' }
+  ],
+  trainingConfig: {
+    algorithm: 'random_forest',
+    testSize: 0.2,
+    hyperparameters: {
+      n_estimators: 100,
+      max_depth: 10
+    }
+  }
+};
+```
+
+## Learn More
+
+- [Agent Reference](/docs/references/ai/agent/Agent)
+- [RAG Pipeline](/docs/references/ai/rag-pipeline/RAGPipelineConfig)
+- [NLQ Configuration](/docs/references/ai/nlq/NLQRequest)

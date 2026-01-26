@@ -1,0 +1,254 @@
+---
+title: Auth Protocol
+description: Identity and access management with multiple authentication strategies, roles, and organization management.
+---
+
+import { User, Key, Shield, Building } from 'lucide-react';
+
+# Auth Protocol
+
+The **Auth Protocol** manages identity, authentication, sessions, roles, and organization structure. It supports multiple authentication strategies including OAuth, SAML, LDAP, and passwordless authentication.
+
+## Overview
+
+The Auth Protocol provides comprehensive identity and access management (IAM) capabilities for enterprise applications.
+
+<Cards>
+  <Card
+    icon={<User />}
+    title="Identity Management"
+    description="User accounts, sessions, and verification tokens."
+  />
+  <Card
+    icon={<Key />}
+    title="Authentication Strategies"
+    description="OAuth, SAML, LDAP, magic links, passkeys, and 2FA."
+  />
+  <Card
+    icon={<Shield />}
+    title="Role-Based Access"
+    description="Roles, permission sets, and hierarchical access control."
+  />
+  <Card
+    icon={<Building />}
+    title="Organizations"
+    description="Multi-tenant organizations with members and invitations."
+  />
+</Cards>
+
+## Key Components
+
+### 1. User Identity
+
+```typescript
+import { Auth } from '@objectstack/spec';
+
+const user: Auth.User = {
+  id: 'user_123',
+  email: 'john.doe@example.com',
+  name: 'John Doe',
+  emailVerified: true,
+  image: 'https://example.com/avatar.jpg',
+  
+  // Optional fields
+  phone: '+1-555-0123',
+  phoneVerified: false,
+  
+  // Metadata
+  createdAt: '2024-01-01T00:00:00Z',
+  updatedAt: '2024-01-15T10:30:00Z',
+  lastLoginAt: '2024-01-15T08:00:00Z'
+};
+```
+
+### 2. Authentication Strategies
+
+**OAuth Configuration:**
+```typescript
+const oauthConfig: Auth.OAuthProvider = {
+  id: 'google',
+  name: 'Google',
+  type: 'oauth',
+  clientId: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+  tokenUrl: 'https://oauth2.googleapis.com/token',
+  scope: ['openid', 'email', 'profile']
+};
+```
+
+**SAML Configuration:**
+```typescript
+const samlConfig: Auth.SAMLConfig = {
+  enabled: true,
+  entryPoint: 'https://idp.example.com/saml/sso',
+  issuer: 'https://app.example.com',
+  cert: process.env.SAML_CERT,
+  signatureAlgorithm: 'sha256'
+};
+```
+
+**Magic Link (Passwordless):**
+```typescript
+const magicLinkConfig: Auth.MagicLinkConfig = {
+  enabled: true,
+  tokenExpiry: 900, // 15 minutes
+  sendEmail: {
+    from: 'noreply@example.com',
+    subject: 'Your login link',
+    template: 'magic-link'
+  }
+};
+```
+
+**Two-Factor Authentication:**
+```typescript
+const twoFactorConfig: Auth.TwoFactorConfig = {
+  enabled: true,
+  methods: ['totp', 'sms', 'email'],
+  required: false, // Optional or enforced
+  backupCodes: {
+    enabled: true,
+    count: 10
+  }
+};
+```
+
+### 3. Sessions
+
+```typescript
+const session: Auth.Session = {
+  id: 'sess_abc123',
+  userId: 'user_123',
+  token: 'jwt_token_here',
+  expiresAt: '2024-01-16T10:30:00Z',
+  
+  // Session metadata
+  ipAddress: '192.168.1.100',
+  userAgent: 'Mozilla/5.0...',
+  device: 'Desktop - Chrome',
+  
+  // Security
+  mfaVerified: true,
+  lastActivity: '2024-01-15T10:25:00Z'
+};
+```
+
+### 4. Roles
+
+```typescript
+const role: Auth.Role = {
+  id: 'role_sales_manager',
+  name: 'Sales Manager',
+  description: 'Full access to sales data',
+  
+  // Parent role (for hierarchy)
+  parentRole: 'role_sales_rep',
+  
+  // Permissions
+  permissions: [
+    'account.read',
+    'account.create',
+    'account.update',
+    'opportunity.read',
+    'opportunity.create',
+    'opportunity.update',
+    'opportunity.delete'
+  ]
+};
+```
+
+### 5. Organizations
+
+```typescript
+const organization: Auth.Organization = {
+  id: 'org_123',
+  name: 'Acme Corporation',
+  slug: 'acme-corp',
+  
+  // Branding
+  logo: 'https://example.com/logo.png',
+  domain: 'acme.com',
+  
+  // Settings
+  settings: {
+    allowSelfSignup: false,
+    defaultRole: 'role_member',
+    mfaRequired: true
+  }
+};
+
+const member: Auth.Member = {
+  userId: 'user_456',
+  organizationId: 'org_123',
+  role: 'role_admin',
+  joinedAt: '2024-01-01T00:00:00Z',
+  status: 'active'
+};
+
+const invitation: Auth.Invitation = {
+  id: 'inv_789',
+  email: 'newuser@example.com',
+  organizationId: 'org_123',
+  role: 'role_member',
+  invitedBy: 'user_123',
+  status: 'pending',
+  expiresAt: '2024-01-22T00:00:00Z'
+};
+```
+
+## Security Policies
+
+### Password Policy
+
+```typescript
+const passwordPolicy: Auth.PasswordPolicy = {
+  minLength: 12,
+  requireUppercase: true,
+  requireLowercase: true,
+  requireNumbers: true,
+  requireSpecialChars: true,
+  preventReuse: 5, // Can't reuse last 5 passwords
+  maxAge: 90 // Force change every 90 days
+};
+```
+
+### Session Policy
+
+```typescript
+const sessionPolicy: Auth.SessionPolicy = {
+  maxDuration: 28800, // 8 hours
+  idleTimeout: 3600, // 1 hour
+  maxConcurrentSessions: 3,
+  requireMfaForSensitiveActions: true
+};
+```
+
+### Network Policy
+
+```typescript
+const networkPolicy: Auth.NetworkPolicy = {
+  allowedIpRanges: [
+    '192.168.1.0/24',
+    '10.0.0.0/8'
+  ],
+  blockedCountries: ['XX', 'YY'],
+  requireMfaOutsideNetwork: true
+};
+```
+
+## Best Practices
+
+1. **Enable MFA for privileged accounts** - Protect admin and finance users
+2. **Use SSO for enterprises** - SAML/OAuth for better security
+3. **Implement session timeouts** - Reduce risk of session hijacking
+4. **Audit authentication events** - Track login attempts and failures
+5. **Rotate secrets regularly** - Change OAuth secrets periodically
+6. **Use short-lived tokens** - JWT tokens should expire quickly
+
+## Learn More
+
+- [User Reference](/docs/references/auth/identity/User)
+- [Authentication Config](/docs/references/auth/config/AuthConfig)
+- [Role Management](/docs/references/auth/role/Role)
+- [Organization Reference](/docs/references/auth/organization/Organization)

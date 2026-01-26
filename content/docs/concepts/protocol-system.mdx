@@ -1,0 +1,431 @@
+---
+title: System Protocol
+description: Infrastructure services including event bus, job scheduling, translations, and audit logging.
+---
+
+import { Zap, Clock, Globe, FileText } from 'lucide-react';
+
+# System Protocol
+
+The **System Protocol** provides core infrastructure services that support the ObjectStack runtime. It includes event management, background job scheduling, internationalization (i18n), and audit logging.
+
+## Overview
+
+The System Protocol handles system-level concerns that are essential for enterprise applications but separate from business logic.
+
+<Cards>
+  <Card
+    icon={<Zap />}
+    title="Event Bus"
+    description="Pub/sub event system for decoupled component communication."
+  />
+  <Card
+    icon={<Clock />}
+    title="Job Scheduler"
+    description="Cron-based and interval-based background job execution."
+  />
+  <Card
+    icon={<Globe />}
+    title="Translations (i18n)"
+    description="Multi-language support with translation bundles."
+  />
+  <Card
+    icon={<FileText />}
+    title="Audit Logging"
+    description="Comprehensive audit trails for compliance and security."
+  />
+</Cards>
+
+## Key Components
+
+### 1. Event Bus
+
+The event bus enables loose coupling between components:
+
+```typescript
+import { System } from '@objectstack/spec';
+
+const event: System.Event = {
+  name: 'account.created',
+  namespace: 'crm',
+  payload: {
+    accountId: '123',
+    accountName: 'Acme Corp',
+    createdBy: 'user_456'
+  },
+  metadata: {
+    timestamp: '2024-01-15T10:30:00Z',
+    source: 'api',
+    correlationId: 'req_789'
+  }
+};
+```
+
+**Event Handler:**
+```typescript
+const handler: System.EventHandler = {
+  name: 'send_welcome_email',
+  event: 'account.created',
+  action: {
+    type: 'http',
+    url: '/api/emails/send-welcome',
+    method: 'POST'
+  },
+  filter: {
+    field: 'payload.accountType',
+    operator: 'equals',
+    value: 'Enterprise'
+  }
+};
+```
+
+**Event Routes:**
+```typescript
+const route: System.EventRoute = {
+  source: 'crm.account.*',  // Wildcard pattern
+  destinations: [
+    {
+      type: 'webhook',
+      url: 'https://analytics.example.com/events'
+    },
+    {
+      type: 'queue',
+      queueName: 'email_queue'
+    }
+  ]
+};
+```
+
+### 2. Job Scheduler
+
+Schedule background jobs with cron or interval patterns:
+
+```typescript
+const job: System.Job = {
+  name: 'daily_sales_report',
+  schedule: {
+    type: 'cron',
+    expression: '0 9 * * *',  // Every day at 9 AM
+    timezone: 'America/New_York'
+  },
+  action: {
+    type: 'script',
+    script: 'generate-sales-report',
+    params: {
+      reportType: 'daily'
+    }
+  },
+  retryPolicy: {
+    maxAttempts: 3,
+    backoffType: 'exponential',
+    initialDelay: 60  // seconds
+  }
+};
+```
+
+**Interval Schedule:**
+```typescript
+const cleanupJob: System.Job = {
+  name: 'cleanup_temp_files',
+  schedule: {
+    type: 'interval',
+    interval: 3600,  // Every hour
+    unit: 'seconds'
+  },
+  action: {
+    type: 'script',
+    script: 'cleanup-temp-files'
+  }
+};
+```
+
+**One-Time Schedule:**
+```typescript
+const migrationJob: System.Job = {
+  name: 'data_migration_v2',
+  schedule: {
+    type: 'once',
+    runAt: '2024-02-01T02:00:00Z'
+  },
+  action: {
+    type: 'script',
+    script: 'migrate-to-v2'
+  }
+};
+```
+
+### 3. Translations (i18n)
+
+Support multiple languages with translation bundles:
+
+```typescript
+const translations: System.TranslationBundle = {
+  locale: 'en_US',
+  namespace: 'crm',
+  translations: {
+    'account.label': 'Account',
+    'account.label_plural': 'Accounts',
+    'account.fields.name': 'Account Name',
+    'account.fields.industry': 'Industry',
+    'account.actions.new': 'New Account',
+    'account.messages.created': 'Account created successfully',
+    'account.validation.name_required': 'Account name is required'
+  }
+};
+```
+
+**Translation Data Structure:**
+```typescript
+const translationData: System.TranslationData = {
+  // Keyed by locale
+  'en_US': {
+    'common.save': 'Save',
+    'common.cancel': 'Cancel',
+    'common.delete': 'Delete'
+  },
+  'zh_CN': {
+    'common.save': '保存',
+    'common.cancel': '取消',
+    'common.delete': '删除'
+  },
+  'es_ES': {
+    'common.save': 'Guardar',
+    'common.cancel': 'Cancelar',
+    'common.delete': 'Eliminar'
+  }
+};
+```
+
+**Locale Configuration:**
+```typescript
+const locale: System.Locale = {
+  code: 'en_US',
+  language: 'en',
+  country: 'US',
+  name: 'English (United States)',
+  dateFormat: 'MM/DD/YYYY',
+  timeFormat: 'hh:mm A',
+  currency: 'USD',
+  numberFormat: {
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    precision: 2
+  }
+};
+```
+
+### 4. Audit Logging
+
+Comprehensive audit trails for compliance:
+
+```typescript
+const auditConfig: System.AuditConfig = {
+  enabled: true,
+  
+  // What to audit
+  events: [
+    'record.created',
+    'record.updated',
+    'record.deleted',
+    'user.login',
+    'user.logout',
+    'permission.changed'
+  ],
+  
+  // What data to capture
+  captureFields: true,
+  captureOldValues: true,
+  captureNewValues: true,
+  
+  // Retention policy
+  retentionPolicy: {
+    type: 'time_based',
+    duration: 2555,  // 7 years in days
+    unit: 'days'
+  },
+  
+  // Storage configuration
+  storage: {
+    type: 'database',
+    compressed: true,
+    encrypted: true
+  }
+};
+```
+
+**Audit Event Structure:**
+```typescript
+const auditEvent: System.AuditEvent = {
+  id: 'audit_123',
+  type: 'record.updated',
+  severity: 'info',
+  timestamp: '2024-01-15T10:30:00Z',
+  
+  // Actor (who did it)
+  actor: {
+    type: 'user',
+    id: 'user_456',
+    name: 'John Doe',
+    ipAddress: '192.168.1.100',
+    userAgent: 'Mozilla/5.0...'
+  },
+  
+  // Target (what was affected)
+  target: {
+    type: 'record',
+    object: 'account',
+    id: 'acc_789',
+    name: 'Acme Corp'
+  },
+  
+  // Changes
+  changes: [
+    {
+      field: 'annual_revenue',
+      oldValue: 1000000,
+      newValue: 1500000
+    },
+    {
+      field: 'industry',
+      oldValue: 'Technology',
+      newValue: 'Financial Services'
+    }
+  ],
+  
+  // Context
+  metadata: {
+    source: 'web_ui',
+    sessionId: 'sess_abc',
+    requestId: 'req_xyz'
+  }
+};
+```
+
+**Suspicious Activity Detection:**
+```typescript
+const suspiciousRule: System.SuspiciousActivityRule = {
+  name: 'multiple_failed_logins',
+  enabled: true,
+  
+  condition: {
+    eventType: 'user.login_failed',
+    threshold: 5,
+    timeWindow: 300  // 5 minutes
+  },
+  
+  action: {
+    type: 'alert',
+    severity: 'high',
+    notify: ['security@example.com'],
+    lockAccount: true
+  }
+};
+```
+
+## Use Cases
+
+### Event-Driven Architecture
+
+```typescript
+// Emit events when records change
+const recordCreatedEvent: System.Event = {
+  name: 'record.created',
+  payload: {
+    object: 'opportunity',
+    recordId: 'opp_123',
+    data: { /* record data */ }
+  }
+};
+
+// Multiple handlers react to the event
+const handlers = [
+  {
+    name: 'update_forecast',
+    event: 'record.created',
+    action: { type: 'script', script: 'update-forecast' }
+  },
+  {
+    name: 'notify_manager',
+    event: 'record.created',
+    action: { type: 'email', template: 'new-opportunity' }
+  },
+  {
+    name: 'log_to_analytics',
+    event: 'record.created',
+    action: { type: 'http', url: '/analytics/track' }
+  }
+];
+```
+
+### Scheduled Data Sync
+
+```typescript
+const syncJob: System.Job = {
+  name: 'sync_salesforce_data',
+  schedule: {
+    type: 'cron',
+    expression: '*/15 * * * *'  // Every 15 minutes
+  },
+  action: {
+    type: 'script',
+    script: 'sync-salesforce',
+    timeout: 600  // 10 minutes
+  }
+};
+```
+
+### Multi-Language Application
+
+```typescript
+// Define translations
+const translations = {
+  'en_US': {
+    'welcome': 'Welcome, {{name}}!',
+    'logout': 'Log Out'
+  },
+  'zh_CN': {
+    'welcome': '欢迎，{{name}}！',
+    'logout': '登出'
+  }
+};
+
+// Usage in UI
+t('welcome', { name: user.name });  // "Welcome, John!" or "欢迎，John！"
+```
+
+### Compliance Audit Trail
+
+```typescript
+// Track all changes to sensitive objects
+const auditConfig: System.AuditConfig = {
+  enabled: true,
+  objects: ['account', 'opportunity', 'contact'],
+  events: ['created', 'updated', 'deleted', 'viewed'],
+  captureOldValues: true,
+  captureNewValues: true,
+  
+  // Export for compliance
+  exportConfig: {
+    format: 'csv',
+    schedule: 'monthly',
+    destination: 's3://compliance-bucket/audit-logs/'
+  }
+};
+```
+
+## Best Practices
+
+1. **Use events for side effects** - Keep business logic clean by triggering side effects via events
+2. **Set job timeouts** - Prevent runaway background jobs
+3. **Implement retry policies** - Handle transient failures gracefully
+4. **Provide translations early** - Easier to add from the start than retrofit
+5. **Audit sensitive operations** - Track access to PII and financial data
+6. **Monitor event queue depth** - Ensure events are being processed
+7. **Use structured logging** - Make audit logs searchable
+
+## Learn More
+
+- [Event Reference](/docs/references/system/events/Event)
+- [Job Scheduler Reference](/docs/references/system/job/Job)
+- [Translation Guide](/docs/references/system/translation/TranslationBundle)
+- [Audit Configuration](/docs/references/system/audit/AuditConfig)
