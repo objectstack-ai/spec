@@ -110,10 +110,10 @@ export class InMemoryDriver implements DriverInterface {
     
     // COMPATIBILITY: Driver must return 'id' as string
     const newRecord = {
-      id: this.generateId(),
+      id: data.id || this.generateId(),
       ...data,
-      created_at: new Date(),
-      updated_at: new Date(),
+      created_at: data.created_at || new Date(),
+      updated_at: data.updated_at || new Date(),
     };
 
     table.push(newRecord);

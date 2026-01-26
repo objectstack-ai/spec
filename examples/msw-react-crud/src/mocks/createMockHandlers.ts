@@ -2,46 +2,37 @@
  * Auto-generate MSW handlers from ObjectStack configuration
  * 
  * This helper creates all necessary MSW handlers based on your
- * objectstack.config.ts without requiring the full runtime.
+ * objectstack.config.ts using the in-memory driver.
  */
 
 import { http, HttpResponse } from 'msw';
+import { InMemoryDriver } from '@objectstack/driver-memory';
 
-// Simple in-memory store
-const stores = new Map<string, Map<string, any>>();
-
-let idCounters = new Map<string, number>();
-
-function getStore(objectName: string): Map<string, any> {
-  if (!stores.has(objectName)) {
-    stores.set(objectName, new Map());
-  }
-  return stores.get(objectName)!;
-}
-
-function getNextId(objectName: string): string {
-  const current = idCounters.get(objectName) || 0;
-  const next = current + 1;
-  idCounters.set(objectName, next);
-  return String(next);
-}
+// Shared driver instance
+const driver = new InMemoryDriver();
+driver.connect();
 
 /**
  * Seed initial data for an object
  */
-export function seedData(objectName: string, records: any[]) {
-  const store = getStore(objectName);
-  records.forEach((record) => {
-    const id = record.id || getNextId(objectName);
-    store.set(id, { ...record, id });
-  });
+export async function seedData(objectName: string, records: any[]) {
+  // Ensure table exists
+  await driver.syncSchema(objectName, {});
   
-  // Initialize ID counter
-  const maxId = Math.max(
-    0,
-    ...Array.from(store.values()).map(r => parseInt(r.id) || 0)
-  );
-  idCounters.set(objectName, maxId);
+  // Get existing records to determine insert vs update
+  const existing = await driver.find(objectName, { object: objectName });
+  
+  for (const record of records) {
+    const id = record.id;
+    // Check if record exists by ID
+    const found = id ? existing.find((r: any) => r.id === id) : null;
+    
+    if (found) {
+      await driver.update(objectName, id, record);
+    } else {
+      await driver.create(objectName, record);
+    }
+  }
 }
 
 /**
@@ -64,9 +55,12 @@ export function createMockHandlers(baseUrl: string = '/api/v1', metadata: any = 
     }
   };
 
-  // Generate handlers for both correct paths and doubled paths (client compatibility)
-  const paths = [baseUrl, `${baseUrl}/api/v1`];
-  
+  // Generate handlers for both correct paths and potential variations
+  const paths = [baseUrl];
+  if (!baseUrl.endsWith('/api/v1')) {
+     paths.push(`${baseUrl}/api/v1`); // fallback compatibility
+  }
+
   const handlers = [];
   
   for (const path of paths) {
@@ -110,30 +104,34 @@ export function createMockHandlers(baseUrl: string = '/api/v1', metadata: any = 
       }),
 
       // Data: Find/List
-      http.get(`${path}/data/:object`, ({ params, request }) => {
+      http.get(`${path}/data/:object`, async ({ params, request }) => {
         const objectName = params.object as string;
-        const store = getStore(objectName);
         const url = new URL(request.url);
         
         const top = parseInt(url.searchParams.get('top') || '100');
         const skip = parseInt(url.searchParams.get('$skip') || '0');
         
-        const records = Array.from(store.values());
-        const paginatedRecords = records.slice(skip, skip + top);
+        // Fetch all and slice manually since driver lacks skip/filtering
+        await driver.syncSchema(objectName, {}); 
+        const allRecords = await driver.find(objectName, { object: objectName });
+        
+        const paginatedRecords = allRecords.slice(skip, skip + top);
         
         return HttpResponse.json({
           '@odata.context': `${baseUrl}/data/$metadata#${objectName}`,
           value: paginatedRecords,
-          count: records.length
+          count: allRecords.length
         });
       }),
 
       // Data: Get by ID
-      http.get(`${path}/data/:object/:id`, ({ params }) => {
+      http.get(`${path}/data/:object/:id`, async ({ params }) => {
         const objectName = params.object as string;
         const id = params.id as string;
-        const store = getStore(objectName);
-        const record = store.get(id);
+        
+        await driver.syncSchema(objectName, {});
+        const allRecords = await driver.find(objectName, { object: objectName });
+        const record = allRecords.find((r: any) => r.id === id);
         
         if (!record) {
           return HttpResponse.json({ error: 'Record not found' }, { status: 404 });
@@ -146,16 +144,9 @@ export function createMockHandlers(baseUrl: string = '/api/v1', metadata: any = 
       http.post(`${path}/data/:object`, async ({ params, request }) => {
         const objectName = params.object as string;
         const body = await request.json() as any;
-        const store = getStore(objectName);
         
-        const id = body.id || getNextId(objectName);
-        const newRecord = {
-          ...body,
-          id,
-          createdAt: body.createdAt || new Date().toISOString()
-        };
-        
-        store.set(id, newRecord);
+        await driver.syncSchema(objectName, {});
+        const newRecord = await driver.create(objectName, body);
         
         return HttpResponse.json(newRecord, { status: 201 });
       }),
@@ -165,30 +156,27 @@ export function createMockHandlers(baseUrl: string = '/api/v1', metadata: any = 
         const objectName = params.object as string;
         const id = params.id as string;
         const updates = await request.json() as any;
-        const store = getStore(objectName);
-        const record = store.get(id);
         
-        if (!record) {
-          return HttpResponse.json({ error: 'Record not found' }, { status: 404 });
+        try {
+            await driver.syncSchema(objectName, {});
+            const updatedRecord = await driver.update(objectName, id, updates);
+            return HttpResponse.json(updatedRecord);
+        } catch (e) {
+             return HttpResponse.json({ error: 'Record not found' }, { status: 404 });
         }
-        
-        const updatedRecord = { ...record, ...updates };
-        store.set(id, updatedRecord);
-        
-        return HttpResponse.json(updatedRecord);
       }),
 
       // Data: Delete
-      http.delete(`${path}/data/:object/:id`, ({ params }) => {
+      http.delete(`${path}/data/:object/:id`, async ({ params }) => {
         const objectName = params.object as string;
         const id = params.id as string;
-        const store = getStore(objectName);
         
-        if (!store.has(id)) {
+        await driver.syncSchema(objectName, {});
+        const success = await driver.delete(objectName, id);
+        
+        if (!success) {
           return HttpResponse.json({ error: 'Record not found' }, { status: 404 });
         }
-        
-        store.delete(id);
         
         return HttpResponse.json({ success: true }, { status: 204 });
       })
