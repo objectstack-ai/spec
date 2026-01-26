@@ -429,7 +429,7 @@ describe('Field Factory Helpers', () => {
       expect(selectField.type).toBe('select');
       expect(selectField.label).toBe('Priority');
       expect(selectField.options).toHaveLength(3);
-      expect(selectField.options[0]).toEqual({ label: 'High', value: 'High' });
+      expect(selectField.options[0]).toEqual({ label: 'High', value: 'high' });
     });
 
     it('should create select field with SelectOption array in config (new API)', () => {
@@ -461,8 +461,8 @@ describe('Field Factory Helpers', () => {
       expect(selectField.type).toBe('select');
       expect(selectField.options).toHaveLength(3);
       expect(selectField.options[0]).toEqual({ label: 'Active', value: 'active', color: '#00AA00' });
-      expect(selectField.options[1]).toEqual({ label: 'Inactive', value: 'Inactive' });
-      expect(selectField.options[2]).toEqual({ label: 'Pending', value: 'Pending' });
+      expect(selectField.options[1]).toEqual({ label: 'Inactive', value: 'inactive' });
+      expect(selectField.options[2]).toEqual({ label: 'Pending', value: 'pending' });
     });
   });
 

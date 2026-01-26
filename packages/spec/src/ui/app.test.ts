@@ -245,12 +245,12 @@ describe('AppSchema', () => {
   });
 
   it('should enforce snake_case for app name', () => {
-    const validNames = ['crm', 'sales_cloud', 'hr_portal', '_internal'];
+    const validNames = ['crm', 'sales_cloud', 'hr_portal'];
     validNames.forEach(name => {
       expect(() => AppSchema.parse({ name, label: 'Test', navigation: [] })).not.toThrow();
     });
 
-    const invalidNames = ['CRM', 'sales-cloud', 'SalesCloud', '123app'];
+    const invalidNames = ['CRM', 'sales-cloud', 'SalesCloud', '123app', '_internal'];
     invalidNames.forEach(name => {
       expect(() => AppSchema.parse({ name, label: 'Test', navigation: [] })).toThrow();
     });

@@ -42,6 +42,7 @@
 // ============================================================================
 // Export protocol domains as namespaces to prevent naming conflicts
 // and establish clear boundaries between different protocol layers.
+export * as Shared from './shared';
 export * as Data from './data';
 export * as Driver from './driver';
 export * as Permission from './permission';

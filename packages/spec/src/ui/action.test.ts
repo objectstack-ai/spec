@@ -54,12 +54,12 @@ describe('ActionSchema', () => {
     });
 
     it('should enforce snake_case for action name', () => {
-      const validNames = ['approve_record', 'send_email', 'close_case', '_internal'];
+      const validNames = ['approve_record', 'send_email', 'close_case'];
       validNames.forEach(name => {
         expect(() => ActionSchema.parse({ name, label: 'Test' })).not.toThrow();
       });
 
-      const invalidNames = ['approveRecord', 'Approve-Record', '123action'];
+      const invalidNames = ['approveRecord', 'Approve-Record', '123action', '_internal'];
       invalidNames.forEach(name => {
         expect(() => ActionSchema.parse({ name, label: 'Test' })).toThrow();
       });

@@ -527,7 +527,7 @@ describe('WorkflowRuleSchema', () => {
     });
 
     it('should enforce snake_case for workflow name', () => {
-      const validNames = ['auto_approve', 'send_notification', 'update_status', '_internal'];
+      const validNames = ['auto_approve', 'send_notification', 'update_status'];
       validNames.forEach(name => {
         expect(() => WorkflowRuleSchema.parse({
           name,
@@ -536,7 +536,7 @@ describe('WorkflowRuleSchema', () => {
         })).not.toThrow();
       });
 
-      const invalidNames = ['autoApprove', 'Auto-Approve', '123workflow'];
+      const invalidNames = ['autoApprove', 'Auto-Approve', '123workflow', '_internal'];
       invalidNames.forEach(name => {
         expect(() => WorkflowRuleSchema.parse({
           name,
