@@ -65,7 +65,30 @@ Responsible for rendering records. The specific `type` determines the Props cont
     ```
 *   **Required Types (Ref: `src/ui/view.zod.ts`):** `simple`, `tabbed`, `wizard`, `split`, `drawer`, `modal`.
 
-### C. Dashboard Widgets (`widget.*`)
+### D. Page Components (`page.*`)
+Reusable UI blocks for the Drag-and-Drop Page Builder.
+*   **Contract:** Must implement `PageComponentProps`.
+    ```typescript
+    type PageComponentProps = {
+      id: string;                 // Instance ID
+      type: string;               // Component Type Name
+      properties: Record<string, any>; // User Config
+      context?: {                 // Runtime Context
+        objectName?: string;
+        recordId?: string;
+      };
+    }
+    ```
+*   **Standard Components Library:**
+    *   **Structure:** `page.header`, `page.footer`, `page.sidebar`, `page.tabs`, `page.accordion`, `page.card`.
+    *   **Record Context:** 
+        *   `record.details` (The form), `record.highlights` (Key fields header).
+        *   `record.related_list` (Sub-grid), `record.activity` (Timeline).
+        *   `record.chatter` (Feed), `record.path` (Status Steps).
+    *   **Navigation:** `app.launcher`, `nav.menu`, `nav.breadcrumb`.
+    *   **Utility:** `global.search`, `global.notifications`, `user.profile`.
+
+### E. Dashboard Widgets (`widget.*`)
 Standalone cards placed on a dashboard grid.
 *   **Contract:** Must implement `DashboardWidgetProps` (Ref: `src/ui/dashboard.zod.ts`).
     ```typescript
