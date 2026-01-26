@@ -3,261 +3,132 @@ title: Data Protocol
 description: The foundation of ObjectStack - defining business data models, validation rules, and query language.
 ---
 
-import { Database, FileJson, Filter, CheckCircle } from 'lucide-react';
+import { Database, FileJson, Filter, CheckCircle, Target, Zap } from 'lucide-react';
 
 # Data Protocol
 
 The **Data Protocol** is the foundation of ObjectStack's data layer (ObjectQL). It defines the core business data model including object schemas, field types, validation rules, and the query language.
 
-## Overview
+## Why This Protocol Exists
 
-The Data Protocol provides a declarative way to define your business entities and their relationships. Instead of writing SQL CREATE TABLE statements or MongoDB schema validators, you define everything in a type-safe, database-agnostic format using Zod schemas.
+**Problem:** Traditional software development requires developers to manually write database schemas, validation logic, and query code for each database system. When business requirements change, developers must update schemas, migrate data, and modify countless SQL queries across the application. This creates:
+
+- **Vendor Lock-in:** Switching from PostgreSQL to MongoDB requires rewriting the entire data layer
+- **Inconsistent Validation:** Business rules scattered across frontend, backend, and database triggers
+- **Slow Iteration:** Schema changes require coordinated deployments and complex migration scripts
+- **Poor Developer Experience:** Writing boilerplate CRUD code instead of focusing on business logic
+
+**Solution:** The Data Protocol provides a **single source of truth** for your business data model. Define your entities once in a declarative, database-agnostic format, and ObjectStack automatically:
+- Generates database schemas for any supported backend (SQL, NoSQL, Graph, Time-series)
+- Enforces validation rules consistently across all layers
+- Migrates data when schemas evolve
+- Optimizes queries for the underlying database
+
+## Business Value Delivered
 
 <Cards>
   <Card
+    icon={<Zap />}
+    title="10x Faster Development"
+    description="No boilerplate CRUD code. Define objects declaratively and get REST APIs, UIs, and validation automatically."
+  />
+  <Card
     icon={<Database />}
-    title="Object Schema"
-    description="Define business entities with fields, capabilities, and metadata."
+    title="Database Portability"
+    description="Start with SQLite, scale to PostgreSQL, add MongoDB for documents—no code changes required."
   />
   <Card
-    icon={<FileJson />}
-    title="Field Types"
-    description="Rich field types: text, number, date, lookup, formula, and more."
-  />
-  <Card
-    icon={<Filter />}
-    title="Query AST"
-    description="Database-agnostic query language with filters, sorting, and joins."
+    icon={<Target />}
+    title="Business Logic as Data"
+    description="Business analysts can define fields and validation rules without developer intervention."
   />
   <Card
     icon={<CheckCircle />}
-    title="Validation Rules"
-    description="Business validation rules with custom error messages."
+    title="Zero Data Inconsistency"
+    description="Validation enforced at the protocol level prevents bad data at write time, not query time."
   />
 </Cards>
 
-## Key Components
+## What This Protocol Enables
 
-### 1. Object Definition
+### Business Entity Definition
+**Objects** are business entities like "Customer", "Order", "Invoice", "Project". Instead of writing CREATE TABLE statements, you define what the entity *means* to your business. ObjectStack handles the rest:
+- Auto-generates database tables/collections
+- Creates REST/GraphQL APIs
+- Builds admin UIs with forms and lists
+- Enables full-text search
+- Tracks field history for compliance
 
-An **Object** is the fundamental unit of data modeling in ObjectStack, equivalent to a "Table" in SQL or a "Collection" in NoSQL.
+**Real-world impact:** A 3-person startup can build a CRM with the same data model sophistication as Salesforce, without hiring database architects or DevOps engineers.
 
-**Core Properties:**
-- `name` - Machine name (snake_case)
-- `label` - Human-readable name
-- `fields` - Field definitions map
-- `enable` - Capabilities (API, tracking, search, etc.)
+### Rich Field Types
+ObjectStack provides **20+ specialized field types** that encode business semantics, not just data types:
+- **Lookup Fields:** Relationships that maintain referential integrity (like foreign keys, but smarter)
+- **Formula Fields:** Auto-calculated values (e.g., `total = quantity × price`) that update in real-time
+- **Rollup Summary:** Aggregate child records (e.g., "Total opportunity value" on Account)
+- **Currency Fields:** Store amounts with currency codes, automatic exchange rate conversion
+- **Address/Location Fields:** Geocoding, distance calculations, territory assignment
 
-**Example:**
-```typescript
-import { Data } from '@objectstack/spec';
+**Why it matters:** These aren't just data types—they're business logic primitives. A "lookup" field knows it should display a dropdown in the UI, validate referential integrity, and support cascading deletes. You declare the *intent*, ObjectStack handles the *implementation*.
 
-const accountObject: Data.Object = {
-  name: 'account',
-  label: 'Account',
-  labelPlural: 'Accounts',
-  fields: {
-    name: {
-      name: 'name',
-      type: 'text',
-      label: 'Account Name',
-      required: true
-    },
-    industry: {
-      name: 'industry',
-      type: 'select',
-      label: 'Industry',
-      options: [
-        { value: 'technology', label: 'Technology' },
-        { value: 'finance', label: 'Finance' }
-      ]
-    },
-    annual_revenue: {
-      name: 'annual_revenue',
-      type: 'currency',
-      label: 'Annual Revenue'
-    }
-  },
-  enable: {
-    api: true,
-    trackHistory: true,
-    search: true
-  }
-};
-```
+### Database-Agnostic Query Language
+The protocol defines queries as **Abstract Syntax Trees (AST)**, not SQL strings. This means:
+- Write one query, run on PostgreSQL, MongoDB, or Excel
+- Automatically optimize for the target database (indexes, joins, etc.)
+- Type-safe queries validated at compile time
+- No SQL injection vulnerabilities
 
-### 2. Field Types
+**Example use case:** A company starts with PostgreSQL, adds MongoDB for product catalogs, and Redis for caching. The same ObjectQL query (`find customers where industry = 'tech'`) works across all three—no code changes.
 
-The Data Protocol supports a rich set of field types:
+### Validation as First-Class Citizen
+Business rules are defined alongside the data model, not scattered in application code:
+- **Cross-field validation:** "If account type is Enterprise, revenue is required"
+- **State machine validation:** "Can't close an opportunity without a quote"
+- **Async validation:** "Check if email domain is blacklisted via external API"
+- **Custom error messages:** Business-friendly error messages, not database errors
 
-**Basic Types:**
-- `text` - Single-line text
-- `textarea` - Multi-line text
-- `number` - Numeric values
-- `boolean` - True/false
-- `date` - Date only
-- `datetime` - Date and time
+**Business impact:** Prevent $10M data quality issues caused by invalid records. Validation rules are auditable, testable, and versionable alongside your schema.
 
-**Advanced Types:**
-- `select` - Picklist with predefined options
-- `lookup` - Reference to another object
-- `master_detail` - Parent-child relationship
-- `formula` - Computed values
-- `rollup_summary` - Aggregate child records
-- `currency` - Monetary values with currency code
-- `percent` - Percentage values
-- `email` - Email addresses with validation
-- `phone` - Phone numbers
-- `url` - Web URLs
-- `address` - Structured address fields
-- `location` - Geographic coordinates
+## Real-World Use Cases
 
-### 3. Query Language
+### SaaS Multi-Tenancy
+**Challenge:** Building a SaaS product where each customer needs isolated data, but you want to avoid managing hundreds of separate databases.
 
-The Data Protocol includes a powerful query AST (Abstract Syntax Tree) that compiles to any database dialect:
+**Data Protocol Solution:** Define tenant-scoped objects with automatic row-level isolation. ObjectStack ensures Customer A can never query Customer B's data, even if they share the same PostgreSQL database.
 
-**Query Structure:**
-```typescript
-import { Data } from '@objectstack/spec';
+**Value:** Launch a multi-tenant SaaS in weeks, not months. Add customers without infrastructure changes.
 
-const query: Data.Query = {
-  object: 'account',
-  fields: ['name', 'industry', 'annual_revenue'],
-  filters: {
-    and: [
-      { field: 'industry', operator: 'equals', value: 'technology' },
-      { field: 'annual_revenue', operator: 'greaterThan', value: 1000000 }
-    ]
-  },
-  sort: [
-    { field: 'annual_revenue', direction: 'desc' }
-  ],
-  limit: 100
-};
-```
+### Offline-First Mobile Apps
+**Challenge:** Sales reps need to access CRM data on planes, in areas with poor connectivity, and must sync changes when back online.
 
-**Filter Operators:**
-- Equality: `equals`, `notEquals`, `in`, `notIn`
-- Comparison: `greaterThan`, `lessThan`, `greaterThanOrEqual`, `lessThanOrEqual`
-- String: `contains`, `startsWith`, `endsWith`, `like`
-- Special: `isNull`, `isNotNull`, `between`
-- Set: `includes`, `excludes`
+**Data Protocol Solution:** The same object definitions work with SQLite (on-device) and PostgreSQL (cloud). Queries, validation, and business logic are identical. Conflict resolution is built into the protocol.
 
-### 4. Validation Rules
+**Value:** Your field team stays productive even when offline. No "save failed" errors that lose $100K deals.
 
-Define business validation rules with custom error messages:
+### Legacy System Migration
+**Challenge:** You have data in Oracle, MongoDB, and Excel spreadsheets. You want to unify them without a 2-year ETL project.
 
-```typescript
-import { Data } from '@objectstack/spec';
+**Data Protocol Solution:** Define a unified object model, then map each legacy system via a Driver. Data stays in place initially, queries federate across all three. Migrate incrementally as needed.
 
-const validation: Data.ValidationRule = {
-  name: 'revenue_required_for_enterprise',
-  object: 'account',
-  active: true,
-  errorMessage: 'Enterprise accounts must have annual revenue specified',
-  condition: {
-    formula: 'AND(ISPICKVAL(type, "Enterprise"), ISBLANK(annual_revenue))'
-  }
-};
-```
-
-**Validation Types:**
-- Format validation (email, phone, URL patterns)
-- Cross-field validation
-- Uniqueness constraints
-- Custom formulas
-- Async validation (API calls)
-- State machine validation
-
-## Use Cases
-
-### Master-Detail Relationships
-
-```typescript
-const opportunityLineItem: Data.Object = {
-  name: 'opportunity_line_item',
-  label: 'Opportunity Line Item',
-  fields: {
-    opportunity: {
-      name: 'opportunity',
-      type: 'master_detail',
-      label: 'Opportunity',
-      reference: 'opportunity',
-      required: true
-    },
-    product: {
-      name: 'product',
-      type: 'lookup',
-      label: 'Product',
-      reference: 'product'
-    },
-    quantity: {
-      name: 'quantity',
-      type: 'number',
-      label: 'Quantity',
-      defaultValue: 1
-    },
-    unit_price: {
-      name: 'unit_price',
-      type: 'currency',
-      label: 'Unit Price'
-    }
-  }
-};
-```
-
-### Formula Fields
-
-```typescript
-const totalAmount: Data.Field = {
-  name: 'total_amount',
-  type: 'formula',
-  label: 'Total Amount',
-  formula: 'quantity * unit_price',
-  returnType: 'currency'
-};
-```
-
-### Rollup Summary
-
-```typescript
-const totalOpportunityValue: Data.Field = {
-  name: 'total_opportunity_value',
-  type: 'rollup_summary',
-  label: 'Total Opportunity Value',
-  summaryObject: 'opportunity_line_item',
-  summaryField: 'total_amount',
-  summaryType: 'sum',
-  filter: {
-    field: 'opportunity',
-    operator: 'equals',
-    value: '{!id}'
-  }
-};
-```
+**Value:** Decouple business logic from legacy tech debt. Retire old systems on your schedule, not the vendor's EOL deadline.
 
 ## Integration with Other Protocols
 
-The Data Protocol integrates seamlessly with:
+The Data Protocol is the foundation that other protocols build upon:
 
-- **Driver Protocol** - Compiles queries to specific database dialects
-- **Permission Protocol** - Enforces field-level and object-level security
-- **Validation Protocol** - Validates data before persistence
-- **UI Protocol** - Auto-generates forms and views from schema
-- **API Protocol** - Exposes data via REST/GraphQL
+- **Driver Protocol:** Compiles ObjectQL queries to PostgreSQL, MongoDB, Redis, etc.
+- **Permission Protocol:** Enforces "who can see what" at the data layer, before queries execute
+- **UI Protocol:** Auto-generates forms, tables, and dashboards from object schemas
+- **API Protocol:** Exposes objects as REST/GraphQL endpoints with zero code
+- **Automation Protocol:** Triggers workflows when data changes (e.g., "Send email when deal closes")
 
-## Best Practices
+**Key insight:** Define your data model once. Everything else—UIs, APIs, permissions, workflows—is auto-generated and stays synchronized.
 
-1. **Use snake_case for machine names** - All object and field names should use snake_case
-2. **Define labels for all fields** - Make your UI user-friendly
-3. **Enable appropriate capabilities** - Only enable features you need (API, tracking, etc.)
-4. **Use lookup fields for relationships** - Don't store IDs as text fields
-5. **Leverage formula fields** - Reduce data redundancy with computed values
-6. **Add validation rules early** - Prevent bad data from entering the system
+## Technical Reference
 
-## Learn More
+For detailed schema definitions, TypeScript interfaces, and implementation examples, see:
 
-- [Field Types Guide](/docs/guides/field-types)
-- [Query Language Reference](/docs/references/data/query/Query)
-- [Validation Rules](/docs/references/data/validation/ValidationRule)
-- [Object Schema Reference](/docs/references/data/object/Object)
+- [Object Schema Reference](/docs/references/data/object/Object) - Complete schema structure and field options
+- [Query Language Reference](/docs/references/data/query/Query) - AST structure and filter operators
+- [Validation Rules Reference](/docs/references/data/validation/ValidationRule) - Formula syntax and validation types
+- [Field Types Guide](/docs/guides/field-types) - All 20+ field types with code examples
