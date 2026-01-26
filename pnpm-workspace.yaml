@@ -2,7 +2,6 @@ packages:
   - packages/*
   - apps/*
   - examples/*
-  - examples/ui/*
 
 onlyBuiltDependencies:
   - esbuild
