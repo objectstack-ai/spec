@@ -1,6 +1,6 @@
-# Quick Start Guide
+# Quick Start Guide - Simplified MSW Integration
 
-This guide will help you get the MSW + React CRUD example up and running in 5 minutes.
+This is the **simplified** version using `@objectstack/plugin-msw` that auto-mocks all API endpoints. No manual handler code required!
 
 ## Prerequisites
 
@@ -15,23 +15,21 @@ From the repository root:
 pnpm install
 ```
 
-This will install all dependencies for the monorepo, including this example.
-
 ## Step 2: Build Required Packages
 
-Build the core packages that the example depends on:
+Build the core packages:
 
 ```bash
-# Build the spec package (contains type definitions)
+# Build all required packages
 pnpm --filter @objectstack/spec build
-
-# Build the client package
+pnpm --filter @objectstack/runtime build
+pnpm --filter @objectstack/plugin-msw build
 pnpm --filter @objectstack/client build
 ```
 
 ## Step 3: Initialize MSW
 
-The MSW service worker file should already be initialized, but if you need to regenerate it:
+The MSW service worker file should already be initialized:
 
 ```bash
 cd examples/ui/msw-react-crud
@@ -47,48 +45,127 @@ pnpm dev
 
 The application will start on `http://localhost:3000`
 
-## Step 5: Test CRUD Operations
+## ✨ What's Different?
 
-Once the app is running, you can:
+### Before (Manual Approach) ❌
 
-1. **Create** a new task using the form
-2. **Read** tasks in the task list
-3. **Update** a task by clicking "Edit"
-4. **Delete** a task by clicking "Delete"
-5. **Toggle completion** status by checking/unchecking the checkbox
+You had to manually write 145+ lines of MSW handlers:
 
-## What's Happening Under the Hood?
+```typescript
+// src/mocks/browser.ts - OLD WAY
+const handlers = [
+  http.get('/api/v1/data/task', ({ request }) => {
+    // Manual pagination, filtering, sorting...
+  }),
+  http.post('/api/v1/data/task', async ({ request }) => {
+    // Manual ID generation, validation...
+  }),
+  // ... more manual handlers
+];
+const worker = setupWorker(...handlers);
+await worker.start();
+```
 
-When you interact with the application:
+### After (Plugin Approach) ✅
 
-1. React components call `@objectstack/client` methods (e.g., `client.data.create()`)
-2. The client makes HTTP requests to `/api/v1/data/task`
-3. MSW intercepts these requests in the browser
-4. Mock handlers return data from an in-memory database
-5. The UI updates with the response
+Now just **3 lines** with auto-mocking:
 
-All network requests visible in DevTools are real HTTP requests - they're just being intercepted and handled by MSW!
+```typescript
+// src/mocks/browser.ts - NEW WAY
+const mswPlugin = new MSWPlugin({ baseUrl: '/api/v1' });
+const runtime = new ObjectStackKernel([appConfig, mswPlugin]);
+await runtime.start();  // Auto-mocks ALL endpoints!
+```
+
+## 📦 How It Works
+
+1. **Define Your Data Model** in `objectstack.config.ts`:
+   ```typescript
+   const TaskObject = ObjectSchema.create({
+     name: 'task',
+     fields: {
+       subject: Field.text({ required: true }),
+       priority: Field.number()
+     }
+   });
+   ```
+
+2. **Auto-Mock Everything**: The MSW plugin automatically mocks:
+   - ✅ Discovery endpoints
+   - ✅ Metadata endpoints
+   - ✅ All CRUD operations
+   - ✅ Query operations
+   - ✅ Pagination, sorting, filtering
+
+3. **Use ObjectStack Client** normally:
+   ```typescript
+   const client = new ObjectStackClient({ baseUrl: '/api/v1' });
+   await client.data.create('task', { subject: 'New task' });
+   ```
+
+## 🎯 Test CRUD Operations
+
+Once running, you can:
+
+1. **Create** tasks using the form
+2. **Read** tasks in the list
+3. **Update** tasks by clicking "Edit"
+4. **Delete** tasks by clicking "Delete"
+5. **Toggle completion** status
+
+## 🔍 What Gets Auto-Mocked?
+
+The plugin automatically handles:
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/v1` | Discovery |
+| `GET /api/v1/meta/*` | All metadata |
+| `GET /api/v1/data/:object` | Find records |
+| `GET /api/v1/data/:object/:id` | Get by ID |
+| `POST /api/v1/data/:object` | Create |
+| `PATCH /api/v1/data/:object/:id` | Update |
+| `DELETE /api/v1/data/:object/:id` | Delete |
+
+**Zero manual code!** 🎉
+
+## 🔧 Advanced: Custom Handlers
+
+Need custom logic? Easy:
+
+```typescript
+const customHandlers = [
+  http.get('/api/custom/hello', () => 
+    HttpResponse.json({ message: 'Hello!' })
+  )
+];
+
+const mswPlugin = new MSWPlugin({
+  customHandlers,  // Add your custom handlers
+  baseUrl: '/api/v1'
+});
+```
 
 ## Troubleshooting
 
-**Problem**: MSW worker not starting
-**Solution**: Run `npx msw init public/ --save` again
+**MSW worker not starting?**
+```bash
+npx msw init public/ --save
+```
 
-**Problem**: TypeScript errors during build
-**Solution**: Make sure you've built the dependency packages first
+**TypeScript errors?**
+```bash
+pnpm --filter @objectstack/spec build
+pnpm --filter @objectstack/runtime build
+pnpm --filter @objectstack/plugin-msw build
+```
 
-**Problem**: 404 errors in browser
-**Solution**: Check that the MSW worker is registered (look for console message)
+**404 errors?**
+Check browser console for MSW startup message
 
-## Next Steps
+## 📚 Learn More
 
-- Modify `src/mocks/browser.ts` to add more fields or objects
-- Customize the UI in `src/App.css`
-- Add more complex query operations
-- Experiment with filters and sorting
-
-## Learn More
-
-- Read the full [README.md](./README.md) for detailed documentation
-- Check out [MSW Documentation](https://mswjs.io/)
-- Explore the [@objectstack/client API](../../packages/client)
+- Full documentation: [README.md](./README.md)
+- MSW Plugin: `packages/plugin-msw/README.md`
+- Runtime: `packages/runtime/README.md`
+- Client API: `packages/client/README.md`
