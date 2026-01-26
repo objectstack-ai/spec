@@ -1,68 +1,85 @@
 /**
- * MSW Browser Worker Setup
+ * MSW Browser Worker Setup via ObjectStack Service
  * 
- * Simplified setup using auto-generated handlers from objectstack.config.ts
- * No runtime overhead - just pure MSW handlers generated from your config!
+ * This creates a complete ObjectStack environment in the browser using the In-Memory Driver
+ * and the MSW Plugin which automatically exposes the API.
  */
 
-import { setupWorker } from 'msw/browser';
-import { createMockHandlers, seedData } from './createMockHandlers';
+import { ObjectStackKernel } from '@objectstack/runtime';
+import { InMemoryDriver } from '@objectstack/driver-memory';
+import { MSWPlugin } from '@objectstack/plugin-msw';
 import appConfig from '../../objectstack.config';
 
-/**
- * Start the MSW worker with auto-generated handlers
- * 
- * This function:
- * 1. Seeds initial data
- * 2. Generates MSW handlers automatically from your config
- * 3. Starts the MSW worker
- */
+let kernel: ObjectStackKernel | null = null;
+
 export async function startMockServer() {
-  // Seed initial task data
-  seedData('task', [
-    { 
-      id: '1',
-      subject: 'Complete MSW integration example', 
-      priority: 1, 
-      isCompleted: false, 
-      createdAt: new Date().toISOString() 
-    },
-    { 
-      id: '2',
-      subject: 'Test CRUD operations with React', 
-      priority: 2, 
-      isCompleted: false, 
-      createdAt: new Date().toISOString() 
-    },
-    { 
-      id: '3',
-      subject: 'Write documentation', 
-      priority: 3, 
-      isCompleted: true, 
-      createdAt: new Date().toISOString() 
-    }
+  if (kernel) return;
+
+  console.log('[MSW] Starting ObjectStack Runtime (Browser Mode)...');
+
+  const driver = new InMemoryDriver();
+
+  kernel = new ObjectStackKernel([
+    // App Config
+    appConfig,
+    
+    // In-Memory Database (runs in browser)
+    driver,
+    
+    // MSW Plugin (intercepts network requests)
+    new MSWPlugin({
+      enableBrowser: true,
+      baseUrl: '/api/v1',
+      logRequests: true
+    })
   ]);
 
-  // Create metadata from config
-  const metadata = {
-    objects: (appConfig.objects || []).reduce((acc: any, obj: any) => {
-      acc[obj.name] = obj;
-      return acc;
-    }, {})
-  };
-
-  // Create handlers from config
-  const handlers = createMockHandlers('/api/v1', metadata);
-
-  // Start MSW worker
-  const worker = setupWorker(...handlers);
-  await worker.start({
-    onUnhandledRequest: 'bypass',
-  });
-
-  console.log('[MSW] Auto-mocked API ready! All endpoints generated from objectstack.config.ts');
-  console.log('[MSW] Objects:', Object.keys(metadata.objects));
+  await kernel.start();
   
-  return worker;
+  // Seed Data: Use the driver directly
+  if (driver) {
+    const tasks = [
+      { 
+        id: '1',
+        subject: 'Complete MSW integration example', 
+        priority: 1, 
+        isCompleted: false, 
+        createdAt: new Date().toISOString() 
+      },
+      { 
+        id: '2',
+        subject: 'Test CRUD operations with React', 
+        priority: 2, 
+        isCompleted: false, 
+        createdAt: new Date().toISOString() 
+      },
+      { 
+        id: '3',
+        subject: 'Write documentation', 
+        priority: 3, 
+        isCompleted: true, 
+        createdAt: new Date().toISOString() 
+      }
+    ];
+
+    // Ensure schema exists (Driver internal API)
+    if (driver.syncSchema) {
+        await driver.syncSchema('task', {});
+    }
+
+    // Insert Data
+    if (driver.create) {
+        for (const task of tasks) {
+            try {
+               await driver.create('task', task);
+            } catch (e) {
+                // Ignore key conflict if seeded
+            }
+        }
+        console.log('[MSW] Seeded initial data.');
+    }
+  }
+
+  return kernel;
 }
 

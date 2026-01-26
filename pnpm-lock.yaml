@@ -184,6 +184,12 @@ importers:
       '@objectstack/driver-memory':
         specifier: workspace:*
         version: link:../../packages/driver-memory
+      '@objectstack/plugin-msw':
+        specifier: ^0.3.3
+        version: 0.3.3(@objectstack/runtime@0.3.3)(@types/node@20.19.30)(typescript@5.9.3)
+      '@objectstack/runtime':
+        specifier: ^0.3.3
+        version: 0.3.3
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../packages/spec
@@ -1154,6 +1160,24 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
+
+  '@objectstack/objectql@0.3.3':
+    resolution: {integrity: sha512-aLoleAHiny5FS20LvGhlQT4Y30iZ6SPptLCQlZsIPlIsD9mGctgOgo/OrBMZA5/DAUl4L6Tx9oHB0wAOwC/zrQ==}
+
+  '@objectstack/plugin-msw@0.3.3':
+    resolution: {integrity: sha512-4QsF5yz24lUYMA2W5yRxVIDd4rQ8NBx5sdakEtdbFciXEhTyS9gCmfk7C7w7TdCk3UC83g3PNRMlkv/k61OYQw==}
+    peerDependencies:
+      '@objectstack/runtime': ^0.3.3
+
+  '@objectstack/runtime@0.3.3':
+    resolution: {integrity: sha512-iErrjLBqwkVqKMuLTT9g8QPYSMUMZNvmHpXdMN+K3yb3Do//GEVtQ1P/dxkF8TcjkY8NjIPZDXEa9yKmOvQQ9g==}
+
+  '@objectstack/spec@0.3.3':
+    resolution: {integrity: sha512-GGSrRLECgYY1epLocdCkCsicerFKAKlRpluGmCqK1iVNgTgiC04zniLogYQXu5kf6UIB6mHQNBHcbr1x5DOmVQ==}
+    engines: {node: '>=18.0.0'}
+
+  '@objectstack/types@0.3.3':
+    resolution: {integrity: sha512-FeNsa1v8USnJ5i0o8pKZorDgzaRpG7CmNgKEPR338xkAAwSFiTFZwIGTqYRVN8Vxf0X4zR3MsrmRAuPOKDeDww==}
 
   '@open-draft/deferred-promise@2.2.0':
     resolution: {integrity: sha512-CecwLWx3rhxVQF6V4bAgPS5t+So2sTbPgAzafKkVizyi7tlwpcFpdFqq+wqF2OwNBmqFuu6tOyouTuxgpMfzmA==}
@@ -4470,6 +4494,34 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
+
+  '@objectstack/objectql@0.3.3':
+    dependencies:
+      '@objectstack/spec': 0.3.3
+
+  '@objectstack/plugin-msw@0.3.3(@objectstack/runtime@0.3.3)(@types/node@20.19.30)(typescript@5.9.3)':
+    dependencies:
+      '@objectstack/runtime': 0.3.3
+      '@objectstack/spec': 0.3.3
+      '@objectstack/types': 0.3.3
+      msw: 2.12.7(@types/node@20.19.30)(typescript@5.9.3)
+    transitivePeerDependencies:
+      - '@types/node'
+      - typescript
+
+  '@objectstack/runtime@0.3.3':
+    dependencies:
+      '@objectstack/objectql': 0.3.3
+      '@objectstack/spec': 0.3.3
+      '@objectstack/types': 0.3.3
+
+  '@objectstack/spec@0.3.3':
+    dependencies:
+      zod: 3.25.76
+
+  '@objectstack/types@0.3.3':
+    dependencies:
+      '@objectstack/spec': 0.3.3
 
   '@open-draft/deferred-promise@2.2.0': {}
 
