@@ -76,6 +76,33 @@ A field defined in the Data Protocol schema that does not exist physically in th
 ### Object (Entity)
 The fundamental unit of data modeling in ObjectStack. Roughly equivalent to a "Table" in SQL or a "Collection" in NoSQL. An Object definition includes Fields, Actions, Triggers, and Permissions.
 
+### Machine Identifier (API Name)
+A lowercase snake_case identifier used internally by the system for all metadata. Machine identifiers must:
+- Start with a lowercase letter
+- Contain only lowercase letters, numbers, and underscores (or dots for events)
+- Be URL-friendly and cross-platform compatible
+
+Examples: `'crm_account'`, `'first_name'`, `'sales_manager'`, `'user.created'`
+
+**Types of Machine Identifiers:**
+- **System Identifier**: Allows underscores and dots (e.g., `'user.created'`)
+- **Snake Case Identifier**: Only underscores (e.g., `'crm_account'`)
+- **Event Name**: Dot notation for namespacing (e.g., `'order.paid'`)
+
+### Label
+User-facing display text that can use any case formatting. Labels are what users see in the UI, while machine identifiers are what the system uses internally.
+
+Example:
+```typescript
+{
+  name: 'sales_manager',    // Machine identifier (snake_case)
+  label: 'Sales Manager'    // Label (display text)
+}
+```
+
+### Field
+A property of an Object that defines a specific piece of data. Fields have both a machine identifier (name) and a label for display purposes.
+
 ### Driver
 An adapter plugin (Driver Protocol) that allows the Data Layer to communicate with a specific underlying storage engine.
 * *Example:* `@objectstack/driver-postgres`, `@objectstack/driver-mongodb`, `@objectstack/driver-sqlite`.

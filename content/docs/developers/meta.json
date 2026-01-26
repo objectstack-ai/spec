@@ -2,6 +2,7 @@
   "title": "🔧 Development & Extension",
   "root": true,
   "pages": [
+    "naming-conventions",
     "writing-plugins",
     "custom-widgets",
     "server-drivers",

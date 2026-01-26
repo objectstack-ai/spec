@@ -97,6 +97,12 @@
 │   ├── audit.zod.ts          → Audit logging
 │   └── job.zod.ts            → Background jobs
 │
+├── Shared Utilities
+│   └── identifiers.zod.ts    → Machine identifier validation
+│       ├── SystemIdentifierSchema      (snake_case + dots)
+│       ├── SnakeCaseIdentifierSchema   (strict snake_case)
+│       └── EventNameSchema             (dot notation events)
+│
 ├── AI Protocol
 │   ├── agent.zod.ts              → AI agent configuration
 │   ├── model-registry.zod.ts     → LLM registry
@@ -440,6 +446,82 @@ Dependencies (imports):
 • app.zod.ts        imports  object.zod.ts, dashboard.zod.ts
 • manifest.zod.ts   imports  object.zod.ts, app.zod.ts, datasource.zod.ts
 ```
+
+---
+
+## 📝 Naming Conventions & Identifiers
+
+ObjectStack enforces strict naming conventions to ensure cross-platform compatibility, security, and consistency.
+
+### Machine Identifiers vs. Labels
+
+| Concept | Pattern | Example | Usage |
+|---------|---------|---------|-------|
+| **Machine Identifier** | `snake_case` | `crm_account`, `first_name`, `sales_manager` | Stored values, API names, internal identifiers |
+| **Event Name** | `dot.notation` | `user.created`, `order.paid` | Event keys, message topics |
+| **Label** | `Any Case` | `Sales Manager`, `In Progress` | User-facing display text |
+| **Schema Property** | `camelCase` | `maxLength`, `isRequired` | TypeScript interface properties |
+
+### Identifier Schemas
+
+Three validation schemas enforce naming consistency:
+
+```typescript
+// 1. SystemIdentifierSchema - Most flexible (allows dots)
+//    Used for: General identifiers, events
+//    Pattern: /^[a-z][a-z0-9_.]*$/
+'crm_account'      // ✅
+'user.created'     // ✅ (dots allowed)
+
+// 2. SnakeCaseIdentifierSchema - Strict (no dots)
+//    Used for: Database entities (objects, fields)
+//    Pattern: /^[a-z][a-z0-9_]*$/
+'project_task'     // ✅
+'annual_revenue'   // ✅
+'user.created'     // ❌ (no dots)
+
+// 3. EventNameSchema - Event naming (encourages dots)
+//    Used for: Events, webhooks, message queues
+//    Pattern: /^[a-z][a-z0-9_.]*$/
+'user.created'     // ✅
+'order.paid'       // ✅
+'user_created'     // ⚠️ Valid but discouraged
+```
+
+### Why Lowercase Snake_case?
+
+1. **Cross-platform compatibility**: Case-insensitive filesystems don't cause conflicts
+2. **URL-friendly**: No encoding needed in web addresses
+3. **Database consistency**: Eliminates collation issues
+4. **Security**: Prevents case-sensitivity bugs in permission checks
+5. **Standards alignment**: Matches PostgreSQL, Kafka, REST API conventions
+
+### Example: Object Definition
+
+```typescript
+{
+  // Machine identifiers (snake_case)
+  name: 'crm_account',
+  fields: {
+    first_name: { type: 'text' },
+    annual_revenue: { type: 'currency' }
+  },
+  
+  // Labels (any case)
+  label: 'Customer Account',
+  
+  // Schema properties (camelCase)
+  enable: {
+    trackHistory: true,
+    apiEnabled: true
+  }
+}
+```
+
+**For implementation details, see:**
+- [System Identifier Schema](/docs/references/shared/identifiers/SystemIdentifier)
+- [Snake Case Identifier Schema](/docs/references/shared/identifiers/SnakeCaseIdentifier)
+- [Event Name Schema](/docs/references/shared/identifiers/EventName)
 
 ---
 
