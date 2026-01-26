@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "objectstack",
+    "zod-compliance",
     "app-development",
     "plugin-development",
     "component-development",

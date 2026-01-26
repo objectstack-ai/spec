@@ -10,7 +10,7 @@
 
 Widgets are the atomic building blocks of ObjectUI. They render specific `FieldTypes` or `ViewComponents`.
 
-**Reference:** `packages/spec/src/ui/widget.zod.ts`
+**Reference:** `@objectstack/spec` -> `dist/ui/widget.zod.d.ts`
 
 ## 2. Widget Registration
 

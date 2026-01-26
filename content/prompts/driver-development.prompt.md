@@ -10,7 +10,7 @@
 
 ObjectStack does not ship with a database. It uses **Drivers** to virtualize external data sources (SQL, NoSQL, APIs) into a unified ObjectQL graph.
 
-**Reference Schema:** `packages/spec/src/driver/driver.zod.ts`
+**Reference Schema:** `@objectstack/spec` -> `dist/driver/driver.zod.d.ts`
 
 ## 2. The Interface Contract
 
@@ -49,7 +49,7 @@ export class PostgresDriver implements ObjectDriver {
 
 The hardest part is mapping the **ObjectQL AST** to the native query language.
 
-**Reference:** `packages/spec/src/data/query.zod.ts`
+**Reference:** `@objectstack/spec` -> `dist/data/query.zod.d.ts`
 
 **Input (AST):**
 ```json

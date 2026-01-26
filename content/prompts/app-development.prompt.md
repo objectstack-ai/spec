@@ -33,6 +33,7 @@ A "Complete" application must define metadata across these 5 layers:
 
 ### Layer 1: Data Model (Deep Structure)
 **Library:** `@objectstack/spec/data`
+**Reference:** `@objectstack/spec` -> `dist/data/object.zod.d.ts`
 *   **Objects:** Define entities (`Account`, `Contact`).
 *   **Fields:** Use advanced types (`master_detail`, `formula`, `rollup_summary`).
 *   **Validation:** Define strict `validation_rules` (e.g., "Discount cannot exceed 20%").
@@ -40,6 +41,7 @@ A "Complete" application must define metadata across these 5 layers:
 
 ### Layer 2: User Interface (The Workspace)
 **Library:** `@objectstack/spec/ui`
+**Reference Schema:** `@objectstack/spec` -> `dist/ui/app.zod.d.ts` (App), `dist/ui/view.zod.d.ts` (Views)
 *   **App:** Navigation Menu groups (`Sales`, `Service`, `Settings`).
 *   **Views:**
     *   `Grid`: Standard tables with filters.
@@ -51,11 +53,13 @@ A "Complete" application must define metadata across these 5 layers:
 *   **Actions:** Custom buttons (`Convert Lead`, `Submit for Approval`).
 
 ### Layer 3: Analytics (Intelligence)
+**Reference Schema:** `@objectstack/spec` -> `dist/ui/dashboard.zod.d.ts`, `dist/ui/report.zod.d.ts`
 **Library:** `@objectstack/spec/ui` (Dashboard/Report)
 *   **Reports:** Tabular, Summary, Matrix reports.
 *   **Dashboards:** Layouts with Charts (Donut, Bar, Metric) embedding reports.
 
 ### Layer 4: Logic & Automation
+**Reference Schema:** `@objectstack/spec` -> `dist/data/hook.zod.d.ts`
 **Library:** `@objectstack/spec/system` & `@objectstack/spec/data` (Hooks)
 *   **Triggers:** `beforeInsert`, `afterUpdate` hooks for data consistency.
 *   **Jobs:** Scheduled tasks (e.g., "Nightly Sync").
@@ -72,6 +76,7 @@ A "Complete" application must define metadata across these 5 layers:
 ## 3. Implementation Patterns
 
 ### A. Defining a Complex Object (Account)
+// Definitions: dist/data/object.zod.d.ts
 
 ```typescript
 import { ObjectSchema } from '@objectstack/spec/data';
@@ -112,6 +117,7 @@ export const AccountObject: ObjectSchema = {
 };
 ```
 
+// Definitions: dist/ui/app.zod.d.ts
 ### B. Configuring the App & Navigation
 
 ```typescript

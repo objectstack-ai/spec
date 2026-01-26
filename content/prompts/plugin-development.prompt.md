@@ -28,7 +28,7 @@ my-plugin/
 
 Every plugin MUST have a valid manifest. It dictates how the kernel loads your code.
 
-**Reference Schema:** `packages/spec/src/kernel/manifest.zod.ts`
+**Reference Schema:** `@objectstack/spec` -> `dist/kernel/manifest.zod.d.ts`
 
 ```typescript
 import { ObjectStackManifest } from '@objectstack/spec/kernel';
@@ -63,7 +63,7 @@ export default config;
 ## 3. Development Workflow
 
 ### A. Define Objects (The Data Contract)
-**Reference:** `packages/spec/src/data/object.zod.ts`
+**Reference:** `@objectstack/spec` -> `dist/data/object.zod.d.ts`
 Use Zod schemas to define business entities.
 
 ```typescript
@@ -81,7 +81,7 @@ export const TodoObject = {
 ```
 
 ### B. Implement Logic (The Runtime)
-**Reference:** `packages/spec/src/data/hook.zod.ts`
+**Reference:** `@objectstack/spec` -> `dist/data/hook.zod.d.ts`
 
 ```typescript
 // src/triggers/todo.trigger.ts
