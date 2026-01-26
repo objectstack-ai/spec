@@ -18,11 +18,11 @@ export function TaskItem({ task, onEdit, onDelete, onToggleComplete }: TaskItemP
   const priorityClass = `priority-${task.priority}`;
 
   return (
-    <div className={`task-item ${task.isCompleted ? 'completed' : ''}`}>
+    <div className={`task-item ${task.is_completed ? 'completed' : ''}`}>
       <div className="task-content">
         <input
           type="checkbox"
-          checked={task.isCompleted}
+          checked={task.is_completed}
           onChange={onToggleComplete}
           className="task-checkbox"
         />
@@ -33,7 +33,7 @@ export function TaskItem({ task, onEdit, onDelete, onToggleComplete }: TaskItemP
               Priority: {priorityLabel} ({task.priority})
             </span>
             <span className="task-date">
-              Created: {new Date(task.createdAt).toLocaleDateString()}
+              Created: {task.created_at ? new Date(task.created_at).toLocaleDateString() : 'N/A'}
             </span>
           </div>
         </div>

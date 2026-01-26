@@ -184,6 +184,9 @@ importers:
       '@objectstack/driver-memory':
         specifier: workspace:*
         version: link:../../packages/driver-memory
+      '@objectstack/example-todo':
+        specifier: workspace:*
+        version: link:../todo
       '@objectstack/plugin-msw':
         specifier: ^0.3.3
         version: 0.3.3(@objectstack/runtime@0.3.3)(@types/node@20.19.30)(typescript@5.9.3)

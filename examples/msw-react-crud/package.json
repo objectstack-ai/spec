@@ -12,6 +12,7 @@
   "dependencies": {
     "@objectstack/client": "workspace:*",
     "@objectstack/driver-memory": "workspace:*",
+    "@objectstack/example-todo": "workspace:*",
     "@objectstack/plugin-msw": "^0.3.3",
     "@objectstack/runtime": "^0.3.3",
     "@objectstack/spec": "workspace:*",

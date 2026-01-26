@@ -1,22 +1,24 @@
 /**
- * Task type definition
+ * Task type definition (todo_task)
  */
 export interface Task {
-  id: string;
+  _id: string; // Internal ID
+  id: string; // External ID usually, but here we might get _id or id depending on driver
   subject: string;
   priority: number;
-  isCompleted: boolean;
-  createdAt: string;
+  is_completed: boolean;
+  due_date?: string;
+  created_at?: string;
 }
 
 export interface CreateTaskInput {
   subject: string;
   priority?: number;
-  isCompleted?: boolean;
+  is_completed?: boolean;
 }
 
 export interface UpdateTaskInput {
   subject?: string;
   priority?: number;
-  isCompleted?: boolean;
+  is_completed?: boolean;
 }

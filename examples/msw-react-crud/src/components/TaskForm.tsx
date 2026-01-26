@@ -28,7 +28,7 @@ export function TaskForm({ client, editingTask, onSuccess, onCancel }: TaskFormP
     if (editingTask) {
       setSubject(editingTask.subject);
       setPriority(editingTask.priority);
-      setIsCompleted(editingTask.isCompleted);
+      setIsCompleted(editingTask.is_completed);
     } else {
       resetForm();
     }
@@ -55,20 +55,20 @@ export function TaskForm({ client, editingTask, onSuccess, onCancel }: TaskFormP
     try {
       if (editingTask) {
         // UPDATE operation using ObjectStack Client
-        await client.data.update('task', editingTask.id, {
+        await client.data.update('todo_task', editingTask.id, {
           subject: subject.trim(),
           priority,
-          isCompleted
+          is_completed: isCompleted
         });
       } else {
         // CREATE operation using ObjectStack Client
         const taskData: CreateTaskInput = {
           subject: subject.trim(),
           priority,
-          isCompleted
+          is_completed: isCompleted
         };
         
-        await client.data.create('task', taskData);
+        await client.data.create('todo_task', taskData);
       }
 
       resetForm();

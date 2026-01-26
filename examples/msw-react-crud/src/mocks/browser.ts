@@ -8,7 +8,8 @@
 import { ObjectStackKernel } from '@objectstack/runtime';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { MSWPlugin } from '@objectstack/plugin-msw';
-import appConfig from '../../objectstack.config';
+// import appConfig from '../../objectstack.config';
+import todoConfig from '@objectstack/example-todo/objectstack.config';
 
 let kernel: ObjectStackKernel | null = null;
 
@@ -19,9 +20,12 @@ export async function startMockServer() {
 
   const driver = new InMemoryDriver();
 
+  // Define Seed Data using the Dataset Protocol
+  // We use the data defined in the Todo App config
+  
   kernel = new ObjectStackKernel([
-    // App Config
-    appConfig,
+    // Todo App Config (contains objects and data)
+    todoConfig,
     
     // In-Memory Database (runs in browser)
     driver,
@@ -36,50 +40,6 @@ export async function startMockServer() {
 
   await kernel.start();
   
-  // Seed Data: Use the driver directly
-  if (driver) {
-    const tasks = [
-      { 
-        id: '1',
-        subject: 'Complete MSW integration example', 
-        priority: 1, 
-        isCompleted: false, 
-        createdAt: new Date().toISOString() 
-      },
-      { 
-        id: '2',
-        subject: 'Test CRUD operations with React', 
-        priority: 2, 
-        isCompleted: false, 
-        createdAt: new Date().toISOString() 
-      },
-      { 
-        id: '3',
-        subject: 'Write documentation', 
-        priority: 3, 
-        isCompleted: true, 
-        createdAt: new Date().toISOString() 
-      }
-    ];
-
-    // Ensure schema exists (Driver internal API)
-    if (driver.syncSchema) {
-        await driver.syncSchema('task', {});
-    }
-
-    // Insert Data
-    if (driver.create) {
-        for (const task of tasks) {
-            try {
-               await driver.create('task', task);
-            } catch (e) {
-                // Ignore key conflict if seeded
-            }
-        }
-        console.log('[MSW] Seeded initial data.');
-    }
-  }
-
   return kernel;
 }
 

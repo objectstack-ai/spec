@@ -31,9 +31,9 @@ export function TaskList({ client, onEdit, refreshTrigger }: TaskListProps) {
       setError(null);
 
       // Use ObjectStack Client to fetch tasks
-      const result = await client.data.find('task', {
+      const result = await client.data.find('todo_task', {
         top: 100,
-        sort: ['priority', '-createdAt']
+        sort: ['priority', '-created_at']
       });
 
       setTasks(result.value as Task[]);
@@ -48,7 +48,7 @@ export function TaskList({ client, onEdit, refreshTrigger }: TaskListProps) {
   async function handleDelete(id: string) {
     try {
       // Use ObjectStack Client to delete task
-      await client.data.delete('task', id);
+      await client.data.delete('todo_task', id);
       
       // Refresh the list
       await loadTasks();
@@ -60,8 +60,8 @@ export function TaskList({ client, onEdit, refreshTrigger }: TaskListProps) {
   async function handleToggleComplete(task: Task) {
     try {
       // Use ObjectStack Client to update task
-      await client.data.update('task', task.id, {
-        isCompleted: !task.isCompleted
+      await client.data.update('todo_task', task.id, {
+        is_completed: !task.is_completed
       });
       
       // Refresh the list
