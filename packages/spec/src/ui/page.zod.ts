@@ -41,7 +41,7 @@ export const PageComponentSchema = z.object({
   
   /** Configuration */
   label: z.string().optional(),
-  properties: z.record(z.any()).describe('Component props passed to the widget'),
+  properties: z.record(z.any()).describe('Component props passed to the widget. See block.zod.ts for schemas.'),
   
   /** Visibility Rule */
   visibility: z.string().optional().describe('Visibility filter/formula')
