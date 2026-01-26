@@ -1,12 +1,25 @@
 import { z } from 'zod';
+import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
 
 /**
  * Base Navigation Item Schema
  * Shared properties for all navigation types.
+ * 
+ * **NAMING CONVENTION:**
+ * Navigation item IDs are used in URLs and configuration and must be lowercase snake_case.
+ * 
+ * @example Good IDs
+ * - 'menu_accounts'
+ * - 'page_dashboard'
+ * - 'nav_settings'
+ * 
+ * @example Bad IDs (will be rejected)
+ * - 'MenuAccounts' (PascalCase)
+ * - 'Page Dashboard' (spaces)
  */
 const BaseNavItemSchema = z.object({
   /** Unique identifier for the item */
-  id: z.string().describe('Unique identifier for this navigation item'),
+  id: SnakeCaseIdentifierSchema.describe('Unique identifier for this navigation item (lowercase snake_case)'),
   
   /** Display label */
   label: z.string().describe('Display proper label'),
@@ -101,10 +114,25 @@ export const AppBrandingSchema = z.object({
 /**
  * Schema for Applications (Apps).
  * A logical container for business functionality (e.g., "Sales CRM", "HR Portal").
+ * 
+ * **NAMING CONVENTION:**
+ * App names are used in URLs and routing and must be lowercase snake_case.
+ * Prefix with 'app_' is recommended for clarity.
+ * 
+ * @example Good app names
+ * - 'app_crm'
+ * - 'app_finance'
+ * - 'app_portal'
+ * - 'sales_app'
+ * 
+ * @example Bad app names (will be rejected)
+ * - 'CRM' (uppercase)
+ * - 'FinanceApp' (mixed case)
+ * - 'Sales App' (spaces)
  */
 export const AppSchema = z.object({
   /** Machine name (id) */
-  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('App unique machine name'),
+  name: SnakeCaseIdentifierSchema.describe('App unique machine name (lowercase snake_case)'),
   
   /** Display label */
   label: z.string().describe('App display label'),

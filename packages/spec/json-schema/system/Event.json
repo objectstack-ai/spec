@@ -6,8 +6,9 @@
       "properties": {
         "name": {
           "type": "string",
-          "pattern": "^[a-z_][a-z0-9_.]*$",
-          "description": "Event name (snake_case with dots, e.g., user.created)"
+          "minLength": 3,
+          "pattern": "^[a-z][a-z0-9_.]*$",
+          "description": "Event name (lowercase with dots, e.g., user.created, order.paid)"
         },
         "payload": {
           "description": "Event payload schema"

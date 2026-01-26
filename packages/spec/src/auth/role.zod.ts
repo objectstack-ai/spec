@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
 
 /**
  * Role Schema (aka Business Unit / Org Unit)
@@ -11,10 +12,24 @@ import { z } from 'zod';
  * 
  * ROLES IN OBJECTSTACK:
  * Used primarily for "Reporting Structure" - Managers see subordinates' data.
+ * 
+ * **NAMING CONVENTION:**
+ * Role names MUST be lowercase snake_case to prevent security issues.
+ * 
+ * @example Good role names
+ * - 'sales_manager'
+ * - 'ceo'
+ * - 'region_east_vp'
+ * - 'engineering_lead'
+ * 
+ * @example Bad role names (will be rejected)
+ * - 'SalesManager' (camelCase)
+ * - 'CEO' (uppercase)
+ * - 'Region East VP' (spaces and uppercase)
  */
 export const RoleSchema = z.object({
   /** Identity */
-  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Unique role name'),
+  name: SnakeCaseIdentifierSchema.describe('Unique role name (lowercase snake_case)'),
   label: z.string().describe('Display label (e.g. VP of Sales)'),
   
   /** Hierarchy */

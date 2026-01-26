@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { EventNameSchema } from '../shared/identifiers.zod';
 
 /**
  * Event Metadata Schema
@@ -14,9 +15,12 @@ export const EventMetadataSchema = z.object({
 /**
  * Event Schema
  * Base schema for all events in the system
+ * 
+ * Event names follow dot notation for namespacing (e.g., 'user.created', 'order.paid').
+ * This aligns with industry standards for event-driven architectures and message queues.
  */
 export const EventSchema = z.object({
-  name: z.string().regex(/^[a-z_][a-z0-9_.]*$/).describe('Event name (snake_case with dots, e.g., user.created)'),
+  name: EventNameSchema.describe('Event name (lowercase with dots, e.g., user.created, order.paid)'),
   payload: z.any().describe('Event payload schema'),
   metadata: EventMetadataSchema.describe('Event metadata'),
 });

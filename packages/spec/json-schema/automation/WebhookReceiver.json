@@ -6,7 +6,9 @@
       "properties": {
         "name": {
           "type": "string",
-          "pattern": "^[a-z_][a-z0-9_]*$"
+          "minLength": 2,
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Webhook receiver unique name (lowercase snake_case)"
         },
         "path": {
           "type": "string",

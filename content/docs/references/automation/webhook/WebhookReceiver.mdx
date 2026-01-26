@@ -7,7 +7,7 @@ description: WebhookReceiver Schema Reference
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ |  |
+| **name** | `string` | ✅ | Webhook receiver unique name (lowercase snake_case) |
 | **path** | `string` | ✅ | URL Path (e.g. /webhooks/stripe) |
 | **verificationType** | `Enum<'none' \| 'header_token' \| 'hmac' \| 'ip_whitelist'>` | optional |  |
 | **verificationParams** | `object` | optional |  |

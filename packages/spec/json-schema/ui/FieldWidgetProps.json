@@ -135,11 +135,13 @@
                 "properties": {
                   "label": {
                     "type": "string",
-                    "description": "Display label"
+                    "description": "Display label (human-readable, any case allowed)"
                   },
                   "value": {
                     "type": "string",
-                    "description": "Stored value"
+                    "minLength": 2,
+                    "pattern": "^[a-z][a-z0-9_.]*$",
+                    "description": "Stored value (lowercase machine identifier)"
                   },
                   "color": {
                     "type": "string",

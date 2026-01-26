@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
 
 /**
  * HTTP Method Enum
@@ -102,9 +103,21 @@ export const GanttConfigSchema = z.object({
 
 /**
  * List View Schema (Expanded)
+ * 
+ * **NAMING CONVENTION:**
+ * View names (when provided) are machine identifiers and must be lowercase snake_case.
+ * 
+ * @example Good view names
+ * - 'all_accounts'
+ * - 'my_open_leads'
+ * - 'high_priority_cases'
+ * 
+ * @example Bad view names (will be rejected)
+ * - 'AllAccounts' (PascalCase)
+ * - 'My Open Leads' (spaces)
  */
 export const ListViewSchema = z.object({
-  name: z.string().optional(), // Internal name
+  name: SnakeCaseIdentifierSchema.optional().describe('Internal view name (lowercase snake_case)'),
   label: z.string().optional(), // Display label override
   type: z.enum(['grid', 'kanban', 'calendar', 'gantt', 'map']).default('grid'),
   
