@@ -213,15 +213,15 @@ export const AIFieldExtensions = {
  * This can be used for runtime validation.
  */
 export const AIFieldExtensionSchema = z.object({
-  'ai_assistant.vectorIndexed': z.boolean().optional(),
-  'ai_assistant.embeddingModel': z.string().optional(),
-  'ai_assistant.chunkSize': z.number().optional(),
-  'ai_assistant.chunkOverlap': z.number().optional(),
-  'ai_assistant.autoSummarize': z.boolean().optional(),
-  'ai_assistant.summaryModel': z.string().optional(),
-  'ai_assistant.summaryMaxLength': z.number().optional(),
-  'ai_assistant.sentimentAnalysis': z.boolean().optional(),
-  'ai_assistant.sentimentField': z.string().optional(),
+  'ai_assistant.vectorIndexed': z.boolean(),
+  'ai_assistant.embeddingModel': z.string(),
+  'ai_assistant.chunkSize': z.number(),
+  'ai_assistant.chunkOverlap': z.number(),
+  'ai_assistant.autoSummarize': z.boolean(),
+  'ai_assistant.summaryModel': z.string(),
+  'ai_assistant.summaryMaxLength': z.number(),
+  'ai_assistant.sentimentAnalysis': z.boolean(),
+  'ai_assistant.sentimentField': z.string(),
 }).partial();
 
 export type AIFieldExtension = z.infer<typeof AIFieldExtensionSchema>;

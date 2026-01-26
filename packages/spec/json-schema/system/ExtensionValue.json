@@ -16,7 +16,8 @@
           "type": "null"
         },
         {
-          "type": "array"
+          "type": "array",
+          "items": {}
         },
         {
           "type": "object",

@@ -329,21 +329,21 @@ export const AIObjectExtensions = {
  * This can be used for runtime validation.
  */
 export const AIObjectExtensionSchema = z.object({
-  'ai_assistant.enableRAG': z.boolean().optional(),
-  'ai_assistant.contextFields': z.array(z.string()).optional(),
-  'ai_assistant.vectorIndex': z.string().optional(),
-  'ai_assistant.embeddingModel': z.string().optional(),
-  'ai_assistant.agentEnabled': z.boolean().optional(),
-  'ai_assistant.agentName': z.string().optional(),
-  'ai_assistant.agentTriggers': z.array(z.string()).optional(),
-  'ai_assistant.predictiveEnabled': z.boolean().optional(),
-  'ai_assistant.predictiveModels': z.array(z.any()).optional(),
-  'ai_assistant.autoClassification': z.boolean().optional(),
-  'ai_assistant.classificationField': z.string().optional(),
-  'ai_assistant.classificationModel': z.string().optional(),
-  'ai_assistant.classificationPrompt': z.string().optional(),
-  'ai_assistant.dataQualityEnabled': z.boolean().optional(),
-  'ai_assistant.dataQualityRules': z.array(z.any()).optional(),
+  'ai_assistant.enableRAG': z.boolean(),
+  'ai_assistant.contextFields': z.array(z.string()),
+  'ai_assistant.vectorIndex': z.string(),
+  'ai_assistant.embeddingModel': z.string(),
+  'ai_assistant.agentEnabled': z.boolean(),
+  'ai_assistant.agentName': z.string(),
+  'ai_assistant.agentTriggers': z.array(z.string()),
+  'ai_assistant.predictiveEnabled': z.boolean(),
+  'ai_assistant.predictiveModels': z.array(z.any()),
+  'ai_assistant.autoClassification': z.boolean(),
+  'ai_assistant.classificationField': z.string(),
+  'ai_assistant.classificationModel': z.string(),
+  'ai_assistant.classificationPrompt': z.string(),
+  'ai_assistant.dataQualityEnabled': z.boolean(),
+  'ai_assistant.dataQualityRules': z.array(z.any()),
 }).partial();
 
 export type AIObjectExtension = z.infer<typeof AIObjectExtensionSchema>;

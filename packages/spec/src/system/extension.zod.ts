@@ -41,14 +41,14 @@ import { z } from 'zod';
  * Represents a single extension property.
  * Can be any valid JSON value: primitive, object, or array.
  */
-export const ExtensionValueSchema = z.union([
+export const ExtensionValueSchema: z.ZodType<any> = z.lazy(() => z.union([
   z.string(),
   z.number(),
   z.boolean(),
   z.null(),
-  z.array(z.any()),
-  z.record(z.any()),
-]);
+  z.array(ExtensionValueSchema),
+  z.record(ExtensionValueSchema),
+]));
 
 export type ExtensionValue = z.infer<typeof ExtensionValueSchema>;
 
@@ -72,7 +72,7 @@ export type ExtensionValue = z.infer<typeof ExtensionValueSchema>;
  */
 export const ExtensionsMapSchema = z.record(
   z.string().describe('Namespaced extension key (e.g., "plugin_id.property_name")'),
-  z.any().describe('Extension value (string, number, boolean, object, or array)')
+  ExtensionValueSchema.describe('Extension value (string, number, boolean, object, or array)')
 ).optional().describe('Custom extension properties from plugins and modules');
 
 export type ExtensionsMap = z.infer<typeof ExtensionsMapSchema>;
