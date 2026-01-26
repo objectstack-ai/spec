@@ -1,6 +1,11 @@
 {
   "title": "Documentation",
   "pages": [
+    "introduction",
+    "core-concepts",
+    "protocols",
+    "development",
+    "transport",
     "quick-start",
     "tutorials",
     "guides",

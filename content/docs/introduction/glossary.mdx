@@ -1,0 +1,189 @@
+---
+title: Glossary
+description: Key terminology for the ObjectStack ecosystem - Speaking the same language
+---
+
+import { Book, Server, Code, Database } from 'lucide-react';
+
+# Glossary
+
+To navigate the ObjectStack ecosystem effectively, it's helpful to understand the specific vocabulary we use. While many terms are standard in computer science, some have specific nuances in our "Protocol-Driven" context.
+
+## Core Concepts
+
+### ObjectStack
+The umbrella term for the entire suite of protocols and reference implementations. It is organized into **11 protocol namespaces** grouped into three architectural layers.
+
+### Protocol
+A specification defined with Zod schemas that describes how a system component should behave. Protocols are implementation-agnostic - they define the "what" and "how," not the specific code.
+
+### Protocol Namespace
+A logical grouping of related schemas and types. ObjectStack has 11 protocol namespaces: Data, Driver, Permission, UI, System, Auth, Kernel, Hub, AI, API, and Automation.
+
+### Kernel
+The runtime engine (Control Layer) that orchestrates all protocols, manages plugins, and enforces security policies.
+
+---
+
+## The Three Layers
+
+### ObjectQL (Data Layer)
+The database-agnostic data protocol. Defines objects, fields, queries, and filters. Think of it as "universal SQL" that compiles to any backend.
+
+### ObjectUI (Presentation Layer)
+The server-driven UI protocol. Defines apps, views, dashboards, and themes as JSON metadata. The renderer converts this to native components.
+
+### ObjectOS (Control Layer)
+The system protocol layer. Manages runtime, plugins, authentication, events, and automation. The "operating system" for business logic.
+
+---
+
+## Data & Schema
+
+### Object
+The fundamental unit of data modeling. Roughly equivalent to a "Table" in SQL or a "Collection" in NoSQL. An Object definition includes Fields, Validations, and Permissions.
+
+### Field
+A single data attribute within an Object. Has a type (text, number, lookup, etc.) and optional constraints (required, unique, etc.).
+
+### Driver
+An adapter plugin that allows ObjectQL to communicate with a specific database engine.
+- Examples: `@objectstack/driver-postgres`, `@objectstack/driver-mongodb`
+
+### AST (Abstract Syntax Tree)
+The intermediate representation of a query. ObjectQL parses requests into an AST before the Driver translates it into database-specific queries.
+
+### Virtual Field
+A field that doesn't exist physically in the database but is computed on the fly (e.g., calculated fields, aggregations).
+
+---
+
+## UI & Interaction
+
+### View
+A UI component that displays object data. Types include ListView (grid/kanban), FormView (create/edit), and specialized views (calendar, gantt).
+
+### Widget
+A reusable UI component that can be embedded in pages or dashboards. Follows the ObjectUI widget contract.
+
+### Layout
+A JSON structure that describes the visual arrangement of components. Can be nested and dynamic.
+
+### Action
+A discrete unit of logic that can be triggered by a user (button click) or system event. Defines behaviors like navigation, data updates, or API calls.
+
+---
+
+## Automation & Logic
+
+### Workflow
+A business process defined as a Finite State Machine (FSM). Consists of States, Transitions, and Guards. Executes when records move between states.
+
+### Flow
+A visual logic automation tool. Supports:
+- **Screen Flows:** Interactive, user-driven processes
+- **Autolaunched Flows:** Triggered by events
+- **Scheduled Flows:** Run on a schedule
+
+### Webhook
+An HTTP callback that allows external systems to trigger actions or receive data from ObjectStack.
+
+---
+
+## Security & Access
+
+### Permission Set
+A collection of object-level and field-level permissions that can be assigned to users or roles.
+
+### FLS (Field-Level Security)
+Granular access control applied to individual fields (columns), not just entire objects (rows).
+
+### OWD (Organization-Wide Defaults)
+The baseline access level for records before sharing rules are applied. Can be Private, Public Read, or Public Read/Write.
+
+### Sharing Rule
+Additional access grants based on criteria (owner-based) or conditions (criteria-based). Extends access beyond OWD.
+
+### Territory
+A hierarchical access control model that grants data access based on geographic or organizational boundaries.
+
+---
+
+## System & Runtime
+
+### Plugin
+An extension package that adds functionality to ObjectStack. Follows the Kernel Protocol manifest specification.
+
+### Manifest
+The configuration file (`objectstack.config.ts`) that declares a plugin's metadata, dependencies, and resources.
+
+### Event Bus
+The system messaging infrastructure that enables plugins to communicate asynchronously via events.
+
+### Job
+A scheduled or queued background task managed by the System Protocol. Supports cron schedules, intervals, and one-time execution.
+
+---
+
+## Enterprise Features
+
+### Space (Workspace)
+A logical isolation unit for multi-tenancy. Each space has its own data, users, and configuration.
+
+### Tenant
+An organization or customer in a multi-tenant deployment. Each tenant's data is isolated using strategies like schema isolation or row-level filtering.
+
+### Datasource
+An external data connection configuration. Allows ObjectStack to query and sync with external databases or APIs.
+
+---
+
+## Development Terms
+
+### TCK (Technology Compatibility Kit)
+A test suite that validates if a Driver or Renderer complies with the ObjectStack Protocol. Passing the TCK certifies compatibility.
+
+### Compiler
+The component that translates high-level ObjectQL queries into optimized database-specific queries. Not a runtime wrapper like an ORM.
+
+### Renderer
+The UI component that converts ObjectUI metadata (JSON) into native interface elements (React, Flutter, etc.).
+
+---
+
+## Architecture Patterns
+
+### Protocol-Driven
+A development paradigm where logic is defined in declarative data formats (JSON/YAML) with Zod schemas rather than imperative code.
+
+### Local-First
+An architectural pattern where applications read/write to a local database first, with background synchronization to the cloud.
+
+### Database Agnostic
+The ability to swap database backends without changing application code. ObjectQL acts as a universal abstraction layer.
+
+### Server-Driven UI
+A pattern where the server sends UI structure as data (JSON), and the client renders it dynamically. Enables updates without app deployments.
+
+---
+
+## Abbreviations
+
+- **AST:** Abstract Syntax Tree
+- **CRUD:** Create, Read, Update, Delete
+- **DSL:** Domain Specific Language
+- **FLS:** Field-Level Security
+- **FSM:** Finite State Machine
+- **NLQ:** Natural Language Query
+- **OWD:** Organization-Wide Defaults
+- **RAG:** Retrieval-Augmented Generation
+- **RBAC:** Role-Based Access Control
+- **TCK:** Technology Compatibility Kit
+
+---
+
+## Next Steps
+
+- [Core Concepts](/docs/core-concepts) - Understand metadata-driven development
+- [Protocols](/docs/protocols) - Explore the protocol specifications
+- [Development](/docs/development) - Start building with ObjectStack

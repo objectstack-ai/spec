@@ -1,0 +1,925 @@
+---
+title: Layout DSL
+description: Declarative layout description language for pages, sections, and responsive grids
+---
+
+import { Layout, Grid, Columns, Box, Monitor, Smartphone, Tablet } from 'lucide-react';
+
+# Layout DSL: Composing User Interfaces
+
+The **Layout DSL** (Domain-Specific Language) is ObjectUI's declarative syntax for defining page structure, sections, and responsive grids. It abstracts away CSS Grid, Flexbox, and platform-specific layout engines.
+
+## Philosophy: Constraints Enable Creativity
+
+Instead of giving you infinite layout freedom (and infinite ways to break responsive design), ObjectUI provides a constrained, opinionated layout system:
+
+- **12-Column Grid:** All layouts use a 12-column responsive grid
+- **Section-Based:** Pages are composed of sections, sections contain fields/widgets
+- **Auto-Responsive:** Breakpoints applied automatically (no media queries)
+- **Platform-Agnostic:** Same DSL renders as CSS Grid (web), Auto Layout (iOS), ConstraintLayout (Android)
+
+**Why Constraints?**
+- **Consistency:** All forms look professionally designed
+- **Accessibility:** Keyboard navigation and screen readers work automatically
+- **Maintainability:** Designers can't create 47 different button sizes
+
+## Layout Hierarchy
+
+```
+Page
+ ├─ Header (Title, Actions, Breadcrumbs)
+ ├─ Main Region
+ │   ├─ Section 1
+ │   │   ├─ Field Group
+ │   │   │   ├─ Field A (span: 6)
+ │   │   │   └─ Field B (span: 6)
+ │   │   └─ Widget
+ │   └─ Section 2
+ │       └─ Related List
+ └─ Sidebar Region
+     ├─ Widget: Quick Stats
+     └─ Widget: Activity Feed
+```
+
+## Page Templates
+
+Top-level layout structures that define macro organization.
+
+### Standard Template
+
+```yaml
+# page_template: standard
+regions:
+  header:
+    - type: title
+      value: Customer Details
+    - type: actions
+      buttons: [edit, delete, share]
+  main:
+    - type: section
+      label: Contact Information
+      fields: [name, email, phone]
+  sidebar:
+    - type: widget
+      component: activity_feed
+```
+
+**Visual Layout:**
+```
+┌────────────────────────────────────────────────────┐
+│ Header: Customer Details        [Edit] [Delete]    │
+├──────────────────────────────┬─────────────────────┤
+│                              │                     │
+│  Main Region                 │  Sidebar            │
+│                              │                     │
+│  ┌────────────────────────┐  │  ┌───────────────┐ │
+│  │ Contact Information    │  │  │ Activity Feed │ │
+│  │ Name: ____________     │  │  │ • Called      │ │
+│  │ Email: ___________     │  │  │ • Emailed     │ │
+│  │ Phone: ___________     │  │  └───────────────┘ │
+│  └────────────────────────┘  │                     │
+│                              │                     │
+└──────────────────────────────┴─────────────────────┘
+```
+
+**Breakpoint Behavior:**
+- **Desktop (≥1024px):** Sidebar on right (25% width)
+- **Tablet (768-1023px):** Sidebar below main (full width)
+- **Mobile (less than 768px):** Sidebar below main (full width)
+
+### Console Template
+
+High-density layout for power users (like Salesforce Service Console).
+
+```yaml
+# page_template: console
+layout:
+  split_view:
+    left:
+      type: list_view
+      object: case
+      width: 30%  # Fixed width
+    right:
+      type: detail_view
+      tabs: [details, related, activity]
+```
+
+**Visual Layout:**
+```
+┌──────────────┬─────────────────────────────────────┐
+│              │  Case #12345                        │
+│ Case List    │  ┌───┬─────────┬──────────┬────────┐│
+│              │  │Det│ Related │ Activity │        ││
+│ □ Case #123  │  └───┴─────────┴──────────┴────────┘│
+│ ■ Case #124  │                                     │
+│ □ Case #125  │  Subject: Email not working         │
+│ □ Case #126  │  Priority: High                     │
+│              │  Status: In Progress                │
+│              │                                     │
+│              │  [Resolve] [Escalate]               │
+└──────────────┴─────────────────────────────────────┘
+```
+
+**Use Cases:**
+- Customer service (Case management)
+- Sales (Opportunity pipeline + details)
+- Helpdesk (Ticket queue + ticket details)
+
+### Wizard Template
+
+Multi-step flow with progress indicator.
+
+```yaml
+# page_template: wizard
+steps:
+  - name: account_info
+    label: Account Information
+    fields: [company_name, industry, size]
+  - name: contact_details
+    label: Contact Details
+    fields: [name, email, phone]
+  - name: preferences
+    label: Preferences
+    fields: [newsletter, notifications]
+  - name: review
+    label: Review & Submit
+    type: summary
+```
+
+**Visual Layout:**
+```
+┌────────────────────────────────────────────────────┐
+│  New Customer Setup                                │
+│  ● Account Info → ○ Contact → ○ Preferences → ○   │
+├────────────────────────────────────────────────────┤
+│                                                    │
+│  Account Information                               │
+│                                                    │
+│  Company Name: _______________________________     │
+│  Industry:     [Select Industry ▼]                 │
+│  Company Size: ○ 1-10  ○ 11-50  ○ 51-200          │
+│                                                    │
+│                          [Cancel]  [Next Step →]   │
+└────────────────────────────────────────────────────┘
+```
+
+## The 12-Column Grid System
+
+All layouts use a responsive grid that divides space into 12 columns.
+
+### Basic Grid Layout
+
+```yaml
+section:
+  label: Contact Information
+  columns: 2  # Each field takes 6/12 columns (50% width)
+  fields:
+    - name      # Column 1-6
+    - email     # Column 7-12
+    - phone     # Column 1-6 (new row)
+    - company   # Column 7-12
+```
+
+**Rendered Grid:**
+```
+┌──────────────────────┬──────────────────────┐
+│ Name: ______________ │ Email: _____________ │
+├──────────────────────┼──────────────────────┤
+│ Phone: _____________ │ Company: ___________ │
+└──────────────────────┴──────────────────────┘
+```
+
+### Custom Span Widths
+
+```yaml
+section:
+  label: Product Details
+  layout:
+    - field: product_name
+      span: 12  # Full width
+    - field: price
+      span: 4   # 33% width
+    - field: quantity
+      span: 4   # 33% width
+    - field: total
+      span: 4   # 33% width
+    - field: description
+      span: 12  # Full width
+```
+
+**Rendered Grid:**
+```
+┌─────────────────────────────────────────────────┐
+│ Product Name: _________________________________│
+├───────────────┬───────────────┬────────────────┤
+│ Price: $_____ │ Qty: ________ │ Total: $______ │
+├───────────────┴───────────────┴────────────────┤
+│ Description:                                    │
+│ ____________________________________________    │
+│ ____________________________________________    │
+└─────────────────────────────────────────────────┘
+```
+
+### Responsive Breakpoints
+
+Grid automatically collapses on smaller screens:
+
+```yaml
+section:
+  columns: 3  # Desktop: 3 columns, Tablet: 2 columns, Mobile: 1 column
+  fields: [field_a, field_b, field_c, field_d, field_e, field_f]
+```
+
+**Desktop (≥1024px): 3 columns**
+```
+┌──────────┬──────────┬──────────┐
+│ Field A  │ Field B  │ Field C  │
+├──────────┼──────────┼──────────┤
+│ Field D  │ Field E  │ Field F  │
+└──────────┴──────────┴──────────┘
+```
+
+**Tablet (768-1023px): 2 columns**
+```
+┌──────────────┬──────────────┐
+│ Field A      │ Field B      │
+├──────────────┼──────────────┤
+│ Field C      │ Field D      │
+├──────────────┼──────────────┤
+│ Field E      │ Field F      │
+└──────────────┴──────────────┘
+```
+
+**Mobile (less than 768px): 1 column**
+```
+┌────────────────────────┐
+│ Field A                │
+├────────────────────────┤
+│ Field B                │
+├────────────────────────┤
+│ Field C                │
+├────────────────────────┤
+│ Field D                │
+├────────────────────────┤
+│ Field E                │
+├────────────────────────┤
+│ Field F                │
+└────────────────────────┘
+```
+
+## Sections: Organizing Fields
+
+Sections are collapsible containers for related fields.
+
+### Basic Section
+
+```yaml
+sections:
+  - label: Contact Information
+    collapsible: true
+    collapsed: false  # Expanded by default
+    fields:
+      - name
+      - email
+      - phone
+```
+
+**Rendered:**
+```
+┌─ Contact Information ──────────────────────────▼─┐
+│                                                  │
+│  Name:  __________________________________________│
+│  Email: __________________________________________│
+│  Phone: __________________________________________│
+│                                                  │
+└──────────────────────────────────────────────────┘
+```
+
+### Conditional Sections
+
+Show sections based on field values or permissions:
+
+```yaml
+sections:
+  - label: Basic Info
+    fields: [name, email]
+  
+  - label: Billing Information
+    visible:
+      field: account_type
+      value: premium  # Only show for premium accounts
+    fields: [payment_method, billing_address]
+  
+  - label: Admin Settings
+    visible:
+      permission: admin  # Only show to admins
+    fields: [api_key, rate_limit]
+```
+
+### Section Variants
+
+```yaml
+sections:
+  - label: Quick Summary
+    variant: compact  # Reduced padding
+    columns: 4
+    fields: [status, priority, assignee, due_date]
+  
+  - label: Description
+    variant: spacious  # Extra padding
+    fields: [long_description]
+  
+  - label: Danger Zone
+    variant: danger  # Red border, warning icon
+    fields: [archive, delete]
+```
+
+## Field Groups and Inline Layout
+
+### Inline Field Group
+
+Group related fields on the same row:
+
+```yaml
+sections:
+  - label: Name
+    layout:
+      - type: field_group
+        inline: true
+        fields:
+          - field: first_name
+            span: 6
+            placeholder: First
+          - field: last_name
+            span: 6
+            placeholder: Last
+```
+
+**Rendered:**
+```
+Name
+┌──────────────────────┬──────────────────────┐
+│ First: _____________ │ Last: ______________ │
+└──────────────────────┴──────────────────────┘
+```
+
+### Address Field Group
+
+```yaml
+- type: field_group
+  label: Address
+  fields:
+    - field: street
+      span: 12
+    - field: city
+      span: 6
+    - field: state
+      span: 3
+    - field: postal_code
+      span: 3
+```
+
+**Rendered:**
+```
+Address
+┌─────────────────────────────────────────────────┐
+│ Street: _______________________________________│
+├──────────────────────┬───────────┬────────────┤
+│ City: _______________ │ State: __ │ ZIP: _____ │
+└──────────────────────┴───────────┴────────────┘
+```
+
+## Tabs: Multi-Page Layouts
+
+Organize large forms into tabbed sections.
+
+### Basic Tabs
+
+```yaml
+layout:
+  mode: tabbed
+  tabs:
+    - name: details
+      label: Details
+      icon: file-text
+      sections:
+        - label: Basic Info
+          fields: [name, email, phone]
+    
+    - name: address
+      label: Address
+      icon: map-pin
+      sections:
+        - label: Primary Address
+          fields: [street, city, state, zip]
+    
+    - name: preferences
+      label: Preferences
+      icon: settings
+      sections:
+        - label: Notifications
+          fields: [email_notifications, sms_notifications]
+```
+
+**Rendered:**
+```
+┌──────────────────────────────────────────────────┐
+│ [Details] [Address] [Preferences]                │
+├──────────────────────────────────────────────────┤
+│                                                  │
+│  Basic Info                                      │
+│  Name:  __________________________________________│
+│  Email: __________________________________________│
+│  Phone: __________________________________________│
+│                                                  │
+└──────────────────────────────────────────────────┘
+```
+
+### Lazy-Loaded Tabs
+
+Load tab content only when clicked (performance optimization):
+
+```yaml
+tabs:
+  - name: details
+    label: Details
+    lazy: false  # Load immediately
+  
+  - name: history
+    label: History (1,234 records)
+    lazy: true   # Load when tab clicked
+    source: /api/customers/123/history
+```
+
+### Tab Badges and Counters
+
+```yaml
+tabs:
+  - name: details
+    label: Details
+  
+  - name: tasks
+    label: Tasks
+    badge: 5  # Show "5" badge
+    badgeVariant: danger  # Red badge
+  
+  - name: notes
+    label: Notes
+    badge: { count: 12, variant: info }
+```
+
+## Responsive Layout Modifiers
+
+### Device-Specific Visibility
+
+```yaml
+fields:
+  - name: detailed_description
+    span: 12
+    visible:
+      desktop: true   # Show on desktop
+      tablet: true    # Show on tablet
+      mobile: false   # Hide on mobile
+  
+  - name: short_summary
+    span: 12
+    visible:
+      desktop: false  # Hide on desktop
+      tablet: false   # Hide on tablet
+      mobile: true    # Show on mobile
+```
+
+### Orientation-Specific Layout
+
+```yaml
+section:
+  columns:
+    portrait: 1   # 1 column in portrait mode
+    landscape: 2  # 2 columns in landscape mode
+  fields: [field_a, field_b, field_c]
+```
+
+## Related Lists: Embedding Child Records
+
+Display child records within a parent record's page.
+
+### Basic Related List
+
+```yaml
+sections:
+  - type: related_list
+    label: Contacts
+    object: contact
+    relationField: account_id  # contact.account_id → account._id
+    columns:
+      - name
+      - email
+      - phone
+    actions:
+      - type: standard_new
+        label: New Contact
+```
+
+**Rendered:**
+```
+┌─ Contacts ─────────────────────────────── [+ New Contact] ─┐
+│                                                             │
+│  Name              Email              Phone                │
+│  ────────────────  ─────────────────  ─────────────────    │
+│  John Doe          john@acme.com      555-1234            │
+│  Jane Smith        jane@acme.com      555-5678            │
+│                                                             │
+│  Showing 2 of 2 contacts                                    │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Inline Editing Related List
+
+```yaml
+sections:
+  - type: related_list
+    label: Invoice Line Items
+    object: invoice_line
+    relationField: invoice_id
+    mode: inline_edit  # Edit cells directly
+    columns:
+      - field: product
+        type: lookup
+        object: product
+      - field: quantity
+        type: number
+        editable: true
+      - field: unit_price
+        type: currency
+        editable: true
+      - field: total
+        type: formula
+        formula: quantity * unit_price
+        editable: false
+    actions:
+      - type: add_row
+        label: Add Line Item
+```
+
+## Widgets: Embedding Rich Components
+
+Widgets are pre-built UI components that display data or provide functionality.
+
+### Metric Widget
+
+```yaml
+sections:
+  - type: widget
+    component: metric
+    config:
+      title: Open Opportunities
+      value: 47
+      trend: +12%
+      trendDirection: up
+      icon: trending-up
+      color: success
+```
+
+**Rendered:**
+```
+┌─────────────────────┐
+│ Open Opportunities  │
+│                     │
+│      47      ↑ +12% │
+│                     │
+└─────────────────────┘
+```
+
+### Activity Feed Widget
+
+```yaml
+sections:
+  - type: widget
+    component: activity_feed
+    config:
+      object: activity
+      filter: { related_to: '{recordId}' }
+      limit: 10
+      showFilters: true
+```
+
+### Custom Widget
+
+```yaml
+sections:
+  - type: widget
+    component: custom.approval_timeline
+    config:
+      recordId: '{recordId}'
+      showComments: true
+```
+
+## Advanced Layouts
+
+### Master-Detail Split View
+
+```yaml
+layout:
+  type: split_view
+  orientation: horizontal  # or 'vertical'
+  split: 60  # Left: 60%, Right: 40%
+  left:
+    type: list_view
+    object: opportunity
+    view: my_opportunities
+  right:
+    type: detail_view
+    object: opportunity
+    recordId: '{selectedRecordId}'
+```
+
+### Grid of Cards
+
+```yaml
+layout:
+  type: card_grid
+  columns:
+    desktop: 3
+    tablet: 2
+    mobile: 1
+  cards:
+    - type: metric_card
+      title: Revenue
+      value: $1.2M
+    - type: metric_card
+      title: Deals
+      value: 47
+    - type: chart_card
+      title: Pipeline
+      chartType: funnel
+```
+
+### Kanban Board Layout
+
+```yaml
+layout:
+  type: kanban
+  object: project_task
+  groupBy: status
+  columns:
+    - value: todo
+      label: To Do
+      color: gray
+    - value: in_progress
+      label: In Progress
+      color: blue
+    - value: done
+      label: Done
+      color: green
+  cardFields:
+    - title
+    - assignee
+    - due_date
+```
+
+## Layout Schema Reference
+
+### Page Definition
+
+```typescript
+interface PageLayout {
+  template: 'standard' | 'console' | 'wizard';
+  title?: string;
+  subtitle?: string;
+  icon?: string;
+  regions: {
+    header?: Component[];
+    main: Component[];
+    sidebar?: Component[];
+    footer?: Component[];
+  };
+  responsive?: ResponsiveConfig;
+}
+```
+
+### Section Definition
+
+```typescript
+interface Section {
+  type: 'section';
+  label: string;
+  description?: string;
+  icon?: string;
+  collapsible?: boolean;
+  collapsed?: boolean;
+  columns?: number | ResponsiveColumns;
+  variant?: 'default' | 'compact' | 'spacious' | 'danger';
+  visible?: VisibilityRule;
+  fields: FieldReference[];
+}
+```
+
+### Field Layout
+
+```typescript
+interface FieldLayout {
+  field: string;  // Field name from ObjectQL schema
+  span?: number;  // Column span (1-12)
+  offset?: number;  // Column offset
+  label?: string;  // Override label
+  placeholder?: string;
+  helpText?: string;
+  required?: boolean;
+  readonly?: boolean;
+  visible?: VisibilityRule;
+}
+```
+
+### Responsive Columns
+
+```typescript
+interface ResponsiveColumns {
+  desktop?: number;   // ≥1024px
+  tablet?: number;    // 768-1023px
+  mobile?: number;    // less than 768px
+  portrait?: number;
+  landscape?: number;
+}
+```
+
+### Visibility Rule
+
+```typescript
+type VisibilityRule =
+  | { field: string; value: any }  // Show if field equals value
+  | { permission: string }         // Show if user has permission
+  | { expression: string }         // Show if expression evaluates to true
+  | { desktop?: boolean; tablet?: boolean; mobile?: boolean };
+```
+
+## Real-World Examples
+
+### Customer 360 Page
+
+```yaml
+name: customer_360
+object: customer
+template: standard
+regions:
+  header:
+    - type: title
+      field: name
+    - type: actions
+      buttons: [edit, delete, share, convert]
+  
+  main:
+    - type: section
+      label: Overview
+      columns: 2
+      fields:
+        - name
+        - status
+        - industry
+        - employee_count
+        - website
+        - phone
+    
+    - type: section
+      label: Key Contacts
+      columns: 1
+      component:
+        - type: related_list
+          object: contact
+          relationField: account_id
+          columns: [name, title, email, phone]
+    
+    - type: section
+      label: Open Opportunities
+      component:
+        - type: related_list
+          object: opportunity
+          relationField: account_id
+          filter: { stage: { $ne: 'closed_won' } }
+          columns: [name, amount, close_date, stage]
+  
+  sidebar:
+    - type: widget
+      component: metric
+      config:
+        title: Total Revenue
+        value: $1.2M
+    
+    - type: widget
+      component: activity_feed
+      config:
+        limit: 10
+```
+
+### Multi-Step Onboarding Wizard
+
+```yaml
+name: employee_onboarding
+object: employee
+template: wizard
+steps:
+  - name: personal_info
+    label: Personal Information
+    sections:
+      - label: Basic Details
+        columns: 2
+        fields:
+          - first_name
+          - last_name
+          - email
+          - phone
+          - date_of_birth
+          - ssn
+  
+  - name: employment
+    label: Employment Details
+    sections:
+      - label: Position
+        fields:
+          - job_title
+          - department
+          - manager
+          - start_date
+          - employment_type
+  
+  - name: compensation
+    label: Compensation
+    sections:
+      - label: Salary & Benefits
+        fields:
+          - base_salary
+          - bonus_eligible
+          - equity_grant
+          - benefits_plan
+  
+  - name: review
+    label: Review & Submit
+    type: summary
+    sections:
+      - type: summary_view
+        showAllFields: true
+```
+
+## Performance Considerations
+
+### Lazy Loading
+
+Load sections/tabs only when visible:
+
+```yaml
+sections:
+  - label: Details
+    lazy: false  # Load immediately
+  
+  - label: History (10,000 records)
+    lazy: true   # Load when section expanded
+    source: /api/customers/123/history
+```
+
+### Virtual Scrolling
+
+For long lists of fields:
+
+```yaml
+section:
+  label: Product Catalog (1,000 items)
+  virtualScroll: true
+  itemHeight: 60  # px
+  fields: [...]  # Large array
+```
+
+### Progressive Rendering
+
+Render above-the-fold content first:
+
+```yaml
+layout:
+  renderStrategy: progressive
+  priority:
+    - sections[0]  # Render first section immediately
+    - sections[1]  # Render second section after 100ms
+    - sections[2]  # Render third section after 200ms
+```
+
+## What's Next?
+
+<Cards>
+  <Card
+    icon={<Box />}
+    title="Widget Contract"
+    href="/docs/protocols/objectui/widget-contract"
+    description="Standard props and events for UI components"
+  />
+  <Card
+    icon={<MousePointer />}
+    title="Action Protocol"
+    href="/docs/protocols/objectui/actions"
+    description="Buttons, triggers, and navigation flows"
+  />
+</Cards>
+
+## Related Resources
+
+- [FormView Reference](/docs/references/ui/FormView) - Complete form configuration API
+- [ListView Reference](/docs/references/ui/ListView) - Table, kanban, calendar views
+- [Responsive Design Guide](/docs/guides/responsive-design) - Best practices
+- [Accessibility Guide](/docs/guides/accessibility) - WCAG 2.1 AA compliance

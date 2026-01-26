@@ -1,0 +1,1091 @@
+---
+title: Type System
+description: Complete reference for ObjectQL field types - Scalars, relationships, computed fields, and advanced types
+---
+
+import { Type, Link, Calculator, Database } from 'lucide-react';
+
+# ObjectQL Type System
+
+ObjectQL provides **20+ specialized field types** that encode business semantics, not just data storage primitives. Each type understands its purpose and automatically configures database schemas, UI renderers, validation rules, and API serialization.
+
+## Type Philosophy
+
+**Traditional databases:**
+```sql
+-- Just stores data
+CREATE TABLE customer (
+  revenue DECIMAL(18,2)  -- Is this USD? EUR? Monthly? Annual?
+);
+```
+
+**ObjectQL:**
+```yaml
+# Encodes business meaning
+revenue:
+  type: currency
+  label: Annual Revenue
+  scale: 2
+  precision: 18
+  # Automatically knows:
+  # - Store amount + currency code
+  # - UI shows currency symbol
+  # - Validate numeric precision
+  # - Format for display ($1,234.56)
+```
+
+## Type Categories
+
+<Cards>
+  <Card
+    icon={<Type />}
+    title="Scalar Types"
+    description="Primitive values: text, numbers, dates, booleans"
+  />
+  <Card
+    icon={<Link />}
+    title="Relationship Types"
+    description="Lookups, master-detail, polymorphic references"
+  />
+  <Card
+    icon={<Calculator />}
+    title="Computed Types"
+    description="Formulas, rollup summaries, auto-numbers"
+  />
+  <Card
+    icon={<Database />}
+    title="Complex Types"
+    description="JSON, arrays, geolocation, file attachments"
+  />
+</Cards>
+
+---
+
+## 1. Scalar Types
+
+### Text Types
+
+#### `text`
+Single-line text field.
+
+```yaml
+company_name:
+  type: text
+  label: Company Name
+  max_length: 255
+  required: true
+  index: true
+```
+
+**Database mapping:**
+- PostgreSQL: `VARCHAR(max_length)` or `TEXT`
+- MongoDB: `String`
+- Redis: `String`
+
+**UI rendering:**
+```html
+<input type="text" maxlength="255" required />
+```
+
+**Use cases:**
+- Names, titles, identifiers
+- Email addresses, phone numbers
+- Short descriptions
+
+---
+
+#### `textarea`
+Multi-line plain text.
+
+```yaml
+description:
+  type: textarea
+  label: Description
+  max_length: 5000
+  rows: 10
+```
+
+**Database mapping:**
+- PostgreSQL: `TEXT`
+- MongoDB: `String`
+
+**UI rendering:**
+```html
+<textarea rows="10" maxlength="5000"></textarea>
+```
+
+**Use cases:**
+- Comments, notes
+- Descriptions
+- Plain text content
+
+---
+
+#### `html`
+Rich text with HTML markup.
+
+```yaml
+bio:
+  type: html
+  label: Biography
+  sanitize: true  # Remove dangerous tags
+  allowed_tags: [p, br, strong, em, ul, li]
+```
+
+**Database mapping:**
+- PostgreSQL: `TEXT`
+- MongoDB: `String`
+
+**Sanitization:**
+- Removes `<script>`, `<iframe>`, `onclick` handlers
+- Prevents XSS attacks
+- Configurable allowed tags
+
+**UI rendering:**
+```html
+<!-- Rich text editor (TinyMCE, Quill, etc.) -->
+<div class="rich-text-editor"></div>
+```
+
+**Use cases:**
+- Blog posts, articles
+- Product descriptions
+- Email templates
+
+---
+
+#### `email`
+Email address with validation.
+
+```yaml
+email:
+  type: email
+  label: Email Address
+  required: true
+  unique: true
+  index: true
+```
+
+**Validation:**
+- RFC 5322 compliant regex
+- Lowercase normalization
+- Domain validation (optional DNS check)
+
+**Database mapping:**
+- PostgreSQL: `VARCHAR(255)`
+- MongoDB: `String`
+
+**Use cases:**
+- User emails
+- Contact information
+- Notification addresses
+
+---
+
+#### `url`
+URL with protocol validation.
+
+```yaml
+website:
+  type: url
+  label: Website
+  protocols: [http, https]
+```
+
+**Validation:**
+- Must include protocol (`http://`, `https://`)
+- Valid domain format
+- Optional reachability check
+
+**Use cases:**
+- Company websites
+- Social media links
+- API endpoints
+
+---
+
+#### `phone`
+Phone number with international format.
+
+```yaml
+phone:
+  type: phone
+  label: Phone Number
+  format: international  # E.164 format
+  region: US
+```
+
+**Storage format:** E.164 (`+12025551234`)
+
+**Display format:** `(202) 555-1234`
+
+**Validation:**
+- Valid phone number format
+- Country code verification
+- Optional SMS capability check
+
+---
+
+### Numeric Types
+
+#### `number`
+General-purpose numeric field.
+
+```yaml
+quantity:
+  type: number
+  label: Quantity
+  min_value: 0
+  max_value: 9999
+  scale: 0  # Integer
+  default_value: 1
+```
+
+**Configuration:**
+- `scale`: Decimal places (0 = integer)
+- `precision`: Total digits
+- `min_value`/`max_value`: Range validation
+
+**Database mapping:**
+- PostgreSQL: `NUMERIC(precision, scale)`
+- MongoDB: `Number` or `Decimal128`
+
+**Use cases:**
+- Quantities, counts
+- Ratings, scores
+- General measurements
+
+---
+
+#### `currency`
+Money amount with currency code.
+
+```yaml
+annual_revenue:
+  type: currency
+  label: Annual Revenue
+  scale: 2
+  precision: 18
+  default_currency: USD
+```
+
+**Storage:**
+```json
+{
+  "amount": 1234.56,
+  "currency": "USD"
+}
+```
+
+**Features:**
+- Multi-currency support
+- Automatic formatting ($1,234.56)
+- Exchange rate conversion (optional)
+- ISO 4217 currency codes
+
+**Database mapping:**
+- PostgreSQL: `NUMERIC(18,2)` + `VARCHAR(3)` or `JSONB`
+- MongoDB: `{ amount: Decimal128, currency: String }`
+
+---
+
+#### `percent`
+Percentage value (0-100).
+
+```yaml
+discount_rate:
+  type: percent
+  label: Discount
+  scale: 2
+  min_value: 0
+  max_value: 100
+```
+
+**Display:** `25.5%` (automatically adds % symbol)
+
+**Storage:** As decimal (0.255 for 25.5%)
+
+**Use cases:**
+- Discounts, margins
+- Completion rates
+- Tax rates
+
+---
+
+### Date/Time Types
+
+#### `date`
+Calendar date (no time component).
+
+```yaml
+birth_date:
+  type: date
+  label: Date of Birth
+  min_value: "1900-01-01"
+  max_value: "{{TODAY()}}"
+```
+
+**Storage format:** ISO 8601 (`2024-01-15`)
+
+**Database mapping:**
+- PostgreSQL: `DATE`
+- MongoDB: `Date` (time set to 00:00:00 UTC)
+
+**Use cases:**
+- Birthdays, anniversaries
+- Contract dates
+- Deadlines
+
+---
+
+#### `datetime`
+Date and time with timezone.
+
+```yaml
+meeting_time:
+  type: datetime
+  label: Meeting Time
+  timezone: user  # Store in user's timezone
+```
+
+**Storage format:** ISO 8601 with timezone (`2024-01-15T14:30:00Z`)
+
+**Timezone handling:**
+- `utc`: Store as UTC
+- `user`: Store in user's timezone
+- `fixed`: Store in specific timezone
+
+**Database mapping:**
+- PostgreSQL: `TIMESTAMP WITH TIME ZONE`
+- MongoDB: `Date`
+
+---
+
+#### `time`
+Time of day (no date component).
+
+```yaml
+business_hours_start:
+  type: time
+  label: Business Hours Start
+  default_value: "09:00:00"
+```
+
+**Storage format:** `HH:MM:SS`
+
+**Use cases:**
+- Business hours
+- Recurring event times
+- Time-based triggers
+
+---
+
+### Boolean Types
+
+#### `boolean`
+True/false value.
+
+```yaml
+is_active:
+  type: boolean
+  label: Active
+  default_value: true
+```
+
+**Storage:**
+- PostgreSQL: `BOOLEAN`
+- MongoDB: `Boolean`
+- Redis: `1` or `0`
+
+**UI rendering:**
+```html
+<input type="checkbox" />
+<!-- or -->
+<select>
+  <option value="true">Yes</option>
+  <option value="false">No</option>
+</select>
+```
+
+---
+
+#### `checkbox`
+Boolean displayed as checkbox.
+
+```yaml
+email_opt_in:
+  type: checkbox
+  label: Subscribe to Newsletter
+  default_value: false
+```
+
+**Difference from `boolean`:**
+- Always renders as checkbox (not dropdown)
+- Typically used for consent, preferences
+
+---
+
+### Selection Types
+
+#### `select`
+Dropdown/picklist from predefined options.
+
+```yaml
+priority:
+  type: select
+  label: Priority
+  options:
+    - value: low
+      label: Low
+      color: green
+      icon: arrow-down
+    - value: medium
+      label: Medium
+      color: yellow
+      icon: minus
+    - value: high
+      label: High
+      color: orange
+      icon: arrow-up
+    - value: critical
+      label: Critical
+      color: red
+      icon: alert
+  default_value: medium
+  required: true
+```
+
+**Storage:** Stores `value` (not `label`)
+
+**Database mapping:**
+- PostgreSQL: `VARCHAR` or `ENUM`
+- MongoDB: `String`
+
+**Dynamic options:**
+```yaml
+country:
+  type: select
+  options_source: api
+  options_endpoint: /api/countries
+```
+
+**Use cases:**
+- Status, stage, priority
+- Categories, types
+- Fixed value lists
+
+---
+
+#### `multi_select`
+Multiple selection from options.
+
+```yaml
+tags:
+  type: multi_select
+  label: Tags
+  options:
+    - { value: customer, label: Customer }
+    - { value: partner, label: Partner }
+    - { value: vendor, label: Vendor }
+  multiple: true
+```
+
+**Storage:**
+- PostgreSQL: `TEXT[]` (array) or `JSONB`
+- MongoDB: `[String]`
+
+**Example value:** `['customer', 'partner']`
+
+---
+
+#### `radio`
+Radio button group (single selection).
+
+```yaml
+contact_method:
+  type: radio
+  label: Preferred Contact Method
+  options:
+    - { value: email, label: Email }
+    - { value: phone, label: Phone }
+    - { value: sms, label: SMS }
+  orientation: horizontal  # or vertical
+```
+
+**Difference from `select`:**
+- All options visible (no dropdown)
+- Better UX for 2-5 options
+
+---
+
+## 2. Relationship Types
+
+### `lookup`
+Foreign key reference to another object.
+
+```yaml
+account_id:
+  type: lookup
+  label: Account
+  reference_to: account
+  required: true
+  reference_filters:
+    - ['is_active', '=', true]
+  on_delete: set_null  # or restrict, cascade
+```
+
+**Storage:** Stores `_id` of referenced record
+
+**Query behavior:**
+```typescript
+// Automatic JOIN
+const opportunities = await ObjectQL.query({
+  object: 'opportunity',
+  fields: ['name', 'account.company_name']  // Joins account
+});
+```
+
+**On Delete Options:**
+- `set_null`: Set field to null when referenced record is deleted
+- `restrict`: Prevent deletion if references exist
+- `cascade`: Delete this record when referenced record is deleted
+
+**Multiple lookups:**
+```yaml
+contacts:
+  type: lookup
+  reference_to: contact
+  multiple: true  # Many-to-many
+```
+
+**Database mapping:**
+- PostgreSQL: `UUID` + Foreign Key constraint
+- MongoDB: `ObjectId` or `String`
+
+---
+
+### `master_detail`
+Strong parent-child relationship.
+
+```yaml
+project_id:
+  type: master_detail
+  label: Project
+  reference_to: project
+  cascade_delete: true
+```
+
+**Characteristics:**
+- **Ownership:** Child cannot exist without parent
+- **Cascade delete:** Deleting parent deletes all children
+- **Sharing inheritance:** Child inherits parent's permissions
+- **Rollup support:** Parent can aggregate child data
+
+**Difference from `lookup`:**
+
+| Feature | Lookup | Master-Detail |
+|---------|--------|---------------|
+| Deletion | Configurable | Always cascade |
+| Permissions | Independent | Inherited |
+| Required | Optional | Always required |
+| Use case | Loose reference | Ownership |
+
+**Example:**
+```yaml
+# Order (Master)
+name: order
+
+# Order Line Item (Detail)
+name: order_line_item
+fields:
+  order_id:
+    type: master_detail
+    reference_to: order
+```
+
+---
+
+### `polymorphic`
+Reference to multiple object types.
+
+```yaml
+parent:
+  type: polymorphic
+  label: Related To
+  reference_to: [account, contact, opportunity]
+```
+
+**Storage:**
+```json
+{
+  "_id": "123",
+  "_type": "account"
+}
+```
+
+**Query:**
+```typescript
+const activity = await ObjectQL.findOne('activity', id, {
+  expand: ['parent']  // Resolves based on _type
+});
+
+// activity.parent = { _id: '123', _type: 'account', company_name: 'Acme' }
+```
+
+**Database mapping:**
+- PostgreSQL: Two columns `parent_id` + `parent_type`
+- MongoDB: `{ _id: String, _type: String }`
+
+**Use cases:**
+- Activity feeds (related to Account OR Contact)
+- Attachments (attach to any object)
+- Comments (comment on any entity)
+
+---
+
+## 3. Computed Types
+
+### `formula`
+Calculated field based on other fields.
+
+```yaml
+total_price:
+  type: formula
+  label: Total Price
+  formula: "quantity * unit_price"
+  data_type: currency
+  virtual: true  # Not stored, calculated on read
+```
+
+**Formula syntax:**
+- **Arithmetic:** `+`, `-`, `*`, `/`, `^`
+- **Comparison:** `=`, `!=`, `>`, `<`, `>=`, `<=`
+- **Logical:** `AND`, `OR`, `NOT`
+- **Functions:** `IF()`, `SUM()`, `MIN()`, `MAX()`, `LEN()`, `UPPER()`, etc.
+
+**Examples:**
+
+```yaml
+# Simple calculation
+discount_amount:
+  type: formula
+  formula: "price * (discount_rate / 100)"
+  data_type: currency
+
+# Conditional logic
+status_label:
+  type: formula
+  formula: "IF(is_active, 'Active', 'Inactive')"
+  data_type: text
+
+# Cross-object formula (via lookup)
+account_revenue_tier:
+  type: formula
+  formula: "IF(account.annual_revenue > 1000000, 'Enterprise', 'SMB')"
+  data_type: text
+
+# Date calculation
+days_until_due:
+  type: formula
+  formula: "due_date - TODAY()"
+  data_type: number
+```
+
+**Storage options:**
+- `virtual: true`: Calculate on every read (default)
+- `virtual: false`: Store value, recalculate on write
+
+**Performance:**
+- Virtual formulas: No storage cost, query-time calculation
+- Stored formulas: Faster reads, slower writes
+
+---
+
+### `summary` (Rollup)
+Aggregate child records in master-detail relationship.
+
+```yaml
+# On Account object
+total_opportunities:
+  type: summary
+  label: Total Opportunities
+  summary_object: opportunity
+  summary_type: count
+
+total_opportunity_value:
+  type: summary
+  label: Pipeline Value
+  summary_object: opportunity
+  summary_field: amount
+  summary_type: sum
+  summary_filters:
+    - ['stage', 'in', ['Prospecting', 'Qualification', 'Proposal']]
+```
+
+**Summary Types:**
+- `count`: Count child records
+- `sum`: Sum a numeric field
+- `min`: Minimum value
+- `max`: Maximum value
+- `avg`: Average value
+
+**Requirements:**
+- Must have master-detail relationship
+- Only available on master side
+- Filters apply to child records
+
+**Database implementation:**
+- Materialized view (PostgreSQL)
+- Aggregation pipeline (MongoDB)
+- Background job recalculation
+
+**Performance:**
+- Real-time: Recalculate on child write (slow)
+- Batch: Update every N minutes (stale data)
+- Hybrid: Increment/decrement on simple changes
+
+---
+
+### `auto_number`
+Auto-incrementing unique identifier.
+
+```yaml
+case_number:
+  type: auto_number
+  label: Case Number
+  format: "CASE-{0000}"
+  start: 1
+```
+
+**Example values:** `CASE-0001`, `CASE-0002`, ...
+
+**Format tokens:**
+- `{0000}`: Zero-padded number
+- `{YYYY}`: Year
+- `{MM}`: Month
+- `{DD}`: Day
+
+**Complex formats:**
+```yaml
+invoice_number:
+  type: auto_number
+  format: "INV-{YYYY}-{0000}"
+  # Generates: INV-2024-0001, INV-2024-0002, ...
+```
+
+**Database implementation:**
+- PostgreSQL: `SEQUENCE`
+- MongoDB: Atomic counter collection
+
+---
+
+## 4. Complex Types
+
+### `json`
+Unstructured JSON data.
+
+```yaml
+metadata:
+  type: json
+  label: Metadata
+  schema:  # Optional JSON Schema validation
+    type: object
+    properties:
+      color:
+        type: string
+      size:
+        type: string
+      weight:
+        type: number
+```
+
+**Storage:**
+- PostgreSQL: `JSONB`
+- MongoDB: Native object
+
+**Query support:**
+```typescript
+// Query JSON properties
+const products = await ObjectQL.query({
+  object: 'product',
+  filters: [
+    ['metadata.color', '=', 'red']
+  ]
+});
+```
+
+**Use cases:**
+- Product attributes (varying by category)
+- Integration payloads
+- User preferences
+- Dynamic configurations
+
+---
+
+### `array`
+Ordered list of values.
+
+```yaml
+tags:
+  type: array
+  label: Tags
+  item_type: text
+  max_items: 10
+```
+
+**Storage:**
+- PostgreSQL: `TEXT[]` or `JSONB`
+- MongoDB: `[String]`
+
+**Query:**
+```typescript
+// Contains check
+filters: [['tags', 'contains', 'important']]
+
+// Array length
+filters: [['tags.length', '>', 3]]
+```
+
+---
+
+### `address`
+Structured address with geocoding.
+
+```yaml
+billing_address:
+  type: address
+  label: Billing Address
+  geocode: true  # Auto-geocode on save
+```
+
+**Structure:**
+```json
+{
+  "street": "123 Main St",
+  "city": "San Francisco",
+  "state": "CA",
+  "postal_code": "94105",
+  "country": "USA",
+  "latitude": 37.7749,
+  "longitude": -122.4194
+}
+```
+
+**Features:**
+- Auto-complete from Google Maps API
+- Geocoding (address → lat/lng)
+- Reverse geocoding (lat/lng → address)
+- Distance calculations
+
+**Database mapping:**
+- PostgreSQL: `JSONB` or composite type
+- MongoDB: Embedded document
+
+---
+
+### `location`
+Geographic coordinates.
+
+```yaml
+office_location:
+  type: location
+  label: Office Location
+```
+
+**Storage:**
+```json
+{
+  "latitude": 37.7749,
+  "longitude": -122.4194
+}
+```
+
+**Query:**
+```typescript
+// Find nearby locations (within 10 miles)
+const nearby = await ObjectQL.query({
+  object: 'store',
+  filters: [
+    ['location', 'near', { lat: 37.7749, lng: -122.4194, distance: 10, unit: 'miles' }]
+  ]
+});
+```
+
+**Database mapping:**
+- PostgreSQL: `POINT` or `GEOGRAPHY`
+- MongoDB: GeoJSON
+
+---
+
+### `file`
+File attachment reference.
+
+```yaml
+avatar:
+  type: file
+  label: Profile Picture
+  accept: [image/png, image/jpeg]
+  max_size: 5242880  # 5MB
+  storage: s3
+```
+
+**Storage:**
+```json
+{
+  "filename": "profile.jpg",
+  "content_type": "image/jpeg",
+  "size": 1024000,
+  "url": "https://cdn.example.com/files/abc123.jpg"
+}
+```
+
+**Storage backends:**
+- `local`: Server filesystem
+- `s3`: Amazon S3
+- `azure`: Azure Blob Storage
+- `gcs`: Google Cloud Storage
+
+**Features:**
+- Automatic upload handling
+- Content-type validation
+- Virus scanning (optional)
+- CDN integration
+
+---
+
+### `image`
+Image file with transformations.
+
+```yaml
+product_image:
+  type: image
+  label: Product Image
+  transformations:
+    thumbnail: { width: 150, height: 150, crop: center }
+    large: { width: 1200, height: 800, crop: fit }
+```
+
+**Features:**
+- Automatic image resizing
+- Format conversion (JPEG, PNG, WebP)
+- Lazy loading support
+- Responsive srcset generation
+
+---
+
+## Type Conversion Matrix
+
+How types convert between databases:
+
+| ObjectQL Type | PostgreSQL | MongoDB | Redis |
+|---------------|------------|---------|-------|
+| `text` | `VARCHAR` / `TEXT` | `String` | `String` |
+| `number` | `NUMERIC` | `Number` | `String` |
+| `currency` | `JSONB` | `Object` | `String` (JSON) |
+| `date` | `DATE` | `Date` | `String` (ISO) |
+| `datetime` | `TIMESTAMP` | `Date` | `String` (ISO) |
+| `boolean` | `BOOLEAN` | `Boolean` | `0` / `1` |
+| `select` | `VARCHAR` / `ENUM` | `String` | `String` |
+| `lookup` | `UUID` + FK | `ObjectId` | `String` |
+| `formula` | `GENERATED` | Virtual | Computed |
+| `json` | `JSONB` | `Object` | `String` (JSON) |
+| `array` | `TEXT[]` | `Array` | `String` (JSON) |
+| `location` | `POINT` | `GeoJSON` | `String` (JSON) |
+
+## Custom Types
+
+Define reusable custom types:
+
+```typescript
+// objectstack.config.ts
+export default {
+  types: {
+    social_security: {
+      base: 'text',
+      pattern: /^\d{3}-\d{2}-\d{4}$/,
+      format: (value) => value.replace(/(\d{3})(\d{2})(\d{4})/, '$1-$2-$3'),
+      mask: '***-**-####',  // Show only last 4 digits
+    },
+    
+    credit_card: {
+      base: 'text',
+      pattern: /^\d{13,19}$/,
+      encrypt: true,  // PCI compliance
+      tokenize: true,  // Store token, not actual number
+    }
+  }
+};
+```
+
+**Usage:**
+```yaml
+ssn:
+  type: social_security
+  label: Social Security Number
+
+card_number:
+  type: credit_card
+  label: Credit Card
+```
+
+## Type Selection Guide
+
+**For text data:**
+- Short, single-line → `text`
+- Multi-line → `textarea`
+- Rich formatting → `html`
+- Email address → `email`
+- URL → `url`
+- Phone → `phone`
+
+**For numbers:**
+- General purpose → `number`
+- Money → `currency`
+- Percentage → `percent`
+- Unique ID → `auto_number`
+
+**For dates:**
+- Date only → `date`
+- Date + time → `datetime`
+- Time only → `time`
+
+**For selections:**
+- Fixed options → `select`
+- Multiple selections → `multi_select`
+- 2-5 visible options → `radio`
+- Yes/No → `boolean` or `checkbox`
+
+**For relationships:**
+- Loose reference → `lookup`
+- Parent-child → `master_detail`
+- Multiple types → `polymorphic`
+
+**For calculations:**
+- Derived value → `formula`
+- Aggregate children → `summary`
+
+**For complex data:**
+- Flexible schema → `json`
+- List of items → `array`
+- Geographic data → `location` or `address`
+- File upload → `file` or `image`
+
+## Next Steps
+
+<Cards>
+  <Card
+    title="Schema Definition"
+    href="/docs/protocols/objectql/schema"
+    description="Learn how to define objects and configure fields"
+  />
+  <Card
+    title="Query Syntax"
+    href="/docs/protocols/objectql/query-syntax"
+    description="Query data with filters, joins, and aggregations"
+  />
+  <Card
+    title="Security"
+    href="/docs/protocols/objectql/security"
+    description="Implement access control and data security"
+  />
+</Cards>

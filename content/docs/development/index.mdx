@@ -1,0 +1,371 @@
+---
+title: Development & Extension
+description: Extend ObjectStack with plugins, custom widgets, and drivers to build powerful business applications.
+---
+
+# Development & Extension
+
+ObjectStack is designed for **extensibility at every layer**. Whether you're building a custom field widget, integrating a third-party API, or creating an entirely new database driver, the platform provides clean interfaces and powerful abstractions.
+
+## 🎯 What You Can Extend
+
+<Cards>
+  <Card icon="plug" title="Plugins" href="/docs/development/writing-plugins">
+    Add new objects, routes, scheduled jobs, and business logic
+  </Card>
+  
+  <Card icon="component" title="Custom Widgets" href="/docs/development/custom-widgets">
+    Build React/Vue components for custom field rendering
+  </Card>
+  
+  <Card icon="database" title="Drivers" href="/docs/development/server-drivers">
+    Connect to any database or data source (SQL, NoSQL, APIs)
+  </Card>
+  
+  <Card icon="terminal" title="CLI Tools" href="/docs/development/cli-tools">
+    Manage projects, generate code, and deploy with objectstack-cli
+  </Card>
+</Cards>
+
+---
+
+## 📐 Architecture Overview
+
+ObjectStack follows a **layered, protocol-driven architecture**:
+
+```
+┌─────────────────────────────────────────┐
+│         Your Application Code           │
+│   (Objects, Flows, Views, Plugins)      │
+├─────────────────────────────────────────┤
+│          ObjectStack Kernel             │
+│   • Plugin System   • Event Bus         │
+│   • Lifecycle Mgmt  • Dependency DI     │
+├─────────────────────────────────────────┤
+│          Protocol Layer                 │
+│   • ObjectQL  • ObjectUI  • ObjectOS    │
+├─────────────────────────────────────────┤
+│          Driver Layer                   │
+│   • PostgreSQL  • MongoDB  • Redis      │
+│   • MySQL       • Memory   • Custom     │
+└─────────────────────────────────────────┘
+```
+
+### Key Principles
+
+1. **Everything is Metadata** - Define structure declaratively, execute dynamically
+2. **Zod-First Design** - All schemas are validated at runtime and compile-time
+3. **Protocol Contracts** - Strict interfaces ensure interoperability
+4. **Local-First** - Own your data, run anywhere
+
+---
+
+## 🚀 Quick Start Paths
+
+### For Frontend Developers
+
+Start with **Custom Widgets** to enhance the UI layer:
+
+```bash
+npm create @objectstack/widget my-rich-editor
+cd my-rich-editor
+npm install
+npm run dev
+```
+
+Build React/Vue components that integrate seamlessly with ObjectStack forms and views.
+
+[→ Custom Widgets Guide](/docs/development/custom-widgets)
+
+---
+
+### For Backend Developers
+
+Start with **Plugins** to add business logic:
+
+```bash
+npm create @objectstack/plugin my-api-integration
+cd my-api-integration
+npm install
+npm run build
+```
+
+Create custom Objects, API routes, scheduled jobs, and event listeners.
+
+[→ Plugin Development Guide](/docs/development/writing-plugins)
+
+---
+
+### For Database Engineers
+
+Start with **Drivers** to connect new data sources:
+
+```bash
+npm create @objectstack/driver my-custom-db
+cd my-custom-db
+npm install
+npm run build
+```
+
+Implement the `DriverInterface` to bridge ObjectQL with any database.
+
+[→ Driver Development Guide](/docs/development/server-drivers)
+
+---
+
+## 🛠️ Development Workflow
+
+### 1. Project Initialization
+
+```bash
+# Create a new ObjectStack project
+npx @objectstack/cli init my-project
+
+# Or add to existing project
+npm install @objectstack/spec @objectstack/kernel
+```
+
+### 2. Define Metadata
+
+All ObjectStack resources are defined as **TypeScript files** using Zod schemas:
+
+```typescript
+// src/objects/task.object.ts
+import { ObjectSchema, Field } from '@objectstack/spec';
+
+export const Task = ObjectSchema.create({
+  name: 'task',
+  label: 'Task',
+  fields: {
+    title: Field.text({ label: 'Title', required: true }),
+    status: Field.select({
+      label: 'Status',
+      options: [
+        { label: 'To Do', value: 'todo' },
+        { label: 'Done', value: 'done' },
+      ],
+    }),
+  },
+});
+```
+
+### 3. Build & Deploy
+
+```bash
+# Validate schemas
+npm run validate
+
+# Build for production
+npm run build
+
+# Deploy to ObjectStack Cloud or self-hosted
+objectstack deploy
+```
+
+---
+
+## 📦 Extension Types Compared
+
+| Extension Type | Use Case | Language | Runtime |
+|----------------|----------|----------|---------|
+| **Plugin** | Add objects, routes, jobs, logic | TypeScript/JavaScript | Server |
+| **Widget** | Custom field rendering | React, Vue, Svelte | Browser |
+| **Driver** | Database connectivity | TypeScript/JavaScript | Server |
+| **Flow Action** | Custom automation steps | TypeScript/JavaScript | Server |
+| **API Adapter** | External service integration | TypeScript/JavaScript | Server |
+
+---
+
+## 🎓 Learning Resources
+
+<Steps>
+
+<Step>
+### Understand the Core Protocols
+
+Before building extensions, familiarize yourself with the three core protocols:
+
+- [ObjectQL](/docs/protocols/objectql) - Data modeling and queries
+- [ObjectUI](/docs/protocols/objectui) - User interface definitions
+- [ObjectOS](/docs/protocols/objectos) - System runtime and plugin architecture
+
+</Step>
+
+<Step>
+### Study Examples
+
+Explore reference implementations:
+
+- `examples/plugin-crm` - Full-featured CRM plugin
+- `examples/widget-rich-text` - Custom WYSIWYG editor widget
+- `examples/driver-mongodb` - MongoDB driver implementation
+- `examples/flow-action-email` - Email sending flow action
+
+</Step>
+
+<Step>
+### Build Your Extension
+
+Follow the step-by-step guides for your extension type:
+
+1. [Writing Plugins](/docs/development/writing-plugins)
+2. [Custom Widgets](/docs/development/custom-widgets)
+3. [Server Drivers](/docs/development/server-drivers)
+4. [CLI Tools](/docs/development/cli-tools)
+
+</Step>
+
+</Steps>
+
+---
+
+## 🔐 Security & Best Practices
+
+### Input Validation
+
+Always validate user input using Zod schemas:
+
+```typescript
+import { z } from 'zod';
+
+const CreateTaskSchema = z.object({
+  title: z.string().min(1).max(200),
+  priority: z.enum(['low', 'medium', 'high']),
+});
+
+// In your plugin
+export default {
+  onEnable: async (context) => {
+    context.router.post('/api/tasks', async (req, res) => {
+      const data = CreateTaskSchema.parse(req.body); // Throws if invalid
+      // Safe to use data...
+    });
+  },
+};
+```
+
+### Permission Checks
+
+Enforce access control using ObjectStack's permission system:
+
+```typescript
+// Check object-level permissions
+const canCreate = await context.os.checkPermission('task', 'create');
+
+// Check field-level permissions
+const canEditStatus = await context.os.checkFieldPermission(
+  'task',
+  'status',
+  'edit'
+);
+```
+
+### Error Handling
+
+Use structured error responses:
+
+```typescript
+import { ObjectStackError } from '@objectstack/kernel';
+
+throw new ObjectStackError('VALIDATION_ERROR', {
+  message: 'Invalid task status',
+  field: 'status',
+  code: 'INVALID_STATUS',
+});
+```
+
+---
+
+## 🧪 Testing Your Extensions
+
+### Unit Testing
+
+Test your business logic in isolation:
+
+```typescript
+import { describe, it, expect } from 'vitest';
+import { validateTask } from './validators';
+
+describe('Task Validation', () => {
+  it('should reject empty titles', () => {
+    expect(() => validateTask({ title: '' })).toThrow();
+  });
+});
+```
+
+### Integration Testing
+
+Test against a real ObjectStack runtime:
+
+```typescript
+import { createTestContext } from '@objectstack/testing';
+
+const context = await createTestContext({
+  plugins: ['./my-plugin'],
+});
+
+const result = await context.ql.object('task').create({
+  title: 'Test Task',
+});
+
+expect(result.id).toBeDefined();
+```
+
+---
+
+## 🌍 Publishing Extensions
+
+### NPM Packages
+
+Publish plugins and drivers as npm packages:
+
+```json
+{
+  "name": "@mycompany/objectstack-plugin-crm",
+  "version": "1.0.0",
+  "keywords": ["objectstack", "plugin", "crm"],
+  "objectstack": {
+    "type": "plugin",
+    "entry": "./dist/index.js"
+  }
+}
+```
+
+### ObjectStack Hub
+
+Submit your extension to the official marketplace:
+
+```bash
+objectstack publish --registry hub.objectstack.dev
+```
+
+---
+
+## 📚 Next Steps
+
+<Cards>
+  <Card icon="book" title="API Reference" href="/docs/99-reference">
+    Complete API documentation for all protocols
+  </Card>
+  
+  <Card icon="code" title="Examples" href="https://github.com/objectstack/examples">
+    Production-ready example projects
+  </Card>
+  
+  <Card icon="message-circle" title="Community" href="https://discord.gg/objectstack">
+    Get help from the community
+  </Card>
+</Cards>
+
+---
+
+## 🆘 Getting Help
+
+- **Documentation**: [docs.objectstack.dev](https://docs.objectstack.dev)
+- **Discord**: [discord.gg/objectstack](https://discord.gg/objectstack)
+- **GitHub Discussions**: [github.com/objectstack/spec/discussions](https://github.com/objectstack/spec/discussions)
+- **Stack Overflow**: Tag your questions with `objectstack`
+
+---
+
+Ready to start building? Pick your extension type and dive into the guides! 🚀
