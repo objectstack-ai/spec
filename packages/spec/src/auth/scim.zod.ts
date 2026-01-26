@@ -405,16 +405,40 @@ export const SCIMEnterpriseUserSchema = z.object({
 export type SCIMEnterpriseUser = z.infer<typeof SCIMEnterpriseUserSchema>;
 
 /**
+ * SCIM Schema URI Validator
+ * Validates that schema URIs are known SCIM schema identifiers
+ */
+const SCIMSchemaURISchema = z.enum([
+  SCIM_SCHEMAS.USER,
+  SCIM_SCHEMAS.GROUP,
+  SCIM_SCHEMAS.ENTERPRISE_USER,
+  SCIM_SCHEMAS.RESOURCE_TYPE,
+  SCIM_SCHEMAS.SERVICE_PROVIDER_CONFIG,
+  SCIM_SCHEMAS.SCHEMA,
+  SCIM_SCHEMAS.LIST_RESPONSE,
+  SCIM_SCHEMAS.PATCH_OP,
+  SCIM_SCHEMAS.BULK_REQUEST,
+  SCIM_SCHEMAS.BULK_RESPONSE,
+  SCIM_SCHEMAS.ERROR,
+]);
+
+/**
  * SCIM User Schema (Core)
  * Complete SCIM 2.0 User resource
  */
 export const SCIMUserSchema = z.object({
   /**
    * SCIM schema URIs
+   * Must include at minimum the core User schema URI
    */
   schemas: z.array(z.string())
+    .min(1)
+    .refine(
+      (schemas) => schemas.includes(SCIM_SCHEMAS.USER),
+      'Must include core User schema URI'
+    )
     .default([SCIM_SCHEMAS.USER])
-    .describe('SCIM schema URIs'),
+    .describe('SCIM schema URIs (must include User schema)'),
 
   /**
    * Unique identifier
@@ -661,10 +685,16 @@ export type SCIMMemberReference = z.infer<typeof SCIMMemberReferenceSchema>;
 export const SCIMGroupSchema = z.object({
   /**
    * SCIM schema URIs
+   * Must include at minimum the core Group schema URI
    */
   schemas: z.array(z.string())
+    .min(1)
+    .refine(
+      (schemas) => schemas.includes(SCIM_SCHEMAS.GROUP),
+      'Must include core Group schema URI'
+    )
     .default([SCIM_SCHEMAS.GROUP])
-    .describe('SCIM schema URIs'),
+    .describe('SCIM schema URIs (must include Group schema)'),
 
   /**
    * Unique identifier
@@ -705,8 +735,17 @@ export const SCIMGroupSchema = z.object({
 export type SCIMGroup = z.infer<typeof SCIMGroupSchema>;
 
 /**
+ * SCIM Resource Union Type
+ * Known SCIM resource types for type-safe list responses
+ */
+export type SCIMResource = SCIMUser | SCIMGroup;
+
+/**
  * SCIM List Response
  * Paginated list of resources
+ * 
+ * Generic type T allows for type-safe responses when the resource type is known.
+ * For mixed resource types, use SCIMResource union.
  */
 export const SCIMListResponseSchema = z.object({
   /**
@@ -726,9 +765,10 @@ export const SCIMListResponseSchema = z.object({
 
   /**
    * Resources returned in this response
+   * Use SCIMListResponseOf<T> for type-safe responses
    */
-  Resources: z.array(z.any())
-    .describe('Resources array'),
+  Resources: z.array(z.union([SCIMUserSchema, SCIMGroupSchema, z.record(z.any())]))
+    .describe('Resources array (Users, Groups, or custom resources)'),
 
   /**
    * 1-based index of the first result
@@ -890,10 +930,16 @@ export const SCIM = {
   /**
    * Create an error response
    */
-  error: (status: number, detail: string, scimType?: string): SCIMError => ({
+  error: (
+    status: number,
+    detail: string,
+    scimType?: 'invalidFilter' | 'tooMany' | 'uniqueness' | 'mutability' | 
+                'invalidSyntax' | 'invalidPath' | 'noTarget' | 'invalidValue' | 
+                'invalidVers' | 'sensitive'
+  ): SCIMError => ({
     schemas: [SCIM_SCHEMAS.ERROR],
     status,
     detail,
-    scimType: scimType as any,
+    scimType,
   }),
 } as const;

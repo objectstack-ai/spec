@@ -261,6 +261,15 @@ export const RowLevelSecurityPolicySchema = z.object({
    * This is a SQL-like expression evaluated for each row.
    * Only rows where this expression returns TRUE are accessible.
    * 
+   * **Security Note**: RLS conditions are executed at the database level with
+   * parameterized queries. The implementation must use prepared statements
+   * to prevent SQL injection. Never concatenate user input directly into
+   * RLS conditions.
+   * 
+   * **SQL Dialect**: Compatible with PostgreSQL SQL syntax. Implementations
+   * may adapt to other databases (MySQL, SQL Server, etc.) but should maintain
+   * semantic equivalence.
+   * 
    * Available context variables:
    * - `current_user.id` - Current user's ID
    * - `current_user.tenant_id` - Current user's tenant
@@ -268,14 +277,20 @@ export const RowLevelSecurityPolicySchema = z.object({
    * - `current_user.department` - Current user's department
    * - `current_user.*` - Any custom user field
    * - `NOW()` - Current timestamp
+   * - `CURRENT_DATE` - Current date
+   * - `CURRENT_TIME` - Current time
    * 
    * Supported operators:
-   * - Comparison: =, !=, <, >, <=, >=
+   * - Comparison: =, !=, <, >, <=, >=, <> (not equal)
    * - Logical: AND, OR, NOT
    * - NULL checks: IS NULL, IS NOT NULL
    * - Set operations: IN, NOT IN
-   * - String: LIKE, NOT LIKE
+   * - String: LIKE, NOT LIKE, ILIKE (case-insensitive)
+   * - Pattern matching: ~ (regex), !~ (not regex)
    * - Subqueries: (SELECT ...)
+   * - Array operations: ANY, ALL
+   * 
+   * **Prohibited**: Dynamic SQL, DDL statements, DML statements (INSERT/UPDATE/DELETE)
    * 
    * @example "tenant_id = current_user.tenant_id"
    * @example "owner_id = current_user.id OR created_by = current_user.id"
@@ -283,7 +298,7 @@ export const RowLevelSecurityPolicySchema = z.object({
    * @example "status = 'active' AND expiry_date > NOW()"
    */
   using: z.string()
-    .describe('Filter condition (SQL WHERE clause syntax)'),
+    .describe('Filter condition (PostgreSQL SQL WHERE clause syntax with parameterized context variables)'),
 
   /**
    * CHECK clause - Validation for INSERT/UPDATE operations.
@@ -291,19 +306,23 @@ export const RowLevelSecurityPolicySchema = z.object({
    * Similar to USING but applies to new/modified rows.
    * Prevents users from creating/updating rows they wouldn't be able to see.
    * 
-   * If not specified, defaults to the USING clause.
+   * **Default Behavior**: If not specified, implementations should use the
+   * USING clause as the CHECK clause. This ensures data integrity by preventing
+   * users from creating records they cannot view.
    * 
    * Use cases:
    * - Prevent cross-tenant data creation
    * - Enforce mandatory field values
    * - Validate data integrity rules
+   * - Restrict certain operations (e.g., only allow creating "draft" status)
    * 
    * @example "tenant_id = current_user.tenant_id"
    * @example "status IN ('draft', 'pending')" - Only allow certain statuses
+   * @example "created_by = current_user.id" - Must be the creator
    */
   check: z.string()
     .optional()
-    .describe('Validation condition for INSERT/UPDATE (defaults to using clause)'),
+    .describe('Validation condition for INSERT/UPDATE (defaults to USING clause if not specified - enforced at application level)'),
 
   /**
    * Restrict this policy to specific roles.
