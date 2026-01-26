@@ -98,12 +98,12 @@ import { PageComponent } from '@objectstack/spec/ui';
 
 function withEngine(Widget: React.ComponentType) {
   return (props: { config: PageComponent }) => {
-    // 1. Auto-handle Visibility
+    // 1. Auto-handle Visibility (Expressions like: "record.status == 'closed'")
     if (!evalVisibility(props.config.visibility)) return null;
 
-    // 2. Error Boundary
+    // 2. Error Boundary per functionality block
     return (
-      <ErrorBoundary>
+      <ErrorBoundary fallback={({error}) => <AtomError message={error.message} />}>
          <Suspense fallback={<AtomSpinner />}>
             <Widget {...props} />
          </Suspense>
@@ -112,3 +112,116 @@ function withEngine(Widget: React.ComponentType) {
   };
 }
 ```
+
+---
+
+## 4. Advanced Scenarios & Solutions
+
+### A. Dynamic Registry (Lazy Loading)
+Don't bundle entire component libraries. Use `React.lazy` mapping.
+```typescript
+// registry.ts
+export const widgetRegistry = {
+  'page:tabs': lazy(() => import('@objectstack/components/structure/PageTabs')),
+  'record:details': lazy(() => import('@objectstack/components/record/RecordDetails')),
+  // ... extended by plugins
+};
+```
+
+### B. Inter-Component Communication (Event Bus)
+Start Scenario: A "Save" button in `page:header` needs to submit a form in `record:details`.
+*   **Solution:** Use a scoped `EventBus` provided by `PageContext`.
+*   **Protocol:** `bus.emit('record:save')` -> `RecordDetails` listens and submits.
+
+### C. Form State (React Hook Form + Zod)
+Scenario: Validating fields based on metadata rules (`maxLength`, `min`, `regex`).
+*   **Solution:** Automatically generate Zod Validation Schema from `field.zod.ts` definitions at runtime.
+*   **Pattern:** `useZodForm(objectSchema)` hook that bridges Metadata -> React Hook Form.
+
+### D. Field-Level Security (FLS)
+Scenario: User sees the record but lacks permission to view 'Salary' field.
+*   **Solution:** `DataEngine` must filter restricted fields *before* they reach the UI component, or `RecordDetails` component must check `perm.canRead(field)` for each user.
+
+### E. Theme Injection
+Scenario: App branding (`branding.primaryColor`) must apply to all Buttons.
+*   **Solution:** Convert `App.branding` values into CSS Variables (`--os-primary: #ff0000`) injected at the root `<LayoutProvider>`. All atoms (`atom:button`) consume these variables.
+
+---
+
+## 5. The Expression Engine
+
+The engine must support "Metadata Expressions" to allow logic without compilation.
+
+### A. Syntax
+Use generic string interpolation `{ !... }` or specific prefixes.
+*   **Binding:** `"{!record.amount}"` (Values)
+*   **Logic:** `"{!record.status} == 'closed'"` (Boolean)
+*   **Global:** `"{!user.name}"`, `"{!today}"`
+
+### B. Implementation (Safe Eval)
+Use a specialized parser (like `filtrex` or `jsep`) instead of `eval()`.
+```typescript
+// utils/eval.ts
+export function evalExpression(expr: string, context: any): any {
+  if (!expr.startsWith('{!') || !expr.endsWith('}')) return expr; // Literal
+  const logic = expr.slice(2, -1);
+  return safeEvaluate(logic, context); // context = { record, user, global }
+}
+```
+
+### C. Reactive Binding
+Expressions must re-evaluate when `context` changes.
+*   **Hook:** `useExpression(expressionString, dependencyArray)`
+
+---
+
+## 6. Slot & Component Injection
+
+Layouts often nest components. The engine must map `PageComponent.children` (Array) to React `props.children`.
+
+### A. The "Slot" Prop
+Standard blocks (like `page:card` or `page:tabs`) accept a `children` prop in strict React, but in metadata, they are just nested IDs.
+
+### B. Recursive Rendering Logic
+The `PageRenderer` must handle the recursion, not the component.
+```typescript
+// Correct Pattern
+const CardBlock = ({ config, children }) => (
+  <div className="card">
+    <div className="card-body">
+      {/* The engine has already converted config.children into React Elements */}
+      {children}
+    </div>
+  </div>
+);
+```
+
+### C. Named Slots (Advanced)
+Some components have multiple areas (e.g., `header`, `footer`).
+*   **Metadata:** `regions: [{ name: "header", components: [...] }, { name: "footer", components: [...] }]`
+*   **React:** `<PageHeader actions={<RegionRenderer region="header" />} />`
+
+---
+
+## 7. Dirty State Management
+
+Protocol for handling unsaved changes across independent widgets.
+
+### A. Distributed State
+Each form widget manages its own state (e.g., `react-hook-form`).
+
+### B. The "Dirty" Registry
+A context where widgets register their dirty status.
+```typescript
+// DirtyContext.tsx
+const registerDirty = (id: string, isDirty: boolean) => { ... }
+
+// Usage in Widget
+useEffect(() => {
+  registerDirty(props.id, formState.isDirty);
+}, [formState.isDirty]);
+```
+
+### C. Navigation Guard
+Listen to `beforeunload` and Router events. If `dirtyRegistry` has any `true` values, block navigation.
+
