@@ -14,25 +14,30 @@ export const FieldType = z.enum([
   // Date & Time
   'date', 'datetime', 'time',
   // Logic
-  'boolean',
+  'boolean', 'toggle', // Toggle is a distinct UI from checkbox
   // Selection
-  'select', // Static options
+  'select',       // Single select dropdown
+  'multiselect',  // Multi select (often tags)
+  'radio',        // Radio group
+  'checkboxes',   // Checkbox group
   // Relational
-  'lookup', 'master_detail', // Dynamic reference to other objects
+  'lookup', 'master_detail', // Dynamic reference
   // Media
-  'image', 'file', 'avatar',
+  'image', 'file', 'avatar', 'video', 'audio',
   // Calculated / System
   'formula', 'summary', 'autonumber',
   // Enhanced Types
-  'location', // GPS coordinates (aka geolocation)
-  'geolocation', // Alternative name for location field
-  'address', // Structured address
-  'code', // Code with syntax highlighting
-  'color', // Color picker
-  'rating', // Star rating
-  'slider', // Numeric slider
-  'signature', // Digital signature
-  'qrcode', // QR code / Barcode
+  'location',     // GPS coordinates
+  'address',      // Structured address
+  'code',         // Code editor (JSON/SQL/JS)
+  'json',         // Structured JSON data
+  'color',        // Color picker
+  'rating',       // Star rating
+  'slider',       // Numeric slider
+  'signature',    // Digital signature
+  'qrcode',       // QR code / Barcode
+  'progress',     // Progress bar
+  'tags',         // Simple tag list
 ]);
 
 export type FieldType = z.infer<typeof FieldType>;

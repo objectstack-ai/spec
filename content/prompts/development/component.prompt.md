@@ -22,16 +22,17 @@ Responsible for **Input** (Edit Mode) and **Display** (Read Mode) of a specific 
     }
     ```
 *   **Required Types (Ref: `src/data/field.zod.ts`):**
-    *   **Core:** `text`, `textarea`, `email`, `url`, `phone`, `password`
-    *   **Rich Content:** `markdown`, `html`, `richtext`
-    *   **Numbers:** `number`, `currency`, `percent`
-    *   **Date & Time:** `date`, `datetime`, `time`
-    *   **Logic:** `boolean` (Checkbox/Switch)
-    *   **Selection:** `select` (Dropdown/Radio)
-    *   **Relational:** `lookup` (Searchable Ref), `master_detail`
-    *   **Media:** `image` (Upload/Preview), `file`, `avatar`
-    *   **Calculated:** `formula` (Readonly), `summary`, `autonumber`
-    *   **Enhanced:** `location` (Lat/Long Map), `address`, `code` (Monaco), `color` (Picker), `rating` (Stars), `slider` (Range), `signature` (Pad), `qrcode` (Generator).
+    *   **Textual:** `text` (Input), `textarea` (Multi-line), `password`, `email`, `url`, `phone`.
+    *   **Rich Content:** `markdown` (Editor), `html` (WYSIWYG), `code` (Monaco/Ace).
+    *   **Numeric:** `number` (Int/Float), `currency` (Money), `percent` (Progress), `slider` (Range).
+    *   **Selection:** 
+        *   `boolean` (Switch/Toggle), `checkboxes` (Group).
+        *   `select` (Dropdown), `multiselect` (Tags), `radio` (Cards).
+    *   **Date & Time:** `date` (Picker), `datetime`, `time`, `duration`.
+    *   **Relational:** `lookup` (Modal/Combobox), `master_detail` (Inline), `tree` (Hierarchy).
+    *   **Media:** `image` (Upload/Gallery), `file` (Drag&Drop), `video` (Player), `audio`, `avatar`.
+    *   **Visual:** `color` (Picker), `rating` (Star), `signature` (Canvas), `qrcode`, `progress`.
+    *   **Structure:** `json` (Object Editor), `address` (Street/City/State), `location` (Map Pin).
 
 ### B. List View Layouts (`view.list.*`)
 Responsible for rendering a collection of records.
@@ -45,7 +46,11 @@ Responsible for rendering a collection of records.
       onSelectionChange?: (selectedIds: string[]) => void;
     }
     ```
-*   **Required Types:** `grid` (DataGrid), `kanban` (Drag & Drop), `calendar` (Events), `gantt` (Timeline), `map` (Markers).
+*   **Required Types (Ref: `src/ui/view.zod.ts`):**
+    *   **Data:** `grid` (Standard Table), `spreadsheet` (Editable Cell).
+    *   **Cards:** `gallery` (Image Deck), `kanban` (Status Board).
+    *   **Time:** `calendar` (Schedule), `gantt` (Project), `timeline` (Activity Stream).
+    *   **Geo:** `map` (Cluster/Markers).
 
 ### C. Form View Layouts (`view.form.*`)
 Responsible for rendering a single record detail.
@@ -59,7 +64,9 @@ Responsible for rendering a single record detail.
       onChange?: (field: string, value: any) => void;
     }
     ```
-*   **Required Types:** `simple` (Sections), `tabbed` (Tabs), `wizard` (Steps).
+*   **Required Types:** 
+    *   `simple` (Vertical Flow), `tabbed` (Categorized), `wizard` (Step-by-Step).
+    *   `split` (Master-Detail), `drawer` (Side Panel), `modal` (Dialog).
 
 ### D. Dashboard Widgets (`widget.*`)
 Standalone cards placed on a dashboard grid.
@@ -73,8 +80,10 @@ Standalone cards placed on a dashboard grid.
     }
     ```
 *   **Required Types (Ref: `src/ui/dashboard.zod.ts`):**
-    *   **Charts:** `metric` (KPI), `bar`, `line`, `pie`, `donut`, `funnel`.
-    *   **Content:** `table` (Data List), `text` (Rich Text/Markdown).
+    *   **KPI:** `metric` (Big Number with Trend).
+    *   **Charts:** `bar`, `line`, `pie`, `funnel`, `radar`, `scatter`, `heatmap`.
+    *   **Analysis:** `pivot` (Cross-Tab Table).
+    *   **Content:** `table` (List), `text` (Note), `image`, `frame` (Embed).
 
 ---
 

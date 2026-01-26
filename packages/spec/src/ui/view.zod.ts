@@ -119,7 +119,16 @@ export const GanttConfigSchema = z.object({
 export const ListViewSchema = z.object({
   name: SnakeCaseIdentifierSchema.optional().describe('Internal view name (lowercase snake_case)'),
   label: z.string().optional(), // Display label override
-  type: z.enum(['grid', 'kanban', 'calendar', 'gantt', 'map']).default('grid'),
+  type: z.enum([
+    'grid',       // Standard Data Table
+    'spreadsheet',// Excel-like Editable Grid
+    'kanban',     // Board / Columns
+    'gallery',    // Card Deck / Masonry
+    'calendar',   // Monthly/Weekly/Daily
+    'timeline',   // Chronological Stream (Feed)
+    'gantt',      // Project Timeline
+    'map'         // Geospatial
+  ]).default('grid'),
   
   /** Data Source Configuration */
   data: ViewDataSchema.optional().describe('Data source configuration (defaults to "object" provider)'),

@@ -5,14 +5,23 @@ import { FilterConditionSchema } from '../data/filter.zod';
  * Chart Type Enum
  */
 export const ChartType = z.enum([
-  'metric',    // Single big number
-  'bar',       // Bar chart
-  'line',      // Line chart
-  'pie',       // Pie/Donut chart
-  'donut',     // Donut chart
-  'funnel',    // Funnel chart
-  'table',     // Data table
-  'text'       // Rich text / Markdown
+  // Analysis
+  'metric',    // KPI / Big Number
+  'bar',       // Bar / Column
+  'line',      // Line / Area
+  'pie',       // Pie / Donut
+  'funnel',    // Conversion Funnel
+  'radar',     // Spider / Radar
+  'scatter',   // Scatter Plot
+  'heatmap',   // Heatmap
+  'pivot',     // Pivot Table (Cross-tab)
+  
+  // Content
+  'table',     // Data Grid
+  'list',      // Simple List
+  'text',      // Markdown / HTML
+  'image',     // Static Image
+  'frame',     // IFrame / Embed
 ]);
 
 /**
