@@ -4,7 +4,7 @@
   "private": true,
   "description": "ObjectStack Protocol Documentation Site",
   "scripts": {
-    "site:dev": "next dev",
+    "dev": "next dev",
     "build": "NEXT_PRIVATE_BUILD_WORKER=1 next build",
     "site:start": "next start",
     "site:lint": "next lint"
