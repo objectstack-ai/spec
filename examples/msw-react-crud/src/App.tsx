@@ -52,8 +52,10 @@ export function App() {
 
   function handleEditTask(task: Task) {
     setEditingTask(task);
-    // Scroll to form
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Check if on mobile to scroll
+    if (window.innerWidth < 1024) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   function handleCancelEdit() {
@@ -62,11 +64,16 @@ export function App() {
 
   if (error) {
     return (
-      <div className="app-container">
-        <div className="error-container">
-          <h1>Connection Error</h1>
-          <p>{error}</p>
-          <button onClick={initializeClient}>Retry</button>
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="max-w-md w-full p-8 border border-error-light bg-background rounded-lg shadow-sm text-center">
+          <h1 className="text-xl font-bold text-error mb-2">Connection Error</h1>
+          <p className="text-accents-5 mb-6">{error}</p>
+          <button 
+            onClick={initializeClient}
+            className="px-4 py-2 bg-foreground text-background rounded-md hover:bg-accents-7 transition-colors"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -74,30 +81,36 @@ export function App() {
 
   if (!connected || !client) {
     return (
-      <div className="app-container">
-        <div className="loading-container">
-          <h1>Connecting to ObjectStack...</h1>
-          <p>Initializing MSW and ObjectStack Client...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 space-y-4">
+        <div className="w-8 h-8 rounded-full border-4 border-accents-2 border-t-foreground animate-spin"></div>
+        <div className="text-center">
+          <h1 className="text-lg font-semibold mb-1">Connecting to ObjectStack...</h1>
+          <p className="text-accents-5 text-sm">Initializing MSW and ObjectStack Client...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="app-container">
-      <header className="app-header">
-        <h1>📋 ObjectStack MSW + React CRUD Example</h1>
-        <p className="subtitle">
-          Complete CRUD operations using <code>@objectstack/client</code> with Mock Service Worker
+    <div className="max-w-6xl mx-auto px-6 py-12 min-h-screen font-sans">
+      <header className="text-center mb-16">
+        <h1 className="text-4xl font-extrabold tracking-tight mb-4 text-foreground">
+          ObjectStack Action
+        </h1>
+        <p className="text-accents-5 text-lg mb-6">
+          Complete CRUD operations using <code className="text-sm bg-accents-1 px-1.5 py-0.5 rounded font-mono text-accents-6">@objectstack/client</code> with Mock Service Worker
         </p>
-        <div className="status-badge">
-          <span className="status-indicator"></span>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-success-lighter border border-success-lighter text-success-dark text-sm font-medium">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
+          </span>
           MSW Active - All API calls are mocked
         </div>
       </header>
 
-      <main className="app-main">
-        <section className="form-section">
+      <main className="grid grid-cols-1 lg:grid-cols-12 gap-12 text-sm">
+        <section className="lg:col-span-4 lg:sticky lg:top-6 lg:self-start">
           <TaskForm
             client={client}
             editingTask={editingTask}
@@ -106,7 +119,7 @@ export function App() {
           />
         </section>
 
-        <section className="list-section">
+        <section className="lg:col-span-8">
           <TaskList
             client={client}
             onEdit={handleEditTask}
@@ -115,13 +128,13 @@ export function App() {
         </section>
       </main>
 
-      <footer className="app-footer">
+      <footer className="mt-16 pt-8 border-t border-accents-2 text-center text-sm text-accents-4 space-y-2">
         <p>
           This example demonstrates MSW integration with React components.
           All API calls are intercepted and mocked in the browser.
         </p>
-        <p className="tech-stack">
-          Tech: React + TypeScript + Vite + MSW + @objectstack/client
+        <p className="font-mono text-xs text-accents-3">
+          React + TypeScript + Vite + MSW + @objectstack/client
         </p>
       </footer>
     </div>
