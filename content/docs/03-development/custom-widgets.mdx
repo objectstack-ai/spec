@@ -1,0 +1,1136 @@
+---
+title: Custom Widgets
+description: Build React, Vue, or Svelte components for custom field rendering and encapsulate them as ObjectWidgets.
+---
+
+# Custom Widgets
+
+Custom Widgets allow you to **extend the ObjectStack UI** with your own React, Vue, or Svelte components. Build rich form controls, data visualizations, or specialized input methods that integrate seamlessly with the ObjectStack form system.
+
+Examples: Rich text editors, date pickers, color selectors, signature pads, map selectors, kanban boards, etc.
+
+---
+
+## 🎯 What Are Widgets?
+
+Widgets are **UI components** that render field values in forms and views. ObjectStack provides built-in widgets for common field types (text, number, select), but you can create custom widgets for specialized use cases.
+
+<Cards>
+  <Card icon="edit" title="Field Widgets">
+    Custom input controls for form fields
+  </Card>
+  
+  <Card icon="bar-chart" title="Display Widgets">
+    Read-only visualizations (charts, gauges, maps)
+  </Card>
+  
+  <Card icon="layout" title="Layout Widgets">
+    Custom sections or containers in forms
+  </Card>
+</Cards>
+
+---
+
+## 📋 Prerequisites
+
+- **React** 18+, **Vue** 3+, or **Svelte** 4+ knowledge
+- **TypeScript** familiarity
+- Understanding of [ObjectUI Protocol](/docs/02-protocols/02-objectui)
+- Node.js 18+ and npm 9+
+
+---
+
+## 🚀 Quick Start
+
+### Step 1: Create a Widget Project
+
+```bash
+# Using the official generator
+npm create @objectstack/widget my-rich-editor
+
+cd my-rich-editor
+npm install
+```
+
+**Choose your framework:**
+- React (recommended for most cases)
+- Vue 3
+- Svelte
+
+The generator creates:
+
+```
+my-rich-editor/
+├── src/
+│   ├── RichEditor.tsx         # Widget component
+│   ├── index.ts               # Widget registration
+│   ├── types.ts               # TypeScript types
+│   └── styles.css             # Component styles
+├── package.json
+├── tsconfig.json
+├── vite.config.ts             # Build configuration
+└── README.md
+```
+
+### Step 2: Implement the Widget Component
+
+```typescript
+// src/RichEditor.tsx
+import React, { useCallback } from 'react';
+import { FieldWidgetProps } from '@objectstack/spec';
+import { Editor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+
+export function RichEditor(props: FieldWidgetProps) {
+  const { value, onChange, readonly, required, error, field } = props;
+  
+  // Initialize TipTap editor
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: value || '',
+    editable: !readonly,
+    onUpdate: ({ editor }) => {
+      onChange(editor.getHTML());
+    },
+  });
+  
+  return (
+    <div className="rich-editor-widget">
+      {/* Label */}
+      <label className="field-label">
+        {field.label}
+        {required && <span className="required">*</span>}
+      </label>
+      
+      {/* Toolbar */}
+      {!readonly && (
+        <div className="editor-toolbar">
+          <button onClick={() => editor?.chain().focus().toggleBold().run()}>
+            <strong>B</strong>
+          </button>
+          <button onClick={() => editor?.chain().focus().toggleItalic().run()}>
+            <em>I</em>
+          </button>
+          <button onClick={() => editor?.chain().focus().toggleBulletList().run()}>
+            List
+          </button>
+        </div>
+      )}
+      
+      {/* Editor Content */}
+      <EditorContent editor={editor} />
+      
+      {/* Error Message */}
+      {error && <span className="error-message">{error}</span>}
+      
+      {/* Help Text */}
+      {field.description && (
+        <span className="help-text">{field.description}</span>
+      )}
+    </div>
+  );
+}
+```
+
+### Step 3: Register the Widget
+
+```typescript
+// src/index.ts
+import { defineWidget } from '@objectstack/spec';
+import { RichEditor } from './RichEditor';
+
+export default defineWidget({
+  name: 'rich_editor',
+  label: 'Rich Text Editor',
+  description: 'WYSIWYG editor with formatting toolbar',
+  version: '1.0.0',
+  author: 'Your Name',
+  
+  // Supported field types
+  supportedTypes: ['text', 'textarea', 'longtext'],
+  
+  // Widget component
+  component: RichEditor,
+  
+  // Configuration options
+  settings: {
+    toolbar: {
+      type: 'select',
+      label: 'Toolbar Style',
+      options: [
+        { label: 'Full', value: 'full' },
+        { label: 'Minimal', value: 'minimal' },
+      ],
+      default: 'full',
+    },
+    maxLength: {
+      type: 'number',
+      label: 'Max Length',
+      default: 10000,
+    },
+  },
+});
+```
+
+### Step 4: Build & Test
+
+```bash
+# Development mode with hot reload
+npm run dev
+
+# Build for production
+npm run build
+
+# Output: dist/index.js, dist/index.css
+```
+
+---
+
+## 🧩 Widget Props Interface
+
+Every widget receives the `FieldWidgetProps` interface:
+
+```typescript
+import { FieldWidgetProps } from '@objectstack/spec';
+
+interface FieldWidgetProps {
+  // ============================================================================
+  // Value & Change Handling
+  // ============================================================================
+  
+  /**
+   * Current field value.
+   * Type depends on field type (string, number, boolean, array, object).
+   */
+  value: any;
+  
+  /**
+   * Callback to update the field value.
+   * Call this when user interaction changes the value.
+   */
+  onChange: (newValue: any) => void;
+  
+  // ============================================================================
+  // Field State
+  // ============================================================================
+  
+  /**
+   * Whether the field is read-only.
+   * When true, display the value but don't allow editing.
+   */
+  readonly: boolean;
+  
+  /**
+   * Whether the field is required.
+   * Show visual indicator (e.g., asterisk) when true.
+   */
+  required: boolean;
+  
+  /**
+   * Validation error message.
+   * Display this in your widget's error UI.
+   */
+  error?: string;
+  
+  // ============================================================================
+  // Metadata
+  // ============================================================================
+  
+  /**
+   * Complete field definition from schema.
+   * Contains type, label, description, constraints, etc.
+   */
+  field: Field;
+  
+  /**
+   * The complete record being edited.
+   * Useful for conditional logic and cross-field dependencies.
+   */
+  record?: Record<string, any>;
+  
+  /**
+   * Custom options passed to the widget.
+   * Configured in field definition or widget settings.
+   */
+  options?: Record<string, any>;
+}
+```
+
+---
+
+## 🎨 Widget Examples
+
+### Example 1: Color Picker
+
+```typescript
+// src/ColorPicker.tsx
+import React from 'react';
+import { FieldWidgetProps } from '@objectstack/spec';
+import { HexColorPicker } from 'react-colorful';
+
+export function ColorPicker(props: FieldWidgetProps) {
+  const { value, onChange, readonly, required, error, field } = props;
+  
+  return (
+    <div className="color-picker-widget">
+      <label>
+        {field.label}
+        {required && <span className="required">*</span>}
+      </label>
+      
+      {readonly ? (
+        // Read-only mode: just show the color
+        <div 
+          className="color-preview"
+          style={{ backgroundColor: value || '#000000' }}
+        />
+      ) : (
+        // Edit mode: show picker
+        <HexColorPicker color={value || '#000000'} onChange={onChange} />
+      )}
+      
+      {/* Hex input */}
+      {!readonly && (
+        <input
+          type="text"
+          value={value || '#000000'}
+          onChange={(e) => onChange(e.target.value)}
+          pattern="^#[0-9A-Fa-f]{6}$"
+        />
+      )}
+      
+      {error && <span className="error">{error}</span>}
+    </div>
+  );
+}
+```
+
+**Usage in Field Definition:**
+
+```typescript
+import { Field } from '@objectstack/spec';
+
+const fields = {
+  brand_color: Field.text({
+    label: 'Brand Color',
+    widget: 'color_picker',
+  }),
+};
+```
+
+---
+
+### Example 2: Signature Pad
+
+```typescript
+// src/SignaturePad.tsx
+import React, { useRef, useEffect } from 'react';
+import { FieldWidgetProps } from '@objectstack/spec';
+import SignatureCanvas from 'react-signature-canvas';
+
+export function SignaturePad(props: FieldWidgetProps) {
+  const { value, onChange, readonly, field } = props;
+  const sigCanvas = useRef<SignatureCanvas>(null);
+  
+  useEffect(() => {
+    if (value && sigCanvas.current) {
+      sigCanvas.current.fromDataURL(value);
+    }
+  }, [value]);
+  
+  const handleSave = () => {
+    if (sigCanvas.current) {
+      const dataUrl = sigCanvas.current.toDataURL();
+      onChange(dataUrl);
+    }
+  };
+  
+  const handleClear = () => {
+    sigCanvas.current?.clear();
+    onChange(null);
+  };
+  
+  return (
+    <div className="signature-pad-widget">
+      <label>{field.label}</label>
+      
+      {readonly ? (
+        // Read-only: display signature image
+        value ? <img src={value} alt="Signature" /> : <p>No signature</p>
+      ) : (
+        // Edit mode: canvas
+        <>
+          <SignatureCanvas
+            ref={sigCanvas}
+            canvasProps={{
+              width: 500,
+              height: 200,
+              className: 'signature-canvas',
+            }}
+            onEnd={handleSave}
+          />
+          <div className="signature-actions">
+            <button onClick={handleClear}>Clear</button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+```
+
+---
+
+### Example 3: Map Location Picker
+
+```typescript
+// src/MapPicker.tsx
+import React, { useState } from 'react';
+import { FieldWidgetProps } from '@objectstack/spec';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+
+function LocationMarker({ position, onPositionChange }) {
+  useMapEvents({
+    click(e) {
+      onPositionChange(e.latlng);
+    },
+  });
+  
+  return position ? <Marker position={position} /> : null;
+}
+
+export function MapPicker(props: FieldWidgetProps) {
+  const { value, onChange, readonly, field } = props;
+  
+  const [position, setPosition] = useState(
+    value ? { lat: value.latitude, lng: value.longitude } : null
+  );
+  
+  const handlePositionChange = (latlng) => {
+    setPosition(latlng);
+    onChange({
+      latitude: latlng.lat,
+      longitude: latlng.lng,
+    });
+  };
+  
+  return (
+    <div className="map-picker-widget">
+      <label>{field.label}</label>
+      
+      <MapContainer
+        center={position || { lat: 37.7749, lng: -122.4194 }}
+        zoom={13}
+        style={{ height: '400px', width: '100%' }}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; OpenStreetMap contributors'
+        />
+        {!readonly && (
+          <LocationMarker
+            position={position}
+            onPositionChange={handlePositionChange}
+          />
+        )}
+        {readonly && position && <Marker position={position} />}
+      </MapContainer>
+      
+      {position && (
+        <p className="coordinates">
+          Lat: {position.lat.toFixed(6)}, Lng: {position.lng.toFixed(6)}
+        </p>
+      )}
+    </div>
+  );
+}
+```
+
+---
+
+### Example 4: Rating Stars
+
+```typescript
+// src/StarRating.tsx
+import React from 'react';
+import { FieldWidgetProps } from '@objectstack/spec';
+import { Star } from 'lucide-react';
+
+export function StarRating(props: FieldWidgetProps) {
+  const { value, onChange, readonly, field, options } = props;
+  const maxStars = options?.maxStars || 5;
+  
+  return (
+    <div className="star-rating-widget">
+      <label>{field.label}</label>
+      
+      <div className="stars">
+        {[...Array(maxStars)].map((_, index) => {
+          const starValue = index + 1;
+          return (
+            <button
+              key={index}
+              type="button"
+              disabled={readonly}
+              onClick={() => onChange(starValue)}
+              className={starValue <= value ? 'filled' : 'empty'}
+            >
+              <Star
+                size={24}
+                fill={starValue <= value ? 'gold' : 'none'}
+                color="gold"
+              />
+            </button>
+          );
+        })}
+      </div>
+      
+      {value > 0 && <span className="rating-text">{value} / {maxStars}</span>}
+    </div>
+  );
+}
+```
+
+---
+
+### Example 5: JSON Editor
+
+```typescript
+// src/JsonEditor.tsx
+import React, { useState } from 'react';
+import { FieldWidgetProps } from '@objectstack/spec';
+import CodeMirror from '@uiw/react-codemirror';
+import { json } from '@codemirror/lang-json';
+
+export function JsonEditor(props: FieldWidgetProps) {
+  const { value, onChange, readonly, error, field } = props;
+  const [jsonError, setJsonError] = useState<string | null>(null);
+  
+  const handleChange = (jsonString: string) => {
+    try {
+      const parsed = JSON.parse(jsonString);
+      onChange(parsed);
+      setJsonError(null);
+    } catch (e) {
+      setJsonError('Invalid JSON syntax');
+    }
+  };
+  
+  const jsonString = typeof value === 'string'
+    ? value
+    : JSON.stringify(value, null, 2);
+  
+  return (
+    <div className="json-editor-widget">
+      <label>{field.label}</label>
+      
+      <CodeMirror
+        value={jsonString}
+        height="400px"
+        extensions={[json()]}
+        onChange={handleChange}
+        editable={!readonly}
+        theme="dark"
+      />
+      
+      {(error || jsonError) && (
+        <span className="error">{error || jsonError}</span>
+      )}
+    </div>
+  );
+}
+```
+
+---
+
+## 🎛️ Widget Configuration
+
+Widgets can accept custom options:
+
+```typescript
+// Widget definition
+export default defineWidget({
+  name: 'star_rating',
+  component: StarRating,
+  
+  settings: {
+    maxStars: {
+      type: 'number',
+      label: 'Maximum Stars',
+      default: 5,
+      min: 1,
+      max: 10,
+    },
+    allowHalf: {
+      type: 'checkbox',
+      label: 'Allow Half Stars',
+      default: false,
+    },
+  },
+});
+```
+
+**Usage in Field:**
+
+```typescript
+const fields = {
+  satisfaction: Field.number({
+    label: 'Satisfaction Rating',
+    widget: 'star_rating',
+    widgetOptions: {
+      maxStars: 5,
+      allowHalf: false,
+    },
+  }),
+};
+```
+
+---
+
+## 🔄 Handling Complex Values
+
+### Arrays
+
+```typescript
+// Tags widget
+export function TagsWidget(props: FieldWidgetProps) {
+  const { value = [], onChange } = props;
+  
+  const addTag = (tag: string) => {
+    onChange([...value, tag]);
+  };
+  
+  const removeTag = (index: number) => {
+    onChange(value.filter((_, i) => i !== index));
+  };
+  
+  return (
+    <div className="tags-widget">
+      {value.map((tag, i) => (
+        <span key={i} className="tag">
+          {tag}
+          <button onClick={() => removeTag(i)}>×</button>
+        </span>
+      ))}
+      <input
+        type="text"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            addTag(e.currentTarget.value);
+            e.currentTarget.value = '';
+          }
+        }}
+        placeholder="Add tag..."
+      />
+    </div>
+  );
+}
+```
+
+### Objects
+
+```typescript
+// Address widget
+export function AddressWidget(props: FieldWidgetProps) {
+  const { value = {}, onChange } = props;
+  
+  const updateField = (field: string, fieldValue: any) => {
+    onChange({ ...value, [field]: fieldValue });
+  };
+  
+  return (
+    <div className="address-widget">
+      <input
+        placeholder="Street"
+        value={value.street || ''}
+        onChange={(e) => updateField('street', e.target.value)}
+      />
+      <input
+        placeholder="City"
+        value={value.city || ''}
+        onChange={(e) => updateField('city', e.target.value)}
+      />
+      <input
+        placeholder="State"
+        value={value.state || ''}
+        onChange={(e) => updateField('state', e.target.value)}
+      />
+      <input
+        placeholder="ZIP"
+        value={value.zip || ''}
+        onChange={(e) => updateField('zip', e.target.value)}
+      />
+    </div>
+  );
+}
+```
+
+---
+
+## 🌐 Vue & Svelte Examples
+
+### Vue 3 Widget
+
+```vue
+<!-- src/RichEditor.vue -->
+<template>
+  <div class="rich-editor-widget">
+    <label>
+      {{ field.label }}
+      <span v-if="required" class="required">*</span>
+    </label>
+    
+    <div v-if="!readonly" class="editor-toolbar">
+      <button @click="editor?.chain().focus().toggleBold().run()">
+        <strong>B</strong>
+      </button>
+      <button @click="editor?.chain().focus().toggleItalic().run()">
+        <em>I</em>
+      </button>
+    </div>
+    
+    <editor-content :editor="editor" />
+    
+    <span v-if="error" class="error">{{ error }}</span>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { watch } from 'vue';
+import { useEditor, EditorContent } from '@tiptap/vue-3';
+import StarterKit from '@tiptap/starter-kit';
+import type { FieldWidgetProps } from '@objectstack/spec';
+
+const props = defineProps<FieldWidgetProps>();
+const emit = defineEmits<{
+  change: [value: string];
+}>();
+
+const editor = useEditor({
+  extensions: [StarterKit],
+  content: props.value || '',
+  editable: !props.readonly,
+  onUpdate: ({ editor }) => {
+    emit('change', editor.getHTML());
+  },
+});
+
+watch(() => props.value, (newValue) => {
+  if (editor.value && newValue !== editor.value.getHTML()) {
+    editor.value.commands.setContent(newValue);
+  }
+});
+</script>
+```
+
+### Svelte Widget
+
+```svelte
+<!-- src/RichEditor.svelte -->
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import { Editor } from '@tiptap/core';
+  import StarterKit from '@tiptap/starter-kit';
+  import type { FieldWidgetProps } from '@objectstack/spec';
+  
+  export let value: string = '';
+  export let onChange: (v: string) => void;
+  export let readonly: boolean = false;
+  export let required: boolean = false;
+  export let error: string | undefined;
+  export let field: any;
+  
+  let element: HTMLElement;
+  let editor: Editor;
+  
+  onMount(() => {
+    editor = new Editor({
+      element,
+      extensions: [StarterKit],
+      content: value,
+      editable: !readonly,
+      onUpdate: ({ editor }) => {
+        onChange(editor.getHTML());
+      },
+    });
+    
+    return () => editor.destroy();
+  });
+  
+  $: if (editor && value !== editor.getHTML()) {
+    editor.commands.setContent(value);
+  }
+</script>
+
+<div class="rich-editor-widget">
+  <label>
+    {field.label}
+    {#if required}<span class="required">*</span>{/if}
+  </label>
+  
+  {#if !readonly}
+    <div class="editor-toolbar">
+      <button on:click={() => editor?.chain().focus().toggleBold().run()}>
+        <strong>B</strong>
+      </button>
+      <button on:click={() => editor?.chain().focus().toggleItalic().run()}>
+        <em>I</em>
+      </button>
+    </div>
+  {/if}
+  
+  <div bind:this={element}></div>
+  
+  {#if error}
+    <span class="error">{error}</span>
+  {/if}
+</div>
+```
+
+---
+
+## 🎨 Styling Widgets
+
+### CSS Modules
+
+```typescript
+// src/RichEditor.module.css
+.widget {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.toolbar {
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+  background: var(--color-bg-secondary);
+  border-radius: 4px;
+}
+
+.error {
+  color: var(--color-error);
+  font-size: 12px;
+}
+```
+
+```typescript
+// src/RichEditor.tsx
+import styles from './RichEditor.module.css';
+
+export function RichEditor(props: FieldWidgetProps) {
+  return (
+    <div className={styles.widget}>
+      <label className={styles.label}>{props.field.label}</label>
+      {/* ... */}
+    </div>
+  );
+}
+```
+
+### Tailwind CSS
+
+```typescript
+export function RichEditor(props: FieldWidgetProps) {
+  return (
+    <div className="flex flex-col gap-2">
+      <label className="font-semibold text-gray-900">
+        {props.field.label}
+      </label>
+      <div className="border rounded-lg p-4 bg-white">
+        {/* Editor content */}
+      </div>
+      {props.error && (
+        <span className="text-red-600 text-sm">{props.error}</span>
+      )}
+    </div>
+  );
+}
+```
+
+---
+
+## 📦 Building & Distributing
+
+### Build Configuration
+
+```typescript
+// vite.config.ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  build: {
+    lib: {
+      entry: './src/index.ts',
+      name: 'MyWidget',
+      formats: ['es', 'umd'],
+      fileName: (format) => `index.${format}.js`,
+    },
+    rollupOptions: {
+      external: ['react', 'react-dom', '@objectstack/spec'],
+      output: {
+        globals: {
+          react: 'React',
+          'react-dom': 'ReactDOM',
+          '@objectstack/spec': 'ObjectStack',
+        },
+      },
+    },
+  },
+});
+```
+
+### Package.json
+
+```json
+{
+  "name": "@mycompany/objectstack-widget-richeditor",
+  "version": "1.0.0",
+  "main": "./dist/index.umd.js",
+  "module": "./dist/index.es.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.umd.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "files": ["dist"],
+  "keywords": ["objectstack", "widget", "richeditor"],
+  
+  "objectstack": {
+    "type": "widget",
+    "entry": "./dist/index.es.js",
+    "styles": "./dist/style.css"
+  },
+  
+  "peerDependencies": {
+    "@objectstack/spec": "^1.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  }
+}
+```
+
+---
+
+## 🧪 Testing Widgets
+
+### Component Tests
+
+```typescript
+// tests/RichEditor.test.tsx
+import { render, screen, fireEvent } from '@testing-library/react';
+import { RichEditor } from '../src/RichEditor';
+
+describe('RichEditor Widget', () => {
+  it('renders label', () => {
+    render(
+      <RichEditor
+        value=""
+        onChange={() => {}}
+        field={{ label: 'Description' }}
+        readonly={false}
+        required={false}
+      />
+    );
+    
+    expect(screen.getByText('Description')).toBeInTheDocument();
+  });
+  
+  it('calls onChange on input', () => {
+    const onChange = vi.fn();
+    
+    render(
+      <RichEditor
+        value=""
+        onChange={onChange}
+        field={{ label: 'Description' }}
+        readonly={false}
+        required={false}
+      />
+    );
+    
+    // Simulate typing
+    // ...
+    
+    expect(onChange).toHaveBeenCalled();
+  });
+  
+  it('shows error message', () => {
+    render(
+      <RichEditor
+        value=""
+        onChange={() => {}}
+        field={{ label: 'Description' }}
+        error="This field is required"
+        readonly={false}
+        required={true}
+      />
+    );
+    
+    expect(screen.getByText('This field is required')).toBeInTheDocument();
+  });
+});
+```
+
+---
+
+## ✅ Best Practices
+
+### 1. Handle All States
+
+```typescript
+// ✅ Good: Handle all props
+export function MyWidget(props: FieldWidgetProps) {
+  const { value, onChange, readonly, required, error, field } = props;
+  
+  return (
+    <div>
+      <label>
+        {field.label}
+        {required && <span>*</span>}
+      </label>
+      <input
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={readonly}
+      />
+      {error && <span className="error">{error}</span>}
+      {field.description && <span className="help">{field.description}</span>}
+    </div>
+  );
+}
+```
+
+### 2. Debounce Expensive Operations
+
+```typescript
+import { useDebouncedCallback } from 'use-debounce';
+
+export function MyWidget(props: FieldWidgetProps) {
+  const debouncedChange = useDebouncedCallback(
+    (value) => props.onChange(value),
+    300
+  );
+  
+  return <input onChange={(e) => debouncedChange(e.target.value)} />;
+}
+```
+
+### 3. Validate Input
+
+```typescript
+export function NumberWidget(props: FieldWidgetProps) {
+  const { value, onChange, field } = props;
+  
+  const handleChange = (newValue: string) => {
+    const num = parseFloat(newValue);
+    
+    // Validate against field constraints
+    if (field.min !== undefined && num < field.min) return;
+    if (field.max !== undefined && num > field.max) return;
+    
+    onChange(num);
+  };
+  
+  return <input type="number" value={value} onChange={(e) => handleChange(e.target.value)} />;
+}
+```
+
+### 4. Support Accessibility
+
+```typescript
+export function MyWidget(props: FieldWidgetProps) {
+  const { field, error, required } = props;
+  const inputId = `field-${field.name}`;
+  const errorId = `${inputId}-error`;
+  
+  return (
+    <div>
+      <label htmlFor={inputId}>
+        {field.label}
+        {required && <span aria-label="required">*</span>}
+      </label>
+      <input
+        id={inputId}
+        aria-invalid={!!error}
+        aria-describedby={error ? errorId : undefined}
+        aria-required={required}
+      />
+      {error && <span id={errorId} role="alert">{error}</span>}
+    </div>
+  );
+}
+```
+
+### 5. Optimize Re-renders
+
+```typescript
+import { memo } from 'react';
+
+export const MyWidget = memo((props: FieldWidgetProps) => {
+  // Component implementation
+}, (prevProps, nextProps) => {
+  // Custom comparison
+  return prevProps.value === nextProps.value &&
+         prevProps.error === nextProps.error &&
+         prevProps.readonly === nextProps.readonly;
+});
+```
+
+---
+
+## 🔗 Related Resources
+
+- [ObjectUI Protocol](/docs/02-protocols/02-objectui)
+- [Field Types Reference](/docs/guides/field-types)
+- [Plugin Development](/docs/03-development/writing-plugins)
+
+---
+
+## 🆘 Troubleshooting
+
+### Widget Not Rendering
+
+Check that it's registered properly:
+
+```typescript
+export default defineWidget({
+  name: 'my_widget',
+  component: MyWidget,
+  supportedTypes: ['text'],
+});
+```
+
+### onChange Not Working
+
+Ensure you're calling it correctly:
+
+```typescript
+onChange(newValue); // ✅ Correct
+onChange({ target: { value: newValue } }); // ❌ Wrong
+```
+
+### Styles Not Loading
+
+Import CSS in your entry point:
+
+```typescript
+import './styles.css';
+export { MyWidget } from './MyWidget';
+```
+
+---
+
+Ready to build your custom widget? Start with the [Quick Start](#quick-start) guide! 🎨

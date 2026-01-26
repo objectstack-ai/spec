@@ -1,0 +1,9 @@
+{
+  "title": "🔧 Development & Extension",
+  "pages": [
+    "writing-plugins",
+    "custom-widgets",
+    "server-drivers",
+    "cli-tools"
+  ]
+}

@@ -1,0 +1,1021 @@
+---
+title: Real-Time Protocols
+description: WebSocket subscriptions, Server-Sent Events, and event-driven communication in ObjectStack
+---
+
+import { Zap, Radio, Activity, Bell, Users, Gauge } from 'lucide-react';
+
+# Real-Time Protocols
+
+The **Real-Time Protocol** enables live data synchronization between clients and servers using WebSocket connections and Server-Sent Events (SSE). Get instant updates when data changes without polling.
+
+## Why Real-Time Matters
+
+**Problem:** Traditional REST APIs require polling to detect changes:
+
+```javascript
+// ❌ Polling approach - wasteful and laggy
+setInterval(async () => {
+  const response = await fetch('/api/data/task');
+  const tasks = await response.json();
+  updateUI(tasks);
+}, 5000);  // Check every 5 seconds
+```
+
+**Costs of polling:**
+- **Latency:** Updates delayed by polling interval (5 seconds = 5-second lag)
+- **Bandwidth waste:** 99% of requests return "no changes"
+- **Server load:** 1,000 users polling every 5s = 12M requests/hour
+- **Database strain:** Constant query execution even when nothing changed
+- **Battery drain:** Mobile devices make unnecessary network calls
+
+**Solution:** Real-time subscriptions push updates instantly when data changes. Clients subscribe once, server pushes updates. Zero polling, zero lag.
+
+## Business Value Delivered
+
+<Cards>
+  <Card
+    icon={<Zap />}
+    title="Instant User Experience"
+    description="Changes appear immediately across all connected clients. No refresh required."
+  />
+  <Card
+    icon={<Gauge />}
+    title="95% Less Server Load"
+    description="Replace millions of polling requests with persistent connections. Massive infrastructure savings."
+  />
+  <Card
+    icon={<Users />}
+    title="Enable Collaboration"
+    description="Multiple users editing the same data see each other's changes in real-time. Google Docs-style UX."
+  />
+  <Card
+    icon={<Bell />}
+    title="Live Notifications"
+    description="Deliver alerts, messages, and updates the moment they happen. No missed events."
+  />
+</Cards>
+
+## Communication Channels
+
+ObjectStack supports two real-time protocols:
+
+### WebSocket (Bi-Directional)
+
+**Best for:** Interactive applications requiring two-way communication
+
+**Characteristics:**
+- Full-duplex communication (client and server both send)
+- Low latency (no HTTP overhead per message)
+- Persistent connection
+- Binary and text messages supported
+
+**Use cases:**
+- Chat applications
+- Collaborative editing (Google Docs, Figma)
+- Multiplayer games
+- Live dashboards with user interactions
+- IoT device communication
+
+### Server-Sent Events (SSE) (Server-to-Client)
+
+**Best for:** One-way server-to-client streaming
+
+**Characteristics:**
+- Unidirectional (server pushes only)
+- Works over HTTP (easier firewall traversal)
+- Automatic reconnection built-in
+- Text-based (JSON messages)
+
+**Use cases:**
+- Activity feeds
+- Notification streams
+- Live status updates
+- Progress indicators
+- Read-only dashboards
+
+## WebSocket Connection
+
+### Connection Endpoint
+
+Get WebSocket URL from discovery:
+
+```http
+GET /.well-known/objectstack
+```
+
+```json
+{
+  "routes": {
+    "realtime": "wss://api.acme.com/ws"
+  }
+}
+```
+
+### Establishing Connection
+
+**Client-side (JavaScript):**
+```javascript
+const ws = new WebSocket('wss://api.acme.com/ws');
+
+ws.onopen = () => {
+  console.log('Connected to ObjectStack');
+  
+  // Authenticate
+  ws.send(JSON.stringify({
+    type: 'auth',
+    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+  }));
+};
+
+ws.onmessage = (event) => {
+  const message = JSON.parse(event.data);
+  console.log('Received:', message);
+};
+
+ws.onerror = (error) => {
+  console.error('WebSocket error:', error);
+};
+
+ws.onclose = (event) => {
+  console.log('Connection closed:', event.code, event.reason);
+};
+```
+
+### Authentication
+
+Send authentication message immediately after connection:
+
+**Request:**
+```json
+{
+  "type": "auth",
+  "token": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**Success Response:**
+```json
+{
+  "type": "auth_success",
+  "user_id": "user_123",
+  "session_id": "session_abc",
+  "expires_at": "2024-01-16T22:30:00Z"
+}
+```
+
+**Failure Response:**
+```json
+{
+  "type": "auth_error",
+  "error": {
+    "code": "INVALID_TOKEN",
+    "message": "JWT token expired"
+  }
+}
+```
+
+**Connection closes on auth failure:** Server closes WebSocket if authentication fails within 10 seconds.
+
+## Subscriptions
+
+### Subscribe to Object Events
+
+Subscribe to changes on a specific object:
+
+**Request:**
+```json
+{
+  "type": "subscribe",
+  "subscription_id": "sub_1",
+  "object": "task",
+  "events": ["created", "updated", "deleted"],
+  "filter": {
+    "assignee_id": "user_123"
+  }
+}
+```
+
+**Parameters:**
+- `subscription_id`: Client-generated unique ID for this subscription
+- `object`: Object name to subscribe to
+- `events`: Array of events to listen for (default: all)
+- `filter`: Optional filter (same syntax as HTTP API filters)
+
+**Success Response:**
+```json
+{
+  "type": "subscribed",
+  "subscription_id": "sub_1",
+  "object": "task",
+  "events": ["created", "updated", "deleted"]
+}
+```
+
+**Error Response:**
+```json
+{
+  "type": "error",
+  "subscription_id": "sub_1",
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "No permission to subscribe to 'task' object"
+  }
+}
+```
+
+### Event Types
+
+| Event | Triggered When | Payload |
+|-------|---------------|---------|
+| `created` | New record created | Full record data |
+| `updated` | Record modified | Changed fields + record ID |
+| `deleted` | Record deleted | Record ID only |
+| `restored` | Soft-deleted record restored | Full record data |
+
+### Receiving Events
+
+When subscribed data changes, server pushes events:
+
+**Created Event:**
+```json
+{
+  "type": "event",
+  "subscription_id": "sub_1",
+  "event": "created",
+  "object": "task",
+  "data": {
+    "id": "task_456",
+    "title": "New task assigned to you",
+    "status": "todo",
+    "assignee_id": "user_123",
+    "created_at": "2024-01-16T14:30:00Z"
+  }
+}
+```
+
+**Updated Event:**
+```json
+{
+  "type": "event",
+  "subscription_id": "sub_1",
+  "event": "updated",
+  "object": "task",
+  "data": {
+    "id": "task_456",
+    "status": "in_progress",
+    "updated_at": "2024-01-16T15:00:00Z"
+  },
+  "changes": {
+    "status": {
+      "old": "todo",
+      "new": "in_progress"
+    }
+  }
+}
+```
+
+**Deleted Event:**
+```json
+{
+  "type": "event",
+  "subscription_id": "sub_1",
+  "event": "deleted",
+  "object": "task",
+  "data": {
+    "id": "task_456",
+    "deleted_at": "2024-01-16T16:00:00Z"
+  }
+}
+```
+
+### Unsubscribe
+
+Stop receiving events for a subscription:
+
+**Request:**
+```json
+{
+  "type": "unsubscribe",
+  "subscription_id": "sub_1"
+}
+```
+
+**Response:**
+```json
+{
+  "type": "unsubscribed",
+  "subscription_id": "sub_1"
+}
+```
+
+### Subscribe to Specific Record
+
+Watch a single record for changes:
+
+**Request:**
+```json
+{
+  "type": "subscribe",
+  "subscription_id": "sub_2",
+  "object": "task",
+  "record_id": "task_456",
+  "events": ["updated", "deleted"]
+}
+```
+
+**Use case:** Detail pages that need to reflect live changes to the currently viewed record.
+
+### Subscribe to Query Results
+
+Subscribe to a dynamic set of records matching a query:
+
+**Request:**
+```json
+{
+  "type": "subscribe",
+  "subscription_id": "sub_3",
+  "object": "task",
+  "query": {
+    "filter": {
+      "status": "todo",
+      "assignee_id": "user_123"
+    },
+    "sort": "-priority"
+  },
+  "events": ["created", "updated", "deleted"]
+}
+```
+
+**Behavior:**
+- Receive `created` events when records matching query are created
+- Receive `updated` events when subscribed records change
+- Receive `deleted` events when subscribed records are deleted
+- Automatically receive events when records enter/exit the query filter
+
+**Example:** Task enters subscription:
+```json
+{
+  "type": "event",
+  "subscription_id": "sub_3",
+  "event": "updated",
+  "object": "task",
+  "data": {
+    "id": "task_789",
+    "status": "todo",  // Changed from "in_progress" to "todo"
+    "assignee_id": "user_123"
+  },
+  "reason": "entered_query"
+}
+```
+
+**Example:** Task exits subscription:
+```json
+{
+  "type": "event",
+  "subscription_id": "sub_3",
+  "event": "updated",
+  "object": "task",
+  "data": {
+    "id": "task_456",
+    "status": "done"  // No longer matches "todo" filter
+  },
+  "reason": "exited_query"
+}
+```
+
+## Server-Sent Events (SSE)
+
+### Connection Endpoint
+
+**GET request with Accept header:**
+```http
+GET /api/v1/stream
+Authorization: Bearer <token>
+Accept: text/event-stream
+```
+
+**Response:**
+```http
+HTTP/1.1 200 OK
+Content-Type: text/event-stream
+Cache-Control: no-cache
+Connection: keep-alive
+```
+
+### Subscription via Query Parameters
+
+Subscribe using URL parameters:
+
+```http
+GET /api/v1/stream?object=task&events=created,updated&filter={"assignee_id":"user_123"}
+Authorization: Bearer <token>
+Accept: text/event-stream
+```
+
+### Event Format
+
+SSE sends events as text:
+
+```
+id: event_123
+event: task.created
+data: {"id":"task_456","title":"New task","status":"todo"}
+
+id: event_124
+event: task.updated
+data: {"id":"task_456","status":"in_progress"}
+```
+
+**Client-side (JavaScript):**
+```javascript
+const eventSource = new EventSource(
+  '/api/v1/stream?object=task&events=created,updated',
+  {
+    headers: {
+      'Authorization': 'Bearer ' + token
+    }
+  }
+);
+
+eventSource.addEventListener('task.created', (event) => {
+  const task = JSON.parse(event.data);
+  console.log('Task created:', task);
+});
+
+eventSource.addEventListener('task.updated', (event) => {
+  const task = JSON.parse(event.data);
+  console.log('Task updated:', task);
+});
+
+eventSource.onerror = (error) => {
+  console.error('SSE error:', error);
+  eventSource.close();
+};
+```
+
+### Automatic Reconnection
+
+SSE clients automatically reconnect when connection drops:
+
+```
+id: event_200
+event: task.created
+data: {...}
+
+# Connection lost
+
+# Client reconnects with Last-Event-ID header
+GET /api/v1/stream?object=task
+Last-Event-ID: event_200
+
+# Server resumes from event_201
+id: event_201
+event: task.updated
+data: {...}
+```
+
+## Heartbeat & Keep-Alive
+
+### Server Heartbeat
+
+Server sends periodic ping messages to detect disconnections:
+
+**WebSocket ping (every 30 seconds):**
+```json
+{
+  "type": "ping",
+  "timestamp": "2024-01-16T14:30:00Z"
+}
+```
+
+**Client should respond with pong:**
+```json
+{
+  "type": "pong",
+  "timestamp": "2024-01-16T14:30:00Z"
+}
+```
+
+**SSE heartbeat (comment):**
+```
+: heartbeat
+```
+
+### Client Reconnection
+
+Handle disconnections gracefully:
+
+```javascript
+class ObjectStackClient {
+  constructor(url, token) {
+    this.url = url;
+    this.token = token;
+    this.subscriptions = new Map();
+    this.reconnectDelay = 1000;  // Start with 1 second
+    this.maxReconnectDelay = 30000;  // Max 30 seconds
+  }
+  
+  connect() {
+    this.ws = new WebSocket(this.url);
+    
+    this.ws.onopen = () => {
+      console.log('Connected');
+      this.reconnectDelay = 1000;  // Reset backoff
+      this.authenticate();
+      this.resubscribe();
+    };
+    
+    this.ws.onclose = () => {
+      console.log('Disconnected, reconnecting in', this.reconnectDelay);
+      setTimeout(() => this.connect(), this.reconnectDelay);
+      this.reconnectDelay = Math.min(
+        this.reconnectDelay * 2,
+        this.maxReconnectDelay
+      );
+    };
+  }
+  
+  authenticate() {
+    this.send({ type: 'auth', token: this.token });
+  }
+  
+  resubscribe() {
+    this.subscriptions.forEach((config, id) => {
+      this.send({ ...config, subscription_id: id });
+    });
+  }
+  
+  subscribe(config) {
+    const id = `sub_${Date.now()}`;
+    this.subscriptions.set(id, config);
+    this.send({ ...config, type: 'subscribe', subscription_id: id });
+    return id;
+  }
+  
+  send(message) {
+    this.ws.send(JSON.stringify(message));
+  }
+}
+
+// Usage
+const client = new ObjectStackClient('wss://api.acme.com/ws', token);
+client.connect();
+```
+
+## Permission Enforcement
+
+Real-time subscriptions respect object-level and row-level permissions:
+
+**Scenario:** User subscribes to all tasks:
+```json
+{
+  "type": "subscribe",
+  "subscription_id": "sub_1",
+  "object": "task",
+  "events": ["created", "updated"]
+}
+```
+
+**Permission enforcement:**
+- Server applies row-level security filter automatically
+- User only receives events for tasks they have permission to see
+- If a task becomes visible (e.g., gets assigned to user), they receive an `updated` event
+- If a task becomes hidden (e.g., assigned to someone else), no more events sent
+
+**Example:** User has rule "see only assigned tasks":
+
+```javascript
+// User is assigned task_456
+{
+  "type": "event",
+  "event": "updated",
+  "object": "task",
+  "data": { "id": "task_456", "assignee_id": "user_123" },
+  "reason": "entered_query"
+}
+
+// Task reassigned to someone else
+// No event sent - task is now invisible to user
+```
+
+## Scaling Considerations
+
+### Connection Limits
+
+Each WebSocket connection consumes server resources:
+
+**Per-user limits:**
+- Maximum concurrent WebSocket connections: 5
+- Maximum subscriptions per connection: 50
+- Maximum subscriptions per user: 100
+
+**Exceeding limits:**
+```json
+{
+  "type": "error",
+  "error": {
+    "code": "TOO_MANY_SUBSCRIPTIONS",
+    "message": "Maximum 50 subscriptions per connection",
+    "current": 50,
+    "max": 50
+  }
+}
+```
+
+### Load Balancing
+
+WebSocket connections are sticky sessions:
+
+```
+Client → Load Balancer → Server A
+         (remembers)
+         
+Client reconnects → Server A (same server)
+```
+
+**Why sticky sessions:**
+- Subscription state lives in server memory
+- Reconnecting to different server would lose subscriptions
+- Load balancer uses session ID cookie to route to same server
+
+### Horizontal Scaling with Redis
+
+For multi-server deployments, ObjectStack uses Redis pub/sub:
+
+```
+Server A ←→ Redis Pub/Sub ←→ Server B
+   ↓                            ↓
+Client 1                    Client 2
+
+# Data changes on Server A
+Server A publishes to Redis → Server B receives → Client 2 gets update
+```
+
+**How it works:**
+1. User A (connected to Server A) updates a task
+2. Server A publishes event to Redis channel `objectstack:task:updated`
+3. Server B (subscribed to Redis) receives event
+4. Server B pushes event to User B via WebSocket
+
+**Result:** Multi-server deployments with real-time sync across all servers.
+
+## Real-World Use Cases
+
+### Case 1: Collaborative Task Board
+
+**Challenge:** Team of 20 uses Kanban board. When one person moves a task, others see stale state until they refresh.
+
+**Real-Time Solution:**
+```javascript
+// Each client subscribes to tasks
+ws.subscribe({
+  object: 'task',
+  events: ['created', 'updated', 'deleted'],
+  filter: { project_id: currentProject.id }
+});
+
+// When any user drags task to new column
+await api.updateTask(taskId, { status: 'in_progress' });
+
+// All 20 clients instantly see the task move
+ws.on('task.updated', (task) => {
+  moveTaskOnBoard(task.id, task.status);
+});
+```
+
+**Value:** Zero conflicts. Everyone sees same board state in real-time. No "refresh to see latest" UX.
+
+### Case 2: Customer Support Dashboard
+
+**Challenge:** Support agents answer tickets. When agent A claims a ticket, agent B tries to claim the same ticket 2 seconds later (both see it as "unclaimed").
+
+**Real-Time Solution:**
+```javascript
+// All agents subscribe to ticket updates
+ws.subscribe({
+  object: 'support_ticket',
+  events: ['updated'],
+  filter: { status: 'open' }
+});
+
+// Agent A claims ticket
+await api.updateTicket(ticketId, { 
+  assigned_to: 'agent_a',
+  status: 'in_progress' 
+});
+
+// Agent B's dashboard instantly updates
+ws.on('ticket.updated', (ticket) => {
+  if (ticket.status !== 'open') {
+    removeFromAvailableQueue(ticket.id);
+  }
+});
+```
+
+**Value:** Zero duplicate work. Tickets disappear from queue the instant they're claimed.
+
+### Case 3: Live Notifications
+
+**Challenge:** Users need instant alerts for mentions, assignments, approvals.
+
+**Real-Time Solution:**
+```javascript
+// Subscribe to user's notification stream
+ws.subscribe({
+  object: 'notification',
+  events: ['created'],
+  filter: { recipient_id: currentUser.id }
+});
+
+ws.on('notification.created', (notification) => {
+  showToast(notification.title, notification.message);
+  updateNotificationBadge();
+  playSound();
+});
+```
+
+**Value:** Instant notifications. No 5-second polling delay. Lower server load.
+
+### Case 4: IoT Device Monitoring
+
+**Challenge:** Factory has 500 IoT sensors. Dashboard needs to show live temperature, pressure, vibration data.
+
+**Real-Time Solution:**
+```javascript
+// Subscribe to all sensor readings
+ws.subscribe({
+  object: 'sensor_reading',
+  events: ['created'],
+  filter: { factory_id: 'factory_123' }
+});
+
+ws.on('sensor_reading.created', (reading) => {
+  updateGauge(reading.sensor_id, reading.value);
+  
+  if (reading.value > reading.threshold) {
+    triggerAlert(reading.sensor_id, 'THRESHOLD_EXCEEDED');
+  }
+});
+```
+
+**Value:** Real-time monitoring. Instant alerts when thresholds exceeded. No polling 500 sensors every second.
+
+## Debugging Real-Time Connections
+
+### Connection State
+
+Check WebSocket connection state:
+
+```javascript
+console.log(ws.readyState);
+// 0: CONNECTING
+// 1: OPEN
+// 2: CLOSING
+// 3: CLOSED
+```
+
+### Message Logging
+
+Enable debug logging:
+
+```javascript
+ws.onmessage = (event) => {
+  const message = JSON.parse(event.data);
+  console.log('[RX]', message.type, message);
+};
+
+const originalSend = ws.send.bind(ws);
+ws.send = (data) => {
+  const message = JSON.parse(data);
+  console.log('[TX]', message.type, message);
+  originalSend(data);
+};
+```
+
+### Server-Side Events
+
+Request server event log:
+
+```http
+GET /api/v1/realtime/events?subscription_id=sub_1&limit=100
+Authorization: Bearer <token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "event_123",
+      "subscription_id": "sub_1",
+      "event": "created",
+      "object": "task",
+      "timestamp": "2024-01-16T14:30:00Z",
+      "delivered": true
+    },
+    {
+      "id": "event_124",
+      "subscription_id": "sub_1",
+      "event": "updated",
+      "object": "task",
+      "timestamp": "2024-01-16T14:35:00Z",
+      "delivered": false,
+      "reason": "client_disconnected"
+    }
+  ]
+}
+```
+
+### Common Issues
+
+**Problem:** Events not received after reconnection
+
+**Solution:** Client should resubscribe after authentication:
+```javascript
+ws.onopen = () => {
+  authenticate().then(() => {
+    subscriptions.forEach(sub => subscribe(sub));
+  });
+};
+```
+
+**Problem:** Duplicate events
+
+**Solution:** Use subscription IDs to deduplicate:
+```javascript
+const seenEvents = new Set();
+
+ws.on('event', (event) => {
+  if (seenEvents.has(event.id)) {
+    return;  // Skip duplicate
+  }
+  seenEvents.add(event.id);
+  processEvent(event);
+});
+```
+
+**Problem:** Memory leak from subscriptions
+
+**Solution:** Unsubscribe when component unmounts:
+```javascript
+useEffect(() => {
+  const subId = ws.subscribe({ object: 'task', ... });
+  
+  return () => {
+    ws.unsubscribe(subId);
+  };
+}, []);
+```
+
+## Best Practices
+
+### ✅ Subscribe to Specific Queries
+**Bad:** Subscribe to entire object, filter client-side
+```javascript
+ws.subscribe({ object: 'task' });  // Receive ALL tasks
+ws.on('task.created', (task) => {
+  if (task.assignee_id === currentUser.id) {  // Filter client-side
+    showTask(task);
+  }
+});
+```
+
+**Good:** Subscribe with server-side filter
+```javascript
+ws.subscribe({
+  object: 'task',
+  filter: { assignee_id: currentUser.id }
+});
+```
+
+### ✅ Implement Reconnection Logic
+**Bad:** No reconnection handling
+```javascript
+const ws = new WebSocket(url);
+// Connection drops → User sees stale data forever
+```
+
+**Good:** Automatic reconnection with exponential backoff
+```javascript
+class ReconnectingWebSocket {
+  connect() {
+    this.ws = new WebSocket(this.url);
+    this.ws.onclose = () => {
+      setTimeout(() => this.connect(), this.backoff());
+    };
+  }
+}
+```
+
+### ✅ Unsubscribe When Not Needed
+**Bad:** Keep subscriptions active on hidden tabs
+```javascript
+ws.subscribe({ object: 'task' });
+// User switches tabs → Still receiving events and processing
+```
+
+**Good:** Pause/resume subscriptions based on visibility
+```javascript
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    ws.unsubscribe(subId);
+  } else {
+    subId = ws.subscribe({ object: 'task' });
+  }
+});
+```
+
+### ✅ Handle Permission Changes
+**Good:** React to visibility changes
+```javascript
+ws.on('task.updated', (task) => {
+  if (task.reason === 'exited_query') {
+    removeFromUI(task.id);  // User no longer has access
+  } else if (task.reason === 'entered_query') {
+    addToUI(task);  // User gained access
+  } else {
+    updateInUI(task);
+  }
+});
+```
+
+## Security Considerations
+
+### Authentication Required
+All WebSocket connections must authenticate within 10 seconds:
+
+```javascript
+ws.onopen = () => {
+  ws.send(JSON.stringify({ 
+    type: 'auth', 
+    token: getToken() 
+  }));
+};
+
+// Server closes connection if no auth within 10 seconds
+```
+
+### Token Expiration
+Handle JWT expiration gracefully:
+
+```json
+{
+  "type": "error",
+  "error": {
+    "code": "TOKEN_EXPIRED",
+    "message": "JWT token expired",
+    "expires_at": "2024-01-16T14:30:00Z"
+  }
+}
+```
+
+**Client response:** Refresh token and reconnect
+```javascript
+ws.onmessage = async (event) => {
+  const msg = JSON.parse(event.data);
+  if (msg.error?.code === 'TOKEN_EXPIRED') {
+    const newToken = await refreshToken();
+    ws.close();
+    reconnect(newToken);
+  }
+};
+```
+
+### Rate Limiting
+WebSocket messages are rate-limited:
+
+```json
+{
+  "type": "error",
+  "error": {
+    "code": "RATE_LIMITED",
+    "message": "Too many messages",
+    "retry_after": 5,
+    "limit": 100,
+    "window": "1m"
+  }
+}
+```
+
+**Limits:**
+- Max 100 messages per minute per connection
+- Max 10 subscriptions per minute per connection
+
+## Next Steps
+
+<Cards>
+  <Card
+    icon={<Radio />}
+    title="HTTP API"
+    description="Learn REST endpoint conventions and CRUD operations"
+    href="/docs/transport/http-api"
+  />
+  <Card
+    icon={<AlertCircle />}
+    title="Error Handling"
+    description="Master error codes and debugging strategies"
+    href="/docs/transport/error-handling"
+  />
+</Cards>
