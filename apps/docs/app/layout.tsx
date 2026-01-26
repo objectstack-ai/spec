@@ -18,5 +18,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   // Root layout is only used for redirects with middleware
   // The actual layout is in [lang]/layout.tsx
-  return children;
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body>{children}</body>
+    </html>
+  );
 }
