@@ -463,6 +463,13 @@
                           "type": "boolean",
                           "default": false,
                           "description": "Is external ID for upsert operations"
+                        },
+                        "extensions": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "description": "Extension value (string, number, boolean, object, or array)"
+                          },
+                          "description": "Custom extension properties from plugins and modules"
                         }
                       },
                       "required": [
@@ -2065,6 +2072,13 @@
                     },
                     "additionalProperties": false,
                     "description": "Enabled system features modules"
+                  },
+                  "extensions": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "description": "Extension value (string, number, boolean, object, or array)"
+                    },
+                    "description": "Custom extension properties from plugins and modules"
                   }
                 },
                 "required": [

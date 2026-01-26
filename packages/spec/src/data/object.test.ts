@@ -365,3 +365,85 @@ describe('ObjectSchema', () => {
     });
   });
 });
+
+describe('Object Extensions', () => {
+  it('should accept object with extensions', () => {
+    const objectWithExtensions: ServiceObject = {
+      name: 'customer',
+      label: 'Customer',
+      fields: {},
+      extensions: {
+        'ai_assistant.enableRAG': true,
+        'ai_assistant.contextFields': ['name', 'description', 'notes'],
+        'ai_assistant.embeddingModel': 'text-embedding-3-small',
+      },
+    };
+
+    expect(() => ObjectSchema.parse(objectWithExtensions)).not.toThrow();
+    const parsed = ObjectSchema.parse(objectWithExtensions);
+    expect(parsed.extensions).toEqual({
+      'ai_assistant.enableRAG': true,
+      'ai_assistant.contextFields': ['name', 'description', 'notes'],
+      'ai_assistant.embeddingModel': 'text-embedding-3-small',
+    });
+  });
+
+  it('should accept object without extensions', () => {
+    const object: ServiceObject = {
+      name: 'product',
+      label: 'Product',
+      fields: {},
+    };
+
+    expect(() => ObjectSchema.parse(object)).not.toThrow();
+  });
+
+  it('should accept object with empty extensions', () => {
+    const object: ServiceObject = {
+      name: 'product',
+      label: 'Product',
+      fields: {},
+      extensions: {},
+    };
+
+    expect(() => ObjectSchema.parse(object)).not.toThrow();
+  });
+
+  it('should accept object with complex extension values', () => {
+    const object: ServiceObject = {
+      name: 'order',
+      label: 'Order',
+      fields: {},
+      extensions: {
+        'workflow_engine.autoApprovalRules': [
+          { field: 'amount', operator: '<', value: 1000 },
+          { field: 'status', operator: '=', value: 'pending' },
+        ],
+        'integration.webhookConfig': {
+          url: 'https://api.example.com/webhook',
+          headers: {
+            'Authorization': 'Bearer token',
+          },
+          events: ['onCreate', 'onUpdate', 'onDelete'],
+        },
+        'analytics.trackingEnabled': true,
+      },
+    };
+
+    expect(() => ObjectSchema.parse(object)).not.toThrow();
+  });
+
+  it('should work with ObjectSchema.create factory', () => {
+    const object = ObjectSchema.create({
+      name: 'task',
+      label: 'Task',
+      fields: {},
+      extensions: {
+        'ai_assistant.enableRAG': true,
+      },
+    });
+
+    expect(() => ObjectSchema.parse(object)).not.toThrow();
+  });
+});
+

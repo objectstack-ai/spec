@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ExtensionsMapSchema } from '../system/extension.zod';
 
 /**
  * Field Type Enum
@@ -191,6 +192,21 @@ export const FieldSchema = z.object({
   /** Indexing */
   index: z.boolean().default(false).describe('Create standard database index'),
   externalId: z.boolean().default(false).describe('Is external ID for upsert operations'),
+
+  /**
+   * Extensions
+   * 
+   * Custom extension properties from plugins and modules.
+   * Use namespaced keys (e.g., 'ai_assistant.vectorIndexed', 'crm_sync.salesforceField').
+   * 
+   * @example
+   * {
+   *   'ai_assistant.vectorIndexed': true,
+   *   'ai_assistant.embeddingModel': 'text-embedding-3-small',
+   *   'ai_assistant.chunkSize': 512
+   * }
+   */
+  extensions: ExtensionsMapSchema,
 });
 
 export type Field = z.infer<typeof FieldSchema>;

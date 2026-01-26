@@ -1,0 +1,63 @@
+{
+  "$ref": "#/definitions/AIObjectExtension",
+  "definitions": {
+    "AIObjectExtension": {
+      "type": "object",
+      "properties": {
+        "ai_assistant.enableRAG": {
+          "type": "boolean"
+        },
+        "ai_assistant.contextFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ai_assistant.vectorIndex": {
+          "type": "string"
+        },
+        "ai_assistant.embeddingModel": {
+          "type": "string"
+        },
+        "ai_assistant.agentEnabled": {
+          "type": "boolean"
+        },
+        "ai_assistant.agentName": {
+          "type": "string"
+        },
+        "ai_assistant.agentTriggers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ai_assistant.predictiveEnabled": {
+          "type": "boolean"
+        },
+        "ai_assistant.predictiveModels": {
+          "type": "array"
+        },
+        "ai_assistant.autoClassification": {
+          "type": "boolean"
+        },
+        "ai_assistant.classificationField": {
+          "type": "string"
+        },
+        "ai_assistant.classificationModel": {
+          "type": "string"
+        },
+        "ai_assistant.classificationPrompt": {
+          "type": "string"
+        },
+        "ai_assistant.dataQualityEnabled": {
+          "type": "boolean"
+        },
+        "ai_assistant.dataQualityRules": {
+          "type": "array"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

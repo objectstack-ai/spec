@@ -1,0 +1,20 @@
+{
+  "$ref": "#/definitions/ExtensionsMap",
+  "definitions": {
+    "ExtensionsMap": {
+      "anyOf": [
+        {
+          "not": {}
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "description": "Extension value (string, number, boolean, object, or array)"
+          }
+        }
+      ],
+      "description": "Custom extension properties from plugins and modules"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

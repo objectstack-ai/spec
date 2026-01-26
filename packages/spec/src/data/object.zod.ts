@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { FieldSchema } from './field.zod';
 import { ValidationRuleSchema } from './validation.zod';
+import { ExtensionsMapSchema } from '../system/extension.zod';
 
 /**
  * Capability Flags
@@ -134,6 +135,22 @@ const ObjectSchemaBase = z.object({
    * System Capabilities 
    */
   enable: ObjectCapabilities.optional().describe('Enabled system features modules'),
+
+  /**
+   * Extensions
+   * 
+   * Custom extension properties from plugins and modules.
+   * Use namespaced keys (e.g., 'ai_assistant.enableRAG', 'workflow_engine.autoApprovalRules').
+   * 
+   * @example
+   * {
+   *   'ai_assistant.enableRAG': true,
+   *   'ai_assistant.contextFields': ['name', 'description', 'notes'],
+   *   'ai_assistant.embeddingModel': 'text-embedding-3-small',
+   *   'workflow_engine.autoApprovalRules': [...]
+   * }
+   */
+  extensions: ExtensionsMapSchema,
 });
 
 /**

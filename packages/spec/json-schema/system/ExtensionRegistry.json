@@ -1,0 +1,96 @@
+{
+  "$ref": "#/definitions/ExtensionRegistry",
+  "definitions": {
+    "ExtensionRegistry": {
+      "type": "object",
+      "properties": {
+        "extensions": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "pattern": "^[a-z_][a-z0-9_]*\\.[a-zA-Z][a-zA-Z0-9_]*$",
+                "description": "Fully qualified extension key (e.g., \"ai_assistant.vectorIndexed\")"
+              },
+              "pluginId": {
+                "type": "string",
+                "description": "ID of the plugin providing this extension"
+              },
+              "label": {
+                "type": "string",
+                "description": "Display label for the extension property"
+              },
+              "description": {
+                "type": "string",
+                "description": "Detailed description of the extension"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "string",
+                  "number",
+                  "boolean",
+                  "object",
+                  "array",
+                  "any"
+                ],
+                "description": "Expected data type for this extension"
+              },
+              "default": {
+                "description": "Default value for this extension"
+              },
+              "appliesTo": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "object",
+                    "field",
+                    "view",
+                    "app",
+                    "dashboard",
+                    "report",
+                    "action",
+                    "workflow"
+                  ]
+                },
+                "description": "Metadata types this extension can be applied to"
+              },
+              "fieldTypes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Applicable field types (for field extensions)"
+              },
+              "required": {
+                "type": "boolean",
+                "default": false,
+                "description": "Whether this extension is required"
+              },
+              "schema": {
+                "description": "JSON Schema for advanced validation"
+              }
+            },
+            "required": [
+              "key",
+              "pluginId",
+              "label",
+              "type",
+              "appliesTo"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Registry of available extension definitions"
+        }
+      },
+      "required": [
+        "extensions"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

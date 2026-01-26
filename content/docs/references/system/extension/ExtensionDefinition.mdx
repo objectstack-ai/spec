@@ -1,0 +1,19 @@
+---
+title: ExtensionDefinition
+description: ExtensionDefinition Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **key** | `string` | ✅ | Fully qualified extension key (e.g., "ai_assistant.vectorIndexed") |
+| **pluginId** | `string` | ✅ | ID of the plugin providing this extension |
+| **label** | `string` | ✅ | Display label for the extension property |
+| **description** | `string` | optional | Detailed description of the extension |
+| **type** | `Enum<'string' \| 'number' \| 'boolean' \| 'object' \| 'array' \| 'any'>` | ✅ | Expected data type for this extension |
+| **default** | `any` | optional | Default value for this extension |
+| **appliesTo** | `Enum<'object' \| 'field' \| 'view' \| 'app' \| 'dashboard' \| 'report' \| 'action' \| 'workflow'>[]` | ✅ | Metadata types this extension can be applied to |
+| **fieldTypes** | `string[]` | optional | Applicable field types (for field extensions) |
+| **required** | `boolean` | optional | Whether this extension is required |
+| **schema** | `any` | optional | JSON Schema for advanced validation |

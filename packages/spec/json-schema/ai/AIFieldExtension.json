@@ -1,0 +1,39 @@
+{
+  "$ref": "#/definitions/AIFieldExtension",
+  "definitions": {
+    "AIFieldExtension": {
+      "type": "object",
+      "properties": {
+        "ai_assistant.vectorIndexed": {
+          "type": "boolean"
+        },
+        "ai_assistant.embeddingModel": {
+          "type": "string"
+        },
+        "ai_assistant.chunkSize": {
+          "type": "number"
+        },
+        "ai_assistant.chunkOverlap": {
+          "type": "number"
+        },
+        "ai_assistant.autoSummarize": {
+          "type": "boolean"
+        },
+        "ai_assistant.summaryModel": {
+          "type": "string"
+        },
+        "ai_assistant.summaryMaxLength": {
+          "type": "number"
+        },
+        "ai_assistant.sentimentAnalysis": {
+          "type": "boolean"
+        },
+        "ai_assistant.sentimentField": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

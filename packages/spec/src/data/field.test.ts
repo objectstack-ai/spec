@@ -851,3 +851,81 @@ describe('Field Factory Helpers', () => {
     });
   });
 });
+
+describe('Field Extensions', () => {
+  it('should accept field with extensions', () => {
+    const fieldWithExtensions: Field = {
+      name: 'description',
+      label: 'Description',
+      type: 'textarea',
+      extensions: {
+        'ai_assistant.vectorIndexed': true,
+        'ai_assistant.embeddingModel': 'text-embedding-3-small',
+        'ai_assistant.chunkSize': 512,
+      },
+    };
+
+    expect(() => FieldSchema.parse(fieldWithExtensions)).not.toThrow();
+    const parsed = FieldSchema.parse(fieldWithExtensions);
+    expect(parsed.extensions).toEqual({
+      'ai_assistant.vectorIndexed': true,
+      'ai_assistant.embeddingModel': 'text-embedding-3-small',
+      'ai_assistant.chunkSize': 512,
+    });
+  });
+
+  it('should accept field without extensions', () => {
+    const field: Field = {
+      name: 'name',
+      label: 'Name',
+      type: 'text',
+    };
+
+    expect(() => FieldSchema.parse(field)).not.toThrow();
+  });
+
+  it('should accept field with empty extensions', () => {
+    const field: Field = {
+      name: 'name',
+      label: 'Name',
+      type: 'text',
+      extensions: {},
+    };
+
+    expect(() => FieldSchema.parse(field)).not.toThrow();
+  });
+
+  it('should accept field with complex extension values', () => {
+    const field: Field = {
+      name: 'config',
+      label: 'Configuration',
+      type: 'text',
+      extensions: {
+        'plugin.arrayValue': ['value1', 'value2'],
+        'plugin.objectValue': {
+          nested: {
+            deep: true,
+            count: 42,
+          },
+        },
+        'plugin.booleanValue': false,
+        'plugin.numberValue': 3.14,
+        'plugin.stringValue': 'test',
+      },
+    };
+
+    expect(() => FieldSchema.parse(field)).not.toThrow();
+  });
+
+  it('should work with Field factory helpers', () => {
+    const field = Field.text({
+      name: 'summary',
+      label: 'Summary',
+      extensions: {
+        'ai_assistant.vectorIndexed': true,
+      },
+    });
+
+    expect(() => FieldSchema.parse(field)).not.toThrow();
+  });
+});

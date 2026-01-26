@@ -4,6 +4,7 @@
   "pages": [
     "audit",
     "events",
+    "extension",
     "job",
     "translation"
   ]

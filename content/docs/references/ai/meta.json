@@ -5,8 +5,10 @@
     "agent",
     "conversation",
     "cost",
+    "field-extensions",
     "model-registry",
     "nlq",
+    "object-extensions",
     "orchestration",
     "predictive",
     "rag-pipeline"
