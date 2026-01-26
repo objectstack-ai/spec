@@ -1,0 +1,128 @@
+---
+title: Automation Protocol
+description: Workflows, visual flows, and webhooks for business process automation.
+---
+
+import { Workflow, GitBranch, Webhook } from 'lucide-react';
+
+# Automation Protocol
+
+The **Automation Protocol** provides business process automation through workflows (state machines), visual flows, and webhooks.
+
+## Overview
+
+<Cards>
+  <Card
+    icon={<Workflow />}
+    title="Workflows"
+    description="Finite state machines with triggers, actions, and conditions."
+  />
+  <Card
+    icon={<GitBranch />}
+    title="Visual Flows"
+    description="Node-based logic builder for complex business processes."
+  />
+  <Card
+    icon={<Webhook />}
+    title="Webhooks"
+    description="HTTP callbacks for external system integration."
+  />
+</Cards>
+
+## Key Components
+
+### 1. Workflow Rules
+
+```typescript
+import { Automation } from '@objectstack/spec';
+
+const workflow: Automation.WorkflowRule = {
+  name: 'auto_assign_leads',
+  object: 'lead',
+  triggerType: 'on_create',
+  active: true,
+  
+  condition: {
+    formula: 'AND(ISPICKVAL(status, "New"), NOT(ISBLANK(state)))'
+  },
+  
+  actions: [
+    {
+      type: 'field_update',
+      field: 'owner',
+      value: {
+        type: 'lookup',
+        formula: 'LOOKUP(user, "territory", state)'
+      }
+    },
+    {
+      type: 'email_alert',
+      template: 'new_lead_assigned',
+      recipients: ['${owner.email}']
+    }
+  ]
+};
+```
+
+### 2. Visual Flow
+
+```typescript
+const flow: Automation.Flow = {
+  name: 'opportunity_approval',
+  type: 'screen',  // screen | autolaunched | schedule
+  
+  nodes: [
+    {
+      id: 'start',
+      type: 'start',
+      next: 'check_amount'
+    },
+    {
+      id: 'check_amount',
+      type: 'decision',
+      condition: 'amount > 100000',
+      trueNext: 'manager_approval',
+      falseNext: 'auto_approve'
+    },
+    {
+      id: 'manager_approval',
+      type: 'screen',
+      fields: ['approval_notes'],
+      next: 'update_status'
+    }
+  ],
+  
+  variables: [
+    { name: 'opportunityId', type: 'string' },
+    { name: 'amount', type: 'number' }
+  ]
+};
+```
+
+### 3. Webhooks
+
+```typescript
+const webhook: Automation.Webhook = {
+  name: 'slack_notification',
+  url: 'https://hooks.slack.com/services/XXX/YYY/ZZZ',
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  triggerType: 'on_create',
+  object: 'opportunity',
+  active: true,
+  
+  payload: {
+    text: 'New opportunity: {{name}}',
+    amount: '{{amount}}',
+    stage: '{{stage}}'
+  }
+};
+```
+
+## Learn More
+
+- [Workflow Rules](/docs/references/automation/workflow/WorkflowRule)
+- [Flow Definition](/docs/references/automation/flow/Flow)
+- [Webhook Configuration](/docs/references/automation/webhook/Webhook)

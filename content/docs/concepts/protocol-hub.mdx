@@ -1,0 +1,156 @@
+---
+title: Hub Protocol  
+description: Multi-tenancy, marketplace, licensing, and deployment management for SaaS distribution.
+---
+
+import { Cloud, Package, Key, Users } from 'lucide-react';
+
+# Hub Protocol
+
+The **Hub Protocol** provides SaaS and marketplace capabilities including multi-tenancy, licensing, plugin marketplace, and deployment management.
+
+## Overview
+
+<Cards>
+  <Card
+    icon={<Users />}
+    title="Multi-Tenancy"
+    description="Isolate data by tenant with database or row-level strategies."
+  />
+  <Card
+    icon={<Package />}
+    title="Marketplace"
+    description="Distribute and monetize plugins via the ObjectStack marketplace."
+  />
+  <Card
+    icon={<Key />}
+    title="Licensing"
+    description="Feature flags, usage limits, and subscription tiers."
+  />
+  <Card
+    icon={<Cloud />}
+    title="Deployment"
+    description="Manage deployment targets and spaces."
+  />
+</Cards>
+
+## Key Components
+
+### 1. Multi-Tenancy
+
+```typescript
+import { Hub } from '@objectstack/spec';
+
+const tenantConfig: Hub.TenantIsolationConfig = {
+  level: 'database',  // database | schema | row
+  
+  // Database-level isolation
+  databaseStrategy: {
+    namingPattern: 'tenant_{tenant_id}',
+    sharedCatalog: true
+  },
+  
+  // Row-level isolation
+  rowStrategy: {
+    tenantIdColumn: 'tenant_id',
+    enforceViaRLS: true  // PostgreSQL Row-Level Security
+  }
+};
+
+const tenant: Hub.Tenant = {
+  id: 'tenant_123',
+  name: 'Acme Corp',
+  slug: 'acme-corp',
+  plan: 'enterprise',
+  status: 'active',
+  quota: {
+    maxUsers: 100,
+    maxStorage: '100GB',
+    maxApiCalls: 1000000
+  }
+};
+```
+
+### 2. Marketplace
+
+```typescript
+const plugin: Hub.MarketplacePlugin = {
+  id: 'com.vendor.sales',
+  name: 'Sales CRM Pro',
+  author: {
+    name: 'Vendor Inc',
+    email: 'support@vendor.com',
+    website: 'https://vendor.com'
+  },
+  pricing: {
+    model: 'subscription',  // free | one_time | subscription
+    tiers: [
+      {
+        name: 'Starter',
+        price: 29,
+        period: 'month',
+        features: ['Basic CRM', 'Up to 5 users']
+      },
+      {
+        name: 'Pro',
+        price: 99,
+        period: 'month',
+        features: ['Advanced CRM', 'Unlimited users', 'API access']
+      }
+    ]
+  },
+  version: '2.1.0',
+  downloads: 15420,
+  rating: 4.8
+};
+```
+
+### 3. Licensing
+
+```typescript
+const license: Hub.License = {
+  tenantId: 'tenant_123',
+  plan: 'enterprise',
+  features: [
+    'advanced_analytics',
+    'custom_branding',
+    'sso',
+    'api_access'
+  ],
+  limits: {
+    users: 100,
+    storage: 107374182400,  // 100GB in bytes
+    apiCalls: 1000000
+  },
+  validFrom: '2024-01-01',
+  validUntil: '2025-01-01',
+  autoRenew: true
+};
+```
+
+### 4. Deployment Spaces
+
+```typescript
+const space: Hub.HubSpace = {
+  id: 'space_456',
+  tenantId: 'tenant_123',
+  name: 'Production',
+  environment: 'production',
+  deploymentTarget: {
+    type: 'kubernetes',
+    cluster: 'us-west-2',
+    namespace: 'objectstack-prod'
+  },
+  subscription: {
+    plan: 'enterprise',
+    status: 'active',
+    billingCycle: 'monthly'
+  }
+};
+```
+
+## Learn More
+
+- [Tenant Management](/docs/references/hub/tenant/Tenant)
+- [Marketplace Plugins](/docs/references/hub/marketplace/MarketplacePlugin)
+- [License Reference](/docs/references/hub/license/License)
