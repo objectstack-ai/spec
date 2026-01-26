@@ -1,0 +1,13 @@
+---
+title: SCIMError
+description: SCIMError Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **schemas** | `string[]` | optional | SCIM schema URIs |
+| **status** | `integer` | ✅ | HTTP status code |
+| **scimType** | `Enum<'invalidFilter' \| 'tooMany' \| 'uniqueness' \| 'mutability' \| 'invalidSyntax' \| 'invalidPath' \| 'noTarget' \| 'invalidValue' \| 'invalidVers' \| 'sensitive'>` | optional | SCIM error type |
+| **detail** | `string` | optional | Error detail message |

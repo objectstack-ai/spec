@@ -5,6 +5,7 @@
     "identity",
     "organization",
     "policy",
-    "role"
+    "role",
+    "scim"
   ]
 }

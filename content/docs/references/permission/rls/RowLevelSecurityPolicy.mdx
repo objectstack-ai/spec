@@ -1,0 +1,20 @@
+---
+title: RowLevelSecurityPolicy
+description: RowLevelSecurityPolicy Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Policy unique identifier (snake_case) |
+| **label** | `string` | optional | Human-readable policy label |
+| **description** | `string` | optional | Policy description and business justification |
+| **object** | `string` | ✅ | Target object name |
+| **operation** | `Enum<'select' \| 'insert' \| 'update' \| 'delete' \| 'all'>` | ✅ | Database operation this policy applies to |
+| **using** | `string` | optional | Filter condition for SELECT/UPDATE/DELETE (PostgreSQL SQL WHERE clause syntax with parameterized context variables). Optional for INSERT-only policies. |
+| **check** | `string` | optional | Validation condition for INSERT/UPDATE (defaults to USING clause if not specified - enforced at application level) |
+| **roles** | `string[]` | optional | Roles this policy applies to (omit for all roles) |
+| **enabled** | `boolean` | optional | Whether this policy is active |
+| **priority** | `integer` | optional | Policy evaluation priority (higher = evaluated first) |
+| **tags** | `string[]` | optional | Policy categorization tags |
