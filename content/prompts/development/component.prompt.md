@@ -206,10 +206,10 @@ import { WelcomeCard } from './WelcomeCard';
 
 export const widgetRegistry = {
   // Field Widgets (Maps to FieldType or Custom 'widget' property)
-  'field.rating': RatingField,
+  'field:rating': RatingField,
   
   // Dashboard Widgets (Maps to widget 'type')
-  'widget.welcome_card': WelcomeCard
+  'widget:welcome_card': WelcomeCard
 };
 ```
 
