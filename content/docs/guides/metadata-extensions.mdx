@@ -1,0 +1,426 @@
+---
+title: Metadata Extension Protocol
+description: How to extend ObjectStack metadata definitions with custom properties using the Extension Protocol
+---
+
+# Metadata Extension Protocol
+
+The **Metadata Extension Protocol** enables plugins and modules to add custom properties to ObjectStack's core metadata definitions (Objects, Fields, Views, etc.) without modifying the core schemas.
+
+## Overview
+
+ObjectStack follows a strict **"Core + Extensions"** architecture. The core protocol defines standard metadata properties, while plugins can extend these definitions with their own custom properties using a **namespaced extension system**.
+
+### Key Concepts
+
+1. **Namespaced Keys**: All extensions use dot notation: `plugin_id.property_name`
+2. **Type-Safe**: Extensions are validated at runtime using Zod schemas
+3. **Non-Breaking**: Extensions are optional and backward-compatible
+4. **Plugin-Scoped**: Each plugin owns its extension namespace
+
+## Extension Schema
+
+### ExtensionsMap
+
+The `ExtensionsMap` is a record of extension properties keyed by namespaced identifiers.
+
+```typescript
+import { ExtensionsMap } from '@objectstack/spec';
+
+const extensions: ExtensionsMap = {
+  'ai_assistant.vectorIndexed': true,
+  'ai_assistant.embeddingModel': 'text-embedding-3-small',
+  'crm_sync.salesforceId': 'Contact.Email__c',
+  'workflow_engine.triggers': ['onCreate', 'onUpdate']
+};
+```
+
+### Naming Convention
+
+- **Namespace**: Plugin ID in `snake_case` (e.g., `ai_assistant`, `workflow_engine`)
+- **Property**: Property name in `camelCase` (e.g., `vectorIndexed`, `embeddingModel`)
+- **Full Key**: `namespace.property` (e.g., `ai_assistant.vectorIndexed`)
+
+## Using Extensions
+
+### Adding Extensions to Fields
+
+```typescript
+import { FieldSchema, Field } from '@objectstack/spec';
+
+// Define a field with AI extensions
+const field = {
+  name: 'description',
+  label: 'Description',
+  type: 'textarea',
+  extensions: {
+    'ai_assistant.vectorIndexed': true,
+    'ai_assistant.embeddingModel': 'text-embedding-3-small',
+    'ai_assistant.chunkSize': 512,
+    'ai_assistant.chunkOverlap': 50
+  }
+};
+
+// Validate with Zod
+FieldSchema.parse(field); // ✓ Valid
+```
+
+### Adding Extensions to Objects
+
+```typescript
+import { ObjectSchema } from '@objectstack/spec';
+
+const object = {
+  name: 'customer',
+  label: 'Customer',
+  fields: {
+    name: { type: 'text', label: 'Name' },
+    description: { type: 'textarea', label: 'Description' }
+  },
+  extensions: {
+    'ai_assistant.enableRAG': true,
+    'ai_assistant.contextFields': ['name', 'description'],
+    'ai_assistant.vectorIndex': 'customers_v1',
+    'workflow_engine.autoApprovalRules': [
+      { field: 'amount', operator: '<', value: 1000 }
+    ]
+  }
+};
+
+ObjectSchema.parse(object); // ✓ Valid
+```
+
+## Extension Helper Functions
+
+The `Extension` utility provides type-safe helper functions for working with extensions.
+
+### Extension.get()
+
+Get an extension value with optional default.
+
+```typescript
+import { Extension } from '@objectstack/spec';
+
+const vectorIndexed = Extension.get(
+  field.extensions,
+  'ai_assistant.vectorIndexed',
+  false // default value
+);
+// Returns: true | false
+```
+
+### Extension.set()
+
+Set an extension value (returns new object, doesn't mutate).
+
+```typescript
+let extensions = Extension.set(
+  undefined,
+  'ai_assistant.vectorIndexed',
+  true
+);
+
+extensions = Extension.set(
+  extensions,
+  'ai_assistant.embeddingModel',
+  'text-embedding-3-small'
+);
+// Returns: { 'ai_assistant.vectorIndexed': true, ... }
+```
+
+### Extension.has()
+
+Check if an extension key exists.
+
+```typescript
+const hasVectorIndex = Extension.has(
+  field.extensions,
+  'ai_assistant.vectorIndexed'
+);
+// Returns: boolean
+```
+
+### Extension.remove()
+
+Remove an extension (returns new object).
+
+```typescript
+const updated = Extension.remove(
+  field.extensions,
+  'ai_assistant.vectorIndexed'
+);
+// Returns: ExtensionsMap without the removed key
+```
+
+## Defining Extension Schemas
+
+Plugins should define their extension schemas using `ExtensionDefinition` for documentation and validation.
+
+### Extension Definition
+
+```typescript
+import { ExtensionDefinition } from '@objectstack/spec';
+
+export const VectorIndexedExtension: ExtensionDefinition = {
+  key: 'ai_assistant.vectorIndexed',
+  pluginId: 'ai_assistant',
+  label: 'Vector Indexed',
+  description: 'Enable vector indexing for semantic search',
+  type: 'boolean',
+  default: false,
+  appliesTo: ['field'],
+  fieldTypes: ['text', 'textarea', 'markdown'],
+  required: false
+};
+```
+
+### Extension Registry
+
+Plugins can register their extensions for runtime introspection.
+
+```typescript
+import { ExtensionRegistry } from '@objectstack/spec';
+
+const registry: ExtensionRegistry = {
+  extensions: {
+    'ai_assistant.vectorIndexed': VectorIndexedExtension,
+    'ai_assistant.embeddingModel': EmbeddingModelExtension,
+    // ... more extensions
+  }
+};
+```
+
+## AI Extension Examples
+
+ObjectStack includes reference AI extensions for common use cases.
+
+### Field Extensions
+
+```typescript
+import { AIFieldExtensions } from '@objectstack/spec';
+
+// Vector indexing for semantic search
+{
+  'ai_assistant.vectorIndexed': true,
+  'ai_assistant.embeddingModel': 'text-embedding-3-small',
+  'ai_assistant.chunkSize': 512,
+  'ai_assistant.chunkOverlap': 50
+}
+
+// Auto-summarization
+{
+  'ai_assistant.autoSummarize': true,
+  'ai_assistant.summaryModel': 'gpt-4o-mini',
+  'ai_assistant.summaryMaxLength': 200
+}
+
+// Sentiment analysis
+{
+  'ai_assistant.sentimentAnalysis': true,
+  'ai_assistant.sentimentField': 'sentiment_score'
+}
+```
+
+### Object Extensions
+
+```typescript
+import { AIObjectExtensions } from '@objectstack/spec';
+
+// RAG (Retrieval-Augmented Generation)
+{
+  'ai_assistant.enableRAG': true,
+  'ai_assistant.contextFields': ['title', 'description'],
+  'ai_assistant.vectorIndex': 'knowledge_base_v1'
+}
+
+// AI Agent integration
+{
+  'ai_assistant.agentEnabled': true,
+  'ai_assistant.agentName': 'support_assistant',
+  'ai_assistant.agentTriggers': ['onCreate', 'onUpdate']
+}
+
+// Predictive analytics
+{
+  'ai_assistant.predictiveEnabled': true,
+  'ai_assistant.predictiveModels': [
+    {
+      name: 'win_probability',
+      type: 'classification',
+      targetField: 'stage'
+    }
+  ]
+}
+
+// Auto-classification
+{
+  'ai_assistant.autoClassification': true,
+  'ai_assistant.classificationField': 'category',
+  'ai_assistant.classificationModel': 'gpt-4o-mini'
+}
+```
+
+## Complete Example
+
+Here's a complete example combining object and field extensions:
+
+```typescript
+import { ObjectSchema, Field } from '@objectstack/spec';
+
+const customerInquiry = {
+  name: 'customer_inquiry',
+  label: 'Customer Inquiry',
+  pluralLabel: 'Customer Inquiries',
+  description: 'Customer support inquiries with AI assistance',
+  icon: 'message-square',
+  
+  fields: {
+    title: {
+      name: 'title',
+      label: 'Title',
+      type: 'text',
+      required: true,
+      extensions: {
+        'ai_assistant.vectorIndexed': true,
+        'ai_assistant.embeddingModel': 'text-embedding-3-small'
+      }
+    },
+    
+    description: {
+      name: 'description',
+      label: 'Description',
+      type: 'textarea',
+      extensions: {
+        'ai_assistant.vectorIndexed': true,
+        'ai_assistant.chunkSize': 512,
+        'ai_assistant.autoSummarize': true,
+        'ai_assistant.summaryModel': 'gpt-4o-mini'
+      }
+    },
+    
+    customer_feedback: {
+      name: 'customer_feedback',
+      label: 'Customer Feedback',
+      type: 'textarea',
+      extensions: {
+        'ai_assistant.sentimentAnalysis': true,
+        'ai_assistant.sentimentField': 'sentiment_score'
+      }
+    }
+  },
+  
+  extensions: {
+    'ai_assistant.enableRAG': true,
+    'ai_assistant.contextFields': ['title', 'description'],
+    'ai_assistant.vectorIndex': 'customer_inquiries_v1',
+    'ai_assistant.agentEnabled': true,
+    'ai_assistant.agentName': 'support_assistant',
+    'ai_assistant.agentTriggers': ['onCreate', 'onUpdate'],
+    'ai_assistant.autoClassification': true,
+    'ai_assistant.classificationField': 'category'
+  }
+};
+
+// Validate the schema
+ObjectSchema.parse(customerInquiry); // ✓ Valid
+```
+
+## Best Practices
+
+### 1. Use Namespacing
+
+Always namespace your extensions to avoid conflicts:
+
+```typescript
+// ✓ Good
+'my_plugin.myProperty': value
+
+// ✗ Bad (no namespace)
+'myProperty': value
+```
+
+### 2. Document Your Extensions
+
+Create `ExtensionDefinition` entries for all your extensions:
+
+```typescript
+export const MyExtension: ExtensionDefinition = {
+  key: 'my_plugin.myProperty',
+  pluginId: 'my_plugin',
+  label: 'My Property',
+  description: 'What this extension does',
+  type: 'boolean',
+  appliesTo: ['field', 'object'],
+  required: false
+};
+```
+
+### 3. Validate Extension Values
+
+Use Zod schemas to validate your extension values:
+
+```typescript
+import { z } from 'zod';
+
+const MyExtensionSchema = z.object({
+  'my_plugin.myProperty': z.boolean(),
+  'my_plugin.myConfig': z.object({
+    enabled: z.boolean(),
+    threshold: z.number()
+  })
+}).partial();
+```
+
+### 4. Use Helper Functions
+
+Prefer the `Extension` helpers over direct object manipulation:
+
+```typescript
+// ✓ Good
+const value = Extension.get(extensions, 'my_plugin.myProperty', false);
+
+// ✗ Less ideal
+const value = extensions?.['my_plugin.myProperty'] ?? false;
+```
+
+### 5. Consider Backward Compatibility
+
+Extensions should be optional and have sensible defaults:
+
+```typescript
+const enabled = Extension.get(
+  object.extensions,
+  'my_plugin.enabled',
+  false // Safe default if extension not present
+);
+```
+
+## Migration Guide
+
+### From Custom Properties to Extensions
+
+If you've been adding custom properties directly to objects/fields, migrate to extensions:
+
+```typescript
+// Before (not recommended)
+const field = {
+  type: 'text',
+  myCustomProperty: 'value'  // ✗ Not in schema
+};
+
+// After (using extensions)
+const field = {
+  type: 'text',
+  extensions: {
+    'my_plugin.myCustomProperty': 'value'  // ✓ Valid extension
+  }
+};
+```
+
+## See Also
+
+- [AI Field Extensions](/docs/references/ai/field-extensions/AIFieldExtension)
+- [AI Object Extensions](/docs/references/ai/object-extensions/AIObjectExtension)
+- [Plugin Architecture](/docs/concepts/plugin-architecture)
+- [Field Schema](/docs/references/data/field/Field)
+- [Object Schema](/docs/references/data/object/Object)
