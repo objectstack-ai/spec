@@ -116,6 +116,30 @@ The fundamental building blocks used by all other widgets.
     *   `atom.error` (Error Boundary/Message).
     *   `atom.badge` (Status Indicators).
 
+### G. Smart Actions (`action.*`)
+Executable elements bound to the Action Protocol. They handle permissions, loading states, and confirmation dialogs automatically.
+*   **Contract:** Must implement `ActionComponentProps` (Ref: `src/ui/action.zod.ts`).
+    ```typescript
+    type ActionComponentProps = {
+      action: ActionSchema;       // Metadata
+      record?: any;               // Context
+      onExecute: () => Promise<void>;
+    }
+    ```
+*   **Required Components:**
+    *   `action.button`: Standalone smart button.
+    *   `action.group`: Toolbar or Button Group.
+    *   `action.menu`: Dropdown menu for overflow actions.
+    *   `action.icon`: Icon-only trigger (for dense lists).
+
+### H. AI Interface (`ai.*`)
+Conversational and Generative UI components.
+*   **Required Components:**
+    *   `ai.chat_window`: Standard conversational interface.
+    *   `ai.input`: Prompt input with auto-complete/context.
+    *   `ai.suggestion`: "Next Best Action" cards.
+    *   `ai.feedback`: Thumbs up/down + reasoning capture.
+
 ---
 
 ## 2. API Reference & Contracts
