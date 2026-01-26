@@ -3,7 +3,7 @@
   "version": "0.1.7",
   "private": true,
   "scripts": {
-    "dev": "ts-node src/index.ts",
+    "dev": "tsx src/index.ts",
     "clean": "rm -rf dist node_modules"
   },
   "dependencies": {
@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "ts-node": "^10.9.1",
+    "tsx": "^4.21.0",
     "typescript": "^5.0.0"
   }
 }
