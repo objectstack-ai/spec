@@ -50,6 +50,18 @@ export const ActionSchema = z.object({
     'record_header', 'record_more', 'record_related',
     'global_nav'
   ])).optional().describe('Locations where this action is visible'),
+
+  /** 
+   * Visual Component Type
+   * Defaults to 'button' or 'menu_item' based on location,
+   * but can be overridden.
+   */
+  component: z.enum([
+    'action.button', // Standard Button
+    'action.icon',   // Icon only
+    'action.menu',   // Dropdown menu
+    'action.group'   // Button Group
+  ]).optional().describe('Visual component override'),
   
   /** Legacy location support */
   location: z.any().optional(),

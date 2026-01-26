@@ -22,6 +22,7 @@ export const FieldType = z.enum([
   'checkboxes',   // Checkbox group
   // Relational
   'lookup', 'master_detail', // Dynamic reference
+  'tree',         // Hierarchical reference
   // Media
   'image', 'file', 'avatar', 'video', 'audio',
   // Calculated / System

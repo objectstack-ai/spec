@@ -203,7 +203,14 @@ export const FormSectionSchema = z.object({
  * Form View Schema
  */
 export const FormViewSchema = z.object({
-  type: z.enum(['simple', 'tabbed', 'wizard']).default('simple'),
+  type: z.enum([
+    'simple',  // Single column or sections
+    'tabbed',  // Tabs
+    'wizard',  // Step by step
+    'split',   // Master-Detail split
+    'drawer',  // Side panel
+    'modal'    // Dialog
+  ]).default('simple'),
   
   /** Data Source Configuration */
   data: ViewDataSchema.optional().describe('Data source configuration (defaults to "object" provider)'),

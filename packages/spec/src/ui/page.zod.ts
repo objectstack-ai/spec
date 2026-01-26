@@ -12,12 +12,31 @@ export const PageRegionSchema = z.object({
 });
 
 /**
+ * Standard Page Component Types
+ */
+export const PageComponentType = z.enum([
+  // Structure
+  'page.header', 'page.footer', 'page.sidebar', 'page.tabs', 'page.accordion', 'page.card', 'page.section',
+  // Record Context
+  'record.details', 'record.highlights', 'record.related_list', 'record.activity', 'record.chatter', 'record.path',
+  // Navigation
+  'app.launcher', 'nav.menu', 'nav.breadcrumb',
+  // Utility
+  'global.search', 'global.notifications', 'user.profile',
+  // AI
+  'ai.chat_window', 'ai.suggestion'
+]);
+
+/**
  * Page Component Schema
  * A configured instance of a UI component.
  */
 export const PageComponentSchema = z.object({
   /** Definition */
-  type: z.string().describe('Component Type (e.g. "steedos-labs.related-list")'),
+  type: z.union([
+    PageComponentType,
+    z.string()
+  ]).describe('Component Type (Standard enum or custom string)'),
   id: z.string().optional().describe('Unique instance ID'),
   
   /** Configuration */
