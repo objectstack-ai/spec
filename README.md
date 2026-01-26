@@ -140,11 +140,14 @@ We welcome contributions! Please read our **[Contributing Guide](./CONTRIBUTING.
 
 ### Key Standards
 
-- **Naming Conventions**: See [content/docs/standards/naming-conventions.mdx](./content/docs/standards/naming-conventions.mdx)
-  - Configuration keys: `camelCase` (e.g., `maxLength`, `referenceFilters`)
-  - Machine names: `snake_case` (e.g., `name: 'project_task'`, `object: 'account'`)
-- **API Design**: Follow [content/docs/standards/api-design.mdx](./content/docs/standards/api-design.mdx)
-- **Error Handling**: Use patterns from [content/docs/standards/error-handling.mdx](./content/docs/standards/error-handling.mdx)
+- **Naming Conventions**: **CRITICAL** - All machine identifiers must use lowercase snake_case
+  - **Configuration keys** (TypeScript properties): `camelCase` (e.g., `maxLength`, `referenceFilters`)
+  - **Machine identifiers** (API names, stored values): `snake_case` (e.g., `name: 'project_task'`, `object: 'account'`)
+  - **Event names**: `dot.notation` (e.g., `user.created`, `order.paid`)
+  - **Labels** (display text): Any case (e.g., `'Sales Manager'`, `'In Progress'`)
+  - See [Identifier Schemas](./packages/spec/src/shared/identifiers.zod.ts) for implementation details
+- **API Design**: Follow REST and GraphQL best practices
+- **Error Handling**: Use standard error response patterns
 
 ### PR Checklist
 

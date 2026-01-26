@@ -141,6 +141,73 @@ The synchronization with the cloud happens in the background, asynchronously.
 
 ---
 
+## Principle V: Strict Naming Conventions
+
+**"Machine identifiers are lowercase. Always."**
+
+In highly abstracted metadata-driven systems, distinguishing between "what humans read" (Labels) and "what machines read" (API Names) is fundamental.
+
+### The Problem
+
+Inconsistent naming creates:
+- **Security vulnerabilities**: Case-sensitivity bugs in permission checks
+- **Cross-platform issues**: Case-insensitive filesystems cause conflicts
+- **Database problems**: Collation and case-sensitivity inconsistencies
+- **URL encoding issues**: Mixed-case identifiers require encoding
+- **Developer confusion**: Unclear which names are for display vs. storage
+
+### The Solution
+
+**All machine identifiers must be lowercase snake_case.**
+
+This applies to everything that acts as a machine identifier:
+- Object names (database tables)
+- Field names (database columns)
+- Role names
+- Permission set names
+- Action/trigger names
+- App and page IDs
+- Select option values
+- Workflow/webhook names
+
+### The Convention
+
+| Type | Pattern | Example | Usage |
+|------|---------|---------|-------|
+| **Machine Identifier** | `snake_case` | `crm_account`, `first_name`, `sales_manager` | Stored values, API names |
+| **Event Name** | `dot.notation` | `user.created`, `order.paid` | Event keys, message topics |
+| **Label** | `Any Case` | `Sales Manager`, `In Progress` | Display text for users |
+| **Schema Property** | `camelCase` | `maxLength`, `isRequired` | TypeScript properties |
+
+### Example
+
+```typescript
+// Correct
+{
+  name: 'sales_manager',        // Machine identifier (snake_case)
+  label: 'Sales Manager',       // Display label (readable)
+  maxLength: 100                // Schema property (camelCase)
+}
+
+// Incorrect
+{
+  name: 'SalesManager',         // ❌ PascalCase
+  name: 'sales-manager',        // ❌ kebab-case
+  name: 'Sales Manager',        // ❌ Contains spaces
+}
+```
+
+This convention:
+- Aligns with industry standards (PostgreSQL, Salesforce, ServiceNow)
+- Ensures cross-platform compatibility
+- Prevents security vulnerabilities
+- Provides URL-friendliness
+- Maintains consistency across the entire ecosystem
+
+**Reference**: See `packages/spec/src/shared/identifiers.zod.ts` for schema implementations.
+
+---
+
 ## Summary
 
 These principles guide every design decision in ObjectStack:
@@ -151,6 +218,7 @@ These principles guide every design decision in ObjectStack:
 | **Mechanism over Policy** | We provide the tools, you define the rules. |
 | **Single Source of Truth** | The schema is the application. Everything else derives from it. |
 | **Local-First** | Users own their data. The cloud is just for sync. |
+| **Strict Naming Conventions** | Machine identifiers are lowercase snake_case. Labels are for humans. |
 
 By adhering to these values, we build software that is **resilient to change**, **respectful of user time**, and **technically sovereign**.
 

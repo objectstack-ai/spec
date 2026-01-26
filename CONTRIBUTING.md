@@ -160,27 +160,99 @@ Add working examples in `examples/`:
 
 ### Naming Conventions
 
-**CRITICAL**: Follow these naming conventions strictly:
+**CRITICAL**: Follow these naming conventions strictly to ensure cross-platform compatibility, URL-friendliness, and security.
 
-#### Configuration Keys (TypeScript Properties)
-Use `camelCase`:
+#### 1. Configuration Keys (TypeScript Properties)
+**Always use `camelCase`** for schema property names:
 ```typescript
 {
   maxLength: 100,
   referenceFilters: ['active'],
   defaultValue: 'none',
+  isRequired: true,
 }
 ```
 
-#### Machine Names (Data Values)
-Use `snake_case`:
+#### 2. Machine Identifiers (API Names / Stored Values)
+**Always use lowercase `snake_case`** for all machine identifiers. These are values that:
+- Get stored in databases
+- Are used in API endpoints
+- Act as configuration keys
+- Are transmitted over networks
+
+**What requires snake_case:**
+- Object names (tables/collections): `'crm_account'`, `'project_task'`
+- Field names: `'first_name'`, `'annual_revenue'`
+- Role names: `'sales_manager'`, `'system_admin'`
+- Permission set names: `'read_only'`, `'standard_user'`
+- Action/trigger names: `'on_close_deal'`, `'send_welcome_email'`
+- App IDs: `'app_crm'`, `'app_finance'`
+- Page/menu IDs: `'page_dashboard'`, `'menu_settings'`
+- Select option values: `'in_progress'`, `'closed_won'`
+- Workflow/webhook names: `'approve_contract'`, `'sync_to_external'`
+
 ```typescript
 {
-  name: 'project_task',
-  object: 'account',
-  field: 'first_name',
+  name: 'project_task',      // Object name
+  object: 'crm_account',     // Reference
+  field: 'first_name',       // Field name
+  role: 'sales_manager',     // Role
+  value: 'in_progress',      // Select option value
 }
 ```
+
+**Why lowercase snake_case?**
+- **Cross-platform compatibility**: Avoids issues with case-insensitive filesystems
+- **URL-friendly**: No encoding needed for web addresses
+- **Database consistency**: Eliminates collation and case-sensitivity issues
+- **Security**: Prevents case-sensitivity bugs in permission checks
+- **Standard practice**: Aligns with PostgreSQL, REST API, and Kafka conventions
+
+#### 3. Event Names
+**Use `dot.notation`** for event names to provide namespacing:
+```typescript
+{
+  name: 'user.created',          // User creation event
+  name: 'order.paid',            // Order payment event
+  name: 'user.login_success',    // Login success
+  name: 'alarm.high_cpu',        // System alarm
+}
+```
+
+This follows message queue and event bus conventions (Kafka, RabbitMQ, etc.).
+
+#### 4. Labels (Display Text)
+**Use any case** for user-facing labels:
+```typescript
+{
+  name: 'sales_manager',        // Machine identifier (snake_case)
+  label: 'Sales Manager',       // Display label (Title Case)
+}
+
+{
+  value: 'in_progress',         // Machine value (snake_case)
+  label: 'In Progress',         // Display label (Title Case)
+}
+```
+
+#### Complete Naming Convention Reference
+
+| Type | Pattern | Example | Usage |
+|------|---------|---------|-------|
+| **Schema Properties** | `camelCase` | `maxLength`, `isRequired` | TypeScript interface properties |
+| **Machine Identifiers** | `snake_case` | `crm_account`, `first_name` | All API names, stored values |
+| **Event Names** | `dot.notation` | `user.created`, `order.paid` | Event keys, message topics |
+| **Labels** | `Any Case` | `Sales Manager`, `In Progress` | User-facing display text |
+| **Class Names** | `PascalCase` | `AccountService`, `UserComponent` | TypeScript/JavaScript classes |
+| **Variables** | `camelCase` | `accountList`, `isValid` | Code variables |
+
+#### Implementation Reference
+
+See these schema files for the implementation:
+- `packages/spec/src/shared/identifiers.zod.ts` - Identifier validation schemas
+- `SystemIdentifierSchema` - Allows underscores and dots
+- `SnakeCaseIdentifierSchema` - Strict snake_case (underscores only)
+- `EventNameSchema` - Event names with dot notation
 
 ### Schema Definition Pattern
 

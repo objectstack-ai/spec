@@ -1,0 +1,331 @@
+---
+title: Naming Conventions
+description: The definitive guide to naming conventions in ObjectStack - Machine identifiers, labels, and schema properties
+---
+
+import { AlertTriangle, Check, X } from 'lucide-react';
+
+# Naming Conventions
+
+In ObjectStack, **naming consistency is critical**. This guide establishes the naming rules for all identifiers across the protocol.
+
+<Callout type="warning">
+**IMPORTANT**: Violating these naming conventions will cause validation errors. All machine identifiers must be lowercase snake_case.
+</Callout>
+
+## Why Strict Naming Matters
+
+In metadata-driven systems like ObjectStack (similar to Salesforce, ServiceNow), we must distinguish between:
+- **Machine Identifiers (API Names)**: What the system uses internally
+- **Labels**: What users see in the UI
+
+Inconsistent naming creates serious problems:
+- 🔒 **Security vulnerabilities** - Case-sensitivity bugs in permission checks
+- 💻 **Cross-platform issues** - Case-insensitive filesystems cause conflicts  
+- 🗄️ **Database problems** - Collation and case-sensitivity inconsistencies
+- 🌐 **URL encoding issues** - Mixed-case identifiers require encoding
+- 😕 **Developer confusion** - Unclear which names are for display vs storage
+
+## The Three Types of Identifiers
+
+### 1. System Identifier (Flexible)
+Allows **underscores and dots**. Most permissive option.
+
+```typescript
+import { SystemIdentifierSchema } from '@objectstack/spec';
+
+// Valid
+'account'
+'crm_account'
+'user.created'        // Dots allowed
+'api_v2_endpoint'
+```
+
+**Regex**: `/^[a-z][a-z0-9_.]*$/`
+
+**Use cases**: 
+- General-purpose machine identifiers
+- When you need flexibility for dots (like event names)
+
+### 2. Snake Case Identifier (Strict)
+Only allows **underscores** (no dots). More restrictive.
+
+```typescript
+import { SnakeCaseIdentifierSchema } from '@objectstack/spec';
+
+// Valid
+'account'
+'crm_account'
+'user_profile'
+'annual_revenue'
+
+// Invalid
+'user.created'        // ❌ Dots not allowed
+'UserProfile'         // ❌ Must be lowercase
+```
+
+**Regex**: `/^[a-z][a-z0-9_]*$/`
+
+**Use cases**:
+- Database table/column names
+- Field names
+- Object names
+- Role names
+- Any identifier that maps directly to a database entity
+
+### 3. Event Name (Dot Notation)
+Encourages **dot notation** for namespacing.
+
+```typescript
+import { EventNameSchema } from '@objectstack/spec';
+
+// Valid
+'user.created'
+'order.paid'
+'user.login_success'
+'alarm.high_cpu'
+
+// Invalid
+'UserCreated'         // ❌ Use dots for namespacing
+'user_created'        // ⚠️ Valid but discouraged (use dots instead)
+```
+
+**Regex**: `/^[a-z][a-z0-9_.]*$/`
+
+**Use cases**:
+- Event bus messages
+- Webhook event types
+- Message queue topics
+- System events
+
+## Complete Naming Reference
+
+### Machine Identifiers (snake_case)
+
+**ALWAYS use lowercase snake_case** for these:
+
+| What | Example | Schema |
+|------|---------|--------|
+| Object names | `'crm_account'`, `'project_task'` | `SnakeCaseIdentifierSchema` |
+| Field names | `'first_name'`, `'annual_revenue'` | `SnakeCaseIdentifierSchema` |
+| Role names | `'sales_manager'`, `'system_admin'` | `SnakeCaseIdentifierSchema` |
+| Permission sets | `'read_only'`, `'standard_user'` | `SnakeCaseIdentifierSchema` |
+| Territories | `'north_america'`, `'region_east'` | `SnakeCaseIdentifierSchema` |
+| Actions | `'btn_submit'`, `'export_to_pdf'` | `SnakeCaseIdentifierSchema` |
+| Triggers | `'on_close_deal'`, `'after_save'` | `SnakeCaseIdentifierSchema` |
+| Workflows | `'approve_contract'`, `'sync_external'` | `SnakeCaseIdentifierSchema` |
+| Webhooks | `'stripe_payment'`, `'mailgun_bounce'` | `SnakeCaseIdentifierSchema` |
+| App IDs | `'app_crm'`, `'app_finance'` | `SnakeCaseIdentifierSchema` |
+| Page IDs | `'page_dashboard'`, `'page_settings'` | `SnakeCaseIdentifierSchema` |
+| Menu IDs | `'menu_admin'`, `'menu_reports'` | `SnakeCaseIdentifierSchema` |
+| Select values | `'in_progress'`, `'closed_won'` | `SnakeCaseIdentifierSchema` |
+
+### Event Names (dot.notation)
+
+**Use dot notation** for these:
+
+| What | Example | Schema |
+|------|---------|--------|
+| Event types | `'user.created'`, `'order.paid'` | `EventNameSchema` |
+| Webhook events | `'user.login_success'`, `'payment.failed'` | `EventNameSchema` |
+| System events | `'alarm.high_cpu'`, `'backup.completed'` | `EventNameSchema` |
+
+### Schema Properties (camelCase)
+
+**Use camelCase** for TypeScript schema properties:
+
+| What | Example |
+|------|---------|
+| Zod schema props | `maxLength`, `isRequired`, `defaultValue` |
+| Interface props | `referenceFilters`, `allowedValues` |
+| Config options | `enableHistory`, `trackChanges` |
+
+### Labels (Any Case)
+
+**Use any case** for user-facing text:
+
+| What | Example |
+|------|---------|
+| Display labels | `'Sales Manager'`, `'Annual Revenue'` |
+| Select labels | `'In Progress'`, `'Closed Won'` |
+| Menu labels | `'Customer Portal'`, `'Admin Settings'` |
+
+## Examples
+
+### ✅ Correct
+
+```typescript
+// Object Definition
+{
+  name: 'crm_account',           // ✅ snake_case machine identifier
+  label: 'Customer Account',     // ✅ Label for display
+  fields: [
+    {
+      name: 'annual_revenue',    // ✅ snake_case field name
+      label: 'Annual Revenue',   // ✅ Label
+      type: 'currency',
+      maxLength: 15              // ✅ camelCase schema property
+    }
+  ]
+}
+
+// Role Definition
+{
+  name: 'sales_manager',         // ✅ snake_case role name
+  label: 'Sales Manager'         // ✅ Label
+}
+
+// Select Field
+Field.select(['New', 'In Progress', 'Closed Won'])
+// Automatically converts to:
+// [
+//   { value: 'new', label: 'New' },
+//   { value: 'in_progress', label: 'In Progress' },
+//   { value: 'closed_won', label: 'Closed Won' }
+// ]
+
+// Event
+{
+  name: 'user.created',          // ✅ dot notation for events
+  payload: { userId: 123 }
+}
+
+// App Navigation
+{
+  name: 'app_crm',               // ✅ snake_case app ID
+  label: 'CRM Application',      // ✅ Label
+  navigation: [
+    {
+      id: 'menu_sales',          // ✅ snake_case menu ID
+      label: 'Sales'             // ✅ Label
+    }
+  ]
+}
+```
+
+### ❌ Incorrect
+
+```typescript
+// Object Definition
+{
+  name: 'CrmAccount',            // ❌ PascalCase
+  name: 'crm-account',           // ❌ kebab-case
+  name: 'CRM Account',           // ❌ Spaces
+  name: '_account',              // ❌ Leading underscore
+}
+
+// Role Definition
+{
+  name: 'SalesManager',          // ❌ PascalCase
+  name: 'sales-manager',         // ❌ kebab-case
+}
+
+// Event
+{
+  name: 'UserCreated',           // ❌ Should use dots
+  name: 'User.Created',          // ❌ Capital letters
+}
+
+// Select Option
+{
+  value: 'In Progress',          // ❌ Should be 'in_progress'
+  label: 'In Progress'
+}
+```
+
+## Field.select() Auto-Conversion
+
+The `Field.select()` helper automatically converts display labels to valid snake_case values:
+
+```typescript
+import { Field } from '@objectstack/spec';
+
+// Input: Array of strings
+Field.select(['New', 'In Progress', 'Closed Won'])
+
+// Output: Array of SelectOption objects
+[
+  { value: 'new', label: 'New' },
+  { value: 'in_progress', label: 'In Progress' },
+  { value: 'closed_won', label: 'Closed Won' }
+]
+
+// Conversion rules:
+// 1. Convert to lowercase
+// 2. Replace spaces with underscores
+// 3. Remove special characters
+// 4. Ensure valid identifier
+```
+
+## Validation
+
+All schemas automatically validate naming conventions:
+
+```typescript
+import { SnakeCaseIdentifierSchema, EventNameSchema } from '@objectstack/spec';
+
+// Valid
+SnakeCaseIdentifierSchema.parse('crm_account');  // ✅
+EventNameSchema.parse('user.created');           // ✅
+
+// Invalid - throws ZodError
+SnakeCaseIdentifierSchema.parse('CrmAccount');   // ❌ Uppercase
+SnakeCaseIdentifierSchema.parse('crm-account');  // ❌ Kebab-case
+EventNameSchema.parse('UserCreated');            // ❌ No dots
+```
+
+## Migration Guide
+
+If you have existing code with incorrect naming:
+
+### Before (Incorrect)
+```typescript
+{
+  name: 'CrmAccount',
+  fields: [
+    { name: 'FirstName', type: 'text' },
+    { name: 'AnnualRevenue', type: 'currency' }
+  ],
+  roles: ['SalesManager', 'CEO']
+}
+```
+
+### After (Correct)
+```typescript
+{
+  name: 'crm_account',              // Converted to snake_case
+  label: 'CRM Account',             // Original as label
+  fields: [
+    { 
+      name: 'first_name',           // Converted to snake_case
+      label: 'First Name',          // Original as label
+      type: 'text' 
+    },
+    { 
+      name: 'annual_revenue',       // Converted to snake_case
+      label: 'Annual Revenue',      // Original as label
+      type: 'currency' 
+    }
+  ],
+  roles: ['sales_manager', 'ceo']   // Converted to snake_case
+}
+```
+
+## Summary
+
+| Type | Pattern | Example | When to Use |
+|------|---------|---------|-------------|
+| **Machine Identifier** | `snake_case` | `crm_account`, `first_name` | Everything stored/transmitted |
+| **Event Name** | `dot.notation` | `user.created`, `order.paid` | Events, webhooks, messages |
+| **Schema Property** | `camelCase` | `maxLength`, `isRequired` | TypeScript properties |
+| **Label** | `Any Case` | `Sales Manager`, `In Progress` | User-facing text |
+
+**Remember**: When in doubt, use lowercase snake_case for machine identifiers and save the readable formatting for labels.
+
+## Related Documentation
+
+- [Identifier Schemas Source Code](/docs/references/shared/identifiers/SystemIdentifier) - Implementation details
+- [Design Principles](/docs/introduction/design-principles) - Why we enforce strict naming
+- [Terminology](/docs/introduction/terminology) - Definition of machine identifiers vs labels
+- [Field Schema](/docs/references/data/field/Field) - Field naming examples
+- [Object Schema](/docs/references/data/object/Object) - Object naming examples
