@@ -26,8 +26,10 @@ export function App() {
   async function initializeClient() {
     try {
       // Initialize ObjectStack Client pointing to our mocked API
+      // Note: We use an empty baseUrl because the Discovery Endpoint is at /api/v1
+      // and the server routes (returned by connect) already include the /api/v1 prefix.
       const stackClient = new ObjectStackClient({
-        baseUrl: '/api/v1'
+        baseUrl: ''
       });
 
       // Connect to the server (will be intercepted by MSW)

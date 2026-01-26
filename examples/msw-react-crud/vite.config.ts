@@ -8,6 +8,12 @@ export default defineConfig({
     port: 3000,
   },
   optimizeDeps: {
-    include: ['msw', 'msw/browser']
+    include: [
+      'msw', 
+      'msw/browser',
+      '@objectstack/spec/data', // Force pre-bundling for CJS compatibility
+      '@objectstack/spec/system',
+      '@objectstack/spec/ui'
+    ]
   }
 });
