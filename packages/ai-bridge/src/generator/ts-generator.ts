@@ -1,13 +1,15 @@
-// Define a simplified version of ObjectSchema to rely on, 
-// avoiding direct dependency on @objectstack/spec to keep this package lightweight/portable if needed,
-// or we can treat inputs as 'any' or generic structures that match the shape.
-// For now, let's assume the input is the JSON structure compatible with what we saw in `object.zod.ts`.
+import { FieldType } from '@objectstack/spec/data';
+
+// Determine if we can import ObjectSchema directly or if we treat inputs as generic JSON
+// For utility purposes, we often process JSON objects that might not be fully instantiated ObjectSchema types yet.
+// However, we should strictly align with the FieldType values.
 
 export interface FieldDef {
-  type: string;
+  type: FieldType; // Strict alignment with Protocol
   label?: string;
   required?: boolean;
-  options?: string[];
+  multiple?: boolean;
+  options?: Array<{ label: string; value: string } | string>;
   reference?: string;
 }
 
@@ -15,6 +17,11 @@ export interface ObjectDef {
   name: string;
   fields: Record<string, FieldDef>;
   description?: string;
+  enable?: {
+    files?: boolean;
+    audit?: boolean;
+    trash?: boolean;
+  };
 }
 
 /**
@@ -28,33 +35,75 @@ export function generateTypeScriptDefinition(objects: ObjectDef[]): string {
       switch (field.type) {
         case 'text':
         case 'textarea':
-        case 'select':
         case 'email':
         case 'url':
         case 'phone':
-            tsType = field.options ? field.options.map(o => `'${o}'`).join(' | ') : 'string';
-            break;
+        case 'password':
+        case 'markdown':
+        case 'html':
+        case 'richtext':
+        case 'image':
+        case 'file':
+        case 'avatar':
+          tsType = 'string';
+          break;
+          
+        case 'select':
+          if (field.options && field.options.length > 0) {
+             // Handle both string[] and {label, value}[]
+             const options = field.options.map(opt => typeof opt === 'string' ? opt : opt.value);
+             tsType = options.map(o => `'${o}'`).join(' | ');
+          } else {
+             tsType = 'string';
+          }
+          break;
+
         case 'number':
         case 'currency':
         case 'percent':
-            tsType = 'number';
-            break;
+        case 'rating':
+        case 'slider':
+          tsType = 'number';
+          break;
+
         case 'boolean':
-            tsType = 'boolean';
-            break;
+          tsType = 'boolean';
+          break;
+
         case 'date':
         case 'datetime':
-            tsType = 'string'; // ISO string
-            break;
+        case 'time':
+          tsType = 'string'; // ISO 8601
+          break;
+
         case 'lookup':
         case 'master_detail':
-            tsType = field.reference ? `string | ${toPascalCase(field.reference)}` : 'string';
-            break;
-        case 'json':
-            tsType = 'Record<string, any>';
-            break;
+          // For references, we allow the ID string OR the expanded object (if populated)
+          // To be safe for write operations, we focus on the ID string
+          // But strict AI typing might benefit from `string`
+          tsType = field.reference ? `string | ${toPascalCase(field.reference)}` : 'string';
+          break;
+        
+        case 'formula':
+        case 'summary':
+        case 'autonumber':
+          // Read-only calculated fields
+          // Usually number or string depending on return type. Defaulting to any or union for safety
+          tsType = 'string | number'; 
+          break;
+
+        case 'location':
+        case 'geolocation':
+        case 'address':
+           tsType = '{ latitude: number; longitude: number; } | any';
+           break;
+           
         default:
-            tsType = 'any';
+          tsType = 'any';
+      }
+
+      if (field.multiple) {
+        tsType = `(${tsType})[]`;
       }
 
       const optionalMark = field.required ? '' : '?';
@@ -72,6 +121,10 @@ export function generateTypeScriptDefinition(objects: ObjectDef[]): string {
 export interface ${pascalName} {
   _id: string;
 ${fields}
+  // Standard System Fields
+  created_on?: string;
+  modified_on?: string;
+  owner?: string;
 }`;
 
     // Generate ObjectQL Query Helper Types
