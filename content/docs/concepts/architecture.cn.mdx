@@ -1,64 +1,133 @@
 ---
 title: 架构
-description: 理解 ObjectStack 三位一体。ObjectQL、ObjectOS 和 ObjectUI 如何协作构建企业内核。
+description: 理解 ObjectStack 协议架构。11 个协议命名空间如何协作构建企业内核。
 ---
 
-import { Layers, Database, Layout, ShieldCheck } from 'lucide-react';
+import { Layers, Database, Layout, ShieldCheck, Lock, Cog, Brain, Cloud, Zap } from 'lucide-react';
 
-ObjectStack 不是一个单体框架。它是围绕**分层架构**设计的可组合生态系统。我们称之为 **"ObjectStack 三位一体"。**
+ObjectStack 不是一个单体框架。它是围绕**协议驱动架构**设计的可组合生态系统。系统被组织成 **11 个协议命名空间**，每个命名空间负责特定的领域。
 
-每一层都是解耦的，并通过标准 JSON 协议进行通信。这允许你替换实现（例如，将 React 渲染器替换为 Flutter 渲染器），而不会破坏堆栈的其余部分。
+每个协议都是解耦的，并通过使用 Zod 定义的标准 JSON schema 进行通信。这允许你替换实现（例如，将 Postgres 驱动替换为 MongoDB，或将 React 渲染器替换为 Flutter），而不会破坏堆栈的其余部分。
+
+## 协议概览
+
+ObjectStack 组织成 11 个协议命名空间：
 
 <Cards>
   <Card
     icon={<Database />}
-    title="数据层（ObjectQL）"
-    description="用于定义和访问的通用协议。"
+    title="数据协议（Data Protocol）"
+    description="对象 schema、字段、验证和查询。"
+  />
+  <Card
+    icon={<Cog />}
+    title="驱动协议（Driver Protocol）"
+    description="数据库适配器（Postgres、MongoDB、SQLite 等）。"
   />
   <Card
     icon={<ShieldCheck />}
-    title="控制层（ObjectOS）"
-    description="用于编排和治理的业务内核。"
+    title="权限协议（Permission Protocol）"
+    description="对象级、字段级、共享和区域规则。"
   />
   <Card
     icon={<Layout />}
-    title="视图层（ObjectUI）"
-    description="用于交互和渲染的投影引擎。"
+    title="UI 协议（UI Protocol）"
+    description="应用、视图、仪表板、报表和主题。"
+  />
+  <Card
+    icon={<Layers />}
+    title="系统协议（System Protocol）"
+    description="事件、作业、翻译和审计日志。"
+  />
+  <Card
+    icon={<Lock />}
+    title="认证协议（Auth Protocol）"
+    description="身份、角色、会话和认证策略。"
+  />
+  <Card
+    icon={<Cog />}
+    title="内核协议（Kernel Protocol）"
+    description="插件生命周期、清单、日志和上下文。"
+  />
+  <Card
+    icon={<Cloud />}
+    title="Hub 协议（Hub Protocol）"
+    description="市场、许可、租户和部署。"
+  />
+  <Card
+    icon={<Brain />}
+    title="AI 协议（AI Protocol）"
+    description="AI 代理、RAG、NLQ、预测模型和编排。"
+  />
+  <Card
+    icon={<Zap />}
+    title="API 协议（API Protocol）"
+    description="REST 契约、发现、实时和路由。"
+  />
+  <Card
+    icon={<Zap />}
+    title="自动化协议（Automation Protocol）"
+    description="工作流、流程和 Webhook。"
   />
 </Cards>
 
-## 三位一体
+## 三层架构
 
-### 1. 数据层：ObjectQL
-**"通用协议"**
+虽然 ObjectStack 有 11 个协议命名空间，但它们在逻辑上被分组为三个架构层：
 
-基础是 ObjectQL。它负责**数据定义**和**数据访问**。
+### 1. 数据层（ObjectQL）
+**"通用数据协议"**
 
-* **角色：** 定义*结构*（Schema）和*意图*（查询 AST）。
-* **职责：** 它知道*什么是* "客户" 对象，但它不知道*谁*正在访问它或*如何*显示它。
-* **关键组件：** **编译器**。它接受抽象查询（`find customers where active = true`）并将其转换为特定底层数据库（Postgres、SQLite、MySQL）的优化 SQL。
+负责**数据定义**和**数据访问**的基础层。
 
-### 2. 控制层：ObjectOS
+**协议：**
+* **数据协议：** 对象 schema、字段、验证、查询、过滤器
+* **驱动协议：** 用于 Postgres、MongoDB、SQLite 等的数据库适配器
+* **权限协议：** 对象级 CRUD、字段级安全、共享规则
+* **AI 协议：** AI 代理、RAG 管道、NLQ、预测模型
+
+**角色：** 定义*结构*（Schema）和*意图*（查询 AST）。
+
+**职责：** 它知道*什么是* "客户" 对象，但它不知道*谁*正在访问它或*如何*显示它。
+
+**关键组件：** **编译器**。它接受抽象查询（`find customers where active = true`）并将其转换为特定底层数据库的优化 SQL/NoSQL 查询。
+
+### 2. 控制层（ObjectOS）
 **"业务内核"**
 
-位于中间的是 ObjectOS。它负责**编排**和**治理**。
+负责**运行时**和**治理**的编排层。
 
-* **角色：** 管理请求的*生命周期*。
-* **职责：**
-    * **身份：** "这个用户是谁？"（身份验证）。
-    * **安全：** "他们可以看到这个字段吗？"（RBAC/ACL）。
-    * **同步：** "我们如何合并这些离线更改？"（冲突解决）。
-    * **流程：** "保存此记录后会发生什么？"（工作流/触发器）。
-* **关键概念：** 它充当网关。不允许直接访问数据库；所有内容都必须通过 OS 内核。
+**协议：**
+* **系统协议：** 事件、作业、翻译、审计日志
+* **认证协议：** 身份、角色、会话、认证策略
+* **内核协议：** 插件生命周期、清单、日志、上下文
+* **Hub 协议：** 市场、许可、多租户、部署
+* **自动化协议：** 工作流、流程、Webhook
 
-### 3. 视图层：ObjectUI
+**角色：** 管理请求的*生命周期*。
+
+**职责：**
+* **身份：** "这个用户是谁？"（身份验证）
+* **安全：** "他们可以看到这个字段吗？"（RBAC/ACL）
+* **同步：** "我们如何合并这些离线更改？"（冲突解决）
+* **流程：** "保存此记录后会发生什么？"（工作流/触发器）
+
+**关键概念：** 它充当网关。不允许直接访问数据库；所有内容都必须通过 OS 内核。
+
+### 3. 视图层（ObjectUI）
 **"投影引擎"**
 
-顶部是 ObjectUI。它负责**交互**和**渲染**。
+负责**交互**和**渲染**的表示层。
 
-* **角色：** 使用协议来渲染界面。
-* **职责：** 它不包含硬编码的表单。相反，它询问 ObjectQL：*"客户的 schema 是什么？"* 并根据该元数据动态渲染布局。
-* **关键概念：** **服务器驱动 UI（SDUI）**。后端规定布局、验证规则和可用操作。前端只是一个高度强大的渲染器。
+**协议：**
+* **UI 协议：** 应用、视图、仪表板、报表、主题、操作
+* **API 协议：** REST 契约、发现、实时、路由
+
+**角色：** 使用协议来渲染界面。
+
+**职责：** 它不包含硬编码的表单。相反，它询问数据层：*"客户的 schema 是什么？"* 并根据该元数据动态渲染布局。
+
+**关键概念：** **服务器驱动 UI（SDUI）**。后端规定布局、验证规则和可用操作。前端只是一个高度强大的渲染器。
 
 ---
 
@@ -66,27 +135,51 @@ ObjectStack 不是一个单体框架。它是围绕**分层架构**设计的可�
 
 为了理解这些部分如何配合，让我们跟踪一个典型的用户交互——例如，销售代表在离线时更新交易状态。
 
-1.  **交互（ObjectUI）：**
+1.  **交互（UI 协议）：**
     *   用户将 "Deal" 拖到看板中的 "Closed Won" 列。
     *   UI 乐观地更新屏幕（0ms）。
-    *   UI 向本地 ObjectOS 客户端分派 `update` 操作。
+    *   UI 向本地内核分派 `update` 操作。
 
-2.  **内核守卫（ObjectOS 客户端）：**
-    *   客户端内核检查：*用户是否有权编辑 'Status'？*
-    *   内核执行通用验证：*'Status' 是否是有效选项？*
-    *   事务提交到 SQLite（本地 DB）。
+2.  **内核守卫（内核协议）：**
+    *   客户端内核通过**认证协议**检查：*用户是否有权编辑 'Status'？*
+    *   内核执行**数据协议**验证：*'Status' 是否是有效选项？*
+    *   通过**驱动协议**将事务提交到 SQLite（本地 DB）。
 
-3.  **同步（ObjectOS 同步）：**
-    *   后台进程检测 SQLite 中的更改。
-    *   将更改压缩为**操作载荷**。
-    *   将载荷发送到服务器 API。
+3.  **同步（系统协议）：**
+    *   后台进程通过**系统事件**检测更改。
+    *   根据 **API 契约**将更改压缩为**操作载荷**。
+    *   通过 **API 协议**将载荷发送到服务器 API。
 
-4.  **服务器执行（ObjectOS 服务器）：**
-    *   服务器内核验证请求。
-    *   服务器内核运行 "更新前" 触发器（例如，检查信用额度）。
-    *   服务器将 AST 传递给 ObjectQL 编译器。
+4.  **服务器执行（内核协议）：**
+    *   服务器内核通过**认证协议**验证请求。
+    *   服务器内核运行**自动化协议**触发器（例如，检查信用额度）。
+    *   服务器将 AST 传递给数据层编译器。
 
-5.  **持久化（ObjectQL）：**
-    *   编译器为 PostgreSQL 生成 `UPDATE deals SET status = 'closed_won' ...`。
-    *   写入被提交。
-    *   "更新后" 触发器触发（向经理发送电子邮件）。
+5.  **持久化（数据 + 驱动协议）：**
+    *   **驱动协议**为 PostgreSQL 生成 `UPDATE deals SET status = 'closed_won' ...`。
+    *   通过**驱动协议**提交写入。
+    *   **自动化协议**触发器触发（通过 webhook 向经理发送电子邮件）。
+
+## 协议依赖关系
+
+协议具有明确的依赖关系，并以结构化的方式交互：
+
+```
+内核协议（运行时核心）
+    ├── 认证协议（身份和会话）
+    ├── 系统协议（事件、作业、审计）
+    └── Hub 协议（租户、许可）
+        
+数据协议（业务逻辑）
+    ├── 驱动协议（存储适配器）
+    ├── 权限协议（访问控制）
+    └── AI 协议（智能层）
+
+UI 协议（表示层）
+    └── API 协议（通信）
+
+自动化协议（业务流程）
+    └── 依赖于：数据、系统、API
+```
+
+每个协议都在 `@objectstack/spec` 中使用 Zod schema 定义，可以独立验证、版本化和演进。
