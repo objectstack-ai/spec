@@ -6,8 +6,9 @@
       "properties": {
         "name": {
           "type": "string",
-          "pattern": "^[a-z_][a-z0-9_]*$",
-          "description": "Machine name (snake_case)"
+          "minLength": 2,
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Machine name (lowercase snake_case)"
         },
         "label": {
           "type": "string",

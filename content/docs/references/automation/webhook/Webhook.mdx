@@ -7,7 +7,7 @@ description: Webhook Schema Reference
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ |  |
+| **name** | `string` | ✅ | Webhook unique name (lowercase snake_case) |
 | **label** | `string` | optional |  |
 | **object** | `string` | ✅ | Object to listen to |
 | **triggers** | `Enum<'create' \| 'update' \| 'delete' \| 'undelete' \| 'api'>[]` | ✅ | Events that trigger execution |

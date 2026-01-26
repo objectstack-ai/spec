@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
 
 /**
  * Page Region Schema
@@ -31,9 +32,23 @@ export const PageComponentSchema = z.object({
  * Page Schema
  * Defines a composition of components for a specific context (Record, Home, App).
  * Compare to Salesforce FlexiPage.
+ * 
+ * **NAMING CONVENTION:**
+ * Page names are used in routing and must be lowercase snake_case.
+ * Prefix with 'page_' is recommended for clarity.
+ * 
+ * @example Good page names
+ * - 'page_dashboard'
+ * - 'page_settings'
+ * - 'home_page'
+ * - 'record_detail'
+ * 
+ * @example Bad page names (will be rejected)
+ * - 'PageDashboard' (PascalCase)
+ * - 'Settings Page' (spaces)
  */
 export const PageSchema = z.object({
-  name: z.string().regex(/^[a-z_][a-z0-9_]*$/),
+  name: SnakeCaseIdentifierSchema.describe('Page unique name (lowercase snake_case)'),
   label: z.string(),
   description: z.string().optional(),
   

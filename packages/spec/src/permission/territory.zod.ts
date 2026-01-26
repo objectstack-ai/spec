@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
 
 /**
  * Territory Management Protocol
@@ -38,10 +39,23 @@ export const TerritoryModelSchema = z.object({
 /**
  * Territory Node Schema
  * A single node in the territory tree.
+ * 
+ * **NAMING CONVENTION:**
+ * Territory names are machine identifiers and must be lowercase snake_case.
+ * 
+ * @example Good territory names
+ * - 'west_coast'
+ * - 'emea_region'
+ * - 'healthcare_vertical'
+ * - 'strategic_accounts'
+ * 
+ * @example Bad territory names (will be rejected)
+ * - 'WestCoast' (PascalCase)
+ * - 'West Coast' (spaces)
  */
 export const TerritorySchema = z.object({
   /** Identity */
-  name: z.string().regex(/^[a-z_][a-z0-9_]*$/),
+  name: SnakeCaseIdentifierSchema.describe('Territory unique name (lowercase snake_case)'),
   label: z.string().describe('Territory Label (e.g. "West Coast")'),
   
   /** Structure */

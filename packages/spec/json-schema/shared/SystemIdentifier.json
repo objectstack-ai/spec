@@ -1,0 +1,12 @@
+{
+  "$ref": "#/definitions/SystemIdentifier",
+  "definitions": {
+    "SystemIdentifier": {
+      "type": "string",
+      "minLength": 2,
+      "pattern": "^[a-z][a-z0-9_.]*$",
+      "description": "System identifier (lowercase with underscores or dots)"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SystemIdentifierSchema } from '../shared/identifiers.zod';
 
 /**
  * Field Type Enum
@@ -38,10 +39,25 @@ export type FieldType = z.infer<typeof FieldType>;
 
 /**
  * Select Option Schema
+ * 
+ * Defines option values for select/picklist fields.
+ * 
+ * **CRITICAL RULE**: The `value` field is a machine identifier that gets stored in the database.
+ * It MUST be lowercase to avoid case-sensitivity issues in queries and comparisons.
+ * 
+ * @example Good
+ * { label: 'New', value: 'new' }
+ * { label: 'In Progress', value: 'in_progress' }
+ * { label: 'Closed Won', value: 'closed_won' }
+ * 
+ * @example Bad (will be rejected)
+ * { label: 'New', value: 'New' } // uppercase
+ * { label: 'In Progress', value: 'In Progress' } // spaces and uppercase
+ * { label: 'Closed Won', value: 'Closed_Won' } // mixed case
  */
 export const SelectOptionSchema = z.object({
-  label: z.string().describe('Display label'),
-  value: z.string().describe('Stored value'),
+  label: z.string().describe('Display label (human-readable, any case allowed)'),
+  value: SystemIdentifierSchema.describe('Stored value (lowercase machine identifier)'),
   color: z.string().optional().describe('Color code for badges/charts'),
   default: z.boolean().optional().describe('Is default option'),
 });
@@ -230,13 +246,28 @@ export const Field = {
   /**
    * Select field helper with backward-compatible API
    * 
-   * @example Old API (array first)
-   * Field.select(['High', 'Low'], { label: 'Priority' })
+   * Automatically converts option values to lowercase to enforce naming conventions.
    * 
-   * @example New API (config object)
+   * @example Old API (array first) - auto-converts to lowercase
+   * Field.select(['High', 'Low'], { label: 'Priority' })
+   * // Results in: [{ label: 'High', value: 'high' }, { label: 'Low', value: 'low' }]
+   * 
+   * @example New API (config object) - enforces lowercase
    * Field.select({ options: [{label: 'High', value: 'high'}], label: 'Priority' })
+   * 
+   * @example Multi-word values - converts to snake_case
+   * Field.select(['In Progress', 'Closed Won'], { label: 'Status' })
+   * // Results in: [{ label: 'In Progress', value: 'in_progress' }, { label: 'Closed Won', value: 'closed_won' }]
    */
   select: (optionsOrConfig: SelectOption[] | string[] | FieldInput & { options: SelectOption[] | string[] }, config?: FieldInput) => {
+    // Helper function to convert string to lowercase snake_case
+    const toSnakeCase = (str: string): string => {
+      return str
+        .toLowerCase()
+        .replace(/\s+/g, '_')  // Replace spaces with underscores
+        .replace(/[^a-z0-9_]/g, ''); // Remove invalid characters (keeping underscores only)
+    };
+
     // Support both old and new signatures:
     // Old: Field.select(['a', 'b'], { label: 'X' })
     // New: Field.select({ options: [{label: 'A', value: 'a'}], label: 'X' })
@@ -245,11 +276,19 @@ export const Field = {
     
     if (Array.isArray(optionsOrConfig)) {
       // Old signature: array as first param
-      options = optionsOrConfig.map(o => typeof o === 'string' ? { label: o, value: o } : o);
+      options = optionsOrConfig.map(o => 
+        typeof o === 'string' 
+          ? { label: o, value: toSnakeCase(o) }  // Auto-convert string to snake_case
+          : { ...o, value: o.value.toLowerCase() }  // Ensure value is lowercase
+      );
       finalConfig = config || {};
     } else {
       // New signature: config object with options
-      options = (optionsOrConfig.options || []).map(o => typeof o === 'string' ? { label: o, value: o } : o);
+      options = (optionsOrConfig.options || []).map(o => 
+        typeof o === 'string' 
+          ? { label: o, value: toSnakeCase(o) }  // Auto-convert string to snake_case
+          : { ...o, value: o.value.toLowerCase() }  // Ensure value is lowercase
+      );
       // Remove options from config to avoid confusion
       const { options: _, ...restConfig } = optionsOrConfig;
       finalConfig = restConfig;
