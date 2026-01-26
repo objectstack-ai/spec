@@ -261,6 +261,9 @@ export const RowLevelSecurityPolicySchema = z.object({
    * This is a SQL-like expression evaluated for each row.
    * Only rows where this expression returns TRUE are accessible.
    * 
+   * **Note**: For INSERT-only policies, USING is not required (only CHECK is needed).
+   * For SELECT/UPDATE/DELETE operations, USING is required.
+   * 
    * **Security Note**: RLS conditions are executed at the database level with
    * parameterized queries. The implementation must use prepared statements
    * to prevent SQL injection. Never concatenate user input directly into
@@ -272,13 +275,17 @@ export const RowLevelSecurityPolicySchema = z.object({
    * 
    * Available context variables:
    * - `current_user.id` - Current user's ID
-   * - `current_user.tenant_id` - Current user's tenant
+   * - `current_user.tenant_id` - Current user's tenant (maps to `tenantId` in RLSUserContext)
    * - `current_user.role` - Current user's role
    * - `current_user.department` - Current user's department
    * - `current_user.*` - Any custom user field
    * - `NOW()` - Current timestamp
    * - `CURRENT_DATE` - Current date
    * - `CURRENT_TIME` - Current time
+   * 
+   * **Context Variable Mapping**: The RLSUserContext schema uses camelCase (e.g., `tenantId`),
+   * but expressions use snake_case with `current_user.` prefix (e.g., `current_user.tenant_id`).
+   * Implementations must handle this mapping.
    * 
    * Supported operators:
    * - Comparison: =, !=, <, >, <=, >=, <> (not equal)
@@ -298,7 +305,8 @@ export const RowLevelSecurityPolicySchema = z.object({
    * @example "status = 'active' AND expiry_date > NOW()"
    */
   using: z.string()
-    .describe('Filter condition (PostgreSQL SQL WHERE clause syntax with parameterized context variables)'),
+    .optional()
+    .describe('Filter condition for SELECT/UPDATE/DELETE (PostgreSQL SQL WHERE clause syntax with parameterized context variables). Optional for INSERT-only policies.'),
 
   /**
    * CHECK clause - Validation for INSERT/UPDATE operations.
@@ -373,6 +381,18 @@ export const RowLevelSecurityPolicySchema = z.object({
   tags: z.array(z.string())
     .optional()
     .describe('Policy categorization tags'),
+}).superRefine((data, ctx) => {
+  // Ensure at least one of USING or CHECK is provided
+  if (!data.using && !data.check) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'At least one of "using" or "check" must be specified. For SELECT/UPDATE/DELETE operations, provide "using". For INSERT operations, provide "check".',
+    });
+  }
+  
+  // For non-insert operations, USING should typically be present
+  // This is a soft warning through documentation, not enforced here
+  // since 'all' and mixed operation types are valid
 });
 
 /**

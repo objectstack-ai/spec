@@ -664,9 +664,8 @@ export const RowLevelSecuritySchema = z.object({
 
 #### 2. SCIM 2.0 Protocol 👥
 **文件**: 
-- `packages/spec/src/auth/scim.zod.ts`
-- `packages/spec/src/auth/scim-user.zod.ts`
-- `packages/spec/src/auth/scim-group.zod.ts`
+- `packages/spec/src/auth/scim.zod.ts` (包含 User, Group, Enterprise Extension)
+- `packages/spec/src/auth/scim.test.ts`
 
 **测试**: `packages/spec/src/auth/scim.test.ts`
 **文档**: `content/docs/specifications/auth/scim.mdx`
@@ -749,8 +748,7 @@ export const RowLevelSecuritySchema = z.object({
 
 ### P0 - 必须立即实现
 - [ ] `permission/rls.zod.ts` - Row-Level Security
-- [ ] `auth/scim.zod.ts` - SCIM 2.0 User
-- [ ] `auth/scim-group.zod.ts` - SCIM 2.0 Group
+- [ ] `auth/scim.zod.ts` - SCIM 2.0 User & Group
 - [ ] `auth/scim.test.ts` - SCIM Tests
 
 ### P1 - 高优先级 (1个月内)

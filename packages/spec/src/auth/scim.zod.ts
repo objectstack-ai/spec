@@ -405,24 +405,6 @@ export const SCIMEnterpriseUserSchema = z.object({
 export type SCIMEnterpriseUser = z.infer<typeof SCIMEnterpriseUserSchema>;
 
 /**
- * SCIM Schema URI Validator
- * Validates that schema URIs are known SCIM schema identifiers
- */
-const SCIMSchemaURISchema = z.enum([
-  SCIM_SCHEMAS.USER,
-  SCIM_SCHEMAS.GROUP,
-  SCIM_SCHEMAS.ENTERPRISE_USER,
-  SCIM_SCHEMAS.RESOURCE_TYPE,
-  SCIM_SCHEMAS.SERVICE_PROVIDER_CONFIG,
-  SCIM_SCHEMAS.SCHEMA,
-  SCIM_SCHEMAS.LIST_RESPONSE,
-  SCIM_SCHEMAS.PATCH_OP,
-  SCIM_SCHEMAS.BULK_REQUEST,
-  SCIM_SCHEMAS.BULK_RESPONSE,
-  SCIM_SCHEMAS.ERROR,
-]);
-
-/**
  * SCIM User Schema (Core)
  * Complete SCIM 2.0 User resource
  */
@@ -638,6 +620,21 @@ export const SCIMUserSchema = z.object({
   [SCIM_SCHEMAS.ENTERPRISE_USER]: SCIMEnterpriseUserSchema
     .optional()
     .describe('Enterprise user attributes'),
+}).superRefine((data, ctx) => {
+  // Validate that enterprise extension schema URI is present when extension data is provided
+  const hasEnterpriseExtension = data[SCIM_SCHEMAS.ENTERPRISE_USER] != null;
+  if (!hasEnterpriseExtension) {
+    return;
+  }
+
+  const schemas = data.schemas || [];
+  if (!schemas.includes(SCIM_SCHEMAS.ENTERPRISE_USER)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['schemas'],
+      message: `schemas must include "${SCIM_SCHEMAS.ENTERPRISE_USER}" when enterprise user extension attributes are present`,
+    });
+  }
 });
 
 export type SCIMUser = z.infer<typeof SCIMUserSchema>;
@@ -752,6 +749,11 @@ export const SCIMListResponseSchema = z.object({
    * SCIM schema URI
    */
   schemas: z.array(z.string())
+    .min(1)
+    .refine(
+      (schemas) => schemas.includes(SCIM_SCHEMAS.LIST_RESPONSE),
+      { message: `schemas must include ${SCIM_SCHEMAS.LIST_RESPONSE}` }
+    )
     .default([SCIM_SCHEMAS.LIST_RESPONSE])
     .describe('SCIM schema URIs'),
 
@@ -800,6 +802,11 @@ export const SCIMErrorSchema = z.object({
    * SCIM schema URI
    */
   schemas: z.array(z.string())
+    .min(1)
+    .refine(
+      (schemas) => schemas.includes(SCIM_SCHEMAS.ERROR),
+      { message: `schemas must include ${SCIM_SCHEMAS.ERROR}` }
+    )
     .default([SCIM_SCHEMAS.ERROR])
     .describe('SCIM schema URIs'),
 
@@ -876,6 +883,11 @@ export const SCIMPatchRequestSchema = z.object({
    * SCIM schema URI
    */
   schemas: z.array(z.string())
+    .min(1)
+    .refine(
+      (schemas) => schemas.includes(SCIM_SCHEMAS.PATCH_OP),
+      { message: 'SCIM PATCH requests must include the PatchOp schema URI' }
+    )
     .default([SCIM_SCHEMAS.PATCH_OP])
     .describe('SCIM schema URIs'),
 
