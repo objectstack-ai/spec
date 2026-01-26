@@ -1,0 +1,902 @@
+---
+title: Security & Access Control
+description: Comprehensive security model - ACL, field-level security, row-level permissions, and data isolation
+---
+
+import { Shield, Lock, Users, Eye } from 'lucide-react';
+
+# Security Protocol
+
+ObjectQL implements a **multi-layered security model** that enforces access control at the data layer, before queries execute. Security is declarative—defined in configuration, not scattered in application code.
+
+## Security Philosophy
+
+**Traditional approach:**
+```javascript
+// Security in application code (easily bypassed)
+app.get('/api/accounts', (req, res) => {
+  // Developer must remember to check permissions
+  if (!req.user.hasPermission('read_account')) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  
+  // Easy to forget row-level filtering
+  const accounts = await db.query('SELECT * FROM account');
+  res.json(accounts);
+});
+```
+
+**ObjectQL approach:**
+```yaml
+# Security as configuration (enforced automatically)
+name: account
+permissions:
+  read:
+    - role: sales_rep
+      filters:
+        - ['owner_id', '=', '{{CURRENT_USER_ID}}']
+```
+
+```typescript
+// Security enforced automatically
+const accounts = await ObjectQL.query({ object: 'account' });
+// WHERE owner_id = current_user_id (injected by ObjectQL)
+```
+
+---
+
+## Security Layers
+
+<Cards>
+  <Card
+    icon={<Shield />}
+    title="Object-Level Security (ACL)"
+    description="Who can Create, Read, Update, Delete which objects"
+  />
+  <Card
+    icon={<Lock />}
+    title="Field-Level Security"
+    description="Control access to individual fields (e.g., hide salary from non-managers)"
+  />
+  <Card
+    icon={<Users />}
+    title="Row-Level Security"
+    description="Filter which records users can see (e.g., see only own accounts)"
+  />
+  <Card
+    icon={<Eye />}
+    title="Data Masking"
+    description="Obfuscate sensitive data (e.g., show last 4 digits of SSN)"
+  />
+</Cards>
+
+---
+
+## 1. Object-Level Security (CRUD Permissions)
+
+### Basic ACL
+
+```yaml
+# account.object.yml
+name: account
+permissions:
+  create:
+    - role: sales_rep
+    - role: account_manager
+  
+  read:
+    - role: sales_rep
+    - role: account_manager
+    - role: executive
+  
+  update:
+    - role: account_manager
+  
+  delete:
+    - role: admin
+```
+
+**Behavior:**
+- **Sales Rep:** Can create and read accounts
+- **Account Manager:** Can create, read, and update accounts
+- **Executive:** Can read accounts (read-only)
+- **Admin:** Full access (CRUD)
+
+### Permission Check Flow
+
+```
+User requests: GET /api/account/123
+    ↓
+1. Check Object-Level Permission
+   ✓ User has 'read' on 'account'?
+    ↓
+2. Apply Row-Level Filters
+   ✓ User can see record 123?
+    ↓
+3. Apply Field-Level Security
+   ✓ Remove restricted fields
+    ↓
+Return filtered result
+```
+
+---
+
+## 2. Row-Level Security
+
+### Owner-Based Access
+
+```yaml
+# Only see records you own
+name: opportunity
+permissions:
+  read:
+    - role: sales_rep
+      filters:
+        - ['owner_id', '=', '{{CURRENT_USER_ID}}']
+```
+
+**Runtime behavior:**
+```typescript
+// User queries opportunities
+const opportunities = await ObjectQL.query({ object: 'opportunity' });
+
+// ObjectQL injects filter automatically:
+// WHERE owner_id = 'user_123'
+```
+
+### Team-Based Access
+
+```yaml
+# See records owned by your team
+name: account
+permissions:
+  read:
+    - role: sales_rep
+      filters:
+        - ['owner.team_id', '=', '{{CURRENT_USER.team_id}}']
+```
+
+### Territory-Based Access
+
+```yaml
+# See accounts in your territory
+name: account
+permissions:
+  read:
+    - role: sales_rep
+      filters:
+        - ['territory_id', 'in', '{{CURRENT_USER.territory_ids}}']
+```
+
+### Hierarchical Access
+
+```yaml
+# Managers see their records + subordinates' records
+name: opportunity
+permissions:
+  read:
+    - role: sales_manager
+      filters:
+        - ['or',
+            ['owner_id', '=', '{{CURRENT_USER_ID}}'],
+            ['owner.manager_id', '=', '{{CURRENT_USER_ID}}']
+          ]
+```
+
+### Multi-Tenant Isolation
+
+```yaml
+# Strict tenant isolation
+name: customer
+tenant_scope: true  # Auto-inject tenant filter
+permissions:
+  read:
+    - role: user
+      filters:
+        - ['tenant_id', '=', '{{CURRENT_TENANT_ID}}']
+```
+
+**Guarantee:** User in Tenant A **cannot** access Tenant B's data, even with direct API calls or SQL injection attempts.
+
+### Conditional Filters
+
+```yaml
+# Different filters for different roles
+name: account
+permissions:
+  read:
+    # Sales reps: Own accounts only
+    - role: sales_rep
+      filters:
+        - ['owner_id', '=', '{{CURRENT_USER_ID}}']
+    
+    # Managers: Team accounts
+    - role: manager
+      filters:
+        - ['owner.team_id', '=', '{{CURRENT_USER.team_id}}']
+    
+    # Executives: All accounts
+    - role: executive
+      filters: []  # No restrictions
+```
+
+---
+
+## 3. Field-Level Security
+
+### Hide Sensitive Fields
+
+```yaml
+name: user
+fields:
+  salary:
+    type: currency
+    label: Salary
+    visibility:
+      read:
+        - role: hr_manager
+        - role: executive
+      update:
+        - role: hr_manager
+  
+  ssn:
+    type: text
+    label: Social Security Number
+    visibility:
+      read:
+        - role: hr_admin
+      update:
+        - role: hr_admin
+```
+
+**Behavior:**
+```typescript
+// Sales manager queries user
+const user = await ObjectQL.findOne('user', '123');
+
+// Result (salary/ssn stripped):
+// {
+//   _id: '123',
+//   name: 'John Doe',
+//   email: 'john@example.com'
+//   // salary: REMOVED
+//   // ssn: REMOVED
+// }
+
+// HR manager queries same user
+const user = await ObjectQL.findOne('user', '123');
+
+// Result (salary visible):
+// {
+//   _id: '123',
+//   name: 'John Doe',
+//   email: 'john@example.com',
+//   salary: { amount: 120000, currency: 'USD' }
+//   // ssn: STILL REMOVED (not hr_admin)
+// }
+```
+
+### Field-Level Permissions Reference
+
+```yaml
+fields:
+  field_name:
+    visibility:
+      read: [role1, role2]       # Who can see the field
+      update: [role1]            # Who can modify the field
+      create: [role1, role2]     # Who can set on creation
+```
+
+### Computed Field Security
+
+```yaml
+fields:
+  commission_rate:
+    type: percent
+    label: Commission Rate
+    visibility:
+      read: [sales_manager, hr_admin]
+  
+  total_commission:
+    type: formula
+    formula: "total_sales * commission_rate"
+    # Visibility inherited from commission_rate
+    # Users who can't see commission_rate can't see this
+```
+
+---
+
+## 4. Data Masking
+
+### Partial Masking
+
+```yaml
+fields:
+  ssn:
+    type: text
+    label: SSN
+    masking:
+      mode: partial
+      visible_chars: 4
+      position: end
+      mask_char: '*'
+```
+
+**Display:**
+- **Actual value:** `123-45-6789`
+- **Masked value:** `***-**-6789`
+
+### Full Masking
+
+```yaml
+fields:
+  credit_card:
+    type: text
+    label: Credit Card
+    masking:
+      mode: full
+      mask_char: '*'
+```
+
+**Display:**
+- **Actual value:** `4111111111111111`
+- **Masked value:** `****************`
+
+### Conditional Masking
+
+```yaml
+fields:
+  salary:
+    type: currency
+    label: Salary
+    masking:
+      # Show full value to HR, masked to others
+      roles_with_access: [hr_manager, hr_admin]
+      mode: partial
+      mask_char: 'X'
+```
+
+### Hash Masking
+
+```yaml
+fields:
+  email:
+    type: email
+    label: Email
+    masking:
+      mode: hash
+      algorithm: sha256
+      # Returns: 5d41402abc4b2a76b9719d911017c592
+```
+
+---
+
+## 5. Advanced Security Patterns
+
+### Sharing Rules
+
+Grant additional access beyond base permissions:
+
+```yaml
+name: account
+permissions:
+  read:
+    - role: sales_rep
+      filters: [['owner_id', '=', '{{CURRENT_USER_ID}}']]
+
+sharing_rules:
+  # Share enterprise accounts with all sales reps
+  - name: share_enterprise_accounts
+    criteria:
+      - ['account_type', '=', 'Enterprise']
+    access_level: read
+    shared_with:
+      - role: sales_rep
+```
+
+**Effect:** Sales reps see:
+1. Their own accounts (base permission)
+2. All enterprise accounts (sharing rule)
+
+### Record-Level Sharing
+
+```yaml
+# Manual sharing via junction object
+name: account_share
+fields:
+  account_id:
+    type: lookup
+    reference_to: account
+  
+  user_id:
+    type: lookup
+    reference_to: user
+  
+  access_level:
+    type: select
+    options: [read, write]
+```
+
+**Query with sharing:**
+```typescript
+const accounts = await ObjectQL.query({
+  object: 'account',
+  // User sees:
+  // 1. Own accounts (owner_id = user)
+  // 2. Shared accounts (via account_share)
+});
+```
+
+### Time-Based Access
+
+```yaml
+permissions:
+  read:
+    - role: contractor
+      filters:
+        - ['contract_start', '<=', '{{TODAY()}}']
+        - ['contract_end', '>=', '{{TODAY()}}']
+```
+
+**Effect:** Contractors only see data during contract period.
+
+### IP-Based Restrictions
+
+```yaml
+permissions:
+  read:
+    - role: user
+      ip_whitelist:
+        - 192.168.1.0/24
+        - 10.0.0.0/8
+```
+
+### Device-Based Access
+
+```yaml
+permissions:
+  update:
+    - role: user
+      require_mfa: true  # Require multi-factor authentication
+      allowed_devices: [desktop, mobile_app]
+      # Block: web_browser on mobile
+```
+
+---
+
+## 6. Permission Evaluation
+
+### Priority Rules
+
+When multiple permission rules match:
+
+1. **Most specific wins**
+   - Field-level > Object-level > Global
+   
+2. **Deny overrides allow**
+   - Explicit deny > Explicit allow
+
+3. **Role hierarchy**
+   - Admin > Manager > User
+
+**Example:**
+```yaml
+# Global default: No access
+default_access: none
+
+# Object level: Sales can read
+permissions:
+  read: [sales_rep]
+
+# Field level: Salary hidden
+fields:
+  salary:
+    visibility:
+      read: [hr_manager]
+
+# Result for sales_rep:
+# - Can read account (object-level)
+# - Cannot see salary (field-level override)
+```
+
+### Permission Functions
+
+```yaml
+filters:
+  # Current user
+  - ['owner_id', '=', '{{CURRENT_USER_ID}}']
+  
+  # Current user's team
+  - ['team_id', '=', '{{CURRENT_USER.team_id}}']
+  
+  # Current tenant
+  - ['tenant_id', '=', '{{CURRENT_TENANT_ID}}']
+  
+  # Current date/time
+  - ['created_at', '>', '{{TODAY() - 30}}']
+  
+  # User attributes
+  - ['territory', 'in', '{{CURRENT_USER.territories}}']
+```
+
+---
+
+## 7. Security Auditing
+
+### Audit Log
+
+Track all data access:
+
+```yaml
+name: account
+enable:
+  audit: true  # Enable audit logging
+  audit_fields: [owner_id, annual_revenue, status]
+```
+
+**Audit log captures:**
+- **Who:** User ID, role, IP address
+- **What:** Object, record ID, fields changed
+- **When:** Timestamp
+- **How:** Old value → New value
+
+**Example log:**
+```json
+{
+  "timestamp": "2024-01-15T14:30:00Z",
+  "user_id": "user_123",
+  "user_role": "sales_rep",
+  "action": "update",
+  "object": "account",
+  "record_id": "acc_456",
+  "changes": {
+    "annual_revenue": {
+      "old": 1000000,
+      "new": 1500000
+    }
+  },
+  "ip_address": "192.168.1.100"
+}
+```
+
+### Access Logs
+
+Log all query attempts:
+
+```yaml
+name: account
+enable:
+  access_log: true
+```
+
+**Captures:**
+- Failed permission checks (security violations)
+- Successful queries (for compliance)
+- Export operations (GDPR requirements)
+
+---
+
+## 8. Data Encryption
+
+### At-Rest Encryption
+
+```yaml
+fields:
+  ssn:
+    type: text
+    label: SSN
+    encrypt: true
+    encryption_key: ssn_master_key
+```
+
+**Storage:**
+- Database stores encrypted value
+- Application decrypts on read (if user has permission)
+- Encryption key stored in secure vault (not in database)
+
+### In-Transit Encryption
+
+All ObjectQL communication uses TLS 1.3:
+- API requests: HTTPS
+- Database connections: SSL/TLS
+- Internal services: mTLS (mutual TLS)
+
+### Field-Level Encryption
+
+```yaml
+fields:
+  credit_card:
+    type: text
+    encrypt: true
+    encryption_algorithm: AES-256-GCM
+    key_rotation: 90  # Rotate key every 90 days
+```
+
+---
+
+## 9. Compliance Features
+
+### GDPR: Right to be Forgotten
+
+```yaml
+name: customer
+enable:
+  gdpr_erasure: true
+  
+fields:
+  email:
+    pii: true  # Mark as personally identifiable
+  
+  name:
+    pii: true
+```
+
+**Erasure request:**
+```typescript
+await ObjectQL.gdprErase('customer', 'customer_123');
+
+// Result:
+// - PII fields set to null
+// - Audit log preserved (who requested, when)
+// - Related records handled per cascade rules
+```
+
+### HIPAA: PHI Protection
+
+```yaml
+name: patient
+compliance: hipaa
+
+fields:
+  medical_record_number:
+    type: text
+    phi: true  # Protected Health Information
+    encrypt: true
+    audit: true
+```
+
+**Automatic enforcement:**
+- Encryption at rest
+- Access logging
+- Minimum necessary principle (field-level security)
+- Audit trail
+
+### SOC 2: Access Controls
+
+```yaml
+name: financial_record
+compliance: soc2
+
+permissions:
+  read:
+    - role: accountant
+      require_mfa: true
+      session_timeout: 900  # 15 minutes
+      ip_whitelist: [corporate_network]
+```
+
+---
+
+## 10. Security Testing
+
+### Permission Dry Run
+
+```typescript
+// Check if user can access before querying
+const canAccess = await ObjectQL.checkPermission({
+  user: currentUser,
+  action: 'read',
+  object: 'account',
+  record_id: 'acc_123'
+});
+
+if (!canAccess) {
+  // Show error message, don't attempt query
+}
+```
+
+### Security Assertions
+
+```typescript
+// In tests
+await expect(
+  ObjectQL.query({
+    object: 'salary_data',
+    user: salesRepUser
+  })
+).toThrow(PermissionError);
+```
+
+### Penetration Testing
+
+ObjectQL provides security test helpers:
+
+```typescript
+// Test all permission combinations
+await ObjectQL.testSuite.runSecurityTests({
+  objects: ['account', 'opportunity', 'contact'],
+  users: [admin, manager, salesRep, guest],
+  scenarios: ['create', 'read', 'update', 'delete']
+});
+
+// Report:
+// ✓ Admin: Full access to all objects
+// ✓ Manager: Read access to team accounts
+// ✗ Sales Rep: SECURITY ISSUE - Can read salary field
+// ✓ Guest: No access (as expected)
+```
+
+---
+
+## Real-World Examples
+
+### SaaS Multi-Tenancy
+
+```yaml
+name: customer
+tenant_scope: true
+
+permissions:
+  read:
+    - role: user
+      filters:
+        - ['tenant_id', '=', '{{CURRENT_TENANT_ID}}']
+        - ['or',
+            ['owner_id', '=', '{{CURRENT_USER_ID}}'],
+            ['shared_with', 'contains', '{{CURRENT_USER_ID}}']
+          ]
+```
+
+### Healthcare: Patient Records
+
+```yaml
+name: patient_record
+compliance: hipaa
+
+permissions:
+  read:
+    # Doctors: Own patients
+    - role: doctor
+      filters:
+        - ['assigned_doctor_id', '=', '{{CURRENT_USER_ID}}']
+    
+    # Nurses: Same department
+    - role: nurse
+      filters:
+        - ['department_id', '=', '{{CURRENT_USER.department_id}}']
+    
+    # Patient: Own record only
+    - role: patient
+      filters:
+        - ['patient_id', '=', '{{CURRENT_USER.patient_id}}']
+
+fields:
+  diagnosis:
+    visibility:
+      read: [doctor, nurse]  # Hidden from patient
+  
+  treatment_notes:
+    visibility:
+      read: [doctor]  # Hidden from nurse and patient
+```
+
+### Banking: Transaction Security
+
+```yaml
+name: transaction
+compliance: pci_dss
+
+permissions:
+  read:
+    - role: account_holder
+      filters:
+        - ['account.owner_id', '=', '{{CURRENT_USER_ID}}']
+      require_mfa: true
+  
+  update:
+    - role: admin
+      require_approval: true  # Transactions require 2-person approval
+
+fields:
+  card_number:
+    type: text
+    encrypt: true
+    masking:
+      mode: partial
+      visible_chars: 4
+      position: end
+  
+  cvv:
+    type: text
+    encrypt: true
+    masking:
+      mode: full
+```
+
+---
+
+## Best Practices
+
+### 1. Principle of Least Privilege
+
+```yaml
+# ❌ Bad: Grant broad access by default
+permissions:
+  read: [user]  # All users can read everything
+
+# ✅ Good: Restrict by default, grant explicitly
+permissions:
+  read:
+    - role: account_owner
+      filters: [['owner_id', '=', '{{CURRENT_USER_ID}}']]
+```
+
+### 2. Defense in Depth
+
+```yaml
+# Multiple security layers
+permissions:
+  read:
+    - role: user
+      filters: [['owner_id', '=', '{{CURRENT_USER_ID}}']]
+      require_mfa: true
+      ip_whitelist: [corporate_network]
+
+fields:
+  sensitive_data:
+    encrypt: true
+    masking: { mode: partial }
+    audit: true
+```
+
+### 3. Security by Default
+
+```yaml
+# Auto-inject security fields
+name: project
+fields:
+  owner_id:
+    type: lookup
+    reference_to: user
+    default_value: '{{CURRENT_USER_ID}}'  # Auto-assign owner
+    
+  tenant_id:
+    type: lookup
+    reference_to: tenant
+    default_value: '{{CURRENT_TENANT_ID}}'  # Auto-assign tenant
+```
+
+### 4. Regular Audits
+
+```bash
+# Generate security report
+objectstack security:audit
+
+# Output:
+# Objects with no permissions: 3
+# Users with admin access: 5
+# Unencrypted PII fields: 2
+# Shared records: 42
+```
+
+---
+
+## Next Steps
+
+<Cards>
+  <Card
+    title="Schema Definition"
+    href="/docs/02-protocols/01-objectql/schema"
+    description="Learn to define objects and fields"
+  />
+  <Card
+    title="Query Syntax"
+    href="/docs/02-protocols/01-objectql/query-syntax"
+    description="Master database-agnostic queries"
+  />
+  <Card
+    title="Type System"
+    href="/docs/02-protocols/01-objectql/types"
+    description="Understand all field types"
+  />
+</Cards>

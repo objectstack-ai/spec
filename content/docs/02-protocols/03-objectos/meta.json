@@ -1,0 +1,9 @@
+{
+  "title": "ObjectOS (System Protocol)",
+  "pages": [
+    "lifecycle",
+    "plugin-spec",
+    "config-resolution",
+    "i18n-standard"
+  ]
+}

@@ -1,0 +1,841 @@
+---
+title: Internationalization Standard
+description: Translation bundles, locale resolution, pluralization, date/number formatting, and dynamic loading
+---
+
+import { Globe, Languages, Calendar, Hash, FileText, MapPin } from 'lucide-react';
+
+# Internationalization (i18n) Standard
+
+ObjectOS provides **built-in internationalization** that enables applications to support multiple languages, locales, and regional formats without external libraries or complex configuration.
+
+## The i18n Problem
+
+Traditional i18n implementations require integrating multiple libraries:
+
+```javascript
+// Typical i18n setup requires 3+ libraries
+import i18next from 'i18next';           // Translation engine
+import { formatNumber } from 'numeral';  // Number formatting
+import { formatDate } from 'date-fns';   // Date formatting
+import pluralize from 'pluralize';       // Pluralization
+
+// Each library has different APIs, config, and quirks
+i18next.t('messages.welcome', { name: 'John' });
+formatNumber(1234.56, '0,0.00');
+formatDate(new Date(), 'PP');
+pluralize('item', 5);
+```
+
+**Result:** 500KB+ of dependencies, inconsistent APIs, and hours of configuration.
+
+## ObjectOS i18n Solution
+
+ObjectOS provides a **unified i18n API** with batteries included:
+
+```typescript
+// Single API for all i18n needs
+const { t, formatNumber, formatDate, plural } = context.i18n;
+
+t('messages.welcome', { name: 'John' });  // Translation
+formatNumber(1234.56);                    // Locale-aware number formatting
+formatDate(new Date(), 'medium');         // Locale-aware date formatting
+plural('item', 5);                        // Pluralization
+```
+
+**Benefits:**
+- ✅ Zero external dependencies
+- ✅ Consistent API across all i18n operations
+- ✅ Automatic locale detection
+- ✅ Plugin-based translation bundles
+- ✅ <50KB total footprint
+
+## Locale Resolution
+
+ObjectOS automatically determines the user's locale using a **fallback chain**:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ 1. USER PREFERENCE                                          │
+│    Explicit user setting (saved in database)                │
+│    Example: User selects "Deutsch" in profile settings      │
+└─────────────────────────────────────────────────────────────┘
+                          ↓ fallback
+┌─────────────────────────────────────────────────────────────┐
+│ 2. TENANT DEFAULT                                           │
+│    Organization-wide locale setting                         │
+│    Example: German company sets 'de' as tenant default      │
+└─────────────────────────────────────────────────────────────┘
+                          ↓ fallback
+┌─────────────────────────────────────────────────────────────┐
+│ 3. ACCEPT-LANGUAGE HEADER                                   │
+│    Browser sends preferred languages                        │
+│    Example: 'de-AT, de;q=0.9, en;q=0.8'                     │
+└─────────────────────────────────────────────────────────────┘
+                          ↓ fallback
+┌─────────────────────────────────────────────────────────────┐
+│ 4. IP GEOLOCATION                                           │
+│    Detect country from IP address                           │
+│    Example: IP from Austria → 'de-AT'                       │
+└─────────────────────────────────────────────────────────────┘
+                          ↓ fallback
+┌─────────────────────────────────────────────────────────────┐
+│ 5. SYSTEM DEFAULT                                           │
+│    Configured in objectstack.config.ts                      │
+│    Example: 'en' for US-based companies                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Locale Format
+
+Locales follow **BCP 47** standard: `language-REGION`
+
+Examples:
+- `en` — English (generic)
+- `en-US` — English (United States)
+- `en-GB` — English (United Kingdom)
+- `de` — German (generic)
+- `de-DE` — German (Germany)
+- `de-AT` — German (Austria)
+- `zh-CN` — Chinese (Simplified, China)
+- `zh-TW` — Chinese (Traditional, Taiwan)
+
+### Locale Fallback
+
+If exact locale not found, ObjectOS falls back to **language-only** locale:
+
+```
+User requests: de-AT (German, Austria)
+  ↓
+Check for translation: de-AT ✗ (not found)
+  ↓
+Fallback to: de ✓ (found)
+  ↓
+Use: de (German generic)
+```
+
+If language not found, fall back to **system default**:
+
+```
+User requests: pt-BR (Portuguese, Brazil)
+  ↓
+Check for translation: pt-BR ✗ (not found)
+  ↓
+Fallback to: pt ✗ (not found)
+  ↓
+Fallback to: en (system default) ✓
+```
+
+## Translation Bundles
+
+Translations are stored in **JSON files** organized by locale and namespace.
+
+### Directory Structure
+
+```
+my-plugin/
+  i18n/
+    en/
+      common.json          # Common translations
+      account.json         # Account object translations
+      errors.json          # Error messages
+    de/
+      common.json
+      account.json
+      errors.json
+    es/
+      common.json
+      account.json
+      errors.json
+```
+
+### Translation File Format
+
+```json
+// i18n/en/account.json
+{
+  // Simple strings
+  "account": "Account",
+  "accounts": "Accounts",
+  
+  // Nested keys
+  "fields": {
+    "name": "Account Name",
+    "industry": "Industry",
+    "revenue": "Annual Revenue"
+  },
+  
+  // Interpolation
+  "welcome": "Welcome, {{name}}!",
+  "accountCount": "You have {{count}} accounts",
+  
+  // Pluralization
+  "itemCount": "{{count}} item",
+  "itemCount_plural": "{{count}} items",
+  
+  // Context-specific
+  "delete": "Delete",
+  "delete_confirm": "Are you sure you want to delete {{name}}?",
+  
+  // Rich formatting
+  "lastUpdated": "Last updated {{date, datetime}}",
+  "totalValue": "Total: {{amount, currency}}",
+  
+  // Arrays (for select options, etc.)
+  "industries": [
+    { "value": "technology", "label": "Technology" },
+    { "value": "finance", "label": "Finance" },
+    { "value": "healthcare", "label": "Healthcare" }
+  ]
+}
+```
+
+```json
+// i18n/de/account.json
+{
+  "account": "Konto",
+  "accounts": "Konten",
+  
+  "fields": {
+    "name": "Kontoname",
+    "industry": "Branche",
+    "revenue": "Jahresumsatz"
+  },
+  
+  "welcome": "Willkommen, {{name}}!",
+  "accountCount": "Sie haben {{count}} Konten",
+  
+  "itemCount": "{{count}} Artikel",
+  "itemCount_plural": "{{count}} Artikel",
+  
+  "delete": "Löschen",
+  "delete_confirm": "Möchten Sie {{name}} wirklich löschen?",
+  
+  "lastUpdated": "Zuletzt aktualisiert am {{date, datetime}}",
+  "totalValue": "Gesamt: {{amount, currency}}",
+  
+  "industries": [
+    { "value": "technology", "label": "Technologie" },
+    { "value": "finance", "label": "Finanzen" },
+    { "value": "healthcare", "label": "Gesundheitswesen" }
+  ]
+}
+```
+
+## Translation API
+
+### Basic Translation
+
+```typescript
+// Get translation for current locale
+const message = context.i18n.t('account.welcome', { name: 'John' });
+// en: "Welcome, John!"
+// de: "Willkommen, John!"
+
+// Get translation with namespace
+const fieldLabel = context.i18n.t('account.fields.name');
+// en: "Account Name"
+// de: "Kontoname"
+
+// Provide default if translation missing
+const label = context.i18n.t('account.fields.unknown', {
+  defaultValue: 'Unknown Field',
+});
+```
+
+### Pluralization
+
+```typescript
+// Automatic plural handling
+const message = context.i18n.t('account.itemCount', { count: 1 });
+// en: "1 item"
+
+const message = context.i18n.t('account.itemCount', { count: 5 });
+// en: "5 items"
+// de: "5 Artikel"
+```
+
+**Plural Forms:**
+- English: `key`, `key_plural`
+- Other languages may have more forms (e.g., Polish has 5)
+
+ObjectOS uses **Unicode CLDR plural rules** to select correct form.
+
+### Context-Based Translation
+
+```typescript
+// Different translations based on context
+const deleteButton = context.i18n.t('account.delete');
+// "Delete"
+
+const deleteConfirmation = context.i18n.t('account.delete_confirm', {
+  name: 'Acme Corp',
+});
+// "Are you sure you want to delete Acme Corp?"
+```
+
+### Fallback Translation
+
+```typescript
+// Try multiple keys, use first found
+const message = context.i18n.t([
+  'account.customMessage',    // Try custom first
+  'common.defaultMessage',    // Fallback to common
+], { defaultValue: 'No translation found' });
+```
+
+## Date and Time Formatting
+
+ObjectOS provides **locale-aware date/time formatting** using Unicode CLDR data.
+
+### Date Formatting
+
+```typescript
+const date = new Date('2024-01-15T14:30:00Z');
+
+// Predefined formats
+context.i18n.formatDate(date, 'short');
+// en-US: "1/15/24"
+// en-GB: "15/01/24"
+// de-DE: "15.01.24"
+
+context.i18n.formatDate(date, 'medium');
+// en-US: "Jan 15, 2024"
+// de-DE: "15. Jan. 2024"
+
+context.i18n.formatDate(date, 'long');
+// en-US: "January 15, 2024"
+// de-DE: "15. Januar 2024"
+
+context.i18n.formatDate(date, 'full');
+// en-US: "Monday, January 15, 2024"
+// de-DE: "Montag, 15. Januar 2024"
+
+// Custom format (ICU pattern)
+context.i18n.formatDate(date, { pattern: 'yyyy-MM-dd' });
+// "2024-01-15" (same across locales)
+```
+
+### Time Formatting
+
+```typescript
+const time = new Date('2024-01-15T14:30:00Z');
+
+context.i18n.formatTime(time, 'short');
+// en-US: "2:30 PM"
+// de-DE: "14:30"
+
+context.i18n.formatTime(time, 'medium');
+// en-US: "2:30:00 PM"
+// de-DE: "14:30:00"
+
+context.i18n.formatTime(time, 'long');
+// en-US: "2:30:00 PM GMT"
+// de-DE: "14:30:00 GMT"
+```
+
+### DateTime Formatting
+
+```typescript
+const dateTime = new Date('2024-01-15T14:30:00Z');
+
+context.i18n.formatDateTime(dateTime, 'short');
+// en-US: "1/15/24, 2:30 PM"
+// de-DE: "15.01.24, 14:30"
+
+context.i18n.formatDateTime(dateTime, 'medium');
+// en-US: "Jan 15, 2024, 2:30:00 PM"
+// de-DE: "15. Jan. 2024, 14:30:00"
+```
+
+### Relative Time
+
+```typescript
+const pastDate = new Date(Date.now() - 3600000); // 1 hour ago
+
+context.i18n.formatRelativeTime(pastDate);
+// en: "1 hour ago"
+// de: "vor 1 Stunde"
+
+const futureDate = new Date(Date.now() + 86400000); // 1 day from now
+
+context.i18n.formatRelativeTime(futureDate);
+// en: "in 1 day"
+// de: "in 1 Tag"
+```
+
+### Timezone Handling
+
+```typescript
+// Format in specific timezone
+context.i18n.formatDateTime(date, 'medium', {
+  timeZone: 'America/New_York',
+});
+// "Jan 15, 2024, 9:30:00 AM"
+
+// Format in user's timezone (from context)
+context.i18n.formatDateTime(date, 'medium', {
+  timeZone: context.user.timezone, // e.g., 'Europe/Berlin'
+});
+```
+
+## Number Formatting
+
+ObjectOS provides **locale-aware number formatting** for decimals, currency, and percentages.
+
+### Decimal Numbers
+
+```typescript
+const number = 1234567.89;
+
+context.i18n.formatNumber(number);
+// en-US: "1,234,567.89"
+// de-DE: "1.234.567,89"
+// fr-FR: "1 234 567,89"
+
+// Control decimal places
+context.i18n.formatNumber(number, {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+// en-US: "1,234,567.89"
+```
+
+### Currency
+
+```typescript
+const amount = 1234.56;
+
+context.i18n.formatCurrency(amount, 'USD');
+// en-US: "$1,234.56"
+// de-DE: "1.234,56 $"
+// ja-JP: "$1,234.56"
+
+context.i18n.formatCurrency(amount, 'EUR');
+// en-US: "€1,234.56"
+// de-DE: "1.234,56 €"
+// fr-FR: "1 234,56 €"
+
+// Control symbol display
+context.i18n.formatCurrency(amount, 'USD', {
+  currencyDisplay: 'code',
+});
+// "USD 1,234.56"
+
+context.i18n.formatCurrency(amount, 'USD', {
+  currencyDisplay: 'name',
+});
+// "1,234.56 US dollars"
+```
+
+### Percentages
+
+```typescript
+const percent = 0.1234;
+
+context.i18n.formatPercent(percent);
+// en-US: "12.34%"
+// de-DE: "12,34 %"
+
+// Control decimal places
+context.i18n.formatPercent(percent, {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+});
+// en-US: "12%"
+```
+
+### Compact Notation
+
+```typescript
+const bigNumber = 1234567;
+
+context.i18n.formatNumber(bigNumber, {
+  notation: 'compact',
+});
+// en-US: "1.2M"
+// de-DE: "1,2 Mio."
+
+const smallNumber = 1234;
+
+context.i18n.formatNumber(smallNumber, {
+  notation: 'compact',
+  compactDisplay: 'short',
+});
+// en-US: "1.2K"
+```
+
+## Plugin Integration
+
+Plugins register translation bundles in their manifest:
+
+```typescript
+// plugin.manifest.ts
+export default definePlugin({
+  name: '@mycompany/crm',
+  
+  metadata: {
+    // Translation files
+    translations: [
+      'i18n/**/*.json',
+    ],
+  },
+});
+```
+
+### Translation File Registration
+
+```
+@mycompany/crm/
+  i18n/
+    en/
+      account.json        → Namespace: crm.account
+      contact.json        → Namespace: crm.contact
+    de/
+      account.json
+      contact.json
+```
+
+**Namespace Convention:** `{pluginName}.{filename}`
+
+### Using Plugin Translations
+
+```typescript
+// In plugin code
+const label = context.i18n.t('crm.account.fields.name');
+// en: "Account Name"
+// de: "Kontoname"
+
+// In other plugins (cross-plugin translation access)
+const label = context.i18n.t('crm.account.welcome');
+// Works if @mycompany/crm plugin is installed
+```
+
+## ObjectQL Integration
+
+ObjectQL objects and fields can be **automatically translated**:
+
+```typescript
+// Object definition
+export default defineObject({
+  name: 'account',
+  label: 'account.label',           // Translation key
+  pluralLabel: 'account.pluralLabel',
+  
+  fields: {
+    name: {
+      type: 'text',
+      label: 'account.fields.name', // Translation key
+    },
+    industry: {
+      type: 'select',
+      label: 'account.fields.industry',
+      options: 'account.industries',  // Translation key for array
+    },
+  },
+});
+```
+
+```json
+// i18n/en/account.json
+{
+  "label": "Account",
+  "pluralLabel": "Accounts",
+  "fields": {
+    "name": "Account Name",
+    "industry": "Industry"
+  },
+  "industries": [
+    { "value": "technology", "label": "Technology" },
+    { "value": "finance", "label": "Finance" }
+  ]
+}
+```
+
+**ObjectQL automatically resolves translations** when rendering:
+
+```typescript
+// Get object metadata with translations
+const objectMeta = await ObjectQL.getMetadata('account', {
+  locale: context.locale,
+});
+
+console.log(objectMeta.label);
+// en: "Account"
+// de: "Konto"
+
+console.log(objectMeta.fields.name.label);
+// en: "Account Name"
+// de: "Kontoname"
+```
+
+## ObjectUI Integration
+
+ObjectUI automatically translates labels, placeholders, and error messages:
+
+```typescript
+// View definition
+export default defineView({
+  name: 'account_list',
+  object: 'account',
+  type: 'list',
+  
+  layout: {
+    title: 'account.list.title',  // Translation key
+    columns: [
+      {
+        field: 'name',
+        // Label auto-translated from ObjectQL field definition
+      },
+    ],
+    actions: [
+      {
+        type: 'create',
+        label: 'account.actions.create',  // Translation key
+      },
+    ],
+  },
+});
+```
+
+```json
+// i18n/en/account.json
+{
+  "list": {
+    "title": "Accounts"
+  },
+  "actions": {
+    "create": "New Account"
+  }
+}
+```
+
+```json
+// i18n/de/account.json
+{
+  "list": {
+    "title": "Konten"
+  },
+  "actions": {
+    "create": "Neues Konto"
+  }
+}
+```
+
+## Dynamic Locale Switching
+
+Users can change locale **without reloading** the page:
+
+### Server-Side
+
+```typescript
+// Update user locale preference
+await context.i18n.setUserLocale('de');
+
+// Next request automatically uses new locale
+const message = context.i18n.t('welcome');
+// "Willkommen!" (German)
+```
+
+### Client-Side (ObjectUI)
+
+```typescript
+// ObjectUI locale switcher component
+export default defineAction({
+  name: 'switch_locale',
+  type: 'custom',
+  
+  handler: async ({ context, value }) => {
+    // Update user preference
+    await context.i18n.setUserLocale(value);
+    
+    // Reload UI with new locale
+    await context.ui.reload();
+  },
+});
+```
+
+## Translation Management
+
+### CLI Tools
+
+```bash
+# Extract translation keys from code
+objectstack i18n extract --output i18n/keys.json
+
+# Validate translations (check for missing keys)
+objectstack i18n validate
+
+# Merge translations (combine multiple files)
+objectstack i18n merge --input i18n/en/*.json --output i18n/en.json
+
+# Export translations (for translators)
+objectstack i18n export --format xlsx --output translations.xlsx
+
+# Import translations
+objectstack i18n import translations.xlsx
+```
+
+### Translation Coverage
+
+```bash
+# Check translation coverage
+objectstack i18n coverage
+
+Output:
+  en: 100% (450/450 keys)
+  de: 95%  (428/450 keys) - Missing: 22 keys
+  es: 80%  (360/450 keys) - Missing: 90 keys
+  
+  Missing keys in de:
+    - account.fields.new_field
+    - account.actions.bulk_delete
+    ...
+```
+
+### Translation Service Integration
+
+ObjectOS integrates with professional translation services:
+
+```typescript
+// objectstack.config.ts
+export default defineConfig({
+  i18n: {
+    translationService: {
+      provider: 'google-translate',
+      apiKey: process.env.GOOGLE_TRANSLATE_API_KEY,
+      
+      // Auto-translate missing keys
+      autoTranslate: true,
+      
+      // Target languages
+      languages: ['de', 'es', 'fr', 'ja', 'zh-CN'],
+    },
+  },
+});
+```
+
+**Supported Services:**
+- Google Cloud Translation
+- AWS Translate
+- DeepL
+- Microsoft Translator
+
+## Best Practices
+
+### 1. Use Namespaces for Organization
+
+```json
+// ✓ GOOD: Organized by feature
+{
+  "account": { "label": "Account" },
+  "contact": { "label": "Contact" },
+  "opportunity": { "label": "Opportunity" }
+}
+
+// ✗ BAD: Flat structure
+{
+  "accountLabel": "Account",
+  "contactLabel": "Contact",
+  "opportunityLabel": "Opportunity"
+}
+```
+
+### 2. Provide Context in Keys
+
+```json
+// ✓ GOOD: Context clear
+{
+  "delete_button": "Delete",
+  "delete_confirm_message": "Are you sure?"
+}
+
+// ✗ BAD: Ambiguous
+{
+  "delete": "Delete",
+  "confirm": "Are you sure?"
+}
+```
+
+### 3. Don't Translate Technical Identifiers
+
+```json
+// ✓ GOOD: Labels translated, values not
+{
+  "industries": [
+    { "value": "technology", "label": "Technology" },
+    { "value": "finance", "label": "Finance" }
+  ]
+}
+
+// ✗ BAD: Values translated (breaks code)
+{
+  "industries": [
+    { "value": "technologie", "label": "Technologie" }
+  ]
+}
+```
+
+### 4. Use ICU MessageFormat for Complex Messages
+
+```json
+{
+  "accountStatus": "{count, plural, =0 {No accounts} =1 {One account} other {# accounts}}"
+}
+```
+
+### 5. Test All Locales
+
+```typescript
+// ✓ GOOD: Test with actual locales
+describe('Account View', () => {
+  it('should display in German', async () => {
+    const context = createContext({ locale: 'de' });
+    const view = await renderView('account_list', { context });
+    expect(view.title).toBe('Konten');
+  });
+});
+```
+
+## Configuration
+
+```typescript
+// objectstack.config.ts
+export default defineConfig({
+  i18n: {
+    // Default locale
+    defaultLocale: 'en',
+    
+    // Supported locales
+    supportedLocales: ['en', 'de', 'es', 'fr', 'ja', 'zh-CN'],
+    
+    // Fallback chain
+    fallbackLocale: 'en',
+    
+    // Load translations on demand?
+    lazyLoad: true,
+    
+    // Cache translations?
+    cache: true,
+    
+    // Translation service
+    translationService: {
+      provider: 'google-translate',
+      apiKey: process.env.GOOGLE_TRANSLATE_API_KEY,
+    },
+  },
+});
+```
+
+## Summary
+
+ObjectOS i18n provides:
+- **Automatic locale resolution** with fallback chain
+- **Translation bundles** in JSON format with namespaces
+- **Locale-aware formatting** for dates, times, numbers, and currency
+- **Plugin integration** for modular translation management
+- **ObjectQL/ObjectUI integration** for automatic metadata translation
+- **Dynamic locale switching** without page reload
+- **Translation management tools** for extraction, validation, and coverage
+
+**Result:** Build globally-ready applications without wrestling with i18n libraries. Support 50+ languages with <100 lines of configuration.

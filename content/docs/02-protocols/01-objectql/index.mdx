@@ -1,0 +1,409 @@
+---
+title: ObjectQL Overview
+description: The database-agnostic data abstraction layer - Define once, run anywhere
+---
+
+import { Database, Zap, Shield, GitBranch, Target, CheckCircle } from 'lucide-react';
+
+# ObjectQL: The Data Protocol
+
+**ObjectQL** (Object Query Language) is ObjectStack's database-agnostic data abstraction layer. It provides a single, declarative way to define business data models, validation rules, and queries that work consistently across SQL, NoSQL, Graph, and Time-series databases.
+
+## The Core Problem
+
+Traditional software development chains you to specific database technologies:
+
+- **PostgreSQL → MongoDB Migration:** Rewrite thousands of SQL queries
+- **Schema Evolution:** Coordinate complex migration scripts across environments
+- **Multi-Database Systems:** Maintain separate codebases for each database
+- **Business Logic Scatter:** Validation rules duplicated in frontend, backend, and database triggers
+- **Vendor Lock-in:** Switching databases requires months of rewrites
+
+## The ObjectQL Solution
+
+<Cards>
+  <Card
+    icon={<Database />}
+    title="Write Once, Run Anywhere"
+    description="Define objects in .object.yml. ObjectStack compiles to PostgreSQL, MongoDB, Redis, or Excel—no code changes."
+  />
+  <Card
+    icon={<Zap />}
+    title="Schema as Code"
+    description="Version control your data model. Automatic migrations. Rollback schema changes like Git commits."
+  />
+  <Card
+    icon={<Shield />}
+    title="Type Safety"
+    description="Runtime validation with Zod schemas. TypeScript types auto-generated. Catch errors before production."
+  />
+  <Card
+    icon={<Target />}
+    title="Business Semantics"
+    description="Fields encode intent: 'lookup' means relationship, 'formula' means calculated. Drivers optimize accordingly."
+  />
+</Cards>
+
+## Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      APPLICATION LAYER                       │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
+│  │   REST API  │  │   GraphQL   │  │   UI Forms  │         │
+│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘         │
+└─────────┼─────────────────┼─────────────────┼───────────────┘
+          │                 │                 │
+          └─────────────────┼─────────────────┘
+                            │
+          ┌─────────────────▼─────────────────┐
+          │        ObjectQL Runtime            │
+          │  ┌──────────────────────────────┐  │
+          │  │   Query Planner & Optimizer  │  │
+          │  └──────────┬───────────────────┘  │
+          │             │                       │
+          │  ┌──────────▼───────────────────┐  │
+          │  │    Driver Layer (Adapters)   │  │
+          │  └──┬────────┬────────┬─────────┘  │
+          └─────┼────────┼────────┼────────────┘
+                │        │        │
+       ┌────────▼──┐  ┌──▼─────┐ │  ┌──────────┐
+       │ PostgreSQL│  │MongoDB │ │  │  Redis   │
+       └───────────┘  └────────┘ │  └──────────┘
+                                 │
+                          ┌──────▼───┐
+                          │  Excel   │
+                          └──────────┘
+```
+
+## Key Concepts
+
+### 1. Objects: Business Entities
+
+Objects are your business entities—not just database tables. They represent real-world concepts like `Customer`, `Order`, `Project`.
+
+```yaml
+# customer.object.yml
+name: customer
+label: Customer
+icon: standard:account
+enable:
+  audit: true              # Track field history
+  full_text_search: true   # Global search
+  api: true                # REST/GraphQL endpoints
+fields:
+  company_name:
+    type: text
+    label: Company Name
+    required: true
+  industry:
+    type: select
+    options:
+      - { value: tech, label: Technology }
+      - { value: finance, label: Finance }
+```
+
+**What you get automatically:**
+- Database table/collection created
+- REST API endpoints: `GET/POST/PUT/DELETE /api/customer`
+- Admin UI with list view and form
+- Full-text search index
+- Field history tracking
+- TypeScript types
+
+### 2. Fields: Rich Type System
+
+ObjectQL provides 20+ field types that encode business semantics:
+
+| Field Type | Business Meaning | Example |
+|------------|------------------|---------|
+| `lookup` | Relationship | `account_id` references `account` |
+| `formula` | Calculated value | `total = quantity * price` |
+| `summary` | Aggregate children | `total_opportunities` counts child records |
+| `currency` | Money with exchange rates | `{amount: 1000, currency: 'USD'}` |
+| `address` | Geocoding & distance | `{street, city, lat, lng}` |
+
+See [Types Reference](/docs/02-protocols/01-objectql/types) for complete list.
+
+### 3. Query Language: Database-Agnostic AST
+
+Queries are expressed as **Abstract Syntax Trees (AST)**, not SQL strings:
+
+```typescript
+// TypeScript Query
+const query: Query = {
+  object: 'customer',
+  filters: [
+    ['industry', '=', 'tech'],
+    ['annual_revenue', '>', 1000000]
+  ],
+  fields: ['company_name', 'industry', 'owner.name'],
+  sort: [{ field: 'created_at', order: 'desc' }],
+  limit: 10
+};
+```
+
+**Runtime compilation to different databases:**
+
+```sql
+-- PostgreSQL (with JOIN)
+SELECT c.company_name, c.industry, u.name AS "owner.name"
+FROM customer c
+LEFT JOIN user u ON c.owner_id = u._id
+WHERE c.industry = 'tech' AND c.annual_revenue > 1000000
+ORDER BY c.created_at DESC
+LIMIT 10;
+```
+
+```javascript
+// MongoDB
+db.customer.aggregate([
+  {
+    $match: {
+      industry: 'tech',
+      annual_revenue: { $gt: 1000000 }
+    }
+  },
+  {
+    $lookup: {
+      from: 'user',
+      localField: 'owner_id',
+      foreignField: '_id',
+      as: 'owner'
+    }
+  },
+  { $sort: { created_at: -1 } },
+  { $limit: 10 }
+]);
+```
+
+### 4. Validation: Business Rules as Data
+
+Validation rules are declared alongside the schema:
+
+```yaml
+validation_rules:
+  - name: end_after_start
+    condition: "end_date < start_date"
+    message: "End date must be after start date"
+    
+  - name: enterprise_requires_contract
+    condition: "account_type = 'Enterprise' AND contract_value = null"
+    message: "Enterprise accounts require contract value"
+```
+
+**Validation executes:**
+- Before database write (server-side)
+- In UI forms (compiled to JavaScript)
+- In API requests (REST/GraphQL)
+- In bulk imports (CSV, Excel)
+
+## Real-World Use Cases
+
+### Multi-Database Architecture
+
+**Scenario:** E-commerce platform with:
+- PostgreSQL: Transactional data (orders, payments)
+- MongoDB: Product catalog (flexible schemas)
+- Redis: Session cache
+- Elasticsearch: Product search
+
+**ObjectQL Solution:**
+```yaml
+# order.object.yml
+name: order
+datasource: postgres_main
+fields:
+  customer_id:
+    type: lookup
+    reference_to: customer  # Also in PostgreSQL
+
+# product.object.yml
+name: product
+datasource: mongodb_catalog
+fields:
+  attributes:
+    type: json  # Flexible product attributes
+```
+
+**Result:** One query API works across all databases:
+```typescript
+// Same code, different databases
+const orders = await ObjectQL.query({ object: 'order' });
+const products = await ObjectQL.query({ object: 'product' });
+```
+
+### Schema Evolution
+
+**Challenge:** Add a new field to `customer` object with 10M records.
+
+**Traditional Approach:**
+```sql
+-- Manual migration, downtime required
+ALTER TABLE customer ADD COLUMN credit_score INTEGER;
+-- Backfill historical data
+UPDATE customer SET credit_score = 0 WHERE credit_score IS NULL;
+```
+
+**ObjectQL Approach:**
+```yaml
+# Edit customer.object.yml
+fields:
+  credit_score:
+    type: number
+    default_value: 0
+    migration:
+      backfill: true  # Automatically backfill existing records
+```
+
+```bash
+# Deploy (zero downtime)
+objectstack deploy --migrate
+```
+
+**What happens:**
+1. ObjectQL analyzes schema diff
+2. Generates database-specific migration
+3. Applies changes online (no downtime)
+4. Backfills data in background
+5. Updates API/UI automatically
+
+### Offline-First Mobile
+
+**Challenge:** Field sales app needs to work offline.
+
+**ObjectQL Solution:**
+```yaml
+# Same object definition
+name: opportunity
+enable:
+  offline_sync: true  # Enable offline support
+```
+
+**Runtime:**
+- **Server:** PostgreSQL (production database)
+- **Mobile:** SQLite (on-device database)
+- **Sync:** Conflict resolution built into protocol
+
+**Code is identical:**
+```typescript
+// Works online or offline
+const opportunities = await ObjectQL.query({
+  object: 'opportunity',
+  filters: [['owner_id', '=', currentUser.id]]
+});
+```
+
+## Integration with Other Protocols
+
+ObjectQL is the foundation for other protocols:
+
+```
+ObjectQL (Data Layer)
+    ↓
+    ├→ ObjectUI (UI Protocol)
+    │  └→ Auto-generate forms, tables, dashboards
+    │
+    ├→ Permission Protocol
+    │  └→ Row-level security, field-level access
+    │
+    ├→ API Protocol
+    │  └→ REST/GraphQL endpoints
+    │
+    └→ Automation Protocol
+       └→ Triggers, workflows, scheduled jobs
+```
+
+## Performance Characteristics
+
+### Query Optimization
+
+ObjectQL analyzes queries and applies database-specific optimizations:
+
+- **Index Selection:** Chooses best index based on filters
+- **Join Strategy:** Hash join vs nested loop based on data size
+- **Projection Pushdown:** Only fetches requested fields
+- **Filter Pushdown:** Applies filters at database level
+
+**Example:**
+```typescript
+// This query
+const query = {
+  object: 'customer',
+  filters: [['industry', '=', 'tech']],
+  fields: ['company_name']
+};
+
+// Optimizes to (PostgreSQL)
+SELECT company_name FROM customer WHERE industry = 'tech';
+// NOT: SELECT * FROM customer WHERE industry = 'tech';
+```
+
+### Caching Strategy
+
+- **Schema Cache:** Object definitions cached in memory
+- **Query Plan Cache:** Compiled queries reused
+- **Result Cache:** Redis/Memcached for frequently accessed data
+
+## Security Model
+
+ObjectQL enforces security at the **data layer**, before queries execute:
+
+```typescript
+// User requests data
+const query = { object: 'account' };
+
+// ObjectQL applies permissions
+const securedQuery = {
+  object: 'account',
+  filters: [
+    ...query.filters,
+    ['owner_id', '=', currentUser.id]  // Row-level security
+  ],
+  fields: query.fields.filter(f => 
+    currentUser.hasFieldAccess('account', f)  // Field-level security
+  )
+};
+```
+
+See [Security Protocol](/docs/02-protocols/01-objectql/security) for details.
+
+## Learning Path
+
+**Start Here:**
+1. [Schema Definition](/docs/02-protocols/01-objectql/schema) - Learn to define objects and fields
+2. [Type System](/docs/02-protocols/01-objectql/types) - Understand field types and relationships
+
+**Intermediate:**
+3. [Query Syntax](/docs/02-protocols/01-objectql/query-syntax) - Master the query language
+4. [Security](/docs/02-protocols/01-objectql/security) - Implement access control
+
+**Advanced:**
+5. [Driver Protocol](/docs/specifications/data/architecture) - Build custom database drivers
+6. [Analytics Protocol](/docs/specifications/data/analytics-protocol) - OLAP queries
+
+## Technical References
+
+- **Zod Schemas:** `packages/spec/src/data/*.zod.ts`
+- **TypeScript Types:** `packages/spec/src/data/*.ts`
+- **Driver Implementations:** `packages/driver-*`
+
+## Next Steps
+
+<Cards>
+  <Card
+    title="Schema Definition"
+    href="/docs/02-protocols/01-objectql/schema"
+    description="Learn the .object.yml specification and field configuration"
+  />
+  <Card
+    title="Type System"
+    href="/docs/02-protocols/01-objectql/types"
+    description="Master scalars, relationships, formulas, and computed fields"
+  />
+  <Card
+    title="Query Syntax"
+    href="/docs/02-protocols/01-objectql/query-syntax"
+    description="Write database-agnostic queries with filters, joins, and aggregations"
+  />
+</Cards>

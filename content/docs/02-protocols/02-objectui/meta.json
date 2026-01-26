@@ -1,0 +1,9 @@
+{
+  "title": "ObjectUI (UI Protocol)",
+  "pages": [
+    "concept",
+    "layout-dsl",
+    "widget-contract",
+    "actions"
+  ]
+}

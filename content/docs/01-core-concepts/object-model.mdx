@@ -1,0 +1,749 @@
+---
+title: Universal Object Model
+description: Understanding the unified way ObjectStack models all business data
+---
+
+import { Database, Link2, Box, List } from 'lucide-react';
+
+# The Universal Object Model
+
+At the heart of ObjectStack is a simple but powerful idea: **All business data can be modeled as Objects.**
+
+Whether you're building a CRM, ERP, project manager, or custom application, the fundamental building blocks are the same:
+- **Objects** (Customer, Order, Task)
+- **Fields** (Name, Status, Amount)
+- **Relationships** (Customer has many Orders)
+
+ObjectStack provides a **universal data model** that works across any domain.
+
+## What is an Object?
+
+An **Object** is a definition of a business entity. Think of it as:
+- A **database table** (in SQL terms)
+- A **collection** (in NoSQL terms)
+- A **class** (in OOP terms)
+- A **content type** (in CMS terms)
+
+But unlike traditional tables or classes, an Object is **pure metadata**. It's a declarative definition that exists independent of any specific database or programming language.
+
+### Anatomy of an Object
+
+```typescript
+import { Object, Field } from '@objectstack/spec';
+
+export const Task = Object({
+  // Machine name (snake_case)
+  name: 'project_task',
+  
+  // Display label
+  label: 'Project Task',
+  
+  // Plural label (for UI)
+  labelPlural: 'Project Tasks',
+  
+  // Icon (optional)
+  icon: 'check-square',
+  
+  // Description
+  description: 'Work items within projects',
+  
+  // Field definitions
+  fields: {
+    title: Field.text({
+      label: 'Title',
+      required: true,
+      maxLength: 255,
+    }),
+    
+    description: Field.textarea({
+      label: 'Description',
+      maxLength: 5000,
+    }),
+    
+    status: Field.select({
+      label: 'Status',
+      options: ['todo', 'in_progress', 'review', 'done'],
+      defaultValue: 'todo',
+    }),
+    
+    priority: Field.select({
+      label: 'Priority',
+      options: ['low', 'medium', 'high', 'critical'],
+      defaultValue: 'medium',
+    }),
+    
+    assignee: Field.lookup({
+      label: 'Assignee',
+      object: 'user',
+    }),
+    
+    project: Field.lookup({
+      label: 'Project',
+      object: 'project',
+      required: true,
+    }),
+    
+    due_date: Field.date({
+      label: 'Due Date',
+    }),
+    
+    estimated_hours: Field.number({
+      label: 'Estimated Hours',
+      min: 0,
+      max: 1000,
+    }),
+  },
+  
+  // Capabilities (optional)
+  enable: {
+    trackHistory: true,  // Audit log
+    apiEnabled: true,    // REST API
+    search: true,        // Full-text search
+    comments: true,      // User comments
+    attachments: true,   // File uploads
+  },
+});
+```
+
+## Objects vs Database Tables
+
+While Objects **compile to database tables**, they are not the same thing:
+
+| Aspect | Database Table | ObjectStack Object |
+| :--- | :--- | :--- |
+| **Definition** | SQL DDL (`CREATE TABLE`) | TypeScript metadata |
+| **Validation** | Database constraints | Zod schema |
+| **Relationships** | Foreign keys | Lookup fields |
+| **Permissions** | GRANT/REVOKE | Permission rules |
+| **Portability** | Database-specific | Database-agnostic |
+| **Evolution** | Migrations required | Automatic sync |
+
+### Example: Object → Table Mapping
+
+Given this Object:
+
+```typescript
+export const Contact = Object({
+  name: 'contact',
+  fields: {
+    first_name: Field.text({ required: true }),
+    last_name: Field.text({ required: true }),
+    email: Field.email({ unique: true }),
+    phone: Field.phone(),
+    account: Field.lookup({ object: 'account' }),
+  },
+});
+```
+
+ObjectQL generates this Postgres table:
+
+```sql
+CREATE TABLE contact (
+  id VARCHAR(18) PRIMARY KEY,           -- Auto-generated
+  first_name VARCHAR(255) NOT NULL,
+  last_name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE,
+  phone VARCHAR(20),
+  account_id VARCHAR(18),               -- Foreign key
+  
+  created_at TIMESTAMP NOT NULL,         -- System fields
+  created_by VARCHAR(18) NOT NULL,
+  updated_at TIMESTAMP NOT NULL,
+  updated_by VARCHAR(18) NOT NULL,
+  
+  FOREIGN KEY (account_id) REFERENCES account(id),
+  FOREIGN KEY (created_by) REFERENCES user(id),
+  FOREIGN KEY (updated_by) REFERENCES user(id)
+);
+```
+
+**Key Points:**
+- System fields (`id`, `created_at`, `updated_at`, etc.) are **automatic**
+- Lookups become **foreign keys**
+- Field types map to **appropriate SQL types**
+- Constraints are **enforced at the database level**
+
+## Field Types
+
+ObjectStack provides a comprehensive set of field types that cover 99% of business use cases:
+
+### Text Fields
+
+```typescript
+fields: {
+  // Single-line text
+  name: Field.text({
+    label: 'Name',
+    required: true,
+    maxLength: 120,
+  }),
+  
+  // Multi-line text
+  notes: Field.textarea({
+    label: 'Notes',
+    maxLength: 5000,
+  }),
+  
+  // Email with validation
+  email: Field.email({
+    label: 'Email',
+    unique: true,
+  }),
+  
+  // Phone with formatting
+  phone: Field.phone({
+    label: 'Phone',
+  }),
+  
+  // URL with validation
+  website: Field.url({
+    label: 'Website',
+  }),
+}
+```
+
+### Number Fields
+
+```typescript
+fields: {
+  // Integer or decimal
+  quantity: Field.number({
+    label: 'Quantity',
+    min: 0,
+    max: 10000,
+  }),
+  
+  // Currency with formatting
+  amount: Field.currency({
+    label: 'Amount',
+    currency: 'USD',
+  }),
+  
+  // Percentage
+  discount: Field.percent({
+    label: 'Discount',
+    min: 0,
+    max: 100,
+  }),
+}
+```
+
+### Date/Time Fields
+
+```typescript
+fields: {
+  // Date only
+  due_date: Field.date({
+    label: 'Due Date',
+  }),
+  
+  // Date + Time
+  start_time: Field.datetime({
+    label: 'Start Time',
+  }),
+  
+  // Time only
+  meeting_time: Field.time({
+    label: 'Meeting Time',
+  }),
+}
+```
+
+### Selection Fields
+
+```typescript
+fields: {
+  // Single select (dropdown)
+  status: Field.select({
+    label: 'Status',
+    options: ['draft', 'active', 'archived'],
+    defaultValue: 'draft',
+  }),
+  
+  // Multi-select (checkbox group)
+  skills: Field.multiselect({
+    label: 'Skills',
+    options: ['javascript', 'python', 'go', 'rust'],
+  }),
+}
+```
+
+### Boolean Fields
+
+```typescript
+fields: {
+  is_active: Field.boolean({
+    label: 'Active',
+    defaultValue: true,
+  }),
+}
+```
+
+### Relationship Fields
+
+```typescript
+fields: {
+  // Many-to-one (foreign key)
+  customer: Field.lookup({
+    label: 'Customer',
+    object: 'customer',
+    required: true,
+  }),
+  
+  // Many-to-many (junction table)
+  tags: Field.lookup({
+    label: 'Tags',
+    object: 'tag',
+    multiple: true,
+  }),
+}
+```
+
+### Advanced Fields
+
+```typescript
+fields: {
+  // Computed field
+  full_name: Field.formula({
+    label: 'Full Name',
+    returnType: 'text',
+    expression: 'first_name + " " + last_name',
+  }),
+  
+  // Rollup aggregation
+  total_revenue: Field.rollup({
+    label: 'Total Revenue',
+    relatedObject: 'opportunity',
+    aggregation: 'sum',
+    field: 'amount',
+  }),
+  
+  // JSON data
+  metadata: Field.json({
+    label: 'Metadata',
+  }),
+  
+  // File attachment
+  resume: Field.file({
+    label: 'Resume',
+    accept: ['.pdf', '.doc', '.docx'],
+    maxSize: 5 * 1024 * 1024, // 5MB
+  }),
+}
+```
+
+## Relationships
+
+Relationships are the key to modeling complex business logic. ObjectStack supports three types:
+
+### 1. Lookup (Many-to-One)
+
+**Scenario:** Each Task belongs to one Project.
+
+```typescript
+export const Task = Object({
+  name: 'task',
+  fields: {
+    project: Field.lookup({
+      label: 'Project',
+      object: 'project',
+      required: true,
+    }),
+  },
+});
+```
+
+**Database:**
+```sql
+CREATE TABLE task (
+  id VARCHAR(18) PRIMARY KEY,
+  project_id VARCHAR(18) NOT NULL,
+  FOREIGN KEY (project_id) REFERENCES project(id)
+);
+```
+
+**Query:**
+```typescript
+// Get all tasks for a project
+const tasks = await ObjectQL.query({
+  object: 'task',
+  filter: { project: 'project_12345' },
+});
+
+// Include related project data
+const tasks = await ObjectQL.query({
+  object: 'task',
+  include: ['project'],
+});
+```
+
+### 2. Master-Detail (One-to-Many)
+
+**Scenario:** Each Project has many Tasks.
+
+```typescript
+export const Project = Object({
+  name: 'project',
+  fields: {
+    // No explicit field needed, relationship is inferred
+  },
+});
+```
+
+**Query:**
+```typescript
+// Get a project with all its tasks
+const project = await ObjectQL.query({
+  object: 'project',
+  id: 'project_12345',
+  include: {
+    tasks: {
+      object: 'task',
+      filter: { project: '$recordId' },
+    },
+  },
+});
+```
+
+**UI:**
+```typescript
+// In FormView, show related tasks
+{
+  label: 'Tasks',
+  component: 'related_list',
+  object: 'task',
+  filter: { project: '$recordId' },
+}
+```
+
+### 3. Many-to-Many
+
+**Scenario:** Each Task can have multiple Tags, and each Tag can be on multiple Tasks.
+
+```typescript
+export const Task = Object({
+  name: 'task',
+  fields: {
+    tags: Field.lookup({
+      label: 'Tags',
+      object: 'tag',
+      multiple: true, // Enables many-to-many
+    }),
+  },
+});
+```
+
+**Database (Junction Table):**
+```sql
+CREATE TABLE task (
+  id VARCHAR(18) PRIMARY KEY
+);
+
+CREATE TABLE tag (
+  id VARCHAR(18) PRIMARY KEY
+);
+
+-- Auto-generated junction table
+CREATE TABLE task_tag (
+  task_id VARCHAR(18),
+  tag_id VARCHAR(18),
+  PRIMARY KEY (task_id, tag_id),
+  FOREIGN KEY (task_id) REFERENCES task(id),
+  FOREIGN KEY (tag_id) REFERENCES tag(id)
+);
+```
+
+**Query:**
+```typescript
+// Get tasks with specific tags
+const tasks = await ObjectQL.query({
+  object: 'task',
+  filter: {
+    tags: { contains: 'tag_urgent' },
+  },
+  include: ['tags'],
+});
+```
+
+## Reference Filters
+
+When you create a lookup field, you often want to limit which records can be selected. This is where **Reference Filters** come in.
+
+### Example: Territory-Based Filtering
+
+```typescript
+export const Opportunity = Object({
+  name: 'opportunity',
+  fields: {
+    customer: Field.lookup({
+      label: 'Customer',
+      object: 'customer',
+      
+      // Only show customers in the same region
+      referenceFilters: [
+        {
+          field: 'region',
+          operator: 'equals',
+          value: '$User.region',
+        },
+      ],
+    }),
+  },
+});
+```
+
+When a user creates an Opportunity, the Customer lookup will only show customers where `customer.region == user.region`.
+
+### Example: Dependent Lookups
+
+```typescript
+export const Task = Object({
+  name: 'task',
+  fields: {
+    project: Field.lookup({
+      label: 'Project',
+      object: 'project',
+    }),
+    
+    milestone: Field.lookup({
+      label: 'Milestone',
+      object: 'milestone',
+      
+      // Only show milestones from the selected project
+      referenceFilters: [
+        {
+          field: 'project',
+          operator: 'equals',
+          value: '$Record.project',
+        },
+      ],
+    }),
+  },
+});
+```
+
+The Milestone dropdown dynamically filters based on the selected Project.
+
+## System Fields
+
+Every Object automatically includes system fields for auditing and tracking:
+
+```typescript
+// These fields are AUTOMATIC (you don't define them)
+{
+  id: 'task_abc123',              // Unique identifier
+  created_at: '2024-01-15T10:30:00Z',  // Creation timestamp
+  created_by: 'user_xyz789',      // User who created
+  updated_at: '2024-01-16T14:20:00Z',  // Last update timestamp
+  updated_by: 'user_xyz789',      // User who last updated
+}
+```
+
+If you enable `trackHistory`:
+
+```typescript
+{
+  enable: {
+    trackHistory: true,
+  },
+}
+```
+
+You also get:
+
+```typescript
+{
+  version: 5,                     // Record version number
+  is_deleted: false,              // Soft delete flag
+}
+```
+
+## Validation Rules
+
+Objects support three levels of validation:
+
+### 1. Field-Level Validation
+
+```typescript
+fields: {
+  email: Field.email({
+    label: 'Email',
+    required: true,       // Cannot be blank
+    unique: true,         // Must be unique across all records
+  }),
+  
+  age: Field.number({
+    label: 'Age',
+    min: 18,              // Must be >= 18
+    max: 120,             // Must be <= 120
+  }),
+}
+```
+
+### 2. Object-Level Validation
+
+```typescript
+import { Validation } from '@objectstack/spec';
+
+export const OpportunityValidation = Validation({
+  object: 'opportunity',
+  rules: [
+    {
+      name: 'amount_required_when_closed',
+      message: 'Amount is required when stage is Closed Won',
+      condition: {
+        field: 'stage',
+        operator: 'equals',
+        value: 'closed_won',
+      },
+      validates: {
+        field: 'amount',
+        operator: 'isNotNull',
+      },
+    },
+  ],
+});
+```
+
+### 3. Custom Validation (Code)
+
+For complex logic that can't be expressed declaratively:
+
+```typescript
+import { CustomValidation } from '@objectstack/spec';
+
+export const LeadValidation = CustomValidation({
+  object: 'lead',
+  async validate(record, context) {
+    // Check if email domain is blacklisted
+    const domain = record.email.split('@')[1];
+    const isBlacklisted = await context.db.query({
+      object: 'blacklist',
+      filter: { domain },
+    });
+    
+    if (isBlacklisted.length > 0) {
+      return {
+        valid: false,
+        errors: [{ field: 'email', message: 'Email domain is blacklisted' }],
+      };
+    }
+    
+    return { valid: true };
+  },
+});
+```
+
+## Indexing and Performance
+
+ObjectStack automatically creates indexes for:
+- Primary keys (`id`)
+- Unique fields (`email`, etc.)
+- Lookup fields (foreign keys)
+
+For custom performance optimization:
+
+```typescript
+export const Customer = Object({
+  name: 'customer',
+  fields: {
+    name: Field.text({ label: 'Name' }),
+    region: Field.select({ label: 'Region', options: ['US', 'EU', 'APAC'] }),
+  },
+  
+  // Custom indexes
+  indexes: [
+    {
+      name: 'idx_customer_region_name',
+      fields: ['region', 'name'],
+      unique: false,
+    },
+  ],
+});
+```
+
+This creates:
+
+```sql
+CREATE INDEX idx_customer_region_name ON customer(region, name);
+```
+
+## Why a Universal Model Matters
+
+### 1. Consistency Across Domains
+
+Whether you're building a CRM, ERP, or custom app, you use the **same primitives**:
+
+```typescript
+// CRM
+const Customer = Object({ ... });
+const Opportunity = Object({ ... });
+
+// ERP
+const Product = Object({ ... });
+const Invoice = Object({ ... });
+
+// Project Management
+const Project = Object({ ... });
+const Task = Object({ ... });
+```
+
+Same API, same patterns, same tooling.
+
+### 2. Interoperability
+
+Because all Objects follow the same model, they can **reference each other**:
+
+```typescript
+// Link CRM to Projects
+export const Opportunity = Object({
+  name: 'opportunity',
+  fields: {
+    customer: Field.lookup({ object: 'customer' }),
+    
+    // Reference an object from a different domain
+    project: Field.lookup({ object: 'project' }),
+  },
+});
+```
+
+### 3. Tooling Reuse
+
+Generic tools work across **all objects**:
+
+- **Form Builder:** Works for Customer, Task, Invoice, etc.
+- **Report Builder:** Aggregate any object
+- **API Generator:** Auto-generates endpoints for all objects
+- **Permission System:** Same ACL rules for everything
+
+### 4. AI/RAG Integration
+
+A universal model makes AI integration trivial:
+
+```typescript
+// AI agent can understand ANY object
+const schema = ObjectQL.getSchema('customer');
+const prompt = `Generate a query to find all ${schema.label} records where...`;
+```
+
+The AI doesn't need custom training for each object type.
+
+## Summary
+
+| Concept | Description |
+| :--- | :--- |
+| **Object** | A metadata definition of a business entity |
+| **Field** | A typed property of an object |
+| **Lookup** | A relationship between objects |
+| **Validation** | Rules enforced at save time |
+| **System Fields** | Automatic audit fields (id, created_at, etc.) |
+| **Reference Filters** | Contextual filtering of lookup options |
+
+The Universal Object Model is the foundation of ObjectStack. Every other protocol—permissions, workflows, views, reports—builds on top of these core primitives.
+
+## Next Steps
+
+- [ObjectQL Protocol](/docs/02-protocols/01-objectql) - Full specification of the data protocol
+- [Fields Reference](/docs/03-reference/fields) - Complete guide to all field types
+- [Relationships](/docs/04-guides/relationships) - Deep dive into modeling complex relationships
+- [Validation](/docs/04-guides/validation) - Advanced validation patterns
