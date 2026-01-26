@@ -265,7 +265,7 @@ export const Field = {
       return str
         .toLowerCase()
         .replace(/\s+/g, '_')  // Replace spaces with underscores
-        .replace(/[^a-z0-9_.]/g, ''); // Remove invalid characters
+        .replace(/[^a-z0-9_]/g, ''); // Remove invalid characters (keeping underscores only)
     };
 
     // Support both old and new signatures:
