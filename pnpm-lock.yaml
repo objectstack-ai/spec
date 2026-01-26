@@ -257,6 +257,19 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
+  packages/ai-bridge:
+    dependencies:
+      zod:
+        specifier: ^3.22.4
+        version: 3.25.76
+    devDependencies:
+      '@types/node':
+        specifier: ^20.11.0
+        version: 20.19.30
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
+
   packages/client:
     dependencies:
       '@objectstack/spec':
