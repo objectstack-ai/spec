@@ -8,6 +8,8 @@
         "bar",
         "line",
         "pie",
+        "donut",
+        "gauge",
         "funnel",
         "radar",
         "scatter",
