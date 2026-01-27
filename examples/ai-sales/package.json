@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/example-ai-sales",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "AI-powered sales assistant with intelligent automation",
   "private": true,
   "main": "objectstack.config.ts",

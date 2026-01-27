@@ -1,5 +1,18 @@
 # @objectstack/example-host
 
+## 0.1.9
+
+### Patch Changes
+
+- Updated dependencies
+  - @objectstack/driver-memory@0.4.2
+  - @objectstack/objectql@0.4.2
+  - @objectstack/plugin-hono-server@0.4.2
+  - @objectstack/runtime@0.4.2
+  - @objectstack/example-crm@1.0.9
+  - @objectstack/plugin-bi@1.0.9
+  - @objectstack/example-todo@1.0.9
+
 ## 0.1.8
 
 ### Patch Changes

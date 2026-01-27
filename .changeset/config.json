@@ -9,8 +9,12 @@
       "@objectstack/driver-memory",
       "@objectstack/objectql",
       "@objectstack/plugin-hono-server",
+      "@objectstack/plugin-msw",
       "@objectstack/runtime",
-      "@objectstack/types"
+      "@objectstack/types",
+      "@objectstack/ai-bridge",
+      "@objectstack/cli",
+      "@objectstack/docs"
     ]
   ],
   "linked": [],
