@@ -24,6 +24,9 @@ We've completed all advanced query features and AI/ML field types:
 
 ## 📚 Documentation
 
+### Protocol Reference
+*   **[Protocol Reference](./PROTOCOL_REFERENCE.md):** 📖 **Complete inventory of all 70 protocol specifications** with detailed descriptions, usage examples, and organization by module
+
 ### Quick Start
 *   **[Getting Started](./content/docs/guides/getting-started.mdx):** Quick introduction to ObjectStack Protocol
 *   **[Installation Guide](./content/docs/guides/installation.mdx):** Setup instructions
@@ -69,17 +72,19 @@ The official documentation is built with Fumadocs and Next.js.
 
 ## 🛠️ The Protocol Architecture
 
-The ObjectStack Protocol (`@objectstack/spec`) is divided into five core modules:
+The ObjectStack Protocol (`@objectstack/spec`) contains **70 protocol specifications** organized into 11 modules. See **[PROTOCOL_REFERENCE.md](./PROTOCOL_REFERENCE.md)** for the complete inventory.
 
-### 1. Data Protocol (ObjectQL)
+### Core Modules (Summary)
+
+### 1. Data Protocol (ObjectQL) - 8 Protocols
 Defines the "Shape of Data" and business logic.
 - **Schema:** Objects, Fields (44 types including text, number, select, lookup, formula, autonumber, slider, qrcode, **vector** (AI/ML), **location** (GPS), etc.)
-- **Logic:** Workflows, Triggers, Validation Rules, Formulas
+- **Logic:** Workflows, Triggers, Validation Rules, Formulas, Lifecycle Hooks
 - **Security:** Permissions, Sharing Rules
 - **Query:** Abstract Syntax Tree (AST) for unified data access across drivers with **Window Functions**, **HAVING**, **DISTINCT**, **Subqueries**
 - **Automation:** Flow definitions, Dataset mappings
 
-### 2. UI Protocol (ObjectUI)
+### 2. UI Protocol (ObjectUI) - 10 Protocols
 Defines the "Shape of Interaction" for rendering interfaces.
 - **Views:** Grid, Kanban, Calendar, Gantt, List configurations
 - **Pages:** FlexiPage layouts with regions and components
@@ -89,32 +94,45 @@ Defines the "Shape of Interaction" for rendering interfaces.
 - **Theming:** Color palettes, typography, breakpoints, animations
 - **Widgets:** Custom field components
 
-### 3. System Protocol (ObjectOS)
+### 3. System Protocol (ObjectOS) - 14 Protocols
 Defines the "Runtime Environment" and platform capabilities.
 - **Manifest:** Application packaging (`objectstack.config.ts`)
 - **Identity:** Authentication, Roles, Territories, Licenses, Organizations
 - **Integration:** Webhooks, API contracts, ETL Mappings
-- **Datasource:** Driver definitions for SQL, NoSQL, SaaS connectors
+- **Datasource:** Driver definitions for PostgreSQL, MongoDB, and extensible drivers
 - **Discovery:** Plugin discovery and loading mechanisms
 - **I18n:** Translation and internationalization support
-- **Platform:** Events, Real-time sync, Audit logging, Background jobs, Multi-tenancy
+- **Platform:** Events, Real-time sync, Audit logging, Background jobs, Feature flags
 
-### 4. AI Protocol
+### 4. AI Protocol - 8 Protocols
 Defines AI agent integration capabilities.
 - **Agent:** AI agent definitions and configurations
 - **Model Registry:** LLM registry and selection
 - **RAG Pipeline:** Retrieval-augmented generation
-- **NLQ:** Natural language query processing
+- **NLQ:** Natural language query processing (NL to ObjectQL)
 - **Conversation:** Conversation management and memory
 - **Cost Tracking:** AI cost tracking and budget management
 - **Predictive:** Predictive analytics models
-- **Workflow Automation:** AI-powered workflow automation
+- **Orchestration:** AI-powered workflow automation
 
-### 5. API Protocol
+### 5. API Protocol - 6 Protocols
 Defines standardized API contracts.
-- **Envelopes:** Response structures (BaseResponse, ListRecordResponse, etc.)
-- **Requests:** Request payloads (CreateRequest, UpdateRequest, BulkRequest, etc.)
 - **Contracts:** API endpoint definitions and specifications
+- **Endpoints:** REST endpoint definitions with rate limiting
+- **Router:** API routing configuration
+- **OData:** OData query protocol support
+- **Realtime:** WebSocket/SSE real-time subscriptions
+- **Discovery:** API discovery and introspection
+
+### Additional Modules
+- **Automation Protocol** (7): Workflows, Flows, Approvals, ETL, Webhooks, Sync, Connectors
+- **Auth Protocol** (6): Identity, Roles, Organizations, OAuth/SAML/SSO, SCIM, Policies
+- **Permission Protocol** (4): Object permissions, Sharing rules, Row-level security, Territories
+- **Hub Protocol** (5): Marketplace, Licensing, Multi-tenancy, Workspaces, Dependencies
+- **Shared Protocol** (1): Common identifiers and utilities
+- **Stack Protocol** (1): Root stack definition
+
+**👉 See [PROTOCOL_REFERENCE.md](./PROTOCOL_REFERENCE.md) for detailed documentation of all 70 protocols.**
 
 ## 🚀 Development
 
