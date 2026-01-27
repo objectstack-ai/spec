@@ -1,5 +1,49 @@
 # Release Notes
 
+## v0.4.1 - Version Synchronization (2026-01-27)
+
+### 📦 Released Packages
+
+All packages have been updated to version **0.4.1**:
+
+- **@objectstack/spec@0.4.1** - Core protocol definitions and TypeScript types
+- **@objectstack/types@0.4.1** - Shared TypeScript type definitions
+- **@objectstack/objectql@0.4.1** - ObjectQL query language and runtime
+- **@objectstack/runtime@0.4.1** - Runtime execution environment
+- **@objectstack/client@0.4.1** - Client library for ObjectStack
+- **@objectstack/driver-memory@0.4.1** - In-memory data storage driver
+- **@objectstack/plugin-hono-server@0.4.1** - Hono server plugin for REST API
+- **@objectstack/plugin-msw@0.4.1** - MSW (Mock Service Worker) plugin
+
+### 🐛 Fixes
+
+This patch release resolves version synchronization issues:
+- Fixed plugin-msw version mismatch (was incorrectly at 0.3.3)
+- Updated runtime peer dependency versions to ^0.4.1 across all plugins
+- Ensured all packages in the fixed version group are synchronized
+
+### 🚀 Publishing
+
+This release is ready for publishing to npm. When this PR is merged to `main`:
+1. The GitHub Actions release workflow will automatically detect the version bump
+2. Build all packages
+3. Publish to npm registry using NPM_TOKEN secret
+4. Create GitHub release with appropriate tags
+
+---
+
+## v0.4.0 - Minor Version Update (2026-01-26)
+
+### 📦 Released Packages
+
+All core packages have been updated to version **0.4.0**.
+
+### 🚀 Publishing
+
+This release marks a minor version increment across all core packages.
+
+---
+
 ## v0.3.3 - Workflow and Configuration Improvements (2026-01-25)
 
 ### 📦 Released Packages

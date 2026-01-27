@@ -1,0 +1,135 @@
+{
+  "$ref": "#/definitions/SyncExecutionResult",
+  "definitions": {
+    "SyncExecutionResult": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Execution ID"
+        },
+        "syncName": {
+          "type": "string",
+          "description": "Sync name"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "running",
+            "completed",
+            "partial",
+            "failed",
+            "cancelled"
+          ],
+          "description": "Execution status"
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Start time"
+        },
+        "completedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Completion time"
+        },
+        "durationMs": {
+          "type": "number",
+          "description": "Duration in ms"
+        },
+        "stats": {
+          "type": "object",
+          "properties": {
+            "recordsProcessed": {
+              "type": "integer",
+              "default": 0,
+              "description": "Total records processed"
+            },
+            "recordsInserted": {
+              "type": "integer",
+              "default": 0,
+              "description": "Records inserted"
+            },
+            "recordsUpdated": {
+              "type": "integer",
+              "default": 0,
+              "description": "Records updated"
+            },
+            "recordsDeleted": {
+              "type": "integer",
+              "default": 0,
+              "description": "Records deleted"
+            },
+            "recordsSkipped": {
+              "type": "integer",
+              "default": 0,
+              "description": "Records skipped"
+            },
+            "recordsErrored": {
+              "type": "integer",
+              "default": 0,
+              "description": "Records with errors"
+            },
+            "conflictsDetected": {
+              "type": "integer",
+              "default": 0,
+              "description": "Conflicts detected"
+            },
+            "conflictsResolved": {
+              "type": "integer",
+              "default": 0,
+              "description": "Conflicts resolved"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Execution statistics"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "recordId": {
+                "type": "string",
+                "description": "Record ID"
+              },
+              "field": {
+                "type": "string",
+                "description": "Field name"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              }
+            },
+            "required": [
+              "message"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Errors"
+        },
+        "logs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Execution logs"
+        }
+      },
+      "required": [
+        "id",
+        "syncName",
+        "status",
+        "startedAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

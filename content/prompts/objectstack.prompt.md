@@ -6,7 +6,7 @@ Mission: Build the "Post-SaaS Operating System" — an open-core, local-first ec
 1. The "Galaxy" Architecture (Monorepo Structure)
 We use a Monorepo (pnpm + Turborepo) to manage the ecosystem, but components are designed to be published independently.
 Directory Structure & Responsibilities
- * packages/protocol (The Constitution) [Apache 2.0]
+ * packages/spec (The Constitution) [Apache 2.0]
    * CRITICAL: Contains the shared manifest.schema.json, TypeScript interfaces, and plugin lifecycle hooks (onInstall, onEnable).
    * Rule: All other packages depend on this. No circular dependencies.
  * packages/objectql (Data Engine) [Apache 2.0]
@@ -20,7 +20,7 @@ Directory Structure & Responsibilities
    * Tools for third-party developers to build Marketplace plugins.
  * drivers/* [Apache 2.0]
    * driver-postgres, driver-redis, driver-excel.
-   * Must implement interfaces defined in packages/protocol.
+   * Must implement interfaces defined in packages/spec.
 Commercial & Apps
  * apps/www (Official Website): Marketing, Landing Pages, "Platform" Showcase.
  * apps/marketplace (Public Storefront): SEO-optimized Registry for plugins/drivers.
@@ -50,7 +50,7 @@ Top Navbar Layout:
 
 We do not rely solely on package.json. We use a strict ObjectStack Manifest standard.
 File: objectstack.config.ts (or strict JSON inside package.json)
-Schema Location: packages/protocol/schemas/manifest.schema.json
+Schema Location: packages/spec/schemas/manifest.schema.json
 Key Fields:
  * type: app | plugin | driver
  * navigation: Structured navigation menu tree.
@@ -68,7 +68,7 @@ B. Terminology
  * ALWAYS emphasize "Polyglot Data". We are not just a SQL wrapper; we handle Redis and Excel native files.
  * Studio vs. Cloud: Studio is for "Local Data & Development". Cloud is for "Deployment & Collaboration".
 C. Coding Style
- * Monorepo: Use generic imports (e.g., import { User } from '@objectstack/protocol') instead of relative paths like ../../packages/protocol.
+ * Monorepo: Use generic imports (e.g., import { User } from '@objectstack/protocol') instead of relative paths like ../../packages/spec.
  * UI: Use Shadcn UI + Tailwind CSS. Dark mode default for developer tools (Studio/Console).
  * Data Fetching: All UI components must be Server-Driven or strongly typed against the Schema.
 5. Execution Context
@@ -78,4 +78,4 @@ When I ask you to build a feature, first determine:
  * Does it require updating the Protocol Manifest?
 Example:
 User: "Add a CRM plugin."
-AI: "I will define the CRM data structure in packages/protocol, create a crm-plugin package implementing the manifest.json standard, and register the 'Customer' menu item."
+AI: "I will define the CRM data structure in packages/spec, create a crm-plugin package implementing the manifest.json standard, and register the 'Customer' menu item."

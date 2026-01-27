@@ -1,0 +1,395 @@
+{
+  "$ref": "#/definitions/Manifest",
+  "definitions": {
+    "Manifest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique package identifier (reverse domain style)"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Package version (semantic versioning)"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "app",
+            "plugin",
+            "driver",
+            "module"
+          ],
+          "description": "Type of package"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable package name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Package description"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Array of required permission strings"
+        },
+        "objects": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Glob patterns for ObjectQL schemas files"
+        },
+        "datasources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Glob patterns for Datasource definitions"
+        },
+        "dependencies": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Package dependencies"
+        },
+        "configuration": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "properties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "string",
+                      "number",
+                      "boolean",
+                      "array",
+                      "object"
+                    ],
+                    "description": "Data type of the setting"
+                  },
+                  "default": {
+                    "description": "Default value"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Tooltip description"
+                  },
+                  "required": {
+                    "type": "boolean",
+                    "description": "Is this setting required?"
+                  },
+                  "secret": {
+                    "type": "boolean",
+                    "description": "If true, value is encrypted/masked (e.g. API Keys)"
+                  },
+                  "enum": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Allowed values for select inputs"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Map of configuration keys to their definitions"
+            }
+          },
+          "required": [
+            "properties"
+          ],
+          "additionalProperties": false,
+          "description": "Plugin configuration settings"
+        },
+        "contributes": {
+          "type": "object",
+          "properties": {
+            "kinds": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "The generic identifier of the kind (e.g., \"sys.bi.report\")"
+                  },
+                  "globs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "File patterns to watch (e.g., [\"**/*.report.ts\"])"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Description of what this kind represents"
+                  }
+                },
+                "required": [
+                  "id",
+                  "globs"
+                ],
+                "additionalProperties": false
+              },
+              "description": "New Metadata Types to recognize"
+            },
+            "events": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Events this plugin listens to"
+            },
+            "menus": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "command": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "label"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "description": "UI Menu contributions"
+            },
+            "themes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "label",
+                  "path"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Theme contributions"
+            },
+            "translations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "locale": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "locale",
+                  "path"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Translation resources"
+            },
+            "actions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Unique action name"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "input": {
+                    "description": "Input validation schema"
+                  },
+                  "output": {
+                    "description": "Output schema"
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Exposed server actions"
+            },
+            "drivers": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Driver unique identifier (e.g. \"postgres\", \"mongo\")"
+                  },
+                  "label": {
+                    "type": "string",
+                    "description": "Human readable name"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "label"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Driver contributions"
+            },
+            "fieldTypes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Unique field type name (e.g. \"vector\")"
+                  },
+                  "label": {
+                    "type": "string",
+                    "description": "Display label"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "label"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Field Type contributions"
+            },
+            "functions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Function name (e.g. \"distance\")"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Argument types"
+                  },
+                  "returnType": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Query Function contributions"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Platform contributions"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "object": {
+                "type": "string",
+                "description": "Target Object Name"
+              },
+              "records": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": {}
+                },
+                "description": "List of records to insert"
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "upsert",
+                  "insert",
+                  "ignore"
+                ],
+                "default": "upsert",
+                "description": "Seeding mode"
+              }
+            },
+            "required": [
+              "object",
+              "records"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Initial seed data"
+        },
+        "extensions": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Extension points and contributions"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "type",
+        "name"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,4 +1,4 @@
-import { ObjectStackManifest } from '@objectstack/spec/kernel';
+import { ObjectStackManifest } from '@objectstack/spec/system';
 
 const BiPlugin: ObjectStackManifest = {
   id: 'com.objectstack.bi',

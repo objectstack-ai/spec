@@ -1,5 +1,26 @@
 # @objectstack/runtime
 
+## 0.4.1
+
+### Patch Changes
+
+- Version synchronization and dependency updates
+
+  - Synchronized plugin-msw version to 0.4.1
+  - Updated runtime peer dependency versions to ^0.4.1
+  - Fixed internal dependency version mismatches
+
+- Updated dependencies
+  - @objectstack/spec@0.4.1
+  - @objectstack/types@0.4.1
+  - @objectstack/objectql@0.4.1
+
+## 0.4.0
+
+### Minor Changes
+
+- Release version 0.4.0
+
 ## 0.3.3
 
 ### Patch Changes

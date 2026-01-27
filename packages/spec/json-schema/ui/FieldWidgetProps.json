@@ -52,24 +52,34 @@
                 "datetime",
                 "time",
                 "boolean",
+                "toggle",
                 "select",
+                "multiselect",
+                "radio",
+                "checkboxes",
                 "lookup",
                 "master_detail",
+                "tree",
                 "image",
                 "file",
                 "avatar",
+                "video",
+                "audio",
                 "formula",
                 "summary",
                 "autonumber",
                 "location",
-                "geolocation",
                 "address",
                 "code",
+                "json",
                 "color",
                 "rating",
                 "slider",
                 "signature",
-                "qrcode"
+                "qrcode",
+                "progress",
+                "tags",
+                "vector"
               ],
               "description": "Field Data Type"
             },
@@ -135,11 +145,13 @@
                 "properties": {
                   "label": {
                     "type": "string",
-                    "description": "Display label"
+                    "description": "Display label (human-readable, any case allowed)"
                   },
                   "value": {
                     "type": "string",
-                    "description": "Stored value"
+                    "minLength": 2,
+                    "pattern": "^[a-z][a-z0-9_.]*$",
+                    "description": "Stored value (lowercase machine identifier)"
                   },
                   "color": {
                     "type": "string",
@@ -352,6 +364,52 @@
               },
               "additionalProperties": false,
               "description": "Configuration for currency field type"
+            },
+            "vectorConfig": {
+              "type": "object",
+              "properties": {
+                "dimensions": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 10000,
+                  "description": "Vector dimensionality (e.g., 1536 for OpenAI embeddings)"
+                },
+                "distanceMetric": {
+                  "type": "string",
+                  "enum": [
+                    "cosine",
+                    "euclidean",
+                    "dotProduct",
+                    "manhattan"
+                  ],
+                  "default": "cosine",
+                  "description": "Distance/similarity metric for vector search"
+                },
+                "normalized": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Whether vectors are normalized (unit length)"
+                },
+                "indexed": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Whether to create a vector index for fast similarity search"
+                },
+                "indexType": {
+                  "type": "string",
+                  "enum": [
+                    "hnsw",
+                    "ivfflat",
+                    "flat"
+                  ],
+                  "description": "Vector index algorithm (HNSW for high accuracy, IVFFlat for large datasets)"
+                }
+              },
+              "required": [
+                "dimensions"
+              ],
+              "additionalProperties": false,
+              "description": "Configuration for vector field type (AI/ML embeddings)"
             },
             "hidden": {
               "type": "boolean",

@@ -1,0 +1,830 @@
+---
+title: Writing Plugins
+description: Build powerful server-side extensions with custom objects, routes, scheduled jobs, and event listeners.
+---
+
+# Writing Plugins
+
+Plugins are the **primary extension mechanism** in ObjectStack. They allow you to add custom business logic, integrate external services, define new Objects, register API routes, schedule background jobs, and respond to system events.
+
+Think of plugins as **microservices within your ObjectStack runtime** - isolated, versioned, and composable.
+
+---
+
+## 🎯 What Can Plugins Do?
+
+<Cards>
+  <Card icon="box" title="Define Objects">
+    Create custom business entities with fields, relationships, and validations
+  </Card>
+  
+  <Card icon="route" title="API Routes">
+    Register custom HTTP endpoints for webhooks or integrations
+  </Card>
+  
+  <Card icon="clock" title="Scheduled Jobs">
+    Run background tasks on cron schedules
+  </Card>
+  
+  <Card icon="zap" title="Event Listeners">
+    React to data changes (onCreate, onUpdate, onDelete)
+  </Card>
+  
+  <Card icon="database" title="Custom Drivers">
+    Connect to external databases or data sources
+  </Card>
+  
+  <Card icon="lock" title="Permission Logic">
+    Implement custom authorization rules
+  </Card>
+</Cards>
+
+---
+
+## 📋 Prerequisites
+
+Before building a plugin, ensure you have:
+
+- **Node.js** 18+ and **npm** 9+
+- **TypeScript** 5+ knowledge
+- **Zod** familiarity (schema validation library)
+- Understanding of [ObjectQL](/docs/protocols/objectql) and [ObjectOS](/docs/protocols/objectos)
+
+---
+
+## 🚀 Quick Start
+
+### Step 1: Create a Plugin Project
+
+```bash
+# Using the official generator
+npm create @objectstack/plugin my-crm-plugin
+
+cd my-crm-plugin
+npm install
+```
+
+This generates a project structure:
+
+```
+my-crm-plugin/
+├── src/
+│   ├── index.ts              # Plugin entry point
+│   ├── objects/              # Object definitions
+│   │   └── account.object.ts
+│   ├── routes/               # API route handlers
+│   │   └── webhooks.ts
+│   ├── jobs/                 # Scheduled tasks
+│   │   └── sync.ts
+│   └── events/               # Event listeners
+│       └── account-created.ts
+├── package.json
+├── tsconfig.json
+└── objectstack.config.ts     # Plugin manifest
+```
+
+### Step 2: Define Your Plugin Manifest
+
+The **manifest** (`objectstack.config.ts`) declares your plugin's metadata:
+
+```typescript
+// objectstack.config.ts
+import { defineManifest } from '@objectstack/spec';
+
+export default defineManifest({
+  name: 'my_crm_plugin',
+  version: '1.0.0',
+  label: 'My CRM Plugin',
+  description: 'Customer relationship management for ObjectStack',
+  author: 'Your Name',
+  license: 'MIT',
+  
+  // Dependencies
+  dependencies: {
+    '@objectstack/core': '^1.0.0',
+  },
+  
+  // Permissions required
+  permissions: [
+    'object.create',
+    'object.read',
+    'api.register',
+    'schedule.create',
+  ],
+  
+  // Configuration schema
+  settings: {
+    apiKey: {
+      type: 'text',
+      label: 'API Key',
+      required: true,
+      sensitive: true,
+    },
+    syncInterval: {
+      type: 'number',
+      label: 'Sync Interval (minutes)',
+      default: 60,
+    },
+  },
+});
+```
+
+### Step 3: Implement the Plugin Lifecycle
+
+```typescript
+// src/index.ts
+import { PluginContext } from '@objectstack/spec';
+import { Account } from './objects/account.object';
+import { registerWebhooks } from './routes/webhooks';
+import { startSyncJob } from './jobs/sync';
+
+export default {
+  /**
+   * Called when the plugin is enabled.
+   * Register objects, routes, jobs, and event listeners here.
+   */
+  onEnable: async (context: PluginContext) => {
+    const { ql, os, logger, router, scheduler, storage } = context;
+    
+    logger.info('My CRM Plugin enabled');
+    
+    // Register custom objects
+    await ql.registerObject(Account);
+    
+    // Register API routes
+    registerWebhooks(router);
+    
+    // Schedule background jobs
+    const interval = await os.getConfig('my_crm_plugin.syncInterval');
+    scheduler.schedule('sync-accounts', `*/${interval} * * * *`, () => {
+      return startSyncJob(context);
+    });
+    
+    // Listen to events
+    ql.on('account.created', async (event) => {
+      logger.info('New account created', { id: event.record.id });
+      await storage.set(`last_account_id`, event.record.id);
+    });
+  },
+  
+  /**
+   * Called when the plugin is disabled.
+   * Clean up resources here.
+   */
+  onDisable: async (context: PluginContext) => {
+    context.logger.info('My CRM Plugin disabled');
+    // Unregister listeners, close connections, etc.
+  },
+  
+  /**
+   * Called when plugin settings are updated.
+   */
+  onSettingsChange: async (context: PluginContext, oldSettings, newSettings) => {
+    context.logger.info('Settings updated', { oldSettings, newSettings });
+  },
+};
+```
+
+---
+
+## 🗂️ Defining Custom Objects
+
+Objects are the **core data model** of ObjectStack. Define them using `ObjectSchema`:
+
+```typescript
+// src/objects/account.object.ts
+import { ObjectSchema, Field } from '@objectstack/spec';
+
+export const Account = ObjectSchema.create({
+  name: 'account',
+  label: 'Account',
+  pluralLabel: 'Accounts',
+  icon: 'building',
+  description: 'Customer organizations',
+  
+  // Primary display field
+  nameField: 'company_name',
+  
+  fields: {
+    // ============================================================================
+    // Basic Information
+    // ============================================================================
+    
+    company_name: Field.text({
+      label: 'Company Name',
+      required: true,
+      maxLength: 200,
+      unique: true,
+    }),
+    
+    website: Field.url({
+      label: 'Website',
+    }),
+    
+    industry: Field.select({
+      label: 'Industry',
+      options: [
+        { label: 'Technology', value: 'tech' },
+        { label: 'Healthcare', value: 'healthcare' },
+        { label: 'Finance', value: 'finance' },
+        { label: 'Retail', value: 'retail' },
+      ],
+    }),
+    
+    // ============================================================================
+    // Contact Information
+    // ============================================================================
+    
+    phone: Field.phone({
+      label: 'Phone',
+    }),
+    
+    email: Field.email({
+      label: 'Email',
+    }),
+    
+    billing_address: Field.address({
+      label: 'Billing Address',
+    }),
+    
+    // ============================================================================
+    // Business Metrics
+    // ============================================================================
+    
+    annual_revenue: Field.currency({
+      label: 'Annual Revenue',
+      currency: 'USD',
+    }),
+    
+    employee_count: Field.number({
+      label: 'Employee Count',
+      min: 1,
+    }),
+    
+    // ============================================================================
+    // Status & Lifecycle
+    // ============================================================================
+    
+    status: Field.select({
+      label: 'Status',
+      options: [
+        { label: 'Prospect', value: 'prospect', default: true },
+        { label: 'Customer', value: 'customer' },
+        { label: 'Churned', value: 'churned' },
+      ],
+    }),
+    
+    active: Field.checkbox({
+      label: 'Active',
+      default: true,
+    }),
+    
+    // ============================================================================
+    // Relationships
+    // ============================================================================
+    
+    parent_account: Field.lookup('account', {
+      label: 'Parent Account',
+      description: 'Parent organization (for subsidiaries)',
+    }),
+    
+    owner: Field.lookup('user', {
+      label: 'Account Owner',
+      required: true,
+      defaultValue: '$currentUser',
+    }),
+    
+    // ============================================================================
+    // Calculated Fields
+    // ============================================================================
+    
+    lifetime_value: Field.formula({
+      label: 'Lifetime Value',
+      returnType: 'number',
+      expression: 'SUM(opportunities.amount WHERE stage = "closed_won")',
+    }),
+    
+    days_since_created: Field.formula({
+      label: 'Days Since Created',
+      returnType: 'number',
+      expression: 'DATEDIFF(NOW(), created_at)',
+    }),
+  },
+  
+  // ============================================================================
+  // Object Capabilities
+  // ============================================================================
+  
+  enable: {
+    apiEnabled: true,
+    trackHistory: true,
+    allowComments: true,
+    allowAttachments: true,
+    searchEnabled: true,
+  },
+  
+  // ============================================================================
+  // Indexes for Performance
+  // ============================================================================
+  
+  indexes: [
+    { fields: ['company_name'], unique: true },
+    { fields: ['status', 'active'] },
+    { fields: ['owner', 'status'] },
+  ],
+});
+```
+
+---
+
+## 🌐 Registering API Routes
+
+Add custom HTTP endpoints for webhooks, integrations, or custom APIs:
+
+```typescript
+// src/routes/webhooks.ts
+import { Router } from '@objectstack/spec';
+import { z } from 'zod';
+
+const WebhookPayloadSchema = z.object({
+  event: z.enum(['account.created', 'account.updated']),
+  data: z.record(z.any()),
+  timestamp: z.string(),
+});
+
+export function registerWebhooks(router: Router) {
+  
+  // ============================================================================
+  // POST /api/webhooks/account
+  // ============================================================================
+  
+  router.post('/api/webhooks/account', async (req, res) => {
+    try {
+      // Validate webhook payload
+      const payload = WebhookPayloadSchema.parse(req.body);
+      
+      // Verify webhook signature (example)
+      const signature = req.headers['x-webhook-signature'];
+      if (!verifySignature(signature, req.body)) {
+        return res.status(401).json({ error: 'Invalid signature' });
+      }
+      
+      // Process the webhook
+      if (payload.event === 'account.created') {
+        await handleAccountCreated(payload.data);
+      }
+      
+      res.status(200).json({ success: true });
+      
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+  
+  // ============================================================================
+  // GET /api/integrations/sync
+  // ============================================================================
+  
+  router.get('/api/integrations/sync', async (req, res) => {
+    const { ql, logger } = req.context;
+    
+    try {
+      // Fetch accounts from external API
+      const externalAccounts = await fetchFromExternalAPI();
+      
+      // Sync to ObjectStack
+      for (const account of externalAccounts) {
+        await ql.object('account').upsert({
+          external_id: account.id,
+          company_name: account.name,
+          website: account.website,
+        });
+      }
+      
+      logger.info('Sync completed', { count: externalAccounts.length });
+      
+      res.json({
+        success: true,
+        synced: externalAccounts.length,
+      });
+      
+    } catch (error) {
+      logger.error('Sync failed', { error });
+      res.status(500).json({ error: 'Sync failed' });
+    }
+  });
+}
+
+// Helper functions
+function verifySignature(signature: string, body: any): boolean {
+  // Implement HMAC verification
+  return true;
+}
+
+async function handleAccountCreated(data: any) {
+  // Send notification, trigger workflow, etc.
+}
+
+async function fetchFromExternalAPI() {
+  // Call external API
+  return [];
+}
+```
+
+---
+
+## ⏰ Scheduling Background Jobs
+
+Run tasks periodically using cron expressions:
+
+```typescript
+// src/jobs/sync.ts
+import { PluginContext } from '@objectstack/spec';
+
+export async function startSyncJob(context: PluginContext) {
+  const { ql, os, logger, storage } = context;
+  
+  logger.info('Starting account sync job');
+  
+  try {
+    // Get last sync timestamp
+    const lastSync = await storage.get('last_sync_time');
+    
+    // Fetch updated accounts from external source
+    const apiKey = await os.getConfig('my_crm_plugin.apiKey');
+    const accounts = await fetchAccountsSince(apiKey, lastSync);
+    
+    // Upsert to ObjectStack
+    let syncedCount = 0;
+    for (const account of accounts) {
+      await ql.object('account').upsert({
+        external_id: account.id,
+        company_name: account.name,
+        website: account.website,
+        annual_revenue: account.revenue,
+      });
+      syncedCount++;
+    }
+    
+    // Update last sync time
+    await storage.set('last_sync_time', new Date().toISOString());
+    
+    logger.info('Sync job completed', { synced: syncedCount });
+    
+  } catch (error) {
+    logger.error('Sync job failed', { error });
+    throw error;
+  }
+}
+
+async function fetchAccountsSince(apiKey: string, since: string) {
+  // Implement external API call
+  return [];
+}
+```
+
+Register the job in `onEnable`:
+
+```typescript
+scheduler.schedule('sync-accounts', '*/30 * * * *', () => {
+  return startSyncJob(context);
+});
+```
+
+**Cron Expression Examples:**
+
+- `*/15 * * * *` - Every 15 minutes
+- `0 */2 * * *` - Every 2 hours
+- `0 9 * * 1-5` - 9 AM Monday-Friday
+- `0 0 * * 0` - Every Sunday at midnight
+
+---
+
+## 🎧 Event Listeners
+
+React to data changes in real-time:
+
+```typescript
+// src/events/account-created.ts
+import { PluginContext } from '@objectstack/spec';
+
+export function registerEventListeners(context: PluginContext) {
+  const { ql, logger } = context;
+  
+  // ============================================================================
+  // Listen to account creation
+  // ============================================================================
+  
+  ql.on('account.created', async (event) => {
+    logger.info('Account created', { id: event.record.id });
+    
+    // Send welcome email
+    await sendWelcomeEmail(event.record);
+    
+    // Create default opportunities
+    await ql.object('opportunity').create({
+      name: `${event.record.company_name} - Discovery`,
+      account: event.record.id,
+      stage: 'discovery',
+    });
+  });
+  
+  // ============================================================================
+  // Listen to status changes
+  // ============================================================================
+  
+  ql.on('account.updated', async (event) => {
+    const { oldValues, newValues } = event;
+    
+    // Check if status changed to "customer"
+    if (oldValues.status !== 'customer' && newValues.status === 'customer') {
+      logger.info('Account converted to customer', { id: event.record.id });
+      
+      // Trigger onboarding workflow
+      await triggerOnboarding(event.record);
+    }
+  });
+  
+  // ============================================================================
+  // Prevent deletion of active accounts
+  // ============================================================================
+  
+  ql.on('account.beforeDelete', async (event) => {
+    if (event.record.active) {
+      throw new Error('Cannot delete active accounts');
+    }
+  });
+}
+
+async function sendWelcomeEmail(account: any) {
+  // Send email
+}
+
+async function triggerOnboarding(account: any) {
+  // Start onboarding flow
+}
+```
+
+**Available Events:**
+
+- `{object}.beforeCreate` - Before record creation
+- `{object}.created` - After record created
+- `{object}.beforeUpdate` - Before update
+- `{object}.updated` - After update
+- `{object}.beforeDelete` - Before deletion
+- `{object}.deleted` - After deletion
+
+---
+
+## 💾 Using Scoped Storage
+
+Each plugin has isolated key-value storage:
+
+```typescript
+// Save data
+await context.storage.set('api_token', 'abc123');
+await context.storage.set('sync_count', 42);
+
+// Retrieve data
+const token = await context.storage.get('api_token');
+const count = await context.storage.get('sync_count');
+
+// Delete data
+await context.storage.delete('api_token');
+
+// Store complex objects (automatically JSON-serialized)
+await context.storage.set('config', {
+  enabled: true,
+  lastRun: new Date(),
+  settings: { foo: 'bar' },
+});
+```
+
+---
+
+## 🧪 Testing Your Plugin
+
+### Unit Tests
+
+```typescript
+// tests/account.test.ts
+import { describe, it, expect } from 'vitest';
+import { Account } from '../src/objects/account.object';
+
+describe('Account Object', () => {
+  it('should have required fields', () => {
+    expect(Account.fields.company_name.required).toBe(true);
+  });
+  
+  it('should validate industry options', () => {
+    const validIndustries = Account.fields.industry.options.map(o => o.value);
+    expect(validIndustries).toContain('tech');
+  });
+});
+```
+
+### Integration Tests
+
+```typescript
+// tests/integration.test.ts
+import { createTestContext } from '@objectstack/testing';
+import MyPlugin from '../src/index';
+
+describe('Plugin Integration', () => {
+  it('should register account object', async () => {
+    const context = await createTestContext({
+      plugins: [MyPlugin],
+    });
+    
+    const account = await context.ql.object('account').create({
+      company_name: 'Acme Corp',
+      status: 'prospect',
+    });
+    
+    expect(account.id).toBeDefined();
+    expect(account.company_name).toBe('Acme Corp');
+  });
+  
+  it('should trigger event on creation', async () => {
+    const context = await createTestContext({
+      plugins: [MyPlugin],
+    });
+    
+    let eventFired = false;
+    context.ql.on('account.created', () => {
+      eventFired = true;
+    });
+    
+    await context.ql.object('account').create({
+      company_name: 'Test Inc',
+    });
+    
+    expect(eventFired).toBe(true);
+  });
+});
+```
+
+---
+
+## 📦 Building & Packaging
+
+### Build for Production
+
+```bash
+# Compile TypeScript
+npm run build
+
+# Output: dist/index.js
+```
+
+### Package Structure
+
+```json
+{
+  "name": "@mycompany/objectstack-plugin-crm",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "keywords": ["objectstack", "plugin", "crm"],
+  "files": ["dist", "README.md", "LICENSE"],
+  
+  "objectstack": {
+    "type": "plugin",
+    "entry": "./dist/index.js",
+    "manifest": "./dist/objectstack.config.js"
+  },
+  
+  "dependencies": {
+    "@objectstack/spec": "^1.0.0"
+  },
+  
+  "peerDependencies": {
+    "@objectstack/kernel": "^1.0.0"
+  }
+}
+```
+
+---
+
+## 🚀 Publishing
+
+### To NPM
+
+```bash
+npm login
+npm publish --access public
+```
+
+### To ObjectStack Hub
+
+```bash
+objectstack login
+objectstack publish --registry hub.objectstack.dev
+```
+
+---
+
+## ✅ Best Practices
+
+### 1. Use Zod for Validation
+
+```typescript
+import { z } from 'zod';
+
+const SettingsSchema = z.object({
+  apiUrl: z.string().url(),
+  timeout: z.number().min(1000).max(30000),
+});
+
+const settings = SettingsSchema.parse(userInput);
+```
+
+### 2. Handle Errors Gracefully
+
+```typescript
+try {
+  await externalAPI.call();
+} catch (error) {
+  context.logger.error('External API failed', { error });
+  // Fallback or retry logic
+}
+```
+
+### 3. Use Transactions
+
+```typescript
+const tx = await context.ql.beginTransaction();
+
+try {
+  await tx.object('account').create({ ... });
+  await tx.object('contact').create({ ... });
+  await tx.commit();
+} catch (error) {
+  await tx.rollback();
+  throw error;
+}
+```
+
+### 4. Optimize Queries
+
+```typescript
+// Bad: N+1 queries
+for (const account of accounts) {
+  const contacts = await ql.object('contact').find({ account: account.id });
+}
+
+// Good: Single query with relationships
+const accounts = await ql.object('account').find({
+  include: ['contacts'],
+});
+```
+
+### 5. Document Your Plugin
+
+Include comprehensive README with:
+- Installation instructions
+- Configuration options
+- API endpoints
+- Event triggers
+- Examples
+
+---
+
+## 🔗 Related Resources
+
+- [ObjectQL Protocol](/docs/protocols/objectql)
+- [ObjectOS Plugin System](/docs/protocols/objectos)
+- [Custom Drivers](/docs/development/server-drivers)
+- [API Reference](/docs/99-reference)
+
+---
+
+## 🆘 Troubleshooting
+
+### Plugin Not Loading
+
+Check the manifest:
+
+```bash
+objectstack validate ./objectstack.config.ts
+```
+
+### Events Not Firing
+
+Ensure you registered listeners in `onEnable`:
+
+```typescript
+ql.on('account.created', handler); // ✅ Correct
+```
+
+### Permission Denied
+
+Add required permissions to manifest:
+
+```typescript
+permissions: ['object.create', 'api.register']
+```
+
+---
+
+Ready to build your plugin? Start with the [Quick Start](#quick-start) guide! 🚀

@@ -1,0 +1,946 @@
+---
+title: Plugin Package Specification
+description: Manifest structure, directory layout, dependency management, and distribution format
+---
+
+import { Package, FileCode, Folder, Box, Link2, Shield, Settings } from 'lucide-react';
+
+# Plugin Package Specification
+
+A **plugin** is the unit of distribution in ObjectStack. It packages ObjectQL schemas, ObjectUI layouts, business logic, and configuration into a **self-contained module** that can be installed, upgraded, and removed independently.
+
+## Plugin Manifest
+
+Every plugin **must** have a manifest file that declares its identity, dependencies, and capabilities.
+
+### Manifest Location
+
+```
+my-plugin/
+  plugin.manifest.ts     ← TypeScript (recommended)
+  plugin.manifest.yml    ← YAML (alternative)
+  plugin.manifest.json   ← JSON (alternative)
+```
+
+**Recommendation:** Use TypeScript manifest for **type safety** and **validation**. ObjectOS auto-generates JSON schema from TypeScript.
+
+### Manifest Schema
+
+```typescript
+// plugin.manifest.ts
+import { definePlugin } from '@objectstack/core';
+
+export default definePlugin({
+  // IDENTITY
+  name: '@mycompany/crm',
+  version: '1.5.0',
+  displayName: 'Customer Relationship Management',
+  description: 'Complete CRM with accounts, contacts, and opportunities',
+  author: 'MyCompany <dev@mycompany.com>',
+  license: 'MIT',
+  homepage: 'https://github.com/mycompany/crm',
+  
+  // DEPENDENCIES
+  dependencies: {
+    '@objectstack/core': '^2.0.0',
+    '@mycompany/base': '>=1.0.0 <2.0.0',
+  },
+  
+  // OPTIONAL DEPENDENCIES (plugin works without these)
+  optionalDependencies: {
+    '@vendor/email': '^3.0.0',
+  },
+  
+  // PEER DEPENDENCIES (consumer must install)
+  peerDependencies: {
+    '@objectstack/ui': '^2.0.0',
+  },
+  
+  // METADATA REGISTRATION
+  metadata: {
+    // ObjectQL objects
+    objects: [
+      'src/objects/**/*.object.ts',
+    ],
+    
+    // ObjectUI views
+    views: [
+      'src/views/**/*.view.ts',
+    ],
+    
+    // Business logic
+    triggers: [
+      'src/triggers/**/*.trigger.ts',
+    ],
+    
+    workflows: [
+      'src/workflows/**/*.workflow.ts',
+    ],
+    
+    // Internationalization
+    translations: [
+      'i18n/**/*.json',
+    ],
+    
+    // Configuration schema
+    configSchema: 'src/config.schema.ts',
+  },
+  
+  // LIFECYCLE HOOKS
+  lifecycle: {
+    onInstall: 'src/lifecycle/install.ts',
+    onUninstall: 'src/lifecycle/uninstall.ts',
+    onEnable: 'src/lifecycle/enable.ts',
+    onDisable: 'src/lifecycle/disable.ts',
+    onUpgrade: 'src/lifecycle/upgrade.ts',
+    onBoot: 'src/lifecycle/boot.ts',
+  },
+  
+  // PERMISSIONS
+  permissions: {
+    // System capabilities plugin requires
+    system: [
+      'network.http',      // Make HTTP requests
+      'storage.database',  // Database access
+      'storage.cache',     // Redis/cache access
+    ],
+    
+    // Objects plugin creates/manages
+    objects: [
+      'account',
+      'contact',
+      'opportunity',
+    ],
+  },
+  
+  // CONFIGURATION
+  config: {
+    // Default values
+    defaults: {
+      maxAccountsPerUser: 1000,
+      enableOpportunityScoring: true,
+    },
+    
+    // Secrets (encrypted at rest)
+    secrets: [
+      'apiKey',
+      'webhookSecret',
+    ],
+  },
+  
+  // MARKETPLACE METADATA
+  marketplace: {
+    // Category for marketplace listing
+    category: 'crm',
+    
+    // Screenshots
+    screenshots: [
+      'assets/screenshot-1.png',
+      'assets/screenshot-2.png',
+    ],
+    
+    // Pricing
+    pricing: {
+      model: 'subscription',
+      price: 29.99,
+      currency: 'USD',
+      interval: 'month',
+    },
+    
+    // Compatibility
+    compatibility: {
+      objectstack: '>=2.0.0 <3.0.0',
+      node: '>=18.0.0',
+    },
+  },
+});
+```
+
+## Directory Structure
+
+A well-organized plugin follows this **standard structure**:
+
+```
+@mycompany/crm/
+├── plugin.manifest.ts          # Plugin manifest (required)
+├── package.json                # NPM package metadata
+├── README.md                   # Documentation
+├── CHANGELOG.md                # Version history
+├── LICENSE                     # License text
+│
+├── src/
+│   ├── objects/                # ObjectQL schemas
+│   │   ├── account.object.ts
+│   │   ├── contact.object.ts
+│   │   └── opportunity.object.ts
+│   │
+│   ├── views/                  # ObjectUI layouts
+│   │   ├── account_list.view.ts
+│   │   ├── account_detail.view.ts
+│   │   └── opportunity_kanban.view.ts
+│   │
+│   ├── triggers/               # Business logic triggers
+│   │   ├── account_validation.trigger.ts
+│   │   └── opportunity_scoring.trigger.ts
+│   │
+│   ├── workflows/              # Visual workflows
+│   │   └── opportunity_approval.workflow.ts
+│   │
+│   ├── actions/                # Custom actions
+│   │   └── send_proposal.action.ts
+│   │
+│   ├── api/                    # Custom API endpoints
+│   │   └── sync.endpoint.ts
+│   │
+│   ├── jobs/                   # Background jobs
+│   │   └── cleanup.job.ts
+│   │
+│   ├── config.schema.ts        # Configuration schema (Zod)
+│   │
+│   └── lifecycle/              # Lifecycle hooks
+│       ├── install.ts
+│       ├── boot.ts
+│       └── upgrade.ts
+│
+├── i18n/                       # Translations
+│   ├── en.json
+│   ├── de.json
+│   └── es.json
+│
+├── migrations/                 # Database migrations
+│   ├── 001_create_objects.ts
+│   └── 002_add_indexes.ts
+│
+├── tests/                      # Unit and integration tests
+│   ├── objects/
+│   ├── triggers/
+│   └── integration/
+│
+├── assets/                     # Static files (icons, images)
+│   ├── icon.svg
+│   └── screenshots/
+│
+└── dist/                       # Compiled output (generated)
+```
+
+## Metadata Definitions
+
+### ObjectQL Schemas
+
+Define database objects using ObjectQL schema syntax:
+
+```typescript
+// src/objects/account.object.ts
+import { defineObject } from '@objectstack/core';
+
+export default defineObject({
+  name: 'account',
+  label: 'Account',
+  pluralLabel: 'Accounts',
+  
+  fields: {
+    name: {
+      type: 'text',
+      label: 'Account Name',
+      required: true,
+      maxLength: 255,
+    },
+    
+    industry: {
+      type: 'select',
+      label: 'Industry',
+      options: [
+        { value: 'technology', label: 'Technology' },
+        { value: 'finance', label: 'Finance' },
+        { value: 'healthcare', label: 'Healthcare' },
+      ],
+    },
+    
+    annual_revenue: {
+      type: 'currency',
+      label: 'Annual Revenue',
+      precision: 2,
+    },
+    
+    primary_contact: {
+      type: 'lookup',
+      label: 'Primary Contact',
+      reference: 'contact',
+    },
+    
+    opportunities: {
+      type: 'reverse_lookup',
+      label: 'Opportunities',
+      reference: 'opportunity',
+      referenceField: 'account',
+    },
+  },
+  
+  enable: {
+    trackHistory: true,
+    search: true,
+    apiEnabled: true,
+  },
+});
+```
+
+### ObjectUI Views
+
+Define user interfaces using ObjectUI layout DSL:
+
+```typescript
+// src/views/account_list.view.ts
+import { defineView } from '@objectstack/core';
+
+export default defineView({
+  name: 'account_list',
+  object: 'account',
+  type: 'list',
+  
+  layout: {
+    type: 'grid',
+    columns: [
+      { field: 'name', width: 200 },
+      { field: 'industry', width: 150 },
+      { field: 'annual_revenue', width: 150 },
+      { field: 'primary_contact', width: 200 },
+      { field: 'created_at', width: 150 },
+    ],
+    
+    filters: [
+      { field: 'industry', operator: 'equals' },
+      { field: 'annual_revenue', operator: 'greaterThan' },
+    ],
+    
+    actions: [
+      { type: 'create', label: 'New Account' },
+      { type: 'export', label: 'Export to CSV' },
+    ],
+  },
+});
+```
+
+### Triggers
+
+Define business logic that executes on data changes:
+
+```typescript
+// src/triggers/account_validation.trigger.ts
+import { defineTrigger } from '@objectstack/core';
+
+export default defineTrigger({
+  name: 'account_validation',
+  object: 'account',
+  when: 'beforeInsert',
+  
+  execute: async ({ record, context }) => {
+    // Validation: Annual revenue must be positive
+    if (record.annual_revenue < 0) {
+      throw new Error('Annual revenue cannot be negative');
+    }
+    
+    // Auto-populate: Generate account number
+    if (!record.account_number) {
+      record.account_number = await generateAccountNumber(context);
+    }
+    
+    // Enrichment: Fetch company data from external API
+    if (record.website) {
+      const companyData = await enrichCompanyData(record.website);
+      record.industry = record.industry || companyData.industry;
+      record.employee_count = companyData.employeeCount;
+    }
+    
+    return record;
+  },
+});
+```
+
+### Configuration Schema
+
+Define plugin configuration with Zod for validation:
+
+```typescript
+// src/config.schema.ts
+import { z } from 'zod';
+
+export const configSchema = z.object({
+  // API keys (marked as secret)
+  apiKey: z.string()
+    .describe('API Key for external service')
+    .meta({ secret: true }),
+  
+  // Feature flags
+  enableOpportunityScoring: z.boolean()
+    .default(true)
+    .describe('Enable AI-powered opportunity scoring'),
+  
+  // Limits
+  maxAccountsPerUser: z.number()
+    .min(1)
+    .max(10000)
+    .default(1000)
+    .describe('Maximum accounts a user can own'),
+  
+  // URLs
+  webhookUrl: z.string()
+    .url()
+    .optional()
+    .describe('Webhook URL for account changes'),
+  
+  // Enums
+  syncInterval: z.enum(['hourly', 'daily', 'weekly'])
+    .default('daily')
+    .describe('Data sync frequency'),
+});
+
+export type PluginConfig = z.infer<typeof configSchema>;
+```
+
+## Dependency Management
+
+### Dependency Types
+
+#### 1. **Dependencies (Required)**
+Plugin **cannot function** without these.
+
+```typescript
+dependencies: {
+  '@objectstack/core': '^2.0.0',
+  '@mycompany/base': '>=1.0.0 <2.0.0',
+}
+```
+
+#### 2. **Optional Dependencies**
+Plugin **can function** without these, but features are enhanced if present.
+
+```typescript
+optionalDependencies: {
+  '@vendor/email': '^3.0.0',
+}
+
+// In plugin code
+if (context.plugins.isInstalled('@vendor/email')) {
+  await email.send({ to: contact.email, subject: 'Welcome' });
+}
+```
+
+#### 3. **Peer Dependencies**
+Plugin expects **consumer** to install these (not bundled).
+
+```typescript
+peerDependencies: {
+  '@objectstack/ui': '^2.0.0',
+}
+```
+
+Use for large dependencies (React, Vue) that should be shared across plugins.
+
+### Version Constraints
+
+ObjectOS uses **semantic versioning (semver)** with these operators:
+
+```typescript
+dependencies: {
+  // Exact version
+  'plugin-a': '1.0.0',
+  
+  // Patch updates allowed (1.0.x)
+  'plugin-b': '~1.0.0',
+  
+  // Minor updates allowed (1.x.x)
+  'plugin-c': '^1.0.0',
+  
+  // Version range
+  'plugin-d': '>=1.0.0 <2.0.0',
+  
+  // Latest version
+  'plugin-e': '*',        // ⚠️ Not recommended for production
+}
+```
+
+### Dependency Resolution
+
+ObjectOS builds a **dependency graph** and loads plugins in **topological order**:
+
+```
+@objectstack/core (no deps)
+  ↓
+@mycompany/base (depends on core)
+  ↓
+@mycompany/crm (depends on base)
+  ↓
+@mycompany/sales (depends on crm)
+```
+
+**Load Order:** core → base → crm → sales
+
+**Conflict Resolution:**
+If two plugins require incompatible versions of the same dependency, installation fails with error:
+
+```
+Error: Dependency conflict
+  @mycompany/sales requires @objectstack/core@^2.0.0
+  @vendor/analytics requires @objectstack/core@^3.0.0
+  
+Cannot satisfy both constraints.
+
+Solutions:
+  1. Upgrade @mycompany/sales to version compatible with core@3.x
+  2. Downgrade @vendor/analytics to version compatible with core@2.x
+  3. Contact plugin authors to update dependencies
+```
+
+## Lifecycle Hooks
+
+Plugins can define hooks that execute at specific lifecycle events:
+
+### Hook Signatures
+
+```typescript
+// src/lifecycle/install.ts
+export async function onInstall({ context, transaction }) {
+  // Runs after plugin files are extracted, before metadata is registered
+  
+  // Example: Create default data
+  await context.db.insert('crm_settings', {
+    maxAccountsPerUser: 1000,
+    enableScoring: true,
+  }, { transaction });
+}
+
+// src/lifecycle/uninstall.ts
+export async function onUninstall({ context, transaction }) {
+  // Runs before plugin is removed
+  
+  // Example: Archive plugin data instead of deleting
+  await context.db.update('account', 
+    { where: { plugin: 'crm' }},
+    { archived: true },
+    { transaction }
+  );
+}
+
+// src/lifecycle/enable.ts
+export async function onEnable({ context }) {
+  // Runs when plugin is enabled (after install or manual enable)
+  
+  // Example: Start background sync
+  await context.scheduler.create({
+    name: 'crm-sync',
+    schedule: '0 * * * *', // Every hour
+    handler: 'crm.sync',
+  });
+}
+
+// src/lifecycle/disable.ts
+export async function onDisable({ context }) {
+  // Runs when plugin is disabled (before uninstall or manual disable)
+  
+  // Example: Stop background jobs
+  await context.scheduler.pause('crm-sync');
+}
+
+// src/lifecycle/upgrade.ts
+export async function onUpgrade({ context, fromVersion, toVersion, transaction }) {
+  // Runs during plugin upgrade
+  
+  // Example: Data migration
+  if (fromVersion === '1.0.0' && toVersion === '2.0.0') {
+    await context.db.query(`
+      UPDATE account 
+      SET account_number = CONCAT('ACC-', id::text)
+      WHERE account_number IS NULL
+    `, { transaction });
+  }
+}
+
+// src/lifecycle/boot.ts
+export async function onBoot({ context }) {
+  // Runs every time ObjectOS boots (after plugin is loaded)
+  
+  // Example: Validate configuration
+  const config = context.config.get('crm');
+  if (!config.apiKey) {
+    context.logger.warn('CRM API key not configured');
+  }
+  
+  // Example: Register custom services
+  context.services.register('crm', new CRMService(config));
+}
+```
+
+### Hook Execution Order
+
+During **installation**:
+```
+1. onInstall
+2. Register metadata (objects, views, etc.)
+3. onEnable (if --enable flag)
+```
+
+During **upgrade**:
+```
+1. onUpgrade
+2. Apply migrations
+3. Update metadata
+```
+
+During **boot**:
+```
+1. Load all plugins
+2. Resolve dependencies
+3. onBoot (for each plugin in dependency order)
+4. Start services
+```
+
+## Permissions
+
+Plugins must **declare permissions** they require. ObjectOS enforces these at runtime.
+
+### System Permissions
+
+```typescript
+permissions: {
+  system: [
+    // Network access
+    'network.http',          // Make HTTP requests
+    'network.websocket',     // Use WebSockets
+    
+    // Storage access
+    'storage.database',      // Query database
+    'storage.cache',         // Use Redis/cache
+    'storage.filesystem',    // Read/write files
+    
+    // System capabilities
+    'system.cron',           // Schedule jobs
+    'system.email',          // Send emails
+    'system.events',         // Publish/subscribe events
+    
+    // Security
+    'security.encrypt',      // Encrypt data
+    'security.sign',         // Sign JWTs
+  ],
+}
+```
+
+If plugin attempts operation without permission, ObjectOS throws error:
+
+```javascript
+// Plugin tries to make HTTP request without permission
+await fetch('https://api.example.com/data');
+
+// Error: PermissionDenied
+// Plugin @mycompany/crm does not have permission 'network.http'
+// Add to plugin.manifest.ts:
+//   permissions: { system: ['network.http'] }
+```
+
+### Object Permissions
+
+Declare which objects plugin creates and manages:
+
+```typescript
+permissions: {
+  objects: [
+    'account',       // Full control
+    'contact',
+    'opportunity',
+  ],
+}
+```
+
+ObjectOS uses this for:
+- **Dependency tracking:** Can't uninstall plugin if other plugins reference its objects
+- **Security:** Plugin can only modify its own objects (not objects from other plugins)
+- **Cleanup:** Uninstalling plugin can optionally remove its objects
+
+## Distribution Format
+
+### NPM Package
+
+Plugins are distributed as **NPM packages** for easy versioning and distribution.
+
+```json
+// package.json
+{
+  "name": "@mycompany/crm",
+  "version": "1.5.0",
+  "description": "Customer Relationship Management",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "lint": "eslint src/",
+    "package": "objectstack plugin package"
+  },
+  
+  "files": [
+    "dist/",
+    "plugin.manifest.ts",
+    "i18n/",
+    "assets/",
+    "README.md",
+    "LICENSE"
+  ],
+  
+  "dependencies": {
+    "@objectstack/core": "^2.0.0"
+  },
+  
+  "devDependencies": {
+    "@objectstack/cli": "^2.0.0",
+    "typescript": "^5.0.0"
+  },
+  
+  "keywords": [
+    "objectstack",
+    "objectstack-plugin",
+    "crm"
+  ],
+  
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mycompany/crm"
+  }
+}
+```
+
+### Publishing to NPM
+
+```bash
+# Build plugin
+npm run build
+
+# Package plugin (validates manifest, bundles assets)
+objectstack plugin package
+
+# Publish to NPM
+npm publish
+
+# Or publish to private registry
+npm publish --registry=https://npm.mycompany.com
+```
+
+### Plugin Archive (.ospkg)
+
+For air-gapped environments or marketplaces, plugins can be packaged as **.ospkg** files:
+
+```bash
+# Create .ospkg archive
+objectstack plugin package --format ospkg --output crm-1.5.0.ospkg
+
+# Install from .ospkg
+objectstack plugin install ./crm-1.5.0.ospkg
+```
+
+**.ospkg format:** Tarball containing:
+- Plugin files (dist/, i18n/, assets/)
+- Manifest (plugin.manifest.json)
+- Checksums (SHA256)
+- Signature (for marketplace verification)
+
+## Plugin Testing
+
+### Unit Tests
+
+```typescript
+// tests/triggers/account_validation.test.ts
+import { createTestContext } from '@objectstack/testing';
+import accountValidation from '../../src/triggers/account_validation';
+
+describe('Account Validation Trigger', () => {
+  it('should reject negative revenue', async () => {
+    const context = createTestContext();
+    const record = { annual_revenue: -1000 };
+    
+    await expect(
+      accountValidation.execute({ record, context })
+    ).rejects.toThrow('Annual revenue cannot be negative');
+  });
+  
+  it('should generate account number', async () => {
+    const context = createTestContext();
+    const record = { name: 'Acme Corp' };
+    
+    const result = await accountValidation.execute({ record, context });
+    
+    expect(result.account_number).toMatch(/^ACC-\d{6}$/);
+  });
+});
+```
+
+### Integration Tests
+
+```typescript
+// tests/integration/crm_workflow.test.ts
+import { createTestEnvironment } from '@objectstack/testing';
+
+describe('CRM Workflow', () => {
+  let env;
+  
+  beforeAll(async () => {
+    env = await createTestEnvironment({
+      plugins: ['@mycompany/crm'],
+    });
+  });
+  
+  it('should create account with contacts', async () => {
+    // Create account
+    const account = await env.objectQL.create('account', {
+      name: 'Test Corp',
+      industry: 'technology',
+    });
+    
+    // Create contact
+    const contact = await env.objectQL.create('contact', {
+      first_name: 'John',
+      last_name: 'Doe',
+      account: account.id,
+    });
+    
+    // Verify relationship
+    const accountWithContacts = await env.objectQL.findById('account', account.id, {
+      include: ['contacts'],
+    });
+    
+    expect(accountWithContacts.contacts).toHaveLength(1);
+    expect(accountWithContacts.contacts[0].id).toBe(contact.id);
+  });
+});
+```
+
+## Plugin Development Workflow
+
+### 1. Scaffold Plugin
+
+```bash
+objectstack plugin create @mycompany/crm
+
+? Plugin name: @mycompany/crm
+? Description: Customer Relationship Management
+? Author: MyCompany <dev@mycompany.com>
+? License: MIT
+
+✓ Created plugin at @mycompany/crm/
+✓ Generated plugin.manifest.ts
+✓ Generated package.json
+✓ Installed dependencies
+
+Next steps:
+  cd @mycompany/crm
+  npm run dev
+```
+
+### 2. Develop Locally
+
+```bash
+cd @mycompany/crm
+
+# Watch mode (auto-rebuild on changes)
+npm run dev
+
+# In another terminal, link plugin to test instance
+objectstack plugin link .
+
+# Test instance now uses local plugin
+objectstack dev
+```
+
+### 3. Test Plugin
+
+```bash
+# Run unit tests
+npm test
+
+# Run linter
+npm run lint
+
+# Validate manifest
+objectstack plugin validate
+
+# Test installation
+objectstack plugin install . --dry-run
+```
+
+### 4. Build & Publish
+
+```bash
+# Build production bundle
+npm run build
+
+# Package plugin
+objectstack plugin package
+
+# Publish to NPM
+npm publish
+```
+
+## Best Practices
+
+### 1. Use Semantic Versioning Strictly
+- **Patch (1.0.x):** Bug fixes, no breaking changes
+- **Minor (1.x.0):** New features, backward compatible
+- **Major (x.0.0):** Breaking changes
+
+### 2. Document Breaking Changes
+Always include migration guide in CHANGELOG.md for major versions.
+
+```markdown
+## v2.0.0 (Breaking Changes)
+
+### Removed
+- `account.owner` field (use `account.owner_id` instead)
+
+### Migration
+Run: `objectstack migrate --plugin @mycompany/crm`
+```
+
+### 3. Pin Core Dependencies
+Use exact version for `@objectstack/core` to avoid surprises:
+
+```typescript
+dependencies: {
+  '@objectstack/core': '2.0.0',  // Not '^2.0.0'
+}
+```
+
+### 4. Validate Configuration Early
+Use Zod schema to validate config during boot, not at runtime:
+
+```typescript
+export async function onBoot({ context }) {
+  const config = context.config.get('crm', configSchema);
+  // Throws clear error if config is invalid
+}
+```
+
+### 5. Clean Up on Uninstall
+Always provide `onUninstall` hook to clean up resources:
+
+```typescript
+export async function onUninstall({ context, transaction }) {
+  // Stop jobs
+  await context.scheduler.delete('crm-sync', { transaction });
+  
+  // Archive data (don't delete!)
+  await context.db.update('account', 
+    { plugin: 'crm' },
+    { archived: true },
+    { transaction }
+  );
+}
+```
+
+## Summary
+
+Plugin packages in ObjectOS:
+- **Manifest-driven:** `plugin.manifest.ts` is the source of truth
+- **Self-contained:** Bundle objects, views, logic, and config
+- **Dependency-managed:** Semantic versioning with conflict detection
+- **Lifecycle-aware:** Hooks for install, upgrade, boot, and uninstall
+- **NPM-compatible:** Distribute via NPM or .ospkg archives
+
+**Next:** Learn how configuration is resolved in [Configuration Resolution](/docs/protocols/objectos/config-resolution).

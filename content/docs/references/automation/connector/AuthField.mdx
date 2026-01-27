@@ -1,0 +1,17 @@
+---
+title: AuthField
+description: AuthField Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Field name (snake_case) |
+| **label** | `string` | ✅ | Field label |
+| **type** | `Enum<'text' \| 'password' \| 'url' \| 'select'>` | optional | Field type |
+| **description** | `string` | optional | Field description |
+| **required** | `boolean` | optional | Required field |
+| **default** | `string` | optional | Default value |
+| **options** | `object[]` | optional | Select field options |
+| **placeholder** | `string` | optional | Placeholder text |

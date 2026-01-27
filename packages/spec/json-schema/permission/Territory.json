@@ -6,7 +6,9 @@
       "properties": {
         "name": {
           "type": "string",
-          "pattern": "^[a-z_][a-z0-9_]*$"
+          "minLength": 2,
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Territory unique name (lowercase snake_case)"
         },
         "label": {
           "type": "string",

@@ -1,0 +1,40 @@
+{
+  "$ref": "#/definitions/WidgetLifecycle",
+  "definitions": {
+    "WidgetLifecycle": {
+      "type": "object",
+      "properties": {
+        "onMount": {
+          "type": "string",
+          "description": "Initialization code when widget mounts"
+        },
+        "onUpdate": {
+          "type": "string",
+          "description": "Code to run when props change"
+        },
+        "onUnmount": {
+          "type": "string",
+          "description": "Cleanup code when widget unmounts"
+        },
+        "onValidate": {
+          "type": "string",
+          "description": "Custom validation logic"
+        },
+        "onFocus": {
+          "type": "string",
+          "description": "Code to run on focus"
+        },
+        "onBlur": {
+          "type": "string",
+          "description": "Code to run on blur"
+        },
+        "onError": {
+          "type": "string",
+          "description": "Error handling code"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

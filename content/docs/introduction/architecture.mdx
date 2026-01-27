@@ -1,0 +1,505 @@
+---
+title: The Stack - ObjectQL + ObjectUI + ObjectOS
+description: How the three protocols work together as one cohesive system
+---
+
+import { Database, Layout, Cpu, ArrowRight, CheckCircle, Workflow } from 'lucide-react';
+
+# The Three-Layer Stack
+
+ObjectStack is built on three foundational protocols that work together as a unified system:
+
+<Cards>
+  <Card
+    icon={<Database />}
+    title="ObjectQL"
+    description="Data Protocol - Structure and queries"
+  />
+  <Card
+    icon={<Cpu />}
+    title="ObjectOS"
+    description="Control Protocol - Runtime and governance"
+  />
+  <Card
+    icon={<Layout />}
+    title="ObjectUI"
+    description="View Protocol - Presentation and interaction"
+  />
+</Cards>
+
+## Why Three Layers?
+
+Traditional applications tightly couple data, business logic, and presentation. This creates **Implementation Coupling** — changing one layer forces changes across the entire stack.
+
+ObjectStack enforces **Separation of Concerns** through protocol boundaries:
+
+```
+┌─────────────────────────────────────────┐
+│          ObjectUI (View Layer)          │
+│  Apps, Views, Dashboards, Reports       │
+│  "How do users interact?"                │
+└──────────────┬──────────────────────────┘
+               │ API Protocol
+┌──────────────┴──────────────────────────┐
+│        ObjectOS (Control Layer)         │
+│  Auth, Permissions, Workflows, Events   │
+│  "Who can do what, when?"                │
+└──────────────┬──────────────────────────┘
+               │ Query Protocol
+┌──────────────┴──────────────────────────┐
+│         ObjectQL (Data Layer)           │
+│  Objects, Fields, Queries, Drivers      │
+│  "What is the data structure?"           │
+└─────────────────────────────────────────┘
+```
+
+## Layer 1: ObjectQL (Data Protocol)
+
+**Role:** Define the **Structure** and **Intent** of data.
+
+**Responsibilities:**
+- Object schema definitions (what is a "Customer"?)
+- Field types and validation rules
+- Query language (filtering, sorting, aggregation)
+- Database drivers (Postgres, MongoDB, SQLite)
+
+**Key Principle:** ObjectQL knows **nothing** about users, permissions, or UI. It only cares about data structure and queries.
+
+### Example: Defining a Customer Object
+
+```typescript
+// packages/crm/src/objects/customer.object.ts
+import { Object, Field } from '@objectstack/spec';
+
+export const Customer = Object({
+  name: 'customer',
+  label: 'Customer',
+  fields: {
+    name: Field.text({
+      label: 'Company Name',
+      required: true,
+      maxLength: 120,
+    }),
+    industry: Field.select({
+      label: 'Industry',
+      options: ['technology', 'finance', 'healthcare', 'retail'],
+    }),
+    annual_revenue: Field.currency({
+      label: 'Annual Revenue',
+    }),
+    primary_contact: Field.lookup({
+      label: 'Primary Contact',
+      object: 'contact',
+    }),
+  },
+});
+```
+
+This definition is **pure metadata**. It doesn't know:
+- Who can see this data
+- How to render a form
+- When to trigger workflows
+
+That's the job of the other layers.
+
+## Layer 2: ObjectOS (Control Protocol)
+
+**Role:** Manage the **Lifecycle** and **Governance** of requests.
+
+**Responsibilities:**
+- Authentication (who is this user?)
+- Authorization (can they access this field?)
+- Workflows and automations (what happens after save?)
+- Event processing (audit logs, notifications)
+- Multi-tenancy and data isolation
+
+**Key Principle:** ObjectOS acts as the **Gateway**. No layer can directly access the database; all requests must pass through the OS Kernel.
+
+### Example: Permission Rules
+
+```typescript
+// packages/crm/src/permissions/customer.permission.ts
+import { Permission } from '@objectstack/spec';
+
+export const CustomerPermission = Permission({
+  object: 'customer',
+  rules: [
+    {
+      profile: 'sales_rep',
+      crud: {
+        create: true,
+        read: true,
+        update: true,
+        delete: false, // Only managers can delete
+      },
+      fieldPermissions: {
+        annual_revenue: { read: true, edit: false }, // Read-only
+      },
+    },
+    {
+      profile: 'sales_manager',
+      crud: {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+      },
+    },
+  ],
+});
+```
+
+### Example: Workflow Automation
+
+```typescript
+// packages/crm/src/workflows/customer.workflow.ts
+import { Workflow } from '@objectstack/spec';
+
+export const CustomerWorkflow = Workflow({
+  object: 'customer',
+  trigger: 'after_create',
+  conditions: [
+    { field: 'annual_revenue', operator: 'greaterThan', value: 1000000 },
+  ],
+  actions: [
+    {
+      type: 'assign_owner',
+      params: { owner: 'enterprise_sales_team' },
+    },
+    {
+      type: 'send_email',
+      params: {
+        template: 'high_value_customer_alert',
+        to: 'sales-leadership@company.com',
+      },
+    },
+  ],
+});
+```
+
+ObjectOS **orchestrates** these rules at runtime, independent of the data structure or UI.
+
+## Layer 3: ObjectUI (View Protocol)
+
+**Role:** Render the **Presentation** and handle **User Interaction**.
+
+**Responsibilities:**
+- App navigation and branding
+- List views (grid, kanban, calendar)
+- Form layouts (simple, tabbed, wizard)
+- Dashboards and reports
+- Actions and buttons
+
+**Key Principle:** ObjectUI is a **Rendering Engine**, not a hardcoded interface. It asks ObjectQL *"What is the schema?"* and dynamically generates the UI.
+
+### Example: List View
+
+```typescript
+// packages/crm/src/views/customer_list.view.ts
+import { ListView } from '@objectstack/spec';
+
+export const CustomerListView = ListView({
+  object: 'customer',
+  label: 'All Customers',
+  type: 'grid',
+  columns: [
+    { field: 'name', width: 200 },
+    { field: 'industry', width: 150 },
+    { field: 'annual_revenue', width: 150 },
+    { field: 'primary_contact', width: 180 },
+  ],
+  filters: [
+    { field: 'industry', operator: 'equals' },
+    { field: 'annual_revenue', operator: 'greaterThan' },
+  ],
+  defaultSort: { field: 'name', direction: 'asc' },
+});
+```
+
+### Example: Form View
+
+```typescript
+// packages/crm/src/views/customer_form.view.ts
+import { FormView } from '@objectstack/spec';
+
+export const CustomerFormView = FormView({
+  object: 'customer',
+  label: 'Customer Details',
+  type: 'tabbed',
+  tabs: [
+    {
+      label: 'Overview',
+      sections: [
+        {
+          label: 'Company Information',
+          fields: ['name', 'industry', 'annual_revenue'],
+        },
+        {
+          label: 'Contact',
+          fields: ['primary_contact'],
+        },
+      ],
+    },
+    {
+      label: 'Related Records',
+      sections: [
+        {
+          label: 'Opportunities',
+          component: 'related_list',
+          object: 'opportunity',
+          filter: { customer: '$recordId' },
+        },
+      ],
+    },
+  ],
+});
+```
+
+The UI doesn't "know" the field types. It asks ObjectQL for the schema and renders accordingly:
+- `Field.text` → Text input
+- `Field.select` → Dropdown
+- `Field.lookup` → Autocomplete lookup
+- `Field.currency` → Number input with currency formatting
+
+## How They Work Together
+
+Let's trace a **real-world scenario**: A sales rep creates a new high-value customer.
+
+### Step 1: User Action (ObjectUI)
+
+```
+User fills out the "Create Customer" form:
+- Name: "Acme Corp"
+- Industry: "Technology"
+- Annual Revenue: $5,000,000
+- Primary Contact: "John Doe"
+
+User clicks "Save"
+```
+
+### Step 2: UI Layer Sends Request
+
+```typescript
+// ObjectUI dispatches an action to ObjectOS
+const request = {
+  action: 'create',
+  object: 'customer',
+  data: {
+    name: 'Acme Corp',
+    industry: 'technology',
+    annual_revenue: 5000000,
+    primary_contact: 'contact_12345',
+  },
+};
+```
+
+### Step 3: ObjectOS Validates Permissions
+
+```typescript
+// Kernel checks: Does this user have permission?
+const user = await Auth.getCurrentUser();
+const canCreate = await Permission.check({
+  user,
+  object: 'customer',
+  operation: 'create',
+});
+
+if (!canCreate) {
+  throw new Error('Permission denied');
+}
+```
+
+### Step 4: ObjectOS Validates Data
+
+```typescript
+// Kernel asks ObjectQL: Is this data valid?
+const schema = ObjectQL.getSchema('customer');
+const validation = schema.validate(request.data);
+
+if (!validation.success) {
+  throw new ValidationError(validation.errors);
+}
+```
+
+### Step 5: ObjectQL Writes to Database
+
+```typescript
+// ObjectQL compiles the request into a database operation
+const driver = ObjectQL.getDriver(); // Postgres, MongoDB, etc.
+const result = await driver.insert('customer', {
+  name: 'Acme Corp',
+  industry: 'technology',
+  annual_revenue: 5000000,
+  primary_contact_id: 'contact_12345',
+});
+```
+
+### Step 6: ObjectOS Triggers Workflows
+
+```typescript
+// Kernel checks: Are there any workflows for this event?
+const workflows = Workflow.getTriggersFor('customer', 'after_create');
+
+for (const workflow of workflows) {
+  if (workflow.conditionsMet(result)) {
+    await workflow.execute(result);
+  }
+}
+
+// In this case:
+// ✅ Annual revenue > $1M
+// → Assign to enterprise sales team
+// → Send alert email to leadership
+```
+
+### Step 7: ObjectUI Updates Display
+
+```typescript
+// Kernel returns success response
+// UI optimistically updates the screen
+// UI shows toast notification: "Customer created successfully"
+// UI navigates to the new customer detail page
+```
+
+## The Full Stack in Action
+
+Here's how all three protocols collaborate for a **Kanban Board** feature:
+
+### 1. ObjectQL: Define the Data
+
+```typescript
+export const Opportunity = Object({
+  name: 'opportunity',
+  fields: {
+    title: Field.text({ required: true }),
+    stage: Field.select({
+      options: ['prospecting', 'qualification', 'proposal', 'closed_won'],
+    }),
+    amount: Field.currency(),
+    customer: Field.lookup({ object: 'customer' }),
+  },
+});
+```
+
+### 2. ObjectOS: Define Business Rules
+
+```typescript
+export const OpportunityWorkflow = Workflow({
+  object: 'opportunity',
+  trigger: 'field_update',
+  conditions: [
+    { field: 'stage', operator: 'equals', value: 'closed_won' },
+  ],
+  actions: [
+    { type: 'create_invoice', params: { object: 'invoice' } },
+    { type: 'send_notification', params: { to: 'sales_team' } },
+  ],
+});
+```
+
+### 3. ObjectUI: Define the Kanban View
+
+```typescript
+export const OpportunityKanban = ListView({
+  object: 'opportunity',
+  type: 'kanban',
+  groupBy: 'stage',
+  columns: [
+    { field: 'title' },
+    { field: 'amount' },
+    { field: 'customer' },
+  ],
+  enableDragDrop: true,
+});
+```
+
+### The Result
+
+When a user **drags an opportunity card** from "Proposal" to "Closed Won":
+
+1. **ObjectUI** captures the drag-drop event
+2. **ObjectOS** checks if the user has permission to update the `stage` field
+3. **ObjectQL** validates that `"closed_won"` is a valid option
+4. **ObjectQL** writes the update to the database
+5. **ObjectOS** triggers the workflow (create invoice, send notification)
+6. **ObjectUI** updates the kanban board to reflect the new state
+
+**All from metadata. Zero hardcoded logic.**
+
+## Benefits of the Three-Layer Architecture
+
+### 1. Technology Independence
+
+Swap implementations without breaking the system:
+
+```
+Same Metadata Definitions
+          ↓
+┌─────────┼─────────┐
+ObjectQL: │         │
+Postgres  │    MongoDB
+          │
+ObjectOS: │
+Node.js   │    Python
+          │
+ObjectUI: │
+React     │    Flutter
+```
+
+### 2. Parallel Development
+
+Teams can work independently on each layer:
+
+- **Data Team:** Define objects in ObjectQL
+- **Backend Team:** Build workflows in ObjectOS
+- **Frontend Team:** Create views in ObjectUI
+
+All communicate through **protocol contracts**, not code dependencies.
+
+### 3. Incremental Migration
+
+Adopt ObjectStack gradually:
+
+- **Phase 1:** Use ObjectQL as an ORM replacement
+- **Phase 2:** Add ObjectOS for permissions and workflows
+- **Phase 3:** Build ObjectUI views to replace custom forms
+
+Each layer is independently useful.
+
+### 4. Testability
+
+Mock any layer for testing:
+
+```typescript
+// Test ObjectOS workflows without a real database
+const mockObjectQL = {
+  getSchema: () => CustomerSchema,
+  insert: jest.fn(),
+};
+
+// Test ObjectUI rendering without a real backend
+const mockObjectOS = {
+  checkPermission: () => true,
+  executeQuery: () => mockData,
+};
+```
+
+## Summary
+
+| Layer | Role | Knows About | Doesn't Know About |
+| :--- | :--- | :--- | :--- |
+| **ObjectQL** | Data structure & queries | Schema, fields, drivers | Users, permissions, UI |
+| **ObjectOS** | Runtime & governance | Auth, workflows, events | Data structure, UI layout |
+| **ObjectUI** | Presentation & interaction | Layout, navigation, actions | Business logic, data storage |
+
+The three protocols are **loosely coupled** but **tightly integrated**:
+- They communicate through **standard contracts** (Zod schemas)
+- They can be **swapped or upgraded** independently
+- They form a **complete system** when combined
+
+## Next Steps
+
+- [Object Model](/docs/core-concepts/object-model) - Deep dive into ObjectQL's universal object model
+- [ObjectQL Protocol](/docs/protocols/objectql) - Full data protocol specification
+- [ObjectOS Protocol](/docs/protocols/objectos) - Full control protocol specification
+- [ObjectUI Protocol](/docs/protocols/objectui) - Full view protocol specification

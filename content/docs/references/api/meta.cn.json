@@ -1,6 +1,6 @@
 {
   "title": "API 协议",
-  "root": true,
+  
   "pages": [
     "contract",
     "discovery",

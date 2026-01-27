@@ -1,10 +1,10 @@
 {
   "title": "API Protocol",
-  "root": true,
   "pages": [
     "contract",
     "discovery",
     "endpoint",
+    "odata",
     "realtime",
     "router"
   ]

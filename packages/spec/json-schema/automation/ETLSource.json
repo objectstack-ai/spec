@@ -1,0 +1,60 @@
+{
+  "$ref": "#/definitions/ETLSource",
+  "definitions": {
+    "ETLSource": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "database",
+            "api",
+            "file",
+            "stream",
+            "object",
+            "warehouse",
+            "storage",
+            "spreadsheet"
+          ],
+          "description": "Source type"
+        },
+        "connector": {
+          "type": "string",
+          "description": "Connector ID"
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Source configuration"
+        },
+        "incremental": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "cursorField": {
+              "type": "string",
+              "description": "Field to track progress (e.g., updated_at)"
+            },
+            "cursorValue": {
+              "description": "Last processed value"
+            }
+          },
+          "required": [
+            "cursorField"
+          ],
+          "additionalProperties": false,
+          "description": "Incremental extraction config"
+        }
+      },
+      "required": [
+        "type",
+        "config"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

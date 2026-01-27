@@ -6,8 +6,9 @@
       "properties": {
         "name": {
           "type": "string",
-          "pattern": "^[a-z_][a-z0-9_]*$",
-          "description": "App unique machine name"
+          "minLength": 2,
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "App unique machine name (lowercase snake_case)"
         },
         "label": {
           "type": "string",
@@ -63,7 +64,9 @@
                 "properties": {
                   "id": {
                     "type": "string",
-                    "description": "Unique identifier for this navigation item"
+                    "minLength": 2,
+                    "pattern": "^[a-z][a-z0-9_]*$",
+                    "description": "Unique identifier for this navigation item (lowercase snake_case)"
                   },
                   "label": {
                     "type": "string",
@@ -103,7 +106,9 @@
                 "properties": {
                   "id": {
                     "type": "string",
-                    "description": "Unique identifier for this navigation item"
+                    "minLength": 2,
+                    "pattern": "^[a-z][a-z0-9_]*$",
+                    "description": "Unique identifier for this navigation item (lowercase snake_case)"
                   },
                   "label": {
                     "type": "string",
@@ -139,7 +144,9 @@
                 "properties": {
                   "id": {
                     "type": "string",
-                    "description": "Unique identifier for this navigation item"
+                    "minLength": 2,
+                    "pattern": "^[a-z][a-z0-9_]*$",
+                    "description": "Unique identifier for this navigation item (lowercase snake_case)"
                   },
                   "label": {
                     "type": "string",
@@ -180,7 +187,9 @@
                 "properties": {
                   "id": {
                     "type": "string",
-                    "description": "Unique identifier for this navigation item"
+                    "minLength": 2,
+                    "pattern": "^[a-z][a-z0-9_]*$",
+                    "description": "Unique identifier for this navigation item (lowercase snake_case)"
                   },
                   "label": {
                     "type": "string",
@@ -225,7 +234,9 @@
                 "properties": {
                   "id": {
                     "type": "string",
-                    "description": "Unique identifier for this navigation item"
+                    "minLength": 2,
+                    "pattern": "^[a-z][a-z0-9_]*$",
+                    "description": "Unique identifier for this navigation item (lowercase snake_case)"
                   },
                   "label": {
                     "type": "string",

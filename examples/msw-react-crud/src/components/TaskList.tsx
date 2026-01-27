@@ -46,6 +46,8 @@ export function TaskList({ client, onEdit, refreshTrigger }: TaskListProps) {
   }
 
   async function handleDelete(id: string) {
+    if (!confirm('Are you sure you want to delete this task?')) return;
+    
     try {
       // Use ObjectStack Client to delete task
       await client.data.delete('todo_task', id);
@@ -73,29 +75,47 @@ export function TaskList({ client, onEdit, refreshTrigger }: TaskListProps) {
 
   if (loading) {
     return (
-      <div className="task-list">
-        <p className="loading">Loading tasks...</p>
+      <div className="flex flex-col items-center justify-center py-20 text-accents-4 space-y-3">
+        <div className="w-6 h-6 border-2 border-accents-3 border-t-foreground rounded-full animate-spin"></div>
+        <p className="text-sm">Loading tasks...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="task-list">
-        <p className="error">Error: {error}</p>
-        <button onClick={loadTasks}>Retry</button>
+      <div className="text-center py-12">
+        <div className="inline-block p-4 border border-error-light/50 bg-error-lighter rounded-lg text-error mb-4">
+          {error}
+        </div>
+        <div>
+          <button 
+            onClick={loadTasks}
+            className="text-sm font-medium text-foreground hover:text-accents-5 underline transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="task-list">
-      <h2>Tasks ({tasks.length})</h2>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between pb-4 border-b border-accents-2">
+        <h2 className="text-2xl font-bold tracking-tight">Your Tasks</h2>
+        <span className="text-sm px-2.5 py-0.5 rounded-full bg-accents-1 text-accents-5 font-medium border border-accents-2">
+          {tasks.length}
+        </span>
+      </div>
       
       {tasks.length === 0 ? (
-        <p className="empty-state">No tasks yet. Create one to get started!</p>
+        <div className="text-center py-20 border border-dashed border-accents-3 rounded-lg bg-accents-1">
+          <p className="text-accents-5 font-medium">No tasks yet</p>
+          <p className="text-accents-4 text-sm mt-1">Create a new task to get started!</p>
+        </div>
       ) : (
-        <div className="tasks">
+        <div className="grid gap-4">
           {tasks.map((task) => (
             <TaskItem
               key={task.id}

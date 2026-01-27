@@ -1,0 +1,36 @@
+{
+  "$ref": "#/definitions/SCIMName",
+  "definitions": {
+    "SCIMName": {
+      "type": "object",
+      "properties": {
+        "formatted": {
+          "type": "string",
+          "description": "Formatted full name"
+        },
+        "familyName": {
+          "type": "string",
+          "description": "Family name (last name)"
+        },
+        "givenName": {
+          "type": "string",
+          "description": "Given name (first name)"
+        },
+        "middleName": {
+          "type": "string",
+          "description": "Middle name"
+        },
+        "honorificPrefix": {
+          "type": "string",
+          "description": "Honorific prefix (Mr., Ms., Dr.)"
+        },
+        "honorificSuffix": {
+          "type": "string",
+          "description": "Honorific suffix (Jr., Sr.)"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

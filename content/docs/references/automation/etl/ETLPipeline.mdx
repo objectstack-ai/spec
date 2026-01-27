@@ -1,0 +1,22 @@
+---
+title: ETLPipeline
+description: ETLPipeline Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Pipeline identifier (snake_case) |
+| **label** | `string` | optional | Pipeline display name |
+| **description** | `string` | optional | Pipeline description |
+| **source** | `object` | ✅ | Data source |
+| **destination** | `object` | ✅ | Data destination |
+| **transformations** | `object[]` | optional | Transformation pipeline |
+| **syncMode** | `Enum<'full' \| 'incremental' \| 'cdc'>` | optional | Sync mode |
+| **schedule** | `string` | optional | Cron schedule expression |
+| **enabled** | `boolean` | optional | Pipeline enabled status |
+| **retry** | `object` | optional | Retry configuration |
+| **notifications** | `object` | optional | Notification settings |
+| **tags** | `string[]` | optional | Pipeline tags |
+| **metadata** | `Record<string, any>` | optional | Custom metadata |

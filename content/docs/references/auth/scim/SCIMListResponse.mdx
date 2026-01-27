@@ -1,0 +1,14 @@
+---
+title: SCIMListResponse
+description: SCIMListResponse Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **schemas** | `string[]` | optional | SCIM schema URIs |
+| **totalResults** | `integer` | ✅ | Total results count |
+| **Resources** | `object \| object \| Record<string, any>[]` | ✅ | Resources array (Users, Groups, or custom resources) |
+| **startIndex** | `integer` | optional | Start index (1-based) |
+| **itemsPerPage** | `integer` | optional | Items per page |

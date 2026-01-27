@@ -6,8 +6,9 @@
       "properties": {
         "name": {
           "type": "string",
-          "pattern": "^[a-z_][a-z0-9_]*$",
-          "description": "Unique role name"
+          "minLength": 2,
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Unique role name (lowercase snake_case)"
         },
         "label": {
           "type": "string",

@@ -6,7 +6,7 @@
 
 Mission: Build the "Post-SaaS Operating System" — an open-core, local-first ecosystem that virtualizes data (SQL/Redis/Excel) and unifies business logic.
 Project & Responsibilities
- * packages/protocol (The Constitution) [Apache 2.0]
+ * packages/spec (The Constitution) [Apache 2.0]
    * CRITICAL: Contains the shared manifest.schema.json, TypeScript interfaces, and plugin lifecycle hooks (onInstall, onEnable).
    * Rule: All other packages depend on this. No circular dependencies.
  * packages/objectql (Data Engine) [Apache 2.0]
@@ -20,7 +20,7 @@ Project & Responsibilities
    * Tools for third-party developers to build Marketplace plugins.
  * drivers/* [Apache 2.0]
    * driver-postgres, driver-redis, driver-excel.
-   * Must implement interfaces defined in packages/protocol.
+   * Must implement interfaces defined in packages/spec.
 
 **PRIME DIRECTIVE:**
 

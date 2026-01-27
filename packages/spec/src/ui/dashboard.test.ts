@@ -10,7 +10,7 @@ import {
 
 describe('ChartType', () => {
   it('should accept all chart types', () => {
-    const types = ['metric', 'bar', 'line', 'pie', 'donut', 'funnel', 'table', 'text'];
+    const types = ['metric', 'bar', 'line', 'pie', 'funnel', 'table', 'text'];
     
     types.forEach(type => {
       expect(() => ChartType.parse(type)).not.toThrow();
@@ -18,7 +18,7 @@ describe('ChartType', () => {
   });
 
   it('should reject invalid chart types', () => {
-    expect(() => ChartType.parse('scatter')).toThrow();
+    expect(() => ChartType.parse('bubble')).toThrow();
     expect(() => ChartType.parse('invalid')).toThrow();
   });
 });
@@ -255,7 +255,7 @@ describe('DashboardSchema', () => {
           },
           {
             title: 'Opportunities by Type',
-            type: 'donut',
+            type: 'pie',
             object: 'opportunity',
             categoryField: 'type',
             aggregate: 'count',

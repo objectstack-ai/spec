@@ -98,14 +98,14 @@ const ObjectSchemaBase = z.object({
    * Taxonomy & Organization
    */
   tags: z.array(z.string()).optional().describe('Categorization tags (e.g. "sales", "system", "reference")'),
-  active: z.boolean().default(true).describe('Is the object active and usable'),
-  isSystem: z.boolean().default(false).describe('Is system object (protected from deletion)'),
-  abstract: z.boolean().default(false).describe('Is abstract base object (cannot be instantiated)'),
+  active: z.boolean().optional().default(true).describe('Is the object active and usable'),
+  isSystem: z.boolean().optional().default(false).describe('Is system object (protected from deletion)'),
+  abstract: z.boolean().optional().default(false).describe('Is abstract base object (cannot be instantiated)'),
 
   /** 
    * Storage & Virtualization 
    */
-  datasource: z.string().default('default').describe('Target Datasource ID. "default" is the primary DB.'),
+  datasource: z.string().optional().default('default').describe('Target Datasource ID. "default" is the primary DB.'),
   tableName: z.string().optional().describe('Physical table/collection name in the target datasource'),
   
   /** 

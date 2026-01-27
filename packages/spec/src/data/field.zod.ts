@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ExtensionsMapSchema } from '../system/extension.zod';
+import { SystemIdentifierSchema } from '../shared/identifiers.zod';
 
 /**
  * Field Type Enum
@@ -14,35 +15,58 @@ export const FieldType = z.enum([
   // Date & Time
   'date', 'datetime', 'time',
   // Logic
-  'boolean',
+  'boolean', 'toggle', // Toggle is a distinct UI from checkbox
   // Selection
-  'select', // Static options
+  'select',       // Single select dropdown
+  'multiselect',  // Multi select (often tags)
+  'radio',        // Radio group
+  'checkboxes',   // Checkbox group
   // Relational
-  'lookup', 'master_detail', // Dynamic reference to other objects
+  'lookup', 'master_detail', // Dynamic reference
+  'tree',         // Hierarchical reference
   // Media
-  'image', 'file', 'avatar',
+  'image', 'file', 'avatar', 'video', 'audio',
   // Calculated / System
   'formula', 'summary', 'autonumber',
   // Enhanced Types
-  'location', // GPS coordinates (aka geolocation)
-  'geolocation', // Alternative name for location field
-  'address', // Structured address
-  'code', // Code with syntax highlighting
-  'color', // Color picker
-  'rating', // Star rating
-  'slider', // Numeric slider
-  'signature', // Digital signature
-  'qrcode', // QR code / Barcode
+  'location',     // GPS coordinates
+  'address',      // Structured address
+  'code',         // Code editor (JSON/SQL/JS)
+  'json',         // Structured JSON data
+  'color',        // Color picker
+  'rating',       // Star rating
+  'slider',       // Numeric slider
+  'signature',    // Digital signature
+  'qrcode',       // QR code / Barcode
+  'progress',     // Progress bar
+  'tags',         // Simple tag list
+  // AI/ML Types
+  'vector',       // Vector embeddings for AI/ML (semantic search, RAG)
 ]);
 
 export type FieldType = z.infer<typeof FieldType>;
 
 /**
  * Select Option Schema
+ * 
+ * Defines option values for select/picklist fields.
+ * 
+ * **CRITICAL RULE**: The `value` field is a machine identifier that gets stored in the database.
+ * It MUST be lowercase to avoid case-sensitivity issues in queries and comparisons.
+ * 
+ * @example Good
+ * { label: 'New', value: 'new' }
+ * { label: 'In Progress', value: 'in_progress' }
+ * { label: 'Closed Won', value: 'closed_won' }
+ * 
+ * @example Bad (will be rejected)
+ * { label: 'New', value: 'New' } // uppercase
+ * { label: 'In Progress', value: 'In Progress' } // spaces and uppercase
+ * { label: 'Closed Won', value: 'Closed_Won' } // mixed case
  */
 export const SelectOptionSchema = z.object({
-  label: z.string().describe('Display label'),
-  value: z.string().describe('Stored value'),
+  label: z.string().describe('Display label (human-readable, any case allowed)'),
+  value: SystemIdentifierSchema.describe('Stored value (lowercase machine identifier)'),
   color: z.string().optional().describe('Color code for badges/charts'),
   default: z.boolean().optional().describe('Is default option'),
 });
@@ -98,6 +122,38 @@ export const AddressSchema = z.object({
   country: z.string().optional().describe('Country name or code'),
   countryCode: z.string().optional().describe('ISO country code (e.g., US, GB)'),
   formatted: z.string().optional().describe('Formatted address string'),
+});
+
+/**
+ * Vector Configuration Schema
+ * Configuration for vector field type supporting AI/ML embeddings
+ * 
+ * Vector fields store numerical embeddings for semantic search, similarity matching,
+ * and Retrieval-Augmented Generation (RAG) workflows.
+ * 
+ * @example
+ * // Text embeddings for semantic search
+ * {
+ *   dimensions: 1536,  // OpenAI text-embedding-ada-002
+ *   distanceMetric: 'cosine',
+ *   indexed: true
+ * }
+ * 
+ * @example
+ * // Image embeddings with normalization
+ * {
+ *   dimensions: 512,   // ResNet-50
+ *   distanceMetric: 'euclidean',
+ *   normalized: true,
+ *   indexed: true
+ * }
+ */
+export const VectorConfigSchema = z.object({
+  dimensions: z.number().int().min(1).max(10000).describe('Vector dimensionality (e.g., 1536 for OpenAI embeddings)'),
+  distanceMetric: z.enum(['cosine', 'euclidean', 'dotProduct', 'manhattan']).default('cosine').describe('Distance/similarity metric for vector search'),
+  normalized: z.boolean().default(false).describe('Whether vectors are normalized (unit length)'),
+  indexed: z.boolean().default(true).describe('Whether to create a vector index for fast similarity search'),
+  indexType: z.enum(['hnsw', 'ivfflat', 'flat']).optional().describe('Vector index algorithm (HNSW for high accuracy, IVFFlat for large datasets)'),
 });
 
 /**
@@ -184,6 +240,9 @@ export const FieldSchema = z.object({
   // Currency field config
   currencyConfig: CurrencyConfigSchema.optional().describe('Configuration for currency field type'),
 
+  // Vector field config
+  vectorConfig: VectorConfigSchema.optional().describe('Configuration for vector field type (AI/ML embeddings)'),
+
   /** Security & Visibility */
   hidden: z.boolean().default(false).describe('Hidden from default UI'),
   readonly: z.boolean().default(false).describe('Read-only in UI'),
@@ -215,6 +274,7 @@ export type LocationCoordinates = z.infer<typeof LocationCoordinatesSchema>;
 export type Address = z.infer<typeof AddressSchema>;
 export type CurrencyConfig = z.infer<typeof CurrencyConfigSchema>;
 export type CurrencyValue = z.infer<typeof CurrencyValueSchema>;
+export type VectorConfig = z.infer<typeof VectorConfigSchema>;
 
 /**
  * Field Factory Helper
@@ -246,13 +306,28 @@ export const Field = {
   /**
    * Select field helper with backward-compatible API
    * 
-   * @example Old API (array first)
-   * Field.select(['High', 'Low'], { label: 'Priority' })
+   * Automatically converts option values to lowercase to enforce naming conventions.
    * 
-   * @example New API (config object)
+   * @example Old API (array first) - auto-converts to lowercase
+   * Field.select(['High', 'Low'], { label: 'Priority' })
+   * // Results in: [{ label: 'High', value: 'high' }, { label: 'Low', value: 'low' }]
+   * 
+   * @example New API (config object) - enforces lowercase
    * Field.select({ options: [{label: 'High', value: 'high'}], label: 'Priority' })
+   * 
+   * @example Multi-word values - converts to snake_case
+   * Field.select(['In Progress', 'Closed Won'], { label: 'Status' })
+   * // Results in: [{ label: 'In Progress', value: 'in_progress' }, { label: 'Closed Won', value: 'closed_won' }]
    */
   select: (optionsOrConfig: SelectOption[] | string[] | FieldInput & { options: SelectOption[] | string[] }, config?: FieldInput) => {
+    // Helper function to convert string to lowercase snake_case
+    const toSnakeCase = (str: string): string => {
+      return str
+        .toLowerCase()
+        .replace(/\s+/g, '_')  // Replace spaces with underscores
+        .replace(/[^a-z0-9_]/g, ''); // Remove invalid characters (keeping underscores only)
+    };
+
     // Support both old and new signatures:
     // Old: Field.select(['a', 'b'], { label: 'X' })
     // New: Field.select({ options: [{label: 'A', value: 'a'}], label: 'X' })
@@ -261,11 +336,19 @@ export const Field = {
     
     if (Array.isArray(optionsOrConfig)) {
       // Old signature: array as first param
-      options = optionsOrConfig.map(o => typeof o === 'string' ? { label: o, value: o } : o);
+      options = optionsOrConfig.map(o => 
+        typeof o === 'string' 
+          ? { label: o, value: toSnakeCase(o) }  // Auto-convert string to snake_case
+          : { ...o, value: o.value.toLowerCase() }  // Ensure value is lowercase
+      );
       finalConfig = config || {};
     } else {
       // New signature: config object with options
-      options = (optionsOrConfig.options || []).map(o => typeof o === 'string' ? { label: o, value: o } : o);
+      options = (optionsOrConfig.options || []).map(o => 
+        typeof o === 'string' 
+          ? { label: o, value: toSnakeCase(o) }  // Auto-convert string to snake_case
+          : { ...o, value: o.value.toLowerCase() }  // Ensure value is lowercase
+      );
       // Remove options from config to avoid confusion
       const { options: _, ...restConfig } = optionsOrConfig;
       finalConfig = restConfig;
@@ -335,8 +418,15 @@ export const Field = {
     ...config 
   } as const),
   
-  geolocation: (config: FieldInput = {}) => ({ 
-    type: 'geolocation', 
+  vector: (dimensions: number, config: FieldInput = {}) => ({ 
+    type: 'vector', 
+    vectorConfig: {
+      dimensions,
+      distanceMetric: 'cosine' as const,
+      normalized: false,
+      indexed: true,
+      ...config.vectorConfig
+    },
     ...config 
   } as const),
 };

@@ -1,8 +1,11 @@
 {
   "title": "Automation Protocol",
-  "root": true,
   "pages": [
+    "approval",
+    "connector",
+    "etl",
     "flow",
+    "sync",
     "webhook",
     "workflow"
   ]

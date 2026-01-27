@@ -1,4 +1,4 @@
-import { ObjectStackManifest } from '@objectstack/spec/kernel';
+import { ObjectStackManifest } from '@objectstack/spec/system';
 
 const MemoryDriverPlugin: ObjectStackManifest = {
   id: 'com.objectstack.driver.memory',

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
 
 /**
  * Trigger events for workflow automation
@@ -182,10 +183,24 @@ export const TimeTriggerSchema = z.object({
 
 /**
  * Schema for Workflow Rules (Automation)
+ * 
+ * **NAMING CONVENTION:**
+ * Workflow names are machine identifiers and must be lowercase snake_case.
+ * 
+ * @example Good workflow names
+ * - 'send_welcome_email'
+ * - 'update_lead_status'
+ * - 'notify_manager_on_close'
+ * - 'calculate_discount'
+ * 
+ * @example Bad workflow names (will be rejected)
+ * - 'SendWelcomeEmail' (PascalCase)
+ * - 'updateLeadStatus' (camelCase)
+ * - 'Send Welcome Email' (spaces)
  */
 export const WorkflowRuleSchema = z.object({
   /** Machine name */
-  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Unique workflow name'),
+  name: SnakeCaseIdentifierSchema.describe('Unique workflow name (lowercase snake_case)'),
   
   /** Target Object */
   objectName: z.string().describe('Target Object'),

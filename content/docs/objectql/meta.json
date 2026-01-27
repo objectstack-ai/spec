@@ -1,0 +1,10 @@
+{
+  "title": "ObjectQL (Data Protocol)",
+  "root": true,
+  "pages": [
+    "schema",
+    "types",
+    "query-syntax",
+    "security"
+  ]
+}

@@ -1,6 +1,6 @@
 import { QueryAST, HookContext } from '@objectstack/spec/data';
-import { ObjectStackManifest } from '@objectstack/spec/kernel';
-import { DriverInterface, DriverOptions } from '@objectstack/spec/driver';
+import { ObjectStackManifest } from '@objectstack/spec/system';
+import { DriverInterface, DriverOptions } from '@objectstack/spec/system';
 import { SchemaRegistry } from './registry';
 
 // Export Registry for consumers

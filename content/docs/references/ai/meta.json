@@ -1,6 +1,5 @@
 {
   "title": "AI Protocol",
-  "root": true,
   "pages": [
     "agent",
     "conversation",

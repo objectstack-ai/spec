@@ -1,11 +1,18 @@
 {
   "title": "System Protocol",
-  "root": true,
   "pages": [
     "audit",
+    "context",
+    "datasource",
+    "driver",
     "events",
     "extension",
+    "feature",
     "job",
+    "logger",
+    "manifest",
+    "plugin",
+    "scoped-storage",
     "translation"
   ]
 }

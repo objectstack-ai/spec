@@ -3,94 +3,62 @@ title: Welcome to ObjectStack
 description: The Metadata-Driven Protocol for the Post-SaaS Era.
 ---
 
-import { Book, Compass, FileText, Layers } from 'lucide-react';
+import { Book, Compass, FileText, Layers, Database, Layout, Cpu, Code2 } from 'lucide-react';
 
 **ObjectStack** is not just a framework; it is a **Protocol** for building enterprise software. 
 It decouples the *Business Intent* (defined in JSON/YAML) from the *Technical Execution* (handled by the Kernel).
 
 This documentation is the authoritative reference for the ObjectStack Protocol.
 
-## How to navigate
+## The Three Pillars
+
+ObjectStack is built on three foundational protocols that work together as a unified system:
 
 <Cards>
   <Card
-    icon={<FileText />}
-    title="Quick Start"
-    href="/docs/quick-start"
-    description="Get started in under 5 minutes. Choose your learning path based on your role."
+    icon={<Database />}
+    title="ObjectQL"
+    href="/docs/objectql"
+    description="The Data Protocol. Define your Data Model (Objects, Fields) and query it abstractly."
   />
   <Card
-    icon={<Book />}
-    title="Tutorials"
-    href="/docs/tutorials"
-    description="Hands-on step-by-step tutorials to build real applications and learn by doing."
+    icon={<Layout />}
+    title="ObjectUI"
+    href="/docs/objectui"
+    description="The UI Protocol. Define your User Interfaces (Views, Actions) as pure data."
   />
+  <Card
+    icon={<Cpu />}
+    title="ObjectOS"
+    href="/docs/objectos"
+    description="The System Protocol. The Kernel that handles Identity, Transport, and Plugins."
+  />
+</Cards>
+
+## Getting Started
+
+<Cards>
   <Card
     icon={<Compass />}
-    title="Concepts"
-    href="/docs/concepts/manifesto"
-    description="Understand the philosophy of 'Intent over Implementation' and the 'Local-First' architecture."
+    title="Introduction"
+    href="/docs/introduction"
+    description="Understand the philosophy: 'Intent over Implementation' and Metadata-Driven Architecture."
   />
   <Card
-    icon={<Layers />}
-    title="Specifications"
-    href="/docs/specifications"
-    description="The Architecture Blueprints. Deep dive into ObjectQL (Data), ObjectUI (View), and ObjectOS (Control)."
+    icon={<Code2 />}
+    title="Developers"
+    href="/docs/developers"
+    description="Guides for writing plugins, creating custom widgets, and using the CLI tools."
   />
 </Cards>
 
-## Additional Resources
-
-<Cards>
-  <Card
-    icon={<FileText />}
-    title="Developer Guides"
-    href="/docs/guides/getting-started"
-    description="Comprehensive guides for building with ObjectStack. Field types, views, workflows, and more."
-  />
-  <Card
-    icon={<Book />}
-    title="API Reference"
-    href="/docs/references/data/core/Object"
-    description="Complete API documentation for every schema, field type, and configuration option."
-  />
-  <Card
-    icon={<FileText />}
-    title="FAQ"
-    href="/docs/faq"
-    description="Frequently asked questions about ObjectStack and how to use it."
-  />
-  <Card
-    icon={<FileText />}
-    title="Troubleshooting"
-    href="/docs/troubleshooting"
-    description="Common issues and how to resolve them."
-  />
-</Cards>
-
-## Quick Links
-
-### Essential Guides
-- **[Field Types](/docs/guides/field-types)** - 35 field types with examples (text, number, select, lookup, formula, etc.)
-- **[View Configuration](/docs/guides/view-configuration)** - Grid, Kanban, Calendar, Gantt, and Form layouts
-- **[Workflows & Validation](/docs/guides/workflows-validation)** - Business rules and automation
-- **[Project Structure](/docs/guides/project-structure)** - Best practices for organizing your code
-
-### Examples
-- **[CRM Example](https://github.com/objectstack-ai/spec/tree/main/examples/crm)** - Full-featured application with 6 objects, workflows, views, dashboards
-- **[Todo Example](https://github.com/objectstack-ai/spec/tree/main/examples/todo)** - Quick-start minimal example
-
-## The "Trinity" Architecture
-
-ObjectStack is built on five core modules that work in unison:
+## Why ObjectStack?
 
 | Module | Protocol | Responsibility |
 | :--- | :--- | :--- |
-| **Data Layer** | **[ObjectQL](/docs/specifications/data/architecture)** | Defines the shape of data (`Object`, `Field`) and how to access it (`Query AST`). Agnostic to SQL/NoSQL. |
-| **UI Layer** | **[ObjectUI](/docs/specifications/ui/sdui-protocol)** | The Projection. Defines User Interfaces as abstract JSON layouts (Views, Dashboards, Actions). |
-| **Control Layer** | **[ObjectOS](/docs/specifications/server/kernel-architecture)** | The Kernel. Handles Identity, Security, Sync, and Automation. |
-| **AI Layer** | **AI Protocol** | AI agent definitions, tools, knowledge bases, and model configurations. |
-| **API Layer** | **API Protocol** | Standardized REST/GraphQL contracts with request/response envelopes. |
+| **Data Layer** | **[ObjectQL](/docs/objectql)** | Defines the shape of data (`Object`, `Field`) and how to access it. Agnostic to SQL/NoSQL. |
+| **UI Layer** | **[ObjectUI](/docs/objectui)** | The Projection. Defines User Interfaces as abstract JSON layouts (Views, Forms). |
+| **System Layer** | **[ObjectOS](/docs/objectos)** | The Kernel. Handles Identity, Security, Sync, and Lifecycle. |
 
 ## For whom is this?
 

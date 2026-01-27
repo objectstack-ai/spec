@@ -34,9 +34,17 @@
                   "line",
                   "pie",
                   "donut",
+                  "gauge",
                   "funnel",
+                  "radar",
+                  "scatter",
+                  "heatmap",
+                  "pivot",
                   "table",
-                  "text"
+                  "list",
+                  "text",
+                  "image",
+                  "frame"
                 ],
                 "default": "metric",
                 "description": "Visualization type"
