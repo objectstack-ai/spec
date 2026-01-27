@@ -1,5 +1,13 @@
 # @objectstack/objectql
 
+## 0.4.2
+
+### Patch Changes
+
+- Unify all package versions to 0.4.2
+- Updated dependencies
+  - @objectstack/spec@0.4.2
+
 ## 0.4.1
 
 ### Patch Changes

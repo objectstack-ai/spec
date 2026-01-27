@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/types",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Shared interfaces describing the ObjectStack Runtime environment",
   "main": "src/index.ts",
   "types": "src/index.ts",
