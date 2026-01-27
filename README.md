@@ -26,6 +26,7 @@ We've completed all advanced query features and AI/ML field types:
 
 ### Protocol Reference
 *   **[Protocol Reference](./PROTOCOL_REFERENCE.md):** 📖 **Complete inventory of all 70 protocol specifications** with detailed descriptions, usage examples, and organization by module
+*   **[Protocol Organization](./PROTOCOL_ORGANIZATION.md):** 🗺️ **Visual diagrams and maps** showing protocol structure, dependencies, and relationships
 
 ### Quick Start
 *   **[Getting Started](./content/docs/guides/getting-started.mdx):** Quick introduction to ObjectStack Protocol

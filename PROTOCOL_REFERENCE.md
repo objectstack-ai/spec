@@ -4,6 +4,8 @@
 
 Last Updated: 2026-01-27
 
+**📖 See also:** [PROTOCOL_ORGANIZATION.md](./PROTOCOL_ORGANIZATION.md) for visual diagrams and protocol relationships.
+
 ## Overview
 
 This document provides a comprehensive reference to all 70 protocol specifications that define the ObjectStack platform. Each protocol is implemented as a Zod schema (`.zod.ts` file) providing runtime validation and TypeScript type safety.
