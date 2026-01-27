@@ -4,6 +4,7 @@
   "pages": [
     "index",
     "lifecycle",
+    "runtime-capabilities",
     "plugin-spec",
     "config-resolution",
     "i18n-standard",
