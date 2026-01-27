@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import defaultMdxComponents from 'fumadocs-ui/mdx';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 import { File, Folder, Files } from 'fumadocs-ui/components/files';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
 const components = {
   ...defaultMdxComponents,
@@ -14,6 +15,8 @@ const components = {
   Folder,
   Files,
   FileTree: Files,
+  Tab,
+  Tabs,
 };
 
 export default async function Page(props: {
