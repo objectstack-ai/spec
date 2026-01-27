@@ -2,11 +2,6 @@ import { ObjectQL } from '@objectstack/objectql';
 import { RuntimePlugin, RuntimeContext } from '@objectstack/types';
 
 /**
- * Symbol to identify ObjectQL plugins
- */
-export const OBJECTQL_PLUGIN_MARKER = Symbol('objectql-plugin');
-
-/**
  * ObjectQL Engine Plugin
  * 
  * Registers the ObjectQL engine instance with the kernel.
@@ -20,9 +15,6 @@ export const OBJECTQL_PLUGIN_MARKER = Symbol('objectql-plugin');
 export class ObjectQLPlugin implements RuntimePlugin {
   name = 'com.objectstack.engine.objectql';
   type = 'objectql' as const;
-  
-  // Mark this as an ObjectQL plugin for reliable detection
-  readonly [OBJECTQL_PLUGIN_MARKER] = true;
   
   private ql: ObjectQL;
 
