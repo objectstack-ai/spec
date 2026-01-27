@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Synchronized plugin-msw version to 0.4.1 (was incorrectly at 0.3.3)
-- Updated runtime peer dependency versions to ^0.4.0 across all plugins
+- Updated runtime peer dependency versions to ^0.4.1 across all plugins
 - Fixed internal dependency version mismatches
 
 ## [0.4.0] - 2026-01-26

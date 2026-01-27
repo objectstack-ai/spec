@@ -19,7 +19,7 @@ All packages have been updated to version **0.4.1**:
 
 This patch release resolves version synchronization issues:
 - Fixed plugin-msw version mismatch (was incorrectly at 0.3.3)
-- Updated runtime peer dependency versions to ^0.4.0 across all plugins
+- Updated runtime peer dependency versions to ^0.4.1 across all plugins
 - Ensured all packages in the fixed version group are synchronized
 
 ### 🚀 Publishing
