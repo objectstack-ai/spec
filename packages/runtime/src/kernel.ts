@@ -1,5 +1,6 @@
 import { ServiceObject } from '@objectstack/spec/data';
 import { SchemaRegistry, ObjectQL } from '@objectstack/objectql';
+import { OBJECTQL_PLUGIN_MARKER } from './objectql-plugin';
 
 /**
  * ObjectStack Kernel (Microkernel)
@@ -8,16 +9,16 @@ import { SchemaRegistry, ObjectQL } from '@objectstack/objectql';
  * plugins, and the core ObjectQL engine.
  */
 export class ObjectStackKernel {
-  public ql!: ObjectQL; // Will be set by ObjectQLPlugin or fallback initialization
+  public ql?: ObjectQL; // Will be set by ObjectQLPlugin or fallback initialization
   private plugins: any[];
 
   constructor(plugins: any[] = []) {
     this.plugins = plugins;
     
-    // Check if any plugin provides ObjectQL via install method
-    // If not, initialize it as a fallback for backward compatibility
+    // Check if any plugin provides ObjectQL via the plugin marker
+    // This is more robust than string matching on name
     const hasObjectQLPlugin = plugins.some(p => 
-      p && typeof p === 'object' && 'install' in p && p.name?.includes('objectql')
+      p && typeof p === 'object' && OBJECTQL_PLUGIN_MARKER in p
     );
     
     if (!hasObjectQLPlugin) {
@@ -27,6 +28,17 @@ export class ObjectStackKernel {
         env: process.env.NODE_ENV || 'development'
       });
     }
+  }
+
+  /**
+   * Ensure ObjectQL engine is initialized
+   * @throws Error if ObjectQL is not available
+   */
+  private ensureObjectQL(): ObjectQL {
+    if (!this.ql) {
+      throw new Error('[Kernel] ObjectQL engine not initialized. Ensure ObjectQLPlugin is registered or kernel is properly initialized.');
+    }
+    return this.ql;
   }
 
   async start() {
@@ -64,13 +76,13 @@ export class ObjectStackKernel {
         // @ts-ignore
         const { InMemoryDriver } = await import('@objectstack/driver-memory');
         const driver = new InMemoryDriver();
-        this.ql.registerDriver(driver);
+        this.ensureObjectQL().registerDriver(driver);
     } catch (e) {
         // Ignore if not present
     }
     
     // 2. Initialize Engine
-    await this.ql.init();
+    await this.ensureObjectQL().init();
 
 
     // 3. Seed Data
@@ -112,11 +124,11 @@ export class ObjectStackKernel {
                 for (const seed of app.data) {
                      try {
                         // Check if data exists
-                        const existing = await this.ql.find(seed.object, { top: 1 });
+                        const existing = await this.ensureObjectQL().find(seed.object, { top: 1 });
                         if (existing.length === 0) {
                              console.log(`[Kernel] Inserting ${seed.records.length} records into ${seed.object}`);
                              for (const record of seed.records) {
-                                 await this.ql.insert(seed.object, record);
+                                 await this.ensureObjectQL().insert(seed.object, record);
                              }
                         }
                      } catch (e) {
@@ -134,30 +146,30 @@ export class ObjectStackKernel {
   // Forward methods to ObjectQL
   async find(objectName: string, query: any) {
     this.ensureSchema(objectName);
-    const results = await this.ql.find(objectName, { top: 100 });
+    const results = await this.ensureObjectQL().find(objectName, { top: 100 });
     return { value: results, count: results.length };
   }
 
   async get(objectName: string, id: string) {
     this.ensureSchema(objectName);
     // Find One
-    const results = await this.ql.find(objectName, { top: 1 }); // Mock implementation
+    const results = await this.ensureObjectQL().find(objectName, { top: 1 }); // Mock implementation
     return results[0];
   }
 
   async create(objectName: string, data: any) {
      this.ensureSchema(objectName);
-     return this.ql.insert(objectName, data);
+     return this.ensureObjectQL().insert(objectName, data);
   }
 
   async update(objectName: string, id: string, data: any) {
     this.ensureSchema(objectName);
-    return this.ql.update(objectName, id, data);
+    return this.ensureObjectQL().update(objectName, id, data);
   }
 
   async delete(objectName: string, id: string) {
     this.ensureSchema(objectName);
-    return this.ql.delete(objectName, id);
+    return this.ensureObjectQL().delete(objectName, id);
   }
 
   // [New Methods for ObjectUI]
