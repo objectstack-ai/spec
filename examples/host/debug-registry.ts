@@ -1,5 +1,5 @@
 
-import { ObjectStackKernel } from '@objectstack/runtime';
+import { ObjectStackKernel, ObjectQLPlugin } from '@objectstack/runtime';
 import { SchemaRegistry, ObjectQL } from '@objectstack/objectql';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 
@@ -11,6 +11,7 @@ import TodoApp from '@objectstack/example-todo/objectstack.config';
     console.log('Objects inside App:', TodoApp.objects?.map((o: any) => o.name));
 
     const kernel = new ObjectStackKernel([
+        new ObjectQLPlugin(),
         TodoApp,
         new InMemoryDriver()
     ]);
