@@ -290,7 +290,8 @@ import { ViewSchema, AppSchema } from '@objectstack/spec/ui';
 import { ManifestSchema } from '@objectstack/spec/system';
 
 // Import types
-import type { Field, Object, View } from '@objectstack/spec/data';
+import type { Field, Object } from '@objectstack/spec/data';
+import type { View, App } from '@objectstack/spec/ui';
 
 // Validate at runtime
 const field = FieldSchema.parse({
