@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { ObjectSchema } from '../data/object.zod';
-import { DatasourceSchema } from '../driver/datasource.zod';
+import { DatasourceSchema } from './datasource.zod';
 
 /**
  * Schema for the ObjectStack Manifest.
