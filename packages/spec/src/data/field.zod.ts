@@ -39,6 +39,8 @@ export const FieldType = z.enum([
   'qrcode',       // QR code / Barcode
   'progress',     // Progress bar
   'tags',         // Simple tag list
+  // AI/ML Types
+  'vector',       // Vector embeddings for AI/ML (semantic search, RAG)
 ]);
 
 export type FieldType = z.infer<typeof FieldType>;
@@ -119,6 +121,38 @@ export const AddressSchema = z.object({
   country: z.string().optional().describe('Country name or code'),
   countryCode: z.string().optional().describe('ISO country code (e.g., US, GB)'),
   formatted: z.string().optional().describe('Formatted address string'),
+});
+
+/**
+ * Vector Configuration Schema
+ * Configuration for vector field type supporting AI/ML embeddings
+ * 
+ * Vector fields store numerical embeddings for semantic search, similarity matching,
+ * and Retrieval-Augmented Generation (RAG) workflows.
+ * 
+ * @example
+ * // Text embeddings for semantic search
+ * {
+ *   dimensions: 1536,  // OpenAI text-embedding-ada-002
+ *   distanceMetric: 'cosine',
+ *   indexed: true
+ * }
+ * 
+ * @example
+ * // Image embeddings with normalization
+ * {
+ *   dimensions: 512,   // ResNet-50
+ *   distanceMetric: 'euclidean',
+ *   normalized: true,
+ *   indexed: true
+ * }
+ */
+export const VectorConfigSchema = z.object({
+  dimensions: z.number().int().min(1).max(10000).describe('Vector dimensionality (e.g., 1536 for OpenAI embeddings)'),
+  distanceMetric: z.enum(['cosine', 'euclidean', 'dotProduct', 'manhattan']).default('cosine').describe('Distance/similarity metric for vector search'),
+  normalized: z.boolean().default(false).describe('Whether vectors are normalized (unit length)'),
+  indexed: z.boolean().default(true).describe('Whether to create a vector index for fast similarity search'),
+  indexType: z.enum(['hnsw', 'ivfflat', 'flat']).optional().describe('Vector index algorithm (HNSW for high accuracy, IVFFlat for large datasets)'),
 });
 
 /**
@@ -205,6 +239,9 @@ export const FieldSchema = z.object({
   // Currency field config
   currencyConfig: CurrencyConfigSchema.optional().describe('Configuration for currency field type'),
 
+  // Vector field config
+  vectorConfig: VectorConfigSchema.optional().describe('Configuration for vector field type (AI/ML embeddings)'),
+
   /** Security & Visibility */
   hidden: z.boolean().default(false).describe('Hidden from default UI'),
   readonly: z.boolean().default(false).describe('Read-only in UI'),
@@ -221,6 +258,7 @@ export type LocationCoordinates = z.infer<typeof LocationCoordinatesSchema>;
 export type Address = z.infer<typeof AddressSchema>;
 export type CurrencyConfig = z.infer<typeof CurrencyConfigSchema>;
 export type CurrencyValue = z.infer<typeof CurrencyValueSchema>;
+export type VectorConfig = z.infer<typeof VectorConfigSchema>;
 
 /**
  * Field Factory Helper
@@ -361,6 +399,18 @@ export const Field = {
   
   qrcode: (config: FieldInput = {}) => ({ 
     type: 'qrcode', 
+    ...config 
+  } as const),
+  
+  vector: (dimensions: number, config: FieldInput = {}) => ({ 
+    type: 'vector', 
+    vectorConfig: {
+      dimensions,
+      distanceMetric: 'cosine' as const,
+      normalized: false,
+      indexed: true,
+      ...config.vectorConfig
+    },
     ...config 
   } as const),
 };

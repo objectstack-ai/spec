@@ -5,10 +5,12 @@ import {
   SelectOptionSchema,
   CurrencyConfigSchema,
   CurrencyValueSchema,
+  VectorConfigSchema,
   Field,
   type SelectOption,
   type CurrencyConfig,
-  type CurrencyValue
+  type CurrencyValue,
+  type VectorConfig
 } from './field.zod';
 
 describe('FieldType', () => {
@@ -23,7 +25,7 @@ describe('FieldType', () => {
       'lookup', 'master_detail',
       'image', 'file', 'avatar',
       'formula', 'summary', 'autonumber',
-      'location', 'address', 'code', 'color', 'rating', 'slider', 'signature', 'qrcode'
+      'location', 'address', 'code', 'color', 'rating', 'slider', 'signature', 'qrcode', 'vector'
     ];
 
     validTypes.forEach(type => {
@@ -831,6 +833,186 @@ describe('Field Factory Helpers', () => {
       expect(cryptoField.currencyConfig?.precision).toBe(8);
       expect(cryptoField.currencyConfig?.currencyMode).toBe('fixed');
       expect(cryptoField.currencyConfig?.defaultCurrency).toBe('BTC');
+    });
+  });
+
+  describe('Vector Field Type for AI/ML Embeddings', () => {
+    it('should accept vector field type', () => {
+      expect(() => FieldType.parse('vector')).not.toThrow();
+    });
+
+    it('should create vector field with default config', () => {
+      const vectorField = Field.vector(1536, {
+        name: 'embedding',
+        label: 'Text Embedding',
+      });
+      
+      expect(vectorField.type).toBe('vector');
+      expect(vectorField.name).toBe('embedding');
+      expect(vectorField.label).toBe('Text Embedding');
+      expect(vectorField.vectorConfig?.dimensions).toBe(1536);
+      expect(vectorField.vectorConfig?.distanceMetric).toBe('cosine');
+      expect(vectorField.vectorConfig?.normalized).toBe(false);
+      expect(vectorField.vectorConfig?.indexed).toBe(true);
+    });
+
+    it('should create vector field with custom config', () => {
+      const vectorField = Field.vector(512, {
+        name: 'image_embedding',
+        label: 'Image Embedding',
+        vectorConfig: {
+          dimensions: 512,
+          distanceMetric: 'euclidean',
+          normalized: true,
+          indexed: true,
+          indexType: 'hnsw',
+        },
+      });
+      
+      expect(vectorField.type).toBe('vector');
+      expect(vectorField.vectorConfig?.dimensions).toBe(512);
+      expect(vectorField.vectorConfig?.distanceMetric).toBe('euclidean');
+      expect(vectorField.vectorConfig?.normalized).toBe(true);
+      expect(vectorField.vectorConfig?.indexType).toBe('hnsw');
+    });
+
+    it('should validate vector field with valid config', () => {
+      const validField = {
+        name: 'product_embedding',
+        label: 'Product Embedding',
+        type: 'vector' as const,
+        vectorConfig: {
+          dimensions: 768,
+          distanceMetric: 'dotProduct' as const,
+          normalized: false,
+          indexed: true,
+          indexType: 'ivfflat' as const,
+        },
+      };
+
+      const result = FieldSchema.safeParse(validField);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.vectorConfig?.dimensions).toBe(768);
+        expect(result.data.vectorConfig?.distanceMetric).toBe('dotProduct');
+        expect(result.data.vectorConfig?.indexType).toBe('ivfflat');
+      }
+    });
+
+    it('should accept all distance metrics', () => {
+      const metrics = ['cosine', 'euclidean', 'dotProduct', 'manhattan'] as const;
+      
+      metrics.forEach(metric => {
+        const config = {
+          dimensions: 100,
+          distanceMetric: metric,
+          normalized: false,
+          indexed: true,
+        };
+
+        expect(() => VectorConfigSchema.parse(config)).not.toThrow();
+      });
+    });
+
+    it('should accept all index types', () => {
+      const indexTypes = ['hnsw', 'ivfflat', 'flat'] as const;
+      
+      indexTypes.forEach(indexType => {
+        const config = {
+          dimensions: 100,
+          distanceMetric: 'cosine' as const,
+          normalized: false,
+          indexed: true,
+          indexType,
+        };
+
+        expect(() => VectorConfigSchema.parse(config)).not.toThrow();
+      });
+    });
+
+    it('should apply default values for vector config', () => {
+      const config = VectorConfigSchema.parse({
+        dimensions: 1536,
+      });
+      
+      expect(config.dimensions).toBe(1536);
+      expect(config.distanceMetric).toBe('cosine');
+      expect(config.normalized).toBe(false);
+      expect(config.indexed).toBe(true);
+    });
+
+    it('should reject invalid dimension values', () => {
+      const invalidDimensions = [0, -1, 10001, 1.5];
+      
+      invalidDimensions.forEach(dimensions => {
+        expect(() => VectorConfigSchema.parse({ dimensions })).toThrow();
+      });
+    });
+
+    it('should accept valid dimension range', () => {
+      const validDimensions = [1, 128, 512, 768, 1536, 3072, 10000];
+      
+      validDimensions.forEach(dimensions => {
+        expect(() => VectorConfigSchema.parse({ dimensions })).not.toThrow();
+      });
+    });
+
+    it('should work with OpenAI embeddings', () => {
+      const openAIField = Field.vector(1536, {
+        name: 'text_embedding',
+        label: 'Text Embedding (OpenAI)',
+        description: 'OpenAI text-embedding-ada-002',
+        vectorConfig: {
+          dimensions: 1536,
+          distanceMetric: 'cosine',
+          normalized: true,
+          indexed: true,
+          indexType: 'hnsw',
+        },
+      });
+      
+      expect(openAIField.type).toBe('vector');
+      expect(openAIField.vectorConfig?.dimensions).toBe(1536);
+      expect(openAIField.description).toBe('OpenAI text-embedding-ada-002');
+    });
+
+    it('should work with image embeddings', () => {
+      const imageEmbeddingField = Field.vector(512, {
+        name: 'image_features',
+        label: 'Image Features (ResNet-50)',
+        vectorConfig: {
+          dimensions: 512,
+          distanceMetric: 'euclidean',
+          normalized: true,
+          indexed: true,
+        },
+      });
+      
+      expect(imageEmbeddingField.type).toBe('vector');
+      expect(imageEmbeddingField.vectorConfig?.dimensions).toBe(512);
+      expect(imageEmbeddingField.vectorConfig?.distanceMetric).toBe('euclidean');
+    });
+
+    it('should support RAG use case', () => {
+      const ragField = Field.vector(768, {
+        name: 'document_embedding',
+        label: 'Document Embedding',
+        description: 'Semantic embedding for RAG retrieval',
+        required: false,
+        searchable: true,
+        vectorConfig: {
+          dimensions: 768,
+          distanceMetric: 'cosine',
+          normalized: true,
+          indexed: true,
+          indexType: 'hnsw',
+        },
+      });
+      
+      expect(ragField.type).toBe('vector');
+      expect(ragField.searchable).toBe(true);
+      expect(ragField.vectorConfig?.indexed).toBe(true);
+      expect(ragField.vectorConfig?.indexType).toBe('hnsw');
     });
   });
 });

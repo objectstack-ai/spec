@@ -1,0 +1,51 @@
+{
+  "$ref": "#/definitions/VectorConfig",
+  "definitions": {
+    "VectorConfig": {
+      "type": "object",
+      "properties": {
+        "dimensions": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000,
+          "description": "Vector dimensionality (e.g., 1536 for OpenAI embeddings)"
+        },
+        "distanceMetric": {
+          "type": "string",
+          "enum": [
+            "cosine",
+            "euclidean",
+            "dotProduct",
+            "manhattan"
+          ],
+          "default": "cosine",
+          "description": "Distance/similarity metric for vector search"
+        },
+        "normalized": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether vectors are normalized (unit length)"
+        },
+        "indexed": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to create a vector index for fast similarity search"
+        },
+        "indexType": {
+          "type": "string",
+          "enum": [
+            "hnsw",
+            "ivfflat",
+            "flat"
+          ],
+          "description": "Vector index algorithm (HNSW for high accuracy, IVFFlat for large datasets)"
+        }
+      },
+      "required": [
+        "dimensions"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

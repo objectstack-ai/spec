@@ -1,0 +1,14 @@
+---
+title: VectorConfig
+description: VectorConfig Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **dimensions** | `integer` | ✅ | Vector dimensionality (e.g., 1536 for OpenAI embeddings) |
+| **distanceMetric** | `Enum<'cosine' \| 'euclidean' \| 'dotProduct' \| 'manhattan'>` | optional | Distance/similarity metric for vector search |
+| **normalized** | `boolean` | optional | Whether vectors are normalized (unit length) |
+| **indexed** | `boolean` | optional | Whether to create a vector index for fast similarity search |
+| **indexType** | `Enum<'hnsw' \| 'ivfflat' \| 'flat'>` | optional | Vector index algorithm (HNSW for high accuracy, IVFFlat for large datasets) |
