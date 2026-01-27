@@ -1,9 +1,6 @@
 {
   "title": "Protocol Reference",
   "pages": [
-    "quick-reference",
-    "protocol-map",
-    "---",
     "data",
     "ui",
     "automation",
@@ -11,9 +8,6 @@
     "permission",
     "ai",
     "api",
-    "driver",
-    "auth",
-    "hub",
-    "shared"
+    "driver"
   ]
 }

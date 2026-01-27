@@ -333,8 +333,7 @@ Object.entries(CATEGORIES).forEach(([category, title]) => {
   if (zodFiles.size === 0) return;
   
   let overviewMd = `---\ntitle: ${title} Overview\ndescription: Complete reference for all ${title.toLowerCase()} schemas\n---\n\n`;
-  overviewMd += `import { Card, Cards } from 'fumadocs-ui/components/card';\n`;
-  overviewMd += `import { Database, Cpu, Zap } from 'lucide-react';\n\n`;
+  overviewMd += `import { Card, Cards } from 'fumadocs-ui/components/card';\n\n`;
   
   overviewMd += `# ${title}\n\n`;
   overviewMd += `This section contains all protocol schemas for the ${category} layer of ObjectStack.\n\n`;
