@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { PageComponentType } from './page.zod';
 
 /**
  * Empty Properties Schema

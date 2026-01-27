@@ -3,6 +3,8 @@
   "pages": [
     "action",
     "app",
+    "block",
+    "component",
     "dashboard",
     "page",
     "report",

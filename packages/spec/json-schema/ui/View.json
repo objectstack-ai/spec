@@ -20,8 +20,11 @@
               "type": "string",
               "enum": [
                 "grid",
+                "spreadsheet",
                 "kanban",
+                "gallery",
                 "calendar",
+                "timeline",
                 "gantt",
                 "map"
               ],
@@ -407,7 +410,10 @@
               "enum": [
                 "simple",
                 "tabbed",
-                "wizard"
+                "wizard",
+                "split",
+                "drawer",
+                "modal"
               ],
               "default": "simple"
             },
@@ -765,8 +771,11 @@
                 "type": "string",
                 "enum": [
                   "grid",
+                  "spreadsheet",
                   "kanban",
+                  "gallery",
                   "calendar",
+                  "timeline",
                   "gantt",
                   "map"
                 ],
@@ -1156,7 +1165,10 @@
                 "enum": [
                   "simple",
                   "tabbed",
-                  "wizard"
+                  "wizard",
+                  "split",
+                  "drawer",
+                  "modal"
                 ],
                 "default": "simple"
               },

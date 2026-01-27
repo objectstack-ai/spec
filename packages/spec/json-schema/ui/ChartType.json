@@ -8,10 +8,16 @@
         "bar",
         "line",
         "pie",
-        "donut",
         "funnel",
+        "radar",
+        "scatter",
+        "heatmap",
+        "pivot",
         "table",
-        "text"
+        "list",
+        "text",
+        "image",
+        "frame"
       ]
     }
   },

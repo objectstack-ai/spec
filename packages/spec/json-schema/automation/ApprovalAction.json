@@ -1,0 +1,35 @@
+{
+  "$ref": "#/definitions/ApprovalAction",
+  "definitions": {
+    "ApprovalAction": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "field_update",
+            "email_alert",
+            "webhook",
+            "script"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "description": "Action name"
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Action configuration"
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "config"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

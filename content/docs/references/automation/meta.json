@@ -1,6 +1,7 @@
 {
   "title": "Automation Protocol",
   "pages": [
+    "approval",
     "flow",
     "webhook",
     "workflow"

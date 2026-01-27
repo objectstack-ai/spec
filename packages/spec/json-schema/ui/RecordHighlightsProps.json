@@ -1,0 +1,24 @@
+{
+  "$ref": "#/definitions/RecordHighlightsProps",
+  "definitions": {
+    "RecordHighlightsProps": {
+      "type": "object",
+      "properties": {
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "maxItems": 7,
+          "description": "Key fields to highlights (max 7)"
+        }
+      },
+      "required": [
+        "fields"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

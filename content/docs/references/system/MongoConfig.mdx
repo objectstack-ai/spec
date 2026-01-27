@@ -1,0 +1,23 @@
+---
+title: MongoConfig
+description: MongoConfig Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **url** | `string` | optional | Connection URI |
+| **database** | `string` | ✅ | Database Name |
+| **host** | `string` | optional | Host address |
+| **port** | `number` | optional | Port number |
+| **username** | `string` | optional | Auth User |
+| **password** | `string` | optional | Auth Password |
+| **authSource** | `string` | optional | Authentication Database |
+| **ssl** | `boolean` | optional | Enable SSL |
+| **replicaSet** | `string` | optional | Replica Set Name |
+| **readPreference** | `Enum<'primary' \| 'primaryPreferred' \| 'secondary' \| 'secondaryPreferred' \| 'nearest'>` | optional | Read Preference |
+| **maxPoolSize** | `number` | optional | Max Connection Pool Size |
+| **minPoolSize** | `number` | optional | Min Connection Pool Size |
+| **connectTimeoutMS** | `number` | optional | Connection Timeout (ms) |
+| **socketTimeoutMS** | `number` | optional | Socket Timeout (ms) |

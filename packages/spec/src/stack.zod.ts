@@ -18,7 +18,7 @@ import { ThemeSchema } from './ui/theme.zod';
 
 // Automation Protocol
 import { ApprovalProcessSchema } from './automation/approval.zod';
-import { WorkflowSchema } from './automation/workflow.zod';
+import { WorkflowRuleSchema } from './automation/workflow.zod';
 import { FlowSchema } from './automation/flow.zod';
 
 // Security Protocol
@@ -65,7 +65,7 @@ export const ObjectStackSchema = z.object({
    * ObjectFlow: Automation Layer 
    * Business logic, approvals, and workflows.
    */
-  workflows: z.array(WorkflowSchema).optional().describe('Event-driven workflows'),
+  workflows: z.array(WorkflowRuleSchema).optional().describe('Event-driven workflows'),
   approvals: z.array(ApprovalProcessSchema).optional().describe('Approval processes'),
   flows: z.array(FlowSchema).optional().describe('Screen Flows'),
 

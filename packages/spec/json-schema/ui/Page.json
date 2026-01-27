@@ -59,8 +59,38 @@
                   "type": "object",
                   "properties": {
                     "type": {
-                      "type": "string",
-                      "description": "Component Type (e.g. \"steedos-labs.related-list\")"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "page:header",
+                            "page:footer",
+                            "page:sidebar",
+                            "page:tabs",
+                            "page:accordion",
+                            "page:card",
+                            "page:section",
+                            "record:details",
+                            "record:highlights",
+                            "record:related_list",
+                            "record:activity",
+                            "record:chatter",
+                            "record:path",
+                            "app:launcher",
+                            "nav:menu",
+                            "nav:breadcrumb",
+                            "global:search",
+                            "global:notifications",
+                            "user:profile",
+                            "ai:chat_window",
+                            "ai:suggestion"
+                          ]
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ],
+                      "description": "Component Type (Standard enum or custom string)"
                     },
                     "id": {
                       "type": "string",
@@ -72,7 +102,7 @@
                     "properties": {
                       "type": "object",
                       "additionalProperties": {},
-                      "description": "Component props passed to the widget"
+                      "description": "Component props passed to the widget. See block.zod.ts for schemas."
                     },
                     "visibility": {
                       "type": "string",

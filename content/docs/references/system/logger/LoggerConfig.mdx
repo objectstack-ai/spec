@@ -1,0 +1,15 @@
+---
+title: LoggerConfig
+description: LoggerConfig Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **level** | `Enum<'debug' \| 'info' \| 'warn' \| 'error' \| 'fatal'>` | optional | Log severity level |
+| **format** | `Enum<'json' \| 'text' \| 'pretty'>` | optional | Log output format |
+| **redact** | `string[]` | optional | Keys to redact from log context |
+| **sourceLocation** | `boolean` | optional | Include file and line number |
+| **file** | `string` | optional | Path to log file |
+| **rotation** | `object` | optional |  |

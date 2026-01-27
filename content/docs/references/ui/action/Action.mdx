@@ -11,6 +11,7 @@ description: Action Schema Reference
 | **label** | `string` | ✅ | Display label |
 | **icon** | `string` | optional | Icon name |
 | **locations** | `Enum<'list_toolbar' \| 'list_item' \| 'record_header' \| 'record_more' \| 'record_related' \| 'global_nav'>[]` | optional | Locations where this action is visible |
+| **component** | `Enum<'action:button' \| 'action:icon' \| 'action:menu' \| 'action:group'>` | optional | Visual component override |
 | **location** | `any` | optional |  |
 | **type** | `Enum<'script' \| 'url' \| 'modal' \| 'flow' \| 'api'>` | optional | Action functionality type |
 | **target** | `string` | optional | URL, Script Name, Flow ID, or API Endpoint |
