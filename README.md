@@ -25,7 +25,8 @@ We've completed all advanced query features and AI/ML field types:
 ## 📚 Documentation
 
 ### Protocol Reference
-*   **[Protocol Reference](./PROTOCOL_REFERENCE.md):** 📖 **Complete inventory of all 70 protocol specifications** with detailed descriptions, usage examples, and organization by module
+*   **[Protocol Index](./PROTOCOL_INDEX.md):** 📑 **Quick navigation index** to all 70 protocol specifications with direct links
+*   **[Protocol Reference](./PROTOCOL_REFERENCE.md):** 📖 **Complete inventory** with detailed descriptions, usage examples, and organization by module
 *   **[Protocol Organization](./PROTOCOL_ORGANIZATION.md):** 🗺️ **Visual diagrams and maps** showing protocol structure, dependencies, and relationships
 
 ### Quick Start

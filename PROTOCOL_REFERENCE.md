@@ -4,7 +4,9 @@
 
 Last Updated: 2026-01-27
 
-**📖 See also:** [PROTOCOL_ORGANIZATION.md](./PROTOCOL_ORGANIZATION.md) for visual diagrams and protocol relationships.
+**📖 See also:** 
+- [PROTOCOL_INDEX.md](./PROTOCOL_INDEX.md) for quick navigation links to all protocols
+- [PROTOCOL_ORGANIZATION.md](./PROTOCOL_ORGANIZATION.md) for visual diagrams and protocol relationships
 
 ## Overview
 
