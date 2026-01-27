@@ -1,6 +1,5 @@
 import { ServiceObject } from '@objectstack/spec/data';
 import { SchemaRegistry, ObjectQL } from '@objectstack/objectql';
-import { OBJECTQL_PLUGIN_MARKER } from './objectql-plugin';
 
 /**
  * ObjectStack Kernel (Microkernel)
@@ -15,10 +14,10 @@ export class ObjectStackKernel {
   constructor(plugins: any[] = []) {
     this.plugins = plugins;
     
-    // Check if any plugin provides ObjectQL via the plugin marker
-    // This is more robust than string matching on name
+    // Check if any plugin provides ObjectQL via type: 'objectql'
+    // This aligns with the manifest schema that supports objectql as a package type
     const hasObjectQLPlugin = plugins.some(p => 
-      p && typeof p === 'object' && OBJECTQL_PLUGIN_MARKER in p
+      p && typeof p === 'object' && p.type === 'objectql'
     );
     
     if (!hasObjectQLPlugin) {

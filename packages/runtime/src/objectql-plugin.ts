@@ -19,6 +19,7 @@ export const OBJECTQL_PLUGIN_MARKER = Symbol('objectql-plugin');
  */
 export class ObjectQLPlugin implements RuntimePlugin {
   name = 'com.objectstack.engine.objectql';
+  type = 'objectql' as const;
   
   // Mark this as an ObjectQL plugin for reliable detection
   readonly [OBJECTQL_PLUGIN_MARKER] = true;

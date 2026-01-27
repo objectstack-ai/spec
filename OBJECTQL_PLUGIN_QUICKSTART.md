@@ -186,16 +186,16 @@ new ObjectQLPlugin(undefined, { env: 'prod' })  // Create with context
 
 ## Advanced
 
-### Symbol-Based Detection
+### Type-Based Detection
 
-ObjectQLPlugin uses a symbol for reliable detection:
+ObjectQLPlugin uses a `type` field for reliable detection:
 
 ```typescript
-import { OBJECTQL_PLUGIN_MARKER } from '@objectstack/runtime';
-
 // Check if a plugin is an ObjectQL plugin
-const isObjectQLPlugin = OBJECTQL_PLUGIN_MARKER in plugin;
+const isObjectQLPlugin = plugin && plugin.type === 'objectql';
 ```
+
+The plugin sets `type = 'objectql'` which aligns with the manifest schema that supports package types: 'app', 'plugin', 'driver', 'module', 'objectql', 'gateway', 'adapter'.
 
 ### Type Safety
 
