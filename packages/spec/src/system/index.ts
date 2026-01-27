@@ -8,6 +8,8 @@
  */
 
 export * from './audit.zod';
+export * from './manifest.zod';
+export * from './datasource.zod';
 export * from './translation.zod';
 export * from './events.zod';
 export * from './job.zod';
