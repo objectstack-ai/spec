@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [0.3.4] - 2026-01-27
+
+### Changed
+- Patch release with recent protocol improvements and window functions support
+- Updated all packages to version 0.3.4
+
 ## [0.3.3] - 2026-01-25
 
 ### Changed
