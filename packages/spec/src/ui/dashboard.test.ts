@@ -18,7 +18,7 @@ describe('ChartType', () => {
   });
 
   it('should reject invalid chart types', () => {
-    expect(() => ChartType.parse('scatter')).toThrow();
+    expect(() => ChartType.parse('bubble')).toThrow();
     expect(() => ChartType.parse('invalid')).toThrow();
   });
 });

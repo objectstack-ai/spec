@@ -29,6 +29,7 @@ export const FieldType = z.enum([
   'formula', 'summary', 'autonumber',
   // Enhanced Types
   'location',     // GPS coordinates
+  'geolocation',  // GPS coordinates (alias for location)
   'address',      // Structured address
   'code',         // Code editor (JSON/SQL/JS)
   'json',         // Structured JSON data
