@@ -150,11 +150,12 @@ function generateMarkdown(schemaName: string, schema: any, category: string, zod
     requiredProps.forEach((propName, idx) => {
       const prop = (mainDef.properties as any)[propName];
       const exampleValue = getExampleValue(prop, propName as string);
-      md += `  ${propName}: ${exampleValue}${idx < requiredProps.length - 1 || mainDef.required?.length > 3 ? ',' : ''}\n`;
+      const isLast = (idx === requiredProps.length - 1) && (mainDef.required?.length <= 3);
+      md += `  ${propName}: ${exampleValue}${isLast ? '' : ','}\n`;
     });
     
     if (mainDef.required?.length > 3) {
-      md += `  // ... other fields\n`;
+      md += `  // ... other required fields\n`;
     }
     
     md += `};\n`;
@@ -208,7 +209,7 @@ function findRelatedSchemas(schemaName: string, mainDef: any, category: string):
   
   if (mainDef.properties) {
     for (const prop of Object.values(mainDef.properties) as any[]) {
-      if (prop.$ref) {
+      if (prop.$ref && typeof prop.$ref === 'string' && prop.$ref.includes('/')) {
         const refName = prop.$ref.split('/').pop();
         if (refName && refName !== schemaName && !seen.has(refName)) {
           const zodFile = schemaZodFileMap.get(refName);
