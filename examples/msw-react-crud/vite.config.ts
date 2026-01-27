@@ -20,6 +20,20 @@ export default defineConfig({
     commonjsOptions: {
       include: [/node_modules/, /packages/],
       transformMixedEsModules: true
+    },
+    rollupOptions: {
+      // Suppress warnings for optional dynamic imports in runtime
+      onwarn(warning, warn) {
+        // Ignore unresolved import warnings for @objectstack/driver-memory
+        // This is an optional dynamic import in the runtime that gets resolved at build time
+        if (
+          warning.code === 'UNRESOLVED_IMPORT' &&
+          warning.message.includes('@objectstack/driver-memory')
+        ) {
+          return;
+        }
+        warn(warning);
+      }
     }
   }
 });
