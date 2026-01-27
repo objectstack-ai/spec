@@ -1,6 +1,5 @@
 {
-  "label": "Protocol Reference",
-  "root": true,
+  "title": "Protocol Reference",
   "pages": [
     "data",
     "ui",
