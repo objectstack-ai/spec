@@ -105,8 +105,9 @@ export type ObjectStack = ObjectStackDefinition;
 
 /**
  * Type-safe helper to define a project configuration.
+ * Uses input type to allow optional fields with defaults.
  */
-export const defineStack = (config: ObjectStackDefinition) => config;
+export const defineStack = (config: z.input<typeof ObjectStackDefinitionSchema>) => config;
 
 
 /**

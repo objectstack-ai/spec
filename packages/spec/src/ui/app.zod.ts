@@ -150,10 +150,10 @@ export const AppSchema = z.object({
   branding: AppBrandingSchema.optional().describe('App-specific branding'),
   
   /** Application status */
-  active: z.boolean().default(true).describe('Whether the app is enabled'),
+  active: z.boolean().optional().default(true).describe('Whether the app is enabled'),
 
   /** Is this the default app for new users? */
-  isDefault: z.boolean().default(false).describe('Is default app'),
+  isDefault: z.boolean().optional().default(false).describe('Is default app'),
   
   /** 
    * Navigation Tree Structure.
