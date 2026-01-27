@@ -265,6 +265,9 @@ importers:
 
   packages/ai-bridge:
     dependencies:
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../spec
       zod:
         specifier: ^3.22.4
         version: 3.25.76

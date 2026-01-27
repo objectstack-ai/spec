@@ -93,7 +93,6 @@ export function generateTypeScriptDefinition(objects: ObjectDef[]): string {
           break;
 
         case 'location':
-        case 'geolocation':
         case 'address':
            tsType = '{ latitude: number; longitude: number; } | any';
            break;
