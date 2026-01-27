@@ -43,12 +43,17 @@ import { AgentSchema } from './ai/agent.zod';
  * 4. Platform Reflection (API & Capabilities Discovery)
  */
 /**
- * 1. CONFIGURATION PROTOCOL (Static)
+ * 1. DEFINITION PROTOCOL (Static)
  * ----------------------------------------------------------------------
- * Describes the "Source Code" of an ObjectStack Plugin or Project.
- * This is what developers write (or AI generates) in `objectstack.config.ts`.
+ * Describes the "Blueprint" or "Source Code" of an ObjectStack Plugin/Project.
+ * This represents the complete declarative state of the application.
+ * 
+ * Usage:
+ * - Developers write this in files locally.
+ * - AI Agents generate this to create apps.
+ * - CI Tools deploy this to the server.
  */
-export const ObjectStackConfigSchema = z.object({
+export const ObjectStackDefinitionSchema = z.object({
   /** System Configuration */
   manifest: ManifestSchema.describe('Project Package Configuration'),
   datasources: z.array(DatasourceSchema).optional().describe('External Data Connections'),
@@ -92,11 +97,11 @@ export const ObjectStackConfigSchema = z.object({
   agents: z.array(AgentSchema).optional().describe('AI Agents and Assistants'),
 });
 
-export type ObjectStackConfig = z.infer<typeof ObjectStackConfigSchema>;
+export type ObjectStackDefinition = z.infer<typeof ObjectStackDefinitionSchema>;
 
 // Alias for backward compatibility
-export const ObjectStackSchema = ObjectStackConfigSchema;
-export type ObjectStack = ObjectStackConfig;
+export const ObjectStackSchema = ObjectStackDefinitionSchema;
+export type ObjectStack = ObjectStackDefinition;
 
 
 /**
