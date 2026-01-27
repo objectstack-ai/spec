@@ -1,32 +1,32 @@
 import { z } from 'zod';
 
-import { ManifestSchema } from './manifest.zod';
-import { DatasourceSchema } from './datasource.zod';
-import { TranslationBundleSchema } from './translation.zod';
+import { ManifestSchema } from './system/manifest.zod';
+import { DatasourceSchema } from './system/datasource.zod';
+import { TranslationBundleSchema } from './system/translation.zod';
 
 // Data Protocol
-import { ObjectSchema } from '../data/object.zod';
+import { ObjectSchema } from './data/object.zod';
 
 // UI Protocol
-import { AppSchema } from '../ui/app.zod';
-import { ViewSchema } from '../ui/view.zod';
-import { PageSchema } from '../ui/page.zod';
-import { DashboardSchema } from '../ui/dashboard.zod';
-import { ReportSchema } from '../ui/report.zod';
-import { ActionSchema } from '../ui/action.zod';
-import { ThemeSchema } from '../ui/theme.zod';
+import { AppSchema } from './ui/app.zod';
+import { ViewSchema } from './ui/view.zod';
+import { PageSchema } from './ui/page.zod';
+import { DashboardSchema } from './ui/dashboard.zod';
+import { ReportSchema } from './ui/report.zod';
+import { ActionSchema } from './ui/action.zod';
+import { ThemeSchema } from './ui/theme.zod';
 
 // Automation Protocol
-import { ApprovalProcessSchema } from '../automation/approval.zod';
-import { WorkflowSchema } from '../automation/workflow.zod';
-import { FlowSchema } from '../automation/flow.zod';
+import { ApprovalProcessSchema } from './automation/approval.zod';
+import { WorkflowSchema } from './automation/workflow.zod';
+import { FlowSchema } from './automation/flow.zod';
 
 // Security Protocol
-import { RoleSchema } from '../auth/role.zod';
-import { PermissionSetSchema } from '../permission/permission.zod';
+import { RoleSchema } from './auth/role.zod';
+import { PermissionSetSchema } from './permission/permission.zod';
 
 // AI Protocol
-import { AgentSchema } from '../ai/agent.zod';
+import { AgentSchema } from './ai/agent.zod';
 
 /**
  * ObjectStack Ecosystem Definition

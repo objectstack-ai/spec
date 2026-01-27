@@ -53,3 +53,5 @@ export * as AI from './ai';
 export * as API from './api';
 export * as Automation from './automation';
 
+export * from './stack.zod';
+
