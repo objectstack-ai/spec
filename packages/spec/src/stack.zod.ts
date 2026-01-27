@@ -25,6 +25,10 @@ import { FlowSchema } from './automation/flow.zod';
 import { RoleSchema } from './auth/role.zod';
 import { PermissionSetSchema } from './permission/permission.zod';
 
+import { ApiEndpointSchema } from './api/endpoint.zod';
+import { ApiCapabilitiesSchema } from './api/discovery.zod';
+import { FeatureFlagSchema } from './system/feature.zod';
+
 // AI Protocol
 import { AgentSchema } from './ai/agent.zod';
 
@@ -36,8 +40,15 @@ import { AgentSchema } from './ai/agent.zod';
  * 1. Project Export/Import (YAML/JSON dumps)
  * 2. IDE Validation (IntelliSense)
  * 3. Runtime Bootstrapping (In-memory loading)
+ * 4. Platform Reflection (API & Capabilities Discovery)
  */
-export const ObjectStackSchema = z.object({
+/**
+ * 1. CONFIGURATION PROTOCOL (Static)
+ * ----------------------------------------------------------------------
+ * Describes the "Source Code" of an ObjectStack Plugin or Project.
+ * This is what developers write (or AI generates) in `objectstack.config.ts`.
+ */
+export const ObjectStackConfigSchema = z.object({
   /** System Configuration */
   manifest: ManifestSchema.describe('Project Package Configuration'),
   datasources: z.array(DatasourceSchema).optional().describe('External Data Connections'),
@@ -81,4 +92,44 @@ export const ObjectStackSchema = z.object({
   agents: z.array(AgentSchema).optional().describe('AI Agents and Assistants'),
 });
 
-export type ObjectStack = z.infer<typeof ObjectStackSchema>;
+export type ObjectStackConfig = z.infer<typeof ObjectStackConfigSchema>;
+
+// Alias for backward compatibility
+export const ObjectStackSchema = ObjectStackConfigSchema;
+export type ObjectStack = ObjectStackConfig;
+
+
+/**
+ * 2. RUNTIME CAPABILITIES PROTOCOL (Dynamic)
+ * ----------------------------------------------------------------------
+ * Describes what the ObjectOS Platform *is* and *can do*.
+ * AI Agents read this to understand:
+ * - What APIs are available?
+ * - What features are enabled?
+ * - What limits exist?
+ */
+export const ObjectStackCapabilitiesSchema = z.object({
+  /** System Identity */
+  version: z.string().describe('ObjectOS Kernel Version'),
+  environment: z.enum(['development', 'test', 'staging', 'production']),
+  
+  /** Active Features & Flags */
+  features: z.array(FeatureFlagSchema).optional().describe('Active Feature Flags'),
+  
+  /** API Surface & Discovery */
+  apis: z.array(ApiEndpointSchema).optional().describe('Available System & Business APIs'),
+  network: ApiCapabilitiesSchema.optional().describe('Network Capabilities (GraphQL, WS, etc.)'),
+
+  /** Introspection */
+  system_objects: z.array(z.string()).optional().describe('List of globally available System Objects'),
+  supported_drivers: z.array(z.string()).optional().describe('Available database drivers'),
+  
+  /** Constraints (for AI Generation) */
+  limits: z.object({
+    maxObjects: z.number().optional(),
+    maxFieldsPerObject: z.number().optional(),
+    apiRateLimit: z.number().optional()
+  }).optional()
+});
+
+export type ObjectStackCapabilities = z.infer<typeof ObjectStackCapabilitiesSchema>;
