@@ -31,7 +31,7 @@ export default async function HomePage({
         <CodePreview filename={t.codePreview.filename} />
 
         {/* Grid Pattern Background */}
-        <div className="absolute inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
+        <div className="absolute inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
 
         {/* Feature Grid */}
         <div className="mt-24 grid grid-cols-1 gap-6 text-left sm:grid-cols-2 lg:grid-cols-3 max-w-6xl w-full">
@@ -75,7 +75,7 @@ export default async function HomePage({
 
         {/* Personas Section */}
         <div className="mt-32 mb-16 w-full max-w-5xl px-4">
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-12 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-12 bg-linear-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
             {t.personas.heading}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

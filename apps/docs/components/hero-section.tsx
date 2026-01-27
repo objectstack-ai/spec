@@ -34,7 +34,7 @@ export function HeroSection({ badge, title, subtitle, cta, className }: HeroSect
       </div>
 
       {/* Title */}
-      <h1 className="text-5xl font-extrabold tracking-tight sm:text-7xl md:text-8xl bg-gradient-to-br from-foreground via-foreground/90 to-primary/60 bg-clip-text text-transparent pb-4 leading-tight">
+      <h1 className="text-5xl font-extrabold tracking-tight sm:text-7xl md:text-8xl bg-linear-to-br from-foreground via-foreground/90 to-primary/60 bg-clip-text text-transparent pb-4 leading-tight">
         {title.line1}
         <br/>
         {title.line2}
@@ -44,7 +44,7 @@ export function HeroSection({ badge, title, subtitle, cta, className }: HeroSect
       <p className="mx-auto max-w-2xl text-lg text-foreground/80 sm:text-xl leading-relaxed">
         {subtitle.line1}
         <br className="hidden sm:inline" />
-        <span className="text-foreground font-semibold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+        <span className="text-foreground font-semibold bg-linear-to-r from-primary to-primary/70 bg-clip-text text-transparent">
           {subtitle.line2}
         </span>
       </p>

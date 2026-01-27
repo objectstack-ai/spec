@@ -8,7 +8,7 @@ interface CodePreviewProps {
 export function CodePreview({ filename, className }: CodePreviewProps) {
   return (
     <div className={cn(
-      "relative mx-auto mt-12 w-full max-w-3xl transform rounded-xl bg-gradient-to-br from-border/50 to-border/10 p-[2px] opacity-90 transition-all hover:scale-[1.01] hover:opacity-100 sm:mt-16",
+      "relative mx-auto mt-12 w-full max-w-3xl transform rounded-xl bg-linear-to-br from-border/50 to-border/10 p-0.5 opacity-90 transition-all hover:scale-[1.01] hover:opacity-100 sm:mt-16",
       className
     )}>
       <div className="overflow-hidden rounded-xl border border-border bg-card shadow-2xl">
@@ -23,7 +23,7 @@ export function CodePreview({ filename, className }: CodePreviewProps) {
         </div>
         
         {/* Code Content */}
-        <div className="overflow-x-auto p-6 text-left bg-gradient-to-br from-card to-muted/20">
+        <div className="overflow-x-auto p-6 text-left bg-linear-to-br from-card to-muted/20">
           <pre className="font-mono text-sm leading-7">
             <code>
               <span className="text-purple-600 dark:text-purple-400 font-semibold">import</span>{' '}
