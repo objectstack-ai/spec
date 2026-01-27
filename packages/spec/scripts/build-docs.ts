@@ -230,8 +230,7 @@ Object.keys(CATEGORIES).forEach(category => {
 // 5. Update Root meta.json
 // We want references to list categories in specific order
 const rootMetaProps = {
-  label: "Protocol Reference",
-  root: true,
+  title: "Protocol Reference",
   pages: [
     "data",
     "ui",
