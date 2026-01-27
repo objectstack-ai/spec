@@ -168,9 +168,9 @@ We welcome contributions! Please read our **[Contributing Guide](./CONTRIBUTING.
 
 ### Key Standards
 
-- **Naming Conventions**: 
-  - Configuration keys: `camelCase` (e.g., `maxLength`, `referenceFilters`)
-  - Machine names: `snake_case` (e.g., `name: 'project_task'`, `object: 'account'`)
+- **Naming Conventions**: Follow consistent naming across the codebase
+  - Configuration keys (TypeScript properties): `camelCase` (e.g., `maxLength`, `referenceFilters`)
+  - Machine names (data values): `snake_case` (e.g., `name: 'project_task'`, `object: 'account'`)
 - **Zod-First Design**: All schemas must be defined using Zod with runtime validation
 - **TypeScript**: Use strict TypeScript with comprehensive JSDoc comments
 
