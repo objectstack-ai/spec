@@ -31,7 +31,7 @@ Every plugin MUST have a valid manifest. It dictates how the kernel loads your c
 **Reference Schema:** `@objectstack/spec` -> `dist/kernel/manifest.zod.d.ts`
 
 ```typescript
-import { ObjectStackManifest } from '@objectstack/spec/kernel';
+import { ObjectStackManifest } from '@objectstack/spec/system';
 
 const config: ObjectStackManifest = {
   name: 'my-plugin',

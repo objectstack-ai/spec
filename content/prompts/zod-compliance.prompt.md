@@ -15,7 +15,7 @@ Before generating an object, generic field, or app config, look up the authorita
 
 | Concept | Definition Source (Portable) | Package Import |
 | :--- | :--- | :--- |
-| **Manifest** | `dist/kernel/manifest.zod.d.ts` | `@objectstack/spec/kernel` |
+| **Manifest** | `dist/system/manifest.zod.d.ts` | `@objectstack/spec/system` |
 | **Object** | `dist/data/object.zod.d.ts` | `@objectstack/spec/data` |
 | **Field** | `dist/data/field.zod.d.ts` | `@objectstack/spec/data` |
 | **View (UI)** | `dist/ui/view.zod.d.ts` | `@objectstack/spec/ui` |

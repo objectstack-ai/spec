@@ -13,8 +13,12 @@ export * from './events.zod';
 export * from './job.zod';
 export * from './types';
 
-// Re-export Core System Definitions from other modules to form the "ObjectOS" namespace
-export * from '../kernel/manifest.zod';
+// Re-export Core System Definitions
+export * from './manifest.zod';
+export * from './plugin.zod';
+export * from './logger.zod';
+export * from './context.zod';
+export * from './scoped-storage.zod';
 export * from '../driver/datasource.zod';
 // Note: Auth, Identity, Policy, Role, Organization moved to @objectstack/spec/auth
 // Note: Territory moved to @objectstack/spec/permission
