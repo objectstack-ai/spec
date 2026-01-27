@@ -20,12 +20,15 @@ export const ManifestSchema = z.object({
   
   /** 
    * Type of the package in the ObjectStack ecosystem.
-   * - app: Standalone application
-   * - plugin: Extension to ObjectOS
-   * - driver: Low-level integration driver
-   * - module: Reusable code module
+   * - app: Business application package
+   * - plugin: General-purpose functionality extension
+   * - driver: Southbound interface - Database/external service adapter (Postgres, MongoDB, S3)
+   * - module: Reusable code library/shared module
+   * - objectql: Core engine - Data layer implementation
+   * - gateway: Northbound interface - API protocol entry point (GraphQL, REST, RPC, OData)
+   * - adapter: Host adapter - Runtime container (Express, Hono, Fastify, Serverless)
    */
-  type: z.enum(['app', 'plugin', 'driver', 'module']).describe('Type of package'),
+  type: z.enum(['app', 'plugin', 'driver', 'module', 'objectql', 'gateway', 'adapter']).describe('Type of package'),
   
   /** 
    * Human-readable name of the package.

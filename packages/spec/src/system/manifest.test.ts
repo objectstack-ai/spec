@@ -39,7 +39,7 @@ describe('ManifestSchema', () => {
     });
 
     it('should accept all package types', () => {
-      const types = ['app', 'plugin', 'driver', 'module'] as const;
+      const types = ['app', 'plugin', 'driver', 'module', 'objectql', 'gateway', 'adapter'] as const;
       
       types.forEach(type => {
         const manifest = {
@@ -257,6 +257,84 @@ describe('ManifestSchema', () => {
       };
 
       expect(() => ManifestSchema.parse(utilModule)).not.toThrow();
+    });
+
+    it('should accept objectql engine manifest', () => {
+      const objectqlEngine: ObjectStackManifest = {
+        id: 'com.objectstack.engine.objectql',
+        version: '2.0.0',
+        type: 'objectql',
+        name: 'ObjectQL Engine',
+        description: 'Core data layer implementation with query AST and validation',
+      };
+
+      expect(() => ManifestSchema.parse(objectqlEngine)).not.toThrow();
+    });
+
+    it('should accept gateway manifest for GraphQL', () => {
+      const graphqlGateway: ObjectStackManifest = {
+        id: 'com.objectstack.gateway.graphql',
+        version: '1.0.0',
+        type: 'gateway',
+        name: 'GraphQL Gateway',
+        description: 'GraphQL API protocol gateway for ObjectStack',
+        permissions: [
+          'system.api.configure',
+        ],
+      };
+
+      expect(() => ManifestSchema.parse(graphqlGateway)).not.toThrow();
+    });
+
+    it('should accept gateway manifest for REST', () => {
+      const restGateway: ObjectStackManifest = {
+        id: 'com.objectstack.gateway.rest',
+        version: '1.0.0',
+        type: 'gateway',
+        name: 'REST API Gateway',
+        description: 'RESTful API protocol gateway for ObjectStack',
+      };
+
+      expect(() => ManifestSchema.parse(restGateway)).not.toThrow();
+    });
+
+    it('should accept adapter manifest for Express', () => {
+      const expressAdapter: ObjectStackManifest = {
+        id: 'com.objectstack.adapter.express',
+        version: '4.0.0',
+        type: 'adapter',
+        name: 'Express Adapter',
+        description: 'Express.js HTTP server adapter for ObjectStack runtime',
+        configuration: {
+          title: 'Express Server Settings',
+          properties: {
+            port: {
+              type: 'number',
+              default: 3000,
+              description: 'HTTP server port',
+            },
+            corsEnabled: {
+              type: 'boolean',
+              default: true,
+              description: 'Enable CORS middleware',
+            },
+          },
+        },
+      };
+
+      expect(() => ManifestSchema.parse(expressAdapter)).not.toThrow();
+    });
+
+    it('should accept adapter manifest for Hono', () => {
+      const honoAdapter: ObjectStackManifest = {
+        id: 'com.objectstack.adapter.hono',
+        version: '1.0.0',
+        type: 'adapter',
+        name: 'Hono Adapter',
+        description: 'Hono ultrafast HTTP server adapter for ObjectStack runtime',
+      };
+
+      expect(() => ManifestSchema.parse(honoAdapter)).not.toThrow();
     });
   });
 
