@@ -7,8 +7,7 @@
 import specPackage from '../../../packages/spec/package.json';
 
 /**
- * Get the current version of @objectstack/spec
+ * The current version of @objectstack/spec
+ * Computed once at module initialization
  */
-export function getSpecVersion(): string {
-  return `v${specPackage.version}`;
-}
+export const SPEC_VERSION = `v${specPackage.version}`;
