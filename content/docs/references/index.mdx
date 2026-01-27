@@ -1,0 +1,218 @@
+---
+title: Protocol Reference
+description: Complete API reference for all ObjectStack protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Database, Layout, Settings, Brain, Zap, Shield, Package, Globe } from 'lucide-react';
+
+# Protocol Reference
+
+ObjectStack is defined by **70+ protocol schemas** that standardize how business applications are built. Each protocol is implemented as a **Zod schema** with TypeScript types and JSON Schema generation.
+
+## Quick Navigation
+
+<Cards>
+  <Card 
+    href="./data" 
+    title="Data Protocol"
+    description="Objects, Fields, Queries, Filters, Validation (8 protocols)"
+    icon={<Database />}
+  />
+  <Card 
+    href="./ui" 
+    title="UI Protocol"
+    description="Views, Pages, Apps, Dashboards, Reports, Themes (10 protocols)"
+    icon={<Layout />}
+  />
+  <Card 
+    href="./automation" 
+    title="Automation Protocol"
+    description="Flows, Workflows, Approvals, Webhooks, ETL (7 protocols)"
+    icon={<Zap />}
+  />
+  <Card 
+    href="./system" 
+    title="System Protocol"
+    description="Manifest, Datasource, Drivers, Plugins, Events (14 protocols)"
+    icon={<Settings />}
+  />
+  <Card 
+    href="./ai" 
+    title="AI Protocol"
+    description="Agents, Models, RAG, NLQ, Conversations, Cost (8 protocols)"
+    icon={<Brain />}
+  />
+  <Card 
+    href="./api" 
+    title="API Protocol"
+    description="Contracts, Endpoints, OData, Realtime, Discovery (6 protocols)"
+    icon={<Globe />}
+  />
+  <Card 
+    href="./auth" 
+    title="Auth Protocol"
+    description="Identity, Roles, Organizations, Policies, SCIM (6 protocols)"
+    icon={<Shield />}
+  />
+  <Card 
+    href="./permission" 
+    title="Permission Protocol"
+    description="Permissions, Sharing, RLS, Territories (4 protocols)"
+    icon={<Shield />}
+  />
+</Cards>
+
+## Protocol Architecture
+
+ObjectStack protocols are organized into three core layers:
+
+### 1. ObjectQL (Data Layer)
+The foundation - defines how business data is modeled, validated, and queried.
+
+- **[Data Protocol](./data)** - Core business logic and data modeling
+- **[Permission Protocol](./permission)** - Access control and security
+
+### 2. ObjectUI (Presentation Layer)
+How data is presented and interacted with by end users.
+
+- **[UI Protocol](./ui)** - Views, forms, dashboards, and themes
+- **[API Protocol](./api)** - REST/GraphQL endpoints and real-time
+
+### 3. ObjectOS (System Layer)
+The runtime infrastructure that powers the platform.
+
+- **[System Protocol](./system)** - Core system configuration
+- **[Auth Protocol](./auth)** - Authentication and authorization
+- **[Automation Protocol](./automation)** - Workflows and integrations
+- **[AI Protocol](./ai)** - AI/ML capabilities
+
+## Understanding Protocol Schemas
+
+Every protocol follows the same structure:
+
+### Zod Schema (Runtime Validation)
+```typescript
+// packages/spec/src/data/field.zod.ts
+export const FieldSchema = z.object({
+  name: z.string().regex(/^[a-z_][a-z0-9_]*$/),
+  label: z.string(),
+  type: FieldType,
+  required: z.boolean().optional(),
+  // ... more properties
+});
+```
+
+### TypeScript Types (Type Safety)
+```typescript
+// Auto-generated from Zod
+export type Field = z.infer<typeof FieldSchema>;
+```
+
+### JSON Schema (Tooling & IDE Support)
+```bash
+# Build generates JSON schemas
+pnpm --filter @objectstack/spec build
+
+# Output: packages/spec/json-schema/data/Field.json
+```
+
+### Documentation (This Site)
+Each schema has auto-generated documentation with:
+- Property tables with types and descriptions
+- TypeScript usage examples
+- Related schema references
+- Source code links
+
+## How to Use
+
+### 1. Import in TypeScript
+```typescript
+import { FieldSchema, ObjectSchema } from '@objectstack/spec/data';
+import { ViewSchema, AppSchema } from '@objectstack/spec/ui';
+import { ManifestSchema } from '@objectstack/spec/system';
+```
+
+### 2. Runtime Validation
+```typescript
+import { FieldSchema } from '@objectstack/spec/data';
+
+// Validate data at runtime
+const field = FieldSchema.parse({
+  name: 'email',
+  type: 'email',
+  label: 'Email Address',
+  required: true
+});
+```
+
+### 3. Type-Safe Development
+```typescript
+import type { Field } from '@objectstack/spec/data';
+
+// Type-safe function parameters
+function createField(config: Field) {
+  // TypeScript knows all valid properties
+}
+```
+
+### 4. Define Business Objects
+```yaml
+# customer.object.yml
+name: customer
+label: Customer
+fields:
+  email:
+    type: email
+    label: Email
+    required: true
+  company_name:
+    type: text
+    label: Company Name
+```
+
+## Version Information
+
+- **Protocol Version:** 0.4.1
+- **Total Protocols:** 70
+- **Zod Schemas:** 70
+- **TypeScript Types:** 70
+- **JSON Schemas:** 70
+- **Generated Docs:** 473 pages
+
+## Contributing
+
+Protocol schemas are the "DNA" of ObjectStack. Changes follow strict guidelines:
+
+1. **Zod First** - All definitions start with Zod schemas
+2. **Type Derivation** - TypeScript types are inferred from Zod
+3. **No Business Logic** - Schemas contain only definitions
+4. **Naming Convention** - `camelCase` for properties, `snake_case` for data values
+5. **Documentation** - Auto-generated from Zod schemas
+
+See [CONTRIBUTING.md](https://github.com/objectstack-ai/spec/blob/main/CONTRIBUTING.md) for details.
+
+## Learn More
+
+<Cards>
+  <Card 
+    href="../introduction" 
+    title="Introduction"
+    description="Learn the core concepts behind ObjectStack"
+  />
+  <Card 
+    href="../objectql" 
+    title="ObjectQL Guide"
+    description="Deep dive into the data protocol"
+  />
+  <Card 
+    href="../objectui" 
+    title="ObjectUI Guide"
+    description="Build user interfaces with ObjectUI"
+  />
+  <Card 
+    href="../objectos" 
+    title="ObjectOS Guide"
+    description="Understand the system architecture"
+  />
+</Cards>

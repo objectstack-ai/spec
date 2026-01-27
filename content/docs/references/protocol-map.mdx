@@ -1,0 +1,366 @@
+---
+title: Protocol Architecture Map
+description: Visual guide to ObjectStack protocol relationships and dependencies
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Card, Cards } from 'fumadocs-ui/components/card';
+
+# Protocol Architecture Map
+
+Understand how the 70 ObjectStack protocols fit together to form a complete business platform.
+
+## The Three-Layer Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    APPLICATION LAYER (User-Facing)               │
+│  ┌──────────┐  ┌──────────┐  ┌───────────┐  ┌──────────┐       │
+│  │   Apps   │  │   Pages  │  │Dashboards │  │ Reports  │       │
+│  └────┬─────┘  └────┬─────┘  └─────┬─────┘  └────┬─────┘       │
+│       └─────────────┴──────────────┴─────────────┘              │
+└────────────────────────────┬─────────────────────────────────────┘
+                             │
+                    ┌────────▼────────┐
+                    │  ObjectUI (UI)  │
+                    │   10 Protocols  │
+                    └────────┬────────┘
+                             │
+┌────────────────────────────┴─────────────────────────────────────┐
+│                    BUSINESS LOGIC LAYER                          │
+│  ┌──────────┐  ┌──────────┐  ┌───────────┐  ┌──────────┐       │
+│  │ Objects  │  │  Fields  │  │  Queries  │  │  Rules   │       │
+│  └────┬─────┘  └────┬─────┘  └─────┬─────┘  └────┬─────┘       │
+│       └─────────────┴──────────────┴─────────────┘              │
+└────────────────────────────┬─────────────────────────────────────┘
+                             │
+                    ┌────────▼────────┐
+                    │ ObjectQL (Data) │
+                    │   8 Protocols   │
+                    └────────┬────────┘
+                             │
+┌────────────────────────────┴─────────────────────────────────────┐
+│                    RUNTIME INFRASTRUCTURE LAYER                  │
+│  ┌──────────┐  ┌──────────┐  ┌───────────┐  ┌──────────┐       │
+│  │  Drivers │  │  Events  │  │   Auth    │  │   APIs   │       │
+│  └────┬─────┘  └────┬─────┘  └─────┬─────┘  └────┬─────┘       │
+│       └─────────────┴──────────────┴─────────────┘              │
+└────────────────────────────┬─────────────────────────────────────┘
+                             │
+                    ┌────────▼────────┐
+                    │  ObjectOS (Sys) │
+                    │  40+ Protocols  │
+                    └─────────────────┘
+```
+
+## Protocol Dependencies
+
+### Core Foundation
+
+The foundation protocols that everything else builds upon:
+
+<Cards>
+  <Card 
+    href="./shared" 
+    title="Shared Protocol"
+    description="Common identifiers and utilities used by all protocols"
+  />
+  <Card 
+    href="./system/manifest" 
+    title="Manifest Protocol"
+    description="Package definition (objectstack.config.ts) - the entry point"
+  />
+</Cards>
+
+### Layer 1: Data (ObjectQL)
+
+Data layer protocols define business logic and data structure.
+
+```
+Field Protocol (Core)
+    ↓
+    ├→ Object Protocol (uses Fields)
+    ├→ Query Protocol (references Fields)
+    ├→ Filter Protocol (filters on Fields)
+    └→ Validation Protocol (validates Fields)
+         ↓
+         └→ Hook Protocol (extends validation with code)
+```
+
+**Dependencies:**
+- `Field` → No dependencies (foundational)
+- `Object` → Depends on `Field`, `Validation`
+- `Query` → Depends on `Filter`, `Object`
+- `Validation` → Depends on `Field`
+
+### Layer 2: UI (ObjectUI)
+
+UI protocols build on top of data protocols.
+
+```
+Theme Protocol (Foundation)
+    ↓
+View Protocol (uses Object, Query)
+    ├→ ListView (uses Query, Filter)
+    ├→ FormView (uses Object, Field)
+    └→ Dashboard (uses View, Widget)
+         ↓
+         ├→ Page Protocol (composes Views)
+         └→ App Protocol (organizes Pages)
+              ↓
+              └→ Action Protocol (UI interactions)
+```
+
+**Dependencies:**
+- `Theme` → No data dependencies
+- `View` → Depends on `Object`, `Query`, `Filter`
+- `Page` → Depends on `View`, `Component`
+- `App` → Depends on `Page`, `Dashboard`
+- `Action` → Depends on `Flow`, `Workflow`
+
+### Layer 3: System (ObjectOS)
+
+System protocols provide runtime infrastructure.
+
+```
+Driver Protocol (Database Abstraction)
+    ↓
+Datasource Protocol (Connection Config)
+    ↓
+    ├→ Context Protocol (Runtime State)
+    ├→ Events Protocol (Event Bus)
+    └→ Plugin Protocol (Extensibility)
+         ↓
+         ├→ Auth Protocol (Identity)
+         ├→ Permission Protocol (Access Control)
+         ├→ API Protocol (External Access)
+         └→ Automation Protocol (Workflows)
+              ↓
+              └→ AI Protocol (Intelligence)
+```
+
+**Key Dependencies:**
+- `Driver` → Foundation for all data access
+- `Datasource` → Depends on `Driver`
+- `Context` → Provides runtime state to all protocols
+- `Auth` → Used by `Permission`, `API`, `Automation`
+- `Permission` → Depends on `Auth`, `Object`
+
+## Cross-Protocol Relationships
+
+### Example: Building a CRM Contact Form
+
+Here's how multiple protocols work together:
+
+```typescript
+// 1. DEFINE DATA (ObjectQL)
+// File: objects/contact.object.yml
+const contactObject = {
+  name: 'contact',           // Object Protocol
+  fields: {                  // Field Protocol
+    email: {
+      type: 'email',
+      required: true,
+      validation: [          // Validation Protocol
+        { rule: 'email_format' }
+      ]
+    }
+  }
+};
+
+// 2. CREATE UI (ObjectUI)
+// File: views/contact_form.view.yml
+const contactForm = {
+  type: 'form',              // View Protocol
+  object: 'contact',         // References Object Protocol
+  layout: {                  // Page Protocol
+    sections: [
+      { fields: ['email', 'phone'] }
+    ]
+  },
+  theme: 'default'           // Theme Protocol
+};
+
+// 3. ADD TO APP (ObjectUI)
+// File: apps/crm.app.yml
+const crmApp = {
+  name: 'crm',               // App Protocol
+  navigation: [              // Navigation Items
+    {
+      type: 'object',
+      object: 'contact',
+      defaultView: 'contact_form'
+    }
+  ]
+};
+
+// 4. CONFIGURE ACCESS (Permission)
+// File: permissions/contact.permission.yml
+const contactPermission = {
+  object: 'contact',         // Permission Protocol
+  roles: ['sales_rep'],      // Auth Protocol
+  access: {
+    read: true,
+    create: true,
+    edit: true
+  }
+};
+
+// 5. ADD AUTOMATION (Automation)
+// File: flows/welcome_email.flow.yml
+const welcomeFlow = {
+  trigger: {                 // Flow Protocol
+    object: 'contact',
+    event: 'after_insert'
+  },
+  actions: [
+    {
+      type: 'email',         // Action Protocol
+      template: 'welcome'
+    }
+  ]
+};
+```
+
+## Protocol Usage Patterns
+
+### Pattern 1: Data-Driven UI
+
+When UI is automatically generated from data definitions:
+
+```
+Object → Field → View → Page → App
+```
+
+**Example:** Auto-generated CRUD interfaces
+
+### Pattern 2: Custom UI with Data Binding
+
+When you build custom UI that connects to data:
+
+```
+Page → Component → View (Custom) → Query → Object
+```
+
+**Example:** Custom dashboard with data visualizations
+
+### Pattern 3: Automation & Integration
+
+When adding business logic automation:
+
+```
+Object → Hook → Flow → Automation → API/Webhook
+```
+
+**Example:** Lead assignment workflow with Slack notifications
+
+### Pattern 4: AI-Enhanced Applications
+
+When adding AI capabilities:
+
+```
+Object → RAG Pipeline → Agent → Conversation → UI
+```
+
+**Example:** AI-powered customer support chatbot
+
+## Protocol Categories by Responsibility
+
+### 🗄️ Data Definition
+- **Primary:** Field, Object, Validation
+- **Secondary:** Dataset, Mapping, Hook
+
+### 🔍 Data Access
+- **Primary:** Query, Filter
+- **Secondary:** Driver, Datasource
+
+### 🎨 Presentation
+- **Primary:** View, Page, Theme
+- **Secondary:** Component, Widget, Block
+
+### 🏗️ Application Structure
+- **Primary:** App, Manifest
+- **Secondary:** Plugin, Feature
+
+### 📊 Analytics & Reporting
+- **Primary:** Report, Dashboard
+- **Secondary:** Query (aggregations)
+
+### ⚙️ Automation
+- **Primary:** Flow, Workflow
+- **Secondary:** Approval, Webhook, ETL
+
+### 🔐 Security
+- **Primary:** Auth, Permission
+- **Secondary:** RLS, Sharing, Policy
+
+### 🌐 External Integration
+- **Primary:** API, Connector
+- **Secondary:** OData, Realtime, Webhook
+
+### 🤖 AI/ML
+- **Primary:** Agent, RAG Pipeline
+- **Secondary:** NLQ, Conversation, Model Registry
+
+## Common Integration Points
+
+### ObjectQL ↔ ObjectUI
+```typescript
+// UI consumes data definitions
+const view: View = {
+  object: 'customer',        // Reference to Object Protocol
+  fields: ['name', 'email'], // Reference to Field Protocol
+  filters: [...]             // Reference to Filter Protocol
+};
+```
+
+### ObjectQL ↔ ObjectOS
+```typescript
+// Data is stored via system drivers
+const datasource: Datasource = {
+  driver: 'postgres',        // Reference to Driver Protocol
+  connection: {...}
+};
+
+const object: Object = {
+  name: 'customer',
+  datasource: 'primary'      // Uses system datasource
+};
+```
+
+### ObjectUI ↔ ObjectOS
+```typescript
+// UI is secured via permission system
+const app: App = {
+  navigation: [
+    {
+      object: 'customer',
+      visible: 'hasPermission("customer", "read")' // References Permission
+    }
+  ]
+};
+```
+
+## Next Steps
+
+<Callout type="tip">
+Use this map as a reference when designing your application architecture.
+</Callout>
+
+<Cards>
+  <Card 
+    href="./index" 
+    title="Browse All Protocols"
+    description="Explore detailed documentation for each protocol"
+  />
+  <Card 
+    href="./quick-reference" 
+    title="Quick Reference"
+    description="Fast lookup table for all protocols"
+  />
+  <Card 
+    href="../introduction" 
+    title="Core Concepts"
+    description="Learn the foundational concepts"
+  />
+</Cards>
