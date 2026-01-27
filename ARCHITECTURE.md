@@ -219,6 +219,86 @@ Each plugin:
 
 ---
 
+## 📦 Package Types & Microkernel Architecture
+
+ObjectStack follows a **microkernel architecture** where different package types serve distinct roles in the system lifecycle. The `type` field in the manifest (`objectstack.config.ts`) determines a package's role and initialization order.
+
+### Package Type Hierarchy
+
+```
+External Request (Browser/Mobile)
+      │
+      ▼
+[ adapter ]  ←─ HTTP Server Container (Express, Hono, Fastify, Serverless)
+      │          • Role: Runtime host/container
+      │          • Cardinality: Singleton (one per runtime)
+      │          • Examples: @objectstack/adapter-express, @objectstack/adapter-hono
+      ▼
+[ gateway ]  ←─ API Protocol Layer (GraphQL, REST, RPC, OData)
+      │          • Role: Protocol translation
+      │          • Cardinality: Multiple (can coexist)
+      │          • Examples: @objectstack/gateway-graphql, @objectstack/gateway-rest
+      ▼
+[ Kernel  ]  ←─ Core orchestration (ObjectOS Runtime)
+      │
+      ▼
+[ objectql]  ←─ Core Data Engine
+      │          • Role: Query engine and business logic layer
+      │          • Examples: @objectstack/objectql
+      ▼
+[ driver  ]  ←─ Southbound: Database/External Service Adapters
+      │          • Role: Data persistence and external integrations
+      │          • Examples: @objectstack/driver-postgres, @objectstack/driver-mongodb
+      ▼
+  Database
+```
+
+### Package Type Definitions
+
+| Type | Description | Cardinality | Layer | Examples |
+|:-----|:------------|:------------|:------|:---------|
+| **adapter** | Runtime container - HTTP server adapter | Singleton | Outermost | Express, Hono, Fastify, Lambda |
+| **gateway** | API protocol entry point | Multiple | North | GraphQL, REST, RPC, OData |
+| **objectql** | Core data engine implementation | Singleton | Core | Query engine, business logic |
+| **driver** | Database/external service adapter | Multiple | South | Postgres, MongoDB, S3, Salesforce |
+| **plugin** | General-purpose functionality extension | Multiple | App | CRM, BI, Analytics |
+| **app** | Business application package | Multiple | App | Sales App, Service App |
+| **module** | Reusable code library/shared module | Multiple | Lib | Utilities, helpers |
+
+### Lifecycle Ordering
+
+The kernel initializes packages in a specific order to ensure proper dependency resolution:
+
+1. **Adapter** preparation (HTTP server setup)
+2. **ObjectQL** engine initialization (core data layer)
+3. **Driver** connections (database, external services)
+4. **Gateway** registration (API protocol handlers)
+5. **App/Plugin** loading (business logic)
+
+This ordering ensures that:
+- The HTTP server is ready before routes are registered
+- The data engine is initialized before drivers connect
+- Drivers are connected before gateways need to query data
+- Gateways are ready before apps register business endpoints
+
+### Adapter vs Gateway Distinction
+
+**Key Architectural Difference:**
+
+- **Adapter** = The "what" and "where" (which HTTP framework, which runtime environment)
+  - Handles raw HTTP Request/Response objects
+  - Manages server lifecycle (listen, close)
+  - One adapter per runtime instance
+  - Cannot coexist (can't run Express + Hono on same port)
+
+- **Gateway** = The "how" (which API protocol)
+  - Translates protocol to internal `Call` format
+  - Multiple gateways can coexist
+  - Registers routes on the adapter
+  - Example: Same server can expose both GraphQL and REST APIs
+
+---
+
 ## 🔐 Security & Permission Model
 
 ```

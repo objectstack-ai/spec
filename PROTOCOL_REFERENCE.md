@@ -84,7 +84,7 @@ Defines the "Runtime Environment" and platform capabilities.
 
 | File | Schema | Purpose |
 | :--- | :--- | :--- |
-| `manifest.zod.ts` | `ManifestSchema` | Application/plugin manifest (`objectstack.config.ts`) |
+| `manifest.zod.ts` | `ManifestSchema` | Application/plugin manifest (`objectstack.config.ts`) with 7 package types: app, plugin, driver, module, objectql, gateway, adapter |
 | `datasource.zod.ts` | `DatasourceSchema` | Data source connection configurations |
 | `driver.zod.ts` | `DriverSchema` | Database driver definitions and options |
 | `driver/postgres.zod.ts` | `PostgresConfigSchema` | PostgreSQL-specific driver configuration |
@@ -100,6 +100,14 @@ Defines the "Runtime Environment" and platform capabilities.
 | `scoped-storage.zod.ts` | `ScopedStorageSchema` | Scoped key-value storage |
 
 **Key Features:**
+- Microkernel architecture with 7 distinct package types for proper separation of concerns
+  - **adapter**: Runtime containers (Express, Hono, Fastify, Serverless)
+  - **gateway**: API protocols (GraphQL, REST, RPC, OData)
+  - **objectql**: Core data engine implementation
+  - **driver**: Database/external service adapters (Postgres, MongoDB, S3)
+  - **plugin**: General-purpose functionality extensions
+  - **app**: Business application packages
+  - **module**: Reusable code libraries
 - Pluggable architecture with manifest-based configuration
 - Multi-driver support (PostgreSQL, MongoDB, and extensible)
 - Event-driven architecture with pub/sub
