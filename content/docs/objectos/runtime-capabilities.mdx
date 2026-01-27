@@ -50,9 +50,9 @@ ObjectStack capabilities are organized into three subsystems that correspond to 
 import type { ObjectStackCapabilities } from '@objectstack/spec';
 
 const capabilities: ObjectStackCapabilities = {
-  objectql: { /* ObjectQL capabilities */ },
-  objectui: { /* ObjectUI capabilities */ },
-  objectos: { /* ObjectOS capabilities */ },
+  data: { /* ObjectQL capabilities */ },
+  ui: { /* ObjectUI capabilities */ },
+  system: { /* ObjectOS capabilities */ },
 };
 ```
 
@@ -249,7 +249,7 @@ The **System Layer** capabilities define runtime, API, security, and platform se
 import type { ObjectStackCapabilities } from '@objectstack/spec';
 
 const productionCapabilities: ObjectStackCapabilities = {
-  objectql: {
+  data: {
     queryFilters: true,
     queryAggregations: true,
     querySorting: true,
@@ -272,7 +272,7 @@ const productionCapabilities: ObjectStackCapabilities = {
     bulkOperations: true,
     supportedDrivers: ['postgresql', 'mongodb', 'mysql'],
   },
-  objectui: {
+  ui: {
     listView: true,
     formView: true,
     kanbanView: true,
@@ -289,7 +289,7 @@ const productionCapabilities: ObjectStackCapabilities = {
     mobileOptimized: true,
     accessibility: true,
   },
-  objectos: {
+  system: {
     version: '1.0.0',
     environment: 'production',
     restApi: true,
@@ -326,7 +326,7 @@ const productionCapabilities: ObjectStackCapabilities = {
 
 ```typescript
 const developmentCapabilities: ObjectStackCapabilities = {
-  objectql: {
+  data: {
     // Basic query operations
     queryFilters: true,
     queryAggregations: true,
@@ -350,7 +350,7 @@ const developmentCapabilities: ObjectStackCapabilities = {
     bulkOperations: true,
     supportedDrivers: ['memory', 'sqlite'],
   },
-  objectui: {
+  ui: {
     listView: true,
     formView: true,
     kanbanView: false,
@@ -367,7 +367,7 @@ const developmentCapabilities: ObjectStackCapabilities = {
     mobileOptimized: false,
     accessibility: false,
   },
-  objectos: {
+  system: {
     version: '0.1.0',
     environment: 'development',
     restApi: true,
@@ -406,7 +406,7 @@ const developmentCapabilities: ObjectStackCapabilities = {
 // Helper: Check if a capability is enabled
 function hasCapability(
   capabilities: ObjectStackCapabilities,
-  subsystem: 'objectql' | 'objectui' | 'objectos',
+  subsystem: 'data' | 'ui' | 'system',
   capability: string
 ): boolean {
   const subsystemCaps = capabilities[subsystem] as any;
@@ -414,17 +414,17 @@ function hasCapability(
 }
 
 // Check if vector search is available
-if (hasCapability(capabilities, 'objectql', 'vectorSearch')) {
+if (hasCapability(capabilities, 'data', 'vectorSearch')) {
   console.log('✅ Vector search is available for RAG workflows');
 }
 
 // Check if GraphQL API is enabled
-if (hasCapability(capabilities, 'objectos', 'graphqlApi')) {
+if (hasCapability(capabilities, 'system', 'graphqlApi')) {
   console.log('✅ GraphQL endpoint is available');
 }
 
 // Check if Kanban view is supported
-if (hasCapability(capabilities, 'objectui', 'kanbanView')) {
+if (hasCapability(capabilities, 'ui', 'kanbanView')) {
   console.log('✅ Kanban boards are available');
 }
 ```
@@ -442,9 +442,9 @@ The capabilities schema is typically exposed via the `/api/discovery` endpoint:
   "version": "1.0.0",
   "environment": "production",
   "capabilities": {
-    "objectql": { /* ... */ },
-    "objectui": { /* ... */ },
-    "objectos": { /* ... */ }
+    "data": { /* ... */ },
+    "ui": { /* ... */ },
+    "system": { /* ... */ }
   },
   "routes": {
     "data": "/api/data",
@@ -471,7 +471,7 @@ Design your application to gracefully handle missing capabilities:
 
 ```typescript
 // Good: Check before using advanced features
-if (capabilities.objectql.vectorSearch) {
+if (capabilities.data.vectorSearch) {
   await performSemanticSearch(query);
 } else {
   await performTextSearch(query); // Fallback
@@ -484,7 +484,7 @@ When generating code, AI agents should respect capability constraints:
 
 ```typescript
 // AI Agent checks capabilities before generating code
-if (!capabilities.objectql.queryWindowFunctions) {
+if (!capabilities.data.queryWindowFunctions) {
   // Don't generate ROW_NUMBER queries
   // Use alternative implementation
 }

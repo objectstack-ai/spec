@@ -25,7 +25,7 @@ export const productionCapabilities: ObjectStackCapabilities = {
   // ============================================================================
   // ObjectQL: Data Layer Capabilities
   // ============================================================================
-  objectql: {
+  data: {
     // Query Operations
     queryFilters: true,
     queryAggregations: true,
@@ -63,7 +63,7 @@ export const productionCapabilities: ObjectStackCapabilities = {
   // ============================================================================
   // ObjectUI: User Interface Layer Capabilities
   // ============================================================================
-  objectui: {
+  ui: {
     // View Types
     listView: true,
     formView: true,
@@ -93,7 +93,7 @@ export const productionCapabilities: ObjectStackCapabilities = {
   // ============================================================================
   // ObjectOS: System Layer Capabilities
   // ============================================================================
-  objectos: {
+  system: {
     // System Identity
     version: '1.0.0',
     environment: 'production',
@@ -153,7 +153,7 @@ export const productionCapabilities: ObjectStackCapabilities = {
  * Many advanced features are disabled to simplify the runtime.
  */
 export const developmentCapabilities: ObjectStackCapabilities = {
-  objectql: {
+  data: {
     // Basic query operations only
     queryFilters: true,
     queryAggregations: true,
@@ -188,7 +188,7 @@ export const developmentCapabilities: ObjectStackCapabilities = {
     supportedDrivers: ['memory', 'sqlite'],
   },
 
-  objectui: {
+  ui: {
     // Basic views
     listView: true,
     formView: true,
@@ -215,7 +215,7 @@ export const developmentCapabilities: ObjectStackCapabilities = {
     accessibility: false,
   },
 
-  objectos: {
+  system: {
     version: '0.1.0',
     environment: 'development',
 
@@ -273,7 +273,7 @@ export const developmentCapabilities: ObjectStackCapabilities = {
  * Configuration optimized for AI/ML workloads with RAG and vector search.
  */
 export const aiCapabilities: ObjectStackCapabilities = {
-  objectql: {
+  data: {
     queryFilters: true,
     queryAggregations: true,
     querySorting: true,
@@ -304,7 +304,7 @@ export const aiCapabilities: ObjectStackCapabilities = {
     supportedDrivers: ['postgresql', 'pinecone', 'chromadb'],
   },
 
-  objectui: {
+  ui: {
     // Standard UI capabilities
     listView: true,
     formView: true,
@@ -327,7 +327,7 @@ export const aiCapabilities: ObjectStackCapabilities = {
     accessibility: false,
   },
 
-  objectos: {
+  system: {
     version: '1.2.0',
     environment: 'production',
 
@@ -374,7 +374,7 @@ export const aiCapabilities: ObjectStackCapabilities = {
  */
 export function hasCapability(
   capabilities: ObjectStackCapabilities,
-  subsystem: 'objectql' | 'objectui' | 'objectos',
+  subsystem: 'data' | 'ui' | 'system',
   capability: string
 ): boolean {
   const subsystemCaps = capabilities[subsystem] as any;
@@ -386,7 +386,7 @@ export function hasCapability(
  */
 export function getEnabledCapabilities(
   capabilities: ObjectStackCapabilities,
-  subsystem: 'objectql' | 'objectui' | 'objectos'
+  subsystem: 'data' | 'ui' | 'system'
 ): string[] {
   const subsystemCaps = capabilities[subsystem] as any;
   return Object.keys(subsystemCaps).filter((key) => subsystemCaps[key] === true);
@@ -397,20 +397,20 @@ export function getEnabledCapabilities(
 // ============================================================================
 
 // Example: Check if vector search is available
-if (hasCapability(productionCapabilities, 'objectql', 'vectorSearch')) {
+if (hasCapability(productionCapabilities, 'data', 'vectorSearch')) {
   console.log('✅ Vector search is available for RAG workflows');
 }
 
 // Example: Get all enabled ObjectUI capabilities
-const uiFeatures = getEnabledCapabilities(productionCapabilities, 'objectui');
+const uiFeatures = getEnabledCapabilities(productionCapabilities, 'ui');
 console.log('Enabled UI features:', uiFeatures);
 
 // Example: Compare capabilities between environments
 console.log(
   'Production has GraphQL?',
-  hasCapability(productionCapabilities, 'objectos', 'graphqlApi')
+  hasCapability(productionCapabilities, 'system', 'graphqlApi')
 );
 console.log(
   'Development has GraphQL?',
-  hasCapability(developmentCapabilities, 'objectos', 'graphqlApi')
+  hasCapability(developmentCapabilities, 'system', 'graphqlApi')
 );

@@ -258,7 +258,7 @@ describe('ObjectOSCapabilitiesSchema', () => {
 describe('ObjectStackCapabilitiesSchema', () => {
   it('should accept complete ObjectStack capabilities with all subsystems', () => {
     const capabilities: ObjectStackCapabilities = {
-      objectql: {
+      data: {
         queryFilters: true,
         queryAggregations: true,
         querySorting: true,
@@ -281,7 +281,7 @@ describe('ObjectStackCapabilitiesSchema', () => {
         bulkOperations: true,
         supportedDrivers: ['postgresql', 'mongodb'],
       },
-      objectui: {
+      ui: {
         listView: true,
         formView: true,
         kanbanView: true,
@@ -298,7 +298,7 @@ describe('ObjectStackCapabilitiesSchema', () => {
         mobileOptimized: true,
         accessibility: false,
       },
-      objectos: {
+      system: {
         version: '1.0.0',
         environment: 'production',
         restApi: true,
@@ -336,16 +336,16 @@ describe('ObjectStackCapabilitiesSchema', () => {
 
     expect(() =>
       ObjectStackCapabilitiesSchema.parse({
-        objectql: {},
-        objectui: {},
+        data: {},
+        ui: {},
       })
     ).toThrow();
 
     expect(() =>
       ObjectStackCapabilitiesSchema.parse({
-        objectql: {},
-        objectui: {},
-        objectos: {
+        data: {},
+        ui: {},
+        system: {
           version: '1.0.0',
           environment: 'development',
         },
@@ -355,9 +355,9 @@ describe('ObjectStackCapabilitiesSchema', () => {
 
   it('should allow minimal valid configuration', () => {
     const minimal: ObjectStackCapabilities = {
-      objectql: {},
-      objectui: {},
-      objectos: {
+      data: {},
+      ui: {},
+      system: {
         version: '0.1.0',
         environment: 'development',
       },
@@ -366,18 +366,18 @@ describe('ObjectStackCapabilitiesSchema', () => {
     const result = ObjectStackCapabilitiesSchema.parse(minimal);
 
     // Check that defaults are applied
-    expect(result.objectql.queryFilters).toBe(true);
-    expect(result.objectui.listView).toBe(true);
-    expect(result.objectos.restApi).toBe(true);
+    expect(result.data.queryFilters).toBe(true);
+    expect(result.ui.listView).toBe(true);
+    expect(result.system.restApi).toBe(true);
   });
 
   it('should preserve subsystem-specific optional fields', () => {
     const capabilities = ObjectStackCapabilitiesSchema.parse({
-      objectql: {
+      data: {
         supportedDrivers: ['postgresql', 'sqlite'],
       },
-      objectui: {},
-      objectos: {
+      ui: {},
+      system: {
         version: '1.0.0',
         environment: 'production',
         systemObjects: ['user', 'role'],
@@ -387,9 +387,9 @@ describe('ObjectStackCapabilitiesSchema', () => {
       },
     });
 
-    expect(capabilities.objectql.supportedDrivers).toEqual(['postgresql', 'sqlite']);
-    expect(capabilities.objectos.systemObjects).toEqual(['user', 'role']);
-    expect(capabilities.objectos.limits?.maxObjects).toBe(100);
+    expect(capabilities.data.supportedDrivers).toEqual(['postgresql', 'sqlite']);
+    expect(capabilities.system.systemObjects).toEqual(['user', 'role']);
+    expect(capabilities.system.limits?.maxObjects).toBe(100);
   });
 });
 

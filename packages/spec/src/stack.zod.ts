@@ -276,17 +276,17 @@ export const ObjectOSCapabilitiesSchema = z.object({
  * Unified ObjectStack Capabilities Schema
  * 
  * Complete capability descriptor for an ObjectStack instance.
- * Organized by subsystem for clarity and maintainability.
+ * Organized by architectural layer for clarity and maintainability.
  */
 export const ObjectStackCapabilitiesSchema = z.object({
-  /** ObjectQL: Data Layer Capabilities */
-  objectql: ObjectQLCapabilitiesSchema.describe('Data Layer capabilities'),
+  /** Data Layer Capabilities (ObjectQL) */
+  data: ObjectQLCapabilitiesSchema.describe('Data Layer capabilities'),
   
-  /** ObjectUI: User Interface Layer Capabilities */
-  objectui: ObjectUICapabilitiesSchema.describe('UI Layer capabilities'),
+  /** User Interface Layer Capabilities (ObjectUI) */
+  ui: ObjectUICapabilitiesSchema.describe('UI Layer capabilities'),
   
-  /** ObjectOS: System Layer Capabilities */
-  objectos: ObjectOSCapabilitiesSchema.describe('System/Runtime Layer capabilities'),
+  /** System/Runtime Layer Capabilities (ObjectOS) */
+  system: ObjectOSCapabilitiesSchema.describe('System/Runtime Layer capabilities'),
 });
 
 export type ObjectQLCapabilities = z.infer<typeof ObjectQLCapabilitiesSchema>;
