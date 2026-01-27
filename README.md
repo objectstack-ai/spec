@@ -8,6 +8,20 @@
 
 This repository contains the core specifications, schemas, and protocols that power the ObjectStack ecosystem. It defines how data, UI, and system configurations are expressed as code.
 
+## 🎉 Recent Updates (2026-01-27)
+
+**ObjectQL (Data Layer) now at 100% completion!** 🎯
+
+We've completed all advanced query features and AI/ML field types:
+- ✅ **Window Functions** - ROW_NUMBER, RANK, LAG, LEAD, and aggregate window functions
+- ✅ **HAVING Clause** - Filter aggregated results in GROUP BY queries
+- ✅ **DISTINCT Queries** - Full support for SELECT DISTINCT
+- ✅ **Subqueries** - Nested queries in JOIN clauses
+- ✅ **Vector Field Type** - AI/ML embeddings for semantic search and RAG workflows
+- ✅ **Location Field Type** - GPS coordinates for geospatial applications
+
+**See [PROTOCOL_EXTENSIONS_COMPLETED.md](./PROTOCOL_EXTENSIONS_COMPLETED.md) for complete details.**
+
 ## 📚 Documentation
 
 ### Quick Start
@@ -59,10 +73,10 @@ The ObjectStack Protocol (`@objectstack/spec`) is divided into five core modules
 
 ### 1. Data Protocol (ObjectQL)
 Defines the "Shape of Data" and business logic.
-- **Schema:** Objects, Fields (35 types including text, number, select, lookup, formula, autonumber, slider, qrcode, etc.)
+- **Schema:** Objects, Fields (44 types including text, number, select, lookup, formula, autonumber, slider, qrcode, **vector** (AI/ML), **location** (GPS), etc.)
 - **Logic:** Workflows, Triggers, Validation Rules, Formulas
 - **Security:** Permissions, Sharing Rules
-- **Query:** Abstract Syntax Tree (AST) for unified data access across drivers
+- **Query:** Abstract Syntax Tree (AST) for unified data access across drivers with **Window Functions**, **HAVING**, **DISTINCT**, **Subqueries**
 - **Automation:** Flow definitions, Dataset mappings
 
 ### 2. UI Protocol (ObjectUI)
