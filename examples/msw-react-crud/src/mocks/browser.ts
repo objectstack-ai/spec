@@ -5,7 +5,7 @@
  * and the MSW Plugin which automatically exposes the API.
  */
 
-import { ObjectStackKernel } from '@objectstack/runtime';
+import { ObjectStackKernel, ObjectQLPlugin } from '@objectstack/runtime';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { MSWPlugin } from '@objectstack/plugin-msw';
 // import appConfig from '../../objectstack.config';
@@ -24,6 +24,9 @@ export async function startMockServer() {
   // We use the data defined in the Todo App config
   
   kernel = new ObjectStackKernel([
+    // Register ObjectQL engine explicitly
+    new ObjectQLPlugin(),
+    
     // Todo App Config (contains objects and data)
     todoConfig,
     

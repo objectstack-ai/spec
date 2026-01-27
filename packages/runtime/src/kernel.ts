@@ -8,15 +8,25 @@ import { SchemaRegistry, ObjectQL } from '@objectstack/objectql';
  * plugins, and the core ObjectQL engine.
  */
 export class ObjectStackKernel {
-  public ql: ObjectQL;
+  public ql!: ObjectQL; // Will be set by ObjectQLPlugin or fallback initialization
   private plugins: any[];
 
   constructor(plugins: any[] = []) {
-    // 1. Initialize Engine with Host Context (Simulated OS services)
-    this.ql = new ObjectQL({
-        env: process.env.NODE_ENV || 'development'
-    });
     this.plugins = plugins;
+    
+    // Check if any plugin provides ObjectQL via install method
+    // If not, initialize it as a fallback for backward compatibility
+    const hasObjectQLPlugin = plugins.some(p => 
+      p && typeof p === 'object' && 'install' in p && p.name?.includes('objectql')
+    );
+    
+    if (!hasObjectQLPlugin) {
+      // Backward compatibility: Initialize ObjectQL directly if no plugin provides it
+      console.warn('[Kernel] No ObjectQL plugin detected. Using default initialization. Consider using ObjectQLPlugin for explicit registration.');
+      this.ql = new ObjectQL({
+        env: process.env.NODE_ENV || 'development'
+      });
+    }
   }
 
   async start() {
