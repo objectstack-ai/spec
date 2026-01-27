@@ -44,8 +44,6 @@
 // and establish clear boundaries between different protocol layers.
 export * as Shared from './shared';
 export * as Data from './data';
-// Driver moved to System
-// export * as Driver from './driver';
 export * as Permission from './permission';
 export * as UI from './ui';
 export * as System from './system';
