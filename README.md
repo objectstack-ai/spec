@@ -92,7 +92,7 @@ Defines the "Shape of Interaction" for rendering interfaces.
 
 ### 3. System Protocol (ObjectOS) - 14 Protocols
 Defines the "Runtime Environment" and platform capabilities.
-- **Manifest:** Application packaging (`objectstack.config.ts`)
+- **Manifest:** Application packaging (`objectstack.config.ts`) with support for 7 package types: `app`, `plugin`, `driver`, `module`, `objectql`, `gateway`, `adapter`
 - **Identity:** Authentication, Roles, Territories, Licenses, Organizations
 - **Integration:** Webhooks, API contracts, ETL Mappings
 - **Datasource:** Driver definitions for PostgreSQL, MongoDB, and extensible drivers
