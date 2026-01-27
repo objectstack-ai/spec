@@ -30,21 +30,16 @@ We've completed all advanced query features and AI/ML field types:
 *   **[Protocol Organization](./PROTOCOL_ORGANIZATION.md):** 🗺️ **Visual diagrams and maps** showing protocol structure, dependencies, and relationships
 
 ### Quick Start
-*   **[Getting Started](./content/docs/guides/getting-started.mdx):** Quick introduction to ObjectStack Protocol
-*   **[Installation Guide](./content/docs/guides/installation.mdx):** Setup instructions
+*   **[Protocol Index](./PROTOCOL_INDEX.md):** Quick navigation to all protocol specifications
 *   **[Contributing Guide](./CONTRIBUTING.md):** How to contribute to the project
 
 ### Architecture & Design
-*   **[Architecture Overview](./content/docs/specifications/architecture/):** Deep dive into the three-layer architecture
-*   **[Data Layer (ObjectQL)](./content/docs/specifications/architecture/data-layer.mdx):** Query language and data abstraction
-*   **[UI Layer (ObjectUI)](./content/docs/specifications/architecture/ui-layer.mdx):** Server-driven UI protocol
-*   **[System Layer (ObjectOS)](./content/docs/specifications/architecture/system-layer.mdx):** Runtime kernel and plugins
+*   **[Architecture Overview](./ARCHITECTURE.md):** Deep dive into the three-layer architecture
+*   **[Protocol Organization](./PROTOCOL_ORGANIZATION.md):** Visual diagrams showing protocol structure and dependencies
 
 ### Standards & Best Practices
-*   **[Naming Conventions](./content/docs/standards/naming-conventions.mdx):** Schema naming rules (camelCase vs snake_case)
-*   **[API Design](./content/docs/standards/api-design.mdx):** API design principles and patterns
-*   **[Error Handling](./content/docs/standards/error-handling.mdx):** Consistent error handling strategies
-*   **[Authentication](./content/docs/standards/authentication.mdx):** Authentication standards and implementation
+*   **[Contributing Guide](./CONTRIBUTING.md):** Includes coding standards and best practices
+*   **[Protocol Reference](./PROTOCOL_REFERENCE.md):** Detailed documentation with usage examples
 
 ### Documentation Site
 The official documentation is built with Fumadocs and Next.js.
@@ -54,9 +49,8 @@ The official documentation is built with Fumadocs and Next.js.
 *   **[Live Site](http://localhost:3000/docs):** Run `pnpm docs:dev` to view locally
 
 ### Planning & Internal Docs
-*   **[Development Roadmap](./internal/planning/DEVELOPMENT_ROADMAP.md):** Complete development plan
-*   **[Priority Matrix](./internal/planning/PRIORITIES.md):** What to work on next, sprint planning guide
-*   **[Planning Index](./internal/planning/PLANNING_INDEX.md):** Complete guide to navigating planning documentation
+*   **[Protocol Extensions Completed](./PROTOCOL_EXTENSIONS_COMPLETED.md):** Recently completed features and updates
+*   **[Contributing Guide](./CONTRIBUTING.md):** Development workflow and guidelines
 
 ## 📦 Monorepo Structure
 
@@ -168,17 +162,17 @@ We welcome contributions! Please read our **[Contributing Guide](./CONTRIBUTING.
 ### Quick Start for Contributors
 
 1.  **Read the Docs**: Review [CONTRIBUTING.md](./CONTRIBUTING.md) for complete guidelines
-2.  **Check Priorities**: See [PRIORITIES.md](./internal/planning/PRIORITIES.md) for what to work on next
-3.  **Understand Architecture**: Read [ARCHITECTURE.md](./ARCHITECTURE.md) for system overview
-4.  **Follow Standards**: Review [content/docs/standards/](./content/docs/standards/) for coding standards
+2.  **Understand Architecture**: Read [ARCHITECTURE.md](./ARCHITECTURE.md) for system overview
+3.  **Explore Protocols**: See [PROTOCOL_REFERENCE.md](./PROTOCOL_REFERENCE.md) for detailed specifications
+4.  **Check Recent Work**: Review [PROTOCOL_EXTENSIONS_COMPLETED.md](./PROTOCOL_EXTENSIONS_COMPLETED.md) for latest updates
 
 ### Key Standards
 
-- **Naming Conventions**: See [content/docs/standards/naming-conventions.mdx](./content/docs/standards/naming-conventions.mdx)
-  - Configuration keys: `camelCase` (e.g., `maxLength`, `referenceFilters`)
-  - Machine names: `snake_case` (e.g., `name: 'project_task'`, `object: 'account'`)
-- **API Design**: Follow [content/docs/standards/api-design.mdx](./content/docs/standards/api-design.mdx)
-- **Error Handling**: Use patterns from [content/docs/standards/error-handling.mdx](./content/docs/standards/error-handling.mdx)
+- **Naming Conventions**: Follow consistent naming across the codebase
+  - Configuration keys (TypeScript properties): `camelCase` (e.g., `maxLength`, `referenceFilters`)
+  - Machine names (data values): `snake_case` (e.g., `name: 'project_task'`, `object: 'account'`)
+- **Zod-First Design**: All schemas must be defined using Zod with runtime validation
+- **TypeScript**: Use strict TypeScript with comprehensive JSDoc comments
 
 ### PR Checklist
 
