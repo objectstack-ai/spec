@@ -27,6 +27,7 @@ const config = {
       'fumadocs-ui/components/callout$': path.resolve(__dirname, './node_modules/fumadocs-ui/dist/components/callout.js'),
       'fumadocs-ui/components/card$': path.resolve(__dirname, './node_modules/fumadocs-ui/dist/components/card.js'),
       'fumadocs-ui/components/tabs$': path.resolve(__dirname, './node_modules/fumadocs-ui/dist/components/tabs.js'),
+      'lucide-react$': path.resolve(__dirname, './node_modules/lucide-react/dist/cjs/lucide-react.js'),
     };
     return config;
   },
