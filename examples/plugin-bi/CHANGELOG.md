@@ -1,5 +1,12 @@
 # @objectstack/plugin-bi
 
+## 1.0.8
+
+### Patch Changes
+
+- Updated dependencies
+  - @objectstack/spec@0.4.1
+
 ## 1.0.7
 
 ### Patch Changes

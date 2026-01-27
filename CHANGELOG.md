@@ -19,6 +19,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [0.4.1] - 2026-01-27
+
+### Fixed
+- Synchronized plugin-msw version to 0.4.1 (was incorrectly at 0.3.3)
+- Updated runtime peer dependency versions to ^0.4.0 across all plugins
+- Fixed internal dependency version mismatches
+
+## [0.4.0] - 2026-01-26
+
+### Changed
+- Updated all core packages to version 0.4.0
+
 ## [0.3.3] - 2026-01-25
 
 ### Changed
@@ -161,7 +173,9 @@ Mark breaking changes clearly:
 
 ---
 
-[Unreleased]: https://github.com/objectstack-ai/spec/compare/v0.3.3...HEAD
+[Unreleased]: https://github.com/objectstack-ai/spec/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/objectstack-ai/spec/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/objectstack-ai/spec/compare/v0.3.3...v0.4.0
 [0.3.3]: https://github.com/objectstack-ai/spec/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/objectstack-ai/spec/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/objectstack-ai/spec/compare/v0.3.0...v0.3.1
