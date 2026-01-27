@@ -1,7 +1,17 @@
 ---
 title: RLSOperation
 description: RLSOperation Schema Reference
+category: permission
+zodFile: rls
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/permission/rls.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -10,3 +20,13 @@ description: RLSOperation Schema Reference
 * `update`
 * `delete`
 * `all`
+
+## TypeScript Usage
+
+```typescript
+import { RLSOperation } from '@objectstack/spec/permission';
+
+// Type-safe enum value
+const value: RLSOperation = 'select';
+```
+

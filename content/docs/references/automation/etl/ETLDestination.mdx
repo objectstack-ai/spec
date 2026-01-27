@@ -1,7 +1,17 @@
 ---
 title: ETLDestination
 description: ETLDestination Schema Reference
+category: automation
+zodFile: etl
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/etl.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,20 @@ description: ETLDestination Schema Reference
 | **config** | `Record<string, any>` | ✅ | Destination configuration |
 | **writeMode** | `Enum<'append' \| 'overwrite' \| 'upsert' \| 'merge'>` | optional | How to write data |
 | **primaryKey** | `string[]` | optional | Primary key fields |
+
+## TypeScript Usage
+
+```typescript
+import { ETLDestinationSchema } from '@objectstack/spec/automation';
+import type { ETLDestination } from '@objectstack/spec/automation';
+
+// Validate data
+const result = ETLDestinationSchema.parse(data);
+
+// Type-safe usage
+const myETLDestination: ETLDestination = {
+  type: 'database',
+  config: {}
+};
+```
+

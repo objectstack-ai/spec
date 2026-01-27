@@ -1,7 +1,17 @@
 ---
 title: SuspiciousActivityRule
 description: SuspiciousActivityRule Schema Reference
+category: system
+zodFile: audit
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/audit.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -16,3 +26,22 @@ description: SuspiciousActivityRule Schema Reference
 | **actions** | `Enum<'alert' \| 'lock_account' \| 'block_ip' \| 'require_mfa' \| 'log_critical' \| 'webhook'>[]` | ✅ | Actions to take |
 | **alertSeverity** | `Enum<'debug' \| 'info' \| 'notice' \| 'warning' \| 'error' \| 'critical' \| 'alert' \| 'emergency'>` | optional | Alert severity |
 | **notifications** | `object` | optional | Notification configuration |
+
+## TypeScript Usage
+
+```typescript
+import { SuspiciousActivityRuleSchema } from '@objectstack/spec/system';
+import type { SuspiciousActivityRule } from '@objectstack/spec/system';
+
+// Validate data
+const result = SuspiciousActivityRuleSchema.parse(data);
+
+// Type-safe usage
+const mySuspiciousActivityRule: SuspiciousActivityRule = {
+  id: 'example',
+  name: 'name',
+  eventTypes: [],
+  // ... other fields
+};
+```
+

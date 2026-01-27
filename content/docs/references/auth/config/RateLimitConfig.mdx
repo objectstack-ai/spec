@@ -1,7 +1,17 @@
 ---
 title: RateLimitConfig
 description: RateLimitConfig Schema Reference
+category: auth
+zodFile: config
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/config.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,18 @@ description: RateLimitConfig Schema Reference
 | **windowMs** | `number` | optional | Time window in milliseconds (default 15 min) |
 | **blockDuration** | `number` | optional | Block duration after max attempts in ms |
 | **skipSuccessfulRequests** | `boolean` | optional | Only count failed requests |
+
+## TypeScript Usage
+
+```typescript
+import { RateLimitConfigSchema } from '@objectstack/spec/auth';
+import type { RateLimitConfig } from '@objectstack/spec/auth';
+
+// Validate data
+const result = RateLimitConfigSchema.parse(data);
+
+// Type-safe usage
+const myRateLimitConfig: RateLimitConfig = {
+};
+```
+

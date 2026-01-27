@@ -1,7 +1,17 @@
 ---
 title: WindowFunctionNode
 description: WindowFunctionNode Schema Reference
+category: data
+zodFile: query
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/query.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,21 @@ description: WindowFunctionNode Schema Reference
 | **field** | `string` | optional | Field to operate on (for aggregate window functions) |
 | **alias** | `string` | ✅ | Result column alias |
 | **over** | `object` | ✅ | Window specification (OVER clause) |
+
+## TypeScript Usage
+
+```typescript
+import { WindowFunctionNodeSchema } from '@objectstack/spec/data';
+import type { WindowFunctionNode } from '@objectstack/spec/data';
+
+// Validate data
+const result = WindowFunctionNodeSchema.parse(data);
+
+// Type-safe usage
+const myWindowFunctionNode: WindowFunctionNode = {
+  function: 'row_number',
+  alias: 'example',
+  over: {}
+};
+```
+

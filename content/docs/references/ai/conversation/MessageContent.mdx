@@ -1,7 +1,17 @@
 ---
 title: MessageContent
 description: MessageContent Schema Reference
+category: ai
+zodFile: conversation
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/conversation.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,18 @@ description: MessageContent Schema Reference
 | **fileUrl** | `string` | optional | File attachment URL |
 | **mimeType** | `string` | optional | MIME type for files |
 | **metadata** | `Record<string, any>` | optional | Additional metadata |
+
+## TypeScript Usage
+
+```typescript
+import { MessageContentSchema } from '@objectstack/spec/ai';
+import type { MessageContent } from '@objectstack/spec/ai';
+
+// Validate data
+const result = MessageContentSchema.parse(data);
+
+// Type-safe usage
+const myMessageContent: MessageContent = {
+};
+```
+

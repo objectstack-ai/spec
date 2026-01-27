@@ -1,7 +1,17 @@
 ---
 title: ApiRoutes
 description: ApiRoutes Schema Reference
+category: api
+zodFile: discovery
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/discovery.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,21 @@ description: ApiRoutes Schema Reference
 | **automation** | `string` | optional | e.g. /api/automation |
 | **storage** | `string` | optional | e.g. /api/storage |
 | **graphql** | `string` | optional | e.g. /graphql |
+
+## TypeScript Usage
+
+```typescript
+import { ApiRoutesSchema } from '@objectstack/spec/api';
+import type { ApiRoutes } from '@objectstack/spec/api';
+
+// Validate data
+const result = ApiRoutesSchema.parse(data);
+
+// Type-safe usage
+const myApiRoutes: ApiRoutes = {
+  data: 'example',
+  metadata: 'example',
+  auth: 'example'
+};
+```
+

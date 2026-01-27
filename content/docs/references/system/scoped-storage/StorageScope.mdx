@@ -1,9 +1,19 @@
 ---
 title: StorageScope
 description: Generic storage scope classification
+category: system
+zodFile: scoped-storage
 ---
 
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
 Generic storage scope classification
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/scoped-storage.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -13,3 +23,13 @@ Generic storage scope classification
 * `logs`
 * `config`
 * `public`
+
+## TypeScript Usage
+
+```typescript
+import { StorageScope } from '@objectstack/spec/system';
+
+// Type-safe enum value
+const value: StorageScope = 'temp';
+```
+

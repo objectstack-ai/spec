@@ -1,7 +1,17 @@
 ---
 title: ODataResponse
 description: ODataResponse Schema Reference
+category: api
+zodFile: odata
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/odata.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,19 @@ description: ODataResponse Schema Reference
 | **@odata.count** | `integer` | optional | Total results count |
 | **@odata.nextLink** | `string` | optional | Next page URL |
 | **value** | `Record<string, any>[]` | ✅ | Results array |
+
+## TypeScript Usage
+
+```typescript
+import { ODataResponseSchema } from '@objectstack/spec/api';
+import type { ODataResponse } from '@objectstack/spec/api';
+
+// Validate data
+const result = ODataResponseSchema.parse(data);
+
+// Type-safe usage
+const myODataResponse: ODataResponse = {
+  value: []
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: ApprovalStep
 description: ApprovalStep Schema Reference
+category: automation
+zodFile: approval
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/approval.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -16,3 +26,21 @@ description: ApprovalStep Schema Reference
 | **rejectionBehavior** | `Enum<'reject_process' \| 'back_to_previous'>` | optional | What happens if rejected |
 | **onApprove** | `object[]` | optional | Actions on step approval |
 | **onReject** | `object[]` | optional | Actions on step rejection |
+
+## TypeScript Usage
+
+```typescript
+import { ApprovalStepSchema } from '@objectstack/spec/automation';
+import type { ApprovalStep } from '@objectstack/spec/automation';
+
+// Validate data
+const result = ApprovalStepSchema.parse(data);
+
+// Type-safe usage
+const myApprovalStep: ApprovalStep = {
+  name: 'name',
+  label: 'example',
+  approvers: []
+};
+```
+

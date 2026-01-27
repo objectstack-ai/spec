@@ -1,7 +1,17 @@
 ---
 title: ApiEndpoint
 description: ApiEndpoint Schema Reference
+category: api
+zodFile: endpoint
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/endpoint.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -20,3 +30,22 @@ description: ApiEndpoint Schema Reference
 | **authRequired** | `boolean` | optional | Require authentication |
 | **rateLimit** | `object` | optional | Rate limiting policy |
 | **cacheTtl** | `number` | optional | Response cache TTL in seconds |
+
+## TypeScript Usage
+
+```typescript
+import { ApiEndpointSchema } from '@objectstack/spec/api';
+import type { ApiEndpoint } from '@objectstack/spec/api';
+
+// Validate data
+const result = ApiEndpointSchema.parse(data);
+
+// Type-safe usage
+const myApiEndpoint: ApiEndpoint = {
+  name: 'name',
+  path: 'example',
+  method: 'GET',
+  // ... other fields
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: Hook
 description: Hook Schema Reference
+category: data
+zodFile: hook
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/hook.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -15,3 +25,21 @@ description: Hook Schema Reference
 | **priority** | `number` | optional | Execution priority |
 | **async** | `boolean` | optional | Run specifically as fire-and-forget |
 | **onError** | `Enum<'abort' \| 'log'>` | optional | Error handling strategy |
+
+## TypeScript Usage
+
+```typescript
+import { HookSchema } from '@objectstack/spec/data';
+import type { Hook } from '@objectstack/spec/data';
+
+// Validate data
+const result = HookSchema.parse(data);
+
+// Type-safe usage
+const myHook: Hook = {
+  name: 'name',
+  object: null,
+  events: []
+};
+```
+

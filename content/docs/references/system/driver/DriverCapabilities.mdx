@@ -1,7 +1,17 @@
 ---
 title: DriverCapabilities
 description: DriverCapabilities Schema Reference
+category: system
+zodFile: driver
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/driver.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -20,3 +30,22 @@ description: DriverCapabilities Schema Reference
 | **arrayFields** | `boolean` | ✅ | Supports array field types |
 | **vectorSearch** | `boolean` | optional | Supports vector embeddings and similarity search |
 | **geoSpatial** | `boolean` | optional | Supports geospatial queries |
+
+## TypeScript Usage
+
+```typescript
+import { DriverCapabilitiesSchema } from '@objectstack/spec/system';
+import type { DriverCapabilities } from '@objectstack/spec/system';
+
+// Validate data
+const result = DriverCapabilitiesSchema.parse(data);
+
+// Type-safe usage
+const myDriverCapabilities: DriverCapabilities = {
+  transactions: false,
+  queryFilters: false,
+  queryAggregations: false,
+  // ... other fields
+};
+```
+

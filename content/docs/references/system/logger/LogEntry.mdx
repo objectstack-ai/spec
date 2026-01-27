@@ -1,7 +1,17 @@
 ---
 title: LogEntry
 description: LogEntry Schema Reference
+category: system
+zodFile: logger
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/logger.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -16,3 +26,21 @@ description: LogEntry Schema Reference
 | **spanId** | `string` | optional | Span ID |
 | **service** | `string` | optional | Service name |
 | **component** | `string` | optional | Component name (e.g. plugin id) |
+
+## TypeScript Usage
+
+```typescript
+import { LogEntrySchema } from '@objectstack/spec/system';
+import type { LogEntry } from '@objectstack/spec/system';
+
+// Validate data
+const result = LogEntrySchema.parse(data);
+
+// Type-safe usage
+const myLogEntry: LogEntry = {
+  timestamp: 'example',
+  level: 'debug',
+  message: 'example'
+};
+```
+

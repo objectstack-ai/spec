@@ -1,7 +1,17 @@
 ---
 title: PushNotificationAction
 description: PushNotificationAction Schema Reference
+category: automation
+zodFile: workflow
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/workflow.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -16,3 +26,22 @@ description: PushNotificationAction Schema Reference
 | **badge** | `number` | optional | Badge count (iOS) |
 | **sound** | `string` | optional | Notification sound |
 | **clickAction** | `string` | optional | Action/URL when notification is clicked |
+
+## TypeScript Usage
+
+```typescript
+import { PushNotificationActionSchema } from '@objectstack/spec/automation';
+import type { PushNotificationAction } from '@objectstack/spec/automation';
+
+// Validate data
+const result = PushNotificationActionSchema.parse(data);
+
+// Type-safe usage
+const myPushNotificationAction: PushNotificationAction = {
+  name: 'name',
+  type: 'example',
+  title: 'example',
+  // ... other fields
+};
+```
+

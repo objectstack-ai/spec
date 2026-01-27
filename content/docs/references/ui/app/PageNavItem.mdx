@@ -1,7 +1,17 @@
 ---
 title: PageNavItem
 description: PageNavItem Schema Reference
+category: ui
+zodFile: app
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/app.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -14,3 +24,22 @@ description: PageNavItem Schema Reference
 | **type** | `string` | ✅ |  |
 | **pageName** | `string` | ✅ | Target custom page component name |
 | **params** | `Record<string, any>` | optional | Parameters passed to the page context |
+
+## TypeScript Usage
+
+```typescript
+import { PageNavItemSchema } from '@objectstack/spec/ui';
+import type { PageNavItem } from '@objectstack/spec/ui';
+
+// Validate data
+const result = PageNavItemSchema.parse(data);
+
+// Type-safe usage
+const myPageNavItem: PageNavItem = {
+  id: 'example',
+  label: 'example',
+  type: 'example',
+  // ... other fields
+};
+```
+

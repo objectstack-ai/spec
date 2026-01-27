@@ -1,7 +1,17 @@
 ---
 title: BorderRadius
 description: BorderRadius Schema Reference
+category: ui
+zodFile: theme
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/theme.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -15,3 +25,18 @@ description: BorderRadius Schema Reference
 | **xl** | `string` | optional | Extra large border radius (e.g., 0.75rem) |
 | **2xl** | `string` | optional | 2X large border radius (e.g., 1rem) |
 | **full** | `string` | optional | Full border radius (50%) |
+
+## TypeScript Usage
+
+```typescript
+import { BorderRadiusSchema } from '@objectstack/spec/ui';
+import type { BorderRadius } from '@objectstack/spec/ui';
+
+// Validate data
+const result = BorderRadiusSchema.parse(data);
+
+// Type-safe usage
+const myBorderRadius: BorderRadius = {
+};
+```
+

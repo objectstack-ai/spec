@@ -1,9 +1,19 @@
 ---
 title: LogLevel
 description: Log severity level
+category: system
+zodFile: logger
 ---
 
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
 Log severity level
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/logger.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -12,3 +22,13 @@ Log severity level
 * `warn`
 * `error`
 * `fatal`
+
+## TypeScript Usage
+
+```typescript
+import { LogLevel } from '@objectstack/spec/system';
+
+// Type-safe enum value
+const value: LogLevel = 'debug';
+```
+

@@ -1,7 +1,17 @@
 ---
 title: Query
 description: Query Schema Reference
+category: data
+zodFile: query
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/query.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -20,3 +30,19 @@ description: Query Schema Reference
 | **having** | `any` | optional | HAVING clause for aggregation filtering |
 | **windowFunctions** | `object[]` | optional | Window functions with OVER clause |
 | **distinct** | `boolean` | optional | SELECT DISTINCT flag |
+
+## TypeScript Usage
+
+```typescript
+import { QuerySchema } from '@objectstack/spec/data';
+import type { Query } from '@objectstack/spec/data';
+
+// Validate data
+const result = QuerySchema.parse(data);
+
+// Type-safe usage
+const myQuery: Query = {
+  object: 'example'
+};
+```
+

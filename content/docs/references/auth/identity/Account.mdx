@@ -1,7 +1,17 @@
 ---
 title: Account
 description: Account Schema Reference
+category: auth
+zodFile: identity
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/identity.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -21,3 +31,22 @@ description: Account Schema Reference
 | **sessionState** | `string` | optional | Session state |
 | **createdAt** | `string` | ✅ | Account creation timestamp |
 | **updatedAt** | `string` | ✅ | Last update timestamp |
+
+## TypeScript Usage
+
+```typescript
+import { AccountSchema } from '@objectstack/spec/auth';
+import type { Account } from '@objectstack/spec/auth';
+
+// Validate data
+const result = AccountSchema.parse(data);
+
+// Type-safe usage
+const myAccount: Account = {
+  id: 'example',
+  userId: 'example',
+  type: 'oauth',
+  // ... other fields
+};
+```
+

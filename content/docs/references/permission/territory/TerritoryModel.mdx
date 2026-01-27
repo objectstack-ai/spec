@@ -1,7 +1,17 @@
 ---
 title: TerritoryModel
 description: TerritoryModel Schema Reference
+category: permission
+zodFile: territory
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/permission/territory.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,19 @@ description: TerritoryModel Schema Reference
 | **state** | `Enum<'planning' \| 'active' \| 'archived'>` | optional |  |
 | **startDate** | `string` | optional |  |
 | **endDate** | `string` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { TerritoryModelSchema } from '@objectstack/spec/permission';
+import type { TerritoryModel } from '@objectstack/spec/permission';
+
+// Validate data
+const result = TerritoryModelSchema.parse(data);
+
+// Type-safe usage
+const myTerritoryModel: TerritoryModel = {
+  name: 'name'
+};
+```
+

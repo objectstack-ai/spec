@@ -1,0 +1,116 @@
+---
+title: Automation Protocol Overview
+description: Complete reference for all automation protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Database, Cpu, Zap } from 'lucide-react';
+
+# Automation Protocol
+
+This section contains all protocol schemas for the automation layer of ObjectStack.
+
+## Approval
+
+Source: `packages/spec/src/automation/approval.zod.ts`
+
+<Cards>
+  <Card href="./approval/ApprovalAction" title="ApprovalAction" description="ApprovalAction schema reference" />
+  <Card href="./approval/ApprovalActionType" title="ApprovalActionType" description="ApprovalActionType schema reference" />
+  <Card href="./approval/ApprovalProcess" title="ApprovalProcess" description="ApprovalProcess schema reference" />
+  <Card href="./approval/ApprovalStep" title="ApprovalStep" description="ApprovalStep schema reference" />
+  <Card href="./approval/ApproverType" title="ApproverType" description="ApproverType schema reference" />
+</Cards>
+
+## Connector
+
+Source: `packages/spec/src/automation/connector.zod.ts`
+
+<Cards>
+  <Card href="./connector/AuthField" title="AuthField" description="AuthField schema reference" />
+  <Card href="./connector/Authentication" title="Authentication" description="Authentication schema reference" />
+  <Card href="./connector/AuthenticationType" title="AuthenticationType" description="AuthenticationType schema reference" />
+  <Card href="./connector/Connector" title="Connector" description="Connector schema reference" />
+  <Card href="./connector/ConnectorCategory" title="ConnectorCategory" description="ConnectorCategory schema reference" />
+  <Card href="./connector/ConnectorInstance" title="ConnectorInstance" description="ConnectorInstance schema reference" />
+  <Card href="./connector/ConnectorOperation" title="ConnectorOperation" description="ConnectorOperation schema reference" />
+  <Card href="./connector/ConnectorTrigger" title="ConnectorTrigger" description="ConnectorTrigger schema reference" />
+  <Card href="./connector/OAuth2Config" title="OAuth2Config" description="OAuth2Config schema reference" />
+  <Card href="./connector/OperationParameter" title="OperationParameter" description="OperationParameter schema reference" />
+  <Card href="./connector/OperationType" title="OperationType" description="OperationType schema reference" />
+</Cards>
+
+## Etl
+
+Source: `packages/spec/src/automation/etl.zod.ts`
+
+<Cards>
+  <Card href="./etl/ETLDestination" title="ETLDestination" description="ETLDestination schema reference" />
+  <Card href="./etl/ETLEndpointType" title="ETLEndpointType" description="ETLEndpointType schema reference" />
+  <Card href="./etl/ETLPipeline" title="ETLPipeline" description="ETLPipeline schema reference" />
+  <Card href="./etl/ETLPipelineRun" title="ETLPipelineRun" description="ETLPipelineRun schema reference" />
+  <Card href="./etl/ETLRunStatus" title="ETLRunStatus" description="ETLRunStatus schema reference" />
+  <Card href="./etl/ETLSource" title="ETLSource" description="ETLSource schema reference" />
+  <Card href="./etl/ETLSyncMode" title="ETLSyncMode" description="ETLSyncMode schema reference" />
+  <Card href="./etl/ETLTransformation" title="ETLTransformation" description="ETLTransformation schema reference" />
+  <Card href="./etl/ETLTransformationType" title="ETLTransformationType" description="ETLTransformationType schema reference" />
+</Cards>
+
+## Flow
+
+Source: `packages/spec/src/automation/flow.zod.ts`
+
+<Cards>
+  <Card href="./flow/Flow" title="Flow" description="Flow schema reference" />
+  <Card href="./flow/FlowEdge" title="FlowEdge" description="FlowEdge schema reference" />
+  <Card href="./flow/FlowNode" title="FlowNode" description="FlowNode schema reference" />
+  <Card href="./flow/FlowNodeAction" title="FlowNodeAction" description="FlowNodeAction schema reference" />
+  <Card href="./flow/FlowVariable" title="FlowVariable" description="FlowVariable schema reference" />
+</Cards>
+
+## Sync
+
+Source: `packages/spec/src/automation/sync.zod.ts`
+
+<Cards>
+  <Card href="./sync/ConflictResolution" title="ConflictResolution" description="ConflictResolution schema reference" />
+  <Card href="./sync/DataDestinationConfig" title="DataDestinationConfig" description="DataDestinationConfig schema reference" />
+  <Card href="./sync/DataSourceConfig" title="DataSourceConfig" description="DataSourceConfig schema reference" />
+  <Card href="./sync/DataSyncConfig" title="DataSyncConfig" description="DataSyncConfig schema reference" />
+  <Card href="./sync/SyncDirection" title="SyncDirection" description="SyncDirection schema reference" />
+  <Card href="./sync/SyncExecutionResult" title="SyncExecutionResult" description="SyncExecutionResult schema reference" />
+  <Card href="./sync/SyncExecutionStatus" title="SyncExecutionStatus" description="SyncExecutionStatus schema reference" />
+  <Card href="./sync/SyncMode" title="SyncMode" description="SyncMode schema reference" />
+</Cards>
+
+## Webhook
+
+Source: `packages/spec/src/automation/webhook.zod.ts`
+
+<Cards>
+  <Card href="./webhook/Webhook" title="Webhook" description="Webhook schema reference" />
+  <Card href="./webhook/WebhookReceiver" title="WebhookReceiver" description="WebhookReceiver schema reference" />
+  <Card href="./webhook/WebhookTriggerType" title="WebhookTriggerType" description="WebhookTriggerType schema reference" />
+</Cards>
+
+## Workflow
+
+Source: `packages/spec/src/automation/workflow.zod.ts`
+
+<Cards>
+  <Card href="./workflow/CustomScriptAction" title="CustomScriptAction" description="CustomScriptAction schema reference" />
+  <Card href="./workflow/EmailAlertAction" title="EmailAlertAction" description="EmailAlertAction schema reference" />
+  <Card href="./workflow/FieldUpdateAction" title="FieldUpdateAction" description="FieldUpdateAction schema reference" />
+  <Card href="./workflow/HttpCallAction" title="HttpCallAction" description="HttpCallAction schema reference" />
+  <Card href="./workflow/PushNotificationAction" title="PushNotificationAction" description="PushNotificationAction schema reference" />
+  <Card href="./workflow/SlackMessageAction" title="SlackMessageAction" description="SlackMessageAction schema reference" />
+  <Card href="./workflow/SmsNotificationAction" title="SmsNotificationAction" description="SmsNotificationAction schema reference" />
+  <Card href="./workflow/TaskCreationAction" title="TaskCreationAction" description="TaskCreationAction schema reference" />
+  <Card href="./workflow/TeamsMessageAction" title="TeamsMessageAction" description="TeamsMessageAction schema reference" />
+  <Card href="./workflow/TimeTrigger" title="TimeTrigger" description="TimeTrigger schema reference" />
+  <Card href="./workflow/WebhookTriggerAction" title="WebhookTriggerAction" description="WebhookTriggerAction schema reference" />
+  <Card href="./workflow/WorkflowAction" title="WorkflowAction" description="WorkflowAction schema reference" />
+  <Card href="./workflow/WorkflowRule" title="WorkflowRule" description="WorkflowRule schema reference" />
+  <Card href="./workflow/WorkflowTriggerType" title="WorkflowTriggerType" description="WorkflowTriggerType schema reference" />
+</Cards>
+

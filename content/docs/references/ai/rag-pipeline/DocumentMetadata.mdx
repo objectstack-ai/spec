@@ -1,7 +1,17 @@
 ---
 title: DocumentMetadata
 description: DocumentMetadata Schema Reference
+category: ai
+zodFile: rag-pipeline
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/rag-pipeline.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -17,3 +27,19 @@ description: DocumentMetadata Schema Reference
 | **category** | `string` | optional |  |
 | **language** | `string` | optional | Document language (ISO 639-1 code) |
 | **custom** | `Record<string, any>` | optional | Custom metadata fields |
+
+## TypeScript Usage
+
+```typescript
+import { DocumentMetadataSchema } from '@objectstack/spec/ai';
+import type { DocumentMetadata } from '@objectstack/spec/ai';
+
+// Validate data
+const result = DocumentMetadataSchema.parse(data);
+
+// Type-safe usage
+const myDocumentMetadata: DocumentMetadata = {
+  source: 'example'
+};
+```
+

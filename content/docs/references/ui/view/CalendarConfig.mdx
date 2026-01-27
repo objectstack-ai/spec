@@ -1,7 +1,17 @@
 ---
 title: CalendarConfig
 description: CalendarConfig Schema Reference
+category: ui
+zodFile: view
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/view.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,20 @@ description: CalendarConfig Schema Reference
 | **endDateField** | `string` | optional |  |
 | **titleField** | `string` | ✅ |  |
 | **colorField** | `string` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { CalendarConfigSchema } from '@objectstack/spec/ui';
+import type { CalendarConfig } from '@objectstack/spec/ui';
+
+// Validate data
+const result = CalendarConfigSchema.parse(data);
+
+// Type-safe usage
+const myCalendarConfig: CalendarConfig = {
+  startDateField: 'example',
+  titleField: 'example'
+};
+```
+

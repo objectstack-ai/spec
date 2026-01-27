@@ -1,7 +1,17 @@
 ---
 title: ChartType
 description: ChartType Schema Reference
+category: ui
+zodFile: dashboard
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/dashboard.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -21,3 +31,13 @@ description: ChartType Schema Reference
 * `text`
 * `image`
 * `frame`
+
+## TypeScript Usage
+
+```typescript
+import { ChartType } from '@objectstack/spec/ui';
+
+// Type-safe enum value
+const value: ChartType = 'metric';
+```
+

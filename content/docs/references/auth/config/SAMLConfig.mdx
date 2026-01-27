@@ -1,7 +1,17 @@
 ---
 title: SAMLConfig
 description: SAMLConfig Schema Reference
+category: auth
+zodFile: config
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/config.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -15,3 +25,21 @@ description: SAMLConfig Schema Reference
 | **attributeMapping** | `Record<string, string>` | optional | Map SAML attributes to User fields |
 | **displayName** | `string` | optional | Display name for the provider button |
 | **icon** | `string` | optional | Icon URL or identifier |
+
+## TypeScript Usage
+
+```typescript
+import { SAMLConfigSchema } from '@objectstack/spec/auth';
+import type { SAMLConfig } from '@objectstack/spec/auth';
+
+// Validate data
+const result = SAMLConfigSchema.parse(data);
+
+// Type-safe usage
+const mySAMLConfig: SAMLConfig = {
+  entryPoint: 'example',
+  cert: 'example',
+  issuer: 'example'
+};
+```
+

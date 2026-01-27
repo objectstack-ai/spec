@@ -1,7 +1,17 @@
 ---
 title: MongoConfig
 description: MongoConfig Schema Reference
+category: system
+zodFile: misc
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/misc.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -21,3 +31,19 @@ description: MongoConfig Schema Reference
 | **minPoolSize** | `number` | optional | Min Connection Pool Size |
 | **connectTimeoutMS** | `number` | optional | Connection Timeout (ms) |
 | **socketTimeoutMS** | `number` | optional | Socket Timeout (ms) |
+
+## TypeScript Usage
+
+```typescript
+import { MongoConfigSchema } from '@objectstack/spec/system';
+import type { MongoConfig } from '@objectstack/spec/system';
+
+// Validate data
+const result = MongoConfigSchema.parse(data);
+
+// Type-safe usage
+const myMongoConfig: MongoConfig = {
+  database: 'example'
+};
+```
+

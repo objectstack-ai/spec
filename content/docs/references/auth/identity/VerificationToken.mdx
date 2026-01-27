@@ -1,7 +1,17 @@
 ---
 title: VerificationToken
 description: VerificationToken Schema Reference
+category: auth
+zodFile: identity
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/identity.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,22 @@ description: VerificationToken Schema Reference
 | **token** | `string` | ✅ | Verification token |
 | **expires** | `string` | ✅ | Token expiry timestamp |
 | **createdAt** | `string` | ✅ | Token creation timestamp |
+
+## TypeScript Usage
+
+```typescript
+import { VerificationTokenSchema } from '@objectstack/spec/auth';
+import type { VerificationToken } from '@objectstack/spec/auth';
+
+// Validate data
+const result = VerificationTokenSchema.parse(data);
+
+// Type-safe usage
+const myVerificationToken: VerificationToken = {
+  identifier: 'example',
+  token: 'example',
+  expires: 'example',
+  // ... other fields
+};
+```
+

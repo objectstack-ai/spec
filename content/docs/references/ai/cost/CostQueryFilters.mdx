@@ -1,7 +1,17 @@
 ---
 title: CostQueryFilters
 description: CostQueryFilters Schema Reference
+category: ai
+zodFile: cost
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/cost.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -23,3 +33,18 @@ description: CostQueryFilters Schema Reference
 | **orderDirection** | `Enum<'asc' \| 'desc'>` | optional |  |
 | **limit** | `integer` | optional |  |
 | **offset** | `integer` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { CostQueryFiltersSchema } from '@objectstack/spec/ai';
+import type { CostQueryFilters } from '@objectstack/spec/ai';
+
+// Validate data
+const result = CostQueryFiltersSchema.parse(data);
+
+// Type-safe usage
+const myCostQueryFilters: CostQueryFilters = {
+};
+```
+

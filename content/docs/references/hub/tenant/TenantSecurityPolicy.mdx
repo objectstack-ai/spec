@@ -1,7 +1,17 @@
 ---
 title: TenantSecurityPolicy
 description: TenantSecurityPolicy Schema Reference
+category: hub
+zodFile: tenant
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/hub/tenant.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -10,3 +20,18 @@ description: TenantSecurityPolicy Schema Reference
 | **encryption** | `object` | optional | Encryption requirements |
 | **accessControl** | `object` | optional | Access control requirements |
 | **compliance** | `object` | optional | Compliance requirements |
+
+## TypeScript Usage
+
+```typescript
+import { TenantSecurityPolicySchema } from '@objectstack/spec/hub';
+import type { TenantSecurityPolicy } from '@objectstack/spec/hub';
+
+// Validate data
+const result = TenantSecurityPolicySchema.parse(data);
+
+// Type-safe usage
+const myTenantSecurityPolicy: TenantSecurityPolicy = {
+};
+```
+

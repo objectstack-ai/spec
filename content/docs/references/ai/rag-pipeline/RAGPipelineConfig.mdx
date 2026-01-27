@@ -1,7 +1,17 @@
 ---
 title: RAGPipelineConfig
 description: RAGPipelineConfig Schema Reference
+category: ai
+zodFile: rag-pipeline
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/rag-pipeline.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -22,3 +32,22 @@ description: RAGPipelineConfig Schema Reference
 | **enableCache** | `boolean` | optional |  |
 | **cacheTTL** | `integer` | optional | Cache TTL in seconds |
 | **cacheInvalidationStrategy** | `Enum<'time_based' \| 'manual' \| 'on_update'>` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { RAGPipelineConfigSchema } from '@objectstack/spec/ai';
+import type { RAGPipelineConfig } from '@objectstack/spec/ai';
+
+// Validate data
+const result = RAGPipelineConfigSchema.parse(data);
+
+// Type-safe usage
+const myRAGPipelineConfig: RAGPipelineConfig = {
+  name: 'name',
+  label: 'example',
+  embedding: {},
+  // ... other fields
+};
+```
+

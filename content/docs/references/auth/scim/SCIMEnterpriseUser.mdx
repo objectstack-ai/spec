@@ -1,7 +1,17 @@
 ---
 title: SCIMEnterpriseUser
 description: SCIMEnterpriseUser Schema Reference
+category: auth
+zodFile: scim
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/scim.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,18 @@ description: SCIMEnterpriseUser Schema Reference
 | **division** | `string` | optional | Division |
 | **department** | `string` | optional | Department |
 | **manager** | `object` | optional | Manager reference |
+
+## TypeScript Usage
+
+```typescript
+import { SCIMEnterpriseUserSchema } from '@objectstack/spec/auth';
+import type { SCIMEnterpriseUser } from '@objectstack/spec/auth';
+
+// Validate data
+const result = SCIMEnterpriseUserSchema.parse(data);
+
+// Type-safe usage
+const mySCIMEnterpriseUser: SCIMEnterpriseUser = {
+};
+```
+

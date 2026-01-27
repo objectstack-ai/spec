@@ -1,7 +1,17 @@
 ---
 title: ScriptValidation
 description: ScriptValidation Schema Reference
+category: data
+zodFile: validation
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/validation.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -17,3 +27,22 @@ description: ScriptValidation Schema Reference
 | **message** | `string` | ✅ | Error message to display to the user |
 | **type** | `string` | ✅ |  |
 | **condition** | `string` | ✅ | Formula expression. If TRUE, validation fails. (e.g. amount < 0) |
+
+## TypeScript Usage
+
+```typescript
+import { ScriptValidationSchema } from '@objectstack/spec/data';
+import type { ScriptValidation } from '@objectstack/spec/data';
+
+// Validate data
+const result = ScriptValidationSchema.parse(data);
+
+// Type-safe usage
+const myScriptValidation: ScriptValidation = {
+  name: 'name',
+  message: 'example',
+  type: 'example',
+  // ... other fields
+};
+```
+

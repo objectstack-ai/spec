@@ -1,11 +1,36 @@
 ---
 title: ScopedStorage
 description: Plugin Scoped Data Storage (KV)
+category: system
+zodFile: plugin
 ---
 
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
 Plugin Scoped Data Storage (KV)
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/plugin.zod.ts`
+</Callout>
 
 ## Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
+
+## TypeScript Usage
+
+```typescript
+import { ScopedStorageSchema } from '@objectstack/spec/system';
+import type { ScopedStorage } from '@objectstack/spec/system';
+
+// Validate data
+const result = ScopedStorageSchema.parse(data);
+
+// Type-safe usage
+const myScopedStorage: ScopedStorage = {
+};
+```
+

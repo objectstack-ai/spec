@@ -1,7 +1,17 @@
 ---
 title: HttpMethod
 description: HttpMethod Schema Reference
+category: ui
+zodFile: view
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/view.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -10,3 +20,13 @@ description: HttpMethod Schema Reference
 * `PUT`
 * `PATCH`
 * `DELETE`
+
+## TypeScript Usage
+
+```typescript
+import { HttpMethod } from '@objectstack/spec/ui';
+
+// Type-safe enum value
+const value: HttpMethod = 'GET';
+```
+

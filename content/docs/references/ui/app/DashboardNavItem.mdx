@@ -1,7 +1,17 @@
 ---
 title: DashboardNavItem
 description: DashboardNavItem Schema Reference
+category: ui
+zodFile: app
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/app.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,22 @@ description: DashboardNavItem Schema Reference
 | **visible** | `string` | optional | Visibility formula condition |
 | **type** | `string` | ✅ |  |
 | **dashboardName** | `string` | ✅ | Target dashboard name |
+
+## TypeScript Usage
+
+```typescript
+import { DashboardNavItemSchema } from '@objectstack/spec/ui';
+import type { DashboardNavItem } from '@objectstack/spec/ui';
+
+// Validate data
+const result = DashboardNavItemSchema.parse(data);
+
+// Type-safe usage
+const myDashboardNavItem: DashboardNavItem = {
+  id: 'example',
+  label: 'example',
+  type: 'example',
+  // ... other fields
+};
+```
+

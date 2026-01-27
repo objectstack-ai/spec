@@ -1,9 +1,29 @@
 ---
 title: SharingRuleType
 description: SharingRuleType Schema Reference
+category: permission
+zodFile: sharing
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/permission/sharing.zod.ts`
+</Callout>
 
 ## Allowed Values
 
 * `owner`
 * `criteria`
+
+## TypeScript Usage
+
+```typescript
+import { SharingRuleType } from '@objectstack/spec/permission';
+
+// Type-safe enum value
+const value: SharingRuleType = 'owner';
+```
+

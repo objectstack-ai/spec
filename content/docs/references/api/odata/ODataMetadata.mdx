@@ -1,7 +1,17 @@
 ---
 title: ODataMetadata
 description: ODataMetadata Schema Reference
+category: api
+zodFile: odata
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/odata.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -10,3 +20,21 @@ description: ODataMetadata Schema Reference
 | **namespace** | `string` | ✅ | Service namespace |
 | **entityTypes** | `object[]` | ✅ | Entity types |
 | **entitySets** | `object[]` | ✅ | Entity sets |
+
+## TypeScript Usage
+
+```typescript
+import { ODataMetadataSchema } from '@objectstack/spec/api';
+import type { ODataMetadata } from '@objectstack/spec/api';
+
+// Validate data
+const result = ODataMetadataSchema.parse(data);
+
+// Type-safe usage
+const myODataMetadata: ODataMetadata = {
+  namespace: 'namespace',
+  entityTypes: [],
+  entitySets: []
+};
+```
+

@@ -1,10 +1,30 @@
 ---
 title: MetricType
 description: MetricType Schema Reference
+category: hub
+zodFile: license
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/hub/license.zod.ts`
+</Callout>
 
 ## Allowed Values
 
 * `boolean`
 * `counter`
 * `gauge`
+
+## TypeScript Usage
+
+```typescript
+import { MetricType } from '@objectstack/spec/hub';
+
+// Type-safe enum value
+const value: MetricType = 'boolean';
+```
+

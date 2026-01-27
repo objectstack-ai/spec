@@ -1,7 +1,17 @@
 ---
 title: FieldOperators
 description: FieldOperators Schema Reference
+category: data
+zodFile: filter
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/filter.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -21,3 +31,18 @@ description: FieldOperators Schema Reference
 | **$endsWith** | `string` | optional |  |
 | **$null** | `boolean` | optional |  |
 | **$exist** | `boolean` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { FieldOperatorsSchema } from '@objectstack/spec/data';
+import type { FieldOperators } from '@objectstack/spec/data';
+
+// Validate data
+const result = FieldOperatorsSchema.parse(data);
+
+// Type-safe usage
+const myFieldOperators: FieldOperators = {
+};
+```
+

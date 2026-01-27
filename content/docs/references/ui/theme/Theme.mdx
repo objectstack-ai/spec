@@ -1,7 +1,17 @@
 ---
 title: Theme
 description: Theme Schema Reference
+category: ui
+zodFile: theme
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/theme.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -22,3 +32,21 @@ description: Theme Schema Reference
 | **customVars** | `Record<string, string>` | optional | Custom CSS variables (key-value pairs) |
 | **logo** | `object` | optional | Logo assets |
 | **extends** | `string` | optional | Base theme to extend from |
+
+## TypeScript Usage
+
+```typescript
+import { ThemeSchema } from '@objectstack/spec/ui';
+import type { Theme } from '@objectstack/spec/ui';
+
+// Validate data
+const result = ThemeSchema.parse(data);
+
+// Type-safe usage
+const myTheme: Theme = {
+  name: 'name',
+  label: 'example',
+  colors: {}
+};
+```
+

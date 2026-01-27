@@ -1,7 +1,17 @@
 ---
 title: ReportChart
 description: ReportChart Schema Reference
+category: ui
+zodFile: report
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/report.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,21 @@ description: ReportChart Schema Reference
 | **showLegend** | `boolean` | optional |  |
 | **xAxis** | `string` | ✅ | Grouping field for X-Axis |
 | **yAxis** | `string` | ✅ | Summary field for Y-Axis |
+
+## TypeScript Usage
+
+```typescript
+import { ReportChartSchema } from '@objectstack/spec/ui';
+import type { ReportChart } from '@objectstack/spec/ui';
+
+// Validate data
+const result = ReportChartSchema.parse(data);
+
+// Type-safe usage
+const myReportChart: ReportChart = {
+  type: 'bar',
+  xAxis: 'example',
+  yAxis: 'example'
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: AsyncValidation
 description: AsyncValidation Schema Reference
+category: data
+zodFile: validation
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/validation.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -24,3 +34,22 @@ description: AsyncValidation Schema Reference
 | **timeout** | `number` | optional | Timeout in milliseconds |
 | **debounce** | `number` | optional | Debounce delay in milliseconds |
 | **params** | `Record<string, any>` | optional | Additional parameters to pass to validator |
+
+## TypeScript Usage
+
+```typescript
+import { AsyncValidationSchema } from '@objectstack/spec/data';
+import type { AsyncValidation } from '@objectstack/spec/data';
+
+// Validate data
+const result = AsyncValidationSchema.parse(data);
+
+// Type-safe usage
+const myAsyncValidation: AsyncValidation = {
+  name: 'name',
+  message: 'example',
+  type: 'example',
+  // ... other fields
+};
+```
+

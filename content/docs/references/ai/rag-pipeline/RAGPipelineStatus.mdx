@@ -1,7 +1,17 @@
 ---
 title: RAGPipelineStatus
 description: RAGPipelineStatus Schema Reference
+category: ai
+zodFile: rag-pipeline
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/rag-pipeline.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,21 @@ description: RAGPipelineStatus Schema Reference
 | **lastIndexed** | `string` | optional | ISO timestamp |
 | **errorMessage** | `string` | optional |  |
 | **health** | `object` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { RAGPipelineStatusSchema } from '@objectstack/spec/ai';
+import type { RAGPipelineStatus } from '@objectstack/spec/ai';
+
+// Validate data
+const result = RAGPipelineStatusSchema.parse(data);
+
+// Type-safe usage
+const myRAGPipelineStatus: RAGPipelineStatus = {
+  name: 'name',
+  status: 'active',
+  documentsIndexed: null
+};
+```
+

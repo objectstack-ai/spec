@@ -1,7 +1,17 @@
 ---
 title: SyncExecutionStatus
 description: SyncExecutionStatus Schema Reference
+category: automation
+zodFile: sync
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/sync.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -11,3 +21,13 @@ description: SyncExecutionStatus Schema Reference
 * `partial`
 * `failed`
 * `cancelled`
+
+## TypeScript Usage
+
+```typescript
+import { SyncExecutionStatus } from '@objectstack/spec/automation';
+
+// Type-safe enum value
+const value: SyncExecutionStatus = 'pending';
+```
+

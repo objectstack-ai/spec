@@ -1,7 +1,17 @@
 ---
 title: AuditEventTarget
 description: AuditEventTarget Schema Reference
+category: system
+zodFile: audit
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/audit.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,20 @@ description: AuditEventTarget Schema Reference
 | **id** | `string` | ✅ | Target identifier |
 | **name** | `string` | optional | Target display name |
 | **metadata** | `Record<string, any>` | optional | Target metadata |
+
+## TypeScript Usage
+
+```typescript
+import { AuditEventTargetSchema } from '@objectstack/spec/system';
+import type { AuditEventTarget } from '@objectstack/spec/system';
+
+// Validate data
+const result = AuditEventTargetSchema.parse(data);
+
+// Type-safe usage
+const myAuditEventTarget: AuditEventTarget = {
+  type: 'example',
+  id: 'example'
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: ObjectCapabilities
 description: ObjectCapabilities Schema Reference
+category: data
+zodFile: object
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/object.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -17,3 +27,18 @@ description: ObjectCapabilities Schema Reference
 | **trash** | `boolean` | optional | Enable soft-delete with restore capability |
 | **mru** | `boolean` | optional | Track Most Recently Used (MRU) list for users |
 | **clone** | `boolean` | optional | Allow record deep cloning |
+
+## TypeScript Usage
+
+```typescript
+import { ObjectCapabilitiesSchema } from '@objectstack/spec/data';
+import type { ObjectCapabilities } from '@objectstack/spec/data';
+
+// Validate data
+const result = ObjectCapabilitiesSchema.parse(data);
+
+// Type-safe usage
+const myObjectCapabilities: ObjectCapabilities = {
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: FormSection
 description: FormSection Schema Reference
+category: ui
+zodFile: view
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/view.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,19 @@ description: FormSection Schema Reference
 | **collapsed** | `boolean` | optional |  |
 | **columns** | `Enum<'1' \| '2' \| '3' \| '4'>` | optional |  |
 | **fields** | `string \| object[]` | ✅ |  |
+
+## TypeScript Usage
+
+```typescript
+import { FormSectionSchema } from '@objectstack/spec/ui';
+import type { FormSection } from '@objectstack/spec/ui';
+
+// Validate data
+const result = FormSectionSchema.parse(data);
+
+// Type-safe usage
+const myFormSection: FormSection = {
+  fields: []
+};
+```
+

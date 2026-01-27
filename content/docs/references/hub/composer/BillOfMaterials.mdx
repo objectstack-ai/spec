@@ -1,7 +1,17 @@
 ---
 title: BillOfMaterials
 description: BillOfMaterials Schema Reference
+category: hub
+zodFile: composer
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/hub/composer.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,20 @@ description: BillOfMaterials Schema Reference
 | **dependencies** | `object[]` | ✅ | Installed packages |
 | **environment** | `Record<string, string>` | optional |  |
 | **resolutionStrategy** | `Enum<'strict' \| 'override' \| 'merge'>` | optional | Conflict resolution strategy (strict=fail, override=last-wins, merge=deep-merge) |
+
+## TypeScript Usage
+
+```typescript
+import { BillOfMaterialsSchema } from '@objectstack/spec/hub';
+import type { BillOfMaterials } from '@objectstack/spec/hub';
+
+// Validate data
+const result = BillOfMaterialsSchema.parse(data);
+
+// Type-safe usage
+const myBillOfMaterials: BillOfMaterials = {
+  tenantId: 'example',
+  dependencies: []
+};
+```
+

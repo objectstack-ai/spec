@@ -1,7 +1,17 @@
 ---
 title: ConversationContext
 description: ConversationContext Schema Reference
+category: ai
+zodFile: conversation
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/conversation.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -15,3 +25,19 @@ description: ConversationContext Schema Reference
 | **scope** | `Record<string, any>` | optional | Additional context scope |
 | **systemMessage** | `string` | optional | System prompt/instructions |
 | **metadata** | `Record<string, any>` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { ConversationContextSchema } from '@objectstack/spec/ai';
+import type { ConversationContext } from '@objectstack/spec/ai';
+
+// Validate data
+const result = ConversationContextSchema.parse(data);
+
+// Type-safe usage
+const myConversationContext: ConversationContext = {
+  sessionId: 'example'
+};
+```
+

@@ -1,0 +1,22 @@
+---
+title: Shared Protocol Overview
+description: Complete reference for all shared protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Database, Cpu, Zap } from 'lucide-react';
+
+# Shared Protocol
+
+This section contains all protocol schemas for the shared layer of ObjectStack.
+
+## Identifiers
+
+Source: `packages/spec/src/shared/identifiers.zod.ts`
+
+<Cards>
+  <Card href="./identifiers/EventName" title="EventName" description="Event name (lowercase with dot notation for namespacing)" />
+  <Card href="./identifiers/SnakeCaseIdentifier" title="SnakeCaseIdentifier" description="Snake case identifier (lowercase with underscores only)" />
+  <Card href="./identifiers/SystemIdentifier" title="SystemIdentifier" description="System identifier (lowercase with underscores or dots)" />
+</Cards>
+

@@ -1,7 +1,17 @@
 ---
 title: SCIMMeta
 description: SCIMMeta Schema Reference
+category: auth
+zodFile: scim
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/scim.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,18 @@ description: SCIMMeta Schema Reference
 | **lastModified** | `string` | optional | Last modification timestamp |
 | **location** | `string` | optional | Resource location URI |
 | **version** | `string` | optional | Entity tag (ETag) for concurrency control |
+
+## TypeScript Usage
+
+```typescript
+import { SCIMMetaSchema } from '@objectstack/spec/auth';
+import type { SCIMMeta } from '@objectstack/spec/auth';
+
+// Validate data
+const result = SCIMMetaSchema.parse(data);
+
+// Type-safe usage
+const mySCIMMeta: SCIMMeta = {
+};
+```
+

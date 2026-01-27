@@ -1,7 +1,17 @@
 ---
 title: FunctionCall
 description: FunctionCall Schema Reference
+category: ai
+zodFile: conversation
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/conversation.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -10,3 +20,20 @@ description: FunctionCall Schema Reference
 | **name** | `string` | ✅ | Function name |
 | **arguments** | `string` | ✅ | JSON string of function arguments |
 | **result** | `string` | optional | Function execution result |
+
+## TypeScript Usage
+
+```typescript
+import { FunctionCallSchema } from '@objectstack/spec/ai';
+import type { FunctionCall } from '@objectstack/spec/ai';
+
+// Validate data
+const result = FunctionCallSchema.parse(data);
+
+// Type-safe usage
+const myFunctionCall: FunctionCall = {
+  name: 'name',
+  arguments: 'example'
+};
+```
+

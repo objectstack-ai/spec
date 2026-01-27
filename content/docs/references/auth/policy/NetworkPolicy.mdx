@@ -1,7 +1,17 @@
 ---
 title: NetworkPolicy
 description: NetworkPolicy Schema Reference
+category: auth
+zodFile: policy
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/policy.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -10,3 +20,19 @@ description: NetworkPolicy Schema Reference
 | **trustedRanges** | `string[]` | ✅ | CIDR ranges allowed to access (e.g. 10.0.0.0/8) |
 | **blockUnknown** | `boolean` | optional | Block all IPs not in trusted ranges |
 | **vpnRequired** | `boolean` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { NetworkPolicySchema } from '@objectstack/spec/auth';
+import type { NetworkPolicy } from '@objectstack/spec/auth';
+
+// Validate data
+const result = NetworkPolicySchema.parse(data);
+
+// Type-safe usage
+const myNetworkPolicy: NetworkPolicy = {
+  trustedRanges: []
+};
+```
+

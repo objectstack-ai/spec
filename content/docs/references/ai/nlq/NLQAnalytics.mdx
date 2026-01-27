@@ -1,7 +1,17 @@
 ---
 title: NLQAnalytics
 description: NLQAnalytics Schema Reference
+category: ai
+zodFile: nlq
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/nlq.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -18,3 +28,22 @@ description: NLQAnalytics Schema Reference
 | **lowConfidenceQueries** | `object[]` | ✅ |  |
 | **startDate** | `string` | ✅ | ISO timestamp |
 | **endDate** | `string` | ✅ | ISO timestamp |
+
+## TypeScript Usage
+
+```typescript
+import { NLQAnalyticsSchema } from '@objectstack/spec/ai';
+import type { NLQAnalytics } from '@objectstack/spec/ai';
+
+// Validate data
+const result = NLQAnalyticsSchema.parse(data);
+
+// Type-safe usage
+const myNLQAnalytics: NLQAnalytics = {
+  totalQueries: null,
+  successfulQueries: null,
+  failedQueries: null,
+  // ... other fields
+};
+```
+

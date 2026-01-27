@@ -1,10 +1,30 @@
 ---
 title: TenantIsolationLevel
 description: TenantIsolationLevel Schema Reference
+category: hub
+zodFile: tenant
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/hub/tenant.zod.ts`
+</Callout>
 
 ## Allowed Values
 
 * `shared_schema`
 * `isolated_schema`
 * `isolated_db`
+
+## TypeScript Usage
+
+```typescript
+import { TenantIsolationLevel } from '@objectstack/spec/hub';
+
+// Type-safe enum value
+const value: TenantIsolationLevel = 'shared_schema';
+```
+

@@ -1,7 +1,17 @@
 ---
 title: ApprovalProcess
 description: ApprovalProcess Schema Reference
+category: automation
+zodFile: approval
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/approval.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -19,3 +29,22 @@ description: ApprovalProcess Schema Reference
 | **onFinalApprove** | `object[]` | optional | Actions on final approval |
 | **onFinalReject** | `object[]` | optional | Actions on final rejection |
 | **onRecall** | `object[]` | optional | Actions on recall |
+
+## TypeScript Usage
+
+```typescript
+import { ApprovalProcessSchema } from '@objectstack/spec/automation';
+import type { ApprovalProcess } from '@objectstack/spec/automation';
+
+// Validate data
+const result = ApprovalProcessSchema.parse(data);
+
+// Type-safe usage
+const myApprovalProcess: ApprovalProcess = {
+  name: 'name',
+  label: 'example',
+  object: 'example',
+  // ... other fields
+};
+```
+

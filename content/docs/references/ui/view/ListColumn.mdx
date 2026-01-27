@@ -1,7 +1,17 @@
 ---
 title: ListColumn
 description: ListColumn Schema Reference
+category: ui
+zodFile: view
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/view.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -16,3 +26,19 @@ description: ListColumn Schema Reference
 | **resizable** | `boolean` | optional | Allow resizing this column |
 | **wrap** | `boolean` | optional | Allow text wrapping |
 | **type** | `string` | optional | Renderer type override (e.g., "currency", "date") |
+
+## TypeScript Usage
+
+```typescript
+import { ListColumnSchema } from '@objectstack/spec/ui';
+import type { ListColumn } from '@objectstack/spec/ui';
+
+// Validate data
+const result = ListColumnSchema.parse(data);
+
+// Type-safe usage
+const myListColumn: ListColumn = {
+  field: 'example'
+};
+```
+

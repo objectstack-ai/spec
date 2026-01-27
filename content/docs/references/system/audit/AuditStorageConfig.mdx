@@ -1,7 +1,17 @@
 ---
 title: AuditStorageConfig
 description: AuditStorageConfig Schema Reference
+category: system
+zodFile: audit
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/audit.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -14,3 +24,19 @@ description: AuditStorageConfig Schema Reference
 | **bufferSize** | `integer` | optional | Buffer size |
 | **flushIntervalSeconds** | `integer` | optional | Flush interval in seconds |
 | **compression** | `boolean` | optional | Enable compression |
+
+## TypeScript Usage
+
+```typescript
+import { AuditStorageConfigSchema } from '@objectstack/spec/system';
+import type { AuditStorageConfig } from '@objectstack/spec/system';
+
+// Validate data
+const result = AuditStorageConfigSchema.parse(data);
+
+// Type-safe usage
+const myAuditStorageConfig: AuditStorageConfig = {
+  type: 'database'
+};
+```
+

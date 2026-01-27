@@ -1,7 +1,17 @@
 ---
 title: HttpRequest
 description: HttpRequest Schema Reference
+category: ui
+zodFile: view
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/view.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,19 @@ description: HttpRequest Schema Reference
 | **headers** | `Record<string, string>` | optional | Custom HTTP headers |
 | **params** | `Record<string, any>` | optional | Query parameters |
 | **body** | `any` | optional | Request body for POST/PUT/PATCH |
+
+## TypeScript Usage
+
+```typescript
+import { HttpRequestSchema } from '@objectstack/spec/ui';
+import type { HttpRequest } from '@objectstack/spec/ui';
+
+// Validate data
+const result = HttpRequestSchema.parse(data);
+
+// Type-safe usage
+const myHttpRequest: HttpRequest = {
+  url: 'https://example.com'
+};
+```
+

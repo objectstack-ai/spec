@@ -1,7 +1,17 @@
 ---
 title: SpecialOperator
 description: SpecialOperator Schema Reference
+category: data
+zodFile: filter
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/filter.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -9,3 +19,18 @@ description: SpecialOperator Schema Reference
 | :--- | :--- | :--- | :--- |
 | **$null** | `boolean` | optional |  |
 | **$exist** | `boolean` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { SpecialOperatorSchema } from '@objectstack/spec/data';
+import type { SpecialOperator } from '@objectstack/spec/data';
+
+// Validate data
+const result = SpecialOperatorSchema.parse(data);
+
+// Type-safe usage
+const mySpecialOperator: SpecialOperator = {
+};
+```
+

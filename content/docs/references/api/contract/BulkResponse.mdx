@@ -1,7 +1,17 @@
 ---
 title: BulkResponse
 description: BulkResponse Schema Reference
+category: api
+zodFile: contract
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/contract.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,20 @@ description: BulkResponse Schema Reference
 | **error** | `object` | optional | Error details if success is false |
 | **meta** | `object` | optional | Response metadata |
 | **data** | `object[]` | ✅ | Results for each item in the batch |
+
+## TypeScript Usage
+
+```typescript
+import { BulkResponseSchema } from '@objectstack/spec/api';
+import type { BulkResponse } from '@objectstack/spec/api';
+
+// Validate data
+const result = BulkResponseSchema.parse(data);
+
+// Type-safe usage
+const myBulkResponse: BulkResponse = {
+  success: false,
+  data: []
+};
+```
+

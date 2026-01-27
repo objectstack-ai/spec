@@ -1,7 +1,17 @@
 ---
 title: EnterpriseAuthConfig
 description: EnterpriseAuthConfig Schema Reference
+category: auth
+zodFile: config
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/config.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -10,3 +20,18 @@ description: EnterpriseAuthConfig Schema Reference
 | **oidc** | `object` | optional | OpenID Connect configuration |
 | **saml** | `object` | optional | SAML 2.0 configuration |
 | **ldap** | `object` | optional | LDAP/Active Directory configuration |
+
+## TypeScript Usage
+
+```typescript
+import { EnterpriseAuthConfigSchema } from '@objectstack/spec/auth';
+import type { EnterpriseAuthConfig } from '@objectstack/spec/auth';
+
+// Validate data
+const result = EnterpriseAuthConfigSchema.parse(data);
+
+// Type-safe usage
+const myEnterpriseAuthConfig: EnterpriseAuthConfig = {
+};
+```
+

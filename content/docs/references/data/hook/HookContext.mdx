@@ -1,7 +1,17 @@
 ---
 title: HookContext
 description: HookContext Schema Reference
+category: data
+zodFile: hook
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/hook.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -16,3 +26,21 @@ description: HookContext Schema Reference
 | **session** | `object` | optional | Current session context |
 | **transaction** | `any` | optional | Database transaction handle |
 | **ql** | `any` | optional | ObjectQL Engine Reference |
+
+## TypeScript Usage
+
+```typescript
+import { HookContextSchema } from '@objectstack/spec/data';
+import type { HookContext } from '@objectstack/spec/data';
+
+// Validate data
+const result = HookContextSchema.parse(data);
+
+// Type-safe usage
+const myHookContext: HookContext = {
+  object: 'example',
+  event: 'beforeFind',
+  input: {}
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: Subscription
 description: Subscription Schema Reference
+category: api
+zodFile: realtime
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/realtime.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,21 @@ description: Subscription Schema Reference
 | **events** | `object[]` | ✅ | Array of events to subscribe to |
 | **transport** | `Enum<'websocket' \| 'sse' \| 'polling'>` | ✅ | Transport protocol to use |
 | **channel** | `string` | optional | Optional channel name for grouping subscriptions |
+
+## TypeScript Usage
+
+```typescript
+import { SubscriptionSchema } from '@objectstack/spec/api';
+import type { Subscription } from '@objectstack/spec/api';
+
+// Validate data
+const result = SubscriptionSchema.parse(data);
+
+// Type-safe usage
+const mySubscription: Subscription = {
+  id: 'example',
+  events: [],
+  transport: 'websocket'
+};
+```
+

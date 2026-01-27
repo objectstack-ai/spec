@@ -1,7 +1,17 @@
 ---
 title: AuditEventActor
 description: AuditEventActor Schema Reference
+category: system
+zodFile: audit
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/audit.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,20 @@ description: AuditEventActor Schema Reference
 | **email** | `string` | optional | Actor email address |
 | **ipAddress** | `string` | optional | Actor IP address |
 | **userAgent** | `string` | optional | User agent string |
+
+## TypeScript Usage
+
+```typescript
+import { AuditEventActorSchema } from '@objectstack/spec/system';
+import type { AuditEventActor } from '@objectstack/spec/system';
+
+// Validate data
+const result = AuditEventActorSchema.parse(data);
+
+// Type-safe usage
+const myAuditEventActor: AuditEventActor = {
+  type: 'user',
+  id: 'example'
+};
+```
+

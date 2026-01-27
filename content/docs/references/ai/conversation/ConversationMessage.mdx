@@ -1,7 +1,17 @@
 ---
 title: ConversationMessage
 description: ConversationMessage Schema Reference
+category: ai
+zodFile: conversation
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/conversation.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -20,3 +30,22 @@ description: ConversationMessage Schema Reference
 | **importance** | `number` | optional | Importance score for pruning |
 | **embedding** | `number[]` | optional | Vector embedding for semantic search |
 | **metadata** | `Record<string, any>` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { ConversationMessageSchema } from '@objectstack/spec/ai';
+import type { ConversationMessage } from '@objectstack/spec/ai';
+
+// Validate data
+const result = ConversationMessageSchema.parse(data);
+
+// Type-safe usage
+const myConversationMessage: ConversationMessage = {
+  id: 'example',
+  timestamp: 'example',
+  role: 'system',
+  // ... other fields
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: ApiCapabilities
 description: ApiCapabilities Schema Reference
+category: api
+zodFile: discovery
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/discovery.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,18 @@ description: ApiCapabilities Schema Reference
 | **search** | `boolean` | optional |  |
 | **websockets** | `boolean` | optional |  |
 | **files** | `boolean` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { ApiCapabilitiesSchema } from '@objectstack/spec/api';
+import type { ApiCapabilities } from '@objectstack/spec/api';
+
+// Validate data
+const result = ApiCapabilitiesSchema.parse(data);
+
+// Type-safe usage
+const myApiCapabilities: ApiCapabilities = {
+};
+```
+

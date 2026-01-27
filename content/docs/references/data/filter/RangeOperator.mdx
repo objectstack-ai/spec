@@ -1,10 +1,35 @@
 ---
 title: RangeOperator
 description: RangeOperator Schema Reference
+category: data
+zodFile: filter
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/filter.zod.ts`
+</Callout>
 
 ## Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **$between** | `any[]` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { RangeOperatorSchema } from '@objectstack/spec/data';
+import type { RangeOperator } from '@objectstack/spec/data';
+
+// Validate data
+const result = RangeOperatorSchema.parse(data);
+
+// Type-safe usage
+const myRangeOperator: RangeOperator = {
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: Page
 description: Page Schema Reference
+category: ui
+zodFile: page
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/page.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -16,3 +26,21 @@ description: Page Schema Reference
 | **regions** | `object[]` | ✅ | Defined regions with components |
 | **isDefault** | `boolean` | optional |  |
 | **assignedProfiles** | `string[]` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { PageSchema } from '@objectstack/spec/ui';
+import type { Page } from '@objectstack/spec/ui';
+
+// Validate data
+const result = PageSchema.parse(data);
+
+// Type-safe usage
+const myPage: Page = {
+  name: 'name',
+  label: 'example',
+  regions: []
+};
+```
+

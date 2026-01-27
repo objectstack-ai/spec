@@ -1,7 +1,17 @@
 ---
 title: QueryContext
 description: QueryContext Schema Reference
+category: ai
+zodFile: nlq
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/nlq.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -15,3 +25,18 @@ description: QueryContext Schema Reference
 | **defaultLimit** | `integer` | optional |  |
 | **timezone** | `string` | optional |  |
 | **locale** | `string` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { QueryContextSchema } from '@objectstack/spec/ai';
+import type { QueryContext } from '@objectstack/spec/ai';
+
+// Validate data
+const result = QueryContextSchema.parse(data);
+
+// Type-safe usage
+const myQueryContext: QueryContext = {
+};
+```
+

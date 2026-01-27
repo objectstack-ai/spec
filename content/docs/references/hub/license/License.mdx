@@ -1,7 +1,17 @@
 ---
 title: License
 description: License Schema Reference
+category: hub
+zodFile: license
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/hub/license.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -16,3 +26,22 @@ description: License Schema Reference
 | **customLimits** | `Record<string, number>` | optional |  |
 | **plugins** | `string[]` | optional | List of enabled plugin package IDs |
 | **signature** | `string` | optional | Cryptographic signature of the license |
+
+## TypeScript Usage
+
+```typescript
+import { LicenseSchema } from '@objectstack/spec/hub';
+import type { License } from '@objectstack/spec/hub';
+
+// Validate data
+const result = LicenseSchema.parse(data);
+
+// Type-safe usage
+const myLicense: License = {
+  spaceId: 'example',
+  planCode: 'example',
+  issuedAt: 'example',
+  // ... other fields
+};
+```
+

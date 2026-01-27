@@ -1,7 +1,17 @@
 ---
 title: CurrencyConfig
 description: CurrencyConfig Schema Reference
+category: data
+zodFile: field
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/field.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -10,3 +20,18 @@ description: CurrencyConfig Schema Reference
 | **precision** | `integer` | optional | Decimal precision (default: 2) |
 | **currencyMode** | `Enum<'dynamic' \| 'fixed'>` | optional | Currency mode: dynamic (user selectable) or fixed (single currency) |
 | **defaultCurrency** | `string` | optional | Default or fixed currency code (ISO 4217, e.g., USD, CNY, EUR) |
+
+## TypeScript Usage
+
+```typescript
+import { CurrencyConfigSchema } from '@objectstack/spec/data';
+import type { CurrencyConfig } from '@objectstack/spec/data';
+
+// Validate data
+const result = CurrencyConfigSchema.parse(data);
+
+// Type-safe usage
+const myCurrencyConfig: CurrencyConfig = {
+};
+```
+

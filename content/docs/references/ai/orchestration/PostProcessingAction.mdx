@@ -1,7 +1,17 @@
 ---
 title: PostProcessingAction
 description: PostProcessingAction Schema Reference
+category: ai
+zodFile: orchestration
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/orchestration.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,21 @@ description: PostProcessingAction Schema Reference
 | **name** | `string` | ✅ | Action name |
 | **config** | `Record<string, any>` | ✅ | Action-specific configuration |
 | **condition** | `string` | optional | Execute only if condition is TRUE |
+
+## TypeScript Usage
+
+```typescript
+import { PostProcessingActionSchema } from '@objectstack/spec/ai';
+import type { PostProcessingAction } from '@objectstack/spec/ai';
+
+// Validate data
+const result = PostProcessingActionSchema.parse(data);
+
+// Type-safe usage
+const myPostProcessingAction: PostProcessingAction = {
+  type: 'field_update',
+  name: 'name',
+  config: {}
+};
+```
+

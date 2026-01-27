@@ -1,7 +1,17 @@
 ---
 title: AggregationNode
 description: AggregationNode Schema Reference
+category: data
+zodFile: query
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/query.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,20 @@ description: AggregationNode Schema Reference
 | **alias** | `string` | ✅ | Result column alias |
 | **distinct** | `boolean` | optional | Apply DISTINCT before aggregation |
 | **filter** | `any` | optional | Filter/Condition to apply to the aggregation (FILTER WHERE clause) |
+
+## TypeScript Usage
+
+```typescript
+import { AggregationNodeSchema } from '@objectstack/spec/data';
+import type { AggregationNode } from '@objectstack/spec/data';
+
+// Validate data
+const result = AggregationNodeSchema.parse(data);
+
+// Type-safe usage
+const myAggregationNode: AggregationNode = {
+  function: 'count',
+  alias: 'example'
+};
+```
+

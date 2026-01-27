@@ -1,7 +1,17 @@
 ---
 title: CustomScriptAction
 description: CustomScriptAction Schema Reference
+category: automation
+zodFile: workflow
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/workflow.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,21 @@ description: CustomScriptAction Schema Reference
 | **code** | `string` | ✅ | Script code to execute |
 | **timeout** | `number` | optional | Execution timeout in milliseconds |
 | **context** | `Record<string, any>` | optional | Additional context variables |
+
+## TypeScript Usage
+
+```typescript
+import { CustomScriptActionSchema } from '@objectstack/spec/automation';
+import type { CustomScriptAction } from '@objectstack/spec/automation';
+
+// Validate data
+const result = CustomScriptActionSchema.parse(data);
+
+// Type-safe usage
+const myCustomScriptAction: CustomScriptAction = {
+  name: 'name',
+  type: 'example',
+  code: 'example'
+};
+```
+

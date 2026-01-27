@@ -1,7 +1,17 @@
 ---
 title: AuditEvent
 description: AuditEvent Schema Reference
+category: system
+zodFile: audit
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/audit.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -21,3 +31,22 @@ description: AuditEvent Schema Reference
 | **requestId** | `string` | optional | Request ID for tracing |
 | **metadata** | `Record<string, any>` | optional | Additional metadata |
 | **location** | `object` | optional | Geographic location |
+
+## TypeScript Usage
+
+```typescript
+import { AuditEventSchema } from '@objectstack/spec/system';
+import type { AuditEvent } from '@objectstack/spec/system';
+
+// Validate data
+const result = AuditEventSchema.parse(data);
+
+// Type-safe usage
+const myAuditEvent: AuditEvent = {
+  id: 'example',
+  eventType: 'data.create',
+  timestamp: 'example',
+  // ... other fields
+};
+```
+

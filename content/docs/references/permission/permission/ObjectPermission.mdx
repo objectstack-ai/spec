@@ -1,7 +1,17 @@
 ---
 title: ObjectPermission
 description: ObjectPermission Schema Reference
+category: permission
+zodFile: permission
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/permission/permission.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -16,3 +26,18 @@ description: ObjectPermission Schema Reference
 | **allowPurge** | `boolean` | optional | Permanently delete (Hard Delete/GDPR) |
 | **viewAllRecords** | `boolean` | optional | View All Data (Bypass Sharing) |
 | **modifyAllRecords** | `boolean` | optional | Modify All Data (Bypass Sharing) |
+
+## TypeScript Usage
+
+```typescript
+import { ObjectPermissionSchema } from '@objectstack/spec/permission';
+import type { ObjectPermission } from '@objectstack/spec/permission';
+
+// Validate data
+const result = ObjectPermissionSchema.parse(data);
+
+// Type-safe usage
+const myObjectPermission: ObjectPermission = {
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: ConnectorInstance
 description: ConnectorInstance Schema Reference
+category: automation
+zodFile: connector
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/connector.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -17,3 +27,22 @@ description: ConnectorInstance Schema Reference
 | **createdAt** | `string` | optional | Creation time |
 | **lastTestedAt** | `string` | optional | Last test time |
 | **testStatus** | `Enum<'unknown' \| 'success' \| 'failed'>` | optional | Connection test status |
+
+## TypeScript Usage
+
+```typescript
+import { ConnectorInstanceSchema } from '@objectstack/spec/automation';
+import type { ConnectorInstance } from '@objectstack/spec/automation';
+
+// Validate data
+const result = ConnectorInstanceSchema.parse(data);
+
+// Type-safe usage
+const myConnectorInstance: ConnectorInstance = {
+  id: 'example',
+  connectorId: 'example',
+  name: 'name',
+  // ... other fields
+};
+```
+

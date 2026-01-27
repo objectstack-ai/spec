@@ -1,7 +1,17 @@
 ---
 title: NLQParseResult
 description: NLQParseResult Schema Reference
+category: ai
+zodFile: nlq
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/nlq.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -18,3 +28,22 @@ description: NLQParseResult Schema Reference
 | **confidence** | `number` | ✅ | Overall confidence |
 | **ambiguities** | `object[]` | optional | Detected ambiguities requiring clarification |
 | **alternatives** | `object[]` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { NLQParseResultSchema } from '@objectstack/spec/ai';
+import type { NLQParseResult } from '@objectstack/spec/ai';
+
+// Validate data
+const result = NLQParseResultSchema.parse(data);
+
+// Type-safe usage
+const myNLQParseResult: NLQParseResult = {
+  originalQuery: 'example',
+  intent: 'select',
+  intentConfidence: 0,
+  // ... other fields
+};
+```
+

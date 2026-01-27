@@ -1,7 +1,17 @@
 ---
 title: AggregationFunction
 description: AggregationFunction Schema Reference
+category: data
+zodFile: query
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/query.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -13,3 +23,13 @@ description: AggregationFunction Schema Reference
 * `count_distinct`
 * `array_agg`
 * `string_agg`
+
+## TypeScript Usage
+
+```typescript
+import { AggregationFunction } from '@objectstack/spec/data';
+
+// Type-safe enum value
+const value: AggregationFunction = 'count';
+```
+

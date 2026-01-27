@@ -1,7 +1,17 @@
 ---
 title: DataSourceConfig
 description: DataSourceConfig Schema Reference
+category: automation
+zodFile: sync
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/sync.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,18 @@ description: DataSourceConfig Schema Reference
 | **fields** | `string[]` | optional | Fields to sync |
 | **connectorInstanceId** | `string` | optional | Connector instance ID |
 | **externalResource** | `string` | optional | External resource ID |
+
+## TypeScript Usage
+
+```typescript
+import { DataSourceConfigSchema } from '@objectstack/spec/automation';
+import type { DataSourceConfig } from '@objectstack/spec/automation';
+
+// Validate data
+const result = DataSourceConfigSchema.parse(data);
+
+// Type-safe usage
+const myDataSourceConfig: DataSourceConfig = {
+};
+```
+

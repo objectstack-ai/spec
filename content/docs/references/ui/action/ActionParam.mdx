@@ -1,7 +1,17 @@
 ---
 title: ActionParam
 description: ActionParam Schema Reference
+category: ui
+zodFile: action
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/action.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,21 @@ description: ActionParam Schema Reference
 | **type** | `Enum<'text' \| 'textarea' \| 'email' \| 'url' \| 'phone' \| 'password' \| 'markdown' \| 'html' \| 'richtext' \| 'number' \| 'currency' \| 'percent' \| 'date' \| 'datetime' \| 'time' \| 'boolean' \| 'toggle' \| 'select' \| 'multiselect' \| 'radio' \| 'checkboxes' \| 'lookup' \| 'master_detail' \| 'tree' \| 'image' \| 'file' \| 'avatar' \| 'video' \| 'audio' \| 'formula' \| 'summary' \| 'autonumber' \| 'location' \| 'address' \| 'code' \| 'json' \| 'color' \| 'rating' \| 'slider' \| 'signature' \| 'qrcode' \| 'progress' \| 'tags' \| 'vector'>` | ✅ |  |
 | **required** | `boolean` | optional |  |
 | **options** | `object[]` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { ActionParamSchema } from '@objectstack/spec/ui';
+import type { ActionParam } from '@objectstack/spec/ui';
+
+// Validate data
+const result = ActionParamSchema.parse(data);
+
+// Type-safe usage
+const myActionParam: ActionParam = {
+  name: 'name',
+  label: 'example',
+  type: 'text'
+};
+```
+

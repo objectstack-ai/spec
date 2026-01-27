@@ -1,10 +1,30 @@
 ---
 title: RealtimeAction
 description: RealtimeAction Schema Reference
+category: api
+zodFile: realtime
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/realtime.zod.ts`
+</Callout>
 
 ## Allowed Values
 
 * `created`
 * `updated`
 * `deleted`
+
+## TypeScript Usage
+
+```typescript
+import { RealtimeAction } from '@objectstack/spec/api';
+
+// Type-safe enum value
+const value: RealtimeAction = 'created';
+```
+

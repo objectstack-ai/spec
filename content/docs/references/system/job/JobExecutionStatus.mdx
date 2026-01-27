@@ -1,7 +1,17 @@
 ---
 title: JobExecutionStatus
 description: JobExecutionStatus Schema Reference
+category: system
+zodFile: job
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/job.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -9,3 +19,13 @@ description: JobExecutionStatus Schema Reference
 * `success`
 * `failed`
 * `timeout`
+
+## TypeScript Usage
+
+```typescript
+import { JobExecutionStatus } from '@objectstack/spec/system';
+
+// Type-safe enum value
+const value: JobExecutionStatus = 'running';
+```
+

@@ -1,7 +1,17 @@
 ---
 title: DriverDefinition
 description: DriverDefinition Schema Reference
+category: system
+zodFile: datasource
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/datasource.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,21 @@ description: DriverDefinition Schema Reference
 | **icon** | `string` | optional |  |
 | **configSchema** | `Record<string, any>` | ✅ | JSON Schema for connection configuration |
 | **capabilities** | `object` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { DriverDefinitionSchema } from '@objectstack/spec/system';
+import type { DriverDefinition } from '@objectstack/spec/system';
+
+// Validate data
+const result = DriverDefinitionSchema.parse(data);
+
+// Type-safe usage
+const myDriverDefinition: DriverDefinition = {
+  id: 'example',
+  label: 'example',
+  configSchema: {}
+};
+```
+

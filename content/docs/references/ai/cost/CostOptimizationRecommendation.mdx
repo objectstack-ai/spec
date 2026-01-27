@@ -1,7 +1,17 @@
 ---
 title: CostOptimizationRecommendation
 description: CostOptimizationRecommendation Schema Reference
+category: ai
+zodFile: cost
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/cost.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -22,3 +32,22 @@ description: CostOptimizationRecommendation Schema Reference
 | **affectedUsers** | `string[]` | optional |  |
 | **status** | `Enum<'pending' \| 'accepted' \| 'rejected' \| 'implemented'>` | optional |  |
 | **implementedAt** | `string` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { CostOptimizationRecommendationSchema } from '@objectstack/spec/ai';
+import type { CostOptimizationRecommendation } from '@objectstack/spec/ai';
+
+// Validate data
+const result = CostOptimizationRecommendationSchema.parse(data);
+
+// Type-safe usage
+const myCostOptimizationRecommendation: CostOptimizationRecommendation = {
+  id: 'example',
+  type: 'switch_model',
+  title: 'example',
+  // ... other fields
+};
+```
+

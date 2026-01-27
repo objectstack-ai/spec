@@ -1,7 +1,17 @@
 ---
 title: VectorConfig
 description: VectorConfig Schema Reference
+category: data
+zodFile: field
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/field.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,19 @@ description: VectorConfig Schema Reference
 | **normalized** | `boolean` | optional | Whether vectors are normalized (unit length) |
 | **indexed** | `boolean` | optional | Whether to create a vector index for fast similarity search |
 | **indexType** | `Enum<'hnsw' \| 'ivfflat' \| 'flat'>` | optional | Vector index algorithm (HNSW for high accuracy, IVFFlat for large datasets) |
+
+## TypeScript Usage
+
+```typescript
+import { VectorConfigSchema } from '@objectstack/spec/data';
+import type { VectorConfig } from '@objectstack/spec/data';
+
+// Validate data
+const result = VectorConfigSchema.parse(data);
+
+// Type-safe usage
+const myVectorConfig: VectorConfig = {
+  dimensions: null
+};
+```
+

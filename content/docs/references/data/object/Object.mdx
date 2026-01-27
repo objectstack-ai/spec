@@ -1,7 +1,17 @@
 ---
 title: Object
 description: Object Schema Reference
+category: data
+zodFile: object
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/object.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -25,3 +35,20 @@ description: Object Schema Reference
 | **compactLayout** | `string[]` | optional | Primary fields for hover/cards/lookups |
 | **search** | `object` | optional | Search engine configuration |
 | **enable** | `object` | optional | Enabled system features modules |
+
+## TypeScript Usage
+
+```typescript
+import { ObjectSchema } from '@objectstack/spec/data';
+import type { Object } from '@objectstack/spec/data';
+
+// Validate data
+const result = ObjectSchema.parse(data);
+
+// Type-safe usage
+const myObject: Object = {
+  name: 'name',
+  fields: {}
+};
+```
+

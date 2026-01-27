@@ -1,7 +1,17 @@
 ---
 title: LoggerConfig
 description: LoggerConfig Schema Reference
+category: system
+zodFile: logger
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/logger.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,18 @@ description: LoggerConfig Schema Reference
 | **sourceLocation** | `boolean` | optional | Include file and line number |
 | **file** | `string` | optional | Path to log file |
 | **rotation** | `object` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { LoggerConfigSchema } from '@objectstack/spec/system';
+import type { LoggerConfig } from '@objectstack/spec/system';
+
+// Validate data
+const result = LoggerConfigSchema.parse(data);
+
+// Type-safe usage
+const myLoggerConfig: LoggerConfig = {
+};
+```
+

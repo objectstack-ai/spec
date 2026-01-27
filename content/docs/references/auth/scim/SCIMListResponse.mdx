@@ -1,7 +1,17 @@
 ---
 title: SCIMListResponse
 description: SCIMListResponse Schema Reference
+category: auth
+zodFile: scim
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/scim.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,20 @@ description: SCIMListResponse Schema Reference
 | **Resources** | `object \| object \| Record<string, any>[]` | ✅ | Resources array (Users, Groups, or custom resources) |
 | **startIndex** | `integer` | optional | Start index (1-based) |
 | **itemsPerPage** | `integer` | optional | Items per page |
+
+## TypeScript Usage
+
+```typescript
+import { SCIMListResponseSchema } from '@objectstack/spec/auth';
+import type { SCIMListResponse } from '@objectstack/spec/auth';
+
+// Validate data
+const result = SCIMListResponseSchema.parse(data);
+
+// Type-safe usage
+const mySCIMListResponse: SCIMListResponse = {
+  totalResults: null,
+  Resources: []
+};
+```
+

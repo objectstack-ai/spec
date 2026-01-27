@@ -1,7 +1,17 @@
 ---
 title: PageRegion
 description: PageRegion Schema Reference
+category: ui
+zodFile: page
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/page.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -10,3 +20,20 @@ description: PageRegion Schema Reference
 | **name** | `string` | ✅ | Region name (e.g. "sidebar", "main", "header") |
 | **width** | `Enum<'small' \| 'medium' \| 'large' \| 'full'>` | optional |  |
 | **components** | `object[]` | ✅ | Components in this region |
+
+## TypeScript Usage
+
+```typescript
+import { PageRegionSchema } from '@objectstack/spec/ui';
+import type { PageRegion } from '@objectstack/spec/ui';
+
+// Validate data
+const result = PageRegionSchema.parse(data);
+
+// Type-safe usage
+const myPageRegion: PageRegion = {
+  name: 'name',
+  components: []
+};
+```
+

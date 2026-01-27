@@ -1,7 +1,17 @@
 ---
 title: ZIndex
 description: ZIndex Schema Reference
+category: ui
+zodFile: theme
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/theme.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -15,3 +25,18 @@ description: ZIndex Schema Reference
 | **modal** | `number` | optional | Modal z-index (e.g., 1050) |
 | **popover** | `number` | optional | Popover z-index (e.g., 1060) |
 | **tooltip** | `number` | optional | Tooltip z-index (e.g., 1070) |
+
+## TypeScript Usage
+
+```typescript
+import { ZIndexSchema } from '@objectstack/spec/ui';
+import type { ZIndex } from '@objectstack/spec/ui';
+
+// Validate data
+const result = ZIndexSchema.parse(data);
+
+// Type-safe usage
+const myZIndex: ZIndex = {
+};
+```
+

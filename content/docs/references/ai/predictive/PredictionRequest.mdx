@@ -1,7 +1,17 @@
 ---
 title: PredictionRequest
 description: PredictionRequest Schema Reference
+category: ai
+zodFile: predictive
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/predictive.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,19 @@ description: PredictionRequest Schema Reference
 | **inputData** | `Record<string, any>` | optional | Direct input data (alternative to recordIds) |
 | **returnConfidence** | `boolean` | optional |  |
 | **returnExplanation** | `boolean` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { PredictionRequestSchema } from '@objectstack/spec/ai';
+import type { PredictionRequest } from '@objectstack/spec/ai';
+
+// Validate data
+const result = PredictionRequestSchema.parse(data);
+
+// Type-safe usage
+const myPredictionRequest: PredictionRequest = {
+  modelName: 'example'
+};
+```
+

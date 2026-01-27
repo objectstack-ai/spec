@@ -1,7 +1,17 @@
 ---
 title: SCIMEmail
 description: SCIMEmail Schema Reference
+category: auth
+zodFile: scim
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/scim.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,19 @@ description: SCIMEmail Schema Reference
 | **type** | `Enum<'work' \| 'home' \| 'other'>` | optional | Email type |
 | **display** | `string` | optional | Display label |
 | **primary** | `boolean` | optional | Primary email indicator |
+
+## TypeScript Usage
+
+```typescript
+import { SCIMEmailSchema } from '@objectstack/spec/auth';
+import type { SCIMEmail } from '@objectstack/spec/auth';
+
+// Validate data
+const result = SCIMEmailSchema.parse(data);
+
+// Type-safe usage
+const mySCIMEmail: SCIMEmail = {
+  value: 'example'
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: App
 description: App Schema Reference
+category: ui
+zodFile: app
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/app.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -20,3 +30,20 @@ description: App Schema Reference
 | **requiredPermissions** | `string[]` | optional | Permissions required to access this app |
 | **objects** | `any[]` | optional | Objects belonging to this app |
 | **apis** | `any[]` | optional | Custom APIs belonging to this app |
+
+## TypeScript Usage
+
+```typescript
+import { AppSchema } from '@objectstack/spec/ui';
+import type { App } from '@objectstack/spec/ui';
+
+// Validate data
+const result = AppSchema.parse(data);
+
+// Type-safe usage
+const myApp: App = {
+  name: 'name',
+  label: 'example'
+};
+```
+

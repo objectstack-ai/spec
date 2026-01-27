@@ -1,7 +1,17 @@
 ---
 title: ConnectorOperation
 description: ConnectorOperation Schema Reference
+category: automation
+zodFile: connector
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/connector.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -16,3 +26,21 @@ description: ConnectorOperation Schema Reference
 | **sampleOutput** | `any` | optional | Sample output |
 | **supportsPagination** | `boolean` | optional | Supports pagination |
 | **supportsFiltering** | `boolean` | optional | Supports filtering |
+
+## TypeScript Usage
+
+```typescript
+import { ConnectorOperationSchema } from '@objectstack/spec/automation';
+import type { ConnectorOperation } from '@objectstack/spec/automation';
+
+// Validate data
+const result = ConnectorOperationSchema.parse(data);
+
+// Type-safe usage
+const myConnectorOperation: ConnectorOperation = {
+  id: 'example',
+  name: 'name',
+  type: 'read'
+};
+```
+

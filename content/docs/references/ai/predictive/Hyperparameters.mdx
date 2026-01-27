@@ -1,7 +1,17 @@
 ---
 title: Hyperparameters
 description: Hyperparameters Schema Reference
+category: ai
+zodFile: predictive
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/predictive.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -23,3 +33,18 @@ description: Hyperparameters Schema Reference
 | **seasonalPeriod** | `integer` | optional | Seasonal period for time series |
 | **forecastHorizon** | `integer` | optional | Number of periods to forecast |
 | **custom** | `Record<string, any>` | optional | Algorithm-specific parameters |
+
+## TypeScript Usage
+
+```typescript
+import { HyperparametersSchema } from '@objectstack/spec/ai';
+import type { Hyperparameters } from '@objectstack/spec/ai';
+
+// Validate data
+const result = HyperparametersSchema.parse(data);
+
+// Type-safe usage
+const myHyperparameters: Hyperparameters = {
+};
+```
+

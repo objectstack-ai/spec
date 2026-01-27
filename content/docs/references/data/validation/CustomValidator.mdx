@@ -1,7 +1,17 @@
 ---
 title: CustomValidator
 description: CustomValidator Schema Reference
+category: data
+zodFile: validation
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/validation.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -18,3 +28,22 @@ description: CustomValidator Schema Reference
 | **type** | `string` | ✅ |  |
 | **handler** | `string` | ✅ | Name of the custom validation function registered in the system |
 | **params** | `Record<string, any>` | optional | Parameters passed to the custom handler |
+
+## TypeScript Usage
+
+```typescript
+import { CustomValidatorSchema } from '@objectstack/spec/data';
+import type { CustomValidator } from '@objectstack/spec/data';
+
+// Validate data
+const result = CustomValidatorSchema.parse(data);
+
+// Type-safe usage
+const myCustomValidator: CustomValidator = {
+  name: 'name',
+  message: 'example',
+  type: 'example',
+  // ... other fields
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: FeatureStrategy
 description: FeatureStrategy Schema Reference
+category: system
+zodFile: feature
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/feature.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -10,3 +20,13 @@ description: FeatureStrategy Schema Reference
 * `user_list`
 * `group`
 * `custom`
+
+## TypeScript Usage
+
+```typescript
+import { FeatureStrategy } from '@objectstack/spec/system';
+
+// Type-safe enum value
+const value: FeatureStrategy = 'boolean';
+```
+

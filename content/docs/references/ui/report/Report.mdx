@@ -1,7 +1,17 @@
 ---
 title: Report
 description: Report Schema Reference
+category: ui
+zodFile: report
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/report.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -17,3 +27,22 @@ description: Report Schema Reference
 | **groupingsAcross** | `object[]` | optional | Column groupings (Matrix only) |
 | **filter** | `any` | optional | Filter criteria |
 | **chart** | `object` | optional | Embedded chart configuration |
+
+## TypeScript Usage
+
+```typescript
+import { ReportSchema } from '@objectstack/spec/ui';
+import type { Report } from '@objectstack/spec/ui';
+
+// Validate data
+const result = ReportSchema.parse(data);
+
+// Type-safe usage
+const myReport: Report = {
+  name: 'name',
+  label: 'example',
+  objectName: 'example',
+  // ... other fields
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: RAGQueryResponse
 description: RAGQueryResponse Schema Reference
+category: ai
+zodFile: rag-pipeline
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/rag-pipeline.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,21 @@ description: RAGQueryResponse Schema Reference
 | **context** | `string` | ✅ | Assembled context for LLM |
 | **tokensUsed** | `integer` | optional |  |
 | **retrievalTime** | `number` | optional | Retrieval time in milliseconds |
+
+## TypeScript Usage
+
+```typescript
+import { RAGQueryResponseSchema } from '@objectstack/spec/ai';
+import type { RAGQueryResponse } from '@objectstack/spec/ai';
+
+// Validate data
+const result = RAGQueryResponseSchema.parse(data);
+
+// Type-safe usage
+const myRAGQueryResponse: RAGQueryResponse = {
+  query: 'example',
+  results: [],
+  context: 'example'
+};
+```
+

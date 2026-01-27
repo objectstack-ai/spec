@@ -1,7 +1,17 @@
 ---
 title: WebhookReceiver
 description: WebhookReceiver Schema Reference
+category: automation
+zodFile: webhook
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/webhook.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,21 @@ description: WebhookReceiver Schema Reference
 | **verificationParams** | `object` | optional |  |
 | **action** | `Enum<'trigger_flow' \| 'script' \| 'upsert_record'>` | optional |  |
 | **target** | `string` | ✅ | Flow ID or Script name |
+
+## TypeScript Usage
+
+```typescript
+import { WebhookReceiverSchema } from '@objectstack/spec/automation';
+import type { WebhookReceiver } from '@objectstack/spec/automation';
+
+// Validate data
+const result = WebhookReceiverSchema.parse(data);
+
+// Type-safe usage
+const myWebhookReceiver: WebhookReceiver = {
+  name: 'name',
+  path: 'example',
+  target: 'example'
+};
+```
+

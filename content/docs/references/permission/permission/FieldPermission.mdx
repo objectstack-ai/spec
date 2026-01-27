@@ -1,7 +1,17 @@
 ---
 title: FieldPermission
 description: FieldPermission Schema Reference
+category: permission
+zodFile: permission
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/permission/permission.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -9,3 +19,18 @@ description: FieldPermission Schema Reference
 | :--- | :--- | :--- | :--- |
 | **readable** | `boolean` | optional | Field read access |
 | **editable** | `boolean` | optional | Field edit access |
+
+## TypeScript Usage
+
+```typescript
+import { FieldPermissionSchema } from '@objectstack/spec/permission';
+import type { FieldPermission } from '@objectstack/spec/permission';
+
+// Validate data
+const result = FieldPermissionSchema.parse(data);
+
+// Type-safe usage
+const myFieldPermission: FieldPermission = {
+};
+```
+

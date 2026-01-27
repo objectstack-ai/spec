@@ -1,7 +1,17 @@
 ---
 title: ETLRunStatus
 description: ETLRunStatus Schema Reference
+category: automation
+zodFile: etl
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/etl.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -11,3 +21,13 @@ description: ETLRunStatus Schema Reference
 * `failed`
 * `cancelled`
 * `timeout`
+
+## TypeScript Usage
+
+```typescript
+import { ETLRunStatus } from '@objectstack/spec/automation';
+
+// Type-safe enum value
+const value: ETLRunStatus = 'pending';
+```
+

@@ -1,7 +1,17 @@
 ---
 title: AppBranding
 description: AppBranding Schema Reference
+category: ui
+zodFile: app
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/app.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -10,3 +20,18 @@ description: AppBranding Schema Reference
 | **primaryColor** | `string` | optional | Primary theme color hex code |
 | **logo** | `string` | optional | Custom logo URL for this app |
 | **favicon** | `string` | optional | Custom favicon URL for this app |
+
+## TypeScript Usage
+
+```typescript
+import { AppBrandingSchema } from '@objectstack/spec/ui';
+import type { AppBranding } from '@objectstack/spec/ui';
+
+// Validate data
+const result = AppBrandingSchema.parse(data);
+
+// Type-safe usage
+const myAppBranding: AppBranding = {
+};
+```
+

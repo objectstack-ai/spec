@@ -1,7 +1,17 @@
 ---
 title: UserFieldMapping
 description: UserFieldMapping Schema Reference
+category: auth
+zodFile: config
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/config.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -14,3 +24,18 @@ description: UserFieldMapping Schema Reference
 | **emailVerified** | `string` | optional | Email verification status field |
 | **createdAt** | `string` | optional | Created timestamp field |
 | **updatedAt** | `string` | optional | Updated timestamp field |
+
+## TypeScript Usage
+
+```typescript
+import { UserFieldMappingSchema } from '@objectstack/spec/auth';
+import type { UserFieldMapping } from '@objectstack/spec/auth';
+
+// Validate data
+const result = UserFieldMappingSchema.parse(data);
+
+// Type-safe usage
+const myUserFieldMapping: UserFieldMapping = {
+};
+```
+

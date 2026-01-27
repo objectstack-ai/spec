@@ -1,7 +1,17 @@
 ---
 title: SlackMessageAction
 description: SlackMessageAction Schema Reference
+category: automation
+zodFile: workflow
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/workflow.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,22 @@ description: SlackMessageAction Schema Reference
 | **message** | `string` | ✅ | Message text with optional markdown |
 | **mentions** | `string[]` | optional | User IDs or @username to mention |
 | **threadId** | `string` | optional | Thread ID for replies |
+
+## TypeScript Usage
+
+```typescript
+import { SlackMessageActionSchema } from '@objectstack/spec/automation';
+import type { SlackMessageAction } from '@objectstack/spec/automation';
+
+// Validate data
+const result = SlackMessageActionSchema.parse(data);
+
+// Type-safe usage
+const mySlackMessageAction: SlackMessageAction = {
+  name: 'name',
+  type: 'example',
+  channel: 'example',
+  // ... other fields
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: ComposerResponse
 description: ComposerResponse Schema Reference
+category: hub
+zodFile: composer
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/hub/composer.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -15,3 +25,22 @@ description: ComposerResponse Schema Reference
 | **duration** | `number` | ✅ | Compilation time in ms |
 | **conflicts** | `object[]` | optional |  |
 | **errors** | `string[]` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { ComposerResponseSchema } from '@objectstack/spec/hub';
+import type { ComposerResponse } from '@objectstack/spec/hub';
+
+// Validate data
+const result = ComposerResponseSchema.parse(data);
+
+// Type-safe usage
+const myComposerResponse: ComposerResponse = {
+  success: false,
+  buildId: 'example',
+  timestamp: 'example',
+  // ... other fields
+};
+```
+

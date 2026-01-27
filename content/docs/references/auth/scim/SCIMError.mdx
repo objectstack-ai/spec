@@ -1,7 +1,17 @@
 ---
 title: SCIMError
 description: SCIMError Schema Reference
+category: auth
+zodFile: scim
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/scim.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,19 @@ description: SCIMError Schema Reference
 | **status** | `integer` | ✅ | HTTP status code |
 | **scimType** | `Enum<'invalidFilter' \| 'tooMany' \| 'uniqueness' \| 'mutability' \| 'invalidSyntax' \| 'invalidPath' \| 'noTarget' \| 'invalidValue' \| 'invalidVers' \| 'sensitive'>` | optional | SCIM error type |
 | **detail** | `string` | optional | Error detail message |
+
+## TypeScript Usage
+
+```typescript
+import { SCIMErrorSchema } from '@objectstack/spec/auth';
+import type { SCIMError } from '@objectstack/spec/auth';
+
+// Validate data
+const result = SCIMErrorSchema.parse(data);
+
+// Type-safe usage
+const mySCIMError: SCIMError = {
+  status: null
+};
+```
+

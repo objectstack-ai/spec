@@ -1,7 +1,17 @@
 ---
 title: ModelFeature
 description: ModelFeature Schema Reference
+category: ai
+zodFile: predictive
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/predictive.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -17,3 +27,21 @@ description: ModelFeature Schema Reference
 | **defaultValue** | `any` | optional |  |
 | **description** | `string` | optional |  |
 | **importance** | `number` | optional | Feature importance score (0-1) |
+
+## TypeScript Usage
+
+```typescript
+import { ModelFeatureSchema } from '@objectstack/spec/ai';
+import type { ModelFeature } from '@objectstack/spec/ai';
+
+// Validate data
+const result = ModelFeatureSchema.parse(data);
+
+// Type-safe usage
+const myModelFeature: ModelFeature = {
+  name: 'name',
+  field: 'example',
+  dataType: 'numeric'
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: ObjectNavItem
 description: ObjectNavItem Schema Reference
+category: ui
+zodFile: app
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/app.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -14,3 +24,22 @@ description: ObjectNavItem Schema Reference
 | **type** | `string` | ✅ |  |
 | **objectName** | `string` | ✅ | Target object name |
 | **viewName** | `string` | optional | Default list view to open. Defaults to "all" |
+
+## TypeScript Usage
+
+```typescript
+import { ObjectNavItemSchema } from '@objectstack/spec/ui';
+import type { ObjectNavItem } from '@objectstack/spec/ui';
+
+// Validate data
+const result = ObjectNavItemSchema.parse(data);
+
+// Type-safe usage
+const myObjectNavItem: ObjectNavItem = {
+  id: 'example',
+  label: 'example',
+  type: 'example',
+  // ... other fields
+};
+```
+

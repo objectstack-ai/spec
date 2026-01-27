@@ -1,7 +1,17 @@
 ---
 title: WidgetEvent
 description: WidgetEvent Schema Reference
+category: ui
+zodFile: widget
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/widget.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,19 @@ description: WidgetEvent Schema Reference
 | **bubbles** | `boolean` | optional | Whether event bubbles |
 | **cancelable** | `boolean` | optional | Whether event is cancelable |
 | **payload** | `Record<string, any>` | optional | Event payload schema |
+
+## TypeScript Usage
+
+```typescript
+import { WidgetEventSchema } from '@objectstack/spec/ui';
+import type { WidgetEvent } from '@objectstack/spec/ui';
+
+// Validate data
+const result = WidgetEventSchema.parse(data);
+
+// Type-safe usage
+const myWidgetEvent: WidgetEvent = {
+  name: 'name'
+};
+```
+

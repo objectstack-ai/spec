@@ -1,7 +1,17 @@
 ---
 title: AITask
 description: AITask Schema Reference
+category: ai
+zodFile: orchestration
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/orchestration.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -26,3 +36,22 @@ description: AITask Schema Reference
 | **condition** | `string` | optional | Formula condition - task only runs if TRUE |
 | **description** | `string` | optional |  |
 | **active** | `boolean` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { AITaskSchema } from '@objectstack/spec/ai';
+import type { AITask } from '@objectstack/spec/ai';
+
+// Validate data
+const result = AITaskSchema.parse(data);
+
+// Type-safe usage
+const myAITask: AITask = {
+  name: 'name',
+  type: 'classify',
+  inputFields: [],
+  // ... other fields
+};
+```
+

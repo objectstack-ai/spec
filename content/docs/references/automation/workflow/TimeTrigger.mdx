@@ -1,7 +1,17 @@
 ---
 title: TimeTrigger
 description: TimeTrigger Schema Reference
+category: automation
+zodFile: workflow
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/workflow.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -14,3 +24,22 @@ description: TimeTrigger Schema Reference
 | **offsetFrom** | `Enum<'trigger_date' \| 'date_field'>` | ✅ | Basis for calculation |
 | **dateField** | `string` | optional | Date field to calculate from (required if offsetFrom is date_field) |
 | **actions** | `object \| object \| object \| object \| object \| object \| object \| object \| object \| object[]` | ✅ | Actions to execute at the scheduled time |
+
+## TypeScript Usage
+
+```typescript
+import { TimeTriggerSchema } from '@objectstack/spec/automation';
+import type { TimeTrigger } from '@objectstack/spec/automation';
+
+// Validate data
+const result = TimeTriggerSchema.parse(data);
+
+// Type-safe usage
+const myTimeTrigger: TimeTrigger = {
+  timeLength: null,
+  timeUnit: 'minutes',
+  offsetDirection: 'before',
+  // ... other fields
+};
+```
+

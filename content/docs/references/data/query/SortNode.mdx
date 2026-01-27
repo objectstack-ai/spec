@@ -1,7 +1,17 @@
 ---
 title: SortNode
 description: SortNode Schema Reference
+category: data
+zodFile: query
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/query.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -9,3 +19,19 @@ description: SortNode Schema Reference
 | :--- | :--- | :--- | :--- |
 | **field** | `string` | ✅ |  |
 | **order** | `Enum<'asc' \| 'desc'>` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { SortNodeSchema } from '@objectstack/spec/data';
+import type { SortNode } from '@objectstack/spec/data';
+
+// Validate data
+const result = SortNodeSchema.parse(data);
+
+// Type-safe usage
+const mySortNode: SortNode = {
+  field: 'example'
+};
+```
+

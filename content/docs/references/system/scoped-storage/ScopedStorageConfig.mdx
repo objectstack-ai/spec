@@ -1,7 +1,17 @@
 ---
 title: ScopedStorageConfig
 description: ScopedStorageConfig Schema Reference
+category: system
+zodFile: scoped-storage
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/scoped-storage.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,20 @@ description: ScopedStorageConfig Schema Reference
 | **location** | `string` | ✅ | Root path (local) or Bucket name (remote) |
 | **options** | `Record<string, any>` | optional | Driver specific options (region, endpoint, etc) |
 | **quota** | `integer` | optional | Max size in bytes |
+
+## TypeScript Usage
+
+```typescript
+import { ScopedStorageConfigSchema } from '@objectstack/spec/system';
+import type { ScopedStorageConfig } from '@objectstack/spec/system';
+
+// Validate data
+const result = ScopedStorageConfigSchema.parse(data);
+
+// Type-safe usage
+const myScopedStorageConfig: ScopedStorageConfig = {
+  scope: 'temp',
+  location: 'example'
+};
+```
+

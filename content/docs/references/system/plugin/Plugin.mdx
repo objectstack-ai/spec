@@ -1,7 +1,17 @@
 ---
 title: Plugin
 description: Plugin Schema Reference
+category: system
+zodFile: plugin
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/plugin.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -9,3 +19,18 @@ description: Plugin Schema Reference
 | :--- | :--- | :--- | :--- |
 | **id** | `string` | optional | Plugin identifier |
 | **version** | `string` | optional | Plugin version |
+
+## TypeScript Usage
+
+```typescript
+import { PluginSchema } from '@objectstack/spec/system';
+import type { Plugin } from '@objectstack/spec/system';
+
+// Validate data
+const result = PluginSchema.parse(data);
+
+// Type-safe usage
+const myPlugin: Plugin = {
+};
+```
+

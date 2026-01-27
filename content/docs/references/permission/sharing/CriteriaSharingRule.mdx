@@ -1,7 +1,17 @@
 ---
 title: CriteriaSharingRule
 description: CriteriaSharingRule Schema Reference
+category: permission
+zodFile: sharing
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/permission/sharing.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -16,3 +26,22 @@ description: CriteriaSharingRule Schema Reference
 | **sharedWith** | `object` | ✅ | The recipient of the shared access |
 | **type** | `string` | ✅ |  |
 | **condition** | `string` | ✅ | Formula condition (e.g. "department = 'Sales'") |
+
+## TypeScript Usage
+
+```typescript
+import { CriteriaSharingRuleSchema } from '@objectstack/spec/permission';
+import type { CriteriaSharingRule } from '@objectstack/spec/permission';
+
+// Validate data
+const result = CriteriaSharingRuleSchema.parse(data);
+
+// Type-safe usage
+const myCriteriaSharingRule: CriteriaSharingRule = {
+  name: 'name',
+  object: 'example',
+  sharedWith: {},
+  // ... other fields
+};
+```
+

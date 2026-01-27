@@ -1,7 +1,17 @@
 ---
 title: PredictionResult
 description: PredictionResult Schema Reference
+category: ai
+zodFile: predictive
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/predictive.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -15,3 +25,20 @@ description: PredictionResult Schema Reference
 | **probabilities** | `Record<string, number>` | optional | Class probabilities (for classification) |
 | **explanation** | `object` | optional |  |
 | **metadata** | `object` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { PredictionResultSchema } from '@objectstack/spec/ai';
+import type { PredictionResult } from '@objectstack/spec/ai';
+
+// Validate data
+const result = PredictionResultSchema.parse(data);
+
+// Type-safe usage
+const myPredictionResult: PredictionResult = {
+  modelName: 'example',
+  modelVersion: 'example'
+};
+```
+

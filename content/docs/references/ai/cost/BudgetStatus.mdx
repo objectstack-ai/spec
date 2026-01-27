@@ -1,7 +1,17 @@
 ---
 title: BudgetStatus
 description: BudgetStatus Schema Reference
+category: ai
+zodFile: cost
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/cost.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -22,3 +32,22 @@ description: BudgetStatus Schema Reference
 | **projectedCost** | `number` | optional | Projected cost for period |
 | **projectedOverage** | `number` | optional | Projected overage |
 | **lastUpdated** | `string` | ✅ | ISO 8601 timestamp |
+
+## TypeScript Usage
+
+```typescript
+import { BudgetStatusSchema } from '@objectstack/spec/ai';
+import type { BudgetStatus } from '@objectstack/spec/ai';
+
+// Validate data
+const result = BudgetStatusSchema.parse(data);
+
+// Type-safe usage
+const myBudgetStatus: BudgetStatus = {
+  budgetId: 'example',
+  type: 'global',
+  periodStart: 'example',
+  // ... other fields
+};
+```
+

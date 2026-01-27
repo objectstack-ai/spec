@@ -1,7 +1,17 @@
 ---
 title: ExportRequest
 description: ExportRequest Schema Reference
+category: api
+zodFile: contract
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/contract.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -21,3 +31,19 @@ description: ExportRequest Schema Reference
 | **windowFunctions** | `object[]` | optional | Window functions with OVER clause |
 | **distinct** | `boolean` | optional | SELECT DISTINCT flag |
 | **format** | `Enum<'csv' \| 'json' \| 'xlsx'>` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { ExportRequestSchema } from '@objectstack/spec/api';
+import type { ExportRequest } from '@objectstack/spec/api';
+
+// Validate data
+const result = ExportRequestSchema.parse(data);
+
+// Type-safe usage
+const myExportRequest: ExportRequest = {
+  object: 'example'
+};
+```
+

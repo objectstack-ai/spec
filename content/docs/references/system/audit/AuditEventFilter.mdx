@@ -1,7 +1,17 @@
 ---
 title: AuditEventFilter
 description: AuditEventFilter Schema Reference
+category: system
+zodFile: audit
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/audit.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -15,3 +25,18 @@ description: AuditEventFilter Schema Reference
 | **result** | `Enum<'success' \| 'failure' \| 'partial'>` | optional | Result status |
 | **searchQuery** | `string` | optional | Search query |
 | **customFilters** | `Record<string, any>` | optional | Custom filters |
+
+## TypeScript Usage
+
+```typescript
+import { AuditEventFilterSchema } from '@objectstack/spec/system';
+import type { AuditEventFilter } from '@objectstack/spec/system';
+
+// Validate data
+const result = AuditEventFilterSchema.parse(data);
+
+// Type-safe usage
+const myAuditEventFilter: AuditEventFilter = {
+};
+```
+

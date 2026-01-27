@@ -1,7 +1,17 @@
 ---
 title: CrossFieldValidation
 description: CrossFieldValidation Schema Reference
+category: data
+zodFile: validation
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/validation.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -18,3 +28,22 @@ description: CrossFieldValidation Schema Reference
 | **type** | `string` | ✅ |  |
 | **condition** | `string` | ✅ | Formula expression comparing fields (e.g. "end_date > start_date") |
 | **fields** | `string[]` | ✅ | Fields involved in the validation |
+
+## TypeScript Usage
+
+```typescript
+import { CrossFieldValidationSchema } from '@objectstack/spec/data';
+import type { CrossFieldValidation } from '@objectstack/spec/data';
+
+// Validate data
+const result = CrossFieldValidationSchema.parse(data);
+
+// Type-safe usage
+const myCrossFieldValidation: CrossFieldValidation = {
+  name: 'name',
+  message: 'example',
+  type: 'example',
+  // ... other fields
+};
+```
+

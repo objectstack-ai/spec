@@ -1,7 +1,17 @@
 ---
 title: User
 description: User Schema Reference
+category: auth
+zodFile: identity
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/identity.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -14,3 +24,22 @@ description: User Schema Reference
 | **image** | `string` | optional | Profile image URL |
 | **createdAt** | `string` | ✅ | Account creation timestamp |
 | **updatedAt** | `string` | ✅ | Last update timestamp |
+
+## TypeScript Usage
+
+```typescript
+import { UserSchema } from '@objectstack/spec/auth';
+import type { User } from '@objectstack/spec/auth';
+
+// Validate data
+const result = UserSchema.parse(data);
+
+// Type-safe usage
+const myUser: User = {
+  id: 'example',
+  email: 'user@example.com',
+  createdAt: 'example',
+  // ... other fields
+};
+```
+

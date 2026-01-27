@@ -1,7 +1,17 @@
 ---
 title: Role
 description: Role Schema Reference
+category: auth
+zodFile: role
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/role.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,20 @@ description: Role Schema Reference
 | **label** | `string` | ✅ | Display label (e.g. VP of Sales) |
 | **parent** | `string` | optional | Parent Role ID (Reports To) |
 | **description** | `string` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { RoleSchema } from '@objectstack/spec/auth';
+import type { Role } from '@objectstack/spec/auth';
+
+// Validate data
+const result = RoleSchema.parse(data);
+
+// Type-safe usage
+const myRole: Role = {
+  name: 'name',
+  label: 'example'
+};
+```
+

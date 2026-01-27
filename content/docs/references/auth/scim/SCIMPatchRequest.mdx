@@ -1,7 +1,17 @@
 ---
 title: SCIMPatchRequest
 description: SCIMPatchRequest Schema Reference
+category: auth
+zodFile: scim
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/scim.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -9,3 +19,19 @@ description: SCIMPatchRequest Schema Reference
 | :--- | :--- | :--- | :--- |
 | **schemas** | `string[]` | optional | SCIM schema URIs |
 | **Operations** | `object[]` | ✅ | Patch operations |
+
+## TypeScript Usage
+
+```typescript
+import { SCIMPatchRequestSchema } from '@objectstack/spec/auth';
+import type { SCIMPatchRequest } from '@objectstack/spec/auth';
+
+// Validate data
+const result = SCIMPatchRequestSchema.parse(data);
+
+// Type-safe usage
+const mySCIMPatchRequest: SCIMPatchRequest = {
+  Operations: []
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: EmailAlertAction
 description: EmailAlertAction Schema Reference
+category: automation
+zodFile: workflow
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/workflow.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,22 @@ description: EmailAlertAction Schema Reference
 | **type** | `string` | ✅ |  |
 | **template** | `string` | ✅ | Email template ID/DevName |
 | **recipients** | `string[]` | ✅ | List of recipient emails or user IDs |
+
+## TypeScript Usage
+
+```typescript
+import { EmailAlertActionSchema } from '@objectstack/spec/automation';
+import type { EmailAlertAction } from '@objectstack/spec/automation';
+
+// Validate data
+const result = EmailAlertActionSchema.parse(data);
+
+// Type-safe usage
+const myEmailAlertAction: EmailAlertAction = {
+  name: 'name',
+  type: 'example',
+  template: 'example',
+  // ... other fields
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: AIOrchestrationExecutionResult
 description: AIOrchestrationExecutionResult Schema Reference
+category: ai
+zodFile: orchestration
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/orchestration.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -18,3 +28,22 @@ description: AIOrchestrationExecutionResult Schema Reference
 | **error** | `string` | optional |  |
 | **startedAt** | `string` | ✅ | ISO timestamp |
 | **completedAt** | `string` | optional | ISO timestamp |
+
+## TypeScript Usage
+
+```typescript
+import { AIOrchestrationExecutionResultSchema } from '@objectstack/spec/ai';
+import type { AIOrchestrationExecutionResult } from '@objectstack/spec/ai';
+
+// Validate data
+const result = AIOrchestrationExecutionResultSchema.parse(data);
+
+// Type-safe usage
+const myAIOrchestrationExecutionResult: AIOrchestrationExecutionResult = {
+  workflowName: 'example',
+  recordId: 'example',
+  status: 'success',
+  // ... other fields
+};
+```
+

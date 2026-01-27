@@ -1,7 +1,17 @@
 ---
 title: RowLevelSecurityPolicy
 description: RowLevelSecurityPolicy Schema Reference
+category: permission
+zodFile: rls
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/permission/rls.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -18,3 +28,21 @@ description: RowLevelSecurityPolicy Schema Reference
 | **enabled** | `boolean` | optional | Whether this policy is active |
 | **priority** | `integer` | optional | Policy evaluation priority (higher = evaluated first) |
 | **tags** | `string[]` | optional | Policy categorization tags |
+
+## TypeScript Usage
+
+```typescript
+import { RowLevelSecurityPolicySchema } from '@objectstack/spec/permission';
+import type { RowLevelSecurityPolicy } from '@objectstack/spec/permission';
+
+// Validate data
+const result = RowLevelSecurityPolicySchema.parse(data);
+
+// Type-safe usage
+const myRowLevelSecurityPolicy: RowLevelSecurityPolicy = {
+  name: 'name',
+  object: 'example',
+  operation: 'select'
+};
+```
+

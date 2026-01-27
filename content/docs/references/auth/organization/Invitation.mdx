@@ -1,7 +1,17 @@
 ---
 title: Invitation
 description: Invitation Schema Reference
+category: auth
+zodFile: organization
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/organization.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -16,3 +26,22 @@ description: Invitation Schema Reference
 | **inviterId** | `string` | ✅ | User ID of the inviter |
 | **createdAt** | `string` | ✅ | Invitation creation timestamp |
 | **updatedAt** | `string` | ✅ | Last update timestamp |
+
+## TypeScript Usage
+
+```typescript
+import { InvitationSchema } from '@objectstack/spec/auth';
+import type { Invitation } from '@objectstack/spec/auth';
+
+// Validate data
+const result = InvitationSchema.parse(data);
+
+// Type-safe usage
+const myInvitation: Invitation = {
+  id: 'example',
+  organizationId: 'example',
+  email: 'user@example.com',
+  // ... other fields
+};
+```
+

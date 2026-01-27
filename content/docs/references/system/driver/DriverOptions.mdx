@@ -1,7 +1,17 @@
 ---
 title: DriverOptions
 description: DriverOptions Schema Reference
+category: system
+zodFile: driver
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/driver.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,18 @@ description: DriverOptions Schema Reference
 | **skipCache** | `boolean` | optional | Bypass cache |
 | **traceContext** | `Record<string, string>` | optional | OpenTelemetry context or request ID |
 | **tenantId** | `string` | optional | Tenant Isolation identifier |
+
+## TypeScript Usage
+
+```typescript
+import { DriverOptionsSchema } from '@objectstack/spec/system';
+import type { DriverOptions } from '@objectstack/spec/system';
+
+// Validate data
+const result = DriverOptionsSchema.parse(data);
+
+// Type-safe usage
+const myDriverOptions: DriverOptions = {
+};
+```
+

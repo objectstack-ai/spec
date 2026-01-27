@@ -1,7 +1,17 @@
 ---
 title: WidgetManifest
 description: WidgetManifest Schema Reference
+category: ui
+zodFile: widget
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/widget.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -24,3 +34,20 @@ description: WidgetManifest Schema Reference
 | **documentation** | `string` | optional | Documentation URL |
 | **license** | `string` | optional | License (SPDX identifier) |
 | **tags** | `string[]` | optional | Tags for categorization |
+
+## TypeScript Usage
+
+```typescript
+import { WidgetManifestSchema } from '@objectstack/spec/ui';
+import type { WidgetManifest } from '@objectstack/spec/ui';
+
+// Validate data
+const result = WidgetManifestSchema.parse(data);
+
+// Type-safe usage
+const myWidgetManifest: WidgetManifest = {
+  name: 'name',
+  label: 'example'
+};
+```
+

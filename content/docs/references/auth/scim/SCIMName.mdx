@@ -1,7 +1,17 @@
 ---
 title: SCIMName
 description: SCIMName Schema Reference
+category: auth
+zodFile: scim
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/scim.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,18 @@ description: SCIMName Schema Reference
 | **middleName** | `string` | optional | Middle name |
 | **honorificPrefix** | `string` | optional | Honorific prefix (Mr., Ms., Dr.) |
 | **honorificSuffix** | `string` | optional | Honorific suffix (Jr., Sr.) |
+
+## TypeScript Usage
+
+```typescript
+import { SCIMNameSchema } from '@objectstack/spec/auth';
+import type { SCIMName } from '@objectstack/spec/auth';
+
+// Validate data
+const result = SCIMNameSchema.parse(data);
+
+// Type-safe usage
+const mySCIMName: SCIMName = {
+};
+```
+

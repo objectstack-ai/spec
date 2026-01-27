@@ -1,7 +1,17 @@
 ---
 title: RLSUserContext
 description: RLSUserContext Schema Reference
+category: permission
+zodFile: rls
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/permission/rls.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,19 @@ description: RLSUserContext Schema Reference
 | **role** | `string \| string[]` | optional | User role(s) |
 | **department** | `string` | optional | User department |
 | **attributes** | `Record<string, any>` | optional | Additional custom user attributes |
+
+## TypeScript Usage
+
+```typescript
+import { RLSUserContextSchema } from '@objectstack/spec/permission';
+import type { RLSUserContext } from '@objectstack/spec/permission';
+
+// Validate data
+const result = RLSUserContextSchema.parse(data);
+
+// Type-safe usage
+const myRLSUserContext: RLSUserContext = {
+  id: 'example'
+};
+```
+

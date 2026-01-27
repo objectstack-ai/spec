@@ -1,7 +1,17 @@
 ---
 title: GroupNavItem
 description: GroupNavItem Schema Reference
+category: ui
+zodFile: app
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/app.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,21 @@ description: GroupNavItem Schema Reference
 | **visible** | `string` | optional | Visibility formula condition |
 | **type** | `string` | ✅ |  |
 | **expanded** | `boolean` | optional | Default expansion state in sidebar |
+
+## TypeScript Usage
+
+```typescript
+import { GroupNavItemSchema } from '@objectstack/spec/ui';
+import type { GroupNavItem } from '@objectstack/spec/ui';
+
+// Validate data
+const result = GroupNavItemSchema.parse(data);
+
+// Type-safe usage
+const myGroupNavItem: GroupNavItem = {
+  id: 'example',
+  label: 'example',
+  type: 'example'
+};
+```
+

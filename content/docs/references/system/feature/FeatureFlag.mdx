@@ -1,7 +1,17 @@
 ---
 title: FeatureFlag
 description: FeatureFlag Schema Reference
+category: system
+zodFile: feature
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/feature.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -15,3 +25,19 @@ description: FeatureFlag Schema Reference
 | **conditions** | `object` | optional |  |
 | **environment** | `Enum<'dev' \| 'staging' \| 'prod' \| 'all'>` | optional | Environment validity |
 | **expiresAt** | `string` | optional | Feature flag expiration date |
+
+## TypeScript Usage
+
+```typescript
+import { FeatureFlagSchema } from '@objectstack/spec/system';
+import type { FeatureFlag } from '@objectstack/spec/system';
+
+// Validate data
+const result = FeatureFlagSchema.parse(data);
+
+// Type-safe usage
+const myFeatureFlag: FeatureFlag = {
+  name: 'name'
+};
+```
+

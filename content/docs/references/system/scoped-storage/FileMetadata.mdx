@@ -1,7 +1,17 @@
 ---
 title: FileMetadata
 description: FileMetadata Schema Reference
+category: system
+zodFile: scoped-storage
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/scoped-storage.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -14,3 +24,22 @@ description: FileMetadata Schema Reference
 | **lastModified** | `string` | ✅ |  |
 | **created** | `string` | ✅ |  |
 | **etag** | `string` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { FileMetadataSchema } from '@objectstack/spec/system';
+import type { FileMetadata } from '@objectstack/spec/system';
+
+// Validate data
+const result = FileMetadataSchema.parse(data);
+
+// Type-safe usage
+const myFileMetadata: FileMetadata = {
+  path: 'example',
+  name: 'name',
+  size: null,
+  // ... other fields
+};
+```
+

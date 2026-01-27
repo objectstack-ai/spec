@@ -1,7 +1,17 @@
 ---
 title: LevelIsolationStrategySchema
 description: LevelIsolationStrategySchema Schema Reference
+category: hub
+zodFile: tenant
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/hub/tenant.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,19 @@ description: LevelIsolationStrategySchema Schema Reference
 | **schema** | `object` | optional | Schema configuration |
 | **migrations** | `object` | optional | Migration configuration |
 | **performance** | `object` | optional | Performance settings |
+
+## TypeScript Usage
+
+```typescript
+import { LevelIsolationStrategySchemaSchema } from '@objectstack/spec/hub';
+import type { LevelIsolationStrategySchema } from '@objectstack/spec/hub';
+
+// Validate data
+const result = LevelIsolationStrategySchemaSchema.parse(data);
+
+// Type-safe usage
+const myLevelIsolationStrategySchema: LevelIsolationStrategySchema = {
+  strategy: 'example'
+};
+```
+

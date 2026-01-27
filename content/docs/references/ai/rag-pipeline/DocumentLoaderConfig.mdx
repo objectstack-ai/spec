@@ -1,7 +1,17 @@
 ---
 title: DocumentLoaderConfig
 description: DocumentLoaderConfig Schema Reference
+category: ai
+zodFile: rag-pipeline
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/rag-pipeline.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -16,3 +26,20 @@ description: DocumentLoaderConfig Schema Reference
 | **extractImages** | `boolean` | optional | Extract text from images (OCR) |
 | **extractTables** | `boolean` | optional | Extract and format tables |
 | **loaderConfig** | `Record<string, any>` | optional | Custom loader-specific config |
+
+## TypeScript Usage
+
+```typescript
+import { DocumentLoaderConfigSchema } from '@objectstack/spec/ai';
+import type { DocumentLoaderConfig } from '@objectstack/spec/ai';
+
+// Validate data
+const result = DocumentLoaderConfigSchema.parse(data);
+
+// Type-safe usage
+const myDocumentLoaderConfig: DocumentLoaderConfig = {
+  type: 'file',
+  source: 'example'
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: Field
 description: Field Schema Reference
+category: data
+zodFile: field
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/field.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -56,3 +66,19 @@ description: Field Schema Reference
 | **encryption** | `boolean` | optional | Encrypt at rest |
 | **index** | `boolean` | optional | Create standard database index |
 | **externalId** | `boolean` | optional | Is external ID for upsert operations |
+
+## TypeScript Usage
+
+```typescript
+import { FieldSchema } from '@objectstack/spec/data';
+import type { Field } from '@objectstack/spec/data';
+
+// Validate data
+const result = FieldSchema.parse(data);
+
+// Type-safe usage
+const myField: Field = {
+  type: 'text'
+};
+```
+

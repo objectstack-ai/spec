@@ -1,7 +1,17 @@
 ---
 title: AuthConfig
 description: AuthConfig Schema Reference
+category: auth
+zodFile: config
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/config.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -34,3 +44,22 @@ description: AuthConfig Schema Reference
 | **ui** | `object` | optional | UI customization |
 | **active** | `boolean` | optional | Whether this provider is active |
 | **allowRegistration** | `boolean` | optional | Allow new user registration |
+
+## TypeScript Usage
+
+```typescript
+import { AuthConfigSchema } from '@objectstack/spec/auth';
+import type { AuthConfig } from '@objectstack/spec/auth';
+
+// Validate data
+const result = AuthConfigSchema.parse(data);
+
+// Type-safe usage
+const myAuthConfig: AuthConfig = {
+  name: 'name',
+  label: 'example',
+  strategies: [],
+  // ... other fields
+};
+```
+

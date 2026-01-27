@@ -1,7 +1,17 @@
 ---
 title: ModelRegistry
 description: ModelRegistry Schema Reference
+category: ai
+zodFile: model-registry
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/model-registry.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,20 @@ description: ModelRegistry Schema Reference
 | **promptTemplates** | `Record<string, object>` | optional | Prompt templates by name |
 | **defaultModel** | `string` | optional | Default model ID |
 | **enableAutoFallback** | `boolean` | optional | Auto-fallback on errors |
+
+## TypeScript Usage
+
+```typescript
+import { ModelRegistrySchema } from '@objectstack/spec/ai';
+import type { ModelRegistry } from '@objectstack/spec/ai';
+
+// Validate data
+const result = ModelRegistrySchema.parse(data);
+
+// Type-safe usage
+const myModelRegistry: ModelRegistry = {
+  name: 'name',
+  models: {}
+};
+```
+

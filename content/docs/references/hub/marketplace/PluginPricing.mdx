@@ -1,7 +1,17 @@
 ---
 title: PluginPricing
 description: PluginPricing Schema Reference
+category: hub
+zodFile: marketplace
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/hub/marketplace.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,20 @@ description: PluginPricing Schema Reference
 | **amount** | `number` | ✅ |  |
 | **interval** | `Enum<'month' \| 'year'>` | optional | Required if type is recurring |
 | **trialDays** | `integer` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { PluginPricingSchema } from '@objectstack/spec/hub';
+import type { PluginPricing } from '@objectstack/spec/hub';
+
+// Validate data
+const result = PluginPricingSchema.parse(data);
+
+// Type-safe usage
+const myPluginPricing: PluginPricing = {
+  type: 'free',
+  amount: 0
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: PageHeaderProps
 description: PageHeaderProps Schema Reference
+category: ui
+zodFile: component
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/component.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,19 @@ description: PageHeaderProps Schema Reference
 | **icon** | `string` | optional | Icon name |
 | **breadcrumb** | `boolean` | optional | Show breadcrumb |
 | **actions** | `string[]` | optional | Action IDs to show in header |
+
+## TypeScript Usage
+
+```typescript
+import { PageHeaderPropsSchema } from '@objectstack/spec/ui';
+import type { PageHeaderProps } from '@objectstack/spec/ui';
+
+// Validate data
+const result = PageHeaderPropsSchema.parse(data);
+
+// Type-safe usage
+const myPageHeaderProps: PageHeaderProps = {
+  title: 'example'
+};
+```
+

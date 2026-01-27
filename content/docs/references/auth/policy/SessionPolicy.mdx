@@ -1,7 +1,17 @@
 ---
 title: SessionPolicy
 description: SessionPolicy Schema Reference
+category: auth
+zodFile: policy
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/policy.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -10,3 +20,18 @@ description: SessionPolicy Schema Reference
 | **idleTimeout** | `number` | optional | Minutes before idle session logout |
 | **absoluteTimeout** | `number` | optional | Max session duration (minutes) |
 | **forceMfa** | `boolean` | optional | Require 2FA for all users |
+
+## TypeScript Usage
+
+```typescript
+import { SessionPolicySchema } from '@objectstack/spec/auth';
+import type { SessionPolicy } from '@objectstack/spec/auth';
+
+// Validate data
+const result = SessionPolicySchema.parse(data);
+
+// Type-safe usage
+const mySessionPolicy: SessionPolicy = {
+};
+```
+

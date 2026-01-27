@@ -1,7 +1,17 @@
 ---
 title: EventPersistence
 description: EventPersistence Schema Reference
+category: system
+zodFile: events
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/events.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -9,3 +19,19 @@ description: EventPersistence Schema Reference
 | :--- | :--- | :--- | :--- |
 | **enabled** | `boolean` | optional | Enable event persistence |
 | **retention** | `integer` | ✅ | Days to retain persisted events |
+
+## TypeScript Usage
+
+```typescript
+import { EventPersistenceSchema } from '@objectstack/spec/system';
+import type { EventPersistence } from '@objectstack/spec/system';
+
+// Validate data
+const result = EventPersistenceSchema.parse(data);
+
+// Type-safe usage
+const myEventPersistence: EventPersistence = {
+  retention: null
+};
+```
+

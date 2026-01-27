@@ -1,0 +1,154 @@
+---
+title: AI Protocol Overview
+description: Complete reference for all ai protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Database, Cpu, Zap } from 'lucide-react';
+
+# AI Protocol
+
+This section contains all protocol schemas for the ai layer of ObjectStack.
+
+## Agent
+
+Source: `packages/spec/src/ai/agent.zod.ts`
+
+<Cards>
+  <Card href="./agent/AIKnowledge" title="AIKnowledge" description="AIKnowledge schema reference" />
+  <Card href="./agent/AIModelConfig" title="AIModelConfig" description="AIModelConfig schema reference" />
+  <Card href="./agent/AITool" title="AITool" description="AITool schema reference" />
+  <Card href="./agent/Agent" title="Agent" description="Agent schema reference" />
+</Cards>
+
+## Conversation
+
+Source: `packages/spec/src/ai/conversation.zod.ts`
+
+<Cards>
+  <Card href="./conversation/ConversationAnalytics" title="ConversationAnalytics" description="ConversationAnalytics schema reference" />
+  <Card href="./conversation/ConversationContext" title="ConversationContext" description="ConversationContext schema reference" />
+  <Card href="./conversation/ConversationMessage" title="ConversationMessage" description="ConversationMessage schema reference" />
+  <Card href="./conversation/ConversationSession" title="ConversationSession" description="ConversationSession schema reference" />
+  <Card href="./conversation/ConversationSummary" title="ConversationSummary" description="ConversationSummary schema reference" />
+  <Card href="./conversation/FunctionCall" title="FunctionCall" description="FunctionCall schema reference" />
+  <Card href="./conversation/MessageContent" title="MessageContent" description="MessageContent schema reference" />
+  <Card href="./conversation/MessageContentType" title="MessageContentType" description="MessageContentType schema reference" />
+  <Card href="./conversation/MessagePruningEvent" title="MessagePruningEvent" description="MessagePruningEvent schema reference" />
+  <Card href="./conversation/MessageRole" title="MessageRole" description="MessageRole schema reference" />
+  <Card href="./conversation/TokenBudgetConfig" title="TokenBudgetConfig" description="TokenBudgetConfig schema reference" />
+  <Card href="./conversation/TokenBudgetStrategy" title="TokenBudgetStrategy" description="TokenBudgetStrategy schema reference" />
+  <Card href="./conversation/TokenUsageStats" title="TokenUsageStats" description="TokenUsageStats schema reference" />
+  <Card href="./conversation/ToolCall" title="ToolCall" description="ToolCall schema reference" />
+</Cards>
+
+## Cost
+
+Source: `packages/spec/src/ai/cost.zod.ts`
+
+<Cards>
+  <Card href="./cost/BillingPeriod" title="BillingPeriod" description="BillingPeriod schema reference" />
+  <Card href="./cost/BudgetLimit" title="BudgetLimit" description="BudgetLimit schema reference" />
+  <Card href="./cost/BudgetStatus" title="BudgetStatus" description="BudgetStatus schema reference" />
+  <Card href="./cost/BudgetType" title="BudgetType" description="BudgetType schema reference" />
+  <Card href="./cost/CostAlert" title="CostAlert" description="CostAlert schema reference" />
+  <Card href="./cost/CostAlertType" title="CostAlertType" description="CostAlertType schema reference" />
+  <Card href="./cost/CostAnalytics" title="CostAnalytics" description="CostAnalytics schema reference" />
+  <Card href="./cost/CostBreakdownDimension" title="CostBreakdownDimension" description="CostBreakdownDimension schema reference" />
+  <Card href="./cost/CostBreakdownEntry" title="CostBreakdownEntry" description="CostBreakdownEntry schema reference" />
+  <Card href="./cost/CostEntry" title="CostEntry" description="CostEntry schema reference" />
+  <Card href="./cost/CostMetricType" title="CostMetricType" description="CostMetricType schema reference" />
+  <Card href="./cost/CostOptimizationRecommendation" title="CostOptimizationRecommendation" description="CostOptimizationRecommendation schema reference" />
+  <Card href="./cost/CostQueryFilters" title="CostQueryFilters" description="CostQueryFilters schema reference" />
+  <Card href="./cost/CostReport" title="CostReport" description="CostReport schema reference" />
+</Cards>
+
+## Model Registry
+
+Source: `packages/spec/src/ai/model-registry.zod.ts`
+
+<Cards>
+  <Card href="./model-registry/ModelCapability" title="ModelCapability" description="ModelCapability schema reference" />
+  <Card href="./model-registry/ModelConfig" title="ModelConfig" description="ModelConfig schema reference" />
+  <Card href="./model-registry/ModelLimits" title="ModelLimits" description="ModelLimits schema reference" />
+  <Card href="./model-registry/ModelPricing" title="ModelPricing" description="ModelPricing schema reference" />
+  <Card href="./model-registry/ModelProvider" title="ModelProvider" description="ModelProvider schema reference" />
+  <Card href="./model-registry/ModelRegistry" title="ModelRegistry" description="ModelRegistry schema reference" />
+  <Card href="./model-registry/ModelRegistryEntry" title="ModelRegistryEntry" description="ModelRegistryEntry schema reference" />
+  <Card href="./model-registry/ModelSelectionCriteria" title="ModelSelectionCriteria" description="ModelSelectionCriteria schema reference" />
+  <Card href="./model-registry/PromptTemplate" title="PromptTemplate" description="PromptTemplate schema reference" />
+  <Card href="./model-registry/PromptVariable" title="PromptVariable" description="PromptVariable schema reference" />
+</Cards>
+
+## Nlq
+
+Source: `packages/spec/src/ai/nlq.zod.ts`
+
+<Cards>
+  <Card href="./nlq/Entity" title="Entity" description="Entity schema reference" />
+  <Card href="./nlq/FieldSynonymConfig" title="FieldSynonymConfig" description="FieldSynonymConfig schema reference" />
+  <Card href="./nlq/NLQAnalytics" title="NLQAnalytics" description="NLQAnalytics schema reference" />
+  <Card href="./nlq/NLQFieldMapping" title="NLQFieldMapping" description="NLQFieldMapping schema reference" />
+  <Card href="./nlq/NLQModelConfig" title="NLQModelConfig" description="NLQModelConfig schema reference" />
+  <Card href="./nlq/NLQParseResult" title="NLQParseResult" description="NLQParseResult schema reference" />
+  <Card href="./nlq/NLQRequest" title="NLQRequest" description="NLQRequest schema reference" />
+  <Card href="./nlq/NLQResponse" title="NLQResponse" description="NLQResponse schema reference" />
+  <Card href="./nlq/NLQTrainingExample" title="NLQTrainingExample" description="NLQTrainingExample schema reference" />
+  <Card href="./nlq/QueryContext" title="QueryContext" description="QueryContext schema reference" />
+  <Card href="./nlq/QueryIntent" title="QueryIntent" description="QueryIntent schema reference" />
+  <Card href="./nlq/QueryTemplate" title="QueryTemplate" description="QueryTemplate schema reference" />
+  <Card href="./nlq/Timeframe" title="Timeframe" description="Timeframe schema reference" />
+</Cards>
+
+## Orchestration
+
+Source: `packages/spec/src/ai/orchestration.zod.ts`
+
+<Cards>
+  <Card href="./orchestration/AIOrchestration" title="AIOrchestration" description="AIOrchestration schema reference" />
+  <Card href="./orchestration/AIOrchestrationExecutionResult" title="AIOrchestrationExecutionResult" description="AIOrchestrationExecutionResult schema reference" />
+  <Card href="./orchestration/AIOrchestrationTrigger" title="AIOrchestrationTrigger" description="AIOrchestrationTrigger schema reference" />
+  <Card href="./orchestration/AITask" title="AITask" description="AITask schema reference" />
+  <Card href="./orchestration/AITaskType" title="AITaskType" description="AITaskType schema reference" />
+  <Card href="./orchestration/BatchAIOrchestrationExecution" title="BatchAIOrchestrationExecution" description="BatchAIOrchestrationExecution schema reference" />
+  <Card href="./orchestration/PostProcessingAction" title="PostProcessingAction" description="PostProcessingAction schema reference" />
+  <Card href="./orchestration/WorkflowFieldCondition" title="WorkflowFieldCondition" description="WorkflowFieldCondition schema reference" />
+  <Card href="./orchestration/WorkflowSchedule" title="WorkflowSchedule" description="WorkflowSchedule schema reference" />
+</Cards>
+
+## Predictive
+
+Source: `packages/spec/src/ai/predictive.zod.ts`
+
+<Cards>
+  <Card href="./predictive/EvaluationMetrics" title="EvaluationMetrics" description="EvaluationMetrics schema reference" />
+  <Card href="./predictive/Hyperparameters" title="Hyperparameters" description="Hyperparameters schema reference" />
+  <Card href="./predictive/ModelDrift" title="ModelDrift" description="ModelDrift schema reference" />
+  <Card href="./predictive/ModelFeature" title="ModelFeature" description="ModelFeature schema reference" />
+  <Card href="./predictive/PredictionRequest" title="PredictionRequest" description="PredictionRequest schema reference" />
+  <Card href="./predictive/PredictionResult" title="PredictionResult" description="PredictionResult schema reference" />
+  <Card href="./predictive/PredictiveModel" title="PredictiveModel" description="PredictiveModel schema reference" />
+  <Card href="./predictive/PredictiveModelType" title="PredictiveModelType" description="PredictiveModelType schema reference" />
+  <Card href="./predictive/TrainingConfig" title="TrainingConfig" description="TrainingConfig schema reference" />
+</Cards>
+
+## Rag Pipeline
+
+Source: `packages/spec/src/ai/rag-pipeline.zod.ts`
+
+<Cards>
+  <Card href="./rag-pipeline/ChunkingStrategy" title="ChunkingStrategy" description="ChunkingStrategy schema reference" />
+  <Card href="./rag-pipeline/DocumentChunk" title="DocumentChunk" description="DocumentChunk schema reference" />
+  <Card href="./rag-pipeline/DocumentLoaderConfig" title="DocumentLoaderConfig" description="DocumentLoaderConfig schema reference" />
+  <Card href="./rag-pipeline/DocumentMetadata" title="DocumentMetadata" description="DocumentMetadata schema reference" />
+  <Card href="./rag-pipeline/EmbeddingModel" title="EmbeddingModel" description="EmbeddingModel schema reference" />
+  <Card href="./rag-pipeline/RAGPipelineConfig" title="RAGPipelineConfig" description="RAGPipelineConfig schema reference" />
+  <Card href="./rag-pipeline/RAGPipelineStatus" title="RAGPipelineStatus" description="RAGPipelineStatus schema reference" />
+  <Card href="./rag-pipeline/RAGQueryRequest" title="RAGQueryRequest" description="RAGQueryRequest schema reference" />
+  <Card href="./rag-pipeline/RAGQueryResponse" title="RAGQueryResponse" description="RAGQueryResponse schema reference" />
+  <Card href="./rag-pipeline/RerankingConfig" title="RerankingConfig" description="RerankingConfig schema reference" />
+  <Card href="./rag-pipeline/RetrievalStrategy" title="RetrievalStrategy" description="RetrievalStrategy schema reference" />
+  <Card href="./rag-pipeline/VectorStoreConfig" title="VectorStoreConfig" description="VectorStoreConfig schema reference" />
+  <Card href="./rag-pipeline/VectorStoreProvider" title="VectorStoreProvider" description="VectorStoreProvider schema reference" />
+</Cards>
+

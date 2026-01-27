@@ -1,7 +1,17 @@
 ---
 title: OnceSchedule
 description: OnceSchedule Schema Reference
+category: system
+zodFile: job
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/job.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -9,3 +19,20 @@ description: OnceSchedule Schema Reference
 | :--- | :--- | :--- | :--- |
 | **type** | `string` | ✅ |  |
 | **at** | `string` | ✅ | ISO 8601 datetime when to execute |
+
+## TypeScript Usage
+
+```typescript
+import { OnceScheduleSchema } from '@objectstack/spec/system';
+import type { OnceSchedule } from '@objectstack/spec/system';
+
+// Validate data
+const result = OnceScheduleSchema.parse(data);
+
+// Type-safe usage
+const myOnceSchedule: OnceSchedule = {
+  type: 'example',
+  at: 'example'
+};
+```
+

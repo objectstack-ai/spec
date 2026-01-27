@@ -1,7 +1,17 @@
 ---
 title: NLQResponse
 description: NLQResponse Schema Reference
+category: ai
+zodFile: nlq
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/nlq.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,20 @@ description: NLQResponse Schema Reference
 | **executionTime** | `number` | optional | Execution time in milliseconds |
 | **needsClarification** | `boolean` | ✅ | Whether query needs clarification |
 | **suggestions** | `string[]` | optional | Query refinement suggestions |
+
+## TypeScript Usage
+
+```typescript
+import { NLQResponseSchema } from '@objectstack/spec/ai';
+import type { NLQResponse } from '@objectstack/spec/ai';
+
+// Validate data
+const result = NLQResponseSchema.parse(data);
+
+// Type-safe usage
+const myNLQResponse: NLQResponse = {
+  parseResult: {},
+  needsClarification: false
+};
+```
+

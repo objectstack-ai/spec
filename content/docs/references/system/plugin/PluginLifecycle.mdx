@@ -1,9 +1,34 @@
 ---
 title: PluginLifecycle
 description: PluginLifecycle Schema Reference
+category: system
+zodFile: plugin
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/plugin.zod.ts`
+</Callout>
 
 ## Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
+
+## TypeScript Usage
+
+```typescript
+import { PluginLifecycleSchema } from '@objectstack/spec/system';
+import type { PluginLifecycle } from '@objectstack/spec/system';
+
+// Validate data
+const result = PluginLifecycleSchema.parse(data);
+
+// Type-safe usage
+const myPluginLifecycle: PluginLifecycle = {
+};
+```
+

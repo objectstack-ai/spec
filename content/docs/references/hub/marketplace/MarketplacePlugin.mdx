@@ -1,7 +1,17 @@
 ---
 title: MarketplacePlugin
 description: MarketplacePlugin Schema Reference
+category: hub
+zodFile: marketplace
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/hub/marketplace.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -24,3 +34,21 @@ description: MarketplacePlugin Schema Reference
 | **rating** | `number` | optional |  |
 | **pricing** | `object` | optional |  |
 | **verified** | `boolean` | optional | Is verified maintaned by ObjectStack |
+
+## TypeScript Usage
+
+```typescript
+import { MarketplacePluginSchema } from '@objectstack/spec/hub';
+import type { MarketplacePlugin } from '@objectstack/spec/hub';
+
+// Validate data
+const result = MarketplacePluginSchema.parse(data);
+
+// Type-safe usage
+const myMarketplacePlugin: MarketplacePlugin = {
+  id: 'example',
+  label: 'example',
+  version: 'example'
+};
+```
+

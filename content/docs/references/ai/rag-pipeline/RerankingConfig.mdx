@@ -1,7 +1,17 @@
 ---
 title: RerankingConfig
 description: RerankingConfig Schema Reference
+category: ai
+zodFile: rag-pipeline
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/rag-pipeline.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,18 @@ description: RerankingConfig Schema Reference
 | **model** | `string` | optional | Reranking model name |
 | **provider** | `Enum<'cohere' \| 'huggingface' \| 'custom'>` | optional |  |
 | **topK** | `integer` | optional | Final number of results after reranking |
+
+## TypeScript Usage
+
+```typescript
+import { RerankingConfigSchema } from '@objectstack/spec/ai';
+import type { RerankingConfig } from '@objectstack/spec/ai';
+
+// Validate data
+const result = RerankingConfigSchema.parse(data);
+
+// Type-safe usage
+const myRerankingConfig: RerankingConfig = {
+};
+```
+

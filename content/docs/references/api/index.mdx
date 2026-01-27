@@ -1,0 +1,89 @@
+---
+title: API Protocol Overview
+description: Complete reference for all api protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Database, Cpu, Zap } from 'lucide-react';
+
+# API Protocol
+
+This section contains all protocol schemas for the api layer of ObjectStack.
+
+## Contract
+
+Source: `packages/spec/src/api/contract.zod.ts`
+
+<Cards>
+  <Card href="./contract/ApiError" title="ApiError" description="ApiError schema reference" />
+  <Card href="./contract/BaseResponse" title="BaseResponse" description="BaseResponse schema reference" />
+  <Card href="./contract/BulkRequest" title="BulkRequest" description="BulkRequest schema reference" />
+  <Card href="./contract/BulkResponse" title="BulkResponse" description="BulkResponse schema reference" />
+  <Card href="./contract/CreateRequest" title="CreateRequest" description="CreateRequest schema reference" />
+  <Card href="./contract/DeleteResponse" title="DeleteResponse" description="DeleteResponse schema reference" />
+  <Card href="./contract/ExportRequest" title="ExportRequest" description="ExportRequest schema reference" />
+  <Card href="./contract/ListRecordResponse" title="ListRecordResponse" description="ListRecordResponse schema reference" />
+  <Card href="./contract/ModificationResult" title="ModificationResult" description="ModificationResult schema reference" />
+  <Card href="./contract/RecordData" title="RecordData" description="Key-value map of record data" />
+  <Card href="./contract/SingleRecordResponse" title="SingleRecordResponse" description="SingleRecordResponse schema reference" />
+  <Card href="./contract/UpdateRequest" title="UpdateRequest" description="UpdateRequest schema reference" />
+</Cards>
+
+## Discovery
+
+Source: `packages/spec/src/api/discovery.zod.ts`
+
+<Cards>
+  <Card href="./discovery/ApiCapabilities" title="ApiCapabilities" description="ApiCapabilities schema reference" />
+  <Card href="./discovery/ApiRoutes" title="ApiRoutes" description="ApiRoutes schema reference" />
+  <Card href="./discovery/Discovery" title="Discovery" description="Discovery schema reference" />
+</Cards>
+
+## Endpoint
+
+Source: `packages/spec/src/api/endpoint.zod.ts`
+
+<Cards>
+  <Card href="./endpoint/ApiEndpoint" title="ApiEndpoint" description="ApiEndpoint schema reference" />
+  <Card href="./endpoint/ApiMapping" title="ApiMapping" description="ApiMapping schema reference" />
+  <Card href="./endpoint/RateLimit" title="RateLimit" description="RateLimit schema reference" />
+</Cards>
+
+## Odata
+
+Source: `packages/spec/src/api/odata.zod.ts`
+
+<Cards>
+  <Card href="./odata/ODataError" title="ODataError" description="ODataError schema reference" />
+  <Card href="./odata/ODataFilterFunction" title="ODataFilterFunction" description="ODataFilterFunction schema reference" />
+  <Card href="./odata/ODataFilterOperator" title="ODataFilterOperator" description="ODataFilterOperator schema reference" />
+  <Card href="./odata/ODataMetadata" title="ODataMetadata" description="ODataMetadata schema reference" />
+  <Card href="./odata/ODataQuery" title="ODataQuery" description="ODataQuery schema reference" />
+  <Card href="./odata/ODataResponse" title="ODataResponse" description="ODataResponse schema reference" />
+</Cards>
+
+## Realtime
+
+Source: `packages/spec/src/api/realtime.zod.ts`
+
+<Cards>
+  <Card href="./realtime/Presence" title="Presence" description="Presence schema reference" />
+  <Card href="./realtime/PresenceStatus" title="PresenceStatus" description="PresenceStatus schema reference" />
+  <Card href="./realtime/RealtimeAction" title="RealtimeAction" description="RealtimeAction schema reference" />
+  <Card href="./realtime/RealtimeEvent" title="RealtimeEvent" description="RealtimeEvent schema reference" />
+  <Card href="./realtime/RealtimeEventType" title="RealtimeEventType" description="RealtimeEventType schema reference" />
+  <Card href="./realtime/Subscription" title="Subscription" description="Subscription schema reference" />
+  <Card href="./realtime/SubscriptionEvent" title="SubscriptionEvent" description="SubscriptionEvent schema reference" />
+  <Card href="./realtime/TransportProtocol" title="TransportProtocol" description="TransportProtocol schema reference" />
+</Cards>
+
+## Router
+
+Source: `packages/spec/src/api/router.zod.ts`
+
+<Cards>
+  <Card href="./router/RouteCategory" title="RouteCategory" description="RouteCategory schema reference" />
+  <Card href="./router/RouteDefinition" title="RouteDefinition" description="RouteDefinition schema reference" />
+  <Card href="./router/RouterConfig" title="RouterConfig" description="RouterConfig schema reference" />
+</Cards>
+

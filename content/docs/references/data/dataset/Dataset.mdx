@@ -1,7 +1,17 @@
 ---
 title: Dataset
 description: Dataset Schema Reference
+category: data
+zodFile: dataset
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/dataset.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,20 @@ description: Dataset Schema Reference
 | **mode** | `Enum<'insert' \| 'update' \| 'upsert' \| 'replace' \| 'ignore'>` | optional | Conflict resolution strategy |
 | **env** | `Enum<'prod' \| 'dev' \| 'test'>[]` | optional | Applicable environments |
 | **records** | `Record<string, any>[]` | ✅ | Data records |
+
+## TypeScript Usage
+
+```typescript
+import { DatasetSchema } from '@objectstack/spec/data';
+import type { Dataset } from '@objectstack/spec/data';
+
+// Validate data
+const result = DatasetSchema.parse(data);
+
+// Type-safe usage
+const myDataset: Dataset = {
+  object: 'example',
+  records: []
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: WidgetProperty
 description: WidgetProperty Schema Reference
+category: ui
+zodFile: widget
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/widget.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -15,3 +25,20 @@ description: WidgetProperty Schema Reference
 | **description** | `string` | optional | Property description |
 | **validation** | `Record<string, any>` | optional | Validation rules |
 | **category** | `string` | optional | Property category |
+
+## TypeScript Usage
+
+```typescript
+import { WidgetPropertySchema } from '@objectstack/spec/ui';
+import type { WidgetProperty } from '@objectstack/spec/ui';
+
+// Validate data
+const result = WidgetPropertySchema.parse(data);
+
+// Type-safe usage
+const myWidgetProperty: WidgetProperty = {
+  name: 'name',
+  type: 'string'
+};
+```
+

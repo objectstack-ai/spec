@@ -1,7 +1,17 @@
 ---
 title: ApprovalAction
 description: ApprovalAction Schema Reference
+category: automation
+zodFile: approval
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/approval.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -10,3 +20,21 @@ description: ApprovalAction Schema Reference
 | **type** | `Enum<'field_update' \| 'email_alert' \| 'webhook' \| 'script'>` | ✅ |  |
 | **name** | `string` | ✅ | Action name |
 | **config** | `Record<string, any>` | ✅ | Action configuration |
+
+## TypeScript Usage
+
+```typescript
+import { ApprovalActionSchema } from '@objectstack/spec/automation';
+import type { ApprovalAction } from '@objectstack/spec/automation';
+
+// Validate data
+const result = ApprovalActionSchema.parse(data);
+
+// Type-safe usage
+const myApprovalAction: ApprovalAction = {
+  type: 'field_update',
+  name: 'name',
+  config: {}
+};
+```
+

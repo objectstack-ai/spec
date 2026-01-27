@@ -1,7 +1,17 @@
 ---
 title: LDAPConfig
 description: LDAPConfig Schema Reference
+category: auth
+zodFile: config
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/config.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -16,3 +26,22 @@ description: LDAPConfig Schema Reference
 | **groupSearchBase** | `string` | optional | Group search base DN |
 | **displayName** | `string` | optional | Display name for the provider button |
 | **icon** | `string` | optional | Icon URL or identifier |
+
+## TypeScript Usage
+
+```typescript
+import { LDAPConfigSchema } from '@objectstack/spec/auth';
+import type { LDAPConfig } from '@objectstack/spec/auth';
+
+// Validate data
+const result = LDAPConfigSchema.parse(data);
+
+// Type-safe usage
+const myLDAPConfig: LDAPConfig = {
+  url: 'https://example.com',
+  bindDn: 'example',
+  bindCredentials: 'example',
+  // ... other fields
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: PromptTemplate
 description: PromptTemplate Schema Reference
+category: ai
+zodFile: model-registry
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/model-registry.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -26,3 +36,22 @@ description: PromptTemplate Schema Reference
 | **category** | `string` | optional | Template category (e.g., "code_generation", "support") |
 | **tags** | `string[]` | optional |  |
 | **examples** | `object[]` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { PromptTemplateSchema } from '@objectstack/spec/ai';
+import type { PromptTemplate } from '@objectstack/spec/ai';
+
+// Validate data
+const result = PromptTemplateSchema.parse(data);
+
+// Type-safe usage
+const myPromptTemplate: PromptTemplate = {
+  id: 'example',
+  name: 'name',
+  label: 'example',
+  // ... other fields
+};
+```
+

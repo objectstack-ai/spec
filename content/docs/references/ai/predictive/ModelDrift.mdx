@@ -1,7 +1,17 @@
 ---
 title: ModelDrift
 description: ModelDrift Schema Reference
+category: ai
+zodFile: predictive
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/predictive.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -14,3 +24,22 @@ description: ModelDrift Schema Reference
 | **metrics** | `object` | ✅ |  |
 | **recommendation** | `string` | optional |  |
 | **autoRetrainTriggered** | `boolean` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { ModelDriftSchema } from '@objectstack/spec/ai';
+import type { ModelDrift } from '@objectstack/spec/ai';
+
+// Validate data
+const result = ModelDriftSchema.parse(data);
+
+// Type-safe usage
+const myModelDrift: ModelDrift = {
+  modelName: 'example',
+  driftType: 'feature_drift',
+  severity: 'low',
+  // ... other fields
+};
+```
+

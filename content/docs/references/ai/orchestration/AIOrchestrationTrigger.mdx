@@ -1,7 +1,17 @@
 ---
 title: AIOrchestrationTrigger
 description: AIOrchestrationTrigger Schema Reference
+category: ai
+zodFile: orchestration
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/orchestration.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -12,3 +22,13 @@ description: AIOrchestrationTrigger Schema Reference
 * `manual`
 * `webhook`
 * `batch`
+
+## TypeScript Usage
+
+```typescript
+import { AIOrchestrationTrigger } from '@objectstack/spec/ai';
+
+// Type-safe enum value
+const value: AIOrchestrationTrigger = 'record_created';
+```
+

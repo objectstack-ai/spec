@@ -1,7 +1,17 @@
 ---
 title: EventRoute
 description: EventRoute Schema Reference
+category: system
+zodFile: events
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/events.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -9,3 +19,20 @@ description: EventRoute Schema Reference
 | :--- | :--- | :--- | :--- |
 | **from** | `string` | ✅ | Source event pattern (supports wildcards, e.g., user.* or *.created) |
 | **to** | `string[]` | ✅ | Target event names to route to |
+
+## TypeScript Usage
+
+```typescript
+import { EventRouteSchema } from '@objectstack/spec/system';
+import type { EventRoute } from '@objectstack/spec/system';
+
+// Validate data
+const result = EventRouteSchema.parse(data);
+
+// Type-safe usage
+const myEventRoute: EventRoute = {
+  from: 'example',
+  to: []
+};
+```
+

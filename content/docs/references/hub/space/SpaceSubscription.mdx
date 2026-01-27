@@ -1,7 +1,17 @@
 ---
 title: SpaceSubscription
 description: SpaceSubscription Schema Reference
+category: hub
+zodFile: space
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/hub/space.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -14,3 +24,20 @@ description: SpaceSubscription Schema Reference
 | **stripeSubscriptionId** | `string` | optional |  |
 | **addons** | `object[]` | optional |  |
 | **usage** | `Record<string, number>` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { SpaceSubscriptionSchema } from '@objectstack/spec/hub';
+import type { SpaceSubscription } from '@objectstack/spec/hub';
+
+// Validate data
+const result = SpaceSubscriptionSchema.parse(data);
+
+// Type-safe usage
+const mySpaceSubscription: SpaceSubscription = {
+  planId: 'example',
+  status: 'active'
+};
+```
+

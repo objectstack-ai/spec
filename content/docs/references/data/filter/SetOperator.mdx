@@ -1,7 +1,17 @@
 ---
 title: SetOperator
 description: SetOperator Schema Reference
+category: data
+zodFile: filter
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/filter.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -9,3 +19,18 @@ description: SetOperator Schema Reference
 | :--- | :--- | :--- | :--- |
 | **$in** | `any[]` | optional |  |
 | **$nin** | `any[]` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { SetOperatorSchema } from '@objectstack/spec/data';
+import type { SetOperator } from '@objectstack/spec/data';
+
+// Validate data
+const result = SetOperatorSchema.parse(data);
+
+// Type-safe usage
+const mySetOperator: SetOperator = {
+};
+```
+

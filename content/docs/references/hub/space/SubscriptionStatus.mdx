@@ -1,7 +1,17 @@
 ---
 title: SubscriptionStatus
 description: SubscriptionStatus Schema Reference
+category: hub
+zodFile: space
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/hub/space.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -10,3 +20,13 @@ description: SubscriptionStatus Schema Reference
 * `canceled`
 * `trialing`
 * `incomplete`
+
+## TypeScript Usage
+
+```typescript
+import { SubscriptionStatus } from '@objectstack/spec/hub';
+
+// Type-safe enum value
+const value: SubscriptionStatus = 'active';
+```
+

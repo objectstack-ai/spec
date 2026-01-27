@@ -1,7 +1,17 @@
 ---
 title: HttpCallAction
 description: HttpCallAction Schema Reference
+category: automation
+zodFile: workflow
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/workflow.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -15,3 +25,22 @@ description: HttpCallAction Schema Reference
 | **body** | `any` | optional | Request body (object/string) |
 | **authentication** | `object` | optional | Authentication configuration |
 | **timeout** | `number` | optional | Request timeout in milliseconds |
+
+## TypeScript Usage
+
+```typescript
+import { HttpCallActionSchema } from '@objectstack/spec/automation';
+import type { HttpCallAction } from '@objectstack/spec/automation';
+
+// Validate data
+const result = HttpCallActionSchema.parse(data);
+
+// Type-safe usage
+const myHttpCallAction: HttpCallAction = {
+  name: 'name',
+  type: 'example',
+  url: 'https://example.com',
+  // ... other fields
+};
+```
+

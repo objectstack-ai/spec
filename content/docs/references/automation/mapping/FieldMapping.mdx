@@ -1,7 +1,17 @@
 ---
 title: FieldMapping
 description: FieldMapping Schema Reference
+category: automation
+zodFile: mapping
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/mapping.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,20 @@ description: FieldMapping Schema Reference
 | **transform** | `string` | optional | Transformation formula |
 | **default** | `any` | optional | Default value |
 | **syncNull** | `boolean` | optional | Sync null values |
+
+## TypeScript Usage
+
+```typescript
+import { FieldMappingSchema } from '@objectstack/spec/automation';
+import type { FieldMapping } from '@objectstack/spec/automation';
+
+// Validate data
+const result = FieldMappingSchema.parse(data);
+
+// Type-safe usage
+const myFieldMapping: FieldMapping = {
+  sourceField: 'example',
+  destinationField: 'example'
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: SCIMPhoneNumber
 description: SCIMPhoneNumber Schema Reference
+category: auth
+zodFile: scim
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/scim.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,19 @@ description: SCIMPhoneNumber Schema Reference
 | **type** | `Enum<'work' \| 'home' \| 'mobile' \| 'fax' \| 'pager' \| 'other'>` | optional | Phone number type |
 | **display** | `string` | optional | Display label |
 | **primary** | `boolean` | optional | Primary phone indicator |
+
+## TypeScript Usage
+
+```typescript
+import { SCIMPhoneNumberSchema } from '@objectstack/spec/auth';
+import type { SCIMPhoneNumber } from '@objectstack/spec/auth';
+
+// Validate data
+const result = SCIMPhoneNumberSchema.parse(data);
+
+// Type-safe usage
+const mySCIMPhoneNumber: SCIMPhoneNumber = {
+  value: 'example'
+};
+```
+

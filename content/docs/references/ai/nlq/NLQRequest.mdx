@@ -1,7 +1,17 @@
 ---
 title: NLQRequest
 description: NLQRequest Schema Reference
+category: ai
+zodFile: nlq
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/nlq.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -14,3 +24,19 @@ description: NLQRequest Schema Reference
 | **minConfidence** | `number` | optional | Minimum confidence threshold |
 | **executeQuery** | `boolean` | optional | Execute query and return results |
 | **maxResults** | `integer` | optional | Maximum results to return |
+
+## TypeScript Usage
+
+```typescript
+import { NLQRequestSchema } from '@objectstack/spec/ai';
+import type { NLQRequest } from '@objectstack/spec/ai';
+
+// Validate data
+const result = NLQRequestSchema.parse(data);
+
+// Type-safe usage
+const myNLQRequest: NLQRequest = {
+  query: 'example'
+};
+```
+

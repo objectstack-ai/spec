@@ -1,7 +1,17 @@
 ---
 title: AuditRetentionPolicy
 description: AuditRetentionPolicy Schema Reference
+category: system
+zodFile: audit
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/audit.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,18 @@ description: AuditRetentionPolicy Schema Reference
 | **archiveStorage** | `object` | optional | Archive storage configuration |
 | **customRetention** | `Record<string, integer>` | optional | Custom retention by event type |
 | **minimumRetentionDays** | `integer` | optional | Minimum retention for compliance |
+
+## TypeScript Usage
+
+```typescript
+import { AuditRetentionPolicySchema } from '@objectstack/spec/system';
+import type { AuditRetentionPolicy } from '@objectstack/spec/system';
+
+// Validate data
+const result = AuditRetentionPolicySchema.parse(data);
+
+// Type-safe usage
+const myAuditRetentionPolicy: AuditRetentionPolicy = {
+};
+```
+

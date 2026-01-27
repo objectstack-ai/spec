@@ -1,7 +1,17 @@
 ---
 title: IntervalSchedule
 description: IntervalSchedule Schema Reference
+category: system
+zodFile: job
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/job.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -9,3 +19,20 @@ description: IntervalSchedule Schema Reference
 | :--- | :--- | :--- | :--- |
 | **type** | `string` | ✅ |  |
 | **intervalMs** | `integer` | ✅ | Interval in milliseconds |
+
+## TypeScript Usage
+
+```typescript
+import { IntervalScheduleSchema } from '@objectstack/spec/system';
+import type { IntervalSchedule } from '@objectstack/spec/system';
+
+// Validate data
+const result = IntervalScheduleSchema.parse(data);
+
+// Type-safe usage
+const myIntervalSchedule: IntervalSchedule = {
+  type: 'example',
+  intervalMs: null
+};
+```
+

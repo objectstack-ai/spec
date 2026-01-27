@@ -1,7 +1,17 @@
 ---
 title: NLQFieldMapping
 description: NLQFieldMapping Schema Reference
+category: ai
+zodFile: nlq
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/nlq.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,22 @@ description: NLQFieldMapping Schema Reference
 | **object** | `string` | ✅ | Object name |
 | **field** | `string` | ✅ | Field name |
 | **confidence** | `number` | ✅ |  |
+
+## TypeScript Usage
+
+```typescript
+import { NLQFieldMappingSchema } from '@objectstack/spec/ai';
+import type { NLQFieldMapping } from '@objectstack/spec/ai';
+
+// Validate data
+const result = NLQFieldMappingSchema.parse(data);
+
+// Type-safe usage
+const myNLQFieldMapping: NLQFieldMapping = {
+  naturalLanguage: 'example',
+  objectField: 'example',
+  object: 'example',
+  // ... other fields
+};
+```
+

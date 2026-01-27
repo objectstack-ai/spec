@@ -1,7 +1,17 @@
 ---
 title: UrlNavItem
 description: UrlNavItem Schema Reference
+category: ui
+zodFile: app
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/app.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -14,3 +24,22 @@ description: UrlNavItem Schema Reference
 | **type** | `string` | ✅ |  |
 | **url** | `string` | ✅ | Target external URL |
 | **target** | `Enum<'_self' \| '_blank'>` | optional | Link target window |
+
+## TypeScript Usage
+
+```typescript
+import { UrlNavItemSchema } from '@objectstack/spec/ui';
+import type { UrlNavItem } from '@objectstack/spec/ui';
+
+// Validate data
+const result = UrlNavItemSchema.parse(data);
+
+// Type-safe usage
+const myUrlNavItem: UrlNavItem = {
+  id: 'example',
+  label: 'example',
+  type: 'example',
+  // ... other fields
+};
+```
+

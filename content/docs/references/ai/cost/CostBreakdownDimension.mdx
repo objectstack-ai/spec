@@ -1,7 +1,17 @@
 ---
 title: CostBreakdownDimension
 description: CostBreakdownDimension Schema Reference
+category: ai
+zodFile: cost
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/cost.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -14,3 +24,13 @@ description: CostBreakdownDimension Schema Reference
 * `date`
 * `hour`
 * `tag`
+
+## TypeScript Usage
+
+```typescript
+import { CostBreakdownDimension } from '@objectstack/spec/ai';
+
+// Type-safe enum value
+const value: CostBreakdownDimension = 'model';
+```
+

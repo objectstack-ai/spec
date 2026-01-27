@@ -1,7 +1,17 @@
 ---
 title: ListRecordResponse
 description: ListRecordResponse Schema Reference
+category: api
+zodFile: contract
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/contract.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,21 @@ description: ListRecordResponse Schema Reference
 | **meta** | `object` | optional | Response metadata |
 | **data** | `Record<string, any>[]` | ✅ | Array of matching records |
 | **pagination** | `object` | ✅ | Pagination info |
+
+## TypeScript Usage
+
+```typescript
+import { ListRecordResponseSchema } from '@objectstack/spec/api';
+import type { ListRecordResponse } from '@objectstack/spec/api';
+
+// Validate data
+const result = ListRecordResponseSchema.parse(data);
+
+// Type-safe usage
+const myListRecordResponse: ListRecordResponse = {
+  success: false,
+  data: [],
+  pagination: {}
+};
+```
+

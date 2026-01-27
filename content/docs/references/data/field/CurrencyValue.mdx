@@ -1,7 +1,17 @@
 ---
 title: CurrencyValue
 description: CurrencyValue Schema Reference
+category: data
+zodFile: field
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/field.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -9,3 +19,20 @@ description: CurrencyValue Schema Reference
 | :--- | :--- | :--- | :--- |
 | **value** | `number` | ✅ | Monetary amount |
 | **currency** | `string` | ✅ | Currency code (ISO 4217) |
+
+## TypeScript Usage
+
+```typescript
+import { CurrencyValueSchema } from '@objectstack/spec/data';
+import type { CurrencyValue } from '@objectstack/spec/data';
+
+// Validate data
+const result = CurrencyValueSchema.parse(data);
+
+// Type-safe usage
+const myCurrencyValue: CurrencyValue = {
+  value: 0,
+  currency: 'example'
+};
+```
+

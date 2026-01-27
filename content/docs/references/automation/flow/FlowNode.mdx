@@ -1,7 +1,17 @@
 ---
 title: FlowNode
 description: FlowNode Schema Reference
+category: automation
+zodFile: flow
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/flow.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,21 @@ description: FlowNode Schema Reference
 | **label** | `string` | ✅ | Node label |
 | **config** | `Record<string, any>` | optional | Node configuration |
 | **position** | `object` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { FlowNodeSchema } from '@objectstack/spec/automation';
+import type { FlowNode } from '@objectstack/spec/automation';
+
+// Validate data
+const result = FlowNodeSchema.parse(data);
+
+// Type-safe usage
+const myFlowNode: FlowNode = {
+  id: 'example',
+  type: 'start',
+  label: 'example'
+};
+```
+

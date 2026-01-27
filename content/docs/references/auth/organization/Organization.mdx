@@ -1,7 +1,17 @@
 ---
 title: Organization
 description: Organization Schema Reference
+category: auth
+zodFile: organization
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/organization.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -14,3 +24,22 @@ description: Organization Schema Reference
 | **metadata** | `Record<string, any>` | optional | Custom metadata |
 | **createdAt** | `string` | ✅ | Organization creation timestamp |
 | **updatedAt** | `string` | ✅ | Last update timestamp |
+
+## TypeScript Usage
+
+```typescript
+import { OrganizationSchema } from '@objectstack/spec/auth';
+import type { Organization } from '@objectstack/spec/auth';
+
+// Validate data
+const result = OrganizationSchema.parse(data);
+
+// Type-safe usage
+const myOrganization: Organization = {
+  id: 'example',
+  name: 'name',
+  slug: 'example',
+  // ... other fields
+};
+```
+

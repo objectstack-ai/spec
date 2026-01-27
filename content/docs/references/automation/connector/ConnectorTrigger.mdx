@@ -1,7 +1,17 @@
 ---
 title: ConnectorTrigger
 description: ConnectorTrigger Schema Reference
+category: automation
+zodFile: connector
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/connector.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -14,3 +24,21 @@ description: ConnectorTrigger Schema Reference
 | **config** | `Record<string, any>` | optional | Trigger configuration |
 | **outputSchema** | `Record<string, any>` | optional | Event payload schema |
 | **pollingIntervalMs** | `integer` | optional | Polling interval in ms |
+
+## TypeScript Usage
+
+```typescript
+import { ConnectorTriggerSchema } from '@objectstack/spec/automation';
+import type { ConnectorTrigger } from '@objectstack/spec/automation';
+
+// Validate data
+const result = ConnectorTriggerSchema.parse(data);
+
+// Type-safe usage
+const myConnectorTrigger: ConnectorTrigger = {
+  id: 'example',
+  name: 'name',
+  type: 'webhook'
+};
+```
+

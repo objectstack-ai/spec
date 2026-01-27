@@ -1,7 +1,17 @@
 ---
 title: ApprovalActionType
 description: ApprovalActionType Schema Reference
+category: automation
+zodFile: approval
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/approval.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -9,3 +19,13 @@ description: ApprovalActionType Schema Reference
 * `email_alert`
 * `webhook`
 * `script`
+
+## TypeScript Usage
+
+```typescript
+import { ApprovalActionType } from '@objectstack/spec/automation';
+
+// Type-safe enum value
+const value: ApprovalActionType = 'field_update';
+```
+

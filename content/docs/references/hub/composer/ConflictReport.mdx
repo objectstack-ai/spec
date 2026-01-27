@@ -1,7 +1,17 @@
 ---
 title: ConflictReport
 description: ConflictReport Schema Reference
+category: hub
+zodFile: composer
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/hub/composer.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,22 @@ description: ConflictReport Schema Reference
 | **sources** | `string[]` | ✅ | List of plugin IDs defining this resource |
 | **resolution** | `string` | ✅ | How it was resolved (e.g. "com.example.erp won") |
 | **severity** | `Enum<'info' \| 'warning' \| 'error'>` | ✅ | Severity of the conflict |
+
+## TypeScript Usage
+
+```typescript
+import { ConflictReportSchema } from '@objectstack/spec/hub';
+import type { ConflictReport } from '@objectstack/spec/hub';
+
+// Validate data
+const result = ConflictReportSchema.parse(data);
+
+// Type-safe usage
+const myConflictReport: ConflictReport = {
+  resourceType: 'object',
+  resourceId: 'example',
+  sources: [],
+  // ... other fields
+};
+```
+

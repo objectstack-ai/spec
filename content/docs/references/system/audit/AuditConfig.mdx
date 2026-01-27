@@ -1,7 +1,17 @@
 ---
 title: AuditConfig
 description: AuditConfig Schema Reference
+category: system
+zodFile: audit
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/audit.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -23,3 +33,21 @@ description: AuditConfig Schema Reference
 | **logSystemEvents** | `boolean` | optional | Log system events |
 | **customHandlers** | `object[]` | optional | Custom event handler references |
 | **compliance** | `object` | optional | Compliance configuration |
+
+## TypeScript Usage
+
+```typescript
+import { AuditConfigSchema } from '@objectstack/spec/system';
+import type { AuditConfig } from '@objectstack/spec/system';
+
+// Validate data
+const result = AuditConfigSchema.parse(data);
+
+// Type-safe usage
+const myAuditConfig: AuditConfig = {
+  name: 'name',
+  label: 'example',
+  storage: {}
+};
+```
+

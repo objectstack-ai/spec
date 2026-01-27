@@ -1,7 +1,17 @@
 ---
 title: AIOrchestration
 description: AIOrchestration Schema Reference
+category: ai
+zodFile: orchestration
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/orchestration.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -32,3 +42,22 @@ description: AIOrchestration Schema Reference
 | **owner** | `string` | optional | User ID of workflow owner |
 | **createdAt** | `string` | optional | ISO timestamp |
 | **updatedAt** | `string` | optional | ISO timestamp |
+
+## TypeScript Usage
+
+```typescript
+import { AIOrchestrationSchema } from '@objectstack/spec/ai';
+import type { AIOrchestration } from '@objectstack/spec/ai';
+
+// Validate data
+const result = AIOrchestrationSchema.parse(data);
+
+// Type-safe usage
+const myAIOrchestration: AIOrchestration = {
+  name: 'name',
+  label: 'example',
+  objectName: 'example',
+  // ... other fields
+};
+```
+

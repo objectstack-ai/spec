@@ -1,7 +1,17 @@
 ---
 title: SessionConfig
 description: SessionConfig Schema Reference
+category: auth
+zodFile: config
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/config.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -15,3 +25,18 @@ description: SessionConfig Schema Reference
 | **cookieDomain** | `string` | optional | Cookie domain |
 | **cookiePath** | `string` | optional | Cookie path |
 | **cookieHttpOnly** | `boolean` | optional | HttpOnly cookie attribute |
+
+## TypeScript Usage
+
+```typescript
+import { SessionConfigSchema } from '@objectstack/spec/auth';
+import type { SessionConfig } from '@objectstack/spec/auth';
+
+// Validate data
+const result = SessionConfigSchema.parse(data);
+
+// Type-safe usage
+const mySessionConfig: SessionConfig = {
+};
+```
+

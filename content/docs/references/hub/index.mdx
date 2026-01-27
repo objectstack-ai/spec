@@ -1,0 +1,71 @@
+---
+title: Hub Protocol Overview
+description: Complete reference for all hub protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Database, Cpu, Zap } from 'lucide-react';
+
+# Hub Protocol
+
+This section contains all protocol schemas for the hub layer of ObjectStack.
+
+## Composer
+
+Source: `packages/spec/src/hub/composer.zod.ts`
+
+<Cards>
+  <Card href="./composer/BillOfMaterials" title="BillOfMaterials" description="BillOfMaterials schema reference" />
+  <Card href="./composer/ComposerRequest" title="ComposerRequest" description="ComposerRequest schema reference" />
+  <Card href="./composer/ComposerResponse" title="ComposerResponse" description="ComposerResponse schema reference" />
+  <Card href="./composer/ConflictReport" title="ConflictReport" description="ConflictReport schema reference" />
+  <Card href="./composer/DependencyRequirement" title="DependencyRequirement" description="DependencyRequirement schema reference" />
+</Cards>
+
+## License
+
+Source: `packages/spec/src/hub/license.zod.ts`
+
+<Cards>
+  <Card href="./license/Feature" title="Feature" description="Feature schema reference" />
+  <Card href="./license/License" title="License" description="License schema reference" />
+  <Card href="./license/MetricType" title="MetricType" description="MetricType schema reference" />
+  <Card href="./license/Plan" title="Plan" description="Plan schema reference" />
+</Cards>
+
+## Marketplace
+
+Source: `packages/spec/src/hub/marketplace.zod.ts`
+
+<Cards>
+  <Card href="./marketplace/MarketplacePlugin" title="MarketplacePlugin" description="MarketplacePlugin schema reference" />
+  <Card href="./marketplace/PluginAuthor" title="PluginAuthor" description="PluginAuthor schema reference" />
+  <Card href="./marketplace/PluginPricing" title="PluginPricing" description="PluginPricing schema reference" />
+</Cards>
+
+## Space
+
+Source: `packages/spec/src/hub/space.zod.ts`
+
+<Cards>
+  <Card href="./space/DeploymentTarget" title="DeploymentTarget" description="DeploymentTarget schema reference" />
+  <Card href="./space/HubSpace" title="HubSpace" description="HubSpace schema reference" />
+  <Card href="./space/SpaceSubscription" title="SpaceSubscription" description="SpaceSubscription schema reference" />
+  <Card href="./space/SubscriptionStatus" title="SubscriptionStatus" description="SubscriptionStatus schema reference" />
+</Cards>
+
+## Tenant
+
+Source: `packages/spec/src/hub/tenant.zod.ts`
+
+<Cards>
+  <Card href="./tenant/DatabaseLevelIsolationStrategy" title="DatabaseLevelIsolationStrategy" description="DatabaseLevelIsolationStrategy schema reference" />
+  <Card href="./tenant/LevelIsolationStrategySchema" title="LevelIsolationStrategySchema" description="LevelIsolationStrategySchema schema reference" />
+  <Card href="./tenant/RowLevelIsolationStrategy" title="RowLevelIsolationStrategy" description="RowLevelIsolationStrategy schema reference" />
+  <Card href="./tenant/Tenant" title="Tenant" description="Tenant schema reference" />
+  <Card href="./tenant/TenantIsolationConfig" title="TenantIsolationConfig" description="TenantIsolationConfig schema reference" />
+  <Card href="./tenant/TenantIsolationLevel" title="TenantIsolationLevel" description="TenantIsolationLevel schema reference" />
+  <Card href="./tenant/TenantQuota" title="TenantQuota" description="TenantQuota schema reference" />
+  <Card href="./tenant/TenantSecurityPolicy" title="TenantSecurityPolicy" description="TenantSecurityPolicy schema reference" />
+</Cards>
+

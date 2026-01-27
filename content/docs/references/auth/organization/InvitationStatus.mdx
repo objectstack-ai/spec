@@ -1,7 +1,17 @@
 ---
 title: InvitationStatus
 description: InvitationStatus Schema Reference
+category: auth
+zodFile: organization
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/organization.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -9,3 +19,13 @@ description: InvitationStatus Schema Reference
 * `accepted`
 * `rejected`
 * `expired`
+
+## TypeScript Usage
+
+```typescript
+import { InvitationStatus } from '@objectstack/spec/auth';
+
+// Type-safe enum value
+const value: InvitationStatus = 'pending';
+```
+

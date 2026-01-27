@@ -1,7 +1,17 @@
 ---
 title: LocationCoordinates
 description: LocationCoordinates Schema Reference
+category: data
+zodFile: field
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/field.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,20 @@ description: LocationCoordinates Schema Reference
 | **longitude** | `number` | ✅ | Longitude coordinate |
 | **altitude** | `number` | optional | Altitude in meters |
 | **accuracy** | `number` | optional | Accuracy in meters |
+
+## TypeScript Usage
+
+```typescript
+import { LocationCoordinatesSchema } from '@objectstack/spec/data';
+import type { LocationCoordinates } from '@objectstack/spec/data';
+
+// Validate data
+const result = LocationCoordinatesSchema.parse(data);
+
+// Type-safe usage
+const myLocationCoordinates: LocationCoordinates = {
+  latitude: 0,
+  longitude: 0
+};
+```
+

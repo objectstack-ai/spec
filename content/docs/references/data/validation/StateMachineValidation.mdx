@@ -1,7 +1,17 @@
 ---
 title: StateMachineValidation
 description: StateMachineValidation Schema Reference
+category: data
+zodFile: validation
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/validation.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -18,3 +28,22 @@ description: StateMachineValidation Schema Reference
 | **type** | `string` | ✅ |  |
 | **field** | `string` | ✅ | State field (e.g. status) |
 | **transitions** | `Record<string, string[]>` | ✅ | Map of `{ OldState: [AllowedNewStates] }` |
+
+## TypeScript Usage
+
+```typescript
+import { StateMachineValidationSchema } from '@objectstack/spec/data';
+import type { StateMachineValidation } from '@objectstack/spec/data';
+
+// Validate data
+const result = StateMachineValidationSchema.parse(data);
+
+// Type-safe usage
+const myStateMachineValidation: StateMachineValidation = {
+  name: 'name',
+  message: 'example',
+  type: 'example',
+  // ... other fields
+};
+```
+

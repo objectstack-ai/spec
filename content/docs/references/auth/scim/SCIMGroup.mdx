@@ -1,7 +1,17 @@
 ---
 title: SCIMGroup
 description: SCIMGroup Schema Reference
+category: auth
+zodFile: scim
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/scim.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,19 @@ description: SCIMGroup Schema Reference
 | **displayName** | `string` | ✅ | Group display name (REQUIRED) |
 | **members** | `object[]` | optional | Group members |
 | **meta** | `object` | optional | Resource metadata |
+
+## TypeScript Usage
+
+```typescript
+import { SCIMGroupSchema } from '@objectstack/spec/auth';
+import type { SCIMGroup } from '@objectstack/spec/auth';
+
+// Validate data
+const result = SCIMGroupSchema.parse(data);
+
+// Type-safe usage
+const mySCIMGroup: SCIMGroup = {
+  displayName: 'example'
+};
+```
+

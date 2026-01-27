@@ -1,7 +1,17 @@
 ---
 title: FlowNodeAction
 description: FlowNodeAction Schema Reference
+category: automation
+zodFile: flow
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/flow.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -18,3 +28,13 @@ description: FlowNodeAction Schema Reference
 * `script`
 * `wait`
 * `subflow`
+
+## TypeScript Usage
+
+```typescript
+import { FlowNodeAction } from '@objectstack/spec/automation';
+
+// Type-safe enum value
+const value: FlowNodeAction = 'start';
+```
+

@@ -1,7 +1,17 @@
 ---
 title: RouteDefinition
 description: RouteDefinition Schema Reference
+category: api
+zodFile: router
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/router.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -17,3 +27,21 @@ description: RouteDefinition Schema Reference
 | **permissions** | `string[]` | optional | Required permissions |
 | **timeout** | `integer` | optional | Execution timeout in ms |
 | **rateLimit** | `string` | optional | Rate limit policy name |
+
+## TypeScript Usage
+
+```typescript
+import { RouteDefinitionSchema } from '@objectstack/spec/api';
+import type { RouteDefinition } from '@objectstack/spec/api';
+
+// Validate data
+const result = RouteDefinitionSchema.parse(data);
+
+// Type-safe usage
+const myRouteDefinition: RouteDefinition = {
+  method: 'GET',
+  path: 'example',
+  handler: 'example'
+};
+```
+

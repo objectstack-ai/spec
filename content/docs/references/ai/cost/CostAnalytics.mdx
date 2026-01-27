@@ -1,7 +1,17 @@
 ---
 title: CostAnalytics
 description: CostAnalytics Schema Reference
+category: ai
+zodFile: cost
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/cost.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -29,3 +39,22 @@ description: CostAnalytics Schema Reference
 | **topAgents** | `object[]` | optional |  |
 | **tokensPerDollar** | `number` | optional |  |
 | **requestsPerDollar** | `number` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { CostAnalyticsSchema } from '@objectstack/spec/ai';
+import type { CostAnalytics } from '@objectstack/spec/ai';
+
+// Validate data
+const result = CostAnalyticsSchema.parse(data);
+
+// Type-safe usage
+const myCostAnalytics: CostAnalytics = {
+  periodStart: 'example',
+  periodEnd: 'example',
+  totalCost: 0,
+  // ... other fields
+};
+```
+

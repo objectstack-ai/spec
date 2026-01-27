@@ -1,7 +1,17 @@
 ---
 title: ModelConfig
 description: ModelConfig Schema Reference
+category: ai
+zodFile: model-registry
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/model-registry.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -21,3 +31,22 @@ description: ModelConfig Schema Reference
 | **tags** | `string[]` | optional | Tags for categorization |
 | **deprecated** | `boolean` | optional |  |
 | **recommendedFor** | `string[]` | optional | Use case recommendations |
+
+## TypeScript Usage
+
+```typescript
+import { ModelConfigSchema } from '@objectstack/spec/ai';
+import type { ModelConfig } from '@objectstack/spec/ai';
+
+// Validate data
+const result = ModelConfigSchema.parse(data);
+
+// Type-safe usage
+const myModelConfig: ModelConfig = {
+  id: 'example',
+  name: 'name',
+  version: 'example',
+  // ... other fields
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: Datasource
 description: Datasource Schema Reference
+category: system
+zodFile: datasource
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/datasource.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -16,3 +26,21 @@ description: Datasource Schema Reference
 | **capabilities** | `object` | optional | Capability overrides |
 | **description** | `string` | optional | Internal description |
 | **active** | `boolean` | optional | Is datasource enabled |
+
+## TypeScript Usage
+
+```typescript
+import { DatasourceSchema } from '@objectstack/spec/system';
+import type { Datasource } from '@objectstack/spec/system';
+
+// Validate data
+const result = DatasourceSchema.parse(data);
+
+// Type-safe usage
+const myDatasource: Datasource = {
+  name: 'name',
+  driver: 'example',
+  config: {}
+};
+```
+

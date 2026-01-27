@@ -1,7 +1,17 @@
 ---
 title: OAuth2Config
 description: OAuth2Config Schema Reference
+category: automation
+zodFile: connector
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/connector.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,20 @@ description: OAuth2Config Schema Reference
 | **scopes** | `string[]` | optional | OAuth scopes |
 | **clientIdField** | `string` | optional | Client ID field name |
 | **clientSecretField** | `string` | optional | Client secret field name |
+
+## TypeScript Usage
+
+```typescript
+import { OAuth2ConfigSchema } from '@objectstack/spec/automation';
+import type { OAuth2Config } from '@objectstack/spec/automation';
+
+// Validate data
+const result = OAuth2ConfigSchema.parse(data);
+
+// Type-safe usage
+const myOAuth2Config: OAuth2Config = {
+  authorizationUrl: 'example',
+  tokenUrl: 'example'
+};
+```
+

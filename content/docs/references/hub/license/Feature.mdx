@@ -1,7 +1,17 @@
 ---
 title: Feature
 description: Feature Schema Reference
+category: hub
+zodFile: license
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/hub/license.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,20 @@ description: Feature Schema Reference
 | **type** | `Enum<'boolean' \| 'counter' \| 'gauge'>` | optional |  |
 | **unit** | `Enum<'count' \| 'bytes' \| 'seconds' \| 'percent'>` | optional |  |
 | **requires** | `string[]` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { FeatureSchema } from '@objectstack/spec/hub';
+import type { Feature } from '@objectstack/spec/hub';
+
+// Validate data
+const result = FeatureSchema.parse(data);
+
+// Type-safe usage
+const myFeature: Feature = {
+  code: 'example',
+  label: 'example'
+};
+```
+

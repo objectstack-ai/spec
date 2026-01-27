@@ -1,7 +1,17 @@
 ---
 title: TranslationData
 description: TranslationData Schema Reference
+category: system
+zodFile: translation
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/translation.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -10,3 +20,18 @@ description: TranslationData Schema Reference
 | **objects** | `Record<string, object>` | optional |  |
 | **apps** | `Record<string, object>` | optional |  |
 | **messages** | `Record<string, string>` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { TranslationDataSchema } from '@objectstack/spec/system';
+import type { TranslationData } from '@objectstack/spec/system';
+
+// Validate data
+const result = TranslationDataSchema.parse(data);
+
+// Type-safe usage
+const myTranslationData: TranslationData = {
+};
+```
+

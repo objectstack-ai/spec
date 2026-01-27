@@ -1,7 +1,17 @@
 ---
 title: KanbanConfig
 description: KanbanConfig Schema Reference
+category: ui
+zodFile: view
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/view.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -10,3 +20,20 @@ description: KanbanConfig Schema Reference
 | **groupByField** | `string` | ✅ | Field to group columns by (usually status/select) |
 | **summarizeField** | `string` | optional | Field to sum at top of column (e.g. amount) |
 | **columns** | `string[]` | ✅ | Fields to show on cards |
+
+## TypeScript Usage
+
+```typescript
+import { KanbanConfigSchema } from '@objectstack/spec/ui';
+import type { KanbanConfig } from '@objectstack/spec/ui';
+
+// Validate data
+const result = KanbanConfigSchema.parse(data);
+
+// Type-safe usage
+const myKanbanConfig: KanbanConfig = {
+  groupByField: 'example',
+  columns: []
+};
+```
+

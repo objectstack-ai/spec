@@ -1,7 +1,17 @@
 ---
 title: SyncExecutionResult
 description: SyncExecutionResult Schema Reference
+category: automation
+zodFile: sync
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/sync.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -16,3 +26,22 @@ description: SyncExecutionResult Schema Reference
 | **stats** | `object` | optional | Execution statistics |
 | **errors** | `object[]` | optional | Errors |
 | **logs** | `string[]` | optional | Execution logs |
+
+## TypeScript Usage
+
+```typescript
+import { SyncExecutionResultSchema } from '@objectstack/spec/automation';
+import type { SyncExecutionResult } from '@objectstack/spec/automation';
+
+// Validate data
+const result = SyncExecutionResultSchema.parse(data);
+
+// Type-safe usage
+const mySyncExecutionResult: SyncExecutionResult = {
+  id: 'example',
+  syncName: 'example',
+  status: 'pending',
+  // ... other fields
+};
+```
+

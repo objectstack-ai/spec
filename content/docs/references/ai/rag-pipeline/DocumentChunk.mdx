@@ -1,7 +1,17 @@
 ---
 title: DocumentChunk
 description: DocumentChunk Schema Reference
+category: ai
+zodFile: rag-pipeline
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/rag-pipeline.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,22 @@ description: DocumentChunk Schema Reference
 | **metadata** | `object` | ✅ |  |
 | **chunkIndex** | `integer` | ✅ | Chunk position in document |
 | **tokens** | `integer` | optional | Token count |
+
+## TypeScript Usage
+
+```typescript
+import { DocumentChunkSchema } from '@objectstack/spec/ai';
+import type { DocumentChunk } from '@objectstack/spec/ai';
+
+// Validate data
+const result = DocumentChunkSchema.parse(data);
+
+// Type-safe usage
+const myDocumentChunk: DocumentChunk = {
+  id: 'example',
+  content: 'example',
+  metadata: {},
+  // ... other fields
+};
+```
+

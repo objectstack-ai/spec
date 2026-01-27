@@ -1,7 +1,17 @@
 ---
 title: ColorPalette
 description: ColorPalette Schema Reference
+category: ui
+zodFile: theme
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/theme.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -24,3 +34,19 @@ description: ColorPalette Schema Reference
 | **primaryDark** | `string` | optional | Darker shade of primary |
 | **secondaryLight** | `string` | optional | Lighter shade of secondary |
 | **secondaryDark** | `string` | optional | Darker shade of secondary |
+
+## TypeScript Usage
+
+```typescript
+import { ColorPaletteSchema } from '@objectstack/spec/ui';
+import type { ColorPalette } from '@objectstack/spec/ui';
+
+// Validate data
+const result = ColorPaletteSchema.parse(data);
+
+// Type-safe usage
+const myColorPalette: ColorPalette = {
+  primary: 'example'
+};
+```
+

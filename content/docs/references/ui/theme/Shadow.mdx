@@ -1,7 +1,17 @@
 ---
 title: Shadow
 description: Shadow Schema Reference
+category: ui
+zodFile: theme
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/theme.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -15,3 +25,18 @@ description: Shadow Schema Reference
 | **xl** | `string` | optional | Extra large shadow |
 | **2xl** | `string` | optional | 2X large shadow |
 | **inner** | `string` | optional | Inner shadow (inset) |
+
+## TypeScript Usage
+
+```typescript
+import { ShadowSchema } from '@objectstack/spec/ui';
+import type { Shadow } from '@objectstack/spec/ui';
+
+// Validate data
+const result = ShadowSchema.parse(data);
+
+// Type-safe usage
+const myShadow: Shadow = {
+};
+```
+

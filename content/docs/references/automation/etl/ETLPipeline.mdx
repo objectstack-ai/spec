@@ -1,7 +1,17 @@
 ---
 title: ETLPipeline
 description: ETLPipeline Schema Reference
+category: automation
+zodFile: etl
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/etl.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -20,3 +30,21 @@ description: ETLPipeline Schema Reference
 | **notifications** | `object` | optional | Notification settings |
 | **tags** | `string[]` | optional | Pipeline tags |
 | **metadata** | `Record<string, any>` | optional | Custom metadata |
+
+## TypeScript Usage
+
+```typescript
+import { ETLPipelineSchema } from '@objectstack/spec/automation';
+import type { ETLPipeline } from '@objectstack/spec/automation';
+
+// Validate data
+const result = ETLPipelineSchema.parse(data);
+
+// Type-safe usage
+const myETLPipeline: ETLPipeline = {
+  name: 'name',
+  source: {},
+  destination: {}
+};
+```
+

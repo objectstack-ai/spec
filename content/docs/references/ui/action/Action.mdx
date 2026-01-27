@@ -1,7 +1,17 @@
 ---
 title: Action
 description: Action Schema Reference
+category: ui
+zodFile: action
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/action.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -21,3 +31,20 @@ description: Action Schema Reference
 | **successMessage** | `string` | optional | Success message to show after execution |
 | **refreshAfter** | `boolean` | optional | Refresh view after execution |
 | **visible** | `string` | optional | Formula returning boolean |
+
+## TypeScript Usage
+
+```typescript
+import { ActionSchema } from '@objectstack/spec/ui';
+import type { Action } from '@objectstack/spec/ui';
+
+// Validate data
+const result = ActionSchema.parse(data);
+
+// Type-safe usage
+const myAction: Action = {
+  name: 'name',
+  label: 'example'
+};
+```
+

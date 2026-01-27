@@ -1,7 +1,17 @@
 ---
 title: AuditEventType
 description: AuditEventType Schema Reference
+category: system
+zodFile: audit
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/audit.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -47,3 +57,13 @@ description: AuditEventType Schema Reference
 * `security.data_breach`
 * `security.api_key_created`
 * `security.api_key_revoked`
+
+## TypeScript Usage
+
+```typescript
+import { AuditEventType } from '@objectstack/spec/system';
+
+// Type-safe enum value
+const value: AuditEventType = 'data.create';
+```
+

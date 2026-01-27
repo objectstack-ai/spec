@@ -1,7 +1,17 @@
 ---
 title: Typography
 description: Typography Schema Reference
+category: ui
+zodFile: theme
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/theme.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,18 @@ description: Typography Schema Reference
 | **fontWeight** | `object` | optional |  |
 | **lineHeight** | `object` | optional |  |
 | **letterSpacing** | `object` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { TypographySchema } from '@objectstack/spec/ui';
+import type { Typography } from '@objectstack/spec/ui';
+
+// Validate data
+const result = TypographySchema.parse(data);
+
+// Type-safe usage
+const myTypography: Typography = {
+};
+```
+

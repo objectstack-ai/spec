@@ -1,7 +1,17 @@
 ---
 title: ShareRecipientType
 description: ShareRecipientType Schema Reference
+category: permission
+zodFile: sharing
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/permission/sharing.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -10,3 +20,13 @@ description: ShareRecipientType Schema Reference
 * `role`
 * `role_and_subordinates`
 * `guest`
+
+## TypeScript Usage
+
+```typescript
+import { ShareRecipientType } from '@objectstack/spec/permission';
+
+// Type-safe enum value
+const value: ShareRecipientType = 'user';
+```
+

@@ -1,7 +1,17 @@
 ---
 title: BulkRequest
 description: BulkRequest Schema Reference
+category: api
+zodFile: contract
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/contract.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -9,3 +19,19 @@ description: BulkRequest Schema Reference
 | :--- | :--- | :--- | :--- |
 | **records** | `Record<string, any>[]` | ✅ | Array of records to process |
 | **allOrNone** | `boolean` | optional | If true, rollback entire transaction on any failure |
+
+## TypeScript Usage
+
+```typescript
+import { BulkRequestSchema } from '@objectstack/spec/api';
+import type { BulkRequest } from '@objectstack/spec/api';
+
+// Validate data
+const result = BulkRequestSchema.parse(data);
+
+// Type-safe usage
+const myBulkRequest: BulkRequest = {
+  records: []
+};
+```
+

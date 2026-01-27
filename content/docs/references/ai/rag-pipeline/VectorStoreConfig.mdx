@@ -1,7 +1,17 @@
 ---
 title: VectorStoreConfig
 description: VectorStoreConfig Schema Reference
+category: ai
+zodFile: rag-pipeline
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/rag-pipeline.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -18,3 +28,21 @@ description: VectorStoreConfig Schema Reference
 | **batchSize** | `integer` | optional |  |
 | **connectionPoolSize** | `integer` | optional |  |
 | **timeout** | `integer` | optional | Timeout in milliseconds |
+
+## TypeScript Usage
+
+```typescript
+import { VectorStoreConfigSchema } from '@objectstack/spec/ai';
+import type { VectorStoreConfig } from '@objectstack/spec/ai';
+
+// Validate data
+const result = VectorStoreConfigSchema.parse(data);
+
+// Type-safe usage
+const myVectorStoreConfig: VectorStoreConfig = {
+  provider: 'pinecone',
+  indexName: 'example',
+  dimensions: null
+};
+```
+

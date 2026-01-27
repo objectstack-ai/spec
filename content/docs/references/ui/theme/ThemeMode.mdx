@@ -1,10 +1,30 @@
 ---
 title: ThemeMode
 description: ThemeMode Schema Reference
+category: ui
+zodFile: theme
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/theme.zod.ts`
+</Callout>
 
 ## Allowed Values
 
 * `light`
 * `dark`
 * `auto`
+
+## TypeScript Usage
+
+```typescript
+import { ThemeMode } from '@objectstack/spec/ui';
+
+// Type-safe enum value
+const value: ThemeMode = 'light';
+```
+

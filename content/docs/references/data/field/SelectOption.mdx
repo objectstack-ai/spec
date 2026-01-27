@@ -1,7 +1,17 @@
 ---
 title: SelectOption
 description: SelectOption Schema Reference
+category: data
+zodFile: field
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/field.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,20 @@ description: SelectOption Schema Reference
 | **value** | `string` | ✅ | Stored value (lowercase machine identifier) |
 | **color** | `string` | optional | Color code for badges/charts |
 | **default** | `boolean` | optional | Is default option |
+
+## TypeScript Usage
+
+```typescript
+import { SelectOptionSchema } from '@objectstack/spec/data';
+import type { SelectOption } from '@objectstack/spec/data';
+
+// Validate data
+const result = SelectOptionSchema.parse(data);
+
+// Type-safe usage
+const mySelectOption: SelectOption = {
+  label: 'example',
+  value: 'example'
+};
+```
+

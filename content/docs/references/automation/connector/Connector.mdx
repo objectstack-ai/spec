@@ -1,7 +1,17 @@
 ---
 title: Connector
 description: Connector Schema Reference
+category: automation
+zodFile: connector
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/connector.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -25,3 +35,22 @@ description: Connector Schema Reference
 | **tags** | `string[]` | optional | Connector tags |
 | **verified** | `boolean` | optional | Verified connector |
 | **metadata** | `Record<string, any>` | optional | Custom metadata |
+
+## TypeScript Usage
+
+```typescript
+import { ConnectorSchema } from '@objectstack/spec/automation';
+import type { Connector } from '@objectstack/spec/automation';
+
+// Validate data
+const result = ConnectorSchema.parse(data);
+
+// Type-safe usage
+const myConnector: Connector = {
+  id: 'example',
+  name: 'name',
+  category: 'crm',
+  // ... other fields
+};
+```
+

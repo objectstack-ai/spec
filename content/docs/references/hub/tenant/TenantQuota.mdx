@@ -1,7 +1,17 @@
 ---
 title: TenantQuota
 description: TenantQuota Schema Reference
+category: hub
+zodFile: tenant
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/hub/tenant.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -10,3 +20,18 @@ description: TenantQuota Schema Reference
 | **maxUsers** | `integer` | optional | Maximum number of users |
 | **maxStorage** | `integer` | optional | Maximum storage in bytes |
 | **apiRateLimit** | `integer` | optional | API requests per minute |
+
+## TypeScript Usage
+
+```typescript
+import { TenantQuotaSchema } from '@objectstack/spec/hub';
+import type { TenantQuota } from '@objectstack/spec/hub';
+
+// Validate data
+const result = TenantQuotaSchema.parse(data);
+
+// Type-safe usage
+const myTenantQuota: TenantQuota = {
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: PredictiveModel
 description: PredictiveModel Schema Reference
+category: ai
+zodFile: predictive
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/predictive.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -38,3 +48,22 @@ description: PredictiveModel Schema Reference
 | **lastTrainedAt** | `string` | optional | ISO timestamp |
 | **createdAt** | `string` | optional | ISO timestamp |
 | **updatedAt** | `string` | optional | ISO timestamp |
+
+## TypeScript Usage
+
+```typescript
+import { PredictiveModelSchema } from '@objectstack/spec/ai';
+import type { PredictiveModel } from '@objectstack/spec/ai';
+
+// Validate data
+const result = PredictiveModelSchema.parse(data);
+
+// Type-safe usage
+const myPredictiveModel: PredictiveModel = {
+  name: 'name',
+  label: 'example',
+  type: 'classification',
+  // ... other fields
+};
+```
+

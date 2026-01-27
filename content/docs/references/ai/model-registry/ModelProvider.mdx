@@ -1,7 +1,17 @@
 ---
 title: ModelProvider
 description: ModelProvider Schema Reference
+category: ai
+zodFile: model-registry
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/model-registry.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -13,3 +23,13 @@ description: ModelProvider Schema Reference
 * `huggingface`
 * `local`
 * `custom`
+
+## TypeScript Usage
+
+```typescript
+import { ModelProvider } from '@objectstack/spec/ai';
+
+// Type-safe enum value
+const value: ModelProvider = 'openai';
+```
+

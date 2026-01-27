@@ -1,7 +1,17 @@
 ---
 title: SCIMAddress
 description: SCIMAddress Schema Reference
+category: auth
+zodFile: scim
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/scim.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -15,3 +25,18 @@ description: SCIMAddress Schema Reference
 | **country** | `string` | optional | Country |
 | **type** | `Enum<'work' \| 'home' \| 'other'>` | optional | Address type |
 | **primary** | `boolean` | optional | Primary address indicator |
+
+## TypeScript Usage
+
+```typescript
+import { SCIMAddressSchema } from '@objectstack/spec/auth';
+import type { SCIMAddress } from '@objectstack/spec/auth';
+
+// Validate data
+const result = SCIMAddressSchema.parse(data);
+
+// Type-safe usage
+const mySCIMAddress: SCIMAddress = {
+};
+```
+

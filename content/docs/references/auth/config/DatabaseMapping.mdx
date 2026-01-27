@@ -1,7 +1,17 @@
 ---
 title: DatabaseMapping
 description: DatabaseMapping Schema Reference
+category: auth
+zodFile: config
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/config.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,18 @@ description: DatabaseMapping Schema Reference
 | **session** | `Record<string, string>` | optional | Session field mapping |
 | **account** | `Record<string, string>` | optional | Account field mapping |
 | **verificationToken** | `Record<string, string>` | optional | VerificationToken field mapping |
+
+## TypeScript Usage
+
+```typescript
+import { DatabaseMappingSchema } from '@objectstack/spec/auth';
+import type { DatabaseMapping } from '@objectstack/spec/auth';
+
+// Validate data
+const result = DatabaseMappingSchema.parse(data);
+
+// Type-safe usage
+const myDatabaseMapping: DatabaseMapping = {
+};
+```
+

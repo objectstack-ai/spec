@@ -1,0 +1,58 @@
+---
+title: Permission Protocol Overview
+description: Complete reference for all permission protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Database, Cpu, Zap } from 'lucide-react';
+
+# Permission Protocol
+
+This section contains all protocol schemas for the permission layer of ObjectStack.
+
+## Permission
+
+Source: `packages/spec/src/permission/permission.zod.ts`
+
+<Cards>
+  <Card href="./permission/FieldPermission" title="FieldPermission" description="FieldPermission schema reference" />
+  <Card href="./permission/ObjectPermission" title="ObjectPermission" description="ObjectPermission schema reference" />
+  <Card href="./permission/PermissionSet" title="PermissionSet" description="PermissionSet schema reference" />
+</Cards>
+
+## Rls
+
+Source: `packages/spec/src/permission/rls.zod.ts`
+
+<Cards>
+  <Card href="./rls/RLSConfig" title="RLSConfig" description="RLSConfig schema reference" />
+  <Card href="./rls/RLSEvaluationResult" title="RLSEvaluationResult" description="RLSEvaluationResult schema reference" />
+  <Card href="./rls/RLSOperation" title="RLSOperation" description="RLSOperation schema reference" />
+  <Card href="./rls/RLSUserContext" title="RLSUserContext" description="RLSUserContext schema reference" />
+  <Card href="./rls/RowLevelSecurityPolicy" title="RowLevelSecurityPolicy" description="RowLevelSecurityPolicy schema reference" />
+</Cards>
+
+## Sharing
+
+Source: `packages/spec/src/permission/sharing.zod.ts`
+
+<Cards>
+  <Card href="./sharing/CriteriaSharingRule" title="CriteriaSharingRule" description="CriteriaSharingRule schema reference" />
+  <Card href="./sharing/OWDModel" title="OWDModel" description="OWDModel schema reference" />
+  <Card href="./sharing/OwnerSharingRule" title="OwnerSharingRule" description="OwnerSharingRule schema reference" />
+  <Card href="./sharing/ShareRecipientType" title="ShareRecipientType" description="ShareRecipientType schema reference" />
+  <Card href="./sharing/SharingLevel" title="SharingLevel" description="SharingLevel schema reference" />
+  <Card href="./sharing/SharingRule" title="SharingRule" description="SharingRule schema reference" />
+  <Card href="./sharing/SharingRuleType" title="SharingRuleType" description="SharingRuleType schema reference" />
+</Cards>
+
+## Territory
+
+Source: `packages/spec/src/permission/territory.zod.ts`
+
+<Cards>
+  <Card href="./territory/Territory" title="Territory" description="Territory schema reference" />
+  <Card href="./territory/TerritoryModel" title="TerritoryModel" description="TerritoryModel schema reference" />
+  <Card href="./territory/TerritoryType" title="TerritoryType" description="TerritoryType schema reference" />
+</Cards>
+

@@ -1,7 +1,17 @@
 ---
 title: Manifest
 description: Manifest Schema Reference
+category: system
+zodFile: manifest
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/manifest.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -20,3 +30,22 @@ description: Manifest Schema Reference
 | **contributes** | `object` | optional | Platform contributions |
 | **data** | `object[]` | optional | Initial seed data |
 | **extensions** | `Record<string, any>` | optional | Extension points and contributions |
+
+## TypeScript Usage
+
+```typescript
+import { ManifestSchema } from '@objectstack/spec/system';
+import type { Manifest } from '@objectstack/spec/system';
+
+// Validate data
+const result = ManifestSchema.parse(data);
+
+// Type-safe usage
+const myManifest: Manifest = {
+  id: 'example',
+  version: 'example',
+  type: 'app',
+  // ... other fields
+};
+```
+

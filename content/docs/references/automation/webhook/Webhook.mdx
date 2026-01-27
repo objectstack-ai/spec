@@ -1,7 +1,17 @@
 ---
 title: Webhook
 description: Webhook Schema Reference
+category: automation
+zodFile: webhook
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/webhook.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -19,3 +29,22 @@ description: Webhook Schema Reference
 | **includeSession** | `boolean` | optional | Include user session info |
 | **retryCount** | `number` | optional |  |
 | **isActive** | `boolean` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { WebhookSchema } from '@objectstack/spec/automation';
+import type { Webhook } from '@objectstack/spec/automation';
+
+// Validate data
+const result = WebhookSchema.parse(data);
+
+// Type-safe usage
+const myWebhook: Webhook = {
+  name: 'name',
+  object: 'example',
+  triggers: [],
+  // ... other fields
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: ListView
 description: ListView Schema Reference
+category: ui
+zodFile: view
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/view.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -23,3 +33,19 @@ description: ListView Schema Reference
 | **kanban** | `object` | optional |  |
 | **calendar** | `object` | optional |  |
 | **gantt** | `object` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { ListViewSchema } from '@objectstack/spec/ui';
+import type { ListView } from '@objectstack/spec/ui';
+
+// Validate data
+const result = ListViewSchema.parse(data);
+
+// Type-safe usage
+const myListView: ListView = {
+  columns: null
+};
+```
+

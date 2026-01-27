@@ -1,7 +1,17 @@
 ---
 title: DataSyncConfig
 description: DataSyncConfig Schema Reference
+category: automation
+zodFile: sync
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/sync.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -26,3 +36,21 @@ description: DataSyncConfig Schema Reference
 | **audit** | `object` | optional | Audit configuration |
 | **tags** | `string[]` | optional | Sync tags |
 | **metadata** | `Record<string, any>` | optional | Custom metadata |
+
+## TypeScript Usage
+
+```typescript
+import { DataSyncConfigSchema } from '@objectstack/spec/automation';
+import type { DataSyncConfig } from '@objectstack/spec/automation';
+
+// Validate data
+const result = DataSyncConfigSchema.parse(data);
+
+// Type-safe usage
+const myDataSyncConfig: DataSyncConfig = {
+  name: 'name',
+  source: {},
+  destination: {}
+};
+```
+

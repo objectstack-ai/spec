@@ -1,7 +1,17 @@
 ---
 title: DatabaseAdapter
 description: DatabaseAdapter Schema Reference
+category: auth
+zodFile: config
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/config.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,19 @@ description: DatabaseAdapter Schema Reference
 | **connectionString** | `string` | optional | Database connection string |
 | **tablePrefix** | `string` | optional | Prefix for auth tables |
 | **schema** | `string` | optional | Database schema name |
+
+## TypeScript Usage
+
+```typescript
+import { DatabaseAdapterSchema } from '@objectstack/spec/auth';
+import type { DatabaseAdapter } from '@objectstack/spec/auth';
+
+// Validate data
+const result = DatabaseAdapterSchema.parse(data);
+
+// Type-safe usage
+const myDatabaseAdapter: DatabaseAdapter = {
+  type: 'prisma'
+};
+```
+

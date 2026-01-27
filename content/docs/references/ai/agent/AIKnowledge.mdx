@@ -1,7 +1,17 @@
 ---
 title: AIKnowledge
 description: AIKnowledge Schema Reference
+category: ai
+zodFile: agent
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/agent.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -9,3 +19,20 @@ description: AIKnowledge Schema Reference
 | :--- | :--- | :--- | :--- |
 | **topics** | `string[]` | ✅ | Topics/Tags to recruit knowledge from |
 | **indexes** | `string[]` | ✅ | Vector Store Indexes |
+
+## TypeScript Usage
+
+```typescript
+import { AIKnowledgeSchema } from '@objectstack/spec/ai';
+import type { AIKnowledge } from '@objectstack/spec/ai';
+
+// Validate data
+const result = AIKnowledgeSchema.parse(data);
+
+// Type-safe usage
+const myAIKnowledge: AIKnowledge = {
+  topics: [],
+  indexes: []
+};
+```
+

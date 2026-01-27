@@ -1,7 +1,17 @@
 ---
 title: ConflictResolution
 description: ConflictResolution Schema Reference
+category: automation
+zodFile: sync
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/sync.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -10,3 +20,13 @@ description: ConflictResolution Schema Reference
 * `latest_wins`
 * `manual`
 * `merge`
+
+## TypeScript Usage
+
+```typescript
+import { ConflictResolution } from '@objectstack/spec/automation';
+
+// Type-safe enum value
+const value: ConflictResolution = 'source_wins';
+```
+

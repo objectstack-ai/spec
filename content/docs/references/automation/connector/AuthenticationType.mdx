@@ -1,7 +1,17 @@
 ---
 title: AuthenticationType
 description: AuthenticationType Schema Reference
+category: automation
+zodFile: connector
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/connector.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -12,3 +22,13 @@ description: AuthenticationType Schema Reference
 * `oauth1`
 * `oauth2`
 * `custom`
+
+## TypeScript Usage
+
+```typescript
+import { AuthenticationType } from '@objectstack/spec/automation';
+
+// Type-safe enum value
+const value: AuthenticationType = 'none';
+```
+

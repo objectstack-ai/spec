@@ -1,7 +1,17 @@
 ---
 title: CostAlert
 description: CostAlert Schema Reference
+category: ai
+zodFile: cost
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/cost.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -25,3 +35,22 @@ description: CostAlert Schema Reference
 | **acknowledgedAt** | `string` | optional |  |
 | **resolved** | `boolean` | optional |  |
 | **metadata** | `Record<string, any>` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { CostAlertSchema } from '@objectstack/spec/ai';
+import type { CostAlert } from '@objectstack/spec/ai';
+
+// Validate data
+const result = CostAlertSchema.parse(data);
+
+// Type-safe usage
+const myCostAlert: CostAlert = {
+  id: 'example',
+  timestamp: 'example',
+  type: 'threshold_warning',
+  // ... other fields
+};
+```
+

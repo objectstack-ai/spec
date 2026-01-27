@@ -1,7 +1,17 @@
 ---
 title: TokenBudgetConfig
 description: TokenBudgetConfig Schema Reference
+category: ai
+zodFile: conversation
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/conversation.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -20,3 +30,19 @@ description: TokenBudgetConfig Schema Reference
 | **summarizationThreshold** | `integer` | optional | Trigger summarization at N tokens |
 | **summaryModel** | `string` | optional | Model ID for summarization |
 | **warnThreshold** | `number` | optional | Warn at % of budget (0.8 = 80%) |
+
+## TypeScript Usage
+
+```typescript
+import { TokenBudgetConfigSchema } from '@objectstack/spec/ai';
+import type { TokenBudgetConfig } from '@objectstack/spec/ai';
+
+// Validate data
+const result = TokenBudgetConfigSchema.parse(data);
+
+// Type-safe usage
+const myTokenBudgetConfig: TokenBudgetConfig = {
+  maxTokens: null
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: SubscriptionEvent
 description: SubscriptionEvent Schema Reference
+category: api
+zodFile: realtime
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/realtime.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -10,3 +20,19 @@ description: SubscriptionEvent Schema Reference
 | **type** | `Enum<'record.created' \| 'record.updated' \| 'record.deleted' \| 'field.changed'>` | ✅ | Type of event to subscribe to |
 | **object** | `string` | optional | Object name to subscribe to |
 | **filters** | `any` | optional | Filter conditions |
+
+## TypeScript Usage
+
+```typescript
+import { SubscriptionEventSchema } from '@objectstack/spec/api';
+import type { SubscriptionEvent } from '@objectstack/spec/api';
+
+// Validate data
+const result = SubscriptionEventSchema.parse(data);
+
+// Type-safe usage
+const mySubscriptionEvent: SubscriptionEvent = {
+  type: 'record.created'
+};
+```
+

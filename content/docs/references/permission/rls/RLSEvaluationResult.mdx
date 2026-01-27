@@ -1,7 +1,17 @@
 ---
 title: RLSEvaluationResult
 description: RLSEvaluationResult Schema Reference
+category: permission
+zodFile: rls
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/permission/rls.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,20 @@ description: RLSEvaluationResult Schema Reference
 | **error** | `string` | optional | Error message if evaluation failed |
 | **usingResult** | `boolean` | optional | USING clause evaluation result |
 | **checkResult** | `boolean` | optional | CHECK clause evaluation result |
+
+## TypeScript Usage
+
+```typescript
+import { RLSEvaluationResultSchema } from '@objectstack/spec/permission';
+import type { RLSEvaluationResult } from '@objectstack/spec/permission';
+
+// Validate data
+const result = RLSEvaluationResultSchema.parse(data);
+
+// Type-safe usage
+const myRLSEvaluationResult: RLSEvaluationResult = {
+  policyName: 'example',
+  granted: false
+};
+```
+

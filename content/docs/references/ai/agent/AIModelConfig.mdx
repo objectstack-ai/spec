@@ -1,7 +1,17 @@
 ---
 title: AIModelConfig
 description: AIModelConfig Schema Reference
+category: ai
+zodFile: agent
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/agent.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,19 @@ description: AIModelConfig Schema Reference
 | **temperature** | `number` | optional |  |
 | **maxTokens** | `number` | optional |  |
 | **topP** | `number` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { AIModelConfigSchema } from '@objectstack/spec/ai';
+import type { AIModelConfig } from '@objectstack/spec/ai';
+
+// Validate data
+const result = AIModelConfigSchema.parse(data);
+
+// Type-safe usage
+const myAIModelConfig: AIModelConfig = {
+  model: 'example'
+};
+```
+

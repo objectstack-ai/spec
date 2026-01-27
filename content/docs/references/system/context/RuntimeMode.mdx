@@ -1,9 +1,19 @@
 ---
 title: RuntimeMode
 description: Kernel operating mode
+category: system
+zodFile: context
 ---
 
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
 Kernel operating mode
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/context.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -11,3 +21,13 @@ Kernel operating mode
 * `production`
 * `test`
 * `provisioning`
+
+## TypeScript Usage
+
+```typescript
+import { RuntimeMode } from '@objectstack/spec/system';
+
+// Type-safe enum value
+const value: RuntimeMode = 'development';
+```
+

@@ -1,7 +1,17 @@
 ---
 title: CSRFConfig
 description: CSRFConfig Schema Reference
+category: auth
+zodFile: config
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/config.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,18 @@ description: CSRFConfig Schema Reference
 | **tokenLength** | `number` | optional | CSRF token length |
 | **cookieName** | `string` | optional | CSRF cookie name |
 | **headerName** | `string` | optional | CSRF header name |
+
+## TypeScript Usage
+
+```typescript
+import { CSRFConfigSchema } from '@objectstack/spec/auth';
+import type { CSRFConfig } from '@objectstack/spec/auth';
+
+// Validate data
+const result = CSRFConfigSchema.parse(data);
+
+// Type-safe usage
+const myCSRFConfig: CSRFConfig = {
+};
+```
+

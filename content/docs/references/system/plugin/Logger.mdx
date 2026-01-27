@@ -1,9 +1,19 @@
 ---
 title: Logger
 description: Structured Logger
+category: system
+zodFile: plugin
 ---
 
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
 Structured Logger
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/plugin.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,18 @@ Structured Logger
 | **info** | `any` | optional | (message: string, ...meta: any[]) => void |
 | **warn** | `any` | optional | (message: string, ...meta: any[]) => void |
 | **error** | `any` | optional | (message: string, ...meta: any[]) => void |
+
+## TypeScript Usage
+
+```typescript
+import { LoggerSchema } from '@objectstack/spec/system';
+import type { Logger } from '@objectstack/spec/system';
+
+// Validate data
+const result = LoggerSchema.parse(data);
+
+// Type-safe usage
+const myLogger: Logger = {
+};
+```
+

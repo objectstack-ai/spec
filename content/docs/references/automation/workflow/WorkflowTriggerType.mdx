@@ -1,7 +1,17 @@
 ---
 title: WorkflowTriggerType
 description: WorkflowTriggerType Schema Reference
+category: automation
+zodFile: workflow
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/workflow.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -10,3 +20,13 @@ description: WorkflowTriggerType Schema Reference
 * `on_create_or_update`
 * `on_delete`
 * `schedule`
+
+## TypeScript Usage
+
+```typescript
+import { WorkflowTriggerType } from '@objectstack/spec/automation';
+
+// Type-safe enum value
+const value: WorkflowTriggerType = 'on_create';
+```
+

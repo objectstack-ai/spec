@@ -1,7 +1,17 @@
 ---
 title: RLSConfig
 description: RLSConfig Schema Reference
+category: permission
+zodFile: rls
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/permission/rls.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -15,3 +25,18 @@ description: RLSConfig Schema Reference
 | **cacheResults** | `boolean` | optional | Cache RLS evaluation results |
 | **cacheTtlSeconds** | `integer` | optional | Cache TTL in seconds |
 | **prefetchUserContext** | `boolean` | optional | Pre-fetch user context for performance |
+
+## TypeScript Usage
+
+```typescript
+import { RLSConfigSchema } from '@objectstack/spec/permission';
+import type { RLSConfig } from '@objectstack/spec/permission';
+
+// Validate data
+const result = RLSConfigSchema.parse(data);
+
+// Type-safe usage
+const myRLSConfig: RLSConfig = {
+};
+```
+

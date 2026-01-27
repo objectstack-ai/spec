@@ -1,7 +1,17 @@
 ---
 title: JoinNode
 description: JoinNode Schema Reference
+category: data
+zodFile: query
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/query.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,21 @@ description: JoinNode Schema Reference
 | **alias** | `string` | optional | Table alias |
 | **on** | `any` | ✅ | Join condition |
 | **subquery** | `object` | optional | Subquery instead of object |
+
+## TypeScript Usage
+
+```typescript
+import { JoinNodeSchema } from '@objectstack/spec/data';
+import type { JoinNode } from '@objectstack/spec/data';
+
+// Validate data
+const result = JoinNodeSchema.parse(data);
+
+// Type-safe usage
+const myJoinNode: JoinNode = {
+  type: 'inner',
+  object: 'example',
+  on: null
+};
+```
+

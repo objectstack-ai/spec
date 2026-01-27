@@ -1,7 +1,17 @@
 ---
 title: ComparisonOperator
 description: ComparisonOperator Schema Reference
+category: data
+zodFile: filter
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/filter.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,18 @@ description: ComparisonOperator Schema Reference
 | **$gte** | `number \| string \| object` | optional |  |
 | **$lt** | `number \| string \| object` | optional |  |
 | **$lte** | `number \| string \| object` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { ComparisonOperatorSchema } from '@objectstack/spec/data';
+import type { ComparisonOperator } from '@objectstack/spec/data';
+
+// Validate data
+const result = ComparisonOperatorSchema.parse(data);
+
+// Type-safe usage
+const myComparisonOperator: ComparisonOperator = {
+};
+```
+

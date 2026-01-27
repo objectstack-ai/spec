@@ -1,0 +1,132 @@
+---
+title: UI Protocol Overview
+description: Complete reference for all ui protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Database, Cpu, Zap } from 'lucide-react';
+
+# UI Protocol
+
+This section contains all protocol schemas for the ui layer of ObjectStack.
+
+## Action
+
+Source: `packages/spec/src/ui/action.zod.ts`
+
+<Cards>
+  <Card href="./action/Action" title="Action" description="Action schema reference" />
+  <Card href="./action/ActionParam" title="ActionParam" description="ActionParam schema reference" />
+</Cards>
+
+## App
+
+Source: `packages/spec/src/ui/app.zod.ts`
+
+<Cards>
+  <Card href="./app/App" title="App" description="App schema reference" />
+  <Card href="./app/AppBranding" title="AppBranding" description="AppBranding schema reference" />
+  <Card href="./app/DashboardNavItem" title="DashboardNavItem" description="DashboardNavItem schema reference" />
+  <Card href="./app/GroupNavItem" title="GroupNavItem" description="GroupNavItem schema reference" />
+  <Card href="./app/NavigationItem" title="NavigationItem" description="NavigationItem schema reference" />
+  <Card href="./app/ObjectNavItem" title="ObjectNavItem" description="ObjectNavItem schema reference" />
+  <Card href="./app/PageNavItem" title="PageNavItem" description="PageNavItem schema reference" />
+  <Card href="./app/UrlNavItem" title="UrlNavItem" description="UrlNavItem schema reference" />
+</Cards>
+
+## Component
+
+Source: `packages/spec/src/ui/component.zod.ts`
+
+<Cards>
+  <Card href="./component/PageCardProps" title="PageCardProps" description="PageCardProps schema reference" />
+  <Card href="./component/PageHeaderProps" title="PageHeaderProps" description="PageHeaderProps schema reference" />
+  <Card href="./component/PageTabsProps" title="PageTabsProps" description="PageTabsProps schema reference" />
+  <Card href="./component/RecordDetailsProps" title="RecordDetailsProps" description="RecordDetailsProps schema reference" />
+  <Card href="./component/RecordHighlightsProps" title="RecordHighlightsProps" description="RecordHighlightsProps schema reference" />
+  <Card href="./component/RecordRelatedListProps" title="RecordRelatedListProps" description="RecordRelatedListProps schema reference" />
+</Cards>
+
+## Dashboard
+
+Source: `packages/spec/src/ui/dashboard.zod.ts`
+
+<Cards>
+  <Card href="./dashboard/ChartType" title="ChartType" description="ChartType schema reference" />
+  <Card href="./dashboard/Dashboard" title="Dashboard" description="Dashboard schema reference" />
+  <Card href="./dashboard/DashboardWidget" title="DashboardWidget" description="DashboardWidget schema reference" />
+</Cards>
+
+## Page
+
+Source: `packages/spec/src/ui/page.zod.ts`
+
+<Cards>
+  <Card href="./page/Page" title="Page" description="Page schema reference" />
+  <Card href="./page/PageComponent" title="PageComponent" description="PageComponent schema reference" />
+  <Card href="./page/PageComponentType" title="PageComponentType" description="PageComponentType schema reference" />
+  <Card href="./page/PageRegion" title="PageRegion" description="PageRegion schema reference" />
+</Cards>
+
+## Report
+
+Source: `packages/spec/src/ui/report.zod.ts`
+
+<Cards>
+  <Card href="./report/Report" title="Report" description="Report schema reference" />
+  <Card href="./report/ReportChart" title="ReportChart" description="ReportChart schema reference" />
+  <Card href="./report/ReportColumn" title="ReportColumn" description="ReportColumn schema reference" />
+  <Card href="./report/ReportGrouping" title="ReportGrouping" description="ReportGrouping schema reference" />
+  <Card href="./report/ReportType" title="ReportType" description="ReportType schema reference" />
+</Cards>
+
+## Theme
+
+Source: `packages/spec/src/ui/theme.zod.ts`
+
+<Cards>
+  <Card href="./theme/Animation" title="Animation" description="Animation schema reference" />
+  <Card href="./theme/BorderRadius" title="BorderRadius" description="BorderRadius schema reference" />
+  <Card href="./theme/Breakpoints" title="Breakpoints" description="Breakpoints schema reference" />
+  <Card href="./theme/ColorPalette" title="ColorPalette" description="ColorPalette schema reference" />
+  <Card href="./theme/Shadow" title="Shadow" description="Shadow schema reference" />
+  <Card href="./theme/Spacing" title="Spacing" description="Spacing schema reference" />
+  <Card href="./theme/Theme" title="Theme" description="Theme schema reference" />
+  <Card href="./theme/ThemeMode" title="ThemeMode" description="ThemeMode schema reference" />
+  <Card href="./theme/Typography" title="Typography" description="Typography schema reference" />
+  <Card href="./theme/ZIndex" title="ZIndex" description="ZIndex schema reference" />
+</Cards>
+
+## View
+
+Source: `packages/spec/src/ui/view.zod.ts`
+
+<Cards>
+  <Card href="./view/CalendarConfig" title="CalendarConfig" description="CalendarConfig schema reference" />
+  <Card href="./view/FormField" title="FormField" description="FormField schema reference" />
+  <Card href="./view/FormSection" title="FormSection" description="FormSection schema reference" />
+  <Card href="./view/FormView" title="FormView" description="FormView schema reference" />
+  <Card href="./view/GanttConfig" title="GanttConfig" description="GanttConfig schema reference" />
+  <Card href="./view/HttpMethod" title="HttpMethod" description="HttpMethod schema reference" />
+  <Card href="./view/HttpRequest" title="HttpRequest" description="HttpRequest schema reference" />
+  <Card href="./view/KanbanConfig" title="KanbanConfig" description="KanbanConfig schema reference" />
+  <Card href="./view/ListColumn" title="ListColumn" description="ListColumn schema reference" />
+  <Card href="./view/ListView" title="ListView" description="ListView schema reference" />
+  <Card href="./view/PaginationConfig" title="PaginationConfig" description="PaginationConfig schema reference" />
+  <Card href="./view/SelectionConfig" title="SelectionConfig" description="SelectionConfig schema reference" />
+  <Card href="./view/View" title="View" description="View schema reference" />
+  <Card href="./view/ViewData" title="ViewData" description="ViewData schema reference" />
+</Cards>
+
+## Widget
+
+Source: `packages/spec/src/ui/widget.zod.ts`
+
+<Cards>
+  <Card href="./widget/FieldWidgetProps" title="FieldWidgetProps" description="FieldWidgetProps schema reference" />
+  <Card href="./widget/WidgetEvent" title="WidgetEvent" description="WidgetEvent schema reference" />
+  <Card href="./widget/WidgetLifecycle" title="WidgetLifecycle" description="WidgetLifecycle schema reference" />
+  <Card href="./widget/WidgetManifest" title="WidgetManifest" description="WidgetManifest schema reference" />
+  <Card href="./widget/WidgetProperty" title="WidgetProperty" description="WidgetProperty schema reference" />
+</Cards>
+

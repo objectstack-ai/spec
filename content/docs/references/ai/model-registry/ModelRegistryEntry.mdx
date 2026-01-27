@@ -1,7 +1,17 @@
 ---
 title: ModelRegistryEntry
 description: ModelRegistryEntry Schema Reference
+category: ai
+zodFile: model-registry
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/model-registry.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,19 @@ description: ModelRegistryEntry Schema Reference
 | **priority** | `integer` | optional | Priority for model selection |
 | **fallbackModels** | `string[]` | optional | Fallback model IDs |
 | **healthCheck** | `object` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { ModelRegistryEntrySchema } from '@objectstack/spec/ai';
+import type { ModelRegistryEntry } from '@objectstack/spec/ai';
+
+// Validate data
+const result = ModelRegistryEntrySchema.parse(data);
+
+// Type-safe usage
+const myModelRegistryEntry: ModelRegistryEntry = {
+  model: {}
+};
+```
+

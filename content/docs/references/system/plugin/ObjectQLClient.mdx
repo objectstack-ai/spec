@@ -1,11 +1,36 @@
 ---
 title: ObjectQLClient
 description: ObjectQL Data Access Client
+category: system
+zodFile: plugin
 ---
 
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
 ObjectQL Data Access Client
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/plugin.zod.ts`
+</Callout>
 
 ## Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
+
+## TypeScript Usage
+
+```typescript
+import { ObjectQLClientSchema } from '@objectstack/spec/system';
+import type { ObjectQLClient } from '@objectstack/spec/system';
+
+// Validate data
+const result = ObjectQLClientSchema.parse(data);
+
+// Type-safe usage
+const myObjectQLClient: ObjectQLClient = {
+};
+```
+

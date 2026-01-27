@@ -1,7 +1,17 @@
 ---
 title: AITaskType
 description: AITaskType Schema Reference
+category: ai
+zodFile: orchestration
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/orchestration.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -15,3 +25,13 @@ description: AITaskType Schema Reference
 * `entity_recognition`
 * `anomaly_detection`
 * `recommendation`
+
+## TypeScript Usage
+
+```typescript
+import { AITaskType } from '@objectstack/spec/ai';
+
+// Type-safe enum value
+const value: AITaskType = 'classify';
+```
+

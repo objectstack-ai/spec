@@ -1,7 +1,17 @@
 ---
 title: ETLPipelineRun
 description: ETLPipelineRun Schema Reference
+category: automation
+zodFile: etl
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/etl.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -16,3 +26,22 @@ description: ETLPipelineRun Schema Reference
 | **stats** | `object` | optional | Run statistics |
 | **error** | `object` | optional | Error information |
 | **logs** | `string[]` | optional | Execution logs |
+
+## TypeScript Usage
+
+```typescript
+import { ETLPipelineRunSchema } from '@objectstack/spec/automation';
+import type { ETLPipelineRun } from '@objectstack/spec/automation';
+
+// Validate data
+const result = ETLPipelineRunSchema.parse(data);
+
+// Type-safe usage
+const myETLPipelineRun: ETLPipelineRun = {
+  id: 'example',
+  pipelineName: 'example',
+  status: 'pending',
+  // ... other fields
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: Discovery
 description: Discovery Schema Reference
+category: api
+zodFile: discovery
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/discovery.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,22 @@ description: Discovery Schema Reference
 | **routes** | `object` | ✅ |  |
 | **features** | `object` | ✅ |  |
 | **locale** | `object` | ✅ |  |
+
+## TypeScript Usage
+
+```typescript
+import { DiscoverySchema } from '@objectstack/spec/api';
+import type { Discovery } from '@objectstack/spec/api';
+
+// Validate data
+const result = DiscoverySchema.parse(data);
+
+// Type-safe usage
+const myDiscovery: Discovery = {
+  name: 'name',
+  version: 'example',
+  environment: 'production',
+  // ... other fields
+};
+```
+

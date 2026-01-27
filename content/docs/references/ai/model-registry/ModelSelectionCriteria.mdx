@@ -1,7 +1,17 @@
 ---
 title: ModelSelectionCriteria
 description: ModelSelectionCriteria Schema Reference
+category: ai
+zodFile: model-registry
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/model-registry.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,18 @@ description: ModelSelectionCriteria Schema Reference
 | **provider** | `Enum<'openai' \| 'azure_openai' \| 'anthropic' \| 'google' \| 'cohere' \| 'huggingface' \| 'local' \| 'custom'>` | optional |  |
 | **tags** | `string[]` | optional |  |
 | **excludeDeprecated** | `boolean` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { ModelSelectionCriteriaSchema } from '@objectstack/spec/ai';
+import type { ModelSelectionCriteria } from '@objectstack/spec/ai';
+
+// Validate data
+const result = ModelSelectionCriteriaSchema.parse(data);
+
+// Type-safe usage
+const myModelSelectionCriteria: ModelSelectionCriteria = {
+};
+```
+

@@ -1,7 +1,17 @@
 ---
 title: ODataFilterOperator
 description: ODataFilterOperator Schema Reference
+category: api
+zodFile: odata
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/odata.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -18,3 +28,13 @@ description: ODataFilterOperator Schema Reference
 * `)`
 * `in`
 * `has`
+
+## TypeScript Usage
+
+```typescript
+import { ODataFilterOperator } from '@objectstack/spec/api';
+
+// Type-safe enum value
+const value: ODataFilterOperator = 'eq';
+```
+

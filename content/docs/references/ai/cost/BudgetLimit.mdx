@@ -1,7 +1,17 @@
 ---
 title: BudgetLimit
 description: BudgetLimit Schema Reference
+category: ai
+zodFile: cost
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/cost.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -23,3 +33,21 @@ description: BudgetLimit Schema Reference
 | **description** | `string` | optional |  |
 | **active** | `boolean` | optional |  |
 | **tags** | `string[]` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { BudgetLimitSchema } from '@objectstack/spec/ai';
+import type { BudgetLimit } from '@objectstack/spec/ai';
+
+// Validate data
+const result = BudgetLimitSchema.parse(data);
+
+// Type-safe usage
+const myBudgetLimit: BudgetLimit = {
+  type: 'global',
+  maxCost: 0,
+  period: 'hourly'
+};
+```
+

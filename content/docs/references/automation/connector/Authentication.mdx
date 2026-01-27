@@ -1,7 +1,17 @@
 ---
 title: Authentication
 description: Authentication Schema Reference
+category: automation
+zodFile: connector
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/connector.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,19 @@ description: Authentication Schema Reference
 | **fields** | `object[]` | optional | Authentication fields |
 | **oauth2** | `object` | optional | OAuth 2.0 configuration |
 | **test** | `object` | optional | Authentication test configuration |
+
+## TypeScript Usage
+
+```typescript
+import { AuthenticationSchema } from '@objectstack/spec/automation';
+import type { Authentication } from '@objectstack/spec/automation';
+
+// Validate data
+const result = AuthenticationSchema.parse(data);
+
+// Type-safe usage
+const myAuthentication: Authentication = {
+  type: 'none'
+};
+```
+

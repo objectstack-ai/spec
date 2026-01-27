@@ -1,7 +1,17 @@
 ---
 title: Tenant
 description: Tenant Schema Reference
+category: hub
+zodFile: tenant
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/hub/tenant.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,21 @@ description: Tenant Schema Reference
 | **isolationLevel** | `Enum<'shared_schema' \| 'isolated_schema' \| 'isolated_db'>` | ✅ |  |
 | **customizations** | `Record<string, any>` | optional | Custom configuration values |
 | **quotas** | `object` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { TenantSchema } from '@objectstack/spec/hub';
+import type { Tenant } from '@objectstack/spec/hub';
+
+// Validate data
+const result = TenantSchema.parse(data);
+
+// Type-safe usage
+const myTenant: Tenant = {
+  id: 'example',
+  name: 'name',
+  isolationLevel: 'shared_schema'
+};
+```
+

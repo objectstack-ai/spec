@@ -1,7 +1,17 @@
 ---
 title: Territory
 description: Territory Schema Reference
+category: permission
+zodFile: territory
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/permission/territory.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -17,3 +27,21 @@ description: Territory Schema Reference
 | **accountAccess** | `Enum<'read' \| 'edit'>` | optional |  |
 | **opportunityAccess** | `Enum<'read' \| 'edit'>` | optional |  |
 | **caseAccess** | `Enum<'read' \| 'edit'>` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { TerritorySchema } from '@objectstack/spec/permission';
+import type { Territory } from '@objectstack/spec/permission';
+
+// Validate data
+const result = TerritorySchema.parse(data);
+
+// Type-safe usage
+const myTerritory: Territory = {
+  name: 'name',
+  label: 'example',
+  modelId: 'example'
+};
+```
+

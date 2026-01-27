@@ -1,7 +1,17 @@
 ---
 title: Agent
 description: Agent Schema Reference
+category: ai
+zodFile: agent
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/agent.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -17,3 +27,22 @@ description: Agent Schema Reference
 | **knowledge** | `object` | optional | RAG access |
 | **active** | `boolean` | optional |  |
 | **access** | `string[]` | optional | Who can chat with this agent |
+
+## TypeScript Usage
+
+```typescript
+import { AgentSchema } from '@objectstack/spec/ai';
+import type { Agent } from '@objectstack/spec/ai';
+
+// Validate data
+const result = AgentSchema.parse(data);
+
+// Type-safe usage
+const myAgent: Agent = {
+  name: 'name',
+  label: 'example',
+  role: 'example',
+  // ... other fields
+};
+```
+

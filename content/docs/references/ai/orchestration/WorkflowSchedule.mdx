@@ -1,7 +1,17 @@
 ---
 title: WorkflowSchedule
 description: WorkflowSchedule Schema Reference
+category: ai
+zodFile: orchestration
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/orchestration.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -14,3 +24,18 @@ description: WorkflowSchedule Schema Reference
 | **dayOfWeek** | `integer` | optional | Day of week for weekly (0=Sunday) |
 | **dayOfMonth** | `integer` | optional | Day of month for monthly |
 | **timezone** | `string` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { WorkflowScheduleSchema } from '@objectstack/spec/ai';
+import type { WorkflowSchedule } from '@objectstack/spec/ai';
+
+// Validate data
+const result = WorkflowScheduleSchema.parse(data);
+
+// Type-safe usage
+const myWorkflowSchedule: WorkflowSchedule = {
+};
+```
+

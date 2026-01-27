@@ -1,7 +1,17 @@
 ---
 title: FlowVariable
 description: FlowVariable Schema Reference
+category: automation
+zodFile: flow
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/flow.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,20 @@ description: FlowVariable Schema Reference
 | **type** | `string` | ✅ | Data type (text, number, boolean, object, list) |
 | **isInput** | `boolean` | optional | Is input parameter |
 | **isOutput** | `boolean` | optional | Is output parameter |
+
+## TypeScript Usage
+
+```typescript
+import { FlowVariableSchema } from '@objectstack/spec/automation';
+import type { FlowVariable } from '@objectstack/spec/automation';
+
+// Validate data
+const result = FlowVariableSchema.parse(data);
+
+// Type-safe usage
+const myFlowVariable: FlowVariable = {
+  name: 'name',
+  type: 'example'
+};
+```
+

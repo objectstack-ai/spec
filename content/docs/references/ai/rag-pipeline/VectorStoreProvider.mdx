@@ -1,7 +1,17 @@
 ---
 title: VectorStoreProvider
 description: VectorStoreProvider Schema Reference
+category: ai
+zodFile: rag-pipeline
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/rag-pipeline.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -15,3 +25,13 @@ description: VectorStoreProvider Schema Reference
 * `opensearch`
 * `elasticsearch`
 * `custom`
+
+## TypeScript Usage
+
+```typescript
+import { VectorStoreProvider } from '@objectstack/spec/ai';
+
+// Type-safe enum value
+const value: VectorStoreProvider = 'pinecone';
+```
+

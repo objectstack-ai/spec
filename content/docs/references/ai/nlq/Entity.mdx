@@ -1,7 +1,17 @@
 ---
 title: Entity
 description: Entity Schema Reference
+category: ai
+zodFile: nlq
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/nlq.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,21 @@ description: Entity Schema Reference
 | **value** | `any` | optional | Normalized value |
 | **confidence** | `number` | ✅ | Confidence score |
 | **span** | `any[]` | optional | Character span in query |
+
+## TypeScript Usage
+
+```typescript
+import { EntitySchema } from '@objectstack/spec/ai';
+import type { Entity } from '@objectstack/spec/ai';
+
+// Validate data
+const result = EntitySchema.parse(data);
+
+// Type-safe usage
+const myEntity: Entity = {
+  type: 'object',
+  text: 'example',
+  confidence: 0
+};
+```
+

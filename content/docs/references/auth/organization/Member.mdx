@@ -1,7 +1,17 @@
 ---
 title: Member
 description: Member Schema Reference
+category: auth
+zodFile: organization
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/organization.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,22 @@ description: Member Schema Reference
 | **role** | `string` | ✅ | Member role (e.g., owner, admin, member, guest) |
 | **createdAt** | `string` | ✅ | Member creation timestamp |
 | **updatedAt** | `string` | ✅ | Last update timestamp |
+
+## TypeScript Usage
+
+```typescript
+import { MemberSchema } from '@objectstack/spec/auth';
+import type { Member } from '@objectstack/spec/auth';
+
+// Validate data
+const result = MemberSchema.parse(data);
+
+// Type-safe usage
+const myMember: Member = {
+  id: 'example',
+  organizationId: 'example',
+  userId: 'example',
+  // ... other fields
+};
+```
+

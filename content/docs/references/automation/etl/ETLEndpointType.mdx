@@ -1,7 +1,17 @@
 ---
 title: ETLEndpointType
 description: ETLEndpointType Schema Reference
+category: automation
+zodFile: etl
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/etl.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -13,3 +23,13 @@ description: ETLEndpointType Schema Reference
 * `warehouse`
 * `storage`
 * `spreadsheet`
+
+## TypeScript Usage
+
+```typescript
+import { ETLEndpointType } from '@objectstack/spec/automation';
+
+// Type-safe enum value
+const value: ETLEndpointType = 'database';
+```
+

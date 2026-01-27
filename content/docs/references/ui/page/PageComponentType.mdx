@@ -1,7 +1,17 @@
 ---
 title: PageComponentType
 description: PageComponentType Schema Reference
+category: ui
+zodFile: page
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/page.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -26,3 +36,13 @@ description: PageComponentType Schema Reference
 * `user:profile`
 * `ai:chat_window`
 * `ai:suggestion`
+
+## TypeScript Usage
+
+```typescript
+import { PageComponentType } from '@objectstack/spec/ui';
+
+// Type-safe enum value
+const value: PageComponentType = 'page:header';
+```
+

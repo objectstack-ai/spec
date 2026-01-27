@@ -1,7 +1,17 @@
 ---
 title: ETLSource
 description: ETLSource Schema Reference
+category: automation
+zodFile: etl
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/etl.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,20 @@ description: ETLSource Schema Reference
 | **connector** | `string` | optional | Connector ID |
 | **config** | `Record<string, any>` | ✅ | Source configuration |
 | **incremental** | `object` | optional | Incremental extraction config |
+
+## TypeScript Usage
+
+```typescript
+import { ETLSourceSchema } from '@objectstack/spec/automation';
+import type { ETLSource } from '@objectstack/spec/automation';
+
+// Validate data
+const result = ETLSourceSchema.parse(data);
+
+// Type-safe usage
+const myETLSource: ETLSource = {
+  type: 'database',
+  config: {}
+};
+```
+

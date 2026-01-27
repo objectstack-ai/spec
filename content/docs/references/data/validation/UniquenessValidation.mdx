@@ -1,7 +1,17 @@
 ---
 title: UniquenessValidation
 description: UniquenessValidation Schema Reference
+category: data
+zodFile: validation
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/validation.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -19,3 +29,22 @@ description: UniquenessValidation Schema Reference
 | **fields** | `string[]` | ✅ | Fields that must be combined unique |
 | **scope** | `string` | optional | Formula condition for scope (e.g. active = true) |
 | **caseSensitive** | `boolean` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { UniquenessValidationSchema } from '@objectstack/spec/data';
+import type { UniquenessValidation } from '@objectstack/spec/data';
+
+// Validate data
+const result = UniquenessValidationSchema.parse(data);
+
+// Type-safe usage
+const myUniquenessValidation: UniquenessValidation = {
+  name: 'name',
+  message: 'example',
+  type: 'example',
+  // ... other fields
+};
+```
+

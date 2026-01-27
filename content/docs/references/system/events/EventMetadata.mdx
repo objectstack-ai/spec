@@ -1,7 +1,17 @@
 ---
 title: EventMetadata
 description: EventMetadata Schema Reference
+category: system
+zodFile: events
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/events.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -11,3 +21,20 @@ description: EventMetadata Schema Reference
 | **timestamp** | `string` | ✅ | ISO 8601 datetime when event was created |
 | **userId** | `string` | optional | User who triggered the event |
 | **tenantId** | `string` | optional | Tenant identifier for multi-tenant systems |
+
+## TypeScript Usage
+
+```typescript
+import { EventMetadataSchema } from '@objectstack/spec/system';
+import type { EventMetadata } from '@objectstack/spec/system';
+
+// Validate data
+const result = EventMetadataSchema.parse(data);
+
+// Type-safe usage
+const myEventMetadata: EventMetadata = {
+  source: 'example',
+  timestamp: 'example'
+};
+```
+

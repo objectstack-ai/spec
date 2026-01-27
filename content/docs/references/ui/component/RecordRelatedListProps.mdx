@@ -1,7 +1,17 @@
 ---
 title: RecordRelatedListProps
 description: RecordRelatedListProps Schema Reference
+category: ui
+zodFile: component
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/component.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -12,3 +22,21 @@ description: RecordRelatedListProps Schema Reference
 | **columns** | `string[]` | ✅ | Fields to display |
 | **sort** | `string` | optional |  |
 | **limit** | `number` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { RecordRelatedListPropsSchema } from '@objectstack/spec/ui';
+import type { RecordRelatedListProps } from '@objectstack/spec/ui';
+
+// Validate data
+const result = RecordRelatedListPropsSchema.parse(data);
+
+// Type-safe usage
+const myRecordRelatedListProps: RecordRelatedListProps = {
+  objectName: 'example',
+  relationshipField: 'example',
+  columns: []
+};
+```
+

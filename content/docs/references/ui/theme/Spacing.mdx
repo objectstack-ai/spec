@@ -1,7 +1,17 @@
 ---
 title: Spacing
 description: Spacing Schema Reference
+category: ui
+zodFile: theme
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/theme.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -20,3 +30,18 @@ description: Spacing Schema Reference
 | **16** | `string` | optional | Spacing unit 16 (e.g., 4rem) |
 | **20** | `string` | optional | Spacing unit 20 (e.g., 5rem) |
 | **24** | `string` | optional | Spacing unit 24 (e.g., 6rem) |
+
+## TypeScript Usage
+
+```typescript
+import { SpacingSchema } from '@objectstack/spec/ui';
+import type { Spacing } from '@objectstack/spec/ui';
+
+// Validate data
+const result = SpacingSchema.parse(data);
+
+// Type-safe usage
+const mySpacing: Spacing = {
+};
+```
+

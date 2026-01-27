@@ -1,10 +1,35 @@
 ---
 title: SelectionConfig
 description: SelectionConfig Schema Reference
+category: ui
+zodFile: view
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/view.zod.ts`
+</Callout>
 
 ## Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **type** | `Enum<'none' \| 'single' \| 'multiple'>` | optional | Selection mode |
+
+## TypeScript Usage
+
+```typescript
+import { SelectionConfigSchema } from '@objectstack/spec/ui';
+import type { SelectionConfig } from '@objectstack/spec/ui';
+
+// Validate data
+const result = SelectionConfigSchema.parse(data);
+
+// Type-safe usage
+const mySelectionConfig: SelectionConfig = {
+};
+```
+

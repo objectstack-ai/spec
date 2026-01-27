@@ -1,7 +1,17 @@
 ---
 title: DriverInterface
 description: DriverInterface Schema Reference
+category: system
+zodFile: driver
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/driver.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -10,3 +20,21 @@ description: DriverInterface Schema Reference
 | **name** | `string` | ✅ | Driver unique name |
 | **version** | `string` | ✅ | Driver version |
 | **supports** | `object` | ✅ |  |
+
+## TypeScript Usage
+
+```typescript
+import { DriverInterfaceSchema } from '@objectstack/spec/system';
+import type { DriverInterface } from '@objectstack/spec/system';
+
+// Validate data
+const result = DriverInterfaceSchema.parse(data);
+
+// Type-safe usage
+const myDriverInterface: DriverInterface = {
+  name: 'name',
+  version: 'example',
+  supports: {}
+};
+```
+

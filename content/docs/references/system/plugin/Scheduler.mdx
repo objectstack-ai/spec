@@ -1,11 +1,36 @@
 ---
 title: Scheduler
 description: Job Scheduler Interface
+category: system
+zodFile: plugin
 ---
 
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
 Job Scheduler Interface
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/plugin.zod.ts`
+</Callout>
 
 ## Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
+
+## TypeScript Usage
+
+```typescript
+import { SchedulerSchema } from '@objectstack/spec/system';
+import type { Scheduler } from '@objectstack/spec/system';
+
+// Validate data
+const result = SchedulerSchema.parse(data);
+
+// Type-safe usage
+const myScheduler: Scheduler = {
+};
+```
+

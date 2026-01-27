@@ -1,7 +1,17 @@
 ---
 title: TokenBudgetStrategy
 description: TokenBudgetStrategy Schema Reference
+category: ai
+zodFile: conversation
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/conversation.zod.ts`
+</Callout>
 
 ## Allowed Values
 
@@ -10,3 +20,13 @@ description: TokenBudgetStrategy Schema Reference
 * `semantic`
 * `sliding_window`
 * `summary`
+
+## TypeScript Usage
+
+```typescript
+import { TokenBudgetStrategy } from '@objectstack/spec/ai';
+
+// Type-safe enum value
+const value: TokenBudgetStrategy = 'fifo';
+```
+

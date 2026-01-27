@@ -1,7 +1,17 @@
 ---
 title: ModificationResult
 description: ModificationResult Schema Reference
+category: api
+zodFile: contract
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/contract.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -10,3 +20,19 @@ description: ModificationResult Schema Reference
 | **id** | `string` | optional | Record ID if processed |
 | **success** | `boolean` | ✅ |  |
 | **errors** | `object[]` | optional |  |
+
+## TypeScript Usage
+
+```typescript
+import { ModificationResultSchema } from '@objectstack/spec/api';
+import type { ModificationResult } from '@objectstack/spec/api';
+
+// Validate data
+const result = ModificationResultSchema.parse(data);
+
+// Type-safe usage
+const myModificationResult: ModificationResult = {
+  success: false
+};
+```
+

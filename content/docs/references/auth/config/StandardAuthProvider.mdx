@@ -1,7 +1,17 @@
 ---
 title: StandardAuthProvider
 description: StandardAuthProvider Schema Reference
+category: auth
+zodFile: config
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/config.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -9,3 +19,20 @@ description: StandardAuthProvider Schema Reference
 | :--- | :--- | :--- | :--- |
 | **type** | `string` | ✅ | Provider type identifier |
 | **config** | `object` | ✅ | Standard authentication configuration |
+
+## TypeScript Usage
+
+```typescript
+import { StandardAuthProviderSchema } from '@objectstack/spec/auth';
+import type { StandardAuthProvider } from '@objectstack/spec/auth';
+
+// Validate data
+const result = StandardAuthProviderSchema.parse(data);
+
+// Type-safe usage
+const myStandardAuthProvider: StandardAuthProvider = {
+  type: 'example',
+  config: {}
+};
+```
+

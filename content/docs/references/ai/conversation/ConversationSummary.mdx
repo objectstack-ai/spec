@@ -1,7 +1,17 @@
 ---
 title: ConversationSummary
 description: ConversationSummary Schema Reference
+category: ai
+zodFile: conversation
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/conversation.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -15,3 +25,22 @@ description: ConversationSummary Schema Reference
 | **messageRange** | `object` | ✅ | Range of messages summarized |
 | **generatedAt** | `string` | ✅ | ISO 8601 timestamp |
 | **modelId** | `string` | optional | Model used for summarization |
+
+## TypeScript Usage
+
+```typescript
+import { ConversationSummarySchema } from '@objectstack/spec/ai';
+import type { ConversationSummary } from '@objectstack/spec/ai';
+
+// Validate data
+const result = ConversationSummarySchema.parse(data);
+
+// Type-safe usage
+const myConversationSummary: ConversationSummary = {
+  summary: 'example',
+  originalTokens: null,
+  summaryTokens: null,
+  // ... other fields
+};
+```
+

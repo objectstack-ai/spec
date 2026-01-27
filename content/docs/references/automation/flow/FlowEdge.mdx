@@ -1,7 +1,17 @@
 ---
 title: FlowEdge
 description: FlowEdge Schema Reference
+category: automation
+zodFile: flow
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/flow.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -13,3 +23,21 @@ description: FlowEdge Schema Reference
 | **condition** | `string` | optional | Expression returning boolean used for branching |
 | **type** | `Enum<'default' \| 'fault'>` | optional | Connection type: Standard (Success) or Fault (Error) path |
 | **label** | `string` | optional | Label on the connector |
+
+## TypeScript Usage
+
+```typescript
+import { FlowEdgeSchema } from '@objectstack/spec/automation';
+import type { FlowEdge } from '@objectstack/spec/automation';
+
+// Validate data
+const result = FlowEdgeSchema.parse(data);
+
+// Type-safe usage
+const myFlowEdge: FlowEdge = {
+  id: 'example',
+  source: 'example',
+  target: 'example'
+};
+```
+

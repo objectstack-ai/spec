@@ -1,7 +1,17 @@
 ---
 title: FieldWidgetProps
 description: FieldWidgetProps Schema Reference
+category: ui
+zodFile: widget
 ---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/widget.zod.ts`
+</Callout>
 
 ## Properties
 
@@ -14,3 +24,19 @@ description: FieldWidgetProps Schema Reference
 | **field** | `object` | ✅ | Field schema definition |
 | **record** | `Record<string, any>` | optional | Complete record data |
 | **options** | `Record<string, any>` | optional | Custom widget options |
+
+## TypeScript Usage
+
+```typescript
+import { FieldWidgetPropsSchema } from '@objectstack/spec/ui';
+import type { FieldWidgetProps } from '@objectstack/spec/ui';
+
+// Validate data
+const result = FieldWidgetPropsSchema.parse(data);
+
+// Type-safe usage
+const myFieldWidgetProps: FieldWidgetProps = {
+  field: {}
+};
+```
+
