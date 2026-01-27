@@ -198,7 +198,7 @@ export const ServiceDashboard: Dashboard = {
     // Row 2: Case Distribution
     {
       title: 'Cases by Status',
-      type: 'donut',
+      type: 'pie',
       object: 'case',
       filter: { is_closed: false },
       categoryField: 'status',

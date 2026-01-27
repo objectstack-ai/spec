@@ -46,7 +46,6 @@
             "summary",
             "autonumber",
             "location",
-            "geolocation",
             "address",
             "code",
             "json",
