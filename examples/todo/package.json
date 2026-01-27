@@ -4,7 +4,7 @@
   "description": "Example Todo App using ObjectStack Protocol",
   "private": true,
   "scripts": {
-    "build": "tsc"
+    "build": "npx tsx ../../packages/spec/src/cli/compile.ts objectstack.config.ts dist/objectstack.json"
   },
   "dependencies": {
     "@objectstack/spec": "workspace:*",

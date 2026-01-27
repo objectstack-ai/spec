@@ -103,6 +103,11 @@ export type ObjectStackDefinition = z.infer<typeof ObjectStackDefinitionSchema>;
 export const ObjectStackSchema = ObjectStackDefinitionSchema;
 export type ObjectStack = ObjectStackDefinition;
 
+/**
+ * Type-safe helper to define a project configuration.
+ */
+export const defineStack = (config: ObjectStackDefinition) => config;
+
 
 /**
  * 2. RUNTIME CAPABILITIES PROTOCOL (Dynamic)

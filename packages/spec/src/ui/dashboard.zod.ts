@@ -9,7 +9,9 @@ export const ChartType = z.enum([
   'metric',    // KPI / Big Number
   'bar',       // Bar / Column
   'line',      // Line / Area
-  'pie',       // Pie / Donut
+  'pie',       // Pie
+  'donut',     // Donut
+  'gauge',     // Gauge / Speedometer
   'funnel',    // Conversion Funnel
   'radar',     // Spider / Radar
   'scatter',   // Scatter Plot

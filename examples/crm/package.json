@@ -4,7 +4,7 @@
   "description": "Example CRM implementation using ObjectStack Protocol",
   "private": true,
   "scripts": {
-    "build": "tsc",
+    "build": "npx tsx ../../packages/spec/src/cli/compile.ts objectstack.config.ts dist/objectstack.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
