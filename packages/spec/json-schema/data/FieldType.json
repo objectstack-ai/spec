@@ -46,7 +46,8 @@
         "signature",
         "qrcode",
         "progress",
-        "tags"
+        "tags",
+        "vector"
       ]
     }
   },

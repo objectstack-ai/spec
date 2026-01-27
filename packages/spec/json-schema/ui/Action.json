@@ -120,7 +120,8 @@
                   "signature",
                   "qrcode",
                   "progress",
-                  "tags"
+                  "tags",
+                  "vector"
                 ]
               },
               "required": {
