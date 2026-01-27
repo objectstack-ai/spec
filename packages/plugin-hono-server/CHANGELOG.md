@@ -6,7 +6,7 @@
 
 - Version synchronization and dependency updates
 
-  - Synchronized plugin-msw version to 0.4.1
+  - Synchronized all plugin versions to 0.4.1
   - Updated runtime peer dependency versions to ^0.4.1
   - Fixed internal dependency version mismatches
 
