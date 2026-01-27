@@ -5,6 +5,8 @@
  * Supports: en (English), cn (Chinese/中文)
  */
 
+import { getSpecVersion } from './version';
+
 export interface HomepageTranslations {
   // Hero Section
   badge: {
@@ -86,7 +88,7 @@ export interface HomepageTranslations {
 export const en: HomepageTranslations = {
   badge: {
     status: 'Protocol Specification',
-    version: 'v0.3.3 (Draft)',
+    version: getSpecVersion(),
   },
   hero: {
     title: {
@@ -157,7 +159,7 @@ export const en: HomepageTranslations = {
 export const cn: HomepageTranslations = {
   badge: {
     status: '协议规范',
-    version: 'v1.0',
+    version: getSpecVersion(),
   },
   hero: {
     title: {
