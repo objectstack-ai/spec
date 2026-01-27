@@ -363,9 +363,4 @@ export const Field = {
     type: 'qrcode', 
     ...config 
   } as const),
-  
-  geolocation: (config: FieldInput = {}) => ({ 
-    type: 'geolocation', 
-    ...config 
-  } as const),
 };

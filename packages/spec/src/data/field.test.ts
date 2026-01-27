@@ -23,7 +23,7 @@ describe('FieldType', () => {
       'lookup', 'master_detail',
       'image', 'file', 'avatar',
       'formula', 'summary', 'autonumber',
-      'location', 'geolocation', 'address', 'code', 'color', 'rating', 'slider', 'signature', 'qrcode'
+      'location', 'address', 'code', 'color', 'rating', 'slider', 'signature', 'qrcode'
     ];
 
     validTypes.forEach(type => {
@@ -495,10 +495,6 @@ describe('Field Factory Helpers', () => {
       expect(() => FieldType.parse('location')).not.toThrow();
     });
 
-    it('should accept geolocation field type', () => {
-      expect(() => FieldType.parse('geolocation')).not.toThrow();
-    });
-
     it('should accept address field type', () => {
       expect(() => FieldType.parse('address')).not.toThrow();
     });
@@ -646,19 +642,6 @@ describe('Field Factory Helpers', () => {
       expect(qrcodeField.qrErrorCorrection).toBe('M');
       expect(qrcodeField.displayValue).toBe(true);
       expect(qrcodeField.allowScanning).toBe(true);
-    });
-
-    it('should create geolocation field', () => {
-      const geolocationField = Field.geolocation({
-        label: 'Current Location',
-        displayMap: true,
-        allowGeocoding: false,
-      });
-      
-      expect(geolocationField.type).toBe('geolocation');
-      expect(geolocationField.label).toBe('Current Location');
-      expect(geolocationField.displayMap).toBe(true);
-      expect(geolocationField.allowGeocoding).toBe(false);
     });
   });
 
