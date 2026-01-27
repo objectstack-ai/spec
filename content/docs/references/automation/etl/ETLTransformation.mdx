@@ -1,0 +1,13 @@
+---
+title: ETLTransformation
+description: ETLTransformation Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | optional | Transformation name |
+| **type** | `Enum<'map' \| 'filter' \| 'aggregate' \| 'join' \| 'script' \| 'lookup' \| 'split' \| 'merge' \| 'normalize' \| 'deduplicate'>` | ✅ | Transformation type |
+| **config** | `Record<string, any>` | ✅ | Transformation config |
+| **continueOnError** | `boolean` | optional | Continue on error |

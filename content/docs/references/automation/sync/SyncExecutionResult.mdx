@@ -1,0 +1,18 @@
+---
+title: SyncExecutionResult
+description: SyncExecutionResult Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Execution ID |
+| **syncName** | `string` | ✅ | Sync name |
+| **status** | `Enum<'pending' \| 'running' \| 'completed' \| 'partial' \| 'failed' \| 'cancelled'>` | ✅ | Execution status |
+| **startedAt** | `string` | ✅ | Start time |
+| **completedAt** | `string` | optional | Completion time |
+| **durationMs** | `number` | optional | Duration in ms |
+| **stats** | `object` | optional | Execution statistics |
+| **errors** | `object[]` | optional | Errors |
+| **logs** | `string[]` | optional | Execution logs |

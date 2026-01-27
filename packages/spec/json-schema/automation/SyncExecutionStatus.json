@@ -1,0 +1,17 @@
+{
+  "$ref": "#/definitions/SyncExecutionStatus",
+  "definitions": {
+    "SyncExecutionStatus": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "running",
+        "completed",
+        "partial",
+        "failed",
+        "cancelled"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

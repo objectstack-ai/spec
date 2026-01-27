@@ -1,0 +1,21 @@
+{
+  "$ref": "#/definitions/ETLTransformationType",
+  "definitions": {
+    "ETLTransformationType": {
+      "type": "string",
+      "enum": [
+        "map",
+        "filter",
+        "aggregate",
+        "join",
+        "script",
+        "lookup",
+        "split",
+        "merge",
+        "normalize",
+        "deduplicate"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,89 @@
+{
+  "$ref": "#/definitions/DataDestinationConfig",
+  "definitions": {
+    "DataDestinationConfig": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "ObjectStack object name"
+        },
+        "connectorInstanceId": {
+          "type": "string",
+          "description": "Connector instance ID"
+        },
+        "operation": {
+          "type": "string",
+          "enum": [
+            "insert",
+            "update",
+            "upsert",
+            "delete",
+            "sync"
+          ],
+          "description": "Sync operation"
+        },
+        "mapping": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "sourceField": {
+                    "type": "string",
+                    "description": "Source field name"
+                  },
+                  "destinationField": {
+                    "type": "string",
+                    "description": "Destination field name"
+                  },
+                  "transform": {
+                    "type": "string",
+                    "description": "Transformation formula"
+                  },
+                  "default": {
+                    "description": "Default value"
+                  },
+                  "syncNull": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Sync null values"
+                  }
+                },
+                "required": [
+                  "sourceField",
+                  "destinationField"
+                ],
+                "additionalProperties": false
+              }
+            }
+          ],
+          "description": "Field mappings"
+        },
+        "externalResource": {
+          "type": "string",
+          "description": "External resource ID"
+        },
+        "matchKey": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Match key fields"
+        }
+      },
+      "required": [
+        "operation"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
