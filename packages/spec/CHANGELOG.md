@@ -1,5 +1,11 @@
 # @objectstack/spec
 
+## 0.3.4
+
+### Patch Changes
+
+- Patch version release with recent protocol improvements and window functions support
+
 ## 0.3.3
 
 ### Patch Changes

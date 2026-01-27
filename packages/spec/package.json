@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/spec",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "ObjectStack Protocol & Specification - TypeScript Interfaces, JSON Schemas, and Convention Configurations",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

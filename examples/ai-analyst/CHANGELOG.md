@@ -1,5 +1,12 @@
 # @objectstack/example-ai-analyst
 
+## 1.0.6
+
+### Patch Changes
+
+- Updated dependencies
+  - @objectstack/spec@0.3.4
+
 ## 1.0.5
 
 ### Patch Changes
