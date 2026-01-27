@@ -1,0 +1,15 @@
+{
+  "$ref": "#/definitions/ApprovalActionType",
+  "definitions": {
+    "ApprovalActionType": {
+      "type": "string",
+      "enum": [
+        "field_update",
+        "email_alert",
+        "webhook",
+        "script"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

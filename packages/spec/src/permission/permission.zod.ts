@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
 
 /**
  * Entity (Object) Level Permissions
@@ -57,10 +58,24 @@ export const FieldPermissionSchema = z.object({
  * - Profile: The ONE primary functional definition of a user (e.g. Standard User).
  * - Permission Set: Add-on capabilities assigned to users (e.g. Export Reports).
  * - Role: (Defined in src/system/role.zod.ts) Defines data visibility hierarchy.
+ * 
+ * **NAMING CONVENTION:**
+ * Permission set names MUST be lowercase snake_case to prevent security issues.
+ * 
+ * @example Good permission set names
+ * - 'read_only'
+ * - 'system_admin'
+ * - 'standard_user'
+ * - 'api_access'
+ * 
+ * @example Bad permission set names (will be rejected)
+ * - 'ReadOnly' (camelCase)
+ * - 'SystemAdmin' (mixed case)
+ * - 'Read Only' (spaces)
  */
 export const PermissionSetSchema = z.object({
   /** Unique permission set name */
-  name: z.string().describe('Permission set unique name'),
+  name: SnakeCaseIdentifierSchema.describe('Permission set unique name (lowercase snake_case)'),
   
   /** Display label */
   label: z.string().optional().describe('Display label'),

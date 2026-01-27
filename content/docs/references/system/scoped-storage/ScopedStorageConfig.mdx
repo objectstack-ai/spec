@@ -1,0 +1,14 @@
+---
+title: ScopedStorageConfig
+description: ScopedStorageConfig Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **scope** | `Enum<'temp' \| 'cache' \| 'data' \| 'logs' \| 'config' \| 'public'>` | ✅ | Generic storage scope classification |
+| **adapter** | `Enum<'local' \| 'memory' \| 's3' \| 'gcs' \| 'azure' \| 'gridfs'>` | optional |  |
+| **location** | `string` | ✅ | Root path (local) or Bucket name (remote) |
+| **options** | `Record<string, any>` | optional | Driver specific options (region, endpoint, etc) |
+| **quota** | `integer` | optional | Max size in bytes |

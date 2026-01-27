@@ -6,8 +6,9 @@
       "properties": {
         "name": {
           "type": "string",
-          "pattern": "^[a-z_][a-z0-9_]*$",
-          "description": "Machine name (snake_case)"
+          "minLength": 2,
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Machine name (lowercase snake_case)"
         },
         "label": {
           "type": "string",
@@ -31,6 +32,16 @@
             ]
           },
           "description": "Locations where this action is visible"
+        },
+        "component": {
+          "type": "string",
+          "enum": [
+            "action:button",
+            "action:icon",
+            "action:menu",
+            "action:group"
+          ],
+          "description": "Visual component override"
         },
         "location": {},
         "type": {
@@ -83,24 +94,34 @@
                   "datetime",
                   "time",
                   "boolean",
+                  "toggle",
                   "select",
+                  "multiselect",
+                  "radio",
+                  "checkboxes",
                   "lookup",
                   "master_detail",
+                  "tree",
                   "image",
                   "file",
                   "avatar",
+                  "video",
+                  "audio",
                   "formula",
                   "summary",
                   "autonumber",
                   "location",
-                  "geolocation",
                   "address",
                   "code",
+                  "json",
                   "color",
                   "rating",
                   "slider",
                   "signature",
-                  "qrcode"
+                  "qrcode",
+                  "progress",
+                  "tags",
+                  "vector"
                 ]
               },
               "required": {

@@ -1,14 +1,12 @@
 {
   "title": "Documentation",
   "pages": [
-    "quick-start",
-    "tutorials",
-    "guides",
-    "concepts",
-    "specifications",
-    "standards",
-    "references",
-    "faq",
-    "troubleshooting"
+    "introduction",
+    "objectql",
+    "objectui",
+    "objectos",
+    "developers",
+    "---",
+    "references"
   ]
 }

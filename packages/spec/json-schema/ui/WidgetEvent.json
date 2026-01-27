@@ -1,0 +1,42 @@
+{
+  "$ref": "#/definitions/WidgetEvent",
+  "definitions": {
+    "WidgetEvent": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Event name"
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable event label"
+        },
+        "description": {
+          "type": "string",
+          "description": "Event description and usage"
+        },
+        "bubbles": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether event bubbles"
+        },
+        "cancelable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether event is cancelable"
+        },
+        "payload": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Event payload schema"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

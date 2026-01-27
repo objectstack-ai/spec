@@ -6,8 +6,9 @@
       "properties": {
         "name": {
           "type": "string",
-          "pattern": "^[a-z_][a-z0-9_]*$",
-          "description": "Unique workflow name"
+          "minLength": 2,
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Unique workflow name (lowercase snake_case)"
         },
         "objectName": {
           "type": "string",

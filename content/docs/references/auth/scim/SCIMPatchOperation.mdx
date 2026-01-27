@@ -1,0 +1,12 @@
+---
+title: SCIMPatchOperation
+description: SCIMPatchOperation Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **op** | `Enum<'add' \| 'remove' \| 'replace'>` | ✅ | Operation type |
+| **path** | `string` | optional | Attribute path (optional for add) |
+| **value** | `any` | optional | Value to set |

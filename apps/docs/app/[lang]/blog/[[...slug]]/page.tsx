@@ -16,6 +16,10 @@ interface BlogPostData {
   body: React.ComponentType;
 }
 
+const components = {
+  ...defaultMdxComponents,
+} as any;
+
 export default async function BlogPage({
   params,
 }: {
@@ -159,7 +163,7 @@ export default async function BlogPage({
             )}
           </header>
 
-          <MDX components={defaultMdxComponents} />
+          <MDX components={components} />
         </article>
       </main>
     </HomeLayout>

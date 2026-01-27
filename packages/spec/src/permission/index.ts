@@ -1,12 +1,14 @@
 /**
- * Data Protocol Exports
+ * Permission Protocol Exports
  * 
- * Core Business Logic & Data Modeling
- * - Object, Field, Validation
- * - Query (AST), Mapping (ETL)
- * - Permission, Sharing, Flow
+ * Fine-grained Access Control
+ * - Permission Sets (CRUD + Field-Level Security)
+ * - Sharing Rules (Record Ownership)
+ * - Territory Management (Geographic/Hierarchical)
+ * - Row-Level Security (RLS - PostgreSQL-style)
  */
 
 export * from './permission.zod';
 export * from './sharing.zod';
 export * from './territory.zod';
+export * from './rls.zod';

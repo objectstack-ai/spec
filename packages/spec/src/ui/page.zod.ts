@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
 
 /**
  * Page Region Schema
@@ -11,17 +12,36 @@ export const PageRegionSchema = z.object({
 });
 
 /**
+ * Standard Page Component Types
+ */
+export const PageComponentType = z.enum([
+  // Structure
+  'page:header', 'page:footer', 'page:sidebar', 'page:tabs', 'page:accordion', 'page:card', 'page:section',
+  // Record Context
+  'record:details', 'record:highlights', 'record:related_list', 'record:activity', 'record:chatter', 'record:path',
+  // Navigation
+  'app:launcher', 'nav:menu', 'nav:breadcrumb',
+  // Utility
+  'global:search', 'global:notifications', 'user:profile',
+  // AI
+  'ai:chat_window', 'ai:suggestion'
+]);
+
+/**
  * Page Component Schema
  * A configured instance of a UI component.
  */
 export const PageComponentSchema = z.object({
   /** Definition */
-  type: z.string().describe('Component Type (e.g. "steedos-labs.related-list")'),
+  type: z.union([
+    PageComponentType,
+    z.string()
+  ]).describe('Component Type (Standard enum or custom string)'),
   id: z.string().optional().describe('Unique instance ID'),
   
   /** Configuration */
   label: z.string().optional(),
-  properties: z.record(z.any()).describe('Component props passed to the widget'),
+  properties: z.record(z.any()).describe('Component props passed to the widget. See block.zod.ts for schemas.'),
   
   /** Visibility Rule */
   visibility: z.string().optional().describe('Visibility filter/formula')
@@ -31,9 +51,23 @@ export const PageComponentSchema = z.object({
  * Page Schema
  * Defines a composition of components for a specific context (Record, Home, App).
  * Compare to Salesforce FlexiPage.
+ * 
+ * **NAMING CONVENTION:**
+ * Page names are used in routing and must be lowercase snake_case.
+ * Prefix with 'page_' is recommended for clarity.
+ * 
+ * @example Good page names
+ * - 'page_dashboard'
+ * - 'page_settings'
+ * - 'home_page'
+ * - 'record_detail'
+ * 
+ * @example Bad page names (will be rejected)
+ * - 'PageDashboard' (PascalCase)
+ * - 'Settings Page' (spaces)
  */
 export const PageSchema = z.object({
-  name: z.string().regex(/^[a-z_][a-z0-9_]*$/),
+  name: SnakeCaseIdentifierSchema.describe('Page unique name (lowercase snake_case)'),
   label: z.string(),
   description: z.string().optional(),
   

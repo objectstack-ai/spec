@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { FieldType } from '../data/field.zod';
+import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
 
 /**
  * Action Parameter Schema
@@ -15,10 +16,27 @@ export const ActionParamSchema = z.object({
 
 /**
  * Action Schema
+ * 
+ * **NAMING CONVENTION:**
+ * Action names are machine identifiers used in code and must be lowercase snake_case.
+ * 
+ * @example Good action names
+ * - 'on_close_deal'
+ * - 'send_welcome_email'
+ * - 'approve_contract'
+ * - 'export_report'
+ * 
+ * @example Bad action names (will be rejected)
+ * - 'OnCloseDeal' (PascalCase)
+ * - 'sendEmail' (camelCase)
+ * - 'Send Email' (spaces)
+ * 
+ * Note: The action name is the configuration ID. JavaScript function names can use camelCase,
+ * but the metadata ID must be lowercase snake_case.
  */
 export const ActionSchema = z.object({
   /** Machine name of the action */
-  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Machine name (snake_case)'),
+  name: SnakeCaseIdentifierSchema.describe('Machine name (lowercase snake_case)'),
   
   /** Display label */
   label: z.string().describe('Display label'),
@@ -32,6 +50,18 @@ export const ActionSchema = z.object({
     'record_header', 'record_more', 'record_related',
     'global_nav'
   ])).optional().describe('Locations where this action is visible'),
+
+  /** 
+   * Visual Component Type
+   * Defaults to 'button' or 'menu_item' based on location,
+   * but can be overridden.
+   */
+  component: z.enum([
+    'action:button', // Standard Button
+    'action:icon',   // Icon only
+    'action:menu',   // Dropdown menu
+    'action:group'   // Button Group
+  ]).optional().describe('Visual component override'),
   
   /** Legacy location support */
   location: z.any().optional(),

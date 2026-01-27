@@ -1,6 +1,5 @@
 {
-  "label": "Protocol Reference",
-  "order": 100,
+  "title": "Protocol Reference",
   "pages": [
     "data",
     "ui",

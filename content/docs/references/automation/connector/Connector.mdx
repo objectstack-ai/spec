@@ -1,0 +1,27 @@
+---
+title: Connector
+description: Connector Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Connector ID (snake_case) |
+| **name** | `string` | ✅ | Connector name |
+| **description** | `string` | optional | Connector description |
+| **version** | `string` | optional | Connector version |
+| **icon** | `string` | optional | Connector icon |
+| **category** | `Enum<'crm' \| 'payment' \| 'communication' \| 'storage' \| 'analytics' \| 'database' \| 'marketing' \| 'accounting' \| 'hr' \| 'productivity' \| 'ecommerce' \| 'support' \| 'devtools' \| 'social' \| 'other'>` | ✅ | Connector category |
+| **baseUrl** | `string` | optional | API base URL |
+| **authentication** | `object` | ✅ | Authentication config |
+| **operations** | `object[]` | optional | Connector operations |
+| **triggers** | `object[]` | optional | Connector triggers |
+| **rateLimit** | `object` | optional | Rate limiting |
+| **author** | `string` | optional | Connector author |
+| **documentation** | `string` | optional | Documentation URL |
+| **homepage** | `string` | optional | Homepage URL |
+| **license** | `string` | optional | License (SPDX identifier) |
+| **tags** | `string[]` | optional | Connector tags |
+| **verified** | `boolean` | optional | Verified connector |
+| **metadata** | `Record<string, any>` | optional | Custom metadata |

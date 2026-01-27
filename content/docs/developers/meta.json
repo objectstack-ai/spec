@@ -1,0 +1,10 @@
+{
+  "title": "🔧 Development & Extension",
+  "root": true,
+  "pages": [
+    "writing-plugins",
+    "custom-widgets",
+    "server-drivers",
+    "cli-tools"
+  ]
+}

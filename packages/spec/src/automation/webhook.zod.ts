@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
 
 /**
  * Webhook Trigger Event
@@ -14,10 +15,22 @@ export const WebhookTriggerType = z.enum([
 
 /**
  * Webhook Schema
- * outbound Integration: Push data to external URL when events happen.
+ * Outbound Integration: Push data to external URL when events happen.
+ * 
+ * **NAMING CONVENTION:**
+ * Webhook names are machine identifiers and must be lowercase snake_case.
+ * 
+ * @example Good webhook names
+ * - 'stripe_payment_sync'
+ * - 'slack_notification'
+ * - 'crm_lead_export'
+ * 
+ * @example Bad webhook names (will be rejected)
+ * - 'StripePaymentSync' (PascalCase)
+ * - 'slackNotification' (camelCase)
  */
 export const WebhookSchema = z.object({
-  name: z.string().regex(/^[a-z_][a-z0-9_]*$/),
+  name: SnakeCaseIdentifierSchema.describe('Webhook unique name (lowercase snake_case)'),
   label: z.string().optional(),
   
   /** Scope */
@@ -44,9 +57,20 @@ export const WebhookSchema = z.object({
 /**
  * Webhook Receiver Schema (Inbound)
  * Handling incoming HTTP hooks from Stripe, Slack, etc.
+ * 
+ * **NAMING CONVENTION:**
+ * Webhook receiver names are machine identifiers and must be lowercase snake_case.
+ * 
+ * @example Good names
+ * - 'stripe_webhook_handler'
+ * - 'github_events'
+ * - 'twilio_status_callback'
+ * 
+ * @example Bad names (will be rejected)
+ * - 'StripeWebhookHandler' (PascalCase)
  */
 export const WebhookReceiverSchema = z.object({
-  name: z.string().regex(/^[a-z_][a-z0-9_]*$/),
+  name: SnakeCaseIdentifierSchema.describe('Webhook receiver unique name (lowercase snake_case)'),
   path: z.string().describe('URL Path (e.g. /webhooks/stripe)'),
   
   /** Verification */

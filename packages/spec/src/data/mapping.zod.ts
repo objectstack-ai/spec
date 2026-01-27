@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
 import { QuerySchema } from './query.zod';
 
 /**
@@ -48,12 +49,24 @@ export const FieldMappingSchema = z.object({
 });
 
 /**
- * ETL Mapping Schema
- * Definition for importing/exporting data defined in `integration-etl.mdx`.
+ * Data Mapping Schema
+ * Defines a reusable data mapping configuration for ETL operations.
+ * 
+ * **NAMING CONVENTION:**
+ * Mapping names are machine identifiers and must be lowercase snake_case.
+ * 
+ * @example Good mapping names
+ * - 'salesforce_to_crm'
+ * - 'csv_import_contacts'
+ * - 'api_sync_orders'
+ * 
+ * @example Bad mapping names (will be rejected)
+ * - 'SalesforceToCRM' (PascalCase)
+ * - 'CSV Import' (spaces)
  */
 export const MappingSchema = z.object({
   /** Identity */
-  name: z.string().regex(/^[a-z_][a-z0-9_]*$/),
+  name: SnakeCaseIdentifierSchema.describe('Mapping unique name (lowercase snake_case)'),
   label: z.string().optional(),
   
   /** Scope */

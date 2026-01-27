@@ -15,5 +15,26 @@ export default defineConfig({
       '@objectstack/spec/system',
       '@objectstack/spec/ui'
     ]
+  },
+  build: {
+    commonjsOptions: {
+      include: [/node_modules/, /packages/],
+      transformMixedEsModules: true
+    },
+    rollupOptions: {
+      // Suppress warnings for optional dynamic imports in runtime
+      onwarn(warning, warn) {
+        // Ignore unresolved import warnings for @objectstack/driver-memory
+        // This is an optional fallback dynamic import in the runtime kernel.
+        // It's safe to suppress because the driver is explicitly imported in src/mocks/browser.ts
+        if (
+          warning.code === 'UNRESOLVED_IMPORT' &&
+          warning.message.includes('@objectstack/driver-memory')
+        ) {
+          return;
+        }
+        warn(warning);
+      }
+    }
   }
 });

@@ -1,0 +1,12 @@
+{
+  "title": "Introduction",
+  "root": true,
+  "pages": [
+    "index",
+    "manifesto",
+    "metadata-driven",
+    "architecture",
+    "design-principles",
+    "terminology"
+  ]
+}

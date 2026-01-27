@@ -38,37 +38,37 @@ export default async function HomePage({
           <FeatureCard 
             icon={<Database className="h-6 w-6" />}
             title={t.features.objectql.title}
-            href="/docs/specifications/data/architecture"
+            href="/docs/objectql"
             description={t.features.objectql.description}
           />
           <FeatureCard 
             icon={<Layers className="h-6 w-6" />}
             title={t.features.objectui.title}
-            href="/docs/specifications/ui/sdui-protocol"
+            href="/docs/objectui"
             description={t.features.objectui.description}
           />
           <FeatureCard 
             icon={<Zap className="h-6 w-6" />}
             title={t.features.objectos.title}
-            href="/docs/specifications/server/kernel-architecture"
+            href="/docs/objectos"
             description={t.features.objectos.description}
           />
           <FeatureCard 
             icon={<ShieldCheck className="h-6 w-6" />}
             title={t.features.security.title}
-            href="/docs/specifications/server/permission-governance"
+            href="/docs/objectql/security"
             description={t.features.security.description}
           />
           <FeatureCard 
             icon={<FileJson className="h-6 w-6" />}
             title={t.features.zodFirst.title}
-            href="/docs/specifications/data/schema-definition"
+            href="/docs/objectql/schema"
             description={t.features.zodFirst.description}
           />
           <FeatureCard 
             icon={<Globe className="h-6 w-6" />}
             title={t.features.universal.title}
-            href="/docs/concepts/architecture"
+            href="/docs/introduction/architecture"
             description={t.features.universal.description}
           />
         </div>
@@ -83,21 +83,21 @@ export default async function HomePage({
               icon={<LayoutTemplate className="w-8 h-8 text-blue-500" />}
               title={t.personas.architect.title}
               description={t.personas.architect.description}
-              href="/docs/concepts/enterprise-patterns"
+              href="/docs/introduction/architecture"
               action={t.personas.architect.action}
             />
             <PersonaCard 
               icon={<Bot className="w-8 h-8 text-purple-500" />}
               title={t.personas.aiEngineer.title}
               description={t.personas.aiEngineer.description}
-              href="/docs/concepts/ai-codex"
+              href="/docs/introduction/metadata-driven"
               action={t.personas.aiEngineer.action}
             />
             <PersonaCard 
               icon={<Cpu className="w-8 h-8 text-green-500" />}
               title={t.personas.frameworkBuilder.title}
               description={t.personas.frameworkBuilder.description}
-              href="/docs/specifications/data/architecture"
+              href="/docs/developers"
               action={t.personas.frameworkBuilder.action}
             />
           </div>

@@ -1,0 +1,15 @@
+---
+title: DataDestinationConfig
+description: DataDestinationConfig Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | optional | ObjectStack object name |
+| **connectorInstanceId** | `string` | optional | Connector instance ID |
+| **operation** | `Enum<'insert' \| 'update' \| 'upsert' \| 'delete' \| 'sync'>` | ✅ | Sync operation |
+| **mapping** | `Record<string, string> \| object[]` | optional | Field mappings |
+| **externalResource** | `string` | optional | External resource ID |
+| **matchKey** | `string[]` | optional | Match key fields |

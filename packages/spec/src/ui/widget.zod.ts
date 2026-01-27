@@ -2,6 +2,345 @@ import { z } from 'zod';
 import { FieldSchema } from '../data/field.zod';
 
 /**
+ * Widget Lifecycle Hooks Schema
+ * 
+ * Defines lifecycle callbacks for custom widgets inspired by Web Components and React.
+ * These hooks allow widgets to perform initialization, cleanup, and respond to changes.
+ * 
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Web_components
+ * @see https://react.dev/reference/react/Component#component-lifecycle
+ * 
+ * @example
+ * ```typescript
+ * const widget = {
+ *   lifecycle: {
+ *     onMount: "console.log('Widget mounted')",
+ *     onUpdate: "if (prevProps.value !== props.value) { updateUI() }",
+ *     onUnmount: "cleanup()",
+ *     onValidate: "return value.length > 0 ? null : 'Required field'"
+ *   }
+ * }
+ * ```
+ */
+export const WidgetLifecycleSchema = z.object({
+  /**
+   * Called when widget is mounted/rendered for the first time
+   * Use for initialization, setting up event listeners, loading data, etc.
+   * 
+   * @example "initializeDatePicker(); loadOptions();"
+   */
+  onMount: z.string().optional().describe('Initialization code when widget mounts'),
+
+  /**
+   * Called when widget props change
+   * Receives previous props for comparison
+   * 
+   * @example "if (prevProps.value !== props.value) { updateDisplay() }"
+   */
+  onUpdate: z.string().optional().describe('Code to run when props change'),
+
+  /**
+   * Called when widget is about to be removed from DOM
+   * Use for cleanup, removing event listeners, canceling timers, etc.
+   * 
+   * @example "destroyDatePicker(); cancelPendingRequests();"
+   */
+  onUnmount: z.string().optional().describe('Cleanup code when widget unmounts'),
+
+  /**
+   * Custom validation logic for this widget
+   * Should return error message string if invalid, null/undefined if valid
+   * 
+   * @example "return value && value.length >= 10 ? null : 'Minimum 10 characters'"
+   */
+  onValidate: z.string().optional().describe('Custom validation logic'),
+
+  /**
+   * Called when widget receives focus
+   * 
+   * @example "highlightField(); logFocusEvent();"
+   */
+  onFocus: z.string().optional().describe('Code to run on focus'),
+
+  /**
+   * Called when widget loses focus
+   * 
+   * @example "validateField(); saveFieldState();"
+   */
+  onBlur: z.string().optional().describe('Code to run on blur'),
+
+  /**
+   * Called on any error in the widget
+   * 
+   * @example "logError(error); showErrorNotification();"
+   */
+  onError: z.string().optional().describe('Error handling code'),
+});
+
+export type WidgetLifecycle = z.infer<typeof WidgetLifecycleSchema>;
+
+/**
+ * Widget Event Schema
+ * 
+ * Defines custom events that widgets can emit, inspired by DOM Events and Lightning Web Components.
+ * 
+ * @see https://developer.mozilla.org/en-US/docs/Web/Events/Creating_and_triggering_events
+ * @see https://developer.salesforce.com/docs/component-library/documentation/en/lwc/lwc.events
+ * 
+ * @example
+ * ```typescript
+ * const searchEvent = {
+ *   name: 'search',
+ *   bubbles: true,
+ *   cancelable: false,
+ *   payload: {
+ *     query: 'string',
+ *     filters: 'object'
+ *   }
+ * }
+ * ```
+ */
+export const WidgetEventSchema = z.object({
+  /**
+   * Event name
+   * Should be lowercase, dash-separated for consistency
+   * 
+   * @example "value-change", "item-selected", "search-complete"
+   */
+  name: z.string().describe('Event name'),
+
+  /**
+   * Event label for documentation
+   */
+  label: z.string().optional().describe('Human-readable event label'),
+
+  /**
+   * Event description
+   */
+  description: z.string().optional().describe('Event description and usage'),
+
+  /**
+   * Whether event bubbles up through the DOM hierarchy
+   * 
+   * @default false
+   */
+  bubbles: z.boolean().default(false).describe('Whether event bubbles'),
+
+  /**
+   * Whether event can be cancelled
+   * 
+   * @default false
+   */
+  cancelable: z.boolean().default(false).describe('Whether event is cancelable'),
+
+  /**
+   * Event payload schema
+   * Defines the data structure sent with the event
+   * 
+   * @example { userId: 'string', timestamp: 'number' }
+   */
+  payload: z.record(z.any()).optional().describe('Event payload schema'),
+});
+
+export type WidgetEvent = z.infer<typeof WidgetEventSchema>;
+
+/**
+ * Widget Property Definition Schema
+ * 
+ * Defines the contract for widget configuration properties.
+ * Inspired by React PropTypes and Web Component attributes.
+ * 
+ * @see https://react.dev/reference/react/Component#static-proptypes
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements
+ * 
+ * @example
+ * ```typescript
+ * const widgetProps = {
+ *   maxLength: {
+ *     type: 'number',
+ *     required: false,
+ *     default: 100,
+ *     description: 'Maximum input length'
+ *   }
+ * }
+ * ```
+ */
+export const WidgetPropertySchema = z.object({
+  /**
+   * Property name
+   * Should be camelCase following ObjectStack conventions
+   */
+  name: z.string().describe('Property name (camelCase)'),
+
+  /**
+   * Property label for UI
+   */
+  label: z.string().optional().describe('Human-readable label'),
+
+  /**
+   * Property data type
+   * 
+   * @example "string", "number", "boolean", "array", "object", "function"
+   */
+  type: z.enum(['string', 'number', 'boolean', 'array', 'object', 'function', 'any'])
+    .describe('TypeScript type'),
+
+  /**
+   * Whether property is required
+   * 
+   * @default false
+   */
+  required: z.boolean().default(false).describe('Whether property is required'),
+
+  /**
+   * Default value for the property
+   */
+  default: z.any().optional().describe('Default value'),
+
+  /**
+   * Property description
+   */
+  description: z.string().optional().describe('Property description'),
+
+  /**
+   * Property validation schema
+   * Can include min/max, regex, enum values, etc.
+   */
+  validation: z.record(z.any()).optional().describe('Validation rules'),
+
+  /**
+   * Property category for grouping in UI
+   */
+  category: z.string().optional().describe('Property category'),
+});
+
+export type WidgetProperty = z.infer<typeof WidgetPropertySchema>;
+
+/**
+ * Widget Manifest Schema
+ * 
+ * Complete definition for a custom widget including metadata, lifecycle, events, and props.
+ * This is used for widget registration and discovery.
+ * 
+ * @example
+ * ```typescript
+ * const customWidget = {
+ *   name: 'custom_date_picker',
+ *   label: 'Custom Date Picker',
+ *   version: '1.0.0',
+ *   author: 'Company Name',
+ *   fieldTypes: ['date', 'datetime'],
+ *   lifecycle: { ... },
+ *   events: [ ... ],
+ *   properties: [ ... ]
+ * }
+ * ```
+ */
+export const WidgetManifestSchema = z.object({
+  /**
+   * Widget identifier (snake_case)
+   */
+  name: z.string()
+    .regex(/^[a-z_][a-z0-9_]*$/)
+    .describe('Widget identifier (snake_case)'),
+
+  /**
+   * Human-readable widget name
+   */
+  label: z.string().describe('Widget display name'),
+
+  /**
+   * Widget description
+   */
+  description: z.string().optional().describe('Widget description'),
+
+  /**
+   * Widget version (semver)
+   */
+  version: z.string().optional().describe('Widget version (semver)'),
+
+  /**
+   * Widget author/organization
+   */
+  author: z.string().optional().describe('Widget author'),
+
+  /**
+   * Icon name or URL
+   */
+  icon: z.string().optional().describe('Widget icon'),
+
+  /**
+   * Field types this widget supports
+   * 
+   * @example ["text", "email", "url"]
+   */
+  fieldTypes: z.array(z.string()).optional().describe('Supported field types'),
+
+  /**
+   * Widget category for organization
+   */
+  category: z.enum(['input', 'display', 'picker', 'editor', 'custom'])
+    .default('custom')
+    .describe('Widget category'),
+
+  /**
+   * Widget lifecycle hooks
+   */
+  lifecycle: WidgetLifecycleSchema.optional().describe('Lifecycle hooks'),
+
+  /**
+   * Custom events this widget emits
+   */
+  events: z.array(WidgetEventSchema).optional().describe('Custom events'),
+
+  /**
+   * Widget configuration properties
+   */
+  properties: z.array(WidgetPropertySchema).optional().describe('Configuration properties'),
+
+  /**
+   * Widget implementation
+   * URL to component or inline code
+   */
+  implementation: z.object({
+    type: z.enum(['url', 'inline', 'module']).describe('Implementation type'),
+    source: z.string().describe('Source URL, inline code, or module path'),
+  }).optional().describe('Widget implementation'),
+
+  /**
+   * Widget dependencies
+   * External libraries or scripts needed
+   */
+  dependencies: z.array(z.object({
+    name: z.string(),
+    version: z.string().optional(),
+    url: z.string().url().optional(),
+  })).optional().describe('Widget dependencies'),
+
+  /**
+   * Widget screenshots for showcase
+   */
+  screenshots: z.array(z.string().url()).optional().describe('Screenshot URLs'),
+
+  /**
+   * Widget documentation URL
+   */
+  documentation: z.string().url().optional().describe('Documentation URL'),
+
+  /**
+   * License information
+   */
+  license: z.string().optional().describe('License (SPDX identifier)'),
+
+  /**
+   * Tags for discovery
+   */
+  tags: z.array(z.string()).optional().describe('Tags for categorization'),
+});
+
+export type WidgetManifest = z.infer<typeof WidgetManifestSchema>;
+
+/**
  * Field Widget Props Schema
  * 
  * This defines the contract for custom field components and plugin UI extensions.

@@ -13,12 +13,12 @@ describe('RoleSchema', () => {
     });
 
     it('should enforce snake_case for role name', () => {
-      const validNames = ['ceo', 'vp_sales', 'sales_manager', 'account_exec', '_internal'];
+      const validNames = ['ceo', 'vp_sales', 'sales_manager', 'account_exec'];
       validNames.forEach(name => {
         expect(() => RoleSchema.parse({ name, label: 'Test' })).not.toThrow();
       });
 
-      const invalidNames = ['CEO', 'VP-Sales', 'salesManager', '123role'];
+      const invalidNames = ['CEO', 'VP-Sales', 'salesManager', '123role', '_internal'];
       invalidNames.forEach(name => {
         expect(() => RoleSchema.parse({ name, label: 'Test' })).toThrow();
       });

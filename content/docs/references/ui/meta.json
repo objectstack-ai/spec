@@ -1,9 +1,10 @@
 {
   "title": "UI Protocol",
-  "root": true,
   "pages": [
     "action",
     "app",
+    "block",
+    "component",
     "dashboard",
     "page",
     "report",

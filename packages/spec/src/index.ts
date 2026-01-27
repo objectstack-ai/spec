@@ -42,15 +42,16 @@
 // ============================================================================
 // Export protocol domains as namespaces to prevent naming conflicts
 // and establish clear boundaries between different protocol layers.
+export * as Shared from './shared';
 export * as Data from './data';
-export * as Driver from './driver';
 export * as Permission from './permission';
 export * as UI from './ui';
 export * as System from './system';
 export * as Auth from './auth';
-export * as Kernel from './kernel';
 export * as Hub from './hub';
 export * as AI from './ai';
 export * as API from './api';
 export * as Automation from './automation';
+
+export * from './stack.zod';
 

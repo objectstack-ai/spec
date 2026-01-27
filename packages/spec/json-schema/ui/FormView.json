@@ -9,7 +9,10 @@
           "enum": [
             "simple",
             "tabbed",
-            "wizard"
+            "wizard",
+            "split",
+            "drawer",
+            "modal"
           ],
           "default": "simple"
         },

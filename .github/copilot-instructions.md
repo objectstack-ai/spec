@@ -89,3 +89,20 @@ export const FieldSchema = z.object({
 *   **"Create Object Protocol"** → Implement `src/data/object.zod.ts`.
 *   **"Create UI Protocol"** → Implement `src/ui/view.zod.ts`.
 *   **"Create App Protocol"** → Implement `src/ui/app.zod.ts`.
+
+---
+
+## 🔍 Context & Prompt Mapping Rules
+
+Copilot should automatically use specific contexts when editing files that match these patterns:
+
+| If User Edits... | Context/Role | Rules Source |
+| :--- | :--- | :--- |
+| `*.object.ts` | **Data Architect** | `content/prompts/plugin/metadata.prompt.md` (See: The Object Definition) |
+| `*.view.ts` | **UI Designer** | `content/prompts/plugin/metadata.prompt.md` (See: The View Definition) |
+| `*.page.ts` | **Page Builder** | `content/prompts/development/engine.prompt.md` |
+| `packages/ui/*` | **UI Engineer** | `content/prompts/development/ui-library.prompt.md` |
+| `*.prompt.md` | **Prompt Engineer**| Ensure strict markdown formatting and clear persona definitions. |
+
+> **Note to AI:** When you detect these file patterns in the active editor, prioritize the coding standards defined in the linked promt files.
+

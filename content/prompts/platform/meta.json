@@ -1,0 +1,13 @@
+{
+  "title": "Development Roles",
+  "pages": [
+    "app",
+    "plugin",
+    "component",
+    "driver",
+    "agent",
+    "automation",
+    "security-policy",
+    "api"
+  ]
+}
