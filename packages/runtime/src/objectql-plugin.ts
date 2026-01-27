@@ -11,6 +11,11 @@ export const OBJECTQL_PLUGIN_MARKER = Symbol('objectql-plugin');
  * 
  * Registers the ObjectQL engine instance with the kernel.
  * This allows users to provide their own ObjectQL implementation or configuration.
+ * 
+ * Usage:
+ * - new ObjectQLPlugin() - Creates new ObjectQL with default settings
+ * - new ObjectQLPlugin(existingQL) - Uses existing ObjectQL instance
+ * - new ObjectQLPlugin(undefined, { custom: 'context' }) - Creates new ObjectQL with custom context
  */
 export class ObjectQLPlugin implements RuntimePlugin {
   name = 'com.objectstack.engine.objectql';
@@ -20,10 +25,15 @@ export class ObjectQLPlugin implements RuntimePlugin {
   
   private ql: ObjectQL;
 
+  /**
+   * @param ql - Existing ObjectQL instance to use (optional)
+   * @param hostContext - Host context for new ObjectQL instance (ignored if ql is provided)
+   */
   constructor(ql?: ObjectQL, hostContext?: Record<string, any>) {
-    // Allow passing existing ObjectQL instance or create a new one
-    // Note: If 'ql' is provided, 'hostContext' is ignored
-    // To create a new instance with custom context, pass only hostContext
+    if (ql && hostContext) {
+      console.warn('[ObjectQLPlugin] Both ql and hostContext provided. hostContext will be ignored.');
+    }
+    
     if (ql) {
       this.ql = ql;
     } else {

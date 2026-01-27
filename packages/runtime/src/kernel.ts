@@ -23,7 +23,7 @@ export class ObjectStackKernel {
     
     if (!hasObjectQLPlugin) {
       // Backward compatibility: Initialize ObjectQL directly if no plugin provides it
-      console.warn('[Kernel] No ObjectQL plugin detected. Using default initialization. Consider using ObjectQLPlugin for explicit registration.');
+      console.warn('[Kernel] No ObjectQL plugin found, using default initialization. Consider using ObjectQLPlugin.');
       this.ql = new ObjectQL({
         env: process.env.NODE_ENV || 'development'
       });

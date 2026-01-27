@@ -42,13 +42,16 @@ async function testBackwardCompatibility() {
 async function testCustomObjectQL() {
   console.log('\n=== Test 3: Custom ObjectQL Instance ===');
   
+  // Create a WeakMap to track custom instances in a type-safe way
+  const customInstances = new WeakMap<ObjectQL, string>();
+  
   const customQL = new ObjectQL({ 
     env: 'test',
     customProperty: 'test-value' 
   });
   
-  // Add a marker to identify this instance
-  (customQL as any).customMarker = 'custom-instance';
+  // Mark this as a custom instance
+  customInstances.set(customQL, 'custom-instance');
   
   const kernel = new ObjectStackKernel([
     new ObjectQLPlugin(customQL)
@@ -59,12 +62,17 @@ async function testCustomObjectQL() {
     throw new Error('FAILED: ObjectQL not set');
   }
   
-  if ((kernel.ql as any).customMarker !== 'custom-instance') {
+  if (!customInstances.has(kernel.ql)) {
     throw new Error('FAILED: Custom ObjectQL instance not used');
   }
   
+  const marker = customInstances.get(kernel.ql);
+  if (marker !== 'custom-instance') {
+    throw new Error('FAILED: Custom ObjectQL instance marker mismatch');
+  }
+  
   console.log('✅ Custom ObjectQL instance registered correctly');
-  console.log('Custom marker:', (kernel.ql as any).customMarker);
+  console.log('Custom marker:', marker);
 }
 
 async function testMultiplePlugins() {
