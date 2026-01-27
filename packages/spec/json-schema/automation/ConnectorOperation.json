@@ -1,0 +1,117 @@
+{
+  "$ref": "#/definitions/ConnectorOperation",
+  "definitions": {
+    "ConnectorOperation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Operation ID (snake_case)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Operation name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Operation description"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "read",
+            "write",
+            "delete",
+            "search",
+            "trigger",
+            "action"
+          ],
+          "description": "Operation type"
+        },
+        "inputSchema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Parameter name"
+              },
+              "label": {
+                "type": "string",
+                "description": "Parameter label"
+              },
+              "description": {
+                "type": "string",
+                "description": "Parameter description"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "string",
+                  "number",
+                  "boolean",
+                  "array",
+                  "object",
+                  "date",
+                  "file"
+                ],
+                "description": "Parameter type"
+              },
+              "required": {
+                "type": "boolean",
+                "default": false,
+                "description": "Required parameter"
+              },
+              "default": {
+                "description": "Default value"
+              },
+              "validation": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Validation rules"
+              },
+              "dynamicOptions": {
+                "type": "string",
+                "description": "Function to load dynamic options"
+              }
+            },
+            "required": [
+              "name",
+              "label",
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Input parameters"
+        },
+        "outputSchema": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Output schema"
+        },
+        "sampleOutput": {
+          "description": "Sample output"
+        },
+        "supportsPagination": {
+          "type": "boolean",
+          "default": false,
+          "description": "Supports pagination"
+        },
+        "supportsFiltering": {
+          "type": "boolean",
+          "default": false,
+          "description": "Supports filtering"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "type"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

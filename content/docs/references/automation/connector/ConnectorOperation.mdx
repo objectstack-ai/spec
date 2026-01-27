@@ -1,0 +1,18 @@
+---
+title: ConnectorOperation
+description: ConnectorOperation Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Operation ID (snake_case) |
+| **name** | `string` | ✅ | Operation name |
+| **description** | `string` | optional | Operation description |
+| **type** | `Enum<'read' \| 'write' \| 'delete' \| 'search' \| 'trigger' \| 'action'>` | ✅ | Operation type |
+| **inputSchema** | `object[]` | optional | Input parameters |
+| **outputSchema** | `Record<string, any>` | optional | Output schema |
+| **sampleOutput** | `any` | optional | Sample output |
+| **supportsPagination** | `boolean` | optional | Supports pagination |
+| **supportsFiltering** | `boolean` | optional | Supports filtering |

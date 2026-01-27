@@ -1,0 +1,28 @@
+---
+title: DataSyncConfig
+description: DataSyncConfig Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Sync configuration name (snake_case) |
+| **label** | `string` | optional | Sync display name |
+| **description** | `string` | optional | Sync description |
+| **source** | `object` | ✅ | Data source |
+| **destination** | `object` | ✅ | Data destination |
+| **direction** | `Enum<'push' \| 'pull' \| 'bidirectional'>` | optional | Sync direction |
+| **syncMode** | `Enum<'full' \| 'incremental' \| 'realtime'>` | optional | Sync mode |
+| **conflictResolution** | `Enum<'source_wins' \| 'destination_wins' \| 'latest_wins' \| 'manual' \| 'merge'>` | optional | Conflict resolution |
+| **schedule** | `string` | optional | Cron schedule |
+| **enabled** | `boolean` | optional | Sync enabled |
+| **changeTrackingField** | `string` | optional | Field for change tracking |
+| **batchSize** | `integer` | optional | Batch size for processing |
+| **retry** | `object` | optional | Retry configuration |
+| **validation** | `object` | optional | Validation rules |
+| **errorHandling** | `object` | optional | Error handling |
+| **optimization** | `object` | optional | Performance optimization |
+| **audit** | `object` | optional | Audit configuration |
+| **tags** | `string[]` | optional | Sync tags |
+| **metadata** | `Record<string, any>` | optional | Custom metadata |

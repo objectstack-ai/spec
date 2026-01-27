@@ -1,0 +1,19 @@
+---
+title: ConnectorInstance
+description: ConnectorInstance Schema Reference
+---
+
+## Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Instance ID |
+| **connectorId** | `string` | ✅ | Connector ID |
+| **name** | `string` | ✅ | Instance name |
+| **description** | `string` | optional | Instance description |
+| **credentials** | `Record<string, any>` | ✅ | Encrypted credentials |
+| **config** | `Record<string, any>` | optional | Additional config |
+| **active** | `boolean` | optional | Instance active status |
+| **createdAt** | `string` | optional | Creation time |
+| **lastTestedAt** | `string` | optional | Last test time |
+| **testStatus** | `Enum<'unknown' \| 'success' \| 'failed'>` | optional | Connection test status |

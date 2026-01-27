@@ -1,0 +1,440 @@
+{
+  "$ref": "#/definitions/Connector",
+  "definitions": {
+    "Connector": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Connector ID (snake_case)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Connector name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Connector description"
+        },
+        "version": {
+          "type": "string",
+          "description": "Connector version"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Connector icon"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "crm",
+            "payment",
+            "communication",
+            "storage",
+            "analytics",
+            "database",
+            "marketing",
+            "accounting",
+            "hr",
+            "productivity",
+            "ecommerce",
+            "support",
+            "devtools",
+            "social",
+            "other"
+          ],
+          "description": "Connector category"
+        },
+        "baseUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "API base URL"
+        },
+        "authentication": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "none",
+                "apiKey",
+                "basic",
+                "bearer",
+                "oauth1",
+                "oauth2",
+                "custom"
+              ],
+              "description": "Authentication type"
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[a-z_][a-z0-9_]*$",
+                    "description": "Field name (snake_case)"
+                  },
+                  "label": {
+                    "type": "string",
+                    "description": "Field label"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "text",
+                      "password",
+                      "url",
+                      "select"
+                    ],
+                    "default": "text",
+                    "description": "Field type"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Field description"
+                  },
+                  "required": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Required field"
+                  },
+                  "default": {
+                    "type": "string",
+                    "description": "Default value"
+                  },
+                  "options": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "description": "Select field options"
+                  },
+                  "placeholder": {
+                    "type": "string",
+                    "description": "Placeholder text"
+                  }
+                },
+                "required": [
+                  "name",
+                  "label"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Authentication fields"
+            },
+            "oauth2": {
+              "type": "object",
+              "properties": {
+                "authorizationUrl": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "Authorization endpoint URL"
+                },
+                "tokenUrl": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "Token endpoint URL"
+                },
+                "scopes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "OAuth scopes"
+                },
+                "clientIdField": {
+                  "type": "string",
+                  "default": "client_id",
+                  "description": "Client ID field name"
+                },
+                "clientSecretField": {
+                  "type": "string",
+                  "default": "client_secret",
+                  "description": "Client secret field name"
+                }
+              },
+              "required": [
+                "authorizationUrl",
+                "tokenUrl"
+              ],
+              "additionalProperties": false,
+              "description": "OAuth 2.0 configuration"
+            },
+            "test": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string",
+                  "description": "Test endpoint URL"
+                },
+                "method": {
+                  "type": "string",
+                  "enum": [
+                    "GET",
+                    "POST",
+                    "PUT",
+                    "DELETE"
+                  ],
+                  "default": "GET",
+                  "description": "HTTP method"
+                }
+              },
+              "additionalProperties": false,
+              "description": "Authentication test configuration"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false,
+          "description": "Authentication config"
+        },
+        "operations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z_][a-z0-9_]*$",
+                "description": "Operation ID (snake_case)"
+              },
+              "name": {
+                "type": "string",
+                "description": "Operation name"
+              },
+              "description": {
+                "type": "string",
+                "description": "Operation description"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "read",
+                  "write",
+                  "delete",
+                  "search",
+                  "trigger",
+                  "action"
+                ],
+                "description": "Operation type"
+              },
+              "inputSchema": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Parameter name"
+                    },
+                    "label": {
+                      "type": "string",
+                      "description": "Parameter label"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Parameter description"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "string",
+                        "number",
+                        "boolean",
+                        "array",
+                        "object",
+                        "date",
+                        "file"
+                      ],
+                      "description": "Parameter type"
+                    },
+                    "required": {
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Required parameter"
+                    },
+                    "default": {
+                      "description": "Default value"
+                    },
+                    "validation": {
+                      "type": "object",
+                      "additionalProperties": {},
+                      "description": "Validation rules"
+                    },
+                    "dynamicOptions": {
+                      "type": "string",
+                      "description": "Function to load dynamic options"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "label",
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "Input parameters"
+              },
+              "outputSchema": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Output schema"
+              },
+              "sampleOutput": {
+                "description": "Sample output"
+              },
+              "supportsPagination": {
+                "type": "boolean",
+                "default": false,
+                "description": "Supports pagination"
+              },
+              "supportsFiltering": {
+                "type": "boolean",
+                "default": false,
+                "description": "Supports filtering"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Connector operations"
+        },
+        "triggers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z_][a-z0-9_]*$",
+                "description": "Trigger ID (snake_case)"
+              },
+              "name": {
+                "type": "string",
+                "description": "Trigger name"
+              },
+              "description": {
+                "type": "string",
+                "description": "Trigger description"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "webhook",
+                  "polling",
+                  "stream"
+                ],
+                "description": "Trigger mechanism"
+              },
+              "config": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Trigger configuration"
+              },
+              "outputSchema": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Event payload schema"
+              },
+              "pollingIntervalMs": {
+                "type": "integer",
+                "minimum": 1000,
+                "description": "Polling interval in ms"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Connector triggers"
+        },
+        "rateLimit": {
+          "type": "object",
+          "properties": {
+            "requestsPerSecond": {
+              "type": "number",
+              "description": "Max requests per second"
+            },
+            "requestsPerMinute": {
+              "type": "number",
+              "description": "Max requests per minute"
+            },
+            "requestsPerHour": {
+              "type": "number",
+              "description": "Max requests per hour"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Rate limiting"
+        },
+        "author": {
+          "type": "string",
+          "description": "Connector author"
+        },
+        "documentation": {
+          "type": "string",
+          "format": "uri",
+          "description": "Documentation URL"
+        },
+        "homepage": {
+          "type": "string",
+          "format": "uri",
+          "description": "Homepage URL"
+        },
+        "license": {
+          "type": "string",
+          "description": "License (SPDX identifier)"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Connector tags"
+        },
+        "verified": {
+          "type": "boolean",
+          "default": false,
+          "description": "Verified connector"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Custom metadata"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "category",
+        "authentication"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

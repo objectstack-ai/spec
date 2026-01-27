@@ -1,0 +1,14 @@
+{
+  "$ref": "#/definitions/SyncMode",
+  "definitions": {
+    "SyncMode": {
+      "type": "string",
+      "enum": [
+        "full",
+        "incremental",
+        "realtime"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
