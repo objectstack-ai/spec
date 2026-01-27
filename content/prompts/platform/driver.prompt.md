@@ -17,7 +17,7 @@ ObjectStack does not ship with a database. It uses **Drivers** to virtualize ext
 A valid driver must implement the `ObjectDriver` interface.
 
 ```typescript
-import { ObjectDriver, ConnectorConfig } from '@objectstack/spec/driver';
+import { ObjectDriver, ConnectorConfig } from '@objectstack/spec/system';
 import { ObjectSchema } from '@objectstack/spec/data';
 
 export class PostgresDriver implements ObjectDriver {
