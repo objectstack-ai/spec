@@ -143,9 +143,6 @@ function generateZodFileMarkdown(zodFile: string, schemas: Array<{name: string, 
   md += `description: ${zodTitle} protocol schemas\n`;
   md += `---\n\n`;
   
-  md += `import { Card, Cards } from 'fumadocs-ui/components/card';\n`;
-  md += `import { Callout } from 'fumadocs-ui/components/callout';\n\n`;
-  
   md += `# ${zodTitle}\n\n`;
   
   // Add source reference
@@ -283,7 +280,6 @@ Object.entries(CATEGORIES).forEach(([category, title]) => {
   if (zodFiles.size === 0) return;
   
   let overviewMd = `---\ntitle: ${title} Overview\ndescription: Complete reference for all ${title.toLowerCase()} schemas\n---\n\n`;
-  overviewMd += `import { Card, Cards } from 'fumadocs-ui/components/card';\n\n`;
   
   overviewMd += `# ${title}\n\n`;
   overviewMd += `This section contains all protocol schemas for the ${category} layer of ObjectStack.\n\n`;
