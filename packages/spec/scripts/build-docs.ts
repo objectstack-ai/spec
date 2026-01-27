@@ -96,30 +96,18 @@ function generateMarkdown(schemaName: string, schema: any, category: string, zod
 
   if (!mainDef) return '';
 
-  // Enhanced frontmatter with more metadata
-  let md = `---\ntitle: ${schemaName}\ndescription: ${mainDef.description || schemaName + ' Schema Reference'}\n`;
-  md += `category: ${category}\n`;
-  md += `zodFile: ${zodFile}\n`;
-  md += `---\n\n`;
+  let md = '';
   
-  // Add breadcrumb navigation
-  const categoryTitle = getCategoryTitle(category);
-  md += `import { Card, Cards } from 'fumadocs-ui/components/card';\n`;
-  md += `import { Tab, Tabs } from 'fumadocs-ui/components/tabs';\n`;
-  md += `import { Callout } from 'fumadocs-ui/components/callout';\n\n`;
+  // Add schema heading
+  md += `## ${schemaName}\n\n`;
   
   // Add description with better formatting
   if (mainDef.description) {
     md += `${mainDef.description}\n\n`;
   }
-  
-  // Add source code reference
-  md += `<Callout type="info">\n`;
-  md += `**Source:** \`packages/spec/src/${category}/${zodFile}.zod.ts\`\n`;
-  md += `</Callout>\n\n`;
 
   if (mainDef.type === 'object' && mainDef.properties) {
-    md += `## Properties\n\n`;
+    md += `### Properties\n\n`;
     md += `| Property | Type | Required | Description |\n`;
     md += `| :--- | :--- | :--- | :--- |\n`;
 
@@ -135,100 +123,68 @@ function generateMarkdown(schemaName: string, schema: any, category: string, zod
       md += `| **${key}** | \`${typeStr}\` | ${isReq} | ${desc} |\n`;
     }
     
-    // Add TypeScript usage example
-    md += `\n## TypeScript Usage\n\n`;
-    md += `\`\`\`typescript\n`;
-    md += `import { ${schemaName}Schema } from '@objectstack/spec/${category}';\n`;
-    md += `import type { ${schemaName} } from '@objectstack/spec/${category}';\n\n`;
-    md += `// Validate data\n`;
-    md += `const result = ${schemaName}Schema.parse(data);\n\n`;
-    md += `// Type-safe usage\n`;
-    md += `const my${schemaName}: ${schemaName} = {\n`;
-    
-    // Generate example based on required fields
-    const requiredProps = Array.from(required).slice(0, 3); // Show first 3 required fields
-    requiredProps.forEach((propName, idx) => {
-      const prop = (mainDef.properties as any)[propName];
-      const exampleValue = getExampleValue(prop, propName as string);
-      const isLast = (idx === requiredProps.length - 1) && (mainDef.required?.length <= 3);
-      md += `  ${propName}: ${exampleValue}${isLast ? '' : ','}\n`;
-    });
-    
-    if (mainDef.required?.length > 3) {
-      md += `  // ... other required fields\n`;
-    }
-    
-    md += `};\n`;
-    md += `\`\`\`\n\n`;
+    md += `\n`;
     
   } else if (mainDef.type === 'string' && mainDef.enum) {
-    md += `## Allowed Values\n\n`;
+    md += `### Allowed Values\n\n`;
     md += mainDef.enum.map((e: string) => `* \`${e}\``).join('\n');
-    md += `\n\n## TypeScript Usage\n\n`;
-    md += `\`\`\`typescript\n`;
-    md += `import { ${schemaName} } from '@objectstack/spec/${category}';\n\n`;
-    md += `// Type-safe enum value\n`;
-    md += `const value: ${schemaName} = '${mainDef.enum[0]}';\n`;
-    md += `\`\`\`\n\n`;
-  }
-  
-  // Add "See Also" section with related schemas
-  const relatedSchemas = findRelatedSchemas(schemaName, mainDef, category);
-  if (relatedSchemas.length > 0) {
-    md += `## Related\n\n`;
-    md += `<Cards>\n`;
-    relatedSchemas.forEach(related => {
-      md += `  <Card href="../${related.zodFile}/${related.name}" title="${related.name}" />\n`;
-    });
-    md += `</Cards>\n\n`;
+    md += `\n\n`;
   }
 
   return md;
 }
 
-// Helper to generate example values for fields
-function getExampleValue(prop: any, fieldName: string): string {
-  if (prop.type === 'string') {
-    if (prop.enum) return `'${prop.enum[0]}'`;
-    if (fieldName.includes('name')) return `'${fieldName.replace(/_/g, ' ')}'`;
-    if (fieldName.includes('email')) return `'user@example.com'`;
-    if (fieldName.includes('url')) return `'https://example.com'`;
-    return `'example'`;
-  }
-  if (prop.type === 'number') return prop.default !== undefined ? prop.default : '0';
-  if (prop.type === 'boolean') return prop.default !== undefined ? String(prop.default) : 'false';
-  if (prop.type === 'array') return '[]';
-  if (prop.type === 'object') return '{}';
-  return 'null';
+// New function to generate combined documentation for all schemas in a zod file
+function generateZodFileMarkdown(zodFile: string, schemas: Array<{name: string, content: any}>, category: string): string {
+  const zodTitle = zodFile.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  
+  let md = `---\n`;
+  md += `title: ${zodTitle}\n`;
+  md += `description: ${zodTitle} protocol schemas\n`;
+  md += `---\n\n`;
+  
+  md += `import { Card, Cards } from 'fumadocs-ui/components/card';\n`;
+  md += `import { Callout } from 'fumadocs-ui/components/callout';\n\n`;
+  
+  md += `# ${zodTitle}\n\n`;
+  
+  // Add source reference
+  md += `<Callout type="info">\n`;
+  md += `**Source:** \`packages/spec/src/${category}/${zodFile}.zod.ts\`\n`;
+  md += `</Callout>\n\n`;
+  
+  // Add TypeScript usage example
+  md += `## TypeScript Usage\n\n`;
+  md += `\`\`\`typescript\n`;
+  md += `import { `;
+  
+  // Import all schemas
+  const schemaNames = schemas.map(s => s.name + 'Schema').join(', ');
+  md += schemaNames;
+  md += ` } from '@objectstack/spec/${category}';\n`;
+  md += `import type { `;
+  md += schemas.map(s => s.name).join(', ');
+  md += ` } from '@objectstack/spec/${category}';\n\n`;
+  md += `// Validate data\n`;
+  md += `const result = ${schemas[0].name}Schema.parse(data);\n`;
+  md += `\`\`\`\n\n`;
+  
+  md += `---\n\n`;
+  
+  // Generate documentation for each schema
+  schemas.forEach((schema, idx) => {
+    md += generateMarkdown(schema.name, schema.content, category, zodFile);
+    if (idx < schemas.length - 1) {
+      md += `---\n\n`;
+    }
+  });
+  
+  return md;
 }
 
-// Helper to find related schemas (referenced in properties)
-function findRelatedSchemas(schemaName: string, mainDef: any, category: string): Array<{name: string, zodFile: string}> {
-  const related: Array<{name: string, zodFile: string}> = [];
-  const seen = new Set<string>();
-  
-  if (mainDef.properties) {
-    for (const prop of Object.values(mainDef.properties) as any[]) {
-      if (prop.$ref && typeof prop.$ref === 'string' && prop.$ref.includes('/')) {
-        const refName = prop.$ref.split('/').pop();
-        if (refName && refName !== schemaName && !seen.has(refName)) {
-          const zodFile = schemaZodFileMap.get(refName);
-          if (zodFile && schemaCategoryMap.get(refName) === category) {
-            related.push({ name: refName, zodFile });
-            seen.add(refName);
-          }
-        }
-      }
-    }
-  }
-  
-  return related.slice(0, 6); // Limit to 6 related items
-}
 
 // 2. Clean up old documentation structure
-// IMPORTANT: This removes old .mdx files and subdirectories to ensure a clean state.
-// Only category roots are cleaned (data/, ui/, system/, ai/, api/). The root meta.json is preserved.
-// All necessary directories and files are regenerated in step 3, so this is safe.
+// Remove old .mdx files and subdirectories to ensure a clean state.
 Object.keys(CATEGORIES).forEach(category => {
   const dir = path.join(DOCS_ROOT, category);
   if (fs.existsSync(dir)) {
@@ -237,13 +193,12 @@ Object.keys(CATEGORIES).forEach(category => {
       const entryPath = path.join(dir, entry);
       const stat = fs.statSync(entryPath);
       
-      // Remove old .mdx files from category root (these will be moved to subfolders)
-      if (stat.isFile() && entry.endsWith('.mdx')) {
+      // Remove old .mdx files (will be regenerated)
+      if (stat.isFile() && entry.endsWith('.mdx') && entry !== 'index.mdx') {
         fs.unlinkSync(entryPath);
         console.log(`Removed old file: ${category}/${entry}`);
       }
-      // Remove old subdirectories (will be recreated with correct structure in step 3)
-      // Note: meta.json is preserved as it's not a directory
+      // Remove old subdirectories (schemas are now in single files)
       else if (stat.isDirectory()) {
         fs.rmSync(entryPath, { recursive: true, force: true });
         console.log(`Removed old directory: ${category}/${entry}`);
@@ -252,19 +207,19 @@ Object.keys(CATEGORIES).forEach(category => {
   }
 });
 
-// 3. Prepare Directories
+// 3. Prepare Directories and Generate meta.json
 if (!fs.existsSync(DOCS_ROOT)) {
   fs.mkdirSync(DOCS_ROOT, { recursive: true });
 }
 
-// Generate meta.json for categories and zod file subfolders
+// Generate meta.json for categories - now just listing zod files
 Object.entries(CATEGORIES).forEach(([key, title]) => {
   const dir = path.join(DOCS_ROOT, key);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
   const zodFiles = categoryZodFiles.get(key) || new Set<string>();
   
-  // Create top-level meta.json for the protocol
+  // Create top-level meta.json for the protocol with zod files as pages
   const meta: any = { 
     title,
   };
@@ -273,24 +228,14 @@ Object.entries(CATEGORIES).forEach(([key, title]) => {
   const sortedZodFiles = Array.from(zodFiles).sort();
   
   if (sortedZodFiles.length > 0) {
-    // Enforce order using 'pages'
     meta.pages = sortedZodFiles;
   }
 
   fs.writeFileSync(path.join(dir, 'meta.json'), JSON.stringify(meta, null, 2));
-
-  // Create zod file directories and meta.json files
-  sortedZodFiles.forEach(zodFile => {
-    const subDir = path.join(dir, zodFile);
-    if (!fs.existsSync(subDir)) fs.mkdirSync(subDir, { recursive: true });
-    
-    const subTitle = zodFile.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-    fs.writeFileSync(path.join(subDir, 'meta.json'), JSON.stringify({ title: subTitle }, null, 2));
-  });
 });
 
-// 4. Generate Docs
-// Read JSON schema files from category subdirectories
+// 4. Generate Docs - One file per zod file containing all schemas
+// Group schemas by zod file
 Object.keys(CATEGORIES).forEach(category => {
   const categorySchemaDir = path.join(SCHEMA_DIR, category);
   
@@ -301,32 +246,36 @@ Object.keys(CATEGORIES).forEach(category => {
   
   const files = fs.readdirSync(categorySchemaDir).filter(f => f.endsWith('.json'));
   
+  // Group schemas by their zod file
+  const zodFileSchemas = new Map<string, Array<{name: string, content: any}>>();
+  
   files.forEach(file => {
     const schemaName = file.replace('.json', '');
     const schemaPath = path.join(categorySchemaDir, file);
     const content = JSON.parse(fs.readFileSync(schemaPath, 'utf-8'));
     const zodFile = schemaZodFileMap.get(schemaName) || 'misc';
-    const mdx = generateMarkdown(schemaName, content, category, zodFile);
     
-    if (mdx) {
-      // Determine output directory
-      let outDir = path.join(DOCS_ROOT, category);
-      if (zodFile) {
-        outDir = path.join(outDir, zodFile);
-      }
-
-      if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
-      
-      const fileName = `${schemaName}.mdx`;
-      fs.writeFileSync(path.join(outDir, fileName), mdx);
-      
-      console.log(`✓ Generated docs for ${schemaName} in ${category}${zodFile ? '/' + zodFile : ''}`);
+    if (!zodFileSchemas.has(zodFile)) {
+      zodFileSchemas.set(zodFile, []);
     }
+    zodFileSchemas.get(zodFile)!.push({ name: schemaName, content });
+  });
+  
+  // Generate one file per zod file
+  zodFileSchemas.forEach((schemas, zodFile) => {
+    const outDir = path.join(DOCS_ROOT, category);
+    if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+    
+    const mdx = generateZodFileMarkdown(zodFile, schemas, category);
+    const fileName = `${zodFile}.mdx`;
+    fs.writeFileSync(path.join(outDir, fileName), mdx);
+    
+    console.log(`✓ Generated docs for ${zodFile}.zod.ts in ${category} (${schemas.length} schemas)`);
   });
 });
 
 // 4.5. Generate Protocol Overview Pages
-// Create index.mdx for each category with overview of all schemas
+// Create index.mdx for each category with overview of all zod files
 Object.entries(CATEGORIES).forEach(([category, title]) => {
   const categoryDir = path.join(DOCS_ROOT, category);
   const zodFiles = categoryZodFiles.get(category) || new Set<string>();
@@ -339,50 +288,15 @@ Object.entries(CATEGORIES).forEach(([category, title]) => {
   overviewMd += `# ${title}\n\n`;
   overviewMd += `This section contains all protocol schemas for the ${category} layer of ObjectStack.\n\n`;
   
-  // Group schemas by zod file
-  const zodFileGroups = new Map<string, string[]>();
-  
-  // Read category schema directory to get all schemas
-  const categorySchemaDir = path.join(SCHEMA_DIR, category);
-  if (fs.existsSync(categorySchemaDir)) {
-    const schemaFiles = fs.readdirSync(categorySchemaDir).filter(f => f.endsWith('.json'));
-    schemaFiles.forEach(file => {
-      const schemaName = file.replace('.json', '');
-      const zodFile = schemaZodFileMap.get(schemaName) || 'misc';
-      
-      if (!zodFileGroups.has(zodFile)) {
-        zodFileGroups.set(zodFile, []);
-      }
-      zodFileGroups.get(zodFile)!.push(schemaName);
-    });
-  }
-  
-  // Generate overview sections
+  // List all zod files
   const sortedZodFiles = Array.from(zodFiles).sort();
+  
+  overviewMd += `<Cards>\n`;
   sortedZodFiles.forEach(zodFile => {
-    const schemas = zodFileGroups.get(zodFile) || [];
-    if (schemas.length === 0) return;
-    
     const zodTitle = zodFile.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-    overviewMd += `## ${zodTitle}\n\n`;
-    overviewMd += `Source: \`packages/spec/src/${category}/${zodFile}.zod.ts\`\n\n`;
-    overviewMd += `<Cards>\n`;
-    
-    schemas.sort().forEach(schemaName => {
-      // Read schema to get description
-      const schemaPath = path.join(categorySchemaDir, `${schemaName}.json`);
-      if (fs.existsSync(schemaPath)) {
-        const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf-8'));
-        const defs = schema.definitions || {};
-        const mainDef = defs[schemaName] || Object.values(defs)[0];
-        const description = mainDef?.description || `${schemaName} schema reference`;
-        
-        overviewMd += `  <Card href="./${zodFile}/${schemaName}" title="${schemaName}" description="${description.split('\n')[0].substring(0, 100)}${description.length > 100 ? '...' : ''}" />\n`;
-      }
-    });
-    
-    overviewMd += `</Cards>\n\n`;
+    overviewMd += `  <Card href="./${zodFile}" title="${zodTitle}" description="Source: packages/spec/src/${category}/${zodFile}.zod.ts" />\n`;
   });
+  overviewMd += `</Cards>\n\n`;
   
   // Write overview page
   fs.writeFileSync(path.join(categoryDir, 'index.mdx'), overviewMd);

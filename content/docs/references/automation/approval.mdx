@@ -1,0 +1,98 @@
+---
+title: Approval
+description: Approval protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Approval
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/approval.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { ApprovalActionSchema, ApprovalActionTypeSchema, ApprovalProcessSchema, ApprovalStepSchema, ApproverTypeSchema } from '@objectstack/spec/automation';
+import type { ApprovalAction, ApprovalActionType, ApprovalProcess, ApprovalStep, ApproverType } from '@objectstack/spec/automation';
+
+// Validate data
+const result = ApprovalActionSchema.parse(data);
+```
+
+---
+
+## ApprovalAction
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'field_update' \| 'email_alert' \| 'webhook' \| 'script'>` | ✅ |  |
+| **name** | `string` | ✅ | Action name |
+| **config** | `Record<string, any>` | ✅ | Action configuration |
+
+---
+
+## ApprovalActionType
+
+### Allowed Values
+
+* `field_update`
+* `email_alert`
+* `webhook`
+* `script`
+
+---
+
+## ApprovalProcess
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique process name |
+| **label** | `string` | ✅ | Human readable label |
+| **object** | `string` | ✅ | Target Object Name |
+| **active** | `boolean` | optional |  |
+| **description** | `string` | optional |  |
+| **entryCriteria** | `string` | optional | Formula to allow submission |
+| **lockRecord** | `boolean` | optional | Lock record from editing during approval |
+| **steps** | `object[]` | ✅ | Sequence of approval steps |
+| **onSubmit** | `object[]` | optional | Actions on initial submission |
+| **onFinalApprove** | `object[]` | optional | Actions on final approval |
+| **onFinalReject** | `object[]` | optional | Actions on final rejection |
+| **onRecall** | `object[]` | optional | Actions on recall |
+
+---
+
+## ApprovalStep
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Step machine name |
+| **label** | `string` | ✅ | Step display label |
+| **description** | `string` | optional |  |
+| **entryCriteria** | `string` | optional | Formula expression to enter this step |
+| **approvers** | `object[]` | ✅ | List of allowed approvers |
+| **behavior** | `Enum<'first_response' \| 'unanimous'>` | optional | How to handle multiple approvers |
+| **rejectionBehavior** | `Enum<'reject_process' \| 'back_to_previous'>` | optional | What happens if rejected |
+| **onApprove** | `object[]` | optional | Actions on step approval |
+| **onReject** | `object[]` | optional | Actions on step rejection |
+
+---
+
+## ApproverType
+
+### Allowed Values
+
+* `user`
+* `role`
+* `manager`
+* `field`
+* `queue`
+

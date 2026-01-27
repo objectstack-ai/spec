@@ -1,0 +1,95 @@
+---
+title: Object
+description: Object protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Object
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/object.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { IndexSchema, ObjectSchema, ObjectCapabilitiesSchema, SearchConfigSchema } from '@objectstack/spec/data';
+import type { Index, Object, ObjectCapabilities, SearchConfig } from '@objectstack/spec/data';
+
+// Validate data
+const result = IndexSchema.parse(data);
+```
+
+---
+
+## Index
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | optional | Index name |
+| **fields** | `string[]` | ✅ | Fields included in the index |
+| **unique** | `boolean` | optional | Whether the index is unique |
+| **type** | `Enum<'btree' \| 'hash' \| 'gin' \| 'gist'>` | optional | Index type (default: btree) |
+
+---
+
+## Object
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Machine unique key (snake_case). Immutable. |
+| **label** | `string` | optional | Human readable singular label (e.g. "Account") |
+| **pluralLabel** | `string` | optional | Human readable plural label (e.g. "Accounts") |
+| **description** | `string` | optional | Developer documentation / description |
+| **icon** | `string` | optional | Icon name (Lucide/Material) for UI representation |
+| **tags** | `string[]` | optional | Categorization tags (e.g. "sales", "system", "reference") |
+| **active** | `boolean` | optional | Is the object active and usable |
+| **isSystem** | `boolean` | optional | Is system object (protected from deletion) |
+| **abstract** | `boolean` | optional | Is abstract base object (cannot be instantiated) |
+| **datasource** | `string` | optional | Target Datasource ID. "default" is the primary DB. |
+| **tableName** | `string` | optional | Physical table/collection name in the target datasource |
+| **fields** | `Record<string, object>` | ✅ | Field definitions map |
+| **indexes** | `object[]` | optional | Database performance indexes |
+| **validations** | `object \| object \| object \| object \| object \| object \| object \| object \| object[]` | optional | Object-level validation rules |
+| **titleFormat** | `string` | optional | Title expression (e.g. "`{name}` - `{code}`"). Overrides nameField. |
+| **compactLayout** | `string[]` | optional | Primary fields for hover/cards/lookups |
+| **search** | `object` | optional | Search engine configuration |
+| **enable** | `object` | optional | Enabled system features modules |
+
+---
+
+## ObjectCapabilities
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **trackHistory** | `boolean` | optional | Enable field history tracking for audit compliance |
+| **searchable** | `boolean` | optional | Index records for global search |
+| **apiEnabled** | `boolean` | optional | Expose object via automatic APIs |
+| **apiMethods** | `Enum<'get' \| 'list' \| 'create' \| 'update' \| 'delete' \| 'upsert' \| 'bulk' \| 'aggregate' \| 'history' \| 'search' \| 'restore' \| 'purge' \| 'import' \| 'export'>[]` | optional | Whitelist of allowed API operations |
+| **files** | `boolean` | optional | Enable file attachments and document management |
+| **feeds** | `boolean` | optional | Enable social feed, comments, and mentions (Chatter-like) |
+| **activities** | `boolean` | optional | Enable standard tasks and events tracking |
+| **trash** | `boolean` | optional | Enable soft-delete with restore capability |
+| **mru** | `boolean` | optional | Track Most Recently Used (MRU) list for users |
+| **clone** | `boolean` | optional | Allow record deep cloning |
+
+---
+
+## SearchConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **fields** | `string[]` | ✅ | Fields to index for full-text search weighting |
+| **displayFields** | `string[]` | optional | Fields to display in search result cards |
+| **filters** | `string[]` | optional | Default filters for search results |
+

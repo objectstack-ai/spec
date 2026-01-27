@@ -1,0 +1,119 @@
+---
+title: Realtime
+description: Realtime protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Realtime
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/realtime.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { PresenceSchema, PresenceStatusSchema, RealtimeActionSchema, RealtimeEventSchema, RealtimeEventTypeSchema, SubscriptionSchema, SubscriptionEventSchema, TransportProtocolSchema } from '@objectstack/spec/api';
+import type { Presence, PresenceStatus, RealtimeAction, RealtimeEvent, RealtimeEventType, Subscription, SubscriptionEvent, TransportProtocol } from '@objectstack/spec/api';
+
+// Validate data
+const result = PresenceSchema.parse(data);
+```
+
+---
+
+## Presence
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **userId** | `string` | ✅ | User identifier |
+| **status** | `Enum<'online' \| 'away' \| 'offline'>` | ✅ | Current presence status |
+| **lastSeen** | `string` | ✅ | ISO 8601 datetime of last activity |
+| **metadata** | `Record<string, any>` | optional | Custom presence data (e.g., current page, custom status) |
+
+---
+
+## PresenceStatus
+
+### Allowed Values
+
+* `online`
+* `away`
+* `offline`
+
+---
+
+## RealtimeAction
+
+### Allowed Values
+
+* `created`
+* `updated`
+* `deleted`
+
+---
+
+## RealtimeEvent
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique event identifier |
+| **type** | `string` | ✅ | Event type (e.g., record.created, record.updated) |
+| **object** | `string` | optional | Object name the event relates to |
+| **action** | `Enum<'created' \| 'updated' \| 'deleted'>` | optional | Action performed |
+| **payload** | `any` | optional | Event payload data |
+| **timestamp** | `string` | ✅ | ISO 8601 datetime when event occurred |
+| **userId** | `string` | optional | User who triggered the event |
+
+---
+
+## RealtimeEventType
+
+### Allowed Values
+
+* `record.created`
+* `record.updated`
+* `record.deleted`
+* `field.changed`
+
+---
+
+## Subscription
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique subscription identifier |
+| **events** | `object[]` | ✅ | Array of events to subscribe to |
+| **transport** | `Enum<'websocket' \| 'sse' \| 'polling'>` | ✅ | Transport protocol to use |
+| **channel** | `string` | optional | Optional channel name for grouping subscriptions |
+
+---
+
+## SubscriptionEvent
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'record.created' \| 'record.updated' \| 'record.deleted' \| 'field.changed'>` | ✅ | Type of event to subscribe to |
+| **object** | `string` | optional | Object name to subscribe to |
+| **filters** | `any` | optional | Filter conditions |
+
+---
+
+## TransportProtocol
+
+### Allowed Values
+
+* `websocket`
+* `sse`
+* `polling`
+

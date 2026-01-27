@@ -1,0 +1,42 @@
+---
+title: Identifiers
+description: Identifiers protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Identifiers
+
+<Callout type="info">
+**Source:** `packages/spec/src/shared/identifiers.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { EventNameSchema, SnakeCaseIdentifierSchema, SystemIdentifierSchema } from '@objectstack/spec/shared';
+import type { EventName, SnakeCaseIdentifier, SystemIdentifier } from '@objectstack/spec/shared';
+
+// Validate data
+const result = EventNameSchema.parse(data);
+```
+
+---
+
+## EventName
+
+Event name (lowercase with dot notation for namespacing)
+
+---
+
+## SnakeCaseIdentifier
+
+Snake case identifier (lowercase with underscores only)
+
+---
+
+## SystemIdentifier
+
+System identifier (lowercase with underscores or dots)
+

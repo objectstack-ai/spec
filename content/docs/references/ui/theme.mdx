@@ -1,0 +1,197 @@
+---
+title: Theme
+description: Theme protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Theme
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/theme.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AnimationSchema, BorderRadiusSchema, BreakpointsSchema, ColorPaletteSchema, ShadowSchema, SpacingSchema, ThemeSchema, ThemeModeSchema, TypographySchema, ZIndexSchema } from '@objectstack/spec/ui';
+import type { Animation, BorderRadius, Breakpoints, ColorPalette, Shadow, Spacing, Theme, ThemeMode, Typography, ZIndex } from '@objectstack/spec/ui';
+
+// Validate data
+const result = AnimationSchema.parse(data);
+```
+
+---
+
+## Animation
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **duration** | `object` | optional |  |
+| **timing** | `object` | optional |  |
+
+---
+
+## BorderRadius
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **none** | `string` | optional | No border radius (0) |
+| **sm** | `string` | optional | Small border radius (e.g., 0.125rem) |
+| **base** | `string` | optional | Base border radius (e.g., 0.25rem) |
+| **md** | `string` | optional | Medium border radius (e.g., 0.375rem) |
+| **lg** | `string` | optional | Large border radius (e.g., 0.5rem) |
+| **xl** | `string` | optional | Extra large border radius (e.g., 0.75rem) |
+| **2xl** | `string` | optional | 2X large border radius (e.g., 1rem) |
+| **full** | `string` | optional | Full border radius (50%) |
+
+---
+
+## Breakpoints
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **xs** | `string` | optional | Extra small breakpoint (e.g., 480px) |
+| **sm** | `string` | optional | Small breakpoint (e.g., 640px) |
+| **md** | `string` | optional | Medium breakpoint (e.g., 768px) |
+| **lg** | `string` | optional | Large breakpoint (e.g., 1024px) |
+| **xl** | `string` | optional | Extra large breakpoint (e.g., 1280px) |
+| **2xl** | `string` | optional | 2X large breakpoint (e.g., 1536px) |
+
+---
+
+## ColorPalette
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **primary** | `string` | ✅ | Primary brand color (hex, rgb, or hsl) |
+| **secondary** | `string` | optional | Secondary brand color |
+| **accent** | `string` | optional | Accent color for highlights |
+| **success** | `string` | optional | Success state color (default: green) |
+| **warning** | `string` | optional | Warning state color (default: yellow) |
+| **error** | `string` | optional | Error state color (default: red) |
+| **info** | `string` | optional | Info state color (default: blue) |
+| **background** | `string` | optional | Background color |
+| **surface** | `string` | optional | Surface/card background color |
+| **text** | `string` | optional | Primary text color |
+| **textSecondary** | `string` | optional | Secondary text color |
+| **border** | `string` | optional | Border color |
+| **disabled** | `string` | optional | Disabled state color |
+| **primaryLight** | `string` | optional | Lighter shade of primary |
+| **primaryDark** | `string` | optional | Darker shade of primary |
+| **secondaryLight** | `string` | optional | Lighter shade of secondary |
+| **secondaryDark** | `string` | optional | Darker shade of secondary |
+
+---
+
+## Shadow
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **none** | `string` | optional | No shadow |
+| **sm** | `string` | optional | Small shadow |
+| **base** | `string` | optional | Base shadow |
+| **md** | `string` | optional | Medium shadow |
+| **lg** | `string` | optional | Large shadow |
+| **xl** | `string` | optional | Extra large shadow |
+| **2xl** | `string` | optional | 2X large shadow |
+| **inner** | `string` | optional | Inner shadow (inset) |
+
+---
+
+## Spacing
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **0** | `string` | optional | 0 spacing (0) |
+| **1** | `string` | optional | Spacing unit 1 (e.g., 0.25rem) |
+| **2** | `string` | optional | Spacing unit 2 (e.g., 0.5rem) |
+| **3** | `string` | optional | Spacing unit 3 (e.g., 0.75rem) |
+| **4** | `string` | optional | Spacing unit 4 (e.g., 1rem) |
+| **5** | `string` | optional | Spacing unit 5 (e.g., 1.25rem) |
+| **6** | `string` | optional | Spacing unit 6 (e.g., 1.5rem) |
+| **8** | `string` | optional | Spacing unit 8 (e.g., 2rem) |
+| **10** | `string` | optional | Spacing unit 10 (e.g., 2.5rem) |
+| **12** | `string` | optional | Spacing unit 12 (e.g., 3rem) |
+| **16** | `string` | optional | Spacing unit 16 (e.g., 4rem) |
+| **20** | `string` | optional | Spacing unit 20 (e.g., 5rem) |
+| **24** | `string` | optional | Spacing unit 24 (e.g., 6rem) |
+
+---
+
+## Theme
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique theme identifier (snake_case) |
+| **label** | `string` | ✅ | Human-readable theme name |
+| **description** | `string` | optional | Theme description |
+| **mode** | `Enum<'light' \| 'dark' \| 'auto'>` | optional | Theme mode (light, dark, or auto) |
+| **colors** | `object` | ✅ | Color palette configuration |
+| **typography** | `object` | optional | Typography settings |
+| **spacing** | `object` | optional | Spacing scale |
+| **borderRadius** | `object` | optional | Border radius scale |
+| **shadows** | `object` | optional | Box shadow effects |
+| **breakpoints** | `object` | optional | Responsive breakpoints |
+| **animation** | `object` | optional | Animation settings |
+| **zIndex** | `object` | optional | Z-index scale for layering |
+| **customVars** | `Record<string, string>` | optional | Custom CSS variables (key-value pairs) |
+| **logo** | `object` | optional | Logo assets |
+| **extends** | `string` | optional | Base theme to extend from |
+
+---
+
+## ThemeMode
+
+### Allowed Values
+
+* `light`
+* `dark`
+* `auto`
+
+---
+
+## Typography
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **fontFamily** | `object` | optional |  |
+| **fontSize** | `object` | optional |  |
+| **fontWeight** | `object` | optional |  |
+| **lineHeight** | `object` | optional |  |
+| **letterSpacing** | `object` | optional |  |
+
+---
+
+## ZIndex
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **base** | `number` | optional | Base z-index (e.g., 0) |
+| **dropdown** | `number` | optional | Dropdown z-index (e.g., 1000) |
+| **sticky** | `number` | optional | Sticky z-index (e.g., 1020) |
+| **fixed** | `number` | optional | Fixed z-index (e.g., 1030) |
+| **modalBackdrop** | `number` | optional | Modal backdrop z-index (e.g., 1040) |
+| **modal** | `number` | optional | Modal z-index (e.g., 1050) |
+| **popover** | `number` | optional | Popover z-index (e.g., 1060) |
+| **tooltip** | `number` | optional | Tooltip z-index (e.g., 1070) |
+

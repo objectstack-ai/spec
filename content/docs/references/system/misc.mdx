@@ -1,0 +1,70 @@
+---
+title: Misc
+description: Misc protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Misc
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/misc.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { MongoConfigSchema, PostgresConfigSchema } from '@objectstack/spec/system';
+import type { MongoConfig, PostgresConfig } from '@objectstack/spec/system';
+
+// Validate data
+const result = MongoConfigSchema.parse(data);
+```
+
+---
+
+## MongoConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **url** | `string` | optional | Connection URI |
+| **database** | `string` | ✅ | Database Name |
+| **host** | `string` | optional | Host address |
+| **port** | `number` | optional | Port number |
+| **username** | `string` | optional | Auth User |
+| **password** | `string` | optional | Auth Password |
+| **authSource** | `string` | optional | Authentication Database |
+| **ssl** | `boolean` | optional | Enable SSL |
+| **replicaSet** | `string` | optional | Replica Set Name |
+| **readPreference** | `Enum<'primary' \| 'primaryPreferred' \| 'secondary' \| 'secondaryPreferred' \| 'nearest'>` | optional | Read Preference |
+| **maxPoolSize** | `number` | optional | Max Connection Pool Size |
+| **minPoolSize** | `number` | optional | Min Connection Pool Size |
+| **connectTimeoutMS** | `number` | optional | Connection Timeout (ms) |
+| **socketTimeoutMS** | `number` | optional | Socket Timeout (ms) |
+
+---
+
+## PostgresConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **url** | `string` | optional | Connection URI |
+| **database** | `string` | ✅ | Database Name |
+| **host** | `string` | optional | Host address |
+| **port** | `number` | optional | Port number |
+| **username** | `string` | optional | Auth User |
+| **password** | `string` | optional | Auth Password |
+| **schema** | `string` | optional | Default Schema |
+| **ssl** | `boolean \| object` | optional | Enable SSL |
+| **applicationName** | `string` | optional | Application Name |
+| **max** | `number` | optional | Max Pool Size |
+| **min** | `number` | optional | Min Pool Size |
+| **idleTimeoutMillis** | `number` | optional | Idle Timeout (ms) |
+| **connectionTimeoutMillis** | `number` | optional | Connection Timeout (ms) |
+| **statementTimeout** | `number` | optional | Statement Timeout (ms) |
+

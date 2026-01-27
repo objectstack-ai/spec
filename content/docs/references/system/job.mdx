@@ -1,0 +1,115 @@
+---
+title: Job
+description: Job protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Job
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/job.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { CronScheduleSchema, IntervalScheduleSchema, JobSchema, JobExecutionSchema, JobExecutionStatusSchema, OnceScheduleSchema, RetryPolicySchema, ScheduleSchema } from '@objectstack/spec/system';
+import type { CronSchedule, IntervalSchedule, Job, JobExecution, JobExecutionStatus, OnceSchedule, RetryPolicy, Schedule } from '@objectstack/spec/system';
+
+// Validate data
+const result = CronScheduleSchema.parse(data);
+```
+
+---
+
+## CronSchedule
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **expression** | `string` | ✅ | Cron expression (e.g., "0 0 * * *" for daily at midnight) |
+| **timezone** | `string` | optional | Timezone for cron execution (e.g., "America/New_York") |
+
+---
+
+## IntervalSchedule
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **intervalMs** | `integer` | ✅ | Interval in milliseconds |
+
+---
+
+## Job
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique job identifier |
+| **name** | `string` | ✅ | Job name (snake_case) |
+| **schedule** | `object \| object \| object` | ✅ | Job schedule configuration |
+| **retryPolicy** | `object` | optional | Retry policy configuration |
+| **timeout** | `integer` | optional | Timeout in milliseconds |
+| **enabled** | `boolean` | optional | Whether the job is enabled |
+
+---
+
+## JobExecution
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **jobId** | `string` | ✅ | Job identifier |
+| **startedAt** | `string` | ✅ | ISO 8601 datetime when execution started |
+| **completedAt** | `string` | optional | ISO 8601 datetime when execution completed |
+| **status** | `Enum<'running' \| 'success' \| 'failed' \| 'timeout'>` | ✅ | Execution status |
+| **error** | `string` | optional | Error message if failed |
+| **duration** | `integer` | optional | Execution duration in milliseconds |
+
+---
+
+## JobExecutionStatus
+
+### Allowed Values
+
+* `running`
+* `success`
+* `failed`
+* `timeout`
+
+---
+
+## OnceSchedule
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **at** | `string` | ✅ | ISO 8601 datetime when to execute |
+
+---
+
+## RetryPolicy
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **maxRetries** | `integer` | optional | Maximum number of retry attempts |
+| **backoffMs** | `integer` | optional | Initial backoff delay in milliseconds |
+| **backoffMultiplier** | `number` | optional | Multiplier for exponential backoff |
+
+---
+
+## Schedule
+

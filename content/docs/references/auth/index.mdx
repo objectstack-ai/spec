@@ -3,98 +3,18 @@ title: Auth Protocol Overview
 description: Complete reference for all auth protocol schemas
 ---
 
+import { Card, Cards } from 'fumadocs-ui/components/card';
 
 # Auth Protocol
 
 This section contains all protocol schemas for the auth layer of ObjectStack.
 
-## Config
-
-Source: `packages/spec/src/auth/config.zod.ts`
-
 <Cards>
-  <Card href="./config/AccountLinkingConfig" title="AccountLinkingConfig" description="AccountLinkingConfig schema reference" />
-  <Card href="./config/AuthConfig" title="AuthConfig" description="AuthConfig schema reference" />
-  <Card href="./config/AuthPluginConfig" title="AuthPluginConfig" description="AuthPluginConfig schema reference" />
-  <Card href="./config/AuthStrategy" title="AuthStrategy" description="AuthStrategy schema reference" />
-  <Card href="./config/CSRFConfig" title="CSRFConfig" description="CSRFConfig schema reference" />
-  <Card href="./config/DatabaseAdapter" title="DatabaseAdapter" description="DatabaseAdapter schema reference" />
-  <Card href="./config/DatabaseMapping" title="DatabaseMapping" description="DatabaseMapping schema reference" />
-  <Card href="./config/EmailPasswordConfig" title="EmailPasswordConfig" description="EmailPasswordConfig schema reference" />
-  <Card href="./config/EnterpriseAuthConfig" title="EnterpriseAuthConfig" description="EnterpriseAuthConfig schema reference" />
-  <Card href="./config/LDAPConfig" title="LDAPConfig" description="LDAPConfig schema reference" />
-  <Card href="./config/MagicLinkConfig" title="MagicLinkConfig" description="MagicLinkConfig schema reference" />
-  <Card href="./config/OAuthProvider" title="OAuthProvider" description="OAuthProvider schema reference" />
-  <Card href="./config/OIDCConfig" title="OIDCConfig" description="OIDCConfig schema reference" />
-  <Card href="./config/PasskeyConfig" title="PasskeyConfig" description="PasskeyConfig schema reference" />
-  <Card href="./config/RateLimitConfig" title="RateLimitConfig" description="RateLimitConfig schema reference" />
-  <Card href="./config/SAMLConfig" title="SAMLConfig" description="SAMLConfig schema reference" />
-  <Card href="./config/SessionConfig" title="SessionConfig" description="SessionConfig schema reference" />
-  <Card href="./config/StandardAuthProvider" title="StandardAuthProvider" description="StandardAuthProvider schema reference" />
-  <Card href="./config/TwoFactorConfig" title="TwoFactorConfig" description="TwoFactorConfig schema reference" />
-  <Card href="./config/UserFieldMapping" title="UserFieldMapping" description="UserFieldMapping schema reference" />
-</Cards>
-
-## Identity
-
-Source: `packages/spec/src/auth/identity.zod.ts`
-
-<Cards>
-  <Card href="./identity/Account" title="Account" description="Account schema reference" />
-  <Card href="./identity/Session" title="Session" description="Session schema reference" />
-  <Card href="./identity/User" title="User" description="User schema reference" />
-  <Card href="./identity/VerificationToken" title="VerificationToken" description="VerificationToken schema reference" />
-</Cards>
-
-## Organization
-
-Source: `packages/spec/src/auth/organization.zod.ts`
-
-<Cards>
-  <Card href="./organization/Invitation" title="Invitation" description="Invitation schema reference" />
-  <Card href="./organization/InvitationStatus" title="InvitationStatus" description="InvitationStatus schema reference" />
-  <Card href="./organization/Member" title="Member" description="Member schema reference" />
-  <Card href="./organization/Organization" title="Organization" description="Organization schema reference" />
-</Cards>
-
-## Policy
-
-Source: `packages/spec/src/auth/policy.zod.ts`
-
-<Cards>
-  <Card href="./policy/AuditPolicy" title="AuditPolicy" description="AuditPolicy schema reference" />
-  <Card href="./policy/NetworkPolicy" title="NetworkPolicy" description="NetworkPolicy schema reference" />
-  <Card href="./policy/PasswordPolicy" title="PasswordPolicy" description="PasswordPolicy schema reference" />
-  <Card href="./policy/Policy" title="Policy" description="Policy schema reference" />
-  <Card href="./policy/SessionPolicy" title="SessionPolicy" description="SessionPolicy schema reference" />
-</Cards>
-
-## Role
-
-Source: `packages/spec/src/auth/role.zod.ts`
-
-<Cards>
-  <Card href="./role/Role" title="Role" description="Role schema reference" />
-</Cards>
-
-## Scim
-
-Source: `packages/spec/src/auth/scim.zod.ts`
-
-<Cards>
-  <Card href="./scim/SCIMAddress" title="SCIMAddress" description="SCIMAddress schema reference" />
-  <Card href="./scim/SCIMEmail" title="SCIMEmail" description="SCIMEmail schema reference" />
-  <Card href="./scim/SCIMEnterpriseUser" title="SCIMEnterpriseUser" description="SCIMEnterpriseUser schema reference" />
-  <Card href="./scim/SCIMError" title="SCIMError" description="SCIMError schema reference" />
-  <Card href="./scim/SCIMGroup" title="SCIMGroup" description="SCIMGroup schema reference" />
-  <Card href="./scim/SCIMGroupReference" title="SCIMGroupReference" description="SCIMGroupReference schema reference" />
-  <Card href="./scim/SCIMListResponse" title="SCIMListResponse" description="SCIMListResponse schema reference" />
-  <Card href="./scim/SCIMMemberReference" title="SCIMMemberReference" description="SCIMMemberReference schema reference" />
-  <Card href="./scim/SCIMMeta" title="SCIMMeta" description="SCIMMeta schema reference" />
-  <Card href="./scim/SCIMName" title="SCIMName" description="SCIMName schema reference" />
-  <Card href="./scim/SCIMPatchOperation" title="SCIMPatchOperation" description="SCIMPatchOperation schema reference" />
-  <Card href="./scim/SCIMPatchRequest" title="SCIMPatchRequest" description="SCIMPatchRequest schema reference" />
-  <Card href="./scim/SCIMPhoneNumber" title="SCIMPhoneNumber" description="SCIMPhoneNumber schema reference" />
-  <Card href="./scim/SCIMUser" title="SCIMUser" description="SCIMUser schema reference" />
+  <Card href="./config" title="Config" description="Source: packages/spec/src/auth/config.zod.ts" />
+  <Card href="./identity" title="Identity" description="Source: packages/spec/src/auth/identity.zod.ts" />
+  <Card href="./organization" title="Organization" description="Source: packages/spec/src/auth/organization.zod.ts" />
+  <Card href="./policy" title="Policy" description="Source: packages/spec/src/auth/policy.zod.ts" />
+  <Card href="./role" title="Role" description="Source: packages/spec/src/auth/role.zod.ts" />
+  <Card href="./scim" title="Scim" description="Source: packages/spec/src/auth/scim.zod.ts" />
 </Cards>
 

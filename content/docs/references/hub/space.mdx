@@ -1,0 +1,85 @@
+---
+title: Space
+description: Space protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Space
+
+<Callout type="info">
+**Source:** `packages/spec/src/hub/space.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { DeploymentTargetSchema, HubSpaceSchema, SpaceSubscriptionSchema, SubscriptionStatusSchema } from '@objectstack/spec/hub';
+import type { DeploymentTarget, HubSpace, SpaceSubscription, SubscriptionStatus } from '@objectstack/spec/hub';
+
+// Validate data
+const result = DeploymentTargetSchema.parse(data);
+```
+
+---
+
+## DeploymentTarget
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **provider** | `Enum<'vercel' \| 'docker' \| 'kubernetes'>` | ✅ |  |
+| **region** | `string` | optional |  |
+| **url** | `string` | optional | Public Access URL |
+| **env** | `Record<string, string>` | optional | Runtime Environment Variables |
+
+---
+
+## HubSpace
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ |  |
+| **name** | `string` | ✅ |  |
+| **slug** | `string` | ✅ | URL friendly identifier |
+| **ownerId** | `string` | ✅ |  |
+| **runtime** | `object` | optional | Runtime instance configuration |
+| **bom** | `object` | ✅ |  |
+| **lastBuild** | `object` | optional |  |
+| **subscription** | `object` | optional |  |
+| **deployment** | `object` | optional |  |
+| **createdAt** | `string` | ✅ |  |
+| **updatedAt** | `string` | ✅ |  |
+
+---
+
+## SpaceSubscription
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **planId** | `string` | ✅ | Reference to Plan Code |
+| **status** | `Enum<'active' \| 'past_due' \| 'canceled' \| 'trialing' \| 'incomplete'>` | ✅ |  |
+| **currentPeriodEnd** | `string` | optional |  |
+| **stripeCustomerId** | `string` | optional |  |
+| **stripeSubscriptionId** | `string` | optional |  |
+| **addons** | `object[]` | optional |  |
+| **usage** | `Record<string, number>` | optional |  |
+
+---
+
+## SubscriptionStatus
+
+### Allowed Values
+
+* `active`
+* `past_due`
+* `canceled`
+* `trialing`
+* `incomplete`
+

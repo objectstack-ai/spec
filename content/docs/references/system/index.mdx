@@ -3,149 +3,24 @@ title: System Protocol Overview
 description: Complete reference for all system protocol schemas
 ---
 
+import { Card, Cards } from 'fumadocs-ui/components/card';
 
 # System Protocol
 
 This section contains all protocol schemas for the system layer of ObjectStack.
 
-## Audit
-
-Source: `packages/spec/src/system/audit.zod.ts`
-
 <Cards>
-  <Card href="./audit/AuditConfig" title="AuditConfig" description="AuditConfig schema reference" />
-  <Card href="./audit/AuditEvent" title="AuditEvent" description="AuditEvent schema reference" />
-  <Card href="./audit/AuditEventActor" title="AuditEventActor" description="AuditEventActor schema reference" />
-  <Card href="./audit/AuditEventChange" title="AuditEventChange" description="AuditEventChange schema reference" />
-  <Card href="./audit/AuditEventFilter" title="AuditEventFilter" description="AuditEventFilter schema reference" />
-  <Card href="./audit/AuditEventSeverity" title="AuditEventSeverity" description="AuditEventSeverity schema reference" />
-  <Card href="./audit/AuditEventTarget" title="AuditEventTarget" description="AuditEventTarget schema reference" />
-  <Card href="./audit/AuditEventType" title="AuditEventType" description="AuditEventType schema reference" />
-  <Card href="./audit/AuditRetentionPolicy" title="AuditRetentionPolicy" description="AuditRetentionPolicy schema reference" />
-  <Card href="./audit/AuditStorageConfig" title="AuditStorageConfig" description="AuditStorageConfig schema reference" />
-  <Card href="./audit/SuspiciousActivityRule" title="SuspiciousActivityRule" description="SuspiciousActivityRule schema reference" />
-</Cards>
-
-## Context
-
-Source: `packages/spec/src/system/context.zod.ts`
-
-<Cards>
-  <Card href="./context/KernelContext" title="KernelContext" description="KernelContext schema reference" />
-  <Card href="./context/RuntimeMode" title="RuntimeMode" description="Kernel operating mode" />
-</Cards>
-
-## Datasource
-
-Source: `packages/spec/src/system/datasource.zod.ts`
-
-<Cards>
-  <Card href="./datasource/Datasource" title="Datasource" description="Datasource schema reference" />
-  <Card href="./datasource/DatasourceCapabilities" title="DatasourceCapabilities" description="DatasourceCapabilities schema reference" />
-  <Card href="./datasource/DriverDefinition" title="DriverDefinition" description="DriverDefinition schema reference" />
-  <Card href="./datasource/DriverType" title="DriverType" description="Underlying driver identifier" />
-</Cards>
-
-## Driver
-
-Source: `packages/spec/src/system/driver.zod.ts`
-
-<Cards>
-  <Card href="./driver/DriverCapabilities" title="DriverCapabilities" description="DriverCapabilities schema reference" />
-  <Card href="./driver/DriverInterface" title="DriverInterface" description="DriverInterface schema reference" />
-  <Card href="./driver/DriverOptions" title="DriverOptions" description="DriverOptions schema reference" />
-</Cards>
-
-## Events
-
-Source: `packages/spec/src/system/events.zod.ts`
-
-<Cards>
-  <Card href="./events/Event" title="Event" description="Event schema reference" />
-  <Card href="./events/EventHandler" title="EventHandler" description="EventHandler schema reference" />
-  <Card href="./events/EventMetadata" title="EventMetadata" description="EventMetadata schema reference" />
-  <Card href="./events/EventPersistence" title="EventPersistence" description="EventPersistence schema reference" />
-  <Card href="./events/EventRoute" title="EventRoute" description="EventRoute schema reference" />
-</Cards>
-
-## Feature
-
-Source: `packages/spec/src/system/feature.zod.ts`
-
-<Cards>
-  <Card href="./feature/FeatureFlag" title="FeatureFlag" description="FeatureFlag schema reference" />
-  <Card href="./feature/FeatureStrategy" title="FeatureStrategy" description="FeatureStrategy schema reference" />
-</Cards>
-
-## Job
-
-Source: `packages/spec/src/system/job.zod.ts`
-
-<Cards>
-  <Card href="./job/CronSchedule" title="CronSchedule" description="CronSchedule schema reference" />
-  <Card href="./job/IntervalSchedule" title="IntervalSchedule" description="IntervalSchedule schema reference" />
-  <Card href="./job/Job" title="Job" description="Job schema reference" />
-  <Card href="./job/JobExecution" title="JobExecution" description="JobExecution schema reference" />
-  <Card href="./job/JobExecutionStatus" title="JobExecutionStatus" description="JobExecutionStatus schema reference" />
-  <Card href="./job/OnceSchedule" title="OnceSchedule" description="OnceSchedule schema reference" />
-  <Card href="./job/RetryPolicy" title="RetryPolicy" description="RetryPolicy schema reference" />
-  <Card href="./job/Schedule" title="Schedule" description="Schedule schema reference" />
-</Cards>
-
-## Logger
-
-Source: `packages/spec/src/system/logger.zod.ts`
-
-<Cards>
-  <Card href="./logger/LogEntry" title="LogEntry" description="LogEntry schema reference" />
-  <Card href="./logger/LogFormat" title="LogFormat" description="Log output format" />
-  <Card href="./logger/LogLevel" title="LogLevel" description="Log severity level" />
-  <Card href="./logger/LoggerConfig" title="LoggerConfig" description="LoggerConfig schema reference" />
-</Cards>
-
-## Manifest
-
-Source: `packages/spec/src/system/manifest.zod.ts`
-
-<Cards>
-  <Card href="./manifest/Manifest" title="Manifest" description="Manifest schema reference" />
-</Cards>
-
-## Plugin
-
-Source: `packages/spec/src/system/plugin.zod.ts`
-
-<Cards>
-  <Card href="./plugin/I18nContext" title="I18nContext" description="Internationalization Helper" />
-  <Card href="./plugin/Logger" title="Logger" description="Structured Logger" />
-  <Card href="./plugin/ObjectQLClient" title="ObjectQLClient" description="ObjectQL Data Access Client" />
-  <Card href="./plugin/Plugin" title="Plugin" description="Plugin schema reference" />
-  <Card href="./plugin/PluginContext" title="PluginContext" description="PluginContext schema reference" />
-  <Card href="./plugin/PluginLifecycle" title="PluginLifecycle" description="PluginLifecycle schema reference" />
-  <Card href="./plugin/Router" title="Router" description="HTTP Router Interface" />
-  <Card href="./plugin/Scheduler" title="Scheduler" description="Job Scheduler Interface" />
-  <Card href="./plugin/ScopedStorage" title="ScopedStorage" description="Plugin Scoped Data Storage (KV)" />
-  <Card href="./plugin/SystemAPI" title="SystemAPI" description="Access to System Core" />
-</Cards>
-
-## Scoped Storage
-
-Source: `packages/spec/src/system/scoped-storage.zod.ts`
-
-<Cards>
-  <Card href="./scoped-storage/FileMetadata" title="FileMetadata" description="FileMetadata schema reference" />
-  <Card href="./scoped-storage/ScopedStorageConfig" title="ScopedStorageConfig" description="ScopedStorageConfig schema reference" />
-  <Card href="./scoped-storage/StorageAdapterType" title="StorageAdapterType" description="StorageAdapterType schema reference" />
-  <Card href="./scoped-storage/StorageScope" title="StorageScope" description="Generic storage scope classification" />
-</Cards>
-
-## Translation
-
-Source: `packages/spec/src/system/translation.zod.ts`
-
-<Cards>
-  <Card href="./translation/Locale" title="Locale" description="BCP-47 Language Tag (e.g. en-US, zh-CN)" />
-  <Card href="./translation/TranslationBundle" title="TranslationBundle" description="TranslationBundle schema reference" />
-  <Card href="./translation/TranslationData" title="TranslationData" description="TranslationData schema reference" />
+  <Card href="./audit" title="Audit" description="Source: packages/spec/src/system/audit.zod.ts" />
+  <Card href="./context" title="Context" description="Source: packages/spec/src/system/context.zod.ts" />
+  <Card href="./datasource" title="Datasource" description="Source: packages/spec/src/system/datasource.zod.ts" />
+  <Card href="./driver" title="Driver" description="Source: packages/spec/src/system/driver.zod.ts" />
+  <Card href="./events" title="Events" description="Source: packages/spec/src/system/events.zod.ts" />
+  <Card href="./feature" title="Feature" description="Source: packages/spec/src/system/feature.zod.ts" />
+  <Card href="./job" title="Job" description="Source: packages/spec/src/system/job.zod.ts" />
+  <Card href="./logger" title="Logger" description="Source: packages/spec/src/system/logger.zod.ts" />
+  <Card href="./manifest" title="Manifest" description="Source: packages/spec/src/system/manifest.zod.ts" />
+  <Card href="./plugin" title="Plugin" description="Source: packages/spec/src/system/plugin.zod.ts" />
+  <Card href="./scoped-storage" title="Scoped Storage" description="Source: packages/spec/src/system/scoped-storage.zod.ts" />
+  <Card href="./translation" title="Translation" description="Source: packages/spec/src/system/translation.zod.ts" />
 </Cards>
 

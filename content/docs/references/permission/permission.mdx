@@ -1,0 +1,68 @@
+---
+title: Permission
+description: Permission protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Permission
+
+<Callout type="info">
+**Source:** `packages/spec/src/permission/permission.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { FieldPermissionSchema, ObjectPermissionSchema, PermissionSetSchema } from '@objectstack/spec/permission';
+import type { FieldPermission, ObjectPermission, PermissionSet } from '@objectstack/spec/permission';
+
+// Validate data
+const result = FieldPermissionSchema.parse(data);
+```
+
+---
+
+## FieldPermission
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **readable** | `boolean` | optional | Field read access |
+| **editable** | `boolean` | optional | Field edit access |
+
+---
+
+## ObjectPermission
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **allowCreate** | `boolean` | optional | Create permission |
+| **allowRead** | `boolean` | optional | Read permission |
+| **allowEdit** | `boolean` | optional | Edit permission |
+| **allowDelete** | `boolean` | optional | Delete permission |
+| **allowTransfer** | `boolean` | optional | Change record ownership |
+| **allowRestore** | `boolean` | optional | Restore from trash (Undelete) |
+| **allowPurge** | `boolean` | optional | Permanently delete (Hard Delete/GDPR) |
+| **viewAllRecords** | `boolean` | optional | View All Data (Bypass Sharing) |
+| **modifyAllRecords** | `boolean` | optional | Modify All Data (Bypass Sharing) |
+
+---
+
+## PermissionSet
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Permission set unique name (lowercase snake_case) |
+| **label** | `string` | optional | Display label |
+| **isProfile** | `boolean` | optional | Whether this is a user profile |
+| **objects** | `Record<string, object>` | ✅ | Entity permissions |
+| **fields** | `Record<string, object>` | optional | Field level security |
+| **systemPermissions** | `string[]` | optional | System level capabilities |
+

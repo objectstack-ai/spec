@@ -1,0 +1,115 @@
+---
+title: Tenant
+description: Tenant protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Tenant
+
+<Callout type="info">
+**Source:** `packages/spec/src/hub/tenant.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { DatabaseLevelIsolationStrategySchema, LevelIsolationStrategySchemaSchema, RowLevelIsolationStrategySchema, TenantSchema, TenantIsolationConfigSchema, TenantIsolationLevelSchema, TenantQuotaSchema, TenantSecurityPolicySchema } from '@objectstack/spec/hub';
+import type { DatabaseLevelIsolationStrategy, LevelIsolationStrategySchema, RowLevelIsolationStrategy, Tenant, TenantIsolationConfig, TenantIsolationLevel, TenantQuota, TenantSecurityPolicy } from '@objectstack/spec/hub';
+
+// Validate data
+const result = DatabaseLevelIsolationStrategySchema.parse(data);
+```
+
+---
+
+## DatabaseLevelIsolationStrategy
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **strategy** | `string` | ✅ | Database-level isolation strategy |
+| **database** | `object` | optional | Database configuration |
+| **connectionPool** | `object` | optional | Connection pool configuration |
+| **backup** | `object` | optional | Backup configuration |
+| **encryption** | `object` | optional | Encryption configuration |
+
+---
+
+## LevelIsolationStrategySchema
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **strategy** | `string` | ✅ | Schema-level isolation strategy |
+| **schema** | `object` | optional | Schema configuration |
+| **migrations** | `object` | optional | Migration configuration |
+| **performance** | `object` | optional | Performance settings |
+
+---
+
+## RowLevelIsolationStrategy
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **strategy** | `string` | ✅ | Row-level isolation strategy |
+| **database** | `object` | optional | Database configuration |
+| **performance** | `object` | optional | Performance settings |
+
+---
+
+## Tenant
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique tenant identifier |
+| **name** | `string` | ✅ | Tenant display name |
+| **isolationLevel** | `Enum<'shared_schema' \| 'isolated_schema' \| 'isolated_db'>` | ✅ |  |
+| **customizations** | `Record<string, any>` | optional | Custom configuration values |
+| **quotas** | `object` | optional |  |
+
+---
+
+## TenantIsolationConfig
+
+---
+
+## TenantIsolationLevel
+
+### Allowed Values
+
+* `shared_schema`
+* `isolated_schema`
+* `isolated_db`
+
+---
+
+## TenantQuota
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **maxUsers** | `integer` | optional | Maximum number of users |
+| **maxStorage** | `integer` | optional | Maximum storage in bytes |
+| **apiRateLimit** | `integer` | optional | API requests per minute |
+
+---
+
+## TenantSecurityPolicy
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **encryption** | `object` | optional | Encryption requirements |
+| **accessControl** | `object` | optional | Access control requirements |
+| **compliance** | `object` | optional | Compliance requirements |
+

@@ -1,0 +1,192 @@
+---
+title: Orchestration
+description: Orchestration protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Orchestration
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/orchestration.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AIOrchestrationSchema, AIOrchestrationExecutionResultSchema, AIOrchestrationTriggerSchema, AITaskSchema, AITaskTypeSchema, BatchAIOrchestrationExecutionSchema, PostProcessingActionSchema, WorkflowFieldConditionSchema, WorkflowScheduleSchema } from '@objectstack/spec/ai';
+import type { AIOrchestration, AIOrchestrationExecutionResult, AIOrchestrationTrigger, AITask, AITaskType, BatchAIOrchestrationExecution, PostProcessingAction, WorkflowFieldCondition, WorkflowSchedule } from '@objectstack/spec/ai';
+
+// Validate data
+const result = AIOrchestrationSchema.parse(data);
+```
+
+---
+
+## AIOrchestration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Orchestration unique identifier (snake_case) |
+| **label** | `string` | ✅ | Display name |
+| **description** | `string` | optional |  |
+| **objectName** | `string` | ✅ | Target object for this orchestration |
+| **trigger** | `Enum<'record_created' \| 'record_updated' \| 'field_changed' \| 'scheduled' \| 'manual' \| 'webhook' \| 'batch'>` | ✅ |  |
+| **fieldConditions** | `object[]` | optional | Fields to monitor (for field_changed trigger) |
+| **schedule** | `object` | optional | Schedule configuration (for scheduled trigger) |
+| **webhookConfig** | `object` | optional | Webhook configuration (for webhook trigger) |
+| **entryCriteria** | `string` | optional | Formula condition - workflow only runs if TRUE |
+| **aiTasks** | `object[]` | ✅ | AI tasks to execute in sequence |
+| **postActions** | `object[]` | optional | Actions after AI tasks complete |
+| **executionMode** | `Enum<'sequential' \| 'parallel'>` | optional | How to execute multiple AI tasks |
+| **stopOnError** | `boolean` | optional | Stop workflow if any task fails |
+| **timeout** | `number` | optional | Maximum execution time in seconds |
+| **priority** | `Enum<'low' \| 'normal' \| 'high' \| 'critical'>` | optional |  |
+| **enableLogging** | `boolean` | optional |  |
+| **enableMetrics** | `boolean` | optional |  |
+| **notifyOnFailure** | `string[]` | optional | User IDs to notify on failure |
+| **active** | `boolean` | optional |  |
+| **version** | `string` | optional |  |
+| **tags** | `string[]` | optional |  |
+| **category** | `string` | optional | Workflow category (e.g., "support", "sales", "hr") |
+| **owner** | `string` | optional | User ID of workflow owner |
+| **createdAt** | `string` | optional | ISO timestamp |
+| **updatedAt** | `string` | optional | ISO timestamp |
+
+---
+
+## AIOrchestrationExecutionResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **workflowName** | `string` | ✅ |  |
+| **recordId** | `string` | ✅ |  |
+| **status** | `Enum<'success' \| 'partial_success' \| 'failed' \| 'skipped'>` | ✅ |  |
+| **executionTime** | `number` | ✅ | Execution time in milliseconds |
+| **tasksExecuted** | `integer` | ✅ | Number of tasks executed |
+| **tasksSucceeded** | `integer` | ✅ | Number of tasks succeeded |
+| **tasksFailed** | `integer` | ✅ | Number of tasks failed |
+| **taskResults** | `object[]` | optional |  |
+| **error** | `string` | optional |  |
+| **startedAt** | `string` | ✅ | ISO timestamp |
+| **completedAt** | `string` | optional | ISO timestamp |
+
+---
+
+## AIOrchestrationTrigger
+
+### Allowed Values
+
+* `record_created`
+* `record_updated`
+* `field_changed`
+* `scheduled`
+* `manual`
+* `webhook`
+* `batch`
+
+---
+
+## AITask
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Optional task ID for referencing |
+| **name** | `string` | ✅ | Human-readable task name |
+| **type** | `Enum<'classify' \| 'extract' \| 'summarize' \| 'generate' \| 'predict' \| 'translate' \| 'sentiment' \| 'entity_recognition' \| 'anomaly_detection' \| 'recommendation'>` | ✅ |  |
+| **model** | `string` | optional | Model ID from registry (uses default if not specified) |
+| **promptTemplate** | `string` | optional | Prompt template ID for this task |
+| **inputFields** | `string[]` | ✅ | Source fields to process (e.g., ["description", "comments"]) |
+| **inputContext** | `Record<string, any>` | optional | Additional context for the AI model |
+| **outputField** | `string` | ✅ | Target field to store the result |
+| **outputFormat** | `Enum<'text' \| 'json' \| 'number' \| 'boolean' \| 'array'>` | optional |  |
+| **classes** | `string[]` | optional | Valid classes for classification tasks |
+| **multiClass** | `boolean` | optional | Allow multiple classes to be selected |
+| **extractionSchema** | `Record<string, any>` | optional | JSON schema for structured extraction |
+| **maxLength** | `number` | optional | Maximum length for generated content |
+| **temperature** | `number` | optional | Model temperature override |
+| **fallbackValue** | `any` | optional | Fallback value if AI task fails |
+| **retryAttempts** | `integer` | optional |  |
+| **condition** | `string` | optional | Formula condition - task only runs if TRUE |
+| **description** | `string` | optional |  |
+| **active** | `boolean` | optional |  |
+
+---
+
+## AITaskType
+
+### Allowed Values
+
+* `classify`
+* `extract`
+* `summarize`
+* `generate`
+* `predict`
+* `translate`
+* `sentiment`
+* `entity_recognition`
+* `anomaly_detection`
+* `recommendation`
+
+---
+
+## BatchAIOrchestrationExecution
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **workflowName** | `string` | ✅ | Orchestration to execute |
+| **recordIds** | `string[]` | ✅ | Records to process |
+| **batchSize** | `integer` | optional |  |
+| **parallelism** | `integer` | optional |  |
+| **priority** | `Enum<'low' \| 'normal' \| 'high'>` | optional |  |
+
+---
+
+## PostProcessingAction
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'field_update' \| 'send_email' \| 'create_record' \| 'update_related' \| 'trigger_flow' \| 'webhook'>` | ✅ |  |
+| **name** | `string` | ✅ | Action name |
+| **config** | `Record<string, any>` | ✅ | Action-specific configuration |
+| **condition** | `string` | optional | Execute only if condition is TRUE |
+
+---
+
+## WorkflowFieldCondition
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **field** | `string` | ✅ | Field name to monitor |
+| **operator** | `Enum<'changed' \| 'changed_to' \| 'changed_from' \| 'is' \| 'is_not'>` | optional |  |
+| **value** | `any` | optional | Value to compare against (for changed_to/changed_from/is/is_not) |
+
+---
+
+## WorkflowSchedule
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'cron' \| 'interval' \| 'daily' \| 'weekly' \| 'monthly'>` | optional |  |
+| **cron** | `string` | optional | Cron expression (required if type is "cron") |
+| **interval** | `number` | optional | Interval in minutes (required if type is "interval") |
+| **time** | `string` | optional | Time of day for daily schedules (HH:MM format) |
+| **dayOfWeek** | `integer` | optional | Day of week for weekly (0=Sunday) |
+| **dayOfMonth** | `integer` | optional | Day of month for monthly |
+| **timezone** | `string` | optional |  |
+

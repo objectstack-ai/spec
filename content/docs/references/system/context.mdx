@@ -1,0 +1,54 @@
+---
+title: Context
+description: Context protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Context
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/context.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { KernelContextSchema, RuntimeModeSchema } from '@objectstack/spec/system';
+import type { KernelContext, RuntimeMode } from '@objectstack/spec/system';
+
+// Validate data
+const result = KernelContextSchema.parse(data);
+```
+
+---
+
+## KernelContext
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **instanceId** | `string` | ✅ | Unique UUID for this running kernel process |
+| **mode** | `Enum<'development' \| 'production' \| 'test' \| 'provisioning'>` | optional | Kernel operating mode |
+| **version** | `string` | ✅ | Kernel version |
+| **appName** | `string` | optional | Host application name |
+| **cwd** | `string` | ✅ | Current working directory |
+| **workspaceRoot** | `string` | optional | Workspace root if different from cwd |
+| **startTime** | `integer` | ✅ | Boot timestamp (ms) |
+| **features** | `Record<string, boolean>` | optional | Global feature toggles |
+
+---
+
+## RuntimeMode
+
+Kernel operating mode
+
+### Allowed Values
+
+* `development`
+* `production`
+* `test`
+* `provisioning`
+

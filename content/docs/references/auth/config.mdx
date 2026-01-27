@@ -1,0 +1,329 @@
+---
+title: Config
+description: Config protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Config
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/config.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AccountLinkingConfigSchema, AuthConfigSchema, AuthPluginConfigSchema, AuthStrategySchema, CSRFConfigSchema, DatabaseAdapterSchema, DatabaseMappingSchema, EmailPasswordConfigSchema, EnterpriseAuthConfigSchema, LDAPConfigSchema, MagicLinkConfigSchema, OAuthProviderSchema, OIDCConfigSchema, PasskeyConfigSchema, RateLimitConfigSchema, SAMLConfigSchema, SessionConfigSchema, StandardAuthProviderSchema, TwoFactorConfigSchema, UserFieldMappingSchema } from '@objectstack/spec/auth';
+import type { AccountLinkingConfig, AuthConfig, AuthPluginConfig, AuthStrategy, CSRFConfig, DatabaseAdapter, DatabaseMapping, EmailPasswordConfig, EnterpriseAuthConfig, LDAPConfig, MagicLinkConfig, OAuthProvider, OIDCConfig, PasskeyConfig, RateLimitConfig, SAMLConfig, SessionConfig, StandardAuthProvider, TwoFactorConfig, UserFieldMapping } from '@objectstack/spec/auth';
+
+// Validate data
+const result = AccountLinkingConfigSchema.parse(data);
+```
+
+---
+
+## AccountLinkingConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional | Allow account linking |
+| **autoLink** | `boolean` | optional | Automatically link accounts with same email |
+| **requireVerification** | `boolean` | optional | Require email verification before linking |
+
+---
+
+## AuthConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Configuration name (snake_case) |
+| **label** | `string` | ✅ | Display label |
+| **driver** | `string` | optional | The underlying authentication implementation driver |
+| **strategies** | `Enum<'email_password' \| 'magic_link' \| 'oauth' \| 'passkey' \| 'otp' \| 'anonymous'>[]` | ✅ | Enabled authentication strategies |
+| **baseUrl** | `string` | ✅ | Application base URL |
+| **secret** | `string` | ✅ | Secret key for signing (min 32 chars) |
+| **emailPassword** | `object` | optional |  |
+| **magicLink** | `object` | optional |  |
+| **passkey** | `object` | optional |  |
+| **oauth** | `object` | optional |  |
+| **session** | `object` | optional |  |
+| **rateLimit** | `object` | optional |  |
+| **csrf** | `object` | optional |  |
+| **accountLinking** | `object` | optional |  |
+| **twoFactor** | `object` | optional |  |
+| **organization** | `object` | optional | Organization/multi-tenant configuration |
+| **enterprise** | `object` | optional |  |
+| **userFieldMapping** | `object` | optional |  |
+| **database** | `object` | optional |  |
+| **mapping** | `object` | optional |  |
+| **plugins** | `object[]` | optional |  |
+| **hooks** | `object` | optional | Authentication lifecycle hooks |
+| **security** | `object` | optional | Advanced security settings |
+| **email** | `object` | optional | Email configuration |
+| **ui** | `object` | optional | UI customization |
+| **active** | `boolean` | optional | Whether this provider is active |
+| **allowRegistration** | `boolean` | optional | Allow new user registration |
+
+---
+
+## AuthPluginConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Plugin name |
+| **enabled** | `boolean` | optional |  |
+| **options** | `Record<string, any>` | optional | Plugin-specific options |
+
+---
+
+## AuthStrategy
+
+### Allowed Values
+
+* `email_password`
+* `magic_link`
+* `oauth`
+* `passkey`
+* `otp`
+* `anonymous`
+
+---
+
+## CSRFConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional |  |
+| **tokenLength** | `number` | optional | CSRF token length |
+| **cookieName** | `string` | optional | CSRF cookie name |
+| **headerName** | `string` | optional | CSRF header name |
+
+---
+
+## DatabaseAdapter
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'prisma' \| 'drizzle' \| 'kysely' \| 'custom'>` | ✅ | Database adapter type |
+| **connectionString** | `string` | optional | Database connection string |
+| **tablePrefix** | `string` | optional | Prefix for auth tables |
+| **schema** | `string` | optional | Database schema name |
+
+---
+
+## DatabaseMapping
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **user** | `Record<string, string>` | optional | User field mapping (e.g., `{ "emailVerified": "email_verified" }`) |
+| **session** | `Record<string, string>` | optional | Session field mapping |
+| **account** | `Record<string, string>` | optional | Account field mapping |
+| **verificationToken** | `Record<string, string>` | optional | VerificationToken field mapping |
+
+---
+
+## EmailPasswordConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional |  |
+| **requireEmailVerification** | `boolean` | optional | Require email verification before login |
+| **minPasswordLength** | `number` | optional | Minimum password length |
+| **requirePasswordComplexity** | `boolean` | optional | Require uppercase, lowercase, numbers, symbols |
+| **allowPasswordReset** | `boolean` | optional | Enable password reset functionality |
+| **passwordResetExpiry** | `number` | optional | Password reset token expiry in seconds |
+
+---
+
+## EnterpriseAuthConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **oidc** | `object` | optional | OpenID Connect configuration |
+| **saml** | `object` | optional | SAML 2.0 configuration |
+| **ldap** | `object` | optional | LDAP/Active Directory configuration |
+
+---
+
+## LDAPConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional |  |
+| **url** | `string` | ✅ | LDAP Server URL (ldap:// or ldaps://) |
+| **bindDn** | `string` | ✅ | Bind DN for LDAP authentication |
+| **bindCredentials** | `string` | ✅ | Bind credentials |
+| **searchBase** | `string` | ✅ | Search base DN |
+| **searchFilter** | `string` | ✅ | Search filter |
+| **groupSearchBase** | `string` | optional | Group search base DN |
+| **displayName** | `string` | optional | Display name for the provider button |
+| **icon** | `string` | optional | Icon URL or identifier |
+
+---
+
+## MagicLinkConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional |  |
+| **expiryTime** | `number` | optional | Magic link expiry time in seconds (default 15 min) |
+
+---
+
+## OAuthProvider
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **provider** | `Enum<'google' \| 'github' \| 'facebook' \| 'twitter' \| 'linkedin' \| 'microsoft' \| 'apple' \| 'discord' \| 'gitlab' \| 'custom'>` | ✅ | OAuth provider type |
+| **clientId** | `string` | ✅ | OAuth client ID |
+| **clientSecret** | `string` | ✅ | OAuth client secret (typically from ENV) |
+| **scopes** | `string[]` | optional | Requested OAuth scopes |
+| **redirectUri** | `string` | optional | OAuth callback URL |
+| **enabled** | `boolean` | optional | Whether this provider is enabled |
+| **displayName** | `string` | optional | Display name for the provider button |
+| **icon** | `string` | optional | Icon URL or identifier |
+
+---
+
+## OIDCConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional |  |
+| **issuer** | `string` | ✅ | OIDC Issuer URL (.well-known/openid-configuration) |
+| **clientId** | `string` | ✅ | OIDC client ID |
+| **clientSecret** | `string` | ✅ | OIDC client secret |
+| **scopes** | `string[]` | optional | OIDC scopes |
+| **attributeMapping** | `Record<string, string>` | optional | Map IdP claims to User fields |
+| **displayName** | `string` | optional | Display name for the provider button |
+| **icon** | `string` | optional | Icon URL or identifier |
+
+---
+
+## PasskeyConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional |  |
+| **rpName** | `string` | ✅ | Relying Party name |
+| **rpId** | `string` | optional | Relying Party ID (defaults to domain) |
+| **allowedOrigins** | `string[]` | optional | Allowed origins for WebAuthn |
+| **userVerification** | `Enum<'required' \| 'preferred' \| 'discouraged'>` | optional |  |
+| **attestation** | `Enum<'none' \| 'indirect' \| 'direct' \| 'enterprise'>` | optional |  |
+
+---
+
+## RateLimitConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional |  |
+| **maxAttempts** | `number` | optional | Maximum login attempts |
+| **windowMs** | `number` | optional | Time window in milliseconds (default 15 min) |
+| **blockDuration** | `number` | optional | Block duration after max attempts in ms |
+| **skipSuccessfulRequests** | `boolean` | optional | Only count failed requests |
+
+---
+
+## SAMLConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional |  |
+| **entryPoint** | `string` | ✅ | IdP SSO URL |
+| **cert** | `string` | ✅ | IdP Public Certificate (PEM format) |
+| **issuer** | `string` | ✅ | Entity ID of the IdP |
+| **signatureAlgorithm** | `Enum<'sha256' \| 'sha512'>` | optional | Signature algorithm |
+| **attributeMapping** | `Record<string, string>` | optional | Map SAML attributes to User fields |
+| **displayName** | `string` | optional | Display name for the provider button |
+| **icon** | `string` | optional | Icon URL or identifier |
+
+---
+
+## SessionConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **expiresIn** | `number` | optional | Session expiry in seconds (default 7 days) |
+| **updateAge** | `number` | optional | Session update interval in seconds (default 1 day) |
+| **cookieName** | `string` | optional | Session cookie name |
+| **cookieSecure** | `boolean` | optional | Use secure cookies (HTTPS only) |
+| **cookieSameSite** | `Enum<'strict' \| 'lax' \| 'none'>` | optional | SameSite cookie attribute |
+| **cookieDomain** | `string` | optional | Cookie domain |
+| **cookiePath** | `string` | optional | Cookie path |
+| **cookieHttpOnly** | `boolean` | optional | HttpOnly cookie attribute |
+
+---
+
+## StandardAuthProvider
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Provider type identifier |
+| **config** | `object` | ✅ | Standard authentication configuration |
+
+---
+
+## TwoFactorConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional |  |
+| **issuer** | `string` | optional | TOTP issuer name |
+| **qrCodeSize** | `number` | optional | QR code size in pixels |
+| **backupCodes** | `object` | optional |  |
+
+---
+
+## UserFieldMapping
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | User ID field |
+| **email** | `string` | optional | Email field |
+| **name** | `string` | optional | Name field |
+| **image** | `string` | optional | Profile image field |
+| **emailVerified** | `string` | optional | Email verification status field |
+| **createdAt** | `string` | optional | Created timestamp field |
+| **updatedAt** | `string` | optional | Updated timestamp field |
+

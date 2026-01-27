@@ -1,0 +1,53 @@
+---
+title: Feature
+description: Feature protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Feature
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/feature.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { FeatureFlagSchema, FeatureStrategySchema } from '@objectstack/spec/system';
+import type { FeatureFlag, FeatureStrategy } from '@objectstack/spec/system';
+
+// Validate data
+const result = FeatureFlagSchema.parse(data);
+```
+
+---
+
+## FeatureFlag
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Feature key (snake_case) |
+| **label** | `string` | optional | Display label |
+| **description** | `string` | optional |  |
+| **enabled** | `boolean` | optional | Is globally enabled |
+| **strategy** | `Enum<'boolean' \| 'percentage' \| 'user_list' \| 'group' \| 'custom'>` | optional |  |
+| **conditions** | `object` | optional |  |
+| **environment** | `Enum<'dev' \| 'staging' \| 'prod' \| 'all'>` | optional | Environment validity |
+| **expiresAt** | `string` | optional | Feature flag expiration date |
+
+---
+
+## FeatureStrategy
+
+### Allowed Values
+
+* `boolean`
+* `percentage`
+* `user_list`
+* `group`
+* `custom`
+

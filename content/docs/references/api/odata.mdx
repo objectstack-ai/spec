@@ -1,0 +1,133 @@
+---
+title: Odata
+description: Odata protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Odata
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/odata.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { ODataErrorSchema, ODataFilterFunctionSchema, ODataFilterOperatorSchema, ODataMetadataSchema, ODataQuerySchema, ODataResponseSchema } from '@objectstack/spec/api';
+import type { ODataError, ODataFilterFunction, ODataFilterOperator, ODataMetadata, ODataQuery, ODataResponse } from '@objectstack/spec/api';
+
+// Validate data
+const result = ODataErrorSchema.parse(data);
+```
+
+---
+
+## ODataError
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **error** | `object` | ✅ |  |
+
+---
+
+## ODataFilterFunction
+
+### Allowed Values
+
+* `contains`
+* `startswith`
+* `endswith`
+* `length`
+* `indexof`
+* `substring`
+* `tolower`
+* `toupper`
+* `trim`
+* `concat`
+* `year`
+* `month`
+* `day`
+* `hour`
+* `minute`
+* `second`
+* `date`
+* `time`
+* `now`
+* `maxdatetime`
+* `mindatetime`
+* `round`
+* `floor`
+* `ceiling`
+* `cast`
+* `isof`
+* `any`
+* `all`
+
+---
+
+## ODataFilterOperator
+
+### Allowed Values
+
+* `eq`
+* `ne`
+* `lt`
+* `le`
+* `gt`
+* `ge`
+* `and`
+* `or`
+* `not`
+* `(`
+* `)`
+* `in`
+* `has`
+
+---
+
+## ODataMetadata
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **namespace** | `string` | ✅ | Service namespace |
+| **entityTypes** | `object[]` | ✅ | Entity types |
+| **entitySets** | `object[]` | ✅ | Entity sets |
+
+---
+
+## ODataQuery
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **$select** | `string \| string[]` | optional | Fields to select |
+| **$filter** | `string` | optional | Filter expression (OData filter syntax) |
+| **$orderby** | `string \| string[]` | optional | Sort order |
+| **$top** | `integer` | optional | Max results to return |
+| **$skip** | `integer` | optional | Results to skip |
+| **$expand** | `string \| string[]` | optional | Navigation properties to expand |
+| **$count** | `boolean` | optional | Include total count |
+| **$search** | `string` | optional | Search expression |
+| **$format** | `Enum<'json' \| 'xml' \| 'atom'>` | optional | Response format |
+| **$apply** | `string` | optional | Aggregation expression |
+
+---
+
+## ODataResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **@odata.context** | `string` | optional | Metadata context URL |
+| **@odata.count** | `integer` | optional | Total results count |
+| **@odata.nextLink** | `string` | optional | Next page URL |
+| **value** | `Record<string, any>[]` | ✅ | Results array |
+

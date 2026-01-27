@@ -1,0 +1,237 @@
+---
+title: Scim
+description: Scim protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Scim
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/scim.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { SCIMAddressSchema, SCIMEmailSchema, SCIMEnterpriseUserSchema, SCIMErrorSchema, SCIMGroupSchema, SCIMGroupReferenceSchema, SCIMListResponseSchema, SCIMMemberReferenceSchema, SCIMMetaSchema, SCIMNameSchema, SCIMPatchOperationSchema, SCIMPatchRequestSchema, SCIMPhoneNumberSchema, SCIMUserSchema } from '@objectstack/spec/auth';
+import type { SCIMAddress, SCIMEmail, SCIMEnterpriseUser, SCIMError, SCIMGroup, SCIMGroupReference, SCIMListResponse, SCIMMemberReference, SCIMMeta, SCIMName, SCIMPatchOperation, SCIMPatchRequest, SCIMPhoneNumber, SCIMUser } from '@objectstack/spec/auth';
+
+// Validate data
+const result = SCIMAddressSchema.parse(data);
+```
+
+---
+
+## SCIMAddress
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **formatted** | `string` | optional | Formatted address |
+| **streetAddress** | `string` | optional | Street address |
+| **locality** | `string` | optional | City/Locality |
+| **region** | `string` | optional | State/Region |
+| **postalCode** | `string` | optional | Postal code |
+| **country** | `string` | optional | Country |
+| **type** | `Enum<'work' \| 'home' \| 'other'>` | optional | Address type |
+| **primary** | `boolean` | optional | Primary address indicator |
+
+---
+
+## SCIMEmail
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **value** | `string` | ✅ | Email address |
+| **type** | `Enum<'work' \| 'home' \| 'other'>` | optional | Email type |
+| **display** | `string` | optional | Display label |
+| **primary** | `boolean` | optional | Primary email indicator |
+
+---
+
+## SCIMEnterpriseUser
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **employeeNumber** | `string` | optional | Employee number |
+| **costCenter** | `string` | optional | Cost center |
+| **organization** | `string` | optional | Organization |
+| **division** | `string` | optional | Division |
+| **department** | `string` | optional | Department |
+| **manager** | `object` | optional | Manager reference |
+
+---
+
+## SCIMError
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **schemas** | `string[]` | optional | SCIM schema URIs |
+| **status** | `integer` | ✅ | HTTP status code |
+| **scimType** | `Enum<'invalidFilter' \| 'tooMany' \| 'uniqueness' \| 'mutability' \| 'invalidSyntax' \| 'invalidPath' \| 'noTarget' \| 'invalidValue' \| 'invalidVers' \| 'sensitive'>` | optional | SCIM error type |
+| **detail** | `string` | optional | Error detail message |
+
+---
+
+## SCIMGroup
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **schemas** | `string[]` | optional | SCIM schema URIs (must include Group schema) |
+| **id** | `string` | optional | Unique resource identifier |
+| **externalId** | `string` | optional | External identifier from client system |
+| **displayName** | `string` | ✅ | Group display name (REQUIRED) |
+| **members** | `object[]` | optional | Group members |
+| **meta** | `object` | optional | Resource metadata |
+
+---
+
+## SCIMGroupReference
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **value** | `string` | ✅ | Group ID |
+| **$ref** | `string` | optional | URI reference to the group |
+| **display** | `string` | optional | Group display name |
+| **type** | `Enum<'direct' \| 'indirect'>` | optional | Membership type |
+
+---
+
+## SCIMListResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **schemas** | `string[]` | optional | SCIM schema URIs |
+| **totalResults** | `integer` | ✅ | Total results count |
+| **Resources** | `object \| object \| Record<string, any>[]` | ✅ | Resources array (Users, Groups, or custom resources) |
+| **startIndex** | `integer` | optional | Start index (1-based) |
+| **itemsPerPage** | `integer` | optional | Items per page |
+
+---
+
+## SCIMMemberReference
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **value** | `string` | ✅ | Member ID |
+| **$ref** | `string` | optional | URI reference to the member |
+| **type** | `Enum<'User' \| 'Group'>` | optional | Member type |
+| **display** | `string` | optional | Member display name |
+
+---
+
+## SCIMMeta
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **resourceType** | `string` | optional | Resource type |
+| **created** | `string` | optional | Creation timestamp |
+| **lastModified** | `string` | optional | Last modification timestamp |
+| **location** | `string` | optional | Resource location URI |
+| **version** | `string` | optional | Entity tag (ETag) for concurrency control |
+
+---
+
+## SCIMName
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **formatted** | `string` | optional | Formatted full name |
+| **familyName** | `string` | optional | Family name (last name) |
+| **givenName** | `string` | optional | Given name (first name) |
+| **middleName** | `string` | optional | Middle name |
+| **honorificPrefix** | `string` | optional | Honorific prefix (Mr., Ms., Dr.) |
+| **honorificSuffix** | `string` | optional | Honorific suffix (Jr., Sr.) |
+
+---
+
+## SCIMPatchOperation
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **op** | `Enum<'add' \| 'remove' \| 'replace'>` | ✅ | Operation type |
+| **path** | `string` | optional | Attribute path (optional for add) |
+| **value** | `any` | optional | Value to set |
+
+---
+
+## SCIMPatchRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **schemas** | `string[]` | optional | SCIM schema URIs |
+| **Operations** | `object[]` | ✅ | Patch operations |
+
+---
+
+## SCIMPhoneNumber
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **value** | `string` | ✅ | Phone number |
+| **type** | `Enum<'work' \| 'home' \| 'mobile' \| 'fax' \| 'pager' \| 'other'>` | optional | Phone number type |
+| **display** | `string` | optional | Display label |
+| **primary** | `boolean` | optional | Primary phone indicator |
+
+---
+
+## SCIMUser
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **schemas** | `string[]` | optional | SCIM schema URIs (must include User schema) |
+| **id** | `string` | optional | Unique resource identifier |
+| **externalId** | `string` | optional | External identifier from client system |
+| **userName** | `string` | ✅ | Unique username (REQUIRED) |
+| **name** | `object` | optional | Structured name components |
+| **displayName** | `string` | optional | Display name for UI |
+| **nickName** | `string` | optional | Nickname |
+| **profileUrl** | `string` | optional | Profile page URL |
+| **title** | `string` | optional | Job title |
+| **userType** | `string` | optional | User type (employee, contractor) |
+| **preferredLanguage** | `string` | optional | Preferred language (ISO 639-1) |
+| **locale** | `string` | optional | Locale (e.g., en-US) |
+| **timezone** | `string` | optional | Timezone |
+| **active** | `boolean` | optional | Account active status |
+| **password** | `string` | optional | Password (write-only) |
+| **emails** | `object[]` | optional | Email addresses |
+| **phoneNumbers** | `object[]` | optional | Phone numbers |
+| **ims** | `object[]` | optional | IM addresses |
+| **photos** | `object[]` | optional | Photo URLs |
+| **addresses** | `object[]` | optional | Physical addresses |
+| **groups** | `object[]` | optional | Group memberships |
+| **entitlements** | `object[]` | optional | Entitlements |
+| **roles** | `object[]` | optional | Roles |
+| **x509Certificates** | `object[]` | optional | X509 certificates |
+| **meta** | `object` | optional | Resource metadata |
+| **urn:ietf:params:scim:schemas:extension:enterprise:2.0:User** | `object` | optional | Enterprise user attributes |
+

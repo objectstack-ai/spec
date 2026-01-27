@@ -1,0 +1,84 @@
+---
+title: License
+description: License protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# License
+
+<Callout type="info">
+**Source:** `packages/spec/src/hub/license.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { FeatureSchema, LicenseSchema, MetricTypeSchema, PlanSchema } from '@objectstack/spec/hub';
+import type { Feature, License, MetricType, Plan } from '@objectstack/spec/hub';
+
+// Validate data
+const result = FeatureSchema.parse(data);
+```
+
+---
+
+## Feature
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **code** | `string` | ✅ | Feature code (e.g. core.api_access) |
+| **label** | `string` | ✅ |  |
+| **description** | `string` | optional |  |
+| **type** | `Enum<'boolean' \| 'counter' \| 'gauge'>` | optional |  |
+| **unit** | `Enum<'count' \| 'bytes' \| 'seconds' \| 'percent'>` | optional |  |
+| **requires** | `string[]` | optional |  |
+
+---
+
+## License
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **spaceId** | `string` | ✅ | Target Space ID |
+| **planCode** | `string` | ✅ |  |
+| **issuedAt** | `string` | ✅ |  |
+| **expiresAt** | `string` | optional |  |
+| **status** | `Enum<'active' \| 'expired' \| 'suspended' \| 'trial'>` | ✅ |  |
+| **customFeatures** | `string[]` | optional |  |
+| **customLimits** | `Record<string, number>` | optional |  |
+| **plugins** | `string[]` | optional | List of enabled plugin package IDs |
+| **signature** | `string` | optional | Cryptographic signature of the license |
+
+---
+
+## MetricType
+
+### Allowed Values
+
+* `boolean`
+* `counter`
+* `gauge`
+
+---
+
+## Plan
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **code** | `string` | ✅ | Plan code (e.g. pro_v1) |
+| **label** | `string` | ✅ |  |
+| **active** | `boolean` | optional |  |
+| **features** | `string[]` | ✅ | List of enabled boolean features |
+| **limits** | `Record<string, number>` | ✅ | Map of metric codes to limit values (e.g. `{ storage_gb: 10 }`) |
+| **currency** | `string` | optional |  |
+| **priceMonthly** | `number` | optional |  |
+| **priceYearly** | `number` | optional |  |
+

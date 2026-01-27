@@ -1,0 +1,78 @@
+---
+title: Dashboard
+description: Dashboard protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Dashboard
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/dashboard.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { ChartTypeSchema, DashboardSchema, DashboardWidgetSchema } from '@objectstack/spec/ui';
+import type { ChartType, Dashboard, DashboardWidget } from '@objectstack/spec/ui';
+
+// Validate data
+const result = ChartTypeSchema.parse(data);
+```
+
+---
+
+## ChartType
+
+### Allowed Values
+
+* `metric`
+* `bar`
+* `line`
+* `pie`
+* `donut`
+* `gauge`
+* `funnel`
+* `radar`
+* `scatter`
+* `heatmap`
+* `pivot`
+* `table`
+* `list`
+* `text`
+* `image`
+* `frame`
+
+---
+
+## Dashboard
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Dashboard unique name |
+| **label** | `string` | ✅ | Dashboard label |
+| **description** | `string` | optional | Dashboard description |
+| **widgets** | `object[]` | ✅ | Widgets to display |
+
+---
+
+## DashboardWidget
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **title** | `string` | optional | Widget title |
+| **type** | `Enum<'metric' \| 'bar' \| 'line' \| 'pie' \| 'donut' \| 'gauge' \| 'funnel' \| 'radar' \| 'scatter' \| 'heatmap' \| 'pivot' \| 'table' \| 'list' \| 'text' \| 'image' \| 'frame'>` | optional | Visualization type |
+| **object** | `string` | optional | Data source object name |
+| **filter** | `any` | optional | Data filter criteria |
+| **categoryField** | `string` | optional | Field for grouping (X-Axis) |
+| **valueField** | `string` | optional | Field for values (Y-Axis) |
+| **aggregate** | `Enum<'count' \| 'sum' \| 'avg' \| 'min' \| 'max'>` | optional | Aggregate function |
+| **layout** | `object` | ✅ | Grid layout position |
+| **options** | `any` | optional | Widget specific configuration |
+

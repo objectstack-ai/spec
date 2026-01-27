@@ -1,0 +1,99 @@
+---
+title: Component
+description: Component protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Component
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/component.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { PageCardPropsSchema, PageHeaderPropsSchema, PageTabsPropsSchema, RecordDetailsPropsSchema, RecordHighlightsPropsSchema, RecordRelatedListPropsSchema } from '@objectstack/spec/ui';
+import type { PageCardProps, PageHeaderProps, PageTabsProps, RecordDetailsProps, RecordHighlightsProps, RecordRelatedListProps } from '@objectstack/spec/ui';
+
+// Validate data
+const result = PageCardPropsSchema.parse(data);
+```
+
+---
+
+## PageCardProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **title** | `string` | optional |  |
+| **bordered** | `boolean` | optional |  |
+| **actions** | `string[]` | optional |  |
+| **children** | `any[]` | ✅ | Card content |
+
+---
+
+## PageHeaderProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **title** | `string` | ✅ | Page title |
+| **subtitle** | `string` | optional | Page subtitle |
+| **icon** | `string` | optional | Icon name |
+| **breadcrumb** | `boolean` | optional | Show breadcrumb |
+| **actions** | `string[]` | optional | Action IDs to show in header |
+
+---
+
+## PageTabsProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'line' \| 'card' \| 'pill'>` | optional |  |
+| **position** | `Enum<'top' \| 'left'>` | optional |  |
+| **items** | `object[]` | ✅ |  |
+
+---
+
+## RecordDetailsProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **columns** | `Enum<'1' \| '2' \| '3' \| '4'>` | optional |  |
+| **layout** | `Enum<'auto' \| 'custom'>` | optional |  |
+| **sections** | `string[]` | optional | Section IDs to show |
+
+---
+
+## RecordHighlightsProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **fields** | `string[]` | ✅ | Key fields to highlights (max 7) |
+
+---
+
+## RecordRelatedListProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **objectName** | `string` | ✅ | Related object name |
+| **relationshipField** | `string` | ✅ | Field on related object that points to this record |
+| **columns** | `string[]` | ✅ | Fields to display |
+| **sort** | `string` | optional |  |
+| **limit** | `number` | optional |  |
+

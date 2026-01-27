@@ -3,106 +3,20 @@ title: Data Protocol Overview
 description: Complete reference for all data protocol schemas
 ---
 
+import { Card, Cards } from 'fumadocs-ui/components/card';
 
 # Data Protocol
 
 This section contains all protocol schemas for the data layer of ObjectStack.
 
-## Dataset
-
-Source: `packages/spec/src/data/dataset.zod.ts`
-
 <Cards>
-  <Card href="./dataset/Dataset" title="Dataset" description="Dataset schema reference" />
-  <Card href="./dataset/DatasetMode" title="DatasetMode" description="DatasetMode schema reference" />
-</Cards>
-
-## Field
-
-Source: `packages/spec/src/data/field.zod.ts`
-
-<Cards>
-  <Card href="./field/Address" title="Address" description="Address schema reference" />
-  <Card href="./field/CurrencyConfig" title="CurrencyConfig" description="CurrencyConfig schema reference" />
-  <Card href="./field/CurrencyValue" title="CurrencyValue" description="CurrencyValue schema reference" />
-  <Card href="./field/Field" title="Field" description="Field schema reference" />
-  <Card href="./field/FieldType" title="FieldType" description="FieldType schema reference" />
-  <Card href="./field/LocationCoordinates" title="LocationCoordinates" description="LocationCoordinates schema reference" />
-  <Card href="./field/SelectOption" title="SelectOption" description="SelectOption schema reference" />
-  <Card href="./field/VectorConfig" title="VectorConfig" description="VectorConfig schema reference" />
-</Cards>
-
-## Filter
-
-Source: `packages/spec/src/data/filter.zod.ts`
-
-<Cards>
-  <Card href="./filter/ComparisonOperator" title="ComparisonOperator" description="ComparisonOperator schema reference" />
-  <Card href="./filter/EqualityOperator" title="EqualityOperator" description="EqualityOperator schema reference" />
-  <Card href="./filter/FieldOperators" title="FieldOperators" description="FieldOperators schema reference" />
-  <Card href="./filter/FieldReference" title="FieldReference" description="FieldReference schema reference" />
-  <Card href="./filter/FilterCondition" title="FilterCondition" description="FilterCondition schema reference" />
-  <Card href="./filter/NormalizedFilter" title="NormalizedFilter" description="NormalizedFilter schema reference" />
-  <Card href="./filter/QueryFilter" title="QueryFilter" description="QueryFilter schema reference" />
-  <Card href="./filter/RangeOperator" title="RangeOperator" description="RangeOperator schema reference" />
-  <Card href="./filter/SetOperator" title="SetOperator" description="SetOperator schema reference" />
-  <Card href="./filter/SpecialOperator" title="SpecialOperator" description="SpecialOperator schema reference" />
-  <Card href="./filter/StringOperator" title="StringOperator" description="StringOperator schema reference" />
-</Cards>
-
-## Hook
-
-Source: `packages/spec/src/data/hook.zod.ts`
-
-<Cards>
-  <Card href="./hook/Hook" title="Hook" description="Hook schema reference" />
-  <Card href="./hook/HookContext" title="HookContext" description="HookContext schema reference" />
-  <Card href="./hook/HookEvent" title="HookEvent" description="HookEvent schema reference" />
-</Cards>
-
-## Object
-
-Source: `packages/spec/src/data/object.zod.ts`
-
-<Cards>
-  <Card href="./object/Index" title="Index" description="Index schema reference" />
-  <Card href="./object/Object" title="Object" description="Object schema reference" />
-  <Card href="./object/ObjectCapabilities" title="ObjectCapabilities" description="ObjectCapabilities schema reference" />
-  <Card href="./object/SearchConfig" title="SearchConfig" description="SearchConfig schema reference" />
-</Cards>
-
-## Query
-
-Source: `packages/spec/src/data/query.zod.ts`
-
-<Cards>
-  <Card href="./query/AggregationFunction" title="AggregationFunction" description="AggregationFunction schema reference" />
-  <Card href="./query/AggregationNode" title="AggregationNode" description="AggregationNode schema reference" />
-  <Card href="./query/FieldNode" title="FieldNode" description="FieldNode schema reference" />
-  <Card href="./query/JoinNode" title="JoinNode" description="JoinNode schema reference" />
-  <Card href="./query/JoinStrategy" title="JoinStrategy" description="JoinStrategy schema reference" />
-  <Card href="./query/JoinType" title="JoinType" description="JoinType schema reference" />
-  <Card href="./query/Query" title="Query" description="Query schema reference" />
-  <Card href="./query/SortNode" title="SortNode" description="SortNode schema reference" />
-  <Card href="./query/WindowFunction" title="WindowFunction" description="WindowFunction schema reference" />
-  <Card href="./query/WindowFunctionNode" title="WindowFunctionNode" description="WindowFunctionNode schema reference" />
-  <Card href="./query/WindowSpec" title="WindowSpec" description="WindowSpec schema reference" />
-</Cards>
-
-## Validation
-
-Source: `packages/spec/src/data/validation.zod.ts`
-
-<Cards>
-  <Card href="./validation/AsyncValidation" title="AsyncValidation" description="AsyncValidation schema reference" />
-  <Card href="./validation/ConditionalValidation" title="ConditionalValidation" description="ConditionalValidation schema reference" />
-  <Card href="./validation/CrossFieldValidation" title="CrossFieldValidation" description="CrossFieldValidation schema reference" />
-  <Card href="./validation/CustomValidator" title="CustomValidator" description="CustomValidator schema reference" />
-  <Card href="./validation/FormatValidation" title="FormatValidation" description="FormatValidation schema reference" />
-  <Card href="./validation/JSONValidation" title="JSONValidation" description="JSONValidation schema reference" />
-  <Card href="./validation/ScriptValidation" title="ScriptValidation" description="ScriptValidation schema reference" />
-  <Card href="./validation/StateMachineValidation" title="StateMachineValidation" description="StateMachineValidation schema reference" />
-  <Card href="./validation/UniquenessValidation" title="UniquenessValidation" description="UniquenessValidation schema reference" />
-  <Card href="./validation/ValidationRule" title="ValidationRule" description="ValidationRule schema reference" />
+  <Card href="./dataset" title="Dataset" description="Source: packages/spec/src/data/dataset.zod.ts" />
+  <Card href="./field" title="Field" description="Source: packages/spec/src/data/field.zod.ts" />
+  <Card href="./filter" title="Filter" description="Source: packages/spec/src/data/filter.zod.ts" />
+  <Card href="./hook" title="Hook" description="Source: packages/spec/src/data/hook.zod.ts" />
+  <Card href="./mapping" title="Mapping" description="Source: packages/spec/src/data/mapping.zod.ts" />
+  <Card href="./object" title="Object" description="Source: packages/spec/src/data/object.zod.ts" />
+  <Card href="./query" title="Query" description="Source: packages/spec/src/data/query.zod.ts" />
+  <Card href="./validation" title="Validation" description="Source: packages/spec/src/data/validation.zod.ts" />
 </Cards>
 

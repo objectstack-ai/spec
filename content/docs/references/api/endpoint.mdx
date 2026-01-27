@@ -1,0 +1,70 @@
+---
+title: Endpoint
+description: Endpoint protocol schemas
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Endpoint
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/endpoint.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { ApiEndpointSchema, ApiMappingSchema, RateLimitSchema } from '@objectstack/spec/api';
+import type { ApiEndpoint, ApiMapping, RateLimit } from '@objectstack/spec/api';
+
+// Validate data
+const result = ApiEndpointSchema.parse(data);
+```
+
+---
+
+## ApiEndpoint
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique endpoint ID |
+| **path** | `string` | ✅ | URL Path (e.g. /api/v1/customers) |
+| **method** | `Enum<'GET' \| 'POST' \| 'PUT' \| 'DELETE' \| 'PATCH' \| 'HEAD' \| 'OPTIONS'>` | ✅ | HTTP Method |
+| **summary** | `string` | optional |  |
+| **description** | `string` | optional |  |
+| **type** | `Enum<'flow' \| 'script' \| 'object_operation' \| 'proxy'>` | ✅ | Implementation type |
+| **target** | `string` | ✅ | Target Flow ID, Script Name, or Proxy URL |
+| **objectParams** | `object` | optional | For object_operation type |
+| **inputMapping** | `object[]` | optional | Map Request Body to Internal Params |
+| **outputMapping** | `object[]` | optional | Map Internal Result to Response Body |
+| **authRequired** | `boolean` | optional | Require authentication |
+| **rateLimit** | `object` | optional | Rate limiting policy |
+| **cacheTtl** | `number` | optional | Response cache TTL in seconds |
+
+---
+
+## ApiMapping
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **source** | `string` | ✅ | Source field/path |
+| **target** | `string` | ✅ | Target field/path |
+| **transform** | `string` | optional | Transformation function name |
+
+---
+
+## RateLimit
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional |  |
+| **windowMs** | `number` | optional | Time window in milliseconds |
+| **maxRequests** | `number` | optional | Max requests per window |
+
