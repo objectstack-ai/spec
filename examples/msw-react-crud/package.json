@@ -13,8 +13,8 @@
     "@objectstack/client": "workspace:*",
     "@objectstack/driver-memory": "workspace:*",
     "@objectstack/example-todo": "workspace:*",
-    "@objectstack/plugin-msw": "^0.4.1",
-    "@objectstack/runtime": "^0.4.1",
+    "@objectstack/plugin-msw": "workspace:*",
+    "@objectstack/runtime": "workspace:*",
     "@objectstack/spec": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
