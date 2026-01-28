@@ -30,6 +30,19 @@ export class SchemaRegistry {
   }
 
   /**
+   * Universal Unregister Method
+   */
+  static unregisterItem(type: string, name: string) {
+    const collection = this.metadata.get(type);
+    if (collection && collection.has(name)) {
+      collection.delete(name);
+      console.log(`[Registry] Unregistered ${type}: ${name}`);
+    } else {
+      console.warn(`[Registry] Attempted to unregister non-existent ${type}: ${name}`);
+    }
+  }
+
+  /**
    * Universal Get Method
    */
   static getItem<T>(type: string, name: string): T | undefined {

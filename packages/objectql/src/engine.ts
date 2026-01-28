@@ -82,7 +82,7 @@ export class ObjectQL implements IDataEngine {
     console.log(`[ObjectQL] Registered hook for ${event}`);
   }
 
-  private async triggerHooks(event: string, context: HookContext) {
+  public async triggerHooks(event: string, context: HookContext) {
     const handlers = this.hooks[event] || [];
     for (const handler of handlers) {
       // In a real system, we might want to catch errors here or allow them to bubble up
