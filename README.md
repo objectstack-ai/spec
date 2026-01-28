@@ -59,6 +59,7 @@ pnpm docs:dev
 | :--- | :--- | :--- |
 | **[`@objectstack/spec`](packages/spec)** | Core protocol definitions (Zod schemas, Types, JSON Schemas) | 🟢 Active |
 | **[`@objectstack/docs`](apps/docs)** | Documentation site (Fumadocs + Next.js) | 🟢 Active |
+| **[`@objectstack/plugins`](packages/plugins)** | Core plugins (Hono, MSW, Drivers) | 🟢 Active |
 | [`examples/crm`](examples/crm) | Full-featured CRM example | 🟢 Complete |
 | [`examples/todo`](examples/todo) | Simple todo app example | 🟢 Active |
 

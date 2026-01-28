@@ -41,6 +41,19 @@ Think of plugins as **microservices within your ObjectStack runtime** - isolated
 
 ---
 
+## 🏗️ Where Plugins Live
+
+In the ObjectStack ecosystem, plugins are organized into two main categories:
+
+| Location | Description | Examples |
+| :--- | :--- | :--- |
+| **`packages/plugins/*`** | **Core Plugins**. Maintained by the ObjectStack team, these provide essential integrations like HTTP servers, drivers, and testing tools. | `plugin-hono-server`, `plugin-msw`, `driver-memory` |
+| **`examples/*`** | **Example Plugins**. Reference implementations and educational templates to help you build your own. | `plugin-bi` |
+
+When developing your own plugins, you can create them in your own repository or add them to your project's `plugins/` directory.
+
+---
+
 ## 📋 Prerequisites
 
 Before building a plugin, ensure you have:

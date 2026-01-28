@@ -170,6 +170,6 @@ Check browser console for MSW startup message
 ## 📚 Learn More
 
 - Full documentation: [README.md](./README.md)
-- MSW Plugin: `packages/plugin-msw/README.md`
+- MSW Plugin: `packages/plugins/plugin-msw/README.md`
 - Runtime: `packages/runtime/README.md`
 - Client API: `packages/client/README.md`
