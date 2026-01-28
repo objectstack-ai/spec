@@ -319,9 +319,9 @@ await kernel.bootstrap();
 ### Integration Tests
 
 ```typescript
-import { describe, it } from '@objectstack/runtime';
-import { ObjectQLPlugin } from '@objectstack/objectql
-import { ObjectKernel, ObjectQLPlugin } from '@objectstack/runtime';
+import { describe, it, expect } from 'vitest';
+import { ObjectKernel } from '@objectstack/runtime';
+import { ObjectQLPlugin } from '@objectstack/objectql';
 
 describe('MyPlugin', () => {
   it('should register service', async () => {
@@ -347,7 +347,7 @@ Load plugins from a configuration file:
 // objectstack.config.ts
 export default {
   plugins: [
-    { name: '@objectstack/runtime#ObjectQLPlugin' },
+    { name: '@objectstack/objectql#ObjectQLPlugin' },
     { name: '@objectstack/driver-memory#MemoryDriverPlugin' },
     { name: '@objectstack/plugin-hono-server#HonoServerPlugin', config: { port: 3000 } },
   ],
@@ -435,10 +435,10 @@ await ql.loadObjects([Account, Contact]);
 ```
 
 ### After (MicroKernel)
-DriverPlugin } from '@objectstack/runtime';
-import { ObjectQLPlugin } from '@objectstack/objectql
+
 ```typescript
-import { ObjectKernel, ObjectQLPlugin, DriverPlugin } from '@objectstack/runtime';
+import { ObjectKernel, DriverPlugin } from '@objectstack/runtime';
+import { ObjectQLPlugin } from '@objectstack/objectql';
 
 const kernel = new ObjectKernel();
 kernel.use(new ObjectQLPlugin());

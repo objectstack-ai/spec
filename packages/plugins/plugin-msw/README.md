@@ -23,19 +23,17 @@ pnpm add @objectstack/plugin-msw msw
 
 ```typescript
 import { MSWPlugin } from '@objectstack/plugin-msw';
-import { ObjectStackRuntime } from '@objectstack/runtime';
+import { ObjectKernel } from '@objectstack/runtime';
 
-const runtime = new ObjectStackRuntime({
-  plugins: [
-    new MSWPlugin({
-      enableBrowser: true,
-      baseUrl: '/api/v1',
-      logRequests: true
-    })
-  ]
-});
+const kernel = new ObjectKernel();
 
-await runtime.start();
+kernel.use(new MSWPlugin({
+  enableBrowser: true,
+  baseUrl: '/api/v1',
+  logRequests: true
+}));
+
+await kernel.bootstrap();
 ```
 
 ### Standalone Usage (Browser)
