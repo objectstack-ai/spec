@@ -162,22 +162,12 @@ export class ObjectStackServer {
  * ```typescript
  * import { MSWPlugin } from '@objectstack/plugin-msw';
  * 
- * // With new ObjectKernel
+ * // With ObjectKernel
  * const kernel = new ObjectKernel();
  * kernel.use(new MSWPlugin({
  *   enableBrowser: true,
  *   baseUrl: '/api/v1'
  * }));
- * 
- * // With legacy ObjectStackKernel
- * const runtime = new ObjectStackRuntime({
- *   plugins: [
- *     new MSWPlugin({
- *       enableBrowser: true,
- *       baseUrl: '/api/v1'
- *     })
- *   ]
- * });
  * ```
  */
 export class MSWPlugin implements Plugin, RuntimePlugin {

@@ -63,8 +63,7 @@ export class HonoServerPlugin implements Plugin, RuntimePlugin {
      * Start phase - Bind routes and start listening
      */
     async start(ctx: PluginContext) {
-        // Try to get ObjectStackKernel for backward compatibility
-        // In new architecture, we'd get ObjectQL directly from services
+        // Get ObjectQL directly from services
         let protocol: ObjectStackRuntimeProtocol | null = null;
         
         try {
