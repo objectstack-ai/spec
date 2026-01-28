@@ -160,8 +160,8 @@ See individual CHANGELOG.md files in each package:
 - [packages/client/CHANGELOG.md](packages/client/CHANGELOG.md)
 - [packages/objectql/CHANGELOG.md](packages/objectql/CHANGELOG.md)
 - [packages/runtime/CHANGELOG.md](packages/runtime/CHANGELOG.md)
-- [packages/driver-memory/CHANGELOG.md](packages/driver-memory/CHANGELOG.md)
-- [packages/plugin-hono-server/CHANGELOG.md](packages/plugin-hono-server/CHANGELOG.md)
+- [packages/plugins/driver-memory/CHANGELOG.md](packages/plugins/driver-memory/CHANGELOG.md)
+- [packages/plugins/plugin-hono-server/CHANGELOG.md](packages/plugins/plugin-hono-server/CHANGELOG.md)
 - [packages/types/CHANGELOG.md](packages/types/CHANGELOG.md)
 
 ## 🚀 Publishing

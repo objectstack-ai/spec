@@ -35,7 +35,7 @@ ObjectStack is a metadata-driven platform built on three foundational protocols:
   - [ObjectOS](./content/docs/objectos/) - System layer documentation
 
 - **Development:**
-  - [MiniKernel Architecture](./content/docs/developers/mini-kernel.mdx) - Plugin architecture guide
+  - [MicroKernel Architecture](./content/docs/developers/micro-kernel.mdx) - Plugin architecture guide
   - [Writing Plugins](./content/docs/developers/writing-plugins.mdx) - Plugin development guide
   - [Contributing Guide](./CONTRIBUTING.md) - How to contribute
 
@@ -59,6 +59,7 @@ pnpm docs:dev
 | :--- | :--- | :--- |
 | **[`@objectstack/spec`](packages/spec)** | Core protocol definitions (Zod schemas, Types, JSON Schemas) | 🟢 Active |
 | **[`@objectstack/docs`](apps/docs)** | Documentation site (Fumadocs + Next.js) | 🟢 Active |
+| **[`@objectstack/plugins`](packages/plugins)** | Core plugins (Hono, MSW, Drivers) | 🟢 Active |
 | [`examples/crm`](examples/crm) | Full-featured CRM example | 🟢 Complete |
 | [`examples/todo`](examples/todo) | Simple todo app example | 🟢 Active |
 
