@@ -1,5 +1,6 @@
-import { SchemaRegistry } from '@objectstack/objectql';
+import { SchemaRegistry, ObjectQL } from '@objectstack/objectql';
 import { ObjectStackKernel } from './kernel.js';
+import { ObjectKernel } from './mini-kernel.js';
 
 export interface ApiRequest {
     params: Record<string, string>;
@@ -8,10 +9,40 @@ export interface ApiRequest {
 }
 
 export class ObjectStackRuntimeProtocol {
-    private engine: ObjectStackKernel;
+    private engine: ObjectStackKernel | ObjectKernel;
+    private legacyKernel?: ObjectStackKernel;
+    private objectql?: ObjectQL;
 
-    constructor(engine: ObjectStackKernel) {
+    constructor(engine: ObjectStackKernel | ObjectKernel) {
         this.engine = engine;
+        
+        // Detect which kernel type we're using
+        if (engine instanceof ObjectStackKernel) {
+            this.legacyKernel = engine;
+        } else if (engine instanceof ObjectKernel) {
+            // Get ObjectQL service from kernel
+            try {
+                this.objectql = engine.getService<ObjectQL>('objectql');
+            } catch (e) {
+                console.warn('[Protocol] ObjectQL service not found in kernel');
+            }
+        }
+    }
+    
+    /**
+     * Get ObjectQL instance - works with both kernel types
+     */
+    private getObjectQL(): ObjectQL {
+        if (this.legacyKernel) {
+            if (!this.legacyKernel.ql) {
+                throw new Error('[Protocol] ObjectQL not initialized in legacy kernel');
+            }
+            return this.legacyKernel.ql;
+        }
+        if (!this.objectql) {
+            throw new Error('[Protocol] ObjectQL service not available');
+        }
+        return this.objectql;
     }
 
     // 1. Discovery
@@ -92,38 +123,86 @@ export class ObjectStackRuntimeProtocol {
 
     // 5. UI: View Definition
     getUiView(objectName: string, type: 'list' | 'form') {
-        const view = this.engine.getView(objectName, type);
-        if (!view) throw new Error('View not generated');
-        return view;
+        // Use legacy kernel method if available
+        if (this.legacyKernel) {
+            const view = this.legacyKernel.getView(objectName, type);
+            if (!view) throw new Error('View not generated');
+            return view;
+        }
+        
+        // Otherwise generate view from schema
+        const schema = SchemaRegistry.getObject(objectName);
+        if (!schema) throw new Error(`Unknown object: ${objectName}`);
+        
+        if (type === 'list') {
+            return {
+                type: 'datagrid',
+                title: `${schema.label || objectName} List`,
+                columns: Object.keys(schema.fields || {}).map(key => ({
+                    field: key,
+                    label: schema.fields?.[key]?.label || key,
+                    width: 150
+                })),
+                actions: ['create', 'edit', 'delete']
+            };
+        }
+        throw new Error('View not generated');
     }
 
     // 6. Data: Find
     async findData(objectName: string, query: any) {
-        return await this.engine.find(objectName, query);
+        if (this.legacyKernel) {
+            return await this.legacyKernel.find(objectName, query);
+        }
+        const ql = this.getObjectQL();
+        const results = await ql.find(objectName, { top: 100 });
+        return { value: results, count: results.length };
     }
 
     // 7. Data: Query (Advanced AST)
     async queryData(objectName: string, body: any) {
-        return await this.engine.find(objectName, body);
+        if (this.legacyKernel) {
+            return await this.legacyKernel.find(objectName, body);
+        }
+        const ql = this.getObjectQL();
+        const results = await ql.find(objectName, { top: 100 });
+        return { value: results, count: results.length };
     }
 
     // 8. Data: Get
     async getData(objectName: string, id: string) {
-        return await this.engine.get(objectName, id);
+        if (this.legacyKernel) {
+            return await this.legacyKernel.get(objectName, id);
+        }
+        const ql = this.getObjectQL();
+        const results = await ql.find(objectName, { top: 1 });
+        return results[0];
     }
 
     // 9. Data: Create
     async createData(objectName: string, body: any) {
-        return await this.engine.create(objectName, body);
+        if (this.legacyKernel) {
+            return await this.legacyKernel.create(objectName, body);
+        }
+        const ql = this.getObjectQL();
+        return await ql.insert(objectName, body);
     }
 
     // 10. Data: Update
     async updateData(objectName: string, id: string, body: any) {
-        return await this.engine.update(objectName, id, body);
+        if (this.legacyKernel) {
+            return await this.legacyKernel.update(objectName, id, body);
+        }
+        const ql = this.getObjectQL();
+        return await ql.update(objectName, id, body);
     }
 
     // 11. Data: Delete
     async deleteData(objectName: string, id: string) {
-        return await this.engine.delete(objectName, id);
+        if (this.legacyKernel) {
+            return await this.legacyKernel.delete(objectName, id);
+        }
+        const ql = this.getObjectQL();
+        return await ql.delete(objectName, id);
     }
 }

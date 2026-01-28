@@ -1,11 +1,12 @@
 import { ObjectStackKernel } from './kernel.js';
+import { ObjectKernel } from './mini-kernel.js';
 
 /**
  * Legacy RuntimeContext (Backward Compatibility)
  * @deprecated Use PluginContext instead
  */
 export interface RuntimeContext {
-    engine: ObjectStackKernel;
+    engine: ObjectStackKernel | ObjectKernel;
 }
 
 /**

@@ -2,12 +2,14 @@
 export { ObjectQL, SchemaRegistry } from '@objectstack/objectql';
 
 // Export Kernels
-export { ObjectStackKernel } from './kernel.js';
 export { ObjectKernel } from './mini-kernel.js';
+// @deprecated Use ObjectKernel instead
+export { ObjectStackKernel } from './kernel.js';
 
 // Export Plugins
 export { ObjectQLPlugin } from './objectql-plugin.js';
 export { DriverPlugin } from './driver-plugin.js';
+export { AppManifestPlugin } from './app-manifest-plugin.js';
 
 // Export Protocol
 export { ObjectStackRuntimeProtocol } from './protocol.js';
