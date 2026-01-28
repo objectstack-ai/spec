@@ -39,57 +39,13 @@ export const DataEngineQueryOptionsSchema = z.object({
  * Data Engine Interface Schema
  * 
  * Defines the contract for data engine implementations.
+ * (Deprecated: Moved to @objectstack/core/contracts/data-engine)
  */
+/*
 export const DataEngineSchema = z.object({
-  /**
-   * Insert a new record
-   * 
-   * @param objectName - Name of the object/table (e.g., 'user', 'order')
-   * @param data - Data to insert
-   * @returns Promise resolving to the created record (including generated ID)
-   */
-  insert: z.function()
-    .args(z.string(), z.any())
-    .returns(z.promise(z.any()))
-    .describe('Insert a new record'),
-  
-  /**
-   * Find records matching a query
-   * 
-   * @param objectName - Name of the object/table
-   * @param query - Query conditions (optional)
-   * @returns Promise resolving to an array of matching records
-   */
-  find: z.function()
-    .args(z.string())
-    .returns(z.promise(z.array(z.any())))
-    .describe('Find records matching a query'),
-  
-  /**
-   * Update a record by ID
-   * 
-   * @param objectName - Name of the object/table
-   * @param id - Record ID
-   * @param data - Updated data (partial update)
-   * @returns Promise resolving to the updated record
-   */
-  update: z.function()
-    .args(z.string(), z.any(), z.any())
-    .returns(z.promise(z.any()))
-    .describe('Update a record by ID'),
-  
-  /**
-   * Delete a record by ID
-   * 
-   * @param objectName - Name of the object/table
-   * @param id - Record ID
-   * @returns Promise resolving to true if deleted, false otherwise
-   */
-  delete: z.function()
-    .args(z.string(), z.any())
-    .returns(z.promise(z.boolean()))
-    .describe('Delete a record by ID'),
+  ...
 }).describe('Data Engine Interface');
+*/
 
 /**
  * TypeScript types derived from schemas
@@ -97,11 +53,5 @@ export const DataEngineSchema = z.object({
 export type DataEngineFilter = z.infer<typeof DataEngineFilterSchema>;
 export type DataEngineQueryOptions = z.infer<typeof DataEngineQueryOptionsSchema>;
 
-// Define the TypeScript interface manually for better type safety
-// Zod function schema doesn't handle optional parameters well
-export interface IDataEngine {
-  insert(objectName: string, data: any): Promise<any>;
-  find(objectName: string, query?: DataEngineQueryOptions): Promise<any[]>;
-  update(objectName: string, id: any, data: any): Promise<any>;
-  delete(objectName: string, id: any): Promise<boolean>;
-}
+// Moved IDataEngine interface to @objectstack/core to separate runtime contract from data schema
+// Moved IDataEngine interface to @objectstack/core to separate runtime contract from data schema
