@@ -17,3 +17,7 @@ https://x.com*
 
 # Common false positives
 mailto:*
+
+# Fumadocs metadata files (not actual links)
+**/meta.json
+**/meta.cn.json
