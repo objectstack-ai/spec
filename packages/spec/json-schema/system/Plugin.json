@@ -25,10 +25,6 @@
           "format": "uri"
         }
       },
-      "required": [
-        "id",
-        "version"
-      ],
       "additionalProperties": false
     }
   },

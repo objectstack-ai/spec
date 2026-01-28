@@ -1,4 +1,4 @@
-import { ObjectQL } from './index';
+import { ObjectQL } from './engine';
 import { ObjectStackProtocolImplementation } from './protocol';
 import { Plugin, PluginContext } from '@objectstack/core';
 
