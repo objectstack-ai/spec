@@ -1,5 +1,13 @@
 # @objectstack/example-todo
 
+## 1.0.9
+
+### Patch Changes
+
+- Updated dependencies
+  - @objectstack/spec@0.4.2
+  - @objectstack/client@0.4.2
+
 ## 1.0.8
 
 ### Patch Changes

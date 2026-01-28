@@ -25,7 +25,10 @@
                 "app",
                 "plugin",
                 "driver",
-                "module"
+                "module",
+                "objectql",
+                "gateway",
+                "adapter"
               ],
               "description": "Type of package"
             },

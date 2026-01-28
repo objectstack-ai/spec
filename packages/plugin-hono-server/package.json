@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/plugin-hono-server",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Standard Hono Server Adapter for ObjectStack Runtime",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,14 +11,14 @@
     "@hono/node-server": "^1.2.0",
     "@objectstack/spec": "workspace:*",
     "@objectstack/types": "workspace:*",
+    "@objectstack/runtime": "workspace:*",
     "hono": "^4.0.0"
   },
   "devDependencies": {
-    "@objectstack/runtime": "workspace:*",
     "@types/node": "^20.0.0",
     "typescript": "^5.0.0"
   },
   "peerDependencies": {
-    "@objectstack/runtime": "^0.4.1"
+    "@objectstack/runtime": "^0.4.2"
   }
 }

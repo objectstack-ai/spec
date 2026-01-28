@@ -1,4 +1,4 @@
-import { ObjectStackKernel } from '@objectstack/runtime';
+import { ObjectKernel, ObjectQLPlugin, DriverPlugin, AppManifestPlugin, ObjectQL } from '@objectstack/runtime';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { HonoServerPlugin } from '@objectstack/plugin-hono-server';
 
@@ -9,18 +9,26 @@ import BiPluginManifest from '@objectstack/plugin-bi/objectstack.config';
 (async () => {
   console.log('🚀 Booting Kernel...');
 
-  const kernel = new ObjectStackKernel([
-      CrmApp, 
-      TodoApp, 
-      BiPluginManifest,
-      new InMemoryDriver(),
+  // Use MiniKernel architecture
+  const kernel = new ObjectKernel();
+  
+  kernel
+      // Register ObjectQL engine
+      .use(new ObjectQLPlugin())
+      
+      // Database driver
+      .use(new DriverPlugin(new InMemoryDriver(), 'memory'))
+      
+      // App manifests
+      .use(new AppManifestPlugin(CrmApp))
+      .use(new AppManifestPlugin(TodoApp))
+      .use(new AppManifestPlugin(BiPluginManifest))
       
       // Load the Hono Server Plugin
-      new HonoServerPlugin({ 
+      .use(new HonoServerPlugin({ 
         port: 3004, 
         staticRoot: './public' 
-      }) 
-  ]);
+      }));
 
-  await kernel.start();
+  await kernel.bootstrap();
 })();

@@ -1,5 +1,5 @@
 
-import { ObjectStackKernel } from '@objectstack/runtime';
+import { ObjectKernel, ObjectQLPlugin, DriverPlugin, AppManifestPlugin } from '@objectstack/runtime';
 import { SchemaRegistry, ObjectQL } from '@objectstack/objectql';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 
@@ -10,12 +10,14 @@ import TodoApp from '@objectstack/example-todo/objectstack.config';
     console.log('Apps:', [TodoApp.name]);
     console.log('Objects inside App:', TodoApp.objects?.map((o: any) => o.name));
 
-    const kernel = new ObjectStackKernel([
-        TodoApp,
-        new InMemoryDriver()
-    ]);
+    const kernel = new ObjectKernel();
     
-    await kernel.start();
+    kernel
+        .use(new ObjectQLPlugin())
+        .use(new DriverPlugin(new InMemoryDriver(), 'memory'))
+        .use(new AppManifestPlugin(TodoApp));
+    
+    await kernel.bootstrap();
     
     console.log('--- Post Start ---');
     

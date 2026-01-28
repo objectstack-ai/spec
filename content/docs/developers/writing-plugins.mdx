@@ -704,6 +704,19 @@ npm run build
 }
 ```
 
+**Package Type Options:**
+
+The `type` field in the `objectstack` configuration can be one of:
+- `plugin` - General-purpose functionality extension (default for most plugins)
+- `app` - Business application package
+- `driver` - Database/external service adapter (Postgres, MongoDB, S3)
+- `module` - Reusable code library/shared module
+- `objectql` - Core data engine implementation
+- `gateway` - API protocol entry point (GraphQL, REST, RPC)
+- `adapter` - Runtime container (Express, Hono, Fastify, Serverless)
+
+For most use cases, use `plugin` for business logic extensions and `driver` for data source integrations.
+
 ---
 
 ## 🚀 Publishing

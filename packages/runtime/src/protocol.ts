@@ -1,5 +1,5 @@
-import { SchemaRegistry } from '@objectstack/objectql';
-import { ObjectStackKernel } from './kernel';
+import { SchemaRegistry, ObjectQL } from '@objectstack/objectql';
+import { ObjectKernel } from './mini-kernel.js';
 
 export interface ApiRequest {
     params: Record<string, string>;
@@ -8,10 +8,31 @@ export interface ApiRequest {
 }
 
 export class ObjectStackRuntimeProtocol {
-    private engine: ObjectStackKernel;
+    private engine: ObjectKernel;
+    private objectql?: ObjectQL;
 
-    constructor(engine: ObjectStackKernel) {
+    constructor(engine: ObjectKernel) {
         this.engine = engine;
+        
+        // Get ObjectQL service from kernel - will be validated when needed
+        try {
+            this.objectql = engine.getService<ObjectQL>('objectql');
+        } catch (e) {
+            // Don't fail construction - some protocol methods may still work
+            // Error will be thrown when getObjectQL() is called
+            console.warn('[Protocol] ObjectQL service not found in kernel - data operations will fail');
+        }
+    }
+    
+    /**
+     * Get ObjectQL instance
+     * @throws Error if ObjectQL is not available
+     */
+    private getObjectQL(): ObjectQL {
+        if (!this.objectql) {
+            throw new Error('[Protocol] ObjectQL service not available in kernel. Ensure ObjectQLPlugin is registered and initialized.');
+        }
+        return this.objectql;
     }
 
     // 1. Discovery
@@ -92,38 +113,63 @@ export class ObjectStackRuntimeProtocol {
 
     // 5. UI: View Definition
     getUiView(objectName: string, type: 'list' | 'form') {
-        const view = this.engine.getView(objectName, type);
-        if (!view) throw new Error('View not generated');
-        return view;
+        // Generate view from schema
+        const schema = SchemaRegistry.getObject(objectName);
+        if (!schema) throw new Error(`Unknown object: ${objectName}`);
+        
+        if (type === 'list') {
+            return {
+                type: 'datagrid',
+                title: `${schema.label || objectName} List`,
+                columns: Object.keys(schema.fields || {}).map(key => ({
+                    field: key,
+                    label: schema.fields?.[key]?.label || key,
+                    width: 150
+                })),
+                actions: ['create', 'edit', 'delete']
+            };
+        }
+        throw new Error('View not generated');
     }
 
     // 6. Data: Find
     async findData(objectName: string, query: any) {
-        return await this.engine.find(objectName, query);
+        const ql = this.getObjectQL();
+        const results = await ql.find(objectName, query || { top: 100 });
+        return { value: results, count: results.length };
     }
 
     // 7. Data: Query (Advanced AST)
     async queryData(objectName: string, body: any) {
-        return await this.engine.find(objectName, body);
+        const ql = this.getObjectQL();
+        const results = await ql.find(objectName, body || { top: 100 });
+        return { value: results, count: results.length };
     }
 
     // 8. Data: Get
     async getData(objectName: string, id: string) {
-        return await this.engine.get(objectName, id);
+        const ql = this.getObjectQL();
+        // TODO: Implement proper ID-based lookup once ObjectQL supports it
+        // For now, this is a limitation of the current ObjectQL API
+        const results = await ql.find(objectName, { top: 1, filter: { id } });
+        return results[0];
     }
 
     // 9. Data: Create
     async createData(objectName: string, body: any) {
-        return await this.engine.create(objectName, body);
+        const ql = this.getObjectQL();
+        return await ql.insert(objectName, body);
     }
 
     // 10. Data: Update
     async updateData(objectName: string, id: string, body: any) {
-        return await this.engine.update(objectName, id, body);
+        const ql = this.getObjectQL();
+        return await ql.update(objectName, id, body);
     }
 
     // 11. Data: Delete
     async deleteData(objectName: string, id: string) {
-        return await this.engine.delete(objectName, id);
+        const ql = this.getObjectQL();
+        return await ql.delete(objectName, id);
     }
 }
