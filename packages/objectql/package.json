@@ -9,6 +9,7 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@objectstack/core": "workspace:*",
     "@objectstack/spec": "workspace:*",
     "@objectstack/types": "workspace:*"
   },

@@ -1,27 +1,10 @@
 import { ObjectQL } from './index';
 import { ObjectStackProtocolImplementation } from './protocol';
-// IObjectStackProtocol is used for type checking implicitly via ObjectStackProtocolImplementation contract
+import { Plugin, PluginContext } from '@objectstack/core';
 
-// Minimal Context interface to avoid circular dependency on @objectstack/runtime
-export interface PluginContext {
-    registerService(name: string, service: any): void;
-    getService<T>(name: string): T;
-    hook(name: string, handler: any): void;
-    trigger(name: string, ...args: any[]): Promise<void>;
-    logger: Console;
-    [key: string]: any;
-}
+export type { Plugin, PluginContext };
 
-export interface Plugin {
-    name: string;
-    version?: string;
-    dependencies?: string[];
-    init?: (ctx: PluginContext) => Promise<void> | void;
-    start?: (ctx: PluginContext) => Promise<void> | void;
-    destroy?: () => Promise<void> | void;
-}
-
-export class ObjectQLPlugin {
+export class ObjectQLPlugin implements Plugin {
   name = 'com.objectstack.engine.objectql';
   type = 'objectql' as const;
   version = '1.0.0';
@@ -58,5 +41,22 @@ export class ObjectQLPlugin {
 
   async start(ctx: PluginContext) {
     if(ctx.logger) ctx.logger.log(`[ObjectQLPlugin] ObjectQL engine initialized`);
+    
+    // Discover features from Kernel Services
+    if (ctx.getServices && this.ql) {
+        const services = ctx.getServices();
+        for (const [name, service] of services.entries()) {
+            if (name.startsWith('driver.')) {
+                 // Register Driver
+                 this.ql.registerDriver(service);
+                 if(ctx.logger) ctx.logger.log(`[ObjectQLPlugin] Discovered and registered driver service: ${name}`);
+            }
+            if (name.startsWith('app.')) {
+                // Register App
+                this.ql.registerApp(service); // service is Manifest
+                if(ctx.logger) ctx.logger.log(`[ObjectQLPlugin] Discovered and registered app service: ${name}`);
+            }
+        }
+    }
   }
 }

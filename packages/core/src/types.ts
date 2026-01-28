@@ -26,6 +26,11 @@ export interface PluginContext {
     getService<T>(name: string): T;
 
     /**
+     * Get all registered services
+     */
+    getServices(): Map<string, any>;
+
+    /**
      * Register a hook handler
      * @param name - Hook name (e.g., 'kernel:ready', 'data:beforeInsert')
      * @param handler - Hook handler function

@@ -50,6 +50,9 @@ export class ObjectKernel {
                 await handler(...args);
             }
         },
+        getServices: () => {
+             return new Map(this.services);
+        },
         logger: console,
         getKernel: () => this,
     };

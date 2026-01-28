@@ -1,4 +1,4 @@
-import { Plugin, PluginContext } from './plugin';
+import { Plugin, PluginContext } from '@objectstack/core';
 
 /**
  * Driver Plugin
@@ -27,12 +27,10 @@ export class DriverPlugin implements Plugin {
     }
 
     async init(ctx: PluginContext) {
-        // Get ObjectQL service
-        const objectql = ctx.getService<any>('objectql');
-        
-        // Register driver
-        objectql.registerDriver(this.driver);
-        ctx.logger.log(`[DriverPlugin] Registered driver: ${this.driver.name || 'unknown'}`);
+        // Register driver as a service instead of directly to objectql
+        const serviceName = `driver.${this.driver.name || 'unknown'}`;
+        ctx.registerService(serviceName, this.driver);
+        ctx.logger.log(`[DriverPlugin] Registered driver service: ${serviceName}`);
     }
 
     async start(ctx: PluginContext) {
