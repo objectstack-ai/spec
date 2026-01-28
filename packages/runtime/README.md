@@ -126,17 +126,21 @@ new AppManifestPlugin(appConfig)
 
 #### IHttpServer
 
-Abstract interface for HTTP server capabilities. Allows plugins to work with any HTTP framework (Express, Fastify, Hono, etc.) without tight coupling.
+Abstract interface for HTTP server capabilities. 
+
+**Primary Implementation:** Hono (@objectstack/plugin-hono-server) is the canonical HTTP framework for ObjectStack - lightweight, fast, and edge-ready.
+
+**Alternative Implementations:** Express, Fastify, Koa, etc. can also implement this interface.
 
 ```typescript
 import { IHttpServer, IHttpRequest, IHttpResponse } from '@objectstack/runtime';
 
-// In your HTTP server plugin
+// In your HTTP server plugin (using Hono or any other framework)
 class MyHttpServerPlugin implements Plugin {
   name = 'http-server';
   
   async init(ctx: PluginContext) {
-    const server: IHttpServer = createMyServer(); // Express, Hono, etc.
+    const server: IHttpServer = createMyServer(); // Hono, Express, etc.
     ctx.registerService('http-server', server);
   }
 }
@@ -169,12 +173,16 @@ class MyApiPlugin implements Plugin {
 
 #### IDataEngine
 
-Abstract interface for data persistence. Allows plugins to work with any data layer (ObjectQL, Prisma, TypeORM, etc.) without tight coupling.
+Abstract interface for data persistence.
+
+**Primary Implementation:** ObjectQL (@objectstack/objectql) is the canonical data engine for ObjectStack - provides metadata-driven CRUD operations with driver abstraction.
+
+**Alternative Implementations:** Prisma, TypeORM, Mongoose, etc. can also implement this interface.
 
 ```typescript
 import { IDataEngine } from '@objectstack/runtime';
 
-// In your data plugin
+// In your data plugin (using ObjectQL or any other data layer)
 class MyDataPlugin implements Plugin {
   name = 'data';
   

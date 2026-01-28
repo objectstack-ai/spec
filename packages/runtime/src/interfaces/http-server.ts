@@ -3,7 +3,13 @@
  * 
  * Abstract interface for HTTP server capabilities.
  * This allows plugins to interact with HTTP servers without knowing
- * the underlying implementation (Express, Fastify, Hono, etc.).
+ * the underlying implementation.
+ * 
+ * **Primary Implementation:** Hono (@objectstack/plugin-hono-server)
+ * - Hono is the canonical HTTP framework for ObjectStack
+ * - Lightweight, fast, and edge-ready
+ * 
+ * **Alternative Implementations:** Express, Fastify, Koa, etc.
  * 
  * Follows Dependency Inversion Principle - plugins depend on this interface,
  * not on concrete HTTP framework implementations.
@@ -80,7 +86,9 @@ export type Middleware = (
  * IHttpServer - HTTP Server capability interface
  * 
  * Defines the contract for HTTP server implementations.
- * Concrete implementations (Express, Fastify, Hono) should implement this interface.
+ * 
+ * **Primary Implementation:** Hono is the canonical implementation for ObjectStack.
+ * Alternative implementations (Express, Fastify) can also implement this interface.
  */
 export interface IHttpServer {
     /**

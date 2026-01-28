@@ -3,6 +3,12 @@
  * 
  * This file demonstrates how plugins can implement the IHttpServer
  * and IDataEngine interfaces without depending on concrete implementations.
+ * 
+ * Primary Implementations in ObjectStack:
+ * - IHttpServer → Hono (@objectstack/plugin-hono-server)
+ * - IDataEngine → ObjectQL (@objectstack/objectql)
+ * 
+ * This mock implementation is for testing purposes only.
  */
 
 import { IHttpServer, IDataEngine, RouteHandler, IHttpRequest, IHttpResponse, Middleware, QueryOptions } from './index.js';
@@ -10,8 +16,11 @@ import { IHttpServer, IDataEngine, RouteHandler, IHttpRequest, IHttpResponse, Mi
 /**
  * Example: Mock HTTP Server Plugin
  * 
- * Shows how a plugin can implement the IHttpServer interface
- * without depending on Express, Fastify, or any specific framework.
+ * Shows how a plugin can implement the IHttpServer interface.
+ * 
+ * Note: In production ObjectStack applications, use Hono via
+ * @objectstack/plugin-hono-server as the canonical implementation.
+ * This mock is for testing the interface contract only.
  */
 class MockHttpServer implements IHttpServer {
     private routes: Map<string, { method: string; handler: RouteHandler }> = new Map();
@@ -57,8 +66,11 @@ class MockHttpServer implements IHttpServer {
 /**
  * Example: Mock Data Engine Plugin
  * 
- * Shows how a plugin can implement the IDataEngine interface
- * without depending on ObjectQL, Prisma, or any specific database.
+ * Shows how a plugin can implement the IDataEngine interface.
+ * 
+ * Note: In production ObjectStack applications, use ObjectQL via
+ * @objectstack/objectql as the canonical implementation.
+ * This mock is for testing the interface contract only.
  */
 class MockDataEngine implements IDataEngine {
     private store: Map<string, Map<string, any>> = new Map();

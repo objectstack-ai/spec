@@ -3,7 +3,13 @@
  * 
  * Abstract interface for data persistence capabilities.
  * This allows plugins to interact with data engines without knowing
- * the underlying implementation (SQL, MongoDB, Memory, etc.).
+ * the underlying implementation.
+ * 
+ * **Primary Implementation:** ObjectQL (@objectstack/objectql)
+ * - ObjectQL is the canonical data engine for ObjectStack
+ * - Provides metadata-driven CRUD operations with driver abstraction
+ * 
+ * **Alternative Implementations:** Prisma, TypeORM, Mongoose, etc.
  * 
  * Follows Dependency Inversion Principle - plugins depend on this interface,
  * not on concrete database implementations.
@@ -38,7 +44,9 @@ export interface QueryOptions {
  * IDataEngine - Data persistence capability interface
  * 
  * Defines the contract for data engine implementations.
- * Concrete implementations (ObjectQL, Prisma, TypeORM) should implement this interface.
+ * 
+ * **Primary Implementation:** ObjectQL is the canonical implementation for ObjectStack.
+ * Alternative implementations (Prisma, TypeORM) can also implement this interface.
  */
 export interface IDataEngine {
     /**
