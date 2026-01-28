@@ -64,18 +64,8 @@ const objectql = kernel.getService('objectql');
 - ✅ **依赖解析**: 自动拓扑排序
 - ✅ **向后兼容**: 保留旧 API
 
-## 🔄 迁移路径
+## 🔄 使用示例
 
-### 旧架构
-```typescript
-const kernel = new ObjectStackKernel([
-  new ObjectQLPlugin(),
-  appManifest
-]);
-await kernel.start();
-```
-
-### 新架构
 ```typescript
 const kernel = new ObjectKernel();
 kernel.use(new ObjectQLPlugin());

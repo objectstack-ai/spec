@@ -1,23 +1,4 @@
-import { ObjectStackKernel } from './kernel.js';
 import { ObjectKernel } from './mini-kernel.js';
-
-/**
- * Legacy RuntimeContext (Backward Compatibility)
- * @deprecated Use PluginContext instead
- */
-export interface RuntimeContext {
-    engine: ObjectStackKernel | ObjectKernel;
-}
-
-/**
- * Legacy RuntimePlugin (Backward Compatibility)
- * @deprecated Use Plugin interface instead
- */
-export interface RuntimePlugin {
-    name: string;
-    install?: (ctx: RuntimeContext) => void | Promise<void>;
-    onStart?: (ctx: RuntimeContext) => void | Promise<void>;
-}
 
 /**
  * PluginContext - Runtime context available to plugins
@@ -67,7 +48,7 @@ export interface PluginContext {
      * Get the kernel instance (for advanced use cases)
      * @returns Kernel instance
      */
-    getKernel?(): ObjectStackKernel | ObjectKernel;
+    getKernel?(): ObjectKernel;
 }
 
 /**

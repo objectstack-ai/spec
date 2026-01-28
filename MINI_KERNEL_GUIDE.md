@@ -264,23 +264,7 @@ if (process.env.ENABLE_API === 'true') {
 }
 ```
 
-## Migration from Old Kernel
-
-### Before (ObjectStackKernel)
-
-```typescript
-import { ObjectStackKernel, ObjectQLPlugin } from '@objectstack/runtime';
-
-const kernel = new ObjectStackKernel([
-  new ObjectQLPlugin(),
-  appManifest,
-  driver
-]);
-
-await kernel.start();
-```
-
-### After (ObjectKernel)
+## Usage
 
 ```typescript
 import { ObjectKernel, ObjectQLPlugin, DriverPlugin } from '@objectstack/runtime';

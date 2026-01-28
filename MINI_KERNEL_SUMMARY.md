@@ -6,28 +6,7 @@
 
 **核心原则**: 像 Linux Kernel 一样，将核心功能剥离到最小，所有业务逻辑作为插件加载。
 
-## 架构对比
-
-### 改造前 (Before)
-
-```typescript
-// ObjectQL 硬编码在 Kernel 中
-class ObjectStackKernel {
-  private ql: ObjectQL;  // ← 硬编码
-  
-  constructor(plugins) {
-    this.ql = new ObjectQL(); // ← 无法替换
-  }
-}
-```
-
-**问题:**
-- ❌ ObjectQL 硬编码，无法替换
-- ❌ 插件之间无法通信
-- ❌ 没有标准的生命周期
-- ❌ 测试困难，无法 Mock
-
-### 改造后 (After)
+## 架构特点
 
 ```typescript
 // ObjectQL 成为可插拔的服务
@@ -329,7 +308,7 @@ async trigger(name, ...args) {
 node test-mini-kernel.js
 ```
 
-## 迁移指南
+## 使用指南
 
 ### 步骤 1: 安装依赖
 
@@ -337,21 +316,8 @@ node test-mini-kernel.js
 npm install @objectstack/runtime
 ```
 
-### 步骤 2: 更新代码
+### 步骤 2: 编写代码
 
-**Before:**
-```typescript
-import { ObjectStackKernel, ObjectQLPlugin } from '@objectstack/runtime';
-
-const kernel = new ObjectStackKernel([
-  new ObjectQLPlugin(),
-  appManifest
-]);
-
-await kernel.start();
-```
-
-**After:**
 ```typescript
 import { ObjectKernel, ObjectQLPlugin } from '@objectstack/runtime';
 
@@ -370,37 +336,19 @@ await kernel.bootstrap();
 npm test
 ```
 
-## 向后兼容性
 
-✅ **保持兼容**:
-- `ObjectStackKernel` 保留
-- `RuntimePlugin` 接口保留
-- 旧代码继续工作
 
-🎯 **平滑迁移**:
-- 新旧代码可共存
-- 渐进式迁移
-- 无破坏性变更
-
-## 性能对比
+## 性能特点
 
 ### 启动时间
 
-| 架构 | 插件数 | 启动时间 |
-|------|--------|----------|
-| 旧架构 | 5 | ~200ms |
-| 新架构 | 5 | ~220ms |
-
-**结论**: 性能几乎一致 (+10% overhead for DI)
+- 5个插件: ~220ms
+- 依赖解析: O(V+E) 时间复杂度
 
 ### 内存占用
 
-| 架构 | 内存 |
-|------|------|
-| 旧架构 | ~50MB |
-| 新架构 | ~52MB |
-
-**结论**: 内存增加可忽略 (+4%)
+- 基础内存: ~52MB
+- 服务注册表: O(1) 查找性能
 
 ## 未来规划
 

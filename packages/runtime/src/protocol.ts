@@ -1,5 +1,4 @@
 import { SchemaRegistry, ObjectQL } from '@objectstack/objectql';
-import { ObjectStackKernel } from './kernel.js';
 import { ObjectKernel } from './mini-kernel.js';
 
 export interface ApiRequest {
@@ -9,39 +8,27 @@ export interface ApiRequest {
 }
 
 export class ObjectStackRuntimeProtocol {
-    private engine: ObjectStackKernel | ObjectKernel;
-    private legacyKernel?: ObjectStackKernel;
+    private engine: ObjectKernel;
     private objectql?: ObjectQL;
 
-    constructor(engine: ObjectStackKernel | ObjectKernel) {
+    constructor(engine: ObjectKernel) {
         this.engine = engine;
         
-        // Detect which kernel type we're using
-        if (engine instanceof ObjectStackKernel) {
-            this.legacyKernel = engine;
-        } else if (engine instanceof ObjectKernel) {
-            // Get ObjectQL service from kernel - will be validated when needed
-            try {
-                this.objectql = engine.getService<ObjectQL>('objectql');
-            } catch (e) {
-                // Don't fail construction - some protocol methods may still work
-                // Error will be thrown when getObjectQL() is called
-                console.warn('[Protocol] ObjectQL service not found in kernel - data operations will fail');
-            }
+        // Get ObjectQL service from kernel - will be validated when needed
+        try {
+            this.objectql = engine.getService<ObjectQL>('objectql');
+        } catch (e) {
+            // Don't fail construction - some protocol methods may still work
+            // Error will be thrown when getObjectQL() is called
+            console.warn('[Protocol] ObjectQL service not found in kernel - data operations will fail');
         }
     }
     
     /**
-     * Get ObjectQL instance - works with both kernel types
+     * Get ObjectQL instance
      * @throws Error if ObjectQL is not available
      */
     private getObjectQL(): ObjectQL {
-        if (this.legacyKernel) {
-            if (!this.legacyKernel.ql) {
-                throw new Error('[Protocol] ObjectQL not initialized in legacy kernel');
-            }
-            return this.legacyKernel.ql;
-        }
         if (!this.objectql) {
             throw new Error('[Protocol] ObjectQL service not available in kernel. Ensure ObjectQLPlugin is registered and initialized.');
         }
@@ -126,14 +113,7 @@ export class ObjectStackRuntimeProtocol {
 
     // 5. UI: View Definition
     getUiView(objectName: string, type: 'list' | 'form') {
-        // Use legacy kernel method if available
-        if (this.legacyKernel) {
-            const view = this.legacyKernel.getView(objectName, type);
-            if (!view) throw new Error('View not generated');
-            return view;
-        }
-        
-        // Otherwise generate view from schema
+        // Generate view from schema
         const schema = SchemaRegistry.getObject(objectName);
         if (!schema) throw new Error(`Unknown object: ${objectName}`);
         
@@ -154,9 +134,6 @@ export class ObjectStackRuntimeProtocol {
 
     // 6. Data: Find
     async findData(objectName: string, query: any) {
-        if (this.legacyKernel) {
-            return await this.legacyKernel.find(objectName, query);
-        }
         const ql = this.getObjectQL();
         const results = await ql.find(objectName, query || { top: 100 });
         return { value: results, count: results.length };
@@ -164,9 +141,6 @@ export class ObjectStackRuntimeProtocol {
 
     // 7. Data: Query (Advanced AST)
     async queryData(objectName: string, body: any) {
-        if (this.legacyKernel) {
-            return await this.legacyKernel.find(objectName, body);
-        }
         const ql = this.getObjectQL();
         const results = await ql.find(objectName, body || { top: 100 });
         return { value: results, count: results.length };
@@ -174,9 +148,6 @@ export class ObjectStackRuntimeProtocol {
 
     // 8. Data: Get
     async getData(objectName: string, id: string) {
-        if (this.legacyKernel) {
-            return await this.legacyKernel.get(objectName, id);
-        }
         const ql = this.getObjectQL();
         // TODO: Implement proper ID-based lookup once ObjectQL supports it
         // For now, this is a limitation of the current ObjectQL API
@@ -186,27 +157,18 @@ export class ObjectStackRuntimeProtocol {
 
     // 9. Data: Create
     async createData(objectName: string, body: any) {
-        if (this.legacyKernel) {
-            return await this.legacyKernel.create(objectName, body);
-        }
         const ql = this.getObjectQL();
         return await ql.insert(objectName, body);
     }
 
     // 10. Data: Update
     async updateData(objectName: string, id: string, body: any) {
-        if (this.legacyKernel) {
-            return await this.legacyKernel.update(objectName, id, body);
-        }
         const ql = this.getObjectQL();
         return await ql.update(objectName, id, body);
     }
 
     // 11. Data: Delete
     async deleteData(objectName: string, id: string) {
-        if (this.legacyKernel) {
-            return await this.legacyKernel.delete(objectName, id);
-        }
         const ql = this.getObjectQL();
         return await ql.delete(objectName, id);
     }

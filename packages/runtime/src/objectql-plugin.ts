@@ -1,5 +1,5 @@
 import { ObjectQL } from '@objectstack/objectql';
-import { Plugin, PluginContext, RuntimePlugin, RuntimeContext } from './types.js';
+import { Plugin, PluginContext } from './types.js';
 
 /**
  * ObjectQL Engine Plugin
@@ -15,7 +15,7 @@ import { Plugin, PluginContext, RuntimePlugin, RuntimeContext } from './types.js
  * Services registered:
  * - 'objectql': ObjectQL engine instance
  */
-export class ObjectQLPlugin implements Plugin, RuntimePlugin {
+export class ObjectQLPlugin implements Plugin {
   name = 'com.objectstack.engine.objectql';
   type = 'objectql' as const;
   version = '1.0.0';
@@ -64,21 +64,6 @@ export class ObjectQLPlugin implements Plugin, RuntimePlugin {
   async destroy() {
     // ObjectQL doesn't have cleanup yet, but we provide the hook
     console.log('[ObjectQLPlugin] ObjectQL engine destroyed');
-  }
-
-  /**
-   * Legacy install method for backward compatibility
-   * @deprecated Use init/start lifecycle hooks instead
-   */
-  async install(ctx: RuntimeContext) {
-    // Attach the ObjectQL engine to the kernel for backward compatibility
-    // Only works with ObjectStackKernel (legacy kernel)
-    if ('ql' in ctx.engine) {
-      (ctx.engine as any).ql = this.ql;
-      console.log('[ObjectQLPlugin] ObjectQL engine registered (legacy mode)');
-    } else {
-      console.log('[ObjectQLPlugin] Legacy install called on new kernel - skipping ql property assignment');
-    }
   }
 
   /**

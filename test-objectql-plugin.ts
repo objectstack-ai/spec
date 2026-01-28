@@ -3,40 +3,48 @@
  * 
  * This script validates:
  * 1. Plugin-based ObjectQL registration works
- * 2. Backward compatibility (without plugin) works
- * 3. Custom ObjectQL instance works
+ * 2. Custom ObjectQL instance works
+ * 3. Multiple plugins with ObjectQL work
  */
 
-import { ObjectStackKernel, ObjectQLPlugin, ObjectQL, SchemaRegistry } from '../packages/runtime/src';
+import { ObjectKernel, ObjectQLPlugin, ObjectQL, SchemaRegistry } from '../packages/runtime/src';
 
 async function testPluginBasedRegistration() {
   console.log('\n=== Test 1: Plugin-based ObjectQL Registration ===');
   
-  const kernel = new ObjectStackKernel([
-    new ObjectQLPlugin()
-  ]);
+  const kernel = new ObjectKernel();
+  kernel.use(new ObjectQLPlugin());
   
-  // Verify ObjectQL is set
-  if (!kernel.ql) {
-    throw new Error('FAILED: ObjectQL not set via plugin');
+  await kernel.bootstrap();
+  
+  // Verify ObjectQL is available as a service
+  try {
+    const ql = kernel.getService<ObjectQL>('objectql');
+    console.log('✅ ObjectQL registered via plugin');
+    console.log('ObjectQL instance:', ql.constructor.name);
+  } catch (e) {
+    throw new Error('FAILED: ObjectQL service not found');
   }
-  
-  console.log('✅ ObjectQL registered via plugin');
-  console.log('ObjectQL instance:', kernel.ql.constructor.name);
 }
 
-async function testBackwardCompatibility() {
-  console.log('\n=== Test 2: Backward Compatibility (No Plugin) ===');
+async function testMissingObjectQL() {
+  console.log('\n=== Test 2: Missing ObjectQL Service ===');
   
-  const kernel = new ObjectStackKernel([]);
+  const kernel = new ObjectKernel();
   
-  // Verify ObjectQL is auto-initialized
-  if (!kernel.ql) {
-    throw new Error('FAILED: ObjectQL not auto-initialized');
+  await kernel.bootstrap();
+  
+  // Verify ObjectQL throws error when not registered
+  try {
+    kernel.getService('objectql');
+    throw new Error('FAILED: Should have thrown error for missing ObjectQL');
+  } catch (e: any) {
+    if (e.message.includes('Service not found')) {
+      console.log('✅ Correctly throws error when ObjectQL service is not registered');
+    } else {
+      throw e;
+    }
   }
-  
-  console.log('✅ ObjectQL auto-initialized for backward compatibility');
-  console.log('ObjectQL instance:', kernel.ql.constructor.name);
 }
 
 async function testCustomObjectQL() {
@@ -53,20 +61,19 @@ async function testCustomObjectQL() {
   // Mark this as a custom instance
   customInstances.set(customQL, 'custom-instance');
   
-  const kernel = new ObjectStackKernel([
-    new ObjectQLPlugin(customQL)
-  ]);
+  const kernel = new ObjectKernel();
+  kernel.use(new ObjectQLPlugin(customQL));
+  
+  await kernel.bootstrap();
   
   // Verify the custom instance is used
-  if (!kernel.ql) {
-    throw new Error('FAILED: ObjectQL not set');
-  }
+  const ql = kernel.getService<ObjectQL>('objectql');
   
-  if (!customInstances.has(kernel.ql)) {
+  if (!customInstances.has(ql)) {
     throw new Error('FAILED: Custom ObjectQL instance not used');
   }
   
-  const marker = customInstances.get(kernel.ql);
+  const marker = customInstances.get(ql);
   if (marker !== 'custom-instance') {
     throw new Error('FAILED: Custom ObjectQL instance marker mismatch');
   }
@@ -78,26 +85,23 @@ async function testCustomObjectQL() {
 async function testMultiplePlugins() {
   console.log('\n=== Test 4: Multiple Plugins with ObjectQL ===');
   
-  // Mock driver
-  const mockDriver = {
-    name: 'mock-driver',
-    version: '1.0.0',
-    capabilities: {},
-    async connect() {},
-    async disconnect() {},
-    async find() { return []; },
-    async findOne() { return null; },
-    async create() { return {}; },
-    async update() { return {}; },
-    async delete() { return {}; }
+  // Mock plugin
+  const mockPlugin = {
+    name: 'mock-plugin',
+    async init(ctx: any) {
+      console.log('  Mock plugin initialized');
+    }
   };
   
-  const kernel = new ObjectStackKernel([
-    new ObjectQLPlugin(),
-    mockDriver
-  ]);
+  const kernel = new ObjectKernel();
+  kernel
+    .use(new ObjectQLPlugin())
+    .use(mockPlugin);
   
-  if (!kernel.ql) {
+  await kernel.bootstrap();
+  
+  const ql = kernel.getService<ObjectQL>('objectql');
+  if (!ql) {
     throw new Error('FAILED: ObjectQL not set');
   }
   
@@ -109,7 +113,7 @@ async function runAllTests() {
   
   try {
     await testPluginBasedRegistration();
-    await testBackwardCompatibility();
+    await testMissingObjectQL();
     await testCustomObjectQL();
     await testMultiplePlugins();
     

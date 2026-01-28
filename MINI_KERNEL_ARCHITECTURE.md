@@ -232,18 +232,7 @@ Plugin A                Plugin B                Plugin C
 ## 6. ObjectQL 插件化 (ObjectQL as Plugin)
 
 ```
-Before (Hardcoded):
-┌─────────────────────┐
-│  ObjectStackKernel  │
-│                     │
-│  ┌───────────────┐  │
-│  │   ObjectQL    │  │ ← 硬编码在 Kernel 中
-│  │   (Hardcoded) │  │
-│  └───────────────┘  │
-│                     │
-└─────────────────────┘
-
-After (Plugin-based):
+Plugin-based Architecture:
 ┌─────────────────────┐
 │   ObjectKernel      │
 │  (MiniKernel)       │
