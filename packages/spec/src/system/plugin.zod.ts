@@ -78,6 +78,14 @@ export const PluginLifecycleSchema = z.object({
 
 export type PluginLifecycleHooks = z.infer<typeof PluginLifecycleSchema>;
 
+/**
+ * Plugin Schema
+ * 
+ * Defines the structure of a plugin with optional metadata.
+ * - For embedded/internal plugins: Only lifecycle hooks may be required
+ * - For distributed plugins: id and version should be provided for proper registration
+ * - For marketplace plugins: Use MarketplacePluginSchema which enforces required metadata
+ */
 export const PluginSchema = PluginLifecycleSchema.extend({
   id: z.string().min(1).optional().describe('Unique Plugin ID (e.g. com.example.crm)'),
   version: z.string().regex(/^\d+\.\d+\.\d+$/).optional().describe('Semantic Version'),
