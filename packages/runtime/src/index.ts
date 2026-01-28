@@ -5,7 +5,9 @@ export { ObjectQL, SchemaRegistry } from '@objectstack/objectql';
 export { ObjectKernel } from '@objectstack/core';
 
 // Export Plugins
-export { ObjectQLPlugin, DriverPlugin, AppManifestPlugin } from '@objectstack/objectql';
+export { ObjectQLPlugin } from '@objectstack/objectql';
+export { DriverPlugin } from './driver-plugin';
+export { AppManifestPlugin } from './app-manifest-plugin';
 
 // Export Types
 export * from '@objectstack/core';

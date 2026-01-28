@@ -406,5 +406,3 @@ export class ObjectQL implements IDataEngine {
   }
 }
 export * from './plugin';
-export * from './driver-plugin';
-export * from './app-manifest-plugin';
