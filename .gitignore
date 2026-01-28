@@ -45,6 +45,10 @@ temp/
 packages/*/dist/
 packages/*/*.tsbuildinfo
 
+# Exclude generated JS from TypeScript sources
+packages/*/src/**/*.js
+!packages/*/src/**/*.config.js
+
 # Example builds
 examples/*/dist/
 examples/*/*.d.ts
@@ -52,6 +56,10 @@ examples/*/*.d.ts.map
 examples/*/*.js
 !examples/*/*.config.js
 !examples/*/*.config.ts
+
+# Test files
+test-*.js
+test-*.mjs
 
 # Next.js
 .next
