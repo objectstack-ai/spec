@@ -18,7 +18,7 @@ import { SchemaRegistry, ObjectQL } from '@objectstack/objectql';
 export class ObjectKernel {
     private plugins: Map<string, Plugin | RuntimePlugin> = new Map();
     private services: Map<string, any> = new Map();
-    private hooks: Map<string, Function[]> = new Map();
+    private hooks: Map<string, Array<(...args: any[]) => void | Promise<void>>> = new Map();
     private state: 'idle' | 'initializing' | 'running' | 'stopped' = 'idle';
 
     /**

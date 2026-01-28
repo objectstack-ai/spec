@@ -47,7 +47,7 @@ export interface PluginContext {
      * @param name - Hook name (e.g., 'kernel:ready', 'data:beforeInsert')
      * @param handler - Hook handler function
      */
-    hook(name: string, handler: Function): void;
+    hook(name: string, handler: (...args: any[]) => void | Promise<void>): void;
 
     /**
      * Trigger a hook

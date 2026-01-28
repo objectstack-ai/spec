@@ -79,7 +79,7 @@ export class HonoServerPlugin implements Plugin, RuntimePlugin {
                 }),
             } as any;
         } catch (e) {
-            ctx.logger.warn('[HonoServerPlugin] ObjectQL service not found, skipping protocol routes');
+            ctx.logger.log('[HonoServerPlugin] ObjectQL service not found, skipping protocol routes');
         }
 
         // Register protocol routes if available
@@ -110,7 +110,9 @@ export class HonoServerPlugin implements Plugin, RuntimePlugin {
      * Destroy phase - Stop server
      */
     async destroy() {
-        if (this.server && this.server.close) {
+        // Note: Hono's serve function may not return a server with close method
+        // This is a best-effort cleanup
+        if (this.server && typeof this.server.close === 'function') {
             this.server.close();
             console.log('[HonoServerPlugin] Server stopped');
         }

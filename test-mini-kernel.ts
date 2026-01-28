@@ -231,8 +231,9 @@ async function testErrorHandling() {
         kernel.use(new DuplicatePlugin());
         await kernel.bootstrap();
         throw new Error('Should have thrown on duplicate service');
-    } catch (e: any) {
-        if (!e.message.includes('already registered')) {
+    } catch (e: unknown) {
+        const error = e as Error;
+        if (!error.message.includes('already registered')) {
             throw new Error('Wrong error message');
         }
     }
@@ -249,8 +250,9 @@ async function testErrorHandling() {
         kernel.use(new MissingDepPlugin());
         await kernel.bootstrap();
         throw new Error('Should have thrown on missing dependency');
-    } catch (e: any) {
-        if (!e.message.includes('not found')) {
+    } catch (e: unknown) {
+        const error = e as Error;
+        if (!error.message.includes('not found')) {
             throw new Error('Wrong error message');
         }
     }
