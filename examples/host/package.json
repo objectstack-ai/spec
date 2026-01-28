@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "tsx src/index.ts",
+    "build": "tsc --noEmit",
     "clean": "rm -rf dist node_modules"
   },
   "dependencies": {

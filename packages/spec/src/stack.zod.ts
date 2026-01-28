@@ -92,6 +92,11 @@ export const ObjectStackDefinitionSchema = z.object({
   permissions: z.array(PermissionSetSchema).optional().describe('Permission Sets and Profiles'),
 
   /**
+   * ObjectAPI: API Layer
+   */
+  apis: z.array(ApiEndpointSchema).optional().describe('API Endpoints'),
+
+  /**
    * ObjectAI: Artificial Intelligence Layer
    */
   agents: z.array(AgentSchema).optional().describe('AI Agents and Assistants'),

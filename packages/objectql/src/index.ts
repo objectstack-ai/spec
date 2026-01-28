@@ -6,6 +6,8 @@ import { SchemaRegistry } from './registry';
 
 // Export Registry for consumers
 export { SchemaRegistry } from './registry';
+export { ObjectStackProtocolImplementation } from './protocol';
+
 
 export type HookHandler = (context: HookContext) => Promise<void> | void;
 

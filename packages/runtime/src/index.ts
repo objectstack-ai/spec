@@ -1,5 +1,5 @@
 // Export core engine
-export { ObjectQL, SchemaRegistry } from '@objectstack/objectql';
+export { ObjectQL, SchemaRegistry, ObjectStackProtocolImplementation } from '@objectstack/objectql';
 
 // Export Kernels
 export { ObjectKernel } from '@objectstack/core';

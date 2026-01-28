@@ -3,9 +3,12 @@ import { setupWorker } from 'msw/browser';
 import { 
     Plugin, 
     PluginContext, 
-    ObjectStackRuntimeProtocol,
-    ObjectKernel 
+    ObjectKernel,
+    ObjectStackProtocolImplementation,
+    IDataEngine
 } from '@objectstack/runtime';
+import { IObjectStackProtocol } from '@objectstack/spec/api';
+// import { IDataEngine } from '@objectstack/core';
 
 export interface MSWPluginOptions {
     /**
@@ -33,10 +36,10 @@ export interface MSWPluginOptions {
  * ObjectStack Server Mock - Provides mock database functionality
  */
 export class ObjectStackServer {
-    private static protocol: ObjectStackRuntimeProtocol | null = null;
+    private static protocol: IObjectStackProtocol | null = null;
     private static logger: ((message: string, ...meta: any[]) => void) | null = null;
 
-    static init(protocol: ObjectStackRuntimeProtocol, logger?: (message: string, ...meta: any[]) => void) {
+    static init(protocol: IObjectStackProtocol, logger?: (message: string, ...meta: any[]) => void) {
         this.protocol = protocol;
         this.logger = logger || console.log;
     }
@@ -173,7 +176,7 @@ export class MSWPlugin implements Plugin {
     private options: MSWPluginOptions;
     private worker: any;
     private handlers: Array<any> = [];
-    private protocol?: ObjectStackRuntimeProtocol;
+    private protocol?: IObjectStackProtocol;
 
     constructor(options: MSWPluginOptions = {}) {
         this.options = {
@@ -196,12 +199,12 @@ export class MSWPlugin implements Plugin {
      * Start phase
      */
     async start(ctx: PluginContext) {
-        // Get the kernel and create protocol
-        if (ctx.getKernel) {
-            const kernel = ctx.getKernel();
-            this.protocol = new ObjectStackRuntimeProtocol(kernel);
-        } else {
-            throw new Error('[MSWPlugin] Cannot access kernel from context - getKernel() not available');
+        try {
+            const dataEngine = ctx.getService<IDataEngine>('objectql');
+            this.protocol = new ObjectStackProtocolImplementation(dataEngine);
+        } catch (e) {
+            console.error('[MSWPlugin] Failed to initialize protocol', e);
+            throw new Error('[MSWPlugin] Failed to initialize protocol (missing objectql service?)');
         }
         
         this.setupHandlers();
