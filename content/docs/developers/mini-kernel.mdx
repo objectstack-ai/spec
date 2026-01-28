@@ -1,0 +1,453 @@
+---
+title: MiniKernel Architecture
+description: Understanding ObjectStack's micro-kernel plugin architecture for building extensible applications
+---
+
+# MiniKernel Architecture
+
+ObjectStack uses a **micro-kernel architecture** that separates core functionality from business logic. Like the Linux kernel, the ObjectKernel provides minimal essential services while all features are loaded as plugins.
+
+## Overview
+
+The MiniKernel architecture enables:
+- ✅ Pluggable ObjectQL instances (bring your own query engine)
+- ✅ Service registry for dependency injection (DI)
+- ✅ Standardized plugin lifecycle (init/start/destroy)
+- ✅ Event-driven communication between plugins
+- ✅ Easy testing with mockable services
+
+## Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                   ObjectKernel (Core)                    │
+│  • Plugin Lifecycle Manager                             │
+│  • Service Registry (DI Container)                      │
+│  • Event Bus (Hook System)                              │
+│  • Dependency Resolver                                  │
+└──────────────┬──────────────────────────────────────────┘
+               │
+       ┌───────┴────────┬────────────┬──────────┐
+       │                │            │          │
+  ┌────▼─────┐   ┌─────▼─────┐  ┌──▼───┐  ┌───▼────┐
+  │ ObjectQL │   │  Driver   │  │ Hono │  │ Custom │
+  │  Plugin  │   │  Plugin   │  │Server│  │ Plugin │
+  └──────────┘   └───────────┘  └──────┘  └────────┘
+```
+
+## Core Components
+
+### 1. ObjectKernel
+
+The kernel manages plugin lifecycle and provides core services.
+
+**Location:** `packages/runtime/src/mini-kernel.ts`
+
+**API:**
+```typescript
+import { ObjectKernel } from '@objectstack/runtime';
+
+const kernel = new ObjectKernel();
+
+// Register plugins
+kernel.use(plugin);
+
+// Start the kernel
+await kernel.bootstrap();
+
+// Access services
+const ql = kernel.getService('objectql');
+
+// Shutdown
+await kernel.shutdown();
+```
+
+### 2. Plugin Interface
+
+All plugins must implement the Plugin interface.
+
+**Location:** `packages/runtime/src/types.ts`
+
+**Definition:**
+```typescript
+interface Plugin {
+  name: string;
+  dependencies?: string[];
+  init(ctx: PluginContext): Promise<void>;
+  start?(ctx: PluginContext): Promise<void>;
+  destroy?(): Promise<void>;
+}
+```
+
+### 3. Plugin Lifecycle
+
+```
+┌──────┐
+│ idle │
+└──┬───┘
+   │ kernel.use(plugin)
+   ▼
+┌──────┐
+│ init │ ← Register services, subscribe to events
+└──┬───┘
+   │ kernel.bootstrap()
+   ▼
+┌───────┐
+│ start │ ← Connect to databases, start servers
+└──┬────┘
+   │
+   ▼
+┌─────────┐
+│ running │
+└──┬──────┘
+   │ kernel.shutdown()
+   ▼
+┌─────────┐
+│ destroy │ ← Clean up resources
+└─────────┘
+```
+
+### 4. PluginContext
+
+The context provides access to kernel services and hooks.
+
+**API:**
+```typescript
+interface PluginContext {
+  // Service Registry
+  registerService(name: string, service: any): void;
+  getService<T>(name: string): T;
+  
+  // Event System
+  hook(name: string, handler: Function): void;
+  trigger(name: string, ...args: any[]): Promise<void>;
+  
+  // Logger
+  logger: Logger;
+}
+```
+
+## Built-in Plugins
+
+### ObjectQLPlugin
+
+Registers the ObjectQL query engine as a service.
+
+```typescript
+import { ObjectKernel, ObjectQLPlugin } from '@objectstack/runtime';
+
+const kernel = new ObjectKernel();
+
+// Default ObjectQL instance
+kernel.use(new ObjectQLPlugin());
+
+// Or bring your own instance
+import { ObjectQL } from '@objectstack/objectql';
+const customQL = new ObjectQL({ /* config */ });
+kernel.use(new ObjectQLPlugin(customQL));
+```
+
+**Registers service:** `objectql`
+
+### DriverPlugin
+
+Registers a database driver with ObjectQL.
+
+```typescript
+import { DriverPlugin } from '@objectstack/runtime';
+import { createMemoryDriver } from '@objectstack/driver-memory';
+
+const driver = createMemoryDriver();
+kernel.use(new DriverPlugin(driver, 'memory'));
+```
+
+**Dependencies:** `['com.objectstack.engine.objectql']`
+
+### HonoServerPlugin
+
+Starts an HTTP server using Hono.
+
+```typescript
+import { HonoServerPlugin } from '@objectstack/plugin-hono-server';
+
+kernel.use(new HonoServerPlugin({ port: 3000 }));
+```
+
+## Creating Custom Plugins
+
+### Basic Plugin Example
+
+```typescript
+import { Plugin, PluginContext } from '@objectstack/runtime';
+
+export class MyPlugin implements Plugin {
+  name = 'com.mycompany.my-plugin';
+  dependencies = ['com.objectstack.engine.objectql'];
+  
+  async init(ctx: PluginContext): Promise<void> {
+    ctx.logger.info('MyPlugin initializing');
+    
+    // Register a service
+    ctx.registerService('my-service', {
+      doSomething: () => console.log('Hello!'),
+    });
+    
+    // Subscribe to events
+    ctx.hook('kernel:ready', async () => {
+      ctx.logger.info('Kernel is ready!');
+    });
+  }
+  
+  async start(ctx: PluginContext): Promise<void> {
+    ctx.logger.info('MyPlugin starting');
+    
+    // Get other services
+    const ql = ctx.getService('objectql');
+    
+    // Register objects, start servers, etc.
+  }
+  
+  async destroy(): Promise<void> {
+    // Clean up resources
+  }
+}
+```
+
+### Plugin with Dependencies
+
+```typescript
+export class AnalyticsPlugin implements Plugin {
+  name = 'com.mycompany.analytics';
+  dependencies = [
+    'com.objectstack.engine.objectql',
+    'com.mycompany.my-plugin',
+  ];
+  
+  async init(ctx: PluginContext): Promise<void> {
+    // This plugin will init AFTER its dependencies
+    const myService = ctx.getService('my-service');
+    myService.doSomething();
+  }
+}
+```
+
+## Event System
+
+Plugins communicate via events (hooks).
+
+### Standard Events
+
+```typescript
+// Kernel lifecycle
+'kernel:init'      // Before plugins init
+'kernel:ready'     // After all plugins start
+'kernel:shutdown'  // Before shutdown
+
+// Data lifecycle  
+'data:record:beforeCreate'  // { table, data }
+'data:record:afterCreate'   // { table, record }
+'data:record:beforeUpdate'  // { table, id, data }
+'data:record:afterUpdate'   // { table, id, record }
+'data:record:beforeDelete'  // { table, id }
+'data:record:afterDelete'   // { table, id }
+
+// Server lifecycle
+'server:route:register'  // { method, path, handler }
+'server:ready'           // { port, url }
+'server:request'         // { method, path, query, body }
+```
+
+### Using Events
+
+```typescript
+// Subscribe to events
+ctx.hook('data:record:afterCreate', async (event) => {
+  console.log('Record created:', event.record);
+});
+
+// Trigger events
+await ctx.trigger('my:custom:event', { data: 'value' });
+```
+
+## Dependency Resolution
+
+The kernel automatically resolves plugin dependencies using topological sort.
+
+```typescript
+const kernel = new ObjectKernel();
+
+// These will be initialized in dependency order
+kernel.use(new DriverPlugin(driver, 'memory')); // depends on ObjectQL
+kernel.use(new ObjectQLPlugin());               // no dependencies
+kernel.use(new MyAnalyticsPlugin());            // depends on both
+
+await kernel.bootstrap();
+// Order: ObjectQL → Driver → Analytics
+```
+
+## Testing with MiniKernel
+
+### Mock Services
+
+```typescript
+import { ObjectKernel } from '@objectstack/runtime';
+
+// Create test kernel
+const kernel = new ObjectKernel();
+
+// Register mock ObjectQL
+kernel.use({
+  name: 'objectql-mock',
+  async init(ctx) {
+    ctx.registerService('objectql', {
+      getSchema: () => mockSchema,
+      query: () => mockData,
+    });
+  },
+});
+
+// Test your plugin
+kernel.use(new MyPlugin());
+await kernel.bootstrap();
+```
+
+### Integration Tests
+
+```typescript
+import { describe, it, expect } from 'vitest';
+import { ObjectKernel, ObjectQLPlugin } from '@objectstack/runtime';
+
+describe('MyPlugin', () => {
+  it('should register service', async () => {
+    const kernel = new ObjectKernel();
+    kernel.use(new ObjectQLPlugin());
+    kernel.use(new MyPlugin());
+    
+    await kernel.bootstrap();
+    
+    const service = kernel.getService('my-service');
+    expect(service).toBeDefined();
+    
+    await kernel.shutdown();
+  });
+});
+```
+
+## Configuration-Driven Loading
+
+Load plugins from a configuration file:
+
+```typescript
+// objectstack.config.ts
+export default {
+  plugins: [
+    { name: '@objectstack/runtime#ObjectQLPlugin' },
+    { name: '@objectstack/driver-memory#MemoryDriverPlugin' },
+    { name: '@objectstack/plugin-hono-server#HonoServerPlugin', config: { port: 3000 } },
+  ],
+};
+```
+
+```typescript
+// Runtime loader
+import { loadConfig } from '@objectstack/config';
+import { ObjectKernel } from '@objectstack/runtime';
+
+const config = await loadConfig('./objectstack.config.ts');
+const kernel = new ObjectKernel();
+
+for (const pluginDef of config.plugins) {
+  const PluginClass = await import(pluginDef.name);
+  kernel.use(new PluginClass(pluginDef.config));
+}
+
+await kernel.bootstrap();
+```
+
+## Best Practices
+
+### 1. Use Dependency Injection
+
+```typescript
+// ❌ Bad: Direct import
+import { objectql } from './global-instance';
+
+// ✅ Good: Get from context
+const ql = ctx.getService('objectql');
+```
+
+### 2. Handle Errors in Lifecycle Methods
+
+```typescript
+async init(ctx: PluginContext): Promise<void> {
+  try {
+    await this.setupDatabase();
+  } catch (error) {
+    ctx.logger.error('Failed to setup database', { error });
+    throw error; // Kernel will halt bootstrap
+  }
+}
+```
+
+### 3. Clean Up in destroy()
+
+```typescript
+async destroy(): Promise<void> {
+  // Close connections
+  await this.db.close();
+  
+  // Stop timers
+  clearInterval(this.syncTimer);
+  
+  // Unsubscribe from events
+  this.eventUnsubscribe();
+}
+```
+
+### 4. Use Meaningful Event Names
+
+```typescript
+// ❌ Bad: Generic names
+ctx.hook('update', handler);
+
+// ✅ Good: Specific, namespaced names
+ctx.hook('analytics:metric:updated', handler);
+```
+
+## Migration from Monolithic Architecture
+
+### Before (Monolithic)
+
+```typescript
+import { ObjectQL } from '@objectstack/objectql';
+import { createMemoryDriver } from '@objectstack/driver-memory';
+
+const ql = new ObjectQL();
+const driver = createMemoryDriver();
+await ql.addDriver(driver, 'memory');
+await ql.loadObjects([Account, Contact]);
+```
+
+### After (MiniKernel)
+
+```typescript
+import { ObjectKernel, ObjectQLPlugin, DriverPlugin } from '@objectstack/runtime';
+
+const kernel = new ObjectKernel();
+kernel.use(new ObjectQLPlugin());
+kernel.use(new DriverPlugin(driver, 'memory'));
+kernel.use(new CRMPlugin()); // Loads Account, Contact
+
+await kernel.bootstrap();
+const ql = kernel.getService('objectql');
+```
+
+## Related Documentation
+
+- [Writing Plugins](/docs/developers/writing-plugins) - Complete plugin development guide
+- [ObjectQL Plugin Reference](/docs/references/objectql) - ObjectQL plugin API
+- [Server Drivers](/docs/developers/server-drivers) - Creating custom drivers
+
+---
+
+**Quick Start:** See [examples/host](https://github.com/objectstack-ai/spec/tree/main/examples/host) for a complete MiniKernel implementation.

@@ -8,137 +8,38 @@
 
 This repository contains the core specifications, schemas, and protocols that power the ObjectStack ecosystem. It defines how data, UI, and system configurations are expressed as code.
 
-## 🎉 Recent Updates (2026-01-27)
+## 🎯 What is ObjectStack?
 
-**ObjectQL (Data Layer) now at 100% completion!** 🎯
+ObjectStack is a metadata-driven platform built on three foundational protocols:
 
-We've completed all advanced query features and AI/ML field types:
-- ✅ **Window Functions** - ROW_NUMBER, RANK, LAG, LEAD, and aggregate window functions
-- ✅ **HAVING Clause** - Filter aggregated results in GROUP BY queries
-- ✅ **DISTINCT Queries** - Full support for SELECT DISTINCT
-- ✅ **Subqueries** - Nested queries in JOIN clauses
-- ✅ **Vector Field Type** - AI/ML embeddings for semantic search and RAG workflows
-- ✅ **Location Field Type** - GPS coordinates for geospatial applications
+- **ObjectQL** (Data Layer) - Define data structure and queries
+- **ObjectOS** (Control Layer) - Runtime, permissions, and workflows  
+- **ObjectUI** (View Layer) - Presentation and user interaction
 
-**See [PROTOCOL_EXTENSIONS_COMPLETED.md](./PROTOCOL_EXTENSIONS_COMPLETED.md) for complete details.**
+**Learn more:** [Architecture Overview](./content/docs/introduction/architecture.mdx)
 
 ## 📚 Documentation
 
-### Protocol Reference
-*   **[Protocol Index](./PROTOCOL_INDEX.md):** 📑 **Quick navigation index** to all 70 protocol specifications with direct links
-*   **[Protocol Reference](./PROTOCOL_REFERENCE.md):** 📖 **Complete inventory** with detailed descriptions, usage examples, and organization by module
-*   **[Protocol Organization](./PROTOCOL_ORGANIZATION.md):** 🗺️ **Visual diagrams and maps** showing protocol structure, dependencies, and relationships
+📖 **[Read the Full Documentation](./content/docs/)**
 
-### Quick Start
-*   **[Protocol Index](./PROTOCOL_INDEX.md):** Quick navigation to all protocol specifications
-*   **[Contributing Guide](./CONTRIBUTING.md):** How to contribute to the project
+### Quick Links
 
-### Architecture & Design
-*   **[Architecture Overview](./ARCHITECTURE.md):** Deep dive into the three-layer architecture
-*   **[Protocol Organization](./PROTOCOL_ORGANIZATION.md):** Visual diagrams showing protocol structure and dependencies
+- **Getting Started:**
+  - [Introduction](./content/docs/introduction/) - Core concepts and architecture
+  - [Quick Start Examples](./examples/) - CRM, Todo, and plugin examples
+  
+- **Protocol References:**
+  - [Protocol Reference](./content/docs/references/) - All 70 protocol specifications
+  - [ObjectQL](./content/docs/objectql/) - Data layer documentation
+  - [ObjectUI](./content/docs/objectui/) - UI layer documentation
+  - [ObjectOS](./content/docs/objectos/) - System layer documentation
 
-### Standards & Best Practices
-*   **[Contributing Guide](./CONTRIBUTING.md):** Includes coding standards and best practices
-*   **[Protocol Reference](./PROTOCOL_REFERENCE.md):** Detailed documentation with usage examples
+- **Development:**
+  - [MiniKernel Architecture](./content/docs/developers/mini-kernel.mdx) - Plugin architecture guide
+  - [Writing Plugins](./content/docs/developers/writing-plugins.mdx) - Plugin development guide
+  - [Contributing Guide](./CONTRIBUTING.md) - How to contribute
 
-### Documentation Site
-The official documentation is built with Fumadocs and Next.js.
-
-*   **[Documentation Content](./content/docs/):** MDX documentation files (concepts, specifications, references)
-*   **[Documentation Site](./apps/docs/):** Fumadocs-powered Next.js app
-*   **[Live Site](http://localhost:3000/docs):** Run `pnpm docs:dev` to view locally
-
-### Planning & Internal Docs
-*   **[Protocol Extensions Completed](./PROTOCOL_EXTENSIONS_COMPLETED.md):** Recently completed features and updates
-*   **[Contributing Guide](./CONTRIBUTING.md):** Development workflow and guidelines
-
-## 📦 Monorepo Structure
-
-| Package | Description | Status |
-| :--- | :--- | :--- |
-| **[`@objectstack/spec`](packages/spec)** | **THE PROTOCOL**. Contains all Zod definitions, Types, and JSON Schemas. | 🟢 **Active** |
-| **[`@objectstack/docs`](apps/docs)** | Documentation site built with Fumadocs and Next.js. | 🟢 **Active** |
-| `content/docs/` | Documentation content (MDX files). Shared resource. | 🟢 **Active** |
-| **Examples** | Reference implementations demonstrating protocol features | |
-| └─ [`examples/crm`](examples/crm) | **Full-featured CRM** - 6 objects, workflows, validations, views, dashboards, reports | 🟢 **Complete** |
-| └─ [`examples/todo`](examples/todo) | **Quick-start** - Simple task management with 7 field types | 🟢 **Active** |
-| └─ [`examples/host`](examples/host) | Server runtime with kernel/plugin loading pattern | 🟡 **Experimental** |
-| └─ [`examples/plugin-bi`](examples/plugin-bi) | Business Intelligence plugin example | 🟡 **Experimental** |
-| *Other packages* | *Legacy/Migration in progress* | 🟡 *Legacy* |
-
-## 🛠️ The Protocol Architecture
-
-The ObjectStack Protocol (`@objectstack/spec`) contains **70 protocol specifications** organized into 11 modules. See **[PROTOCOL_REFERENCE.md](./PROTOCOL_REFERENCE.md)** for the complete inventory.
-
-### Core Modules (Summary)
-
-### 1. Data Protocol (ObjectQL) - 8 Protocols
-Defines the "Shape of Data" and business logic.
-- **Schema:** Objects, Fields (44 types including text, number, select, lookup, formula, autonumber, slider, qrcode, **vector** (AI/ML), **location** (GPS), etc.)
-- **Logic:** Workflows, Triggers, Validation Rules, Formulas, Lifecycle Hooks
-- **Security:** Permissions, Sharing Rules
-- **Query:** Abstract Syntax Tree (AST) for unified data access across drivers with **Window Functions**, **HAVING**, **DISTINCT**, **Subqueries**
-- **Automation:** Flow definitions, Dataset mappings
-
-### 2. UI Protocol (ObjectUI) - 10 Protocols
-Defines the "Shape of Interaction" for rendering interfaces.
-- **Views:** Grid, Kanban, Calendar, Gantt, List configurations
-- **Pages:** FlexiPage layouts with regions and components
-- **Navigation:** App menus and navigation structures
-- **Analytics:** Reports (Tabular, Summary, Matrix), Dashboards with widgets
-- **Actions:** Script, URL, Modal, Flow-triggered actions
-- **Theming:** Color palettes, typography, breakpoints, animations
-- **Widgets:** Custom field components
-
-### 3. System Protocol (ObjectOS) - 14 Protocols
-Defines the "Runtime Environment" and platform capabilities.
-- **Manifest:** Application packaging (`objectstack.config.ts`) with support for 7 package types: `app`, `plugin`, `driver`, `module`, `objectql`, `gateway`, `adapter`
-- **Identity:** Authentication, Roles, Territories, Licenses, Organizations
-- **Integration:** Webhooks, API contracts, ETL Mappings
-- **Datasource:** Driver definitions for PostgreSQL, MongoDB, and extensible drivers
-- **Discovery:** Plugin discovery and loading mechanisms
-- **I18n:** Translation and internationalization support
-- **Platform:** Events, Real-time sync, Audit logging, Background jobs, Feature flags
-
-### 4. AI Protocol - 8 Protocols
-Defines AI agent integration capabilities.
-- **Agent:** AI agent definitions and configurations
-- **Model Registry:** LLM registry and selection
-- **RAG Pipeline:** Retrieval-augmented generation
-- **NLQ:** Natural language query processing (NL to ObjectQL)
-- **Conversation:** Conversation management and memory
-- **Cost Tracking:** AI cost tracking and budget management
-- **Predictive:** Predictive analytics models
-- **Orchestration:** AI-powered workflow automation
-
-### 5. API Protocol - 6 Protocols
-Defines standardized API contracts.
-- **Contracts:** API endpoint definitions and specifications
-- **Endpoints:** REST endpoint definitions with rate limiting
-- **Router:** API routing configuration
-- **OData:** OData query protocol support
-- **Realtime:** WebSocket/SSE real-time subscriptions
-- **Discovery:** API discovery and introspection
-
-### Additional Modules
-- **Automation Protocol** (7): Workflows, Flows, Approvals, ETL, Webhooks, Sync, Connectors
-- **Auth Protocol** (6): Identity, Roles, Organizations, OAuth/SAML/SSO, SCIM, Policies
-- **Permission Protocol** (4): Object permissions, Sharing rules, Row-level security, Territories
-- **Hub Protocol** (5): Marketplace, Licensing, Multi-tenancy, Workspaces, Dependencies
-- **Shared Protocol** (1): Common identifiers and utilities
-- **Stack Protocol** (1): Root stack definition
-
-**👉 See [PROTOCOL_REFERENCE.md](./PROTOCOL_REFERENCE.md) for detailed documentation of all 70 protocols.**
-
-## 🚀 Development
-
-This project uses **PNPM** workspaces.
-
-### Prerequisites
-- Node.js >= 18
-- PNPM >= 8
-
-### Quick Start
+## 🚀 Quick Start
 
 ```bash
 # 1. Install dependencies
@@ -146,45 +47,37 @@ pnpm install
 
 # 2. Build the Protocol (Generates Schemas & Docs)
 pnpm --filter @objectstack/spec build
-# Output:
-# - packages/spec/dist/        (Compiled TS)
-# - packages/spec/json-schema/ (JSON Schemas)
 
 # 3. Start Documentation Site
 pnpm docs:dev
 # Visit http://localhost:3000/docs
 ```
 
+## 📦 Monorepo Structure
+
+| Package | Description | Status |
+| :--- | :--- | :--- |
+| **[`@objectstack/spec`](packages/spec)** | Core protocol definitions (Zod schemas, Types, JSON Schemas) | 🟢 Active |
+| **[`@objectstack/docs`](apps/docs)** | Documentation site (Fumadocs + Next.js) | 🟢 Active |
+| [`examples/crm`](examples/crm) | Full-featured CRM example | 🟢 Complete |
+| [`examples/todo`](examples/todo) | Simple todo app example | 🟢 Active |
+
 ## 🤝 Contributing
 
-We welcome contributions! Please read our **[Contributing Guide](./CONTRIBUTING.md)** for detailed guidelines.
+We welcome contributions! Please read our **[Contributing Guide](./CONTRIBUTING.md)** for:
 
-### Quick Start for Contributors
+- Development workflow and setup
+- Coding standards (Zod-first, camelCase config, snake_case data)
+- Testing requirements
+- Documentation guidelines
 
-1.  **Read the Docs**: Review [CONTRIBUTING.md](./CONTRIBUTING.md) for complete guidelines
-2.  **Understand Architecture**: Read [ARCHITECTURE.md](./ARCHITECTURE.md) for system overview
-3.  **Explore Protocols**: See [PROTOCOL_REFERENCE.md](./PROTOCOL_REFERENCE.md) for detailed specifications
-4.  **Check Recent Work**: Review [PROTOCOL_EXTENSIONS_COMPLETED.md](./PROTOCOL_EXTENSIONS_COMPLETED.md) for latest updates
-
-### Key Standards
-
-- **Naming Conventions**: Follow consistent naming across the codebase
-  - Configuration keys (TypeScript properties): `camelCase` (e.g., `maxLength`, `referenceFilters`)
-  - Machine names (data values): `snake_case` (e.g., `name: 'project_task'`, `object: 'account'`)
-- **Zod-First Design**: All schemas must be defined using Zod with runtime validation
-- **TypeScript**: Use strict TypeScript with comprehensive JSDoc comments
-
-### PR Checklist
-
-- [ ] Zod schema follows naming conventions
-- [ ] Comprehensive JSDoc comments with `@description`
-- [ ] Unit tests with 80%+ coverage
-- [ ] Documentation with examples
-- [ ] JSON schema generated successfully
-- [ ] All existing tests pass
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for complete details.
+**Key Standards:**
+- All schemas defined using **Zod** with runtime validation
+- Configuration keys: `camelCase` (e.g., `maxLength`)
+- Machine names: `snake_case` (e.g., `project_task`)
+- Comprehensive JSDoc comments
+- 80%+ test coverage
 
 ## 📄 License
 
-Apach2 2.0 © ObjectStack
+Apache 2.0 © ObjectStack
