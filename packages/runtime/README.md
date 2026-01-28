@@ -6,9 +6,12 @@ ObjectStack Core Runtime & Query Engine
 
 The runtime package provides the `ObjectKernel` (MiniKernel) - a highly modular, plugin-based microkernel that orchestrates ObjectStack applications. It manages the application lifecycle through a standardized plugin system with dependency injection and event hooks.
 
+The package also defines **capability contract interfaces** (`IHttpServer`, `IDataEngine`) that enable plugins to interact with common services without depending on concrete implementations, following the **Dependency Inversion Principle**.
+
 ### Architecture Highlights
 
 - **MiniKernel Design**: Business logic is completely separated into plugins
+- **Capability Contracts**: Abstract interfaces for HTTP server and data persistence
 - **Dependency Injection**: Service registry for inter-plugin communication
 - **Event/Hook System**: Publish-subscribe mechanism for loose coupling
 - **Lifecycle Management**: Standardized init/start/destroy phases
@@ -119,6 +122,91 @@ new AppManifestPlugin(appConfig)
 
 ## API Reference
 
+### Capability Contract Interfaces
+
+#### IHttpServer
+
+Abstract interface for HTTP server capabilities. Allows plugins to work with any HTTP framework (Express, Fastify, Hono, etc.) without tight coupling.
+
+```typescript
+import { IHttpServer, IHttpRequest, IHttpResponse } from '@objectstack/runtime';
+
+// In your HTTP server plugin
+class MyHttpServerPlugin implements Plugin {
+  name = 'http-server';
+  
+  async init(ctx: PluginContext) {
+    const server: IHttpServer = createMyServer(); // Express, Hono, etc.
+    ctx.registerService('http-server', server);
+  }
+}
+
+// In your API plugin
+class MyApiPlugin implements Plugin {
+  name = 'api';
+  dependencies = ['http-server'];
+  
+  async start(ctx: PluginContext) {
+    const server = ctx.getService<IHttpServer>('http-server');
+    
+    // Register routes - works with any HTTP framework
+    server.get('/api/users', async (req, res) => {
+      res.json({ users: [] });
+    });
+  }
+}
+```
+
+**Interface Methods:**
+- `get(path, handler)` - Register GET route
+- `post(path, handler)` - Register POST route  
+- `put(path, handler)` - Register PUT route
+- `delete(path, handler)` - Register DELETE route
+- `patch(path, handler)` - Register PATCH route
+- `use(path, handler?)` - Register middleware
+- `listen(port)` - Start server
+- `close()` - Stop server (optional)
+
+#### IDataEngine
+
+Abstract interface for data persistence. Allows plugins to work with any data layer (ObjectQL, Prisma, TypeORM, etc.) without tight coupling.
+
+```typescript
+import { IDataEngine } from '@objectstack/runtime';
+
+// In your data plugin
+class MyDataPlugin implements Plugin {
+  name = 'data';
+  
+  async init(ctx: PluginContext) {
+    const engine: IDataEngine = createMyDataEngine(); // ObjectQL, Prisma, etc.
+    ctx.registerService('data-engine', engine);
+  }
+}
+
+// In your business logic plugin
+class MyBusinessPlugin implements Plugin {
+  name = 'business';
+  dependencies = ['data'];
+  
+  async start(ctx: PluginContext) {
+    const engine = ctx.getService<IDataEngine>('data-engine');
+    
+    // CRUD operations - works with any data layer
+    const user = await engine.insert('user', { name: 'John' });
+    const users = await engine.find('user', { filter: { active: true } });
+    await engine.update('user', user.id, { name: 'Jane' });
+    await engine.delete('user', user.id);
+  }
+}
+```
+
+**Interface Methods:**
+- `insert(objectName, data)` - Create a record
+- `find(objectName, query?)` - Query records
+- `update(objectName, id, data)` - Update a record
+- `delete(objectName, id)` - Delete a record
+
 ### ObjectKernel
 
 #### Methods
@@ -161,17 +249,18 @@ interface PluginContext {
 See the `examples/` directory for complete examples:
 - `examples/host/` - Full server setup with Hono
 - `examples/msw-react-crud/` - Browser-based setup with MSW
-- `examples/custom-objectql-example.ts` - Custom ObjectQL instance
-- `test-mini-kernel.ts` - Comprehensive test suite
+- `test-mini-kernel.ts` - Comprehensive kernel test suite
+- `packages/runtime/src/test-interfaces.ts` - Capability contract interface examples
 
 ## Benefits of MiniKernel
 
 1. **True Modularity**: Each plugin is independent and reusable
-2. **Testability**: Mock services easily in tests
-3. **Flexibility**: Load plugins conditionally
-4. **Extensibility**: Add new plugins without modifying kernel
-5. **Clear Dependencies**: Explicit dependency declarations
-6. **Better Architecture**: Separation of concerns
+2. **Capability Contracts**: Plugins depend on interfaces, not implementations
+3. **Testability**: Mock services easily in tests
+4. **Flexibility**: Load plugins conditionally, swap implementations
+5. **Extensibility**: Add new plugins without modifying kernel
+6. **Clear Dependencies**: Explicit dependency declarations
+7. **Better Architecture**: Separation of concerns with Dependency Inversion
 
 ## Best Practices
 
