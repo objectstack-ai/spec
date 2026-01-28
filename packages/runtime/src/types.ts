@@ -67,7 +67,7 @@ export interface PluginContext {
      * Get the kernel instance (for advanced use cases)
      * @returns Kernel instance
      */
-    getKernel?(): any;
+    getKernel?(): ObjectStackKernel | ObjectKernel;
 }
 
 /**

@@ -20,17 +20,20 @@ export class ObjectStackRuntimeProtocol {
         if (engine instanceof ObjectStackKernel) {
             this.legacyKernel = engine;
         } else if (engine instanceof ObjectKernel) {
-            // Get ObjectQL service from kernel
+            // Get ObjectQL service from kernel - will be validated when needed
             try {
                 this.objectql = engine.getService<ObjectQL>('objectql');
             } catch (e) {
-                console.warn('[Protocol] ObjectQL service not found in kernel');
+                // Don't fail construction - some protocol methods may still work
+                // Error will be thrown when getObjectQL() is called
+                console.warn('[Protocol] ObjectQL service not found in kernel - data operations will fail');
             }
         }
     }
     
     /**
      * Get ObjectQL instance - works with both kernel types
+     * @throws Error if ObjectQL is not available
      */
     private getObjectQL(): ObjectQL {
         if (this.legacyKernel) {
@@ -40,7 +43,7 @@ export class ObjectStackRuntimeProtocol {
             return this.legacyKernel.ql;
         }
         if (!this.objectql) {
-            throw new Error('[Protocol] ObjectQL service not available');
+            throw new Error('[Protocol] ObjectQL service not available in kernel. Ensure ObjectQLPlugin is registered and initialized.');
         }
         return this.objectql;
     }
@@ -155,7 +158,7 @@ export class ObjectStackRuntimeProtocol {
             return await this.legacyKernel.find(objectName, query);
         }
         const ql = this.getObjectQL();
-        const results = await ql.find(objectName, { top: 100 });
+        const results = await ql.find(objectName, query || { top: 100 });
         return { value: results, count: results.length };
     }
 
@@ -165,7 +168,7 @@ export class ObjectStackRuntimeProtocol {
             return await this.legacyKernel.find(objectName, body);
         }
         const ql = this.getObjectQL();
-        const results = await ql.find(objectName, { top: 100 });
+        const results = await ql.find(objectName, body || { top: 100 });
         return { value: results, count: results.length };
     }
 
@@ -175,7 +178,9 @@ export class ObjectStackRuntimeProtocol {
             return await this.legacyKernel.get(objectName, id);
         }
         const ql = this.getObjectQL();
-        const results = await ql.find(objectName, { top: 1 });
+        // TODO: Implement proper ID-based lookup once ObjectQL supports it
+        // For now, this is a limitation of the current ObjectQL API
+        const results = await ql.find(objectName, { top: 1, filter: { id } });
         return results[0];
     }
 

@@ -215,7 +215,7 @@ export class MSWPlugin implements Plugin, RuntimePlugin {
             const kernel = ctx.getKernel();
             this.protocol = new ObjectStackRuntimeProtocol(kernel);
         } else {
-            ctx.logger.warn('[MSWPlugin] Cannot access kernel from context');
+            throw new Error('[MSWPlugin] Cannot access kernel from context - getKernel() not available');
         }
         
         this.setupHandlers();
