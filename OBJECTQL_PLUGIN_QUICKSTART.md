@@ -11,20 +11,19 @@ npm install @objectstack/runtime
 ### Default ObjectQL (Recommended)
 
 ```typescript
-import { ObjectStackKernel, ObjectQLPlugin } from '@objectstack/runtime';
+import { ObjectKernel, ObjectQLPlugin } from '@objectstack/runtime';
 
-const kernel = new ObjectStackKernel([
-  new ObjectQLPlugin(),
-  // ... other plugins
-]);
+const kernel = new ObjectKernel();
+kernel.use(new ObjectQLPlugin());
+// ... other plugins
 
-await kernel.start();
+await kernel.bootstrap();
 ```
 
 ### Custom ObjectQL Instance
 
 ```typescript
-import { ObjectStackKernel, ObjectQLPlugin, ObjectQL } from '@objectstack/runtime';
+import { ObjectKernel, ObjectQLPlugin, ObjectQL } from '@objectstack/runtime';
 
 // Create custom instance
 const customQL = new ObjectQL({ 
@@ -38,21 +37,11 @@ customQL.registerHook('beforeInsert', async (ctx) => {
 });
 
 // Use in kernel
-const kernel = new ObjectStackKernel([
-  new ObjectQLPlugin(customQL),
-  // ... other plugins
-]);
+const kernel = new ObjectKernel();
+kernel.use(new ObjectQLPlugin(customQL));
+// ... other plugins
 
-await kernel.start();
-```
-
-### Backward Compatible (Legacy)
-
-```typescript
-// Still works without ObjectQLPlugin, but shows warning
-const kernel = new ObjectStackKernel([
-  // ... plugins
-]);
+await kernel.bootstrap();
 ```
 
 ## API Reference
@@ -85,20 +74,21 @@ new ObjectQLPlugin(undefined, { env: 'prod', debug: true })
 
 ## Migration Guide
 
-### From Hardcoded to Plugin-Based
+### From Array-Based to Chaining Pattern
 
 **Before:**
 ```typescript
-const kernel = new ObjectStackKernel([appConfig, driver]);
+const kernel = new ObjectKernel([appConfig, driver]);
 ```
 
 **After:**
 ```typescript
-const kernel = new ObjectStackKernel([
-  new ObjectQLPlugin(),  // Add this line
-  appConfig,
-  driver
-]);
+const kernel = new ObjectKernel();
+kernel.use(new ObjectQLPlugin());  // Add this line
+kernel.use(appConfig);
+kernel.use(driver);
+
+await kernel.bootstrap();
 ```
 
 ## Common Patterns
@@ -106,14 +96,15 @@ const kernel = new ObjectStackKernel([
 ### Testing with Mock ObjectQL
 
 ```typescript
-import { ObjectQLPlugin } from '@objectstack/runtime';
+import { ObjectKernel, ObjectQLPlugin } from '@objectstack/runtime';
 import { MockObjectQL } from './mocks';
 
 const mockQL = new MockObjectQL();
-const kernel = new ObjectStackKernel([
-  new ObjectQLPlugin(mockQL),
-  // ... test config
-]);
+const kernel = new ObjectKernel();
+kernel.use(new ObjectQLPlugin(mockQL));
+// ... test config
+
+await kernel.bootstrap();
 ```
 
 ### Multiple Environments
@@ -121,22 +112,25 @@ const kernel = new ObjectStackKernel([
 ```typescript
 // Production
 const prodQL = new ObjectQL({ env: 'production', cache: true });
-const prodKernel = new ObjectStackKernel([
-  new ObjectQLPlugin(prodQL),
-  // ... production plugins
-]);
+const prodKernel = new ObjectKernel();
+prodKernel.use(new ObjectQLPlugin(prodQL));
+// ... production plugins
+
+await prodKernel.bootstrap();
 
 // Development
-const devKernel = new ObjectStackKernel([
-  new ObjectQLPlugin(undefined, { env: 'development', debug: true }),
-  // ... dev plugins
-]);
+const devKernel = new ObjectKernel();
+devKernel.use(new ObjectQLPlugin(undefined, { env: 'development', debug: true }));
+// ... dev plugins
+
+await devKernel.bootstrap();
 ```
 
 ### Custom ObjectQL from Separate Project
 
 ```typescript
 // Your custom implementation
+import { ObjectKernel, ObjectQLPlugin } from '@objectstack/runtime';
 import { MyCustomObjectQL } from '@mycompany/custom-objectql';
 
 const customQL = new MyCustomObjectQL({
@@ -144,29 +138,25 @@ const customQL = new MyCustomObjectQL({
   // custom options
 });
 
-const kernel = new ObjectStackKernel([
-  new ObjectQLPlugin(customQL),
-  // ... other plugins
-]);
+const kernel = new ObjectKernel();
+kernel.use(new ObjectQLPlugin(customQL));
+// ... other plugins
+
+await kernel.bootstrap();
 ```
 
 ## Troubleshooting
 
 ### Error: "ObjectQL engine not initialized"
 
-This means the kernel tried to use ObjectQL before it was set up. Make sure:
-1. You include `ObjectQLPlugin` in your plugins array, OR
-2. The kernel has backward compatibility enabled
-
-### Warning: "No ObjectQL plugin found..."
-
-This is a deprecation warning. Your code will work, but consider migrating to:
+This means the kernel tried to use ObjectQL before it was set up. Make sure you register the `ObjectQLPlugin`:
 
 ```typescript
-new ObjectStackKernel([
-  new ObjectQLPlugin(),  // Add this
-  // ... other plugins
-]);
+const kernel = new ObjectKernel();
+kernel.use(new ObjectQLPlugin());  // Add this
+// ... other plugins
+
+await kernel.bootstrap();
 ```
 
 ### Warning: "Both ql and hostContext provided..."
@@ -202,7 +192,7 @@ The plugin sets `type = 'objectql'` which aligns with the manifest schema that s
 The kernel's `ql` property is typed as optional:
 
 ```typescript
-export class ObjectStackKernel {
+export class ObjectKernel {
   public ql?: ObjectQL;
   
   private ensureObjectQL(): ObjectQL {
