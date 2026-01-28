@@ -402,3 +402,4 @@ export class ObjectQL implements IDataEngine {
     return hookContext.result;
   }
 }
+export * from './plugin';

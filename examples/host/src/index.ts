@@ -1,5 +1,6 @@
-import { ObjectKernel, ObjectQLPlugin, DriverPlugin, AppManifestPlugin, ObjectQL } from '@objectstack/runtime';
+import { ObjectKernel, DriverPlugin, AppManifestPlugin, ObjectQL } from '@objectstack/runtime';
 import { InMemoryDriver } from '@objectstack/driver-memory';
+import { ObjectQLPlugin } from '@objectstack/objectql';
 import { HonoServerPlugin } from '@objectstack/plugin-hono-server';
 
 import CrmApp from '@objectstack/example-crm/objectstack.config';

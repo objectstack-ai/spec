@@ -5,7 +5,7 @@ export { ObjectQL, SchemaRegistry } from '@objectstack/objectql';
 export { ObjectKernel } from './mini-kernel.js';
 
 // Export Plugins
-export { ObjectQLPlugin } from './objectql-plugin.js';
+export { ObjectQLPlugin } from '@objectstack/objectql';
 export { DriverPlugin } from './driver-plugin.js';
 export { AppManifestPlugin } from './app-manifest-plugin.js';
 
