@@ -2,6 +2,7 @@
   "title": "🔧 Development & Extension",
   "root": true,
   "pages": [
+    "mini-kernel",
     "writing-plugins",
     "custom-widgets",
     "server-drivers",
