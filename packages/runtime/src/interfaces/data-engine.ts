@@ -5,4 +5,4 @@
  * This provides backward compatibility for imports from @objectstack/runtime.
  */
 
-export type { IDataEngine, QueryOptions, QueryFilter } from '@objectstack/spec/system';
+export type { IDataEngine, DataEngineQueryOptions, DataEngineFilter } from '@objectstack/spec/system';

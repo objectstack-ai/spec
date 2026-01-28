@@ -1,10 +1,10 @@
 {
-  "$ref": "#/definitions/QueryFilter",
+  "$ref": "#/definitions/DataEngineFilter",
   "definitions": {
-    "QueryFilter": {
+    "DataEngineFilter": {
       "type": "object",
       "additionalProperties": {},
-      "description": "Query filter conditions"
+      "description": "Data Engine query filter conditions"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

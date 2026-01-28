@@ -12,16 +12,17 @@ import { z } from 'zod';
  */
 
 /**
- * Query filter conditions
+ * Data Engine Query filter conditions
+ * Simple key-value filter structure for IDataEngine.find() operations
  */
-export const QueryFilterSchema = z.record(z.any()).describe('Query filter conditions');
+export const DataEngineFilterSchema = z.record(z.any()).describe('Data Engine query filter conditions');
 
 /**
- * Query options for find operations
+ * Query options for IDataEngine.find() operations
  */
-export const QueryOptionsSchema = z.object({
+export const DataEngineQueryOptionsSchema = z.object({
   /** Filter conditions */
-  filter: QueryFilterSchema.optional(),
+  filter: DataEngineFilterSchema.optional(),
   /** Fields to select */
   select: z.array(z.string()).optional(),
   /** Sort order */
@@ -32,7 +33,7 @@ export const QueryOptionsSchema = z.object({
   skip: z.number().optional(),
   /** Maximum number of results (OData-style, takes precedence over limit if both specified) */
   top: z.number().optional(),
-}).describe('Query options for find operations');
+}).describe('Query options for IDataEngine.find() operations');
 
 /**
  * Data Engine Interface Schema
@@ -93,14 +94,14 @@ export const DataEngineSchema = z.object({
 /**
  * TypeScript types derived from schemas
  */
-export type QueryFilter = z.infer<typeof QueryFilterSchema>;
-export type QueryOptions = z.infer<typeof QueryOptionsSchema>;
+export type DataEngineFilter = z.infer<typeof DataEngineFilterSchema>;
+export type DataEngineQueryOptions = z.infer<typeof DataEngineQueryOptionsSchema>;
 
 // Define the TypeScript interface manually for better type safety
 // Zod function schema doesn't handle optional parameters well
 export interface IDataEngine {
   insert(objectName: string, data: any): Promise<any>;
-  find(objectName: string, query?: QueryOptions): Promise<any[]>;
+  find(objectName: string, query?: DataEngineQueryOptions): Promise<any[]>;
   update(objectName: string, id: any, data: any): Promise<any>;
   delete(objectName: string, id: any): Promise<boolean>;
 }

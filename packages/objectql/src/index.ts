@@ -1,7 +1,7 @@
 import { QueryAST, HookContext } from '@objectstack/spec/data';
 import { ObjectStackManifest } from '@objectstack/spec/system';
 import { DriverInterface, DriverOptions } from '@objectstack/spec/system';
-import { IDataEngine, QueryOptions } from '@objectstack/spec/system';
+import { IDataEngine, DataEngineQueryOptions } from '@objectstack/spec/system';
 import { SchemaRegistry } from './registry';
 
 // Export Registry for consumers
@@ -224,14 +224,14 @@ export class ObjectQL implements IDataEngine {
    * @param query - Query options (IDataEngine format)
    * @returns Promise resolving to array of records
    */
-  async find(object: string, query?: QueryOptions): Promise<any[]> {
+  async find(object: string, query?: DataEngineQueryOptions): Promise<any[]> {
     const driver = this.getDriver(object);
     
-    // Convert QueryOptions to QueryAST
+    // Convert DataEngineQueryOptions to QueryAST
     let ast: QueryAST = { object };
     
     if (query) {
-      // Map QueryOptions to QueryAST
+      // Map DataEngineQueryOptions to QueryAST
       if (query.filter) {
         ast.where = query.filter;
       }

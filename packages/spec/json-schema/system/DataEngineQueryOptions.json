@@ -1,13 +1,13 @@
 {
-  "$ref": "#/definitions/QueryOptions",
+  "$ref": "#/definitions/DataEngineQueryOptions",
   "definitions": {
-    "QueryOptions": {
+    "DataEngineQueryOptions": {
       "type": "object",
       "properties": {
         "filter": {
           "type": "object",
           "additionalProperties": {},
-          "description": "Query filter conditions"
+          "description": "Data Engine query filter conditions"
         },
         "select": {
           "type": "array",
@@ -41,7 +41,7 @@
         }
       },
       "additionalProperties": false,
-      "description": "Query options for find operations"
+      "description": "Query options for IDataEngine.find() operations"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

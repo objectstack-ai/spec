@@ -12,8 +12,8 @@ description: Data Engine protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { DataEngineSchema, QueryFilterSchema, QueryOptionsSchema } from '@objectstack/spec/system';
-import type { DataEngine, QueryFilter, QueryOptions } from '@objectstack/spec/system';
+import { DataEngineSchema, DataEngineFilterSchema, DataEngineQueryOptionsSchema } from '@objectstack/spec/system';
+import type { DataEngine, DataEngineFilter, DataEngineQueryOptions } from '@objectstack/spec/system';
 
 // Validate data
 const result = DataEngineSchema.parse(data);
@@ -32,21 +32,21 @@ Data Engine Interface
 
 ---
 
-## QueryFilter
+## DataEngineFilter
 
-Query filter conditions
+Data Engine query filter conditions
 
 ---
 
-## QueryOptions
+## DataEngineQueryOptions
 
-Query options for find operations
+Query options for IDataEngine.find() operations
 
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **filter** | `Record<string, any>` | optional | Query filter conditions |
+| **filter** | `Record<string, any>` | optional | Data Engine query filter conditions |
 | **select** | `string[]` | optional |  |
 | **sort** | `Record<string, Enum<'1' \| '-1' \| 'asc' \| 'desc'>>` | optional |  |
 | **limit** | `number` | optional |  |
