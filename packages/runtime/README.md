@@ -8,7 +8,7 @@ The runtime package provides the **Standard Library** for the ObjectStack Operat
 
 ### Architecture Highlights
 
-- **Standard Library**: Contains essential plugins (`AppManifestPlugin`, `DriverPlugin`)
+- **Standard Library**: Contains essential plugins (`AppPlugin`, `DriverPlugin`)
 - **Core Integration**: Re-exports `ObjectKernel` for convenience
 - **Capability Contracts**: Abstract interfaces for HTTP server and data persistence
 
@@ -24,7 +24,7 @@ npm install @objectstack/runtime
 
 ```typescript
 import { ObjectKernel } from '@objectstack/core';
-import { ObjectQLPlugin, DriverPlugin, AppManifestPlugin } from '@objectstack/runtime';
+import { ObjectQLPlugin, DriverPlugin, AppPlugin } from '@objectstack/runtime';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 
 const kernel = new ObjectKernel();
@@ -37,7 +37,7 @@ kernel
   .use(new DriverPlugin(new InMemoryDriver(), 'memory'))
   
   // Add your app configurations
-  // .use(new AppManifestPlugin(appConfig));
+  // .use(new AppPlugin(appConfig));
 
 await kernel.bootstrap();
 ```
@@ -107,14 +107,14 @@ new DriverPlugin(driver, 'driver-name')
 
 **Dependencies**: `['com.objectstack.engine.objectql']`
 
-#### AppManifestPlugin
+#### AppPlugin
 Wraps ObjectStack app manifests (objectstack.config.ts) as plugins.
 
 ```typescript
-new AppManifestPlugin(appConfig)
+new AppPlugin(appConfig)
 ```
 
-**Dependencies**: `['com.objectstack.engine.objectql']`
+**Services**: `'app.{id}'`
 
 ## API Reference
 
@@ -246,7 +246,7 @@ See the `examples/` directory for complete examples:
 - `examples/host/` - Full server setup with Hono
 - `examples/msw-react-crud/` - Browser-based setup with MSW
 - `test-mini-kernel.ts` - Comprehensive kernel test suite
-- `packages/runtime/src/test-interfaces.ts` - Capability contract interface examples
+- `packages/runtime/src/
 
 ## Benefits of MiniKernel
 

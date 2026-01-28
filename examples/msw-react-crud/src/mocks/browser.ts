@@ -5,7 +5,7 @@
  * and the MSW Plugin which automatically exposes the API.
  */
 
-import { ObjectKernel, ObjectQLPlugin, DriverPlugin, AppManifestPlugin } from '@objectstack/runtime';
+import { ObjectKernel, ObjectQLPlugin, DriverPlugin, AppPlugin } from '@objectstack/runtime';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { MSWPlugin } from '@objectstack/plugin-msw';
 // import appConfig from '../../objectstack.config';
@@ -31,7 +31,7 @@ export async function startMockServer() {
     .use(new DriverPlugin(driver, 'memory'))
     
     // Load todo app config as a plugin
-    .use(new AppManifestPlugin(todoConfig))
+    .use(new AppPlugin(todoConfig))
     
     // MSW Plugin (intercepts network requests)
     .use(new MSWPlugin({

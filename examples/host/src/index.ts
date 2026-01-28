@@ -1,4 +1,4 @@
-import { ObjectKernel, DriverPlugin, AppManifestPlugin } from '@objectstack/runtime';
+import { ObjectKernel, DriverPlugin, AppPlugin } from '@objectstack/runtime';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { ObjectQLPlugin } from '@objectstack/objectql';
 import { HonoServerPlugin } from '@objectstack/plugin-hono-server';
@@ -21,9 +21,9 @@ import BiPluginManifest from '@objectstack/plugin-bi/objectstack.config';
       .use(new DriverPlugin(new InMemoryDriver(), 'memory'))
       
       // App manifests
-      .use(new AppManifestPlugin(CrmApp))
-      .use(new AppManifestPlugin(TodoApp))
-      .use(new AppManifestPlugin(BiPluginManifest))
+      .use(new AppPlugin(CrmApp))
+      .use(new AppPlugin(TodoApp))
+      .use(new AppPlugin(BiPluginManifest))
       
       // Load the Hono Server Plugin
       .use(new HonoServerPlugin({ 

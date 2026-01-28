@@ -73,7 +73,7 @@ Now just **3 lines** with auto-mocking:
 ```typescript
 // src/mocks/browser.ts - NEW WAY
 const kernel = new ObjectKernel();
-kernel.use(new AppManifestPlugin(appConfig));
+kernel.use(new AppPlugin(appConfig));
 kernel.use(new MSWPlugin({ baseUrl: '/api/v1' }));
 await kernel.bootstrap();  // Auto-mocks ALL endpoints!
 ```
@@ -142,7 +142,7 @@ const customHandlers = [
 ];
 
 const kernel = new ObjectKernel();
-kernel.use(new AppManifestPlugin(appConfig));
+kernel.use(new AppPlugin(appConfig));
 kernel.use(new MSWPlugin({
   customHandlers,  // Add your custom handlers
   baseUrl: '/api/v1'

@@ -1,5 +1,5 @@
 
-import { ObjectKernel, ObjectQLPlugin, DriverPlugin, AppManifestPlugin } from '@objectstack/runtime';
+import { ObjectKernel, ObjectQLPlugin, DriverPlugin, AppPlugin } from '@objectstack/runtime';
 import { SchemaRegistry, ObjectQL } from '@objectstack/objectql';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 
@@ -15,7 +15,7 @@ import TodoApp from '@objectstack/example-todo/objectstack.config';
     kernel
         .use(new ObjectQLPlugin())
         .use(new DriverPlugin(new InMemoryDriver(), 'memory'))
-        .use(new AppManifestPlugin(TodoApp));
+        .use(new AppPlugin(TodoApp));
     
     await kernel.bootstrap();
     
