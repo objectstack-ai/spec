@@ -1,4 +1,4 @@
-import { ObjectKernel } from './mini-kernel.js';
+import { ObjectKernel } from './kernel.js';
 
 /**
  * PluginContext - Runtime context available to plugins
@@ -48,56 +48,48 @@ export interface PluginContext {
      * Get the kernel instance (for advanced use cases)
      * @returns Kernel instance
      */
-    getKernel?(): ObjectKernel;
+    getKernel(): ObjectKernel;
 }
 
 /**
- * Plugin - Standard plugin interface
+ * Plugin Interface
  * 
- * Plugins are independent modules with standard lifecycle hooks.
- * They can declare dependencies on other plugins and register services.
+ * All ObjectStack plugins must implement this interface.
  */
 export interface Plugin {
     /**
-     * Plugin name (unique identifier)
+     * Unique plugin name (e.g., 'com.objectstack.engine.objectql')
      */
     name: string;
 
     /**
-     * Plugin version (optional)
+     * Plugin version
      */
     version?: string;
 
     /**
-     * Plugin type (optional, for special plugins like 'objectql')
-     */
-    type?: string;
-
-    /**
-     * Dependencies - list of plugin names this plugin depends on
-     * Kernel will ensure dependencies are initialized first
+     * List of other plugin names that this plugin depends on.
+     * The kernel ensures these plugins are initialized before this one.
      */
     dependencies?: string[];
 
     /**
-     * Init phase - Register services and prepare plugin
-     * Called during kernel bootstrap, before start phase
-     * 
-     * @param ctx - Plugin context
+     * Init Phase: Register services
+     * Called when kernel is initializing.
+     * Use this to register services that other plugins might need.
      */
-    init(ctx: PluginContext): Promise<void>;
+    init(ctx: PluginContext): Promise<void> | void;
 
     /**
-     * Start phase - Execute business logic, start servers, connect to databases
-     * Called after all plugins have been initialized
-     * 
-     * @param ctx - Plugin context
+     * Start Phase: Execute business logic
+     * Called after all plugins have been initialized.
+     * Use this to start servers, connect to DBs, or execute main logic.
      */
-    start?(ctx: PluginContext): Promise<void>;
+    start?(ctx: PluginContext): Promise<void> | void;
 
     /**
-     * Destroy phase - Cleanup resources, close connections
-     * Called during kernel shutdown
+     * Destroy Phase: Cleanup
+     * Called when kernel is shutting down.
      */
-    destroy?(): Promise<void>;
+    destroy?(): Promise<void> | void;
 }

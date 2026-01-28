@@ -2,7 +2,7 @@
 export { ObjectQL, SchemaRegistry } from '@objectstack/objectql';
 
 // Export Kernels
-export { ObjectKernel } from './mini-kernel.js';
+export { ObjectKernel } from '@objectstack/core';
 
 // Export Plugins
 export { ObjectQLPlugin } from '@objectstack/objectql';
@@ -13,7 +13,7 @@ export { AppManifestPlugin } from './app-manifest-plugin.js';
 export { ObjectStackRuntimeProtocol } from './protocol.js';
 
 // Export Types
-export * from './types.js';
+export * from '@objectstack/core';
 
 // Export Interfaces (Capability Contracts)
 export * from './interfaces/http-server.js';

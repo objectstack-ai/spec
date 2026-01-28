@@ -1,4 +1,4 @@
-import { Plugin, PluginContext } from './types.js';
+import { Plugin, PluginContext } from '@objectstack/core';
 
 /**
  * Driver Plugin

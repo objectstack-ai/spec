@@ -1,5 +1,4 @@
 import { Plugin, PluginContext } from './types.js';
-import { SchemaRegistry, ObjectQL } from '@objectstack/objectql';
 
 /**
  * ObjectKernel - MiniKernel Architecture

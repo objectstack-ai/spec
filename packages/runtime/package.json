@@ -10,6 +10,7 @@
     "dev": "tsc -w"
   },
   "dependencies": {
+    "@objectstack/core": "workspace:*",
     "@objectstack/objectql": "workspace:*",
     "@objectstack/types": "workspace:*",
     "@objectstack/spec": "workspace:*"

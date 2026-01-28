@@ -320,6 +320,12 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
+  packages/core:
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
   packages/driver-memory:
     dependencies:
       '@objectstack/spec':
@@ -335,6 +341,9 @@ importers:
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../spec
+      '@objectstack/types':
+        specifier: workspace:*
+        version: link:../types
     devDependencies:
       typescript:
         specifier: ^5.0.0
@@ -392,6 +401,9 @@ importers:
 
   packages/runtime:
     dependencies:
+      '@objectstack/core':
+        specifier: workspace:*
+        version: link:../core
       '@objectstack/objectql':
         specifier: workspace:*
         version: link:../objectql

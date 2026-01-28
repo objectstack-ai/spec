@@ -1,5 +1,5 @@
 import { SchemaRegistry, ObjectQL } from '@objectstack/objectql';
-import { ObjectKernel } from './mini-kernel.js';
+import { ObjectKernel } from '@objectstack/core';
 
 export interface ApiRequest {
     params: Record<string, string>;

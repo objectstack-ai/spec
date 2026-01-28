@@ -1,0 +1,14 @@
+{
+  "name": "@objectstack/core",
+  "version": "0.4.2",
+  "description": "Microkernel Core for ObjectStack",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
