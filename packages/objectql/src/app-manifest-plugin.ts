@@ -1,23 +1,21 @@
 import { Plugin, PluginContext } from '@objectstack/core';
-import { SchemaRegistry, ObjectQL } from './index';
 
 /**
  * AppManifestPlugin
  * 
- * Wraps an ObjectStack app manifest (objectstack.config.ts export) 
- * as a Plugin so it can be loaded in the MiniKernel architecture.
+ * Adapts a static Manifest JSON into a dynamic Kernel Service.
+ * This allows the ObjectQL Engine to "discover" this app during its start phase.
  * 
- * Handles:
- * - Registering the app/plugin in SchemaRegistry
- * - Registering all objects defined in the manifest
- * - Seeding data if provided
- * 
- * Dependencies: ['com.objectstack.engine.objectql']
+ * Flow:
+ * 1. AppPlugin registers `app.<id>` service (init phase)
+ * 2. ObjectQL Engine discovers `app.*` services (start phase)
  */
 export class AppManifestPlugin implements Plugin {
     name: string;
     version?: string;
-    dependencies = ['com.objectstack.engine.objectql'];
+    
+    // Dependencies removed: This plugin produces data. It doesn't need to consume the engine to register itself.
+    // Making it dependency-free allows it to initialize BEFORE the engine if needed.
     
     private manifest: any;
 
@@ -25,22 +23,26 @@ export class AppManifestPlugin implements Plugin {
         this.manifest = manifest;
         // Support both direct manifest (legacy) and Stack Definition (nested manifest)
         const sys = manifest.manifest || manifest;
-        this.name = sys.id || sys.name || 'unnamed-app';
+        const appId = sys.id || sys.name || 'unnamed-app';
+        
+        this.name = `plugin.app.${appId}`; // Unique plugin name
         this.version = sys.version;
     }
 
     async init(ctx: PluginContext) {
         // Support both direct manifest (legacy) and Stack Definition (nested manifest)
         const sys = this.manifest.manifest || this.manifest;
-        ctx.logger.log(`[AppManifestPlugin] Loading App Manifest: ${sys.id || sys.name}`);
+        const appId = sys.id || sys.name;
+
+        ctx.logger.log(`[AppManifestPlugin] Registering App Service: ${appId}`);
         
         // Register the app manifest as a service
-        const serviceName = `app.${sys.id || sys.name}`;
+        const serviceName = `app.${appId}`;
         ctx.registerService(serviceName, this.manifest);
-        ctx.logger.log(`[AppManifestPlugin] Registered App service: ${serviceName}`);
     }
 
     async start(ctx: PluginContext) {
-        // Data seeding logic will be handled by the engine when it detects the app
+        // No logic needed here. 
+        // Logic is inverted: The Engine will pull data from this service.
     }
 }

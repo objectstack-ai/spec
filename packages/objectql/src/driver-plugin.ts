@@ -6,8 +6,8 @@ import { Plugin, PluginContext } from '@objectstack/core';
  * Generic plugin wrapper for ObjectQL drivers.
  * Registers a driver with the ObjectQL engine.
  * 
- * Dependencies: ['com.objectstack.engine.objectql']
- * Services: None (modifies objectql service)
+ * Dependencies: None (Registers service for ObjectQL to discover)
+ * Services: driver.{name}
  * 
  * @example
  * const memoryDriver = new InMemoryDriver();
@@ -17,7 +17,7 @@ import { Plugin, PluginContext } from '@objectstack/core';
 export class DriverPlugin implements Plugin {
     name: string;
     version = '1.0.0';
-    dependencies = ['com.objectstack.engine.objectql'];
+    // dependencies = ['com.objectstack.engine.objectql']; // Removed: Driver is a producer, not strictly a consumer during init
 
     private driver: any;
 
