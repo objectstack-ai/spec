@@ -1,0 +1,62 @@
+---
+title: Plugin
+description: Plugin protocol schemas
+---
+
+# Plugin
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/plugin.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { PluginSchema, PluginContextSchema, PluginLifecycleSchema } from '@objectstack/spec/system';
+import type { Plugin, PluginContext, PluginLifecycle } from '@objectstack/spec/system';
+
+// Validate data
+const result = PluginSchema.parse(data);
+```
+
+---
+
+## Plugin
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique Plugin ID (e.g. com.example.crm) |
+| **version** | `string` | ✅ | Semantic Version |
+| **description** | `string` | optional |  |
+| **author** | `string` | optional |  |
+| **homepage** | `string` | optional |  |
+
+---
+
+## PluginContext
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **ql** | `Record<string, any>` | ✅ | ObjectQL Engine Interface |
+| **os** | `Record<string, any>` | ✅ | ObjectStack Kernel Interface |
+| **logger** | `Record<string, any>` | ✅ | Logger Interface |
+| **storage** | `Record<string, any>` | ✅ | Storage Interface |
+| **i18n** | `Record<string, any>` | ✅ | Internationalization Interface |
+| **metadata** | `Record<string, any>` | ✅ |  |
+| **events** | `Record<string, any>` | ✅ |  |
+| **app** | `Record<string, any>` | ✅ | App Framework Interface |
+| **drivers** | `Record<string, any>` | ✅ | Driver Registry |
+
+---
+
+## PluginLifecycle
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+

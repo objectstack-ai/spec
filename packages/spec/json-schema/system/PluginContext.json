@@ -1,0 +1,82 @@
+{
+  "$ref": "#/definitions/PluginContext",
+  "definitions": {
+    "PluginContext": {
+      "type": "object",
+      "properties": {
+        "ql": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true,
+          "description": "ObjectQL Engine Interface"
+        },
+        "os": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true,
+          "description": "ObjectStack Kernel Interface"
+        },
+        "logger": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true,
+          "description": "Logger Interface"
+        },
+        "storage": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true,
+          "description": "Storage Interface"
+        },
+        "i18n": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true,
+          "description": "Internationalization Interface"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "events": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "app": {
+          "type": "object",
+          "properties": {
+            "router": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": true
+            }
+          },
+          "required": [
+            "router"
+          ],
+          "additionalProperties": true,
+          "description": "App Framework Interface"
+        },
+        "drivers": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true,
+          "description": "Driver Registry"
+        }
+      },
+      "required": [
+        "ql",
+        "os",
+        "logger",
+        "storage",
+        "i18n",
+        "metadata",
+        "events",
+        "app",
+        "drivers"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
