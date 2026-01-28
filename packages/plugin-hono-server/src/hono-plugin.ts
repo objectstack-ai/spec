@@ -1,13 +1,11 @@
-import { serve } from '@hono/node-server';
-import { serveStatic } from '@hono/node-server/serve-static';
-import { Hono } from 'hono';
-import { cors } from 'hono/cors';
-import { logger } from 'hono/logger';
 import { 
     Plugin, 
     PluginContext, 
     ObjectStackRuntimeProtocol 
 } from '@objectstack/runtime';
+// Use the new IHttpServer interface
+import { IHttpServer } from '@objectstack/spec/api';
+import { HonoHttpServer } from './adapter';
 
 export interface HonoPluginOptions {
     port?: number;
@@ -19,41 +17,28 @@ export interface HonoPluginOptions {
  * 
  * Provides HTTP server capabilities using Hono framework.
  * Registers routes for ObjectStack Runtime Protocol.
- * 
- * Dependencies: None (can work standalone)
- * Services: 
- * - 'http-server': Hono app instance
- * 
- * @example
- * const server = new HonoServerPlugin({ port: 3000 });
- * kernel.use(server);
  */
 export class HonoServerPlugin implements Plugin {
     name = 'com.objectstack.server.hono';
     version = '1.0.0';
     
     private options: HonoPluginOptions;
-    private app: Hono;
-    private server: any;
+    private server: HonoHttpServer;
 
     constructor(options: HonoPluginOptions = {}) {
         this.options = { 
             port: 3000,
             ...options
         };
-        this.app = new Hono();
+        this.server = new HonoHttpServer(this.options.port, this.options.staticRoot);
     }
 
     /**
      * Init phase - Setup HTTP server and register as service
      */
     async init(ctx: PluginContext) {
-        // Middleware
-        this.app.use('*', logger());
-        this.app.use('*', cors());
-
-        // Register HTTP server service
-        ctx.registerService('http-server', this.app);
+        // Register HTTP server service as IHttpServer
+        ctx.registerService('http-server', this.server);
         ctx.logger.log('[HonoServerPlugin] HTTP server service registered');
     }
 
@@ -73,7 +58,8 @@ export class HonoServerPlugin implements Plugin {
                 getService: (name: string) => {
                     if (name === 'objectql') return objectql;
                     throw new Error(`[HonoPlugin] Service ${name} not found`);
-                }
+                },
+                getAllPlugins: () => [] // Mock
             } as any);
 
         } catch (e) {
@@ -83,68 +69,60 @@ export class HonoServerPlugin implements Plugin {
         // Register protocol routes if available
         if (protocol) {
             const p = protocol!;
-            this.app.get('/api/v1', (c) => c.json(p.getDiscovery()));
+            this.server.get('/api/v1', (req, res) => res.json(p.getDiscovery()));
 
             // Meta Protocol
-            this.app.get('/api/v1/meta', (c) => c.json(p.getMetaTypes()));
-            this.app.get('/api/v1/meta/:type', (c) => c.json(p.getMetaItems(c.req.param('type'))));
-            this.app.get('/api/v1/meta/:type/:name', (c) => {
+            this.server.get('/api/v1/meta', (req, res) => res.json(p.getMetaTypes()));
+            this.server.get('/api/v1/meta/:type', (req, res) => res.json(p.getMetaItems(req.params.type)));
+            this.server.get('/api/v1/meta/:type/:name', (req, res) => {
                 try {
-                    return c.json(p.getMetaItem(c.req.param('type'), c.req.param('name')));
+                    res.json(p.getMetaItem(req.params.type, req.params.name));
                 } catch(e:any) {
-                    return c.json({error: e.message}, 404);
+                    res.status(404).json({error: e.message});
                 }
             });
             
             // Data Protocol
-            this.app.get('/api/v1/data/:object', async (c) => {
-                try { return c.json(await p.findData(c.req.param('object'), c.req.query())); } 
-                catch(e:any) { return c.json({error:e.message}, 400); }
+            this.server.get('/api/v1/data/:object', async (req, res) => {
+                try { res.json(await p.findData(req.params.object, req.query)); } 
+                catch(e:any) { res.status(400).json({error:e.message}); }
             });
-            this.app.get('/api/v1/data/:object/:id', async (c) => {
-                try { return c.json(await p.getData(c.req.param('object'), c.req.param('id'))); }
-                catch(e:any) { return c.json({error:e.message}, 404); }
+            this.server.get('/api/v1/data/:object/:id', async (req, res) => {
+                try { res.json(await p.getData(req.params.object, req.params.id)); }
+                catch(e:any) { res.status(404).json({error:e.message}); }
             });
-            this.app.post('/api/v1/data/:object', async (c) => {
-                try { return c.json(await p.createData(c.req.param('object'), await c.req.json()), 201); }
-                catch(e:any) { return c.json({error:e.message}, 400); }
+            this.server.post('/api/v1/data/:object', async (req, res) => {
+                try { res.status(201).json(await p.createData(req.params.object, req.body)); }
+                catch(e:any) { res.status(400).json({error:e.message}); }
             });
-            this.app.patch('/api/v1/data/:object/:id', async (c) => {
-                try { return c.json(await p.updateData(c.req.param('object'), c.req.param('id'), await c.req.json())); }
-                catch(e:any) { return c.json({error:e.message}, 400); }
+            this.server.patch('/api/v1/data/:object/:id', async (req, res) => {
+                try { res.json(await p.updateData(req.params.object, req.params.id, req.body)); }
+                catch(e:any) { res.status(400).json({error:e.message}); }
             });
-            this.app.delete('/api/v1/data/:object/:id', async (c) => {
-                try { return c.json(await p.deleteData(c.req.param('object'), c.req.param('id'))); }
-                catch(e:any) { return c.json({error:e.message}, 400); }
+            this.server.delete('/api/v1/data/:object/:id', async (req, res) => {
+                try { res.json(await p.deleteData(req.params.object, req.params.id)); }
+                catch(e:any) { res.status(400).json({error:e.message}); }
             });
 
             // UI Protocol
             // @ts-ignore
-            this.app.get('/api/v1/ui/view/:object', (c) => {
+            this.server.get('/api/v1/ui/view/:object', (req, res) => {
                 try { 
-                    const viewType = (c.req.query('type') as 'list' | 'form') || 'list';
-                    return c.json(p.getUiView(c.req.param('object'), viewType)); 
+                    const viewType = (req.query.type) || 'list';
+                    const qt = Array.isArray(viewType) ? viewType[0] : viewType;
+                    res.json(p.getUiView(req.params.object, qt as any)); 
                 }
-                catch(e:any) { return c.json({error:e.message}, 404); }
+                catch(e:any) { res.status(404).json({error:e.message}); }
             });
-        }
-
-        // Static files
-        if (this.options.staticRoot) {
-            this.app.get('/', serveStatic({ root: this.options.staticRoot, path: 'index.html' }));
-            this.app.get('/*', serveStatic({ root: this.options.staticRoot }));
         }
 
         // Start server on kernel:ready hook
-        ctx.hook('kernel:ready', () => {
-            const port = this.options.port;
+        ctx.hook('kernel:ready', async () => {
+            const port = this.options.port || 3000;
             ctx.logger.log('[HonoServerPlugin] Starting server...');
-            ctx.logger.log(`✅ Server is running on http://localhost:${port}`);
             
-            this.server = serve({
-                fetch: this.app.fetch,
-                port
-            });
+            await this.server.listen(port);
+            ctx.logger.log(`✅ Server is running on http://localhost:${port}`);
         });
     }
 
@@ -152,11 +130,7 @@ export class HonoServerPlugin implements Plugin {
      * Destroy phase - Stop server
      */
     async destroy() {
-        // Note: Hono's serve function may not return a server with close method
-        // This is a best-effort cleanup
-        if (this.server && typeof this.server.close === 'function') {
-            this.server.close();
-            console.log('[HonoServerPlugin] Server stopped');
-        }
+        this.server.close();
+        console.log('[HonoServerPlugin] Server stopped');
     }
 }

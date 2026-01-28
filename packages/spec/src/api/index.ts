@@ -14,3 +14,4 @@ export * from './realtime.zod';
 export * from './router.zod';
 export * from './odata.zod';
 
+export * from './http-server';
