@@ -1,8 +1,6 @@
 import { http, HttpResponse } from 'msw';
 import { setupWorker } from 'msw/browser';
 import { 
-    RuntimePlugin, 
-    RuntimeContext, 
     Plugin, 
     PluginContext, 
     ObjectStackRuntimeProtocol,
@@ -156,8 +154,6 @@ export class ObjectStackServer {
  * This plugin enables Mock Service Worker integration for testing and development.
  * It automatically mocks API endpoints using the ObjectStack runtime protocol.
  * 
- * Supports both legacy RuntimePlugin and new Plugin interfaces.
- * 
  * @example
  * ```typescript
  * import { MSWPlugin } from '@objectstack/plugin-msw';
@@ -170,7 +166,7 @@ export class ObjectStackServer {
  * }));
  * ```
  */
-export class MSWPlugin implements Plugin, RuntimePlugin {
+export class MSWPlugin implements Plugin {
     name = 'com.objectstack.plugin.msw';
     version = '1.0.0';
     
@@ -189,7 +185,7 @@ export class MSWPlugin implements Plugin, RuntimePlugin {
     }
 
     /**
-     * New Plugin interface - init phase
+     * Init phase
      */
     async init(ctx: PluginContext) {
         // Protocol will be created in start phase
@@ -197,7 +193,7 @@ export class MSWPlugin implements Plugin, RuntimePlugin {
     }
 
     /**
-     * New Plugin interface - start phase
+     * Start phase
      */
     async start(ctx: PluginContext) {
         // Get the kernel and create protocol
@@ -213,32 +209,9 @@ export class MSWPlugin implements Plugin, RuntimePlugin {
     }
 
     /**
-     * New Plugin interface - destroy phase
+     * Destroy phase
      */
     async destroy() {
-        await this.stopWorker();
-    }
-
-    /**
-     * Legacy RuntimePlugin interface - install
-     */
-    install(ctx: RuntimeContext) {
-        const { engine } = ctx;
-        this.protocol = new ObjectStackRuntimeProtocol(engine);
-        this.setupHandlers();
-    }
-
-    /**
-     * Legacy RuntimePlugin interface - onStart
-     */
-    async onStart(ctx: RuntimeContext) {
-        await this.startWorker();
-    }
-
-    /**
-     * Legacy RuntimePlugin interface - onStop
-     */
-    async onStop() {
         await this.stopWorker();
     }
 
