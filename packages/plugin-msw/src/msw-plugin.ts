@@ -1,6 +1,13 @@
 import { http, HttpResponse } from 'msw';
 import { setupWorker } from 'msw/browser';
-import { RuntimePlugin, RuntimeContext, ObjectStackRuntimeProtocol } from '@objectstack/runtime';
+import { 
+    RuntimePlugin, 
+    RuntimeContext, 
+    Plugin, 
+    PluginContext, 
+    ObjectStackRuntimeProtocol,
+    ObjectKernel 
+} from '@objectstack/runtime';
 
 export interface MSWPluginOptions {
     /**
@@ -149,10 +156,20 @@ export class ObjectStackServer {
  * This plugin enables Mock Service Worker integration for testing and development.
  * It automatically mocks API endpoints using the ObjectStack runtime protocol.
  * 
+ * Supports both legacy RuntimePlugin and new Plugin interfaces.
+ * 
  * @example
  * ```typescript
  * import { MSWPlugin } from '@objectstack/plugin-msw';
  * 
+ * // With new ObjectKernel
+ * const kernel = new ObjectKernel();
+ * kernel.use(new MSWPlugin({
+ *   enableBrowser: true,
+ *   baseUrl: '/api/v1'
+ * }));
+ * 
+ * // With legacy ObjectStackKernel
  * const runtime = new ObjectStackRuntime({
  *   plugins: [
  *     new MSWPlugin({
@@ -163,11 +180,14 @@ export class ObjectStackServer {
  * });
  * ```
  */
-export class MSWPlugin implements RuntimePlugin {
-    name = 'msw';
+export class MSWPlugin implements Plugin, RuntimePlugin {
+    name = 'com.objectstack.plugin.msw';
+    version = '1.0.0';
+    
     private options: MSWPluginOptions;
     private worker: any;
     private handlers: Array<any> = [];
+    private protocol?: ObjectStackRuntimeProtocol;
 
     constructor(options: MSWPluginOptions = {}) {
         this.options = {
@@ -178,9 +198,69 @@ export class MSWPlugin implements RuntimePlugin {
         };
     }
 
+    /**
+     * New Plugin interface - init phase
+     */
+    async init(ctx: PluginContext) {
+        // Protocol will be created in start phase
+        ctx.logger.log('[MSWPlugin] Initialized');
+    }
+
+    /**
+     * New Plugin interface - start phase
+     */
+    async start(ctx: PluginContext) {
+        // Get the kernel and create protocol
+        if (ctx.getKernel) {
+            const kernel = ctx.getKernel();
+            this.protocol = new ObjectStackRuntimeProtocol(kernel);
+        } else {
+            ctx.logger.warn('[MSWPlugin] Cannot access kernel from context');
+        }
+        
+        this.setupHandlers();
+        await this.startWorker();
+    }
+
+    /**
+     * New Plugin interface - destroy phase
+     */
+    async destroy() {
+        await this.stopWorker();
+    }
+
+    /**
+     * Legacy RuntimePlugin interface - install
+     */
     install(ctx: RuntimeContext) {
         const { engine } = ctx;
-        const protocol = new ObjectStackRuntimeProtocol(engine);
+        this.protocol = new ObjectStackRuntimeProtocol(engine);
+        this.setupHandlers();
+    }
+
+    /**
+     * Legacy RuntimePlugin interface - onStart
+     */
+    async onStart(ctx: RuntimeContext) {
+        await this.startWorker();
+    }
+
+    /**
+     * Legacy RuntimePlugin interface - onStop
+     */
+    async onStop() {
+        await this.stopWorker();
+    }
+
+    /**
+     * Setup MSW handlers
+     */
+    private setupHandlers() {
+        if (!this.protocol) {
+            throw new Error('[MSWPlugin] Protocol not initialized');
+        }
+
+        const protocol = this.protocol;
         
         // Initialize ObjectStackServer
         ObjectStackServer.init(
@@ -312,7 +392,10 @@ export class MSWPlugin implements RuntimePlugin {
         console.log(`[MSWPlugin] Installed ${this.handlers.length} request handlers.`);
     }
 
-    async onStart(ctx: RuntimeContext) {
+    /**
+     * Start the MSW worker
+     */
+    private async startWorker() {
         if (this.options.enableBrowser && typeof window !== 'undefined') {
             // Browser environment
             this.worker = setupWorker(...this.handlers);
@@ -325,7 +408,10 @@ export class MSWPlugin implements RuntimePlugin {
         }
     }
 
-    async onStop() {
+    /**
+     * Stop the MSW worker
+     */
+    private async stopWorker() {
         if (this.worker) {
             this.worker.stop();
             console.log(`[MSWPlugin] Stopped MSW worker.`);

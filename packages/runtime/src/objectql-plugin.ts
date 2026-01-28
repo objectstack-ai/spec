@@ -72,8 +72,13 @@ export class ObjectQLPlugin implements Plugin, RuntimePlugin {
    */
   async install(ctx: RuntimeContext) {
     // Attach the ObjectQL engine to the kernel for backward compatibility
-    ctx.engine.ql = this.ql;
-    console.log('[ObjectQLPlugin] ObjectQL engine registered (legacy mode)');
+    // Only works with ObjectStackKernel (legacy kernel)
+    if ('ql' in ctx.engine) {
+      (ctx.engine as any).ql = this.ql;
+      console.log('[ObjectQLPlugin] ObjectQL engine registered (legacy mode)');
+    } else {
+      console.log('[ObjectQLPlugin] Legacy install called on new kernel - skipping ql property assignment');
+    }
   }
 
   /**
