@@ -1,7 +1,7 @@
 /**
- * MiniKernel Test Suite
+ * MicroKernel Test Suite
  * 
- * Tests the new ObjectKernel (MiniKernel) architecture:
+ * Tests the new ObjectKernel (MicroKernel) architecture:
  * 1. Basic plugin registration and lifecycle
  * 2. Service registry (registerService/getService)
  * 3. Dependency resolution
@@ -262,7 +262,7 @@ async function testErrorHandling() {
 
 // Run all tests
 async function runAllTests() {
-    console.log('🧪 Starting MiniKernel Test Suite...\n');
+    console.log('🧪 Starting MicroKernel Test Suite...\n');
     
     try {
         await testBasicLifecycle();
@@ -273,7 +273,7 @@ async function runAllTests() {
         await testMultiplePlugins();
         await testErrorHandling();
         
-        console.log('\n✅ All MiniKernel tests passed!\n');
+        console.log('\n✅ All MicroKernel tests passed!\n');
     } catch (error) {
         console.error('\n❌ Test failed:', error);
         process.exit(1);
