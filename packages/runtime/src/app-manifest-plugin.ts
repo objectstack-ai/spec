@@ -23,15 +23,19 @@ export class AppManifestPlugin implements Plugin {
 
     constructor(manifest: any) {
         this.manifest = manifest;
-        this.name = manifest.id || manifest.name || 'unnamed-app';
-        this.version = manifest.version;
+        // Support both direct manifest (legacy) and Stack Definition (nested manifest)
+        const sys = manifest.manifest || manifest;
+        this.name = sys.id || sys.name || 'unnamed-app';
+        this.version = sys.version;
     }
 
     async init(ctx: PluginContext) {
-        ctx.logger.log(`[AppManifestPlugin] Loading App Manifest: ${this.manifest.id || this.manifest.name}`);
+        // Support both direct manifest (legacy) and Stack Definition (nested manifest)
+        const sys = this.manifest.manifest || this.manifest;
+        ctx.logger.log(`[AppManifestPlugin] Loading App Manifest: ${sys.id || sys.name}`);
         
         // Register the app/plugin in the schema registry
-        SchemaRegistry.registerPlugin(this.manifest);
+        SchemaRegistry.registerPlugin(sys);
         
         // Register all objects defined in the manifest
         if (this.manifest.objects) {
@@ -45,7 +49,8 @@ export class AppManifestPlugin implements Plugin {
     async start(ctx: PluginContext) {
         // Seed data if provided
         if (this.manifest.data && Array.isArray(this.manifest.data)) {
-            ctx.logger.log(`[AppManifestPlugin] Seeding data for ${this.manifest.name || this.manifest.id}...`);
+            const sys = this.manifest.manifest || this.manifest;
+            ctx.logger.log(`[AppManifestPlugin] Seeding data for ${sys.name || sys.id}...`);
             
             const objectql = ctx.getService<ObjectQL>('objectql');
             
