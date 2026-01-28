@@ -1,5 +1,4 @@
 import { Plugin, PluginContext } from '@objectstack/core';
-import { ObjectQL, ObjectQLHostContext } from '@objectstack/objectql';
 
 /**
  * AppPlugin
@@ -42,7 +41,7 @@ export class AppPlugin implements Plugin {
         // Execute Runtime Step
         // Retrieve ObjectQL engine from services
         // We cast to any/ObjectQL because ctx.getService returns unknown
-        const ql = ctx.getService('objectql') as ObjectQL;
+        const ql = ctx.getService('objectql') as any;
         
         if (!ql) {
             ctx.logger?.warn(`[AppPlugin] ObjectQL engine service not found for app: ${this.name}`);
@@ -55,13 +54,13 @@ export class AppPlugin implements Plugin {
              ctx.logger?.log(`[AppPlugin] Executing runtime.onEnable for: ${this.name}`);
              
              // Construct the Host Context (mirroring old ObjectQL.use logic)
-             const hostContext: ObjectQLHostContext = {
+             const hostContext = {
+                ...ctx,
                 ql,
                 logger: ctx.logger || console,
                 drivers: {
                     register: (driver: any) => ql.registerDriver(driver)
                 },
-                ...ctx
              };
              
              await runtime.onEnable(hostContext);

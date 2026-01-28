@@ -12,7 +12,7 @@ import { DataEnginePlugin } from './data-engine-plugin';
 import { FlowEnginePlugin } from './flow-engine-plugin';
 import { UiEnginePlugin } from './ui-engine-plugin';
 import { HonoServerPlugin } from '@objectstack/plugin-hono-server';
-import { ObjectQLPlugin } from '@objectstack/runtime';
+import { ObjectQLPlugin } from '@objectstack/objectql';
 import { PluginRegistry, createKernelFromConfig } from './config-loader';
 
 /**

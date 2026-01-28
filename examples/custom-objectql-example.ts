@@ -6,7 +6,8 @@
  * custom configuration.
  */
 
-import { ObjectKernel, ObjectQLPlugin, DriverPlugin, ObjectQL } from '@objectstack/runtime';
+import { ObjectKernel, DriverPlugin } from '@objectstack/runtime';
+import { ObjectQLPlugin, ObjectQL } from '@objectstack/objectql';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 
 (async () => {

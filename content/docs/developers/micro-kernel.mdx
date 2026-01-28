@@ -46,7 +46,8 @@ The kernel manages plugin lifecycle and provides core services.
 **API:**
 ```typescript
 import { ObjectKernel } from '@objectstack/core';
-import { ObjectQLPlugin, DriverPlugin } from '@objectstack/runtime';
+import { DriverPlugin } from '@objectstack/runtime';
+import { ObjectQLPlugin } from '@objectstack/objectql';
 
 const kernel = new ObjectKernel();
 
@@ -137,7 +138,8 @@ interface PluginContext {
 Registers the ObjectQL query engine as a service.
 
 ```typescript
-import { ObjectKernel, ObjectQLPlugin } from '@objectstack/runtime';
+import { ObjectKernel } from '@objectstack/core';
+import { ObjectQLPlugin } from '@objectstack/objectql';
 
 const kernel = new ObjectKernel();
 
@@ -317,7 +319,8 @@ await kernel.bootstrap();
 ### Integration Tests
 
 ```typescript
-import { describe, it, expect } from 'vitest';
+import { describe, it } from '@objectstack/runtime';
+import { ObjectQLPlugin } from '@objectstack/objectql
 import { ObjectKernel, ObjectQLPlugin } from '@objectstack/runtime';
 
 describe('MyPlugin', () => {
@@ -432,7 +435,8 @@ await ql.loadObjects([Account, Contact]);
 ```
 
 ### After (MicroKernel)
-
+DriverPlugin } from '@objectstack/runtime';
+import { ObjectQLPlugin } from '@objectstack/objectql
 ```typescript
 import { ObjectKernel, ObjectQLPlugin, DriverPlugin } from '@objectstack/runtime';
 

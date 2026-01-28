@@ -5,7 +5,8 @@
  * where ObjectQL, Drivers, and HTTP Server are all equal plugins.
  */
 
-import { ObjectKernel, ObjectQLPlugin, DriverPlugin } from '@objectstack/runtime';
+import { ObjectKernel, DriverPlugin } from '@objectstack/runtime';
+import { ObjectQLPlugin } from '@objectstack/objectql';
 
 // Mock driver for demonstration
 const mockDriver = {

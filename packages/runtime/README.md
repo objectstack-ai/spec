@@ -24,7 +24,8 @@ npm install @objectstack/runtime
 
 ```typescript
 import { ObjectKernel } from '@objectstack/core';
-import { ObjectQLPlugin, DriverPlugin, AppPlugin } from '@objectstack/runtime';
+import { DriverPlugin, AppPlugin } from '@objectstack/runtime';
+import { ObjectQLPlugin } from '@objectstack/objectql';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 
 const kernel = new ObjectKernel();
@@ -47,7 +48,8 @@ await kernel.bootstrap();
 If you have a separate ObjectQL implementation or need custom configuration:
 
 ```typescript
-import { ObjectKernel, ObjectQLPlugin, DriverPlugin, ObjectQL } from '@objectstack/runtime';
+import { ObjectKernel, DriverPlugin } from '@objectstack/runtime';
+import { ObjectQLPlugin, ObjectQL } from '@objectstack/objectql';
 
 // Create custom ObjectQL instance
 const customQL = new ObjectQL({

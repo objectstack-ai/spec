@@ -10,7 +10,8 @@
  * 6. Multiple plugins working together
  */
 
-import { ObjectKernel, ObjectQLPlugin, DriverPlugin, Plugin, PluginContext } from './packages/runtime/src';
+import { ObjectKernel, DriverPlugin, Plugin, PluginContext } from './packages/runtime/src';
+import { ObjectQLPlugin } from './packages/objectql/src';
 
 // Test 1: Basic Plugin Lifecycle
 async function testBasicLifecycle() {

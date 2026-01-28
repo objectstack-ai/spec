@@ -7,7 +7,8 @@
  * 3. Multiple plugins with ObjectQL work
  */
 
-import { ObjectKernel, ObjectQLPlugin, ObjectQL, SchemaRegistry } from './packages/runtime/src/index.js';
+import { ObjectKernel } from './packages/runtime/src/index.js';
+import { ObjectQLPlugin, ObjectQL, SchemaRegistry } from './packages/objectql/src/index.js';
 
 async function testPluginBasedRegistration() {
   console.log('\n=== Test 1: Plugin-based ObjectQL Registration ===');

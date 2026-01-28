@@ -69,7 +69,8 @@ When building full applications, use the `ObjectKernel` to manage plugins and co
 
 ```typescript
 import { ObjectKernel } from '@objectstack/core';
-import { ObjectQLPlugin, DriverPlugin } from '@objectstack/runtime';
+import { DriverPlugin } from '@objectstack/runtime';
+import { ObjectQLPlugin } from '@objectstack/objectql';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 
 const kernel = new ObjectKernel();
