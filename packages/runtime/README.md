@@ -164,37 +164,6 @@ See the `examples/` directory for complete examples:
 - `examples/custom-objectql-example.ts` - Custom ObjectQL instance
 - `test-mini-kernel.ts` - Comprehensive test suite
 
-## Migration Guide
-
-### From ObjectStackKernel to ObjectKernel
-
-**Before (Legacy):**
-```typescript
-import { ObjectStackKernel, ObjectQLPlugin } from '@objectstack/runtime';
-
-const kernel = new ObjectStackKernel([
-  new ObjectQLPlugin(),
-  appConfig,
-  driver
-]);
-
-await kernel.start();
-```
-
-**After (Recommended):**
-```typescript
-import { ObjectKernel, ObjectQLPlugin, DriverPlugin, AppManifestPlugin } from '@objectstack/runtime';
-
-const kernel = new ObjectKernel();
-
-kernel
-  .use(new ObjectQLPlugin())
-  .use(new DriverPlugin(driver, 'memory'))
-  .use(new AppManifestPlugin(appConfig));
-
-await kernel.bootstrap();
-```
-
 ## Benefits of MiniKernel
 
 1. **True Modularity**: Each plugin is independent and reusable
@@ -217,10 +186,6 @@ await kernel.bootstrap();
 - [MiniKernel Guide](../../MINI_KERNEL_GUIDE.md) - Complete API documentation and patterns
 - [MiniKernel Architecture](../../MINI_KERNEL_ARCHITECTURE.md) - Architecture diagrams and flows
 - [MiniKernel Implementation](../../MINI_KERNEL_IMPLEMENTATION.md) - Implementation details
-
-## Legacy Support
-
-The `ObjectStackKernel` is still available for backward compatibility but is deprecated. New projects should use `ObjectKernel`.
 
 ## License
 

@@ -132,11 +132,7 @@ kernel.use(new DriverPlugin(memoryDriver, 'memory'));
 - 插件可以独立测试
 - 依赖注入简化测试
 
-### 4. 向后兼容
 
-- 保留 `ObjectStackKernel` 和旧的 `RuntimePlugin` 接口
-- 平滑迁移路径
-- 不影响现有代码
 
 ## 使用示例 (Usage Examples)
 
@@ -202,7 +198,6 @@ packages/runtime/src/
 ├── types.ts             # Plugin, PluginContext 接口
 ├── objectql-plugin.ts   # ObjectQL 插件
 ├── driver-plugin.ts     # Driver 插件
-├── kernel.ts            # 原有 ObjectStackKernel (保持兼容)
 ├── protocol.ts          # Runtime Protocol
 └── index.ts             # 导出
 
@@ -211,34 +206,7 @@ examples/mini-kernel-example.ts  # 示例代码
 test-mini-kernel.ts      # 测试套件
 ```
 
-## 迁移指南 (Migration Guide)
-
-### 从旧 Kernel 迁移
-
-**Before**:
-```typescript
-import { ObjectStackKernel, ObjectQLPlugin } from '@objectstack/runtime';
-
-const kernel = new ObjectStackKernel([
-  new ObjectQLPlugin(),
-  appManifest
-]);
-
-await kernel.start();
-```
-
-**After**:
-```typescript
-import { ObjectKernel, ObjectQLPlugin } from '@objectstack/runtime';
-
-const kernel = new ObjectKernel();
-
-kernel
-  .use(new ObjectQLPlugin())
-  .use(appManifestPlugin);
-
-await kernel.bootstrap();
-```
+## 使用指南 (Usage Guide)
 
 ### 创建新插件
 
