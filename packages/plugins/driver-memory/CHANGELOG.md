@@ -1,5 +1,14 @@
 # @objectstack/driver-memory
 
+## 0.6.1
+
+### Patch Changes
+
+- Patch release for maintenance and stability improvements
+- Updated dependencies
+  - @objectstack/spec@0.6.1
+  - @objectstack/core@0.6.1
+
 ## 0.6.0
 
 ### Minor Changes

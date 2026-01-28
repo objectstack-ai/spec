@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/spec-monorepo",
-  "version": "0.5.0",
+  "version": "0.6.1",
   "private": true,
   "description": "ObjectStack Protocol & Specification - Monorepo for TypeScript Interfaces, JSON Schemas, and Convention Configurations",
   "scripts": {
