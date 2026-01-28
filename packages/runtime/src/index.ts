@@ -15,3 +15,7 @@ export { ObjectStackRuntimeProtocol } from './protocol.js';
 // Export Types
 export * from './types.js';
 
+// Export Interfaces (Capability Contracts)
+export * from './interfaces/http-server.js';
+export * from './interfaces/data-engine.js';
+
