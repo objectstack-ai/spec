@@ -398,8 +398,7 @@ export class ObjectQL implements IDataEngine {
     hookContext.result = result;
     await this.triggerHooks('afterDelete', hookContext);
 
-    // Return boolean - true if deletion was successful
-    // The driver.delete should return the deleted record or null
-    return hookContext.result !== null && hookContext.result !== undefined;
+    // Driver.delete() already returns boolean per DriverInterface spec
+    return hookContext.result;
   }
 }

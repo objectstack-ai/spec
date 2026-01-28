@@ -48,7 +48,7 @@ class MockDriver {
   
   async delete(object: string, id: any) {
     console.log(`[MockDriver] delete(${object}, ${id})`);
-    return { id };
+    return true; // Return boolean as per DriverInterface
   }
 }
 
