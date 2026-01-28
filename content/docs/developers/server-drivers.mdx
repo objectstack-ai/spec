@@ -76,8 +76,8 @@ my-custom-db/
 
 ```typescript
 // src/driver.ts
+import { DriverInterface } from '@objectstack/core';
 import {
-  DriverInterface,
   DriverOptions,
   DriverCapabilities,
 } from '@objectstack/spec';
@@ -560,7 +560,8 @@ Complete implementation of a simple in-memory driver:
 
 ```typescript
 // src/memory-driver.ts
-import { DriverInterface, DriverCapabilities } from '@objectstack/spec';
+import { DriverInterface } from '@objectstack/core';
+import { DriverCapabilities } from '@objectstack/spec';
 import { Query, QueryResult } from '@objectstack/objectql';
 
 export class InMemoryDriver implements DriverInterface {
@@ -793,7 +794,7 @@ export class InMemoryDriver implements DriverInterface {
 ```typescript
 // src/postgres-driver.ts
 import { Pool } from 'pg';
-import { DriverInterface } from '@objectstack/spec';
+import { DriverInterface } from '@objectstack/core';
 import { Query } from '@objectstack/objectql';
 
 export class PostgresDriver implements DriverInterface {

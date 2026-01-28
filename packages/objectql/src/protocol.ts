@@ -1,5 +1,5 @@
 import { IObjectStackProtocol } from '@objectstack/spec/api';
-import { IDataEngine } from '@objectstack/spec/system';
+import { IDataEngine } from '@objectstack/core';
 
 // We import SchemaRegistry directly since this class lives in the same package
 import { SchemaRegistry } from './registry';

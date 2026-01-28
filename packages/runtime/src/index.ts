@@ -12,7 +12,4 @@ export { AppManifestPlugin } from './app-manifest-plugin';
 // Export Types
 export * from '@objectstack/core';
 
-// Export Protocol Intefaces from Spec
-export { IHttpServer, IHttpRequest, IHttpResponse, RouteHandler, Middleware } from '@objectstack/spec/api';
-export { IDataEngine, DataEngineFilter, DataEngineQueryOptions } from '@objectstack/spec/system';
 

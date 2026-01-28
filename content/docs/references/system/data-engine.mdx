@@ -12,23 +12,12 @@ description: Data Engine protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { DataEngineSchema, DataEngineFilterSchema, DataEngineQueryOptionsSchema } from '@objectstack/spec/system';
-import type { DataEngine, DataEngineFilter, DataEngineQueryOptions } from '@objectstack/spec/system';
+import { DataEngineFilterSchema, DataEngineQueryOptionsSchema } from '@objectstack/spec/system';
+import type { DataEngineFilter, DataEngineQueryOptions } from '@objectstack/spec/system';
 
 // Validate data
-const result = DataEngineSchema.parse(data);
+const result = DataEngineFilterSchema.parse(data);
 ```
-
----
-
-## DataEngine
-
-Data Engine Interface
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
 
 ---
 

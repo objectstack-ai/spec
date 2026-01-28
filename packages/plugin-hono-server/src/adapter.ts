@@ -1,11 +1,11 @@
-// Export IHttpServer from spec/api
-export * from '@objectstack/spec/api';
+// Export IHttpServer from core
+export * from '@objectstack/core';
 
 import { 
     IHttpServer, 
     RouteHandler, 
     Middleware 
-} from '@objectstack/spec/api';
+} from '@objectstack/core';
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';

@@ -1,5 +1,5 @@
-import { Plugin, PluginContext } from '@objectstack/core';
-import { IHttpServer, IObjectStackProtocol } from '@objectstack/spec/api';
+import { Plugin, PluginContext, IHttpServer } from '@objectstack/core';
+import { IObjectStackProtocol } from '@objectstack/spec/api';
 import { HonoHttpServer } from './adapter';
 
 export interface HonoPluginOptions {

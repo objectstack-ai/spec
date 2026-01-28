@@ -1,7 +1,7 @@
 import { QueryAST, HookContext } from '@objectstack/spec/data';
 import { ObjectStackManifest } from '@objectstack/spec/system';
-import { DriverInterface, DriverOptions } from '@objectstack/spec/system';
-import { IDataEngine, DataEngineQueryOptions } from '@objectstack/spec/system';
+import { DriverOptions } from '@objectstack/spec/system';
+import { DriverInterface, IDataEngine, DataEngineQueryOptions } from '@objectstack/core';
 import { SchemaRegistry } from './registry';
 
 // Export Registry for consumers

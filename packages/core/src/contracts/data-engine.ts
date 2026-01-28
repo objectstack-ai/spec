@@ -1,3 +1,6 @@
+import { QueryAST } from '@objectstack/spec/data';
+import { DriverOptions } from '@objectstack/spec/system';
+
 /**
  * IDataEngine - Standard Data Engine Interface
  * 
@@ -32,16 +35,18 @@ export interface IDataEngine {
   delete(objectName: string, id: any): Promise<boolean>;
 }
 
-// Driver Interface specific to storage drivers
-export interface DriverOptions {
-  name?: string;
-  url?: string;
-  [key: string]: any;
-}
-
-export interface DriverInterface extends IDataEngine {
+export interface DriverInterface {
   name: string;
   version: string;
   connect(): Promise<void>;
   disconnect(): Promise<void>;
+  
+  find(object: string, query: QueryAST, options?: DriverOptions): Promise<any[]>;
+  findOne(object: string, query: QueryAST, options?: DriverOptions): Promise<any>;
+  create(object: string, data: any, options?: DriverOptions): Promise<any>;
+  update(object: string, id: any, data: any, options?: DriverOptions): Promise<any>;
+  delete(object: string, id: any, options?: DriverOptions): Promise<any>;
+  
+  count?(object: string, query: QueryAST, options?: DriverOptions): Promise<number>;
 }
+

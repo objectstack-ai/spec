@@ -133,20 +133,31 @@ export default defineManifest({
 
 ```typescript
 // src/index.ts
-import { PluginContext } from '@objectstack/spec';
+import { Plugin } from '@objectstack/core';
 import { Account } from './objects/account.object';
 import { registerWebhooks } from './routes/webhooks';
 import { startSyncJob } from './jobs/sync';
 
-export default {
+const myPlugin: Plugin = {
+  name: 'my-crm-plugin',
+  version: '1.0.0',
+  
   /**
    * Called when the plugin is enabled.
    * Register objects, routes, jobs, and event listeners here.
    */
-  onEnable: async (context: PluginContext) => {
-    const { ql, os, logger, router, scheduler, storage } = context;
+  init: async (context) => {
+    // context comes from @objectstack/core
+    const { logger } = context;
     
     logger.info('My CRM Plugin enabled');
+    
+    /* 
+       Note: Accessing services like 'ql' or 'router' depends on 
+       what plugins are installed in the kernel.
+       const ql = context.getService('objectql');
+    */
+  },
     
     // Register custom objects
     await ql.registerObject(Account);
@@ -343,7 +354,7 @@ Add custom HTTP endpoints for webhooks, integrations, or custom APIs:
 
 ```typescript
 // src/routes/webhooks.ts
-import { Router } from '@objectstack/spec';
+import { IHttpServer } from '@objectstack/core';
 import { z } from 'zod';
 
 const WebhookPayloadSchema = z.object({
@@ -352,13 +363,13 @@ const WebhookPayloadSchema = z.object({
   timestamp: z.string(),
 });
 
-export function registerWebhooks(router: Router) {
+export function registerWebhooks(server: IHttpServer) {
   
   // ============================================================================
   // POST /api/webhooks/account
   // ============================================================================
   
-  router.post('/api/webhooks/account', async (req, res) => {
+  server.post('/api/webhooks/account', async (req, res) => {
     try {
       // Validate webhook payload
       const payload = WebhookPayloadSchema.parse(req.body);
@@ -385,7 +396,7 @@ export function registerWebhooks(router: Router) {
   // GET /api/integrations/sync
   // ============================================================================
   
-  router.get('/api/integrations/sync', async (req, res) => {
+  server.get('/api/integrations/sync', async (req, res) => {
     const { ql, logger } = req.context;
     
     try {
@@ -439,7 +450,7 @@ Run tasks periodically using cron expressions:
 
 ```typescript
 // src/jobs/sync.ts
-import { PluginContext } from '@objectstack/spec';
+import { PluginContext } from '@objectstack/core';
 
 export async function startSyncJob(context: PluginContext) {
   const { ql, os, logger, storage } = context;
@@ -506,7 +517,7 @@ React to data changes in real-time:
 
 ```typescript
 // src/events/account-created.ts
-import { PluginContext } from '@objectstack/spec';
+import { PluginContext } from '@objectstack/core';
 
 export function registerEventListeners(context: PluginContext) {
   const { ql, logger } = context;
