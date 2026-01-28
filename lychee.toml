@@ -52,7 +52,11 @@ exclude = [
     "https://x.com*",
     
     # Email links
-    "mailto:*"
+    "mailto:*",
+    
+    # Fumadocs relative links (handled by framework at runtime)
+    # These are links like ./agent that resolve to .mdx files
+    "file://**/content/docs/**"
 ]
 
 # Cache results to speed up subsequent runs
