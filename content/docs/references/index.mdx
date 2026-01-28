@@ -1,0 +1,204 @@
+---
+title: Protocol Reference
+description: Complete reference of all 70 ObjectStack protocol specifications
+---
+
+# Protocol Reference
+
+This is the complete reference for all protocol specifications in the ObjectStack ecosystem. Each protocol is implemented as a Zod schema providing runtime validation and TypeScript type safety.
+
+## Quick Navigation
+
+| Module | Protocols | Description |
+| :--- | :---: | :--- |
+| [Data Protocol](#data-protocol) | 8 | Core business logic and data modeling (ObjectQL) |
+| [UI Protocol](#ui-protocol) | 10 | User interface definitions and interactions (ObjectUI) |
+| [System Protocol](#system-protocol) | 14 | Runtime environment and platform capabilities (ObjectOS) |
+| [AI Protocol](#ai-protocol) | 8 | AI/ML integration and agent orchestration |
+| [API Protocol](#api-protocol) | 6 | Standardized API contracts and communication |
+| [Automation Protocol](#automation-protocol) | 7 | Workflow automation and integration |
+| [Auth Protocol](#auth-protocol) | 6 | Identity, authentication, and authorization |
+| [Permission Protocol](#permission-protocol) | 4 | Access control and security policies |
+| [Hub Protocol](#hub-protocol) | 5 | Marketplace and multi-tenancy |
+| [Shared Protocol](#shared-protocol) | 1 | Common utilities and identifiers |
+| [Stack Protocol](#stack-protocol) | 1 | Root stack definition |
+
+**Total: 70 protocols**
+
+---
+
+## Data Protocol (ObjectQL)
+
+**Location:** `packages/spec/src/data/`  
+**Count:** 8 protocols
+
+Defines the "Shape of Data" and business logic.
+
+| File | Schema | Purpose |
+| :--- | :--- | :--- |
+| `field.zod.ts` | `FieldSchema` | Field definitions with 44 types (text, number, select, lookup, formula, vector, location, etc.) |
+| `object.zod.ts` | `ObjectSchema` | Object/table definitions with fields, indexes, and capabilities |
+| `query.zod.ts` | `QuerySchema` | Abstract query AST supporting window functions, HAVING, DISTINCT, subqueries |
+| `validation.zod.ts` | `ValidationRuleSchema` | Validation rules for data integrity |
+| `filter.zod.ts` | `FilterSchema` | Query filtering and conditions |
+| `dataset.zod.ts` | `DatasetSchema` | Dataset definitions for reporting and analytics |
+| `mapping.zod.ts` | `FieldMappingSchema` | Field mapping configurations for data transformation |
+| `hook.zod.ts` | `HookSchema` | Lifecycle hooks (before/after insert, update, delete) |
+
+**Key Features:**
+- 44 field types including AI/ML vectors and GPS locations
+- Advanced query capabilities (window functions, HAVING, DISTINCT, subqueries)
+- Validation rules and formulas
+- Lifecycle hooks for business logic
+
+**Learn more:** [ObjectQL Documentation](/docs/objectql)
+
+---
+
+## UI Protocol (ObjectUI)
+
+**Location:** `packages/spec/src/ui/`  
+**Count:** 10 protocols
+
+Defines the "Shape of Interaction" for rendering interfaces.
+
+| File | Schema | Purpose |
+| :--- | :--- | :--- |
+| `view.zod.ts` | `ViewSchema` | List views (grid, kanban, calendar, gantt) and form layouts |
+| `page.zod.ts` | `PageSchema` | FlexiPage layouts with regions and components |
+| `app.zod.ts` | `AppSchema` | Application structure and navigation menus |
+| `dashboard.zod.ts` | `DashboardSchema` | Dashboard layouts with grid-based widgets |
+| `report.zod.ts` | `ReportSchema` | Report definitions (tabular, summary, matrix, chart) |
+| `action.zod.ts` | `ActionSchema` | UI actions (buttons, scripts, URLs, flows) |
+| `component.zod.ts` | `ComponentSchema` | Reusable UI components |
+| `block.zod.ts` | `BlockSchema` | UI block definitions |
+| `theme.zod.ts` | `ThemeSchema` | Theming (colors, typography, breakpoints, animations) |
+| `widget.zod.ts` | `WidgetSchema` | Custom field widgets with lifecycle hooks |
+
+**Key Features:**
+- Server-driven UI with multiple view types
+- Flexible page layouts with component regions
+- Rich dashboard and reporting capabilities
+- Comprehensive theming system
+
+**Learn more:** [ObjectUI Documentation](/docs/objectui)
+
+---
+
+## System Protocol (ObjectOS)
+
+**Location:** `packages/spec/src/system/`  
+**Count:** 14 protocols
+
+Defines the "Runtime Environment" and platform capabilities.
+
+| File | Schema | Purpose |
+| :--- | :--- | :--- |
+| `manifest.zod.ts` | `ManifestSchema` | Application/plugin manifest (`objectstack.config.ts`) with 7 package types |
+| `datasource.zod.ts` | `DatasourceSchema` | Data source connection configurations |
+| `driver.zod.ts` | `DriverSchema` | Database driver definitions and options |
+| `driver/postgres.zod.ts` | `PostgresConfigSchema` | PostgreSQL-specific driver configuration |
+| `driver/mongo.zod.ts` | `MongoConfigSchema` | MongoDB-specific driver configuration |
+| `plugin.zod.ts` | `PluginSchema` | Plugin lifecycle and interface definitions |
+| `context.zod.ts` | `KernelContextSchema` | Kernel execution context with user, org, tenant info |
+| `events.zod.ts` | `EventSchema` | Event bus and pub/sub patterns |
+| `job.zod.ts` | `JobSchema` | Background job scheduling (cron, interval, delayed) |
+| `audit.zod.ts` | `AuditEventSchema` | Audit logging for compliance |
+| `logger.zod.ts` | `LoggerConfigSchema` | Structured logging configuration |
+| `translation.zod.ts` | `TranslationSchema` | i18n/l10n support |
+| `feature.zod.ts` | `FeatureFlagSchema` | Feature flag definitions |
+| `scoped-storage.zod.ts` | `ScopedStorageSchema` | Scoped key-value storage |
+
+**Package Types:**
+- `app` - Business application package
+- `plugin` - General-purpose functionality extension
+- `driver` - Database/external service adapter
+- `module` - Reusable code library
+- `objectql` - Core data engine implementation
+- `gateway` - API protocol entry point (GraphQL, REST, RPC)
+- `adapter` - Runtime container (Express, Hono, Fastify, Serverless)
+
+**Learn more:** [ObjectOS Documentation](/docs/objectos)
+
+---
+
+## AI Protocol
+
+**Location:** `packages/spec/src/ai/`  
+**Count:** 8 protocols
+
+Defines AI agent integration capabilities.
+
+| File | Schema | Purpose |
+| :--- | :--- | :--- |
+| `agent.zod.ts` | `AgentSchema` | AI agent definitions and configurations |
+| `model-registry.zod.ts` | `ModelRegistrySchema` | LLM registry and selection |
+| `rag-pipeline.zod.ts` | `RAGPipelineSchema` | Retrieval-augmented generation |
+| `nlq.zod.ts` | `NLQSchema` | Natural language query processing (NL to ObjectQL) |
+| `conversation.zod.ts` | `ConversationSchema` | Conversation management and memory |
+| `cost.zod.ts` | `CostTrackingSchema` | AI cost tracking and budget management |
+| `predictive.zod.ts` | `PredictiveModelSchema` | Predictive analytics models |
+| `orchestration.zod.ts` | `OrchestrationSchema` | AI-powered workflow automation |
+
+**Learn more:** [AI Protocol Reference](/docs/references/ai)
+
+---
+
+## API Protocol
+
+**Location:** `packages/spec/src/api/`  
+**Count:** 6 protocols
+
+Defines standardized API contracts.
+
+| File | Schema | Purpose |
+| :--- | :--- | :--- |
+| `contract.zod.ts` | `APIContractSchema` | API endpoint definitions and specifications |
+| `endpoint.zod.ts` | `EndpointSchema` | REST endpoint definitions with rate limiting |
+| `router.zod.ts` | `RouterSchema` | API routing configuration |
+| `odata.zod.ts` | `ODataSchema` | OData query protocol support |
+| `realtime.zod.ts` | `RealtimeSchema` | WebSocket/SSE real-time subscriptions |
+| `discovery.zod.ts` | `DiscoverySchema` | API discovery and introspection |
+
+**Learn more:** [API Protocol Reference](/docs/references/api)
+
+---
+
+## Recent Additions (2026-01-27)
+
+**ObjectQL Advanced Features:**
+- ✅ **Window Functions** - ROW_NUMBER, RANK, LAG, LEAD, and aggregate window functions
+- ✅ **HAVING Clause** - Filter aggregated results in GROUP BY queries
+- ✅ **DISTINCT Queries** - Full support for SELECT DISTINCT
+- ✅ **Subqueries** - Nested queries in JOIN clauses
+- ✅ **Vector Field Type** - AI/ML embeddings for semantic search and RAG workflows
+- ✅ **Location Field Type** - GPS coordinates for geospatial applications
+
+---
+
+## Schema Conventions
+
+All schemas follow these conventions:
+
+### Naming
+- **Configuration Keys (TS Props):** `camelCase` (e.g., `maxLength`, `referenceFilters`)
+- **Machine Names (Data Values):** `snake_case` (e.g., `name: 'project_task'`, `object: 'account'`)
+
+### Validation
+- All schemas use **Zod** for runtime validation
+- TypeScript types are inferred via `z.infer<typeof Schema>`
+- JSON schemas are auto-generated for IDE support
+
+### Documentation
+- Each schema includes comprehensive JSDoc comments
+- Examples are provided for complex configurations
+- Deprecated fields are marked with `@deprecated`
+
+---
+
+## Next Steps
+
+- **Explore by Module:** Navigate to specific protocol sections above
+- **See Examples:** Check [examples/crm](https://github.com/objectstack-ai/spec/tree/main/examples/crm) for real-world usage
+- **Build Plugins:** Read [Writing Plugins](/docs/developers/writing-plugins)
+- **Contribute:** Review [Contributing Guide](/docs/introduction/contributing)
