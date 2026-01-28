@@ -26,5 +26,9 @@ export * from './datasource.zod';
 export * from './driver.zod';
 export * from './driver/mongo.zod';
 export * from './driver/postgres.zod';
+
+// Data Engine Protocol
+export * from './data-engine.zod';
+
 // Note: Auth, Identity, Policy, Role, Organization moved to @objectstack/spec/auth
 // Note: Territory moved to @objectstack/spec/permission

@@ -44,9 +44,13 @@ export class ObjectQLPlugin implements Plugin {
    * Init phase - Register ObjectQL as a service
    */
   async init(ctx: PluginContext) {
-    // Register ObjectQL engine as a service
+    // Register ObjectQL engine as 'objectql' service (legacy name)
     ctx.registerService('objectql', this.ql);
-    ctx.logger.log('[ObjectQLPlugin] ObjectQL engine registered as service');
+    
+    // Register ObjectQL engine as 'data-engine' service (IDataEngine interface)
+    ctx.registerService('data-engine', this.ql);
+    
+    ctx.logger.log('[ObjectQLPlugin] ObjectQL engine registered as services: objectql, data-engine');
   }
 
   /**
