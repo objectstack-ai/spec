@@ -7,7 +7,7 @@ export { ObjectKernel } from '@objectstack/core';
 // Export Plugins
 export { ObjectQLPlugin } from '@objectstack/objectql';
 export { DriverPlugin } from './driver-plugin';
-export { AppManifestPlugin } from './app-manifest-plugin';
+export { AppPlugin } from './app-plugin';
 
 // Export Types
 export * from '@objectstack/core';
