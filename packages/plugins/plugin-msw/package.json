@@ -10,6 +10,7 @@
   "dependencies": {
     "@objectstack/spec": "workspace:*",
     "@objectstack/types": "workspace:*",
+    "@objectstack/objectql": "workspace:*",
     "msw": "^2.0.0"
   },
   "devDependencies": {

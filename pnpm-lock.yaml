@@ -193,6 +193,9 @@ importers:
       '@objectstack/example-todo':
         specifier: workspace:*
         version: link:../todo
+      '@objectstack/objectql':
+        specifier: workspace:*
+        version: link:../../packages/objectql
       '@objectstack/plugin-msw':
         specifier: workspace:*
         version: link:../../packages/plugins/plugin-msw
@@ -392,6 +395,9 @@ importers:
 
   packages/plugins/plugin-msw:
     dependencies:
+      '@objectstack/objectql':
+        specifier: workspace:*
+        version: link:../../objectql
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../spec

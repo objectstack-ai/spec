@@ -15,6 +15,7 @@
     "@objectstack/example-todo": "workspace:*",
     "@objectstack/plugin-msw": "workspace:*",
     "@objectstack/runtime": "workspace:*",
+    "@objectstack/objectql": "workspace:*",
     "@objectstack/spec": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
