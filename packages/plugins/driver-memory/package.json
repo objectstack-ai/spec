@@ -1,9 +1,9 @@
 {
   "name": "@objectstack/driver-memory",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "description": "In-Memory Driver for ObjectStack (Reference Implementation)",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "dev": "tsc -w"
