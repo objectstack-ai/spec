@@ -239,7 +239,12 @@ export class ObjectQL implements IDataEngine {
         ast.fields = query.select;
       }
       if (query.sort) {
-        ast.orderBy = query.sort;
+        // Convert sort Record to orderBy array
+        // sort: { createdAt: -1, name: 'asc' } => orderBy: [{ field: 'createdAt', order: 'desc' }, { field: 'name', order: 'asc' }]
+        ast.orderBy = Object.entries(query.sort).map(([field, order]) => ({
+          field,
+          order: (order === -1 || order === 'desc') ? 'desc' : 'asc'
+        }));
       }
       // Handle both limit and top (top takes precedence)
       if (query.top !== undefined) {

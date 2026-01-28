@@ -12,8 +12,8 @@ description: Filter protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ComparisonOperatorSchema, EqualityOperatorSchema, FieldOperatorsSchema, FieldReferenceSchema, FilterConditionSchema, NormalizedFilterSchema, QueryFilterSchema, RangeOperatorSchema, SetOperatorSchema, SpecialOperatorSchema, StringOperatorSchema } from '@objectstack/spec/data';
-import type { ComparisonOperator, EqualityOperator, FieldOperators, FieldReference, FilterCondition, NormalizedFilter, QueryFilter, RangeOperator, SetOperator, SpecialOperator, StringOperator } from '@objectstack/spec/data';
+import { ComparisonOperatorSchema, EqualityOperatorSchema, FieldOperatorsSchema, FieldReferenceSchema, FilterConditionSchema, NormalizedFilterSchema, RangeOperatorSchema, SetOperatorSchema, SpecialOperatorSchema, StringOperatorSchema } from '@objectstack/spec/data';
+import type { ComparisonOperator, EqualityOperator, FieldOperators, FieldReference, FilterCondition, NormalizedFilter, RangeOperator, SetOperator, SpecialOperator, StringOperator } from '@objectstack/spec/data';
 
 // Validate data
 const result = ComparisonOperatorSchema.parse(data);
@@ -91,16 +91,6 @@ const result = ComparisonOperatorSchema.parse(data);
 | **$and** | `Record<string, object> \| any[]` | optional |  |
 | **$or** | `Record<string, object> \| any[]` | optional |  |
 | **$not** | `Record<string, object> \| any` | optional |  |
-
----
-
-## QueryFilter
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **where** | `any` | optional |  |
 
 ---
 

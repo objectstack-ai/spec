@@ -1,0 +1,31 @@
+---
+title: Data Engine
+description: Data Engine protocol schemas
+---
+
+# Data Engine
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/data-engine.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { QueryFilterSchema } from '@objectstack/spec/data';
+import type { QueryFilter } from '@objectstack/spec/data';
+
+// Validate data
+const result = QueryFilterSchema.parse(data);
+```
+
+---
+
+## QueryFilter
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **where** | `any` | optional |  |
+

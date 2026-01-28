@@ -1,0 +1,11 @@
+{
+  "$ref": "#/definitions/QueryFilter",
+  "definitions": {
+    "QueryFilter": {
+      "type": "object",
+      "additionalProperties": {},
+      "description": "Query filter conditions"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

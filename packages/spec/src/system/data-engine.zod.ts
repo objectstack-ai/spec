@@ -60,7 +60,7 @@ export const DataEngineSchema = z.object({
    * @returns Promise resolving to an array of matching records
    */
   find: z.function()
-    .args(z.string(), QueryOptionsSchema.optional())
+    .args(z.string())
     .returns(z.promise(z.array(z.any())))
     .describe('Find records matching a query'),
   
@@ -95,4 +95,12 @@ export const DataEngineSchema = z.object({
  */
 export type QueryFilter = z.infer<typeof QueryFilterSchema>;
 export type QueryOptions = z.infer<typeof QueryOptionsSchema>;
-export type IDataEngine = z.infer<typeof DataEngineSchema>;
+
+// Define the TypeScript interface manually for better type safety
+// Zod function schema doesn't handle optional parameters well
+export interface IDataEngine {
+  insert(objectName: string, data: any): Promise<any>;
+  find(objectName: string, query?: QueryOptions): Promise<any[]>;
+  update(objectName: string, id: any, data: any): Promise<any>;
+  delete(objectName: string, id: any): Promise<boolean>;
+}

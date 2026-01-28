@@ -3,6 +3,7 @@
   "pages": [
     "audit",
     "context",
+    "data-engine",
     "datasource",
     "driver",
     "events",
