@@ -1,4 +1,4 @@
-# @objectstack/ai-bridge
+# @objectstack/core
 
 ## 0.6.0
 
@@ -14,25 +14,3 @@
 
 - Updated dependencies [b2df5f7]
   - @objectstack/spec@0.6.0
-
-## 0.4.2
-
-### Patch Changes
-
-- Unify all package versions to 0.4.2
-- Updated dependencies
-  - @objectstack/spec@0.4.2
-
-## 0.1.1
-
-### Patch Changes
-
-- Updated dependencies
-  - @objectstack/spec@0.4.1
-
-## 0.1.1
-
-### Patch Changes
-
-- Updated dependencies
-  - @objectstack/spec@0.4.0

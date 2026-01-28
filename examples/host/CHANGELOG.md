@@ -1,5 +1,26 @@
 # @objectstack/example-host
 
+## 0.6.0
+
+### Minor Changes
+
+- b2df5f7: Unified version bump to 0.5.0
+
+  - Standardized all package versions to 0.5.0 across the monorepo
+  - Fixed driver-memory package.json paths for proper module resolution
+  - Ensured all packages are in sync for the 0.5.0 release
+
+### Patch Changes
+
+- Updated dependencies [b2df5f7]
+  - @objectstack/driver-memory@0.6.0
+  - @objectstack/objectql@0.6.0
+  - @objectstack/plugin-hono-server@0.6.0
+  - @objectstack/runtime@0.6.0
+  - @objectstack/example-todo@0.6.0
+  - @objectstack/example-crm@0.6.0
+  - @objectstack/plugin-bi@0.6.0
+
 ## 0.1.9
 
 ### Patch Changes
