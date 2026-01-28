@@ -1,15 +1,15 @@
 ---
-title: MiniKernel Architecture
+title: MicroKernel Architecture
 description: Understanding ObjectStack's micro-kernel plugin architecture for building extensible applications
 ---
 
-# MiniKernel Architecture
+# MicroKernel Architecture
 
 ObjectStack uses a **micro-kernel architecture** that separates core functionality from business logic. Like the Linux kernel, the ObjectKernel provides minimal essential services while all features are loaded as plugins.
 
 ## Overview
 
-The MiniKernel architecture enables:
+The MicroKernel architecture enables:
 - ✅ Pluggable ObjectQL instances (bring your own query engine)
 - ✅ Service registry for dependency injection (DI)
 - ✅ Standardized plugin lifecycle (init/start/destroy)
@@ -288,7 +288,7 @@ await kernel.bootstrap();
 // Order: ObjectQL → Driver → Analytics
 ```
 
-## Testing with MiniKernel
+## Testing with MicroKernel
 
 ### Mock Services
 
@@ -431,7 +431,7 @@ await ql.addDriver(driver, 'memory');
 await ql.loadObjects([Account, Contact]);
 ```
 
-### After (MiniKernel)
+### After (MicroKernel)
 
 ```typescript
 import { ObjectKernel, ObjectQLPlugin, DriverPlugin } from '@objectstack/runtime';
@@ -453,4 +453,4 @@ const ql = kernel.getService('objectql');
 
 ---
 
-**Quick Start:** See [examples/host](https://github.com/objectstack-ai/spec/tree/main/examples/host) for a complete MiniKernel implementation.
+**Quick Start:** See [examples/host](https://github.com/objectstack-ai/spec/tree/main/examples/host) for a complete MicroKernel implementation.

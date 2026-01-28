@@ -35,7 +35,7 @@ ObjectStack is a metadata-driven platform built on three foundational protocols:
   - [ObjectOS](./content/docs/objectos/) - System layer documentation
 
 - **Development:**
-  - [MiniKernel Architecture](./content/docs/developers/mini-kernel.mdx) - Plugin architecture guide
+  - [MicroKernel Architecture](./content/docs/developers/micro-kernel.mdx) - Plugin architecture guide
   - [Writing Plugins](./content/docs/developers/writing-plugins.mdx) - Plugin development guide
   - [Contributing Guide](./CONTRIBUTING.md) - How to contribute
 
