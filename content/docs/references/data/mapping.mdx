@@ -1,0 +1,94 @@
+---
+title: Mapping
+description: Mapping protocol schemas
+---
+
+# Mapping
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/mapping.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { MappingSchema, FieldMappingSchema, TransformType } from '@objectstack/spec/data';
+import type { Mapping, FieldMapping } from '@objectstack/spec/data';
+
+// Validate data
+const result = MappingSchema.parse(data);
+```
+
+---
+
+## FieldMapping
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **source** | `string \| string[]` | ✅ | Source column header(s) |
+| **target** | `string \| string[]` | ✅ | Target object field(s) |
+| **transform** | `Enum<'none' \| 'constant' \| 'lookup' \| 'split' \| 'join' \| 'javascript' \| 'map'>` | optional | Transformation type (default: 'none') |
+| **params** | `object` | optional | Configuration for transform |
+
+### Transform Params Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **value** | `any` | optional | Value for constant transform |
+| **object** | `string` | optional | Lookup Object for lookup transform |
+| **fromField** | `string` | optional | Match on field (e.g. "name") for lookup |
+| **toField** | `string` | optional | Value to take (e.g. "_id") for lookup |
+| **autoCreate** | `boolean` | optional | Create if missing for lookup |
+| **valueMap** | `Record<string, any>` | optional | Value mapping for map transform (e.g. { "Open": "draft" }) |
+| **separator** | `string` | optional | Separator for split/join transforms |
+
+---
+
+## Mapping
+
+Defines a reusable data mapping configuration for ETL operations.
+
+**NAMING CONVENTION:**
+Mapping names are machine identifiers and must be lowercase snake_case.
+
+**Examples of good mapping names:**
+- `salesforce_to_crm`
+- `csv_import_contacts`
+- `api_sync_orders`
+
+**Examples of bad mapping names (will be rejected):**
+- `SalesforceToCRM` (PascalCase)
+- `CSV Import` (spaces)
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Mapping unique name (lowercase snake_case) |
+| **label** | `string` | optional | Human readable label |
+| **sourceFormat** | `Enum<'csv' \| 'json' \| 'xml' \| 'sql'>` | optional | Source data format (default: 'csv') |
+| **targetObject** | `string` | ✅ | Target Object Name |
+| **fieldMapping** | `object[]` | ✅ | Column Mappings |
+| **mode** | `Enum<'insert' \| 'update' \| 'upsert'>` | optional | Data operation mode (default: 'insert') |
+| **upsertKey** | `string[]` | optional | Fields to match for upsert (e.g. email) |
+| **extractQuery** | `object` | optional | Query to run for export only |
+| **errorPolicy** | `Enum<'skip' \| 'abort' \| 'retry'>` | optional | Error handling strategy (default: 'skip') |
+| **batchSize** | `number` | optional | Batch size for operations (default: 1000) |
+
+---
+
+## TransformType
+
+Built-in helpers for converting data during import.
+
+### Allowed Values
+
+* `none` - Direct copy
+* `constant` - Use a hardcoded value
+* `lookup` - Resolve FK (Name → ID)
+* `split` - "John Doe" → ["John", "Doe"]
+* `join` - ["John", "Doe"] → "John Doe"
+* `javascript` - Custom script (Review security!)
+* `map` - Value mapping (e.g. "Active" → "active")

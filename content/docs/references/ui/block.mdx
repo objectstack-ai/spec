@@ -1,0 +1,152 @@
+---
+title: Block
+description: Block protocol schemas
+---
+
+# Block
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/block.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { 
+  PageHeaderProps, 
+  PageTabsProps, 
+  PageCardProps,
+  RecordDetailsProps,
+  RecordRelatedListProps,
+  RecordHighlightsProps,
+  ComponentPropsMap
+} from '@objectstack/spec/ui';
+
+// Validate data
+const result = PageHeaderProps.parse(data);
+```
+
+---
+
+## Component Props Map
+
+Maps Component Type to its Property Schema. Available component types:
+
+### Structure Components
+
+* `page:header`
+* `page:tabs`
+* `page:card`
+* `page:footer`
+* `page:sidebar`
+* `page:accordion`
+* `page:section`
+
+### Record Components
+
+* `record:details`
+* `record:related_list`
+* `record:highlights`
+* `record:activity`
+* `record:chatter`
+* `record:path`
+
+### Navigation Components
+
+* `app:launcher`
+* `nav:menu`
+* `nav:breadcrumb`
+
+### Utility Components
+
+* `global:search`
+* `global:notifications`
+* `user:profile`
+
+### AI Components
+
+* `ai:chat_window`
+* `ai:suggestion`
+
+---
+
+## PageHeaderProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **title** | `string` | ✅ | Page title |
+| **subtitle** | `string` | optional | Page subtitle |
+| **icon** | `string` | optional | Icon name |
+| **breadcrumb** | `boolean` | optional | Show breadcrumb (default: true) |
+| **actions** | `string[]` | optional | Action IDs to show in header |
+
+---
+
+## PageTabsProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'line' \| 'card' \| 'pill'>` | optional | Tab type (default: 'line') |
+| **position** | `Enum<'top' \| 'left'>` | optional | Tab position (default: 'top') |
+| **items** | `object[]` | ✅ | Tab items |
+
+### Tab Item Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **label** | `string` | ✅ | Tab label |
+| **icon** | `string` | optional | Tab icon |
+| **children** | `any[]` | ✅ | Child components |
+
+---
+
+## PageCardProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **title** | `string` | optional | Card title |
+| **bordered** | `boolean` | optional | Show border (default: true) |
+| **actions** | `string[]` | optional | Action IDs |
+| **children** | `any[]` | ✅ | Card content |
+
+---
+
+## RecordDetailsProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **columns** | `Enum<'1' \| '2' \| '3' \| '4'>` | optional | Number of columns (default: '2') |
+| **layout** | `Enum<'auto' \| 'custom'>` | optional | Layout mode (default: 'auto') |
+| **sections** | `string[]` | optional | Section IDs to show (for custom layout) |
+
+---
+
+## RecordRelatedListProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **objectName** | `string` | ✅ | Related object name |
+| **relationshipField** | `string` | ✅ | Field on related object that points to this record |
+| **columns** | `string[]` | ✅ | Fields to display |
+| **sort** | `string` | optional | Sort order |
+| **limit** | `number` | optional | Maximum number of records (default: 5) |
+
+---
+
+## RecordHighlightsProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **fields** | `string[]` | ✅ | Key fields to highlight (minimum 1, maximum 7) |
