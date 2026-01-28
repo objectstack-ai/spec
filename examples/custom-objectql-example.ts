@@ -6,7 +6,7 @@
  * custom configuration.
  */
 
-import { ObjectStackKernel, ObjectQLPlugin, ObjectQL } from '@objectstack/runtime';
+import { ObjectKernel, ObjectQLPlugin, DriverPlugin, ObjectQL } from '@objectstack/runtime';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 
 (async () => {
@@ -27,18 +27,22 @@ import { InMemoryDriver } from '@objectstack/driver-memory';
   });
 
   // Create kernel with the custom ObjectQL instance
-  const kernel = new ObjectStackKernel([
+  const kernel = new ObjectKernel();
+  
+  kernel
     // Register your custom ObjectQL instance
-    new ObjectQLPlugin(customQL),
+    .use(new ObjectQLPlugin(customQL))
     
     // Add your driver
-    new InMemoryDriver(),
+    .use(new DriverPlugin(new InMemoryDriver(), 'memory'));
     
     // Add other plugins and app configs as needed
-  ]);
 
-  await kernel.start();
+  await kernel.bootstrap();
 
   console.log('✅ Kernel started with custom ObjectQL instance');
-  console.log('ObjectQL instance:', kernel.ql);
+  
+  // Access ObjectQL via service registry
+  const objectql = kernel.getService('objectql');
+  console.log('ObjectQL instance:', objectql);
 })();

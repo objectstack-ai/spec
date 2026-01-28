@@ -2,10 +2,36 @@ import { ServiceObject } from '@objectstack/spec/data';
 import { SchemaRegistry, ObjectQL } from '@objectstack/objectql';
 
 /**
- * ObjectStack Kernel (Microkernel)
+ * ObjectStack Kernel (Legacy)
  * 
- * The central container orchestrating the application lifecycle,
- * plugins, and the core ObjectQL engine.
+ * @deprecated Use ObjectKernel (MiniKernel) instead for better modularity and plugin architecture.
+ * This class is kept for backward compatibility but new projects should use ObjectKernel.
+ * 
+ * @see ObjectKernel - The new MiniKernel implementation
+ * @see MINI_KERNEL_GUIDE.md - Complete guide to the new architecture
+ * 
+ * The legacy kernel orchestrates the application lifecycle,
+ * plugins, and the core ObjectQL engine, but with less modularity
+ * than the new ObjectKernel implementation.
+ * 
+ * Migration example:
+ * ```typescript
+ * // Old (deprecated):
+ * const kernel = new ObjectStackKernel([
+ *   new ObjectQLPlugin(),
+ *   appConfig,
+ *   driver
+ * ]);
+ * await kernel.start();
+ * 
+ * // New (recommended):
+ * const kernel = new ObjectKernel();
+ * kernel
+ *   .use(new ObjectQLPlugin())
+ *   .use(new DriverPlugin(driver, 'memory'))
+ *   .use(new AppManifestPlugin(appConfig));
+ * await kernel.bootstrap();
+ * ```
  */
 export class ObjectStackKernel {
   public ql?: ObjectQL; // Will be set by ObjectQLPlugin or fallback initialization

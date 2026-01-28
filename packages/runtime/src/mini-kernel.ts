@@ -52,6 +52,7 @@ export class ObjectKernel {
             }
         },
         logger: console,
+        getKernel: () => this,
     };
 
     /**

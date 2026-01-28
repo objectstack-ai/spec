@@ -1,0 +1,68 @@
+import { Plugin, PluginContext } from './types.js';
+import { SchemaRegistry, ObjectQL } from '@objectstack/objectql';
+
+/**
+ * AppManifestPlugin
+ * 
+ * Wraps an ObjectStack app manifest (objectstack.config.ts export) 
+ * as a Plugin so it can be loaded in the MiniKernel architecture.
+ * 
+ * Handles:
+ * - Registering the app/plugin in SchemaRegistry
+ * - Registering all objects defined in the manifest
+ * - Seeding data if provided
+ * 
+ * Dependencies: ['com.objectstack.engine.objectql']
+ */
+export class AppManifestPlugin implements Plugin {
+    name: string;
+    version?: string;
+    dependencies = ['com.objectstack.engine.objectql'];
+    
+    private manifest: any;
+
+    constructor(manifest: any) {
+        this.manifest = manifest;
+        this.name = manifest.id || manifest.name || 'unnamed-app';
+        this.version = manifest.version;
+    }
+
+    async init(ctx: PluginContext) {
+        ctx.logger.log(`[AppManifestPlugin] Loading App Manifest: ${this.manifest.id || this.manifest.name}`);
+        
+        // Register the app/plugin in the schema registry
+        SchemaRegistry.registerPlugin(this.manifest);
+        
+        // Register all objects defined in the manifest
+        if (this.manifest.objects) {
+            for (const obj of this.manifest.objects) {
+                SchemaRegistry.registerObject(obj);
+                ctx.logger.log(`[AppManifestPlugin] Registered Object: ${obj.name}`);
+            }
+        }
+    }
+
+    async start(ctx: PluginContext) {
+        // Seed data if provided
+        if (this.manifest.data && Array.isArray(this.manifest.data)) {
+            ctx.logger.log(`[AppManifestPlugin] Seeding data for ${this.manifest.name || this.manifest.id}...`);
+            
+            const objectql = ctx.getService<ObjectQL>('objectql');
+            
+            for (const seed of this.manifest.data) {
+                try {
+                    // Check if data already exists
+                    const existing = await objectql.find(seed.object, { top: 1 });
+                    if (existing.length === 0) {
+                        ctx.logger.log(`[AppManifestPlugin] Inserting ${seed.records.length} records into ${seed.object}`);
+                        for (const record of seed.records) {
+                            await objectql.insert(seed.object, record);
+                        }
+                    }
+                } catch (e) {
+                    ctx.logger.warn(`[AppManifestPlugin] Failed to seed ${seed.object}`, e);
+                }
+            }
+        }
+    }
+}

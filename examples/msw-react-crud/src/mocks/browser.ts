@@ -5,13 +5,13 @@
  * and the MSW Plugin which automatically exposes the API.
  */
 
-import { ObjectStackKernel, ObjectQLPlugin } from '@objectstack/runtime';
+import { ObjectKernel, ObjectQLPlugin, DriverPlugin, AppManifestPlugin } from '@objectstack/runtime';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { MSWPlugin } from '@objectstack/plugin-msw';
 // import appConfig from '../../objectstack.config';
 import todoConfig from '@objectstack/example-todo/objectstack.config';
 
-let kernel: ObjectStackKernel | null = null;
+let kernel: ObjectKernel | null = null;
 
 export async function startMockServer() {
   if (kernel) return;
@@ -20,28 +20,27 @@ export async function startMockServer() {
 
   const driver = new InMemoryDriver();
 
-  // Define Seed Data using the Dataset Protocol
-  // We use the data defined in the Todo App config
+  // Create kernel with MiniKernel architecture
+  kernel = new ObjectKernel();
   
-  kernel = new ObjectStackKernel([
-    // Register ObjectQL engine explicitly
-    new ObjectQLPlugin(),
+  kernel
+    // Register ObjectQL engine
+    .use(new ObjectQLPlugin())
     
-    // Todo App Config (contains objects and data)
-    todoConfig,
+    // Register the driver
+    .use(new DriverPlugin(driver, 'memory'))
     
-    // In-Memory Database (runs in browser)
-    driver,
+    // Load todo app config as a plugin
+    .use(new AppManifestPlugin(todoConfig))
     
     // MSW Plugin (intercepts network requests)
-    new MSWPlugin({
+    .use(new MSWPlugin({
       enableBrowser: true,
       baseUrl: '/api/v1',
       logRequests: true
-    })
-  ]);
-
-  await kernel.start();
+    }));
+  
+  await kernel.bootstrap();
   
   return kernel;
 }

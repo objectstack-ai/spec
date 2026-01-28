@@ -1,11 +1,12 @@
 import { ObjectStackKernel } from './kernel.js';
+import { ObjectKernel } from './mini-kernel.js';
 
 /**
  * Legacy RuntimeContext (Backward Compatibility)
  * @deprecated Use PluginContext instead
  */
 export interface RuntimeContext {
-    engine: ObjectStackKernel;
+    engine: ObjectStackKernel | ObjectKernel;
 }
 
 /**
@@ -25,6 +26,7 @@ export interface RuntimePlugin {
  * - Service registry (registerService/getService)
  * - Event/Hook system (hook/trigger)
  * - Logger
+ * - Kernel instance (for advanced use cases)
  */
 export interface PluginContext {
     /**
@@ -60,6 +62,12 @@ export interface PluginContext {
      * Logger instance
      */
     logger: Console;
+    
+    /**
+     * Get the kernel instance (for advanced use cases)
+     * @returns Kernel instance
+     */
+    getKernel?(): ObjectStackKernel | ObjectKernel;
 }
 
 /**
