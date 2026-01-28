@@ -1,4 +1,4 @@
-import { Plugin, PluginContext, RuntimePlugin, RuntimeContext } from './types.js';
+import { Plugin, PluginContext } from './types.js';
 import { SchemaRegistry, ObjectQL } from '@objectstack/objectql';
 
 /**
@@ -16,7 +16,7 @@ import { SchemaRegistry, ObjectQL } from '@objectstack/objectql';
  * - Plugins are loaded as equal building blocks
  */
 export class ObjectKernel {
-    private plugins: Map<string, Plugin | RuntimePlugin> = new Map();
+    private plugins: Map<string, Plugin> = new Map();
     private services: Map<string, any> = new Map();
     private hooks: Map<string, Array<(...args: any[]) => void | Promise<void>>> = new Map();
     private state: 'idle' | 'initializing' | 'running' | 'stopped' = 'idle';
@@ -59,7 +59,7 @@ export class ObjectKernel {
      * Register a plugin
      * @param plugin - Plugin instance
      */
-    use(plugin: Plugin | RuntimePlugin) {
+    use(plugin: Plugin) {
         if (this.state !== 'idle') {
             throw new Error('[Kernel] Cannot register plugins after bootstrap has started');
         }
@@ -77,8 +77,8 @@ export class ObjectKernel {
      * Resolve plugin dependencies using topological sort
      * @returns Ordered list of plugins
      */
-    private resolveDependencies(): (Plugin | RuntimePlugin)[] {
-        const resolved: (Plugin | RuntimePlugin)[] = [];
+    private resolveDependencies(): Plugin[] {
+        const resolved: Plugin[] = [];
         const visited = new Set<string>();
         const visiting = new Set<string>();
 
@@ -96,8 +96,8 @@ export class ObjectKernel {
 
             visiting.add(pluginName);
 
-            // Visit dependencies first (for new Plugin interface)
-            const deps = this.isNewPlugin(plugin) ? plugin.dependencies || [] : [];
+            // Visit dependencies first
+            const deps = plugin.dependencies || [];
             for (const dep of deps) {
                 if (!this.plugins.has(dep)) {
                     throw new Error(`[Kernel] Dependency '${dep}' not found for plugin '${pluginName}'`);
@@ -116,13 +116,6 @@ export class ObjectKernel {
         }
 
         return resolved;
-    }
-
-    /**
-     * Type guard to check if plugin uses new interface
-     */
-    private isNewPlugin(plugin: Plugin | RuntimePlugin): plugin is Plugin {
-        return 'init' in plugin;
     }
 
     /**
@@ -146,44 +139,17 @@ export class ObjectKernel {
         // Phase 1: Init - Plugins register services
         this.context.logger.log('[Kernel] Phase 1: Init plugins...');
         for (const plugin of orderedPlugins) {
-            if (this.isNewPlugin(plugin)) {
-                this.context.logger.log(`[Kernel] Init: ${plugin.name}`);
-                await plugin.init(this.context);
-            } else {
-                // Legacy RuntimePlugin support
-                this.context.logger.log(`[Kernel] Init (legacy): ${plugin.name}`);
-                if (plugin.install) {
-                    await plugin.install({ engine: this as any });
-                }
-                // Also handle old manifest-style plugins
-                if ('objects' in plugin) {
-                    SchemaRegistry.registerPlugin(plugin as any);
-                    const objects = (plugin as any).objects;
-                    if (objects) {
-                        for (const obj of objects) {
-                            SchemaRegistry.registerObject(obj);
-                            this.context.logger.log(`[Kernel] Registered Object: ${obj.name}`);
-                        }
-                    }
-                }
-            }
+            this.context.logger.log(`[Kernel] Init: ${plugin.name}`);
+            await plugin.init(this.context);
         }
 
         // Phase 2: Start - Plugins execute business logic
         this.context.logger.log('[Kernel] Phase 2: Start plugins...');
         this.state = 'running';
         for (const plugin of orderedPlugins) {
-            if (this.isNewPlugin(plugin)) {
-                if (plugin.start) {
-                    this.context.logger.log(`[Kernel] Start: ${plugin.name}`);
-                    await plugin.start(this.context);
-                }
-            } else {
-                // Legacy RuntimePlugin support
-                if (plugin.onStart) {
-                    this.context.logger.log(`[Kernel] Start (legacy): ${plugin.name}`);
-                    await plugin.onStart({ engine: this as any });
-                }
+            if (plugin.start) {
+                this.context.logger.log(`[Kernel] Start: ${plugin.name}`);
+                await plugin.start(this.context);
             }
         }
 
@@ -208,7 +174,7 @@ export class ObjectKernel {
 
         const orderedPlugins = Array.from(this.plugins.values()).reverse();
         for (const plugin of orderedPlugins) {
-            if (this.isNewPlugin(plugin) && plugin.destroy) {
+            if (plugin.destroy) {
                 this.context.logger.log(`[Kernel] Destroy: ${plugin.name}`);
                 await plugin.destroy();
             }
