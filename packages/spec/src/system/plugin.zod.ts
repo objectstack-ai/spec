@@ -79,8 +79,8 @@ export const PluginLifecycleSchema = z.object({
 export type PluginLifecycleHooks = z.infer<typeof PluginLifecycleSchema>;
 
 export const PluginSchema = PluginLifecycleSchema.extend({
-  id: z.string().min(1).describe('Unique Plugin ID (e.g. com.example.crm)'),
-  version: z.string().regex(/^\d+\.\d+\.\d+$/).describe('Semantic Version'),
+  id: z.string().min(1).optional().describe('Unique Plugin ID (e.g. com.example.crm)'),
+  version: z.string().regex(/^\d+\.\d+\.\d+$/).optional().describe('Semantic Version'),
   description: z.string().optional(),
   author: z.string().optional(),
   homepage: z.string().url().optional(),
