@@ -11,10 +11,10 @@
     "@hono/node-server": "^1.2.0",
     "@objectstack/spec": "workspace:*",
     "@objectstack/types": "workspace:*",
+    "@objectstack/runtime": "workspace:*",
     "hono": "^4.0.0"
   },
   "devDependencies": {
-    "@objectstack/runtime": "workspace:*",
     "@types/node": "^20.0.0",
     "typescript": "^5.0.0"
   },

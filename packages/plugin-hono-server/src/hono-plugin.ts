@@ -66,22 +66,67 @@ export class HonoServerPlugin implements Plugin {
         
         try {
             const objectql = ctx.getService<any>('objectql');
-            // For now, we create a minimal protocol wrapper
-            // In future, we'd refactor protocol to work with services directly
-            protocol = {
-                getDiscovery: () => ({
-                    name: 'ObjectOS Server',
-                    version: '1.0.0',
-                    environment: process.env.NODE_ENV || 'development',
-                }),
-            } as any;
+            
+            // Create Protocol Instance with faked Kernel
+            // This is necessary because Protocol expects full Kernel but we only have Context
+            protocol = new ObjectStackRuntimeProtocol({
+                getService: (name: string) => {
+                    if (name === 'objectql') return objectql;
+                    throw new Error(`[HonoPlugin] Service ${name} not found`);
+                }
+            } as any);
+
         } catch (e) {
             ctx.logger.log('[HonoServerPlugin] ObjectQL service not found, skipping protocol routes');
         }
 
         // Register protocol routes if available
         if (protocol) {
-            this.app.get('/api/v1', (c) => c.json(protocol!.getDiscovery()));
+            const p = protocol!;
+            this.app.get('/api/v1', (c) => c.json(p.getDiscovery()));
+
+            // Meta Protocol
+            this.app.get('/api/v1/meta', (c) => c.json(p.getMetaTypes()));
+            this.app.get('/api/v1/meta/:type', (c) => c.json(p.getMetaItems(c.req.param('type'))));
+            this.app.get('/api/v1/meta/:type/:name', (c) => {
+                try {
+                    return c.json(p.getMetaItem(c.req.param('type'), c.req.param('name')));
+                } catch(e:any) {
+                    return c.json({error: e.message}, 404);
+                }
+            });
+            
+            // Data Protocol
+            this.app.get('/api/v1/data/:object', async (c) => {
+                try { return c.json(await p.findData(c.req.param('object'), c.req.query())); } 
+                catch(e:any) { return c.json({error:e.message}, 400); }
+            });
+            this.app.get('/api/v1/data/:object/:id', async (c) => {
+                try { return c.json(await p.getData(c.req.param('object'), c.req.param('id'))); }
+                catch(e:any) { return c.json({error:e.message}, 404); }
+            });
+            this.app.post('/api/v1/data/:object', async (c) => {
+                try { return c.json(await p.createData(c.req.param('object'), await c.req.json()), 201); }
+                catch(e:any) { return c.json({error:e.message}, 400); }
+            });
+            this.app.patch('/api/v1/data/:object/:id', async (c) => {
+                try { return c.json(await p.updateData(c.req.param('object'), c.req.param('id'), await c.req.json())); }
+                catch(e:any) { return c.json({error:e.message}, 400); }
+            });
+            this.app.delete('/api/v1/data/:object/:id', async (c) => {
+                try { return c.json(await p.deleteData(c.req.param('object'), c.req.param('id'))); }
+                catch(e:any) { return c.json({error:e.message}, 400); }
+            });
+
+            // UI Protocol
+            // @ts-ignore
+            this.app.get('/api/v1/ui/view/:object', (c) => {
+                try { 
+                    const viewType = (c.req.query('type') as 'list' | 'form') || 'list';
+                    return c.json(p.getUiView(c.req.param('object'), viewType)); 
+                }
+                catch(e:any) { return c.json({error:e.message}, 404); }
+            });
         }
 
         // Static files
