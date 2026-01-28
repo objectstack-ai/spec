@@ -5,7 +5,7 @@
  * and IDataEngine interfaces without depending on concrete implementations.
  */
 
-import { IHttpServer, IDataEngine, RouteHandler, IHttpRequest, IHttpResponse, Middleware, QueryOptions } from './index.js';
+import { IHttpServer, IDataEngine, RouteHandler, IHttpRequest, IHttpResponse, Middleware, DataEngineQueryOptions } from './index.js';
 
 /**
  * Example: Mock HTTP Server Plugin
@@ -77,7 +77,7 @@ class MockDataEngine implements IDataEngine {
         return record;
     }
     
-    async find(objectName: string, query?: QueryOptions): Promise<any[]> {
+    async find(objectName: string, query?: DataEngineQueryOptions): Promise<any[]> {
         const objectStore = this.store.get(objectName);
         if (!objectStore) {
             return [];

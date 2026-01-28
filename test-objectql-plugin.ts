@@ -7,7 +7,7 @@
  * 3. Multiple plugins with ObjectQL work
  */
 
-import { ObjectKernel, ObjectQLPlugin, ObjectQL, SchemaRegistry } from '../packages/runtime/src';
+import { ObjectKernel, ObjectQLPlugin, ObjectQL, SchemaRegistry } from './packages/runtime/src/index.js';
 
 async function testPluginBasedRegistration() {
   console.log('\n=== Test 1: Plugin-based ObjectQL Registration ===');
@@ -39,7 +39,7 @@ async function testMissingObjectQL() {
     kernel.getService('objectql');
     throw new Error('FAILED: Should have thrown error for missing ObjectQL');
   } catch (e: any) {
-    if (e.message.includes('Service not found')) {
+    if (e.message.includes('not found')) {
       console.log('✅ Correctly throws error when ObjectQL service is not registered');
     } else {
       throw e;

@@ -1,6 +1,7 @@
 import { QueryAST, HookContext } from '@objectstack/spec/data';
 import { ObjectStackManifest } from '@objectstack/spec/system';
 import { DriverInterface, DriverOptions } from '@objectstack/spec/system';
+import { IDataEngine, DataEngineQueryOptions } from '@objectstack/spec/system';
 import { SchemaRegistry } from './registry';
 
 // Export Registry for consumers
@@ -20,8 +21,10 @@ export interface PluginContext {
 
 /**
  * ObjectQL Engine
+ * 
+ * Implements the IDataEngine interface for data persistence.
  */
-export class ObjectQL {
+export class ObjectQL implements IDataEngine {
   private drivers = new Map<string, DriverInterface>();
   private defaultDriver: string | null = null;
   
@@ -211,27 +214,57 @@ export class ObjectQL {
   }
 
   // ============================================
-  // Data Access Methods
+  // Data Access Methods (IDataEngine Interface)
   // ============================================
 
-  async find(object: string, query: any = {}, options?: DriverOptions) {
+  /**
+   * Find records matching a query (IDataEngine interface)
+   * 
+   * @param object - Object name
+   * @param query - Query options (IDataEngine format)
+   * @returns Promise resolving to array of records
+   */
+  async find(object: string, query?: DataEngineQueryOptions): Promise<any[]> {
     const driver = this.getDriver(object);
     
-    // Normalize QueryAST
-    let ast: QueryAST;
-    if (query.where || query.fields || query.orderBy || query.limit) {
-      ast = { object, ...query } as QueryAST;
-    } else {
-      ast = { object, where: query } as QueryAST;
+    // Convert DataEngineQueryOptions to QueryAST
+    let ast: QueryAST = { object };
+    
+    if (query) {
+      // Map DataEngineQueryOptions to QueryAST
+      if (query.filter) {
+        ast.where = query.filter;
+      }
+      if (query.select) {
+        ast.fields = query.select;
+      }
+      if (query.sort) {
+        // Convert sort Record to orderBy array
+        // sort: { createdAt: -1, name: 'asc' } => orderBy: [{ field: 'createdAt', order: 'desc' }, { field: 'name', order: 'asc' }]
+        ast.orderBy = Object.entries(query.sort).map(([field, order]) => ({
+          field,
+          order: (order === -1 || order === 'desc') ? 'desc' : 'asc'
+        }));
+      }
+      // Handle both limit and top (top takes precedence)
+      if (query.top !== undefined) {
+        ast.limit = query.top;
+      } else if (query.limit !== undefined) {
+        ast.limit = query.limit;
+      }
+      if (query.skip !== undefined) {
+        ast.offset = query.skip;
+      }
     }
 
+    // Set default limit if not specified
     if (ast.limit === undefined) ast.limit = 100;
 
     // Trigger Before Hook
     const hookContext: HookContext = {
         object,
         event: 'beforeFind',
-        input: { ast, options }, // Hooks can modify AST here
+        input: { ast, options: undefined },
         ql: this
     };
     await this.triggerHooks('beforeFind', hookContext);
@@ -275,7 +308,14 @@ export class ObjectQL {
     return driver.findOne(object, ast, options);
   }
 
-  async insert(object: string, data: Record<string, any>, options?: DriverOptions) {
+  /**
+   * Insert a new record (IDataEngine interface)
+   * 
+   * @param object - Object name
+   * @param data - Data to insert
+   * @returns Promise resolving to the created record
+   */
+  async insert(object: string, data: any): Promise<any> {
     const driver = this.getDriver(object);
     
     // 1. Get Schema
@@ -290,7 +330,7 @@ export class ObjectQL {
     const hookContext: HookContext = {
         object,
         event: 'beforeInsert',
-        input: { data, options },
+        input: { data, options: undefined },
         ql: this
     };
     await this.triggerHooks('beforeInsert', hookContext);
@@ -306,13 +346,21 @@ export class ObjectQL {
     return hookContext.result;
   }
 
-  async update(object: string, id: string | number, data: Record<string, any>, options?: DriverOptions) {
+  /**
+   * Update a record by ID (IDataEngine interface)
+   * 
+   * @param object - Object name
+   * @param id - Record ID
+   * @param data - Updated data
+   * @returns Promise resolving to the updated record
+   */
+  async update(object: string, id: any, data: any): Promise<any> {
     const driver = this.getDriver(object);
 
     const hookContext: HookContext = {
         object,
         event: 'beforeUpdate',
-        input: { id, data, options },
+        input: { id, data, options: undefined },
         ql: this
     };
     await this.triggerHooks('beforeUpdate', hookContext);
@@ -326,13 +374,20 @@ export class ObjectQL {
     return hookContext.result;
   }
 
-  async delete(object: string, id: string | number, options?: DriverOptions) {
+  /**
+   * Delete a record by ID (IDataEngine interface)
+   * 
+   * @param object - Object name
+   * @param id - Record ID
+   * @returns Promise resolving to true if deleted, false otherwise
+   */
+  async delete(object: string, id: any): Promise<boolean> {
     const driver = this.getDriver(object);
 
     const hookContext: HookContext = {
         object,
         event: 'beforeDelete',
-        input: { id, options },
+        input: { id, options: undefined },
         ql: this
     };
     await this.triggerHooks('beforeDelete', hookContext);
@@ -343,6 +398,7 @@ export class ObjectQL {
     hookContext.result = result;
     await this.triggerHooks('afterDelete', hookContext);
 
+    // Driver.delete() already returns boolean per DriverInterface spec
     return hookContext.result;
   }
 }

@@ -1,0 +1,55 @@
+---
+title: Data Engine
+description: Data Engine protocol schemas
+---
+
+# Data Engine
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/data-engine.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { DataEngineSchema, DataEngineFilterSchema, DataEngineQueryOptionsSchema } from '@objectstack/spec/system';
+import type { DataEngine, DataEngineFilter, DataEngineQueryOptions } from '@objectstack/spec/system';
+
+// Validate data
+const result = DataEngineSchema.parse(data);
+```
+
+---
+
+## DataEngine
+
+Data Engine Interface
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+
+---
+
+## DataEngineFilter
+
+Data Engine query filter conditions
+
+---
+
+## DataEngineQueryOptions
+
+Query options for IDataEngine.find() operations
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **filter** | `Record<string, any>` | optional | Data Engine query filter conditions |
+| **select** | `string[]` | optional |  |
+| **sort** | `Record<string, Enum<'1' \| '-1' \| 'asc' \| 'desc'>>` | optional |  |
+| **limit** | `number` | optional |  |
+| **skip** | `number` | optional |  |
+| **top** | `number` | optional |  |
+
