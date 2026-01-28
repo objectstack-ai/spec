@@ -1,10 +1,5 @@
-import { 
-    Plugin, 
-    PluginContext, 
-    ObjectStackRuntimeProtocol 
-} from '@objectstack/runtime';
-// Use the new IHttpServer interface
-import { IHttpServer } from '@objectstack/spec/api';
+import { Plugin, PluginContext } from '@objectstack/core';
+import { IHttpServer, IObjectStackProtocol } from '@objectstack/spec/api';
 import { HonoHttpServer } from './adapter';
 
 export interface HonoPluginOptions {
@@ -46,24 +41,13 @@ export class HonoServerPlugin implements Plugin {
      * Start phase - Bind routes and start listening
      */
     async start(ctx: PluginContext) {
-        // Get ObjectQL directly from services
-        let protocol: ObjectStackRuntimeProtocol | null = null;
+        // Get protocol implementation instance
+        let protocol: IObjectStackProtocol | null = null;
         
         try {
-            const objectql = ctx.getService<any>('objectql');
-            
-            // Create Protocol Instance with faked Kernel
-            // This is necessary because Protocol expects full Kernel but we only have Context
-            protocol = new ObjectStackRuntimeProtocol({
-                getService: (name: string) => {
-                    if (name === 'objectql') return objectql;
-                    throw new Error(`[HonoPlugin] Service ${name} not found`);
-                },
-                getAllPlugins: () => [] // Mock
-            } as any);
-
+            protocol = ctx.getService<IObjectStackProtocol>('protocol');
         } catch (e) {
-            ctx.logger.log('[HonoServerPlugin] ObjectQL service not found, skipping protocol routes');
+            ctx.logger.log('[HonoServerPlugin] Protocol service not found, skipping protocol routes');
         }
 
         // Register protocol routes if available

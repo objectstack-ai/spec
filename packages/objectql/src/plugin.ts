@@ -1,9 +1,14 @@
 import { ObjectQL } from './index';
+import { ObjectStackProtocolImplementation } from './protocol';
+// IObjectStackProtocol is used for type checking implicitly via ObjectStackProtocolImplementation contract
 
 // Minimal Context interface to avoid circular dependency on @objectstack/runtime
 export interface PluginContext {
     registerService(name: string, service: any): void;
     logger: Console;
+    // We need access to the kernel-like object to pass to protocol, 
+    // or at least expose getService on context if it's there
+    getService?: <T>(name: string) => T; 
     [key: string]: any;
 }
 
@@ -31,6 +36,15 @@ export class ObjectQLPlugin {
     
     ctx.registerService('objectql', this.ql);
     if(ctx.logger) ctx.logger.log(`[ObjectQLPlugin] ObjectQL engine registered as service`);
+
+    // Register Protocol Implementation
+    if (!this.ql) {
+        throw new Error('ObjectQL engine not initialized');
+    }
+    const protocolShim = new ObjectStackProtocolImplementation(this.ql);
+
+    ctx.registerService('protocol', protocolShim);
+    if(ctx.logger) ctx.logger.log(`[ObjectQLPlugin] Protocol service registered`);
   }
 
   async start(ctx: PluginContext) {

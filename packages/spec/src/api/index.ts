@@ -15,3 +15,5 @@ export * from './router.zod';
 export * from './odata.zod';
 
 export * from './http-server';
+export * from './protocol';
+

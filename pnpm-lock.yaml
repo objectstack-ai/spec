@@ -321,6 +321,10 @@ importers:
         version: 5.9.3
 
   packages/core:
+    dependencies:
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../spec
     devDependencies:
       typescript:
         specifier: ^5.0.0
@@ -357,9 +361,9 @@ importers:
       '@hono/node-server':
         specifier: ^1.2.0
         version: 1.19.9(hono@4.11.4)
-      '@objectstack/runtime':
+      '@objectstack/core':
         specifier: workspace:*
-        version: link:../runtime
+        version: link:../core
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../spec

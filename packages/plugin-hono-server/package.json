@@ -9,16 +9,13 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.2.0",
+    "@objectstack/core": "workspace:*",
     "@objectstack/spec": "workspace:*",
     "@objectstack/types": "workspace:*",
-    "@objectstack/runtime": "workspace:*",
     "hono": "^4.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "typescript": "^5.0.0"
-  },
-  "peerDependencies": {
-    "@objectstack/runtime": "^0.4.2"
   }
 }

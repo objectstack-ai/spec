@@ -10,7 +10,7 @@ export { DriverPlugin } from './driver-plugin.js';
 export { AppManifestPlugin } from './app-manifest-plugin.js';
 
 // Export Protocol
-export { ObjectStackRuntimeProtocol } from './protocol.js';
+// export { ObjectStackRuntimeProtocol } from './protocol.js';
 
 // Export Types
 export * from '@objectstack/core';
