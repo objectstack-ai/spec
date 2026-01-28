@@ -348,6 +348,9 @@ importers:
       '@hono/node-server':
         specifier: ^1.2.0
         version: 1.19.9(hono@4.11.4)
+      '@objectstack/runtime':
+        specifier: workspace:*
+        version: link:../runtime
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../spec
@@ -358,9 +361,6 @@ importers:
         specifier: ^4.0.0
         version: 4.11.4
     devDependencies:
-      '@objectstack/runtime':
-        specifier: workspace:*
-        version: link:../runtime
       '@types/node':
         specifier: ^20.0.0
         version: 20.19.30
