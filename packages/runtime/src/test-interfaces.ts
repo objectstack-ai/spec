@@ -5,7 +5,7 @@
  * and IDataEngine interfaces without depending on concrete implementations.
  */
 
-import { IHttpServer, IDataEngine, RouteHandler, IHttpRequest, IHttpResponse } from './index.js';
+import { IHttpServer, IDataEngine, RouteHandler, IHttpRequest, IHttpResponse, Middleware, QueryOptions } from './index.js';
 
 /**
  * Example: Mock HTTP Server Plugin
@@ -41,7 +41,7 @@ class MockHttpServer implements IHttpServer {
         console.log(`✅ Registered PATCH ${path}`);
     }
     
-    use(path: any, handler?: any): void {
+    use(path: string | Middleware, handler?: Middleware): void {
         console.log(`✅ Registered middleware`);
     }
     
@@ -77,7 +77,7 @@ class MockDataEngine implements IDataEngine {
         return record;
     }
     
-    async find(objectName: string, query?: any): Promise<any[]> {
+    async find(objectName: string, query?: QueryOptions): Promise<any[]> {
         const objectStore = this.store.get(objectName);
         if (!objectStore) {
             return [];
@@ -149,12 +149,15 @@ async function testInterfaces() {
     });
     
     const users = await dataEngine.find('user');
+    console.log(`Found ${users.length} users after inserts`);
     
     const updatedUser = await dataEngine.update('user', user1.id, {
         name: 'John Updated'
     });
+    console.log(`Updated user:`, updatedUser);
     
     const deleted = await dataEngine.delete('user', user2.id);
+    console.log(`Delete result: ${deleted}`);
     
     console.log('\n✅ All interface tests passed!\n');
     

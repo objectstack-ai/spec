@@ -26,11 +26,11 @@ export interface QueryOptions {
     select?: string[];
     /** Sort order */
     sort?: Record<string, 1 | -1 | 'asc' | 'desc'>;
-    /** Limit number of results */
+    /** Limit number of results (alternative name for top, used by some drivers) */
     limit?: number;
     /** Skip number of results (for pagination) */
     skip?: number;
-    /** Maximum number of results (alternative to limit) */
+    /** Maximum number of results (OData-style, takes precedence over limit if both specified) */
     top?: number;
 }
 

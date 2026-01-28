@@ -54,9 +54,9 @@ export interface IHttpResponse {
     /**
      * Set response header
      * @param name - Header name
-     * @param value - Header value
+     * @param value - Header value (string or array of strings for multi-value headers)
      */
-    header(name: string, value: string): IHttpResponse;
+    header(name: string, value: string | string[]): IHttpResponse;
 }
 
 /**
