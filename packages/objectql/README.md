@@ -12,16 +12,18 @@
 
 ## Usage
 
+### 1. Standalone Usage
+
 ```typescript
 import { ObjectQL } from '@objectstack/objectql';
-import { MemoryDriver } from '@objectstack/driver-memory'; // Example driver
+import { InMemoryDriver } from '@objectstack/driver-memory'; // Note: Package name might export InMemoryDriver now
 
 async function main() {
   // 1. Initialize Engine
   const ql = new ObjectQL();
 
   // 2. Register Drivers
-  const memDriver = new MemoryDriver({ name: 'default' });
+  const memDriver = new InMemoryDriver({ name: 'default' });
   ql.registerDriver(memDriver, true);
 
   // 3. Load Schema (via Plugin/Manifest)
@@ -59,6 +61,26 @@ async function main() {
 
   console.log(results);
 }
+```
+
+### 2. Using with ObjectKernel (Recommended)
+
+When building full applications, use the `ObjectKernel` to manage plugins and configuration.
+
+```typescript
+import { ObjectKernel } from '@objectstack/core';
+import { ObjectQLPlugin, DriverPlugin } from '@objectstack/runtime';
+import { InMemoryDriver } from '@objectstack/driver-memory';
+
+const kernel = new ObjectKernel();
+
+// Register Engine and Drivers as Kernel Plugins
+kernel.use(new ObjectQLPlugin())
+      .use(new DriverPlugin(new InMemoryDriver(), 'default'));
+
+await kernel.bootstrap();
+
+// The engine automatically discovers drivers and apps registered in the kernel.
 ```
 
 ## Architecture

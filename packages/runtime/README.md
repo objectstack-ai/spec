@@ -1,21 +1,16 @@
 # @objectstack/runtime
 
-ObjectStack Core Runtime & Query Engine
+ObjectStack Standard System Library
 
 ## Overview
 
-The runtime package provides the `ObjectKernel` (MiniKernel) - a highly modular, plugin-based microkernel that orchestrates ObjectStack applications. It manages the application lifecycle through a standardized plugin system with dependency injection and event hooks.
-
-The package also defines **capability contract interfaces** (`IHttpServer`, `IDataEngine`) that enable plugins to interact with common services without depending on concrete implementations, following the **Dependency Inversion Principle**.
+The runtime package provides the **Standard Library** for the ObjectStack Operating System. It bridges the pure **ObjectKernel** (from `@objectstack/core`) with the **Data Engine** (`@objectstack/objectql`) and provides essential infrastructure adapters.
 
 ### Architecture Highlights
 
-- **MiniKernel Design**: Business logic is completely separated into plugins
+- **Standard Library**: Contains essential plugins (`AppManifestPlugin`, `DriverPlugin`)
+- **Core Integration**: Re-exports `ObjectKernel` for convenience
 - **Capability Contracts**: Abstract interfaces for HTTP server and data persistence
-- **Dependency Injection**: Service registry for inter-plugin communication
-- **Event/Hook System**: Publish-subscribe mechanism for loose coupling
-- **Lifecycle Management**: Standardized init/start/destroy phases
-- **Dependency Resolution**: Automatic topological sorting based on plugin dependencies
 
 ## Installation
 
@@ -28,7 +23,8 @@ npm install @objectstack/runtime
 ### Basic Setup (Recommended)
 
 ```typescript
-import { ObjectKernel, ObjectQLPlugin, DriverPlugin } from '@objectstack/runtime';
+import { ObjectKernel } from '@objectstack/core';
+import { ObjectQLPlugin, DriverPlugin, AppManifestPlugin } from '@objectstack/runtime';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 
 const kernel = new ObjectKernel();

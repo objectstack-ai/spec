@@ -41,41 +41,44 @@ The MiniKernel architecture enables:
 
 The kernel manages plugin lifecycle and provides core services.
 
-**Location:** `packages/runtime/src/mini-kernel.ts`
+**Location:** `packages/core/src/kernel.ts`
 
 **API:**
 ```typescript
-import { ObjectKernel } from '@objectstack/runtime';
+import { ObjectKernel } from '@objectstack/core';
+import { ObjectQLPlugin, DriverPlugin } from '@objectstack/runtime';
 
 const kernel = new ObjectKernel();
 
 // Register plugins
-kernel.use(plugin);
+kernel.use(new ObjectQLPlugin())
+      .use(new DriverPlugin(driver, 'memory'));
 
 // Start the kernel
 await kernel.bootstrap();
 
 // Access services
-const ql = kernel.getService('objectql');
+const ql = kernel.context.getService('objectql'); // Or via getKernel() if exposed
 
 // Shutdown
-await kernel.shutdown();
+// await kernel.shutdown(); // (Future)
 ```
 
 ### 2. Plugin Interface
 
 All plugins must implement the Plugin interface.
 
-**Location:** `packages/runtime/src/types.ts`
+**Location:** `packages/core/src/types.ts`
 
 **Definition:**
 ```typescript
 interface Plugin {
   name: string;
+  version?: string;
   dependencies?: string[];
-  init(ctx: PluginContext): Promise<void>;
-  start?(ctx: PluginContext): Promise<void>;
-  destroy?(): Promise<void>;
+  init?(ctx: PluginContext): Promise<void> | void;
+  start?(ctx: PluginContext): Promise<void> | void;
+  destroy?(): Promise<void> | void;
 }
 ```
 
