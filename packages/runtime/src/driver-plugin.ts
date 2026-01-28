@@ -1,4 +1,4 @@
-import { Plugin, PluginContext } from './types';
+import { Plugin, PluginContext } from './types.js';
 
 /**
  * Driver Plugin

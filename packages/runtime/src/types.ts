@@ -1,4 +1,4 @@
-import { ObjectStackKernel } from './kernel';
+import { ObjectStackKernel } from './kernel.js';
 
 /**
  * Legacy RuntimeContext (Backward Compatibility)

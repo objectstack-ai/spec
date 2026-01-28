@@ -1,5 +1,5 @@
 import { ObjectQL } from '@objectstack/objectql';
-import { Plugin, PluginContext, RuntimePlugin, RuntimeContext } from './types';
+import { Plugin, PluginContext, RuntimePlugin, RuntimeContext } from './types.js';
 
 /**
  * ObjectQL Engine Plugin

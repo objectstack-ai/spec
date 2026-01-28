@@ -1,4 +1,4 @@
-import { Plugin, PluginContext, RuntimePlugin, RuntimeContext } from './types';
+import { Plugin, PluginContext, RuntimePlugin, RuntimeContext } from './types.js';
 import { SchemaRegistry, ObjectQL } from '@objectstack/objectql';
 
 /**
