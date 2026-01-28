@@ -1,5 +1,9 @@
-import { Plugin, PluginContext } from '@objectstack/core';
-import { SchemaRegistry, ObjectQL } from '@objectstack/objectql';
+import { Plugin, PluginContext } from './plugin'; // Import local minimal context or from core if available?
+// Actually ObjectQL probably hasn't added @objectstack/core as dependency yet properly or local imports are preferred.
+// Let's use internal types where possible if they exist, OR ensure @objectstack/core is in package.json
+// But wait, objectql/src/plugin.ts defines PluginContext locally to avoid circular dep?
+// Let's check objectql/package.json
+import { SchemaRegistry, ObjectQL } from './index';
 
 /**
  * AppManifestPlugin

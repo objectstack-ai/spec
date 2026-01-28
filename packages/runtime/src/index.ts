@@ -5,17 +5,12 @@ export { ObjectQL, SchemaRegistry } from '@objectstack/objectql';
 export { ObjectKernel } from '@objectstack/core';
 
 // Export Plugins
-export { ObjectQLPlugin } from '@objectstack/objectql';
-export { DriverPlugin } from './driver-plugin.js';
-export { AppManifestPlugin } from './app-manifest-plugin.js';
-
-// Export Protocol
-// export { ObjectStackRuntimeProtocol } from './protocol.js';
+export { ObjectQLPlugin, DriverPlugin, AppManifestPlugin } from '@objectstack/objectql';
 
 // Export Types
 export * from '@objectstack/core';
 
-// Export Interfaces (Capability Contracts)
-export * from './interfaces/http-server.js';
-export * from './interfaces/data-engine.js';
+// Export Protocol Intefaces from Spec
+export { IHttpServer, IHttpRequest, IHttpResponse, RouteHandler, Middleware } from '@objectstack/spec/api';
+export { IDataEngine, DataEngineFilter, DataEngineQueryOptions } from '@objectstack/spec/system';
 

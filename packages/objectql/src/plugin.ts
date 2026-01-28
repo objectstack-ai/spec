@@ -5,11 +5,20 @@ import { ObjectStackProtocolImplementation } from './protocol';
 // Minimal Context interface to avoid circular dependency on @objectstack/runtime
 export interface PluginContext {
     registerService(name: string, service: any): void;
+    getService<T>(name: string): T;
+    hook(name: string, handler: any): void;
+    trigger(name: string, ...args: any[]): Promise<void>;
     logger: Console;
-    // We need access to the kernel-like object to pass to protocol, 
-    // or at least expose getService on context if it's there
-    getService?: <T>(name: string) => T; 
     [key: string]: any;
+}
+
+export interface Plugin {
+    name: string;
+    version?: string;
+    dependencies?: string[];
+    init?: (ctx: PluginContext) => Promise<void> | void;
+    start?: (ctx: PluginContext) => Promise<void> | void;
+    destroy?: () => Promise<void> | void;
 }
 
 export class ObjectQLPlugin {

@@ -1,4 +1,4 @@
-import { Plugin, PluginContext } from '@objectstack/core';
+import { Plugin, PluginContext } from './plugin';
 
 /**
  * Driver Plugin
