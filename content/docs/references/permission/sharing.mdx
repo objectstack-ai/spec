@@ -1,0 +1,103 @@
+---
+title: Sharing
+description: Sharing protocol schemas
+---
+
+# Sharing
+
+<Callout type="info">
+**Source:** `packages/spec/src/permission/sharing.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { CriteriaSharingRuleSchema, OWDModelSchema, OwnerSharingRuleSchema, ShareRecipientTypeSchema, SharingLevelSchema, SharingRuleSchema, SharingRuleTypeSchema } from '@objectstack/spec/permission';
+import type { CriteriaSharingRule, OWDModel, OwnerSharingRule, ShareRecipientType, SharingLevel, SharingRule, SharingRuleType } from '@objectstack/spec/permission';
+
+// Validate data
+const result = CriteriaSharingRuleSchema.parse(data);
+```
+
+---
+
+## CriteriaSharingRule
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique rule name (snake_case) |
+| **label** | `string` | optional | Human-readable label |
+| **description** | `string` | optional | Administrative notes |
+| **object** | `string` | ✅ | Target Object Name |
+| **active** | `boolean` | optional |  |
+| **accessLevel** | `Enum<'read' \| 'edit' \| 'full'>` | optional |  |
+| **sharedWith** | `object` | ✅ | The recipient of the shared access |
+| **type** | `string` | ✅ |  |
+| **condition** | `string` | ✅ | Formula condition (e.g. "department = 'Sales'") |
+
+---
+
+## OWDModel
+
+### Allowed Values
+
+* `private`
+* `public_read`
+* `public_read_write`
+* `controlled_by_parent`
+
+---
+
+## OwnerSharingRule
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique rule name (snake_case) |
+| **label** | `string` | optional | Human-readable label |
+| **description** | `string` | optional | Administrative notes |
+| **object** | `string` | ✅ | Target Object Name |
+| **active** | `boolean` | optional |  |
+| **accessLevel** | `Enum<'read' \| 'edit' \| 'full'>` | optional |  |
+| **sharedWith** | `object` | ✅ | The recipient of the shared access |
+| **type** | `string` | ✅ |  |
+| **ownedBy** | `object` | ✅ | Source group/role whose records are being shared |
+
+---
+
+## ShareRecipientType
+
+### Allowed Values
+
+* `user`
+* `group`
+* `role`
+* `role_and_subordinates`
+* `guest`
+
+---
+
+## SharingLevel
+
+### Allowed Values
+
+* `read`
+* `edit`
+* `full`
+
+---
+
+## SharingRule
+
+---
+
+## SharingRuleType
+
+### Allowed Values
+
+* `owner`
+* `criteria`
+

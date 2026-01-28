@@ -1,0 +1,81 @@
+---
+title: Hook
+description: Hook protocol schemas
+---
+
+# Hook
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/hook.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { HookSchema, HookContextSchema, HookEventSchema } from '@objectstack/spec/data';
+import type { Hook, HookContext, HookEvent } from '@objectstack/spec/data';
+
+// Validate data
+const result = HookSchema.parse(data);
+```
+
+---
+
+## Hook
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Hook unique name (snake_case) |
+| **label** | `string` | optional | Description of what this hook does |
+| **object** | `string \| string[]` | ✅ | Target object(s) |
+| **events** | `Enum<'beforeFind' \| 'afterFind' \| 'beforeFindOne' \| 'afterFindOne' \| 'beforeCount' \| 'afterCount' \| 'beforeAggregate' \| 'afterAggregate' \| 'beforeInsert' \| 'afterInsert' \| 'beforeUpdate' \| 'afterUpdate' \| 'beforeDelete' \| 'afterDelete' \| 'beforeUpdateMany' \| 'afterUpdateMany' \| 'beforeDeleteMany' \| 'afterDeleteMany'>[]` | ✅ | Lifecycle events |
+| **handler** | `string \| any` | optional | Function handler name or direct function |
+| **priority** | `number` | optional | Execution priority |
+| **async** | `boolean` | optional | Run specifically as fire-and-forget |
+| **onError** | `Enum<'abort' \| 'log'>` | optional | Error handling strategy |
+
+---
+
+## HookContext
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Unique execution ID for tracing |
+| **object** | `string` | ✅ |  |
+| **event** | `Enum<'beforeFind' \| 'afterFind' \| 'beforeFindOne' \| 'afterFindOne' \| 'beforeCount' \| 'afterCount' \| 'beforeAggregate' \| 'afterAggregate' \| 'beforeInsert' \| 'afterInsert' \| 'beforeUpdate' \| 'afterUpdate' \| 'beforeDelete' \| 'afterDelete' \| 'beforeUpdateMany' \| 'afterUpdateMany' \| 'beforeDeleteMany' \| 'afterDeleteMany'>` | ✅ |  |
+| **input** | `Record<string, any>` | ✅ | Mutable input parameters |
+| **result** | `any` | optional | Operation result (After hooks only) |
+| **previous** | `Record<string, any>` | optional | Record state before operation |
+| **session** | `object` | optional | Current session context |
+| **transaction** | `any` | optional | Database transaction handle |
+| **ql** | `any` | optional | ObjectQL Engine Reference |
+
+---
+
+## HookEvent
+
+### Allowed Values
+
+* `beforeFind`
+* `afterFind`
+* `beforeFindOne`
+* `afterFindOne`
+* `beforeCount`
+* `afterCount`
+* `beforeAggregate`
+* `afterAggregate`
+* `beforeInsert`
+* `afterInsert`
+* `beforeUpdate`
+* `afterUpdate`
+* `beforeDelete`
+* `afterDelete`
+* `beforeUpdateMany`
+* `afterUpdateMany`
+* `beforeDeleteMany`
+* `afterDeleteMany`
+

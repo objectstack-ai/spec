@@ -1,0 +1,43 @@
+---
+title: Translation
+description: Translation protocol schemas
+---
+
+# Translation
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/translation.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { LocaleSchema, TranslationBundleSchema, TranslationDataSchema } from '@objectstack/spec/system';
+import type { Locale, TranslationBundle, TranslationData } from '@objectstack/spec/system';
+
+// Validate data
+const result = LocaleSchema.parse(data);
+```
+
+---
+
+## Locale
+
+BCP-47 Language Tag (e.g. en-US, zh-CN)
+
+---
+
+## TranslationBundle
+
+---
+
+## TranslationData
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **objects** | `Record<string, object>` | optional |  |
+| **apps** | `Record<string, object>` | optional |  |
+| **messages** | `Record<string, string>` | optional |  |
+

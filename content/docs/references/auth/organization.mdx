@@ -1,0 +1,81 @@
+---
+title: Organization
+description: Organization protocol schemas
+---
+
+# Organization
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/organization.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { InvitationSchema, InvitationStatusSchema, MemberSchema, OrganizationSchema } from '@objectstack/spec/auth';
+import type { Invitation, InvitationStatus, Member, Organization } from '@objectstack/spec/auth';
+
+// Validate data
+const result = InvitationSchema.parse(data);
+```
+
+---
+
+## Invitation
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique invitation identifier |
+| **organizationId** | `string` | ✅ | Organization ID |
+| **email** | `string` | ✅ | Invitee email address |
+| **role** | `string` | ✅ | Role to assign upon acceptance |
+| **status** | `Enum<'pending' \| 'accepted' \| 'rejected' \| 'expired'>` | optional | Invitation status |
+| **expiresAt** | `string` | ✅ | Invitation expiry timestamp |
+| **inviterId** | `string` | ✅ | User ID of the inviter |
+| **createdAt** | `string` | ✅ | Invitation creation timestamp |
+| **updatedAt** | `string` | ✅ | Last update timestamp |
+
+---
+
+## InvitationStatus
+
+### Allowed Values
+
+* `pending`
+* `accepted`
+* `rejected`
+* `expired`
+
+---
+
+## Member
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique member identifier |
+| **organizationId** | `string` | ✅ | Organization ID |
+| **userId** | `string` | ✅ | User ID |
+| **role** | `string` | ✅ | Member role (e.g., owner, admin, member, guest) |
+| **createdAt** | `string` | ✅ | Member creation timestamp |
+| **updatedAt** | `string` | ✅ | Last update timestamp |
+
+---
+
+## Organization
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique organization identifier |
+| **name** | `string` | ✅ | Organization display name |
+| **slug** | `string` | ✅ | Unique URL-friendly slug (lowercase alphanumeric, hyphens, underscores) |
+| **logo** | `string` | optional | Organization logo URL |
+| **metadata** | `Record<string, any>` | optional | Custom metadata |
+| **createdAt** | `string` | ✅ | Organization creation timestamp |
+| **updatedAt** | `string` | ✅ | Last update timestamp |
+

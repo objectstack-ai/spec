@@ -18,20 +18,16 @@ const config = {
       },
     ],
   },
-  experimental: {
-    turbo: {
-      resolveAlias: {
-        'fumadocs-ui/components/callout': 'fumadocs-ui/dist/components/callout.js',
-      },
-    },
-  },
   webpack: (config, { isServer }) => {
     // Resolve the fumadocs virtual collection import to the local .source directory
     config.resolve = config.resolve || {};
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
       'fumadocs-mdx:collections': path.resolve(__dirname, '.source'),
-      'fumadocs-ui/components/callout$': path.resolve(__dirname, '../../node_modules/fumadocs-ui/dist/components/callout.js'),
+      'fumadocs-ui/components/callout$': path.resolve(__dirname, './node_modules/fumadocs-ui/dist/components/callout.js'),
+      'fumadocs-ui/components/card$': path.resolve(__dirname, './node_modules/fumadocs-ui/dist/components/card.js'),
+      'fumadocs-ui/components/tabs$': path.resolve(__dirname, './node_modules/fumadocs-ui/dist/components/tabs.js'),
+      'lucide-react$': path.resolve(__dirname, './node_modules/lucide-react/dist/cjs/lucide-react.js'),
     };
     return config;
   },

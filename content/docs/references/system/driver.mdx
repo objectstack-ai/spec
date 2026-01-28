@@ -1,0 +1,69 @@
+---
+title: Driver
+description: Driver protocol schemas
+---
+
+# Driver
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/driver.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { DriverCapabilitiesSchema, DriverInterfaceSchema, DriverOptionsSchema } from '@objectstack/spec/system';
+import type { DriverCapabilities, DriverInterface, DriverOptions } from '@objectstack/spec/system';
+
+// Validate data
+const result = DriverCapabilitiesSchema.parse(data);
+```
+
+---
+
+## DriverCapabilities
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **transactions** | `boolean` | ✅ | Supports transactions |
+| **queryFilters** | `boolean` | ✅ | Supports WHERE clause filtering |
+| **queryAggregations** | `boolean` | ✅ | Supports GROUP BY and aggregation functions |
+| **querySorting** | `boolean` | ✅ | Supports ORDER BY sorting |
+| **queryPagination** | `boolean` | ✅ | Supports LIMIT/OFFSET pagination |
+| **queryWindowFunctions** | `boolean` | ✅ | Supports window functions with OVER clause |
+| **querySubqueries** | `boolean` | ✅ | Supports subqueries |
+| **joins** | `boolean` | ✅ | Supports SQL joins |
+| **fullTextSearch** | `boolean` | ✅ | Supports full-text search |
+| **jsonFields** | `boolean` | ✅ | Supports JSON field types |
+| **arrayFields** | `boolean` | ✅ | Supports array field types |
+| **vectorSearch** | `boolean` | optional | Supports vector embeddings and similarity search |
+| **geoSpatial** | `boolean` | optional | Supports geospatial queries |
+
+---
+
+## DriverInterface
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Driver unique name |
+| **version** | `string` | ✅ | Driver version |
+| **supports** | `object` | ✅ |  |
+
+---
+
+## DriverOptions
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **transaction** | `any` | optional | Transaction handle |
+| **timeout** | `number` | optional | Timeout in ms |
+| **skipCache** | `boolean` | optional | Bypass cache |
+| **traceContext** | `Record<string, string>` | optional | OpenTelemetry context or request ID |
+| **tenantId** | `string` | optional | Tenant Isolation identifier |
+

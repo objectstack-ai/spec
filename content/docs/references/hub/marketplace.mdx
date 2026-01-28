@@ -1,0 +1,73 @@
+---
+title: Marketplace
+description: Marketplace protocol schemas
+---
+
+# Marketplace
+
+<Callout type="info">
+**Source:** `packages/spec/src/hub/marketplace.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { MarketplacePluginSchema, PluginAuthorSchema, PluginPricingSchema } from '@objectstack/spec/hub';
+import type { MarketplacePlugin, PluginAuthor, PluginPricing } from '@objectstack/spec/hub';
+
+// Validate data
+const result = MarketplacePluginSchema.parse(data);
+```
+
+---
+
+## MarketplacePlugin
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ |  |
+| **label** | `string` | ✅ |  |
+| **description** | `string` | optional |  |
+| **readme** | `string` | optional |  |
+| **version** | `string` | ✅ |  |
+| **author** | `object` | optional |  |
+| **tags** | `string[]` | optional |  |
+| **category** | `Enum<'app' \| 'integration' \| 'theme' \| 'utility' \| 'driver'>` | optional |  |
+| **icon** | `string` | optional |  |
+| **screenshots** | `string[]` | optional |  |
+| **homepage** | `string` | optional |  |
+| **repository** | `string` | optional |  |
+| **bugs** | `string` | optional |  |
+| **downloads** | `integer` | optional |  |
+| **rating** | `number` | optional |  |
+| **pricing** | `object` | optional |  |
+| **verified** | `boolean` | optional | Is verified maintaned by ObjectStack |
+
+---
+
+## PluginAuthor
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ |  |
+| **email** | `string` | optional |  |
+| **url** | `string` | optional |  |
+
+---
+
+## PluginPricing
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'free' \| 'one_time' \| 'recurring'>` | ✅ |  |
+| **currency** | `string` | optional |  |
+| **amount** | `number` | ✅ |  |
+| **interval** | `Enum<'month' \| 'year'>` | optional | Required if type is recurring |
+| **trialDays** | `integer` | optional |  |
+

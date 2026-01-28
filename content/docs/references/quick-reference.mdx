@@ -1,0 +1,214 @@
+---
+title: Quick Reference Guide
+description: Fast lookup table for all ObjectStack protocols
+---
+
+
+# Quick Reference Guide
+
+Fast lookup for all 70 ObjectStack protocols organized by category.
+
+<Callout type="info">
+Click on any protocol name to view its complete API reference.
+</Callout>
+
+## Data Protocol (8 protocols)
+
+Core business logic and data modeling schemas.
+
+| Protocol | Source File | Key Schemas | Purpose |
+|:---------|:-----------|:------------|:--------|
+| **[Field](./data/field)** | `field.zod.ts` | Field, FieldType, SelectOption | 44 field types for data modeling |
+| **[Object](./data/object)** | `object.zod.ts` | Object, ObjectCapabilities | Object/table definitions |
+| **[Query](./data/query)** | `query.zod.ts` | Query, QueryOptions | Query AST with joins, aggregations |
+| **[Filter](./data/filter)** | `filter.zod.ts` | QueryFilter, FilterCondition | Advanced filtering operators |
+| **[Validation](./data/validation)** | `validation.zod.ts` | ValidationRule | Business validation rules |
+| **[Dataset](./data/dataset)** | `dataset.zod.ts` | Dataset, DatasetMode | Reusable dataset definitions |
+| **[Mapping](./data/mapping)** | `mapping.zod.ts` | FieldMapping | Field transformation mappings |
+| **[Hook](./data/hook)** | `hook.zod.ts` | Hook, HookEvent | Lifecycle event hooks |
+
+## UI Protocol (10 protocols)
+
+Presentation layer - views, forms, dashboards, and themes.
+
+| Protocol | Source File | Key Schemas | Purpose |
+|:---------|:-----------|:------------|:--------|
+| **[View](./ui/view)** | `view.zod.ts` | View, ListView, FormView | List and form view configurations |
+| **[Page](./ui/page)** | `page.zod.ts` | Page, PageComponent | FlexiPage layouts |
+| **[App](./ui/app)** | `app.zod.ts` | App, NavigationItem | Application navigation structure |
+| **[Dashboard](./ui/dashboard)** | `dashboard.zod.ts` | Dashboard, DashboardWidget | Dashboard layouts and widgets |
+| **[Report](./ui/report)** | `report.zod.ts` | Report, ReportType | Report definitions |
+| **[Action](./ui/action)** | `action.zod.ts` | Action, ActionType | UI button actions |
+| **[Component](./ui/component)** | `component.zod.ts` | PageComponent variants | Reusable UI components |
+| **[Block](./ui/block)** | `block.zod.ts` | Block, BlockType | UI building blocks |
+| **[Theme](./ui/theme)** | `theme.zod.ts` | Theme, ColorPalette | Theming and branding |
+| **[Widget](./ui/widget)** | `widget.zod.ts` | WidgetManifest | Custom widget definitions |
+
+## Automation Protocol (7 protocols)
+
+Workflows, flows, and integrations.
+
+| Protocol | Source File | Key Schemas | Purpose |
+|:---------|:-----------|:------------|:--------|
+| **[Flow](./automation/flow)** | `flow.zod.ts` | Flow, FlowNode | Visual workflow builder |
+| **[Workflow](./automation/workflow)** | `workflow.zod.ts` | WorkflowRule | Record-triggered automation |
+| **[Approval](./automation/approval)** | `approval.zod.ts` | ApprovalProcess | Multi-step approval flows |
+| **[Webhook](./automation/webhook)** | `webhook.zod.ts` | Webhook, WebhookEvent | Outbound webhooks |
+| **[ETL](./automation/etl)** | `etl.zod.ts` | ETLPipeline | Data transformation pipelines |
+| **[Sync](./automation/sync)** | `sync.zod.ts` | SyncConfig | Bi-directional data sync |
+| **[Connector](./automation/connector)** | `connector.zod.ts` | Connector, ConnectorType | External system connectors |
+
+## System Protocol (14 protocols)
+
+Core system configuration and runtime infrastructure.
+
+| Protocol | Source File | Key Schemas | Purpose |
+|:---------|:-----------|:------------|:--------|
+| **[Manifest](./system/manifest)** | `manifest.zod.ts` | Manifest | Package manifest (objectstack.config.ts) |
+| **[Datasource](./system/datasource)** | `datasource.zod.ts` | Datasource, DatasourceType | Database connection configs |
+| **[Driver](./system/driver)** | `driver.zod.ts` | Driver, DriverCapabilities | Database driver interface |
+| **[Plugin](./system/plugin)** | `plugin.zod.ts` | Plugin, PluginHook | Plugin system interface |
+| **[Context](./system/context)** | `context.zod.ts` | KernelContext | Runtime execution context |
+| **[Events](./system/events)** | `events.zod.ts` | Event, EventBus | System event bus |
+| **[Job](./system/job)** | `job.zod.ts` | Job, JobSchedule | Background job queue |
+| **[Audit](./system/audit)** | `audit.zod.ts` | AuditLog, AuditEvent | Audit trail logging |
+| **[Logger](./system/logger)** | `logger.zod.ts` | LoggerConfig | Logging configuration |
+| **[Translation](./system/translation)** | `translation.zod.ts` | Translation | i18n support |
+| **[Feature](./system/feature)** | `feature.zod.ts` | FeatureFlag | Feature flags |
+| **[Storage](./system/scoped-storage)** | `scoped-storage.zod.ts` | ScopedStorage | Key-value storage |
+| **[Postgres Config](./system/misc)** | `postgres.zod.ts` | PostgresConfig | PostgreSQL driver config |
+| **[Mongo Config](./system/misc)** | `mongo.zod.ts` | MongoConfig | MongoDB driver config |
+
+## AI Protocol (8 protocols)
+
+AI/ML capabilities - agents, models, RAG, and cost tracking.
+
+| Protocol | Source File | Key Schemas | Purpose |
+|:---------|:-----------|:------------|:--------|
+| **[Agent](./ai/agent)** | `agent.zod.ts` | Agent, AITool | AI agent definitions |
+| **[Model Registry](./ai/model-registry)** | `model-registry.zod.ts` | ModelRegistry, ModelProvider | LLM model management |
+| **[RAG Pipeline](./ai/rag-pipeline)** | `rag-pipeline.zod.ts` | RAGPipelineConfig | Retrieval augmented generation |
+| **[NLQ](./ai/nlq)** | `nlq.zod.ts` | NLQRequest, NLQResponse | Natural language to query |
+| **[Conversation](./ai/conversation)** | `conversation.zod.ts` | ConversationSession | Conversation management |
+| **[Cost](./ai/cost)** | `cost.zod.ts` | CostEntry, BudgetLimit | AI cost tracking and budgets |
+| **[Predictive](./ai/predictive)** | `predictive.zod.ts` | PredictiveModel | Predictive ML models |
+| **[Orchestration](./ai/orchestration)** | `orchestration.zod.ts` | AIOrchestration | Multi-agent orchestration |
+
+## API Protocol (6 protocols)
+
+REST/GraphQL endpoints and real-time subscriptions.
+
+| Protocol | Source File | Key Schemas | Purpose |
+|:---------|:-----------|:------------|:--------|
+| **[Contract](./api/contract)** | `contract.zod.ts` | APIContract | API contract definitions |
+| **[Endpoint](./api/endpoint)** | `endpoint.zod.ts` | Endpoint, EndpointMethod | REST endpoint configuration |
+| **[Router](./api/router)** | `router.zod.ts` | Router, Route | API routing rules |
+| **[OData](./api/odata)** | `odata.zod.ts` | ODataQuery | OData protocol support |
+| **[Realtime](./api/realtime)** | `realtime.zod.ts` | Subscription, Channel | WebSocket subscriptions |
+| **[Discovery](./api/discovery)** | `discovery.zod.ts` | ServiceDiscovery | API discovery and metadata |
+
+## Auth Protocol (6 protocols)
+
+Authentication, authorization, and identity management.
+
+| Protocol | Source File | Key Schemas | Purpose |
+|:---------|:-----------|:------------|:--------|
+| **[Identity](./auth/identity)** | `identity.zod.ts` | Identity, User | User identity management |
+| **[Role](./auth/role)** | `role.zod.ts` | Role, Permission | Role-based access control |
+| **[Organization](./auth/organization)** | `organization.zod.ts` | Organization | Multi-organization support |
+| **[Policy](./auth/policy)** | `policy.zod.ts` | SecurityPolicy | Security policies |
+| **[Config](./auth/config)** | `config.zod.ts` | AuthConfig | OAuth/SAML/SSO configuration |
+| **[SCIM](./auth/scim)** | `scim.zod.ts` | SCIMUser, SCIMGroup | SCIM 2.0 provisioning |
+
+## Permission Protocol (4 protocols)
+
+Access control and row-level security.
+
+| Protocol | Source File | Key Schemas | Purpose |
+|:---------|:-----------|:------------|:--------|
+| **[Permission](./permission/permission)** | `permission.zod.ts` | ObjectPermission | Object-level permissions |
+| **[Sharing](./permission/sharing)** | `sharing.zod.ts` | SharingRule | Record sharing rules |
+| **[RLS](./permission/rls)** | `rls.zod.ts` | RowLevelSecurity | Row-level security filters |
+| **[Territory](./permission/territory)** | `territory.zod.ts` | Territory | Territory-based access |
+
+## Hub Protocol (5 protocols)
+
+Marketplace, licensing, and multi-tenancy.
+
+| Protocol | Source File | Key Schemas | Purpose |
+|:---------|:-----------|:------------|:--------|
+| **[Marketplace](./hub/marketplace)** | `marketplace.zod.ts` | Package, PackageVersion | Plugin marketplace |
+| **[Composer](./hub/composer)** | `composer.zod.ts` | Dependency | Dependency management |
+| **[License](./hub/license)** | `license.zod.ts` | License, LicenseType | Feature licensing |
+| **[Tenant](./hub/tenant)** | `tenant.zod.ts` | Tenant | Multi-tenancy isolation |
+| **[Space](./hub/space)** | `space.zod.ts` | Space, Workspace | Workspace management |
+
+## Common Patterns
+
+### Naming Conventions
+
+<Tabs items={['Configuration Keys', 'Data Values', 'Schema Names']}>
+  <Tab value="Configuration Keys">
+    ```typescript
+    // Property names in schemas: camelCase
+    {
+      maxLength: 100,
+      defaultValue: 'example',
+      referenceFilters: ['active = true']
+    }
+    ```
+  </Tab>
+  <Tab value="Data Values">
+    ```typescript
+    // Machine identifiers in data: snake_case
+    {
+      name: 'project_task',
+      object: 'customer',
+      field: 'first_name'
+    }
+    ```
+  </Tab>
+  <Tab value="Schema Names">
+    ```typescript
+    // Export names: PascalCase + Schema suffix
+    export const FieldSchema = z.object({...});
+    export type Field = z.infer<typeof FieldSchema>;
+    ```
+  </Tab>
+</Tabs>
+
+### Common Imports
+
+```typescript
+// Data protocols
+import { FieldSchema, ObjectSchema, QuerySchema } from '@objectstack/spec/data';
+
+// UI protocols
+import { ViewSchema, AppSchema, DashboardSchema } from '@objectstack/spec/ui';
+
+// System protocols
+import { ManifestSchema, DatasourceSchema } from '@objectstack/spec/system';
+
+// AI protocols
+import { AgentSchema, RAGPipelineConfigSchema } from '@objectstack/spec/ai';
+
+// Types
+import type { Field, Object, Query, View } from '@objectstack/spec';
+```
+
+## Search Tips
+
+- **By Feature**: "How do I model relationships?" → [Field Protocol](./data/field) → `lookup` or `master_detail` types
+- **By Use Case**: "Build a dashboard" → [Dashboard Protocol](./ui/dashboard)
+- **By Layer**: Data → [Data Protocol](./data), UI → [UI Protocol](./ui), Runtime → [System Protocol](./system)
+
+## Next Steps
+
+<Callout type="tip">
+**New to ObjectStack?** Start with the [Introduction](../introduction) to learn core concepts before diving into specific protocols.
+</Callout>
+
+- [Protocol Reference Index](./index) - Full protocol documentation
+- [ObjectQL Guide](../objectql) - Deep dive into data modeling
+- [ObjectUI Guide](../objectui) - UI development guide
+- [Contributing Guide](https://github.com/objectstack-ai/spec/blob/main/CONTRIBUTING.md) - How to contribute to protocols

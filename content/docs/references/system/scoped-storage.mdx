@@ -1,0 +1,79 @@
+---
+title: Scoped Storage
+description: Scoped Storage protocol schemas
+---
+
+# Scoped Storage
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/scoped-storage.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { FileMetadataSchema, ScopedStorageConfigSchema, StorageAdapterTypeSchema, StorageScopeSchema } from '@objectstack/spec/system';
+import type { FileMetadata, ScopedStorageConfig, StorageAdapterType, StorageScope } from '@objectstack/spec/system';
+
+// Validate data
+const result = FileMetadataSchema.parse(data);
+```
+
+---
+
+## FileMetadata
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **path** | `string` | ✅ |  |
+| **name** | `string` | ✅ |  |
+| **size** | `integer` | ✅ |  |
+| **mimeType** | `string` | ✅ |  |
+| **lastModified** | `string` | ✅ |  |
+| **created** | `string` | ✅ |  |
+| **etag** | `string` | optional |  |
+
+---
+
+## ScopedStorageConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **scope** | `Enum<'temp' \| 'cache' \| 'data' \| 'logs' \| 'config' \| 'public'>` | ✅ | Generic storage scope classification |
+| **adapter** | `Enum<'local' \| 'memory' \| 's3' \| 'gcs' \| 'azure' \| 'gridfs'>` | optional |  |
+| **location** | `string` | ✅ | Root path (local) or Bucket name (remote) |
+| **options** | `Record<string, any>` | optional | Driver specific options (region, endpoint, etc) |
+| **quota** | `integer` | optional | Max size in bytes |
+
+---
+
+## StorageAdapterType
+
+### Allowed Values
+
+* `local`
+* `memory`
+* `s3`
+* `gcs`
+* `azure`
+* `gridfs`
+
+---
+
+## StorageScope
+
+Generic storage scope classification
+
+### Allowed Values
+
+* `temp`
+* `cache`
+* `data`
+* `logs`
+* `config`
+* `public`
+

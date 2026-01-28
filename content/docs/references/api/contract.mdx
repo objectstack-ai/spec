@@ -1,0 +1,170 @@
+---
+title: Contract
+description: Contract protocol schemas
+---
+
+# Contract
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/contract.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { ApiErrorSchema, BaseResponseSchema, BulkRequestSchema, BulkResponseSchema, CreateRequestSchema, DeleteResponseSchema, ExportRequestSchema, ListRecordResponseSchema, ModificationResultSchema, RecordDataSchema, SingleRecordResponseSchema, UpdateRequestSchema } from '@objectstack/spec/api';
+import type { ApiError, BaseResponse, BulkRequest, BulkResponse, CreateRequest, DeleteResponse, ExportRequest, ListRecordResponse, ModificationResult, RecordData, SingleRecordResponse, UpdateRequest } from '@objectstack/spec/api';
+
+// Validate data
+const result = ApiErrorSchema.parse(data);
+```
+
+---
+
+## ApiError
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **code** | `string` | ✅ | Error code (e.g. validation_error) |
+| **message** | `string` | ✅ | Readable error message |
+| **details** | `any` | optional | Additional error context (e.g. field validation errors) |
+
+---
+
+## BaseResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `object` | optional | Error details if success is false |
+| **meta** | `object` | optional | Response metadata |
+
+---
+
+## BulkRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **records** | `Record<string, any>[]` | ✅ | Array of records to process |
+| **allOrNone** | `boolean` | optional | If true, rollback entire transaction on any failure |
+
+---
+
+## BulkResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `object` | optional | Error details if success is false |
+| **meta** | `object` | optional | Response metadata |
+| **data** | `object[]` | ✅ | Results for each item in the batch |
+
+---
+
+## CreateRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **data** | `Record<string, any>` | ✅ | Record data to insert |
+
+---
+
+## DeleteResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `object` | optional | Error details if success is false |
+| **meta** | `object` | optional | Response metadata |
+| **id** | `string` | ✅ | ID of the deleted record |
+
+---
+
+## ExportRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (e.g. account) |
+| **fields** | `string \| object[]` | optional | Fields to retrieve |
+| **where** | `any` | optional | Filtering criteria (WHERE) |
+| **orderBy** | `object[]` | optional | Sorting instructions (ORDER BY) |
+| **limit** | `number` | optional | Max records to return (LIMIT) |
+| **offset** | `number` | optional | Records to skip (OFFSET) |
+| **cursor** | `Record<string, any>` | optional | Cursor for keyset pagination |
+| **joins** | `object[]` | optional | Explicit Table Joins |
+| **aggregations** | `object[]` | optional | Aggregation functions |
+| **groupBy** | `string[]` | optional | GROUP BY fields |
+| **having** | `any` | optional | HAVING clause for aggregation filtering |
+| **windowFunctions** | `object[]` | optional | Window functions with OVER clause |
+| **distinct** | `boolean` | optional | SELECT DISTINCT flag |
+| **format** | `Enum<'csv' \| 'json' \| 'xlsx'>` | optional |  |
+
+---
+
+## ListRecordResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `object` | optional | Error details if success is false |
+| **meta** | `object` | optional | Response metadata |
+| **data** | `Record<string, any>[]` | ✅ | Array of matching records |
+| **pagination** | `object` | ✅ | Pagination info |
+
+---
+
+## ModificationResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Record ID if processed |
+| **success** | `boolean` | ✅ |  |
+| **errors** | `object[]` | optional |  |
+
+---
+
+## RecordData
+
+Key-value map of record data
+
+---
+
+## SingleRecordResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `object` | optional | Error details if success is false |
+| **meta** | `object` | optional | Response metadata |
+| **data** | `Record<string, any>` | ✅ | The requested or modified record |
+
+---
+
+## UpdateRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **data** | `Record<string, any>` | ✅ | Partial record data to update |
+

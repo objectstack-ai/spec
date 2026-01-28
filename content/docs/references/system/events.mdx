@@ -1,0 +1,80 @@
+---
+title: Events
+description: Events protocol schemas
+---
+
+# Events
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/events.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { EventSchema, EventHandlerSchema, EventMetadataSchema, EventPersistenceSchema, EventRouteSchema } from '@objectstack/spec/system';
+import type { Event, EventHandler, EventMetadata, EventPersistence, EventRoute } from '@objectstack/spec/system';
+
+// Validate data
+const result = EventSchema.parse(data);
+```
+
+---
+
+## Event
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Event name (lowercase with dots, e.g., user.created, order.paid) |
+| **payload** | `any` | optional | Event payload schema |
+| **metadata** | `object` | ✅ | Event metadata |
+
+---
+
+## EventHandler
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **eventName** | `string` | ✅ | Name of event to handle (supports wildcards like user.*) |
+| **priority** | `integer` | optional | Execution priority (lower numbers execute first) |
+| **async** | `boolean` | optional | Execute in background (true) or block (false) |
+
+---
+
+## EventMetadata
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **source** | `string` | ✅ | Event source (e.g., plugin name, system component) |
+| **timestamp** | `string` | ✅ | ISO 8601 datetime when event was created |
+| **userId** | `string` | optional | User who triggered the event |
+| **tenantId** | `string` | optional | Tenant identifier for multi-tenant systems |
+
+---
+
+## EventPersistence
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional | Enable event persistence |
+| **retention** | `integer` | ✅ | Days to retain persisted events |
+
+---
+
+## EventRoute
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **from** | `string` | ✅ | Source event pattern (supports wildcards, e.g., user.* or *.created) |
+| **to** | `string[]` | ✅ | Target event names to route to |
+

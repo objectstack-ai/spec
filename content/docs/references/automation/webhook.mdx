@@ -1,0 +1,69 @@
+---
+title: Webhook
+description: Webhook protocol schemas
+---
+
+# Webhook
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/webhook.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { WebhookSchema, WebhookReceiverSchema, WebhookTriggerTypeSchema } from '@objectstack/spec/automation';
+import type { Webhook, WebhookReceiver, WebhookTriggerType } from '@objectstack/spec/automation';
+
+// Validate data
+const result = WebhookSchema.parse(data);
+```
+
+---
+
+## Webhook
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Webhook unique name (lowercase snake_case) |
+| **label** | `string` | optional |  |
+| **object** | `string` | ✅ | Object to listen to |
+| **triggers** | `Enum<'create' \| 'update' \| 'delete' \| 'undelete' \| 'api'>[]` | ✅ | Events that trigger execution |
+| **url** | `string` | ✅ | External URL payload |
+| **method** | `Enum<'POST' \| 'PUT' \| 'GET'>` | optional |  |
+| **secret** | `string` | optional | Signing secret (HMAC) |
+| **headers** | `Record<string, string>` | optional | Custom headers (Auth) |
+| **payloadFields** | `string[]` | optional | Fields to include. Empty = All |
+| **includeSession** | `boolean` | optional | Include user session info |
+| **retryCount** | `number` | optional |  |
+| **isActive** | `boolean` | optional |  |
+
+---
+
+## WebhookReceiver
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Webhook receiver unique name (lowercase snake_case) |
+| **path** | `string` | ✅ | URL Path (e.g. /webhooks/stripe) |
+| **verificationType** | `Enum<'none' \| 'header_token' \| 'hmac' \| 'ip_whitelist'>` | optional |  |
+| **verificationParams** | `object` | optional |  |
+| **action** | `Enum<'trigger_flow' \| 'script' \| 'upsert_record'>` | optional |  |
+| **target** | `string` | ✅ | Flow ID or Script name |
+
+---
+
+## WebhookTriggerType
+
+### Allowed Values
+
+* `create`
+* `update`
+* `delete`
+* `undelete`
+* `api`
+

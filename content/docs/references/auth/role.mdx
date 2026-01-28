@@ -1,0 +1,34 @@
+---
+title: Role
+description: Role protocol schemas
+---
+
+# Role
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/role.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { RoleSchema } from '@objectstack/spec/auth';
+import type { Role } from '@objectstack/spec/auth';
+
+// Validate data
+const result = RoleSchema.parse(data);
+```
+
+---
+
+## Role
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique role name (lowercase snake_case) |
+| **label** | `string` | ✅ | Display label (e.g. VP of Sales) |
+| **parent** | `string` | optional | Parent Role ID (Reports To) |
+| **description** | `string` | optional |  |
+

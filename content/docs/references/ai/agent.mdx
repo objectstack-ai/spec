@@ -1,0 +1,77 @@
+---
+title: Agent
+description: Agent protocol schemas
+---
+
+# Agent
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/agent.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AIKnowledgeSchema, AIModelConfigSchema, AIToolSchema, AgentSchema } from '@objectstack/spec/ai';
+import type { AIKnowledge, AIModelConfig, AITool, Agent } from '@objectstack/spec/ai';
+
+// Validate data
+const result = AIKnowledgeSchema.parse(data);
+```
+
+---
+
+## AIKnowledge
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **topics** | `string[]` | ✅ | Topics/Tags to recruit knowledge from |
+| **indexes** | `string[]` | ✅ | Vector Store Indexes |
+
+---
+
+## AIModelConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **provider** | `Enum<'openai' \| 'azure_openai' \| 'anthropic' \| 'local'>` | optional |  |
+| **model** | `string` | ✅ | Model name (e.g. gpt-4, claude-3-opus) |
+| **temperature** | `number` | optional |  |
+| **maxTokens** | `number` | optional |  |
+| **topP** | `number` | optional |  |
+
+---
+
+## AITool
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'action' \| 'flow' \| 'query' \| 'vector_search'>` | ✅ |  |
+| **name** | `string` | ✅ | Reference name (Action Name, Flow Name) |
+| **description** | `string` | optional | Override description for the LLM |
+
+---
+
+## Agent
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Agent unique identifier |
+| **label** | `string` | ✅ | Agent display name |
+| **avatar** | `string` | optional |  |
+| **role** | `string` | ✅ | The persona/role (e.g. "Senior Support Engineer") |
+| **instructions** | `string` | ✅ | System Prompt / Prime Directives |
+| **model** | `object` | optional |  |
+| **tools** | `object[]` | optional | Available tools |
+| **knowledge** | `object` | optional | RAG access |
+| **active** | `boolean` | optional |  |
+| **access** | `string[]` | optional | Who can chat with this agent |
+
