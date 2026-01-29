@@ -10,17 +10,14 @@
  * Typically exposed at: GET /api/discovery
  */
 
-import type {
-  DiscoveryResponse,
-  ApiCapabilities,
-} from '@objectstack/spec';
+import type { API } from '@objectstack/spec';
 
 /**
  * Example 1: Complete Discovery Response
  * 
  * This is what a client receives when calling /api/discovery
  */
-export const fullDiscoveryResponse: DiscoveryResponse = {
+export const fullDiscoveryResponse: API.DiscoveryResponse = {
   // System Identity
   name: 'ObjectStack CRM',
   version: '2.1.0',
@@ -57,7 +54,7 @@ export const fullDiscoveryResponse: DiscoveryResponse = {
  * 
  * A simplified response for local development
  */
-export const devDiscoveryResponse: DiscoveryResponse = {
+export const devDiscoveryResponse: API.DiscoveryResponse = {
   name: 'ObjectStack Dev',
   version: '0.1.0',
   environment: 'development',
@@ -88,12 +85,12 @@ export const devDiscoveryResponse: DiscoveryResponse = {
  * How a client can use the discovery API to adapt its behavior
  */
 export class AdaptiveClient {
-  private discovery: DiscoveryResponse | null = null;
+  private discovery: API.DiscoveryResponse | null = null;
 
   async initialize(baseUrl: string) {
     // Fetch discovery information
     const response = await fetch(`${baseUrl}/api/discovery`);
-    this.discovery = await response.json() as DiscoveryResponse;
+    this.discovery = await response.json() as API.DiscoveryResponse;
     
     console.log(`Connected to: ${this.discovery.name} v${this.discovery.version}`);
     console.log(`Environment: ${this.discovery.environment}`);
@@ -102,7 +99,7 @@ export class AdaptiveClient {
   /**
    * Check if a specific feature is available
    */
-  hasFeature(feature: keyof ApiCapabilities): boolean {
+  hasFeature(feature: keyof API.ApiCapabilities): boolean {
     if (!this.discovery) return false;
     return this.discovery.features[feature] === true;
   }
@@ -142,7 +139,7 @@ export class AdaptiveClient {
  * 
  * How an AI agent can use discovery to understand the system
  */
-export function generateSystemPromptFromDiscovery(discovery: DiscoveryResponse): string {
+export function generateSystemPromptFromDiscovery(discovery: API.DiscoveryResponse): string {
   const { name, version, features, locale } = discovery;
 
   const prompt = `You are an AI assistant for ${name} (v${version}).

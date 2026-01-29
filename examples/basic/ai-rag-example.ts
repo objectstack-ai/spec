@@ -9,21 +9,14 @@
  * - AI-powered question answering
  */
 
-import type {
-  RAGPipelineConfig,
-  DocumentChunk,
-  DocumentMetadata,
-  RAGQueryRequest,
-  RAGQueryResponse,
-  Agent,
-} from '@objectstack/spec';
+import type { AI } from '@objectstack/spec';
 
 /**
  * Example 1: RAG Pipeline Configuration
  * 
  * Complete RAG pipeline setup for a knowledge base system
  */
-export const knowledgeBaseRAG: RAGPipelineConfig = {
+export const knowledgeBaseRAG: AI.RAGPipelineConfig = {
   name: 'knowledge_base_rag',
   label: 'Knowledge Base RAG Pipeline',
   description: 'RAG pipeline for company knowledge base',
@@ -83,7 +76,7 @@ export const knowledgeBaseRAG: RAGPipelineConfig = {
  * 
  * How to index documents into the RAG pipeline
  */
-export const sampleDocumentMetadata: DocumentMetadata[] = [
+export const sampleDocumentMetadata: AI.DocumentMetadata[] = [
   {
     source: 'https://docs.objectstack.dev/architecture',
     sourceType: 'url',
@@ -110,7 +103,7 @@ export const sampleDocumentMetadata: DocumentMetadata[] = [
   },
 ];
 
-export const sampleDocumentChunks: DocumentChunk[] = [
+export const sampleDocumentChunks: AI.DocumentChunk[] = [
   {
     id: 'chunk_001',
     content: `ObjectStack is a metadata-driven low-code platform that enables rapid application development.
@@ -145,7 +138,7 @@ Use the Agent protocol to define AI assistants with specific capabilities.`,
  * 
  * Performing a RAG query with filters and options
  */
-export const sampleQueries: RAGQueryRequest[] = [
+export const sampleQueries: AI.RAGQueryRequest[] = [
   {
     // Simple question
     query: 'What is ObjectStack?',
@@ -179,7 +172,7 @@ export const sampleQueries: RAGQueryRequest[] = [
  * 
  * What the pipeline returns
  */
-export const sampleResults: RAGQueryResponse = {
+export const sampleResults: AI.RAGQueryResponse = {
   query: 'What is ObjectStack?',
   
   // Retrieved chunks
@@ -225,7 +218,7 @@ The platform supports multiple databases and provides built-in AI capabilities.`
  * 
  * Integrating RAG into an AI agent
  */
-export const ragEnabledAgent: Agent = {
+export const ragEnabledAgent: AI.Agent = {
   name: 'documentation_assistant',
   type: 'conversational',
   label: 'Documentation Assistant',

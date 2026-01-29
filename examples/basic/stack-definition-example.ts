@@ -20,6 +20,8 @@ import { defineStack } from '@objectstack/spec';
  */
 export const minimalStack = defineStack({
   manifest: {
+    id: 'com.example.my-app',
+    type: 'app',
     name: 'my-app',
     version: '1.0.0',
     description: 'Minimal ObjectStack application',
@@ -36,11 +38,11 @@ export const taskManagementStack = defineStack({
   // System Configuration
   // ============================================================================
   manifest: {
+    id: 'com.example.task-manager',
+    type: 'app',
     name: 'task-manager',
     version: '1.0.0',
     description: 'Task management application with ObjectStack',
-    author: 'Your Name',
-    license: 'MIT',
   },
 
   // ============================================================================
@@ -60,24 +62,21 @@ export const taskManagementStack = defineStack({
         trackHistory: true,
       },
 
-      fields: [
-        {
-          name: 'subject',
+      fields: {
+        subject: {
           type: 'text',
           label: 'Subject',
           description: 'Task title',
           required: true,
           maxLength: 255,
         },
-        {
-          name: 'description',
+        description: {
           type: 'textarea',
           label: 'Description',
           description: 'Detailed description',
           maxLength: 5000,
         },
-        {
-          name: 'status',
+        status: {
           type: 'select',
           label: 'Status',
           description: 'Current status',
@@ -88,8 +87,7 @@ export const taskManagementStack = defineStack({
           ],
           defaultValue: 'todo',
         },
-        {
-          name: 'priority',
+        priority: {
           type: 'select',
           label: 'Priority',
           options: [
@@ -99,21 +97,16 @@ export const taskManagementStack = defineStack({
           ],
           defaultValue: 'medium',
         },
-        {
-          name: 'due_date',
+        due_date: {
           type: 'date',
           label: 'Due Date',
         },
-        {
-          name: 'assigned_to',
+        assigned_to: {
           type: 'lookup',
           label: 'Assigned To',
-          reference: {
-            object: 'user',
-            field: 'id',
-          },
+          reference: 'user',
         },
-      ],
+      },
     },
   ],
 
@@ -144,26 +137,24 @@ export const taskManagementStack = defineStack({
 
   views: [
     {
-      name: 'my_tasks',
-      object: 'task',
-      type: 'list',
-      label: 'My Tasks',
-      listType: 'grid',
-      fields: ['subject', 'status', 'priority', 'due_date', 'assigned_to'],
-      filter: {
-        operator: 'AND',
-        conditions: [
-          {
-            field: 'assigned_to',
-            operator: 'equals',
-            value: '$CurrentUser.id',
-          },
+      list: {
+        type: 'grid',
+        columns: ['subject', 'status', 'priority', 'due_date', 'assigned_to'],
+        filter: {
+          operator: 'AND',
+          conditions: [
+            {
+              field: 'assigned_to',
+              operator: 'equals',
+              value: '$CurrentUser.id',
+            },
+          ],
+        },
+        sort: [
+          { field: 'priority', direction: 'desc' },
+          { field: 'due_date', direction: 'asc' },
         ],
       },
-      sort: [
-        { field: 'priority', direction: 'desc' },
-        { field: 'due_date', direction: 'asc' },
-      ],
     },
   ],
 
@@ -179,25 +170,18 @@ export const taskManagementStack = defineStack({
       widgets: [
         {
           type: 'metric',
-          position: { row: 0, col: 0 },
+          layout: { x: 0, y: 0, w: 6, h: 2 },
           title: 'Total Tasks',
-          dataSource: {
-            type: 'aggregation',
-            object: 'task',
-            aggregation: 'count',
-          },
+          object: 'task',
+          aggregate: 'count',
         },
         {
-          type: 'chart',
-          position: { row: 0, col: 1 },
+          type: 'pie',
+          layout: { x: 6, y: 0, w: 6, h: 2 },
           title: 'Tasks by Status',
-          chartType: 'pie',
-          dataSource: {
-            type: 'groupBy',
-            object: 'task',
-            groupBy: 'status',
-            aggregation: 'count',
-          },
+          object: 'task',
+          categoryField: 'status',
+          aggregate: 'count',
         },
       ],
     },
@@ -215,24 +199,10 @@ export const taskManagementStack = defineStack({
         type: 'scheduled',
         schedule: '0 9 * * *', // Daily at 9 AM
       },
-      criteria: {
-        operator: 'AND',
-        conditions: [
-          {
-            field: 'status',
-            operator: 'notEquals',
-            value: 'done',
-          },
-          {
-            field: 'due_date',
-            operator: 'lessThan',
-            value: '$Today',
-          },
-        ],
-      },
+      criteria: 'status != "done" && due_date < $Today',
       actions: [
         {
-          type: 'emailAlert',
+          type: 'email_alert',
           recipient: 'assigned_to',
           template: 'overdue_task_notification',
         },
@@ -248,33 +218,11 @@ export const taskManagementStack = defineStack({
       name: 'task_manager',
       label: 'Task Manager',
       description: 'Can manage all tasks',
-      permissions: {
-        task: {
-          create: true,
-          read: true,
-          update: true,
-          delete: true,
-        },
-      },
     },
     {
       name: 'task_user',
       label: 'Task User',
       description: 'Can manage own tasks',
-      permissions: {
-        task: {
-          create: true,
-          read: true,
-          update: {
-            condition: {
-              field: 'assigned_to',
-              operator: 'equals',
-              value: '$CurrentUser.id',
-            },
-          },
-          delete: false,
-        },
-      },
     },
   ],
 });
@@ -286,6 +234,8 @@ export const taskManagementStack = defineStack({
  */
 export const crmWithAIStack = defineStack({
   manifest: {
+    id: 'com.example.ai-crm',
+    type: 'app',
     name: 'ai-crm',
     version: '1.0.0',
     description: 'CRM with AI-powered sales assistant',
@@ -303,15 +253,13 @@ export const crmWithAIStack = defineStack({
         apiEnabled: true,
         trackHistory: true,
       },
-      fields: [
-        {
-          name: 'name',
+      fields: {
+        name: {
           type: 'text',
           label: 'Account Name',
           required: true,
         },
-        {
-          name: 'industry',
+        industry: {
           type: 'select',
           label: 'Industry',
           options: [
@@ -320,12 +268,11 @@ export const crmWithAIStack = defineStack({
             { value: 'healthcare', label: 'Healthcare' },
           ],
         },
-        {
-          name: 'annual_revenue',
+        annual_revenue: {
           type: 'currency',
           label: 'Annual Revenue',
         },
-      ],
+      },
     },
     {
       name: 'opportunity',
@@ -337,29 +284,22 @@ export const crmWithAIStack = defineStack({
         apiEnabled: true,
         trackHistory: true,
       },
-      fields: [
-        {
-          name: 'name',
+      fields: {
+        name: {
           type: 'text',
           label: 'Opportunity Name',
           required: true,
         },
-        {
-          name: 'account',
+        account: {
           type: 'lookup',
           label: 'Account',
-          reference: {
-            object: 'account',
-            field: 'id',
-          },
+          reference: 'account',
         },
-        {
-          name: 'amount',
+        amount: {
           type: 'currency',
           label: 'Amount',
         },
-        {
-          name: 'stage',
+        stage: {
           type: 'select',
           label: 'Stage',
           options: [
@@ -372,12 +312,11 @@ export const crmWithAIStack = defineStack({
           ],
           defaultValue: 'prospecting',
         },
-        {
-          name: 'close_date',
+        close_date: {
           type: 'date',
           label: 'Expected Close Date',
         },
-      ],
+      },
     },
   ],
 
@@ -385,18 +324,10 @@ export const crmWithAIStack = defineStack({
   agents: [
     {
       name: 'sales_assistant',
-      type: 'conversational',
       label: 'Sales Assistant',
-      description: 'AI assistant for sales operations',
+      role: 'Sales Operations Assistant',
       
-      capabilities: {
-        objectAccess: ['account', 'opportunity'],
-        canCreate: true,
-        canUpdate: true,
-        canAnalyze: true,
-      },
-
-      systemPrompt: `You are a helpful sales assistant with access to the CRM system.
+      instructions: `You are a helpful sales assistant with access to the CRM system.
 You can help users:
 - Find and analyze account and opportunity data
 - Create new opportunities
@@ -409,24 +340,17 @@ Always be professional and data-driven in your responses.`,
         {
           name: 'search_accounts',
           description: 'Search for accounts by name or industry',
-          parameters: {
-            query: 'string',
-            industry: 'string?',
-          },
+          type: 'query',
         },
         {
           name: 'get_opportunity_pipeline',
           description: 'Get pipeline statistics by stage',
+          type: 'query',
         },
         {
           name: 'create_opportunity',
           description: 'Create a new sales opportunity',
-          parameters: {
-            name: 'string',
-            account: 'string',
-            amount: 'number',
-            stage: 'string',
-          },
+          type: 'action',
         },
       ],
     },

@@ -8,19 +8,14 @@
  * - ETL processes (data integration)
  */
 
-import type {
-  WorkflowRule,
-  ApprovalProcess,
-  Flow,
-  ETLPipeline,
-} from '@objectstack/spec';
+import type { Automation } from '@objectstack/spec';
 
 /**
  * Example 1: Field Update Workflow
  * 
  * Automatically update fields when conditions are met
  */
-export const fieldUpdateWorkflows: WorkflowRule[] = [
+export const fieldUpdateWorkflows: Automation.WorkflowRule[] = [
   {
     name: 'set_opportunity_probability',
     object: 'opportunity',
@@ -111,7 +106,7 @@ export const fieldUpdateWorkflows: WorkflowRule[] = [
  * 
  * Send notifications when events occur
  */
-export const emailAlertWorkflows: WorkflowRule[] = [
+export const emailAlertWorkflows: Automation.WorkflowRule[] = [
   {
     name: 'notify_manager_large_opportunity',
     object: 'opportunity',
@@ -217,7 +212,7 @@ export const emailAlertWorkflows: WorkflowRule[] = [
  * 
  * Automatically create related records
  */
-export const taskCreationWorkflows: WorkflowRule[] = [
+export const taskCreationWorkflows: Automation.WorkflowRule[] = [
   {
     name: 'create_followup_tasks',
     object: 'lead',
@@ -272,7 +267,7 @@ export const taskCreationWorkflows: WorkflowRule[] = [
  * 
  * Multi-step approval workflow for discounts
  */
-export const discountApprovalProcess: ApprovalProcess = {
+export const discountApprovalProcess: Automation.ApprovalProcess = {
   name: 'opportunity_discount_approval',
   object: 'opportunity',
   description: 'Approval process for opportunity discounts',
@@ -452,7 +447,7 @@ export const discountApprovalProcess: ApprovalProcess = {
  * 
  * Visual automation with user interaction
  */
-export const leadConversionFlow: Flow = {
+export const leadConversionFlow: Automation.Flow = {
   name: 'lead_conversion',
   type: 'screen',
   label: 'Convert Lead',
@@ -585,7 +580,7 @@ export const leadConversionFlow: Flow = {
  * 
  * Data integration and transformation
  */
-export const dailyLeadImportETL: ETLPipeline = {
+export const dailyLeadImportETL: Automation.ETLPipeline = {
   name: 'daily_lead_import',
   description: 'Import leads from external system daily',
   

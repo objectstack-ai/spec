@@ -10,21 +10,14 @@
  * - Sharing and territory management
  */
 
-import type {
-  User,
-  Role,
-  PermissionSet,
-  RowLevelSecurityPolicy,
-  SharingRule,
-  Territory,
-} from '@objectstack/spec';
+import type { Auth, Permission } from '@objectstack/spec';
 
 /**
  * Example 1: User Identity
  * 
  * User accounts with authentication methods
  */
-export const sampleUsers: User[] = [
+export const sampleUsers: Auth.User[] = [
   {
     id: 'user_001',
     email: 'admin@example.com',
@@ -60,7 +53,7 @@ export const sampleUsers: User[] = [
  * Note: Roles define reporting structure and hierarchy, not permissions.
  * Permissions are defined separately in PermissionSets.
  */
-export const roleHierarchy: Role[] = [
+export const roleHierarchy: Auth.Role[] = [
   // Top-level admin role
   {
     name: 'system_administrator',
@@ -90,7 +83,7 @@ export const roleHierarchy: Role[] = [
  * 
  * Granular object-level permissions
  */
-export const permissionSets: PermissionSet[] = [
+export const permissionSets: Permission.PermissionSet[] = [
   {
     name: 'sales_user_permissions',
     label: 'Sales User Permissions',
@@ -218,7 +211,7 @@ export const permissionSets: PermissionSet[] = [
  * 
  * Fine-grained data access control based on record ownership
  */
-export const rowLevelSecurityRules: RowLevelSecurityPolicy[] = [
+export const rowLevelSecurityRules: Permission.RowLevelSecurityPolicy[] = [
   {
     name: 'opportunity_owner_access',
     label: 'Opportunity Owner Access',
@@ -253,7 +246,7 @@ export const rowLevelSecurityRules: RowLevelSecurityPolicy[] = [
  * 
  * Grant additional access beyond RLS
  */
-export const sharingRules: SharingRule[] = [
+export const sharingRules: Permission.SharingRule[] = [
   {
     name: 'share_opportunities_with_team',
     object: 'opportunity',
@@ -321,7 +314,7 @@ export const sharingRules: SharingRule[] = [
  * 
  * Geographic or organizational territory assignment
  */
-export const territories: Territory[] = [
+export const territories: Permission.Territory[] = [
   {
     name: 'north_america',
     label: 'North America',
@@ -382,7 +375,7 @@ export class PermissionChecker {
    * Check if user has object permission
    */
   hasObjectPermission(
-    user: User,
+    user: Auth.User,
     object: string,
     operation: 'create' | 'read' | 'update' | 'delete'
   ): boolean {
@@ -411,7 +404,7 @@ export class PermissionChecker {
   /**
    * Check if user can access a specific record (RLS)
    */
-  canAccessRecord(user: User, object: string, record: any): boolean {
+  canAccessRecord(user: Auth.User, object: string, record: any): boolean {
     // Apply RLS rules for user's roles
     const userRoles = user.roles || [];
     const applicableRules = rowLevelSecurityRules.filter(
@@ -436,7 +429,7 @@ export class PermissionChecker {
   /**
    * Evaluate a rule against a record
    */
-  private evaluateRule(rule: any, record: any, user: User): boolean {
+  private evaluateRule(rule: any, record: any, user: Auth.User): boolean {
     // Simplified evaluation logic
     // In real implementation, evaluate all conditions with operators
     return true;
