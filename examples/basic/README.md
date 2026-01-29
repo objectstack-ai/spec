@@ -70,6 +70,44 @@ Shows Retrieval-Augmented Generation (RAG) pipeline configuration:
 - Reranking for better results
 - Context template formatting
 
+### Auth & Permissions
+**File:** [`auth-permission-example.ts`](./auth-permission-example.ts)
+
+Demonstrates authentication and authorization systems:
+- User identity and sessions
+- Role-based access control (RBAC) with hierarchy
+- Object and field-level permissions
+- Row-level security (RLS)
+- Sharing rules for data access
+- Territory management
+
+**Key Concepts:**
+- User authentication and profiles
+- Role hierarchy and inheritance
+- Permission sets
+- Granular access control
+- Dynamic data filtering
+- Territory-based assignments
+
+### Automation & Workflows
+**File:** [`automation-example.ts`](./automation-example.ts)
+
+Shows automation capabilities in ObjectStack:
+- Workflow rules for field updates
+- Email alerts and notifications
+- Automatic record creation
+- Multi-step approval processes
+- Screen flows with user interaction
+- ETL processes for data integration
+
+**Key Concepts:**
+- Event-driven automation
+- Scheduled workflows (cron)
+- Approval hierarchies
+- Visual process automation
+- Data transformation pipelines
+- Error handling and notifications
+
 ## 🎯 Usage
 
 These examples are TypeScript files that can be:
