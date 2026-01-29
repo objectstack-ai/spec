@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@objectstack/spec": "workspace:*"
+    "@objectstack/spec": "workspace:*",
+    "@objectstack/core": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.0.0",

@@ -37,11 +37,16 @@ export interface MSWPluginOptions {
  */
 export class ObjectStackServer {
     private static protocol: IObjectStackProtocol | null = null;
-    private static logger: ((message: string, ...meta: any[]) => void) | null = null;
+    private static logger: any | null = null;
 
-    static init(protocol: IObjectStackProtocol, logger?: (message: string, ...meta: any[]) => void) {
+    static init(protocol: IObjectStackProtocol, logger?: any) {
         this.protocol = protocol;
-        this.logger = logger || console.log;
+        this.logger = logger || { 
+            info: console.log, 
+            debug: console.debug, 
+            warn: console.warn, 
+            error: console.error 
+        };
     }
 
     static async findData(object: string, params?: any) {
@@ -49,8 +54,9 @@ export class ObjectStackServer {
             throw new Error('ObjectStackServer not initialized. Call ObjectStackServer.init() first.');
         }
         
-        this.logger?.(`[MSW] Finding ${object} records`, params);
+        this.logger?.debug?.('MSW: Finding records', { object, params });
         const result = await this.protocol.findData(object, params || {});
+        this.logger?.debug?.('MSW: Find completed', { object, count: result?.length ?? 0 });
         return {
             status: 200,
             data: result
@@ -62,14 +68,16 @@ export class ObjectStackServer {
             throw new Error('ObjectStackServer not initialized. Call ObjectStackServer.init() first.');
         }
         
-        this.logger?.(`[MSW] Getting ${object} record:`, id);
+        this.logger?.debug?.('MSW: Getting record', { object, id });
         try {
             const result = await this.protocol.getData(object, id);
+            this.logger?.debug?.('MSW: Get completed', { object, id });
             return {
                 status: 200,
                 data: result
             };
         } catch (error) {
+            this.logger?.warn?.('MSW: Get failed - not found', { object, id });
             const message = error instanceof Error ? error.message : 'Unknown error';
             return {
                 status: 404,
@@ -83,14 +91,16 @@ export class ObjectStackServer {
             throw new Error('ObjectStackServer not initialized. Call ObjectStackServer.init() first.');
         }
         
-        this.logger?.(`[MSW] Creating ${object} record:`, data);
+        this.logger?.debug?.('MSW: Creating record', { object });
         try {
             const result = await this.protocol.createData(object, data);
+            this.logger?.info?.('MSW: Record created', { object, id: result?.id });
             return {
                 status: 201,
                 data: result
             };
         } catch (error) {
+            this.logger?.error?.('MSW: Create failed', error, { object });
             const message = error instanceof Error ? error.message : 'Unknown error';
             return {
                 status: 400,
@@ -104,14 +114,16 @@ export class ObjectStackServer {
             throw new Error('ObjectStackServer not initialized. Call ObjectStackServer.init() first.');
         }
         
-        this.logger?.(`[MSW] Updating ${object} record ${id}:`, data);
+        this.logger?.debug?.('MSW: Updating record', { object, id });
         try {
             const result = await this.protocol.updateData(object, id, data);
+            this.logger?.info?.('MSW: Record updated', { object, id });
             return {
                 status: 200,
                 data: result
             };
         } catch (error) {
+            this.logger?.error?.('MSW: Update failed', error, { object, id });
             const message = error instanceof Error ? error.message : 'Unknown error';
             return {
                 status: 400,
@@ -125,14 +137,16 @@ export class ObjectStackServer {
             throw new Error('ObjectStackServer not initialized. Call ObjectStackServer.init() first.');
         }
         
-        this.logger?.(`[MSW] Deleting ${object} record:`, id);
+        this.logger?.debug?.('MSW: Deleting record', { object, id });
         try {
             const result = await this.protocol.deleteData(object, id);
+            this.logger?.info?.('MSW: Record deleted', { object, id, success: result });
             return {
                 status: 200,
                 data: result
             };
         } catch (error) {
+            this.logger?.error?.('MSW: Delete failed', error, { object, id });
             const message = error instanceof Error ? error.message : 'Unknown error';
             return {
                 status: 400,
@@ -191,24 +205,32 @@ export class MSWPlugin implements Plugin {
      * Init phase
      */
     async init(ctx: PluginContext) {
+        ctx.logger.debug('Initializing MSW plugin', { 
+            enableBrowser: this.options.enableBrowser,
+            baseUrl: this.options.baseUrl,
+            logRequests: this.options.logRequests
+        });
         // Protocol will be created in start phase
-        ctx.logger.log('[MSWPlugin] Initialized');
+        ctx.logger.info('MSW plugin initialized');
     }
 
     /**
      * Start phase
      */
     async start(ctx: PluginContext) {
+        ctx.logger.debug('Starting MSW plugin');
+        
         try {
             const dataEngine = ctx.getService<IDataEngine>('objectql');
             this.protocol = new ObjectStackProtocolImplementation(dataEngine);
+            ctx.logger.debug('Protocol implementation created');
         } catch (e) {
-            console.error('[MSWPlugin] Failed to initialize protocol', e);
+            ctx.logger.error('Failed to initialize protocol', e as Error);
             throw new Error('[MSWPlugin] Failed to initialize protocol (missing objectql service?)');
         }
         
-        this.setupHandlers();
-        await this.startWorker();
+        this.setupHandlers(ctx);
+        await this.startWorker(ctx);
     }
 
     /**
@@ -221,18 +243,20 @@ export class MSWPlugin implements Plugin {
     /**
      * Setup MSW handlers
      */
-    private setupHandlers() {
+    private setupHandlers(ctx: PluginContext) {
         if (!this.protocol) {
             throw new Error('[MSWPlugin] Protocol not initialized');
         }
 
         const protocol = this.protocol;
         
-        // Initialize ObjectStackServer
+        // Initialize ObjectStackServer with structured logger
         ObjectStackServer.init(
             protocol,
-            this.options.logRequests ? console.log : undefined
+            this.options.logRequests ? ctx.logger : undefined
         );
+
+        ctx.logger.debug('Initialized ObjectStackServer', { logRequests: this.options.logRequests });
 
         const baseUrl = this.options.baseUrl || '/api/v1';
 
@@ -355,22 +379,23 @@ export class MSWPlugin implements Plugin {
             ...(this.options.customHandlers || [])
         ];
 
-        console.log(`[MSWPlugin] Installed ${this.handlers.length} request handlers.`);
+        ctx.logger.info('MSW request handlers installed', { count: this.handlers.length, baseUrl });
     }
 
     /**
      * Start the MSW worker
      */
-    private async startWorker() {
+    private async startWorker(ctx: PluginContext) {
         if (this.options.enableBrowser && typeof window !== 'undefined') {
             // Browser environment
+            ctx.logger.debug('Starting MSW in browser mode');
             this.worker = setupWorker(...this.handlers);
             await this.worker.start({
                 onUnhandledRequest: 'bypass',
             });
-            console.log(`[MSWPlugin] Started MSW in browser mode.`);
+            ctx.logger.info('MSW started in browser mode');
         } else {
-            console.log(`[MSWPlugin] Browser mode disabled or not in browser environment.`);
+            ctx.logger.debug('MSW browser mode disabled or not in browser environment');
         }
     }
 
@@ -380,7 +405,7 @@ export class MSWPlugin implements Plugin {
     private async stopWorker() {
         if (this.worker) {
             this.worker.stop();
-            console.log(`[MSWPlugin] Stopped MSW worker.`);
+            console.log('[MSWPlugin] Stopped MSW worker');
         }
     }
 

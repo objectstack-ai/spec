@@ -1,4 +1,5 @@
 import { QueryAST, SortNode, AggregationNode, WindowFunctionNode } from '@objectstack/spec/data';
+import { Logger, createLogger } from '@objectstack/core';
 
 export interface ClientConfig {
   baseUrl: string;
@@ -7,6 +8,14 @@ export interface ClientConfig {
    * Custom fetch implementation (e.g. node-fetch or for Next.js caching)
    */
   fetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+  /**
+   * Logger instance for debugging
+   */
+  logger?: Logger;
+  /**
+   * Enable debug logging
+   */
+  debug?: boolean;
 }
 
 export interface DiscoveryResult {
@@ -41,17 +50,28 @@ export class ObjectStackClient {
   private token?: string;
   private fetchImpl: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
   private routes?: DiscoveryResult['routes'];
+  private logger: Logger;
 
   constructor(config: ClientConfig) {
     this.baseUrl = config.baseUrl.replace(/\/$/, ''); // Remove trailing slash
     this.token = config.token;
     this.fetchImpl = config.fetch || globalThis.fetch.bind(globalThis);
+    
+    // Initialize logger
+    this.logger = config.logger || createLogger({ 
+      level: config.debug ? 'debug' : 'info',
+      format: 'pretty'
+    });
+    
+    this.logger.debug('ObjectStack client created', { baseUrl: this.baseUrl });
   }
 
   /**
    * Initialize the client by discovering server capabilities and routes.
    */
   async connect() {
+    this.logger.debug('Connecting to ObjectStack server', { baseUrl: this.baseUrl });
+    
     try {
       // Connect to the discovery endpoint
       // During boot, we might not know routes, so we check convention /api/v1 first
@@ -59,9 +79,15 @@ export class ObjectStackClient {
       
       const data = await res.json();
       this.routes = data.routes;
+      
+      this.logger.info('Connected to ObjectStack server', { 
+        routes: Object.keys(data.routes || {}),
+        capabilities: data.capabilities 
+      });
+      
       return data as DiscoveryResult;
     } catch (e) {
-      console.error('Failed to connect to ObjectStack Server', e);
+      this.logger.error('Failed to connect to ObjectStack server', e as Error, { baseUrl: this.baseUrl });
       throw e;
     }
   }
@@ -225,6 +251,12 @@ export class ObjectStackClient {
   }
 
   private async fetch(url: string, options: RequestInit = {}): Promise<Response> {
+    this.logger.debug('HTTP request', { 
+      method: options.method || 'GET',
+      url,
+      hasBody: !!options.body
+    });
+    
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...(options.headers as Record<string, string> || {}),
@@ -236,6 +268,13 @@ export class ObjectStackClient {
 
     const res = await this.fetchImpl(url, { ...options, headers });
     
+    this.logger.debug('HTTP response', { 
+      method: options.method || 'GET',
+      url,
+      status: res.status,
+      ok: res.ok
+    });
+    
     if (!res.ok) {
         let errorBody;
         try {
@@ -243,6 +282,14 @@ export class ObjectStackClient {
         } catch {
             errorBody = { message: res.statusText };
         }
+        
+        this.logger.error('HTTP request failed', undefined, { 
+          method: options.method || 'GET',
+          url,
+          status: res.status,
+          error: errorBody
+        });
+        
         throw new Error(`[ObjectStack] Request failed: ${res.status} ${JSON.stringify(errorBody)}`);
     }
     
@@ -252,7 +299,10 @@ export class ObjectStackClient {
   private getRoute(key: keyof DiscoveryResult['routes']): string {
     if (!this.routes) {
         // Fallback for strictness, but we allow bootstrapping
-        console.warn(`[ObjectStackClient] Accessing ${key} route before connect(). Using default /api/v1/${key}`);
+        this.logger.warn('Accessing route before connect()', { 
+          route: key, 
+          fallback: `/api/v1/${key}` 
+        });
         return `/api/v1/${key}`;
     }
     return this.routes[key] || `/api/v1/${key}`; 
