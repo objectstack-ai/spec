@@ -36,7 +36,22 @@ export function TaskList({ client, onEdit, refreshTrigger }: TaskListProps) {
         sort: ['priority', '-created_at']
       });
 
-      setTasks((result.value || []) as Task[]);
+      // Handle both { value: [] } (OData) and [] (Raw) formats
+      const rawValues = Array.isArray(result) ? result : (result.value || []);
+      const fetchedTasks = [...rawValues] as Task[];
+      
+      // Client-side sort fallback (since InMemoryDriver has limited sort support)
+      // Sort by Priority (Ascending) -> Created At (Descending)
+      fetchedTasks.sort((a, b) => {
+        if (a.priority !== b.priority) {
+          return a.priority - b.priority;
+        }
+        const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return timeB - timeA;
+      });
+
+      setTasks(fetchedTasks);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load tasks');
       console.error('Error loading tasks:', err);
