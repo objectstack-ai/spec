@@ -14,7 +14,7 @@ import type {
   User,
   Role,
   PermissionSet,
-  RowLevelSecurity,
+  RowLevelSecurityPolicy,
   SharingRule,
   Territory,
 } from '@objectstack/spec';
@@ -29,55 +29,27 @@ export const sampleUsers: User[] = [
     id: 'user_001',
     email: 'admin@example.com',
     name: 'Admin User',
-    
-    // Authentication
-    authProvider: 'local',
     emailVerified: true,
-    
-    // Profile
-    avatar: 'https://example.com/avatars/admin.jpg',
-    timezone: 'America/New_York',
-    locale: 'en-US',
-    
-    // Status
-    active: true,
-    lastLogin: '2024-01-29T10:30:00Z',
-    
-    // Roles
-    roles: ['system_administrator'],
+    image: 'https://example.com/avatars/admin.jpg',
+    createdAt: new Date('2024-01-01T00:00:00Z'),
+    updatedAt: new Date('2024-01-29T10:30:00Z'),
   },
   {
     id: 'user_002',
     email: 'sales@example.com',
     name: 'Sales Manager',
-    
-    authProvider: 'oauth2',
     emailVerified: true,
-    
-    avatar: 'https://example.com/avatars/sales.jpg',
-    timezone: 'America/Los_Angeles',
-    locale: 'en-US',
-    
-    active: true,
-    lastLogin: '2024-01-29T09:15:00Z',
-    
-    roles: ['sales_manager'],
+    image: 'https://example.com/avatars/sales.jpg',
+    createdAt: new Date('2024-01-05T00:00:00Z'),
+    updatedAt: new Date('2024-01-29T09:15:00Z'),
   },
   {
     id: 'user_003',
     email: 'rep@example.com',
     name: 'Sales Rep',
-    
-    authProvider: 'oauth2',
     emailVerified: true,
-    
-    timezone: 'America/Chicago',
-    locale: 'en-US',
-    
-    active: true,
-    lastLogin: '2024-01-29T08:45:00Z',
-    
-    roles: ['sales_rep'],
+    createdAt: new Date('2024-01-10T00:00:00Z'),
+    updatedAt: new Date('2024-01-29T08:45:00Z'),
   },
 ];
 
@@ -85,26 +57,17 @@ export const sampleUsers: User[] = [
  * Example 2: Role Hierarchy
  * 
  * Organizational role structure with inheritance
+ * Note: Roles define reporting structure and hierarchy, not permissions.
+ * Permissions are defined separately in PermissionSets.
  */
 export const roleHierarchy: Role[] = [
   // Top-level admin role
   {
     name: 'system_administrator',
     label: 'System Administrator',
-    description: 'Full system access',
-    
+    description: 'Top-level system administrator',
     // No parent = top of hierarchy
-    parentRole: undefined,
-    
-    // Full permissions
-    permissions: {
-      manageUsers: true,
-      manageRoles: true,
-      manageObjects: true,
-      manageSystem: true,
-      viewAllData: true,
-      modifyAllData: true,
-    },
+    parent: undefined,
   },
 
   // Sales hierarchy
@@ -112,33 +75,13 @@ export const roleHierarchy: Role[] = [
     name: 'sales_manager',
     label: 'Sales Manager',
     description: 'Manages sales team and data',
-    
-    parentRole: 'system_administrator',
-    
-    permissions: {
-      manageUsers: false,
-      manageRoles: false,
-      manageObjects: false,
-      manageSystem: false,
-      viewAllData: true, // Can view all sales data
-      modifyAllData: true, // Can modify all sales data
-    },
+    parent: 'system_administrator',
   },
   {
     name: 'sales_rep',
     label: 'Sales Representative',
     description: 'Standard sales user',
-    
-    parentRole: 'sales_manager', // Inherits from manager
-    
-    permissions: {
-      manageUsers: false,
-      manageRoles: false,
-      manageObjects: false,
-      manageSystem: false,
-      viewAllData: false, // Can only view own data
-      modifyAllData: false, // Can only modify own data
-    },
+    parent: 'sales_manager', // Inherits from manager
   },
 ];
 
@@ -151,114 +94,122 @@ export const permissionSets: PermissionSet[] = [
   {
     name: 'sales_user_permissions',
     label: 'Sales User Permissions',
-    description: 'Standard permissions for sales users',
-    
-    // Object permissions
-    objectPermissions: [
-      {
-        object: 'account',
-        create: true,
-        read: true,
-        update: true,
-        delete: false,
-        viewAll: false,
-        modifyAll: false,
+    isProfile: false,
+
+    // Object permissions (record of ObjectPermission)
+    objects: {
+      account: {
+        allowCreate: true,
+        allowRead: true,
+        allowEdit: true,
+        allowDelete: false,
+        allowTransfer: false,
+        allowRestore: false,
+        allowPurge: false,
+        viewAllRecords: false,
+        modifyAllRecords: false,
       },
-      {
-        object: 'contact',
-        create: true,
-        read: true,
-        update: true,
-        delete: false,
-        viewAll: false,
-        modifyAll: false,
+      contact: {
+        allowCreate: true,
+        allowRead: true,
+        allowEdit: true,
+        allowDelete: false,
+        allowTransfer: false,
+        allowRestore: false,
+        allowPurge: false,
+        viewAllRecords: false,
+        modifyAllRecords: false,
       },
-      {
-        object: 'opportunity',
-        create: true,
-        read: true,
-        update: true,
-        delete: false,
-        viewAll: false,
-        modifyAll: false,
+      opportunity: {
+        allowCreate: true,
+        allowRead: true,
+        allowEdit: true,
+        allowDelete: false,
+        allowTransfer: false,
+        allowRestore: false,
+        allowPurge: false,
+        viewAllRecords: false,
+        modifyAllRecords: false,
       },
-      {
-        object: 'lead',
-        create: true,
-        read: true,
-        update: true,
-        delete: true, // Can delete own leads
-        viewAll: false,
-        modifyAll: false,
+      lead: {
+        allowCreate: true,
+        allowRead: true,
+        allowEdit: true,
+        allowDelete: true, // Can delete own leads
+        allowTransfer: false,
+        allowRestore: false,
+        allowPurge: false,
+        viewAllRecords: false,
+        modifyAllRecords: false,
       },
-    ],
-    
-    // Field-level permissions (Field-Level Security)
-    fieldPermissions: [
-      {
-        object: 'account',
-        field: 'annual_revenue',
-        read: true,
-        update: false, // Can see but not edit revenue
+    },
+
+    // Field-level permissions (Field-Level Security, record of FieldPermission)
+    fields: {
+      'account.annual_revenue': {
+        readable: true,
+        editable: false, // Can see but not edit revenue
       },
-      {
-        object: 'opportunity',
-        field: 'probability',
-        read: true,
-        update: false, // Calculated field, read-only
+      'opportunity.probability': {
+        readable: true,
+        editable: false, // Calculated field, read-only
       },
-    ],
+    },
   },
 
   {
     name: 'sales_manager_permissions',
     label: 'Sales Manager Permissions',
-    description: 'Extended permissions for sales managers',
-    
-    objectPermissions: [
-      {
-        object: 'account',
-        create: true,
-        read: true,
-        update: true,
-        delete: true,
-        viewAll: true, // Can view all accounts
-        modifyAll: true, // Can modify all accounts
+    isProfile: false,
+
+    // Object permissions (record of ObjectPermission)
+    objects: {
+      account: {
+        allowCreate: true,
+        allowRead: true,
+        allowEdit: true,
+        allowDelete: true,
+        allowTransfer: true,
+        allowRestore: true,
+        allowPurge: false,
+        viewAllRecords: true, // Can view all accounts
+        modifyAllRecords: true, // Can modify all accounts
       },
-      {
-        object: 'opportunity',
-        create: true,
-        read: true,
-        update: true,
-        delete: true,
-        viewAll: true,
-        modifyAll: true,
+      opportunity: {
+        allowCreate: true,
+        allowRead: true,
+        allowEdit: true,
+        allowDelete: true,
+        allowTransfer: true,
+        allowRestore: true,
+        allowPurge: false,
+        viewAllRecords: true,
+        modifyAllRecords: true,
       },
-      {
-        object: 'forecast',
-        create: true,
-        read: true,
-        update: true,
-        delete: true,
-        viewAll: true,
-        modifyAll: true,
+      forecast: {
+        allowCreate: true,
+        allowRead: true,
+        allowEdit: true,
+        allowDelete: true,
+        allowTransfer: false,
+        allowRestore: false,
+        allowPurge: false,
+        viewAllRecords: true,
+        modifyAllRecords: true,
       },
-    ],
-    
-    fieldPermissions: [
-      {
-        object: 'account',
-        field: 'annual_revenue',
-        read: true,
-        update: true, // Managers can edit revenue
+    },
+
+    // Field-level permissions (Field-Level Security, record of FieldPermission)
+    fields: {
+      'account.annual_revenue': {
+        readable: true,
+        editable: true, // Managers can edit revenue
       },
-      {
-        object: 'opportunity',
-        field: 'discount_percent',
-        read: true,
-        update: true, // Managers can approve discounts
+      'opportunity.discount_percent': {
+        readable: true,
+        editable: true, // Managers can approve discounts
       },
-    ],
+    },
   },
 ];
 
@@ -267,67 +218,33 @@ export const permissionSets: PermissionSet[] = [
  * 
  * Fine-grained data access control based on record ownership
  */
-export const rowLevelSecurityRules: RowLevelSecurity[] = [
+export const rowLevelSecurityRules: RowLevelSecurityPolicy[] = [
   {
     name: 'opportunity_owner_access',
+    label: 'Opportunity Owner Access',
     object: 'opportunity',
     description: 'Users can only access their own opportunities',
+    operation: 'select',
     
-    // Rule definition
-    rule: {
-      operator: 'OR',
-      conditions: [
-        // Can access if owner
-        {
-          field: 'owner',
-          operator: 'equals',
-          value: '$CurrentUser.id',
-        },
-        // Can access if in their territory
-        {
-          field: 'territory',
-          operator: 'in',
-          value: '$CurrentUser.territories',
-        },
-        // Managers can access team records
-        {
-          field: 'owner.manager',
-          operator: 'equals',
-          value: '$CurrentUser.id',
-        },
-      ],
-    },
+    // USING clause - Filter condition
+    using: `owner_id = current_user.id OR territory IN (SELECT id FROM territories WHERE user_id = current_user.id) OR owner_manager_id = current_user.id`,
     
     // Apply to these roles
     roles: ['sales_rep'],
-    
-    // Operations affected
-    operations: ['read', 'update', 'delete'],
+    enabled: true,
   },
 
   {
     name: 'account_territory_access',
+    label: 'Account Territory Access',
     object: 'account',
     description: 'Territory-based account access',
+    operation: 'select',
     
-    rule: {
-      operator: 'AND',
-      conditions: [
-        {
-          field: 'territory',
-          operator: 'in',
-          value: '$CurrentUser.territories',
-        },
-        {
-          field: 'active',
-          operator: 'equals',
-          value: true,
-        },
-      ],
-    },
+    using: `territory IN (SELECT id FROM territories WHERE user_id = current_user.id) AND status = 'active'`,
     
     roles: ['sales_rep'],
-    operations: ['read', 'update'],
+    enabled: true,
   },
 ];
 
@@ -469,19 +386,21 @@ export class PermissionChecker {
     object: string,
     operation: 'create' | 'read' | 'update' | 'delete'
   ): boolean {
-    // Get user's roles
-    const userRoles = user.roles || [];
+    // Find permission sets (example implementation uses all permission sets)
+    const userPermissionSets = permissionSets;
 
-    // Find permission sets for user's roles
-    const userPermissionSets = permissionSets.filter((ps) =>
-      // In real implementation, map roles to permission sets
-      true
-    );
+    // Map operation to permission field
+    const operationMap = {
+      create: 'allowCreate',
+      read: 'allowRead',
+      update: 'allowEdit',
+      delete: 'allowDelete',
+    } as const;
 
     // Check object permissions
     for (const permSet of userPermissionSets) {
-      const objPerm = permSet.objectPermissions?.find((op) => op.object === object);
-      if (objPerm && objPerm[operation]) {
+      const objPerm = permSet.objects[object];
+      if (objPerm && objPerm[operationMap[operation]]) {
         return true;
       }
     }

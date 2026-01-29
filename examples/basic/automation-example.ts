@@ -12,7 +12,7 @@ import type {
   WorkflowRule,
   ApprovalProcess,
   Flow,
-  ETLProcess,
+  ETLPipeline,
 } from '@objectstack/spec';
 
 /**
@@ -581,11 +581,11 @@ export const leadConversionFlow: Flow = {
 };
 
 /**
- * Example 6: ETL Process
+ * Example 6: ETL Pipeline
  * 
  * Data integration and transformation
  */
-export const dailyLeadImportETL: ETLProcess = {
+export const dailyLeadImportETL: ETLPipeline = {
   name: 'daily_lead_import',
   description: 'Import leads from external system daily',
   

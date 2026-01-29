@@ -10,10 +10,11 @@
  */
 
 import type {
-  RAGPipeline,
-  RAGDocument,
-  RAGQuery,
-  RAGResult,
+  RAGPipelineConfig,
+  DocumentChunk,
+  DocumentMetadata,
+  RAGQueryRequest,
+  RAGQueryResponse,
   Agent,
 } from '@objectstack/spec';
 
@@ -22,87 +23,58 @@ import type {
  * 
  * Complete RAG pipeline setup for a knowledge base system
  */
-export const knowledgeBaseRAG: RAGPipeline = {
+export const knowledgeBaseRAG: RAGPipelineConfig = {
   name: 'knowledge_base_rag',
+  label: 'Knowledge Base RAG Pipeline',
   description: 'RAG pipeline for company knowledge base',
-
-  // Document Processing
-  documentProcessing: {
-    // Chunking strategy
-    chunkSize: 1000,
-    chunkOverlap: 200,
-    chunkingStrategy: 'recursive',
-
-    // Text cleaning
-    preprocessing: {
-      removeHtml: true,
-      normalizeWhitespace: true,
-      removePunctuation: false,
-    },
-  },
 
   // Embedding Configuration
   embedding: {
-    model: 'text-embedding-ada-002',
     provider: 'openai',
+    model: 'text-embedding-ada-002',
     dimensions: 1536,
-
-    // Batching for performance
     batchSize: 100,
-    maxRetries: 3,
   },
 
   // Vector Store
   vectorStore: {
-    type: 'pinecone',
-    index: 'knowledge-base',
+    provider: 'pinecone',
+    indexName: 'knowledge-base',
     namespace: 'production',
+    dimensions: 1536,
+    metric: 'cosine',
+  },
 
-    // Metadata filtering
-    metadataFields: ['category', 'author', 'created_at', 'source'],
+  // Chunking strategy
+  chunking: {
+    type: 'recursive',
+    chunkSize: 1000,
+    chunkOverlap: 200,
+    separators: ['\n\n', '\n', ' ', ''],
   },
 
   // Retrieval Configuration
   retrieval: {
-    // How many chunks to retrieve
+    type: 'hybrid',
     topK: 5,
-
-    // Similarity threshold (0-1)
-    similarityThreshold: 0.7,
-
-    // Reranking for better results
-    reranking: {
-      enabled: true,
-      model: 'cohere-rerank',
-      topN: 3,
-    },
-
-    // Hybrid search (combine vector + keyword)
-    hybridSearch: {
-      enabled: true,
-      alpha: 0.7, // 0 = pure keyword, 1 = pure vector
-    },
+    vectorWeight: 0.7,
+    keywordWeight: 0.3,
   },
 
-  // Context Assembly
-  contextAssembly: {
-    // How to combine retrieved chunks
-    strategy: 'concatenate',
+  // Reranking for better results
+  reranking: {
+    enabled: true,
+    model: 'cohere-rerank-v3',
+    provider: 'cohere',
+    topK: 3,
+  },
 
-    // Maximum context length
-    maxTokens: 3000,
+  // Context Management
+  maxContextTokens: 3000,
 
-    // Include metadata in context
-    includeMetadata: true,
-
-    // Template for formatting context
-    template: `Context from knowledge base:
-
-{{#each chunks}}
-[Source: {{metadata.source}}]
-{{content}}
-
-{{/each}}`,
+  // Metadata filtering
+  metadataFilters: {
+    status: 'published',
   },
 };
 
@@ -111,48 +83,60 @@ export const knowledgeBaseRAG: RAGPipeline = {
  * 
  * How to index documents into the RAG pipeline
  */
-export const sampleDocuments: RAGDocument[] = [
+export const sampleDocumentMetadata: DocumentMetadata[] = [
   {
-    id: 'doc_001',
+    source: 'https://docs.objectstack.dev/architecture',
+    sourceType: 'url',
+    title: 'ObjectStack Architecture',
+    author: 'Technical Team',
+    createdAt: '2024-01-15T00:00:00Z',
+    category: 'Architecture',
+  },
+  {
+    source: 'https://docs.objectstack.dev/guides/objects',
+    sourceType: 'url',
+    title: 'Creating Objects Guide',
+    author: 'DevRel Team',
+    createdAt: '2024-01-20T00:00:00Z',
+    category: 'Tutorial',
+  },
+  {
+    source: 'https://docs.objectstack.dev/ai/bridge',
+    sourceType: 'url',
+    title: 'AI Bridge Documentation',
+    author: 'AI Team',
+    createdAt: '2024-02-01T00:00:00Z',
+    category: 'AI Features',
+  },
+];
+
+export const sampleDocumentChunks: DocumentChunk[] = [
+  {
+    id: 'chunk_001',
     content: `ObjectStack is a metadata-driven low-code platform that enables rapid application development.
 It uses a three-layer architecture: ObjectQL for data, ObjectUI for presentation, and ObjectOS for runtime.
 The platform supports multiple databases and provides built-in AI capabilities.`,
-    
-    metadata: {
-      source: 'Product Documentation',
-      category: 'Architecture',
-      author: 'Technical Team',
-      created_at: '2024-01-15',
-      url: 'https://docs.objectstack.dev/architecture',
-    },
+    metadata: sampleDocumentMetadata[0],
+    chunkIndex: 0,
+    tokens: 45,
   },
   {
-    id: 'doc_002',
+    id: 'chunk_002',
     content: `To create a new object in ObjectStack, use the Object Schema definition.
 Define fields with types like text, number, lookup, and more.
 Enable features like API access, history tracking, and workflows.`,
-    
-    metadata: {
-      source: 'Developer Guide',
-      category: 'Tutorial',
-      author: 'DevRel Team',
-      created_at: '2024-01-20',
-      url: 'https://docs.objectstack.dev/guides/objects',
-    },
+    metadata: sampleDocumentMetadata[1],
+    chunkIndex: 0,
+    tokens: 38,
   },
   {
-    id: 'doc_003',
+    id: 'chunk_003',
     content: `ObjectStack's AI Bridge allows integration with LLMs like GPT-4, Claude, and Gemini.
 It provides model abstraction, cost tracking, and automatic retries.
 Use the Agent protocol to define AI assistants with specific capabilities.`,
-    
-    metadata: {
-      source: 'AI Documentation',
-      category: 'AI Features',
-      author: 'AI Team',
-      created_at: '2024-02-01',
-      url: 'https://docs.objectstack.dev/ai/bridge',
-    },
+    metadata: sampleDocumentMetadata[2],
+    chunkIndex: 0,
+    tokens: 42,
   },
 ];
 
@@ -161,29 +145,32 @@ Use the Agent protocol to define AI assistants with specific capabilities.`,
  * 
  * Performing a RAG query with filters and options
  */
-export const sampleQueries: RAGQuery[] = [
+export const sampleQueries: RAGQueryRequest[] = [
   {
     // Simple question
     query: 'What is ObjectStack?',
+    pipelineName: 'knowledge_base_rag',
     topK: 5,
   },
   {
     // Question with metadata filtering
     query: 'How do I create objects?',
+    pipelineName: 'knowledge_base_rag',
     topK: 3,
-    filter: {
+    metadataFilters: {
       category: 'Tutorial',
     },
   },
   {
-    // Advanced query with reranking
+    // Advanced query
     query: 'Tell me about AI integration',
+    pipelineName: 'knowledge_base_rag',
     topK: 10,
-    rerank: true,
-    rerankTopN: 3,
-    filter: {
+    metadataFilters: {
       category: 'AI Features',
     },
+    includeMetadata: true,
+    includeSources: true,
   },
 ];
 
@@ -192,52 +179,45 @@ export const sampleQueries: RAGQuery[] = [
  * 
  * What the pipeline returns
  */
-export const sampleResults: RAGResult = {
+export const sampleResults: RAGQueryResponse = {
   query: 'What is ObjectStack?',
   
   // Retrieved chunks
-  chunks: [
+  results: [
     {
-      id: 'chunk_001',
-      documentId: 'doc_001',
       content: `ObjectStack is a metadata-driven low-code platform that enables rapid application development.
 It uses a three-layer architecture: ObjectQL for data, ObjectUI for presentation, and ObjectOS for runtime.`,
-      
       score: 0.92,
-      
       metadata: {
-        source: 'Product Documentation',
+        source: 'https://docs.objectstack.dev/architecture',
+        sourceType: 'url',
         category: 'Architecture',
       },
     },
     {
-      id: 'chunk_002',
-      documentId: 'doc_001',
       content: `The platform supports multiple databases and provides built-in AI capabilities.`,
-      
       score: 0.85,
-      
       metadata: {
-        source: 'Product Documentation',
+        source: 'https://docs.objectstack.dev/architecture',
+        sourceType: 'url',
         category: 'Architecture',
       },
     },
   ],
 
-  // Assembled context for LLM
+  // Context assembled for LLM
   context: `Context from knowledge base:
 
-[Source: Product Documentation]
+[Source: https://docs.objectstack.dev/architecture]
 ObjectStack is a metadata-driven low-code platform that enables rapid application development.
 It uses a three-layer architecture: ObjectQL for data, ObjectUI for presentation, and ObjectOS for runtime.
 
-[Source: Product Documentation]
+[Source: https://docs.objectstack.dev/architecture]
 The platform supports multiple databases and provides built-in AI capabilities.`,
 
   // Metadata
-  retrievalTime: 150, // milliseconds
-  totalChunks: 2,
-  averageScore: 0.885,
+  processingTimeMs: 150,
+  totalResults: 2,
 };
 
 /**
@@ -323,8 +303,8 @@ export function demonstrateRAGUsage() {
   console.log('RAG Pipeline:');
   console.log('- Embedding query...');
   console.log('- Searching vector database...');
-  console.log(`- Retrieved ${sampleResults.chunks.length} relevant chunks`);
-  console.log(`- Average relevance score: ${sampleResults.averageScore}\n`);
+  console.log(`- Retrieved ${sampleResults.results.length} relevant chunks`);
+  console.log(`- Processing time: ${sampleResults.processingTimeMs}ms\n`);
 
   // Step 3: Context is assembled
   console.log('Assembled Context:');
@@ -341,7 +321,7 @@ It has three main architectural layers:
 
 The platform supports multiple databases and includes built-in AI capabilities, making it suitable for creating intelligent applications.
 
-*Source: Product Documentation - Architecture*`;
+*Source: https://docs.objectstack.dev/architecture*`;
 
   console.log('Assistant:');
   console.log(assistantResponse);
@@ -385,7 +365,8 @@ export const advancedRAGPatterns = {
 // Export all examples
 export default {
   knowledgeBaseRAG,
-  sampleDocuments,
+  sampleDocumentMetadata,
+  sampleDocumentChunks,
   sampleQueries,
   sampleResults,
   ragEnabledAgent,

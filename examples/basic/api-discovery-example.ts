@@ -11,7 +11,7 @@
  */
 
 import type {
-  ApiDiscoveryResponse,
+  DiscoveryResponse,
   ApiCapabilities,
 } from '@objectstack/spec';
 
@@ -20,189 +20,35 @@ import type {
  * 
  * This is what a client receives when calling /api/discovery
  */
-export const fullDiscoveryResponse: ApiDiscoveryResponse = {
+export const fullDiscoveryResponse: DiscoveryResponse = {
   // System Identity
-  system: {
-    name: 'ObjectStack CRM',
-    version: '2.1.0',
-    environment: 'production',
-    vendor: 'Acme Corporation',
+  name: 'ObjectStack CRM',
+  version: '2.1.0',
+  environment: 'production',
+
+  // Dynamic Routing - tells frontend where to send requests
+  routes: {
+    data: '/api/data',
+    metadata: '/api/meta',
+    auth: '/api/auth',
+    automation: '/api/automation',
+    storage: '/api/storage',
+    graphql: '/graphql',
   },
 
-  // Available API Surfaces
-  endpoints: {
-    rest: {
-      baseUrl: 'https://api.example.com/v1',
-      version: 'v1',
-      documentation: 'https://api.example.com/docs',
-    },
-    graphql: {
-      endpoint: 'https://api.example.com/graphql',
-      introspection: true,
-      playground: 'https://api.example.com/playground',
-    },
-    odata: {
-      baseUrl: 'https://api.example.com/odata',
-      version: '4.0',
-    },
-    realtime: {
-      websocket: 'wss://api.example.com/ws',
-      sse: 'https://api.example.com/events',
-    },
-  },
-
-  // Runtime Capabilities (from capabilities-example.ts)
-  capabilities: {
-    data: {
-      queryFilters: true,
-      queryAggregations: true,
-      querySorting: true,
-      queryPagination: true,
-      queryWindowFunctions: true,
-      querySubqueries: true,
-      queryDistinct: true,
-      queryHaving: true,
-      queryJoins: true,
-
-      fullTextSearch: true,
-      vectorSearch: true,
-      geoSpatial: true,
-
-      jsonFields: true,
-      arrayFields: true,
-
-      validationRules: true,
-      workflows: true,
-      triggers: true,
-      formulas: true,
-
-      transactions: true,
-      bulkOperations: true,
-
-      supportedDrivers: ['postgresql', 'mongodb'],
-    },
-
-    ui: {
-      listView: true,
-      formView: true,
-      kanbanView: true,
-      calendarView: true,
-      ganttView: true,
-
-      dashboards: true,
-      reports: true,
-      charts: true,
-
-      customPages: true,
-      customThemes: true,
-      customComponents: true,
-
-      customActions: true,
-      screenFlows: true,
-
-      mobileOptimized: true,
-      accessibility: true,
-    },
-
-    system: {
-      version: '2.1.0',
-      environment: 'production',
-
-      restApi: true,
-      graphqlApi: true,
-      odataApi: true,
-
-      websockets: true,
-      serverSentEvents: true,
-      eventBus: true,
-
-      webhooks: true,
-      apiContracts: true,
-
-      authentication: true,
-      rbac: true,
-      fieldLevelSecurity: true,
-      rowLevelSecurity: true,
-
-      multiTenant: true,
-
-      backgroundJobs: true,
-      auditLogging: true,
-      fileStorage: true,
-
-      i18n: true,
-
-      pluginSystem: true,
-
-      systemObjects: ['user', 'role', 'permission', 'object', 'field'],
-
-      limits: {
-        maxObjects: 1000,
-        maxFieldsPerObject: 500,
-        maxRecordsPerQuery: 10000,
-        apiRateLimit: 1000,
-        fileUploadSizeLimit: 10485760,
-      },
-    },
-  },
-
-  // Authentication Configuration
-  auth: {
-    required: true,
-    methods: ['oauth2', 'apiKey', 'jwt'],
-    oauth2: {
-      authorizationUrl: 'https://auth.example.com/oauth/authorize',
-      tokenUrl: 'https://auth.example.com/oauth/token',
-      scopes: ['read', 'write', 'admin'],
-    },
-  },
-
-  // Available Objects (Schema Registry)
-  objects: [
-    {
-      name: 'account',
-      label: 'Account',
-      labelPlural: 'Accounts',
-      apiEnabled: true,
-      endpoints: {
-        list: '/api/v1/objects/account',
-        get: '/api/v1/objects/account/{id}',
-        create: '/api/v1/objects/account',
-        update: '/api/v1/objects/account/{id}',
-        delete: '/api/v1/objects/account/{id}',
-      },
-    },
-    {
-      name: 'contact',
-      label: 'Contact',
-      labelPlural: 'Contacts',
-      apiEnabled: true,
-      endpoints: {
-        list: '/api/v1/objects/contact',
-        get: '/api/v1/objects/contact/{id}',
-        create: '/api/v1/objects/contact',
-        update: '/api/v1/objects/contact/{id}',
-        delete: '/api/v1/objects/contact/{id}',
-      },
-    },
-  ],
-
-  // Feature Flags
+  // Feature Flags - what capabilities are enabled
   features: {
-    aiAssistant: true,
-    advancedAnalytics: true,
-    customBranding: true,
-    apiAccess: true,
-    webhooks: true,
-    auditLogs: true,
+    graphql: true,
+    search: true,
+    websockets: true,
+    files: true,
   },
 
-  // Links
-  links: {
-    documentation: 'https://docs.example.com',
-    support: 'https://support.example.com',
-    status: 'https://status.example.com',
-    portal: 'https://app.example.com',
+  // Localization Info
+  locale: {
+    default: 'en-US',
+    supported: ['en-US', 'zh-CN', 'es-ES', 'fr-FR'],
+    timezone: 'UTC',
   },
 };
 
@@ -211,123 +57,29 @@ export const fullDiscoveryResponse: ApiDiscoveryResponse = {
  * 
  * A simplified response for local development
  */
-export const devDiscoveryResponse: ApiDiscoveryResponse = {
-  system: {
-    name: 'ObjectStack Dev',
-    version: '0.1.0',
-    environment: 'development',
+export const devDiscoveryResponse: DiscoveryResponse = {
+  name: 'ObjectStack Dev',
+  version: '0.1.0',
+  environment: 'development',
+
+  routes: {
+    data: '/api/data',
+    metadata: '/api/meta',
+    auth: '/api/auth',
   },
 
-  endpoints: {
-    rest: {
-      baseUrl: 'http://localhost:3000/api',
-      version: 'v1',
-    },
+  features: {
+    graphql: false,
+    search: true,
+    websockets: false,
+    files: true,
   },
 
-  capabilities: {
-    data: {
-      queryFilters: true,
-      queryAggregations: true,
-      querySorting: true,
-      queryPagination: true,
-      queryWindowFunctions: false,
-      querySubqueries: false,
-      queryDistinct: true,
-      queryHaving: false,
-      queryJoins: false,
-
-      fullTextSearch: false,
-      vectorSearch: false,
-      geoSpatial: false,
-
-      jsonFields: true,
-      arrayFields: false,
-
-      validationRules: true,
-      workflows: false,
-      triggers: false,
-      formulas: true,
-
-      transactions: true,
-      bulkOperations: true,
-
-      supportedDrivers: ['memory', 'sqlite'],
-    },
-
-    ui: {
-      listView: true,
-      formView: true,
-      kanbanView: false,
-      calendarView: false,
-      ganttView: false,
-
-      dashboards: true,
-      reports: true,
-      charts: true,
-
-      customPages: true,
-      customThemes: false,
-      customComponents: false,
-
-      customActions: true,
-      screenFlows: false,
-
-      mobileOptimized: false,
-      accessibility: false,
-    },
-
-    system: {
-      version: '0.1.0',
-      environment: 'development',
-
-      restApi: true,
-      graphqlApi: false,
-      odataApi: false,
-
-      websockets: false,
-      serverSentEvents: false,
-      eventBus: false,
-
-      webhooks: false,
-      apiContracts: false,
-
-      authentication: true,
-      rbac: true,
-      fieldLevelSecurity: false,
-      rowLevelSecurity: false,
-
-      multiTenant: false,
-
-      backgroundJobs: false,
-      auditLogging: false,
-      fileStorage: true,
-
-      i18n: true,
-
-      pluginSystem: false,
-
-      systemObjects: ['user', 'role', 'object'],
-
-      limits: {
-        maxObjects: 100,
-        maxFieldsPerObject: 200,
-        maxRecordsPerQuery: 1000,
-        apiRateLimit: 100,
-        fileUploadSizeLimit: 5242880,
-      },
-    },
+  locale: {
+    default: 'en-US',
+    supported: ['en-US'],
+    timezone: 'America/New_York',
   },
-
-  auth: {
-    required: false,
-  },
-
-  objects: [],
-
-  features: {},
-
-  links: {},
 };
 
 /**
@@ -336,71 +88,49 @@ export const devDiscoveryResponse: ApiDiscoveryResponse = {
  * How a client can use the discovery API to adapt its behavior
  */
 export class AdaptiveClient {
-  private capabilities: ApiCapabilities | null = null;
+  private discovery: DiscoveryResponse | null = null;
 
   async initialize(baseUrl: string) {
     // Fetch discovery information
     const response = await fetch(`${baseUrl}/api/discovery`);
-    const discovery: ApiDiscoveryResponse = await response.json();
+    this.discovery = await response.json() as DiscoveryResponse;
     
-    this.capabilities = discovery.capabilities;
-    
-    console.log(`Connected to: ${discovery.system.name} v${discovery.system.version}`);
-    console.log(`Environment: ${discovery.system.environment}`);
+    console.log(`Connected to: ${this.discovery.name} v${this.discovery.version}`);
+    console.log(`Environment: ${this.discovery.environment}`);
   }
 
   /**
    * Check if a specific feature is available
    */
-  hasFeature(subsystem: 'data' | 'ui' | 'system', feature: string): boolean {
-    if (!this.capabilities) return false;
-    
-    const subsystemCaps = this.capabilities[subsystem] as any;
-    return subsystemCaps?.[feature] === true;
+  hasFeature(feature: keyof ApiCapabilities): boolean {
+    if (!this.discovery) return false;
+    return this.discovery.features[feature] === true;
   }
 
   /**
-   * Build query based on available capabilities
+   * Get the route for a specific API
    */
-  buildQuery(object: string, options: any) {
-    const query: any = { object };
-
-    // Only use subqueries if supported
-    if (this.hasFeature('data', 'querySubqueries') && options.includeRelated) {
-      query.subqueries = options.includeRelated;
-    }
-
-    // Only use window functions if supported
-    if (this.hasFeature('data', 'queryWindowFunctions') && options.ranking) {
-      query.windowFunctions = options.ranking;
-    }
-
-    // Basic filtering is usually always available
-    if (options.filter) {
-      query.filter = options.filter;
-    }
-
-    return query;
+  getRoute(route: 'data' | 'metadata' | 'auth' | 'automation' | 'storage' | 'graphql'): string | undefined {
+    if (!this.discovery) return undefined;
+    return this.discovery.routes[route];
   }
 
   /**
    * Choose the best available API endpoint
    */
-  getApiEndpoint(discovery: ApiDiscoveryResponse, preference: 'rest' | 'graphql' | 'odata' = 'rest') {
-    const endpoints = discovery.endpoints;
-
-    // Try preferred endpoint first
-    if (preference === 'graphql' && endpoints.graphql) {
-      return { type: 'graphql', url: endpoints.graphql.endpoint };
-    }
-    
-    if (preference === 'odata' && endpoints.odata) {
-      return { type: 'odata', url: endpoints.odata.baseUrl };
+  getApiEndpoint(preference: 'rest' | 'graphql' = 'rest') {
+    if (!this.discovery) {
+      throw new Error('Client not initialized');
     }
 
-    // Fallback to REST (usually always available)
-    if (endpoints.rest) {
-      return { type: 'rest', url: endpoints.rest.baseUrl };
+    // Check if GraphQL is available
+    if (preference === 'graphql' && this.discovery.features.graphql && this.discovery.routes.graphql) {
+      return { type: 'graphql', url: this.discovery.routes.graphql };
+    }
+
+    // Fallback to REST (data route)
+    if (this.discovery.routes.data) {
+      return { type: 'rest', url: this.discovery.routes.data };
     }
 
     throw new Error('No API endpoints available');
@@ -412,25 +142,23 @@ export class AdaptiveClient {
  * 
  * How an AI agent can use discovery to understand the system
  */
-export function generateSystemPromptFromDiscovery(discovery: ApiDiscoveryResponse): string {
-  const { system, capabilities, objects } = discovery;
+export function generateSystemPromptFromDiscovery(discovery: DiscoveryResponse): string {
+  const { name, version, features, locale } = discovery;
 
-  const prompt = `You are an AI assistant for ${system.name} (v${system.version}).
+  const prompt = `You are an AI assistant for ${name} (v${version}).
 
 SYSTEM CAPABILITIES:
-${capabilities.data.vectorSearch ? '- Vector search available (can use RAG)' : ''}
-${capabilities.data.fullTextSearch ? '- Full-text search available' : ''}
-${capabilities.ui.dashboards ? '- Can create and manage dashboards' : ''}
-${capabilities.system.webhooks ? '- Can configure webhooks' : ''}
+${features.graphql ? '- GraphQL API available' : ''}
+${features.search ? '- Search functionality available' : ''}
+${features.websockets ? '- Real-time updates via WebSockets' : ''}
+${features.files ? '- File upload/download supported' : ''}
 
-AVAILABLE OBJECTS:
-${objects.map(obj => `- ${obj.label} (${obj.name})`).join('\n')}
+LOCALIZATION:
+- Default Locale: ${locale.default}
+- Supported Languages: ${locale.supported.join(', ')}
+- Timezone: ${locale.timezone}
 
-RATE LIMITS:
-- API Rate Limit: ${capabilities.system.limits?.apiRateLimit || 'N/A'} requests/minute
-- Max Records per Query: ${capabilities.system.limits?.maxRecordsPerQuery || 'N/A'}
-
-When helping users, respect these capabilities and limits.`;
+When helping users, respect these capabilities and localization settings.`;
 
   return prompt;
 }
