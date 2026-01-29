@@ -42,6 +42,26 @@ export async function startMockServer() {
     }));
   
   await kernel.bootstrap();
+
+  // Initialize default data from manifest if available
+  const manifest = (todoConfig as any).manifest;
+  if (manifest && Array.isArray(manifest.data)) {
+    console.log('[MSW] Loading initial data...');
+    for (const dataset of manifest.data) {
+      if (dataset.object && Array.isArray(dataset.records)) {
+        for (const record of dataset.records) {
+          // Check if record already exists to avoid duplicates on hot reload?
+          // Since it's in-memory and we create new kernel/driver on refresh...
+          // But 'kernel' variable is module-scoped singleton.
+          // On HMR replacement, this module might re-execute.
+          // If 'kernel' is not null, we return early (line 18).
+          // So data loading happens only once per session. Good.
+          await driver.create(dataset.object, record);
+        }
+        console.log(`[MSW] Loaded ${dataset.records.length} records for ${dataset.object}`);
+      }
+    }
+  }
   
   return kernel;
 }
