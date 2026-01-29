@@ -1,239 +1,171 @@
-# MSW + React CRUD Example
+# MSW + React CRUD Example with ObjectStack
 
-This example demonstrates complete CRUD operations in a React application using **Mock Service Worker (MSW)** for API mocking and the **@objectstack/client** package for all data operations.
+This example demonstrates a **Frontend-First** development workflow using **ObjectStack**. 
 
-## 🎯 Features
+It runs the entire **ObjectStack Runtime (Kernel)** directly in the browser using a Service Worker. This allows you to develop fully functional React applications with CRUD capabilities, validation, and API interactions **without running a backend server**.
 
-- ✅ **Complete CRUD Operations**: Create, Read, Update, Delete tasks
-- ✅ **ObjectStack Client Integration**: Uses official `@objectstack/client` for all API calls
-- ✅ **MSW API Mocking**: All API requests are intercepted and mocked in the browser
-- ✅ **React + TypeScript**: Modern React with full TypeScript support
-- ✅ **Vite**: Fast development server and build tool
-- ✅ **Best Practices**: Follows ObjectStack conventions and patterns
+## 🏗️ Architecture
 
-## 📁 Project Structure
+Instead of mocking individual HTTP endpoints manually, this project spins up a real ObjectStack instance inside the browser memory.
 
-```
-src/
-├── components/
-│   ├── TaskForm.tsx      # Create/Update form component
-│   ├── TaskItem.tsx      # Single task display component
-│   └── TaskList.tsx      # Task list with read operations
-├── mocks/
-│   └── browser.ts        # MSW handlers and mock database
-├── App.tsx               # Main application component
-├── App.css               # Application styles
-├── main.tsx              # Entry point with MSW initialization
-└── types.ts              # TypeScript type definitions
+```mermaid
+graph TD
+    Client[React App <br/> @objectstack/client] -->|REST API Calls| Network[Browser Network Layer]
+    Network -->|Intercepted by| SW[Service Worker <br/> MockServiceWorker]
+    SW -->|Delegates to| Kernel[ObjectStack Kernel <br/> (Running in Browser)]
+    Kernel -->|Uses| MemoryDriver[In-Memory Driver]
+    
+    Kernel -.->|Reads| Config[objectstack.config.ts <br/> Schema Definitions]
 ```
 
-## 🚀 Getting Started
+## 🎯 Key Features
 
-### Prerequisites
+- **Zero-Backend Development**: Develop the entire frontend flow before the backend exists.
+- **Real Logic**: It's not just static JSON. The Kernel enforces schema validation, defaults, and even automation logic.
+- **Shared Schema**: The same `objectstack.config.ts` used here can be deployed to the real Node.js server later.
+- **Instant Feedback**: Changes to the schema are reflected immediately in the browser.
 
-- Node.js 18+ 
-- pnpm (package manager)
+## 🛠️ Implementation Guide
 
-### Installation
+Here is how to implement this architecture in your own project.
+
+### 1. Define Your Stack
+
+Create an `objectstack.config.ts` to define your data models and application structure.
+
+```typescript
+// objectstack.config.ts
+import { defineStack } from '@objectstack/spec';
+
+export const TaskObject = {
+  name: 'task',
+  label: 'Task',
+  fields: {
+    subject: { type: 'text', required: true },
+    priority: { type: 'number', defaultValue: 1 },
+    isCompleted: { type: 'boolean', defaultValue: false }
+  }
+};
+
+export default defineStack({
+  objects: [TaskObject]
+});
+```
+
+### 2. Setup In-Browser Runtime
+
+Create a mock setup file (e.g., `src/mocks/browser.ts`) that initializes the Kernel with the MSW plugin.
+
+```typescript
+// src/mocks/browser.ts
+import { ObjectKernel, DriverPlugin, AppPlugin } from '@objectstack/runtime';
+import { ObjectQLPlugin } from '@objectstack/objectql';
+import { InMemoryDriver } from '@objectstack/driver-memory';
+import { MSWPlugin } from '@objectstack/plugin-msw';
+import myConfig from '../../objectstack.config'; // Your config
+
+export async function startMockServer() {
+  // 1. Initialize In-Memory Database
+  const driver = new InMemoryDriver();
+
+  // 2. Create the Kernel
+  const kernel = new ObjectKernel();
+  
+  kernel
+    .use(new ObjectQLPlugin())                    // Data Engine
+    .use(new DriverPlugin(driver, 'memory'))      // Database Driver
+    .use(new AppPlugin(myConfig))                 // Load your Schema
+    .use(new MSWPlugin({                          // Expose API via Service Worker
+      enableBrowser: true,
+      baseUrl: '/api/v1'
+    }));
+  
+  // 3. Boot
+  await kernel.bootstrap();
+
+  // 4. (Optional) Load Initial Data
+  if (myConfig.manifest?.data) {
+     // ... logic to seed data into driver ...
+  }
+}
+```
+
+### 3. Initialize Worker on Startup
+
+Update your entry file (`src/main.tsx`) to start the mock server before rendering the React app.
+
+```tsx
+// src/main.tsx
+import ReactDOM from 'react-dom/client';
+import { App } from './App';
+import { startMockServer } from './mocks/browser';
+
+async function bootstrap() {
+  // Wait for Service Worker to be ready
+  await startMockServer();
+
+  ReactDOM.createRoot(document.getElementById('root')!).render(<App />);
+}
+
+bootstrap();
+```
+
+### 4. Connect Client
+
+In your React components, connect to the mock API (which mimics the real backend URL structure).
+
+```tsx
+// src/App.tsx
+import { ObjectStackClient } from '@objectstack/client';
+
+// The client thinks it's talking to a real server
+const client = new ObjectStackClient({
+  baseUrl: '' // Relative path, intercepted by MSW at /api/v1/...
+});
+
+await client.connect();
+const tasks = await client.data.find('task');
+```
+
+### 5. Vite Configuration
+
+If you are using Vite, you may need to optimize dependencies to handle CommonJS packages correctly in the browser.
+
+```typescript
+// vite.config.ts
+export default defineConfig({
+  optimizeDeps: {
+    include: [
+      '@objectstack/spec',
+      '@objectstack/spec/data',
+      '@objectstack/spec/system'
+    ]
+  }
+});
+```
+
+## 🚀 Running the Example
 
 ```bash
 # Install dependencies
 pnpm install
 
-# Initialize MSW service worker (required for browser mode)
+# Initialize MSW public script (only needed once)
 pnpm dlx msw init public/ --save
-```
 
-### Running the Application
-
-```bash
-# Start development server
+# Start the dev server
 pnpm dev
 ```
 
-The application will be available at `http://localhost:3000`
+Open `http://localhost:3000`. You can now create, edit, and delete tasks. The data persists in the browser memory as long as you don't refresh (simulate persistence by seeding data in step 2).
 
-### Building for Production
+## 📦 Migration to Production
 
-```bash
-# Build the application
-pnpm build
+When you are ready to go to production:
 
-# Preview the production build
-pnpm preview
-```
+1.  Keep `objectstack.config.ts`.
+2.  Deploy the official ObjectStack Server (Node.js).
+3.  Point your `ObjectStackClient` `baseUrl` to the real server.
+4.  Remove the `startMockServer()` call in `main.tsx`.
 
-## 📖 How It Works
-
-### 1. MSW Setup (`src/mocks/browser.ts`)
-
-MSW intercepts HTTP requests in the browser and returns mock data:
-
-```typescript
-import { setupWorker } from 'msw/browser';
-import { http, HttpResponse } from 'msw';
-
-// Define handlers matching ObjectStack API
-const handlers = [
-  http.get('/api/v1/data/task', () => {
-    return HttpResponse.json({ value: tasks, count: tasks.length });
-  }),
-  
-  http.post('/api/v1/data/task', async ({ request }) => {
-    const body = await request.json();
-    const newTask = { id: generateId(), ...body };
-    return HttpResponse.json(newTask, { status: 201 });
-  }),
-  
-  // ... more handlers
-];
-
-export const worker = setupWorker(...handlers);
-```
-
-### 2. ObjectStack Client Usage
-
-All components use the official `@objectstack/client` package:
-
-```typescript
-import { ObjectStackClient } from '@objectstack/client';
-
-// Initialize client
-const client = new ObjectStackClient({ baseUrl: '/api/v1' });
-await client.connect();
-
-// READ - Find all tasks
-const result = await client.data.find('task', {
-  top: 100,
-  sort: ['priority']
-});
-
-// CREATE - Create new task
-const newTask = await client.data.create('task', {
-  subject: 'New task',
-  priority: 1
-});
-
-// UPDATE - Update existing task
-await client.data.update('task', taskId, {
-  isCompleted: true
-});
-
-// DELETE - Delete task
-await client.data.delete('task', taskId);
-```
-
-### 3. React Components
-
-**TaskList Component** (`src/components/TaskList.tsx`)
-- Fetches and displays all tasks
-- Demonstrates READ operations
-- Handles task deletion and status toggling
-
-**TaskForm Component** (`src/components/TaskForm.tsx`)
-- Form for creating new tasks
-- Form for editing existing tasks
-- Demonstrates CREATE and UPDATE operations
-
-**TaskItem Component** (`src/components/TaskItem.tsx`)
-- Displays individual task
-- Provides edit and delete actions
-- Shows task metadata (priority, completion status)
-
-## 🔌 API Endpoints Mocked
-
-The example mocks the following ObjectStack API endpoints:
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/v1` | Discovery endpoint |
-| `GET` | `/api/v1/meta/object/task` | Get task object metadata |
-| `GET` | `/api/v1/data/task` | Find/list all tasks |
-| `GET` | `/api/v1/data/task/:id` | Get single task by ID |
-| `POST` | `/api/v1/data/task` | Create new task |
-| `PATCH` | `/api/v1/data/task/:id` | Update existing task |
-| `DELETE` | `/api/v1/data/task/:id` | Delete task |
-
-## 🎨 UI Features
-
-- **Priority Indicators**: Color-coded priority levels (1-5)
-- **Completion Status**: Checkbox to mark tasks as complete
-- **Real-time Updates**: Automatic list refresh after CRUD operations
-- **Responsive Design**: Works on desktop and mobile devices
-- **Loading States**: Shows loading indicators during async operations
-- **Error Handling**: Displays error messages for failed operations
-
-## 📚 Key Concepts
-
-### MSW (Mock Service Worker)
-
-MSW intercepts requests at the network level, making it ideal for:
-- Development without a backend
-- Testing components in isolation
-- Demos and prototypes
-- Offline development
-
-### ObjectStack Client
-
-The `@objectstack/client` provides a type-safe, consistent API for:
-- Auto-discovery of server capabilities
-- Metadata operations
-- Data CRUD operations
-- Query operations with filters, sorting, and pagination
-
-### Best Practices Demonstrated
-
-1. **Single Source of Truth**: All API calls go through ObjectStack Client
-2. **Type Safety**: Full TypeScript support with proper interfaces
-3. **Component Separation**: Clear separation between data fetching and presentation
-4. **Error Handling**: Proper error handling and user feedback
-5. **Loading States**: Visual feedback during async operations
-
-## 🔧 Customization
-
-### Adding New Fields
-
-1. Update the `Task` interface in `src/types.ts`
-2. Update mock handlers in `src/mocks/browser.ts`
-3. Update components to display/edit new fields
-
-### Changing Mock Data
-
-Edit the initial data in `src/mocks/browser.ts`:
-
-```typescript
-const mockTasks = new Map([
-  ['1', { id: '1', subject: 'Your task', priority: 1, ... }],
-  // Add more tasks...
-]);
-```
-
-### Styling
-
-All styles are in `src/App.css`. The design uses CSS custom properties (variables) for easy theming.
-
-## 📦 Dependencies
-
-- **@objectstack/client** - Official ObjectStack client SDK
-- **@objectstack/plugin-msw** - MSW integration for ObjectStack
-- **react** - UI library
-- **msw** - Mock Service Worker for API mocking
-- **vite** - Build tool and dev server
-- **typescript** - Type safety
-
-## 🤝 Related Examples
-
-- [`/examples/msw-demo`](../../../msw-demo) - MSW plugin integration examples
-- [`/examples/todo`](../../../todo) - Todo app with ObjectStack Client
-- [`/examples/ui/react-renderer`](../react-renderer) - React metadata renderer
-
-## 📖 Further Reading
-
-- [MSW Documentation](https://mswjs.io/)
-- [ObjectStack Client API](../../packages/client)
-- [ObjectStack Protocol Specification](../../packages/spec)
-- [React Documentation](https://react.dev/)
-
-## 📝 License
-
-Apache-2.0
+No frontend code needs to change!
