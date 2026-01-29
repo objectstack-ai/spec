@@ -1,7 +1,7 @@
 import { QueryAST, HookContext } from '@objectstack/spec/data';
 import { ObjectStackManifest } from '@objectstack/spec/system';
 import { DriverOptions } from '@objectstack/spec/system';
-import { DriverInterface, IDataEngine, DataEngineQueryOptions } from '@objectstack/core';
+import { DriverInterface, IDataEngine, DataEngineQueryOptions, Logger, createLogger } from '@objectstack/core';
 import { SchemaRegistry } from './registry';
 
 export type HookHandler = (context: HookContext) => Promise<void> | void;
@@ -11,7 +11,7 @@ export type HookHandler = (context: HookContext) => Promise<void> | void;
  */
 export interface ObjectQLHostContext {
   ql: ObjectQL;
-  logger: Console;
+  logger: Logger;
   // Extensible map for host-specific globals (like HTTP Router, etc.)
   [key: string]: any;
 }
@@ -24,6 +24,7 @@ export interface ObjectQLHostContext {
 export class ObjectQL implements IDataEngine {
   private drivers = new Map<string, DriverInterface>();
   private defaultDriver: string | null = null;
+  private logger: Logger;
   
   // Hooks Registry
   private hooks: Record<string, HookHandler[]> = {
@@ -38,13 +39,20 @@ export class ObjectQL implements IDataEngine {
 
   constructor(hostContext: Record<string, any> = {}) {
     this.hostContext = hostContext;
-    console.log(`[ObjectQL] Engine Instance Created`);
+    // Use provided logger or create a new one
+    this.logger = hostContext.logger || createLogger({ level: 'info', format: 'pretty' });
+    this.logger.info('ObjectQL Engine Instance Created');
   }
 
   /**
    * Load and Register a Plugin
    */
   async use(manifestPart: any, runtimePart?: any) {
+    this.logger.debug('Loading plugin', { 
+      hasManifest: !!manifestPart, 
+      hasRuntime: !!runtimePart 
+    });
+
     // 1. Validate / Register Manifest
     if (manifestPart) {
       this.registerApp(manifestPart);
@@ -54,9 +62,11 @@ export class ObjectQL implements IDataEngine {
     if (runtimePart) {
        const pluginDef = (runtimePart as any).default || runtimePart;
        if (pluginDef.onEnable) {
+          this.logger.debug('Executing plugin runtime onEnable');
+          
           const context: ObjectQLHostContext = {
             ql: this,
-            logger: console,
+            logger: this.logger,
             // Expose the driver registry helper explicitly if needed
             drivers: {
                 register: (driver: DriverInterface) => this.registerDriver(driver)
@@ -65,6 +75,7 @@ export class ObjectQL implements IDataEngine {
           };
           
           await pluginDef.onEnable(context);
+          this.logger.debug('Plugin runtime onEnable completed');
        }
     }
   }
@@ -79,15 +90,32 @@ export class ObjectQL implements IDataEngine {
         this.hooks[event] = [];
     }
     this.hooks[event].push(handler);
-    console.log(`[ObjectQL] Registered hook for ${event}`);
+    this.logger.debug('Registered hook', { event, totalHandlers: this.hooks[event].length });
   }
 
   public async triggerHooks(event: string, context: HookContext) {
     const handlers = this.hooks[event] || [];
-    for (const handler of handlers) {
-      // In a real system, we might want to catch errors here or allow them to bubble up
-      await handler(context);
+    
+    if (handlers.length === 0) {
+      this.logger.debug('No hooks registered for event', { event });
+      return;
     }
+
+    this.logger.debug('Triggering hooks', { event, handlerCount: handlers.length });
+    
+    for (let i = 0; i < handlers.length; i++) {
+      const handler = handlers[i];
+      try {
+        this.logger.debug('Executing hook handler', { event, handlerIndex: i });
+        await handler(context);
+      } catch (error) {
+        this.logger.error('Hook handler failed', error as Error, { event, handlerIndex: i });
+        // Re-throw to maintain existing behavior
+        throw error;
+      }
+    }
+    
+    this.logger.debug('All hooks completed', { event });
   }
 
   registerApp(manifestPart: any) {
@@ -103,27 +131,30 @@ export class ObjectQL implements IDataEngine {
       // For now, simple ID check
       const id = manifest.id || manifest.name;
       if (!id) {
-        console.warn(`[ObjectQL] Plugin manifest missing ID (keys: ${Object.keys(manifest)})`, manifest);
+        this.logger.warn('Plugin manifest missing ID', { manifestKeys: Object.keys(manifest) });
         // Don't return, try to proceed if it looks like an App (Apps might use 'name' instead of 'id')
         // return; 
       }
       
-      console.log(`[ObjectQL] Loading App: ${id}`);
+      this.logger.info('Loading App', { id, hasObjects: !!manifest.objects, hasContributes: !!manifest.contributes });
       SchemaRegistry.registerPlugin(manifest as ObjectStackManifest);
 
       // Register Objects from App/Plugin
       if (manifest.objects) {
+        this.logger.debug('Registering objects from manifest', { id, objectCount: manifest.objects.length });
         for (const obj of manifest.objects) {
             // Ensure object name is registered globally
             SchemaRegistry.registerObject(obj);
-            console.log(`[ObjectQL] Registered Object: ${obj.name}`);
+            this.logger.debug('Registered Object', { objectName: obj.name, from: id });
         }
       }
 
       // Register contributions
        if (manifest.contributes?.kinds) {
+          this.logger.debug('Registering kinds from manifest', { id, kindCount: manifest.contributes.kinds.length });
           for (const kind of manifest.contributes.kinds) {
             SchemaRegistry.registerKind(kind);
+            this.logger.debug('Registered Kind', { kind: kind.name || kind.type, from: id });
           }
        }
   }
@@ -133,15 +164,20 @@ export class ObjectQL implements IDataEngine {
    */
   registerDriver(driver: DriverInterface, isDefault: boolean = false) {
     if (this.drivers.has(driver.name)) {
-      console.warn(`[ObjectQL] Driver ${driver.name} is already registered. Skipping.`);
+      this.logger.warn('Driver already registered, skipping', { driverName: driver.name });
       return;
     }
 
     this.drivers.set(driver.name, driver);
-    console.log(`[ObjectQL] Registered driver: ${driver.name} v${driver.version}`);
+    this.logger.info('Registered driver', { 
+      driverName: driver.name, 
+      version: driver.version,
+      capabilities: driver.supports || 'none'
+    });
 
     if (isDefault || this.drivers.size === 1) {
       this.defaultDriver = driver.name;
+      this.logger.info('Set default driver', { driverName: driver.name });
     }
   }
 
@@ -162,9 +198,16 @@ export class ObjectQL implements IDataEngine {
     if (object) {
       const datasourceName = object.datasource || 'default';
       
+      this.logger.debug('Resolving driver for object', { 
+        objectName, 
+        datasourceName,
+        hasObjectDef: true 
+      });
+      
       // If configured for 'default', try to find the default driver
       if (datasourceName === 'default') {
         if (this.defaultDriver && this.drivers.has(this.defaultDriver)) {
+          this.logger.debug('Using default driver', { driverName: this.defaultDriver, objectName });
           return this.drivers.get(this.defaultDriver)!;
         }
         // Fallback: If 'default' not explicitly set, use the first available driver?
@@ -172,10 +215,16 @@ export class ObjectQL implements IDataEngine {
       } else {
         // Specific datasource requested
         if (this.drivers.has(datasourceName)) {
+            this.logger.debug('Using specific datasource driver', { driverName: datasourceName, objectName });
             return this.drivers.get(datasourceName)!;
         }
         // If not found, fall back to default? Or error?
         // Standard behavior: Error if specific datasource is missing.
+        this.logger.error('Datasource not found for object', undefined, { 
+          objectName, 
+          datasourceName,
+          availableDrivers: Array.from(this.drivers.keys())
+        });
         throw new Error(`[ObjectQL] Datasource '${datasourceName}' configured for object '${objectName}' is not registered.`);
       }
     }
@@ -184,11 +233,15 @@ export class ObjectQL implements IDataEngine {
     // If we have a default driver, use it.
     if (this.defaultDriver) {
       if (!object) {
-        console.warn(`[ObjectQL] Object '${objectName}' not found in registry. Using default driver.`);
+        this.logger.warn('Object not found in registry, using default driver', { objectName });
       }
       return this.drivers.get(this.defaultDriver)!;
     }
 
+    this.logger.error('No driver available for object', undefined, { 
+      objectName,
+      registeredDrivers: Array.from(this.drivers.keys())
+    });
     throw new Error(`[ObjectQL] No driver available for object '${objectName}'`);
   }
 
@@ -196,21 +249,39 @@ export class ObjectQL implements IDataEngine {
    * Initialize the engine and all registered drivers
    */
   async init() {
-    console.log('[ObjectQL] Initializing drivers...');
+    this.logger.info('Initializing ObjectQL engine', { 
+      driverCount: this.drivers.size,
+      drivers: Array.from(this.drivers.keys())
+    });
+    
     for (const [name, driver] of this.drivers) {
       try {
+        this.logger.debug('Connecting driver', { driverName: name });
         await driver.connect();
+        this.logger.info('Driver connected successfully', { driverName: name });
       } catch (e) {
-        console.error(`[ObjectQL] Failed to connect driver ${name}`, e);
+        this.logger.error('Failed to connect driver', e as Error, { driverName: name });
       }
     }
+    
+    this.logger.info('ObjectQL engine initialization complete');
     // In a real app, we would sync schemas here
   }
 
   async destroy() {
-    for (const driver of this.drivers.values()) {
-      await driver.disconnect();
+    this.logger.info('Destroying ObjectQL engine', { driverCount: this.drivers.size });
+    
+    for (const [name, driver] of this.drivers.entries()) {
+      try {
+        this.logger.debug('Disconnecting driver', { driverName: name });
+        await driver.disconnect();
+        this.logger.debug('Driver disconnected', { driverName: name });
+      } catch (e) {
+        this.logger.error('Error disconnecting driver', e as Error, { driverName: name });
+      }
     }
+    
+    this.logger.info('ObjectQL engine destroyed');
   }
 
   // ============================================
@@ -225,6 +296,8 @@ export class ObjectQL implements IDataEngine {
    * @returns Promise resolving to array of records
    */
   async find(object: string, query?: DataEngineQueryOptions): Promise<any[]> {
+    this.logger.debug('Find operation starting', { object, query });
+    
     const driver = this.getDriver(object);
     
     // Convert DataEngineQueryOptions to QueryAST
@@ -260,6 +333,8 @@ export class ObjectQL implements IDataEngine {
     // Set default limit if not specified
     if (ast.limit === undefined) ast.limit = 100;
 
+    this.logger.debug('Converted query to AST', { object, ast });
+
     // Trigger Before Hook
     const hookContext: HookContext = {
         object,
@@ -270,7 +345,18 @@ export class ObjectQL implements IDataEngine {
     await this.triggerHooks('beforeFind', hookContext);
 
     try {
+        this.logger.debug('Executing driver.find', { 
+          object, 
+          driver: driver.name,
+          ast: hookContext.input.ast 
+        });
+        
         const result = await driver.find(object, hookContext.input.ast, hookContext.input.options);
+        
+        this.logger.debug('Find operation completed', { 
+          object, 
+          resultCount: result?.length ?? 0 
+        });
         
         // Trigger After Hook
         hookContext.event = 'afterFind';
@@ -279,12 +365,14 @@ export class ObjectQL implements IDataEngine {
         
         return hookContext.result;
     } catch (e) {
-        // hookContext.error = e;
+        this.logger.error('Find operation failed', e as Error, { object });
         throw e;
     }
   }
 
   async findOne(object: string, idOrQuery: string | any, options?: DriverOptions) {
+    this.logger.debug('FindOne operation starting', { object, idOrQuery: typeof idOrQuery });
+    
     const driver = this.getDriver(object);
     
     let ast: QueryAST;
@@ -305,7 +393,16 @@ export class ObjectQL implements IDataEngine {
     // Limit 1 for findOne
     ast.limit = 1;
 
-    return driver.findOne(object, ast, options);
+    this.logger.debug('Executing driver.findOne', { object, driver: driver.name, ast });
+    
+    try {
+      const result = await driver.findOne(object, ast, options);
+      this.logger.debug('FindOne operation completed', { object, found: !!result });
+      return result;
+    } catch (e) {
+      this.logger.error('FindOne operation failed', e as Error, { object });
+      throw e;
+    }
   }
 
   /**
@@ -316,14 +413,19 @@ export class ObjectQL implements IDataEngine {
    * @returns Promise resolving to the created record
    */
   async insert(object: string, data: any): Promise<any> {
+    this.logger.debug('Insert operation starting', { object, hasData: !!data });
+    
     const driver = this.getDriver(object);
     
     // 1. Get Schema
     const schema = SchemaRegistry.getObject(object);
     
     if (schema) {
+       this.logger.debug('Schema found for object', { object });
        // TODO: Validation Logic
        // validate(schema, data);
+    } else {
+       this.logger.debug('No schema found for object', { object });
     }
     
     // 2. Trigger Before Hook
@@ -335,15 +437,23 @@ export class ObjectQL implements IDataEngine {
     };
     await this.triggerHooks('beforeInsert', hookContext);
     
-    // 3. Execute Driver
-    const result = await driver.create(object, hookContext.input.data, hookContext.input.options);
-    
-    // 4. Trigger After Hook
-    hookContext.event = 'afterInsert';
-    hookContext.result = result;
-    await this.triggerHooks('afterInsert', hookContext);
+    try {
+      // 3. Execute Driver
+      this.logger.debug('Executing driver.create', { object, driver: driver.name });
+      const result = await driver.create(object, hookContext.input.data, hookContext.input.options);
+      
+      this.logger.debug('Insert operation completed', { object, recordId: result?.id });
+      
+      // 4. Trigger After Hook
+      hookContext.event = 'afterInsert';
+      hookContext.result = result;
+      await this.triggerHooks('afterInsert', hookContext);
 
-    return hookContext.result;
+      return hookContext.result;
+    } catch (e) {
+      this.logger.error('Insert operation failed', e as Error, { object });
+      throw e;
+    }
   }
 
   /**
@@ -355,6 +465,8 @@ export class ObjectQL implements IDataEngine {
    * @returns Promise resolving to the updated record
    */
   async update(object: string, id: any, data: any): Promise<any> {
+    this.logger.debug('Update operation starting', { object, id, hasData: !!data });
+    
     const driver = this.getDriver(object);
 
     const hookContext: HookContext = {
@@ -365,13 +477,21 @@ export class ObjectQL implements IDataEngine {
     };
     await this.triggerHooks('beforeUpdate', hookContext);
 
-    const result = await driver.update(object, hookContext.input.id, hookContext.input.data, hookContext.input.options);
+    try {
+      this.logger.debug('Executing driver.update', { object, id, driver: driver.name });
+      const result = await driver.update(object, hookContext.input.id, hookContext.input.data, hookContext.input.options);
 
-    hookContext.event = 'afterUpdate';
-    hookContext.result = result;
-    await this.triggerHooks('afterUpdate', hookContext);
-    
-    return hookContext.result;
+      this.logger.debug('Update operation completed', { object, id });
+
+      hookContext.event = 'afterUpdate';
+      hookContext.result = result;
+      await this.triggerHooks('afterUpdate', hookContext);
+      
+      return hookContext.result;
+    } catch (e) {
+      this.logger.error('Update operation failed', e as Error, { object, id });
+      throw e;
+    }
   }
 
   /**
@@ -382,6 +502,8 @@ export class ObjectQL implements IDataEngine {
    * @returns Promise resolving to true if deleted, false otherwise
    */
   async delete(object: string, id: any): Promise<boolean> {
+    this.logger.debug('Delete operation starting', { object, id });
+    
     const driver = this.getDriver(object);
 
     const hookContext: HookContext = {
@@ -392,13 +514,21 @@ export class ObjectQL implements IDataEngine {
     };
     await this.triggerHooks('beforeDelete', hookContext);
 
-    const result = await driver.delete(object, hookContext.input.id, hookContext.input.options);
+    try {
+      this.logger.debug('Executing driver.delete', { object, id, driver: driver.name });
+      const result = await driver.delete(object, hookContext.input.id, hookContext.input.options);
 
-    hookContext.event = 'afterDelete';
-    hookContext.result = result;
-    await this.triggerHooks('afterDelete', hookContext);
+      this.logger.debug('Delete operation completed', { object, id, deleted: result });
 
-    // Driver.delete() already returns boolean per DriverInterface spec
-    return hookContext.result;
+      hookContext.event = 'afterDelete';
+      hookContext.result = result;
+      await this.triggerHooks('afterDelete', hookContext);
+
+      // Driver.delete() already returns boolean per DriverInterface spec
+      return hookContext.result;
+    } catch (e) {
+      this.logger.error('Delete operation failed', e as Error, { object, id });
+      throw e;
+    }
   }
 }
