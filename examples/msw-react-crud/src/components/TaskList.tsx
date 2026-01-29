@@ -36,7 +36,7 @@ export function TaskList({ client, onEdit, refreshTrigger }: TaskListProps) {
         sort: ['priority', '-created_at']
       });
 
-      setTasks(result.value as Task[]);
+      setTasks((result.value || []) as Task[]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load tasks');
       console.error('Error loading tasks:', err);
@@ -105,11 +105,11 @@ export function TaskList({ client, onEdit, refreshTrigger }: TaskListProps) {
       <div className="flex items-center justify-between pb-4 border-b border-accents-2">
         <h2 className="text-2xl font-bold tracking-tight">Your Tasks</h2>
         <span className="text-sm px-2.5 py-0.5 rounded-full bg-accents-1 text-accents-5 font-medium border border-accents-2">
-          {tasks.length}
+          {tasks?.length || 0}
         </span>
       </div>
       
-      {tasks.length === 0 ? (
+      {tasks?.length === 0 ? (
         <div className="text-center py-20 border border-dashed border-accents-3 rounded-lg bg-accents-1">
           <p className="text-accents-5 font-medium">No tasks yet</p>
           <p className="text-accents-4 text-sm mt-1">Create a new task to get started!</p>
