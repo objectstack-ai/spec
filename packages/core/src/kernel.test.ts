@@ -14,7 +14,7 @@ describe('ObjectKernel with Configurable Logger', () => {
             expect(kernel).toBeDefined();
         });
 
-        it('should create kernel with custom logger config', () => {
+        it('should create kernel with custom logger config', async () => {
             const customKernel = new ObjectKernel({
                 logger: {
                     level: 'debug',
@@ -24,9 +24,13 @@ describe('ObjectKernel with Configurable Logger', () => {
             });
             
             expect(customKernel).toBeDefined();
+            
+            // Cleanup
+            await customKernel.bootstrap();
+            await customKernel.shutdown();
         });
 
-        it('should create kernel with file logging config', () => {
+        it('should create kernel with file logging config', async () => {
             const fileKernel = new ObjectKernel({
                 logger: {
                     level: 'info',
@@ -36,6 +40,10 @@ describe('ObjectKernel with Configurable Logger', () => {
             });
             
             expect(fileKernel).toBeDefined();
+            
+            // Cleanup
+            await fileKernel.bootstrap();
+            await fileKernel.shutdown();
         });
     });
 

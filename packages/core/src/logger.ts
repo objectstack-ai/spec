@@ -42,15 +42,15 @@ export class ObjectLogger implements Logger {
     }
 
     /**
-     * Initialize file writer for Node.js
+     * Initialize file writer for Node.js (synchronous to ensure logs aren't dropped)
      */
-    private async initFileWriter() {
+    private initFileWriter() {
         if (!this.isNode) return;
 
         try {
-            // Dynamic import for Node.js-only modules
-            const fs = await import('fs');
-            const path = await import('path');
+            // Dynamic require for Node.js-only modules (synchronous)
+            const fs = require('fs');
+            const path = require('path');
             
             // Ensure log directory exists
             const logDir = path.dirname(this.config.file!);
@@ -58,7 +58,7 @@ export class ObjectLogger implements Logger {
                 fs.mkdirSync(logDir, { recursive: true });
             }
 
-            // For now, use simple file appending
+            // Create write stream (synchronous operation)
             // TODO: Implement rotation based on config.rotation
             this.fileWriter = fs.createWriteStream(this.config.file!, { flags: 'a' });
         } catch (error) {
@@ -256,9 +256,15 @@ export class ObjectLogger implements Logger {
 
     /**
      * Create a child logger with additional context
+     * Note: Child loggers share the parent's file writer to avoid multiple streams to the same file
      */
     child(context: Record<string, any>): ObjectLogger {
         const childLogger = new ObjectLogger(this.config);
+        
+        // Share file writer with parent to avoid multiple streams to same file
+        if (this.fileWriter) {
+            childLogger.fileWriter = this.fileWriter;
+        }
         
         // Override log method to inject context
         const originalLog = childLogger.logInternal.bind(childLogger);

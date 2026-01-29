@@ -61,4 +61,10 @@ export interface Logger {
      * @param args - Additional arguments
      */
     log?(message: string, ...args: any[]): void;
+
+    /**
+     * Cleanup resources (close file streams, etc.)
+     * Should be called when the logger is no longer needed
+     */
+    destroy?(): Promise<void>;
 }

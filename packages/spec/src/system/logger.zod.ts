@@ -18,9 +18,9 @@ export type LogLevel = z.infer<typeof LogLevel>;
  * Log Format Enum
  */
 export const LogFormat = z.enum([
-  'json',   // Structural JSON for machine parsing
+  'json',   // Structured JSON for machine parsing
   'text',   // Simple text format
-  'pretty'  // Colored generic output for CLI
+  'pretty'  // Colored human-readable output for CLI/console
 ]).describe('Log output format');
 
 export type LogFormat = z.infer<typeof LogFormat>;

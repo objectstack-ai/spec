@@ -44,7 +44,7 @@ describe('ObjectLogger', () => {
     });
 
     describe('Configuration', () => {
-        it('should respect log level configuration', () => {
+        it('should respect log level configuration', async () => {
             const warnLogger = createLogger({ level: 'warn' });
             
             // These should not throw but might not output anything
@@ -52,10 +52,10 @@ describe('ObjectLogger', () => {
             expect(() => warnLogger.info('Info message')).not.toThrow();
             expect(() => warnLogger.warn('Warning message')).not.toThrow();
             
-            warnLogger.destroy();
+            await warnLogger.destroy();
         });
 
-        it('should support different formats', () => {
+        it('should support different formats', async () => {
             const jsonLogger = createLogger({ format: 'json' });
             const textLogger = createLogger({ format: 'text' });
             const prettyLogger = createLogger({ format: 'pretty' });
@@ -64,12 +64,12 @@ describe('ObjectLogger', () => {
             expect(() => textLogger.info('Text format')).not.toThrow();
             expect(() => prettyLogger.info('Pretty format')).not.toThrow();
             
-            jsonLogger.destroy();
-            textLogger.destroy();
-            prettyLogger.destroy();
+            await jsonLogger.destroy();
+            await textLogger.destroy();
+            await prettyLogger.destroy();
         });
 
-        it('should redact sensitive keys', () => {
+        it('should redact sensitive keys', async () => {
             const logger = createLogger({ redact: ['password', 'apiKey'] });
             
             // This should work without exposing the password
@@ -79,7 +79,7 @@ describe('ObjectLogger', () => {
                 apiKey: 'key-12345'
             })).not.toThrow();
             
-            logger.destroy();
+            await logger.destroy();
         });
     });
 
@@ -100,11 +100,11 @@ describe('ObjectLogger', () => {
     });
 
     describe('Environment Detection', () => {
-        it('should detect Node.js environment', () => {
+        it('should detect Node.js environment', async () => {
             // This test runs in Node.js, so logger should detect it
             const nodeLogger = createLogger({ format: 'json' });
             expect(() => nodeLogger.info('Node environment')).not.toThrow();
-            nodeLogger.destroy();
+            await nodeLogger.destroy();
         });
     });
 
