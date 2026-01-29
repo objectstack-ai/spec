@@ -18,9 +18,9 @@ export type LogLevel = z.infer<typeof LogLevel>;
  * Log Format Enum
  */
 export const LogFormat = z.enum([
-  'json',   // Structural JSON for machine parsing
+  'json',   // Structured JSON for machine parsing
   'text',   // Simple text format
-  'pretty'  // Colored generic output for CLI
+  'pretty'  // Colored human-readable output for CLI/console
 ]).describe('Log output format');
 
 export type LogFormat = z.infer<typeof LogFormat>;
@@ -33,23 +33,23 @@ export const LoggerConfigSchema = z.object({
   /**
    * Minimum level to log
    */
-  level: LogLevel.default('info'),
+  level: LogLevel.optional().default('info'),
 
   /**
    * Output format
    */
-  format: LogFormat.default('json'),
+  format: LogFormat.optional().default('json'),
 
   /**
    * Redact sensitive keys
    */
-  redact: z.array(z.string()).default(['password', 'token', 'secret', 'key'])
+  redact: z.array(z.string()).optional().default(['password', 'token', 'secret', 'key'])
     .describe('Keys to redact from log context'),
 
   /**
    * Enable source location (file/line)
    */
-  sourceLocation: z.boolean().default(false)
+  sourceLocation: z.boolean().optional().default(false)
     .describe('Include file and line number'),
 
   /**
@@ -61,8 +61,8 @@ export const LoggerConfigSchema = z.object({
    * Log rotation config (if file is set)
    */
   rotation: z.object({
-      maxSize: z.string().default('10m'),
-      maxFiles: z.number().default(5)
+      maxSize: z.string().optional().default('10m'),
+      maxFiles: z.number().optional().default(5)
   }).optional()
 });
 

@@ -1,4 +1,6 @@
 import { Plugin, PluginContext } from './types.js';
+import { createLogger, ObjectLogger } from './logger.js';
+import type { LoggerConfig } from '@objectstack/spec/system';
 
 /**
  * ObjectKernel - MiniKernel Architecture
@@ -8,6 +10,7 @@ import { Plugin, PluginContext } from './types.js';
  * - Provides dependency injection via service registry
  * - Implements event/hook system for inter-plugin communication
  * - Handles dependency resolution (topological sort)
+ * - Provides configurable logging for server and browser
  * 
  * Core philosophy:
  * - Business logic is completely separated into plugins
@@ -19,43 +22,47 @@ export class ObjectKernel {
     private services: Map<string, any> = new Map();
     private hooks: Map<string, Array<(...args: any[]) => void | Promise<void>>> = new Map();
     private state: 'idle' | 'initializing' | 'running' | 'stopped' = 'idle';
+    private logger: ObjectLogger;
+    private context: PluginContext;
 
-    /**
-     * Plugin context - shared across all plugins
-     */
-    private context: PluginContext = {
-        registerService: (name, service) => {
-            if (this.services.has(name)) {
-                throw new Error(`[Kernel] Service '${name}' already registered`);
-            }
-            this.services.set(name, service);
-            this.context.logger.log(`[Kernel] Service '${name}' registered`);
-        },
-        getService: <T>(name: string) => {
-            const service = this.services.get(name);
-            if (!service) {
-                throw new Error(`[Kernel] Service '${name}' not found`);
-            }
-            return service as T;
-        },
-        hook: (name, handler) => {
-            if (!this.hooks.has(name)) {
-                this.hooks.set(name, []);
-            }
-            this.hooks.get(name)!.push(handler);
-        },
-        trigger: async (name, ...args) => {
-            const handlers = this.hooks.get(name) || [];
-            for (const handler of handlers) {
-                await handler(...args);
-            }
-        },
-        getServices: () => {
-             return new Map(this.services);
-        },
-        logger: console,
-        getKernel: () => this,
-    };
+    constructor(config?: { logger?: Partial<LoggerConfig> }) {
+        this.logger = createLogger(config?.logger);
+        
+        // Initialize context after logger is created
+        this.context = {
+            registerService: (name, service) => {
+                if (this.services.has(name)) {
+                    throw new Error(`[Kernel] Service '${name}' already registered`);
+                }
+                this.services.set(name, service);
+                this.logger.info(`Service '${name}' registered`, { service: name });
+            },
+            getService: <T>(name: string) => {
+                const service = this.services.get(name);
+                if (!service) {
+                    throw new Error(`[Kernel] Service '${name}' not found`);
+                }
+                return service as T;
+            },
+            hook: (name, handler) => {
+                if (!this.hooks.has(name)) {
+                    this.hooks.set(name, []);
+                }
+                this.hooks.get(name)!.push(handler);
+            },
+            trigger: async (name, ...args) => {
+                const handlers = this.hooks.get(name) || [];
+                for (const handler of handlers) {
+                    await handler(...args);
+                }
+            },
+            getServices: () => {
+                 return new Map(this.services);
+            },
+            logger: this.logger,
+            getKernel: () => this,
+        };
+    }
 
     /**
      * Register a plugin
@@ -133,33 +140,33 @@ export class ObjectKernel {
         }
 
         this.state = 'initializing';
-        this.context.logger.log('[Kernel] Bootstrap started...');
+        this.logger.info('Bootstrap started');
 
         // Resolve dependencies
         const orderedPlugins = this.resolveDependencies();
 
         // Phase 1: Init - Plugins register services
-        this.context.logger.log('[Kernel] Phase 1: Init plugins...');
+        this.logger.info('Phase 1: Init plugins');
         for (const plugin of orderedPlugins) {
-            this.context.logger.log(`[Kernel] Init: ${plugin.name}`);
+            this.logger.debug(`Init: ${plugin.name}`, { plugin: plugin.name });
             await plugin.init(this.context);
         }
 
         // Phase 2: Start - Plugins execute business logic
-        this.context.logger.log('[Kernel] Phase 2: Start plugins...');
+        this.logger.info('Phase 2: Start plugins');
         this.state = 'running';
         for (const plugin of orderedPlugins) {
             if (plugin.start) {
-                this.context.logger.log(`[Kernel] Start: ${plugin.name}`);
+                this.logger.debug(`Start: ${plugin.name}`, { plugin: plugin.name });
                 await plugin.start(this.context);
             }
         }
 
         // Phase 3: Trigger kernel:ready hook
-        this.context.logger.log('[Kernel] Triggering kernel:ready hook...');
+        this.logger.debug('Triggering kernel:ready hook');
         await this.context.trigger('kernel:ready');
 
-        this.context.logger.log('[Kernel] ✅ Bootstrap complete');
+        this.logger.info('✅ Bootstrap complete');
     }
 
     /**
@@ -171,18 +178,21 @@ export class ObjectKernel {
             throw new Error('[Kernel] Kernel not running');
         }
 
-        this.context.logger.log('[Kernel] Shutdown started...');
+        this.logger.info('Shutdown started');
         this.state = 'stopped';
 
         const orderedPlugins = Array.from(this.plugins.values()).reverse();
         for (const plugin of orderedPlugins) {
             if (plugin.destroy) {
-                this.context.logger.log(`[Kernel] Destroy: ${plugin.name}`);
+                this.logger.debug(`Destroy: ${plugin.name}`, { plugin: plugin.name });
                 await plugin.destroy();
             }
         }
 
-        this.context.logger.log('[Kernel] ✅ Shutdown complete');
+        this.logger.info('✅ Shutdown complete');
+        
+        // Cleanup logger resources
+        await this.logger.destroy();
     }
 
     /**
