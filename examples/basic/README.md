@@ -1,6 +1,41 @@
 # Basic Protocol Examples
 
-This directory contains standalone examples demonstrating core ObjectStack protocols and features.
+A standalone package containing comprehensive examples demonstrating core ObjectStack protocols and features.
+
+## 📦 Package Information
+
+- **Package**: `@objectstack/example-basic`
+- **Type**: Demonstration/Reference
+- **Status**: Standalone examples with type checking
+
+## 🚀 Usage
+
+### Build and Type Check
+
+```bash
+# From monorepo root
+pnpm install
+
+# Build the spec package first
+pnpm --filter @objectstack/spec build
+
+# Type check the examples
+pnpm --filter @objectstack/example-basic typecheck
+
+# Or run directly with tsx
+npx tsx examples/basic/stack-definition-example.ts
+```
+
+### Running Examples
+
+Each example file can be run independently with `tsx`:
+
+```bash
+# Run a specific example
+npx tsx examples/basic/ai-rag-example.ts
+
+# Or uncomment the demonstration function calls at the end of each file
+```
 
 ## 📚 Examples
 
@@ -110,20 +145,20 @@ Shows automation capabilities in ObjectStack:
 
 ## 🎯 Usage
 
-These examples are TypeScript files that can be:
+These examples are TypeScript files in a proper package that can be:
 
-1. **Imported as references:**
-   ```typescript
-   import { taskManagementStack } from './examples/basic/stack-definition-example';
-   ```
-
-2. **Run directly (if configured):**
+1. **Type checked:**
    ```bash
-   tsx examples/basic/stack-definition-example.ts
+   pnpm --filter @objectstack/example-basic typecheck
    ```
 
-3. **Used as templates:**
-   Copy and modify for your own projects
+2. **Run directly:**
+   ```bash
+   npx tsx examples/basic/stack-definition-example.ts
+   ```
+
+3. **Used as references:**
+   Import types and patterns in your own projects
 
 ## 🔗 Related Resources
 

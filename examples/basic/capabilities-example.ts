@@ -393,24 +393,24 @@ export function getEnabledCapabilities(
 }
 
 // ============================================================================
-// Usage Examples
+// Usage Examples (uncomment to run)
 // ============================================================================
 
 // Example: Check if vector search is available
-if (hasCapability(productionCapabilities, 'data', 'vectorSearch')) {
-  console.log('✅ Vector search is available for RAG workflows');
-}
+// if (hasCapability(productionCapabilities, 'data', 'vectorSearch')) {
+//   console.log('✅ Vector search is available for RAG workflows');
+// }
 
 // Example: Get all enabled ObjectUI capabilities
-const uiFeatures = getEnabledCapabilities(productionCapabilities, 'ui');
-console.log('Enabled UI features:', uiFeatures);
+// const uiFeatures = getEnabledCapabilities(productionCapabilities, 'ui');
+// console.log('Enabled UI features:', uiFeatures);
 
 // Example: Compare capabilities between environments
-console.log(
-  'Production has GraphQL?',
-  hasCapability(productionCapabilities, 'system', 'graphqlApi')
-);
-console.log(
-  'Development has GraphQL?',
-  hasCapability(developmentCapabilities, 'system', 'graphqlApi')
-);
+// console.log(
+//   'Production has GraphQL?',
+//   hasCapability(productionCapabilities, 'system', 'graphqlApi')
+// );
+// console.log(
+//   'Development has GraphQL?',
+//   hasCapability(developmentCapabilities, 'system', 'graphqlApi')
+// );

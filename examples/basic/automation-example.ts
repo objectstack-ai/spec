@@ -704,8 +704,8 @@ export function demonstrateAutomation() {
   console.log(`   - Source: ${dailyLeadImportETL.extract?.source.type}`);
 }
 
-// Run demonstration
-demonstrateAutomation();
+// Run demonstration (uncomment to run)
+// demonstrateAutomation();
 
 // Export all examples
 export default {

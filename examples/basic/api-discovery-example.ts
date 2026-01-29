@@ -439,15 +439,13 @@ When helping users, respect these capabilities and limits.`;
 // Usage Examples
 // ============================================================================
 
-// Example: Initialize adaptive client
-const client = new AdaptiveClient();
+// Example: Initialize adaptive client (uncomment to run)
+// const client = new AdaptiveClient();
 // await client.initialize('https://api.example.com');
+// if (client.hasFeature('data', 'vectorSearch')) {
+//   console.log('✅ Vector search is available - AI/RAG features enabled');
+// }
 
-// Example: Check features before using them
-if (client.hasFeature('data', 'vectorSearch')) {
-  console.log('✅ Vector search is available - AI/RAG features enabled');
-}
-
-// Example: Generate AI prompt
-const systemPrompt = generateSystemPromptFromDiscovery(fullDiscoveryResponse);
-console.log('AI System Prompt:\n', systemPrompt);
+// Example: Generate AI prompt (uncomment to run)
+// const systemPrompt = generateSystemPromptFromDiscovery(fullDiscoveryResponse);
+// console.log('AI System Prompt:\n', systemPrompt);

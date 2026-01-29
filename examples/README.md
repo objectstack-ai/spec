@@ -60,10 +60,13 @@ pnpm --filter @objectstack/example-todo typecheck
 
 ### Use Basic Examples
 
-The [basic/](./basic/) examples are TypeScript files that demonstrate protocols:
+The [basic/](./basic/) examples are now a proper package for type checking:
 
 ```bash
-# Type check a basic example (requires @objectstack/spec built)
+# Type check basic examples
+pnpm --filter @objectstack/example-basic typecheck
+
+# Run a specific example with tsx
 npx tsx examples/basic/stack-definition-example.ts
 ```
 

@@ -552,8 +552,8 @@ export function demonstratePermissions() {
   console.log('- Can access own opportunity:', checker.canAccessRecord(user, 'opportunity', opportunity));
 }
 
-// Run demonstration
-demonstratePermissions();
+// Run demonstration (uncomment to run)
+// demonstratePermissions();
 
 // Export all examples
 export default {

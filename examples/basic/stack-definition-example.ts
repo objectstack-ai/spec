@@ -489,6 +489,9 @@ export function demonstrateStackUsage() {
   }
 }
 
+// Run demonstration (uncomment to run)
+// demonstrateStackUsage();
+
 // ============================================================================
 // Export for use
 // ============================================================================

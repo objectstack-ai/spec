@@ -379,8 +379,8 @@ export const advancedRAGPatterns = {
 // Usage
 // ============================================================================
 
-// Demonstrate RAG usage
-demonstrateRAGUsage();
+// Demonstrate RAG usage (uncomment to run)
+// demonstrateRAGUsage();
 
 // Export all examples
 export default {
