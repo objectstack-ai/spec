@@ -113,13 +113,13 @@ example-name/
 - ✅ **Discovery** - [basic/api-discovery-example.ts](./basic/)
 
 ### Auth Protocol
-- ⏳ **Identity & Policy** - Coming soon
-- ⏳ **RBAC** - Coming soon
+- ✅ **Identity & Policy** - [basic/auth-permission-example.ts](./basic/)
+- ✅ **RBAC** - [basic/auth-permission-example.ts](./basic/)
 
 ### Automation Protocol
-- ✅ **Workflows** - [crm](./crm/)
-- ✅ **Flows** - [crm](./crm/)
-- ⏳ **Approvals** - Coming soon
+- ✅ **Workflows** - [crm](./crm/), [basic/automation-example.ts](./basic/)
+- ✅ **Flows** - [crm](./crm/), [basic/automation-example.ts](./basic/)
+- ✅ **Approvals** - [basic/automation-example.ts](./basic/)
 
 ### Hub Protocol
 - ⏳ **Marketplace** - Coming soon
