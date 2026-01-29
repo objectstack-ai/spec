@@ -27,7 +27,7 @@ export class ObjectQLPlugin implements Plugin {
     }
     
     ctx.registerService('objectql', this.ql);
-    if(ctx.logger) ctx.logger.log(`[ObjectQLPlugin] ObjectQL engine registered as service`);
+    ctx.logger.info('ObjectQL engine registered as service');
 
     // Register Protocol Implementation
     if (!this.ql) {
@@ -36,11 +36,11 @@ export class ObjectQLPlugin implements Plugin {
     const protocolShim = new ObjectStackProtocolImplementation(this.ql);
 
     ctx.registerService('protocol', protocolShim);
-    if(ctx.logger) ctx.logger.log(`[ObjectQLPlugin] Protocol service registered`);
+    ctx.logger.info('Protocol service registered');
   }
 
   async start(ctx: PluginContext) {
-    if(ctx.logger) ctx.logger.log(`[ObjectQLPlugin] ObjectQL engine initialized`);
+    ctx.logger.info('ObjectQL engine initialized');
     
     // Discover features from Kernel Services
     if (ctx.getServices && this.ql) {
@@ -49,12 +49,12 @@ export class ObjectQLPlugin implements Plugin {
             if (name.startsWith('driver.')) {
                  // Register Driver
                  this.ql.registerDriver(service);
-                 if(ctx.logger) ctx.logger.log(`[ObjectQLPlugin] Discovered and registered driver service: ${name}`);
+                 ctx.logger.debug('Discovered and registered driver service', { serviceName: name });
             }
             if (name.startsWith('app.')) {
                 // Register App
                 this.ql.registerApp(service); // service is Manifest
-                if(ctx.logger) ctx.logger.log(`[ObjectQLPlugin] Discovered and registered app service: ${name}`);
+                ctx.logger.debug('Discovered and registered app service', { serviceName: name });
             }
         }
     }

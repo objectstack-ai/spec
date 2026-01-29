@@ -171,8 +171,7 @@ export class ObjectQL implements IDataEngine {
     this.drivers.set(driver.name, driver);
     this.logger.info('Registered driver', { 
       driverName: driver.name, 
-      version: driver.version,
-      capabilities: driver.supports || 'none'
+      version: driver.version
     });
 
     if (isDefault || this.drivers.size === 1) {

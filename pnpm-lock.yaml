@@ -137,6 +137,9 @@ importers:
 
   examples/basic:
     dependencies:
+      '@objectstack/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../packages/spec
@@ -331,6 +334,9 @@ importers:
 
   packages/client:
     dependencies:
+      '@objectstack/core':
+        specifier: workspace:*
+        version: link:../core
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../spec
