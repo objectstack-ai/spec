@@ -1,3 +1,5 @@
+import { defineStack } from '@objectstack/spec';
+
 /**
  * Task Object Definition
  */
@@ -26,7 +28,7 @@ export const TaskObject = {
 /**
  * App Configuration
  */
-export default {
+export default defineStack({
   name: 'task_app',
   label: 'Task Management',
   description: 'MSW + React CRUD Example with ObjectStack',
@@ -54,4 +56,4 @@ export default {
       ]
     }
   ]
-};
+});

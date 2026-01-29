@@ -53,5 +53,15 @@ export * as AI from './ai';
 export * as API from './api';
 export * as Automation from './automation';
 
+export {
+  defineStack,
+  ObjectStackDefinitionSchema,
+  ObjectStackSchema,
+  ObjectStackCapabilitiesSchema,
+  ObjectQLCapabilitiesSchema,
+  ObjectUICapabilitiesSchema,
+  ObjectOSCapabilitiesSchema
+} from './stack.zod';
+
 export * from './stack.zod';
 
