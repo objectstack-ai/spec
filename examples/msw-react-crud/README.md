@@ -10,12 +10,12 @@ Instead of mocking individual HTTP endpoints manually, this project spins up a r
 
 ```mermaid
 graph TD
-    Client[React App <br/> @objectstack/client] -->|REST API Calls| Network[Browser Network Layer]
-    Network -->|Intercepted by| SW[Service Worker <br/> MockServiceWorker]
-    SW -->|Delegates to| Kernel[ObjectStack Kernel <br/> (Running in Browser)]
-    Kernel -->|Uses| MemoryDriver[In-Memory Driver]
+    Client["React App <br/> @objectstack/client"] -->|REST API Calls| Network["Browser Network Layer"]
+    Network -->|Intercepted by| SW["Service Worker <br/> MockServiceWorker"]
+    SW -->|Delegates to| Kernel["ObjectStack Kernel <br/> (Running in Browser)"]
+    Kernel -->|Uses| MemoryDriver["In-Memory Driver"]
     
-    Kernel -.->|Reads| Config[objectstack.config.ts <br/> Schema Definitions]
+    Kernel -.->|Reads| Config["objectstack.config.ts <br/> Schema Definitions"]
 ```
 
 ## 🎯 Key Features
