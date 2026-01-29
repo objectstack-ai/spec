@@ -62,12 +62,14 @@ pnpm --filter @objectstack/example-todo typecheck
 ## 📖 Learning Path
 
 1. **Start Here** - Simple task object, basic configuration
-2. **Next Step** - [CRM Example](../crm/) - Advanced features, workflows, validations, UI components
-3. **Then** - [Official Documentation](../../content/docs/) - Complete protocol reference
+2. **Learn Protocols** - [Basic Examples](../basic/) - Protocol examples and patterns
+3. **Next Step** - [CRM Example](../crm/) - Advanced features, workflows, validations, UI components
+4. **Then** - [Official Documentation](../../content/docs/) - Complete protocol reference
 
 ## 🔗 Related Resources
 
 - [Getting Started Guide](../../content/docs/guides/getting-started.mdx)
+- [Basic Protocol Examples](../basic/) - Learn individual protocols
 - [Object Schema Reference](../../packages/spec/src/data/object.zod.ts)
 - [Field Types Reference](../../packages/spec/src/data/field.zod.ts)
 - [CRM Example](../crm/README.md) - Full-featured reference implementation

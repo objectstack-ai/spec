@@ -38,17 +38,33 @@ This directory contains examples demonstrating the ObjectStack Protocol and its 
 
 ## 🚀 Quick Start
 
+### Prerequisites
+
+Examples require the `@objectstack/spec` package to be built:
+
+```bash
+# From monorepo root
+pnpm install
+pnpm --filter @objectstack/spec build
+```
+
 ### Run an Example
 
 ```bash
-# Install dependencies (from monorepo root)
-pnpm install
-
-# Build an example
+# Build a complete example project
 pnpm --filter @objectstack/example-todo build
 
 # Run type checking
 pnpm --filter @objectstack/example-todo typecheck
+```
+
+### Use Basic Examples
+
+The [basic/](./basic/) examples are TypeScript files that demonstrate protocols:
+
+```bash
+# Type check a basic example (requires @objectstack/spec built)
+npx tsx examples/basic/stack-definition-example.ts
 ```
 
 ### Example Structure
@@ -111,9 +127,20 @@ example-name/
 
 ## 🔗 Related Resources
 
-- [ObjectStack Documentation](../content/docs/)
-- [Protocol Reference](../packages/spec/)
-- [Contributing Guide](../CONTRIBUTING.md)
+- **Documentation:**
+  - [ObjectStack Documentation](../content/docs/)
+  - [Protocol Reference](../packages/spec/)
+  - [Architecture Overview](../content/docs/introduction/architecture.mdx)
+
+- **Development:**
+  - [Contributing Guide](../CONTRIBUTING.md)
+  - [Development Setup](../CONTRIBUTING.md#development-setup)
+
+- **Examples Navigation:**
+  - Start: [Basic Examples](./basic/) → Learn protocols
+  - Next: [Todo Example](./todo/) → Simple application
+  - Advanced: [CRM Example](./crm/) → Full-featured app
+  - AI: [AI Examples](./ai-sales/) → Intelligent features
 
 ## 📝 License
 
