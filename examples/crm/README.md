@@ -166,15 +166,34 @@ Demonstrates:
 This package is part of the `examples` workspace. To build it and verify types:
 
 ```bash
-# Build the example
-pnpm build
+# From monorepo root
+pnpm install
+
+# Build the spec package first
+pnpm --filter @objectstack/spec build
+
+# Build this example
+pnpm --filter @objectstack/example-crm build
 
 # Run type checking
-pnpm typecheck
+pnpm --filter @objectstack/example-crm typecheck
 ```
 
 ## 📖 Learning Resources
 
+**For Beginners:**
+1. Start with [Todo Example](../todo/) for basics
+2. Review [Basic Protocol Examples](../basic/) to understand individual protocols
+3. Then explore this CRM example for comprehensive implementation
+
+**Protocol References in Basic Examples:**
+- [Stack Definition](../basic/stack-definition-example.ts) - How to use `defineStack()`
+- [Capabilities](../basic/capabilities-example.ts) - Runtime capabilities configuration
+- [Auth & Permissions](../basic/auth-permission-example.ts) - RBAC and RLS patterns
+- [Automation](../basic/automation-example.ts) - Workflows and approvals
+- [AI & RAG](../basic/ai-rag-example.ts) - AI integration patterns
+
+**In This Example:**
 Each object file contains detailed comments explaining:
 - Field configuration options
 - View setup patterns
