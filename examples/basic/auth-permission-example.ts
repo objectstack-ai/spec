@@ -10,21 +10,14 @@
  * - Sharing and territory management
  */
 
-import type {
-  User,
-  Role,
-  PermissionSet,
-  RowLevelSecurityPolicy,
-  SharingRule,
-  Territory,
-} from '@objectstack/spec';
+import type { Auth, Permission } from '@objectstack/spec';
 
 /**
  * Example 1: User Identity
  * 
  * User accounts with authentication methods
  */
-export const sampleUsers: User[] = [
+export const sampleUsers: Auth.User[] = [
   {
     id: 'user_001',
     email: 'admin@example.com',
@@ -60,7 +53,7 @@ export const sampleUsers: User[] = [
  * Note: Roles define reporting structure and hierarchy, not permissions.
  * Permissions are defined separately in PermissionSets.
  */
-export const roleHierarchy: Role[] = [
+export const roleHierarchy: Auth.Role[] = [
   // Top-level admin role
   {
     name: 'system_administrator',
@@ -90,7 +83,7 @@ export const roleHierarchy: Role[] = [
  * 
  * Granular object-level permissions
  */
-export const permissionSets: PermissionSet[] = [
+export const permissionSets: Permission.PermissionSet[] = [
   {
     name: 'sales_user_permissions',
     label: 'Sales User Permissions',
@@ -218,13 +211,14 @@ export const permissionSets: PermissionSet[] = [
  * 
  * Fine-grained data access control based on record ownership
  */
-export const rowLevelSecurityRules: RowLevelSecurityPolicy[] = [
+export const rowLevelSecurityRules: Permission.RowLevelSecurityPolicy[] = [
   {
     name: 'opportunity_owner_access',
     label: 'Opportunity Owner Access',
     object: 'opportunity',
     description: 'Users can only access their own opportunities',
     operation: 'select',
+    priority: 100,
     
     // USING clause - Filter condition
     using: `owner_id = current_user.id OR territory IN (SELECT id FROM territories WHERE user_id = current_user.id) OR owner_manager_id = current_user.id`,
@@ -240,6 +234,7 @@ export const rowLevelSecurityRules: RowLevelSecurityPolicy[] = [
     object: 'account',
     description: 'Territory-based account access',
     operation: 'select',
+    priority: 100,
     
     using: `territory IN (SELECT id FROM territories WHERE user_id = current_user.id) AND status = 'active'`,
     
@@ -253,7 +248,7 @@ export const rowLevelSecurityRules: RowLevelSecurityPolicy[] = [
  * 
  * Grant additional access beyond RLS
  */
-export const sharingRules: SharingRule[] = [
+export const sharingRules: Permission.SharingRule[] = [
   {
     name: 'share_opportunities_with_team',
     object: 'opportunity',
@@ -321,54 +316,39 @@ export const sharingRules: SharingRule[] = [
  * 
  * Geographic or organizational territory assignment
  */
-export const territories: Territory[] = [
+export const territories: Permission.Territory[] = [
   {
     name: 'north_america',
     label: 'North America',
-    description: 'North American sales territory',
+    modelId: 'global_sales_territories',
+    type: 'geography',
     
-    // Territory definition
-    criteria: {
-      operator: 'OR',
-      conditions: [
-        {
-          field: 'billing_country',
-          operator: 'in',
-          value: ['USA', 'Canada', 'Mexico'],
-        },
-      ],
-    },
+    // Territory assignment rule
+    assignmentRule: `billing_country IN ('USA', 'Canada', 'Mexico')`,
     
     // Assigned users
-    members: ['user_002', 'user_003'],
+    assignedUsers: ['user_002', 'user_003'],
     
-    // Parent territory (for hierarchy)
-    parentTerritory: undefined,
+    // Access levels
+    accountAccess: 'edit',
+    opportunityAccess: 'edit',
+    caseAccess: 'read',
   },
 
   {
     name: 'west_coast',
     label: 'West Coast',
-    description: 'US West Coast territory',
+    modelId: 'global_sales_territories',
+    type: 'geography',
+    parent: 'north_america',
     
-    criteria: {
-      operator: 'AND',
-      conditions: [
-        {
-          field: 'billing_country',
-          operator: 'equals',
-          value: 'USA',
-        },
-        {
-          field: 'billing_state',
-          operator: 'in',
-          value: ['CA', 'OR', 'WA', 'NV', 'AZ'],
-        },
-      ],
-    },
+    assignmentRule: `billing_country = 'USA' AND billing_state IN ('CA', 'OR', 'WA', 'NV', 'AZ')`,
     
-    members: ['user_003'],
-    parentTerritory: 'north_america',
+    assignedUsers: ['user_003'],
+    
+    accountAccess: 'edit',
+    opportunityAccess: 'edit',
+    caseAccess: 'read',
   },
 ];
 
@@ -382,7 +362,7 @@ export class PermissionChecker {
    * Check if user has object permission
    */
   hasObjectPermission(
-    user: User,
+    user: Auth.User,
     object: string,
     operation: 'create' | 'read' | 'update' | 'delete'
   ): boolean {
@@ -411,11 +391,11 @@ export class PermissionChecker {
   /**
    * Check if user can access a specific record (RLS)
    */
-  canAccessRecord(user: User, object: string, record: any): boolean {
+  canAccessRecord(user: Auth.User & { roles?: string[] }, object: string, record: any): boolean {
     // Apply RLS rules for user's roles
     const userRoles = user.roles || [];
     const applicableRules = rowLevelSecurityRules.filter(
-      (rls) => rls.object === object && rls.roles?.some((r) => userRoles.includes(r))
+      (rls) => rls.object === object && rls.roles?.some((r: string) => userRoles.includes(r))
     );
 
     // If no RLS rules, check base permissions
@@ -425,7 +405,7 @@ export class PermissionChecker {
 
     // Evaluate RLS rules
     for (const rule of applicableRules) {
-      if (this.evaluateRule(rule.rule, record, user)) {
+      if (this.evaluateRule(rule.using, record, user)) {
         return true;
       }
     }
@@ -436,7 +416,7 @@ export class PermissionChecker {
   /**
    * Evaluate a rule against a record
    */
-  private evaluateRule(rule: any, record: any, user: User): boolean {
+  private evaluateRule(rule: any, record: any, user: Auth.User & { roles?: string[] }): boolean {
     // Simplified evaluation logic
     // In real implementation, evaluate all conditions with operators
     return true;
@@ -447,7 +427,7 @@ export class PermissionChecker {
  * Example 8: Usage Demonstration
  */
 export function demonstratePermissions() {
-  const user = sampleUsers[2]; // Sales Rep
+  const user = { ...sampleUsers[2], roles: ['sales_rep'] }; // Sales Rep with role
   const checker = new PermissionChecker();
 
   console.log('=== Permission Check Demo ===\n');
