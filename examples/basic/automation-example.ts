@@ -18,84 +18,59 @@ import type { Automation } from '@objectstack/spec';
 export const fieldUpdateWorkflows: Automation.WorkflowRule[] = [
   {
     name: 'set_opportunity_probability',
-    object: 'opportunity',
-    description: 'Automatically set probability based on stage',
+    objectName: 'opportunity',
+    active: true,
+    reevaluateOnChange: false,
     
     // When to trigger
-    trigger: {
-      type: 'fieldChange',
-      fields: ['stage'],
-    },
+    triggerType: 'on_update',
     
     // Conditions to check
-    criteria: {
-      operator: 'ALWAYS', // Run for all records
-    },
+    criteria: 'true', // Run for all records
     
     // What to do
     actions: [
       {
-        type: 'fieldUpdate',
-        updates: [
-          {
-            field: 'probability',
-            value: {
-              formula: `
-                CASE stage
-                  WHEN 'prospecting' THEN 10
-                  WHEN 'qualification' THEN 25
-                  WHEN 'proposal' THEN 50
-                  WHEN 'negotiation' THEN 75
-                  WHEN 'closed_won' THEN 100
-                  WHEN 'closed_lost' THEN 0
-                  ELSE 0
-                END
-              `,
-            },
-          },
-        ],
+        name: 'update_probability',
+        type: 'field_update',
+        field: 'probability',
+        value: `
+          CASE stage
+            WHEN 'prospecting' THEN 10
+            WHEN 'qualification' THEN 25
+            WHEN 'proposal' THEN 50
+            WHEN 'negotiation' THEN 75
+            WHEN 'closed_won' THEN 100
+            WHEN 'closed_lost' THEN 0
+            ELSE 0
+          END
+        `,
       },
     ],
   },
 
   {
     name: 'update_account_rating',
-    object: 'account',
-    description: 'Update account rating based on revenue',
+    objectName: 'account',
+    active: true,
+    reevaluateOnChange: false,
     
-    trigger: {
-      type: 'fieldChange',
-      fields: ['annual_revenue'],
-    },
+    triggerType: 'on_update',
     
-    criteria: {
-      operator: 'AND',
-      conditions: [
-        {
-          field: 'annual_revenue',
-          operator: 'greaterThan',
-          value: 0,
-        },
-      ],
-    },
+    criteria: 'annual_revenue > 0',
     
     actions: [
       {
-        type: 'fieldUpdate',
-        updates: [
-          {
-            field: 'rating',
-            value: {
-              formula: `
-                CASE
-                  WHEN annual_revenue > 10000000 THEN 'hot'
-                  WHEN annual_revenue > 1000000 THEN 'warm'
-                  ELSE 'cold'
-                END
-              `,
-            },
-          },
-        ],
+        name: 'update_rating',
+        type: 'field_update',
+        field: 'rating',
+        value: `
+          CASE
+            WHEN annual_revenue > 10000000 THEN 'hot'
+            WHEN annual_revenue > 1000000 THEN 'warm'
+            ELSE 'cold'
+          END
+        `,
       },
     ],
   },
@@ -109,99 +84,40 @@ export const fieldUpdateWorkflows: Automation.WorkflowRule[] = [
 export const emailAlertWorkflows: Automation.WorkflowRule[] = [
   {
     name: 'notify_manager_large_opportunity',
-    object: 'opportunity',
-    description: 'Notify manager when large opportunity is created',
+    objectName: 'opportunity',
+    active: true,
+    reevaluateOnChange: false,
     
-    trigger: {
-      type: 'onCreate',
-    },
+    triggerType: 'on_create',
     
-    criteria: {
-      operator: 'AND',
-      conditions: [
-        {
-          field: 'amount',
-          operator: 'greaterThan',
-          value: 100000,
-        },
-      ],
-    },
+    criteria: 'amount > 100000',
     
     actions: [
       {
-        type: 'emailAlert',
+        name: 'notify_manager',
+        type: 'email_alert',
         template: 'large_opportunity_alert',
-        recipients: [
-          {
-            type: 'field',
-            field: 'owner.manager.email',
-          },
-          {
-            type: 'role',
-            role: 'sales_director',
-          },
-        ],
-        subject: 'Large Opportunity Created: {{name}}',
-        body: `
-          A large opportunity has been created:
-          
-          Name: {{name}}
-          Amount: {{amount | currency}}
-          Owner: {{owner.name}}
-          Expected Close: {{close_date | date}}
-          
-          Please review and approve.
-        `,
+        recipients: ['owner.manager.email', 'role:sales_director'],
       },
     ],
   },
 
   {
     name: 'notify_overdue_tasks',
-    object: 'task',
-    description: 'Daily notification for overdue tasks',
+    objectName: 'task',
+    active: true,
+    reevaluateOnChange: false,
     
-    trigger: {
-      type: 'scheduled',
-      schedule: '0 9 * * *', // Daily at 9 AM (cron format)
-    },
+    triggerType: 'schedule',
     
-    criteria: {
-      operator: 'AND',
-      conditions: [
-        {
-          field: 'status',
-          operator: 'notEquals',
-          value: 'completed',
-        },
-        {
-          field: 'due_date',
-          operator: 'lessThan',
-          value: '$Today',
-        },
-      ],
-    },
+    criteria: 'status != "completed" && due_date < $Today',
     
     actions: [
       {
-        type: 'emailAlert',
+        name: 'send_overdue_reminder',
+        type: 'email_alert',
         template: 'overdue_task_reminder',
-        recipients: [
-          {
-            type: 'field',
-            field: 'assigned_to.email',
-          },
-        ],
-        subject: 'Overdue Task: {{subject}}',
-        body: `
-          You have an overdue task:
-          
-          Subject: {{subject}}
-          Due Date: {{due_date | date}}
-          Priority: {{priority}}
-          
-          Please update the status or due date.
-        `,
+        recipients: ['assigned_to.email'],
       },
     ],
   },
@@ -215,48 +131,36 @@ export const emailAlertWorkflows: Automation.WorkflowRule[] = [
 export const taskCreationWorkflows: Automation.WorkflowRule[] = [
   {
     name: 'create_followup_tasks',
-    object: 'lead',
-    description: 'Create follow-up tasks when lead is created',
+    objectName: 'lead',
+    active: true,
+    reevaluateOnChange: false,
     
-    trigger: {
-      type: 'onCreate',
-    },
+    triggerType: 'on_create',
     
-    criteria: {
-      operator: 'AND',
-      conditions: [
-        {
-          field: 'status',
-          operator: 'equals',
-          value: 'new',
-        },
-      ],
-    },
+    criteria: 'status == "new"',
     
     actions: [
       {
-        type: 'createRecord',
-        object: 'task',
-        values: {
-          subject: 'Initial Contact - {{name}}',
-          description: 'Make initial contact with lead',
-          due_date: '$Today + 1',
-          priority: 'high',
-          assigned_to: '{{owner}}',
-          related_to: '{{id}}',
-        },
+        name: 'create_initial_contact_task',
+        type: 'task_creation',
+        taskObject: 'task',
+        subject: 'Initial Contact - {{name}}',
+        description: 'Make initial contact with lead',
+        dueDate: '$Today + 1',
+        priority: 'high',
+        assignedTo: '{{owner}}',
+        relatedTo: '{{id}}',
       },
       {
-        type: 'createRecord',
-        object: 'task',
-        values: {
-          subject: 'Qualification Call - {{name}}',
-          description: 'Schedule qualification call',
-          due_date: '$Today + 3',
-          priority: 'medium',
-          assigned_to: '{{owner}}',
-          related_to: '{{id}}',
-        },
+        name: 'create_qualification_task',
+        type: 'task_creation',
+        taskObject: 'task',
+        subject: 'Qualification Call - {{name}}',
+        description: 'Schedule qualification call',
+        dueDate: '$Today + 3',
+        priority: 'medium',
+        assignedTo: '{{owner}}',
+        relatedTo: '{{id}}',
       },
     ],
   },
@@ -269,20 +173,14 @@ export const taskCreationWorkflows: Automation.WorkflowRule[] = [
  */
 export const discountApprovalProcess: Automation.ApprovalProcess = {
   name: 'opportunity_discount_approval',
+  label: 'Opportunity Discount Approval',
   object: 'opportunity',
   description: 'Approval process for opportunity discounts',
+  active: true,
+  lockRecord: true,
   
   // When to trigger approval
-  entryCriteria: {
-    operator: 'AND',
-    conditions: [
-      {
-        field: 'discount_percent',
-        operator: 'greaterThan',
-        value: 0,
-      },
-    ],
-  },
+  entryCriteria: 'discount_percent > 0',
   
   // Approval steps (sequential)
   steps: [
@@ -290,54 +188,49 @@ export const discountApprovalProcess: Automation.ApprovalProcess = {
       name: 'manager_approval',
       label: 'Manager Approval',
       description: 'Requires manager approval for discounts up to 20%',
+      behavior: 'first_response',
+      rejectionBehavior: 'reject_process',
       
       // When this step applies
-      stepCriteria: {
-        operator: 'AND',
-        conditions: [
-          {
-            field: 'discount_percent',
-            operator: 'lessOrEqual',
-            value: 20,
-          },
-        ],
-      },
+      entryCriteria: 'discount_percent <= 20',
       
       // Who can approve
       approvers: [
         {
           type: 'field',
-          field: 'owner.manager',
+          value: 'owner.manager',
         },
       ],
       
       // Approval actions
-      approvalActions: [
+      onApprove: [
         {
-          type: 'fieldUpdate',
-          updates: [
-            {
-              field: 'approval_status',
-              value: 'approved',
-            },
-          ],
+          type: 'field_update',
+          name: 'set_approved',
+          config: {
+            field: 'approval_status',
+            value: 'approved',
+          },
         },
       ],
       
       // Rejection actions
-      rejectionActions: [
+      onReject: [
         {
-          type: 'fieldUpdate',
-          updates: [
-            {
-              field: 'approval_status',
-              value: 'rejected',
-            },
-            {
-              field: 'discount_percent',
-              value: 0,
-            },
-          ],
+          type: 'field_update',
+          name: 'set_rejected',
+          config: {
+            field: 'approval_status',
+            value: 'rejected',
+          },
+        },
+        {
+          type: 'field_update',
+          name: 'clear_discount',
+          config: {
+            field: 'discount_percent',
+            value: 0,
+          },
         },
       ],
     },
@@ -346,324 +239,92 @@ export const discountApprovalProcess: Automation.ApprovalProcess = {
       name: 'director_approval',
       label: 'Director Approval',
       description: 'Requires director approval for discounts over 20%',
+      behavior: 'first_response',
+      rejectionBehavior: 'reject_process',
       
-      stepCriteria: {
-        operator: 'AND',
-        conditions: [
-          {
-            field: 'discount_percent',
-            operator: 'greaterThan',
-            value: 20,
-          },
-        ],
-      },
+      entryCriteria: 'discount_percent > 20',
       
       approvers: [
         {
           type: 'role',
-          role: 'sales_director',
+          value: 'sales_director',
         },
       ],
       
-      approvalActions: [
+      onApprove: [
         {
-          type: 'fieldUpdate',
-          updates: [
-            {
-              field: 'approval_status',
-              value: 'approved',
-            },
-          ],
+          type: 'field_update',
+          name: 'set_approved',
+          config: {
+            field: 'approval_status',
+            value: 'approved',
+          },
         },
         {
-          type: 'emailAlert',
-          template: 'discount_approved',
-          recipients: [
-            {
-              type: 'field',
-              field: 'owner.email',
-            },
-          ],
+          type: 'email_alert',
+          name: 'notify_owner_approval',
+          config: {
+            template: 'discount_approved',
+            recipients: ['owner.email'],
+          },
         },
       ],
       
-      rejectionActions: [
+      onReject: [
         {
-          type: 'fieldUpdate',
-          updates: [
-            {
-              field: 'approval_status',
-              value: 'rejected',
-            },
-            {
-              field: 'discount_percent',
-              value: 0,
-            },
-          ],
+          type: 'field_update',
+          name: 'set_rejected',
+          config: {
+            field: 'approval_status',
+            value: 'rejected',
+          },
         },
         {
-          type: 'emailAlert',
-          template: 'discount_rejected',
-          recipients: [
-            {
-              type: 'field',
-              field: 'owner.email',
-            },
-          ],
+          type: 'field_update',
+          name: 'clear_discount',
+          config: {
+            field: 'discount_percent',
+            value: 0,
+          },
+        },
+        {
+          type: 'email_alert',
+          name: 'notify_owner_rejection',
+          config: {
+            template: 'discount_rejected',
+            recipients: ['owner.email'],
+          },
         },
       ],
     },
   ],
   
   // Final approval actions
-  finalApprovalActions: [
+  onFinalApprove: [
     {
-      type: 'fieldUpdate',
-      updates: [
-        {
-          field: 'approved_discount',
-          value: '{{discount_percent}}',
-        },
-      ],
+      type: 'field_update',
+      name: 'save_approved_discount',
+      config: {
+        field: 'approved_discount',
+        value: '{{discount_percent}}',
+      },
     },
   ],
   
   // Final rejection actions
-  finalRejectionActions: [
+  onFinalReject: [
     {
-      type: 'fieldUpdate',
-      updates: [
-        {
-          field: 'discount_percent',
-          value: 0,
-        },
-      ],
+      type: 'field_update',
+      name: 'clear_discount',
+      config: {
+        field: 'discount_percent',
+        value: 0,
+      },
     },
   ],
 };
 
-/**
- * Example 5: Screen Flow
- * 
- * Visual automation with user interaction
- */
-export const leadConversionFlow: Automation.Flow = {
-  name: 'lead_conversion',
-  type: 'screen',
-  label: 'Convert Lead',
-  description: 'Guide users through lead conversion process',
-  
-  // Entry point
-  startElement: 'welcome_screen',
-  
-  // Flow elements
-  elements: [
-    {
-      name: 'welcome_screen',
-      type: 'screen',
-      label: 'Convert Lead to Opportunity',
-      
-      fields: [
-        {
-          name: 'opportunity_name',
-          type: 'text',
-          label: 'Opportunity Name',
-          required: true,
-          defaultValue: '{{Lead.company}} - {{Lead.product_interest}}',
-        },
-        {
-          name: 'amount',
-          type: 'currency',
-          label: 'Expected Amount',
-          required: true,
-        },
-        {
-          name: 'close_date',
-          type: 'date',
-          label: 'Expected Close Date',
-          required: true,
-        },
-      ],
-      
-      nextElement: 'create_records',
-    },
-    
-    {
-      name: 'create_records',
-      type: 'recordCreate',
-      label: 'Create Account and Opportunity',
-      
-      creates: [
-        {
-          object: 'account',
-          values: {
-            name: '{{Lead.company}}',
-            phone: '{{Lead.phone}}',
-            website: '{{Lead.website}}',
-          },
-          assignTo: 'accountId',
-        },
-        {
-          object: 'contact',
-          values: {
-            first_name: '{{Lead.first_name}}',
-            last_name: '{{Lead.last_name}}',
-            email: '{{Lead.email}}',
-            account: '{{accountId}}',
-          },
-          assignTo: 'contactId',
-        },
-        {
-          object: 'opportunity',
-          values: {
-            name: '{{opportunity_name}}',
-            amount: '{{amount}}',
-            close_date: '{{close_date}}',
-            account: '{{accountId}}',
-            stage: 'qualification',
-          },
-          assignTo: 'opportunityId',
-        },
-      ],
-      
-      nextElement: 'update_lead',
-    },
-    
-    {
-      name: 'update_lead',
-      type: 'recordUpdate',
-      label: 'Mark Lead as Converted',
-      
-      object: 'lead',
-      recordId: '{{Lead.id}}',
-      values: {
-        status: 'converted',
-        converted_account: '{{accountId}}',
-        converted_opportunity: '{{opportunityId}}',
-        converted_date: '$Now',
-      },
-      
-      nextElement: 'success_screen',
-    },
-    
-    {
-      name: 'success_screen',
-      type: 'screen',
-      label: 'Conversion Successful',
-      
-      message: `
-        Lead converted successfully!
-        
-        Created:
-        - Account: {{Account.name}}
-        - Contact: {{Contact.name}}
-        - Opportunity: {{Opportunity.name}}
-      `,
-      
-      buttons: [
-        {
-          label: 'View Opportunity',
-          action: 'navigate',
-          target: '/opportunities/{{opportunityId}}',
-        },
-        {
-          label: 'Close',
-          action: 'finish',
-        },
-      ],
-    },
-  ],
-};
 
-/**
- * Example 6: ETL Pipeline
- * 
- * Data integration and transformation
- */
-export const dailyLeadImportETL: Automation.ETLPipeline = {
-  name: 'daily_lead_import',
-  description: 'Import leads from external system daily',
-  
-  // Schedule
-  schedule: '0 2 * * *', // Daily at 2 AM
-  
-  // Extract
-  extract: {
-    source: {
-      type: 'api',
-      endpoint: 'https://marketing.example.com/api/leads',
-      method: 'GET',
-      authentication: {
-        type: 'apiKey',
-        header: 'X-API-Key',
-        key: '$Env.MARKETING_API_KEY',
-      },
-    },
-    
-    // Incremental load
-    incrementalField: 'created_at',
-    lastRunTimestamp: true,
-  },
-  
-  // Transform
-  transform: [
-    {
-      type: 'fieldMapping',
-      mappings: [
-        { source: 'firstName', target: 'first_name' },
-        { source: 'lastName', target: 'last_name' },
-        { source: 'emailAddress', target: 'email' },
-        { source: 'phoneNumber', target: 'phone' },
-        { source: 'companyName', target: 'company' },
-      ],
-    },
-    {
-      type: 'fieldTransform',
-      transforms: [
-        {
-          field: 'status',
-          value: {
-            formula: `
-              CASE source
-                WHEN 'web' THEN 'new'
-                WHEN 'event' THEN 'contacted'
-                ELSE 'unqualified'
-              END
-            `,
-          },
-        },
-      ],
-    },
-    {
-      type: 'deduplication',
-      matchFields: ['email'],
-      strategy: 'skip', // or 'update', 'merge'
-    },
-  ],
-  
-  // Load
-  load: {
-    target: {
-      object: 'lead',
-    },
-    
-    // Error handling
-    onError: {
-      strategy: 'continue', // or 'stop'
-      logErrors: true,
-      notifyOnFailure: true,
-      notificationRecipients: ['admin@example.com'],
-    },
-  },
-  
-  // Post-processing
-  postProcess: [
-    {
-      type: 'workflow',
-      workflow: 'assign_leads_to_reps',
-    },
-  ],
-};
 
 /**
  * Example 7: Usage Demonstration
@@ -673,30 +334,19 @@ export function demonstrateAutomation() {
 
   console.log('1. Field Update Workflows:');
   console.log(`   - ${fieldUpdateWorkflows.length} rules configured`);
-  console.log(`   - Example: "${fieldUpdateWorkflows[0].description}"`);
+  console.log(`   - Example: "${fieldUpdateWorkflows[0].name}"`);
   console.log('');
 
   console.log('2. Email Alert Workflows:');
   console.log(`   - ${emailAlertWorkflows.length} alert rules`);
-  console.log(`   - Example: "${emailAlertWorkflows[0].description}"`);
+  console.log(`   - Example: "${emailAlertWorkflows[0].name}"`);
   console.log('');
 
   console.log('3. Approval Process:');
   console.log(`   - Name: ${discountApprovalProcess.name}`);
   console.log(`   - Steps: ${discountApprovalProcess.steps?.length || 0}`);
-  console.log(`   - Description: "${discountApprovalProcess.description}"`);
+  console.log(`   - Description: "${discountApprovalProcess.description || 'N/A'}"`);
   console.log('');
-
-  console.log('4. Screen Flow:');
-  console.log(`   - Name: ${leadConversionFlow.name}`);
-  console.log(`   - Elements: ${leadConversionFlow.elements?.length || 0}`);
-  console.log(`   - Type: ${leadConversionFlow.type}`);
-  console.log('');
-
-  console.log('5. ETL Process:');
-  console.log(`   - Name: ${dailyLeadImportETL.name}`);
-  console.log(`   - Schedule: ${dailyLeadImportETL.schedule}`);
-  console.log(`   - Source: ${dailyLeadImportETL.extract?.source.type}`);
 }
 
 // Run demonstration (uncomment to run)
@@ -708,6 +358,4 @@ export default {
   emailAlertWorkflows,
   taskCreationWorkflows,
   discountApprovalProcess,
-  leadConversionFlow,
-  dailyLeadImportETL,
 };

@@ -52,10 +52,8 @@ export const taskManagementStack = defineStack({
     {
       name: 'task',
       label: 'Task',
-      labelPlural: 'Tasks',
       icon: 'check-square',
       description: 'Work items and to-dos',
-      nameField: 'subject',
       
       enable: {
         apiEnabled: true,
@@ -140,19 +138,12 @@ export const taskManagementStack = defineStack({
       list: {
         type: 'grid',
         columns: ['subject', 'status', 'priority', 'due_date', 'assigned_to'],
-        filter: {
-          operator: 'AND',
-          conditions: [
-            {
-              field: 'assigned_to',
-              operator: 'equals',
-              value: '$CurrentUser.id',
-            },
-          ],
-        },
+        filter: [
+          { field: 'assigned_to', operator: 'equals', value: '$CurrentUser.id' },
+        ],
         sort: [
-          { field: 'priority', direction: 'desc' },
-          { field: 'due_date', direction: 'asc' },
+          { field: 'priority', order: 'desc' },
+          { field: 'due_date', order: 'asc' },
         ],
       },
     },
@@ -163,10 +154,6 @@ export const taskManagementStack = defineStack({
       name: 'task_overview',
       label: 'Task Overview',
       description: 'Task statistics and metrics',
-      layout: {
-        rows: 2,
-        columns: 2,
-      },
       widgets: [
         {
           type: 'metric',
@@ -193,17 +180,16 @@ export const taskManagementStack = defineStack({
   workflows: [
     {
       name: 'notify_overdue_tasks',
-      object: 'task',
-      description: 'Notify users of overdue tasks',
-      trigger: {
-        type: 'scheduled',
-        schedule: '0 9 * * *', // Daily at 9 AM
-      },
+      objectName: 'task',
+      active: true,
+      reevaluateOnChange: false,
+      triggerType: 'schedule',
       criteria: 'status != "done" && due_date < $Today',
       actions: [
         {
+          name: 'send_overdue_notification',
           type: 'email_alert',
-          recipient: 'assigned_to',
+          recipients: ['assigned_to.email'],
           template: 'overdue_task_notification',
         },
       ],
@@ -246,9 +232,7 @@ export const crmWithAIStack = defineStack({
     {
       name: 'account',
       label: 'Account',
-      labelPlural: 'Accounts',
       icon: 'building',
-      nameField: 'name',
       enable: {
         apiEnabled: true,
         trackHistory: true,
@@ -277,9 +261,7 @@ export const crmWithAIStack = defineStack({
     {
       name: 'opportunity',
       label: 'Opportunity',
-      labelPlural: 'Opportunities',
       icon: 'target',
-      nameField: 'name',
       enable: {
         apiEnabled: true,
         trackHistory: true,
@@ -402,14 +384,14 @@ export function demonstrateStackUsage() {
   const taskObject = taskManagementStack.objects?.[0];
   if (taskObject) {
     console.log('Task Object:', taskObject.name);
-    console.log('Task Fields:', taskObject.fields.length);
+    console.log('Task Fields:', Object.keys(taskObject.fields || {}).length);
   }
 
   // Access AI agents
   const agent = crmWithAIStack.agents?.[0];
   if (agent) {
     console.log('AI Agent:', agent.name);
-    console.log('Capabilities:', agent.capabilities);
+    console.log('Tools:', agent.tools?.length || 0);
   }
 }
 

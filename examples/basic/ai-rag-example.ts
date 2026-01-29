@@ -36,6 +36,9 @@ export const knowledgeBaseRAG: AI.RAGPipelineConfig = {
     namespace: 'production',
     dimensions: 1536,
     metric: 'cosine',
+    batchSize: 100,
+    connectionPoolSize: 10,
+    timeout: 30000,
   },
 
   // Chunking strategy
@@ -69,6 +72,10 @@ export const knowledgeBaseRAG: AI.RAGPipelineConfig = {
   metadataFilters: {
     status: 'published',
   },
+
+  // Cache Configuration
+  enableCache: true,
+  cacheTTL: 3600,
 };
 
 /**
@@ -144,6 +151,8 @@ export const sampleQueries: AI.RAGQueryRequest[] = [
     query: 'What is ObjectStack?',
     pipelineName: 'knowledge_base_rag',
     topK: 5,
+    includeMetadata: true,
+    includeSources: true,
   },
   {
     // Question with metadata filtering
@@ -153,6 +162,8 @@ export const sampleQueries: AI.RAGQueryRequest[] = [
     metadataFilters: {
       category: 'Tutorial',
     },
+    includeMetadata: true,
+    includeSources: true,
   },
   {
     // Advanced query
@@ -207,10 +218,6 @@ It uses a three-layer architecture: ObjectQL for data, ObjectUI for presentation
 
 [Source: https://docs.objectstack.dev/architecture]
 The platform supports multiple databases and provides built-in AI capabilities.`,
-
-  // Metadata
-  processingTimeMs: 150,
-  totalResults: 2,
 };
 
 /**
@@ -220,20 +227,12 @@ The platform supports multiple databases and provides built-in AI capabilities.`
  */
 export const ragEnabledAgent: AI.Agent = {
   name: 'documentation_assistant',
-  type: 'conversational',
   label: 'Documentation Assistant',
-  description: 'AI assistant powered by RAG for answering questions about ObjectStack',
-
-  // Agent capabilities
-  capabilities: {
-    objectAccess: [],
-    canCreate: false,
-    canUpdate: false,
-    canAnalyze: true,
-  },
-
+  role: 'Documentation Support Specialist',
+  active: true,
+  
   // System prompt with RAG instructions
-  systemPrompt: `You are a helpful documentation assistant for ObjectStack.
+  instructions: `You are a helpful documentation assistant for ObjectStack.
 
 You have access to the knowledge base through RAG (Retrieval-Augmented Generation).
 When answering questions:
@@ -245,18 +244,9 @@ When answering questions:
 Always format your responses in a clear, structured way.`,
 
   // RAG Configuration
-  rag: {
-    pipeline: 'knowledge_base_rag',
-    enabled: true,
-    
-    // When to trigger RAG
-    trigger: 'always', // or 'auto', 'manual'
-    
-    // Number of chunks to retrieve
-    topK: 5,
-    
-    // Include source attribution
-    includeSources: true,
+  knowledge: {
+    indexes: ['knowledge-base'],
+    topics: ['ObjectStack', 'documentation'],
   },
 
   // Model configuration
@@ -270,12 +260,9 @@ Always format your responses in a clear, structured way.`,
   // Tools (optional - for function calling)
   tools: [
     {
+      type: 'query',
       name: 'search_documentation',
       description: 'Search the ObjectStack documentation for specific topics',
-      parameters: {
-        query: 'string',
-        category: 'string?',
-      },
     },
   ],
 };
@@ -297,7 +284,7 @@ export function demonstrateRAGUsage() {
   console.log('- Embedding query...');
   console.log('- Searching vector database...');
   console.log(`- Retrieved ${sampleResults.results.length} relevant chunks`);
-  console.log(`- Processing time: ${sampleResults.processingTimeMs}ms\n`);
+  console.log('- Processing complete\n');
 
   // Step 3: Context is assembled
   console.log('Assembled Context:');
