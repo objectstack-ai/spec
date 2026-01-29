@@ -1,22 +1,26 @@
-import type { LoggerConfig, LogLevel, LogEntry } from '@objectstack/spec/system';
+import type { LoggerConfig, LogLevel } from '@objectstack/spec/system';
 import type { Logger } from './contracts/logger.js';
 
 /**
  * Universal Logger Implementation
  * 
  * A configurable logger that works in both browser and Node.js environments.
+ * - Node.js: Uses Pino for high-performance structured logging
+ * - Browser: Simple console-based implementation
+ * 
  * Features:
  * - Structured logging with multiple formats (json, text, pretty)
  * - Log level filtering
  * - Sensitive data redaction
- * - File logging with rotation (Node.js only)
+ * - File logging with rotation (Node.js only via Pino)
  * - Browser console integration
  * - Distributed tracing support (traceId, spanId)
  */
 export class ObjectLogger implements Logger {
     private config: Required<Omit<LoggerConfig, 'file' | 'rotation'>> & { file?: string; rotation?: { maxSize: string; maxFiles: number } };
     private isNode: boolean;
-    private fileWriter?: any; // FileWriter for Node.js
+    private pinoLogger?: any; // Pino logger instance for Node.js
+    private pinoInstance?: any; // Base Pino instance for creating child loggers
 
     constructor(config: Partial<LoggerConfig> = {}) {
         // Detect runtime environment
@@ -35,49 +39,91 @@ export class ObjectLogger implements Logger {
             }
         };
 
-        // Initialize file writer if file logging is enabled (Node.js only)
-        if (this.isNode && this.config.file) {
-            this.initFileWriter();
+        // Initialize Pino logger for Node.js
+        if (this.isNode) {
+            this.initPinoLogger();
         }
     }
 
     /**
-     * Initialize file writer for Node.js (synchronous to ensure logs aren't dropped)
+     * Initialize Pino logger for Node.js
      */
-    private initFileWriter() {
+    private initPinoLogger() {
         if (!this.isNode) return;
 
         try {
-            // Dynamic require for Node.js-only modules (synchronous)
-            const fs = require('fs');
-            const path = require('path');
+            // Dynamic import for Pino (Node.js only)
+            const pino = require('pino');
             
-            // Ensure log directory exists
-            const logDir = path.dirname(this.config.file!);
-            if (!fs.existsSync(logDir)) {
-                fs.mkdirSync(logDir, { recursive: true });
+            // Build Pino options
+            const pinoOptions: any = {
+                level: this.config.level,
+                redact: {
+                    paths: this.config.redact,
+                    censor: '***REDACTED***'
+                }
+            };
+
+            // Transport configuration for pretty printing or file output
+            const targets: any[] = [];
+
+            // Console transport
+            if (this.config.format === 'pretty') {
+                targets.push({
+                    target: 'pino-pretty',
+                    options: {
+                        colorize: true,
+                        translateTime: 'SYS:standard',
+                        ignore: 'pid,hostname'
+                    },
+                    level: this.config.level
+                });
+            } else if (this.config.format === 'json') {
+                // JSON to stdout
+                targets.push({
+                    target: 'pino/file',
+                    options: { destination: 1 }, // stdout
+                    level: this.config.level
+                });
+            } else {
+                // text format (simple)
+                targets.push({
+                    target: 'pino/file',
+                    options: { destination: 1 },
+                    level: this.config.level
+                });
             }
 
-            // Create write stream (synchronous operation)
-            // TODO: Implement rotation based on config.rotation
-            this.fileWriter = fs.createWriteStream(this.config.file!, { flags: 'a' });
+            // File transport (if configured)
+            if (this.config.file) {
+                targets.push({
+                    target: 'pino/file',
+                    options: {
+                        destination: this.config.file,
+                        mkdir: true
+                    },
+                    level: this.config.level
+                });
+            }
+
+            // Create transport
+            if (targets.length > 0) {
+                pinoOptions.transport = targets.length === 1 ? targets[0] : { targets };
+            }
+
+            // Create Pino logger
+            this.pinoInstance = pino(pinoOptions);
+            this.pinoLogger = this.pinoInstance;
+
         } catch (error) {
-            console.error('[Logger] Failed to initialize file writer:', error);
+            // Fallback to console if Pino is not available
+            console.warn('[Logger] Pino not available, falling back to console:', error);
+            this.pinoLogger = null;
         }
     }
 
     /**
-     * Check if a log level should be logged based on configured minimum level
-     */
-    private shouldLog(level: LogLevel): boolean {
-        const levels: LogLevel[] = ['debug', 'info', 'warn', 'error', 'fatal'];
-        const configuredLevelIndex = levels.indexOf(this.config.level);
-        const currentLevelIndex = levels.indexOf(level);
-        return currentLevelIndex >= configuredLevelIndex;
-    }
-
-    /**
-     * Redact sensitive keys from context object
+     * Redact sensitive keys from context object (for browser)
      */
     private redactSensitive(obj: any): any {
         if (!obj || typeof obj !== 'object') return obj;
@@ -101,28 +147,27 @@ export class ObjectLogger implements Logger {
     }
 
     /**
-     * Format log entry based on configured format
+     * Format log entry for browser
      */
-    private formatEntry(entry: LogEntry): string {
-        const { format } = this.config;
-
-        if (format === 'json') {
-            return JSON.stringify(entry);
+    private formatBrowserLog(level: LogLevel, message: string, context?: Record<string, any>): string {
+        if (this.config.format === 'json') {
+            return JSON.stringify({
+                timestamp: new Date().toISOString(),
+                level,
+                message,
+                ...context
+            });
         }
 
-        if (format === 'text') {
-            const parts = [
-                entry.timestamp,
-                entry.level.toUpperCase(),
-                entry.message
-            ];
-            if (entry.context && Object.keys(entry.context).length > 0) {
-                parts.push(JSON.stringify(entry.context));
+        if (this.config.format === 'text') {
+            const parts = [new Date().toISOString(), level.toUpperCase(), message];
+            if (context && Object.keys(context).length > 0) {
+                parts.push(JSON.stringify(context));
             }
             return parts.join(' | ');
         }
 
-        // Pretty format (with colors in browser/terminal)
+        // Pretty format
         const levelColors: Record<LogLevel, string> = {
             debug: '\x1b[36m',   // Cyan
             info: '\x1b[32m',    // Green
@@ -131,147 +176,92 @@ export class ObjectLogger implements Logger {
             fatal: '\x1b[35m'    // Magenta
         };
         const reset = '\x1b[0m';
-        const color = levelColors[entry.level] || '';
+        const color = levelColors[level] || '';
 
-        let output = `${color}[${entry.level.toUpperCase()}]${reset} ${entry.message}`;
+        let output = `${color}[${level.toUpperCase()}]${reset} ${message}`;
         
-        if (entry.context && Object.keys(entry.context).length > 0) {
-            output += ` ${JSON.stringify(entry.context, null, 2)}`;
-        }
-
-        if (entry.error) {
-            output += `\n${JSON.stringify(entry.error, null, 2)}`;
+        if (context && Object.keys(context).length > 0) {
+            output += ` ${JSON.stringify(context, null, 2)}`;
         }
 
         return output;
     }
 
     /**
-     * Get source location (file and line number)
-     * Only enabled if sourceLocation config is true
+     * Log using browser console
      */
-    private getSourceLocation(): { file?: string; line?: number } | undefined {
-        if (!this.config.sourceLocation) return undefined;
-
-        try {
-            const stack = new Error().stack;
-            if (!stack) return undefined;
-
-            // Parse stack trace to get caller location
-            const lines = stack.split('\n');
-            // Skip first 4 lines (Error, getSourceLocation, log method, actual caller)
-            const callerLine = lines[4];
-            if (!callerLine) return undefined;
-
-            const match = callerLine.match(/\((.+):(\d+):\d+\)/) || callerLine.match(/at (.+):(\d+):\d+/);
-            if (match) {
-                return {
-                    file: match[1],
-                    line: parseInt(match[2], 10)
-                };
-            }
-        } catch (error) {
-            // Silently fail if stack parsing fails
-        }
-
-        return undefined;
-    }
-
-    /**
-     * Core logging method
-     */
-    private logInternal(
-        level: LogLevel,
-        message: string,
-        context?: Record<string, any>,
-        error?: Error
-    ): void {
-        if (!this.shouldLog(level)) return;
-
-        // Build log entry
-        const entry: LogEntry = {
-            timestamp: new Date().toISOString(),
-            level,
-            message,
-            context: context ? this.redactSensitive(context) : undefined,
-            error: error ? {
-                name: error.name,
-                message: error.message,
-                stack: error.stack
-            } : undefined
-        };
-
-        // Add source location if enabled
-        const sourceLocation = this.getSourceLocation();
-        if (sourceLocation) {
-            entry.context = {
-                ...entry.context,
-                _source: sourceLocation
-            };
-        }
-
-        // Format the entry
-        const formatted = this.formatEntry(entry);
-
-        // Output to console (browser or Node.js)
-        if (this.isNode || (typeof globalThis !== 'undefined' && globalThis.console)) {
-            const consoleMethod = level === 'debug' ? 'debug' :
-                                level === 'info' ? 'log' :
-                                level === 'warn' ? 'warn' :
-                                level === 'error' || level === 'fatal' ? 'error' :
-                                'log';
-            console[consoleMethod](formatted);
-        }
-
-        // Output to file (Node.js only)
-        if (this.fileWriter && this.isNode) {
-            this.fileWriter.write(formatted + '\n');
-        }
+    private logBrowser(level: LogLevel, message: string, context?: Record<string, any>, error?: Error) {
+        const redactedContext = context ? this.redactSensitive(context) : undefined;
+        const mergedContext = error ? { ...redactedContext, error: { message: error.message, stack: error.stack } } : redactedContext;
+        
+        const formatted = this.formatBrowserLog(level, message, mergedContext);
+        
+        const consoleMethod = level === 'debug' ? 'debug' :
+                            level === 'info' ? 'log' :
+                            level === 'warn' ? 'warn' :
+                            level === 'error' || level === 'fatal' ? 'error' :
+                            'log';
+        
+        console[consoleMethod](formatted);
     }
 
     /**
      * Public logging methods
      */
     debug(message: string, meta?: Record<string, any>): void {
-        this.logInternal('debug', message, meta);
+        if (this.isNode && this.pinoLogger) {
+            this.pinoLogger.debug(meta || {}, message);
+        } else {
+            this.logBrowser('debug', message, meta);
+        }
     }
 
     info(message: string, meta?: Record<string, any>): void {
-        this.logInternal('info', message, meta);
+        if (this.isNode && this.pinoLogger) {
+            this.pinoLogger.info(meta || {}, message);
+        } else {
+            this.logBrowser('info', message, meta);
+        }
     }
 
     warn(message: string, meta?: Record<string, any>): void {
-        this.logInternal('warn', message, meta);
+        if (this.isNode && this.pinoLogger) {
+            this.pinoLogger.warn(meta || {}, message);
+        } else {
+            this.logBrowser('warn', message, meta);
+        }
     }
 
     error(message: string, error?: Error, meta?: Record<string, any>): void {
-        const context = meta || {};
-        this.logInternal('error', message, context, error);
+        if (this.isNode && this.pinoLogger) {
+            const errorContext = error ? { err: error, ...meta } : meta || {};
+            this.pinoLogger.error(errorContext, message);
+        } else {
+            this.logBrowser('error', message, meta, error);
+        }
     }
 
     fatal(message: string, error?: Error, meta?: Record<string, any>): void {
-        const context = meta || {};
-        this.logInternal('fatal', message, context, error);
+        if (this.isNode && this.pinoLogger) {
+            const errorContext = error ? { err: error, ...meta } : meta || {};
+            this.pinoLogger.fatal(errorContext, message);
+        } else {
+            this.logBrowser('fatal', message, meta, error);
+        }
     }
 
     /**
      * Create a child logger with additional context
-     * Note: Child loggers share the parent's file writer to avoid multiple streams to the same file
+     * Note: Child loggers share the parent's Pino instance
      */
     child(context: Record<string, any>): ObjectLogger {
         const childLogger = new ObjectLogger(this.config);
         
-        // Share file writer with parent to avoid multiple streams to same file
-        if (this.fileWriter) {
-            childLogger.fileWriter = this.fileWriter;
+        // For Node.js with Pino, create a Pino child logger
+        if (this.isNode && this.pinoInstance) {
+            childLogger.pinoLogger = this.pinoInstance.child(context);
+            childLogger.pinoInstance = this.pinoInstance;
         }
-        
-        // Override log method to inject context
-        const originalLog = childLogger.logInternal.bind(childLogger);
-        childLogger.logInternal = (level: LogLevel, message: string, meta?: Record<string, any>, error?: Error) => {
-            const mergedContext = { ...context, ...meta };
-            originalLog(level, message, mergedContext, error);
-        };
 
         return childLogger;
     }
@@ -284,12 +274,12 @@ export class ObjectLogger implements Logger {
     }
 
     /**
-     * Cleanup resources (close file streams)
+     * Cleanup resources
      */
     async destroy(): Promise<void> {
-        if (this.fileWriter) {
-            return new Promise((resolve) => {
-                this.fileWriter.end(() => resolve());
+        if (this.pinoLogger && this.pinoLogger.flush) {
+            await new Promise<void>((resolve) => {
+                this.pinoLogger.flush(() => resolve());
             });
         }
     }

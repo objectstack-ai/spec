@@ -3,6 +3,9 @@
  * 
  * This example demonstrates the configurable logging capabilities
  * of ObjectStack Kernel that work in both Node.js and browser environments.
+ * 
+ * Node.js: Uses Pino for high-performance structured logging
+ * Browser: Uses simple console-based logger
  */
 
 import { ObjectKernel, createLogger, type Plugin, type PluginContext } from '@objectstack/core';

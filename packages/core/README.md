@@ -8,7 +8,7 @@ This package defines the fundamental runtime mechanics of the ObjectStack archit
 1. **Dependency Injection (DI)**: A `services` registry for inter-plugin communication
 2. **Plugin Lifecycle**: `init` (Registration) -> `start` (Execution) -> `destroy` (Cleanup)
 3. **Event Bus**: Simple hook system (`hook`, `trigger`) for event-driven communication
-4. **Configurable Logging**: Universal logger that works in both Node.js and browser environments
+4. **Configurable Logging**: Universal logger using [Pino](https://github.com/pinojs/pino) for Node.js and simple console for browsers
 
 It is completely agnostic of "Data", "HTTP", or "Apps". It only knows `Plugin` and `Service`.
 
@@ -17,7 +17,10 @@ It is completely agnostic of "Data", "HTTP", or "Apps". It only knows `Plugin` a
 - **Plugin-based Architecture**: Modular microkernel that manages plugin lifecycle
 - **Service Registry**: Dependency injection for inter-plugin communication
 - **Event/Hook System**: Flexible event-driven communication
-- **Configurable Logging**: Universal logger with environment detection (Node.js/browser)
+- **High-Performance Logging**: 
+  - Node.js: Powered by [Pino](https://github.com/pinojs/pino) - extremely fast, low-overhead structured logging
+  - Browser: Lightweight console-based logger
+- **Environment Detection**: Automatic runtime detection (Node.js/browser)
 - **Dependency Resolution**: Automatic topological sorting of plugin dependencies
 - **Security**: Automatic sensitive data redaction in logs
 
@@ -64,7 +67,15 @@ await kernel.shutdown();
 
 ## Configurable Logger
 
-The logger automatically detects the runtime environment (Node.js vs browser) and adjusts its behavior accordingly.
+The logger uses **[Pino](https://github.com/pinojs/pino)** for Node.js environments (high-performance, low-overhead) and a simple console-based logger for browsers. It automatically detects the runtime environment.
+
+### Why Pino?
+
+- **Fast**: One of the fastest Node.js loggers available
+- **Low Overhead**: Minimal performance impact on your application
+- **Structured Logging**: Native JSON output for log aggregation tools
+- **Production Ready**: Battle-tested in production environments
+- **Feature Rich**: Automatic log rotation, transports, child loggers, and more
 
 ### Logger Configuration
 
@@ -192,15 +203,19 @@ await kernel.bootstrap();
 
 ## Environment Support
 
-### Node.js Features
-- File logging with rotation
-- JSON format for log aggregation
-- Source location tracking
+### Node.js Features (via Pino)
+- High-performance structured logging
+- Automatic file logging with rotation
+- JSON format for log aggregation tools (Elasticsearch, Splunk, etc.)
+- Pretty printing for development (via pino-pretty)
+- Child loggers with inherited context
+- Minimal performance overhead
 
 ### Browser Features  
 - Pretty console output with colors
 - DevTools integration
-- No file operations
+- Lightweight implementation
+- No external dependencies
 
 ## Security
 
