@@ -1,4 +1,5 @@
 import { ObjectKernel } from './kernel.js';
+import type { Logger } from './contracts/logger.js';
 
 /**
  * PluginContext - Runtime context available to plugins
@@ -47,7 +48,7 @@ export interface PluginContext {
     /**
      * Logger instance
      */
-    logger: Console;
+    logger: Logger;
     
     /**
      * Get the kernel instance (for advanced use cases)
