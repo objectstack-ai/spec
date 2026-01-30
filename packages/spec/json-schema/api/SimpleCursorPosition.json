@@ -1,0 +1,53 @@
+{
+  "$ref": "#/definitions/SimpleCursorPosition",
+  "definitions": {
+    "SimpleCursorPosition": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "User identifier"
+        },
+        "recordId": {
+          "type": "string",
+          "description": "Record identifier being edited"
+        },
+        "fieldName": {
+          "type": "string",
+          "description": "Field name being edited"
+        },
+        "position": {
+          "type": "number",
+          "description": "Cursor position (character offset from start)"
+        },
+        "selection": {
+          "type": "object",
+          "properties": {
+            "start": {
+              "type": "number",
+              "description": "Selection start position"
+            },
+            "end": {
+              "type": "number",
+              "description": "Selection end position"
+            }
+          },
+          "required": [
+            "start",
+            "end"
+          ],
+          "additionalProperties": false,
+          "description": "Text selection range (if text is selected)"
+        }
+      },
+      "required": [
+        "userId",
+        "recordId",
+        "fieldName",
+        "position"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

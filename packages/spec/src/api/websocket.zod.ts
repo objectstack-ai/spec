@@ -431,3 +431,141 @@ export const WebSocketConfigSchema = z.object({
 });
 
 export type WebSocketConfig = z.infer<typeof WebSocketConfigSchema>;
+
+// ==========================================
+// Simplified Collaboration API
+// ==========================================
+
+/**
+ * Simplified WebSocket Event Schema
+ * 
+ * A simplified event schema for basic WebSocket communication.
+ * Complements the comprehensive WebSocketMessageSchema above for simpler use cases.
+ * 
+ * @example Subscribe to channel
+ * ```typescript
+ * {
+ *   type: 'subscribe',
+ *   channel: 'record.account.123',
+ *   payload: { events: ['created', 'updated'] },
+ *   timestamp: Date.now()
+ * }
+ * ```
+ * 
+ * @example Data change notification
+ * ```typescript
+ * {
+ *   type: 'data-change',
+ *   channel: 'record.account.123',
+ *   payload: { id: '123', action: 'updated', data: {...} },
+ *   timestamp: Date.now()
+ * }
+ * ```
+ */
+export const WebSocketEventSchema = z.object({
+  type: z.enum([
+    'subscribe',       // Client subscribes to channel
+    'unsubscribe',     // Client unsubscribes from channel
+    'data-change',     // Data modification event
+    'presence-update', // User presence change
+    'cursor-update',   // Cursor position change (collaborative editing)
+    'error',           // Error message
+  ]).describe('Event type'),
+  channel: z.string().describe('Channel identifier (e.g., "record.account.123", "user.456")'),
+  payload: z.any().describe('Event payload data'),
+  timestamp: z.number().describe('Unix timestamp in milliseconds'),
+});
+
+export type WebSocketEvent = z.infer<typeof WebSocketEventSchema>;
+
+/**
+ * Simplified Presence State Schema
+ * 
+ * A simplified presence schema for basic user presence tracking.
+ * Complements the comprehensive PresenceStateSchema for simpler integrations.
+ * 
+ * Use this for basic presence features. For advanced features like device tracking,
+ * custom status, and session management, use the comprehensive PresenceStateSchema above.
+ * 
+ * @example User online
+ * ```typescript
+ * {
+ *   userId: 'user123',
+ *   userName: 'John Doe',
+ *   status: 'online',
+ *   lastSeen: Date.now(),
+ *   metadata: { currentPage: '/dashboard' }
+ * }
+ * ```
+ */
+export const SimplePresenceStateSchema = z.object({
+  userId: z.string().describe('User identifier'),
+  userName: z.string().describe('User display name'),
+  status: z.enum(['online', 'away', 'offline']).describe('User presence status'),
+  lastSeen: z.number().describe('Unix timestamp of last activity in milliseconds'),
+  metadata: z.record(z.any()).optional().describe('Additional presence metadata (e.g., current page, custom status)'),
+});
+
+export type SimplePresenceState = z.infer<typeof SimplePresenceStateSchema>;
+
+/**
+ * Simplified Cursor Position Schema
+ * 
+ * A simplified cursor position schema for basic collaborative editing.
+ * Complements the comprehensive CursorPositionSchema for simpler use cases.
+ * 
+ * Use this for basic cursor sharing. For advanced features like selections,
+ * color coding, and document versioning, use the comprehensive CursorPositionSchema above.
+ * 
+ * @example Cursor in text field
+ * ```typescript
+ * {
+ *   userId: 'user123',
+ *   recordId: 'account_456',
+ *   fieldName: 'description',
+ *   position: 42,
+ *   selection: { start: 42, end: 57 }
+ * }
+ * ```
+ */
+export const SimpleCursorPositionSchema = z.object({
+  userId: z.string().describe('User identifier'),
+  recordId: z.string().describe('Record identifier being edited'),
+  fieldName: z.string().describe('Field name being edited'),
+  position: z.number().describe('Cursor position (character offset from start)'),
+  selection: z.object({
+    start: z.number().describe('Selection start position'),
+    end: z.number().describe('Selection end position'),
+  }).optional().describe('Text selection range (if text is selected)'),
+});
+
+export type SimpleCursorPosition = z.infer<typeof SimpleCursorPositionSchema>;
+
+/**
+ * WebSocket Server Configuration Schema
+ * 
+ * Server-side configuration for WebSocket services.
+ * Controls features like presence tracking, cursor sharing, and connection management.
+ * 
+ * @example Production configuration
+ * ```typescript
+ * {
+ *   enabled: true,
+ *   path: '/ws',
+ *   heartbeatInterval: 30000,
+ *   reconnectAttempts: 5,
+ *   presence: true,
+ *   cursorSharing: true
+ * }
+ * ```
+ */
+export const WebSocketServerConfigSchema = z.object({
+  enabled: z.boolean().default(false).describe('Enable WebSocket server'),
+  path: z.string().default('/ws').describe('WebSocket endpoint path'),
+  heartbeatInterval: z.number().default(30000).describe('Heartbeat interval in milliseconds'),
+  reconnectAttempts: z.number().default(5).describe('Maximum reconnection attempts for clients'),
+  presence: z.boolean().default(false).describe('Enable presence tracking'),
+  cursorSharing: z.boolean().default(false).describe('Enable collaborative cursor sharing'),
+});
+
+export type WebSocketServerConfig = z.infer<typeof WebSocketServerConfigSchema>;
