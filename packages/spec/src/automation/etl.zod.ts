@@ -16,6 +16,28 @@ import { z } from 'zod';
  * **SCOPE: Advanced multi-source, multi-stage transformations.**
  * Supports complex operations: joins, aggregations, filtering, custom SQL.
  * 
+ * ## When to Use This Layer
+ * 
+ * **Use ETL Pipeline when:**
+ * - Combining data from multiple sources
+ * - Need aggregations, joins, transformations
+ * - Building data warehouses or analytics platforms
+ * - Complex data transformations required
+ * 
+ * **Examples:**
+ * - Sales data from Salesforce + Marketing from HubSpot → Data Warehouse
+ * - Multi-region databases → Consolidated reporting
+ * - Legacy system migration with transformation
+ * 
+ * **When to downgrade:**
+ * - Simple 1:1 sync → Use {@link file://./sync.zod.ts | Simple Sync}
+ * 
+ * **When to upgrade:**
+ * - Need full connector lifecycle (auth, webhooks, rate limits) → Use {@link file://../integration/connector.zod.ts | Enterprise Connector}
+ * 
+ * @see {@link file://./sync.zod.ts} for Level 1 (simple sync)
+ * @see {@link file://../integration/connector.zod.ts} for Level 3 (enterprise integration)
+ * 
  * ## Use Cases
  * 
  * 1. **Data Warehouse Population**

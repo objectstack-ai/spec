@@ -12,8 +12,8 @@ description: Connector protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AuthenticationSchema, ConflictResolutionSchema, ConnectorSchema, ConnectorStatusSchema, ConnectorTypeSchema, DataSyncConfigSchema, FieldMappingSchema, FieldTransformSchema, RateLimitConfigSchema, RateLimitStrategySchema, RetryConfigSchema, RetryStrategySchema, SyncStrategySchema, WebhookConfigSchema, WebhookEventSchema, WebhookSignatureAlgorithmSchema } from '@objectstack/spec/integration';
-import type { Authentication, ConflictResolution, Connector, ConnectorStatus, ConnectorType, DataSyncConfig, FieldMapping, FieldTransform, RateLimitConfig, RateLimitStrategy, RetryConfig, RetryStrategy, SyncStrategy, WebhookConfig, WebhookEvent, WebhookSignatureAlgorithm } from '@objectstack/spec/integration';
+import { AuthenticationSchema, ConflictResolutionSchema, ConnectorSchema, ConnectorStatusSchema, ConnectorTypeSchema, DataSyncConfigSchema, FieldTransformSchema, RateLimitConfigSchema, RateLimitStrategySchema, RetryConfigSchema, RetryStrategySchema, SyncStrategySchema, WebhookConfigSchema, WebhookEventSchema, WebhookSignatureAlgorithmSchema } from '@objectstack/spec/integration';
+import type { Authentication, ConflictResolution, Connector, ConnectorStatus, ConnectorType, DataSyncConfig, FieldTransform, RateLimitConfig, RateLimitStrategy, RetryConfig, RetryStrategy, SyncStrategy, WebhookConfig, WebhookEvent, WebhookSignatureAlgorithm } from '@objectstack/spec/integration';
 
 // Validate data
 const result = AuthenticationSchema.parse(data);
@@ -106,22 +106,6 @@ Connector type
 | **batchSize** | `number` | optional | Records per batch |
 | **deleteMode** | `Enum<'hard_delete' \| 'soft_delete' \| 'ignore'>` | optional | Delete handling mode |
 | **filters** | `Record<string, any>` | optional | Filter criteria for selective sync |
-
----
-
-## FieldMapping
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **sourceField** | `string` | ✅ | Field name in external system |
-| **targetField** | `string` | ✅ | Field name in ObjectStack (snake_case) |
-| **dataType** | `Enum<'string' \| 'number' \| 'boolean' \| 'date' \| 'datetime' \| 'json' \| 'array'>` | optional | Target data type |
-| **required** | `boolean` | optional | Field is required |
-| **defaultValue** | `any` | optional | Default value |
-| **transform** | `object` | optional | Field transformation |
-| **syncMode** | `Enum<'read_only' \| 'write_only' \| 'bidirectional'>` | optional | Sync mode |
 
 ---
 

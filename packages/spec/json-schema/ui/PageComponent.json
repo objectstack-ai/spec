@@ -48,7 +48,7 @@
         "properties": {
           "type": "object",
           "additionalProperties": {},
-          "description": "Component props passed to the widget. See block.zod.ts for schemas."
+          "description": "Component props passed to the widget. See component.zod.ts for schemas."
         },
         "visibility": {
           "type": "string",

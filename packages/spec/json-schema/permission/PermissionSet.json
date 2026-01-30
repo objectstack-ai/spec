@@ -101,7 +101,7 @@
           },
           "description": "System level capabilities"
         },
-        "rls": {
+        "rowLevelSecurity": {
           "type": "array",
           "items": {
             "type": "object",
@@ -109,102 +109,72 @@
               "name": {
                 "type": "string",
                 "pattern": "^[a-z_][a-z0-9_]*$",
-                "description": "Rule unique identifier (snake_case)"
+                "description": "Policy unique identifier (snake_case)"
               },
-              "objectName": {
+              "label": {
+                "type": "string",
+                "description": "Human-readable policy label"
+              },
+              "description": {
+                "type": "string",
+                "description": "Policy description and business justification"
+              },
+              "object": {
                 "type": "string",
                 "description": "Target object name"
               },
               "operation": {
                 "type": "string",
                 "enum": [
-                  "read",
-                  "create",
+                  "select",
+                  "insert",
                   "update",
-                  "delete"
+                  "delete",
+                  "all"
                 ],
-                "description": "Database operation this rule applies to"
+                "description": "Database operation this policy applies to"
               },
-              "filter": {
-                "type": "object",
-                "properties": {
-                  "field": {
-                    "type": "string",
-                    "description": "Field name to filter on"
-                  },
-                  "operator": {
-                    "type": "string",
-                    "enum": [
-                      "eq",
-                      "ne",
-                      "in",
-                      "nin",
-                      "gt",
-                      "gte",
-                      "lt",
-                      "lte"
-                    ],
-                    "description": "Filter operator"
-                  },
-                  "value": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "number"
-                      },
-                      {
-                        "type": "boolean"
-                      },
-                      {
-                        "type": "array"
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "contextVariable": {
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "contextVariable"
-                        ],
-                        "additionalProperties": false,
-                        "description": "Reference to context variable (e.g., { contextVariable: \"current_user.tenant_id\" })"
-                      }
-                    ],
-                    "description": "Filter value or context variable reference"
-                  }
+              "using": {
+                "type": "string",
+                "description": "Filter condition for SELECT/UPDATE/DELETE (PostgreSQL SQL WHERE clause syntax with parameterized context variables). Optional for INSERT-only policies."
+              },
+              "check": {
+                "type": "string",
+                "description": "Validation condition for INSERT/UPDATE (defaults to USING clause if not specified - enforced at application level)"
+              },
+              "roles": {
+                "type": "array",
+                "items": {
+                  "type": "string"
                 },
-                "required": [
-                  "field",
-                  "operator",
-                  "value"
-                ],
-                "additionalProperties": false,
-                "description": "Filter condition for row-level access"
+                "description": "Roles this policy applies to (omit for all roles)"
               },
               "enabled": {
                 "type": "boolean",
                 "default": true,
-                "description": "Whether this rule is active"
+                "description": "Whether this policy is active"
               },
               "priority": {
-                "type": "number",
+                "type": "integer",
                 "default": 0,
-                "description": "Rule evaluation priority (higher = evaluated first)"
+                "description": "Policy evaluation priority (higher = evaluated first)"
+              },
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Policy categorization tags"
               }
             },
             "required": [
               "name",
-              "objectName",
-              "operation",
-              "filter"
+              "object",
+              "operation"
             ],
             "additionalProperties": false
           },
-          "description": "Row-level security rules"
+          "description": "Row-level security policies (see rls.zod.ts for full spec)"
         },
         "contextVariables": {
           "type": "object",

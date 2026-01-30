@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { WebhookSchema } from '../automation/webhook.zod';
 import { AuthConfigSchema as ConnectorAuthConfigSchema } from '../auth/config.zod';
+import { FieldMappingSchema as BaseFieldMappingSchema } from '../shared/mapping.zod';
 
 /**
  * Connector Protocol - LEVEL 3: Enterprise Connector
@@ -22,6 +23,29 @@ import { AuthConfigSchema as ConnectorAuthConfigSchema } from '../auth/config.zo
  * field mapping, webhooks, and comprehensive rate limiting.
  * 
  * Authentication is now imported from the canonical auth/config.zod.ts.
+ * 
+ * ## When to Use This Layer
+ * 
+ * **Use Enterprise Connector when:**
+ * - Building enterprise-grade connectors (e.g., Salesforce, SAP, Oracle)
+ * - Complex OAuth2/SAML authentication required
+ * - Bidirectional sync with field mapping and transformations
+ * - Webhook management and rate limiting required
+ * - Full CRUD operations and data synchronization
+ * - Need comprehensive retry strategies and error handling
+ * 
+ * **Examples:**
+ * - Full Salesforce integration with webhooks
+ * - SAP ERP connector with CDC (Change Data Capture)
+ * - Microsoft Dynamics 365 connector
+ * 
+ * **When to downgrade:**
+ * - Simple field sync → Use {@link file://../automation/sync.zod.ts | Simple Sync}
+ * - Data transformation only → Use {@link file://../automation/etl.zod.ts | ETL Pipeline}
+ * 
+ * @see {@link file://../automation/sync.zod.ts} for Level 1 (simple sync)
+ * @see {@link file://../automation/etl.zod.ts} for Level 2 (data engineering)
+ * 
  * ## When to use Integration Connector vs. Trigger Registry?
  * 
  * **Use `integration/connector.zod.ts` when:**
@@ -55,10 +79,14 @@ export type Authentication = z.infer<typeof ConnectorAuthConfigSchema>;
 
 // ============================================================================
 // Field Mapping Schema
+// Uses the canonical field mapping protocol from shared/mapping.zod.ts
+// Extended with connector-specific features
 // ============================================================================
 
 /**
- * Field Transformation Function
+ * Field Transformation Function (Connector-specific)
+ * 
+ * @deprecated Use TransformTypeSchema from shared/mapping.zod.ts instead
  */
 export const FieldTransformSchema = z.object({
   type: z.enum([
@@ -78,22 +106,14 @@ export const FieldTransformSchema = z.object({
 export type FieldTransform = z.infer<typeof FieldTransformSchema>;
 
 /**
- * Field Mapping Configuration
- * Maps fields between ObjectStack and external system
+ * Connector Field Mapping Configuration
+ * 
+ * Extends the base field mapping with connector-specific features
+ * like bidirectional sync modes and data type mapping.
  */
-export const FieldMappingSchema = z.object({
+export const FieldMappingSchema = BaseFieldMappingSchema.extend({
   /**
-   * Source field name (in external system)
-   */
-  sourceField: z.string().describe('Field name in external system'),
-  
-  /**
-   * Target field name (in ObjectStack)
-   */
-  targetField: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Field name in ObjectStack (snake_case)'),
-  
-  /**
-   * Data type mapping
+   * Data type mapping (connector-specific)
    */
   dataType: z.enum([
     'string',
@@ -111,17 +131,7 @@ export const FieldMappingSchema = z.object({
   required: z.boolean().default(false).describe('Field is required'),
   
   /**
-   * Default value if source is empty
-   */
-  defaultValue: z.any().optional().describe('Default value'),
-  
-  /**
-   * Field transformation rules
-   */
-  transform: FieldTransformSchema.optional().describe('Field transformation'),
-  
-  /**
-   * Bidirectional sync mode
+   * Bidirectional sync mode (connector-specific)
    */
   syncMode: z.enum([
     'read_only',      // Only sync from external to ObjectStack

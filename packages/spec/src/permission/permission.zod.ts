@@ -1,56 +1,6 @@
 import { z } from 'zod';
 import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
-
-/**
- * Row-Level Security Rule Schema (Simplified)
- * 
- * Simplified RLS rule definition that can be embedded in permission sets.
- * For comprehensive RLS features, see ../permission/rls.zod.ts
- * 
- * This schema allows permission sets to include basic row-level filters
- * that restrict data access based on user context.
- * 
- * @example Tenant isolation rule
- * ```typescript
- * {
- *   name: 'tenant_isolation',
- *   objectName: 'account',
- *   operation: 'read',
- *   filter: {
- *     field: 'tenant_id',
- *     operator: 'eq',
- *     value: { contextVariable: 'current_user.tenant_id' }
- *   },
- *   enabled: true,
- *   priority: 0
- * }
- * ```
- */
-export const RLSRuleSchema = z.object({
-  name: z.string()
-    .regex(/^[a-z_][a-z0-9_]*$/)
-    .describe('Rule unique identifier (snake_case)'),
-  objectName: z.string().describe('Target object name'),
-  operation: z.enum(['read', 'create', 'update', 'delete'])
-    .describe('Database operation this rule applies to'),
-  filter: z.object({
-    field: z.string().describe('Field name to filter on'),
-    operator: z.enum(['eq', 'ne', 'in', 'nin', 'gt', 'gte', 'lt', 'lte'])
-      .describe('Filter operator'),
-    value: z.union([
-      z.string(),
-      z.number(),
-      z.boolean(),
-      z.array(z.any()),
-      z.object({ contextVariable: z.string() })
-        .describe('Reference to context variable (e.g., { contextVariable: "current_user.tenant_id" })'),
-    ]).describe('Filter value or context variable reference'),
-  }).describe('Filter condition for row-level access'),
-  enabled: z.boolean().default(true).describe('Whether this rule is active'),
-  priority: z.number().default(0).describe('Rule evaluation priority (higher = evaluated first)'),
-});
-
-export type RLSRule = z.infer<typeof RLSRuleSchema>;
+import { RowLevelSecurityPolicySchema } from './rls.zod';
 
 /**
  * Entity (Object) Level Permissions
@@ -146,26 +96,27 @@ export const PermissionSetSchema = z.object({
   /** 
    * Row-Level Security Rules
    * 
-   * Simplified RLS rules that filter records based on user context.
+   * Row-level security policies that filter records based on user context.
    * These rules are applied in addition to object-level permissions.
    * 
-   * For comprehensive RLS features, use the dedicated RLS protocol in ../permission/rls.zod.ts
+   * Uses the canonical RLS protocol from rls.zod.ts for comprehensive
+   * row-level security features including PostgreSQL-style USING and CHECK clauses.
+   * 
+   * @see {@link RowLevelSecurityPolicySchema} for full RLS specification
+   * @see {@link file://../permission/rls.zod.ts} for comprehensive RLS documentation
    * 
    * @example Multi-tenant isolation
    * ```typescript
    * rls: [{
    *   name: 'tenant_filter',
-   *   objectName: 'account',
-   *   operation: 'read',
-   *   filter: {
-   *     field: 'tenant_id',
-   *     operator: 'eq',
-   *     value: { contextVariable: 'current_user.tenant_id' }
-   *   }
+   *   object: 'account',
+   *   operation: 'select',
+   *   using: 'tenant_id = current_user.tenant_id'
    * }]
    * ```
    */
-  rls: z.array(RLSRuleSchema).optional().describe('Row-level security rules'),
+  rowLevelSecurity: z.array(RowLevelSecurityPolicySchema).optional()
+    .describe('Row-level security policies (see rls.zod.ts for full spec)'),
   
   /**
    * Context-Based Access Control Variables
