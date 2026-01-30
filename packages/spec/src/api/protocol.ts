@@ -1,3 +1,18 @@
+import type { 
+    BatchUpdateRequest, 
+    BatchUpdateResponse, 
+    UpdateManyRequest,
+    DeleteManyRequest 
+} from './batch.zod';
+import type { MetadataCacheRequest, MetadataCacheResponse } from './cache.zod';
+import type { 
+    CreateViewRequest, 
+    UpdateViewRequest,
+    ListViewsRequest,
+    ViewResponse,
+    ListViewsResponse 
+} from './view-storage.zod';
+
 /**
  * ObjectStack Protocol Interface
  * 
@@ -28,6 +43,14 @@ export interface IObjectStackProtocol {
      * @param name - Item name
      */
     getMetaItem(type: string, name: string): any;
+
+    /**
+     * Get a specific metadata item with caching support
+     * @param type - Metadata type name
+     * @param name - Item name
+     * @param cacheRequest - Cache validation parameters (ETag, etc.)
+     */
+    getMetaItemCached(type: string, name: string, cacheRequest?: MetadataCacheRequest): Promise<MetadataCacheResponse>;
 
     /**
      * Get UI view definition
@@ -71,4 +94,70 @@ export interface IObjectStackProtocol {
      * @param id - Record ID
      */
     deleteData(object: string, id: string): Promise<any>;
+
+    // ==========================================
+    // Batch Operations
+    // ==========================================
+
+    /**
+     * Perform batch operations (create, update, upsert, delete)
+     * @param object - Object name
+     * @param request - Batch operation request
+     */
+    batchData(object: string, request: BatchUpdateRequest): Promise<BatchUpdateResponse>;
+
+    /**
+     * Create multiple records at once
+     * @param object - Object name
+     * @param records - Array of records to create
+     */
+    createManyData(object: string, records: any[]): Promise<any[]>;
+
+    /**
+     * Update multiple records at once
+     * @param object - Object name
+     * @param request - Update many request with records and options
+     */
+    updateManyData(object: string, request: UpdateManyRequest): Promise<BatchUpdateResponse>;
+
+    /**
+     * Delete multiple records at once
+     * @param object - Object name
+     * @param request - Delete many request with IDs and options
+     */
+    deleteManyData(object: string, request: DeleteManyRequest): Promise<BatchUpdateResponse>;
+
+    // ==========================================
+    // View Storage
+    // ==========================================
+
+    /**
+     * Create a new saved view
+     * @param request - View creation request
+     */
+    createView(request: CreateViewRequest): Promise<ViewResponse>;
+
+    /**
+     * Get a saved view by ID
+     * @param id - View ID
+     */
+    getView(id: string): Promise<ViewResponse>;
+
+    /**
+     * List saved views with optional filters
+     * @param request - List filters and pagination
+     */
+    listViews(request?: ListViewsRequest): Promise<ListViewsResponse>;
+
+    /**
+     * Update a saved view
+     * @param request - View update request with ID
+     */
+    updateView(request: UpdateViewRequest): Promise<ViewResponse>;
+
+    /**
+     * Delete a saved view
+     * @param id - View ID
+     */
+    deleteView(id: string): Promise<{ success: boolean }>;
 }
