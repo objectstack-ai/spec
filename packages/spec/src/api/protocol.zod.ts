@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { BatchUpdateRequestSchema, BatchUpdateResponseSchema } from './batch.zod';
-import { MetadataCacheRequestSchema, MetadataCacheResponseSchema } from './cache.zod';
+import { MetadataCacheRequestSchema, MetadataCacheResponseSchema } from './http-cache.zod';
 import { 
   CreateViewRequestSchema, 
   UpdateViewRequestSchema,
@@ -107,7 +107,7 @@ export const GetMetaItemCachedRequestSchema = z.object({
 
 /**
  * Get Metadata Item with Cache Response
- * Uses MetadataCacheResponse from cache.zod.ts
+ * Uses MetadataCacheResponse from http-cache.zod.ts
  */
 export const GetMetaItemCachedResponseSchema = MetadataCacheResponseSchema;
 
