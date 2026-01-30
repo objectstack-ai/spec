@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { FilterConditionSchema } from '../data/filter.zod';
-import { SortNodeSchema } from '../data/query.zod';
+import { FilterConditionSchema } from './filter.zod';
+import { SortNodeSchema } from './query.zod';
 
 /**
  * Data Engine Protocol
