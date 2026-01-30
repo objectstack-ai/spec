@@ -161,7 +161,139 @@ export const DataEngineCountOptionsSchema = z.object({
 }).describe('Options for DataEngine.count operations');
 
 // ==========================================================================
-// 8. Type Exports
+// 8. Definition (Contract)
+// ==========================================================================
+
+export const DataEngineContractSchema = z.object({
+  find: z.function()
+    .args(z.string(), DataEngineQueryOptionsSchema.optional())
+    .returns(z.promise(z.array(z.any()))),
+    
+  findOne: z.function()
+    .args(z.string(), DataEngineQueryOptionsSchema.optional())
+    .returns(z.promise(z.any())),
+    
+  insert: z.function()
+    .args(z.string(), z.union([z.record(z.any()), z.array(z.record(z.any()))]), DataEngineInsertOptionsSchema.optional())
+    .returns(z.promise(z.any())),
+    
+  update: z.function()
+    .args(z.string(), z.record(z.any()), DataEngineUpdateOptionsSchema.optional())
+    .returns(z.promise(z.any())),
+    
+  delete: z.function()
+    .args(z.string(), DataEngineDeleteOptionsSchema.optional())
+    .returns(z.promise(z.any())),
+    
+  count: z.function()
+    .args(z.string(), DataEngineCountOptionsSchema.optional())
+    .returns(z.promise(z.number())),
+    
+  aggregate: z.function()
+    .args(z.string(), DataEngineAggregateOptionsSchema)
+    .returns(z.promise(z.array(z.any())))
+}).describe('Standard Data Engine Contract');
+
+// ==========================================================================
+// 9. Virtualization & RPC Protocol
+// ==========================================================================
+
+/**
+ * Data Engine RPC Request (Virtual ObjectQL)
+ * 
+ * This schema defines the serialized format for executing Data Engine operations
+ * via HTTP, Message Queue, or Plugin boundaries.
+ * 
+ * It enables "Virtual Data Engines" where the implementation resides in a 
+ * separate microservice or plugin.
+ */
+
+export const DataEngineFindRequestSchema = z.object({
+  method: z.literal('find'),
+  object: z.string(),
+  query: DataEngineQueryOptionsSchema.optional()
+});
+
+export const DataEngineFindOneRequestSchema = z.object({
+  method: z.literal('findOne'),
+  object: z.string(),
+  query: DataEngineQueryOptionsSchema.optional()
+});
+
+export const DataEngineInsertRequestSchema = z.object({
+  method: z.literal('insert'),
+  object: z.string(),
+  data: z.union([z.record(z.any()), z.array(z.record(z.any()))]),
+  options: DataEngineInsertOptionsSchema.optional()
+});
+
+export const DataEngineUpdateRequestSchema = z.object({
+  method: z.literal('update'),
+  object: z.string(),
+  data: z.record(z.any()),
+  id: z.any().optional().describe('ID for single update, or use filter in options'),
+  options: DataEngineUpdateOptionsSchema.optional()
+});
+
+export const DataEngineDeleteRequestSchema = z.object({
+  method: z.literal('delete'),
+  object: z.string(),
+  id: z.any().optional().describe('ID for single delete, or use filter in options'),
+  options: DataEngineDeleteOptionsSchema.optional()
+});
+
+export const DataEngineCountRequestSchema = z.object({
+  method: z.literal('count'),
+  object: z.string(),
+  query: DataEngineCountOptionsSchema.optional()
+});
+
+export const DataEngineAggregateRequestSchema = z.object({
+  method: z.literal('aggregate'),
+  object: z.string(),
+  query: DataEngineAggregateOptionsSchema
+});
+
+/**
+ * Data Engine Batch Request
+ * Execute multiple operations in a single transaction/request efficiently.
+ */
+export const DataEngineBatchRequestSchema = z.object({
+  method: z.literal('batch'),
+  requests: z.array(z.discriminatedUnion('method', [
+    DataEngineFindRequestSchema,
+    DataEngineFindOneRequestSchema,
+    DataEngineInsertRequestSchema,
+    DataEngineUpdateRequestSchema,
+    DataEngineDeleteRequestSchema,
+    DataEngineCountRequestSchema,
+    DataEngineAggregateRequestSchema
+  ])),
+  /** 
+   * Transaction Mode
+   * - true: All or nothing (Atomic)
+   * - false: Best effort, continue on error
+   */
+  transaction: z.boolean().default(true).optional()
+});
+
+/**
+ * Unified Data Engine Request Union
+ * Use this to validate any incoming "Virtual ObjectQL" request.
+ */
+export const DataEngineRequestSchema = z.discriminatedUnion('method', [
+  DataEngineFindRequestSchema,
+  DataEngineFindOneRequestSchema,
+  DataEngineInsertRequestSchema,
+  DataEngineUpdateRequestSchema,
+  DataEngineDeleteRequestSchema,
+  DataEngineCountRequestSchema,
+  DataEngineAggregateRequestSchema,
+  DataEngineBatchRequestSchema
+]).describe('Virtual ObjectQL Request Protocol');
+
+// ==========================================================================
+// 10. Type Exports
 // ==========================================================================
 
 export type DataEngineFilter = z.infer<typeof DataEngineFilterSchema>;
@@ -172,4 +304,4 @@ export type DataEngineUpdateOptions = z.infer<typeof DataEngineUpdateOptionsSche
 export type DataEngineDeleteOptions = z.infer<typeof DataEngineDeleteOptionsSchema>;
 export type DataEngineAggregateOptions = z.infer<typeof DataEngineAggregateOptionsSchema>;
 export type DataEngineCountOptions = z.infer<typeof DataEngineCountOptionsSchema>;
-
+export type DataEngineRequest = z.infer<typeof DataEngineRequestSchema>;
