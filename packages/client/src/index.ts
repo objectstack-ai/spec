@@ -1,4 +1,21 @@
 import { QueryAST, SortNode, AggregationNode, WindowFunctionNode } from '@objectstack/spec/data';
+import { 
+  BatchUpdateRequest, 
+  BatchUpdateResponse, 
+  UpdateManyRequest,
+  DeleteManyRequest,
+  BatchOptions,
+  MetadataCacheRequest,
+  MetadataCacheResponse,
+  StandardErrorCode,
+  ErrorCategory,
+  CreateViewRequest,
+  UpdateViewRequest,
+  ListViewsRequest,
+  SavedView,
+  ListViewsResponse,
+  ViewResponse
+} from '@objectstack/spec/api';
 import { Logger, createLogger } from '@objectstack/core';
 
 export interface ClientConfig {
@@ -43,6 +60,15 @@ export interface QueryOptions {
 export interface PaginatedResult<T = any> {
   value: T[];
   count: number;
+}
+
+export interface StandardError {
+  code: StandardErrorCode;
+  message: string;
+  category: ErrorCategory;
+  httpStatus: number;
+  retryable: boolean;
+  details?: Record<string, any>;
 }
 
 export class ObjectStackClient {
@@ -100,6 +126,45 @@ export class ObjectStackClient {
         const route = this.getRoute('metadata');
         const res = await this.fetch(`${this.baseUrl}${route}/object/${name}`);
         return res.json();
+    },
+    
+    /**
+     * Get object metadata with cache support
+     * Supports ETag-based conditional requests for efficient caching
+     */
+    getCached: async (name: string, cacheOptions?: MetadataCacheRequest): Promise<MetadataCacheResponse> => {
+        const route = this.getRoute('metadata');
+        const headers: Record<string, string> = {};
+        
+        if (cacheOptions?.ifNoneMatch) {
+          headers['If-None-Match'] = cacheOptions.ifNoneMatch;
+        }
+        if (cacheOptions?.ifModifiedSince) {
+          headers['If-Modified-Since'] = cacheOptions.ifModifiedSince;
+        }
+        
+        const res = await this.fetch(`${this.baseUrl}${route}/object/${name}`, {
+          headers
+        });
+        
+        // Check for 304 Not Modified
+        if (res.status === 304) {
+          return {
+            notModified: true,
+            etag: cacheOptions?.ifNoneMatch ? { value: cacheOptions.ifNoneMatch, weak: false } : undefined
+          };
+        }
+        
+        const data = await res.json();
+        const etag = res.headers.get('ETag');
+        const lastModified = res.headers.get('Last-Modified');
+        
+        return {
+          data,
+          etag: etag ? { value: etag.replace(/"/g, ''), weak: etag.startsWith('W/') } : undefined,
+          lastModified: lastModified || undefined,
+          notModified: false
+        };
     },
     
     getView: async (object: string, type: 'list' | 'form' = 'list') => {
@@ -212,13 +277,38 @@ export class ObjectStackClient {
         return res.json();
     },
 
-    updateMany: async <T = any>(object: string, data: Partial<T>, filters?: Record<string, any> | any[]): Promise<number> => {
+    /**
+     * Batch update multiple records
+     * Uses the new BatchUpdateRequest schema with full control over options
+     */
+    batch: async (object: string, request: BatchUpdateRequest): Promise<BatchUpdateResponse> => {
         const route = this.getRoute('data');
         const res = await this.fetch(`${this.baseUrl}${route}/${object}/batch`, {
-            method: 'PATCH',
-            body: JSON.stringify({ data, filters })
+            method: 'POST',
+            body: JSON.stringify(request)
         });
-        return res.json(); // Returns count
+        return res.json();
+    },
+
+    /**
+     * Update multiple records (simplified batch update)
+     * @deprecated Use batch() method for full control
+     */
+    updateMany: async <T = any>(
+      object: string, 
+      records: Array<{ id: string; data: Partial<T> }>,
+      options?: BatchOptions
+    ): Promise<BatchUpdateResponse> => {
+        const route = this.getRoute('data');
+        const request: UpdateManyRequest = {
+          records: records.map(r => ({ id: r.id, data: r.data })),
+          options
+        };
+        const res = await this.fetch(`${this.baseUrl}${route}/${object}/updateMany`, {
+            method: 'POST',
+            body: JSON.stringify(request)
+        });
+        return res.json();
     },
 
     delete: async (object: string, id: string): Promise<{ success: boolean }> => {
@@ -229,13 +319,118 @@ export class ObjectStackClient {
         return res.json();
     },
 
-    deleteMany: async(object: string, filters?: Record<string, any> | any[]): Promise<{ count: number }> => {
+    /**
+     * Delete multiple records by IDs
+     */
+    deleteMany: async(object: string, ids: string[], options?: BatchOptions): Promise<BatchUpdateResponse> => {
         const route = this.getRoute('data');
-        const res = await this.fetch(`${this.baseUrl}${route}/${object}/batch`, {
-             method: 'DELETE',
-             body: JSON.stringify({ filters })
+        const request: DeleteManyRequest = {
+          ids,
+          options
+        };
+        const res = await this.fetch(`${this.baseUrl}${route}/${object}/deleteMany`, {
+             method: 'POST',
+             body: JSON.stringify(request)
         });
         return res.json();
+    }
+  };
+
+  /**
+   * View Storage Operations
+   * Save, load, and manage UI view configurations
+   */
+  views = {
+    /**
+     * Create a new saved view
+     */
+    create: async (request: CreateViewRequest): Promise<ViewResponse> => {
+      const route = this.getRoute('ui');
+      const res = await this.fetch(`${this.baseUrl}${route}/views`, {
+        method: 'POST',
+        body: JSON.stringify(request)
+      });
+      return res.json();
+    },
+
+    /**
+     * Get a saved view by ID
+     */
+    get: async (id: string): Promise<ViewResponse> => {
+      const route = this.getRoute('ui');
+      const res = await this.fetch(`${this.baseUrl}${route}/views/${id}`);
+      return res.json();
+    },
+
+    /**
+     * List saved views with optional filters
+     */
+    list: async (request?: ListViewsRequest): Promise<ListViewsResponse> => {
+      const route = this.getRoute('ui');
+      const queryParams = new URLSearchParams();
+      
+      if (request?.object) queryParams.set('object', request.object);
+      if (request?.type) queryParams.set('type', request.type);
+      if (request?.visibility) queryParams.set('visibility', request.visibility);
+      if (request?.createdBy) queryParams.set('createdBy', request.createdBy);
+      if (request?.isDefault !== undefined) queryParams.set('isDefault', String(request.isDefault));
+      if (request?.limit) queryParams.set('limit', String(request.limit));
+      if (request?.offset) queryParams.set('offset', String(request.offset));
+      
+      const url = queryParams.toString() 
+        ? `${this.baseUrl}${route}/views?${queryParams.toString()}`
+        : `${this.baseUrl}${route}/views`;
+        
+      const res = await this.fetch(url);
+      return res.json();
+    },
+
+    /**
+     * Update an existing view
+     */
+    update: async (request: UpdateViewRequest): Promise<ViewResponse> => {
+      const route = this.getRoute('ui');
+      const { id, ...updateData } = request;
+      const res = await this.fetch(`${this.baseUrl}${route}/views/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updateData)
+      });
+      return res.json();
+    },
+
+    /**
+     * Delete a saved view
+     */
+    delete: async (id: string): Promise<{ success: boolean }> => {
+      const route = this.getRoute('ui');
+      const res = await this.fetch(`${this.baseUrl}${route}/views/${id}`, {
+        method: 'DELETE'
+      });
+      return res.json();
+    },
+
+    /**
+     * Share a view with users/teams
+     */
+    share: async (id: string, userIds: string[]): Promise<ViewResponse> => {
+      const route = this.getRoute('ui');
+      const res = await this.fetch(`${this.baseUrl}${route}/views/${id}/share`, {
+        method: 'POST',
+        body: JSON.stringify({ sharedWith: userIds })
+      });
+      return res.json();
+    },
+
+    /**
+     * Set a view as default for an object
+     */
+    setDefault: async (id: string, object: string): Promise<ViewResponse> => {
+      const route = this.getRoute('ui');
+      const res = await this.fetch(`${this.baseUrl}${route}/views/${id}/set-default`, {
+        method: 'POST',
+        body: JSON.stringify({ object })
+      });
+      return res.json();
     }
   };
 
@@ -276,7 +471,7 @@ export class ObjectStackClient {
     });
     
     if (!res.ok) {
-        let errorBody;
+        let errorBody: any;
         try {
             errorBody = await res.json();
         } catch {
@@ -290,7 +485,19 @@ export class ObjectStackClient {
           error: errorBody
         });
         
-        throw new Error(`[ObjectStack] Request failed: ${res.status} ${JSON.stringify(errorBody)}`);
+        // Create a standardized error if the response includes error details
+        const errorMessage = errorBody?.message || errorBody?.error?.message || res.statusText;
+        const errorCode = errorBody?.code || errorBody?.error?.code;
+        const error = new Error(`[ObjectStack] ${errorCode ? `${errorCode}: ` : ''}${errorMessage}`) as any;
+        
+        // Attach error details for programmatic access
+        error.code = errorCode;
+        error.category = errorBody?.category;
+        error.httpStatus = res.status;
+        error.retryable = errorBody?.retryable;
+        error.details = errorBody?.details || errorBody;
+        
+        throw error;
     }
     
     return res;
@@ -308,3 +515,28 @@ export class ObjectStackClient {
     return this.routes[key] || `/api/v1/${key}`; 
   }
 }
+
+// Re-export commonly used types from @objectstack/spec/api for convenience
+export type {
+  BatchUpdateRequest,
+  BatchUpdateResponse,
+  UpdateManyRequest,
+  DeleteManyRequest,
+  BatchOptions,
+  BatchRecord,
+  BatchOperationResult,
+  MetadataCacheRequest,
+  MetadataCacheResponse,
+  StandardErrorCode,
+  ErrorCategory,
+  CreateViewRequest,
+  UpdateViewRequest,
+  ListViewsRequest,
+  SavedView,
+  ViewResponse,
+  ListViewsResponse,
+  ViewType,
+  ViewVisibility,
+  ViewColumn,
+  ViewLayout
+} from '@objectstack/spec/api';
