@@ -472,7 +472,7 @@ describe('EnterpriseAuthConfigSchema', () => {
       },
     };
 
-    expect(() => EnterpriseApplicationAuthConfigSchema.parse(config)).not.toThrow();
+    expect(() => EnterpriseAuthConfigSchema.parse(config)).not.toThrow();
   });
 
   it('should accept partial enterprise config', () => {
@@ -485,12 +485,12 @@ describe('EnterpriseAuthConfigSchema', () => {
       },
     };
 
-    expect(() => EnterpriseApplicationAuthConfigSchema.parse(config)).not.toThrow();
+    expect(() => EnterpriseAuthConfigSchema.parse(config)).not.toThrow();
   });
 
   it('should accept empty enterprise config', () => {
     const config = {};
-    expect(() => EnterpriseApplicationAuthConfigSchema.parse(config)).not.toThrow();
+    expect(() => EnterpriseAuthConfigSchema.parse(config)).not.toThrow();
   });
 });
 
