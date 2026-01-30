@@ -1,0 +1,61 @@
+{
+  "$ref": "#/definitions/WorkflowActionParams",
+  "definitions": {
+    "WorkflowActionParams": {
+      "type": "object",
+      "properties": {
+        "flowName": {
+          "type": "string",
+          "description": "Flow/workflow name"
+        },
+        "approvalProcessName": {
+          "type": "string",
+          "description": "Approval process name"
+        },
+        "webhookUrl": {
+          "type": "string",
+          "description": "Webhook URL"
+        },
+        "reportName": {
+          "type": "string",
+          "description": "Report name"
+        },
+        "emailTemplate": {
+          "type": "string",
+          "description": "Email template"
+        },
+        "recipients": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Email recipients"
+        },
+        "subject": {
+          "type": "string",
+          "description": "Email subject"
+        },
+        "message": {
+          "type": "string",
+          "description": "Notification/email message"
+        },
+        "taskData": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Task creation data"
+        },
+        "scheduleTime": {
+          "type": "string",
+          "description": "Schedule time (ISO 8601)"
+        },
+        "contextData": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Additional context data"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

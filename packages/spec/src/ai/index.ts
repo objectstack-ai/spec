@@ -13,6 +13,7 @@
  */
 
 export * from './agent.zod';
+export * from './agent-action.zod';
 export * from './model-registry.zod';
 export * from './rag-pipeline.zod';
 export * from './nlq.zod';
