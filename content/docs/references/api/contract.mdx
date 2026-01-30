@@ -101,6 +101,7 @@ const result = ApiErrorSchema.parse(data);
 | **object** | `string` | ✅ | Object name (e.g. account) |
 | **fields** | `string \| object[]` | optional | Fields to retrieve |
 | **where** | `any` | optional | Filtering criteria (WHERE) |
+| **search** | `object` | optional | Full-text search configuration ($search parameter) |
 | **orderBy** | `object[]` | optional | Sorting instructions (ORDER BY) |
 | **limit** | `number` | optional | Max records to return (LIMIT) |
 | **offset** | `number` | optional | Records to skip (OFFSET) |

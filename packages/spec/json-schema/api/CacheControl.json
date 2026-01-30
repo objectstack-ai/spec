@@ -1,0 +1,42 @@
+{
+  "$ref": "#/definitions/CacheControl",
+  "definitions": {
+    "CacheControl": {
+      "type": "object",
+      "properties": {
+        "directives": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "public",
+              "private",
+              "no-cache",
+              "no-store",
+              "must-revalidate",
+              "max-age"
+            ]
+          },
+          "description": "Cache control directives"
+        },
+        "maxAge": {
+          "type": "number",
+          "description": "Maximum cache age in seconds"
+        },
+        "staleWhileRevalidate": {
+          "type": "number",
+          "description": "Allow serving stale content while revalidating (seconds)"
+        },
+        "staleIfError": {
+          "type": "number",
+          "description": "Allow serving stale content on error (seconds)"
+        }
+      },
+      "required": [
+        "directives"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,15 @@
+{
+  "$ref": "#/definitions/BatchOperationType",
+  "definitions": {
+    "BatchOperationType": {
+      "type": "string",
+      "enum": [
+        "create",
+        "update",
+        "upsert",
+        "delete"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
