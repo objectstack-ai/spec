@@ -11,6 +11,7 @@ export * from './contract.zod';
 export * from './endpoint.zod';
 export * from './discovery.zod';
 export * from './realtime.zod';
+export * from './websocket.zod';
 export * from './router.zod';
 export * from './odata.zod';
 export * from './graphql.zod';
