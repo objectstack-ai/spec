@@ -1,0 +1,49 @@
+{
+  "name": "@objectstack/ai-factory",
+  "version": "0.1.0-alpha",
+  "description": "Autonomous agent system for building enterprise software with ObjectStack",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "generate": "node ./dist/cli.js"
+  },
+  "dependencies": {
+    "@objectstack/spec": "workspace:*",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.0.4"
+  },
+  "keywords": [
+    "objectstack",
+    "ai",
+    "agent",
+    "autonomous",
+    "code-generation",
+    "crm",
+    "low-code"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/objectstack-ai/spec.git",
+    "directory": "examples/ai-factory"
+  },
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
