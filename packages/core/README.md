@@ -1,19 +1,21 @@
 # @objectstack/core
 
-Microkernel Core for ObjectStack - A lightweight, plugin-based architecture with configurable logging.
+Microkernel Core for ObjectStack - A lightweight, plugin-based architecture with enterprise-grade features.
 
 ## Overview
 
 This package defines the fundamental runtime mechanics of the ObjectStack architecture:
-1. **Dependency Injection (DI)**: A `services` registry for inter-plugin communication
+1. **Dependency Injection (DI)**: Advanced service registry with factory functions and lifecycle management
 2. **Plugin Lifecycle**: `init` (Registration) -> `start` (Execution) -> `destroy` (Cleanup)
 3. **Event Bus**: Simple hook system (`hook`, `trigger`) for event-driven communication
 4. **Configurable Logging**: Universal logger using [Pino](https://github.com/pinojs/pino) for Node.js and simple console for browsers
+5. **Enhanced Features**: Version compatibility, health checks, timeout control, graceful shutdown, and more
 
 It is completely agnostic of "Data", "HTTP", or "Apps". It only knows `Plugin` and `Service`.
 
 ## Features
 
+### Core Features
 - **Plugin-based Architecture**: Modular microkernel that manages plugin lifecycle
 - **Service Registry**: Dependency injection for inter-plugin communication
 - **Event/Hook System**: Flexible event-driven communication
@@ -23,6 +25,21 @@ It is completely agnostic of "Data", "HTTP", or "Apps". It only knows `Plugin` a
 - **Environment Detection**: Automatic runtime detection (Node.js/browser)
 - **Dependency Resolution**: Automatic topological sorting of plugin dependencies
 - **Security**: Automatic sensitive data redaction in logs
+
+### Enhanced Features (EnhancedObjectKernel)
+- **Async Plugin Loading**: Load plugins asynchronously with validation
+- **Version Compatibility**: Semantic versioning support and validation
+- **Plugin Signatures**: Security verification (extensible)
+- **Configuration Validation**: Zod-based schema validation for plugin configs
+- **Service Factories**: Factory-based service instantiation with lifecycle control
+- **Service Lifecycles**: Singleton, Transient, and Scoped service management
+- **Circular Dependency Detection**: Automatic detection and reporting
+- **Lazy Loading**: Services created on-demand
+- **Timeout Control**: Configurable timeouts for plugin initialization
+- **Failure Rollback**: Automatic rollback on startup failures
+- **Health Checks**: Monitor plugin health at runtime
+- **Performance Metrics**: Track plugin startup times
+- **Graceful Shutdown**: Proper cleanup with timeout control
 
 ## Installation
 
@@ -201,6 +218,65 @@ kernel.use(apiPlugin);
 await kernel.bootstrap();
 ```
 
+## Enhanced Kernel Usage
+
+For production applications, use `EnhancedObjectKernel` for advanced features:
+
+```typescript
+import { EnhancedObjectKernel, PluginMetadata, ServiceLifecycle } from '@objectstack/core';
+
+// Create enhanced kernel
+const kernel = new EnhancedObjectKernel({
+  logger: { level: 'info', format: 'pretty' },
+  defaultStartupTimeout: 30000,   // 30 seconds
+  gracefulShutdown: true,
+  shutdownTimeout: 60000,         // 60 seconds
+  rollbackOnFailure: true,        // Rollback on failures
+});
+
+// Plugin with version and health check
+const plugin: PluginMetadata = {
+  name: 'my-plugin',
+  version: '1.2.3',
+  startupTimeout: 10000,
+  
+  async init(ctx) {
+    ctx.registerService('my-service', serviceInstance);
+  },
+  
+  async healthCheck() {
+    return {
+      healthy: true,
+      message: 'Service is operational'
+    };
+  }
+};
+
+// Register service factory with lifecycle
+kernel.registerServiceFactory(
+  'database',
+  async (ctx) => await connectToDatabase(),
+  ServiceLifecycle.SINGLETON
+);
+
+await kernel.use(plugin);
+await kernel.bootstrap();
+
+// Check health
+const health = await kernel.checkPluginHealth('my-plugin');
+console.log(health);
+
+// Get metrics
+const metrics = kernel.getPluginMetrics();
+console.log(metrics);
+
+// Graceful shutdown
+await kernel.shutdown();
+```
+
+See [ENHANCED_FEATURES.md](./ENHANCED_FEATURES.md) for comprehensive documentation.
+See [examples/enhanced-kernel-example.ts](./examples/enhanced-kernel-example.ts) for a complete example.
+
 ## Environment Support
 
 ### Node.js Features (via Pino)
@@ -226,13 +302,26 @@ Automatic sensitive data redaction:
 
 ## API Reference
 
-- `ObjectKernel` - Main microkernel class
+### ObjectKernel (Basic)
+- `ObjectKernel` - Basic microkernel class
 - `createLogger(config)` - Create standalone logger
 - `Plugin` - Plugin interface
 - `PluginContext` - Runtime context for plugins
 - `Logger` - Logger interface
 
+### EnhancedObjectKernel (Advanced)
+- `EnhancedObjectKernel` - Enhanced microkernel with production features
+- `PluginLoader` - Plugin loading and validation
+- `ServiceLifecycle` - Service lifecycle management (SINGLETON, TRANSIENT, SCOPED)
+- `PluginMetadata` - Extended plugin interface with metadata
+- `PluginHealthStatus` - Health check result interface
+
 See [TypeScript definitions](./src/types.ts) for complete API.
+
+## Documentation
+
+- [ENHANCED_FEATURES.md](./ENHANCED_FEATURES.md) - Comprehensive guide to enhanced features
+- [examples/enhanced-kernel-example.ts](./examples/enhanced-kernel-example.ts) - Complete working example
 
 ## License
 
