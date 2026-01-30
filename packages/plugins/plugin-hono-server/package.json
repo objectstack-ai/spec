@@ -9,9 +9,8 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.2.0",
-    "@objectstack/core": "workspace:*",
+    "@objectstack/objectos": "workspace:*",
     "@objectstack/spec": "workspace:*",
-    "@objectstack/types": "workspace:*",
     "hono": "^4.0.0"
   },
   "devDependencies": {

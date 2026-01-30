@@ -1,7 +1,7 @@
 import { QueryAST, HookContext } from '@objectstack/spec/data';
 import { ObjectStackManifest } from '@objectstack/spec/system';
 import { DriverOptions } from '@objectstack/spec/system';
-import { DriverInterface, IDataEngine, DataEngineQueryOptions, Logger, createLogger } from '@objectstack/core';
+import { DriverInterface, IDataEngine, DataEngineQueryOptions, Logger, createLogger } from '@objectstack/objectos/kernel';
 import { SchemaRegistry } from './registry';
 
 export type HookHandler = (context: HookContext) => Promise<void> | void;

@@ -1,0 +1,81 @@
+{
+  "name": "@objectstack/objectos",
+  "version": "0.6.1",
+  "description": "Operating System Layer for ObjectStack - Kernel, Runtime, Client SDK, and CLI",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "objectstack": "./dist/cli/bin.js",
+    "ost": "./dist/cli/bin.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./kernel": {
+      "types": "./dist/kernel/index.d.ts",
+      "default": "./dist/kernel/index.js"
+    },
+    "./runtime": {
+      "types": "./dist/runtime/index.d.ts",
+      "default": "./dist/runtime/index.js"
+    },
+    "./client": {
+      "types": "./dist/client/index.d.ts",
+      "default": "./dist/client/index.js"
+    },
+    "./cli": {
+      "types": "./dist/cli/index.d.ts",
+      "default": "./dist/cli/index.js"
+    },
+    "./ai-bridge": {
+      "types": "./dist/ai-bridge/index.d.ts",
+      "default": "./dist/ai-bridge/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc && chmod +x dist/cli/bin.js",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@objectstack/spec": "workspace:*",
+    "@objectstack/objectql": "workspace:*",
+    "pino": "^8.17.0",
+    "pino-pretty": "^10.3.0",
+    "bundle-require": "^5.1.0",
+    "chalk": "^5.3.0",
+    "commander": "^11.1.0",
+    "tsx": "^4.7.1",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "peerDependencies": {
+    "pino": "^8.0.0"
+  },
+  "peerDependenciesMeta": {
+    "pino": {
+      "optional": true
+    }
+  },
+  "keywords": [
+    "objectstack",
+    "kernel",
+    "runtime",
+    "client",
+    "cli"
+  ],
+  "author": "ObjectStack",
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  }
+}

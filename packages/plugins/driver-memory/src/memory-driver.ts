@@ -1,6 +1,6 @@
 import { QueryAST, QueryInput } from '@objectstack/spec/data';
 import { DriverOptions } from '@objectstack/spec/system';
-import { DriverInterface, Logger, createLogger } from '@objectstack/core';
+import { DriverInterface, Logger, createLogger } from '@objectstack/objectos/kernel';
 
 /**
  * Example: In-Memory Driver

@@ -1,0 +1,34 @@
+{
+  "name": "@objectstack/objectui",
+  "version": "0.6.1",
+  "description": "UI Layer for ObjectStack - View rendering and component system",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@objectstack/spec": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "keywords": [
+    "objectstack",
+    "ui",
+    "view",
+    "component"
+  ],
+  "author": "ObjectStack",
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  }
+}

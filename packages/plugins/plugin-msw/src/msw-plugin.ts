@@ -5,7 +5,7 @@ import {
     PluginContext, 
     ObjectKernel,
     IDataEngine
-} from '@objectstack/runtime';
+} from '@objectstack/objectos/runtime';
 import { ObjectStackProtocolImplementation } from '@objectstack/objectql';
 import { IObjectStackProtocol } from '@objectstack/spec/api';
 // import { IDataEngine } from '@objectstack/core';

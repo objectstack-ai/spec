@@ -9,9 +9,8 @@
     "test": "echo no tests"
   },
   "dependencies": {
-    "@objectstack/core": "workspace:*",
-    "@objectstack/spec": "workspace:*",
-    "@objectstack/types": "workspace:*"
+    "@objectstack/objectos": "workspace:*",
+    "@objectstack/spec": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.0.0",

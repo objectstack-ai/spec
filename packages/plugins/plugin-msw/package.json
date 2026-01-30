@@ -9,16 +9,15 @@
   },
   "dependencies": {
     "@objectstack/spec": "workspace:*",
-    "@objectstack/types": "workspace:*",
     "@objectstack/objectql": "workspace:*",
     "msw": "^2.0.0"
   },
   "devDependencies": {
-    "@objectstack/runtime": "workspace:*",
+    "@objectstack/objectos": "workspace:*",
     "@types/node": "^20.0.0",
     "typescript": "^5.0.0"
   },
   "peerDependencies": {
-    "@objectstack/runtime": "^0.6.1"
+    "@objectstack/objectos": "^0.6.1"
   }
 }

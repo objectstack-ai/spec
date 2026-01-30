@@ -1,6 +1,6 @@
 import { ObjectQL } from './engine';
 import { ObjectStackProtocolImplementation } from './protocol';
-import { Plugin, PluginContext } from '@objectstack/core';
+import { Plugin, PluginContext } from '@objectstack/objectos/kernel';
 
 export type { Plugin, PluginContext };
 

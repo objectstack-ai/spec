@@ -1,4 +1,4 @@
-import { Plugin, PluginContext, IHttpServer } from '@objectstack/core';
+import { Plugin, PluginContext, IHttpServer } from '@objectstack/objectos/kernel';
 import { IObjectStackProtocol } from '@objectstack/spec/api';
 import { HonoHttpServer } from './adapter';
 

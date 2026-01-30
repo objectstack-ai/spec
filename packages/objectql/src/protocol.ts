@@ -1,5 +1,5 @@
 import { IObjectStackProtocol } from '@objectstack/spec/api';
-import { IDataEngine } from '@objectstack/core';
+import { IDataEngine } from '@objectstack/objectos/kernel';
 import type { 
     BatchUpdateRequest, 
     BatchUpdateResponse, 
