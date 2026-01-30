@@ -3,6 +3,7 @@
   "pages": [
     "audit",
     "cache",
+    "change-management",
     "collaboration",
     "compliance",
     "context",
@@ -21,6 +22,7 @@
     "masking",
     "message-queue",
     "metrics",
+    "notification",
     "object-storage",
     "plugin",
     "plugin-capability",

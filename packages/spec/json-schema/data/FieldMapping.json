@@ -1,0 +1,34 @@
+{
+  "$ref": "#/definitions/FieldMapping",
+  "definitions": {
+    "FieldMapping": {
+      "type": "object",
+      "properties": {
+        "externalField": {
+          "type": "string",
+          "description": "External field name"
+        },
+        "localField": {
+          "type": "string",
+          "description": "Local field name"
+        },
+        "type": {
+          "type": "string",
+          "description": "Field type"
+        },
+        "readonly": {
+          "type": "boolean",
+          "default": true,
+          "description": "Read-only field"
+        }
+      },
+      "required": [
+        "externalField",
+        "localField",
+        "type"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,313 @@
+{
+  "$ref": "#/definitions/ChangeRequest",
+  "definitions": {
+    "ChangeRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Change request ID"
+        },
+        "title": {
+          "type": "string",
+          "description": "Change title"
+        },
+        "description": {
+          "type": "string",
+          "description": "Change description"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "standard",
+            "normal",
+            "emergency",
+            "major"
+          ],
+          "description": "Change type"
+        },
+        "priority": {
+          "type": "string",
+          "enum": [
+            "critical",
+            "high",
+            "medium",
+            "low"
+          ],
+          "description": "Change priority"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "submitted",
+            "in-review",
+            "approved",
+            "scheduled",
+            "in-progress",
+            "completed",
+            "failed",
+            "rolled-back",
+            "cancelled"
+          ],
+          "description": "Change status"
+        },
+        "requestedBy": {
+          "type": "string",
+          "description": "Requester user ID"
+        },
+        "requestedAt": {
+          "type": "number",
+          "description": "Request timestamp"
+        },
+        "impact": {
+          "type": "object",
+          "properties": {
+            "level": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high",
+                "critical"
+              ],
+              "description": "Impact level"
+            },
+            "affectedSystems": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Affected systems"
+            },
+            "affectedUsers": {
+              "type": "number",
+              "description": "Affected user count"
+            },
+            "downtime": {
+              "type": "object",
+              "properties": {
+                "required": {
+                  "type": "boolean",
+                  "description": "Downtime required"
+                },
+                "durationMinutes": {
+                  "type": "number",
+                  "description": "Downtime duration"
+                }
+              },
+              "required": [
+                "required"
+              ],
+              "additionalProperties": false,
+              "description": "Downtime information"
+            }
+          },
+          "required": [
+            "level",
+            "affectedSystems"
+          ],
+          "additionalProperties": false,
+          "description": "Impact assessment"
+        },
+        "implementation": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string",
+              "description": "Implementation description"
+            },
+            "steps": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "order": {
+                    "type": "number",
+                    "description": "Step order"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Step description"
+                  },
+                  "estimatedMinutes": {
+                    "type": "number",
+                    "description": "Estimated duration"
+                  }
+                },
+                "required": [
+                  "order",
+                  "description",
+                  "estimatedMinutes"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Implementation steps"
+            },
+            "testing": {
+              "type": "string",
+              "description": "Testing procedure"
+            }
+          },
+          "required": [
+            "description",
+            "steps"
+          ],
+          "additionalProperties": false,
+          "description": "Implementation plan"
+        },
+        "rollbackPlan": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string",
+              "description": "Rollback description"
+            },
+            "steps": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "order": {
+                    "type": "number",
+                    "description": "Step order"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Step description"
+                  },
+                  "estimatedMinutes": {
+                    "type": "number",
+                    "description": "Estimated duration"
+                  }
+                },
+                "required": [
+                  "order",
+                  "description",
+                  "estimatedMinutes"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Rollback steps"
+            },
+            "testProcedure": {
+              "type": "string",
+              "description": "Test procedure"
+            }
+          },
+          "required": [
+            "description",
+            "steps"
+          ],
+          "additionalProperties": false,
+          "description": "Rollback plan"
+        },
+        "schedule": {
+          "type": "object",
+          "properties": {
+            "plannedStart": {
+              "type": "number",
+              "description": "Planned start time"
+            },
+            "plannedEnd": {
+              "type": "number",
+              "description": "Planned end time"
+            },
+            "actualStart": {
+              "type": "number",
+              "description": "Actual start time"
+            },
+            "actualEnd": {
+              "type": "number",
+              "description": "Actual end time"
+            }
+          },
+          "required": [
+            "plannedStart",
+            "plannedEnd"
+          ],
+          "additionalProperties": false,
+          "description": "Schedule"
+        },
+        "approval": {
+          "type": "object",
+          "properties": {
+            "required": {
+              "type": "boolean",
+              "description": "Approval required"
+            },
+            "approvers": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "description": "Approver user ID"
+                  },
+                  "approvedAt": {
+                    "type": "number",
+                    "description": "Approval timestamp"
+                  },
+                  "comments": {
+                    "type": "string",
+                    "description": "Approver comments"
+                  }
+                },
+                "required": [
+                  "userId"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Approvers"
+            }
+          },
+          "required": [
+            "required",
+            "approvers"
+          ],
+          "additionalProperties": false,
+          "description": "Approval workflow"
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Attachment name"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "description": "Attachment URL"
+              }
+            },
+            "required": [
+              "name",
+              "url"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Attachments"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "description",
+        "type",
+        "priority",
+        "status",
+        "requestedBy",
+        "requestedAt",
+        "impact",
+        "implementation",
+        "rollbackPlan"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

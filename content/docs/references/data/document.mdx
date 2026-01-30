@@ -1,0 +1,87 @@
+---
+title: Document
+description: Document protocol schemas
+---
+
+# Document
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/document.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { DocumentSchema, DocumentTemplateSchema, DocumentVersionSchema, ESignatureConfigSchema } from '@objectstack/spec/data';
+import type { Document, DocumentTemplate, DocumentVersion, ESignatureConfig } from '@objectstack/spec/data';
+
+// Validate data
+const result = DocumentSchema.parse(data);
+```
+
+---
+
+## Document
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Document ID |
+| **name** | `string` | ✅ | Document name |
+| **description** | `string` | optional | Document description |
+| **fileType** | `string` | ✅ | File MIME type |
+| **fileSize** | `number` | ✅ | File size in bytes |
+| **category** | `string` | optional | Document category |
+| **tags** | `string[]` | optional | Document tags |
+| **versioning** | `object` | optional | Version control |
+| **template** | `object` | optional | Document template |
+| **eSignature** | `object` | optional | E-signature config |
+| **access** | `object` | optional | Access control |
+| **metadata** | `Record<string, any>` | optional | Custom metadata |
+
+---
+
+## DocumentTemplate
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Template ID |
+| **name** | `string` | ✅ | Template name |
+| **description** | `string` | optional | Template description |
+| **fileUrl** | `string` | ✅ | Template file URL |
+| **fileType** | `string` | ✅ | File MIME type |
+| **placeholders** | `object[]` | ✅ | Template placeholders |
+
+---
+
+## DocumentVersion
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **versionNumber** | `number` | ✅ | Version number |
+| **createdAt** | `number` | ✅ | Creation timestamp |
+| **createdBy** | `string` | ✅ | Creator user ID |
+| **size** | `number` | ✅ | File size in bytes |
+| **checksum** | `string` | ✅ | File checksum |
+| **downloadUrl** | `string` | ✅ | Download URL |
+| **isLatest** | `boolean` | optional | Is latest version |
+
+---
+
+## ESignatureConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **provider** | `Enum<'docusign' \| 'adobe-sign' \| 'hellosign' \| 'custom'>` | ✅ | E-signature provider |
+| **enabled** | `boolean` | optional | E-signature enabled |
+| **signers** | `object[]` | ✅ | Document signers |
+| **expirationDays** | `number` | optional | Expiration days |
+| **reminderDays** | `number` | optional | Reminder interval days |
+

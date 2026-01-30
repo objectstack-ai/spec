@@ -1,0 +1,210 @@
+{
+  "$ref": "#/definitions/ExternalLookup",
+  "definitions": {
+    "ExternalLookup": {
+      "type": "object",
+      "properties": {
+        "fieldName": {
+          "type": "string",
+          "description": "Field name"
+        },
+        "dataSource": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Data source ID"
+            },
+            "name": {
+              "type": "string",
+              "description": "Data source name"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "odata",
+                "rest-api",
+                "graphql",
+                "custom"
+              ],
+              "description": "Protocol type"
+            },
+            "endpoint": {
+              "type": "string",
+              "format": "uri",
+              "description": "API endpoint URL"
+            },
+            "authentication": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "oauth2",
+                    "api-key",
+                    "basic",
+                    "none"
+                  ],
+                  "description": "Auth type"
+                },
+                "config": {
+                  "type": "object",
+                  "additionalProperties": {},
+                  "description": "Auth configuration"
+                }
+              },
+              "required": [
+                "type",
+                "config"
+              ],
+              "additionalProperties": false,
+              "description": "Authentication"
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "type",
+            "endpoint",
+            "authentication"
+          ],
+          "additionalProperties": false,
+          "description": "External data source"
+        },
+        "query": {
+          "type": "object",
+          "properties": {
+            "endpoint": {
+              "type": "string",
+              "description": "Query endpoint path"
+            },
+            "method": {
+              "type": "string",
+              "enum": [
+                "GET",
+                "POST"
+              ],
+              "default": "GET",
+              "description": "HTTP method"
+            },
+            "parameters": {
+              "type": "object",
+              "additionalProperties": {},
+              "description": "Query parameters"
+            }
+          },
+          "required": [
+            "endpoint"
+          ],
+          "additionalProperties": false,
+          "description": "Query configuration"
+        },
+        "fieldMappings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "externalField": {
+                "type": "string",
+                "description": "External field name"
+              },
+              "localField": {
+                "type": "string",
+                "description": "Local field name"
+              },
+              "type": {
+                "type": "string",
+                "description": "Field type"
+              },
+              "readonly": {
+                "type": "boolean",
+                "default": true,
+                "description": "Read-only field"
+              }
+            },
+            "required": [
+              "externalField",
+              "localField",
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Field mappings"
+        },
+        "caching": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Cache enabled"
+            },
+            "ttl": {
+              "type": "number",
+              "default": 300,
+              "description": "Cache TTL (seconds)"
+            },
+            "strategy": {
+              "type": "string",
+              "enum": [
+                "lru",
+                "lfu",
+                "ttl"
+              ],
+              "default": "ttl",
+              "description": "Cache strategy"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Caching configuration"
+        },
+        "fallback": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Fallback enabled"
+            },
+            "defaultValue": {
+              "description": "Default fallback value"
+            },
+            "showError": {
+              "type": "boolean",
+              "default": true,
+              "description": "Show error to user"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Fallback configuration"
+        },
+        "rateLimit": {
+          "type": "object",
+          "properties": {
+            "requestsPerSecond": {
+              "type": "number",
+              "description": "Requests per second limit"
+            },
+            "burstSize": {
+              "type": "number",
+              "description": "Burst size"
+            }
+          },
+          "required": [
+            "requestsPerSecond"
+          ],
+          "additionalProperties": false,
+          "description": "Rate limiting"
+        }
+      },
+      "required": [
+        "fieldName",
+        "dataSource",
+        "query",
+        "fieldMappings"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
