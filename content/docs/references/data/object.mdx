@@ -12,12 +12,24 @@ description: Object protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { IndexSchema, ObjectSchema, ObjectCapabilitiesSchema } from '@objectstack/spec/data';
-import type { Index, Object, ObjectCapabilities } from '@objectstack/spec/data';
+import { CDCConfigSchema, IndexSchema, ObjectSchema, ObjectCapabilitiesSchema, PartitioningConfigSchema, SoftDeleteConfigSchema, TenancyConfigSchema, VersioningConfigSchema } from '@objectstack/spec/data';
+import type { CDCConfig, Index, Object, ObjectCapabilities, PartitioningConfig, SoftDeleteConfig, TenancyConfig, VersioningConfig } from '@objectstack/spec/data';
 
 // Validate data
-const result = IndexSchema.parse(data);
+const result = CDCConfigSchema.parse(data);
 ```
+
+---
+
+## CDCConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable Change Data Capture |
+| **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | ✅ | Event types to capture |
+| **destination** | `string` | ✅ | Destination endpoint (e.g., "kafka://topic", "webhook://url") |
 
 ---
 
@@ -27,10 +39,11 @@ const result = IndexSchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **name** | `string` | optional | Index name |
+| **name** | `string` | ✅ | Index name (auto-generated if not provided) |
 | **fields** | `string[]` | ✅ | Fields included in the index |
-| **unique** | `boolean` | optional | Whether the index is unique |
-| **type** | `Enum<'btree' \| 'hash' \| 'gin' \| 'gist'>` | optional | Index type (default: btree) |
+| **type** | `Enum<'btree' \| 'hash' \| 'gin' \| 'gist' \| 'fulltext'>` | optional | Index algorithm type |
+| **unique** | `boolean` | optional | Whether the index enforces uniqueness |
+| **partial** | `string` | optional | Partial index condition (SQL WHERE clause for conditional indexes) |
 
 ---
 
@@ -53,6 +66,11 @@ const result = IndexSchema.parse(data);
 | **tableName** | `string` | optional | Physical table/collection name in the target datasource |
 | **fields** | `Record<string, object>` | ✅ | Field definitions map |
 | **indexes** | `object[]` | optional | Database performance indexes |
+| **tenancy** | `object` | optional | Multi-tenancy configuration for SaaS applications |
+| **softDelete** | `object` | optional | Soft delete (trash/recycle bin) configuration |
+| **versioning** | `object` | optional | Record versioning and history tracking configuration |
+| **partitioning** | `object` | optional | Table partitioning configuration for performance |
+| **cdc** | `object` | optional | Change Data Capture (CDC) configuration for real-time data streaming |
 | **validations** | `object \| object \| object \| object \| object \| object \| object \| object \| object[]` | optional | Object-level validation rules |
 | **titleFormat** | `string` | optional | Title expression (e.g. "`{name}` - `{code}`"). Overrides nameField. |
 | **compactLayout** | `string[]` | optional | Primary fields for hover/cards/lookups |
@@ -77,4 +95,55 @@ const result = IndexSchema.parse(data);
 | **trash** | `boolean` | optional | Enable soft-delete with restore capability |
 | **mru** | `boolean` | optional | Track Most Recently Used (MRU) list for users |
 | **clone** | `boolean` | optional | Allow record deep cloning |
+
+---
+
+## PartitioningConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable table partitioning |
+| **strategy** | `Enum<'range' \| 'hash' \| 'list'>` | ✅ | Partitioning strategy: range (date ranges), hash (consistent hashing), list (predefined values) |
+| **key** | `string` | ✅ | Field name to partition by |
+| **interval** | `string` | optional | Partition interval for range strategy (e.g., "1 month", "1 year") |
+
+---
+
+## SoftDeleteConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable soft delete (trash/recycle bin) |
+| **field** | `string` | optional | Field name for soft delete timestamp |
+| **cascadeDelete** | `boolean` | optional | Cascade soft delete to related records |
+
+---
+
+## TenancyConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable multi-tenancy for this object |
+| **strategy** | `Enum<'shared' \| 'isolated' \| 'hybrid'>` | ✅ | Tenant isolation strategy: shared (single DB, row-level), isolated (separate DB per tenant), hybrid (mix) |
+| **tenantField** | `string` | optional | Field name for tenant identifier |
+| **crossTenantAccess** | `boolean` | optional | Allow cross-tenant data access (with explicit permission) |
+
+---
+
+## VersioningConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable record versioning |
+| **strategy** | `Enum<'snapshot' \| 'delta' \| 'event-sourcing'>` | ✅ | Versioning strategy: snapshot (full copy), delta (changes only), event-sourcing (event log) |
+| **retentionDays** | `number` | optional | Number of days to retain old versions (undefined = infinite) |
+| **versionField** | `string` | optional | Field name for version number/timestamp |
 

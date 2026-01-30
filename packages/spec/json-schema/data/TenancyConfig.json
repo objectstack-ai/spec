@@ -1,0 +1,39 @@
+{
+  "$ref": "#/definitions/TenancyConfig",
+  "definitions": {
+    "TenancyConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable multi-tenancy for this object"
+        },
+        "strategy": {
+          "type": "string",
+          "enum": [
+            "shared",
+            "isolated",
+            "hybrid"
+          ],
+          "description": "Tenant isolation strategy: shared (single DB, row-level), isolated (separate DB per tenant), hybrid (mix)"
+        },
+        "tenantField": {
+          "type": "string",
+          "default": "tenant_id",
+          "description": "Field name for tenant identifier"
+        },
+        "crossTenantAccess": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow cross-tenant data access (with explicit permission)"
+        }
+      },
+      "required": [
+        "enabled",
+        "strategy"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -43,16 +43,22 @@ describe('DriverCapabilitiesSchema', () => {
     expect(() => DriverCapabilitiesSchema.parse(capabilities)).not.toThrow();
   });
 
-  it('should require all capability flags', () => {
+  it('should accept capabilities with defaults', () => {
     const incomplete = {
       transactions: true,
       joins: true,
       queryFilters: true,
-      // missing other fields
+      // missing other fields - they should use defaults
     };
 
     const result = DriverCapabilitiesSchema.safeParse(incomplete);
-    expect(result.success).toBe(false);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      // Check that defaults are applied
+      expect(result.data.create).toBe(true); // default
+      expect(result.data.bulkCreate).toBe(false); // default
+      expect(result.data.queryAggregations).toBe(false); // default
+    }
   });
 });
 

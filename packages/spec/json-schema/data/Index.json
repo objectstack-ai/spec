@@ -6,7 +6,7 @@
       "properties": {
         "name": {
           "type": "string",
-          "description": "Index name"
+          "description": "Index name (auto-generated if not provided)"
         },
         "fields": {
           "type": "array",
@@ -15,22 +15,30 @@
           },
           "description": "Fields included in the index"
         },
-        "unique": {
-          "type": "boolean",
-          "description": "Whether the index is unique"
-        },
         "type": {
           "type": "string",
           "enum": [
             "btree",
             "hash",
             "gin",
-            "gist"
+            "gist",
+            "fulltext"
           ],
-          "description": "Index type (default: btree)"
+          "default": "btree",
+          "description": "Index algorithm type"
+        },
+        "unique": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the index enforces uniqueness"
+        },
+        "partial": {
+          "type": "string",
+          "description": "Partial index condition (SQL WHERE clause for conditional indexes)"
         }
       },
       "required": [
+        "name",
         "fields"
       ],
       "additionalProperties": false
