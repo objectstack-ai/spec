@@ -37,6 +37,9 @@ export * from './driver/postgres.zod';
 // Data Engine Protocol
 export * from './data-engine.zod';
 
+// Object Storage Protocol
+export * from './object-storage.zod';
+
 // Note: Auth, Identity, Policy, Role, Organization moved to @objectstack/spec/auth
 // Note: Territory moved to @objectstack/spec/permission
 // Note: Connector Protocol moved to @objectstack/spec/integration

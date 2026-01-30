@@ -12,8 +12,8 @@ description: Misc protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AckModeSchema, ApiVersionConfigSchema, CdcConfigSchema, ConsumerConfigSchema, DatabaseConnectorSchema, DatabasePoolConfigSchema, DatabaseProviderSchema, DatabaseTableSchema, DeliveryGuaranteeSchema, DlqConfigSchema, FileAccessPatternSchema, FileFilterConfigSchema, FileMetadataConfigSchema, FileStorageConnectorSchema, FileStorageProviderSchema, FileVersioningConfigSchema, MessageFormatSchema, MessageQueueConnectorSchema, MessageQueueProviderSchema, MultipartUploadConfigSchema, ProducerConfigSchema, SaasConnectorSchema, SaasObjectTypeSchema, SaasProviderSchema, SslConfigSchema, StorageBucketSchema, TopicQueueSchema } from '@objectstack/spec/integration';
-import type { AckMode, ApiVersionConfig, CdcConfig, ConsumerConfig, DatabaseConnector, DatabasePoolConfig, DatabaseProvider, DatabaseTable, DeliveryGuarantee, DlqConfig, FileAccessPattern, FileFilterConfig, FileMetadataConfig, FileStorageConnector, FileStorageProvider, FileVersioningConfig, MessageFormat, MessageQueueConnector, MessageQueueProvider, MultipartUploadConfig, ProducerConfig, SaasConnector, SaasObjectType, SaasProvider, SslConfig, StorageBucket, TopicQueue } from '@objectstack/spec/integration';
+import { AckModeSchema, ApiVersionConfigSchema, CdcConfigSchema, ConsumerConfigSchema, DatabaseConnectorSchema, DatabasePoolConfigSchema, DatabaseProviderSchema, DatabaseTableSchema, DeliveryGuaranteeSchema, DlqConfigSchema, FileAccessPatternSchema, FileFilterConfigSchema, FileMetadataConfigSchema, FileStorageConnectorSchema, FileStorageProviderSchema, FileVersioningConfigSchema, MessageFormatSchema, MessageQueueConnectorSchema, MessageQueueProviderSchema, ProducerConfigSchema, SaasConnectorSchema, SaasObjectTypeSchema, SaasProviderSchema, SslConfigSchema, StorageBucketSchema, TopicQueueSchema } from '@objectstack/spec/integration';
+import type { AckMode, ApiVersionConfig, CdcConfig, ConsumerConfig, DatabaseConnector, DatabasePoolConfig, DatabaseProvider, DatabaseTable, DeliveryGuarantee, DlqConfig, FileAccessPattern, FileFilterConfig, FileMetadataConfig, FileStorageConnector, FileStorageProvider, FileVersioningConfig, MessageFormat, MessageQueueConnector, MessageQueueProvider, ProducerConfig, SaasConnector, SaasObjectType, SaasProvider, SslConfig, StorageBucket, TopicQueue } from '@objectstack/spec/integration';
 
 // Validate data
 const result = AckModeSchema.parse(data);
@@ -371,19 +371,6 @@ Message queue provider type
 * `pulsar`
 * `activemq`
 * `custom`
-
----
-
-## MultipartUploadConfig
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional | Enable multipart uploads |
-| **partSize** | `number` | optional | Part size in bytes (min 5MB) |
-| **maxConcurrentParts** | `number` | optional | Maximum concurrent part uploads |
-| **threshold** | `number` | optional | File size threshold for multipart upload in bytes |
 
 ---
 

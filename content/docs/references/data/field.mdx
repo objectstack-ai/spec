@@ -12,8 +12,8 @@ description: Field protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AddressSchema, CurrencyConfigSchema, CurrencyValueSchema, FieldSchema, FieldTypeSchema, LocationCoordinatesSchema, SelectOptionSchema, VectorConfigSchema } from '@objectstack/spec/data';
-import type { Address, CurrencyConfig, CurrencyValue, Field, FieldType, LocationCoordinates, SelectOption, VectorConfig } from '@objectstack/spec/data';
+import { AddressSchema, CurrencyConfigSchema, CurrencyValueSchema, FieldSchema, FieldTypeSchema, FileAttachmentConfigSchema, LocationCoordinatesSchema, SelectOptionSchema, VectorConfigSchema } from '@objectstack/spec/data';
+import type { Address, CurrencyConfig, CurrencyValue, Field, FieldType, FileAttachmentConfig, LocationCoordinates, SelectOption, VectorConfig } from '@objectstack/spec/data';
 
 // Validate data
 const result = AddressSchema.parse(data);
@@ -110,6 +110,7 @@ const result = AddressSchema.parse(data);
 | **allowScanning** | `boolean` | optional | Enable camera scanning for barcode/QR code input |
 | **currencyConfig** | `object` | optional | Configuration for currency field type |
 | **vectorConfig** | `object` | optional | Configuration for vector field type (AI/ML embeddings) |
+| **fileAttachmentConfig** | `object` | optional | Configuration for file and attachment field types |
 | **hidden** | `boolean` | optional | Hidden from default UI |
 | **readonly** | `boolean` | optional | Read-only in UI |
 | **encryption** | `boolean` | optional | Encrypt at rest |
@@ -166,6 +167,39 @@ const result = AddressSchema.parse(data);
 * `progress`
 * `tags`
 * `vector`
+
+---
+
+## FileAttachmentConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **minSize** | `number` | optional | Minimum file size in bytes |
+| **maxSize** | `number` | optional | Maximum file size in bytes (e.g., 10485760 = 10MB) |
+| **allowedTypes** | `string[]` | optional | Allowed file extensions (e.g., [".pdf", ".docx", ".jpg"]) |
+| **blockedTypes** | `string[]` | optional | Blocked file extensions (e.g., [".exe", ".bat", ".sh"]) |
+| **allowedMimeTypes** | `string[]` | optional | Allowed MIME types (e.g., ["image/jpeg", "application/pdf"]) |
+| **blockedMimeTypes** | `string[]` | optional | Blocked MIME types |
+| **virusScan** | `boolean` | optional | Enable virus scanning for uploaded files |
+| **virusScanProvider** | `Enum<'clamav' \| 'virustotal' \| 'metadefender' \| 'custom'>` | optional | Virus scanning service provider |
+| **virusScanOnUpload** | `boolean` | optional | Scan files immediately on upload |
+| **quarantineOnThreat** | `boolean` | optional | Quarantine files if threat detected |
+| **storageProvider** | `string` | optional | Object storage provider name (references ObjectStorageConfig) |
+| **storageBucket** | `string` | optional | Target bucket name |
+| **storagePrefix** | `string` | optional | Storage path prefix (e.g., "uploads/documents/") |
+| **imageValidation** | `object` | optional | Image-specific validation rules |
+| **allowMultiple** | `boolean` | optional | Allow multiple file uploads (overrides field.multiple) |
+| **allowReplace** | `boolean` | optional | Allow replacing existing files |
+| **allowDelete** | `boolean` | optional | Allow deleting uploaded files |
+| **requireUpload** | `boolean` | optional | Require at least one file when field is required |
+| **extractMetadata** | `boolean` | optional | Extract file metadata (name, size, type, etc.) |
+| **extractText** | `boolean` | optional | Extract text content from documents (OCR/parsing) |
+| **versioningEnabled** | `boolean` | optional | Keep previous versions of replaced files |
+| **maxVersions** | `number` | optional | Maximum number of versions to retain |
+| **publicRead** | `boolean` | optional | Allow public read access to uploaded files |
+| **presignedUrlExpiry** | `number` | optional | Presigned URL expiration in seconds (default: 1 hour) |
 
 ---
 
