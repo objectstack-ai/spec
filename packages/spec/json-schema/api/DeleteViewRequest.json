@@ -1,0 +1,19 @@
+{
+  "$ref": "#/definitions/DeleteViewRequest",
+  "definitions": {
+    "DeleteViewRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "View ID to delete"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

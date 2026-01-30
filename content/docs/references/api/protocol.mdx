@@ -1,0 +1,433 @@
+---
+title: Protocol
+description: Protocol protocol schemas
+---
+
+# Protocol
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/protocol.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { BatchDataRequestSchema, BatchDataResponseSchema, CreateDataRequestSchema, CreateDataResponseSchema, CreateManyDataRequestSchema, CreateManyDataResponseSchema, DeleteDataRequestSchema, DeleteDataResponseSchema, DeleteManyDataRequestSchema, DeleteManyDataResponseSchema, DeleteViewRequestSchema, DeleteViewResponseSchema, FindDataRequestSchema, FindDataResponseSchema, GetDataRequestSchema, GetDataResponseSchema, GetDiscoveryRequestSchema, GetDiscoveryResponseSchema, GetMetaItemCachedRequestSchema, GetMetaItemCachedResponseSchema, GetMetaItemRequestSchema, GetMetaItemResponseSchema, GetMetaItemsRequestSchema, GetMetaItemsResponseSchema, GetMetaTypesRequestSchema, GetMetaTypesResponseSchema, GetUiViewRequestSchema, GetUiViewResponseSchema, GetViewRequestSchema, GetViewResponseSchema, ObjectStackProtocolSchema, UpdateDataRequestSchema, UpdateDataResponseSchema, UpdateManyDataRequestSchema, UpdateManyDataResponseSchema } from '@objectstack/spec/api';
+import type { BatchDataRequest, BatchDataResponse, CreateDataRequest, CreateDataResponse, CreateManyDataRequest, CreateManyDataResponse, DeleteDataRequest, DeleteDataResponse, DeleteManyDataRequest, DeleteManyDataResponse, DeleteViewRequest, DeleteViewResponse, FindDataRequest, FindDataResponse, GetDataRequest, GetDataResponse, GetDiscoveryRequest, GetDiscoveryResponse, GetMetaItemCachedRequest, GetMetaItemCachedResponse, GetMetaItemRequest, GetMetaItemResponse, GetMetaItemsRequest, GetMetaItemsResponse, GetMetaTypesRequest, GetMetaTypesResponse, GetUiViewRequest, GetUiViewResponse, GetViewRequest, GetViewResponse, ObjectStackProtocol, UpdateDataRequest, UpdateDataResponse, UpdateManyDataRequest, UpdateManyDataResponse } from '@objectstack/spec/api';
+
+// Validate data
+const result = BatchDataRequestSchema.parse(data);
+```
+
+---
+
+## BatchDataRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **request** | `object` | ✅ | Batch operation request |
+
+---
+
+## BatchDataResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `object` | optional | Error details if success is false |
+| **meta** | `object` | optional | Response metadata |
+| **operation** | `Enum<'create' \| 'update' \| 'upsert' \| 'delete'>` | optional | Operation type that was performed |
+| **total** | `number` | ✅ | Total number of records in the batch |
+| **succeeded** | `number` | ✅ | Number of records that succeeded |
+| **failed** | `number` | ✅ | Number of records that failed |
+| **results** | `object[]` | ✅ | Detailed results for each record |
+
+---
+
+## CreateDataRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **data** | `Record<string, any>` | ✅ | Record data to create |
+
+---
+
+## CreateDataResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **id** | `string` | ✅ | Created record ID |
+| **record** | `Record<string, any>` | ✅ | Created record (with server-generated fields) |
+
+---
+
+## CreateManyDataRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **records** | `Record<string, any>[]` | ✅ | Array of records to create |
+
+---
+
+## CreateManyDataResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **records** | `Record<string, any>[]` | ✅ | Created records |
+| **count** | `number` | ✅ | Number of records created |
+
+---
+
+## DeleteDataRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **id** | `string` | ✅ | Record ID to delete |
+
+---
+
+## DeleteDataResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **id** | `string` | ✅ | Deleted record ID |
+| **success** | `boolean` | ✅ | Whether deletion succeeded |
+
+---
+
+## DeleteManyDataRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **ids** | `string[]` | ✅ | Array of record IDs to delete |
+| **options** | `object` | optional |  |
+
+---
+
+## DeleteManyDataResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `object` | optional | Error details if success is false |
+| **meta** | `object` | optional | Response metadata |
+| **operation** | `Enum<'create' \| 'update' \| 'upsert' \| 'delete'>` | optional | Operation type that was performed |
+| **total** | `number` | ✅ | Total number of records in the batch |
+| **succeeded** | `number` | ✅ | Number of records that succeeded |
+| **failed** | `number` | ✅ | Number of records that failed |
+| **results** | `object[]` | ✅ | Detailed results for each record |
+
+---
+
+## DeleteViewRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | View ID to delete |
+
+---
+
+## DeleteViewResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Whether deletion succeeded |
+
+---
+
+## FindDataRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (snake_case) |
+| **query** | `object` | optional | Query parameters (filter, sort, select, pagination) |
+
+---
+
+## FindDataResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **records** | `Record<string, any>[]` | ✅ | Array of records |
+| **total** | `number` | optional | Total count (if requested) |
+| **hasMore** | `boolean` | optional | Whether more records exist |
+
+---
+
+## GetDataRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **id** | `string` | ✅ | Record ID |
+
+---
+
+## GetDataResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **id** | `string` | ✅ | Record ID |
+| **record** | `Record<string, any>` | ✅ | Record data |
+
+---
+
+## GetDiscoveryRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+
+---
+
+## GetDiscoveryResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **version** | `string` | ✅ | API version (e.g., "v1", "2024-01") |
+| **apiName** | `string` | ✅ | API name |
+| **capabilities** | `string[]` | optional | Supported features/capabilities |
+| **endpoints** | `Record<string, string>` | optional | Available endpoint paths |
+
+---
+
+## GetMetaItemCachedRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Metadata type name |
+| **name** | `string` | ✅ | Item name |
+| **cacheRequest** | `object` | optional | Cache validation parameters |
+
+---
+
+## GetMetaItemCachedResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **data** | `any` | optional | Metadata payload (omitted for 304 Not Modified) |
+| **etag** | `object` | optional | ETag for this resource version |
+| **lastModified** | `string` | optional | Last modification timestamp |
+| **cacheControl** | `object` | optional | Cache control directives |
+| **notModified** | `boolean` | optional | True if resource has not been modified (304 response) |
+| **version** | `string` | optional | Metadata version identifier |
+
+---
+
+## GetMetaItemRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Metadata type name |
+| **name** | `string` | ✅ | Item name (snake_case identifier) |
+
+---
+
+## GetMetaItemResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Metadata type name |
+| **name** | `string` | ✅ | Item name |
+| **item** | `any` | optional | Metadata item definition |
+
+---
+
+## GetMetaItemsRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Metadata type name (e.g., "object", "plugin") |
+
+---
+
+## GetMetaItemsResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Metadata type name |
+| **items** | `any[]` | ✅ | Array of metadata items |
+
+---
+
+## GetMetaTypesRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+
+---
+
+## GetMetaTypesResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **types** | `string[]` | ✅ | Available metadata type names (e.g., "object", "plugin", "view") |
+
+---
+
+## GetUiViewRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (snake_case) |
+| **type** | `Enum<'list' \| 'form'>` | ✅ | View type |
+
+---
+
+## GetUiViewResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **type** | `Enum<'list' \| 'form'>` | ✅ | View type |
+| **view** | `any` | optional | View definition |
+
+---
+
+## GetViewRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | View ID |
+
+---
+
+## GetViewResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ |  |
+| **data** | `object` | optional | The saved view |
+| **error** | `object` | optional |  |
+
+---
+
+## ObjectStackProtocol
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+
+---
+
+## UpdateDataRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **id** | `string` | ✅ | Record ID to update |
+| **data** | `Record<string, any>` | ✅ | Fields to update |
+
+---
+
+## UpdateDataResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **id** | `string` | ✅ | Updated record ID |
+| **record** | `Record<string, any>` | ✅ | Updated record |
+
+---
+
+## UpdateManyDataRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **records** | `object[]` | ✅ | Array of updates |
+| **options** | `object` | optional |  |
+
+---
+
+## UpdateManyDataResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `object` | optional | Error details if success is false |
+| **meta** | `object` | optional | Response metadata |
+| **operation** | `Enum<'create' \| 'update' \| 'upsert' \| 'delete'>` | optional | Operation type that was performed |
+| **total** | `number` | ✅ | Total number of records in the batch |
+| **succeeded** | `number` | ✅ | Number of records that succeeded |
+| **failed** | `number` | ✅ | Number of records that failed |
+| **results** | `object[]` | ✅ | Detailed results for each record |
+
