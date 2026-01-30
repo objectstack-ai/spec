@@ -214,8 +214,8 @@ export const AccessControlConfigSchema = z.object({
     allowPublicWrite: z.boolean().default(false).describe('Allow public write access'),
     allowPublicList: z.boolean().default(false).describe('Allow public bucket listing'),
   }).optional().describe('Public access control'),
-  ipWhitelist: z.array(z.string()).optional().describe('Allowed IP addresses/CIDR blocks'),
-  ipBlacklist: z.array(z.string()).optional().describe('Blocked IP addresses/CIDR blocks'),
+  allowedIps: z.array(z.string()).optional().describe('Allowed IP addresses/CIDR blocks'),
+  blockedIps: z.array(z.string()).optional().describe('Blocked IP addresses/CIDR blocks'),
 });
 
 export type AccessControlConfig = z.infer<typeof AccessControlConfigSchema>;
@@ -253,6 +253,14 @@ export const LifecyclePolicyRuleSchema = z.object({
   daysAfterCreation: z.number().min(0).optional().describe('Days after object creation'),
   daysAfterModification: z.number().min(0).optional().describe('Days after last modification'),
   targetStorageClass: StorageClassSchema.optional().describe('Target storage class for transition action'),
+}).refine((data) => {
+  // Validate that transition action has targetStorageClass
+  if (data.action === 'transition' && !data.targetStorageClass) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'targetStorageClass is required when action is "transition"',
 });
 
 export type LifecyclePolicyRule = z.infer<typeof LifecyclePolicyRuleSchema>;

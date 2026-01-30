@@ -35,8 +35,8 @@ const result = AccessControlConfigSchema.parse(data);
 | **maxAge** | `number` | optional | CORS preflight cache duration in seconds |
 | **corsEnabled** | `boolean` | optional | Enable CORS configuration |
 | **publicAccess** | `object` | optional | Public access control |
-| **ipWhitelist** | `string[]` | optional | Allowed IP addresses/CIDR blocks |
-| **ipBlacklist** | `string[]` | optional | Blocked IP addresses/CIDR blocks |
+| **allowedIps** | `string[]` | optional | Allowed IP addresses/CIDR blocks |
+| **blockedIps** | `string[]` | optional | Blocked IP addresses/CIDR blocks |
 
 ---
 

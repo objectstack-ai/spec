@@ -84,14 +84,14 @@
           "additionalProperties": false,
           "description": "Public access control"
         },
-        "ipWhitelist": {
+        "allowedIps": {
           "type": "array",
           "items": {
             "type": "string"
           },
           "description": "Allowed IP addresses/CIDR blocks"
         },
-        "ipBlacklist": {
+        "blockedIps": {
           "type": "array",
           "items": {
             "type": "string"

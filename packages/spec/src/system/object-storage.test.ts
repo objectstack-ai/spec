@@ -265,14 +265,14 @@ describe('AccessControlConfigSchema', () => {
     expect(config.publicAccess?.allowPublicWrite).toBe(false);
   });
 
-  it('should accept IP whitelist/blacklist', () => {
+  it('should accept IP allow/block lists', () => {
     const config = AccessControlConfigSchema.parse({
-      ipWhitelist: ['192.168.1.0/24', '10.0.0.1'],
-      ipBlacklist: ['1.2.3.4'],
+      allowedIps: ['192.168.1.0/24', '10.0.0.1'],
+      blockedIps: ['1.2.3.4'],
     });
 
-    expect(config.ipWhitelist).toHaveLength(2);
-    expect(config.ipBlacklist).toHaveLength(1);
+    expect(config.allowedIps).toHaveLength(2);
+    expect(config.blockedIps).toHaveLength(1);
   });
 });
 
@@ -341,6 +341,53 @@ describe('LifecyclePolicyRuleSchema', () => {
       action: 'delete',
       daysAfterCreation: 30,
     })).toThrow();
+  });
+
+  it('should require targetStorageClass when action is transition', () => {
+    expect(() => LifecyclePolicyRuleSchema.parse({
+      id: 'move_to_glacier',
+      enabled: true,
+      action: 'transition',
+      daysAfterCreation: 30,
+      // missing targetStorageClass
+    })).toThrow();
+    
+    // Verify the specific error message
+    try {
+      LifecyclePolicyRuleSchema.parse({
+        id: 'move_to_glacier',
+        enabled: true,
+        action: 'transition',
+        daysAfterCreation: 30,
+      });
+    } catch (error: any) {
+      expect(error.issues[0].message).toContain('targetStorageClass is required');
+    }
+  });
+
+  it('should accept transition rule with targetStorageClass', () => {
+    const rule = LifecyclePolicyRuleSchema.parse({
+      id: 'move_to_glacier',
+      enabled: true,
+      action: 'transition',
+      daysAfterCreation: 30,
+      targetStorageClass: 'glacier',
+    });
+    
+    expect(rule.action).toBe('transition');
+    expect(rule.targetStorageClass).toBe('glacier');
+  });
+
+  it('should allow delete action without targetStorageClass', () => {
+    const rule = LifecyclePolicyRuleSchema.parse({
+      id: 'delete_old',
+      enabled: true,
+      action: 'delete',
+      daysAfterCreation: 365,
+    });
+    
+    expect(rule.action).toBe('delete');
+    expect(rule.targetStorageClass).toBeUndefined();
   });
 });
 

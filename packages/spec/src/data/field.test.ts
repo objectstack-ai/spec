@@ -1331,5 +1331,59 @@ describe('Field Factory Helpers', () => {
         maxVersions: 0,
       })).toThrow();
     });
+
+    it('should reject minSize greater than maxSize', () => {
+      expect(() => FileAttachmentConfigSchema.parse({
+        minSize: 1000,
+        maxSize: 500,
+      })).toThrow();
+      
+      // Verify the specific error message
+      try {
+        FileAttachmentConfigSchema.parse({
+          minSize: 1000,
+          maxSize: 500,
+        });
+      } catch (error: any) {
+        expect(error.issues[0].message).toContain('minSize must be less than or equal to maxSize');
+      }
+    });
+
+    it('should accept valid minSize and maxSize', () => {
+      const config = FileAttachmentConfigSchema.parse({
+        minSize: 500,
+        maxSize: 1000,
+      });
+      
+      expect(config.minSize).toBe(500);
+      expect(config.maxSize).toBe(1000);
+    });
+
+    it('should reject virusScanProvider without virusScan enabled', () => {
+      expect(() => FileAttachmentConfigSchema.parse({
+        virusScan: false,
+        virusScanProvider: 'clamav',
+      })).toThrow();
+      
+      // Verify the specific error message
+      try {
+        FileAttachmentConfigSchema.parse({
+          virusScan: false,
+          virusScanProvider: 'clamav',
+        });
+      } catch (error: any) {
+        expect(error.issues[0].message).toContain('virusScanProvider requires virusScan to be enabled');
+      }
+    });
+
+    it('should accept virusScanProvider when virusScan is enabled', () => {
+      const config = FileAttachmentConfigSchema.parse({
+        virusScan: true,
+        virusScanProvider: 'clamav',
+      });
+      
+      expect(config.virusScan).toBe(true);
+      expect(config.virusScanProvider).toBe('clamav');
+    });
   });
 });

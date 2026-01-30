@@ -160,7 +160,7 @@ export const VectorConfigSchema = z.object({
  * Configuration for file and attachment field types
  * 
  * Provides comprehensive file upload capabilities with:
- * - File type restrictions (whitelist/blacklist)
+ * - File type restrictions (allowed/blocked)
  * - File size limits (min/max)
  * - Virus scanning integration
  * - Storage provider integration
@@ -241,6 +241,22 @@ export const FileAttachmentConfigSchema = z.object({
   /** Access Control */
   publicRead: z.boolean().default(false).describe('Allow public read access to uploaded files'),
   presignedUrlExpiry: z.number().min(60).max(604800).default(3600).describe('Presigned URL expiration in seconds (default: 1 hour)'),
+}).refine((data) => {
+  // Validate minSize is less than or equal to maxSize
+  if (data.minSize !== undefined && data.maxSize !== undefined && data.minSize > data.maxSize) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'minSize must be less than or equal to maxSize',
+}).refine((data) => {
+  // Validate virusScanProvider requires virusScan to be enabled
+  if (data.virusScanProvider !== undefined && data.virusScan !== true) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'virusScanProvider requires virusScan to be enabled',
 });
 
 /**
