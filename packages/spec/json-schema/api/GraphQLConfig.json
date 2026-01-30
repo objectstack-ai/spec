@@ -1321,7 +1321,7 @@
                     "enabled": {
                       "type": "boolean",
                       "default": false,
-                      "description": "Enable query allowlist (reject queries not in list)"
+                      "description": "Enable query allow list (reject queries not in list)"
                     },
                     "queries": {
                       "type": "array",
@@ -1350,11 +1350,11 @@
                     },
                     "source": {
                       "type": "string",
-                      "description": "External allowlist source (file path or URL)"
+                      "description": "External allow list source (file path or URL)"
                     }
                   },
                   "additionalProperties": false,
-                  "description": "Query allowlist configuration"
+                  "description": "Query allow list configuration"
                 },
                 "security": {
                   "type": "object",

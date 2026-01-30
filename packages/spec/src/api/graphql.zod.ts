@@ -126,10 +126,10 @@ export const GraphQLTypeConfigSchema = z.object({
   
   /** Fields to include/exclude */
   fields: z.object({
-    /** Include only these fields (whitelist) */
+    /** Include only these fields (allow list) */
     include: z.array(z.string()).optional().describe('Fields to include'),
     
-    /** Exclude these fields (blacklist) */
+    /** Exclude these fields (deny list) */
     exclude: z.array(z.string()).optional().describe('Fields to exclude (e.g., sensitive fields)'),
     
     /** Custom field mappings */
@@ -688,7 +688,7 @@ export type GraphQLRateLimit = z.infer<typeof GraphQLRateLimitSchema>;
 /**
  * Persisted Queries Configuration
  * 
- * Only allow pre-registered queries to execute (whitelist approach).
+ * Only allow pre-registered queries to execute (allow list approach).
  * Improves security and performance.
  */
 export const GraphQLPersistedQuerySchema = z.object({
@@ -728,10 +728,10 @@ export const GraphQLPersistedQuerySchema = z.object({
     }).optional().describe('APQ cache configuration'),
   }).optional().describe('Automatic Persisted Queries configuration'),
   
-  /** Query allowlist */
+  /** Query allow list */
   allowlist: z.object({
-    /** Enable allowlist mode */
-    enabled: z.boolean().default(false).describe('Enable query allowlist (reject queries not in list)'),
+    /** Enable allow list mode */
+    enabled: z.boolean().default(false).describe('Enable query allow list (reject queries not in list)'),
     
     /** Allowed query IDs */
     queries: z.array(z.object({
@@ -740,9 +740,9 @@ export const GraphQLPersistedQuerySchema = z.object({
       query: z.string().optional().describe('Query string'),
     })).optional().describe('Allowed queries'),
     
-    /** External allowlist source */
-    source: z.string().optional().describe('External allowlist source (file path or URL)'),
-  }).optional().describe('Query allowlist configuration'),
+    /** External allow list source */
+    source: z.string().optional().describe('External allow list source (file path or URL)'),
+  }).optional().describe('Query allow list configuration'),
   
   /** Security */
   security: z.object({
