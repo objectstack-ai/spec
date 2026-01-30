@@ -13,6 +13,7 @@ export * from './discovery.zod';
 export * from './realtime.zod';
 export * from './router.zod';
 export * from './odata.zod';
+export * from './graphql.zod';
 
 export * from './protocol';
 

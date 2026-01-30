@@ -1,0 +1,138 @@
+{
+  "$ref": "#/definitions/GraphQLRateLimit",
+  "definitions": {
+    "GraphQLRateLimit": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable rate limiting"
+        },
+        "strategy": {
+          "type": "string",
+          "enum": [
+            "token_bucket",
+            "fixed_window",
+            "sliding_window",
+            "cost_based"
+          ],
+          "default": "token_bucket",
+          "description": "Rate limiting strategy"
+        },
+        "global": {
+          "type": "object",
+          "properties": {
+            "maxRequests": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1000,
+              "description": "Maximum requests per window"
+            },
+            "windowMs": {
+              "type": "integer",
+              "minimum": 1000,
+              "default": 60000,
+              "description": "Time window in milliseconds"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Global rate limits"
+        },
+        "perUser": {
+          "type": "object",
+          "properties": {
+            "maxRequests": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 100,
+              "description": "Maximum requests per user per window"
+            },
+            "windowMs": {
+              "type": "integer",
+              "minimum": 1000,
+              "default": 60000,
+              "description": "Time window in milliseconds"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Per-user rate limits"
+        },
+        "costBased": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false,
+              "description": "Enable cost-based rate limiting"
+            },
+            "maxCost": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10000,
+              "description": "Maximum cost per window"
+            },
+            "windowMs": {
+              "type": "integer",
+              "minimum": 1000,
+              "default": 60000,
+              "description": "Time window in milliseconds"
+            },
+            "useComplexityAsCost": {
+              "type": "boolean",
+              "default": true,
+              "description": "Use query complexity as cost"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Cost-based rate limiting"
+        },
+        "operations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "maxRequests": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Max requests for this operation"
+              },
+              "windowMs": {
+                "type": "integer",
+                "minimum": 1000,
+                "description": "Time window"
+              }
+            },
+            "required": [
+              "maxRequests",
+              "windowMs"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Per-operation rate limits"
+        },
+        "onLimitExceeded": {
+          "type": "string",
+          "enum": [
+            "reject",
+            "queue",
+            "log"
+          ],
+          "default": "reject",
+          "description": "Action when rate limit exceeded"
+        },
+        "errorMessage": {
+          "type": "string",
+          "description": "Custom error message for rate limit violations"
+        },
+        "includeHeaders": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include rate limit headers in response"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
