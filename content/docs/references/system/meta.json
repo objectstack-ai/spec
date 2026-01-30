@@ -3,7 +3,6 @@
   "pages": [
     "audit",
     "collaboration",
-    "connector",
     "context",
     "data-engine",
     "datasource",

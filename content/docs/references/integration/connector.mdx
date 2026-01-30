@@ -6,14 +6,14 @@ description: Connector protocol schemas
 # Connector
 
 <Callout type="info">
-**Source:** `packages/spec/src/system/connector.zod.ts`
+**Source:** `packages/spec/src/integration/connector.zod.ts`
 </Callout>
 
 ## TypeScript Usage
 
 ```typescript
-import { ApiKeyAuthSchema, AuthenticationSchema, BasicAuthSchema, BearerTokenAuthSchema, ConflictResolutionSchema, ConnectorSchema, ConnectorStatusSchema, ConnectorTypeSchema, DataSyncConfigSchema, FieldMappingSchema, FieldTransformSchema, JwtAuthSchema, NoAuthSchema, OAuth2AuthSchema, RateLimitConfigSchema, RateLimitStrategySchema, RetryConfigSchema, RetryStrategySchema, SamlAuthSchema, SyncStrategySchema, WebhookConfigSchema, WebhookEventSchema, WebhookSignatureAlgorithmSchema } from '@objectstack/spec/system';
-import type { ApiKeyAuth, Authentication, BasicAuth, BearerTokenAuth, ConflictResolution, Connector, ConnectorStatus, ConnectorType, DataSyncConfig, FieldMapping, FieldTransform, JwtAuth, NoAuth, OAuth2Auth, RateLimitConfig, RateLimitStrategy, RetryConfig, RetryStrategy, SamlAuth, SyncStrategy, WebhookConfig, WebhookEvent, WebhookSignatureAlgorithm } from '@objectstack/spec/system';
+import { ApiKeyAuthSchema, AuthenticationSchema, BasicAuthSchema, BearerTokenAuthSchema, ConflictResolutionSchema, ConnectorSchema, ConnectorStatusSchema, ConnectorTypeSchema, DataSyncConfigSchema, FieldMappingSchema, FieldTransformSchema, JwtAuthSchema, NoAuthSchema, OAuth2AuthSchema, RateLimitConfigSchema, RateLimitStrategySchema, RetryConfigSchema, RetryStrategySchema, SamlAuthSchema, SyncStrategySchema, WebhookConfigSchema, WebhookEventSchema, WebhookSignatureAlgorithmSchema } from '@objectstack/spec/integration';
+import type { ApiKeyAuth, Authentication, BasicAuth, BearerTokenAuth, ConflictResolution, Connector, ConnectorStatus, ConnectorType, DataSyncConfig, FieldMapping, FieldTransform, JwtAuth, NoAuth, OAuth2Auth, RateLimitConfig, RateLimitStrategy, RetryConfig, RetryStrategy, SamlAuth, SyncStrategy, WebhookConfig, WebhookEvent, WebhookSignatureAlgorithm } from '@objectstack/spec/integration';
 
 // Validate data
 const result = ApiKeyAuthSchema.parse(data);
