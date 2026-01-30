@@ -1,7 +1,7 @@
 {
-  "$ref": "#/definitions/BearerTokenAuth",
+  "$ref": "#/definitions/BearerAuth",
   "definitions": {
-    "BearerTokenAuth": {
+    "BearerAuth": {
       "type": "object",
       "properties": {
         "type": {

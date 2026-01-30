@@ -8,12 +8,68 @@
           "properties": {
             "type": {
               "type": "string",
-              "const": "api_key",
+              "const": "oauth2",
               "description": "Authentication type"
             },
-            "apiKey": {
+            "authorizationUrl": {
               "type": "string",
-              "description": "API key (typically from ENV)"
+              "format": "uri",
+              "description": "OAuth2 authorization endpoint"
+            },
+            "tokenUrl": {
+              "type": "string",
+              "format": "uri",
+              "description": "OAuth2 token endpoint"
+            },
+            "clientId": {
+              "type": "string",
+              "description": "OAuth2 client ID"
+            },
+            "clientSecret": {
+              "type": "string",
+              "description": "OAuth2 client secret (typically from ENV)"
+            },
+            "scopes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Requested OAuth2 scopes"
+            },
+            "redirectUri": {
+              "type": "string",
+              "format": "uri",
+              "description": "OAuth2 redirect URI"
+            },
+            "refreshToken": {
+              "type": "string",
+              "description": "Refresh token for token renewal"
+            },
+            "tokenExpiry": {
+              "type": "number",
+              "description": "Token expiry timestamp"
+            }
+          },
+          "required": [
+            "type",
+            "authorizationUrl",
+            "tokenUrl",
+            "clientId",
+            "clientSecret"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "api-key",
+              "description": "Authentication type"
+            },
+            "key": {
+              "type": "string",
+              "description": "API key value"
             },
             "headerName": {
               "type": "string",
@@ -27,7 +83,7 @@
           },
           "required": [
             "type",
-            "apiKey"
+            "key"
           ],
           "additionalProperties": false
         },
@@ -36,65 +92,41 @@
           "properties": {
             "type": {
               "type": "string",
-              "const": "oauth2",
+              "const": "basic",
               "description": "Authentication type"
             },
-            "clientId": {
+            "username": {
               "type": "string",
-              "description": "OAuth2 client ID"
+              "description": "Username"
             },
-            "clientSecret": {
+            "password": {
               "type": "string",
-              "description": "OAuth2 client secret (typically from ENV)"
-            },
-            "authorizationUrl": {
-              "type": "string",
-              "format": "uri",
-              "description": "OAuth2 authorization endpoint"
-            },
-            "tokenUrl": {
-              "type": "string",
-              "format": "uri",
-              "description": "OAuth2 token endpoint"
-            },
-            "scopes": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "description": "Requested OAuth2 scopes"
-            },
-            "redirectUri": {
-              "type": "string",
-              "format": "uri",
-              "description": "OAuth2 callback URL"
-            },
-            "grantType": {
-              "type": "string",
-              "enum": [
-                "authorization_code",
-                "client_credentials",
-                "password",
-                "refresh_token"
-              ],
-              "default": "authorization_code",
-              "description": "OAuth2 grant type"
-            },
-            "refreshToken": {
-              "type": "string",
-              "description": "Refresh token for token renewal"
-            },
-            "tokenExpiry": {
-              "type": "number",
-              "description": "Token expiry timestamp"
+              "description": "Password (typically from ENV)"
             }
           },
           "required": [
             "type",
-            "clientId",
-            "clientSecret",
-            "authorizationUrl",
-            "tokenUrl"
+            "username",
+            "password"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "bearer",
+              "description": "Authentication type"
+            },
+            "token": {
+              "type": "string",
+              "description": "Bearer token"
+            }
+          },
+          "required": [
+            "type",
+            "token"
           ],
           "additionalProperties": false
         },
@@ -213,49 +245,6 @@
             "entryPoint",
             "issuer",
             "certificate"
-          ],
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "properties": {
-            "type": {
-              "type": "string",
-              "const": "basic",
-              "description": "Authentication type"
-            },
-            "username": {
-              "type": "string",
-              "description": "Username"
-            },
-            "password": {
-              "type": "string",
-              "description": "Password (typically from ENV)"
-            }
-          },
-          "required": [
-            "type",
-            "username",
-            "password"
-          ],
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "properties": {
-            "type": {
-              "type": "string",
-              "const": "bearer",
-              "description": "Authentication type"
-            },
-            "token": {
-              "type": "string",
-              "description": "Bearer token"
-            }
-          },
-          "required": [
-            "type",
-            "token"
           ],
           "additionalProperties": false
         },

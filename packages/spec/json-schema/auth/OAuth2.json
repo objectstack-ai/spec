@@ -1,21 +1,13 @@
 {
-  "$ref": "#/definitions/OAuth2Auth",
+  "$ref": "#/definitions/OAuth2",
   "definitions": {
-    "OAuth2Auth": {
+    "OAuth2": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
           "const": "oauth2",
           "description": "Authentication type"
-        },
-        "clientId": {
-          "type": "string",
-          "description": "OAuth2 client ID"
-        },
-        "clientSecret": {
-          "type": "string",
-          "description": "OAuth2 client secret (typically from ENV)"
         },
         "authorizationUrl": {
           "type": "string",
@@ -27,6 +19,14 @@
           "format": "uri",
           "description": "OAuth2 token endpoint"
         },
+        "clientId": {
+          "type": "string",
+          "description": "OAuth2 client ID"
+        },
+        "clientSecret": {
+          "type": "string",
+          "description": "OAuth2 client secret (typically from ENV)"
+        },
         "scopes": {
           "type": "array",
           "items": {
@@ -37,18 +37,7 @@
         "redirectUri": {
           "type": "string",
           "format": "uri",
-          "description": "OAuth2 callback URL"
-        },
-        "grantType": {
-          "type": "string",
-          "enum": [
-            "authorization_code",
-            "client_credentials",
-            "password",
-            "refresh_token"
-          ],
-          "default": "authorization_code",
-          "description": "OAuth2 grant type"
+          "description": "OAuth2 redirect URI"
         },
         "refreshToken": {
           "type": "string",
@@ -61,10 +50,10 @@
       },
       "required": [
         "type",
-        "clientId",
-        "clientSecret",
         "authorizationUrl",
-        "tokenUrl"
+        "tokenUrl",
+        "clientId",
+        "clientSecret"
       ],
       "additionalProperties": false
     }

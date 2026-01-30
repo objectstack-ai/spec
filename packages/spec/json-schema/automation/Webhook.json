@@ -11,11 +11,12 @@
           "description": "Webhook unique name (lowercase snake_case)"
         },
         "label": {
-          "type": "string"
+          "type": "string",
+          "description": "Human-readable webhook label"
         },
         "object": {
           "type": "string",
-          "description": "Object to listen to"
+          "description": "Object to listen to (optional for manual webhooks)"
         },
         "triggers": {
           "type": "array",
@@ -34,27 +35,29 @@
         "url": {
           "type": "string",
           "format": "uri",
-          "description": "External URL payload"
+          "description": "External webhook endpoint URL"
         },
         "method": {
           "type": "string",
           "enum": [
+            "GET",
             "POST",
             "PUT",
-            "GET"
+            "PATCH",
+            "DELETE"
           ],
-          "default": "POST"
-        },
-        "secret": {
-          "type": "string",
-          "description": "Signing secret (HMAC)"
+          "default": "POST",
+          "description": "HTTP method"
         },
         "headers": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Custom headers (Auth)"
+          "description": "Custom HTTP headers"
+        },
+        "body": {
+          "description": "Request body payload (if not using default record data)"
         },
         "payloadFields": {
           "type": "array",
@@ -68,19 +71,99 @@
           "default": false,
           "description": "Include user session info"
         },
-        "retryCount": {
-          "type": "number",
-          "default": 3
+        "authentication": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "none",
+                "bearer",
+                "basic",
+                "api-key"
+              ],
+              "description": "Authentication type"
+            },
+            "credentials": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "Authentication credentials"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false,
+          "description": "Authentication configuration"
+        },
+        "retryPolicy": {
+          "type": "object",
+          "properties": {
+            "maxRetries": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10,
+              "default": 3,
+              "description": "Maximum retry attempts"
+            },
+            "backoffStrategy": {
+              "type": "string",
+              "enum": [
+                "exponential",
+                "linear",
+                "fixed"
+              ],
+              "default": "exponential",
+              "description": "Backoff strategy"
+            },
+            "initialDelayMs": {
+              "type": "integer",
+              "minimum": 100,
+              "default": 1000,
+              "description": "Initial retry delay in milliseconds"
+            },
+            "maxDelayMs": {
+              "type": "integer",
+              "minimum": 1000,
+              "default": 60000,
+              "description": "Maximum retry delay in milliseconds"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Retry policy configuration"
+        },
+        "timeoutMs": {
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 300000,
+          "default": 30000,
+          "description": "Request timeout in milliseconds"
+        },
+        "secret": {
+          "type": "string",
+          "description": "Signing secret for HMAC signature verification"
         },
         "isActive": {
           "type": "boolean",
-          "default": true
+          "default": true,
+          "description": "Whether webhook is active"
+        },
+        "description": {
+          "type": "string",
+          "description": "Webhook description"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Tags for organization"
         }
       },
       "required": [
         "name",
-        "object",
-        "triggers",
         "url"
       ],
       "additionalProperties": false

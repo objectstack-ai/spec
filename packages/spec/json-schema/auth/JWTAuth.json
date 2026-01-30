@@ -1,7 +1,7 @@
 {
-  "$ref": "#/definitions/JwtAuth",
+  "$ref": "#/definitions/JWTAuth",
   "definitions": {
-    "JwtAuth": {
+    "JWTAuth": {
       "type": "object",
       "properties": {
         "type": {

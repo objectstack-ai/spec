@@ -2,645 +2,187 @@
   "$ref": "#/definitions/AuthConfig",
   "definitions": {
     "AuthConfig": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "pattern": "^[a-z_][a-z0-9_]*$",
-          "description": "Configuration name (snake_case)"
-        },
-        "label": {
-          "type": "string",
-          "description": "Display label"
-        },
-        "driver": {
-          "type": "string",
-          "default": "better-auth",
-          "description": "The underlying authentication implementation driver"
-        },
-        "strategies": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "enum": [
-              "email_password",
-              "magic_link",
-              "oauth",
-              "passkey",
-              "otp",
-              "anonymous"
-            ]
-          },
-          "minItems": 1,
-          "description": "Enabled authentication strategies"
-        },
-        "baseUrl": {
-          "type": "string",
-          "format": "uri",
-          "description": "Application base URL"
-        },
-        "secret": {
-          "type": "string",
-          "minLength": 32,
-          "description": "Secret key for signing (min 32 chars)"
-        },
-        "emailPassword": {
-          "type": "object",
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "default": true
-            },
-            "requireEmailVerification": {
-              "type": "boolean",
-              "default": true,
-              "description": "Require email verification before login"
-            },
-            "minPasswordLength": {
-              "type": "number",
-              "minimum": 6,
-              "maximum": 128,
-              "default": 8,
-              "description": "Minimum password length"
-            },
-            "requirePasswordComplexity": {
-              "type": "boolean",
-              "default": true,
-              "description": "Require uppercase, lowercase, numbers, symbols"
-            },
-            "allowPasswordReset": {
-              "type": "boolean",
-              "default": true,
-              "description": "Enable password reset functionality"
-            },
-            "passwordResetExpiry": {
-              "type": "number",
-              "default": 3600,
-              "description": "Password reset token expiry in seconds"
-            }
-          },
-          "additionalProperties": false
-        },
-        "magicLink": {
-          "type": "object",
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "default": true
-            },
-            "expiryTime": {
-              "type": "number",
-              "default": 900,
-              "description": "Magic link expiry time in seconds (default 15 min)"
-            }
-          },
-          "additionalProperties": false
-        },
-        "passkey": {
-          "type": "object",
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "default": false
-            },
-            "rpName": {
-              "type": "string",
-              "description": "Relying Party name"
-            },
-            "rpId": {
-              "type": "string",
-              "description": "Relying Party ID (defaults to domain)"
-            },
-            "allowedOrigins": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "format": "uri"
-              },
-              "description": "Allowed origins for WebAuthn"
-            },
-            "userVerification": {
-              "type": "string",
-              "enum": [
-                "required",
-                "preferred",
-                "discouraged"
-              ],
-              "default": "preferred"
-            },
-            "attestation": {
-              "type": "string",
-              "enum": [
-                "none",
-                "indirect",
-                "direct",
-                "enterprise"
-              ],
-              "default": "none"
-            }
-          },
-          "required": [
-            "rpName"
-          ],
-          "additionalProperties": false
-        },
-        "oauth": {
-          "type": "object",
-          "properties": {
-            "providers": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "provider": {
-                    "type": "string",
-                    "enum": [
-                      "google",
-                      "github",
-                      "facebook",
-                      "twitter",
-                      "linkedin",
-                      "microsoft",
-                      "apple",
-                      "discord",
-                      "gitlab",
-                      "custom"
-                    ],
-                    "description": "OAuth provider type"
-                  },
-                  "clientId": {
-                    "type": "string",
-                    "description": "OAuth client ID"
-                  },
-                  "clientSecret": {
-                    "type": "string",
-                    "description": "OAuth client secret (typically from ENV)"
-                  },
-                  "scopes": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    },
-                    "description": "Requested OAuth scopes"
-                  },
-                  "redirectUri": {
-                    "type": "string",
-                    "format": "uri",
-                    "description": "OAuth callback URL"
-                  },
-                  "enabled": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Whether this provider is enabled"
-                  },
-                  "displayName": {
-                    "type": "string",
-                    "description": "Display name for the provider button"
-                  },
-                  "icon": {
-                    "type": "string",
-                    "description": "Icon URL or identifier"
-                  }
-                },
-                "required": [
-                  "provider",
-                  "clientId",
-                  "clientSecret"
-                ],
-                "additionalProperties": false
-              },
-              "minItems": 1
-            }
-          },
-          "required": [
-            "providers"
-          ],
-          "additionalProperties": false
-        },
-        "session": {
-          "type": "object",
-          "properties": {
-            "expiresIn": {
-              "type": "number",
-              "default": 604800,
-              "description": "Session expiry in seconds (default 7 days)"
-            },
-            "updateAge": {
-              "type": "number",
-              "default": 86400,
-              "description": "Session update interval in seconds (default 1 day)"
-            },
-            "cookieName": {
-              "type": "string",
-              "default": "session_token",
-              "description": "Session cookie name"
-            },
-            "cookieSecure": {
-              "type": "boolean",
-              "default": true,
-              "description": "Use secure cookies (HTTPS only)"
-            },
-            "cookieSameSite": {
-              "type": "string",
-              "enum": [
-                "strict",
-                "lax",
-                "none"
-              ],
-              "default": "lax",
-              "description": "SameSite cookie attribute"
-            },
-            "cookieDomain": {
-              "type": "string",
-              "description": "Cookie domain"
-            },
-            "cookiePath": {
-              "type": "string",
-              "default": "/",
-              "description": "Cookie path"
-            },
-            "cookieHttpOnly": {
-              "type": "boolean",
-              "default": true,
-              "description": "HttpOnly cookie attribute"
-            }
-          },
-          "additionalProperties": false,
-          "default": {}
-        },
-        "rateLimit": {
-          "type": "object",
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "default": true
-            },
-            "maxAttempts": {
-              "type": "number",
-              "default": 5,
-              "description": "Maximum login attempts"
-            },
-            "windowMs": {
-              "type": "number",
-              "default": 900000,
-              "description": "Time window in milliseconds (default 15 min)"
-            },
-            "blockDuration": {
-              "type": "number",
-              "default": 900000,
-              "description": "Block duration after max attempts in ms"
-            },
-            "skipSuccessfulRequests": {
-              "type": "boolean",
-              "default": false,
-              "description": "Only count failed requests"
-            }
-          },
-          "additionalProperties": false,
-          "default": {}
-        },
-        "csrf": {
-          "type": "object",
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "default": true
-            },
-            "tokenLength": {
-              "type": "number",
-              "default": 32,
-              "description": "CSRF token length"
-            },
-            "cookieName": {
-              "type": "string",
-              "default": "csrf_token",
-              "description": "CSRF cookie name"
-            },
-            "headerName": {
-              "type": "string",
-              "default": "X-CSRF-Token",
-              "description": "CSRF header name"
-            }
-          },
-          "additionalProperties": false,
-          "default": {}
-        },
-        "accountLinking": {
-          "type": "object",
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "default": true,
-              "description": "Allow account linking"
-            },
-            "autoLink": {
-              "type": "boolean",
-              "default": false,
-              "description": "Automatically link accounts with same email"
-            },
-            "requireVerification": {
-              "type": "boolean",
-              "default": true,
-              "description": "Require email verification before linking"
-            }
-          },
-          "additionalProperties": false,
-          "default": {}
-        },
-        "twoFactor": {
-          "type": "object",
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "default": false
-            },
-            "issuer": {
-              "type": "string",
-              "description": "TOTP issuer name"
-            },
-            "qrCodeSize": {
-              "type": "number",
-              "default": 200,
-              "description": "QR code size in pixels"
-            },
-            "backupCodes": {
-              "type": "object",
-              "properties": {
-                "enabled": {
-                  "type": "boolean",
-                  "default": true
-                },
-                "count": {
-                  "type": "number",
-                  "default": 10,
-                  "description": "Number of backup codes to generate"
-                }
-              },
-              "additionalProperties": false
-            }
-          },
-          "additionalProperties": false
-        },
-        "organization": {
-          "type": "object",
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "default": false,
-              "description": "Enable organization/multi-tenant features"
-            },
-            "allowUserToCreateOrg": {
-              "type": "boolean",
-              "default": true,
-              "description": "Allow users to create organizations"
-            },
-            "defaultRole": {
-              "type": "string",
-              "default": "member",
-              "description": "Default role for new members"
-            },
-            "creatorRole": {
-              "type": "string",
-              "default": "owner",
-              "description": "Role assigned to organization creator"
-            }
-          },
-          "additionalProperties": false,
-          "description": "Organization/multi-tenant configuration"
-        },
-        "enterprise": {
-          "type": "object",
-          "properties": {
-            "oidc": {
-              "type": "object",
-              "properties": {
-                "enabled": {
-                  "type": "boolean",
-                  "default": false
-                },
-                "issuer": {
-                  "type": "string",
-                  "format": "uri",
-                  "description": "OIDC Issuer URL (.well-known/openid-configuration)"
-                },
-                "clientId": {
-                  "type": "string",
-                  "description": "OIDC client ID"
-                },
-                "clientSecret": {
-                  "type": "string",
-                  "description": "OIDC client secret"
-                },
-                "scopes": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "default": [
-                    "openid",
-                    "profile",
-                    "email"
-                  ],
-                  "description": "OIDC scopes"
-                },
-                "attributeMapping": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "description": "Map IdP claims to User fields"
-                },
-                "displayName": {
-                  "type": "string",
-                  "description": "Display name for the provider button"
-                },
-                "icon": {
-                  "type": "string",
-                  "description": "Icon URL or identifier"
-                }
-              },
-              "required": [
-                "issuer",
-                "clientId",
-                "clientSecret"
-              ],
-              "additionalProperties": false,
-              "description": "OpenID Connect configuration"
-            },
-            "saml": {
-              "type": "object",
-              "properties": {
-                "enabled": {
-                  "type": "boolean",
-                  "default": false
-                },
-                "entryPoint": {
-                  "type": "string",
-                  "format": "uri",
-                  "description": "IdP SSO URL"
-                },
-                "cert": {
-                  "type": "string",
-                  "description": "IdP Public Certificate (PEM format)"
-                },
-                "issuer": {
-                  "type": "string",
-                  "description": "Entity ID of the IdP"
-                },
-                "signatureAlgorithm": {
-                  "type": "string",
-                  "enum": [
-                    "sha256",
-                    "sha512"
-                  ],
-                  "default": "sha256",
-                  "description": "Signature algorithm"
-                },
-                "attributeMapping": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "description": "Map SAML attributes to User fields"
-                },
-                "displayName": {
-                  "type": "string",
-                  "description": "Display name for the provider button"
-                },
-                "icon": {
-                  "type": "string",
-                  "description": "Icon URL or identifier"
-                }
-              },
-              "required": [
-                "entryPoint",
-                "cert",
-                "issuer"
-              ],
-              "additionalProperties": false,
-              "description": "SAML 2.0 configuration"
-            },
-            "ldap": {
-              "type": "object",
-              "properties": {
-                "enabled": {
-                  "type": "boolean",
-                  "default": false
-                },
-                "url": {
-                  "type": "string",
-                  "format": "uri",
-                  "description": "LDAP Server URL (ldap:// or ldaps://)"
-                },
-                "bindDn": {
-                  "type": "string",
-                  "description": "Bind DN for LDAP authentication"
-                },
-                "bindCredentials": {
-                  "type": "string",
-                  "description": "Bind credentials"
-                },
-                "searchBase": {
-                  "type": "string",
-                  "description": "Search base DN"
-                },
-                "searchFilter": {
-                  "type": "string",
-                  "description": "Search filter"
-                },
-                "groupSearchBase": {
-                  "type": "string",
-                  "description": "Group search base DN"
-                },
-                "displayName": {
-                  "type": "string",
-                  "description": "Display name for the provider button"
-                },
-                "icon": {
-                  "type": "string",
-                  "description": "Icon URL or identifier"
-                }
-              },
-              "required": [
-                "url",
-                "bindDn",
-                "bindCredentials",
-                "searchBase",
-                "searchFilter"
-              ],
-              "additionalProperties": false,
-              "description": "LDAP/Active Directory configuration"
-            }
-          },
-          "additionalProperties": false
-        },
-        "userFieldMapping": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string",
-              "default": "id",
-              "description": "User ID field"
-            },
-            "email": {
-              "type": "string",
-              "default": "email",
-              "description": "Email field"
-            },
-            "name": {
-              "type": "string",
-              "default": "name",
-              "description": "Name field"
-            },
-            "image": {
-              "type": "string",
-              "default": "image",
-              "description": "Profile image field"
-            },
-            "emailVerified": {
-              "type": "string",
-              "default": "email_verified",
-              "description": "Email verification status field"
-            },
-            "createdAt": {
-              "type": "string",
-              "default": "created_at",
-              "description": "Created timestamp field"
-            },
-            "updatedAt": {
-              "type": "string",
-              "default": "updated_at",
-              "description": "Updated timestamp field"
-            }
-          },
-          "additionalProperties": false,
-          "default": {}
-        },
-        "database": {
+      "anyOf": [
+        {
           "type": "object",
           "properties": {
             "type": {
               "type": "string",
+              "const": "oauth2",
+              "description": "Authentication type"
+            },
+            "authorizationUrl": {
+              "type": "string",
+              "format": "uri",
+              "description": "OAuth2 authorization endpoint"
+            },
+            "tokenUrl": {
+              "type": "string",
+              "format": "uri",
+              "description": "OAuth2 token endpoint"
+            },
+            "clientId": {
+              "type": "string",
+              "description": "OAuth2 client ID"
+            },
+            "clientSecret": {
+              "type": "string",
+              "description": "OAuth2 client secret (typically from ENV)"
+            },
+            "scopes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Requested OAuth2 scopes"
+            },
+            "redirectUri": {
+              "type": "string",
+              "format": "uri",
+              "description": "OAuth2 redirect URI"
+            },
+            "refreshToken": {
+              "type": "string",
+              "description": "Refresh token for token renewal"
+            },
+            "tokenExpiry": {
+              "type": "number",
+              "description": "Token expiry timestamp"
+            }
+          },
+          "required": [
+            "type",
+            "authorizationUrl",
+            "tokenUrl",
+            "clientId",
+            "clientSecret"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "api-key",
+              "description": "Authentication type"
+            },
+            "key": {
+              "type": "string",
+              "description": "API key value"
+            },
+            "headerName": {
+              "type": "string",
+              "default": "X-API-Key",
+              "description": "HTTP header name for API key"
+            },
+            "paramName": {
+              "type": "string",
+              "description": "Query parameter name (alternative to header)"
+            }
+          },
+          "required": [
+            "type",
+            "key"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "basic",
+              "description": "Authentication type"
+            },
+            "username": {
+              "type": "string",
+              "description": "Username"
+            },
+            "password": {
+              "type": "string",
+              "description": "Password (typically from ENV)"
+            }
+          },
+          "required": [
+            "type",
+            "username",
+            "password"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "bearer",
+              "description": "Authentication type"
+            },
+            "token": {
+              "type": "string",
+              "description": "Bearer token"
+            }
+          },
+          "required": [
+            "type",
+            "token"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "jwt",
+              "description": "Authentication type"
+            },
+            "token": {
+              "type": "string",
+              "description": "Pre-generated JWT token"
+            },
+            "secretKey": {
+              "type": "string",
+              "description": "Secret key for JWT signing"
+            },
+            "algorithm": {
+              "type": "string",
               "enum": [
-                "prisma",
-                "drizzle",
-                "kysely",
-                "custom"
+                "HS256",
+                "HS384",
+                "HS512",
+                "RS256",
+                "RS384",
+                "RS512",
+                "ES256",
+                "ES384",
+                "ES512"
               ],
-              "description": "Database adapter type"
+              "default": "HS256",
+              "description": "JWT signing algorithm"
             },
-            "connectionString": {
+            "issuer": {
               "type": "string",
-              "description": "Database connection string"
+              "description": "JWT issuer claim"
             },
-            "tablePrefix": {
+            "audience": {
               "type": "string",
-              "default": "auth_",
-              "description": "Prefix for auth tables"
+              "description": "JWT audience claim"
             },
-            "schema": {
+            "subject": {
               "type": "string",
-              "description": "Database schema name"
+              "description": "JWT subject claim"
+            },
+            "expiresIn": {
+              "type": "number",
+              "default": 3600,
+              "description": "Token expiry in seconds"
+            },
+            "claims": {
+              "type": "object",
+              "additionalProperties": {},
+              "description": "Additional JWT claims"
             }
           },
           "required": [
@@ -648,193 +190,79 @@
           ],
           "additionalProperties": false
         },
-        "mapping": {
+        {
           "type": "object",
           "properties": {
-            "user": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "string"
-              },
-              "description": "User field mapping (e.g., { \"emailVerified\": \"email_verified\" })"
-            },
-            "session": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "string"
-              },
-              "default": {
-                "sessionToken": "token",
-                "expires": "expiresAt"
-              },
-              "description": "Session field mapping"
-            },
-            "account": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "string"
-              },
-              "default": {
-                "providerAccountId": "accountId",
-                "provider": "providerId"
-              },
-              "description": "Account field mapping"
-            },
-            "verificationToken": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "string"
-              },
-              "description": "VerificationToken field mapping"
-            }
-          },
-          "additionalProperties": false
-        },
-        "plugins": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string",
-                "description": "Plugin name"
-              },
-              "enabled": {
-                "type": "boolean",
-                "default": true
-              },
-              "options": {
-                "type": "object",
-                "additionalProperties": {},
-                "description": "Plugin-specific options"
-              }
-            },
-            "required": [
-              "name"
-            ],
-            "additionalProperties": false
-          },
-          "default": []
-        },
-        "hooks": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false,
-          "description": "Authentication lifecycle hooks"
-        },
-        "security": {
-          "type": "object",
-          "properties": {
-            "allowedOrigins": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "description": "CORS allowed origins"
-            },
-            "trustProxy": {
-              "type": "boolean",
-              "default": false,
-              "description": "Trust proxy headers"
-            },
-            "ipRateLimiting": {
-              "type": "boolean",
-              "default": true,
-              "description": "Enable IP-based rate limiting"
-            },
-            "sessionFingerprinting": {
-              "type": "boolean",
-              "default": true,
-              "description": "Enable session fingerprinting"
-            },
-            "maxSessions": {
-              "type": "number",
-              "default": 5,
-              "description": "Maximum concurrent sessions per user"
-            }
-          },
-          "additionalProperties": false,
-          "description": "Advanced security settings"
-        },
-        "email": {
-          "type": "object",
-          "properties": {
-            "from": {
+            "type": {
               "type": "string",
-              "format": "email",
-              "description": "From email address"
+              "const": "saml",
+              "description": "Authentication type"
             },
-            "fromName": {
+            "entryPoint": {
               "type": "string",
-              "description": "From name"
+              "format": "uri",
+              "description": "SAML IdP entry point URL"
             },
-            "provider": {
+            "issuer": {
+              "type": "string",
+              "description": "SAML service provider issuer"
+            },
+            "certificate": {
+              "type": "string",
+              "description": "SAML IdP certificate (X.509)"
+            },
+            "privateKey": {
+              "type": "string",
+              "description": "SAML service provider private key"
+            },
+            "callbackUrl": {
+              "type": "string",
+              "format": "uri",
+              "description": "SAML assertion consumer service URL"
+            },
+            "signatureAlgorithm": {
               "type": "string",
               "enum": [
-                "smtp",
-                "sendgrid",
-                "mailgun",
-                "ses",
-                "resend",
-                "custom"
+                "sha1",
+                "sha256",
+                "sha512"
               ],
-              "description": "Email provider"
+              "default": "sha256",
+              "description": "SAML signature algorithm"
             },
-            "config": {
-              "type": "object",
-              "additionalProperties": {},
-              "description": "Provider-specific configuration"
+            "wantAssertionsSigned": {
+              "type": "boolean",
+              "default": true,
+              "description": "Require signed SAML assertions"
+            },
+            "identifierFormat": {
+              "type": "string",
+              "description": "SAML NameID format"
             }
           },
           "required": [
-            "from",
-            "provider"
+            "type",
+            "entryPoint",
+            "issuer",
+            "certificate"
           ],
-          "additionalProperties": false,
-          "description": "Email configuration"
+          "additionalProperties": false
         },
-        "ui": {
+        {
           "type": "object",
           "properties": {
-            "brandName": {
+            "type": {
               "type": "string",
-              "description": "Brand name displayed in auth UI"
-            },
-            "logo": {
-              "type": "string",
-              "description": "Logo URL"
-            },
-            "primaryColor": {
-              "type": "string",
-              "description": "Primary brand color (hex)"
-            },
-            "customCss": {
-              "type": "string",
-              "description": "Custom CSS for auth pages"
+              "const": "none",
+              "description": "No authentication required"
             }
           },
-          "additionalProperties": false,
-          "description": "UI customization"
-        },
-        "active": {
-          "type": "boolean",
-          "default": true,
-          "description": "Whether this provider is active"
-        },
-        "allowRegistration": {
-          "type": "boolean",
-          "default": true,
-          "description": "Allow new user registration"
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false
         }
-      },
-      "required": [
-        "name",
-        "label",
-        "strategies",
-        "baseUrl",
-        "secret"
-      ],
-      "additionalProperties": false
+      ]
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
