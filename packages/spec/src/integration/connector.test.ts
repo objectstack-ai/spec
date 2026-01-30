@@ -602,14 +602,14 @@ describe('Connector Integration', () => {
       },
       fieldMappings: [
         {
-          sourceField: 'FirstName',
-          targetField: 'first_name',
+          source: 'FirstName',
+          target: 'first_name',
           dataType: 'string',
           required: true,
         },
         {
-          sourceField: 'LastName',
-          targetField: 'last_name',
+          source: 'LastName',
+          target: 'last_name',
           dataType: 'string',
           required: true,
         },

@@ -33,7 +33,6 @@ export class ObjectLogger implements Logger {
             format: config.format ?? (this.isNode ? 'json' : 'pretty'),
             redact: config.redact ?? ['password', 'token', 'secret', 'key'],
             sourceLocation: config.sourceLocation ?? false,
-            name: config.name,
             file: config.file,
             rotation: config.rotation ?? {
                 maxSize: '10m',
