@@ -223,6 +223,12 @@ const capabilities: PluginCapabilityManifest = {
 
 ## 📝 命名规范 / Naming Conventions
 
+### 概述 / Overview
+
+ObjectStack 采用不同的命名约定来区分**包级标识符**（用于分发和安装）和**代码级标识符**（用于服务和数据访问）。
+
+ObjectStack uses different naming conventions to distinguish between **package-level identifiers** (for distribution and installation) and **code-level identifiers** (for services and data access).
+
 ### 1. 插件标识符 / Plugin Identifiers
 
 **格式 / Format:**
@@ -233,7 +239,7 @@ const capabilities: PluginCapabilityManifest = {
 **规则 / Rules:**
 - 使用反向域名表示法 / Use reverse domain notation
 - 全小写字母 / All lowercase
-- 使用连字符分隔单词 / Use hyphens for word separation
+- 使用连字符分隔单词（NPM 包命名约定）/ Use hyphens for word separation (NPM package naming convention)
 - 避免使用下划线和驼峰命名 / Avoid underscores and camelCase
 
 **示例 / Examples:**
@@ -241,8 +247,8 @@ const capabilities: PluginCapabilityManifest = {
 ✅ com.objectstack.driver.postgres
 ✅ com.acme.crm.customer-management
 ✅ org.apache.kafka.connector
-❌ com.acme.CRM  (不要使用大写)
-❌ com.acme.crm_plugin  (不要使用下划线)
+❌ com.acme.CRM  (不要使用大写 / Do not use uppercase)
+❌ com.acme.crm_plugin  (不要使用下划线 / Do not use underscores)
 ```
 
 ### 2. 协议标识符 / Protocol Identifiers
@@ -266,10 +272,15 @@ com.acme.protocol.payment.stripe.v1
 {plugin-id}.interface.{interface-name}
 ```
 
+**规则 / Rules:**
+- 接口名称使用 snake_case（与代码中的服务名一致）/ Use snake_case for interface names (consistent with service names in code)
+- 遵循 ObjectStack 数据层命名约定 / Follow ObjectStack data layer naming convention
+
 **示例 / Examples:**
 ```
-com.acme.crm.interface.contact_service
-com.acme.analytics.interface.metrics_collector
+✅ com.acme.crm.interface.contact_service
+✅ com.acme.analytics.interface.metrics_collector
+✅ com.acme.auth.interface.user_provider
 ```
 
 ### 4. 扩展点标识符 / Extension Point Identifiers
@@ -279,11 +290,30 @@ com.acme.analytics.interface.metrics_collector
 {plugin-id}.extension.{extension-name}
 ```
 
+**规则 / Rules:**
+- 扩展点名称使用 snake_case（与方法/函数命名一致）/ Use snake_case for extension names (consistent with method/function naming)
+
 **示例 / Examples:**
 ```
-com.acme.crm.extension.contact_validator
-com.acme.app.extension.theme_provider
+✅ com.acme.crm.extension.contact_validator
+✅ com.acme.app.extension.theme_provider
+✅ com.acme.crm.extension.customer_enrichment
 ```
+
+### 命名约定总结 / Naming Convention Summary
+
+| 类型 Type | 格式 Format | 分隔符 Separator | 示例 Example |
+|----------|------------|----------------|--------------|
+| 插件 ID<br/>Plugin ID | `{domain}.{category}.{name}` | kebab-case (hyphens) | `com.acme.crm.customer-management` |
+| 协议 ID<br/>Protocol ID | `{domain}.protocol.{name}.v{N}` | kebab-case | `com.objectstack.protocol.storage.v1` |
+| 接口 ID<br/>Interface ID | `{plugin}.interface.{name}` | snake_case | `com.acme.crm.interface.contact_service` |
+| 扩展点 ID<br/>Extension ID | `{plugin}.extension.{name}` | snake_case | `com.acme.crm.extension.contact_validator` |
+
+**重要说明 / Important Notes:**
+- **包级标识符**（插件、协议）使用 kebab-case，符合 NPM 包命名约定
+- **代码级标识符**（接口、扩展点）使用 snake_case，与 ObjectStack 数据层命名一致
+- **Package-level identifiers** (plugins, protocols) use kebab-case, following NPM package naming convention
+- **Code-level identifiers** (interfaces, extensions) use snake_case, consistent with ObjectStack data layer naming
 
 ---
 
