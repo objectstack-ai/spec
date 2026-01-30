@@ -27,19 +27,33 @@ export class HonoHttpServer implements IHttpServer {
     // internal helper to convert standard handler to Hono handler
     private wrap(handler: RouteHandler) {
         return async (c: any) => {
+            let body: any = {};
+            
+            // Try to parse JSON body first if content-type is JSON
+            if (c.req.header('content-type')?.includes('application/json')) {
+                try { 
+                    body = await c.req.json(); 
+                } catch(e) {
+                    // If JSON parsing fails, try parseBody
+                    try { 
+                        body = await c.req.parseBody(); 
+                    } catch(e2) {}
+                }
+            } else {
+                // For non-JSON content types, use parseBody
+                try { 
+                    body = await c.req.parseBody(); 
+                } catch(e) {}
+            }
+            
             const req = {
                 params: c.req.param(),
                 query: c.req.query(),
-                body: await c.req.parseBody().catch(() => {}), // fallback
+                body,
                 headers: c.req.header(),
                 method: c.req.method,
                 path: c.req.path
             };
-            
-            // Try to parse JSON body if possible
-            if (c.req.header('content-type')?.includes('application/json')) {
-                try { req.body = await c.req.json(); } catch(e) {}
-            }
 
             let capturedResponse: any;
 
