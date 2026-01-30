@@ -1,12 +1,20 @@
 import { z } from 'zod';
 
 /**
- * ETL (Extract, Transform, Load) Pipeline Protocol
+ * ETL (Extract, Transform, Load) Pipeline Protocol - LEVEL 2: Data Engineering
  * 
  * Inspired by modern data integration platforms like Airbyte, Fivetran, and Apache NiFi.
  * 
+ * **Positioning in 3-Layer Architecture:**
+ * - **L1: Simple Sync** (automation/sync.zod.ts) - Business users - Sync Salesforce to Sheets
+ * - **L2: ETL Pipeline** (THIS FILE) - Data engineers - Aggregate 10 sources to warehouse
+ * - **L3: Enterprise Connector** (integration/connector.zod.ts) - System integrators - Full SAP integration
+ * 
  * ETL pipelines enable automated data synchronization between systems, transforming
  * data as it moves from source to destination.
+ * 
+ * **SCOPE: Advanced multi-source, multi-stage transformations.**
+ * Supports complex operations: joins, aggregations, filtering, custom SQL.
  * 
  * ## Use Cases
  * 

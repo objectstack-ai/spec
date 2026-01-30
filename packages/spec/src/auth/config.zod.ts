@@ -11,6 +11,172 @@ import { z } from 'zod';
  * authentication library (better-auth, Auth.js, Passport, etc.)
  */
 
+// ============================================================================
+// SHARED CONNECTOR AUTHENTICATION SCHEMAS
+// These schemas are used by connectors and integrations for external auth
+// ============================================================================
+
+/**
+ * OAuth2 Authentication Schema
+ * Standard OAuth2 configuration for connector authentication
+ */
+export const OAuth2Schema = z.object({
+  type: z.literal('oauth2').describe('Authentication type'),
+  authorizationUrl: z.string().url().describe('OAuth2 authorization endpoint'),
+  tokenUrl: z.string().url().describe('OAuth2 token endpoint'),
+  clientId: z.string().describe('OAuth2 client ID'),
+  clientSecret: z.string().describe('OAuth2 client secret (typically from ENV)'),
+  scopes: z.array(z.string()).optional().describe('Requested OAuth2 scopes'),
+  redirectUri: z.string().url().optional().describe('OAuth2 redirect URI'),
+  refreshToken: z.string().optional().describe('Refresh token for token renewal'),
+  tokenExpiry: z.number().optional().describe('Token expiry timestamp'),
+});
+
+export type OAuth2 = z.infer<typeof OAuth2Schema>;
+
+/**
+ * API Key Authentication Schema
+ * Simple API key authentication for connectors
+ */
+export const APIKeySchema = z.object({
+  type: z.literal('api-key').describe('Authentication type'),
+  key: z.string().describe('API key value'),
+  headerName: z.string().default('X-API-Key').describe('HTTP header name for API key'),
+  paramName: z.string().optional().describe('Query parameter name (alternative to header)'),
+});
+
+export type APIKey = z.infer<typeof APIKeySchema>;
+
+/**
+ * Basic Authentication Schema
+ * HTTP Basic Authentication (username/password)
+ */
+export const BasicAuthSchema = z.object({
+  type: z.literal('basic').describe('Authentication type'),
+  username: z.string().describe('Username'),
+  password: z.string().describe('Password (typically from ENV)'),
+});
+
+export type BasicAuth = z.infer<typeof BasicAuthSchema>;
+
+/**
+ * Bearer Token Authentication Schema
+ * HTTP Bearer token authentication
+ */
+export const BearerAuthSchema = z.object({
+  type: z.literal('bearer').describe('Authentication type'),
+  token: z.string().describe('Bearer token'),
+});
+
+export type BearerAuth = z.infer<typeof BearerAuthSchema>;
+
+/**
+ * No Authentication Schema
+ * For public endpoints that don't require authentication
+ */
+export const NoAuthSchema = z.object({
+  type: z.literal('none').describe('No authentication required'),
+});
+
+export type NoAuth = z.infer<typeof NoAuthSchema>;
+
+/**
+ * JWT Authentication Schema
+ * JSON Web Token authentication for connectors
+ */
+export const JWTAuthSchema = z.object({
+  type: z.literal('jwt').describe('Authentication type'),
+  token: z.string().optional().describe('Pre-generated JWT token'),
+  secretKey: z.string().optional().describe('Secret key for JWT signing'),
+  algorithm: z.enum([
+    'HS256', 'HS384', 'HS512',
+    'RS256', 'RS384', 'RS512',
+    'ES256', 'ES384', 'ES512',
+  ]).default('HS256').describe('JWT signing algorithm'),
+  issuer: z.string().optional().describe('JWT issuer claim'),
+  audience: z.string().optional().describe('JWT audience claim'),
+  subject: z.string().optional().describe('JWT subject claim'),
+  expiresIn: z.number().default(3600).describe('Token expiry in seconds'),
+  claims: z.record(z.any()).optional().describe('Additional JWT claims'),
+});
+
+export type JWTAuth = z.infer<typeof JWTAuthSchema>;
+
+/**
+ * SAML Authentication Schema
+ * SAML 2.0 authentication for enterprise connectors
+ */
+export const SAMLAuthSchema = z.object({
+  type: z.literal('saml').describe('Authentication type'),
+  entryPoint: z.string().url().describe('SAML IdP entry point URL'),
+  issuer: z.string().describe('SAML service provider issuer'),
+  certificate: z.string().describe('SAML IdP certificate (X.509)'),
+  privateKey: z.string().optional().describe('SAML service provider private key'),
+  callbackUrl: z.string().url().optional().describe('SAML assertion consumer service URL'),
+  signatureAlgorithm: z.enum(['sha1', 'sha256', 'sha512']).default('sha256').describe('SAML signature algorithm'),
+  wantAssertionsSigned: z.boolean().default(true).describe('Require signed SAML assertions'),
+  identifierFormat: z.string().optional().describe('SAML NameID format'),
+});
+
+export type SAMLAuth = z.infer<typeof SAMLAuthSchema>;
+
+/**
+ * Unified Authentication Configuration Schema
+ * Discriminated union of all connector authentication methods
+ * 
+ * This is the canonical authentication schema used by connectors and integrations.
+ * 
+ * @example
+ * ```typescript
+ * // OAuth2 example
+ * const auth: AuthConfigSchema = {
+ *   type: 'oauth2',
+ *   authorizationUrl: 'https://accounts.google.com/o/oauth2/auth',
+ *   tokenUrl: 'https://oauth2.googleapis.com/token',
+ *   clientId: 'YOUR_CLIENT_ID',
+ *   clientSecret: 'YOUR_CLIENT_SECRET',
+ *   scopes: ['https://www.googleapis.com/auth/userinfo.email']
+ * };
+ * 
+ * // API Key example
+ * const auth: AuthConfigSchema = {
+ *   type: 'api-key',
+ *   key: process.env.API_KEY,
+ *   headerName: 'X-API-Key'
+ * };
+ * 
+ * // Basic Auth example
+ * const auth: AuthConfigSchema = {
+ *   type: 'basic',
+ *   username: 'admin',
+ *   password: process.env.PASSWORD
+ * };
+ * 
+ * // JWT example
+ * const auth: AuthConfigSchema = {
+ *   type: 'jwt',
+ *   secretKey: process.env.JWT_SECRET,
+ *   algorithm: 'HS256',
+ *   expiresIn: 3600
+ * };
+ * ```
+ */
+export const AuthConfigSchema = z.discriminatedUnion('type', [
+  OAuth2Schema,
+  APIKeySchema,
+  BasicAuthSchema,
+  BearerAuthSchema,
+  JWTAuthSchema,
+  SAMLAuthSchema,
+  NoAuthSchema,
+]);
+
+export type AuthConfig = z.infer<typeof AuthConfigSchema>;
+
+// ============================================================================
+// APPLICATION AUTHENTICATION (for user-facing auth)
+// ============================================================================
+
 /**
  * Supported authentication strategies
  */
@@ -405,14 +571,16 @@ export const AuthPluginConfigSchema = z.object({
 export type AuthPluginConfig = z.infer<typeof AuthPluginConfigSchema>;
 
 /**
- * Complete Authentication Configuration Schema
+ * Complete Application Authentication Configuration Schema
  * 
- * This is the main configuration object for authentication
- * in an ObjectStack application.
+ * This is the main configuration object for user authentication
+ * in an ObjectStack application (not for connector authentication).
+ * 
+ * For connector authentication, use AuthConfigSchema instead.
  * 
  * @example
  * ```typescript
- * const authConfig: AuthConfig = {
+ * const authConfig: ApplicationAuthConfig = {
  *   name: 'main_auth',
  *   label: 'Main Authentication',
  *   strategies: ['email_password', 'oauth'],
@@ -436,7 +604,7 @@ export type AuthPluginConfig = z.infer<typeof AuthPluginConfigSchema>;
  * };
  * ```
  */
-export const AuthConfigSchema = z.object({
+export const ApplicationAuthConfigSchema = z.object({
   /**
    * Unique identifier for this auth configuration
    * Must be in snake_case following ObjectStack conventions
@@ -658,9 +826,9 @@ export const AuthConfigSchema = z.object({
 });
 
 /**
- * TypeScript type inferred from AuthConfigSchema
+ * TypeScript type inferred from ApplicationAuthConfigSchema
  */
-export type AuthConfig = z.infer<typeof AuthConfigSchema>;
+export type ApplicationAuthConfig = z.infer<typeof ApplicationAuthConfigSchema>;
 
 /**
  * Standard Authentication Provider Schema
@@ -669,7 +837,7 @@ export type AuthConfig = z.infer<typeof AuthConfigSchema>;
 export const StandardAuthProviderSchema = z.object({
   type: z.literal('standard_auth').describe('Provider type identifier'),
   
-  config: AuthConfigSchema.describe('Standard authentication configuration'),
+  config: ApplicationAuthConfigSchema.describe('Standard authentication configuration'),
 });
 
 export type StandardAuthProvider = z.infer<typeof StandardAuthProviderSchema>;

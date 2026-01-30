@@ -14,8 +14,13 @@ export const WebhookTriggerType = z.enum([
 ]);
 
 /**
- * Webhook Schema
- * Outbound Integration: Push data to external URL when events happen.
+ * CANONICAL WEBHOOK DEFINITION
+ * 
+ * This is the single source of truth for webhook configuration across ObjectStack.
+ * All other protocols (workflow, connector, etc.) should import and reference this schema.
+ * 
+ * Webhook Protocol - Outbound HTTP Integration
+ * Push data to external URLs when events occur in the system.
  * 
  * **NAMING CONVENTION:**
  * Webhook names are machine identifiers and must be lowercase snake_case.
@@ -28,30 +33,76 @@ export const WebhookTriggerType = z.enum([
  * @example Bad webhook names (will be rejected)
  * - 'StripePaymentSync' (PascalCase)
  * - 'slackNotification' (camelCase)
+ * 
+ * @example Basic webhook configuration
+ * ```typescript
+ * const webhook: Webhook = {
+ *   name: 'slack_notification',
+ *   label: 'Slack Order Notification',
+ *   object: 'order',
+ *   triggers: ['create', 'update'],
+ *   url: 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX',
+ *   method: 'POST',
+ *   headers: { 'Content-Type': 'application/json' },
+ *   authentication: {
+ *     type: 'bearer',
+ *     credentials: { token: process.env.SLACK_TOKEN }
+ *   },
+ *   retryPolicy: {
+ *     maxRetries: 3,
+ *     backoffStrategy: 'exponential'
+ *   }
+ * }
+ * ```
  */
 export const WebhookSchema = z.object({
   name: SnakeCaseIdentifierSchema.describe('Webhook unique name (lowercase snake_case)'),
-  label: z.string().optional(),
+  label: z.string().optional().describe('Human-readable webhook label'),
   
   /** Scope */
-  object: z.string().describe('Object to listen to'),
-  triggers: z.array(WebhookTriggerType).describe('Events that trigger execution'),
+  object: z.string().optional().describe('Object to listen to (optional for manual webhooks)'),
+  triggers: z.array(WebhookTriggerType).optional().describe('Events that trigger execution'),
   
   /** Target */
-  url: z.string().url().describe('External URL payload'),
-  method: z.enum(['POST', 'PUT', 'GET']).default('POST'),
+  url: z.string().url().describe('External webhook endpoint URL'),
+  method: z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']).default('POST').describe('HTTP method'),
   
-  /** Security */
-  secret: z.string().optional().describe('Signing secret (HMAC)'),
-  headers: z.record(z.string()).optional().describe('Custom headers (Auth)'),
+  /** Headers */
+  headers: z.record(z.string()).optional().describe('Custom HTTP headers'),
+  
+  /** Body/Payload */
+  body: z.any().optional().describe('Request body payload (if not using default record data)'),
   
   /** Payload Configuration */
   payloadFields: z.array(z.string()).optional().describe('Fields to include. Empty = All'),
   includeSession: z.boolean().default(false).describe('Include user session info'),
   
-  /** Reliability */
-  retryCount: z.number().default(3),
-  isActive: z.boolean().default(true)
+  /** Authentication */
+  authentication: z.object({
+    type: z.enum(['none', 'bearer', 'basic', 'api-key']).describe('Authentication type'),
+    credentials: z.record(z.string()).optional().describe('Authentication credentials'),
+  }).optional().describe('Authentication configuration'),
+  
+  /** Retry Policy */
+  retryPolicy: z.object({
+    maxRetries: z.number().int().min(0).max(10).default(3).describe('Maximum retry attempts'),
+    backoffStrategy: z.enum(['exponential', 'linear', 'fixed']).default('exponential').describe('Backoff strategy'),
+    initialDelayMs: z.number().int().min(100).default(1000).describe('Initial retry delay in milliseconds'),
+    maxDelayMs: z.number().int().min(1000).default(60000).describe('Maximum retry delay in milliseconds'),
+  }).optional().describe('Retry policy configuration'),
+  
+  /** Timeout */
+  timeoutMs: z.number().int().min(1000).max(300000).default(30000).describe('Request timeout in milliseconds'),
+  
+  /** Security */
+  secret: z.string().optional().describe('Signing secret for HMAC signature verification'),
+  
+  /** Status */
+  isActive: z.boolean().default(true).describe('Whether webhook is active'),
+  
+  /** Metadata */
+  description: z.string().optional().describe('Webhook description'),
+  tags: z.array(z.string()).optional().describe('Tags for organization'),
 });
 
 /**

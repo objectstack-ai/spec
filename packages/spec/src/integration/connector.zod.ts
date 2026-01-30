@@ -1,165 +1,40 @@
 import { z } from 'zod';
+import { WebhookSchema } from '../automation/webhook.zod';
+import { AuthConfigSchema as ConnectorAuthConfigSchema } from '../auth/config.zod';
 
 /**
- * Connector Protocol
+ * Connector Protocol - LEVEL 3: Enterprise Connector
  * 
  * Defines the standard connector specification for external system integration.
  * Connectors enable ObjectStack to sync data with SaaS apps, databases, file storage,
  * and message queues through a unified protocol.
  * 
+ * **Positioning in 3-Layer Architecture:**
+ * - **L1: Simple Sync** (automation/sync.zod.ts) - Business users - Sync Salesforce to Sheets
+ * - **L2: ETL Pipeline** (automation/etl.zod.ts) - Data engineers - Aggregate 10 sources to warehouse
+ * - **L3: Enterprise Connector** (THIS FILE) - System integrators - Full SAP integration
+ * 
+ * **SCOPE: Most comprehensive integration layer.**
+ * Includes authentication, webhooks, rate limiting, field mapping, bidirectional sync,
+ * retry policies, and complete lifecycle management.
+ * 
  * This protocol supports multiple authentication strategies, bidirectional sync,
  * field mapping, webhooks, and comprehensive rate limiting.
+ * 
+ * Authentication is now imported from the canonical auth/config.zod.ts.
  */
 
 // ============================================================================
-// Authentication Schemas
+// Authentication Schemas - IMPORTED FROM CANONICAL SOURCE
+// For backward compatibility, we re-export the auth types from auth/config.zod.ts
 // ============================================================================
 
 /**
- * API Key Authentication Schema
+ * @deprecated Use ConnectorAuthConfigSchema from auth/config.zod instead
+ * Kept for backward compatibility
  */
-export const ApiKeyAuthSchema = z.object({
-  type: z.literal('api_key').describe('Authentication type'),
-  apiKey: z.string().describe('API key (typically from ENV)'),
-  headerName: z.string().default('X-API-Key').describe('HTTP header name for API key'),
-  paramName: z.string().optional().describe('Query parameter name (alternative to header)'),
-});
-
-export type ApiKeyAuth = z.infer<typeof ApiKeyAuthSchema>;
-
-/**
- * OAuth2 Authentication Schema
- */
-export const OAuth2AuthSchema = z.object({
-  type: z.literal('oauth2').describe('Authentication type'),
-  
-  clientId: z.string().describe('OAuth2 client ID'),
-  clientSecret: z.string().describe('OAuth2 client secret (typically from ENV)'),
-  
-  authorizationUrl: z.string().url().describe('OAuth2 authorization endpoint'),
-  tokenUrl: z.string().url().describe('OAuth2 token endpoint'),
-  
-  scopes: z.array(z.string()).optional().describe('Requested OAuth2 scopes'),
-  
-  redirectUri: z.string().url().optional().describe('OAuth2 callback URL'),
-  
-  grantType: z.enum([
-    'authorization_code',
-    'client_credentials',
-    'password',
-    'refresh_token',
-  ]).default('authorization_code').describe('OAuth2 grant type'),
-  
-  refreshToken: z.string().optional().describe('Refresh token for token renewal'),
-  
-  tokenExpiry: z.number().optional().describe('Token expiry timestamp'),
-});
-
-export type OAuth2Auth = z.infer<typeof OAuth2AuthSchema>;
-
-/**
- * JWT Authentication Schema
- */
-export const JwtAuthSchema = z.object({
-  type: z.literal('jwt').describe('Authentication type'),
-  
-  token: z.string().optional().describe('Pre-generated JWT token'),
-  
-  secretKey: z.string().optional().describe('Secret key for JWT signing'),
-  
-  algorithm: z.enum([
-    'HS256', 'HS384', 'HS512',
-    'RS256', 'RS384', 'RS512',
-    'ES256', 'ES384', 'ES512',
-  ]).default('HS256').describe('JWT signing algorithm'),
-  
-  issuer: z.string().optional().describe('JWT issuer claim'),
-  
-  audience: z.string().optional().describe('JWT audience claim'),
-  
-  subject: z.string().optional().describe('JWT subject claim'),
-  
-  expiresIn: z.number().default(3600).describe('Token expiry in seconds'),
-  
-  claims: z.record(z.any()).optional().describe('Additional JWT claims'),
-});
-
-export type JwtAuth = z.infer<typeof JwtAuthSchema>;
-
-/**
- * SAML Authentication Schema
- */
-export const SamlAuthSchema = z.object({
-  type: z.literal('saml').describe('Authentication type'),
-  
-  entryPoint: z.string().url().describe('SAML IdP entry point URL'),
-  
-  issuer: z.string().describe('SAML service provider issuer'),
-  
-  certificate: z.string().describe('SAML IdP certificate (X.509)'),
-  
-  privateKey: z.string().optional().describe('SAML service provider private key'),
-  
-  callbackUrl: z.string().url().optional().describe('SAML assertion consumer service URL'),
-  
-  signatureAlgorithm: z.enum([
-    'sha1',
-    'sha256',
-    'sha512',
-  ]).default('sha256').describe('SAML signature algorithm'),
-  
-  wantAssertionsSigned: z.boolean().default(true).describe('Require signed SAML assertions'),
-  
-  identifierFormat: z.string().optional().describe('SAML NameID format'),
-});
-
-export type SamlAuth = z.infer<typeof SamlAuthSchema>;
-
-/**
- * Basic Authentication Schema
- */
-export const BasicAuthSchema = z.object({
-  type: z.literal('basic').describe('Authentication type'),
-  username: z.string().describe('Username'),
-  password: z.string().describe('Password (typically from ENV)'),
-});
-
-export type BasicAuth = z.infer<typeof BasicAuthSchema>;
-
-/**
- * Bearer Token Authentication Schema
- */
-export const BearerTokenAuthSchema = z.object({
-  type: z.literal('bearer').describe('Authentication type'),
-  token: z.string().describe('Bearer token'),
-});
-
-export type BearerTokenAuth = z.infer<typeof BearerTokenAuthSchema>;
-
-/**
- * No Authentication Schema
- */
-export const NoAuthSchema = z.object({
-  type: z.literal('none').describe('No authentication required'),
-});
-
-export type NoAuth = z.infer<typeof NoAuthSchema>;
-
-/**
- * Unified Authentication Configuration
- * Discriminated union of all authentication methods
- */
-export const AuthenticationSchema = z.discriminatedUnion('type', [
-  ApiKeyAuthSchema,
-  OAuth2AuthSchema,
-  JwtAuthSchema,
-  SamlAuthSchema,
-  BasicAuthSchema,
-  BearerTokenAuthSchema,
-  NoAuthSchema,
-]);
-
-export type Authentication = z.infer<typeof AuthenticationSchema>;
+export const AuthenticationSchema = ConnectorAuthConfigSchema;
+export type Authentication = z.infer<typeof ConnectorAuthConfigSchema>;
 
 // ============================================================================
 // Field Mapping Schema
@@ -361,51 +236,21 @@ export type WebhookSignatureAlgorithm = z.infer<typeof WebhookSignatureAlgorithm
 
 /**
  * Webhook Configuration Schema
+ * 
+ * Extends the canonical WebhookSchema with connector-specific event types.
+ * This allows connectors to subscribe to both data events and connector lifecycle events.
  */
-export const WebhookConfigSchema = z.object({
-  /**
-   * Webhook endpoint URL
-   */
-  url: z.string().url().describe('Webhook endpoint URL'),
-  
+export const WebhookConfigSchema = WebhookSchema.extend({
   /**
    * Events to listen for
+   * Connector-specific events like sync completion, auth expiry, etc.
    */
-  events: z.array(WebhookEventSchema).describe('Events to subscribe to'),
+  events: z.array(WebhookEventSchema).optional().describe('Connector events to subscribe to'),
   
   /**
-   * Webhook secret for signature verification
-   */
-  secret: z.string().optional().describe('Secret for HMAC signature'),
-  
-  /**
-   * Signature algorithm
+   * Signature algorithm for webhook security
    */
   signatureAlgorithm: WebhookSignatureAlgorithmSchema.optional().default('hmac_sha256'),
-  
-  /**
-   * Custom headers to include in webhook requests
-   */
-  headers: z.record(z.string()).optional().describe('Custom HTTP headers'),
-  
-  /**
-   * Retry configuration for failed webhook deliveries
-   */
-  retryConfig: z.object({
-    maxAttempts: z.number().min(0).max(10).optional().default(3).describe('Maximum retry attempts'),
-    backoffMultiplier: z.number().min(1).optional().default(2).describe('Exponential backoff multiplier'),
-    initialDelayMs: z.number().min(100).optional().default(1000).describe('Initial retry delay in ms'),
-  }).optional().describe('Retry configuration'),
-  
-  /**
-   * Timeout for webhook requests
-   */
-  timeoutMs: z.number().min(1000).max(60000).optional().default(30000).describe('Request timeout in ms'),
-  
-  /**
-   * Enable webhook
-   */
-  enabled: z.boolean().optional().default(true).describe('Enable webhook'),
 });
 
 export type WebhookConfig = z.infer<typeof WebhookConfigSchema>;

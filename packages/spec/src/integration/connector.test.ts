@@ -1,15 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import {
-  // Authentication Schemas
-  ApiKeyAuthSchema,
-  OAuth2AuthSchema,
-  JwtAuthSchema,
-  SamlAuthSchema,
-  BasicAuthSchema,
-  BearerTokenAuthSchema,
-  NoAuthSchema,
-  AuthenticationSchema,
-  
   // Field Mapping
   FieldMappingSchema,
   FieldTransformSchema,
@@ -31,57 +21,77 @@ import {
   ConnectorSchema,
   ConnectorTypeSchema,
   ConnectorStatusSchema,
+  AuthenticationSchema,
   
   // Types
   type Connector,
-  type ApiKeyAuth,
-  type OAuth2Auth,
   type FieldMapping,
   type DataSyncConfig,
   type WebhookConfig,
+  type Authentication,
 } from './connector.zod';
 
+// Import shared auth schemas from canonical source
+import {
+  APIKeySchema,
+  OAuth2Schema,
+  JWTAuthSchema,
+  SAMLAuthSchema,
+  BasicAuthSchema,
+  BearerAuthSchema,
+  NoAuthSchema,
+  AuthConfigSchema,
+  type APIKey,
+  type OAuth2,
+  type JWTAuth,
+  type SAMLAuth,
+  type BasicAuth,
+  type BearerAuth,
+  type NoAuth,
+  type AuthConfig,
+} from '../auth/config.zod';
+
 // ============================================================================
-// Authentication Schemas Tests
+// Authentication Schemas Tests (from auth/config.zod.ts)
 // ============================================================================
 
-describe('ApiKeyAuthSchema', () => {
+describe('APIKeySchema', () => {
   it('should accept valid API key authentication', () => {
-    const auth: ApiKeyAuth = {
-      type: 'api_key',
-      apiKey: 'test-api-key-12345',
+    const auth: APIKey = {
+      type: 'api-key',
+      key: 'test-api-key-12345',
       headerName: 'X-API-Key',
     };
     
-    expect(() => ApiKeyAuthSchema.parse(auth)).not.toThrow();
+    expect(() => APIKeySchema.parse(auth)).not.toThrow();
   });
   
   it('should accept API key with query parameter', () => {
     const auth = {
-      type: 'api_key',
-      apiKey: 'test-key',
+      type: 'api-key',
+      key: 'test-key',
       headerName: 'X-Custom-Key',
       paramName: 'api_key',
     };
     
-    const parsed = ApiKeyAuthSchema.parse(auth);
+    const parsed = APIKeySchema.parse(auth);
     expect(parsed.paramName).toBe('api_key');
   });
   
   it('should use default header name', () => {
     const auth = {
-      type: 'api_key',
-      apiKey: 'test-key',
+      type: 'api-key',
+      key: 'test-key',
     };
     
-    const parsed = ApiKeyAuthSchema.parse(auth);
+    const parsed = APIKeySchema.parse(auth);
     expect(parsed.headerName).toBe('X-API-Key');
   });
 });
 
-describe('OAuth2AuthSchema', () => {
+describe('OAuth2Schema', () => {
   it('should accept valid OAuth2 configuration', () => {
-    const auth: OAuth2Auth = {
+    const auth: OAuth2 = {
       type: 'oauth2',
       clientId: 'client-id',
       clientSecret: 'client-secret',
@@ -90,7 +100,7 @@ describe('OAuth2AuthSchema', () => {
       grantType: 'authorization_code',
     };
     
-    expect(() => OAuth2AuthSchema.parse(auth)).not.toThrow();
+    expect(() => OAuth2Schema.parse(auth)).not.toThrow();
   });
   
   it('should accept OAuth2 with scopes and refresh token', () => {
@@ -105,7 +115,7 @@ describe('OAuth2AuthSchema', () => {
       grantType: 'client_credentials',
     };
     
-    const parsed = OAuth2AuthSchema.parse(auth);
+    const parsed = OAuth2Schema.parse(auth);
     expect(parsed.scopes).toHaveLength(2);
     expect(parsed.refreshToken).toBe('refresh-token-xyz');
   });
@@ -119,12 +129,12 @@ describe('OAuth2AuthSchema', () => {
       tokenUrl: 'https://auth.example.com/token',
     };
     
-    const parsed = OAuth2AuthSchema.parse(auth);
+    const parsed = OAuth2Schema.parse(auth);
     expect(parsed.grantType).toBe('authorization_code');
   });
 });
 
-describe('JwtAuthSchema', () => {
+describe('JWTAuthSchema', () => {
   it('should accept JWT with token', () => {
     const auth = {
       type: 'jwt',
@@ -132,7 +142,7 @@ describe('JwtAuthSchema', () => {
       algorithm: 'HS256',
     };
     
-    expect(() => JwtAuthSchema.parse(auth)).not.toThrow();
+    expect(() => JWTAuthSchema.parse(auth)).not.toThrow();
   });
   
   it('should accept JWT with secret key and claims', () => {
@@ -146,7 +156,7 @@ describe('JwtAuthSchema', () => {
       claims: { role: 'admin' },
     };
     
-    const parsed = JwtAuthSchema.parse(auth);
+    const parsed = JWTAuthSchema.parse(auth);
     expect(parsed.claims).toEqual({ role: 'admin' });
   });
   
@@ -156,13 +166,13 @@ describe('JwtAuthSchema', () => {
       token: 'test-token',
     };
     
-    const parsed = JwtAuthSchema.parse(auth);
+    const parsed = JWTAuthSchema.parse(auth);
     expect(parsed.algorithm).toBe('HS256');
     expect(parsed.expiresIn).toBe(3600);
   });
 });
 
-describe('SamlAuthSchema', () => {
+describe('SAMLAuthSchema', () => {
   it('should accept valid SAML configuration', () => {
     const auth = {
       type: 'saml',
@@ -172,7 +182,7 @@ describe('SamlAuthSchema', () => {
       signatureAlgorithm: 'sha256',
     };
     
-    expect(() => SamlAuthSchema.parse(auth)).not.toThrow();
+    expect(() => SAMLAuthSchema.parse(auth)).not.toThrow();
   });
   
   it('should use default values', () => {
@@ -183,7 +193,7 @@ describe('SamlAuthSchema', () => {
       certificate: 'cert-content',
     };
     
-    const parsed = SamlAuthSchema.parse(auth);
+    const parsed = SAMLAuthSchema.parse(auth);
     expect(parsed.signatureAlgorithm).toBe('sha256');
     expect(parsed.wantAssertionsSigned).toBe(true);
   });
@@ -191,7 +201,7 @@ describe('SamlAuthSchema', () => {
 
 describe('AuthenticationSchema', () => {
   it('should accept all authentication types via discriminated union', () => {
-    const apiKeyAuth = { type: 'api_key', apiKey: 'key' };
+    const keyAuth = { type: 'api-key', key: 'key' };
     const oauth2Auth = { 
       type: 'oauth2', 
       clientId: 'id', 
@@ -202,7 +212,7 @@ describe('AuthenticationSchema', () => {
     const basicAuth = { type: 'basic', username: 'user', password: 'pass' };
     const noAuth = { type: 'none' };
     
-    expect(() => AuthenticationSchema.parse(apiKeyAuth)).not.toThrow();
+    expect(() => AuthenticationSchema.parse(keyAuth)).not.toThrow();
     expect(() => AuthenticationSchema.parse(oauth2Auth)).not.toThrow();
     expect(() => AuthenticationSchema.parse(basicAuth)).not.toThrow();
     expect(() => AuthenticationSchema.parse(noAuth)).not.toThrow();
@@ -422,8 +432,8 @@ describe('ConnectorSchema', () => {
       label: 'Test Connector',
       type: 'api',
       authentication: {
-        type: 'api_key',
-        apiKey: 'test-key',
+        type: 'api-key',
+        key: 'test-key',
       },
       status: 'inactive',
       enabled: true,
