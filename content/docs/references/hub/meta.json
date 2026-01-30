@@ -4,6 +4,7 @@
     "composer",
     "license",
     "marketplace",
+    "plugin-registry",
     "space",
     "tenant"
   ]

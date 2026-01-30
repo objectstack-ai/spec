@@ -1,0 +1,410 @@
+{
+  "$ref": "#/definitions/PluginCapabilityManifest",
+  "definitions": {
+    "PluginCapabilityManifest": {
+      "type": "object",
+      "properties": {
+        "implements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "protocol": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^([a-z][a-z0-9]*\\.)+protocol\\.[a-z][a-z0-9._]*\\.v\\d+$",
+                    "description": "Unique protocol identifier (e.g., com.objectstack.protocol.storage.v1)"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "object",
+                    "properties": {
+                      "major": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "minor": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "patch": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "major",
+                      "minor",
+                      "patch"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Semantic version of the protocol"
+                  },
+                  "specification": {
+                    "type": "string",
+                    "description": "URL or path to protocol specification"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "label",
+                  "version"
+                ],
+                "additionalProperties": false
+              },
+              "conformance": {
+                "type": "string",
+                "enum": [
+                  "full",
+                  "partial",
+                  "experimental",
+                  "deprecated"
+                ],
+                "description": "Level of protocol conformance",
+                "default": "full"
+              },
+              "implementedFeatures": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "List of implemented feature names"
+              },
+              "features": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Feature identifier within the protocol"
+                    },
+                    "enabled": {
+                      "type": "boolean",
+                      "default": true
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "sinceVersion": {
+                      "type": "string",
+                      "description": "Version when this feature was added"
+                    },
+                    "deprecatedSince": {
+                      "type": "string",
+                      "description": "Version when deprecated"
+                    }
+                  },
+                  "required": [
+                    "name"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "metadata": {
+                "type": "object",
+                "additionalProperties": {}
+              },
+              "certified": {
+                "type": "boolean",
+                "default": false,
+                "description": "Has passed official conformance tests"
+              },
+              "certificationDate": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "protocol"
+            ],
+            "additionalProperties": false
+          },
+          "description": "List of protocols this plugin conforms to"
+        },
+        "provides": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^([a-z][a-z0-9]*\\.)+interface\\.[a-z][a-z0-9._]+$",
+                "description": "Unique interface identifier"
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "version": {
+                "type": "object",
+                "properties": {
+                  "major": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "minor": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "patch": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "major",
+                  "minor",
+                  "patch"
+                ],
+                "additionalProperties": false,
+                "description": "Semantic version of the protocol"
+              },
+              "methods": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Method name"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "parameters": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "Type notation (e.g., string, number, User)"
+                          },
+                          "required": {
+                            "type": "boolean",
+                            "default": true
+                          },
+                          "description": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "type"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "returnType": {
+                      "type": "string",
+                      "description": "Return value type"
+                    },
+                    "async": {
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Whether method returns a Promise"
+                    }
+                  },
+                  "required": [
+                    "name"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "events": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Event name"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "string",
+                      "description": "Event payload type"
+                    }
+                  },
+                  "required": [
+                    "name"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "stability": {
+                "type": "string",
+                "enum": [
+                  "stable",
+                  "beta",
+                  "alpha",
+                  "experimental"
+                ],
+                "default": "stable"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "version",
+              "methods"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Services/APIs this plugin offers to others"
+        },
+        "requires": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pluginId": {
+                "type": "string",
+                "pattern": "^([a-z][a-z0-9]*\\.)+[a-z][a-z0-9-]+$",
+                "description": "Required plugin identifier"
+              },
+              "version": {
+                "type": "string",
+                "description": "Semantic version constraint"
+              },
+              "optional": {
+                "type": "boolean",
+                "default": false
+              },
+              "reason": {
+                "type": "string"
+              },
+              "requiredCapabilities": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Protocol IDs the dependency must support"
+              }
+            },
+            "required": [
+              "pluginId",
+              "version"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Required plugins and their capabilities"
+        },
+        "extensionPoints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^([a-z][a-z0-9]*\\.)+extension\\.[a-z][a-z0-9._]+$",
+                "description": "Unique extension point identifier"
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "action",
+                  "hook",
+                  "widget",
+                  "provider",
+                  "transformer",
+                  "validator",
+                  "decorator"
+                ]
+              },
+              "contract": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "string",
+                    "description": "Input type/schema"
+                  },
+                  "output": {
+                    "type": "string",
+                    "description": "Output type/schema"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "Function signature if applicable"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "cardinality": {
+                "type": "string",
+                "enum": [
+                  "single",
+                  "multiple"
+                ],
+                "default": "multiple",
+                "description": "Whether multiple extensions can register to this point"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Points where other plugins can extend this plugin"
+        },
+        "extensions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "targetPluginId": {
+                "type": "string",
+                "description": "Plugin ID being extended"
+              },
+              "extensionPointId": {
+                "type": "string",
+                "description": "Extension point identifier"
+              },
+              "implementation": {
+                "type": "string",
+                "description": "Path to implementation module"
+              },
+              "priority": {
+                "type": "integer",
+                "default": 100,
+                "description": "Registration priority (lower = higher priority)"
+              }
+            },
+            "required": [
+              "targetPluginId",
+              "extensionPointId",
+              "implementation"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Extensions contributed to other plugins"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

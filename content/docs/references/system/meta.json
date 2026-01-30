@@ -12,6 +12,7 @@
     "logger",
     "manifest",
     "plugin",
+    "plugin-capability",
     "scoped-storage",
     "translation"
   ]
