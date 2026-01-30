@@ -24,9 +24,7 @@ export * from './tracing.zod';
 export * from './manifest.zod';
 export * from './plugin.zod';
 export * from './plugin-capability.zod';
-export * from './logger.zod';
 export * from './context.zod';
-export * from './scoped-storage.zod';
 export * from './datasource.zod';
 
 // Driver Protocol
@@ -39,7 +37,7 @@ export * from './driver/postgres.zod';
 // Data Engine Protocol
 export * from './data-engine.zod';
 
-// Object Storage Protocol
+// Object Storage Protocol (includes scoped storage functionality)
 export * from './object-storage.zod';
 
 // Cache Protocol

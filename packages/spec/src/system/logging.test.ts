@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import {
   LogLevel,
+  LogFormat,
+  LoggerConfigSchema,
+  LogEntrySchema,
   ExtendedLogLevel,
   LogDestinationType,
   ConsoleDestinationConfigSchema,
@@ -11,10 +14,102 @@ import {
   LogEnrichmentConfigSchema,
   StructuredLogEntrySchema,
   LoggingConfigSchema,
+  type LoggerConfig,
+  type LogEntry,
   type LogDestination,
   type StructuredLogEntry,
   type LoggingConfig,
 } from './logging.zod';
+
+describe('LogLevel', () => {
+  it('should accept valid log levels', () => {
+    const levels = ['debug', 'info', 'warn', 'error', 'fatal'];
+    
+    levels.forEach((level) => {
+      expect(() => LogLevel.parse(level)).not.toThrow();
+    });
+  });
+
+  it('should reject invalid log levels', () => {
+    expect(() => LogLevel.parse('invalid')).toThrow();
+    expect(() => LogLevel.parse('trace')).toThrow(); // trace is only in ExtendedLogLevel
+  });
+});
+
+describe('LogFormat', () => {
+  it('should accept valid log formats', () => {
+    const formats = ['json', 'text', 'pretty'];
+    
+    formats.forEach((format) => {
+      expect(() => LogFormat.parse(format)).not.toThrow();
+    });
+  });
+
+  it('should reject invalid log formats', () => {
+    expect(() => LogFormat.parse('invalid')).toThrow();
+  });
+});
+
+describe('LoggerConfigSchema', () => {
+  it('should accept minimal configuration', () => {
+    const config = LoggerConfigSchema.parse({});
+    
+    expect(config.level).toBe('info');
+    expect(config.format).toBe('json');
+    expect(config.sourceLocation).toBe(false);
+  });
+
+  it('should accept full configuration', () => {
+    const config: LoggerConfig = {
+      name: 'my-logger',
+      level: 'debug',
+      format: 'pretty',
+      redact: ['apiKey', 'password'],
+      sourceLocation: true,
+      file: '/var/log/app.log',
+      rotation: {
+        maxSize: '50m',
+        maxFiles: 10,
+      },
+    };
+    
+    expect(() => LoggerConfigSchema.parse(config)).not.toThrow();
+  });
+
+  it('should apply defaults', () => {
+    const config = LoggerConfigSchema.parse({});
+    
+    expect(config.redact).toEqual(['password', 'token', 'secret', 'key']);
+  });
+});
+
+describe('LogEntrySchema', () => {
+  it('should accept minimal log entry', () => {
+    const entry: LogEntry = {
+      timestamp: '2024-01-15T10:30:00.000Z',
+      level: 'info',
+      message: 'Application started',
+    };
+    
+    expect(() => LogEntrySchema.parse(entry)).not.toThrow();
+  });
+
+  it('should accept full log entry', () => {
+    const entry: LogEntry = {
+      timestamp: '2024-01-15T10:30:00.000Z',
+      level: 'error',
+      message: 'Database connection failed',
+      context: { database: 'postgres', attempt: 3 },
+      error: { message: 'Connection timeout' },
+      traceId: 'abc123',
+      spanId: 'def456',
+      service: 'api-server',
+      component: 'database-pool',
+    };
+    
+    expect(() => LogEntrySchema.parse(entry)).not.toThrow();
+  });
+});
 
 describe('ExtendedLogLevel', () => {
   it('should accept valid log levels', () => {
@@ -268,6 +363,54 @@ describe('LoggingConfigSchema', () => {
     expect(() => LoggingConfigSchema.parse(config)).not.toThrow();
   });
 
+  it('should accept configuration with default logger', () => {
+    const config: LoggingConfig = {
+      name: 'app_logging',
+      label: 'Application Logging',
+      default: {
+        level: 'info',
+        format: 'json',
+      },
+      destinations: [
+        {
+          name: 'console',
+          type: 'console',
+        },
+      ],
+    };
+    
+    const parsed = LoggingConfigSchema.parse(config);
+    expect(parsed.default).toBeDefined();
+    expect(parsed.default?.level).toBe('info');
+  });
+
+  it('should accept configuration with named loggers', () => {
+    const config: LoggingConfig = {
+      name: 'multi_logger',
+      label: 'Multi Logger',
+      default: {
+        level: 'info',
+      },
+      loggers: {
+        database: {
+          level: 'debug',
+          format: 'json',
+        },
+        http: {
+          level: 'warn',
+          format: 'text',
+        },
+      },
+      destinations: [],
+    };
+    
+    const parsed = LoggingConfigSchema.parse(config);
+    expect(parsed.loggers).toBeDefined();
+    expect(parsed.loggers?.database).toBeDefined();
+    expect(parsed.loggers?.database.level).toBe('debug');
+    expect(parsed.loggers?.http.level).toBe('warn');
+  });
+
   it('should apply defaults', () => {
     const config = LoggingConfigSchema.parse({
       name: 'test_logging',
@@ -287,6 +430,15 @@ describe('LoggingConfigSchema', () => {
       label: 'Production Logging',
       enabled: true,
       level: 'warn',
+      default: {
+        level: 'info',
+        format: 'json',
+      },
+      loggers: {
+        app: {
+          level: 'debug',
+        },
+      },
       destinations: [
         {
           name: 'console_dest',

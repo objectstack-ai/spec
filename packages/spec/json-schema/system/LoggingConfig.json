@@ -31,6 +31,147 @@
           "description": "Extended log severity level",
           "default": "info"
         },
+        "default": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Logger name identifier"
+            },
+            "level": {
+              "type": "string",
+              "enum": [
+                "debug",
+                "info",
+                "warn",
+                "error",
+                "fatal"
+              ],
+              "description": "Log severity level",
+              "default": "info"
+            },
+            "format": {
+              "type": "string",
+              "enum": [
+                "json",
+                "text",
+                "pretty"
+              ],
+              "description": "Log output format",
+              "default": "json"
+            },
+            "redact": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [
+                "password",
+                "token",
+                "secret",
+                "key"
+              ],
+              "description": "Keys to redact from log context"
+            },
+            "sourceLocation": {
+              "type": "boolean",
+              "default": false,
+              "description": "Include file and line number"
+            },
+            "file": {
+              "type": "string",
+              "description": "Path to log file"
+            },
+            "rotation": {
+              "type": "object",
+              "properties": {
+                "maxSize": {
+                  "type": "string",
+                  "default": "10m"
+                },
+                "maxFiles": {
+                  "type": "number",
+                  "default": 5
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false,
+          "description": "Default logger configuration"
+        },
+        "loggers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Logger name identifier"
+              },
+              "level": {
+                "type": "string",
+                "enum": [
+                  "debug",
+                  "info",
+                  "warn",
+                  "error",
+                  "fatal"
+                ],
+                "description": "Log severity level",
+                "default": "info"
+              },
+              "format": {
+                "type": "string",
+                "enum": [
+                  "json",
+                  "text",
+                  "pretty"
+                ],
+                "description": "Log output format",
+                "default": "json"
+              },
+              "redact": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": [
+                  "password",
+                  "token",
+                  "secret",
+                  "key"
+                ],
+                "description": "Keys to redact from log context"
+              },
+              "sourceLocation": {
+                "type": "boolean",
+                "default": false,
+                "description": "Include file and line number"
+              },
+              "file": {
+                "type": "string",
+                "description": "Path to log file"
+              },
+              "rotation": {
+                "type": "object",
+                "properties": {
+                  "maxSize": {
+                    "type": "string",
+                    "default": "10m"
+                  },
+                  "maxFiles": {
+                    "type": "number",
+                    "default": 5
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Named logger configurations"
+        },
         "destinations": {
           "type": "array",
           "items": {

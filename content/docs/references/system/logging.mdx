@@ -12,8 +12,8 @@ description: Logging protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ConsoleDestinationConfigSchema, ExtendedLogLevelSchema, ExternalServiceDestinationConfigSchema, FileDestinationConfigSchema, HttpDestinationConfigSchema, LogDestinationSchema, LogDestinationTypeSchema, LogEnrichmentConfigSchema, LoggingConfigSchema, StructuredLogEntrySchema } from '@objectstack/spec/system';
-import type { ConsoleDestinationConfig, ExtendedLogLevel, ExternalServiceDestinationConfig, FileDestinationConfig, HttpDestinationConfig, LogDestination, LogDestinationType, LogEnrichmentConfig, LoggingConfig, StructuredLogEntry } from '@objectstack/spec/system';
+import { ConsoleDestinationConfigSchema, ExtendedLogLevelSchema, ExternalServiceDestinationConfigSchema, FileDestinationConfigSchema, HttpDestinationConfigSchema, LogDestinationSchema, LogDestinationTypeSchema, LogEnrichmentConfigSchema, LogEntrySchema, LogFormatSchema, LogLevelSchema, LoggerConfigSchema, LoggingConfigSchema, StructuredLogEntrySchema } from '@objectstack/spec/system';
+import type { ConsoleDestinationConfig, ExtendedLogLevel, ExternalServiceDestinationConfig, FileDestinationConfig, HttpDestinationConfig, LogDestination, LogDestinationType, LogEnrichmentConfig, LogEntry, LogFormat, LogLevel, LoggerConfig, LoggingConfig, StructuredLogEntry } from '@objectstack/spec/system';
 
 // Validate data
 const result = ConsoleDestinationConfigSchema.parse(data);
@@ -164,6 +164,66 @@ Log enrichment configuration
 
 ---
 
+## LogEntry
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **timestamp** | `string` | ✅ | ISO 8601 timestamp |
+| **level** | `Enum<'debug' \| 'info' \| 'warn' \| 'error' \| 'fatal'>` | ✅ | Log severity level |
+| **message** | `string` | ✅ | Log message |
+| **context** | `Record<string, any>` | optional | Structured context data |
+| **error** | `Record<string, any>` | optional | Error object if present |
+| **traceId** | `string` | optional | Distributed trace ID |
+| **spanId** | `string` | optional | Span ID |
+| **service** | `string` | optional | Service name |
+| **component** | `string` | optional | Component name (e.g. plugin id) |
+
+---
+
+## LogFormat
+
+Log output format
+
+### Allowed Values
+
+* `json`
+* `text`
+* `pretty`
+
+---
+
+## LogLevel
+
+Log severity level
+
+### Allowed Values
+
+* `debug`
+* `info`
+* `warn`
+* `error`
+* `fatal`
+
+---
+
+## LoggerConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | optional | Logger name identifier |
+| **level** | `Enum<'debug' \| 'info' \| 'warn' \| 'error' \| 'fatal'>` | optional | Log severity level |
+| **format** | `Enum<'json' \| 'text' \| 'pretty'>` | optional | Log output format |
+| **redact** | `string[]` | optional | Keys to redact from log context |
+| **sourceLocation** | `boolean` | optional | Include file and line number |
+| **file** | `string` | optional | Path to log file |
+| **rotation** | `object` | optional |  |
+
+---
+
 ## LoggingConfig
 
 Logging configuration
@@ -176,6 +236,8 @@ Logging configuration
 | **label** | `string` | ✅ | Display label |
 | **enabled** | `boolean` | optional |  |
 | **level** | `Enum<'trace' \| 'debug' \| 'info' \| 'warn' \| 'error' \| 'fatal'>` | optional | Extended log severity level |
+| **default** | `object` | optional | Default logger configuration |
+| **loggers** | `Record<string, object>` | optional | Named logger configurations |
 | **destinations** | `object[]` | ✅ | Log destinations |
 | **enrichment** | `object` | optional | Log enrichment configuration |
 | **redact** | `string[]` | optional | Fields to redact |

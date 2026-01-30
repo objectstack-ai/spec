@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
+  StorageScopeSchema,
+  FileMetadataSchema,
   StorageProviderSchema,
   StorageAclSchema,
   StorageClassSchema,
@@ -13,6 +15,8 @@ import {
   BucketConfigSchema,
   StorageConnectionSchema,
   ObjectStorageConfigSchema,
+  type StorageScope,
+  type FileMetadata,
   type StorageProvider,
   type StorageAcl,
   type StorageClass,
@@ -26,6 +30,54 @@ import {
   type StorageConnection,
   type ObjectStorageConfig,
 } from './object-storage.zod';
+
+describe('StorageScopeSchema', () => {
+  it('should accept valid storage scopes', () => {
+    expect(() => StorageScopeSchema.parse('global')).not.toThrow();
+    expect(() => StorageScopeSchema.parse('tenant')).not.toThrow();
+    expect(() => StorageScopeSchema.parse('user')).not.toThrow();
+    expect(() => StorageScopeSchema.parse('session')).not.toThrow();
+    expect(() => StorageScopeSchema.parse('temp')).not.toThrow();
+    expect(() => StorageScopeSchema.parse('cache')).not.toThrow();
+    expect(() => StorageScopeSchema.parse('data')).not.toThrow();
+    expect(() => StorageScopeSchema.parse('logs')).not.toThrow();
+    expect(() => StorageScopeSchema.parse('config')).not.toThrow();
+    expect(() => StorageScopeSchema.parse('public')).not.toThrow();
+  });
+
+  it('should reject invalid storage scopes', () => {
+    expect(() => StorageScopeSchema.parse('invalid')).toThrow();
+  });
+});
+
+describe('FileMetadataSchema', () => {
+  it('should accept valid file metadata', () => {
+    const metadata: FileMetadata = {
+      path: '/uploads/file.txt',
+      name: 'file.txt',
+      size: 1024,
+      mimeType: 'text/plain',
+      lastModified: '2024-01-15T10:30:00.000Z',
+      created: '2024-01-15T10:00:00.000Z',
+      etag: '"abc123"',
+    };
+    
+    expect(() => FileMetadataSchema.parse(metadata)).not.toThrow();
+  });
+
+  it('should accept metadata without optional fields', () => {
+    const metadata: FileMetadata = {
+      path: '/uploads/file.txt',
+      name: 'file.txt',
+      size: 1024,
+      mimeType: 'text/plain',
+      lastModified: '2024-01-15T10:30:00.000Z',
+      created: '2024-01-15T10:00:00.000Z',
+    };
+    
+    expect(() => FileMetadataSchema.parse(metadata)).not.toThrow();
+  });
+});
 
 describe('StorageProviderSchema', () => {
   it('should accept valid storage providers', () => {
@@ -611,6 +663,53 @@ describe('ObjectStorageConfigSchema', () => {
     expect(storage.provider).toBe('s3');
     expect(storage.enabled).toBe(true); // default
     expect(storage.buckets).toHaveLength(0); // default
+    expect(storage.scope).toBe('global'); // default
+  });
+
+  it('should accept storage config with scope', () => {
+    const storage = ObjectStorageConfigSchema.parse({
+      name: 'tenant_storage',
+      label: 'Tenant Storage',
+      provider: 's3',
+      scope: 'tenant',
+      connection: {
+        accessKeyId: 'key',
+        secretAccessKey: 'secret',
+      },
+    });
+
+    expect(storage.scope).toBe('tenant');
+  });
+
+  it('should accept storage config with location and quota', () => {
+    const storage = ObjectStorageConfigSchema.parse({
+      name: 'local_storage',
+      label: 'Local Storage',
+      provider: 'local',
+      scope: 'temp',
+      connection: {},
+      location: '/var/tmp/storage',
+      quota: 10737418240, // 10GB
+    });
+
+    expect(storage.location).toBe('/var/tmp/storage');
+    expect(storage.quota).toBe(10737418240);
+  });
+
+  it('should accept storage config with options', () => {
+    const storage = ObjectStorageConfigSchema.parse({
+      name: 'custom_storage',
+      label: 'Custom Storage',
+      provider: 'minio',
+      connection: {},
+      options: {
+        endpoint: 'http://localhost:9000',
+        pathStyle: true,
+      },
+    });
+
+    expect(storage.options?.endpoint).toBe('http://localhost:9000');
+    expect(storage.options?.pathStyle).toBe(true);
   });
 
   it('should accept full storage config with buckets', () => {

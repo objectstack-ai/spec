@@ -4,6 +4,10 @@
     "StorageScope": {
       "type": "string",
       "enum": [
+        "global",
+        "tenant",
+        "user",
+        "session",
         "temp",
         "cache",
         "data",
@@ -11,7 +15,7 @@
         "config",
         "public"
       ],
-      "description": "Generic storage scope classification"
+      "description": "Storage scope classification"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
