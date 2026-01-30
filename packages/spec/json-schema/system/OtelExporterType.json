@@ -1,0 +1,22 @@
+{
+  "$ref": "#/definitions/OtelExporterType",
+  "definitions": {
+    "OtelExporterType": {
+      "type": "string",
+      "enum": [
+        "otlp_http",
+        "otlp_grpc",
+        "jaeger",
+        "zipkin",
+        "console",
+        "datadog",
+        "honeycomb",
+        "lightstep",
+        "newrelic",
+        "custom"
+      ],
+      "description": "OpenTelemetry exporter type"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

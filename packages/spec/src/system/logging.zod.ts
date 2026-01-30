@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { LogLevel as BaseLogLevel } from './logger.zod';
 
 /**
  * Logging Protocol - Comprehensive Observability Logging
@@ -13,19 +14,22 @@ import { z } from 'zod';
  */
 
 /**
- * Log Level Enum
- * Standard RFC 5424 severity levels
+ * Extended Log Level Enum
+ * Standard RFC 5424 severity levels with trace
  */
-export const LogLevel = z.enum([
+export const ExtendedLogLevel = z.enum([
   'trace',    // Very detailed debugging information
   'debug',    // Debugging information
   'info',     // Informational messages
   'warn',     // Warning messages
   'error',    // Error messages
   'fatal',    // Fatal errors causing shutdown
-]).describe('Log severity level');
+]).describe('Extended log severity level');
 
-export type LogLevel = z.infer<typeof LogLevel>;
+export type ExtendedLogLevel = z.infer<typeof ExtendedLogLevel>;
+
+// Re-export base LogLevel for compatibility
+export { BaseLogLevel as LogLevel };
 
 /**
  * Log Destination Type Enum
@@ -253,7 +257,7 @@ export const LogDestinationSchema = z.object({
   /**
    * Minimum log level for this destination
    */
-  level: LogLevel.optional().default('info'),
+  level: ExtendedLogLevel.optional().default('info'),
 
   /**
    * Enabled flag
@@ -358,7 +362,7 @@ export const StructuredLogEntrySchema = z.object({
   /**
    * Log level
    */
-  level: LogLevel.describe('Log severity level'),
+  level: ExtendedLogLevel.describe('Log severity level'),
 
   /**
    * Log message
@@ -475,7 +479,7 @@ export const LoggingConfigSchema = z.object({
   /**
    * Global minimum log level
    */
-  level: LogLevel.optional().default('info'),
+  level: ExtendedLogLevel.optional().default('info'),
 
   /**
    * Log destinations

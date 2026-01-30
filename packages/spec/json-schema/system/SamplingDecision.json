@@ -1,0 +1,15 @@
+{
+  "$ref": "#/definitions/SamplingDecision",
+  "definitions": {
+    "SamplingDecision": {
+      "type": "string",
+      "enum": [
+        "drop",
+        "record_only",
+        "record_and_sample"
+      ],
+      "description": "Sampling decision"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

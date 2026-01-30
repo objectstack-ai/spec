@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   LogLevel,
+  ExtendedLogLevel,
   LogDestinationType,
   ConsoleDestinationConfigSchema,
   FileDestinationConfigSchema,
@@ -15,17 +16,17 @@ import {
   type LoggingConfig,
 } from './logging.zod';
 
-describe('LogLevel', () => {
+describe('ExtendedLogLevel', () => {
   it('should accept valid log levels', () => {
     const levels = ['trace', 'debug', 'info', 'warn', 'error', 'fatal'];
     
     levels.forEach((level) => {
-      expect(() => LogLevel.parse(level)).not.toThrow();
+      expect(() => ExtendedLogLevel.parse(level)).not.toThrow();
     });
   });
 
   it('should reject invalid log levels', () => {
-    expect(() => LogLevel.parse('invalid')).toThrow();
+    expect(() => ExtendedLogLevel.parse('invalid')).toThrow();
   });
 });
 
