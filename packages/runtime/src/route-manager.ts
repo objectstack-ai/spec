@@ -1,11 +1,14 @@
 import { RouteHandler, IHttpServer } from '@objectstack/core';
-import { RouteHandlerMetadata, HttpMethod } from '@objectstack/spec';
+import { System, Shared } from '@objectstack/spec';
+
+type RouteHandlerMetadata = System.RouteHandlerMetadata;
+type HttpMethod = Shared.HttpMethod;
 
 /**
  * Route Entry
  * Internal representation of registered routes
  */
-interface RouteEntry {
+export interface RouteEntry {
     method: HttpMethod;
     path: string;
     handler: RouteHandler;

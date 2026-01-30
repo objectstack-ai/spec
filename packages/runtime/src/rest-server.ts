@@ -51,47 +51,47 @@ export class RestServer {
      * Normalize configuration with defaults
      */
     private normalizeConfig(config: RestServerConfig): Required<RestServerConfig> {
-        const api = config.api ?? {};
-        const crud = config.crud ?? {};
-        const metadata = config.metadata ?? {};
-        const batch = config.batch ?? {};
-        const routes = config.routes ?? {};
+        const api = config.api;
+        const crud = config.crud;
+        const metadata = config.metadata;
+        const batch = config.batch;
+        const routes = config.routes;
         
         return {
             api: {
-                version: api.version ?? 'v1',
-                basePath: api.basePath ?? '/api',
-                apiPath: api.apiPath,
-                enableCrud: api.enableCrud ?? true,
-                enableMetadata: api.enableMetadata ?? true,
-                enableBatch: api.enableBatch ?? true,
-                enableDiscovery: api.enableDiscovery ?? true,
-                documentation: api.documentation,
-                responseFormat: api.responseFormat,
+                version: api?.version ?? 'v1',
+                basePath: api?.basePath ?? '/api',
+                apiPath: api?.apiPath,
+                enableCrud: api?.enableCrud ?? true,
+                enableMetadata: api?.enableMetadata ?? true,
+                enableBatch: api?.enableBatch ?? true,
+                enableDiscovery: api?.enableDiscovery ?? true,
+                documentation: api?.documentation,
+                responseFormat: api?.responseFormat,
             },
             crud: {
-                operations: crud.operations,
-                patterns: crud.patterns,
-                dataPrefix: crud.dataPrefix ?? '/data',
-                objectParamStyle: crud.objectParamStyle ?? 'path',
+                operations: crud?.operations,
+                patterns: crud?.patterns,
+                dataPrefix: crud?.dataPrefix ?? '/data',
+                objectParamStyle: crud?.objectParamStyle ?? 'path',
             },
             metadata: {
-                prefix: metadata.prefix ?? '/meta',
-                enableCache: metadata.enableCache ?? true,
-                cacheTtl: metadata.cacheTtl ?? 3600,
-                endpoints: metadata.endpoints,
+                prefix: metadata?.prefix ?? '/meta',
+                enableCache: metadata?.enableCache ?? true,
+                cacheTtl: metadata?.cacheTtl ?? 3600,
+                endpoints: metadata?.endpoints,
             },
             batch: {
-                maxBatchSize: batch.maxBatchSize ?? 200,
-                enableBatchEndpoint: batch.enableBatchEndpoint ?? true,
-                operations: batch.operations,
-                defaultAtomic: batch.defaultAtomic ?? true,
+                maxBatchSize: batch?.maxBatchSize ?? 200,
+                enableBatchEndpoint: batch?.enableBatchEndpoint ?? true,
+                operations: batch?.operations,
+                defaultAtomic: batch?.defaultAtomic ?? true,
             },
             routes: {
-                includeObjects: routes.includeObjects,
-                excludeObjects: routes.excludeObjects,
-                nameTransform: routes.nameTransform ?? 'none',
-                overrides: routes.overrides,
+                includeObjects: routes?.includeObjects,
+                excludeObjects: routes?.excludeObjects,
+                nameTransform: routes?.nameTransform ?? 'none',
+                overrides: routes?.overrides,
             },
         };
     }
