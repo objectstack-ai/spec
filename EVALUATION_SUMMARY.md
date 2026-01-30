@@ -8,7 +8,7 @@
 
 ---
 
-## �� Key Understanding / 核心认识
+## 🎯 Key Understanding / 核心认识
 
 **Critical Architecture Clarification / 关键架构澄清:**
 
