@@ -17,7 +17,7 @@ import type { Logger } from './contracts/logger.js';
  * - Distributed tracing support (traceId, spanId)
  */
 export class ObjectLogger implements Logger {
-    private config: Required<Omit<LoggerConfig, 'file' | 'rotation'>> & { file?: string; rotation?: { maxSize: string; maxFiles: number } };
+    private config: Required<Omit<LoggerConfig, 'file' | 'rotation' | 'name'>> & { file?: string; rotation?: { maxSize: string; maxFiles: number }; name?: string };
     private isNode: boolean;
     private pinoLogger?: any; // Pino logger instance for Node.js
     private pinoInstance?: any; // Base Pino instance for creating child loggers
@@ -32,6 +32,7 @@ export class ObjectLogger implements Logger {
             format: config.format ?? (this.isNode ? 'json' : 'pretty'),
             redact: config.redact ?? ['password', 'token', 'secret', 'key'],
             sourceLocation: config.sourceLocation ?? false,
+            name: config.name,
             file: config.file,
             rotation: config.rotation ?? {
                 maxSize: '10m',
@@ -63,6 +64,11 @@ export class ObjectLogger implements Logger {
                     censor: '***REDACTED***'
                 }
             };
+
+            // Add name if provided
+            if (this.config.name) {
+                pinoOptions.name = this.config.name;
+            }
 
             // Transport configuration for pretty printing or file output
             const targets: any[] = [];
