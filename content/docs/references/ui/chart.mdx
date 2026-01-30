@@ -1,0 +1,72 @@
+---
+title: Chart
+description: Chart protocol schemas
+---
+
+# Chart
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/chart.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { ChartConfigSchema, ChartTypeSchema } from '@objectstack/spec/ui';
+import type { ChartConfig, ChartType } from '@objectstack/spec/ui';
+
+// Validate data
+const result = ChartConfigSchema.parse(data);
+```
+
+---
+
+## ChartConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'bar' \| 'horizontal-bar' \| 'column' \| 'grouped-bar' \| 'stacked-bar' \| 'line' \| 'area' \| 'stacked-area' \| 'step-line' \| 'pie' \| 'donut' \| 'funnel' \| 'scatter' \| 'bubble' \| 'treemap' \| 'sunburst' \| 'sankey' \| 'gauge' \| 'metric' \| 'kpi' \| 'choropleth' \| 'bubble-map' \| 'heatmap' \| 'radar' \| 'waterfall' \| 'box-plot' \| 'violin' \| 'table' \| 'pivot'>` | ✅ |  |
+| **title** | `string` | optional | Chart title |
+| **description** | `string` | optional | Chart description |
+| **showLegend** | `boolean` | optional | Display legend |
+| **showDataLabels** | `boolean` | optional | Display data labels on chart |
+| **colors** | `string[]` | optional | Custom color palette |
+
+---
+
+## ChartType
+
+### Allowed Values
+
+* `bar`
+* `horizontal-bar`
+* `column`
+* `grouped-bar`
+* `stacked-bar`
+* `line`
+* `area`
+* `stacked-area`
+* `step-line`
+* `pie`
+* `donut`
+* `funnel`
+* `scatter`
+* `bubble`
+* `treemap`
+* `sunburst`
+* `sankey`
+* `gauge`
+* `metric`
+* `kpi`
+* `choropleth`
+* `bubble-map`
+* `heatmap`
+* `radar`
+* `waterfall`
+* `box-plot`
+* `violin`
+* `table`
+* `pivot`
+

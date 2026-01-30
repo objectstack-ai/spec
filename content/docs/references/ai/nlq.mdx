@@ -152,6 +152,8 @@ const result = EntitySchema.parse(data);
 | **totalCount** | `integer` | optional |  |
 | **executionTime** | `number` | optional | Execution time in milliseconds |
 | **needsClarification** | `boolean` | ✅ | Whether query needs clarification |
+| **tokens** | `object` | optional | Token usage for this query |
+| **cost** | `number` | optional | Cost for this query in USD |
 | **suggestions** | `string[]` | optional | Query refinement suggestions |
 
 ---

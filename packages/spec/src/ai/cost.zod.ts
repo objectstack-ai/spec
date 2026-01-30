@@ -8,6 +8,35 @@ import { z } from 'zod';
  */
 
 /**
+ * Token Usage Schema
+ * Standardized across all AI operations
+ */
+export const TokenUsageSchema = z.object({
+  prompt: z.number().int().nonnegative().describe('Input tokens'),
+  completion: z.number().int().nonnegative().describe('Output tokens'),
+  total: z.number().int().nonnegative().describe('Total tokens'),
+});
+
+export type TokenUsage = z.infer<typeof TokenUsageSchema>;
+
+/**
+ * AI Operation Cost Schema
+ * Unified cost tracking for all AI operations
+ */
+export const AIOperationCostSchema = z.object({
+  operationId: z.string(),
+  operationType: z.enum(['conversation', 'orchestration', 'prediction', 'rag', 'nlq']),
+  agentName: z.string().optional().describe('Agent that performed the operation'),
+  modelId: z.string(),
+  tokens: TokenUsageSchema,
+  cost: z.number().nonnegative().describe('Cost in USD'),
+  timestamp: z.string().datetime(),
+  metadata: z.record(z.any()).optional(),
+});
+
+export type AIOperationCost = z.infer<typeof AIOperationCostSchema>;
+
+/**
  * Cost Metric Type
  */
 export const CostMetricTypeSchema = z.enum([
@@ -34,6 +63,7 @@ export const BillingPeriodSchema = z.enum([
 
 /**
  * Cost Entry
+ * Extended from AIOperationCostSchema with additional tracking fields
  */
 export const CostEntrySchema = z.object({
   /** Identity */

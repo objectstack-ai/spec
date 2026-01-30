@@ -155,7 +155,10 @@ describe('ReportChartSchema', () => {
   });
 
   it('should accept different chart types', () => {
-    const types: Array<ReportChart['type']> = ['bar', 'column', 'line', 'pie', 'donut', 'scatter', 'funnel'];
+    const types: Array<ReportChart['type']> = [
+      'bar', 'column', 'line', 'pie', 'donut', 'scatter', 'funnel',
+      'area', 'gauge', 'heatmap', 'waterfall', 'metric'
+    ];
 
     types.forEach(type => {
       const chart = ReportChartSchema.parse({
@@ -169,7 +172,7 @@ describe('ReportChartSchema', () => {
 
   it('should reject invalid chart type', () => {
     expect(() => ReportChartSchema.parse({
-      type: 'area',
+      type: 'invalid-chart-type',
       xAxis: 'x',
       yAxis: 'y',
     })).toThrow();

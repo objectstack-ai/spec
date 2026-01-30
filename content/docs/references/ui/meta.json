@@ -3,6 +3,7 @@
   "pages": [
     "action",
     "app",
+    "chart",
     "component",
     "dashboard",
     "page",

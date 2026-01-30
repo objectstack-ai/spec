@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TokenUsageSchema } from './cost.zod';
 
 /**
  * Natural Language Query (NLQ) Protocol
@@ -160,6 +161,10 @@ export const NLQResponseSchema = z.object({
   /** Execution Metadata */
   executionTime: z.number().optional().describe('Execution time in milliseconds'),
   needsClarification: z.boolean().describe('Whether query needs clarification'),
+  
+  /** Cost Tracking */
+  tokens: TokenUsageSchema.optional().describe('Token usage for this query'),
+  cost: z.number().nonnegative().optional().describe('Cost for this query in USD'),
   
   /** Suggestions */
   suggestions: z.array(z.string()).optional().describe('Query refinement suggestions'),

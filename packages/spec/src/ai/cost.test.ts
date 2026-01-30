@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
+  TokenUsageSchema,
+  AIOperationCostSchema,
   CostMetricTypeSchema,
   BillingPeriodSchema,
   CostEntrySchema,
@@ -14,11 +16,129 @@ import {
   CostOptimizationRecommendationSchema,
   CostReportSchema,
   CostQueryFiltersSchema,
+  type TokenUsage,
+  type AIOperationCost,
   type CostEntry,
   type BudgetLimit,
   type CostAlert,
   type CostReport,
 } from './cost.zod';
+
+describe('TokenUsageSchema', () => {
+  it('should accept valid token usage', () => {
+    const usage: TokenUsage = {
+      prompt: 1500,
+      completion: 800,
+      total: 2300,
+    };
+    expect(() => TokenUsageSchema.parse(usage)).not.toThrow();
+  });
+
+  it('should require all fields', () => {
+    expect(() => TokenUsageSchema.parse({
+      prompt: 1500,
+      completion: 800,
+      // missing total
+    })).toThrow();
+  });
+
+  it('should reject negative values', () => {
+    expect(() => TokenUsageSchema.parse({
+      prompt: -100,
+      completion: 800,
+      total: 700,
+    })).toThrow();
+  });
+});
+
+describe('AIOperationCostSchema', () => {
+  it('should accept minimal AI operation cost', () => {
+    const cost: AIOperationCost = {
+      operationId: 'op-123',
+      operationType: 'conversation',
+      modelId: 'gpt-4-turbo',
+      tokens: {
+        prompt: 1500,
+        completion: 800,
+        total: 2300,
+      },
+      cost: 0.05,
+      timestamp: '2024-01-15T10:00:00Z',
+    };
+    expect(() => AIOperationCostSchema.parse(cost)).not.toThrow();
+  });
+
+  it('should accept all operation types', () => {
+    const types = ['conversation', 'orchestration', 'prediction', 'rag', 'nlq'] as const;
+    
+    types.forEach(type => {
+      const cost: AIOperationCost = {
+        operationId: 'op-123',
+        operationType: type,
+        modelId: 'gpt-4-turbo',
+        tokens: {
+          prompt: 1500,
+          completion: 800,
+          total: 2300,
+        },
+        cost: 0.05,
+        timestamp: '2024-01-15T10:00:00Z',
+      };
+      expect(() => AIOperationCostSchema.parse(cost)).not.toThrow();
+    });
+  });
+
+  it('should accept AI operation cost with agent name and metadata', () => {
+    const cost: AIOperationCost = {
+      operationId: 'op-456',
+      operationType: 'orchestration',
+      agentName: 'support_agent',
+      modelId: 'gpt-4-turbo',
+      tokens: {
+        prompt: 2000,
+        completion: 1200,
+        total: 3200,
+      },
+      cost: 0.08,
+      timestamp: '2024-01-15T11:00:00Z',
+      metadata: {
+        workflowId: 'wf-789',
+        recordId: 'case-123',
+      },
+    };
+    expect(() => AIOperationCostSchema.parse(cost)).not.toThrow();
+  });
+
+  it('should reject invalid timestamp', () => {
+    expect(() => AIOperationCostSchema.parse({
+      operationId: 'op-123',
+      operationType: 'conversation',
+      modelId: 'gpt-4-turbo',
+      tokens: {
+        prompt: 1500,
+        completion: 800,
+        total: 2300,
+      },
+      cost: 0.05,
+      timestamp: 'invalid-timestamp',
+    })).toThrow();
+  });
+
+  it('should reject negative cost', () => {
+    expect(() => AIOperationCostSchema.parse({
+      operationId: 'op-123',
+      operationType: 'conversation',
+      modelId: 'gpt-4-turbo',
+      tokens: {
+        prompt: 1500,
+        completion: 800,
+        total: 2300,
+      },
+      cost: -0.05,
+      timestamp: '2024-01-15T10:00:00Z',
+    })).toThrow();
+  });
+});
 
 describe('CostMetricTypeSchema', () => {
   it('should accept all valid metric types', () => {

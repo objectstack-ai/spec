@@ -131,6 +131,8 @@ const result = EvaluationMetricsSchema.parse(data);
 | **confidence** | `number` | optional | Confidence score (0-1) |
 | **probabilities** | `Record<string, number>` | optional | Class probabilities (for classification) |
 | **explanation** | `object` | optional |  |
+| **tokens** | `object` | optional | Token usage for this prediction (if AI-powered) |
+| **cost** | `number` | optional | Cost for this prediction in USD |
 | **metadata** | `object` | optional |  |
 
 ---

@@ -12,35 +12,12 @@ description: Dashboard protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ChartTypeSchema, DashboardSchema, DashboardWidgetSchema } from '@objectstack/spec/ui';
-import type { ChartType, Dashboard, DashboardWidget } from '@objectstack/spec/ui';
+import { DashboardSchema, DashboardWidgetSchema } from '@objectstack/spec/ui';
+import type { Dashboard, DashboardWidget } from '@objectstack/spec/ui';
 
 // Validate data
-const result = ChartTypeSchema.parse(data);
+const result = DashboardSchema.parse(data);
 ```
-
----
-
-## ChartType
-
-### Allowed Values
-
-* `metric`
-* `bar`
-* `line`
-* `pie`
-* `donut`
-* `gauge`
-* `funnel`
-* `radar`
-* `scatter`
-* `heatmap`
-* `pivot`
-* `table`
-* `list`
-* `text`
-* `image`
-* `frame`
 
 ---
 
@@ -64,7 +41,8 @@ const result = ChartTypeSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **title** | `string` | optional | Widget title |
-| **type** | `Enum<'metric' \| 'bar' \| 'line' \| 'pie' \| 'donut' \| 'gauge' \| 'funnel' \| 'radar' \| 'scatter' \| 'heatmap' \| 'pivot' \| 'table' \| 'list' \| 'text' \| 'image' \| 'frame'>` | optional | Visualization type |
+| **type** | `Enum<'bar' \| 'horizontal-bar' \| 'column' \| 'grouped-bar' \| 'stacked-bar' \| 'line' \| 'area' \| 'stacked-area' \| 'step-line' \| 'pie' \| 'donut' \| 'funnel' \| 'scatter' \| 'bubble' \| 'treemap' \| 'sunburst' \| 'sankey' \| 'gauge' \| 'metric' \| 'kpi' \| 'choropleth' \| 'bubble-map' \| 'heatmap' \| 'radar' \| 'waterfall' \| 'box-plot' \| 'violin' \| 'table' \| 'pivot'>` | optional | Visualization type |
+| **chartConfig** | `object` | optional | Chart visualization configuration |
 | **object** | `string` | optional | Data source object name |
 | **filter** | `any` | optional | Data filter criteria |
 | **categoryField** | `string` | optional | Field for grouping (X-Axis) |

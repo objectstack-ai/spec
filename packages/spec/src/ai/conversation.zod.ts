@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TokenUsageSchema } from './cost.zod';
 
 /**
  * AI Conversation Memory Protocol
@@ -81,11 +82,8 @@ export const ConversationMessageSchema = z.object({
   
   /** Metadata */
   name: z.string().optional().describe('Name of the function/user'),
-  tokens: z.object({
-    prompt: z.number().int().nonnegative().optional().describe('Tokens in prompt'),
-    completion: z.number().int().nonnegative().optional().describe('Tokens in completion'),
-    total: z.number().int().nonnegative().optional().describe('Total tokens'),
-  }).optional().describe('Token usage for this message'),
+  tokens: TokenUsageSchema.optional().describe('Token usage for this message'),
+  cost: z.number().nonnegative().optional().describe('Cost for this message in USD'),
   
   /** Context Management */
   pinned: z.boolean().optional().default(false).describe('Prevent removal during pruning'),
@@ -196,6 +194,8 @@ export const ConversationSessionSchema = z.object({
   
   /** Token Tracking */
   tokens: TokenUsageStatsSchema.optional(),
+  totalTokens: TokenUsageSchema.optional().describe('Total tokens across all messages'),
+  totalCost: z.number().nonnegative().optional().describe('Total cost for this session in USD'),
   
   /** Session Status */
   status: z.enum(['active', 'paused', 'completed', 'archived']).default('active'),

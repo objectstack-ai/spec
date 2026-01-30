@@ -56,6 +56,38 @@
           },
           "additionalProperties": false
         },
+        "tokens": {
+          "type": "object",
+          "properties": {
+            "prompt": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Input tokens"
+            },
+            "completion": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Output tokens"
+            },
+            "total": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Total tokens"
+            }
+          },
+          "required": [
+            "prompt",
+            "completion",
+            "total"
+          ],
+          "additionalProperties": false,
+          "description": "Token usage for this prediction (if AI-powered)"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Cost for this prediction in USD"
+        },
         "metadata": {
           "type": "object",
           "properties": {

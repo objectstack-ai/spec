@@ -2,24 +2,24 @@ import { describe, it, expect } from 'vitest';
 import {
   DashboardSchema,
   DashboardWidgetSchema,
-  ChartType,
   Dashboard,
   type Dashboard as DashboardType,
   type DashboardWidget,
 } from './dashboard.zod';
+import { ChartTypeSchema } from './chart.zod';
 
-describe('ChartType', () => {
+describe('ChartTypeSchema', () => {
   it('should accept all chart types', () => {
-    const types = ['metric', 'bar', 'line', 'pie', 'funnel', 'table', 'text'];
+    const types = ['metric', 'bar', 'line', 'pie', 'funnel', 'table', 'bubble', 'gauge', 'heatmap'];
     
     types.forEach(type => {
-      expect(() => ChartType.parse(type)).not.toThrow();
+      expect(() => ChartTypeSchema.parse(type)).not.toThrow();
     });
   });
 
   it('should reject invalid chart types', () => {
-    expect(() => ChartType.parse('bubble')).toThrow();
-    expect(() => ChartType.parse('invalid')).toThrow();
+    expect(() => ChartTypeSchema.parse('invalid-chart')).toThrow();
+    expect(() => ChartTypeSchema.parse('unknown')).toThrow();
   });
 });
 
@@ -148,10 +148,10 @@ describe('DashboardWidgetSchema', () => {
     expect(() => DashboardWidgetSchema.parse(widget)).not.toThrow();
   });
 
-  it('should accept text widget', () => {
+  it('should accept metric widget for text/markdown content', () => {
     const widget: DashboardWidget = {
       title: 'Welcome Message',
-      type: 'text',
+      type: 'metric',
       layout: { x: 0, y: 0, w: 12, h: 2 },
       options: {
         content: '# Welcome to Sales Dashboard\n\nThis dashboard shows...',
@@ -427,7 +427,7 @@ describe('DashboardSchema', () => {
           },
           {
             title: 'Welcome',
-            type: 'text',
+            type: 'metric',
             layout: { x: 0, y: 7, w: 12, h: 1 },
             options: {
               content: '**Last updated:** {NOW()}',

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { FilterConditionSchema } from '../data/filter.zod';
+import { ChartConfigSchema } from './chart.zod';
 
 /**
  * Report Type Enum
@@ -31,14 +32,13 @@ export const ReportGroupingSchema = z.object({
 
 /**
  * Report Chart Schema
- * Embedded visualization configuration.
+ * Embedded visualization configuration using unified chart taxonomy.
  */
-export const ReportChartSchema = z.object({
-  type: z.enum(['bar', 'column', 'line', 'pie', 'donut', 'scatter', 'funnel']).describe('Chart type'),
-  title: z.string().optional(),
-  showLegend: z.boolean().default(true),
+export const ReportChartSchema = ChartConfigSchema.extend({
+  /** Report-specific chart configuration */
   xAxis: z.string().describe('Grouping field for X-Axis'),
   yAxis: z.string().describe('Summary field for Y-Axis'),
+  groupBy: z.string().optional().describe('Additional grouping field'),
 });
 
 /**

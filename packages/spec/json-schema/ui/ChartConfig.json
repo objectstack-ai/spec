@@ -1,7 +1,7 @@
 {
-  "$ref": "#/definitions/ReportChart",
+  "$ref": "#/definitions/ChartConfig",
   "definitions": {
-    "ReportChart": {
+    "ChartConfig": {
       "type": "object",
       "properties": {
         "type": {
@@ -62,24 +62,10 @@
             "type": "string"
           },
           "description": "Custom color palette"
-        },
-        "xAxis": {
-          "type": "string",
-          "description": "Grouping field for X-Axis"
-        },
-        "yAxis": {
-          "type": "string",
-          "description": "Summary field for Y-Axis"
-        },
-        "groupBy": {
-          "type": "string",
-          "description": "Additional grouping field"
         }
       },
       "required": [
-        "type",
-        "xAxis",
-        "yAxis"
+        "type"
       ],
       "additionalProperties": false
     }

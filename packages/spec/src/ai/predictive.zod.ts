@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TokenUsageSchema } from './cost.zod';
 
 /**
  * Predictive Analytics Protocol
@@ -259,6 +260,8 @@ export const PredictionResultSchema = z.object({
     })).optional(),
     reasoning: z.string().optional(),
   }).optional(),
+  tokens: TokenUsageSchema.optional().describe('Token usage for this prediction (if AI-powered)'),
+  cost: z.number().nonnegative().optional().describe('Cost for this prediction in USD'),
   metadata: z.object({
     executionTime: z.number().optional().describe('Execution time in milliseconds'),
     timestamp: z.string().optional().describe('ISO timestamp'),
