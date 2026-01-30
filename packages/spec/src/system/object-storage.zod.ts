@@ -4,10 +4,9 @@ import { SystemIdentifierSchema } from '../shared/identifiers.zod';
 /**
  * Object Storage Protocol
  * 
- * Defines schemas for object storage systems (S3, Azure Blob, GCS, MinIO)
- * that provide persistent file storage capabilities for ObjectStack applications.
- * 
- * This protocol supports:
+ * Unified storage protocol that combines:
+ * - Object storage systems (S3, Azure Blob, GCS, MinIO)
+ * - Scoped storage configuration (temp, cache, data, logs, config, public)
  * - Multi-cloud storage providers
  * - Bucket/container configuration
  * - Access control and permissions
@@ -15,6 +14,45 @@ import { SystemIdentifierSchema } from '../shared/identifiers.zod';
  * - Presigned URLs for secure direct access
  * - Multipart uploads for large files
  */
+
+// ============================================================================
+// Storage Scope Protocol (formerly from scoped-storage.zod.ts)
+// ============================================================================
+
+/**
+ * Storage Scope Enum
+ * Defines the lifecycle and persistence guarantee of the storage area.
+ */
+export const StorageScopeSchema = z.enum([
+  'global',     // Global application-wide storage
+  'tenant',     // Tenant-scoped storage (multi-tenant apps)
+  'user',       // User-scoped storage
+  'session',    // Session-scoped storage (ephemeral)
+  'temp',       // Ephemeral, cleared on restart
+  'cache',      // Ephemeral, survives restarts, cleared on LRU/Expiration
+  'data',       // Persistent, backed up
+  'logs',       // Append-only, rotated
+  'config',     // Read-heavy, versioned
+  'public'      // Publicly accessible static assets
+]).describe('Storage scope classification');
+
+export type StorageScope = z.infer<typeof StorageScopeSchema>;
+
+/**
+ * File Metadata Schema
+ * Standardized file attribute structure
+ */
+export const FileMetadataSchema = z.object({
+  path: z.string().describe('File path'),
+  name: z.string().describe('File name'),
+  size: z.number().int().describe('File size in bytes'),
+  mimeType: z.string().describe('MIME type'),
+  lastModified: z.string().datetime().describe('Last modified timestamp'),
+  created: z.string().datetime().describe('Creation timestamp'),
+  etag: z.string().optional().describe('Entity tag'),
+});
+
+export type FileMetadata = z.infer<typeof FileMetadataSchema>;
 
 // ============================================================================
 // Enums
@@ -403,6 +441,7 @@ export type StorageConnection = z.infer<typeof StorageConnectionSchema>;
  *   name: 'production_storage',
  *   label: 'Production File Storage',
  *   provider: 's3',
+ *   scope: 'global',
  *   connection: {
  *     accessKeyId: '${AWS_ACCESS_KEY_ID}',
  *     secretAccessKey: '${AWS_SECRET_ACCESS_KEY}',
@@ -424,9 +463,33 @@ export const ObjectStorageConfigSchema = z.object({
   name: SystemIdentifierSchema.describe('Storage configuration identifier'),
   label: z.string().describe('Display label'),
   provider: StorageProviderSchema.describe('Primary storage provider'),
+  
+  /**
+   * Storage scope
+   * Defines the lifecycle and access pattern for this storage
+   */
+  scope: StorageScopeSchema.optional().default('global').describe('Storage scope'),
+  
   connection: StorageConnectionSchema.describe('Connection credentials'),
   buckets: z.array(BucketConfigSchema).default([]).describe('Configured buckets'),
   defaultBucket: z.string().optional().describe('Default bucket name for operations'),
+  
+  /**
+   * Base path or location
+   * For local/scoped storage configurations
+   */
+  location: z.string().optional().describe('Root path (local) or base location'),
+  
+  /**
+   * Storage quota in bytes
+   */
+  quota: z.number().int().positive().optional().describe('Max size in bytes'),
+  
+  /**
+   * Provider-specific options
+   */
+  options: z.record(z.any()).optional().describe('Provider-specific configuration options'),
+  
   enabled: z.boolean().default(true).describe('Enable this storage configuration'),
   description: z.string().optional().describe('Configuration description'),
 });
