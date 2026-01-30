@@ -356,6 +356,9 @@ importers:
       pino-pretty:
         specifier: ^10.3.0
         version: 10.3.1
+      zod:
+        specifier: ^3.22.0
+        version: 3.25.76
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
