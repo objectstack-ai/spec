@@ -11,7 +11,7 @@ export const GDPRConfigSchema = z.object({
     rightToErasure: z.boolean().default(true),
     rightToRestriction: z.boolean().default(true),
     rightToPortability: z.boolean().default(true),
-    rightToObject: z.boolean().default(true),
+    rightToObjection: z.boolean().default(true),
   }),
   legalBasis: z.enum([
     'consent',

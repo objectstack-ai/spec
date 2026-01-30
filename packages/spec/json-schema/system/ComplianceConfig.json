@@ -33,7 +33,7 @@
                   "type": "boolean",
                   "default": true
                 },
-                "rightToObject": {
+                "rightToObjection": {
                   "type": "boolean",
                   "default": true
                 }
