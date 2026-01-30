@@ -5,27 +5,34 @@
       "type": "object",
       "properties": {
         "path": {
-          "type": "string"
+          "type": "string",
+          "description": "File path"
         },
         "name": {
-          "type": "string"
+          "type": "string",
+          "description": "File name"
         },
         "size": {
-          "type": "integer"
+          "type": "integer",
+          "description": "File size in bytes"
         },
         "mimeType": {
-          "type": "string"
+          "type": "string",
+          "description": "MIME type"
         },
         "lastModified": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "description": "Last modified timestamp"
         },
         "created": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "description": "Creation timestamp"
         },
         "etag": {
-          "type": "string"
+          "type": "string",
+          "description": "Entity tag"
         }
       },
       "required": [

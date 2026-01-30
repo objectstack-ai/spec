@@ -12,8 +12,8 @@ description: Object Storage protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AccessControlConfigSchema, BucketConfigSchema, LifecycleActionSchema, LifecyclePolicyConfigSchema, LifecyclePolicyRuleSchema, MultipartUploadConfigSchema, ObjectMetadataSchema, ObjectStorageConfigSchema, PresignedUrlConfigSchema, StorageAclSchema, StorageClassSchema, StorageConnectionSchema, StorageProviderSchema } from '@objectstack/spec/system';
-import type { AccessControlConfig, BucketConfig, LifecycleAction, LifecyclePolicyConfig, LifecyclePolicyRule, MultipartUploadConfig, ObjectMetadata, ObjectStorageConfig, PresignedUrlConfig, StorageAcl, StorageClass, StorageConnection, StorageProvider } from '@objectstack/spec/system';
+import { AccessControlConfigSchema, BucketConfigSchema, FileMetadataSchema, LifecycleActionSchema, LifecyclePolicyConfigSchema, LifecyclePolicyRuleSchema, MultipartUploadConfigSchema, ObjectMetadataSchema, ObjectStorageConfigSchema, PresignedUrlConfigSchema, StorageAclSchema, StorageClassSchema, StorageConnectionSchema, StorageProviderSchema, StorageScopeSchema } from '@objectstack/spec/system';
+import type { AccessControlConfig, BucketConfig, FileMetadata, LifecycleAction, LifecyclePolicyConfig, LifecyclePolicyRule, MultipartUploadConfig, ObjectMetadata, ObjectStorageConfig, PresignedUrlConfig, StorageAcl, StorageClass, StorageConnection, StorageProvider, StorageScope } from '@objectstack/spec/system';
 
 // Validate data
 const result = AccessControlConfigSchema.parse(data);
@@ -61,6 +61,22 @@ const result = AccessControlConfigSchema.parse(data);
 | **tags** | `Record<string, string>` | optional | Bucket tags for organization |
 | **description** | `string` | optional | Bucket description |
 | **enabled** | `boolean` | optional | Enable this bucket |
+
+---
+
+## FileMetadata
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **path** | `string` | ✅ | File path |
+| **name** | `string` | ✅ | File name |
+| **size** | `integer` | ✅ | File size in bytes |
+| **mimeType** | `string` | ✅ | MIME type |
+| **lastModified** | `string` | ✅ | Last modified timestamp |
+| **created** | `string` | ✅ | Creation timestamp |
+| **etag** | `string` | optional | Entity tag |
 
 ---
 
@@ -149,9 +165,13 @@ Lifecycle policy action type
 | **name** | `string` | ✅ | Storage configuration identifier |
 | **label** | `string` | ✅ | Display label |
 | **provider** | `Enum<'s3' \| 'azure_blob' \| 'gcs' \| 'minio' \| 'r2' \| 'spaces' \| 'wasabi' \| 'backblaze' \| 'local'>` | ✅ | Primary storage provider |
+| **scope** | `Enum<'global' \| 'tenant' \| 'user' \| 'session' \| 'temp' \| 'cache' \| 'data' \| 'logs' \| 'config' \| 'public'>` | optional | Storage scope |
 | **connection** | `object` | ✅ | Connection credentials |
 | **buckets** | `object[]` | optional | Configured buckets |
 | **defaultBucket** | `string` | optional | Default bucket name for operations |
+| **location** | `string` | optional | Root path (local) or base location |
+| **quota** | `integer` | optional | Max size in bytes |
+| **options** | `Record<string, any>` | optional | Provider-specific configuration options |
 | **enabled** | `boolean` | optional | Enable this storage configuration |
 | **description** | `string` | optional | Configuration description |
 
@@ -237,4 +257,23 @@ Storage provider type
 * `wasabi`
 * `backblaze`
 * `local`
+
+---
+
+## StorageScope
+
+Storage scope classification
+
+### Allowed Values
+
+* `global`
+* `tenant`
+* `user`
+* `session`
+* `temp`
+* `cache`
+* `data`
+* `logs`
+* `config`
+* `public`
 

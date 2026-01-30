@@ -16,7 +16,6 @@
     "events",
     "feature",
     "job",
-    "logger",
     "logging",
     "manifest",
     "masking",
@@ -26,7 +25,6 @@
     "object-storage",
     "plugin",
     "plugin-capability",
-    "scoped-storage",
     "search-engine",
     "tracing",
     "translation"

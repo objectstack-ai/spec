@@ -29,6 +29,23 @@
           ],
           "description": "Primary storage provider"
         },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "global",
+            "tenant",
+            "user",
+            "session",
+            "temp",
+            "cache",
+            "data",
+            "logs",
+            "config",
+            "public"
+          ],
+          "description": "Storage scope",
+          "default": "global"
+        },
         "connection": {
           "type": "object",
           "properties": {
@@ -420,6 +437,20 @@
         "defaultBucket": {
           "type": "string",
           "description": "Default bucket name for operations"
+        },
+        "location": {
+          "type": "string",
+          "description": "Root path (local) or base location"
+        },
+        "quota": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "description": "Max size in bytes"
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Provider-specific configuration options"
         },
         "enabled": {
           "type": "boolean",

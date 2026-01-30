@@ -4,6 +4,10 @@
     "LoggerConfig": {
       "type": "object",
       "properties": {
+        "name": {
+          "type": "string",
+          "description": "Logger name identifier"
+        },
         "level": {
           "type": "string",
           "enum": [
