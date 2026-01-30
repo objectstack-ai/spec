@@ -66,6 +66,7 @@ pnpm docs:dev
 ## 🏗️ Architecture & Planning
 
 **Strategic Planning Documents:**
+- **[Quick Reference](./ARCHITECTURE_QUICK_REFERENCE.md)** - Visual overview of the 60+ repository ecosystem ⭐ **Start Here!**
 - **[GitHub Organization Structure](./GITHUB_ORGANIZATION_STRUCTURE.md)** ([中文版](./GITHUB_ORGANIZATION_STRUCTURE_CN.md)) - Complete repository architecture for the ObjectStack ecosystem
 - **[Implementation Summary](./PROJECT_STRUCTURE_IMPLEMENTATION_SUMMARY.md)** - Summary of architecture planning and next steps
 - **[Transformation Plan V2](./TRANSFORMATION_PLAN_V2.md)** - 12-month protocol development roadmap
