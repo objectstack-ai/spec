@@ -40,8 +40,52 @@ export const DriverOptionsSchema = z.object({
  * 
  * Defines what features a database driver supports.
  * This allows ObjectQL to adapt its behavior based on underlying database capabilities.
+ * Enhanced with granular capability flags for better feature detection.
  */
 export const DriverCapabilitiesSchema = z.object({
+  // ============================================================================
+  // Basic CRUD Operations
+  // ============================================================================
+  
+  /**
+   * Whether the driver supports create operations.
+   */
+  create: z.boolean().default(true).describe('Supports CREATE operations'),
+  
+  /**
+   * Whether the driver supports read operations.
+   */
+  read: z.boolean().default(true).describe('Supports READ operations'),
+  
+  /**
+   * Whether the driver supports update operations.
+   */
+  update: z.boolean().default(true).describe('Supports UPDATE operations'),
+  
+  /**
+   * Whether the driver supports delete operations.
+   */
+  delete: z.boolean().default(true).describe('Supports DELETE operations'),
+
+  // ============================================================================
+  // Bulk Operations
+  // ============================================================================
+  
+  /**
+   * Whether the driver supports bulk create operations.
+   */
+  bulkCreate: z.boolean().default(false).describe('Supports bulk CREATE operations'),
+  
+  /**
+   * Whether the driver supports bulk update operations.
+   */
+  bulkUpdate: z.boolean().default(false).describe('Supports bulk UPDATE operations'),
+  
+  /**
+   * Whether the driver supports bulk delete operations.
+   */
+  bulkDelete: z.boolean().default(false).describe('Supports bulk DELETE operations'),
+
   // ============================================================================
   // Transaction & Connection Management
   // ============================================================================
@@ -50,7 +94,22 @@ export const DriverCapabilitiesSchema = z.object({
    * Whether the driver supports database transactions.
    * If true, beginTransaction, commit, and rollback must be implemented.
    */
-  transactions: z.boolean().describe('Supports transactions'),
+  transactions: z.boolean().default(false).describe('Supports ACID transactions'),
+  
+  /**
+   * Whether the driver supports savepoints within transactions.
+   */
+  savepoints: z.boolean().default(false).describe('Supports transaction savepoints'),
+  
+  /**
+   * Supported transaction isolation levels.
+   */
+  isolationLevels: z.array(z.enum([
+    'read-uncommitted',
+    'read-committed',
+    'repeatable-read',
+    'serializable',
+  ])).optional().describe('Supported transaction isolation levels'),
 
   // ============================================================================
   // Query Operations
@@ -62,43 +121,48 @@ export const DriverCapabilitiesSchema = z.object({
    * 
    * Example: Memory driver might not support complex filter conditions.
    */
-  queryFilters: z.boolean().describe('Supports WHERE clause filtering'),
+  queryFilters: z.boolean().default(true).describe('Supports WHERE clause filtering'),
 
   /**
    * Whether the driver supports aggregation functions (COUNT, SUM, AVG, etc.).
    * If false, ObjectQL will compute aggregations in memory.
    */
-  queryAggregations: z.boolean().describe('Supports GROUP BY and aggregation functions'),
+  queryAggregations: z.boolean().default(false).describe('Supports GROUP BY and aggregation functions'),
 
   /**
    * Whether the driver supports ORDER BY sorting.
    * If false, ObjectQL will sort results in memory.
    */
-  querySorting: z.boolean().describe('Supports ORDER BY sorting'),
+  querySorting: z.boolean().default(true).describe('Supports ORDER BY sorting'),
 
   /**
    * Whether the driver supports LIMIT/OFFSET pagination.
    * If false, ObjectQL will fetch all records and paginate in memory.
    */
-  queryPagination: z.boolean().describe('Supports LIMIT/OFFSET pagination'),
+  queryPagination: z.boolean().default(true).describe('Supports LIMIT/OFFSET pagination'),
 
   /**
    * Whether the driver supports window functions (ROW_NUMBER, RANK, LAG, LEAD, etc.).
    * If false, ObjectQL will compute window functions in memory.
    */
-  queryWindowFunctions: z.boolean().describe('Supports window functions with OVER clause'),
+  queryWindowFunctions: z.boolean().default(false).describe('Supports window functions with OVER clause'),
 
   /**
    * Whether the driver supports subqueries (nested SELECT statements).
    * If false, ObjectQL will execute queries separately and combine results.
    */
-  querySubqueries: z.boolean().describe('Supports subqueries'),
+  querySubqueries: z.boolean().default(false).describe('Supports subqueries'),
+  
+  /**
+   * Whether the driver supports Common Table Expressions (WITH clause).
+   */
+  queryCTE: z.boolean().default(false).describe('Supports Common Table Expressions (WITH clause)'),
 
   /**
    * Whether the driver supports SQL-style joins.
    * If false, ObjectQL will fetch related data separately and join in memory.
    */
-  joins: z.boolean().describe('Supports SQL joins'),
+  joins: z.boolean().default(false).describe('Supports SQL joins'),
 
   // ============================================================================
   // Advanced Features
@@ -108,19 +172,34 @@ export const DriverCapabilitiesSchema = z.object({
    * Whether the driver supports full-text search.
    * If true, text search queries can be pushed to the database.
    */
-  fullTextSearch: z.boolean().describe('Supports full-text search'),
+  fullTextSearch: z.boolean().default(false).describe('Supports full-text search'),
+  
+  /**
+   * Whether the driver supports JSON querying capabilities.
+   */
+  jsonQuery: z.boolean().default(false).describe('Supports JSON field querying'),
+  
+  /**
+   * Whether the driver supports geospatial queries.
+   */
+  geospatialQuery: z.boolean().default(false).describe('Supports geospatial queries'),
+  
+  /**
+   * Whether the driver supports streaming large result sets.
+   */
+  streaming: z.boolean().default(false).describe('Supports result streaming (cursors/iterators)'),
 
   /**
    * Whether the driver supports JSON field types.
    * If false, JSON data will be serialized as strings.
    */
-  jsonFields: z.boolean().describe('Supports JSON field types'),
+  jsonFields: z.boolean().default(false).describe('Supports JSON field types'),
 
   /**
    * Whether the driver supports array field types.
    * If false, arrays will be stored as JSON strings or in separate tables.
    */
-  arrayFields: z.boolean().describe('Supports array field types'),
+  arrayFields: z.boolean().default(false).describe('Supports array field types'),
 
   /**
    * Whether the driver supports vector embeddings and similarity search.
@@ -130,8 +209,55 @@ export const DriverCapabilitiesSchema = z.object({
 
   /**
    * Whether the driver supports geospatial queries.
+   * @deprecated Use geospatialQuery instead
    */
-  geoSpatial: z.boolean().default(false).describe('Supports geospatial queries'),
+  geoSpatial: z.boolean().default(false).describe('Supports geospatial queries (deprecated: use geospatialQuery)'),
+
+  // ============================================================================
+  // Schema Management
+  // ============================================================================
+  
+  /**
+   * Whether the driver supports automatic schema synchronization.
+   */
+  schemaSync: z.boolean().default(false).describe('Supports automatic schema synchronization'),
+  
+  /**
+   * Whether the driver supports database migrations.
+   */
+  migrations: z.boolean().default(false).describe('Supports database migrations'),
+  
+  /**
+   * Whether the driver supports index management.
+   */
+  indexes: z.boolean().default(false).describe('Supports index creation and management'),
+
+  // ============================================================================
+  // Performance & Optimization
+  // ============================================================================
+  
+  /**
+   * Whether the driver supports connection pooling.
+   */
+  connectionPooling: z.boolean().default(false).describe('Supports connection pooling'),
+  
+  /**
+   * Whether the driver supports prepared statements.
+   */
+  preparedStatements: z.boolean().default(false).describe('Supports prepared statements (SQL injection prevention)'),
+  
+  /**
+   * Whether the driver supports query result caching.
+   */
+  queryCache: z.boolean().default(false).describe('Supports query result caching'),
+}).refine((data) => {
+  // Ensure deprecated geoSpatial and new geospatialQuery are consistent if both are provided
+  if (data.geoSpatial !== undefined && data.geospatialQuery !== undefined && data.geoSpatial !== data.geospatialQuery) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Deprecated geoSpatial and geospatialQuery must have the same value if both are provided',
 });
 
 /**
@@ -487,8 +613,33 @@ export const DriverInterfaceSchema = z.object({
 });
 
 /**
+ * Connection Pool Configuration Schema
+ * Manages database connection pooling for performance
+ */
+export const PoolConfigSchema = z.object({
+  min: z.number().min(0).default(2).describe('Minimum number of connections in pool'),
+  max: z.number().min(1).default(10).describe('Maximum number of connections in pool'),
+  idleTimeoutMillis: z.number().min(0).default(30000).describe('Time in ms before idle connection is closed'),
+  connectionTimeoutMillis: z.number().min(0).default(5000).describe('Time in ms to wait for available connection'),
+});
+
+/**
+ * Driver Configuration Schema
+ * Base configuration for database drivers
+ */
+export const DriverConfigSchema = z.object({
+  name: z.string().describe('Driver instance name'),
+  type: z.enum(['sql', 'nosql', 'cache', 'search', 'graph', 'timeseries']).describe('Driver type category'),
+  capabilities: DriverCapabilitiesSchema.describe('Driver capability flags'),
+  connectionString: z.string().optional().describe('Database connection string (driver-specific format)'),
+  poolConfig: PoolConfigSchema.optional().describe('Connection pool configuration'),
+});
+
+/**
  * TypeScript types
  */
 export type DriverOptions = z.infer<typeof DriverOptionsSchema>;
 export type DriverCapabilities = z.infer<typeof DriverCapabilitiesSchema>;
 export type DriverInterface = z.infer<typeof DriverInterfaceSchema>;
+export type DriverConfig = z.infer<typeof DriverConfigSchema>;
+export type PoolConfig = z.infer<typeof PoolConfigSchema>;

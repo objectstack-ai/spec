@@ -1,0 +1,29 @@
+{
+  "$ref": "#/definitions/SSLConfig",
+  "definitions": {
+    "SSLConfig": {
+      "type": "object",
+      "properties": {
+        "rejectUnauthorized": {
+          "type": "boolean",
+          "default": true,
+          "description": "Reject connections with invalid certificates"
+        },
+        "ca": {
+          "type": "string",
+          "description": "CA certificate file path or content"
+        },
+        "cert": {
+          "type": "string",
+          "description": "Client certificate file path or content"
+        },
+        "key": {
+          "type": "string",
+          "description": "Client private key file path or content"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

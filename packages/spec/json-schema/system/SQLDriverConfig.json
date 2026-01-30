@@ -1,18 +1,19 @@
 {
-  "$ref": "#/definitions/DriverInterface",
+  "$ref": "#/definitions/SQLDriverConfig",
   "definitions": {
-    "DriverInterface": {
+    "SQLDriverConfig": {
       "type": "object",
       "properties": {
         "name": {
           "type": "string",
-          "description": "Driver unique name"
+          "description": "Driver instance name"
         },
-        "version": {
+        "type": {
           "type": "string",
-          "description": "Driver version"
+          "const": "sql",
+          "description": "Driver type must be \"sql\""
         },
-        "supports": {
+        "capabilities": {
           "type": "object",
           "properties": {
             "create": {
@@ -184,13 +185,138 @@
               "description": "Supports query result caching"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Driver capability flags"
+        },
+        "connectionString": {
+          "type": "string",
+          "description": "Database connection string (driver-specific format)"
+        },
+        "poolConfig": {
+          "type": "object",
+          "properties": {
+            "min": {
+              "type": "number",
+              "minimum": 0,
+              "default": 2,
+              "description": "Minimum number of connections in pool"
+            },
+            "max": {
+              "type": "number",
+              "minimum": 1,
+              "default": 10,
+              "description": "Maximum number of connections in pool"
+            },
+            "idleTimeoutMillis": {
+              "type": "number",
+              "minimum": 0,
+              "default": 30000,
+              "description": "Time in ms before idle connection is closed"
+            },
+            "connectionTimeoutMillis": {
+              "type": "number",
+              "minimum": 0,
+              "default": 5000,
+              "description": "Time in ms to wait for available connection"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Connection pool configuration"
+        },
+        "dialect": {
+          "type": "string",
+          "enum": [
+            "postgresql",
+            "mysql",
+            "sqlite",
+            "mssql",
+            "oracle",
+            "mariadb"
+          ],
+          "description": "SQL database dialect"
+        },
+        "dataTypeMapping": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string",
+              "description": "SQL type for text fields (e.g., VARCHAR, TEXT)"
+            },
+            "number": {
+              "type": "string",
+              "description": "SQL type for number fields (e.g., NUMERIC, DECIMAL, INT)"
+            },
+            "boolean": {
+              "type": "string",
+              "description": "SQL type for boolean fields (e.g., BOOLEAN, BIT)"
+            },
+            "date": {
+              "type": "string",
+              "description": "SQL type for date fields (e.g., DATE)"
+            },
+            "datetime": {
+              "type": "string",
+              "description": "SQL type for datetime fields (e.g., TIMESTAMP, DATETIME)"
+            },
+            "json": {
+              "type": "string",
+              "description": "SQL type for JSON fields (e.g., JSON, JSONB)"
+            },
+            "uuid": {
+              "type": "string",
+              "description": "SQL type for UUID fields (e.g., UUID, CHAR(36))"
+            },
+            "binary": {
+              "type": "string",
+              "description": "SQL type for binary fields (e.g., BLOB, BYTEA)"
+            }
+          },
+          "required": [
+            "text",
+            "number",
+            "boolean",
+            "date",
+            "datetime"
+          ],
+          "additionalProperties": false,
+          "description": "SQL data type mapping configuration"
+        },
+        "ssl": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable SSL/TLS connection"
+        },
+        "sslConfig": {
+          "type": "object",
+          "properties": {
+            "rejectUnauthorized": {
+              "type": "boolean",
+              "default": true,
+              "description": "Reject connections with invalid certificates"
+            },
+            "ca": {
+              "type": "string",
+              "description": "CA certificate file path or content"
+            },
+            "cert": {
+              "type": "string",
+              "description": "Client certificate file path or content"
+            },
+            "key": {
+              "type": "string",
+              "description": "Client private key file path or content"
+            }
+          },
+          "additionalProperties": false,
+          "description": "SSL/TLS configuration (required when ssl is true)"
         }
       },
       "required": [
         "name",
-        "version",
-        "supports"
+        "type",
+        "capabilities",
+        "dialect",
+        "dataTypeMapping"
       ],
       "additionalProperties": false
     }

@@ -1,0 +1,36 @@
+{
+  "$ref": "#/definitions/PoolConfig",
+  "definitions": {
+    "PoolConfig": {
+      "type": "object",
+      "properties": {
+        "min": {
+          "type": "number",
+          "minimum": 0,
+          "default": 2,
+          "description": "Minimum number of connections in pool"
+        },
+        "max": {
+          "type": "number",
+          "minimum": 1,
+          "default": 10,
+          "description": "Maximum number of connections in pool"
+        },
+        "idleTimeoutMillis": {
+          "type": "number",
+          "minimum": 0,
+          "default": 30000,
+          "description": "Time in ms before idle connection is closed"
+        },
+        "connectionTimeoutMillis": {
+          "type": "number",
+          "minimum": 0,
+          "default": 5000,
+          "description": "Time in ms to wait for available connection"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

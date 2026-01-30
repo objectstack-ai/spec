@@ -9,6 +9,7 @@
     "data-engine",
     "datasource",
     "driver",
+    "driver-sql",
     "encryption",
     "events",
     "feature",

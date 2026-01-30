@@ -1,18 +1,26 @@
 {
-  "$ref": "#/definitions/DriverInterface",
+  "$ref": "#/definitions/DriverConfig",
   "definitions": {
-    "DriverInterface": {
+    "DriverConfig": {
       "type": "object",
       "properties": {
         "name": {
           "type": "string",
-          "description": "Driver unique name"
+          "description": "Driver instance name"
         },
-        "version": {
+        "type": {
           "type": "string",
-          "description": "Driver version"
+          "enum": [
+            "sql",
+            "nosql",
+            "cache",
+            "search",
+            "graph",
+            "timeseries"
+          ],
+          "description": "Driver type category"
         },
-        "supports": {
+        "capabilities": {
           "type": "object",
           "properties": {
             "create": {
@@ -184,13 +192,49 @@
               "description": "Supports query result caching"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Driver capability flags"
+        },
+        "connectionString": {
+          "type": "string",
+          "description": "Database connection string (driver-specific format)"
+        },
+        "poolConfig": {
+          "type": "object",
+          "properties": {
+            "min": {
+              "type": "number",
+              "minimum": 0,
+              "default": 2,
+              "description": "Minimum number of connections in pool"
+            },
+            "max": {
+              "type": "number",
+              "minimum": 1,
+              "default": 10,
+              "description": "Maximum number of connections in pool"
+            },
+            "idleTimeoutMillis": {
+              "type": "number",
+              "minimum": 0,
+              "default": 30000,
+              "description": "Time in ms before idle connection is closed"
+            },
+            "connectionTimeoutMillis": {
+              "type": "number",
+              "minimum": 0,
+              "default": 5000,
+              "description": "Time in ms to wait for available connection"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Connection pool configuration"
         }
       },
       "required": [
         "name",
-        "version",
-        "supports"
+        "type",
+        "capabilities"
       ],
       "additionalProperties": false
     }

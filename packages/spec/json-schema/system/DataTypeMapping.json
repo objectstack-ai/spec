@@ -1,0 +1,51 @@
+{
+  "$ref": "#/definitions/DataTypeMapping",
+  "definitions": {
+    "DataTypeMapping": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "SQL type for text fields (e.g., VARCHAR, TEXT)"
+        },
+        "number": {
+          "type": "string",
+          "description": "SQL type for number fields (e.g., NUMERIC, DECIMAL, INT)"
+        },
+        "boolean": {
+          "type": "string",
+          "description": "SQL type for boolean fields (e.g., BOOLEAN, BIT)"
+        },
+        "date": {
+          "type": "string",
+          "description": "SQL type for date fields (e.g., DATE)"
+        },
+        "datetime": {
+          "type": "string",
+          "description": "SQL type for datetime fields (e.g., TIMESTAMP, DATETIME)"
+        },
+        "json": {
+          "type": "string",
+          "description": "SQL type for JSON fields (e.g., JSON, JSONB)"
+        },
+        "uuid": {
+          "type": "string",
+          "description": "SQL type for UUID fields (e.g., UUID, CHAR(36))"
+        },
+        "binary": {
+          "type": "string",
+          "description": "SQL type for binary fields (e.g., BLOB, BYTEA)"
+        }
+      },
+      "required": [
+        "text",
+        "number",
+        "boolean",
+        "date",
+        "datetime"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

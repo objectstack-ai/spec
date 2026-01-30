@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { SystemIdentifierSchema } from '../shared/identifiers.zod';
+import { EncryptionConfigSchema } from '../system/encryption.zod';
+import { MaskingRuleSchema } from '../system/masking.zod';
 
 /**
  * Field Type Enum
@@ -260,6 +262,56 @@ export const FileAttachmentConfigSchema = z.object({
 });
 
 /**
+ * Data Quality Rules Schema
+ * Defines data quality validation and monitoring for fields
+ * 
+ * @example Unique SSN field with completeness requirement
+ * {
+ *   uniqueness: true,
+ *   completeness: 0.95,  // 95% of records must have this field
+ *   accuracy: {
+ *     source: 'government_db',
+ *     threshold: 0.98
+ *   }
+ * }
+ */
+export const DataQualityRulesSchema = z.object({
+  /** Enforce uniqueness constraint */
+  uniqueness: z.boolean().default(false).describe('Enforce unique values across all records'),
+  
+  /** Completeness ratio (0-1) indicating minimum percentage of non-null values */
+  completeness: z.number().min(0).max(1).default(0).describe('Minimum ratio of non-null values (0-1, default: 0 = no requirement)'),
+  
+  /** Accuracy validation against authoritative source */
+  accuracy: z.object({
+    source: z.string().describe('Reference data source for validation (e.g., "api.verify.com", "master_data")'),
+    threshold: z.number().min(0).max(1).describe('Minimum accuracy threshold (0-1, e.g., 0.95 = 95% match required)'),
+  }).optional().describe('Accuracy validation configuration'),
+});
+
+/**
+ * Computed Field Caching Schema
+ * Configuration for caching computed/formula field results
+ * 
+ * @example Cache product price with 1-hour TTL, invalidate on inventory changes
+ * {
+ *   enabled: true,
+ *   ttl: 3600,
+ *   invalidateOn: ['inventory.quantity', 'pricing.discount']
+ * }
+ */
+export const ComputedFieldCacheSchema = z.object({
+  /** Enable caching for this computed field */
+  enabled: z.boolean().describe('Enable caching for computed field results'),
+  
+  /** Time-to-live in seconds */
+  ttl: z.number().min(0).describe('Cache TTL in seconds (0 = no expiration)'),
+  
+  /** Array of field paths that trigger cache invalidation when changed */
+  invalidateOn: z.array(z.string()).describe('Field paths that invalidate cache (e.g., ["inventory.quantity", "pricing.base_price"])'),
+});
+
+/**
  * Field Schema - Best Practice Enterprise Pattern
  */
 export const FieldSchema = z.object({
@@ -349,10 +401,32 @@ export const FieldSchema = z.object({
   // File attachment field config
   fileAttachmentConfig: FileAttachmentConfigSchema.optional().describe('Configuration for file and attachment field types'),
 
+  /** Enhanced Security & Compliance */
+  // Encryption configuration
+  encryptionConfig: EncryptionConfigSchema.optional().describe('Field-level encryption configuration for sensitive data (GDPR/HIPAA/PCI-DSS)'),
+  
+  // Data masking rules
+  maskingRule: MaskingRuleSchema.optional().describe('Data masking rules for PII protection'),
+  
+  // Audit trail
+  auditTrail: z.boolean().default(false).describe('Enable detailed audit trail for this field (tracks all changes with user and timestamp)'),
+  
+  /** Field Dependencies & Relationships */
+  // Field dependencies
+  dependencies: z.array(z.string()).optional().describe('Array of field names that this field depends on (for formulas, visibility rules, etc.)'),
+  
+  /** Computed Field Optimization */
+  // Computed field caching
+  cached: ComputedFieldCacheSchema.optional().describe('Caching configuration for computed/formula fields'),
+  
+  /** Data Quality & Governance */
+  // Data quality rules
+  dataQuality: DataQualityRulesSchema.optional().describe('Data quality validation and monitoring rules'),
+
   /** Security & Visibility */
   hidden: z.boolean().default(false).describe('Hidden from default UI'),
   readonly: z.boolean().default(false).describe('Read-only in UI'),
-  encryption: z.boolean().default(false).describe('Encrypt at rest'),
+  encryption: z.boolean().default(false).describe('Deprecated: Use encryptionConfig for enhanced encryption features. Simple flag for backward compatibility.'),
   
   /** Indexing */
   index: z.boolean().default(false).describe('Create standard database index'),
@@ -367,6 +441,8 @@ export type CurrencyConfig = z.infer<typeof CurrencyConfigSchema>;
 export type CurrencyValue = z.infer<typeof CurrencyValueSchema>;
 export type VectorConfig = z.infer<typeof VectorConfigSchema>;
 export type FileAttachmentConfig = z.infer<typeof FileAttachmentConfigSchema>;
+export type DataQualityRules = z.infer<typeof DataQualityRulesSchema>;
+export type ComputedFieldCache = z.infer<typeof ComputedFieldCacheSchema>;
 
 /**
  * Field Factory Helper
