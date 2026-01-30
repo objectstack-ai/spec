@@ -3,6 +3,22 @@ import { FieldSchema } from './field.zod';
 import { ValidationRuleSchema } from './validation.zod';
 
 /**
+ * API Operations Enum
+ */
+export const ApiMethod = z.enum([
+  'get', 'list',          // Read
+  'create', 'update', 'delete', // Write
+  'upsert',               // Idempotent Write
+  'bulk',                 // Batch operations
+  'aggregate',            // Analytics (count, sum)
+  'history',              // Audit access
+  'search',               // Search access
+  'restore', 'purge',     // Trash management
+  'import', 'export',     // Data portability
+]);
+export type ApiMethod = z.infer<typeof ApiMethod>;
+
+/**
  * Capability Flags
  * Defines what system features are enabled for this object.
  * 
@@ -26,17 +42,7 @@ export const ObjectCapabilities = z.object({
    * API Supported Operations
    * Granular control over API exposure.
    */
-  apiMethods: z.array(z.enum([
-    'get', 'list',          // Read
-    'create', 'update', 'delete', // Write
-    'upsert',               // Idempotent Write
-    'bulk',                 // Batch operations
-    'aggregate',            // Analytics (count, sum)
-    'history',              // Audit access
-    'search',               // Search access
-    'restore', 'purge',     // Trash management
-    'import', 'export',     // Data portability
-  ])).optional().describe('Whitelist of allowed API operations'),
+  apiMethods: z.array(ApiMethod).optional().describe('Whitelist of allowed API operations'),
   
   /** Enable standard attachments/files engine */
   files: z.boolean().default(false).describe('Enable file attachments and document management'),
