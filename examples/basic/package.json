@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@objectstack/spec": "workspace:*",
-    "@objectstack/core": "workspace:*"
+    "@objectstack/objectos": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.0.0",

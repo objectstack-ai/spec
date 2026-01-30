@@ -10,11 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@objectstack/client": "workspace:*",
+    "@objectstack/objectos": "workspace:*",
     "@objectstack/driver-memory": "workspace:*",
     "@objectstack/example-todo": "workspace:*",
     "@objectstack/plugin-msw": "workspace:*",
-    "@objectstack/runtime": "workspace:*",
+    "@objectstack/objectos": "workspace:*",
     "@objectstack/objectql": "workspace:*",
     "@objectstack/spec": "workspace:*",
     "react": "^18.3.1",

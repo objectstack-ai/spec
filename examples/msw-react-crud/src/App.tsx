@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { ObjectStackClient } from '@objectstack/client';
+import { ObjectStackClient } from '@objectstack/objectos/client';
 import type { Task } from './types';
 import { TaskForm } from './components/TaskForm';
 import { TaskList } from './components/TaskList';

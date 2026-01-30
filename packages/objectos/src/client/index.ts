@@ -18,13 +18,16 @@ import {
 } from '@objectstack/spec/api';
 import { Logger, createLogger } from '../kernel';
 
+// Type for fetch input that works in both Node and browser
+type FetchInput = URL | string;
+
 export interface ClientConfig {
   baseUrl: string;
   token?: string;
   /**
    * Custom fetch implementation (e.g. node-fetch or for Next.js caching)
    */
-  fetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+  fetch?: (input: FetchInput, init?: RequestInit) => Promise<Response>;
   /**
    * Logger instance for debugging
    */
@@ -74,7 +77,7 @@ export interface StandardError {
 export class ObjectStackClient {
   private baseUrl: string;
   private token?: string;
-  private fetchImpl: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+  private fetchImpl: (input: FetchInput, init?: RequestInit) => Promise<Response>;
   private routes?: DiscoveryResult['routes'];
   private logger: Logger;
 
@@ -103,7 +106,7 @@ export class ObjectStackClient {
       // During boot, we might not know routes, so we check convention /api/v1 first
       const res = await this.fetch(`${this.baseUrl}/api/v1`);
       
-      const data = await res.json();
+      const data: any = await res.json();
       this.routes = data.routes;
       
       this.logger.info('Connected to ObjectStack server', { 
@@ -125,7 +128,7 @@ export class ObjectStackClient {
     getObject: async (name: string) => {
         const route = this.getRoute('metadata');
         const res = await this.fetch(`${this.baseUrl}${route}/object/${name}`);
-        return res.json();
+        return res.json() as any;
     },
     
     /**
@@ -176,7 +179,7 @@ export class ObjectStackClient {
     getView: async (object: string, type: 'list' | 'form' = 'list') => {
         const route = this.getRoute('ui');
         const res = await this.fetch(`${this.baseUrl}${route}/view/${object}?type=${type}`);
-        return res.json();
+        return res.json() as any;
     }
   };
 
@@ -196,7 +199,7 @@ export class ObjectStackClient {
         method: 'POST',
         body: JSON.stringify(query)
       });
-      return res.json();
+      return res.json() as any;
     },
 
     find: async <T = any>(object: string, options: QueryOptions = {}): Promise<PaginatedResult<T>> => {
@@ -247,13 +250,13 @@ export class ObjectStackClient {
         }
 
         const res = await this.fetch(`${this.baseUrl}${route}/${object}?${queryParams.toString()}`);
-        return res.json();
+        return res.json() as any;
     },
 
     get: async <T = any>(object: string, id: string): Promise<T> => {
         const route = this.getRoute('data');
         const res = await this.fetch(`${this.baseUrl}${route}/${object}/${id}`);
-        return res.json();
+        return res.json() as any;
     },
 
     create: async <T = any>(object: string, data: Partial<T>): Promise<T> => {
@@ -262,7 +265,7 @@ export class ObjectStackClient {
             method: 'POST',
             body: JSON.stringify(data)
         });
-        return res.json();
+        return res.json() as any;
     },
 
     createMany: async <T = any>(object: string, data: Partial<T>[]): Promise<T[]> => {
@@ -271,7 +274,7 @@ export class ObjectStackClient {
             method: 'POST',
             body: JSON.stringify(data)
         });
-        return res.json();
+        return res.json() as any;
     },
 
     update: async <T = any>(object: string, id: string, data: Partial<T>): Promise<T> => {
@@ -280,7 +283,7 @@ export class ObjectStackClient {
             method: 'PATCH',
             body: JSON.stringify(data)
         });
-        return res.json();
+        return res.json() as any;
     },
 
     /**
@@ -293,7 +296,7 @@ export class ObjectStackClient {
             method: 'POST',
             body: JSON.stringify(request)
         });
-        return res.json();
+        return res.json() as any;
     },
 
     /**
@@ -314,7 +317,7 @@ export class ObjectStackClient {
             method: 'POST',
             body: JSON.stringify(request)
         });
-        return res.json();
+        return res.json() as any;
     },
 
     delete: async (object: string, id: string): Promise<{ success: boolean }> => {
@@ -322,7 +325,7 @@ export class ObjectStackClient {
         const res = await this.fetch(`${this.baseUrl}${route}/${object}/${id}`, {
             method: 'DELETE'
         });
-        return res.json();
+        return res.json() as any;
     },
 
     /**
@@ -338,7 +341,7 @@ export class ObjectStackClient {
              method: 'POST',
              body: JSON.stringify(request)
         });
-        return res.json();
+        return res.json() as any;
     }
   };
 
@@ -356,7 +359,7 @@ export class ObjectStackClient {
         method: 'POST',
         body: JSON.stringify(request)
       });
-      return res.json();
+      return res.json() as any;
     },
 
     /**
@@ -365,7 +368,7 @@ export class ObjectStackClient {
     get: async (id: string): Promise<ViewResponse> => {
       const route = this.getRoute('ui');
       const res = await this.fetch(`${this.baseUrl}${route}/views/${id}`);
-      return res.json();
+      return res.json() as any;
     },
 
     /**
@@ -388,7 +391,7 @@ export class ObjectStackClient {
         : `${this.baseUrl}${route}/views`;
         
       const res = await this.fetch(url);
-      return res.json();
+      return res.json() as any;
     },
 
     /**
@@ -401,7 +404,7 @@ export class ObjectStackClient {
         method: 'PATCH',
         body: JSON.stringify(updateData)
       });
-      return res.json();
+      return res.json() as any;
     },
 
     /**
@@ -412,7 +415,7 @@ export class ObjectStackClient {
       const res = await this.fetch(`${this.baseUrl}${route}/views/${id}`, {
         method: 'DELETE'
       });
-      return res.json();
+      return res.json() as any;
     },
 
     /**
@@ -424,7 +427,7 @@ export class ObjectStackClient {
         method: 'POST',
         body: JSON.stringify({ sharedWith: userIds })
       });
-      return res.json();
+      return res.json() as any;
     },
 
     /**
@@ -436,7 +439,7 @@ export class ObjectStackClient {
         method: 'POST',
         body: JSON.stringify({ object })
       });
-      return res.json();
+      return res.json() as any;
     }
   };
 

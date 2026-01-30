@@ -1,5 +1,5 @@
 
-import { ObjectKernel, DriverPlugin, AppPlugin } from '@objectstack/runtime';
+import { ObjectKernel, DriverPlugin, AppPlugin } from '@objectstack/objectos/runtime';
 import { SchemaRegistry, ObjectQL, ObjectQLPlugin } from '@objectstack/objectql';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 

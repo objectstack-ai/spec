@@ -8,7 +8,7 @@
  * Browser: Uses simple console-based logger
  */
 
-import { ObjectKernel, createLogger, type Plugin, type PluginContext } from '@objectstack/core';
+import { ObjectKernel, createLogger, type Plugin, type PluginContext } from '@objectstack/objectos/kernel';
 
 // Example 1: Kernel with Different Logger Configurations
 async function exampleKernelLogging() {

@@ -1,4 +1,4 @@
-import { ObjectKernel, DriverPlugin, AppPlugin } from '@objectstack/runtime';
+import { ObjectKernel, DriverPlugin, AppPlugin } from '@objectstack/objectos/runtime';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { ObjectQLPlugin } from '@objectstack/objectql';
 import { HonoServerPlugin } from '@objectstack/plugin-hono-server';

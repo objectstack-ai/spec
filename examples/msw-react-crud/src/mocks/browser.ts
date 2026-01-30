@@ -5,7 +5,7 @@
  * and the MSW Plugin which automatically exposes the API.
  */
 
-import { ObjectKernel, DriverPlugin, AppPlugin } from '@objectstack/runtime';
+import { ObjectKernel, DriverPlugin, AppPlugin } from '@objectstack/objectos/runtime';
 import { ObjectQLPlugin } from '@objectstack/objectql';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { MSWPlugin } from '@objectstack/plugin-msw';

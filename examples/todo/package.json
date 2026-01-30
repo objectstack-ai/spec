@@ -8,10 +8,10 @@
   },
   "dependencies": {
     "@objectstack/spec": "workspace:*",
-    "@objectstack/client": "workspace:*"
+    "@objectstack/objectos": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.0.0",
-    "@objectstack/cli": "workspace:*"
+    "@objectstack/objectos": "workspace:*"
   }
 }

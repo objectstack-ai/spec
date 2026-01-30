@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { ObjectStackClient } from '@objectstack/client';
+import { ObjectStackClient } from '@objectstack/objectos/client';
 import type { Task, CreateTaskInput } from '../types';
 
 interface TaskFormProps {

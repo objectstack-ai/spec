@@ -6,7 +6,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { ObjectStackClient } from '@objectstack/client';
+import { ObjectStackClient } from '@objectstack/objectos/client';
 import type { Task } from '../types';
 import { TaskItem } from './TaskItem';
 
