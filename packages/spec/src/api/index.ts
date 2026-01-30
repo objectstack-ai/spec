@@ -23,6 +23,7 @@ export * from './http-cache.zod';
 export * from './errors.zod';
 export * from './view-storage.zod';
 export * from './protocol.zod';
+export * from './rest-server.zod';
 
 // Legacy interface export (deprecated)
 export type { IObjectStackProtocol } from './protocol';

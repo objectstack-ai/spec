@@ -60,6 +60,9 @@ export * from './notification.zod';
 // Change Management Protocol
 export * from './change-management.zod';
 
+// HTTP Server Protocol
+export * from './http-server.zod';
+
 // Note: Auth, Identity, Policy, Role, Organization moved to @objectstack/spec/auth
 // Note: Territory moved to @objectstack/spec/permission
 // Note: Connector Protocol moved to @objectstack/spec/integration

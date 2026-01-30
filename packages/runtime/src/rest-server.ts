@@ -1,0 +1,528 @@
+import { IHttpServer, RouteHandler } from '@objectstack/core';
+import { RouteManager } from './route-manager';
+import { RestServerConfig, CrudOperation } from '@objectstack/spec/api';
+
+/**
+ * Protocol Provider Interface
+ * Defines the interface for data/metadata operations
+ */
+export interface IProtocolProvider {
+    // Discovery & Metadata
+    getDiscovery(): any;
+    getMetaTypes(): string[];
+    getMetaItems(type: string): any[];
+    getMetaItem(type: string, name: string): any;
+    getMetaItemCached?(type: string, name: string, cacheRequest?: any): Promise<any>;
+    getUiView(object: string, type: 'list' | 'form'): any;
+    
+    // Data Operations
+    findData(object: string, query: any): Promise<any>;
+    getData(object: string, id: string): Promise<any>;
+    createData(object: string, data: any): Promise<any>;
+    updateData(object: string, id: string, data: any): Promise<any>;
+    deleteData(object: string, id: string): Promise<any>;
+    
+    // Batch Operations
+    batchData?(object: string, request: any): Promise<any>;
+    createManyData?(object: string, records: any[]): Promise<any[]>;
+    updateManyData?(object: string, request: any): Promise<any>;
+    deleteManyData?(object: string, request: any): Promise<any>;
+    
+    // View Storage
+    createView?(request: any): Promise<any>;
+    getView?(id: string): Promise<any>;
+    listViews?(request?: any): Promise<any>;
+    updateView?(request: any): Promise<any>;
+    deleteView?(id: string): Promise<any>;
+}
+
+/**
+ * RestServer
+ * 
+ * Provides automatic REST API endpoint generation for ObjectStack.
+ * Generates standard RESTful CRUD endpoints, metadata endpoints, and batch operations
+ * based on the configured protocol provider.
+ * 
+ * Features:
+ * - Automatic CRUD endpoint generation (GET, POST, PUT, PATCH, DELETE)
+ * - Metadata API endpoints (/meta)
+ * - Batch operation endpoints (/batch, /createMany, /updateMany, /deleteMany)
+ * - Discovery endpoint
+ * - Configurable path prefixes and patterns
+ * 
+ * @example
+ * const restServer = new RestServer(httpServer, protocolProvider, {
+ *   api: {
+ *     version: 'v1',
+ *     basePath: '/api'
+ *   },
+ *   crud: {
+ *     dataPrefix: '/data'
+ *   }
+ * });
+ * 
+ * restServer.registerRoutes();
+ */
+export class RestServer {
+    private server: IHttpServer;
+    private protocol: IProtocolProvider;
+    private config: RestServerConfig;
+    private routeManager: RouteManager;
+    
+    constructor(
+        server: IHttpServer, 
+        protocol: IProtocolProvider, 
+        config: RestServerConfig = {}
+    ) {
+        this.server = server;
+        this.protocol = protocol;
+        this.config = this.normalizeConfig(config);
+        this.routeManager = new RouteManager(server);
+    }
+    
+    /**
+     * Normalize configuration with defaults
+     */
+    private normalizeConfig(config: RestServerConfig): Required<RestServerConfig> {
+        const api = config.api ?? {};
+        const crud = config.crud ?? {};
+        const metadata = config.metadata ?? {};
+        const batch = config.batch ?? {};
+        const routes = config.routes ?? {};
+        
+        return {
+            api: {
+                version: api.version ?? 'v1',
+                basePath: api.basePath ?? '/api',
+                apiPath: api.apiPath,
+                enableCrud: api.enableCrud ?? true,
+                enableMetadata: api.enableMetadata ?? true,
+                enableBatch: api.enableBatch ?? true,
+                enableDiscovery: api.enableDiscovery ?? true,
+                documentation: api.documentation,
+                responseFormat: api.responseFormat,
+            },
+            crud: {
+                operations: crud.operations,
+                patterns: crud.patterns,
+                dataPrefix: crud.dataPrefix ?? '/data',
+                objectParamStyle: crud.objectParamStyle ?? 'path',
+            },
+            metadata: {
+                prefix: metadata.prefix ?? '/meta',
+                enableCache: metadata.enableCache ?? true,
+                cacheTtl: metadata.cacheTtl ?? 3600,
+                endpoints: metadata.endpoints,
+            },
+            batch: {
+                maxBatchSize: batch.maxBatchSize ?? 200,
+                enableBatchEndpoint: batch.enableBatchEndpoint ?? true,
+                operations: batch.operations,
+                defaultAtomic: batch.defaultAtomic ?? true,
+            },
+            routes: {
+                includeObjects: routes.includeObjects,
+                excludeObjects: routes.excludeObjects,
+                nameTransform: routes.nameTransform ?? 'none',
+                overrides: routes.overrides,
+            },
+        };
+    }
+    
+    /**
+     * Get the full API base path
+     */
+    private getApiBasePath(): string {
+        const { api } = this.config;
+        return api.apiPath ?? `${api.basePath}/${api.version}`;
+    }
+    
+    /**
+     * Register all REST API routes
+     */
+    registerRoutes(): void {
+        const basePath = this.getApiBasePath();
+        
+        // Discovery endpoint
+        if (this.config.api.enableDiscovery) {
+            this.registerDiscoveryEndpoints(basePath);
+        }
+        
+        // Metadata endpoints
+        if (this.config.api.enableMetadata) {
+            this.registerMetadataEndpoints(basePath);
+        }
+        
+        // CRUD endpoints
+        if (this.config.api.enableCrud) {
+            this.registerCrudEndpoints(basePath);
+        }
+        
+        // Batch endpoints
+        if (this.config.api.enableBatch) {
+            this.registerBatchEndpoints(basePath);
+        }
+    }
+    
+    /**
+     * Register discovery endpoints
+     */
+    private registerDiscoveryEndpoints(basePath: string): void {
+        this.routeManager.register({
+            method: 'GET',
+            path: basePath,
+            handler: async (req: any, res: any) => {
+                try {
+                    const discovery = this.protocol.getDiscovery();
+                    res.json(discovery);
+                } catch (error: any) {
+                    res.status(500).json({ error: error.message });
+                }
+            },
+            metadata: {
+                summary: 'Get API discovery information',
+                tags: ['discovery'],
+            },
+        });
+    }
+    
+    /**
+     * Register metadata endpoints
+     */
+    private registerMetadataEndpoints(basePath: string): void {
+        const { metadata } = this.config;
+        const metaPath = `${basePath}${metadata.prefix}`;
+        
+        // GET /meta - List all metadata types
+        if (metadata.endpoints?.types !== false) {
+            this.routeManager.register({
+                method: 'GET',
+                path: metaPath,
+                handler: async (req: any, res: any) => {
+                    try {
+                        const types = this.protocol.getMetaTypes();
+                        res.json({ types });
+                    } catch (error: any) {
+                        res.status(500).json({ error: error.message });
+                    }
+                },
+                metadata: {
+                    summary: 'List all metadata types',
+                    tags: ['metadata'],
+                },
+            });
+        }
+        
+        // GET /meta/:type - List items of a type
+        if (metadata.endpoints?.items !== false) {
+            this.routeManager.register({
+                method: 'GET',
+                path: `${metaPath}/:type`,
+                handler: async (req: any, res: any) => {
+                    try {
+                        const items = this.protocol.getMetaItems(req.params.type);
+                        res.json(items);
+                    } catch (error: any) {
+                        res.status(404).json({ error: error.message });
+                    }
+                },
+                metadata: {
+                    summary: 'List metadata items of a type',
+                    tags: ['metadata'],
+                },
+            });
+        }
+        
+        // GET /meta/:type/:name - Get specific item
+        if (metadata.endpoints?.item !== false) {
+            this.routeManager.register({
+                method: 'GET',
+                path: `${metaPath}/:type/:name`,
+                handler: async (req: any, res: any) => {
+                    try {
+                        // Check if cached version is available
+                        if (metadata.enableCache && this.protocol.getMetaItemCached) {
+                            const cacheRequest = {
+                                ifNoneMatch: req.headers['if-none-match'] as string,
+                                ifModifiedSince: req.headers['if-modified-since'] as string,
+                            };
+                            
+                            const result = await this.protocol.getMetaItemCached(
+                                req.params.type,
+                                req.params.name,
+                                cacheRequest
+                            );
+                            
+                            if (result.notModified) {
+                                res.status(304).json({});
+                                return;
+                            }
+                            
+                            // Set cache headers
+                            if (result.etag) {
+                                const etagValue = result.etag.weak 
+                                    ? `W/"${result.etag.value}"` 
+                                    : `"${result.etag.value}"`;
+                                res.header('ETag', etagValue);
+                            }
+                            if (result.lastModified) {
+                                res.header('Last-Modified', new Date(result.lastModified).toUTCString());
+                            }
+                            if (result.cacheControl) {
+                                const directives = result.cacheControl.directives.join(', ');
+                                const maxAge = result.cacheControl.maxAge 
+                                    ? `, max-age=${result.cacheControl.maxAge}` 
+                                    : '';
+                                res.header('Cache-Control', directives + maxAge);
+                            }
+                            
+                            res.json(result.data);
+                        } else {
+                            // Non-cached version
+                            const item = this.protocol.getMetaItem(req.params.type, req.params.name);
+                            res.json(item);
+                        }
+                    } catch (error: any) {
+                        res.status(404).json({ error: error.message });
+                    }
+                },
+                metadata: {
+                    summary: 'Get specific metadata item',
+                    tags: ['metadata'],
+                },
+            });
+        }
+    }
+    
+    /**
+     * Register CRUD endpoints for data operations
+     */
+    private registerCrudEndpoints(basePath: string): void {
+        const { crud } = this.config;
+        const dataPath = `${basePath}${crud.dataPrefix}`;
+        
+        const operations = crud.operations ?? {
+            create: true,
+            read: true,
+            update: true,
+            delete: true,
+            list: true,
+        };
+        
+        // GET /data/:object - List/query records
+        if (operations.list) {
+            this.routeManager.register({
+                method: 'GET',
+                path: `${dataPath}/:object`,
+                handler: async (req: any, res: any) => {
+                    try {
+                        const result = await this.protocol.findData(req.params.object, req.query);
+                        res.json(result);
+                    } catch (error: any) {
+                        res.status(400).json({ error: error.message });
+                    }
+                },
+                metadata: {
+                    summary: 'Query records',
+                    tags: ['data', 'crud'],
+                },
+            });
+        }
+        
+        // GET /data/:object/:id - Get single record
+        if (operations.read) {
+            this.routeManager.register({
+                method: 'GET',
+                path: `${dataPath}/:object/:id`,
+                handler: async (req: any, res: any) => {
+                    try {
+                        const result = await this.protocol.getData(req.params.object, req.params.id);
+                        res.json(result);
+                    } catch (error: any) {
+                        res.status(404).json({ error: error.message });
+                    }
+                },
+                metadata: {
+                    summary: 'Get record by ID',
+                    tags: ['data', 'crud'],
+                },
+            });
+        }
+        
+        // POST /data/:object - Create record
+        if (operations.create) {
+            this.routeManager.register({
+                method: 'POST',
+                path: `${dataPath}/:object`,
+                handler: async (req: any, res: any) => {
+                    try {
+                        const result = await this.protocol.createData(req.params.object, req.body);
+                        res.status(201).json(result);
+                    } catch (error: any) {
+                        res.status(400).json({ error: error.message });
+                    }
+                },
+                metadata: {
+                    summary: 'Create record',
+                    tags: ['data', 'crud'],
+                },
+            });
+        }
+        
+        // PATCH /data/:object/:id - Update record
+        if (operations.update) {
+            this.routeManager.register({
+                method: 'PATCH',
+                path: `${dataPath}/:object/:id`,
+                handler: async (req: any, res: any) => {
+                    try {
+                        const result = await this.protocol.updateData(
+                            req.params.object,
+                            req.params.id,
+                            req.body
+                        );
+                        res.json(result);
+                    } catch (error: any) {
+                        res.status(400).json({ error: error.message });
+                    }
+                },
+                metadata: {
+                    summary: 'Update record',
+                    tags: ['data', 'crud'],
+                },
+            });
+        }
+        
+        // DELETE /data/:object/:id - Delete record
+        if (operations.delete) {
+            this.routeManager.register({
+                method: 'DELETE',
+                path: `${dataPath}/:object/:id`,
+                handler: async (req: any, res: any) => {
+                    try {
+                        const result = await this.protocol.deleteData(req.params.object, req.params.id);
+                        res.json(result);
+                    } catch (error: any) {
+                        res.status(400).json({ error: error.message });
+                    }
+                },
+                metadata: {
+                    summary: 'Delete record',
+                    tags: ['data', 'crud'],
+                },
+            });
+        }
+    }
+    
+    /**
+     * Register batch operation endpoints
+     */
+    private registerBatchEndpoints(basePath: string): void {
+        const { crud, batch } = this.config;
+        const dataPath = `${basePath}${crud.dataPrefix}`;
+        
+        const operations = batch.operations ?? {
+            createMany: true,
+            updateMany: true,
+            deleteMany: true,
+            upsertMany: true,
+        };
+        
+        // POST /data/:object/batch - Generic batch endpoint
+        if (batch.enableBatchEndpoint && this.protocol.batchData) {
+            this.routeManager.register({
+                method: 'POST',
+                path: `${dataPath}/:object/batch`,
+                handler: async (req: any, res: any) => {
+                    try {
+                        const result = await this.protocol.batchData!(req.params.object, req.body);
+                        res.json(result);
+                    } catch (error: any) {
+                        res.status(400).json({ error: error.message });
+                    }
+                },
+                metadata: {
+                    summary: 'Batch operations',
+                    tags: ['data', 'batch'],
+                },
+            });
+        }
+        
+        // POST /data/:object/createMany - Bulk create
+        if (operations.createMany && this.protocol.createManyData) {
+            this.routeManager.register({
+                method: 'POST',
+                path: `${dataPath}/:object/createMany`,
+                handler: async (req: any, res: any) => {
+                    try {
+                        const result = await this.protocol.createManyData!(
+                            req.params.object,
+                            req.body || []
+                        );
+                        res.status(201).json(result);
+                    } catch (error: any) {
+                        res.status(400).json({ error: error.message });
+                    }
+                },
+                metadata: {
+                    summary: 'Create multiple records',
+                    tags: ['data', 'batch'],
+                },
+            });
+        }
+        
+        // POST /data/:object/updateMany - Bulk update
+        if (operations.updateMany && this.protocol.updateManyData) {
+            this.routeManager.register({
+                method: 'POST',
+                path: `${dataPath}/:object/updateMany`,
+                handler: async (req: any, res: any) => {
+                    try {
+                        const result = await this.protocol.updateManyData!(req.params.object, req.body);
+                        res.json(result);
+                    } catch (error: any) {
+                        res.status(400).json({ error: error.message });
+                    }
+                },
+                metadata: {
+                    summary: 'Update multiple records',
+                    tags: ['data', 'batch'],
+                },
+            });
+        }
+        
+        // POST /data/:object/deleteMany - Bulk delete
+        if (operations.deleteMany && this.protocol.deleteManyData) {
+            this.routeManager.register({
+                method: 'POST',
+                path: `${dataPath}/:object/deleteMany`,
+                handler: async (req: any, res: any) => {
+                    try {
+                        const result = await this.protocol.deleteManyData!(req.params.object, req.body);
+                        res.json(result);
+                    } catch (error: any) {
+                        res.status(400).json({ error: error.message });
+                    }
+                },
+                metadata: {
+                    summary: 'Delete multiple records',
+                    tags: ['data', 'batch'],
+                },
+            });
+        }
+    }
+    
+    /**
+     * Get the route manager
+     */
+    getRouteManager(): RouteManager {
+        return this.routeManager;
+    }
+    
+    /**
+     * Get all registered routes
+     */
+    getRoutes() {
+        return this.routeManager.getAll();
+    }
+}
