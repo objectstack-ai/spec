@@ -15,6 +15,11 @@ export * from './feature.zod';
 export * from './collaboration.zod';
 export * from './types';
 
+// Observability Protocol
+export * from './logging.zod';
+export * from './metrics.zod';
+export * from './tracing.zod';
+
 // Re-export Core System Definitions
 export * from './manifest.zod';
 export * from './plugin.zod';

@@ -1,0 +1,26 @@
+{
+  "$ref": "#/definitions/LogDestinationType",
+  "definitions": {
+    "LogDestinationType": {
+      "type": "string",
+      "enum": [
+        "console",
+        "file",
+        "syslog",
+        "elasticsearch",
+        "cloudwatch",
+        "stackdriver",
+        "azure_monitor",
+        "datadog",
+        "splunk",
+        "loki",
+        "http",
+        "kafka",
+        "redis",
+        "custom"
+      ],
+      "description": "Log destination type"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

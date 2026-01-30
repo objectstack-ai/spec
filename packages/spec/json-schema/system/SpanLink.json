@@ -1,0 +1,110 @@
+{
+  "$ref": "#/definitions/SpanLink",
+  "definitions": {
+    "SpanLink": {
+      "type": "object",
+      "properties": {
+        "context": {
+          "type": "object",
+          "properties": {
+            "traceId": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$",
+              "description": "Trace ID (32 hex chars)"
+            },
+            "spanId": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{16}$",
+              "description": "Span ID (16 hex chars)"
+            },
+            "traceFlags": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255,
+              "description": "Trace flags bitmap",
+              "default": 1
+            },
+            "traceState": {
+              "type": "object",
+              "properties": {
+                "entries": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "description": "Trace state entries"
+                }
+              },
+              "required": [
+                "entries"
+              ],
+              "additionalProperties": false,
+              "description": "Trace state"
+            },
+            "parentSpanId": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{16}$",
+              "description": "Parent span ID (16 hex chars)"
+            },
+            "sampled": {
+              "type": "boolean",
+              "default": true
+            },
+            "remote": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          "required": [
+            "traceId",
+            "spanId"
+          ],
+          "additionalProperties": false,
+          "description": "Linked trace context"
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "boolean"
+                }
+              }
+            ],
+            "description": "Span attribute value"
+          },
+          "description": "Link attributes"
+        }
+      },
+      "required": [
+        "context"
+      ],
+      "additionalProperties": false,
+      "description": "Span link"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,20 @@
+{
+  "$ref": "#/definitions/SamplingStrategyType",
+  "definitions": {
+    "SamplingStrategyType": {
+      "type": "string",
+      "enum": [
+        "always_on",
+        "always_off",
+        "trace_id_ratio",
+        "rate_limiting",
+        "parent_based",
+        "probability",
+        "composite",
+        "custom"
+      ],
+      "description": "Sampling strategy type"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
