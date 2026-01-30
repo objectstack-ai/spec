@@ -28,6 +28,7 @@ export class ObjectLogger implements Logger {
 
         // Set defaults
         this.config = {
+            name: config.name,
             level: config.level ?? 'info',
             format: config.format ?? (this.isNode ? 'json' : 'pretty'),
             redact: config.redact ?? ['password', 'token', 'secret', 'key'],
@@ -138,7 +139,7 @@ export class ObjectLogger implements Logger {
 
         for (const key in redacted) {
             const lowerKey = key.toLowerCase();
-            const shouldRedact = this.config.redact.some(pattern => 
+            const shouldRedact = this.config.redact.some((pattern: string) => 
                 lowerKey.includes(pattern.toLowerCase())
             );
 
