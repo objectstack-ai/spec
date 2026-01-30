@@ -74,7 +74,7 @@ const HonoServerPlugin: ObjectStackManifest = {
     // Interfaces This Plugin Provides
     provides: [
       {
-        id: 'com.objectstack.server.interface.http_server',
+        id: 'com.objectstack.server.hono.interface.http_server',
         name: 'IHttpServer',
         description: 'HTTP server service interface',
         version: { major: 1, minor: 0, patch: 0 },
@@ -108,11 +108,13 @@ const HonoServerPlugin: ObjectStackManifest = {
                 name: 'path',
                 type: 'string',
                 required: true,
+                description: 'Route path pattern',
               },
               {
                 name: 'handler',
                 type: 'Function',
                 required: true,
+                description: 'Route handler function',
               },
             ],
             returnType: 'void',
@@ -126,11 +128,13 @@ const HonoServerPlugin: ObjectStackManifest = {
                 name: 'path',
                 type: 'string',
                 required: true,
+                description: 'Route path pattern',
               },
               {
                 name: 'handler',
                 type: 'Function',
                 required: true,
+                description: 'Route handler function',
               },
             ],
             returnType: 'void',
@@ -144,11 +148,13 @@ const HonoServerPlugin: ObjectStackManifest = {
                 name: 'path',
                 type: 'string',
                 required: true,
+                description: 'Route path pattern',
               },
               {
                 name: 'handler',
                 type: 'Function',
                 required: true,
+                description: 'Route handler function',
               },
             ],
             returnType: 'void',
@@ -171,6 +177,7 @@ const HonoServerPlugin: ObjectStackManifest = {
           {
             name: 'close',
             description: 'Stop the HTTP server',
+            parameters: [],
             returnType: 'void',
             async: false,
           },
@@ -194,7 +201,7 @@ const HonoServerPlugin: ObjectStackManifest = {
     // Extension Points This Plugin Defines
     extensionPoints: [
       {
-        id: 'com.objectstack.server.extension.middleware',
+        id: 'com.objectstack.server.hono.extension.middleware',
         name: 'HTTP Middleware',
         description: 'Register custom HTTP middleware',
         type: 'hook',
@@ -204,7 +211,7 @@ const HonoServerPlugin: ObjectStackManifest = {
         },
       },
       {
-        id: 'com.objectstack.server.extension.route',
+        id: 'com.objectstack.server.hono.extension.route',
         name: 'Custom Routes',
         description: 'Register custom API routes',
         type: 'action',

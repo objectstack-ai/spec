@@ -174,7 +174,7 @@ capabilities: {
   extensions: [
     {
       targetPluginId: 'com.objectstack.server.hono',
-      extensionPointId: 'com.objectstack.server.extension.middleware',
+      extensionPointId: 'com.objectstack.server.hono.extension.middleware',
       implementation: './middleware/auth.ts',
       priority: 10
     }
@@ -190,7 +190,7 @@ capabilities: {
   extensions: [
     {
       targetPluginId: 'com.objectstack.server.hono',
-      extensionPointId: 'com.objectstack.server.extension.route',
+      extensionPointId: 'com.objectstack.server.hono.extension.route',
       implementation: './routes/webhooks.ts',
       priority: 50
     }
