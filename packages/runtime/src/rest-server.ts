@@ -1,40 +1,7 @@
 import { IHttpServer, RouteHandler } from '@objectstack/core';
 import { RouteManager } from './route-manager';
 import { RestServerConfig, CrudOperation } from '@objectstack/spec/api';
-
-/**
- * Protocol Provider Interface
- * Defines the interface for data/metadata operations
- */
-export interface IProtocolProvider {
-    // Discovery & Metadata
-    getDiscovery(): any;
-    getMetaTypes(): string[];
-    getMetaItems(type: string): any[];
-    getMetaItem(type: string, name: string): any;
-    getMetaItemCached?(type: string, name: string, cacheRequest?: any): Promise<any>;
-    getUiView(object: string, type: 'list' | 'form'): any;
-    
-    // Data Operations
-    findData(object: string, query: any): Promise<any>;
-    getData(object: string, id: string): Promise<any>;
-    createData(object: string, data: any): Promise<any>;
-    updateData(object: string, id: string, data: any): Promise<any>;
-    deleteData(object: string, id: string): Promise<any>;
-    
-    // Batch Operations
-    batchData?(object: string, request: any): Promise<any>;
-    createManyData?(object: string, records: any[]): Promise<any[]>;
-    updateManyData?(object: string, request: any): Promise<any>;
-    deleteManyData?(object: string, request: any): Promise<any>;
-    
-    // View Storage
-    createView?(request: any): Promise<any>;
-    getView?(id: string): Promise<any>;
-    listViews?(request?: any): Promise<any>;
-    updateView?(request: any): Promise<any>;
-    deleteView?(id: string): Promise<any>;
-}
+import { ObjectStackProtocol } from '@objectstack/spec/api';
 
 /**
  * RestServer
@@ -65,13 +32,13 @@ export interface IProtocolProvider {
  */
 export class RestServer {
     private server: IHttpServer;
-    private protocol: IProtocolProvider;
+    private protocol: ObjectStackProtocol;
     private config: RestServerConfig;
     private routeManager: RouteManager;
     
     constructor(
         server: IHttpServer, 
-        protocol: IProtocolProvider, 
+        protocol: ObjectStackProtocol, 
         config: RestServerConfig = {}
     ) {
         this.server = server;
@@ -173,7 +140,7 @@ export class RestServer {
             path: basePath,
             handler: async (req: any, res: any) => {
                 try {
-                    const discovery = this.protocol.getDiscovery();
+                    const discovery = await this.protocol.getDiscovery({});
                     res.json(discovery);
                 } catch (error: any) {
                     res.status(500).json({ error: error.message });
@@ -200,8 +167,8 @@ export class RestServer {
                 path: metaPath,
                 handler: async (req: any, res: any) => {
                     try {
-                        const types = this.protocol.getMetaTypes();
-                        res.json({ types });
+                        const types = await this.protocol.getMetaTypes({});
+                        res.json(types);
                     } catch (error: any) {
                         res.status(500).json({ error: error.message });
                     }
@@ -220,7 +187,7 @@ export class RestServer {
                 path: `${metaPath}/:type`,
                 handler: async (req: any, res: any) => {
                     try {
-                        const items = this.protocol.getMetaItems(req.params.type);
+                        const items = await this.protocol.getMetaItems({ type: req.params.type });
                         res.json(items);
                     } catch (error: any) {
                         res.status(404).json({ error: error.message });
@@ -247,11 +214,11 @@ export class RestServer {
                                 ifModifiedSince: req.headers['if-modified-since'] as string,
                             };
                             
-                            const result = await this.protocol.getMetaItemCached(
-                                req.params.type,
-                                req.params.name,
+                            const result = await this.protocol.getMetaItemCached({
+                                type: req.params.type,
+                                name: req.params.name,
                                 cacheRequest
-                            );
+                            });
                             
                             if (result.notModified) {
                                 res.status(304).json({});
@@ -279,7 +246,7 @@ export class RestServer {
                             res.json(result.data);
                         } else {
                             // Non-cached version
-                            const item = this.protocol.getMetaItem(req.params.type, req.params.name);
+                            const item = await this.protocol.getMetaItem({ type: req.params.type, name: req.params.name });
                             res.json(item);
                         }
                     } catch (error: any) {
@@ -316,7 +283,10 @@ export class RestServer {
                 path: `${dataPath}/:object`,
                 handler: async (req: any, res: any) => {
                     try {
-                        const result = await this.protocol.findData(req.params.object, req.query);
+                        const result = await this.protocol.findData({
+                            object: req.params.object, 
+                            query: req.query
+                        });
                         res.json(result);
                     } catch (error: any) {
                         res.status(400).json({ error: error.message });
@@ -336,7 +306,10 @@ export class RestServer {
                 path: `${dataPath}/:object/:id`,
                 handler: async (req: any, res: any) => {
                     try {
-                        const result = await this.protocol.getData(req.params.object, req.params.id);
+                        const result = await this.protocol.getData({
+                            object: req.params.object, 
+                            id: req.params.id
+                        });
                         res.json(result);
                     } catch (error: any) {
                         res.status(404).json({ error: error.message });
@@ -356,7 +329,10 @@ export class RestServer {
                 path: `${dataPath}/:object`,
                 handler: async (req: any, res: any) => {
                     try {
-                        const result = await this.protocol.createData(req.params.object, req.body);
+                        const result = await this.protocol.createData({
+                            object: req.params.object, 
+                            data: req.body
+                        });
                         res.status(201).json(result);
                     } catch (error: any) {
                         res.status(400).json({ error: error.message });
@@ -376,11 +352,11 @@ export class RestServer {
                 path: `${dataPath}/:object/:id`,
                 handler: async (req: any, res: any) => {
                     try {
-                        const result = await this.protocol.updateData(
-                            req.params.object,
-                            req.params.id,
-                            req.body
-                        );
+                        const result = await this.protocol.updateData({
+                            object: req.params.object,
+                            id: req.params.id,
+                            data: req.body
+                        });
                         res.json(result);
                     } catch (error: any) {
                         res.status(400).json({ error: error.message });
@@ -400,7 +376,10 @@ export class RestServer {
                 path: `${dataPath}/:object/:id`,
                 handler: async (req: any, res: any) => {
                     try {
-                        const result = await this.protocol.deleteData(req.params.object, req.params.id);
+                        const result = await this.protocol.deleteData({
+                            object: req.params.object, 
+                            id: req.params.id
+                        });
                         res.json(result);
                     } catch (error: any) {
                         res.status(400).json({ error: error.message });
@@ -435,7 +414,10 @@ export class RestServer {
                 path: `${dataPath}/:object/batch`,
                 handler: async (req: any, res: any) => {
                     try {
-                        const result = await this.protocol.batchData!(req.params.object, req.body);
+                        const result = await this.protocol.batchData!({
+                            object: req.params.object, 
+                            request: req.body
+                        });
                         res.json(result);
                     } catch (error: any) {
                         res.status(400).json({ error: error.message });
@@ -455,10 +437,10 @@ export class RestServer {
                 path: `${dataPath}/:object/createMany`,
                 handler: async (req: any, res: any) => {
                     try {
-                        const result = await this.protocol.createManyData!(
-                            req.params.object,
-                            req.body || []
-                        );
+                        const result = await this.protocol.createManyData!({
+                            object: req.params.object,
+                            records: req.body || []
+                        });
                         res.status(201).json(result);
                     } catch (error: any) {
                         res.status(400).json({ error: error.message });
@@ -478,7 +460,10 @@ export class RestServer {
                 path: `${dataPath}/:object/updateMany`,
                 handler: async (req: any, res: any) => {
                     try {
-                        const result = await this.protocol.updateManyData!(req.params.object, req.body);
+                        const result = await this.protocol.updateManyData!({
+                            object: req.params.object,
+                            ...req.body
+                        });
                         res.json(result);
                     } catch (error: any) {
                         res.status(400).json({ error: error.message });
@@ -498,7 +483,10 @@ export class RestServer {
                 path: `${dataPath}/:object/deleteMany`,
                 handler: async (req: any, res: any) => {
                     try {
-                        const result = await this.protocol.deleteManyData!(req.params.object, req.body);
+                        const result = await this.protocol.deleteManyData!({
+                            object: req.params.object, 
+                            ...req.body
+                        });
                         res.json(result);
                     } catch (error: any) {
                         res.status(400).json({ error: error.message });

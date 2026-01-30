@@ -1,4 +1,4 @@
-import { IObjectStackProtocolLegacy as IObjectStackProtocol } from '@objectstack/spec/api';
+import { ObjectStackProtocol } from '@objectstack/spec/api';
 import { IDataEngine } from '@objectstack/core';
 import type { 
     BatchUpdateRequest, 
@@ -34,7 +34,7 @@ function simpleHash(str: string): string {
     return Math.abs(hash).toString(16);
 }
 
-export class ObjectStackProtocolImplementation implements IObjectStackProtocol {
+export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
     private engine: IDataEngine;
     private viewStorage: Map<string, SavedView> = new Map();
 
@@ -42,47 +42,54 @@ export class ObjectStackProtocolImplementation implements IObjectStackProtocol {
         this.engine = engine;
     }
 
-    getDiscovery() {
+    async getDiscovery(request: {}) {
         return {
-            name: 'ObjectStack API',
             version: '1.0',
-            capabilities: {
-                metadata: true,
-                data: true,
-                ui: true
-            }
+            apiName: 'ObjectStack API',
+            capabilities: ['metadata', 'data', 'ui'],
+            endpoints: {}
         };
     }
 
-    getMetaTypes() {
-        return SchemaRegistry.getRegisteredTypes();
+    async getMetaTypes(request: {}) {
+        return {
+            types: SchemaRegistry.getRegisteredTypes()
+        };
     }
 
-    getMetaItems(type: string) {
-        return SchemaRegistry.listItems(type);
+    async getMetaItems(request: { type: string }) {
+        return {
+            type: request.type,
+            items: SchemaRegistry.listItems(request.type)
+        };
     }
 
-    getMetaItem(type: string, name: string) {
-        return SchemaRegistry.getItem(type, name);
+    async getMetaItem(request: { type: string, name: string }) {
+        return {
+            type: request.type,
+            name: request.name,
+            item: SchemaRegistry.getItem(request.type, request.name)
+        };
     }
 
-    getUiView(object: string, type: 'list' | 'form') {
-        const schema = SchemaRegistry.getObject(object);
-        if (!schema) throw new Error(`Object ${object} not found`);
+    async getUiView(request: { object: string, type: 'list' | 'form' }) {
+        const schema = SchemaRegistry.getObject(request.object);
+        if (!schema) throw new Error(`Object ${request.object} not found`);
 
-        if (type === 'list') {
-            return {
+        let view: any;
+        if (request.type === 'list') {
+            view = {
                 type: 'list',
-                object: object,
+                object: request.object,
                 columns: Object.keys(schema.fields || {}).slice(0, 5).map(f => ({
                     field: f,
                     label: schema.fields[f].label || f
                 }))
             };
         } else {
-             return {
+             view = {
                 type: 'form',
-                object: object,
+                object: request.object,
                 sections: [
                     {
                         label: 'General',
@@ -93,13 +100,18 @@ export class ObjectStackProtocolImplementation implements IObjectStackProtocol {
                 ]
             };
         }
+        return {
+            object: request.object,
+            type: request.type,
+            view
+        };
     }
 
-    async findData(object: string, query: any) {
+    async findData(request: { object: string, query?: any }) {
         // TODO: Normalize query from HTTP Query params (string values) to DataEngineQueryOptions (typed)
         // For now, we assume query is partially compatible or simple enough.
         // We should parse 'top', 'skip', 'limit' to numbers if they are strings.
-        const options: any = { ...query };
+        const options: any = { ...request.query };
         if (options.top) options.top = Number(options.top);
         if (options.skip) options.skip = Number(options.skip);
         if (options.limit) options.limit = Number(options.limit);
@@ -107,42 +119,65 @@ export class ObjectStackProtocolImplementation implements IObjectStackProtocol {
         // Handle OData style $filter if present, or flat filters
         // This is a naive implementation, a real OData parser is needed for complex scenarios.
         
-        return this.engine.find(object, options);
+        const records = await this.engine.find(request.object, options);
+        return {
+            object: request.object,
+            records
+        };
     }
 
-    async getData(object: string, id: string) {
-        const results = await this.engine.findOne(object, {
-            filter: { _id: id }
+    async getData(request: { object: string, id: string }) {
+        const result = await this.engine.findOne(request.object, {
+            filter: { _id: request.id }
         });
-        if (results) {
-            return results;
+        if (result) {
+            return {
+                object: request.object,
+                id: request.id,
+                record: result
+            };
         }
-        throw new Error(`Record ${id} not found in ${object}`);
+        throw new Error(`Record ${request.id} not found in ${request.object}`);
     }
 
-    createData(object: string, data: any) {
-        return this.engine.insert(object, data);
+    async createData(request: { object: string, data: any }) {
+        const result = await this.engine.insert(request.object, request.data);
+        return {
+            object: request.object,
+            id: result._id || result.id,
+            record: result
+        };
     }
 
-    updateData(object: string, id: string, data: any) {
+    async updateData(request: { object: string, id: string, data: any }) {
         // Adapt: update(obj, id, data) -> update(obj, data, options)
-        return this.engine.update(object, data, { filter: { _id: id } });
+        const result = await this.engine.update(request.object, request.data, { filter: { _id: request.id } });
+        return {
+            object: request.object,
+            id: request.id,
+            record: result
+        };
     }
 
-    deleteData(object: string, id: string) {
+    async deleteData(request: { object: string, id: string }) {
         // Adapt: delete(obj, id) -> delete(obj, options)
-        return this.engine.delete(object, { filter: { _id: id } });
+        await this.engine.delete(request.object, { filter: { _id: request.id } });
+        return {
+            object: request.object,
+            id: request.id,
+            success: true
+        };
     }
 
     // ==========================================
     // Metadata Caching
     // ==========================================
 
-    async getMetaItemCached(type: string, name: string, cacheRequest?: MetadataCacheRequest): Promise<MetadataCacheResponse> {
+    async getMetaItemCached(request: { type: string, name: string, cacheRequest?: MetadataCacheRequest }): Promise<MetadataCacheResponse> {
         try {
-            const item = SchemaRegistry.getItem(type, name);
+            const item = SchemaRegistry.getItem(request.type, request.name);
             if (!item) {
-                throw new Error(`Metadata item ${type}/${name} not found`);
+                throw new Error(`Metadata item ${request.type}/${request.name} not found`);
             }
 
             // Calculate ETag (simple hash of the stringified metadata)
@@ -151,8 +186,8 @@ export class ObjectStackProtocolImplementation implements IObjectStackProtocol {
             const etag = { value: hash, weak: false };
 
             // Check If-None-Match header
-            if (cacheRequest?.ifNoneMatch) {
-                const clientEtag = cacheRequest.ifNoneMatch.replace(/^"(.*)"$/, '$1').replace(/^W\/"(.*)"$/, '$1');
+            if (request.cacheRequest?.ifNoneMatch) {
+                const clientEtag = request.cacheRequest.ifNoneMatch.replace(/^"(.*)"$/, '$1').replace(/^W\/"(.*)"$/, '$1');
                 if (clientEtag === hash) {
                     // Return 304 Not Modified
                     return {
@@ -182,7 +217,7 @@ export class ObjectStackProtocolImplementation implements IObjectStackProtocol {
     // Batch Operations
     // ==========================================
 
-    async batchData(object: string, request: BatchUpdateRequest): Promise<BatchUpdateResponse> {
+    async batchData(request: { object: string, request: BatchUpdateRequest }): Promise<BatchUpdateResponse> {
         // Map high-level batch request to DataEngine batch if available
         // Or implement loop here.
         // For now, let's just fail or implement basic loop to satisfying interface
@@ -190,19 +225,24 @@ export class ObjectStackProtocolImplementation implements IObjectStackProtocol {
         throw new Error('Batch operations not yet fully implemented in protocol adapter');
     }
     
-    async createManyData(object: string, records: any[]): Promise<any[]> {
-        return this.engine.insert(object, records);
+    async createManyData(request: { object: string, records: any[] }): Promise<any> {
+        const records = await this.engine.insert(request.object, request.records);
+        return {
+            object: request.object,
+            records,
+            count: records.length
+        };
     }
     
-    async updateManyData(object: string, request: UpdateManyRequest): Promise<any> {
-        return this.engine.update(object, request.data, {
+    async updateManyData(request: UpdateManyRequest): Promise<any> {
+        return this.engine.update(request.object, request.data, {
             filter: request.filter,
             multi: true
         });
     }
 
-    async deleteManyData(object: string, request: DeleteManyRequest): Promise<any> {
-        return this.engine.delete(object, {
+    async deleteManyData(request: DeleteManyRequest): Promise<any> {
+        return this.engine.delete(request.object, {
             filter: request.filter,
             multi: true
         });
@@ -225,13 +265,13 @@ export class ObjectStackProtocolImplementation implements IObjectStackProtocol {
         return { success: true, view };
     }
 
-    async getView(id: string): Promise<ViewResponse> {
-        const view = this.viewStorage.get(id);
-        if (!view) throw new Error(`View ${id} not found`);
+    async getView(request: { id: string }): Promise<ViewResponse> {
+        const view = this.viewStorage.get(request.id);
+        if (!view) throw new Error(`View ${request.id} not found`);
         return { success: true, view };
     }
 
-    async listViews(request?: ListViewsRequest): Promise<ListViewsResponse> {
+    async listViews(request: ListViewsRequest): Promise<ListViewsResponse> {
         const views = Array.from(this.viewStorage.values())
             .filter(v => !request?.object || v.object === request.object);
         return { success: true, views, total: views.length };
@@ -246,9 +286,9 @@ export class ObjectStackProtocolImplementation implements IObjectStackProtocol {
         return { success: true, view: updated };
     }
 
-    async deleteView(id: string): Promise<{ success: boolean }> {
-        const deleted = this.viewStorage.delete(id);
-        if (!deleted) throw new Error(`View ${id} not found`);
+    async deleteView(request: { id: string }): Promise<{ success: boolean }> {
+        const deleted = this.viewStorage.delete(request.id);
+        if (!deleted) throw new Error(`View ${request.id} not found`);
         return { success: true };
     }
 }

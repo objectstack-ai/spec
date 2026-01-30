@@ -13,6 +13,6 @@ export { MiddlewareManager } from './middleware.js';
 
 // Export Types
 export * from '@objectstack/core';
-export type { IProtocolProvider } from './rest-server.js';
+
 
 
