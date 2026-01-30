@@ -5,66 +5,49 @@ description: Building an interoperable plugin ecosystem for ObjectStack with ven
 
 # Plugin Ecosystem Architecture
 
-## 概述 / Overview
-
-ObjectStack 采用微内核架构（MicroKernel Architecture），所有功能都通过插件实现。本文档定义了一个完整的插件生态系统规范，确保来自不同厂商的插件能够互相调用、协作和组合。
+## Overview
 
 ObjectStack uses a MicroKernel Architecture where all functionality is implemented through plugins. This document defines a comprehensive plugin ecosystem specification that ensures plugins from different vendors can call each other, collaborate, and compose together.
 
 ---
 
-## 🎯 设计目标 / Design Goals
+## 🎯 Design Goals
 
-### 1. **协议优先 / Protocol-First**
-插件通过声明实现的协议（Protocols）来表达能力，而不是硬编码依赖。类似于：
-- Kubernetes CRDs (Custom Resource Definitions)
-- OSGi Service Registry
-- Eclipse Extension Points
+### 1. **Protocol-First**
 
 Plugins declare capabilities through implementing **Protocols** rather than hard-coded dependencies, similar to:
 - Kubernetes CRDs (Custom Resource Definitions)
 - OSGi Service Registry
 - Eclipse Extension Points
 
-### 2. **语义化版本控制 / Semantic Versioning**
-所有协议和插件必须使用语义化版本（SemVer），确保兼容性管理：
-- Major: 破坏性变更
-- Minor: 向后兼容的功能添加
-- Patch: 向后兼容的错误修复
+### 2. **Semantic Versioning**
 
 All protocols and plugins must use Semantic Versioning (SemVer) for compatibility management:
 - Major: Breaking changes
 - Minor: Backwards-compatible feature additions
 - Patch: Backwards-compatible bug fixes
 
-### 3. **反向域名命名规范 / Reverse Domain Naming**
-所有插件和协议使用反向域名表示法确保全局唯一性：
-```
-{domain}.{category}.{name}
-```
+### 3. **Reverse Domain Naming**
 
 All plugins and protocols use reverse domain notation to ensure global uniqueness:
 ```
 {domain}.{category}.{name}
 ```
 
-**示例 / Examples:**
+**Examples:**
 - Plugin: `com.acme.crm.customer-management`
 - Protocol: `com.objectstack.protocol.storage.v1`
 - Interface: `com.acme.crm.interface.contact_service`
 
-### 4. **松耦合 / Loose Coupling**
-插件通过接口（Interfaces）和扩展点（Extension Points）通信，而不是直接依赖具体实现。
+### 4. **Loose Coupling**
 
 Plugins communicate through **Interfaces** and **Extension Points**, not direct implementation dependencies.
 
 ---
 
-## 🏗️ 核心组件 / Core Components
+## 🏗️ Core Components
 
-### 1. 协议声明 / Protocol Declaration
-
-**协议（Protocol）**定义了一组标准化的功能规范。插件声明它实现了哪些协议。
+### 1. Protocol Declaration
 
 A **Protocol** defines a standardized set of capabilities. Plugins declare which protocols they implement.
 
@@ -72,7 +55,6 @@ A **Protocol** defines a standardized set of capabilities. Plugins declare which
 import { PluginCapabilityManifest } from '@objectstack/spec/system';
 
 const capabilities: PluginCapabilityManifest = {
-  // 实现的协议 / Implemented Protocols
   implements: [
     {
       protocol: {
@@ -81,30 +63,27 @@ const capabilities: PluginCapabilityManifest = {
         version: { major: 1, minor: 0, patch: 0 },
       },
       conformance: 'full',  // full | partial | experimental | deprecated
-      certified: true,      // 是否通过官方认证测试
+      certified: true,
     },
   ],
 };
 ```
 
-#### 符合性级别 / Conformance Levels
+#### Conformance Levels
 
-| Level | Description (中文) | Description (English) |
-|-------|-------------------|----------------------|
-| `full` | 完整实现协议所有特性 | Complete implementation of all protocol features |
-| `partial` | 部分实现，需列出已实现特性 | Subset implementation with specific features listed |
-| `experimental` | 实验性实现，API 可能变化 | Unstable/preview implementation |
-| `deprecated` | 已弃用但仍支持 | Still supported but scheduled for removal |
+| Level | Description |
+|-------|-------------|
+| `full` | Complete implementation of all protocol features |
+| `partial` | Subset implementation with specific features listed |
+| `experimental` | Unstable/preview implementation |
+| `deprecated` | Still supported but scheduled for removal |
 
-### 2. 接口提供 / Interface Provision
-
-**接口（Interface）**定义插件对外提供的服务契约。其他插件可以调用这些接口。
+### 2. Interface Provision
 
 An **Interface** defines the service contract a plugin provides. Other plugins can call these interfaces.
 
 ```typescript
 const capabilities: PluginCapabilityManifest = {
-  // 提供的接口 / Provided Interfaces
   provides: [
     {
       id: 'com.acme.crm.interface.contact_service',
@@ -144,19 +123,16 @@ const capabilities: PluginCapabilityManifest = {
 };
 ```
 
-### 3. 依赖声明 / Dependency Declaration
-
-插件声明对其他插件的依赖，并指定所需的能力。
+### 3. Dependency Declaration
 
 Plugins declare dependencies on other plugins and specify required capabilities.
 
 ```typescript
 const capabilities: PluginCapabilityManifest = {
-  // 依赖的插件 / Required Plugins
   requires: [
     {
       pluginId: 'com.objectstack.driver.postgres',
-      version: '^1.0.0',  // 支持 SemVer 范围
+      version: '^1.0.0',
       optional: false,
       requiredCapabilities: [
         'com.objectstack.protocol.storage.v1',
@@ -166,22 +142,19 @@ const capabilities: PluginCapabilityManifest = {
     {
       pluginId: 'com.acme.analytics',
       version: '>=2.0.0',
-      optional: true,  // 可选依赖
+      optional: true,
       reason: 'Enhanced analytics features',
     },
   ],
 };
 ```
 
-### 4. 扩展点 / Extension Points
-
-**扩展点（Extension Point）**允许插件声明其他插件可以扩展的位置。
+### 4. Extension Points
 
 **Extension Points** allow plugins to declare where other plugins can extend functionality.
 
 ```typescript
 const capabilities: PluginCapabilityManifest = {
-  // 定义扩展点 / Define Extension Points
   extensionPoints: [
     {
       id: 'com.acme.crm.extension.contact_validator',
@@ -195,140 +168,133 @@ const capabilities: PluginCapabilityManifest = {
     },
   ],
   
-  // 贡献扩展 / Contribute Extensions
   extensions: [
     {
       targetPluginId: 'com.acme.crm',
       extensionPointId: 'com.acme.crm.extension.contact_validator',
       implementation: './validators/email-validator.ts',
-      priority: 50,  // 优先级（数字越小越高）
+      priority: 50,
     },
   ],
 };
 ```
 
-#### 扩展点类型 / Extension Point Types
+#### Extension Point Types
 
-| Type | 用途 (Chinese) | Purpose (English) |
-|------|---------------|------------------|
-| `action` | 可执行的操作 | Executable actions |
-| `hook` | 生命周期钩子 | Lifecycle event hooks |
-| `widget` | UI 组件 | UI components |
-| `provider` | 数据/服务提供者 | Data/service providers |
-| `transformer` | 数据转换器 | Data transformers |
-| `validator` | 数据验证器 | Data validators |
-| `decorator` | 功能装饰器 | Functionality decorators |
+| Type | Purpose |
+|------|---------|
+| `action` | Executable actions |
+| `hook` | Lifecycle event hooks |
+| `widget` | UI components |
+| `provider` | Data/service providers |
+| `transformer` | Data transformers |
+| `validator` | Data validators |
+| `decorator` | Functionality decorators |
 
 ---
 
-## 📝 命名规范 / Naming Conventions
+## 📝 Naming Conventions
 
-### 概述 / Overview
-
-ObjectStack 采用不同的命名约定来区分**包级标识符**（用于分发和安装）和**代码级标识符**（用于服务和数据访问）。
+### Overview
 
 ObjectStack uses different naming conventions to distinguish between **package-level identifiers** (for distribution and installation) and **code-level identifiers** (for services and data access).
 
-### 1. 插件标识符 / Plugin Identifiers
+### 1. Plugin Identifiers
 
-**格式 / Format:**
+**Format:**
 ```
 {vendor-domain}.{category}.{plugin-name}
 ```
 
-**规则 / Rules:**
-- 使用反向域名表示法 / Use reverse domain notation
-- 全小写字母 / All lowercase
-- 使用连字符分隔单词（NPM 包命名约定）/ Use hyphens for word separation (NPM package naming convention)
-- 避免使用下划线和驼峰命名 / Avoid underscores and camelCase
+**Rules:**
+- Use reverse domain notation
+- All lowercase
+- Use hyphens for word separation (NPM package naming convention)
+- Avoid underscores and camelCase
 
-**示例 / Examples:**
+**Examples:**
 ```
 ✅ com.objectstack.driver.postgres
 ✅ com.acme.crm.customer-management
 ✅ org.apache.kafka.connector
-❌ com.acme.CRM  (不要使用大写 / Do not use uppercase)
-❌ com.acme.crm_plugin  (不要使用下划线 / Do not use underscores)
+❌ com.acme.CRM  (Do not use uppercase)
+❌ com.acme.crm_plugin  (Do not use underscores)
 ```
 
-### 2. 协议标识符 / Protocol Identifiers
+### 2. Protocol Identifiers
 
-**格式 / Format:**
+**Format:**
 ```
 {vendor-domain}.protocol.{category}.{name}.v{major}
 ```
 
-**示例 / Examples:**
+**Examples:**
 ```
 com.objectstack.protocol.storage.v1
 com.objectstack.protocol.auth.oauth2.v2
 com.acme.protocol.payment.stripe.v1
 ```
 
-### 3. 接口标识符 / Interface Identifiers
+### 3. Interface Identifiers
 
-**格式 / Format:**
+**Format:**
 ```
 {plugin-id}.interface.{interface-name}
 ```
 
-**规则 / Rules:**
-- 接口名称使用 snake_case（与代码中的服务名一致）/ Use snake_case for interface names (consistent with service names in code)
-- 遵循 ObjectStack 数据层命名约定 / Follow ObjectStack data layer naming convention
+**Rules:**
+- Use snake_case for interface names (consistent with service names in code)
+- Follow ObjectStack data layer naming convention
 
-**示例 / Examples:**
+**Examples:**
 ```
 ✅ com.acme.crm.interface.contact_service
 ✅ com.acme.analytics.interface.metrics_collector
 ✅ com.acme.auth.interface.user_provider
 ```
 
-### 4. 扩展点标识符 / Extension Point Identifiers
+### 4. Extension Point Identifiers
 
-**格式 / Format:**
+**Format:**
 ```
 {plugin-id}.extension.{extension-name}
 ```
 
-**规则 / Rules:**
-- 扩展点名称使用 snake_case（与方法/函数命名一致）/ Use snake_case for extension names (consistent with method/function naming)
+**Rules:**
+- Use snake_case for extension names (consistent with method/function naming)
 
-**示例 / Examples:**
+**Examples:**
 ```
 ✅ com.acme.crm.extension.contact_validator
 ✅ com.acme.app.extension.theme_provider
 ✅ com.acme.crm.extension.customer_enrichment
 ```
 
-### 命名约定总结 / Naming Convention Summary
+### Naming Convention Summary
 
-| 类型 Type | 格式 Format | 分隔符 Separator | 示例 Example |
-|----------|------------|----------------|--------------|
-| 插件 ID<br/>Plugin ID | `{domain}.{category}.{name}` | kebab-case (hyphens) | `com.acme.crm.customer-management` |
-| 协议 ID<br/>Protocol ID | `{domain}.protocol.{name}.v{N}` | kebab-case | `com.objectstack.protocol.storage.v1` |
-| 接口 ID<br/>Interface ID | `{plugin}.interface.{name}` | snake_case | `com.acme.crm.interface.contact_service` |
-| 扩展点 ID<br/>Extension ID | `{plugin}.extension.{name}` | snake_case | `com.acme.crm.extension.contact_validator` |
+| Type | Format | Separator | Example |
+|------|--------|-----------|---------|
+| Plugin ID | `{domain}.{category}.{name}` | kebab-case (hyphens) | `com.acme.crm.customer-management` |
+| Protocol ID | `{domain}.protocol.{name}.v{N}` | kebab-case | `com.objectstack.protocol.storage.v1` |
+| Interface ID | `{plugin}.interface.{name}` | snake_case | `com.acme.crm.interface.contact_service` |
+| Extension ID | `{plugin}.extension.{name}` | snake_case | `com.acme.crm.extension.contact_validator` |
 
-**重要说明 / Important Notes:**
-- **包级标识符**（插件、协议）使用 kebab-case，符合 NPM 包命名约定
-- **代码级标识符**（接口、扩展点）使用 snake_case，与 ObjectStack 数据层命名一致
+**Important Notes:**
 - **Package-level identifiers** (plugins, protocols) use kebab-case, following NPM package naming convention
 - **Code-level identifiers** (interfaces, extensions) use snake_case, consistent with ObjectStack data layer naming
 
 ---
 
-## 🔄 插件发现与注册 / Plugin Discovery & Registry
+## 🔄 Plugin Discovery & Registry
 
-### 插件注册表 / Plugin Registry
-
-ObjectStack Hub 提供中心化的插件注册表，支持：
-- 插件发布和版本管理 / Plugin publishing and version management
-- 依赖解析 / Dependency resolution
-- 能力搜索 / Capability searching
-- 质量评分 / Quality scoring
-- 安全扫描 / Security scanning
+### Plugin Registry
 
 The ObjectStack Hub provides a centralized plugin registry that supports:
+- Plugin publishing and version management
+- Dependency resolution
+- Capability searching
+- Quality scoring
+- Security scanning
 
 ```typescript
 import { PluginRegistryEntry } from '@objectstack/spec/hub';
@@ -367,7 +333,7 @@ const registryEntry: PluginRegistryEntry = {
 };
 ```
 
-### 搜索和过滤 / Search & Filtering
+### Search & Filtering
 
 ```typescript
 import { PluginSearchFilters } from '@objectstack/spec/hub';
@@ -384,28 +350,26 @@ const filters: PluginSearchFilters = {
 
 ---
 
-## 🔐 插件安全与质量 / Plugin Security & Quality
+## 🔐 Plugin Security & Quality
 
-### 1. 厂商验证 / Vendor Verification
-
-插件注册表支持多级信任级别：
+### 1. Vendor Verification
 
 The plugin registry supports multiple trust levels:
 
-| Trust Level | 说明 (Chinese) | Description (English) |
-|-------------|---------------|----------------------|
-| `official` | ObjectStack 官方插件 | Official ObjectStack plugins |
-| `verified` | 经过验证的厂商 | Verified vendors |
-| `community` | 社区贡献 | Community contributions |
-| `unverified` | 未验证的厂商 | Unverified vendors |
+| Trust Level | Description |
+|-------------|-------------|
+| `official` | Official ObjectStack plugins |
+| `verified` | Verified vendors |
+| `community` | Community contributions |
+| `unverified` | Unverified vendors |
 
-### 2. 质量指标 / Quality Metrics
+### 2. Quality Metrics
 
 ```typescript
 quality: {
-  testCoverage: 85,           // 测试覆盖率
-  documentationScore: 90,     // 文档评分
-  codeQuality: 88,            // 代码质量
+  testCoverage: 85,
+  documentationScore: 90,
+  codeQuality: 88,
   
   securityScan: {
     lastScanDate: '2024-01-15T00:00:00Z',
@@ -429,9 +393,7 @@ quality: {
 }
 ```
 
-### 3. 权限声明 / Permission Declaration
-
-插件必须在 manifest 中声明所需权限：
+### 3. Permission Declaration
 
 Plugins must declare required permissions in their manifest:
 
@@ -440,26 +402,24 @@ Plugins must declare required permissions in their manifest:
 export default {
   id: 'com.acme.analytics',
   permissions: [
-    'system.user.read',         // 读取用户数据
-    'system.data.write',        // 写入数据
-    'network.http.request',     // 发起 HTTP 请求
-    'storage.local.write',      // 本地存储写入
+    'system.user.read',
+    'system.data.write',
+    'network.http.request',
+    'storage.local.write',
   ],
 };
 ```
 
 ---
 
-## 🌐 跨插件通信模式 / Inter-Plugin Communication Patterns
+## 🌐 Inter-Plugin Communication Patterns
 
-### 模式 1: 接口调用 / Pattern 1: Interface Invocation
-
-插件 A 调用插件 B 提供的服务。
+### Pattern 1: Interface Invocation
 
 Plugin A invokes services provided by Plugin B.
 
 ```typescript
-// Plugin B: 提供接口 / Provides Interface
+// Plugin B: Provides Interface
 export class ContactServicePlugin implements Plugin {
   name = 'com.acme.crm';
   
@@ -472,7 +432,7 @@ export class ContactServicePlugin implements Plugin {
   }
 }
 
-// Plugin A: 使用接口 / Uses Interface
+// Plugin A: Uses Interface
 export class ReportingPlugin implements Plugin {
   name = 'com.acme.reporting';
   dependencies = ['com.acme.crm'];
@@ -484,33 +444,29 @@ export class ReportingPlugin implements Plugin {
 }
 ```
 
-### 模式 2: 事件总线 / Pattern 2: Event Bus
-
-插件通过发布/订阅模式通信。
+### Pattern 2: Event Bus
 
 Plugins communicate through publish/subscribe pattern.
 
 ```typescript
-// Plugin A: 发布事件 / Publishes Events
+// Plugin A: Publishes Events
 await ctx.trigger('crm:contact:created', {
   contactId: '123',
   data: contact,
 });
 
-// Plugin B: 订阅事件 / Subscribes to Events
+// Plugin B: Subscribes to Events
 ctx.hook('crm:contact:created', async (event) => {
   console.log('New contact:', event.data);
 });
 ```
 
-### 模式 3: 扩展点贡献 / Pattern 3: Extension Contribution
-
-插件 A 为插件 B 提供扩展。
+### Pattern 3: Extension Contribution
 
 Plugin A contributes extensions to Plugin B.
 
 ```typescript
-// Plugin B: 定义扩展点 / Defines Extension Point
+// Plugin B: Defines Extension Point
 capabilities: {
   extensionPoints: [{
     id: 'com.acme.crm.extension.contact_validator',
@@ -522,7 +478,7 @@ capabilities: {
   }],
 }
 
-// Plugin A: 贡献扩展 / Contributes Extension
+// Plugin A: Contributes Extension
 capabilities: {
   extensions: [{
     targetPluginId: 'com.acme.crm',
@@ -534,11 +490,11 @@ capabilities: {
 
 ---
 
-## 📦 完整示例 / Complete Example
+## 📦 Complete Example
 
-### 场景：构建 CRM 生态 / Scenario: Building a CRM Ecosystem
+### Scenario: Building a CRM Ecosystem
 
-#### 1. 核心 CRM 插件 / Core CRM Plugin
+#### 1. Core CRM Plugin
 
 ```typescript
 // objectstack.config.ts
@@ -551,7 +507,6 @@ const manifest: ObjectStackManifest = {
   name: 'ACME CRM Core',
   
   capabilities: {
-    // 实现存储协议
     implements: [
       {
         protocol: {
@@ -563,7 +518,6 @@ const manifest: ObjectStackManifest = {
       },
     ],
     
-    // 提供客户服务接口
     provides: [
       {
         id: 'com.acme.crm.interface.customer_service',
@@ -580,7 +534,6 @@ const manifest: ObjectStackManifest = {
       },
     ],
     
-    // 定义扩展点
     extensionPoints: [
       {
         id: 'com.acme.crm.extension.customer_enrichment',
@@ -597,7 +550,7 @@ const manifest: ObjectStackManifest = {
 export default manifest;
 ```
 
-#### 2. 邮件集成插件 / Email Integration Plugin
+#### 2. Email Integration Plugin
 
 ```typescript
 // objectstack.config.ts
@@ -608,7 +561,6 @@ const manifest: ObjectStackManifest = {
   name: 'Email Integration for CRM',
   
   capabilities: {
-    // 依赖 CRM 核心
     requires: [
       {
         pluginId: 'com.acme.crm',
@@ -619,7 +571,6 @@ const manifest: ObjectStackManifest = {
       },
     ],
     
-    // 实现邮件协议
     implements: [
       {
         protocol: {
@@ -631,7 +582,6 @@ const manifest: ObjectStackManifest = {
       },
     ],
     
-    // 贡献数据丰富化扩展
     extensions: [
       {
         targetPluginId: 'com.acme.crm',
@@ -646,7 +596,7 @@ const manifest: ObjectStackManifest = {
 export default manifest;
 ```
 
-#### 3. 分析插件 / Analytics Plugin
+#### 3. Analytics Plugin
 
 ```typescript
 const manifest: ObjectStackManifest = {
@@ -694,49 +644,42 @@ export default manifest;
 
 ---
 
-## 🚀 最佳实践 / Best Practices
+## 🚀 Best Practices
 
-### 1. 协议设计 / Protocol Design
+### 1. Protocol Design
 
-#### ✅ 推荐 / Recommended
-- 使用语义化版本控制
-- 协议应该稳定且向后兼容
-- 提供清晰的协议文档和示例
-- 定义明确的测试规范
+#### ✅ Recommended
 
 - Use semantic versioning
 - Protocols should be stable and backwards compatible
 - Provide clear protocol documentation and examples
 - Define explicit test specifications
 
-#### ❌ 避免 / Avoid
-- 在协议中暴露实现细节
-- 频繁的破坏性变更
-- 没有文档的协议
+#### ❌ Avoid
 
 - Exposing implementation details in protocols
 - Frequent breaking changes
 - Undocumented protocols
 
-### 2. 插件设计 / Plugin Design
+### 2. Plugin Design
 
-#### ✅ 推荐 / Recommended
+#### ✅ Recommended
 ```typescript
-// 明确声明依赖 / Explicitly declare dependencies
+// Explicitly declare dependencies
 requires: [{
   pluginId: 'com.objectstack.driver.postgres',
   version: '^1.0.0',
   requiredCapabilities: ['com.objectstack.protocol.storage.v1'],
 }]
 
-// 使用扩展点而非硬编码 / Use extension points instead of hard-coding
+// Use extension points instead of hard-coding
 extensionPoints: [{
   id: 'com.acme.app.extension.authentication',
   type: 'provider',
   cardinality: 'single',
 }]
 
-// 提供清晰的接口 / Provide clear interfaces
+// Provide clear interfaces
 provides: [{
   id: 'com.acme.interface.user_service',
   methods: [/* well-documented methods */],
@@ -744,36 +687,36 @@ provides: [{
 }]
 ```
 
-#### ❌ 避免 / Avoid
+#### ❌ Avoid
 ```typescript
-// ❌ 不要直接 import 其他插件
+// ❌ Don't directly import other plugins
 import { UserService } from '@acme/other-plugin';
 
-// ❌ 不要使用全局状态
+// ❌ Don't use global state
 global.myPluginData = {};
 
-// ❌ 不要硬编码插件标识
-const otherId = 'other-plugin';  // 应该使用 manifest 中的 id
+// ❌ Don't hard-code plugin identifiers
+const otherId = 'other-plugin';  // Should use id from manifest
 ```
 
-### 3. 版本管理 / Version Management
+### 3. Version Management
 
 ```typescript
-// ✅ 使用 SemVer 范围
+// ✅ Use SemVer ranges
 version: '^1.0.0'    // >= 1.0.0 < 2.0.0
 version: '~1.2.3'    // >= 1.2.3 < 1.3.0
 version: '>=2.0.0 <3.0.0'
 
-// ✅ 标记弃用
+// ✅ Mark deprecations
 deprecated: true,
 deprecationMessage: 'Use com.acme.crm.v2 instead',
 replacedBy: 'com.acme.crm.v2',
 ```
 
-### 4. 测试与验证 / Testing & Validation
+### 4. Testing & Validation
 
 ```typescript
-// 协议一致性测试 / Protocol Conformance Tests
+// Protocol Conformance Tests
 describe('Storage Protocol Conformance', () => {
   it('should implement all required methods', async () => {
     const driver = new MyDriver();
@@ -783,7 +726,7 @@ describe('Storage Protocol Conformance', () => {
   });
 });
 
-// 集成测试 / Integration Tests
+// Integration Tests
 describe('Plugin Integration', () => {
   it('should work with CRM plugin', async () => {
     const kernel = new ObjectKernel();
@@ -797,42 +740,34 @@ describe('Plugin Integration', () => {
 
 ---
 
-## 📚 参考资料 / References
+## 📚 References
 
-### 相关文档 / Related Documentation
-- [MicroKernel Architecture](/docs/developers/micro-kernel) - 核心架构概览
-- [Writing Plugins](/docs/developers/writing-plugins) - 插件开发指南
-- [Manifest Schema](/docs/references/system/manifest) - 清单文件规范
-- [Plugin Capability Protocol](/docs/references/system/plugin-capability) - 能力声明协议
-- [Plugin Registry](/docs/references/hub/plugin-registry) - 插件注册表
+### Related Documentation
+- [MicroKernel Architecture](/docs/developers/micro-kernel)
+- [Writing Plugins](/docs/developers/writing-plugins)
+- [Manifest Schema](/docs/references/system/manifest)
+- [Plugin Capability Protocol](/docs/references/system/plugin-capability)
+- [Plugin Registry](/docs/references/hub/plugin-registry)
 
-### 工业标准参考 / Industry Standard References
-- [OSGi Service Platform](https://www.osgi.org/) - Java 模块化系统
-- [Eclipse Extension Points](https://wiki.eclipse.org/FAQ_What_are_extensions_and_extension_points) - Eclipse 扩展机制
-- [Kubernetes CRDs](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/) - K8s 自定义资源
-- [VS Code Extension API](https://code.visualstudio.com/api) - VS Code 扩展 API
+### Industry Standard References
+- [OSGi Service Platform](https://www.osgi.org/)
+- [Eclipse Extension Points](https://wiki.eclipse.org/FAQ_What_are_extensions_and_extension_points)
+- [Kubernetes CRDs](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/)
+- [VS Code Extension API](https://code.visualstudio.com/api)
 
 ---
 
-## 🎓 总结 / Summary
-
-ObjectStack 插件生态系统通过以下机制确保厂商间的互操作性：
+## 🎓 Summary
 
 The ObjectStack plugin ecosystem ensures vendor interoperability through:
 
-1. **协议优先设计** / **Protocol-First Design** - 插件通过协议而非实现通信
-2. **反向域名命名** / **Reverse Domain Naming** - 确保全局唯一标识符
-3. **能力声明** / **Capability Declaration** - 明确的接口和依赖声明
-4. **扩展点机制** / **Extension Points** - 标准化的扩展方式
-5. **版本管理** / **Version Management** - 语义化版本控制
-6. **质量保证** / **Quality Assurance** - 测试、认证和评分系统
-7. **中心化注册表** / **Centralized Registry** - 插件发现和依赖解析
-
-通过遵循这些规范，不同厂商的插件可以：
-- 🔍 互相发现和依赖
-- 🤝 安全地相互调用
-- 🔌 灵活地组合和扩展
-- 📈 持续演进而不破坏兼容性
+1. **Protocol-First Design** - Plugins communicate through protocols not implementations
+2. **Reverse Domain Naming** - Ensures globally unique identifiers
+3. **Capability Declaration** - Explicit interface and dependency declarations
+4. **Extension Points** - Standardized extension mechanisms
+5. **Version Management** - Semantic versioning
+6. **Quality Assurance** - Testing, certification, and scoring systems
+7. **Centralized Registry** - Plugin discovery and dependency resolution
 
 By following these specifications, plugins from different vendors can:
 - 🔍 Discover and depend on each other
