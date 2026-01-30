@@ -4,13 +4,131 @@
     "FieldMapping": {
       "type": "object",
       "properties": {
-        "externalField": {
+        "source": {
           "type": "string",
-          "description": "External field name"
+          "description": "Source field name"
         },
-        "localField": {
+        "target": {
           "type": "string",
-          "description": "Local field name"
+          "description": "Target field name"
+        },
+        "transform": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "constant"
+                },
+                "value": {
+                  "description": "Constant value to use"
+                }
+              },
+              "required": [
+                "type"
+              ],
+              "additionalProperties": false,
+              "description": "Set a constant value"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "cast"
+                },
+                "targetType": {
+                  "type": "string",
+                  "enum": [
+                    "string",
+                    "number",
+                    "boolean",
+                    "date"
+                  ],
+                  "description": "Target data type"
+                }
+              },
+              "required": [
+                "type",
+                "targetType"
+              ],
+              "additionalProperties": false,
+              "description": "Cast to a specific data type"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "lookup"
+                },
+                "table": {
+                  "type": "string",
+                  "description": "Lookup table name"
+                },
+                "keyField": {
+                  "type": "string",
+                  "description": "Field to match on"
+                },
+                "valueField": {
+                  "type": "string",
+                  "description": "Field to retrieve"
+                }
+              },
+              "required": [
+                "type",
+                "table",
+                "keyField",
+                "valueField"
+              ],
+              "additionalProperties": false,
+              "description": "Lookup value from another table"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "javascript"
+                },
+                "expression": {
+                  "type": "string",
+                  "description": "JavaScript expression (e.g., \"value.toUpperCase()\")"
+                }
+              },
+              "required": [
+                "type",
+                "expression"
+              ],
+              "additionalProperties": false,
+              "description": "Custom JavaScript transformation"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "map"
+                },
+                "mappings": {
+                  "type": "object",
+                  "additionalProperties": {},
+                  "description": "Value mappings (e.g., {\"Active\": \"active\"})"
+                }
+              },
+              "required": [
+                "type",
+                "mappings"
+              ],
+              "additionalProperties": false,
+              "description": "Map values using a dictionary"
+            }
+          ],
+          "description": "Transformation to apply"
+        },
+        "defaultValue": {
+          "description": "Default if source is null/undefined"
         },
         "type": {
           "type": "string",
@@ -23,9 +141,8 @@
         }
       },
       "required": [
-        "externalField",
-        "localField",
-        "type"
+        "source",
+        "target"
       ],
       "additionalProperties": false
     }

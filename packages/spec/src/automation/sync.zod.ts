@@ -18,6 +18,27 @@ import { FieldMappingSchema } from '../shared/mapping.zod';
  * **SCOPE: Simple field mappings only. NO complex transformations.**
  * For complex transformations (joins, aggregates, custom SQL), use ETL Pipeline (Level 2).
  * 
+ * ## When to Use This Layer
+ * 
+ * **Use Simple Sync when:**
+ * - Syncing 1:1 fields between two systems
+ * - Simple field transformations (uppercase, cast, etc.)
+ * - No complex logic required
+ * - Business users need to configure integrations
+ * 
+ * **Examples:**
+ * - Salesforce Contact ↔ Google Sheets
+ * - HubSpot Company ↔ CRM Account
+ * - Shopify Orders → Accounting System
+ * 
+ * **When to upgrade:**
+ * - Need multi-source joins → Use {@link file://./etl.zod.ts | ETL Pipeline}
+ * - Need complex authentication/webhooks → Use {@link file://../integration/connector.zod.ts | Enterprise Connector}
+ * - Need aggregations or data warehousing → Use {@link file://./etl.zod.ts | ETL Pipeline}
+ * 
+ * @see {@link file://./etl.zod.ts} for Level 2 (data engineering)
+ * @see {@link file://../integration/connector.zod.ts} for Level 3 (enterprise integration)
+ * 
  * ## Use Cases
  * 
  * 1. **CRM Integration**

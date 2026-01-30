@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { WebhookSchema } from '../automation/webhook.zod';
 import { AuthConfigSchema as ConnectorAuthConfigSchema } from '../auth/config.zod';
-import { FieldMappingSchema as BaseFieldMappingSchema, TransformTypeSchema } from '../shared/mapping.zod';
+import { FieldMappingSchema as BaseFieldMappingSchema } from '../shared/mapping.zod';
 
 /**
  * Connector Protocol - LEVEL 3: Enterprise Connector
@@ -23,6 +23,29 @@ import { FieldMappingSchema as BaseFieldMappingSchema, TransformTypeSchema } fro
  * field mapping, webhooks, and comprehensive rate limiting.
  * 
  * Authentication is now imported from the canonical auth/config.zod.ts.
+ * 
+ * ## When to Use This Layer
+ * 
+ * **Use Enterprise Connector when:**
+ * - Building enterprise-grade connectors (e.g., Salesforce, SAP, Oracle)
+ * - Complex OAuth2/SAML authentication required
+ * - Bidirectional sync with field mapping and transformations
+ * - Webhook management and rate limiting required
+ * - Full CRUD operations and data synchronization
+ * - Need comprehensive retry strategies and error handling
+ * 
+ * **Examples:**
+ * - Full Salesforce integration with webhooks
+ * - SAP ERP connector with CDC (Change Data Capture)
+ * - Microsoft Dynamics 365 connector
+ * 
+ * **When to downgrade:**
+ * - Simple field sync → Use {@link file://../automation/sync.zod.ts | Simple Sync}
+ * - Data transformation only → Use {@link file://../automation/etl.zod.ts | ETL Pipeline}
+ * 
+ * @see {@link file://../automation/sync.zod.ts} for Level 1 (simple sync)
+ * @see {@link file://../automation/etl.zod.ts} for Level 2 (data engineering)
+ * 
  * ## When to use Integration Connector vs. Trigger Registry?
  * 
  * **Use `integration/connector.zod.ts` when:**

@@ -48,7 +48,7 @@ const result = PageSchema.parse(data);
 | **type** | `Enum<'page:header' \| 'page:footer' \| 'page:sidebar' \| 'page:tabs' \| 'page:accordion' \| 'page:card' \| 'page:section' \| 'record:details' \| 'record:highlights' \| 'record:related_list' \| 'record:activity' \| 'record:chatter' \| 'record:path' \| 'app:launcher' \| 'nav:menu' \| 'nav:breadcrumb' \| 'global:search' \| 'global:notifications' \| 'user:profile' \| 'ai:chat_window' \| 'ai:suggestion'> \| string` | ✅ | Component Type (Standard enum or custom string) |
 | **id** | `string` | optional | Unique instance ID |
 | **label** | `string` | optional |  |
-| **properties** | `Record<string, any>` | ✅ | Component props passed to the widget. See block.zod.ts for schemas. |
+| **properties** | `Record<string, any>` | ✅ | Component props passed to the widget. See component.zod.ts for schemas. |
 | **visibility** | `string` | optional | Visibility filter/formula |
 
 ---

@@ -129,34 +129,6 @@
         },
         "defaultValue": {
           "description": "Default if source is null/undefined"
-        },
-        "dataType": {
-          "type": "string",
-          "enum": [
-            "string",
-            "number",
-            "boolean",
-            "date",
-            "datetime",
-            "json",
-            "array"
-          ],
-          "description": "Target data type"
-        },
-        "required": {
-          "type": "boolean",
-          "default": false,
-          "description": "Field is required"
-        },
-        "syncMode": {
-          "type": "string",
-          "enum": [
-            "read_only",
-            "write_only",
-            "bidirectional"
-          ],
-          "default": "bidirectional",
-          "description": "Sync mode"
         }
       },
       "required": [

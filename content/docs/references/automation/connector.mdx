@@ -12,8 +12,8 @@ description: Connector protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AuthenticationSchema, ConflictResolutionSchema, ConnectorSchema, DataSyncConfigSchema, FieldMappingSchema } from '@objectstack/spec/automation';
-import type { Authentication, ConflictResolution, Connector, DataSyncConfig, FieldMapping } from '@objectstack/spec/automation';
+import { AuthenticationSchema, ConflictResolutionSchema, ConnectorSchema, DataSyncConfigSchema } from '@objectstack/spec/automation';
+import type { Authentication, ConflictResolution, Connector, DataSyncConfig } from '@objectstack/spec/automation';
 
 // Validate data
 const result = AuthenticationSchema.parse(data);
@@ -98,18 +98,4 @@ const result = AuthenticationSchema.parse(data);
 | **audit** | `object` | optional | Audit configuration |
 | **tags** | `string[]` | optional | Sync tags |
 | **metadata** | `Record<string, any>` | optional | Custom metadata |
-
----
-
-## FieldMapping
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **sourceField** | `string` | ✅ | Source field name |
-| **destinationField** | `string` | ✅ | Destination field name |
-| **transform** | `string` | optional | Transformation formula |
-| **default** | `any` | optional | Default value |
-| **syncNull** | `boolean` | optional | Sync null values |
 
