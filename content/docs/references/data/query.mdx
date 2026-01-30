@@ -12,8 +12,8 @@ description: Query protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AggregationFunctionSchema, AggregationNodeSchema, FieldNodeSchema, JoinNodeSchema, JoinStrategySchema, JoinTypeSchema, QuerySchema, SortNodeSchema, WindowFunctionSchema, WindowFunctionNodeSchema, WindowSpecSchema } from '@objectstack/spec/data';
-import type { AggregationFunction, AggregationNode, FieldNode, JoinNode, JoinStrategy, JoinType, Query, SortNode, WindowFunction, WindowFunctionNode, WindowSpec } from '@objectstack/spec/data';
+import { AggregationFunctionSchema, AggregationNodeSchema, FieldNodeSchema, FullTextSearchSchema, JoinNodeSchema, JoinStrategySchema, JoinTypeSchema, QuerySchema, SortNodeSchema, WindowFunctionSchema, WindowFunctionNodeSchema, WindowSpecSchema } from '@objectstack/spec/data';
+import type { AggregationFunction, AggregationNode, FieldNode, FullTextSearch, JoinNode, JoinStrategy, JoinType, Query, SortNode, WindowFunction, WindowFunctionNode, WindowSpec } from '@objectstack/spec/data';
 
 // Validate data
 const result = AggregationFunctionSchema.parse(data);
@@ -51,6 +51,23 @@ const result = AggregationFunctionSchema.parse(data);
 ---
 
 ## FieldNode
+
+---
+
+## FullTextSearch
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **query** | `string` | ✅ | Search query text |
+| **fields** | `string[]` | optional | Fields to search in (if not specified, searches all text fields) |
+| **fuzzy** | `boolean` | optional | Enable fuzzy matching (tolerates typos) |
+| **operator** | `Enum<'and' \| 'or'>` | optional | Logical operator between terms |
+| **boost** | `Record<string, number>` | optional | Field-specific relevance boosting (field name -> boost factor) |
+| **minScore** | `number` | optional | Minimum relevance score threshold |
+| **language** | `string` | optional | Language for text analysis (e.g., "en", "zh", "es") |
+| **highlight** | `boolean` | optional | Enable search result highlighting |
 
 ---
 
@@ -100,6 +117,7 @@ const result = AggregationFunctionSchema.parse(data);
 | **object** | `string` | ✅ | Object name (e.g. account) |
 | **fields** | `string \| object[]` | optional | Fields to retrieve |
 | **where** | `any` | optional | Filtering criteria (WHERE) |
+| **search** | `object` | optional | Full-text search configuration ($search parameter) |
 | **orderBy** | `object[]` | optional | Sorting instructions (ORDER BY) |
 | **limit** | `number` | optional | Max records to return (LIMIT) |
 | **offset** | `number` | optional | Records to skip (OFFSET) |

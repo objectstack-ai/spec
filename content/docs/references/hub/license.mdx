@@ -12,8 +12,8 @@ description: License protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { FeatureSchema, LicenseSchema, MetricTypeSchema, PlanSchema } from '@objectstack/spec/hub';
-import type { Feature, License, MetricType, Plan } from '@objectstack/spec/hub';
+import { FeatureSchema, LicenseSchema, PlanSchema } from '@objectstack/spec/hub';
+import type { Feature, License, Plan } from '@objectstack/spec/hub';
 
 // Validate data
 const result = FeatureSchema.parse(data);
@@ -51,16 +51,6 @@ const result = FeatureSchema.parse(data);
 | **customLimits** | `Record<string, number>` | optional |  |
 | **plugins** | `string[]` | optional | List of enabled plugin package IDs |
 | **signature** | `string` | optional | Cryptographic signature of the license |
-
----
-
-## MetricType
-
-### Allowed Values
-
-* `boolean`
-* `counter`
-* `gauge`
 
 ---
 

@@ -11,10 +11,13 @@
     "feature",
     "job",
     "logger",
+    "logging",
     "manifest",
+    "metrics",
     "plugin",
     "plugin-capability",
     "scoped-storage",
+    "tracing",
     "translation"
   ]
 }

@@ -1,0 +1,125 @@
+{
+  "$ref": "#/definitions/ViewLayout",
+  "definitions": {
+    "ViewLayout": {
+      "type": "object",
+      "properties": {
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string",
+                "description": "Field name"
+              },
+              "label": {
+                "type": "string",
+                "description": "Custom column label"
+              },
+              "width": {
+                "type": "number",
+                "description": "Column width in pixels"
+              },
+              "sortable": {
+                "type": "boolean",
+                "default": true,
+                "description": "Whether column is sortable"
+              },
+              "filterable": {
+                "type": "boolean",
+                "default": true,
+                "description": "Whether column is filterable"
+              },
+              "visible": {
+                "type": "boolean",
+                "default": true,
+                "description": "Whether column is visible"
+              },
+              "pinned": {
+                "type": "string",
+                "enum": [
+                  "left",
+                  "right"
+                ],
+                "description": "Pin column to left or right"
+              },
+              "formatter": {
+                "type": "string",
+                "description": "Custom formatter name"
+              },
+              "aggregation": {
+                "type": "string",
+                "description": "Aggregation function for column (sum, avg, etc.)"
+              }
+            },
+            "required": [
+              "field"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Column configuration for list views"
+        },
+        "rowHeight": {
+          "type": "number",
+          "description": "Row height in pixels"
+        },
+        "groupByField": {
+          "type": "string",
+          "description": "Field to group by (for kanban)"
+        },
+        "cardFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields to display on cards"
+        },
+        "dateField": {
+          "type": "string",
+          "description": "Date field for calendar view"
+        },
+        "startDateField": {
+          "type": "string",
+          "description": "Start date field for event ranges"
+        },
+        "endDateField": {
+          "type": "string",
+          "description": "End date field for event ranges"
+        },
+        "titleField": {
+          "type": "string",
+          "description": "Field to use as event title"
+        },
+        "chartType": {
+          "type": "string",
+          "enum": [
+            "bar",
+            "line",
+            "pie",
+            "scatter",
+            "area"
+          ],
+          "description": "Chart type"
+        },
+        "xAxis": {
+          "type": "string",
+          "description": "X-axis field"
+        },
+        "yAxis": {
+          "type": "string",
+          "description": "Y-axis field"
+        },
+        "series": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Series fields for multi-series charts"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

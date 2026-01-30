@@ -1931,3 +1931,180 @@ describe('QuerySchema - Type Coercion Edge Cases', () => {
     expect(() => QuerySchema.parse(query)).not.toThrow();
   });
 });
+
+describe('QuerySchema - Full-Text Search', () => {
+  it('should accept basic full-text search query', () => {
+    const query: QueryAST = {
+      object: 'article',
+      search: {
+        query: 'machine learning',
+      },
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+  });
+
+  it('should accept full-text search with field specification', () => {
+    const query: QueryAST = {
+      object: 'article',
+      search: {
+        query: 'machine learning',
+        fields: ['title', 'content', 'abstract'],
+      },
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+  });
+
+  it('should accept full-text search with fuzzy matching', () => {
+    const query: QueryAST = {
+      object: 'product',
+      search: {
+        query: 'loptop',  // typo: laptop
+        fuzzy: true,
+      },
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+  });
+
+  it('should accept full-text search with field boosting', () => {
+    const query: QueryAST = {
+      object: 'article',
+      search: {
+        query: 'artificial intelligence',
+        fields: ['title', 'content'],
+        boost: {
+          title: 2.0,
+          content: 1.0,
+        },
+      },
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+  });
+
+  it('should accept full-text search with AND operator', () => {
+    const query: QueryAST = {
+      object: 'document',
+      search: {
+        query: 'contract agreement',
+        operator: 'and',
+      },
+    };
+
+    const result = QuerySchema.parse(query);
+    expect(result.search?.operator).toBe('and');
+  });
+
+  it('should default to OR operator', () => {
+    const query: QueryAST = {
+      object: 'document',
+      search: {
+        query: 'contract agreement',
+      },
+    };
+
+    const result = QuerySchema.parse(query);
+    expect(result.search?.operator).toBe('or');
+  });
+
+  it('should accept full-text search with minimum score', () => {
+    const query: QueryAST = {
+      object: 'article',
+      search: {
+        query: 'technology',
+        minScore: 0.5,
+      },
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+  });
+
+  it('should accept full-text search with language', () => {
+    const query: QueryAST = {
+      object: 'article',
+      search: {
+        query: '机器学习',
+        language: 'zh',
+      },
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+  });
+
+  it('should accept full-text search with highlighting', () => {
+    const query: QueryAST = {
+      object: 'article',
+      search: {
+        query: 'artificial intelligence',
+        highlight: true,
+      },
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+  });
+
+  it('should accept full-text search combined with filters', () => {
+    const query: QueryAST = {
+      object: 'article',
+      search: {
+        query: 'machine learning',
+        fields: ['title', 'content'],
+      },
+      where: { published: true },
+      orderBy: [{ field: 'created_at', order: 'desc' }],
+      limit: 10,
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+  });
+
+  it('should accept full-text search with all options', () => {
+    const query: QueryAST = {
+      object: 'research_paper',
+      search: {
+        query: 'neural networks deep learning',
+        fields: ['title', 'abstract', 'content'],
+        fuzzy: true,
+        operator: 'and',
+        boost: {
+          title: 3.0,
+          abstract: 2.0,
+          content: 1.0,
+        },
+        minScore: 0.7,
+        language: 'en',
+        highlight: true,
+      },
+      where: { status: 'published' },
+      limit: 20,
+    };
+
+    expect(() => QuerySchema.parse(query)).not.toThrow();
+  });
+
+  it('should default fuzzy to false', () => {
+    const query: QueryAST = {
+      object: 'article',
+      search: {
+        query: 'test',
+      },
+    };
+
+    const result = QuerySchema.parse(query);
+    expect(result.search?.fuzzy).toBe(false);
+  });
+
+  it('should default highlight to false', () => {
+    const query: QueryAST = {
+      object: 'article',
+      search: {
+        query: 'test',
+      },
+    };
+
+    const result = QuerySchema.parse(query);
+    expect(result.search?.highlight).toBe(false);
+  });
+});

@@ -1,0 +1,15 @@
+{
+  "$ref": "#/definitions/RetryStrategy",
+  "definitions": {
+    "RetryStrategy": {
+      "type": "string",
+      "enum": [
+        "no_retry",
+        "retry_immediate",
+        "retry_backoff",
+        "retry_after"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
