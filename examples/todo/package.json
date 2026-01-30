@@ -6,10 +6,6 @@
   "scripts": {
     "build": "objectstack compile objectstack.config.ts dist/objectstack.json"
   },
-  "dependencies": {
-    "@objectstack/spec": "workspace:*",
-    "@objectstack/objectos": "workspace:*"
-  },
   "devDependencies": {
     "typescript": "^5.0.0",
     "@objectstack/objectos": "workspace:*"
