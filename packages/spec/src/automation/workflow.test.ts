@@ -471,7 +471,10 @@ describe('WorkflowActionSchema', () => {
     const action = {
       name: 'trigger_webhook',
       type: 'webhook_trigger' as const,
-      url: 'https://webhook.example.com',
+      config: {
+        name: 'test_webhook',
+        url: 'https://webhook.example.com',
+      },
     };
 
     expect(() => WorkflowActionSchema.parse(action)).not.toThrow();

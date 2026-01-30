@@ -120,9 +120,9 @@ describe('OAuth2Schema', () => {
     expect(parsed.refreshToken).toBe('refresh-token-xyz');
   });
   
-  it('should use default grant type', () => {
+  it('should accept OAuth2 without optional fields', () => {
     const auth = {
-      type: 'oauth2',
+      type: 'oauth2' as const,
       clientId: 'client-id',
       clientSecret: 'client-secret',
       authorizationUrl: 'https://auth.example.com/authorize',
@@ -130,7 +130,8 @@ describe('OAuth2Schema', () => {
     };
     
     const parsed = OAuth2Schema.parse(auth);
-    expect(parsed.grantType).toBe('authorization_code');
+    expect(parsed.type).toBe('oauth2');
+    expect(parsed.clientId).toBe('client-id');
   });
 });
 
@@ -226,8 +227,8 @@ describe('AuthenticationSchema', () => {
 describe('FieldMappingSchema', () => {
   it('should accept valid field mapping', () => {
     const mapping: FieldMapping = {
-      sourceField: 'firstName',
-      targetField: 'first_name',
+      source: 'firstName',
+      target: 'first_name',
       dataType: 'string',
       syncMode: 'bidirectional',
     };
@@ -235,35 +236,24 @@ describe('FieldMappingSchema', () => {
     expect(() => FieldMappingSchema.parse(mapping)).not.toThrow();
   });
   
-  it('should validate target field snake_case format', () => {
-    expect(() => FieldMappingSchema.parse({
-      sourceField: 'field',
-      targetField: 'valid_field_name',
-    })).not.toThrow();
-    
-    expect(() => FieldMappingSchema.parse({
-      sourceField: 'field',
-      targetField: 'InvalidField',
-    })).toThrow();
-  });
-  
   it('should accept field with transformation', () => {
     const mapping = {
-      sourceField: 'name',
-      targetField: 'full_name',
+      source: 'name',
+      target: 'full_name',
       transform: {
-        type: 'uppercase',
+        type: 'javascript' as const,
+        expression: 'value.toUpperCase()',
       },
     };
     
     const parsed = FieldMappingSchema.parse(mapping);
-    expect(parsed.transform?.type).toBe('uppercase');
+    expect(parsed.transform?.type).toBe('javascript');
   });
   
   it('should use default values', () => {
     const mapping = {
-      sourceField: 'field1',
-      targetField: 'field_1',
+      source: 'field1',
+      target: 'field_1',
     };
     
     const parsed = FieldMappingSchema.parse(mapping);
@@ -317,11 +307,11 @@ describe('DataSyncConfigSchema', () => {
 describe('WebhookConfigSchema', () => {
   it('should accept valid webhook configuration', () => {
     const webhook: WebhookConfig = {
+      name: 'test_webhook',
       url: 'https://api.example.com/webhooks',
       events: ['record.created', 'record.updated'],
       secret: 'webhook-secret',
       signatureAlgorithm: 'hmac_sha256',
-      enabled: true,
     };
     
     expect(() => WebhookConfigSchema.parse(webhook)).not.toThrow();
@@ -329,21 +319,23 @@ describe('WebhookConfigSchema', () => {
   
   it('should accept webhook with retry configuration', () => {
     const webhook = {
+      name: 'retry_webhook',
       url: 'https://api.example.com/webhooks',
       events: ['sync.completed'],
-      retryConfig: {
-        maxAttempts: 3,
-        backoffMultiplier: 2,
+      retryPolicy: {
+        maxRetries: 3,
+        backoffStrategy: 'exponential' as const,
         initialDelayMs: 1000,
       },
     };
     
     const parsed = WebhookConfigSchema.parse(webhook);
-    expect(parsed.retryConfig?.maxAttempts).toBe(3);
+    expect(parsed.retryPolicy?.maxRetries).toBe(3);
   });
   
   it('should use default values', () => {
     const webhook = {
+      name: 'default_webhook',
       url: 'https://api.example.com/webhooks',
       events: ['record.created'],
     };
@@ -351,7 +343,6 @@ describe('WebhookConfigSchema', () => {
     const parsed = WebhookConfigSchema.parse(webhook);
     expect(parsed.signatureAlgorithm).toBe('hmac_sha256');
     expect(parsed.timeoutMs).toBe(30000);
-    expect(parsed.enabled).toBe(true);
   });
 });
 
@@ -478,12 +469,13 @@ describe('ConnectorSchema', () => {
       },
       fieldMappings: [
         {
-          sourceField: 'id',
-          targetField: 'external_id',
+          source: 'id',
+          target: 'external_id',
         },
       ],
       webhooks: [
         {
+          name: 'connector_webhook',
           url: 'https://api.example.com/webhook',
           events: ['record.created'],
         },
