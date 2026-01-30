@@ -1,5 +1,5 @@
 import { QueryAST, QueryInput } from '@objectstack/spec/data';
-import { DriverOptions } from '@objectstack/spec/system';
+import { DriverOptions } from '@objectstack/spec/data';
 import { DriverInterface, Logger, createLogger } from '@objectstack/core';
 
 /**

@@ -25,15 +25,14 @@ Mission: Build the "Post-SaaS Operating System" — an open-core, local-first ec
 ## 📘 1. The Metamodel Standards (Knowledge Base)
 
 ### **A. DATA PROTOCOL (`src/data/*.zod.ts`)**
-*Core Business Logic & Data Model*
+*Core Data Model*
 
 *   **Field (`src/data/field.zod.ts`)**:
     *   **Type Enum**: `text`, `textarea`, `number`, `boolean`, `select`, `lookup`, `formula`, ...
     *   **Props**: `name` (snake_case), `label`, `type`, `multiple` (Array support), `reference` (Target Object).
 *   **Object (`src/data/object.zod.ts`)**:
     *   **Props**: `name` (snake_case), `label`, `fields` (Map), `enable` (Capabilities: `trackHistory`, `apiEnabled`).
-*   **Flow (`src/data/flow.zod.ts`)**: Visual Logic Orchestration (`autolaunched`, `screen`, `schedule`).
-*   **Logic**: `validation.zod.ts` (Rules), `permission.zod.ts` (ACL), `workflow.zod.ts` (State Machine).
+*   **Validation**: `validation.zod.ts` (Rules).
 
 ### **B. UI PROTOCOL (`src/ui/*.zod.ts`)**
 *Presentation & Interaction*
@@ -55,6 +54,20 @@ Mission: Build the "Post-SaaS Operating System" — an open-core, local-first ec
 *   **Datasource (`src/system/datasource.zod.ts`)**: External Data Connections (SQL, NoSQL, SaaS).
 *   **API (`src/system/api.zod.ts`)**: REST/GraphQL Endpoint Definitions.
 *   **Translation (`src/system/translation.zod.ts`)**: Internationalization (i18n).
+
+### **D. AUTOMATION PROTOCOL (`src/automation/*.zod.ts`)**
+*Business Logic & Orchestration*
+
+*   **Flow (`src/automation/flow.zod.ts`)**: Visual Logic Orchestration (`autolaunched`, `screen`, `schedule`).
+*   **Workflow (`src/automation/workflow.zod.ts`)**: State Machine & Approval Processes.
+*   **Trigger (`src/automation/trigger-registry.zod.ts`)**: Event-driven Automation.
+
+### **E. AI PROTOCOL (`src/ai/*.zod.ts`)**
+*Artificial Intelligence & Agents*
+
+*   **Agent (`src/ai/agent.zod.ts`)**: Autonomous Actors (`role`, `instructions`, `tools`).
+*   **RAG (`src/ai/rag-pipeline.zod.ts`)**: Retrieval Augmented Generation (`indexes`, `sources`).
+*   **Model (`src/ai/model-registry.zod.ts`)**: LLM Configuration & Routing.
 
 ---
 
