@@ -183,6 +183,27 @@ export class ObjectStackProtocolImplementation implements IObjectStackProtocol {
 
     async batchData(object: string, request: BatchUpdateRequest): Promise<BatchUpdateResponse> {
         const startTime = Date.now();
+        
+        // Validate request
+        if (!request || !request.records) {
+            return {
+                success: false,
+                operation: request?.operation,
+                total: 0,
+                succeeded: 0,
+                failed: 0,
+                results: [],
+                error: {
+                    code: 'validation_error',
+                    message: 'Invalid request: records array is required',
+                },
+                meta: {
+                    timestamp: new Date().toISOString(),
+                    duration: Date.now() - startTime,
+                },
+            };
+        }
+        
         const { operation, records, options } = request;
         const atomic = options?.atomic ?? true;
         const returnRecords = options?.returnRecords ?? false;
@@ -339,6 +360,11 @@ export class ObjectStackProtocolImplementation implements IObjectStackProtocol {
     }
 
     async createManyData(object: string, records: any[]): Promise<any[]> {
+        // Validate input
+        if (!records || !Array.isArray(records)) {
+            throw new Error('Invalid input: records must be an array');
+        }
+        
         const results: any[] = [];
         
         for (const record of records) {

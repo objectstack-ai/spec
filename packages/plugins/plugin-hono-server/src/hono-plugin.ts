@@ -158,7 +158,13 @@ export class HonoServerPlugin implements Plugin {
 
             // Batch Operations
             this.server.post('/api/v1/data/:object/batch', async (req, res) => {
-                ctx.logger.debug('Batch operation request', { object: req.params.object, operation: req.body?.operation });
+                ctx.logger.info('Batch operation request', { 
+                    object: req.params.object, 
+                    operation: req.body?.operation,
+                    hasBody: !!req.body,
+                    bodyType: typeof req.body,
+                    bodyKeys: req.body ? Object.keys(req.body) : []
+                });
                 try {
                     const result = await p.batchData(req.params.object, req.body);
                     ctx.logger.info('Batch operation completed', { 
