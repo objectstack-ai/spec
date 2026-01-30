@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import {
   ConnectorSchema,
-  DataSyncConfigSchema,
 } from '../connector.zod';
 
 /**
@@ -146,7 +145,7 @@ export const FileStorageConnectorSchema = ConnectorSchema.extend({
   storageConfig: z.object({
     endpoint: z.string().url().optional().describe('Custom endpoint URL'),
     region: z.string().optional().describe('Default region'),
-    pathStyle: z.boolean().default(false).describe('Use path-style URLs (for S3-compatible)'),
+    pathStyle: z.boolean().optional().default(false).describe('Use path-style URLs (for S3-compatible)'),
   }).optional().describe('Storage configuration'),
   
   /**
@@ -220,7 +219,7 @@ export type FileStorageConnector = z.infer<typeof FileStorageConnectorSchema>;
 /**
  * Example: Amazon S3 Connector Configuration
  */
-export const s3ConnectorExample: FileStorageConnector = {
+export const s3ConnectorExample = {
   name: 's3_production_assets',
   label: 'Production S3 Assets',
   type: 'file_storage',
@@ -305,7 +304,7 @@ export const s3ConnectorExample: FileStorageConnector = {
 /**
  * Example: Google Drive Connector Configuration
  */
-export const googleDriveConnectorExample: FileStorageConnector = {
+export const googleDriveConnectorExample = {
   name: 'google_drive_team',
   label: 'Google Drive Team Folder',
   type: 'file_storage',
@@ -352,7 +351,7 @@ export const googleDriveConnectorExample: FileStorageConnector = {
 /**
  * Example: Azure Blob Storage Connector Configuration
  */
-export const azureBlobConnectorExample: FileStorageConnector = {
+export const azureBlobConnectorExample = {
   name: 'azure_blob_storage',
   label: 'Azure Blob Storage',
   type: 'file_storage',

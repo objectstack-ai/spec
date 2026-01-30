@@ -275,7 +275,7 @@ export const DataSyncConfigSchema = z.object({
   /**
    * Sync strategy
    */
-  strategy: SyncStrategySchema.default('incremental'),
+  strategy: SyncStrategySchema.optional().default('incremental'),
   
   /**
    * Sync direction
@@ -284,7 +284,7 @@ export const DataSyncConfigSchema = z.object({
     'import',         // External → ObjectStack
     'export',         // ObjectStack → External
     'bidirectional',  // Both ways
-  ]).default('import').describe('Sync direction'),
+  ]).optional().default('import').describe('Sync direction'),
   
   /**
    * Sync frequency (cron expression)
@@ -294,7 +294,7 @@ export const DataSyncConfigSchema = z.object({
   /**
    * Enable real-time sync via webhooks
    */
-  realtimeSync: z.boolean().default(false).describe('Enable real-time sync'),
+  realtimeSync: z.boolean().optional().default(false).describe('Enable real-time sync'),
   
   /**
    * Field to track last sync timestamp
@@ -304,12 +304,12 @@ export const DataSyncConfigSchema = z.object({
   /**
    * Conflict resolution strategy
    */
-  conflictResolution: ConflictResolutionSchema.default('latest_wins'),
+  conflictResolution: ConflictResolutionSchema.optional().default('latest_wins'),
   
   /**
    * Batch size for bulk operations
    */
-  batchSize: z.number().min(1).max(10000).default(1000).describe('Records per batch'),
+  batchSize: z.number().min(1).max(10000).optional().default(1000).describe('Records per batch'),
   
   /**
    * Delete handling
@@ -318,7 +318,7 @@ export const DataSyncConfigSchema = z.object({
     'hard_delete',    // Permanently delete
     'soft_delete',    // Mark as deleted
     'ignore',         // Don't sync deletions
-  ]).default('soft_delete').describe('Delete handling mode'),
+  ]).optional().default('soft_delete').describe('Delete handling mode'),
   
   /**
    * Filter criteria for selective sync
@@ -381,7 +381,7 @@ export const WebhookConfigSchema = z.object({
   /**
    * Signature algorithm
    */
-  signatureAlgorithm: WebhookSignatureAlgorithmSchema.default('hmac_sha256'),
+  signatureAlgorithm: WebhookSignatureAlgorithmSchema.optional().default('hmac_sha256'),
   
   /**
    * Custom headers to include in webhook requests
@@ -392,20 +392,20 @@ export const WebhookConfigSchema = z.object({
    * Retry configuration for failed webhook deliveries
    */
   retryConfig: z.object({
-    maxAttempts: z.number().min(0).max(10).default(3).describe('Maximum retry attempts'),
-    backoffMultiplier: z.number().min(1).default(2).describe('Exponential backoff multiplier'),
-    initialDelayMs: z.number().min(100).default(1000).describe('Initial retry delay in ms'),
+    maxAttempts: z.number().min(0).max(10).optional().default(3).describe('Maximum retry attempts'),
+    backoffMultiplier: z.number().min(1).optional().default(2).describe('Exponential backoff multiplier'),
+    initialDelayMs: z.number().min(100).optional().default(1000).describe('Initial retry delay in ms'),
   }).optional().describe('Retry configuration'),
   
   /**
    * Timeout for webhook requests
    */
-  timeoutMs: z.number().min(1000).max(60000).default(30000).describe('Request timeout in ms'),
+  timeoutMs: z.number().min(1000).max(60000).optional().default(30000).describe('Request timeout in ms'),
   
   /**
    * Enable webhook
    */
-  enabled: z.boolean().default(true).describe('Enable webhook'),
+  enabled: z.boolean().optional().default(true).describe('Enable webhook'),
 });
 
 export type WebhookConfig = z.infer<typeof WebhookConfigSchema>;
@@ -433,7 +433,7 @@ export const RateLimitConfigSchema = z.object({
   /**
    * Rate limiting strategy
    */
-  strategy: RateLimitStrategySchema.default('token_bucket'),
+  strategy: RateLimitStrategySchema.optional().default('token_bucket'),
   
   /**
    * Maximum requests per window
@@ -453,15 +453,15 @@ export const RateLimitConfigSchema = z.object({
   /**
    * Respect external system rate limits
    */
-  respectUpstreamLimits: z.boolean().default(true).describe('Respect external rate limit headers'),
+  respectUpstreamLimits: z.boolean().optional().default(true).describe('Respect external rate limit headers'),
   
   /**
    * Custom rate limit headers to check
    */
   rateLimitHeaders: z.object({
-    remaining: z.string().default('X-RateLimit-Remaining').describe('Header for remaining requests'),
-    limit: z.string().default('X-RateLimit-Limit').describe('Header for rate limit'),
-    reset: z.string().default('X-RateLimit-Reset').describe('Header for reset time'),
+    remaining: z.string().optional().default('X-RateLimit-Remaining').describe('Header for remaining requests'),
+    limit: z.string().optional().default('X-RateLimit-Limit').describe('Header for rate limit'),
+    reset: z.string().optional().default('X-RateLimit-Reset').describe('Header for reset time'),
   }).optional().describe('Custom rate limit headers'),
 });
 
@@ -486,42 +486,42 @@ export const RetryConfigSchema = z.object({
   /**
    * Retry strategy
    */
-  strategy: RetryStrategySchema.default('exponential_backoff'),
+  strategy: RetryStrategySchema.optional().default('exponential_backoff'),
   
   /**
    * Maximum retry attempts
    */
-  maxAttempts: z.number().min(0).max(10).default(3).describe('Maximum retry attempts'),
+  maxAttempts: z.number().min(0).max(10).optional().default(3).describe('Maximum retry attempts'),
   
   /**
    * Initial delay in milliseconds
    */
-  initialDelayMs: z.number().min(100).default(1000).describe('Initial retry delay in ms'),
+  initialDelayMs: z.number().min(100).optional().default(1000).describe('Initial retry delay in ms'),
   
   /**
    * Maximum delay in milliseconds
    */
-  maxDelayMs: z.number().min(1000).default(60000).describe('Maximum retry delay in ms'),
+  maxDelayMs: z.number().min(1000).optional().default(60000).describe('Maximum retry delay in ms'),
   
   /**
    * Backoff multiplier (for exponential backoff)
    */
-  backoffMultiplier: z.number().min(1).default(2).describe('Exponential backoff multiplier'),
+  backoffMultiplier: z.number().min(1).optional().default(2).describe('Exponential backoff multiplier'),
   
   /**
    * HTTP status codes to retry
    */
-  retryableStatusCodes: z.array(z.number()).default([408, 429, 500, 502, 503, 504]).describe('HTTP status codes to retry'),
+  retryableStatusCodes: z.array(z.number()).optional().default([408, 429, 500, 502, 503, 504]).describe('HTTP status codes to retry'),
   
   /**
    * Retry on network errors
    */
-  retryOnNetworkError: z.boolean().default(true).describe('Retry on network errors'),
+  retryOnNetworkError: z.boolean().optional().default(true).describe('Retry on network errors'),
   
   /**
    * Jitter to add randomness to retry delays
    */
-  jitter: z.boolean().default(true).describe('Add jitter to retry delays'),
+  jitter: z.boolean().optional().default(true).describe('Add jitter to retry delays'),
 });
 
 export type RetryConfig = z.infer<typeof RetryConfigSchema>;
@@ -619,22 +619,22 @@ export const ConnectorSchema = z.object({
   /**
    * Connection timeout in milliseconds
    */
-  connectionTimeoutMs: z.number().min(1000).max(300000).default(30000).describe('Connection timeout in ms'),
+  connectionTimeoutMs: z.number().min(1000).max(300000).optional().default(30000).describe('Connection timeout in ms'),
   
   /**
    * Request timeout in milliseconds
    */
-  requestTimeoutMs: z.number().min(1000).max(300000).default(30000).describe('Request timeout in ms'),
+  requestTimeoutMs: z.number().min(1000).max(300000).optional().default(30000).describe('Request timeout in ms'),
   
   /**
    * Connector status
    */
-  status: ConnectorStatusSchema.default('inactive').describe('Connector status'),
+  status: ConnectorStatusSchema.optional().default('inactive').describe('Connector status'),
   
   /**
    * Enable connector
    */
-  enabled: z.boolean().default(true).describe('Enable connector'),
+  enabled: z.boolean().optional().default(true).describe('Enable connector'),
   
   /**
    * Custom metadata
@@ -643,16 +643,3 @@ export const ConnectorSchema = z.object({
 });
 
 export type Connector = z.infer<typeof ConnectorSchema>;
-
-// ============================================================================
-// TypeScript Exports
-// ============================================================================
-
-export type {
-  SyncStrategy,
-  ConflictResolution,
-  WebhookEvent,
-  WebhookSignatureAlgorithm,
-  RateLimitStrategy,
-  RetryStrategy,
-};

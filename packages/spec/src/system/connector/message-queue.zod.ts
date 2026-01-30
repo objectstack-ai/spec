@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import {
   ConnectorSchema,
-  DataSyncConfigSchema,
 } from '../connector.zod';
 
 /**
@@ -73,21 +72,21 @@ export type DeliveryGuarantee = z.infer<typeof DeliveryGuaranteeSchema>;
  * Consumer Configuration
  */
 export const ConsumerConfigSchema = z.object({
-  enabled: z.boolean().default(true).describe('Enable consumer'),
+  enabled: z.boolean().optional().default(true).describe('Enable consumer'),
   
   consumerGroup: z.string().optional().describe('Consumer group ID'),
   
-  concurrency: z.number().min(1).max(100).default(1).describe('Number of concurrent consumers'),
+  concurrency: z.number().min(1).max(100).optional().default(1).describe('Number of concurrent consumers'),
   
-  prefetchCount: z.number().min(1).max(1000).default(10).describe('Prefetch count'),
+  prefetchCount: z.number().min(1).max(1000).optional().default(10).describe('Prefetch count'),
   
-  ackMode: AckModeSchema.default('manual'),
+  ackMode: AckModeSchema.optional().default('manual'),
   
-  autoCommit: z.boolean().default(false).describe('Auto-commit offsets'),
+  autoCommit: z.boolean().optional().default(false).describe('Auto-commit offsets'),
   
-  autoCommitIntervalMs: z.number().min(100).default(5000).describe('Auto-commit interval in ms'),
+  autoCommitIntervalMs: z.number().min(100).optional().default(5000).describe('Auto-commit interval in ms'),
   
-  sessionTimeoutMs: z.number().min(1000).default(30000).describe('Session timeout in ms'),
+  sessionTimeoutMs: z.number().min(1000).optional().default(30000).describe('Session timeout in ms'),
   
   rebalanceTimeoutMs: z.number().min(1000).optional().describe('Rebalance timeout in ms'),
 });
@@ -98,21 +97,21 @@ export type ConsumerConfig = z.infer<typeof ConsumerConfigSchema>;
  * Producer Configuration
  */
 export const ProducerConfigSchema = z.object({
-  enabled: z.boolean().default(true).describe('Enable producer'),
+  enabled: z.boolean().optional().default(true).describe('Enable producer'),
   
-  acks: z.enum(['0', '1', 'all']).default('all').describe('Acknowledgment level'),
+  acks: z.enum(['0', '1', 'all']).optional().default('all').describe('Acknowledgment level'),
   
-  compressionType: z.enum(['none', 'gzip', 'snappy', 'lz4', 'zstd']).default('none').describe('Compression type'),
+  compressionType: z.enum(['none', 'gzip', 'snappy', 'lz4', 'zstd']).optional().default('none').describe('Compression type'),
   
-  batchSize: z.number().min(1).default(16384).describe('Batch size in bytes'),
+  batchSize: z.number().min(1).optional().default(16384).describe('Batch size in bytes'),
   
-  lingerMs: z.number().min(0).default(0).describe('Linger time in ms'),
+  lingerMs: z.number().min(0).optional().default(0).describe('Linger time in ms'),
   
-  maxInFlightRequests: z.number().min(1).default(5).describe('Max in-flight requests'),
+  maxInFlightRequests: z.number().min(1).optional().default(5).describe('Max in-flight requests'),
   
-  idempotence: z.boolean().default(true).describe('Enable idempotent producer'),
+  idempotence: z.boolean().optional().default(true).describe('Enable idempotent producer'),
   
-  transactional: z.boolean().default(false).describe('Enable transactional producer'),
+  transactional: z.boolean().optional().default(false).describe('Enable transactional producer'),
   
   transactionTimeoutMs: z.number().min(1000).optional().describe('Transaction timeout in ms'),
 });
@@ -123,13 +122,13 @@ export type ProducerConfig = z.infer<typeof ProducerConfigSchema>;
  * Dead Letter Queue Configuration
  */
 export const DlqConfigSchema = z.object({
-  enabled: z.boolean().default(false).describe('Enable DLQ'),
+  enabled: z.boolean().optional().default(false).describe('Enable DLQ'),
   
   queueName: z.string().describe('Dead letter queue/topic name'),
   
-  maxRetries: z.number().min(0).max(100).default(3).describe('Max retries before DLQ'),
+  maxRetries: z.number().min(0).max(100).optional().default(3).describe('Max retries before DLQ'),
   
-  retryDelayMs: z.number().min(0).default(60000).describe('Retry delay in ms'),
+  retryDelayMs: z.number().min(0).optional().default(60000).describe('Retry delay in ms'),
 });
 
 export type DlqConfig = z.infer<typeof DlqConfigSchema>;
@@ -141,17 +140,17 @@ export const TopicQueueSchema = z.object({
   name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Topic/queue identifier in ObjectStack (snake_case)'),
   label: z.string().describe('Display label'),
   topicName: z.string().describe('Actual topic/queue name in message queue system'),
-  enabled: z.boolean().default(true).describe('Enable sync for this topic/queue'),
+  enabled: z.boolean().optional().default(true).describe('Enable sync for this topic/queue'),
   
   /**
    * Consumer or Producer
    */
-  mode: z.enum(['consumer', 'producer', 'both']).default('both').describe('Consumer, producer, or both'),
+  mode: z.enum(['consumer', 'producer', 'both']).optional().default('both').describe('Consumer, producer, or both'),
   
   /**
    * Message format
    */
-  messageFormat: MessageFormatSchema.default('json'),
+  messageFormat: MessageFormatSchema.optional().default('json'),
   
   /**
    * Partition/shard configuration
@@ -211,8 +210,8 @@ export const MessageQueueConnectorSchema = ConnectorSchema.extend({
   brokerConfig: z.object({
     brokers: z.array(z.string()).describe('Broker addresses (host:port)'),
     clientId: z.string().optional().describe('Client ID'),
-    connectionTimeoutMs: z.number().min(1000).default(30000).describe('Connection timeout in ms'),
-    requestTimeoutMs: z.number().min(1000).default(30000).describe('Request timeout in ms'),
+    connectionTimeoutMs: z.number().min(1000).optional().default(30000).describe('Connection timeout in ms'),
+    requestTimeoutMs: z.number().min(1000).optional().default(30000).describe('Request timeout in ms'),
   }).describe('Broker connection configuration'),
   
   /**
@@ -223,14 +222,14 @@ export const MessageQueueConnectorSchema = ConnectorSchema.extend({
   /**
    * Delivery guarantee
    */
-  deliveryGuarantee: DeliveryGuaranteeSchema.default('at_least_once'),
+  deliveryGuarantee: DeliveryGuaranteeSchema.optional().default('at_least_once'),
   
   /**
    * SSL/TLS configuration
    */
   sslConfig: z.object({
-    enabled: z.boolean().default(false).describe('Enable SSL/TLS'),
-    rejectUnauthorized: z.boolean().default(true).describe('Reject unauthorized certificates'),
+    enabled: z.boolean().optional().default(false).describe('Enable SSL/TLS'),
+    rejectUnauthorized: z.boolean().optional().default(true).describe('Reject unauthorized certificates'),
     ca: z.string().optional().describe('CA certificate'),
     cert: z.string().optional().describe('Client certificate'),
     key: z.string().optional().describe('Client private key'),
@@ -259,17 +258,17 @@ export const MessageQueueConnectorSchema = ConnectorSchema.extend({
   /**
    * Message ordering
    */
-  preserveOrder: z.boolean().default(true).describe('Preserve message ordering'),
+  preserveOrder: z.boolean().optional().default(true).describe('Preserve message ordering'),
   
   /**
    * Enable metrics
    */
-  enableMetrics: z.boolean().default(true).describe('Enable message queue metrics'),
+  enableMetrics: z.boolean().optional().default(true).describe('Enable message queue metrics'),
   
   /**
    * Enable distributed tracing
    */
-  enableTracing: z.boolean().default(false).describe('Enable distributed tracing'),
+  enableTracing: z.boolean().optional().default(false).describe('Enable distributed tracing'),
 });
 
 export type MessageQueueConnector = z.infer<typeof MessageQueueConnectorSchema>;
@@ -281,7 +280,7 @@ export type MessageQueueConnector = z.infer<typeof MessageQueueConnectorSchema>;
 /**
  * Example: Apache Kafka Connector Configuration
  */
-export const kafkaConnectorExample: MessageQueueConnector = {
+export const kafkaConnectorExample = {
   name: 'kafka_production',
   label: 'Production Kafka Cluster',
   type: 'message_queue',
@@ -361,7 +360,7 @@ export const kafkaConnectorExample: MessageQueueConnector = {
 /**
  * Example: RabbitMQ Connector Configuration
  */
-export const rabbitmqConnectorExample: MessageQueueConnector = {
+export const rabbitmqConnectorExample = {
   name: 'rabbitmq_events',
   label: 'RabbitMQ Event Bus',
   type: 'message_queue',
@@ -408,7 +407,7 @@ export const rabbitmqConnectorExample: MessageQueueConnector = {
 /**
  * Example: AWS SQS Connector Configuration
  */
-export const sqsConnectorExample: MessageQueueConnector = {
+export const sqsConnectorExample = {
   name: 'aws_sqs_queue',
   label: 'AWS SQS Queue',
   type: 'message_queue',
@@ -458,7 +457,7 @@ export const sqsConnectorExample: MessageQueueConnector = {
 /**
  * Example: Google Cloud Pub/Sub Connector Configuration
  */
-export const pubsubConnectorExample: MessageQueueConnector = {
+export const pubsubConnectorExample = {
   name: 'gcp_pubsub',
   label: 'Google Cloud Pub/Sub',
   type: 'message_queue',

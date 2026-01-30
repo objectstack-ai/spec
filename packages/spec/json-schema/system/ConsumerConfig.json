@@ -1,0 +1,67 @@
+{
+  "$ref": "#/definitions/ConsumerConfig",
+  "definitions": {
+    "ConsumerConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable consumer"
+        },
+        "consumerGroup": {
+          "type": "string",
+          "description": "Consumer group ID"
+        },
+        "concurrency": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 1,
+          "description": "Number of concurrent consumers"
+        },
+        "prefetchCount": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 1000,
+          "default": 10,
+          "description": "Prefetch count"
+        },
+        "ackMode": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "manual",
+            "client"
+          ],
+          "description": "Message acknowledgment mode",
+          "default": "manual"
+        },
+        "autoCommit": {
+          "type": "boolean",
+          "default": false,
+          "description": "Auto-commit offsets"
+        },
+        "autoCommitIntervalMs": {
+          "type": "number",
+          "minimum": 100,
+          "default": 5000,
+          "description": "Auto-commit interval in ms"
+        },
+        "sessionTimeoutMs": {
+          "type": "number",
+          "minimum": 1000,
+          "default": 30000,
+          "description": "Session timeout in ms"
+        },
+        "rebalanceTimeoutMs": {
+          "type": "number",
+          "minimum": 1000,
+          "description": "Rebalance timeout in ms"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

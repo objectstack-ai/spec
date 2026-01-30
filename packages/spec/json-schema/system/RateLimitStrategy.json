@@ -1,0 +1,16 @@
+{
+  "$ref": "#/definitions/RateLimitStrategy",
+  "definitions": {
+    "RateLimitStrategy": {
+      "type": "string",
+      "enum": [
+        "fixed_window",
+        "sliding_window",
+        "token_bucket",
+        "leaky_bucket"
+      ],
+      "description": "Rate limiting strategy"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

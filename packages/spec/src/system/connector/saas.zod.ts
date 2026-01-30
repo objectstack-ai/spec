@@ -1,12 +1,7 @@
 import { z } from 'zod';
 import {
   ConnectorSchema,
-  AuthenticationSchema,
-  DataSyncConfigSchema,
   FieldMappingSchema,
-  WebhookConfigSchema,
-  RateLimitConfigSchema,
-  RetryConfigSchema,
 } from '../connector.zod';
 
 /**
@@ -134,7 +129,7 @@ export type SaasConnector = z.infer<typeof SaasConnectorSchema>;
 /**
  * Example: Salesforce Connector Configuration
  */
-export const salesforceConnectorExample: SaasConnector = {
+export const salesforceConnectorExample = {
   name: 'salesforce_production',
   label: 'Salesforce Production',
   type: 'saas',
@@ -205,7 +200,7 @@ export const salesforceConnectorExample: SaasConnector = {
 /**
  * Example: HubSpot Connector Configuration
  */
-export const hubspotConnectorExample: SaasConnector = {
+export const hubspotConnectorExample = {
   name: 'hubspot_crm',
   label: 'HubSpot CRM',
   type: 'saas',

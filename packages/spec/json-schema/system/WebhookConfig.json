@@ -1,0 +1,98 @@
+{
+  "$ref": "#/definitions/WebhookConfig",
+  "definitions": {
+    "WebhookConfig": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Webhook endpoint URL"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "record.created",
+              "record.updated",
+              "record.deleted",
+              "sync.started",
+              "sync.completed",
+              "sync.failed",
+              "auth.expired",
+              "rate_limit.exceeded"
+            ],
+            "description": "Webhook event type"
+          },
+          "description": "Events to subscribe to"
+        },
+        "secret": {
+          "type": "string",
+          "description": "Secret for HMAC signature"
+        },
+        "signatureAlgorithm": {
+          "type": "string",
+          "enum": [
+            "hmac_sha256",
+            "hmac_sha512",
+            "none"
+          ],
+          "description": "Webhook signature algorithm",
+          "default": "hmac_sha256"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom HTTP headers"
+        },
+        "retryConfig": {
+          "type": "object",
+          "properties": {
+            "maxAttempts": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10,
+              "default": 3,
+              "description": "Maximum retry attempts"
+            },
+            "backoffMultiplier": {
+              "type": "number",
+              "minimum": 1,
+              "default": 2,
+              "description": "Exponential backoff multiplier"
+            },
+            "initialDelayMs": {
+              "type": "number",
+              "minimum": 100,
+              "default": 1000,
+              "description": "Initial retry delay in ms"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Retry configuration"
+        },
+        "timeoutMs": {
+          "type": "number",
+          "minimum": 1000,
+          "maximum": 60000,
+          "default": 30000,
+          "description": "Request timeout in ms"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable webhook"
+        }
+      },
+      "required": [
+        "url",
+        "events"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

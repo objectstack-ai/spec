@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import {
   ConnectorSchema,
-  DataSyncConfigSchema,
   FieldMappingSchema,
 } from '../connector.zod';
 
@@ -161,12 +160,12 @@ export const DatabaseConnectorSchema = ConnectorSchema.extend({
   /**
    * Query timeout
    */
-  queryTimeoutMs: z.number().min(1000).max(300000).default(30000).describe('Query timeout in ms'),
+  queryTimeoutMs: z.number().min(1000).max(300000).optional().default(30000).describe('Query timeout in ms'),
   
   /**
    * Enable query logging
    */
-  enableQueryLogging: z.boolean().default(false).describe('Enable SQL query logging'),
+  enableQueryLogging: z.boolean().optional().default(false).describe('Enable SQL query logging'),
 });
 
 export type DatabaseConnector = z.infer<typeof DatabaseConnectorSchema>;
@@ -178,7 +177,7 @@ export type DatabaseConnector = z.infer<typeof DatabaseConnectorSchema>;
 /**
  * Example: PostgreSQL Connector Configuration
  */
-export const postgresConnectorExample: DatabaseConnector = {
+export const postgresConnectorExample = {
   name: 'postgres_production',
   label: 'Production PostgreSQL',
   type: 'database',
@@ -250,7 +249,7 @@ export const postgresConnectorExample: DatabaseConnector = {
 /**
  * Example: MongoDB Connector Configuration
  */
-export const mongoConnectorExample: DatabaseConnector = {
+export const mongoConnectorExample = {
   name: 'mongodb_analytics',
   label: 'MongoDB Analytics',
   type: 'database',
@@ -298,7 +297,7 @@ export const mongoConnectorExample: DatabaseConnector = {
 /**
  * Example: Snowflake Connector Configuration
  */
-export const snowflakeConnectorExample: DatabaseConnector = {
+export const snowflakeConnectorExample = {
   name: 'snowflake_warehouse',
   label: 'Snowflake Data Warehouse',
   type: 'database',

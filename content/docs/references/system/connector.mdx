@@ -1,0 +1,355 @@
+---
+title: Connector
+description: Connector protocol schemas
+---
+
+# Connector
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/connector.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { ApiKeyAuthSchema, AuthenticationSchema, BasicAuthSchema, BearerTokenAuthSchema, ConflictResolutionSchema, ConnectorSchema, ConnectorStatusSchema, ConnectorTypeSchema, DataSyncConfigSchema, FieldMappingSchema, FieldTransformSchema, JwtAuthSchema, NoAuthSchema, OAuth2AuthSchema, RateLimitConfigSchema, RateLimitStrategySchema, RetryConfigSchema, RetryStrategySchema, SamlAuthSchema, SyncStrategySchema, WebhookConfigSchema, WebhookEventSchema, WebhookSignatureAlgorithmSchema } from '@objectstack/spec/system';
+import type { ApiKeyAuth, Authentication, BasicAuth, BearerTokenAuth, ConflictResolution, Connector, ConnectorStatus, ConnectorType, DataSyncConfig, FieldMapping, FieldTransform, JwtAuth, NoAuth, OAuth2Auth, RateLimitConfig, RateLimitStrategy, RetryConfig, RetryStrategy, SamlAuth, SyncStrategy, WebhookConfig, WebhookEvent, WebhookSignatureAlgorithm } from '@objectstack/spec/system';
+
+// Validate data
+const result = ApiKeyAuthSchema.parse(data);
+```
+
+---
+
+## ApiKeyAuth
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Authentication type |
+| **apiKey** | `string` | ✅ | API key (typically from ENV) |
+| **headerName** | `string` | optional | HTTP header name for API key |
+| **paramName** | `string` | optional | Query parameter name (alternative to header) |
+
+---
+
+## Authentication
+
+---
+
+## BasicAuth
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Authentication type |
+| **username** | `string` | ✅ | Username |
+| **password** | `string` | ✅ | Password (typically from ENV) |
+
+---
+
+## BearerTokenAuth
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Authentication type |
+| **token** | `string` | ✅ | Bearer token |
+
+---
+
+## ConflictResolution
+
+Conflict resolution strategy
+
+### Allowed Values
+
+* `source_wins`
+* `target_wins`
+* `latest_wins`
+* `manual`
+
+---
+
+## Connector
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique connector identifier |
+| **label** | `string` | ✅ | Display label |
+| **type** | `Enum<'saas' \| 'database' \| 'file_storage' \| 'message_queue' \| 'api' \| 'custom'>` | ✅ | Connector type |
+| **description** | `string` | optional | Connector description |
+| **icon** | `string` | optional | Icon identifier |
+| **authentication** | `object \| object \| object \| object \| object \| object \| object` | ✅ | Authentication configuration |
+| **syncConfig** | `object` | optional | Data sync configuration |
+| **fieldMappings** | `object[]` | optional | Field mapping rules |
+| **webhooks** | `object[]` | optional | Webhook configurations |
+| **rateLimitConfig** | `object` | optional | Rate limiting configuration |
+| **retryConfig** | `object` | optional | Retry configuration |
+| **connectionTimeoutMs** | `number` | optional | Connection timeout in ms |
+| **requestTimeoutMs** | `number` | optional | Request timeout in ms |
+| **status** | `Enum<'active' \| 'inactive' \| 'error' \| 'configuring'>` | optional | Connector status |
+| **enabled** | `boolean` | optional | Enable connector |
+| **metadata** | `Record<string, any>` | optional | Custom connector metadata |
+
+---
+
+## ConnectorStatus
+
+Connector status
+
+### Allowed Values
+
+* `active`
+* `inactive`
+* `error`
+* `configuring`
+
+---
+
+## ConnectorType
+
+Connector type
+
+### Allowed Values
+
+* `saas`
+* `database`
+* `file_storage`
+* `message_queue`
+* `api`
+* `custom`
+
+---
+
+## DataSyncConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **strategy** | `Enum<'full' \| 'incremental' \| 'upsert' \| 'append_only'>` | optional | Synchronization strategy |
+| **direction** | `Enum<'import' \| 'export' \| 'bidirectional'>` | optional | Sync direction |
+| **schedule** | `string` | optional | Cron expression for scheduled sync |
+| **realtimeSync** | `boolean` | optional | Enable real-time sync |
+| **timestampField** | `string` | optional | Field to track last modification time |
+| **conflictResolution** | `Enum<'source_wins' \| 'target_wins' \| 'latest_wins' \| 'manual'>` | optional | Conflict resolution strategy |
+| **batchSize** | `number` | optional | Records per batch |
+| **deleteMode** | `Enum<'hard_delete' \| 'soft_delete' \| 'ignore'>` | optional | Delete handling mode |
+| **filters** | `Record<string, any>` | optional | Filter criteria for selective sync |
+
+---
+
+## FieldMapping
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **sourceField** | `string` | ✅ | Field name in external system |
+| **targetField** | `string` | ✅ | Field name in ObjectStack (snake_case) |
+| **dataType** | `Enum<'string' \| 'number' \| 'boolean' \| 'date' \| 'datetime' \| 'json' \| 'array'>` | optional | Target data type |
+| **required** | `boolean` | optional | Field is required |
+| **defaultValue** | `any` | optional | Default value |
+| **transform** | `object` | optional | Field transformation |
+| **syncMode** | `Enum<'read_only' \| 'write_only' \| 'bidirectional'>` | optional | Sync mode |
+
+---
+
+## FieldTransform
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'uppercase' \| 'lowercase' \| 'trim' \| 'date_format' \| 'number_format' \| 'custom'>` | ✅ | Transformation type |
+| **params** | `Record<string, any>` | optional | Transformation parameters |
+| **function** | `string` | optional | Custom JavaScript function for transformation |
+
+---
+
+## JwtAuth
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Authentication type |
+| **token** | `string` | optional | Pre-generated JWT token |
+| **secretKey** | `string` | optional | Secret key for JWT signing |
+| **algorithm** | `Enum<'HS256' \| 'HS384' \| 'HS512' \| 'RS256' \| 'RS384' \| 'RS512' \| 'ES256' \| 'ES384' \| 'ES512'>` | optional | JWT signing algorithm |
+| **issuer** | `string` | optional | JWT issuer claim |
+| **audience** | `string` | optional | JWT audience claim |
+| **subject** | `string` | optional | JWT subject claim |
+| **expiresIn** | `number` | optional | Token expiry in seconds |
+| **claims** | `Record<string, any>` | optional | Additional JWT claims |
+
+---
+
+## NoAuth
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | No authentication required |
+
+---
+
+## OAuth2Auth
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Authentication type |
+| **clientId** | `string` | ✅ | OAuth2 client ID |
+| **clientSecret** | `string` | ✅ | OAuth2 client secret (typically from ENV) |
+| **authorizationUrl** | `string` | ✅ | OAuth2 authorization endpoint |
+| **tokenUrl** | `string` | ✅ | OAuth2 token endpoint |
+| **scopes** | `string[]` | optional | Requested OAuth2 scopes |
+| **redirectUri** | `string` | optional | OAuth2 callback URL |
+| **grantType** | `Enum<'authorization_code' \| 'client_credentials' \| 'password' \| 'refresh_token'>` | optional | OAuth2 grant type |
+| **refreshToken** | `string` | optional | Refresh token for token renewal |
+| **tokenExpiry** | `number` | optional | Token expiry timestamp |
+
+---
+
+## RateLimitConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **strategy** | `Enum<'fixed_window' \| 'sliding_window' \| 'token_bucket' \| 'leaky_bucket'>` | optional | Rate limiting strategy |
+| **maxRequests** | `number` | ✅ | Maximum requests per window |
+| **windowSeconds** | `number` | ✅ | Time window in seconds |
+| **burstCapacity** | `number` | optional | Burst capacity |
+| **respectUpstreamLimits** | `boolean` | optional | Respect external rate limit headers |
+| **rateLimitHeaders** | `object` | optional | Custom rate limit headers |
+
+---
+
+## RateLimitStrategy
+
+Rate limiting strategy
+
+### Allowed Values
+
+* `fixed_window`
+* `sliding_window`
+* `token_bucket`
+* `leaky_bucket`
+
+---
+
+## RetryConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **strategy** | `Enum<'exponential_backoff' \| 'linear_backoff' \| 'fixed_delay' \| 'no_retry'>` | optional | Retry strategy |
+| **maxAttempts** | `number` | optional | Maximum retry attempts |
+| **initialDelayMs** | `number` | optional | Initial retry delay in ms |
+| **maxDelayMs** | `number` | optional | Maximum retry delay in ms |
+| **backoffMultiplier** | `number` | optional | Exponential backoff multiplier |
+| **retryableStatusCodes** | `number[]` | optional | HTTP status codes to retry |
+| **retryOnNetworkError** | `boolean` | optional | Retry on network errors |
+| **jitter** | `boolean` | optional | Add jitter to retry delays |
+
+---
+
+## RetryStrategy
+
+Retry strategy
+
+### Allowed Values
+
+* `exponential_backoff`
+* `linear_backoff`
+* `fixed_delay`
+* `no_retry`
+
+---
+
+## SamlAuth
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Authentication type |
+| **entryPoint** | `string` | ✅ | SAML IdP entry point URL |
+| **issuer** | `string` | ✅ | SAML service provider issuer |
+| **certificate** | `string` | ✅ | SAML IdP certificate (X.509) |
+| **privateKey** | `string` | optional | SAML service provider private key |
+| **callbackUrl** | `string` | optional | SAML assertion consumer service URL |
+| **signatureAlgorithm** | `Enum<'sha1' \| 'sha256' \| 'sha512'>` | optional | SAML signature algorithm |
+| **wantAssertionsSigned** | `boolean` | optional | Require signed SAML assertions |
+| **identifierFormat** | `string` | optional | SAML NameID format |
+
+---
+
+## SyncStrategy
+
+Synchronization strategy
+
+### Allowed Values
+
+* `full`
+* `incremental`
+* `upsert`
+* `append_only`
+
+---
+
+## WebhookConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **url** | `string` | ✅ | Webhook endpoint URL |
+| **events** | `Enum<'record.created' \| 'record.updated' \| 'record.deleted' \| 'sync.started' \| 'sync.completed' \| 'sync.failed' \| 'auth.expired' \| 'rate_limit.exceeded'>[]` | ✅ | Events to subscribe to |
+| **secret** | `string` | optional | Secret for HMAC signature |
+| **signatureAlgorithm** | `Enum<'hmac_sha256' \| 'hmac_sha512' \| 'none'>` | optional | Webhook signature algorithm |
+| **headers** | `Record<string, string>` | optional | Custom HTTP headers |
+| **retryConfig** | `object` | optional | Retry configuration |
+| **timeoutMs** | `number` | optional | Request timeout in ms |
+| **enabled** | `boolean` | optional | Enable webhook |
+
+---
+
+## WebhookEvent
+
+Webhook event type
+
+### Allowed Values
+
+* `record.created`
+* `record.updated`
+* `record.deleted`
+* `sync.started`
+* `sync.completed`
+* `sync.failed`
+* `auth.expired`
+* `rate_limit.exceeded`
+
+---
+
+## WebhookSignatureAlgorithm
+
+Webhook signature algorithm
+
+### Allowed Values
+
+* `hmac_sha256`
+* `hmac_sha512`
+* `none`
+

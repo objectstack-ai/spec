@@ -1,0 +1,24 @@
+{
+  "$ref": "#/definitions/DatabaseProvider",
+  "definitions": {
+    "DatabaseProvider": {
+      "type": "string",
+      "enum": [
+        "postgresql",
+        "mysql",
+        "mariadb",
+        "mssql",
+        "oracle",
+        "mongodb",
+        "redis",
+        "cassandra",
+        "snowflake",
+        "bigquery",
+        "redshift",
+        "custom"
+      ],
+      "description": "Database provider type"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
