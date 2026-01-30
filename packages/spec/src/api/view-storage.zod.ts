@@ -187,7 +187,7 @@ export const CreateViewRequestSchema = z.object({
   settings: z.record(z.any()).optional(),
 });
 
-export type CreateViewRequest = z.infer<typeof CreateViewRequestSchema>;
+export type CreateViewRequest = z.input<typeof CreateViewRequestSchema>;
 
 /**
  * Update View Request Schema
@@ -196,7 +196,7 @@ export const UpdateViewRequestSchema = CreateViewRequestSchema.partial().extend(
   id: z.string().describe('View ID to update'),
 });
 
-export type UpdateViewRequest = z.infer<typeof UpdateViewRequestSchema>;
+export type UpdateViewRequest = z.input<typeof UpdateViewRequestSchema>;
 
 /**
  * List Views Request Schema
@@ -211,7 +211,7 @@ export const ListViewsRequestSchema = z.object({
   offset: z.number().optional().default(0).describe('Offset for pagination'),
 });
 
-export type ListViewsRequest = z.infer<typeof ListViewsRequestSchema>;
+export type ListViewsRequest = z.input<typeof ListViewsRequestSchema>;
 
 /**
  * View Response Schema

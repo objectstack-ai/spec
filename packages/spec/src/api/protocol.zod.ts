@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { BatchUpdateRequestSchema, BatchUpdateResponseSchema } from './batch.zod';
+import { BatchUpdateRequestSchema, BatchUpdateResponseSchema, BatchOptionsSchema } from './batch.zod';
 import { MetadataCacheRequestSchema, MetadataCacheResponseSchema } from './http-cache.zod';
 import { 
   CreateViewRequestSchema, 
@@ -266,9 +266,7 @@ export const UpdateManyDataRequestSchema = z.object({
     id: z.string().describe('Record ID'),
     data: z.record(z.any()).describe('Fields to update'),
   })).describe('Array of updates'),
-  options: z.object({
-    allOrNone: z.boolean().optional().describe('Atomic transaction mode'),
-  }).optional(),
+  options: BatchOptionsSchema.optional().describe('Update options'),
 });
 
 /**
@@ -283,9 +281,7 @@ export const UpdateManyDataResponseSchema = BatchUpdateResponseSchema;
 export const DeleteManyDataRequestSchema = z.object({
   object: z.string().describe('Object name'),
   ids: z.array(z.string()).describe('Array of record IDs to delete'),
-  options: z.object({
-    allOrNone: z.boolean().optional().describe('Atomic transaction mode'),
-  }).optional(),
+  options: BatchOptionsSchema.optional().describe('Delete options'),
 });
 
 /**
