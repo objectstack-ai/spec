@@ -6,3 +6,9 @@ export * from './validation.zod';
 export * from './hook.zod';
 
 export * from './dataset.zod';
+
+// Document Management Protocol
+export * from './document.zod';
+
+// External Lookup Protocol
+export * from './external-lookup.zod';

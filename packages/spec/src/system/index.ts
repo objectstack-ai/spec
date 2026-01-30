@@ -56,6 +56,12 @@ export * from './encryption.zod';
 export * from './compliance.zod';
 export * from './masking.zod';
 
+// Notification Protocol
+export * from './notification.zod';
+
+// Change Management Protocol
+export * from './change-management.zod';
+
 // Note: Auth, Identity, Policy, Role, Organization moved to @objectstack/spec/auth
 // Note: Territory moved to @objectstack/spec/permission
 // Note: Connector Protocol moved to @objectstack/spec/integration
