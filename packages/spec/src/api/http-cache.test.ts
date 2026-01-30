@@ -9,7 +9,7 @@ import {
   CacheInvalidationRequestSchema,
   CacheInvalidationResponseSchema,
   MetadataCacheApi,
-} from './cache.zod';
+} from './http-cache.zod';
 
 describe('CacheDirective', () => {
   it('should accept valid cache directives', () => {

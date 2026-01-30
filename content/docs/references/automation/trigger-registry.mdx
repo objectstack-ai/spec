@@ -1,0 +1,171 @@
+---
+title: Trigger Registry
+description: Trigger Registry protocol schemas
+---
+
+# Trigger Registry
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/trigger-registry.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AuthFieldSchema, AuthenticationTypeSchema, ConnectorCategorySchema, ConnectorInstanceSchema, ConnectorOperationSchema, ConnectorTriggerSchema, OAuth2ConfigSchema, OperationParameterSchema, OperationTypeSchema } from '@objectstack/spec/automation';
+import type { AuthField, AuthenticationType, ConnectorCategory, ConnectorInstance, ConnectorOperation, ConnectorTrigger, OAuth2Config, OperationParameter, OperationType } from '@objectstack/spec/automation';
+
+// Validate data
+const result = AuthFieldSchema.parse(data);
+```
+
+---
+
+## AuthField
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Field name (snake_case) |
+| **label** | `string` | ✅ | Field label |
+| **type** | `Enum<'text' \| 'password' \| 'url' \| 'select'>` | optional | Field type |
+| **description** | `string` | optional | Field description |
+| **required** | `boolean` | optional | Required field |
+| **default** | `string` | optional | Default value |
+| **options** | `object[]` | optional | Select field options |
+| **placeholder** | `string` | optional | Placeholder text |
+
+---
+
+## AuthenticationType
+
+### Allowed Values
+
+* `none`
+* `apiKey`
+* `basic`
+* `bearer`
+* `oauth1`
+* `oauth2`
+* `custom`
+
+---
+
+## ConnectorCategory
+
+### Allowed Values
+
+* `crm`
+* `payment`
+* `communication`
+* `storage`
+* `analytics`
+* `database`
+* `marketing`
+* `accounting`
+* `hr`
+* `productivity`
+* `ecommerce`
+* `support`
+* `devtools`
+* `social`
+* `other`
+
+---
+
+## ConnectorInstance
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Instance ID |
+| **connectorId** | `string` | ✅ | Connector ID |
+| **name** | `string` | ✅ | Instance name |
+| **description** | `string` | optional | Instance description |
+| **credentials** | `Record<string, any>` | ✅ | Encrypted credentials |
+| **config** | `Record<string, any>` | optional | Additional config |
+| **active** | `boolean` | optional | Instance active status |
+| **createdAt** | `string` | optional | Creation time |
+| **lastTestedAt** | `string` | optional | Last test time |
+| **testStatus** | `Enum<'unknown' \| 'success' \| 'failed'>` | optional | Connection test status |
+
+---
+
+## ConnectorOperation
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Operation ID (snake_case) |
+| **name** | `string` | ✅ | Operation name |
+| **description** | `string` | optional | Operation description |
+| **type** | `Enum<'read' \| 'write' \| 'delete' \| 'search' \| 'trigger' \| 'action'>` | ✅ | Operation type |
+| **inputSchema** | `object[]` | optional | Input parameters |
+| **outputSchema** | `Record<string, any>` | optional | Output schema |
+| **sampleOutput** | `any` | optional | Sample output |
+| **supportsPagination** | `boolean` | optional | Supports pagination |
+| **supportsFiltering** | `boolean` | optional | Supports filtering |
+
+---
+
+## ConnectorTrigger
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Trigger ID (snake_case) |
+| **name** | `string` | ✅ | Trigger name |
+| **description** | `string` | optional | Trigger description |
+| **type** | `Enum<'webhook' \| 'polling' \| 'stream'>` | ✅ | Trigger mechanism |
+| **config** | `Record<string, any>` | optional | Trigger configuration |
+| **outputSchema** | `Record<string, any>` | optional | Event payload schema |
+| **pollingIntervalMs** | `integer` | optional | Polling interval in ms |
+
+---
+
+## OAuth2Config
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **authorizationUrl** | `string` | ✅ | Authorization endpoint URL |
+| **tokenUrl** | `string` | ✅ | Token endpoint URL |
+| **scopes** | `string[]` | optional | OAuth scopes |
+| **clientIdField** | `string` | optional | Client ID field name |
+| **clientSecretField** | `string` | optional | Client secret field name |
+
+---
+
+## OperationParameter
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Parameter name |
+| **label** | `string` | ✅ | Parameter label |
+| **description** | `string` | optional | Parameter description |
+| **type** | `Enum<'string' \| 'number' \| 'boolean' \| 'array' \| 'object' \| 'date' \| 'file'>` | ✅ | Parameter type |
+| **required** | `boolean` | optional | Required parameter |
+| **default** | `any` | optional | Default value |
+| **validation** | `Record<string, any>` | optional | Validation rules |
+| **dynamicOptions** | `string` | optional | Function to load dynamic options |
+
+---
+
+## OperationType
+
+### Allowed Values
+
+* `read`
+* `write`
+* `delete`
+* `search`
+* `trigger`
+* `action`
+

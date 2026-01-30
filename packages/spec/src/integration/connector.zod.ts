@@ -9,6 +9,24 @@ import { z } from 'zod';
  * 
  * This protocol supports multiple authentication strategies, bidirectional sync,
  * field mapping, webhooks, and comprehensive rate limiting.
+ * 
+ * ## When to use Integration Connector vs. Trigger Registry?
+ * 
+ * **Use `integration/connector.zod.ts` when:**
+ * - Building enterprise-grade connectors (e.g., Salesforce, SAP, Oracle)
+ * - Complex OAuth2/SAML authentication required
+ * - Bidirectional sync with field mapping and transformations
+ * - Webhook management and rate limiting required
+ * - Full CRUD operations and data synchronization
+ * - Need comprehensive retry strategies and error handling
+ * 
+ * **Use `automation/trigger-registry.zod.ts` when:**
+ * - Building simple automation triggers (e.g., "when Slack message received, create task")
+ * - No complex authentication needed (simple API keys, basic auth)
+ * - Lightweight, single-purpose integrations
+ * - Quick setup with minimal configuration
+ * 
+ * @see ../../automation/trigger-registry.zod.ts for lightweight automation triggers
  */
 
 // ============================================================================

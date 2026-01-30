@@ -1,18 +1,36 @@
 import { z } from 'zod';
 
 /**
- * Metadata Cache Control Protocol
+ * HTTP Metadata Cache Protocol
  * 
- * Implements efficient metadata caching with ETag support.
+ * Implements efficient HTTP-level metadata caching with ETag support.
  * Implements P0 requirement for ObjectStack kernel.
  * 
- * Features:
+ * ## Caching in ObjectStack
+ * 
+ * **HTTP Cache (`api/http-cache.zod.ts`) - This File**
+ * - **Purpose**: Cache API responses at HTTP protocol level
+ * - **Technologies**: HTTP headers (ETag, Last-Modified, Cache-Control), CDN
+ * - **Configuration**: Cache-Control headers, validation tokens
+ * - **Use case**: Reduce API response time for repeated metadata requests
+ * - **Scope**: HTTP layer, client-server communication
+ * 
+ * **Application Cache (`system/cache.zod.ts`)**
+ * - **Purpose**: Cache computed data, query results, aggregations
+ * - **Technologies**: Redis, Memcached, in-memory LRU
+ * - **Configuration**: TTL, eviction policies, cache warming
+ * - **Use case**: Cache expensive database queries, computed values
+ * - **Scope**: Application layer, server-side data storage
+ * 
+ * ## Features
  * - ETag-based conditional requests (HTTP 304 Not Modified)
  * - Cache-Control directives
  * - Metadata versioning
  * - Selective cache invalidation
  * 
  * Industry alignment: HTTP Caching (RFC 7234), Salesforce Metadata API
+ * 
+ * @see ../../system/cache.zod.ts for application-level caching
  */
 
 // ==========================================

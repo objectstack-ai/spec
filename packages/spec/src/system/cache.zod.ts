@@ -1,8 +1,28 @@
 import { z } from 'zod';
 
 /**
- * Multi-tier caching strategy
- * Supports Memory, Redis, CDN
+ * Application-Level Cache Protocol
+ * 
+ * Multi-tier caching strategy for application data.
+ * Supports Memory, Redis, Memcached, and CDN.
+ * 
+ * ## Caching in ObjectStack
+ * 
+ * **Application Cache (`system/cache.zod.ts`) - This File**
+ * - **Purpose**: Cache computed data, query results, aggregations
+ * - **Technologies**: Redis, Memcached, in-memory LRU
+ * - **Configuration**: TTL, eviction policies, cache warming
+ * - **Use case**: Cache expensive database queries, computed values
+ * - **Scope**: Application layer, server-side data storage
+ * 
+ * **HTTP Cache (`api/http-cache.zod.ts`)**
+ * - **Purpose**: Cache API responses at HTTP protocol level
+ * - **Technologies**: HTTP headers (ETag, Last-Modified, Cache-Control), CDN
+ * - **Configuration**: Cache-Control headers, validation tokens
+ * - **Use case**: Reduce API response time for repeated metadata requests
+ * - **Scope**: HTTP layer, client-server communication
+ * 
+ * @see ../../api/http-cache.zod.ts for HTTP-level caching
  */
 export const CacheStrategySchema = z.enum([
   'lru',          // Least Recently Used
