@@ -302,12 +302,12 @@
                   "prompt": {
                     "type": "integer",
                     "minimum": 0,
-                    "description": "Tokens in prompt"
+                    "description": "Input tokens"
                   },
                   "completion": {
                     "type": "integer",
                     "minimum": 0,
-                    "description": "Tokens in completion"
+                    "description": "Output tokens"
                   },
                   "total": {
                     "type": "integer",
@@ -315,8 +315,18 @@
                     "description": "Total tokens"
                   }
                 },
+                "required": [
+                  "prompt",
+                  "completion",
+                  "total"
+                ],
                 "additionalProperties": false,
                 "description": "Token usage for this message"
+              },
+              "cost": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Cost for this message in USD"
               },
               "pinned": {
                 "type": "boolean",
@@ -410,6 +420,38 @@
             "budgetPercentage"
           ],
           "additionalProperties": false
+        },
+        "totalTokens": {
+          "type": "object",
+          "properties": {
+            "prompt": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Input tokens"
+            },
+            "completion": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Output tokens"
+            },
+            "total": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Total tokens"
+            }
+          },
+          "required": [
+            "prompt",
+            "completion",
+            "total"
+          ],
+          "additionalProperties": false,
+          "description": "Total tokens across all messages"
+        },
+        "totalCost": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Total cost for this session in USD"
         },
         "status": {
           "type": "string",

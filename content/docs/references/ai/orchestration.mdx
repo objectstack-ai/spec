@@ -69,6 +69,8 @@ const result = AIOrchestrationSchema.parse(data);
 | **tasksSucceeded** | `integer` | ✅ | Number of tasks succeeded |
 | **tasksFailed** | `integer` | ✅ | Number of tasks failed |
 | **taskResults** | `object[]` | optional |  |
+| **tokens** | `object` | optional | Total token usage for this execution |
+| **cost** | `number` | optional | Total cost for this execution in USD |
 | **error** | `string` | optional |  |
 | **startedAt** | `string` | ✅ | ISO timestamp |
 | **completedAt** | `string` | optional | ISO timestamp |

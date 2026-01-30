@@ -269,6 +269,38 @@
           "type": "boolean",
           "description": "Whether query needs clarification"
         },
+        "tokens": {
+          "type": "object",
+          "properties": {
+            "prompt": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Input tokens"
+            },
+            "completion": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Output tokens"
+            },
+            "total": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Total tokens"
+            }
+          },
+          "required": [
+            "prompt",
+            "completion",
+            "total"
+          ],
+          "additionalProperties": false,
+          "description": "Token usage for this query"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Cost for this query in USD"
+        },
         "suggestions": {
           "type": "array",
           "items": {

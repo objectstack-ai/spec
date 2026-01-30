@@ -77,6 +77,7 @@ const result = ConversationAnalyticsSchema.parse(data);
 | **toolCallId** | `string` | optional | Tool call ID this message responds to |
 | **name** | `string` | optional | Name of the function/user |
 | **tokens** | `object` | optional | Token usage for this message |
+| **cost** | `number` | optional | Cost for this message in USD |
 | **pinned** | `boolean` | optional | Prevent removal during pruning |
 | **importance** | `number` | optional | Importance score for pruning |
 | **embedding** | `number[]` | optional | Vector embedding for semantic search |
@@ -97,6 +98,8 @@ const result = ConversationAnalyticsSchema.parse(data);
 | **tokenBudget** | `object` | ✅ |  |
 | **messages** | `object[]` | optional |  |
 | **tokens** | `object` | optional |  |
+| **totalTokens** | `object` | optional | Total tokens across all messages |
+| **totalCost** | `number` | optional | Total cost for this session in USD |
 | **status** | `Enum<'active' \| 'paused' \| 'completed' \| 'archived'>` | optional |  |
 | **createdAt** | `string` | ✅ | ISO 8601 timestamp |
 | **updatedAt** | `string` | ✅ | ISO 8601 timestamp |

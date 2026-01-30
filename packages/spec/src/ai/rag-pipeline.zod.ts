@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TokenUsageSchema } from './cost.zod';
 
 /**
  * RAG (Retrieval-Augmented Generation) Pipeline Protocol
@@ -251,7 +252,9 @@ export const RAGQueryResponseSchema = z.object({
     chunkId: z.string().optional(),
   })),
   context: z.string().describe('Assembled context for LLM'),
-  tokensUsed: z.number().int().optional(),
+  tokens: TokenUsageSchema.optional().describe('Token usage for this query'),
+  cost: z.number().nonnegative().optional().describe('Cost for this query in USD'),
+  tokensUsed: z.number().int().optional().describe('Deprecated: use tokens.total instead'),
   retrievalTime: z.number().optional().describe('Retrieval time in milliseconds'),
 });
 
