@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { WebhookSchema } from '../automation/webhook.zod';
 import { AuthConfigSchema as ConnectorAuthConfigSchema } from '../auth/config.zod';
+import { FieldMappingSchema as BaseFieldMappingSchema, TransformTypeSchema } from '../shared/mapping.zod';
 
 /**
  * Connector Protocol - LEVEL 3: Enterprise Connector
@@ -55,10 +56,14 @@ export type Authentication = z.infer<typeof ConnectorAuthConfigSchema>;
 
 // ============================================================================
 // Field Mapping Schema
+// Uses the canonical field mapping protocol from shared/mapping.zod.ts
+// Extended with connector-specific features
 // ============================================================================
 
 /**
- * Field Transformation Function
+ * Field Transformation Function (Connector-specific)
+ * 
+ * @deprecated Use TransformTypeSchema from shared/mapping.zod.ts instead
  */
 export const FieldTransformSchema = z.object({
   type: z.enum([
@@ -78,22 +83,14 @@ export const FieldTransformSchema = z.object({
 export type FieldTransform = z.infer<typeof FieldTransformSchema>;
 
 /**
- * Field Mapping Configuration
- * Maps fields between ObjectStack and external system
+ * Connector Field Mapping Configuration
+ * 
+ * Extends the base field mapping with connector-specific features
+ * like bidirectional sync modes and data type mapping.
  */
-export const FieldMappingSchema = z.object({
+export const FieldMappingSchema = BaseFieldMappingSchema.extend({
   /**
-   * Source field name (in external system)
-   */
-  sourceField: z.string().describe('Field name in external system'),
-  
-  /**
-   * Target field name (in ObjectStack)
-   */
-  targetField: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Field name in ObjectStack (snake_case)'),
-  
-  /**
-   * Data type mapping
+   * Data type mapping (connector-specific)
    */
   dataType: z.enum([
     'string',
@@ -111,17 +108,7 @@ export const FieldMappingSchema = z.object({
   required: z.boolean().default(false).describe('Field is required'),
   
   /**
-   * Default value if source is empty
-   */
-  defaultValue: z.any().optional().describe('Default value'),
-  
-  /**
-   * Field transformation rules
-   */
-  transform: FieldTransformSchema.optional().describe('Field transformation'),
-  
-  /**
-   * Bidirectional sync mode
+   * Bidirectional sync mode (connector-specific)
    */
   syncMode: z.enum([
     'read_only',      // Only sync from external to ObjectStack

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { FieldMappingSchema } from '../shared/mapping.zod';
 
 /**
  * Data Sync Protocol - LEVEL 1: Simple Synchronization
@@ -98,42 +99,13 @@ export const ConflictResolutionSchema = z.enum([
 export type ConflictResolution = z.infer<typeof ConflictResolutionSchema>;
 
 /**
- * Field Mapping Schema
+ * Field Mapping for Data Sync
  * 
- * Maps fields between source and destination systems.
+ * Uses the canonical field mapping protocol from shared/mapping.zod.ts
+ * for simple 1:1 field transformations.
+ * 
+ * @see {@link FieldMappingSchema} for the base field mapping schema
  */
-export const FieldMappingSchema = z.object({
-  /**
-   * Source field name
-   */
-  sourceField: z.string().describe('Source field name'),
-
-  /**
-   * Destination field name
-   */
-  destinationField: z.string().describe('Destination field name'),
-
-  /**
-   * Transformation formula
-   * JavaScript expression to transform the value
-   * 
-   * @example "value.toUpperCase()"
-   * @example "new Date(value).toISOString()"
-   */
-  transform: z.string().optional().describe('Transformation formula'),
-
-  /**
-   * Default value if source is null/undefined
-   */
-  default: z.any().optional().describe('Default value'),
-
-  /**
-   * Whether to sync null values
-   */
-  syncNull: z.boolean().default(false).describe('Sync null values'),
-});
-
-export type FieldMapping = z.infer<typeof FieldMappingSchema>;
 
 /**
  * Data Source Configuration

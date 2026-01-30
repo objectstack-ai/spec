@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { FieldMappingSchema as BaseFieldMappingSchema } from '../shared/mapping.zod';
 
 /**
  * External Data Source Schema
@@ -63,36 +64,27 @@ export const ExternalDataSourceSchema = z.object({
 });
 
 /**
- * Field Mapping Schema
+ * Field Mapping Schema for External Lookups
  * 
- * Maps external system fields to local object fields.
- * Defines data type and read/write permissions.
+ * Extends the base field mapping with external lookup specific features.
+ * Uses the canonical field mapping protocol from shared/mapping.zod.ts.
+ * 
+ * @see {@link BaseFieldMappingSchema} for the base field mapping schema
  * 
  * @example
  * ```json
  * {
- *   "externalField": "AccountName",
- *   "localField": "name",
- *   "type": "text",
+ *   "source": "AccountName",
+ *   "target": "name",
  *   "readonly": true
  * }
  * ```
  */
-export const FieldMappingSchema = z.object({
+export const FieldMappingSchema = BaseFieldMappingSchema.extend({
   /**
-   * Field name in the external system
+   * Field data type
    */
-  externalField: z.string().describe('External field name'),
-
-  /**
-   * Corresponding local field name (snake_case)
-   */
-  localField: z.string().describe('Local field name'),
-
-  /**
-   * Data type of the field
-   */
-  type: z.string().describe('Field type'),
+  type: z.string().optional().describe('Field type'),
 
   /**
    * Whether the field is read-only
