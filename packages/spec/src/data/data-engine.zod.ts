@@ -255,6 +255,37 @@ export const DataEngineAggregateRequestSchema = z.object({
 });
 
 /**
+ * Data Engine Execute Request (Raw Command)
+ * Execute a raw command/query native to the driver (e.g. SQL, Shell, Remote API).
+ */
+export const DataEngineExecuteRequestSchema = z.object({
+  method: z.literal('execute'),
+  /** The abstract command (string SQL, or JSON object) */
+  command: z.any(),
+  /** Optional options */
+  options: z.record(z.any()).optional()
+});
+
+/**
+ * Data Engine Vector Find Request (AI/RAG)
+ * Perform a similarity search using vector embeddings.
+ */
+export const DataEngineVectorFindRequestSchema = z.object({
+  method: z.literal('vectorFind'),
+  object: z.string(),
+  /** The vector embedding to search for */
+  vector: z.array(z.number()),
+  /** Optional pre-filter (Metadata filtering) */
+  filter: DataEngineFilterSchema.optional(),
+  /** Fields to select */
+  select: z.array(z.string()).optional(),
+  /** Number of results */
+  limit: z.number().int().default(5).optional(),
+  /** Minimum similarity score (0-1) or distance threshold */
+  threshold: z.number().optional()
+});
+
+/**
  * Data Engine Batch Request
  * Execute multiple operations in a single transaction/request efficiently.
  */
@@ -267,7 +298,9 @@ export const DataEngineBatchRequestSchema = z.object({
     DataEngineUpdateRequestSchema,
     DataEngineDeleteRequestSchema,
     DataEngineCountRequestSchema,
-    DataEngineAggregateRequestSchema
+    DataEngineAggregateRequestSchema,
+    DataEngineExecuteRequestSchema,
+    DataEngineVectorFindRequestSchema
   ])),
   /** 
    * Transaction Mode
@@ -289,7 +322,9 @@ export const DataEngineRequestSchema = z.discriminatedUnion('method', [
   DataEngineDeleteRequestSchema,
   DataEngineCountRequestSchema,
   DataEngineAggregateRequestSchema,
-  DataEngineBatchRequestSchema
+  DataEngineBatchRequestSchema,
+  DataEngineExecuteRequestSchema,
+  DataEngineVectorFindRequestSchema
 ]).describe('Virtual ObjectQL Request Protocol');
 
 // ==========================================================================
