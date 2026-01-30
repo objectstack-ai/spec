@@ -18,6 +18,18 @@ ObjectStack is a metadata-driven platform built on three foundational protocols:
 
 **Learn more:** [Architecture Overview](./content/docs/introduction/architecture.mdx)
 
+### 🤖 AI-Native Development
+
+ObjectStack is designed for AI-driven development:
+
+- **Metadata-First**: Everything is configuration, enabling AI to rapidly generate complete applications
+- **Protocol-Based**: Strict file naming conventions (`*.object.ts`, `*.view.ts`, etc.) guide AI code generation
+- **Type-Safe**: Zod schemas ensure AI-generated code is validated at runtime
+- **Iterative**: Support for rapid prototyping and version evolution with semantic versioning
+- **Comprehensive**: Build complete CRM, ERP, or custom enterprise apps in hours, not months
+
+**Start building with AI:** [AI Development Guide](./AI_DEVELOPMENT_GUIDE.md) | [ERP Tutorial](./content/docs/ai-erp-tutorial.md)
+
 ## 📚 Documentation
 
 📖 **[Read the Full Documentation](./content/docs/)**
@@ -27,6 +39,11 @@ ObjectStack is a metadata-driven platform built on three foundational protocols:
 - **Getting Started:**
   - [Introduction](./content/docs/introduction/) - Core concepts and architecture
   - [Quick Start Examples](./examples/) - CRM, Todo, and plugin examples
+  
+- **🤖 AI Agent Development:**
+  - **[AI Development Guide](./AI_DEVELOPMENT_GUIDE.md)** - 完整的 AI Agent 企业应用开发指南 | Complete guide for AI-driven enterprise app development
+  - [Quick Reference](./content/docs/ai-agent-quick-reference.md) - AI 代理快速参考手册 | Quick lookup for AI agents
+  - [ERP Tutorial](./content/docs/ai-erp-tutorial.md) - 从零构建 ERP 系统实战教程 | Hands-on tutorial for building an ERP system
   
 - **Protocol References:**
   - [Protocol Reference](./content/docs/references/) - All 70 protocol specifications
