@@ -63,6 +63,25 @@ pnpm docs:dev
 | [`examples/crm`](examples/crm) | Full-featured CRM example | 🟢 Complete |
 | [`examples/todo`](examples/todo) | Simple todo app example | 🟢 Active |
 
+## 🏗️ Architecture & Planning
+
+**Strategic Planning Documents:**
+- **[Quick Reference](./ARCHITECTURE_QUICK_REFERENCE.md)** - Visual overview of the 60+ repository ecosystem ⭐ **Start Here!**
+- **[GitHub Organization Structure](./GITHUB_ORGANIZATION_STRUCTURE.md)** ([中文版](./GITHUB_ORGANIZATION_STRUCTURE_CN.md)) - Complete repository architecture for the ObjectStack ecosystem
+- **[Implementation Summary](./PROJECT_STRUCTURE_IMPLEMENTATION_SUMMARY.md)** - Summary of architecture planning and next steps
+- **[Transformation Plan V2](./TRANSFORMATION_PLAN_V2.md)** - 12-month protocol development roadmap
+- **[Technical Recommendations V2](./TECHNICAL_RECOMMENDATIONS_V2.md)** - Missing protocols and enhancement recommendations
+- **[Evaluation Summary](./EVALUATION_SUMMARY.md)** - Current state analysis and next steps
+
+**Repository Organization:**
+- 🎯 **Core Repositories** (7): spec, core, objectql, runtime, client, cli, types
+- 🔌 **Driver Repositories** (12+): PostgreSQL, MySQL, MongoDB, Redis, etc.
+- 🔗 **Connector Repositories** (10+): Salesforce, Slack, Stripe, etc.
+- ⚡ **Plugin Repositories** (15+): Encryption, caching, multi-tenancy, AI, etc.
+- 📦 **Template Repositories** (10+): CRM, helpdesk, project management, etc.
+
+See the **[GitHub Organization Structure](./GITHUB_ORGANIZATION_STRUCTURE.md)** document for complete details on repository architecture, naming conventions, and development workflows.
+
 ## 🤝 Contributing
 
 We welcome contributions! Please read our **[Contributing Guide](./CONTRIBUTING.md)** for:
