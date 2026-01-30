@@ -12,8 +12,8 @@ description: Websocket protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AckMessageSchema, CursorMessageSchema, CursorPositionSchema, DocumentStateSchema, EditMessageSchema, EditOperationSchema, EditOperationTypeSchema, ErrorMessageSchema, EventFilterSchema, EventFilterConditionSchema, EventMessageSchema, EventPatternSchema, EventSubscriptionSchema, FilterOperatorSchema, PingMessageSchema, PongMessageSchema, PresenceMessageSchema, PresenceStateSchema, PresenceUpdateSchema, SubscribeMessageSchema, UnsubscribeMessageSchema, UnsubscribeRequestSchema, WebSocketConfigSchema, WebSocketMessageSchema, WebSocketMessageTypeSchema, WebSocketPresenceStatusSchema } from '@objectstack/spec/api';
-import type { AckMessage, CursorMessage, CursorPosition, DocumentState, EditMessage, EditOperation, EditOperationType, ErrorMessage, EventFilter, EventFilterCondition, EventMessage, EventPattern, EventSubscription, FilterOperator, PingMessage, PongMessage, PresenceMessage, PresenceState, PresenceUpdate, SubscribeMessage, UnsubscribeMessage, UnsubscribeRequest, WebSocketConfig, WebSocketMessage, WebSocketMessageType, WebSocketPresenceStatus } from '@objectstack/spec/api';
+import { AckMessageSchema, CursorMessageSchema, CursorPositionSchema, DocumentStateSchema, EditMessageSchema, EditOperationSchema, EditOperationTypeSchema, ErrorMessageSchema, EventFilterSchema, EventFilterConditionSchema, EventMessageSchema, EventPatternSchema, EventSubscriptionSchema, FilterOperatorSchema, PingMessageSchema, PongMessageSchema, PresenceMessageSchema, PresenceStateSchema, PresenceUpdateSchema, SimpleCursorPositionSchema, SimplePresenceStateSchema, SubscribeMessageSchema, UnsubscribeMessageSchema, UnsubscribeRequestSchema, WebSocketConfigSchema, WebSocketEventSchema, WebSocketMessageSchema, WebSocketMessageTypeSchema, WebSocketPresenceStatusSchema, WebSocketServerConfigSchema } from '@objectstack/spec/api';
+import type { AckMessage, CursorMessage, CursorPosition, DocumentState, EditMessage, EditOperation, EditOperationType, ErrorMessage, EventFilter, EventFilterCondition, EventMessage, EventPattern, EventSubscription, FilterOperator, PingMessage, PongMessage, PresenceMessage, PresenceState, PresenceUpdate, SimpleCursorPosition, SimplePresenceState, SubscribeMessage, UnsubscribeMessage, UnsubscribeRequest, WebSocketConfig, WebSocketEvent, WebSocketMessage, WebSocketMessageType, WebSocketPresenceStatus, WebSocketServerConfig } from '@objectstack/spec/api';
 
 // Validate data
 const result = AckMessageSchema.parse(data);
@@ -289,6 +289,34 @@ Event pattern (supports wildcards like "record.*" or "*.created")
 
 ---
 
+## SimpleCursorPosition
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **userId** | `string` | ✅ | User identifier |
+| **recordId** | `string` | ✅ | Record identifier being edited |
+| **fieldName** | `string` | ✅ | Field name being edited |
+| **position** | `number` | ✅ | Cursor position (character offset from start) |
+| **selection** | `object` | optional | Text selection range (if text is selected) |
+
+---
+
+## SimplePresenceState
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **userId** | `string` | ✅ | User identifier |
+| **userName** | `string` | ✅ | User display name |
+| **status** | `Enum<'online' \| 'away' \| 'offline'>` | ✅ | User presence status |
+| **lastSeen** | `number` | ✅ | Unix timestamp of last activity in milliseconds |
+| **metadata** | `Record<string, any>` | optional | Additional presence metadata (e.g., current page, custom status) |
+
+---
+
 ## SubscribeMessage
 
 ### Properties
@@ -342,6 +370,19 @@ Event pattern (supports wildcards like "record.*" or "*.created")
 
 ---
 
+## WebSocketEvent
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'subscribe' \| 'unsubscribe' \| 'data-change' \| 'presence-update' \| 'cursor-update' \| 'error'>` | ✅ | Event type |
+| **channel** | `string` | ✅ | Channel identifier (e.g., "record.account.123", "user.456") |
+| **payload** | `any` | optional | Event payload data |
+| **timestamp** | `number` | ✅ | Unix timestamp in milliseconds |
+
+---
+
 ## WebSocketMessage
 
 ---
@@ -371,4 +412,19 @@ Event pattern (supports wildcards like "record.*" or "*.created")
 * `away`
 * `busy`
 * `offline`
+
+---
+
+## WebSocketServerConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional | Enable WebSocket server |
+| **path** | `string` | optional | WebSocket endpoint path |
+| **heartbeatInterval** | `number` | optional | Heartbeat interval in milliseconds |
+| **reconnectAttempts** | `number` | optional | Maximum reconnection attempts for clients |
+| **presence** | `boolean` | optional | Enable presence tracking |
+| **cursorSharing** | `boolean` | optional | Enable collaborative cursor sharing |
 

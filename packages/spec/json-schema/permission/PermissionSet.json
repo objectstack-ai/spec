@@ -100,6 +100,116 @@
             "type": "string"
           },
           "description": "System level capabilities"
+        },
+        "rls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z_][a-z0-9_]*$",
+                "description": "Rule unique identifier (snake_case)"
+              },
+              "objectName": {
+                "type": "string",
+                "description": "Target object name"
+              },
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "read",
+                  "create",
+                  "update",
+                  "delete"
+                ],
+                "description": "Database operation this rule applies to"
+              },
+              "filter": {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "string",
+                    "description": "Field name to filter on"
+                  },
+                  "operator": {
+                    "type": "string",
+                    "enum": [
+                      "eq",
+                      "ne",
+                      "in",
+                      "nin",
+                      "gt",
+                      "gte",
+                      "lt",
+                      "lte"
+                    ],
+                    "description": "Filter operator"
+                  },
+                  "value": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "array"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "contextVariable": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "contextVariable"
+                        ],
+                        "additionalProperties": false,
+                        "description": "Reference to context variable (e.g., { contextVariable: \"current_user.tenant_id\" })"
+                      }
+                    ],
+                    "description": "Filter value or context variable reference"
+                  }
+                },
+                "required": [
+                  "field",
+                  "operator",
+                  "value"
+                ],
+                "additionalProperties": false,
+                "description": "Filter condition for row-level access"
+              },
+              "enabled": {
+                "type": "boolean",
+                "default": true,
+                "description": "Whether this rule is active"
+              },
+              "priority": {
+                "type": "number",
+                "default": 0,
+                "description": "Rule evaluation priority (higher = evaluated first)"
+              }
+            },
+            "required": [
+              "name",
+              "objectName",
+              "operation",
+              "filter"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Row-level security rules"
+        },
+        "contextVariables": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Context variables for RLS evaluation"
         }
       },
       "required": [

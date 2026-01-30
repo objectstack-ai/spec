@@ -12,8 +12,8 @@ description: Permission protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { FieldPermissionSchema, ObjectPermissionSchema, PermissionSetSchema } from '@objectstack/spec/permission';
-import type { FieldPermission, ObjectPermission, PermissionSet } from '@objectstack/spec/permission';
+import { FieldPermissionSchema, ObjectPermissionSchema, PermissionSetSchema, RLSRuleSchema } from '@objectstack/spec/permission';
+import type { FieldPermission, ObjectPermission, PermissionSet, RLSRule } from '@objectstack/spec/permission';
 
 // Validate data
 const result = FieldPermissionSchema.parse(data);
@@ -62,4 +62,21 @@ const result = FieldPermissionSchema.parse(data);
 | **objects** | `Record<string, object>` | ✅ | Entity permissions |
 | **fields** | `Record<string, object>` | optional | Field level security |
 | **systemPermissions** | `string[]` | optional | System level capabilities |
+| **rls** | `object[]` | optional | Row-level security rules |
+| **contextVariables** | `Record<string, any>` | optional | Context variables for RLS evaluation |
+
+---
+
+## RLSRule
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Rule unique identifier (snake_case) |
+| **objectName** | `string` | ✅ | Target object name |
+| **operation** | `Enum<'read' \| 'create' \| 'update' \| 'delete'>` | ✅ | Database operation this rule applies to |
+| **filter** | `object` | ✅ | Filter condition for row-level access |
+| **enabled** | `boolean` | optional | Whether this rule is active |
+| **priority** | `number` | optional | Rule evaluation priority (higher = evaluated first) |
 
