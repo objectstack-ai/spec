@@ -1,0 +1,46 @@
+{
+  "$ref": "#/definitions/ReplicationConfig",
+  "definitions": {
+    "ReplicationConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable replication"
+        },
+        "replicaSetName": {
+          "type": "string",
+          "description": "Replica set name"
+        },
+        "replicas": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "description": "Number of replicas"
+        },
+        "readPreference": {
+          "type": "string",
+          "enum": [
+            "primary",
+            "primaryPreferred",
+            "secondary",
+            "secondaryPreferred",
+            "nearest"
+          ],
+          "description": "Read preference for replica set"
+        },
+        "writeConcern": {
+          "type": "string",
+          "enum": [
+            "majority",
+            "acknowledged",
+            "unacknowledged"
+          ],
+          "description": "Write concern level"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

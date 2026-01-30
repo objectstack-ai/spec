@@ -80,7 +80,7 @@ export const ExternalDataSourceSchema = z.object({
  * }
  * ```
  */
-export const FieldMappingSchema = BaseFieldMappingSchema.extend({
+export const ExternalFieldMappingSchema = BaseFieldMappingSchema.extend({
   /**
    * Field data type
    */
@@ -178,7 +178,7 @@ export const ExternalLookupSchema = z.object({
   /**
    * Mapping between external and local fields
    */
-  fieldMappings: z.array(FieldMappingSchema).describe('Field mappings'),
+  fieldMappings: z.array(ExternalFieldMappingSchema).describe('Field mappings'),
 
   /**
    * Cache configuration for external data
@@ -244,4 +244,4 @@ export const ExternalLookupSchema = z.object({
 // Type exports
 export type ExternalLookup = z.infer<typeof ExternalLookupSchema>;
 export type ExternalDataSource = z.infer<typeof ExternalDataSourceSchema>;
-export type FieldMapping = z.infer<typeof FieldMappingSchema>;
+export type ExternalFieldMapping = z.infer<typeof ExternalFieldMappingSchema>;

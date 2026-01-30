@@ -4,8 +4,11 @@ export * from './object.zod';
 export * from './field.zod';
 export * from './validation.zod';
 export * from './hook.zod';
+export * from './mapping.zod';
 export * from './data-engine.zod';
 export * from './driver.zod';
+export * from './driver-sql.zod';
+export * from './driver-nosql.zod';
 
 export * from './dataset.zod';
 
