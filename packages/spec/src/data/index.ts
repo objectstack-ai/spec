@@ -4,6 +4,8 @@ export * from './object.zod';
 export * from './field.zod';
 export * from './validation.zod';
 export * from './hook.zod';
+export * from './data-engine.zod';
+export * from './driver.zod';
 
 export * from './dataset.zod';
 
@@ -11,4 +13,4 @@ export * from './dataset.zod';
 export * from './document.zod';
 
 // External Lookup Protocol
-export * from './external-lookup.zod';
+export * from './external-lookup.zod'; 
