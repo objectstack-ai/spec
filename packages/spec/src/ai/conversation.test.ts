@@ -504,7 +504,7 @@ describe('Real-World Conversation Examples', () => {
           timestamp: '2024-01-15T09:00:05Z',
           role: 'user',
           content: 'Hi, I have an issue with my order #ORD-2024-001',
-          tokens: { prompt: 15, total: 15 },
+          tokens: { prompt: 15, completion: 0, total: 15 },
         },
         {
           id: 'msg-2',
