@@ -46,11 +46,15 @@ const result = ReportSchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **type** | `Enum<'bar' \| 'column' \| 'line' \| 'pie' \| 'donut' \| 'scatter' \| 'funnel'>` | ✅ | Chart type |
-| **title** | `string` | optional |  |
-| **showLegend** | `boolean` | optional |  |
+| **type** | `Enum<'bar' \| 'horizontal-bar' \| 'column' \| 'grouped-bar' \| 'stacked-bar' \| 'line' \| 'area' \| 'stacked-area' \| 'step-line' \| 'pie' \| 'donut' \| 'funnel' \| 'scatter' \| 'bubble' \| 'treemap' \| 'sunburst' \| 'sankey' \| 'gauge' \| 'metric' \| 'kpi' \| 'choropleth' \| 'bubble-map' \| 'heatmap' \| 'radar' \| 'waterfall' \| 'box-plot' \| 'violin' \| 'table' \| 'pivot'>` | ✅ |  |
+| **title** | `string` | optional | Chart title |
+| **description** | `string` | optional | Chart description |
+| **showLegend** | `boolean` | optional | Display legend |
+| **showDataLabels** | `boolean` | optional | Display data labels on chart |
+| **colors** | `string[]` | optional | Custom color palette |
 | **xAxis** | `string` | ✅ | Grouping field for X-Axis |
 | **yAxis** | `string` | ✅ | Summary field for Y-Axis |
+| **groupBy** | `string` | optional | Additional grouping field |
 
 ---
 

@@ -5,8 +5,10 @@
  * - App, Page, View (Grid/Kanban)
  * - Dashboard (Widgets), Report
  * - Action (Triggers)
+ * - Chart (Unified Visualization Types)
  */
 
+export * from './chart.zod';
 export * from './app.zod';
 export * from './view.zod';
 export * from './dashboard.zod';
