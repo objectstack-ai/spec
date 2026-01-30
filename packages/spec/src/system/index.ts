@@ -32,6 +32,7 @@ export * from './datasource.zod';
 // Driver Protocol
 export * from './driver.zod';
 export * from './driver-sql.zod';
+export * from './driver-nosql.zod';
 export * from './driver/mongo.zod';
 export * from './driver/postgres.zod';
 

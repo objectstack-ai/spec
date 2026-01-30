@@ -1,0 +1,24 @@
+{
+  "$ref": "#/definitions/DeleteDataRequest",
+  "definitions": {
+    "DeleteDataRequest": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "Object name"
+        },
+        "id": {
+          "type": "string",
+          "description": "Record ID to delete"
+        }
+      },
+      "required": [
+        "object",
+        "id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

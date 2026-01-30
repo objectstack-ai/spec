@@ -1,0 +1,53 @@
+{
+  "$ref": "#/definitions/UpdateManyDataRequest",
+  "definitions": {
+    "UpdateManyDataRequest": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "Object name"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Record ID"
+              },
+              "data": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Fields to update"
+              }
+            },
+            "required": [
+              "id",
+              "data"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Array of updates"
+        },
+        "options": {
+          "type": "object",
+          "properties": {
+            "allOrNone": {
+              "type": "boolean",
+              "description": "Atomic transaction mode"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "object",
+        "records"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -9,6 +9,7 @@
     "errors",
     "graphql",
     "odata",
+    "protocol",
     "realtime",
     "router",
     "view-storage",

@@ -22,6 +22,8 @@ export * from './batch.zod';
 export * from './cache.zod';
 export * from './errors.zod';
 export * from './view-storage.zod';
+export * from './protocol.zod';
 
-export * from './protocol';
+// Legacy interface export (deprecated)
+export type { IObjectStackProtocol } from './protocol';
 

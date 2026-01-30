@@ -1,0 +1,37 @@
+{
+  "$ref": "#/definitions/DeleteManyDataRequest",
+  "definitions": {
+    "DeleteManyDataRequest": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "Object name"
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Array of record IDs to delete"
+        },
+        "options": {
+          "type": "object",
+          "properties": {
+            "allOrNone": {
+              "type": "boolean",
+              "description": "Atomic transaction mode"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "object",
+        "ids"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

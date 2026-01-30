@@ -1,0 +1,25 @@
+{
+  "$ref": "#/definitions/CreateDataRequest",
+  "definitions": {
+    "CreateDataRequest": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "Object name"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Record data to create"
+        }
+      },
+      "required": [
+        "object",
+        "data"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

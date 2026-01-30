@@ -1,0 +1,47 @@
+{
+  "$ref": "#/definitions/NoSQLTransactionOptions",
+  "definitions": {
+    "NoSQLTransactionOptions": {
+      "type": "object",
+      "properties": {
+        "readConcern": {
+          "type": "string",
+          "enum": [
+            "local",
+            "majority",
+            "linearizable",
+            "snapshot"
+          ],
+          "description": "Read concern level"
+        },
+        "writeConcern": {
+          "type": "string",
+          "enum": [
+            "majority",
+            "acknowledged",
+            "unacknowledged"
+          ],
+          "description": "Write concern level"
+        },
+        "readPreference": {
+          "type": "string",
+          "enum": [
+            "primary",
+            "primaryPreferred",
+            "secondary",
+            "secondaryPreferred",
+            "nearest"
+          ],
+          "description": "Read preference"
+        },
+        "maxCommitTimeMS": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "description": "Transaction commit timeout (ms)"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
