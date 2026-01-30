@@ -151,6 +151,14 @@ export const PartitioningConfigSchema = z.object({
   strategy: z.enum(['range', 'hash', 'list']).describe('Partitioning strategy: range (date ranges), hash (consistent hashing), list (predefined values)'),
   key: z.string().describe('Field name to partition by'),
   interval: z.string().optional().describe('Partition interval for range strategy (e.g., "1 month", "1 year")'),
+}).refine((data) => {
+  // If strategy is 'range', interval must be provided
+  if (data.strategy === 'range' && !data.interval) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'interval is required when strategy is "range"',
 });
 
 /**

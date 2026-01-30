@@ -100,6 +100,36 @@ describe('SSLConfigSchema', () => {
     const result = SSLConfigSchema.parse(sslConfig);
     expect(result.rejectUnauthorized).toBe(true);
   });
+
+  it('should reject SSL config with cert but no key', () => {
+    const sslConfig = {
+      cert: '/path/to/cert.pem',
+      // missing key
+    };
+
+    const result = SSLConfigSchema.safeParse(sslConfig);
+    expect(result.success).toBe(false);
+  });
+
+  it('should reject SSL config with key but no cert', () => {
+    const sslConfig = {
+      key: '/path/to/key.pem',
+      // missing cert
+    };
+
+    const result = SSLConfigSchema.safeParse(sslConfig);
+    expect(result.success).toBe(false);
+  });
+
+  it('should accept SSL config with both cert and key', () => {
+    const sslConfig = {
+      cert: '/path/to/cert.pem',
+      key: '/path/to/key.pem',
+    };
+
+    const result = SSLConfigSchema.safeParse(sslConfig);
+    expect(result.success).toBe(true);
+  });
 });
 
 describe('SQLDriverConfigSchema', () => {
@@ -311,5 +341,52 @@ describe('SQLDriverConfigSchema', () => {
     };
 
     expect(() => SQLDriverConfigSchema.parse(config)).not.toThrow();
+  });
+
+  it('should reject SQL driver config with ssl=true but no sslConfig', () => {
+    const config = {
+      name: 'test-db',
+      type: 'sql',
+      dialect: 'postgresql',
+      connectionString: 'postgresql://localhost/test',
+      dataTypeMapping: {
+        text: 'VARCHAR(255)',
+        number: 'NUMERIC',
+        boolean: 'BOOLEAN',
+        date: 'DATE',
+        datetime: 'TIMESTAMP',
+      },
+      ssl: true,
+      // missing sslConfig
+      capabilities: {},
+    };
+
+    const result = SQLDriverConfigSchema.safeParse(config);
+    expect(result.success).toBe(false);
+  });
+
+  it('should accept SQL driver config with ssl=true and sslConfig provided', () => {
+    const config = {
+      name: 'test-db',
+      type: 'sql',
+      dialect: 'postgresql',
+      connectionString: 'postgresql://localhost/test',
+      dataTypeMapping: {
+        text: 'VARCHAR(255)',
+        number: 'NUMERIC',
+        boolean: 'BOOLEAN',
+        date: 'DATE',
+        datetime: 'TIMESTAMP',
+      },
+      ssl: true,
+      sslConfig: {
+        rejectUnauthorized: true,
+        ca: '/path/to/ca.pem',
+      },
+      capabilities: {},
+    };
+
+    const result = SQLDriverConfigSchema.safeParse(config);
+    expect(result.success).toBe(true);
   });
 });

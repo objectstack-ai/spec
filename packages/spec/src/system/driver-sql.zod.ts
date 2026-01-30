@@ -62,6 +62,13 @@ export const SSLConfigSchema = z.object({
   ca: z.string().optional().describe('CA certificate file path or content'),
   cert: z.string().optional().describe('Client certificate file path or content'),
   key: z.string().optional().describe('Client private key file path or content'),
+}).refine((data) => {
+  // If cert is provided, key must also be provided, and vice versa
+  const hasCert = data.cert !== undefined;
+  const hasKey = data.key !== undefined;
+  return hasCert === hasKey;
+}, {
+  message: 'Client certificate (cert) and private key (key) must be provided together',
 });
 
 export type SSLConfig = z.infer<typeof SSLConfigSchema>;
@@ -139,6 +146,14 @@ export const SQLDriverConfigSchema = DriverConfigSchema.extend({
   dataTypeMapping: DataTypeMappingSchema.describe('SQL data type mapping configuration'),
   ssl: z.boolean().default(false).describe('Enable SSL/TLS connection'),
   sslConfig: SSLConfigSchema.optional().describe('SSL/TLS configuration (required when ssl is true)'),
+}).refine((data) => {
+  // If ssl is enabled, sslConfig must be provided
+  if (data.ssl && !data.sslConfig) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'sslConfig is required when ssl is true',
 });
 
 export type SQLDriverConfig = z.infer<typeof SQLDriverConfigSchema>;

@@ -13,8 +13,8 @@
           "type": "number",
           "minimum": 0,
           "maximum": 1,
-          "default": 1,
-          "description": "Minimum ratio of non-null values (0-1, default: 1)"
+          "default": 0,
+          "description": "Minimum ratio of non-null values (0-1, default: 0 = no requirement)"
         },
         "accuracy": {
           "type": "object",

@@ -250,6 +250,14 @@ export const DriverCapabilitiesSchema = z.object({
    * Whether the driver supports query result caching.
    */
   queryCache: z.boolean().default(false).describe('Supports query result caching'),
+}).refine((data) => {
+  // Ensure deprecated geoSpatial and new geospatialQuery are consistent if both are provided
+  if (data.geoSpatial !== undefined && data.geospatialQuery !== undefined && data.geoSpatial !== data.geospatialQuery) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Deprecated geoSpatial and geospatialQuery must have the same value if both are provided',
 });
 
 /**

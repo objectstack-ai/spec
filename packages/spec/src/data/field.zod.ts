@@ -280,7 +280,7 @@ export const DataQualityRulesSchema = z.object({
   uniqueness: z.boolean().default(false).describe('Enforce unique values across all records'),
   
   /** Completeness ratio (0-1) indicating minimum percentage of non-null values */
-  completeness: z.number().min(0).max(1).default(1).describe('Minimum ratio of non-null values (0-1, default: 1)'),
+  completeness: z.number().min(0).max(1).default(0).describe('Minimum ratio of non-null values (0-1, default: 0 = no requirement)'),
   
   /** Accuracy validation against authoritative source */
   accuracy: z.object({
