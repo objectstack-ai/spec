@@ -63,6 +63,29 @@ pnpm docs:dev
 | [`examples/crm`](examples/crm) | Full-featured CRM example | 🟢 Complete |
 | [`examples/todo`](examples/todo) | Simple todo app example | 🟢 Active |
 
+## 📊 Protocol Evaluation & Roadmap
+
+**Latest Evaluation**: 2026-01-30
+
+We've completed a comprehensive evaluation of all 92 protocols against global enterprise software standards (Salesforce, ServiceNow, SAP, Kubernetes).
+
+**Quick Access**:
+- 📋 **[Quick Reference Guide](./QUICK_REFERENCE.md)** - Visual summary, next actions (10 min read)
+- 🎯 **[Executive Summary (中英双语)](./EXECUTIVE_SUMMARY_CN.md)** - Key findings, competitive analysis (10 min)
+- 📖 **[Full Evaluation Report](./PROTOCOL_EVALUATION_2026.md)** - Detailed analysis (45 min)
+- 🚀 **[6-Month Action Plan](./IMPROVEMENT_ACTION_PLAN.md)** - Implementation roadmap (30 min)
+
+**Current State**: 92 protocols, 80% complete  
+**Target State**: 120 protocols, 95% complete in 6 months
+
+**Key Findings**:
+- ✅ Industry-leading runtime type safety (Zod-first)
+- ✅ Comprehensive AI/ML integration (8 protocols)
+- 🔴 3 critical naming conflicts to resolve
+- 🟡 5 missing P0 enterprise protocols (backup, MFA, API versioning, CDC, resilience)
+
+See **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** for immediate next steps.
+
 ## 🤝 Contributing
 
 We welcome contributions! Please read our **[Contributing Guide](./CONTRIBUTING.md)** for:
@@ -78,6 +101,11 @@ We welcome contributions! Please read our **[Contributing Guide](./CONTRIBUTING.
 - Machine names: `snake_case` (e.g., `project_task`)
 - Comprehensive JSDoc comments
 - 80%+ test coverage
+
+**Protocol Contribution**:
+- Review **[Protocol Evaluation](./PROTOCOL_EVALUATION_2026.md)** for gaps
+- Follow **[Action Plan](./IMPROVEMENT_ACTION_PLAN.md)** for priorities
+- Join the Protocol Review Board (PRB) - see evaluation docs
 
 ## 📄 License
 
