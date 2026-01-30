@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { HttpMethod } from '../api/router.zod';
 
 /**
  * Shared HTTP Schemas
@@ -7,6 +6,25 @@ import { HttpMethod } from '../api/router.zod';
  * Common HTTP-related schemas used across API and System protocols.
  * These schemas ensure consistency across different parts of the stack.
  */
+
+// ==========================================
+// Basic HTTP Types
+// ==========================================
+
+/**
+ * HTTP Method Enum
+ */
+export const HttpMethod = z.enum([
+  'GET', 
+  'POST', 
+  'PUT', 
+  'DELETE', 
+  'PATCH', 
+  'HEAD', 
+  'OPTIONS'
+]);
+
+export type HttpMethod = z.infer<typeof HttpMethod>;
 
 // ==========================================
 // CORS Configuration

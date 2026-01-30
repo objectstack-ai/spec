@@ -61,7 +61,7 @@ const result = ApiEndpointSchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional |  |
-| **windowMs** | `number` | optional | Time window in milliseconds |
-| **maxRequests** | `number` | optional | Max requests per window |
+| **enabled** | `boolean` | optional | Enable rate limiting |
+| **windowMs** | `integer` | optional | Time window in milliseconds |
+| **maxRequests** | `integer` | optional | Max requests per window |
 

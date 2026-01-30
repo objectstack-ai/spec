@@ -1,6 +1,5 @@
 import { z } from 'zod';
-import { HttpMethod } from '../api/router.zod';
-import { CorsConfigSchema, RateLimitConfigSchema, StaticMountSchema } from '../shared/http.zod';
+import { HttpMethod, CorsConfigSchema, RateLimitConfigSchema, StaticMountSchema } from '../shared/http.zod';
 
 /**
  * HTTP Server Protocol

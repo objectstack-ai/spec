@@ -51,9 +51,10 @@
           "properties": {
             "enabled": {
               "type": "boolean",
-              "default": true
+              "default": true,
+              "description": "Enable CORS"
             },
-            "origin": {
+            "origins": {
               "anyOf": [
                 {
                   "type": "string"
@@ -65,7 +66,8 @@
                   }
                 }
               ],
-              "default": "*"
+              "default": "*",
+              "description": "Allowed origins (* for all)"
             },
             "methods": {
               "type": "array",
@@ -80,7 +82,17 @@
                   "HEAD",
                   "OPTIONS"
                 ]
-              }
+              },
+              "description": "Allowed HTTP methods"
+            },
+            "credentials": {
+              "type": "boolean",
+              "default": false,
+              "description": "Allow credentials (cookies, authorization headers)"
+            },
+            "maxAge": {
+              "type": "integer",
+              "description": "Preflight cache duration in seconds"
             }
           },
           "additionalProperties": false
@@ -92,19 +104,20 @@
             "properties": {
               "path": {
                 "type": "string",
-                "description": "URL mount path"
+                "description": "URL path to serve from"
               },
-              "dir": {
+              "directory": {
                 "type": "string",
-                "description": "Physical directory path"
+                "description": "Physical directory to serve"
               },
               "cacheControl": {
-                "type": "string"
+                "type": "string",
+                "description": "Cache-Control header value"
               }
             },
             "required": [
               "path",
-              "dir"
+              "directory"
             ],
             "additionalProperties": false
           }

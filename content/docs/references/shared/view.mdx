@@ -6,14 +6,14 @@ description: View protocol schemas
 # View
 
 <Callout type="info">
-**Source:** `packages/spec/src/api/view.zod.ts`
+**Source:** `packages/spec/src/shared/view.zod.ts`
 </Callout>
 
 ## TypeScript Usage
 
 ```typescript
-import { HttpMethodSchema } from '@objectstack/spec/api';
-import type { HttpMethod } from '@objectstack/spec/api';
+import { HttpMethodSchema } from '@objectstack/spec/shared';
+import type { HttpMethod } from '@objectstack/spec/shared';
 
 // Validate data
 const result = HttpMethodSchema.parse(data);

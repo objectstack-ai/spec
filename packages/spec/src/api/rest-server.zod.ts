@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { HttpMethod } from '../api/router.zod';
+import { HttpMethod } from '../shared/http.zod';
 
 /**
  * REST API Server Protocol

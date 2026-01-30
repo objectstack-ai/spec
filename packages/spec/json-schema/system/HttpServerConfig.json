@@ -1,0 +1,156 @@
+{
+  "$ref": "#/definitions/HttpServerConfig",
+  "definitions": {
+    "HttpServerConfig": {
+      "type": "object",
+      "properties": {
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535,
+          "default": 3000,
+          "description": "Port number to listen on"
+        },
+        "host": {
+          "type": "string",
+          "default": "0.0.0.0",
+          "description": "Host address to bind to"
+        },
+        "cors": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable CORS"
+            },
+            "origins": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ],
+              "default": "*",
+              "description": "Allowed origins (* for all)"
+            },
+            "methods": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "GET",
+                  "POST",
+                  "PUT",
+                  "DELETE",
+                  "PATCH",
+                  "HEAD",
+                  "OPTIONS"
+                ]
+              },
+              "description": "Allowed HTTP methods"
+            },
+            "credentials": {
+              "type": "boolean",
+              "default": false,
+              "description": "Allow credentials (cookies, authorization headers)"
+            },
+            "maxAge": {
+              "type": "integer",
+              "description": "Preflight cache duration in seconds"
+            }
+          },
+          "additionalProperties": false,
+          "description": "CORS configuration"
+        },
+        "requestTimeout": {
+          "type": "integer",
+          "default": 30000,
+          "description": "Request timeout in milliseconds"
+        },
+        "bodyLimit": {
+          "type": "string",
+          "default": "10mb",
+          "description": "Maximum request body size"
+        },
+        "compression": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable response compression"
+        },
+        "security": {
+          "type": "object",
+          "properties": {
+            "helmet": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable security headers via helmet"
+            },
+            "rateLimit": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Enable rate limiting"
+                },
+                "windowMs": {
+                  "type": "integer",
+                  "default": 60000,
+                  "description": "Time window in milliseconds"
+                },
+                "maxRequests": {
+                  "type": "integer",
+                  "default": 100,
+                  "description": "Max requests per window"
+                }
+              },
+              "additionalProperties": false,
+              "description": "Global rate limiting configuration"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Security configuration"
+        },
+        "static": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "URL path to serve from"
+              },
+              "directory": {
+                "type": "string",
+                "description": "Physical directory to serve"
+              },
+              "cacheControl": {
+                "type": "string",
+                "description": "Cache-Control header value"
+              }
+            },
+            "required": [
+              "path",
+              "directory"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Static file serving configuration"
+        },
+        "trustProxy": {
+          "type": "boolean",
+          "default": false,
+          "description": "Trust X-Forwarded-* headers"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

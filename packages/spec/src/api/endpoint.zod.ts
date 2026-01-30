@@ -1,6 +1,5 @@
 import { z } from 'zod';
-import { HttpMethod } from './router.zod';
-import { RateLimitConfigSchema } from '../shared/http.zod';
+import { HttpMethod, RateLimitConfigSchema } from '../shared/http.zod';
 
 /**
  * Rate Limit Strategy

@@ -1,20 +1,5 @@
 import { z } from 'zod';
-import { CorsConfigSchema, StaticMountSchema } from '../shared/http.zod';
-
-/**
- * HTTP Method Enum
- */
-export const HttpMethod = z.enum([
-  'GET', 
-  'POST', 
-  'PUT', 
-  'DELETE', 
-  'PATCH', 
-  'HEAD', 
-  'OPTIONS'
-]);
-
-export type HttpMethod = z.infer<typeof HttpMethod>;
+import { CorsConfigSchema, StaticMountSchema, HttpMethod } from '../shared/http.zod';
 
 /**
  * Route Category Enum
