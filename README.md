@@ -6,6 +6,17 @@
 
 > **The "Constitution" of the Post-SaaS Operating System.**
 
+⚠️ **Repository Reorganized**: This monorepo has been restructured into 4 core packages. See [MONOREPO_REORGANIZATION.md](./MONOREPO_REORGANIZATION.md) for migration details.
+
+## 🏗️ New Package Structure
+
+- **[@objectstack/spec](./packages/spec)** - Protocol definitions (Zod schemas, types)
+- **[@objectstack/objectql](./packages/objectql)** - Data query engine  
+- **[@objectstack/objectui](./packages/objectui)** - UI layer (placeholder)
+- **[@objectstack/objectos](./packages/objectos)** - OS layer (kernel, runtime, client, CLI, AI bridge)
+
+---
+
 This repository contains the core specifications, schemas, and protocols that power the ObjectStack ecosystem. It defines how data, UI, and system configurations are expressed as code.
 
 ## 🎯 What is ObjectStack?
