@@ -121,8 +121,8 @@ describe('ExternalDataSourceSchema', () => {
 describe('FieldMappingSchema', () => {
   it('should validate complete field mapping', () => {
     const validMapping: FieldMapping = {
-      externalField: 'AccountName',
-      localField: 'name',
+      source: 'AccountName',
+      target: 'name',
       type: 'text',
       readonly: true,
     };
@@ -132,8 +132,8 @@ describe('FieldMappingSchema', () => {
 
   it('should accept minimal field mapping', () => {
     const minimalMapping = {
-      externalField: 'ExternalField',
-      localField: 'local_field',
+      source: 'ExternalField',
+      target: 'local_field',
       type: 'text',
     };
 
@@ -142,8 +142,8 @@ describe('FieldMappingSchema', () => {
 
   it('should default readonly to true', () => {
     const mapping = {
-      externalField: 'Field1',
-      localField: 'field_1',
+      source: 'Field1',
+      target: 'field_1',
       type: 'text',
     };
 
@@ -153,8 +153,8 @@ describe('FieldMappingSchema', () => {
 
   it('should accept writable field mapping', () => {
     const writableMapping = {
-      externalField: 'Status',
-      localField: 'status',
+      source: 'Status',
+      target: 'status',
       type: 'text',
       readonly: false,
     };
@@ -167,8 +167,8 @@ describe('FieldMappingSchema', () => {
 
     types.forEach((type) => {
       const mapping = {
-        externalField: 'Field',
-        localField: 'field',
+        source: 'Field',
+        target: 'field',
         type,
       };
 
@@ -198,14 +198,14 @@ describe('ExternalLookupSchema', () => {
       },
       fieldMappings: [
         {
-          externalField: 'Name',
-          localField: 'account_name',
+          source: 'Name',
+          target: 'account_name',
           type: 'text',
           readonly: true,
         },
         {
-          externalField: 'Industry',
-          localField: 'industry',
+          source: 'Industry',
+          target: 'industry',
           type: 'text',
           readonly: true,
         },
@@ -246,8 +246,8 @@ describe('ExternalLookupSchema', () => {
       },
       fieldMappings: [
         {
-          externalField: 'Field1',
-          localField: 'field_1',
+          source: 'Field1',
+          target: 'field_1',
           type: 'text',
         },
       ],
@@ -516,20 +516,20 @@ describe('ExternalLookupSchema', () => {
       },
       fieldMappings: [
         {
-          externalField: 'ProductID',
-          localField: 'product_id',
+          source: 'ProductID',
+          target: 'product_id',
           type: 'number',
           readonly: true,
         },
         {
-          externalField: 'ProductName',
-          localField: 'product_name',
+          source: 'ProductName',
+          target: 'product_name',
           type: 'text',
           readonly: true,
         },
         {
-          externalField: 'UnitPrice',
-          localField: 'unit_price',
+          source: 'UnitPrice',
+          target: 'unit_price',
           type: 'currency',
           readonly: true,
         },
@@ -564,20 +564,20 @@ describe('ExternalLookupSchema', () => {
       },
       fieldMappings: [
         {
-          externalField: 'id',
-          localField: 'user_id',
+          source: 'id',
+          target: 'user_id',
           type: 'text',
           readonly: true,
         },
         {
-          externalField: 'name',
-          localField: 'user_name',
+          source: 'name',
+          target: 'user_name',
           type: 'text',
           readonly: true,
         },
         {
-          externalField: 'email',
-          localField: 'user_email',
+          source: 'email',
+          target: 'user_email',
           type: 'email',
           readonly: true,
         },
@@ -619,26 +619,26 @@ describe('ExternalLookupSchema', () => {
       },
       fieldMappings: [
         {
-          externalField: 'Id',
-          localField: 'salesforce_id',
+          source: 'Id',
+          target: 'salesforce_id',
           type: 'text',
           readonly: true,
         },
         {
-          externalField: 'Name',
-          localField: 'contact_name',
+          source: 'Name',
+          target: 'contact_name',
           type: 'text',
           readonly: true,
         },
         {
-          externalField: 'Email',
-          localField: 'email',
+          source: 'Email',
+          target: 'email',
           type: 'email',
           readonly: true,
         },
         {
-          externalField: 'Phone',
-          localField: 'phone',
+          source: 'Phone',
+          target: 'phone',
           type: 'phone',
           readonly: true,
         },
