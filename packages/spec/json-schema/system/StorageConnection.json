@@ -1,0 +1,62 @@
+{
+  "$ref": "#/definitions/StorageConnection",
+  "definitions": {
+    "StorageConnection": {
+      "type": "object",
+      "properties": {
+        "accessKeyId": {
+          "type": "string",
+          "description": "AWS access key ID or MinIO access key"
+        },
+        "secretAccessKey": {
+          "type": "string",
+          "description": "AWS secret access key or MinIO secret key"
+        },
+        "sessionToken": {
+          "type": "string",
+          "description": "AWS session token for temporary credentials"
+        },
+        "accountName": {
+          "type": "string",
+          "description": "Azure storage account name"
+        },
+        "accountKey": {
+          "type": "string",
+          "description": "Azure storage account key"
+        },
+        "sasToken": {
+          "type": "string",
+          "description": "Azure SAS token"
+        },
+        "projectId": {
+          "type": "string",
+          "description": "GCP project ID"
+        },
+        "credentials": {
+          "type": "string",
+          "description": "GCP service account credentials JSON"
+        },
+        "endpoint": {
+          "type": "string",
+          "description": "Custom endpoint URL"
+        },
+        "region": {
+          "type": "string",
+          "description": "Default region"
+        },
+        "useSSL": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use SSL/TLS for connections"
+        },
+        "timeout": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Connection timeout in milliseconds"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

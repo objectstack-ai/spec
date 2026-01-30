@@ -156,6 +156,94 @@ export const VectorConfigSchema = z.object({
 });
 
 /**
+ * File Attachment Configuration Schema
+ * Configuration for file and attachment field types
+ * 
+ * Provides comprehensive file upload capabilities with:
+ * - File type restrictions (whitelist/blacklist)
+ * - File size limits (min/max)
+ * - Virus scanning integration
+ * - Storage provider integration
+ * - Image-specific features (dimensions, thumbnails)
+ * 
+ * @example Basic file upload with size limit
+ * {
+ *   maxSize: 10485760,  // 10MB
+ *   allowedTypes: ['.pdf', '.docx', '.xlsx'],
+ *   virusScan: true
+ * }
+ * 
+ * @example Image upload with validation
+ * {
+ *   maxSize: 5242880,  // 5MB
+ *   allowedTypes: ['.jpg', '.jpeg', '.png', '.webp'],
+ *   imageValidation: {
+ *     maxWidth: 4096,
+ *     maxHeight: 4096,
+ *     generateThumbnails: true
+ *   }
+ * }
+ */
+export const FileAttachmentConfigSchema = z.object({
+  /** File Size Limits */
+  minSize: z.number().min(0).optional().describe('Minimum file size in bytes'),
+  maxSize: z.number().min(1).optional().describe('Maximum file size in bytes (e.g., 10485760 = 10MB)'),
+  
+  /** File Type Restrictions */
+  allowedTypes: z.array(z.string()).optional().describe('Allowed file extensions (e.g., [".pdf", ".docx", ".jpg"])'),
+  blockedTypes: z.array(z.string()).optional().describe('Blocked file extensions (e.g., [".exe", ".bat", ".sh"])'),
+  allowedMimeTypes: z.array(z.string()).optional().describe('Allowed MIME types (e.g., ["image/jpeg", "application/pdf"])'),
+  blockedMimeTypes: z.array(z.string()).optional().describe('Blocked MIME types'),
+  
+  /** Virus Scanning */
+  virusScan: z.boolean().default(false).describe('Enable virus scanning for uploaded files'),
+  virusScanProvider: z.enum(['clamav', 'virustotal', 'metadefender', 'custom']).optional().describe('Virus scanning service provider'),
+  virusScanOnUpload: z.boolean().default(true).describe('Scan files immediately on upload'),
+  quarantineOnThreat: z.boolean().default(true).describe('Quarantine files if threat detected'),
+  
+  /** Storage Configuration */
+  storageProvider: z.string().optional().describe('Object storage provider name (references ObjectStorageConfig)'),
+  storageBucket: z.string().optional().describe('Target bucket name'),
+  storagePrefix: z.string().optional().describe('Storage path prefix (e.g., "uploads/documents/")'),
+  
+  /** Image-Specific Validation */
+  imageValidation: z.object({
+    minWidth: z.number().min(1).optional().describe('Minimum image width in pixels'),
+    maxWidth: z.number().min(1).optional().describe('Maximum image width in pixels'),
+    minHeight: z.number().min(1).optional().describe('Minimum image height in pixels'),
+    maxHeight: z.number().min(1).optional().describe('Maximum image height in pixels'),
+    aspectRatio: z.string().optional().describe('Required aspect ratio (e.g., "16:9", "1:1")'),
+    generateThumbnails: z.boolean().default(false).describe('Auto-generate thumbnails'),
+    thumbnailSizes: z.array(z.object({
+      name: z.string().describe('Thumbnail variant name (e.g., "small", "medium", "large")'),
+      width: z.number().min(1).describe('Thumbnail width in pixels'),
+      height: z.number().min(1).describe('Thumbnail height in pixels'),
+      crop: z.boolean().default(false).describe('Crop to exact dimensions'),
+    })).optional().describe('Thumbnail size configurations'),
+    preserveMetadata: z.boolean().default(false).describe('Preserve EXIF metadata'),
+    autoRotate: z.boolean().default(true).describe('Auto-rotate based on EXIF orientation'),
+  }).optional().describe('Image-specific validation rules'),
+  
+  /** Upload Behavior */
+  allowMultiple: z.boolean().default(false).describe('Allow multiple file uploads (overrides field.multiple)'),
+  allowReplace: z.boolean().default(true).describe('Allow replacing existing files'),
+  allowDelete: z.boolean().default(true).describe('Allow deleting uploaded files'),
+  requireUpload: z.boolean().default(false).describe('Require at least one file when field is required'),
+  
+  /** Metadata Extraction */
+  extractMetadata: z.boolean().default(true).describe('Extract file metadata (name, size, type, etc.)'),
+  extractText: z.boolean().default(false).describe('Extract text content from documents (OCR/parsing)'),
+  
+  /** Versioning */
+  versioningEnabled: z.boolean().default(false).describe('Keep previous versions of replaced files'),
+  maxVersions: z.number().min(1).optional().describe('Maximum number of versions to retain'),
+  
+  /** Access Control */
+  publicRead: z.boolean().default(false).describe('Allow public read access to uploaded files'),
+  presignedUrlExpiry: z.number().min(60).max(604800).default(3600).describe('Presigned URL expiration in seconds (default: 1 hour)'),
+});
+
+/**
  * Field Schema - Best Practice Enterprise Pattern
  */
 export const FieldSchema = z.object({
@@ -242,6 +330,9 @@ export const FieldSchema = z.object({
   // Vector field config
   vectorConfig: VectorConfigSchema.optional().describe('Configuration for vector field type (AI/ML embeddings)'),
 
+  // File attachment field config
+  fileAttachmentConfig: FileAttachmentConfigSchema.optional().describe('Configuration for file and attachment field types'),
+
   /** Security & Visibility */
   hidden: z.boolean().default(false).describe('Hidden from default UI'),
   readonly: z.boolean().default(false).describe('Read-only in UI'),
@@ -259,6 +350,7 @@ export type Address = z.infer<typeof AddressSchema>;
 export type CurrencyConfig = z.infer<typeof CurrencyConfigSchema>;
 export type CurrencyValue = z.infer<typeof CurrencyValueSchema>;
 export type VectorConfig = z.infer<typeof VectorConfigSchema>;
+export type FileAttachmentConfig = z.infer<typeof FileAttachmentConfigSchema>;
 
 /**
  * Field Factory Helper

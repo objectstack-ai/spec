@@ -1,0 +1,444 @@
+{
+  "$ref": "#/definitions/ObjectStorageConfig",
+  "definitions": {
+    "ObjectStorageConfig": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "pattern": "^[a-z][a-z0-9_.]*$",
+          "description": "Storage configuration identifier"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label"
+        },
+        "provider": {
+          "type": "string",
+          "enum": [
+            "s3",
+            "azure_blob",
+            "gcs",
+            "minio",
+            "r2",
+            "spaces",
+            "wasabi",
+            "backblaze",
+            "local"
+          ],
+          "description": "Primary storage provider"
+        },
+        "connection": {
+          "type": "object",
+          "properties": {
+            "accessKeyId": {
+              "type": "string",
+              "description": "AWS access key ID or MinIO access key"
+            },
+            "secretAccessKey": {
+              "type": "string",
+              "description": "AWS secret access key or MinIO secret key"
+            },
+            "sessionToken": {
+              "type": "string",
+              "description": "AWS session token for temporary credentials"
+            },
+            "accountName": {
+              "type": "string",
+              "description": "Azure storage account name"
+            },
+            "accountKey": {
+              "type": "string",
+              "description": "Azure storage account key"
+            },
+            "sasToken": {
+              "type": "string",
+              "description": "Azure SAS token"
+            },
+            "projectId": {
+              "type": "string",
+              "description": "GCP project ID"
+            },
+            "credentials": {
+              "type": "string",
+              "description": "GCP service account credentials JSON"
+            },
+            "endpoint": {
+              "type": "string",
+              "description": "Custom endpoint URL"
+            },
+            "region": {
+              "type": "string",
+              "description": "Default region"
+            },
+            "useSSL": {
+              "type": "boolean",
+              "default": true,
+              "description": "Use SSL/TLS for connections"
+            },
+            "timeout": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Connection timeout in milliseconds"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Connection credentials"
+        },
+        "buckets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 2,
+                "pattern": "^[a-z][a-z0-9_.]*$",
+                "description": "Bucket identifier in ObjectStack (snake_case)"
+              },
+              "label": {
+                "type": "string",
+                "description": "Display label"
+              },
+              "bucketName": {
+                "type": "string",
+                "description": "Actual bucket/container name in storage provider"
+              },
+              "region": {
+                "type": "string",
+                "description": "Storage region (e.g., us-east-1, westus)"
+              },
+              "provider": {
+                "type": "string",
+                "enum": [
+                  "s3",
+                  "azure_blob",
+                  "gcs",
+                  "minio",
+                  "r2",
+                  "spaces",
+                  "wasabi",
+                  "backblaze",
+                  "local"
+                ],
+                "description": "Storage provider"
+              },
+              "endpoint": {
+                "type": "string",
+                "description": "Custom endpoint URL (for S3-compatible providers)"
+              },
+              "pathStyle": {
+                "type": "boolean",
+                "default": false,
+                "description": "Use path-style URLs (for S3-compatible providers)"
+              },
+              "versioning": {
+                "type": "boolean",
+                "default": false,
+                "description": "Enable object versioning"
+              },
+              "encryption": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable server-side encryption"
+                  },
+                  "algorithm": {
+                    "type": "string",
+                    "enum": [
+                      "AES256",
+                      "aws:kms",
+                      "azure:kms",
+                      "gcp:kms"
+                    ],
+                    "default": "AES256",
+                    "description": "Encryption algorithm"
+                  },
+                  "kmsKeyId": {
+                    "type": "string",
+                    "description": "KMS key ID for managed encryption"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "Server-side encryption configuration"
+              },
+              "accessControl": {
+                "type": "object",
+                "properties": {
+                  "acl": {
+                    "type": "string",
+                    "enum": [
+                      "private",
+                      "public_read",
+                      "public_read_write",
+                      "authenticated_read",
+                      "bucket_owner_read",
+                      "bucket_owner_full_control"
+                    ],
+                    "description": "Default access control level",
+                    "default": "private"
+                  },
+                  "allowedOrigins": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "CORS allowed origins"
+                  },
+                  "allowedMethods": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "GET",
+                        "PUT",
+                        "POST",
+                        "DELETE",
+                        "HEAD"
+                      ]
+                    },
+                    "description": "CORS allowed HTTP methods"
+                  },
+                  "allowedHeaders": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "CORS allowed headers"
+                  },
+                  "exposeHeaders": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "CORS exposed headers"
+                  },
+                  "maxAge": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "CORS preflight cache duration in seconds"
+                  },
+                  "corsEnabled": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable CORS configuration"
+                  },
+                  "publicAccess": {
+                    "type": "object",
+                    "properties": {
+                      "allowPublicRead": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Allow public read access"
+                      },
+                      "allowPublicWrite": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Allow public write access"
+                      },
+                      "allowPublicList": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Allow public bucket listing"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Public access control"
+                  },
+                  "ipWhitelist": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Allowed IP addresses/CIDR blocks"
+                  },
+                  "ipBlacklist": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Blocked IP addresses/CIDR blocks"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "Access control configuration"
+              },
+              "lifecyclePolicy": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable lifecycle policies"
+                  },
+                  "rules": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 2,
+                          "pattern": "^[a-z][a-z0-9_.]*$",
+                          "description": "Rule identifier"
+                        },
+                        "enabled": {
+                          "type": "boolean",
+                          "default": true,
+                          "description": "Enable this rule"
+                        },
+                        "action": {
+                          "type": "string",
+                          "enum": [
+                            "transition",
+                            "delete",
+                            "abort"
+                          ],
+                          "description": "Action to perform"
+                        },
+                        "prefix": {
+                          "type": "string",
+                          "description": "Object key prefix filter (e.g., \"uploads/\")"
+                        },
+                        "tags": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "description": "Object tag filters"
+                        },
+                        "daysAfterCreation": {
+                          "type": "number",
+                          "minimum": 0,
+                          "description": "Days after object creation"
+                        },
+                        "daysAfterModification": {
+                          "type": "number",
+                          "minimum": 0,
+                          "description": "Days after last modification"
+                        },
+                        "targetStorageClass": {
+                          "type": "string",
+                          "enum": [
+                            "standard",
+                            "intelligent",
+                            "infrequent_access",
+                            "glacier",
+                            "deep_archive"
+                          ],
+                          "description": "Target storage class for transition action"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "action"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": [],
+                    "description": "Lifecycle rules"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "Lifecycle policy configuration"
+              },
+              "multipartConfig": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable multipart uploads"
+                  },
+                  "partSize": {
+                    "type": "number",
+                    "minimum": 5242880,
+                    "maximum": 5368709120,
+                    "default": 10485760,
+                    "description": "Part size in bytes (min 5MB, max 5GB)"
+                  },
+                  "maxParts": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 10000,
+                    "default": 10000,
+                    "description": "Maximum number of parts (max 10,000)"
+                  },
+                  "threshold": {
+                    "type": "number",
+                    "minimum": 0,
+                    "default": 104857600,
+                    "description": "File size threshold to trigger multipart upload (bytes)"
+                  },
+                  "maxConcurrent": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "default": 4,
+                    "description": "Maximum concurrent part uploads"
+                  },
+                  "abortIncompleteAfterDays": {
+                    "type": "number",
+                    "minimum": 1,
+                    "description": "Auto-abort incomplete uploads after N days"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "Multipart upload configuration"
+              },
+              "tags": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "Bucket tags for organization"
+              },
+              "description": {
+                "type": "string",
+                "description": "Bucket description"
+              },
+              "enabled": {
+                "type": "boolean",
+                "default": true,
+                "description": "Enable this bucket"
+              }
+            },
+            "required": [
+              "name",
+              "label",
+              "bucketName",
+              "provider"
+            ],
+            "additionalProperties": false
+          },
+          "default": [],
+          "description": "Configured buckets"
+        },
+        "defaultBucket": {
+          "type": "string",
+          "description": "Default bucket name for operations"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable this storage configuration"
+        },
+        "description": {
+          "type": "string",
+          "description": "Configuration description"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "provider",
+        "connection"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

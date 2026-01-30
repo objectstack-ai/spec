@@ -14,6 +14,7 @@
     "logging",
     "manifest",
     "metrics",
+    "object-storage",
     "plugin",
     "plugin-capability",
     "scoped-storage",
