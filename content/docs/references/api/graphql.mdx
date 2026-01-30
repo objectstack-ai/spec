@@ -12,18 +12,12 @@ description: Graphql protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { FieldTypeToGraphQLMappingSchema, GraphQLConfigSchema, GraphQLDataLoaderConfigSchema, GraphQLDirectiveConfigSchema, GraphQLDirectiveLocationSchema, GraphQLMutationConfigSchema, GraphQLPersistedQuerySchema, GraphQLQueryComplexitySchema, GraphQLQueryConfigSchema, GraphQLQueryDepthLimitSchema, GraphQLRateLimitSchema, GraphQLResolverConfigSchema, GraphQLScalarTypeSchema, GraphQLSubscriptionConfigSchema, GraphQLTypeConfigSchema } from '@objectstack/spec/api';
-import type { FieldTypeToGraphQLMapping, GraphQLConfig, GraphQLDataLoaderConfig, GraphQLDirectiveConfig, GraphQLDirectiveLocation, GraphQLMutationConfig, GraphQLPersistedQuery, GraphQLQueryComplexity, GraphQLQueryConfig, GraphQLQueryDepthLimit, GraphQLRateLimit, GraphQLResolverConfig, GraphQLScalarType, GraphQLSubscriptionConfig, GraphQLTypeConfig } from '@objectstack/spec/api';
+import { GraphQLConfigSchema, GraphQLDataLoaderConfigSchema, GraphQLDirectiveConfigSchema, GraphQLDirectiveLocationSchema, GraphQLMutationConfigSchema, GraphQLPersistedQuerySchema, GraphQLQueryComplexitySchema, GraphQLQueryConfigSchema, GraphQLQueryDepthLimitSchema, GraphQLRateLimitSchema, GraphQLResolverConfigSchema, GraphQLScalarTypeSchema, GraphQLSubscriptionConfigSchema, GraphQLTypeConfigSchema } from '@objectstack/spec/api';
+import type { GraphQLConfig, GraphQLDataLoaderConfig, GraphQLDirectiveConfig, GraphQLDirectiveLocation, GraphQLMutationConfig, GraphQLPersistedQuery, GraphQLQueryComplexity, GraphQLQueryConfig, GraphQLQueryDepthLimit, GraphQLRateLimit, GraphQLResolverConfig, GraphQLScalarType, GraphQLSubscriptionConfig, GraphQLTypeConfig } from '@objectstack/spec/api';
 
 // Validate data
-const result = FieldTypeToGraphQLMappingSchema.parse(data);
+const result = GraphQLConfigSchema.parse(data);
 ```
-
----
-
-## FieldTypeToGraphQLMapping
-
-Field type to GraphQL type mapping configuration
 
 ---
 
