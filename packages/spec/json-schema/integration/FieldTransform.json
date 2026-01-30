@@ -1,0 +1,36 @@
+{
+  "$ref": "#/definitions/FieldTransform",
+  "definitions": {
+    "FieldTransform": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "uppercase",
+            "lowercase",
+            "trim",
+            "date_format",
+            "number_format",
+            "custom"
+          ],
+          "description": "Transformation type"
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Transformation parameters"
+        },
+        "function": {
+          "type": "string",
+          "description": "Custom JavaScript function for transformation"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

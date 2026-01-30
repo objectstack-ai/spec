@@ -1,0 +1,87 @@
+{
+  "$ref": "#/definitions/FieldMapping",
+  "definitions": {
+    "FieldMapping": {
+      "type": "object",
+      "properties": {
+        "sourceField": {
+          "type": "string",
+          "description": "Field name in external system"
+        },
+        "targetField": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Field name in ObjectStack (snake_case)"
+        },
+        "dataType": {
+          "type": "string",
+          "enum": [
+            "string",
+            "number",
+            "boolean",
+            "date",
+            "datetime",
+            "json",
+            "array"
+          ],
+          "description": "Target data type"
+        },
+        "required": {
+          "type": "boolean",
+          "default": false,
+          "description": "Field is required"
+        },
+        "defaultValue": {
+          "description": "Default value"
+        },
+        "transform": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "uppercase",
+                "lowercase",
+                "trim",
+                "date_format",
+                "number_format",
+                "custom"
+              ],
+              "description": "Transformation type"
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": {},
+              "description": "Transformation parameters"
+            },
+            "function": {
+              "type": "string",
+              "description": "Custom JavaScript function for transformation"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false,
+          "description": "Field transformation"
+        },
+        "syncMode": {
+          "type": "string",
+          "enum": [
+            "read_only",
+            "write_only",
+            "bidirectional"
+          ],
+          "default": "bidirectional",
+          "description": "Sync mode"
+        }
+      },
+      "required": [
+        "sourceField",
+        "targetField"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

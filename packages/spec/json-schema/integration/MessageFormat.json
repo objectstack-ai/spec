@@ -1,0 +1,18 @@
+{
+  "$ref": "#/definitions/MessageFormat",
+  "definitions": {
+    "MessageFormat": {
+      "type": "string",
+      "enum": [
+        "json",
+        "xml",
+        "protobuf",
+        "avro",
+        "text",
+        "binary"
+      ],
+      "description": "Message format/serialization"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

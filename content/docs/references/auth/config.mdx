@@ -12,8 +12,8 @@ description: Config protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AccountLinkingConfigSchema, AuthConfigSchema, AuthPluginConfigSchema, AuthStrategySchema, CSRFConfigSchema, DatabaseAdapterSchema, DatabaseMappingSchema, EmailPasswordConfigSchema, EnterpriseAuthConfigSchema, LDAPConfigSchema, MagicLinkConfigSchema, OAuthProviderSchema, OIDCConfigSchema, PasskeyConfigSchema, RateLimitConfigSchema, SAMLConfigSchema, SessionConfigSchema, StandardAuthProviderSchema, TwoFactorConfigSchema, UserFieldMappingSchema } from '@objectstack/spec/auth';
-import type { AccountLinkingConfig, AuthConfig, AuthPluginConfig, AuthStrategy, CSRFConfig, DatabaseAdapter, DatabaseMapping, EmailPasswordConfig, EnterpriseAuthConfig, LDAPConfig, MagicLinkConfig, OAuthProvider, OIDCConfig, PasskeyConfig, RateLimitConfig, SAMLConfig, SessionConfig, StandardAuthProvider, TwoFactorConfig, UserFieldMapping } from '@objectstack/spec/auth';
+import { AccountLinkingConfigSchema, AuthConfigSchema, AuthPluginConfigSchema, AuthStrategySchema, CSRFConfigSchema, DatabaseAdapterSchema, DatabaseMappingSchema, EmailPasswordConfigSchema, EnterpriseAuthConfigSchema, LDAPConfigSchema, MagicLinkConfigSchema, OAuthProviderSchema, OIDCConfigSchema, PasskeyConfigSchema, SAMLConfigSchema, SessionConfigSchema, StandardAuthProviderSchema, TwoFactorConfigSchema, UserFieldMappingSchema } from '@objectstack/spec/auth';
+import type { AccountLinkingConfig, AuthConfig, AuthPluginConfig, AuthStrategy, CSRFConfig, DatabaseAdapter, DatabaseMapping, EmailPasswordConfig, EnterpriseAuthConfig, LDAPConfig, MagicLinkConfig, OAuthProvider, OIDCConfig, PasskeyConfig, SAMLConfig, SessionConfig, StandardAuthProvider, TwoFactorConfig, UserFieldMapping } from '@objectstack/spec/auth';
 
 // Validate data
 const result = AccountLinkingConfigSchema.parse(data);
@@ -235,20 +235,6 @@ const result = AccountLinkingConfigSchema.parse(data);
 | **allowedOrigins** | `string[]` | optional | Allowed origins for WebAuthn |
 | **userVerification** | `Enum<'required' \| 'preferred' \| 'discouraged'>` | optional |  |
 | **attestation** | `Enum<'none' \| 'indirect' \| 'direct' \| 'enterprise'>` | optional |  |
-
----
-
-## RateLimitConfig
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional |  |
-| **maxAttempts** | `number` | optional | Maximum login attempts |
-| **windowMs** | `number` | optional | Time window in milliseconds (default 15 min) |
-| **blockDuration** | `number` | optional | Block duration after max attempts in ms |
-| **skipSuccessfulRequests** | `boolean` | optional | Only count failed requests |
 
 ---
 

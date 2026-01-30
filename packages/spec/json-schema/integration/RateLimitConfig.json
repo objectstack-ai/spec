@@ -1,0 +1,69 @@
+{
+  "$ref": "#/definitions/RateLimitConfig",
+  "definitions": {
+    "RateLimitConfig": {
+      "type": "object",
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "enum": [
+            "fixed_window",
+            "sliding_window",
+            "token_bucket",
+            "leaky_bucket"
+          ],
+          "description": "Rate limiting strategy",
+          "default": "token_bucket"
+        },
+        "maxRequests": {
+          "type": "number",
+          "minimum": 1,
+          "description": "Maximum requests per window"
+        },
+        "windowSeconds": {
+          "type": "number",
+          "minimum": 1,
+          "description": "Time window in seconds"
+        },
+        "burstCapacity": {
+          "type": "number",
+          "minimum": 1,
+          "description": "Burst capacity"
+        },
+        "respectUpstreamLimits": {
+          "type": "boolean",
+          "default": true,
+          "description": "Respect external rate limit headers"
+        },
+        "rateLimitHeaders": {
+          "type": "object",
+          "properties": {
+            "remaining": {
+              "type": "string",
+              "default": "X-RateLimit-Remaining",
+              "description": "Header for remaining requests"
+            },
+            "limit": {
+              "type": "string",
+              "default": "X-RateLimit-Limit",
+              "description": "Header for rate limit"
+            },
+            "reset": {
+              "type": "string",
+              "default": "X-RateLimit-Reset",
+              "description": "Header for reset time"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Custom rate limit headers"
+        }
+      },
+      "required": [
+        "maxRequests",
+        "windowSeconds"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

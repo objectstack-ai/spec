@@ -1,0 +1,24 @@
+{
+  "$ref": "#/definitions/SaasProvider",
+  "definitions": {
+    "SaasProvider": {
+      "type": "string",
+      "enum": [
+        "salesforce",
+        "hubspot",
+        "stripe",
+        "shopify",
+        "zendesk",
+        "intercom",
+        "mailchimp",
+        "slack",
+        "microsoft_dynamics",
+        "servicenow",
+        "netsuite",
+        "custom"
+      ],
+      "description": "SaaS provider type"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

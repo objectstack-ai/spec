@@ -1,0 +1,15 @@
+{
+  "$ref": "#/definitions/AckMode",
+  "definitions": {
+    "AckMode": {
+      "type": "string",
+      "enum": [
+        "auto",
+        "manual",
+        "client"
+      ],
+      "description": "Message acknowledgment mode"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

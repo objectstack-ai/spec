@@ -34,3 +34,4 @@ export * from './data-engine.zod';
 
 // Note: Auth, Identity, Policy, Role, Organization moved to @objectstack/spec/auth
 // Note: Territory moved to @objectstack/spec/permission
+// Note: Connector Protocol moved to @objectstack/spec/integration
