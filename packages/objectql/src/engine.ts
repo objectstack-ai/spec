@@ -1,7 +1,13 @@
-import { QueryAST, HookContext } from '@objectstack/spec/data';
-import { ObjectStackManifest } from '@objectstack/spec/system';
-import { DriverOptions } from '@objectstack/spec/system';
-import { DriverInterface, IDataEngine, DataEngineQueryOptions, Logger, createLogger } from '@objectstack/core';
+import { QueryAST, HookContext, DataEngineRequestSchema } from '@objectstack/spec/data';
+import { 
+  DataEngineQueryOptions, 
+  DataEngineInsertOptions, 
+  DataEngineUpdateOptions, 
+  DataEngineDeleteOptions,
+  DataEngineAggregateOptions,
+  DataEngineCountOptions 
+} from '@objectstack/spec/data';
+import { DriverInterface, IDataEngine, Logger, createLogger } from '@objectstack/core';
 import { SchemaRegistry } from './registry';
 
 export type HookHandler = (context: HookContext) => Promise<void> | void;
@@ -101,52 +107,29 @@ export class ObjectQL implements IDataEngine {
       return;
     }
 
-    this.logger.debug('Triggering hooks', { event, handlerCount: handlers.length });
+    this.logger.debug('Triggering hooks', { event, count: handlers.length });
     
-    for (let i = 0; i < handlers.length; i++) {
-      const handler = handlers[i];
-      try {
-        this.logger.debug('Executing hook handler', { event, handlerIndex: i });
-        await handler(context);
-      } catch (error) {
-        this.logger.error('Hook handler failed', error as Error, { event, handlerIndex: i });
-        // Re-throw to maintain existing behavior
-        throw error;
-      }
+    for (const handler of handlers) {
+      await handler(context);
     }
-    
-    this.logger.debug('All hooks completed', { event });
   }
 
-  registerApp(manifestPart: any) {
-      // 1. Handle Module Imports (commonjs/esm interop)
-      // If the passed object is a module namespace with a default export, use that.
-      const raw = manifestPart.default || manifestPart;
-      
-      // Support nested manifest property (Stack Definition)
-      // We merge the inner manifest metadata (id, version, etc) with the outer container (objects, apps)
-      const manifest = raw.manifest ? { ...raw, ...raw.manifest } : raw;
+  /**
+   * Register contribution (Manifest)
+   */
+  registerApp(manifest: any) {
+      const id = manifest.id;
+      this.logger.debug('Registering app manifest', { id });
 
-      // In a real scenario, we might strictly parse this using Zod
-      // For now, simple ID check
-      const id = manifest.id || manifest.name;
-      if (!id) {
-        this.logger.warn('Plugin manifest missing ID', { manifestKeys: Object.keys(manifest) });
-        // Don't return, try to proceed if it looks like an App (Apps might use 'name' instead of 'id')
-        // return; 
-      }
-      
-      this.logger.info('Loading App', { id, hasObjects: !!manifest.objects, hasContributes: !!manifest.contributes });
-      SchemaRegistry.registerPlugin(manifest as ObjectStackManifest);
-
-      // Register Objects from App/Plugin
+      // Register objects
       if (manifest.objects) {
-        this.logger.debug('Registering objects from manifest', { id, objectCount: manifest.objects.length });
-        for (const obj of manifest.objects) {
-            // Ensure object name is registered globally
-            SchemaRegistry.registerObject(obj);
-            this.logger.debug('Registered Object', { objectName: obj.name, from: id });
-        }
+          this.logger.debug('Registering objects from manifest', { id, objectCount: Object.keys(manifest.objects).length });
+          for (const [name, objDef] of Object.entries(manifest.objects)) {
+              // Ensure name in definition matches key
+              (objDef as any).name = name;
+              SchemaRegistry.registerObject(objDef as any);
+              this.logger.debug('Registered Object', { object: name, from: id });
+          }
       }
 
       // Register contributions
@@ -197,50 +180,25 @@ export class ObjectQL implements IDataEngine {
     if (object) {
       const datasourceName = object.datasource || 'default';
       
-      this.logger.debug('Resolving driver for object', { 
-        objectName, 
-        datasourceName,
-        hasObjectDef: true 
-      });
-      
       // If configured for 'default', try to find the default driver
       if (datasourceName === 'default') {
         if (this.defaultDriver && this.drivers.has(this.defaultDriver)) {
-          this.logger.debug('Using default driver', { driverName: this.defaultDriver, objectName });
           return this.drivers.get(this.defaultDriver)!;
         }
-        // Fallback: If 'default' not explicitly set, use the first available driver?
-        // Better to be strict.
       } else {
         // Specific datasource requested
         if (this.drivers.has(datasourceName)) {
-            this.logger.debug('Using specific datasource driver', { driverName: datasourceName, objectName });
             return this.drivers.get(datasourceName)!;
         }
-        // If not found, fall back to default? Or error?
-        // Standard behavior: Error if specific datasource is missing.
-        this.logger.error('Datasource not found for object', undefined, { 
-          objectName, 
-          datasourceName,
-          availableDrivers: Array.from(this.drivers.keys())
-        });
         throw new Error(`[ObjectQL] Datasource '${datasourceName}' configured for object '${objectName}' is not registered.`);
       }
     }
 
     // 2. Fallback for ad-hoc objects or missing definitions
-    // If we have a default driver, use it.
     if (this.defaultDriver) {
-      if (!object) {
-        this.logger.warn('Object not found in registry, using default driver', { objectName });
-      }
       return this.drivers.get(this.defaultDriver)!;
     }
 
-    this.logger.error('No driver available for object', undefined, { 
-      objectName,
-      registeredDrivers: Array.from(this.drivers.keys())
-    });
     throw new Error(`[ObjectQL] No driver available for object '${objectName}'`);
   }
 
@@ -255,7 +213,6 @@ export class ObjectQL implements IDataEngine {
     
     for (const [name, driver] of this.drivers) {
       try {
-        this.logger.debug('Connecting driver', { driverName: name });
         await driver.connect();
         this.logger.info('Driver connected successfully', { driverName: name });
       } catch (e) {
@@ -264,7 +221,6 @@ export class ObjectQL implements IDataEngine {
     }
     
     this.logger.info('ObjectQL engine initialization complete');
-    // In a real app, we would sync schemas here
   }
 
   async destroy() {
@@ -272,9 +228,7 @@ export class ObjectQL implements IDataEngine {
     
     for (const [name, driver] of this.drivers.entries()) {
       try {
-        this.logger.debug('Disconnecting driver', { driverName: name });
         await driver.disconnect();
-        this.logger.debug('Driver disconnected', { driverName: name });
       } catch (e) {
         this.logger.error('Error disconnecting driver', e as Error, { driverName: name });
       }
@@ -284,80 +238,62 @@ export class ObjectQL implements IDataEngine {
   }
 
   // ============================================
+  // Helper: Query Conversion
+  // ============================================
+
+  private toQueryAST(object: string, options?: DataEngineQueryOptions): QueryAST {
+    const ast: QueryAST = { object };
+    if (!options) return ast;
+
+    if (options.filter) {
+      ast.where = options.filter;
+    }
+    if (options.select) {
+      ast.fields = options.select;
+    }
+    if (options.sort) {
+       // Support DataEngineSortSchema variant
+       if (Array.isArray(options.sort)) {
+           // [{ field: 'a', order: 'asc' }]
+           ast.orderBy = options.sort; 
+       } else {
+           // Record<string, 'asc' | 'desc' | 1 | -1>
+           ast.orderBy = Object.entries(options.sort).map(([field, order]) => ({
+             field,
+             order: (order === -1 || order === 'desc') ? 'desc' : 'asc'
+           }));
+       }
+    }
+    
+    if (options.top !== undefined) ast.limit = options.top;
+    else if (options.limit !== undefined) ast.limit = options.limit;
+    
+    if (options.skip !== undefined) ast.offset = options.skip;
+
+    // TODO: Handle populate/joins mapping if Driver supports it in QueryAST
+    return ast;
+  }
+
+  // ============================================
   // Data Access Methods (IDataEngine Interface)
   // ============================================
 
-  /**
-   * Find records matching a query (IDataEngine interface)
-   * 
-   * @param object - Object name
-   * @param query - Query options (IDataEngine format)
-   * @returns Promise resolving to array of records
-   */
   async find(object: string, query?: DataEngineQueryOptions): Promise<any[]> {
     this.logger.debug('Find operation starting', { object, query });
-    
     const driver = this.getDriver(object);
-    
-    // Convert DataEngineQueryOptions to QueryAST
-    let ast: QueryAST = { object };
-    
-    if (query) {
-      // Map DataEngineQueryOptions to QueryAST
-      if (query.filter) {
-        ast.where = query.filter;
-      }
-      if (query.select) {
-        ast.fields = query.select;
-      }
-      if (query.sort) {
-        // Convert sort Record to orderBy array
-        // sort: { createdAt: -1, name: 'asc' } => orderBy: [{ field: 'createdAt', order: 'desc' }, { field: 'name', order: 'asc' }]
-        ast.orderBy = Object.entries(query.sort).map(([field, order]) => ({
-          field,
-          order: (order === -1 || order === 'desc') ? 'desc' : 'asc'
-        }));
-      }
-      // Handle both limit and top (top takes precedence)
-      if (query.top !== undefined) {
-        ast.limit = query.top;
-      } else if (query.limit !== undefined) {
-        ast.limit = query.limit;
-      }
-      if (query.skip !== undefined) {
-        ast.offset = query.skip;
-      }
-    }
+    const ast = this.toQueryAST(object, query);
 
-    // Set default limit if not specified
-    if (ast.limit === undefined) ast.limit = 100;
-
-    this.logger.debug('Converted query to AST', { object, ast });
-
-    // Trigger Before Hook
     const hookContext: HookContext = {
         object,
         event: 'beforeFind',
-        input: { ast, options: undefined },
+        input: { ast, options: undefined }, // Should map options?
         ql: this
     };
     await this.triggerHooks('beforeFind', hookContext);
 
     try {
-        this.logger.debug('Executing driver.find', { 
-          object, 
-          driver: driver.name,
-          ast: hookContext.input.ast 
-        });
-        
         const result = await driver.find(object, hookContext.input.ast, hookContext.input.options);
         
-        this.logger.debug('Find operation completed', { 
-          object, 
-          resultCount: result?.length ?? 0 
-        });
-        
-        // Trigger After Hook
         hookContext.event = 'afterFind';
         hookContext.result = result;
         await this.triggerHooks('afterFind', hookContext);
@@ -369,81 +305,43 @@ export class ObjectQL implements IDataEngine {
     }
   }
 
-  async findOne(object: string, idOrQuery: string | any, options?: DriverOptions) {
-    this.logger.debug('FindOne operation starting', { object, idOrQuery: typeof idOrQuery });
-    
-    const driver = this.getDriver(object);
-    
-    let ast: QueryAST;
-    if (typeof idOrQuery === 'string') {
-        ast = {
-            object,
-            where: { _id: idOrQuery }
-        };
-    } else {
-        // Assume query object
-        // reuse logic from find() or just wrap it
-        if (idOrQuery.where || idOrQuery.fields) {
-            ast = { object, ...idOrQuery };
-        } else {
-            ast = { object, where: idOrQuery };
-        }
-    }
-    // Limit 1 for findOne
+  async findOne(objectName: string, query?: DataEngineQueryOptions): Promise<any> {
+    this.logger.debug('FindOne operation', { objectName });
+    const driver = this.getDriver(objectName);
+    const ast = this.toQueryAST(objectName, query);
     ast.limit = 1;
 
-    this.logger.debug('Executing driver.findOne', { object, driver: driver.name, ast });
-    
-    try {
-      const result = await driver.findOne(object, ast, options);
-      this.logger.debug('FindOne operation completed', { object, found: !!result });
-      return result;
-    } catch (e) {
-      this.logger.error('FindOne operation failed', e as Error, { object });
-      throw e;
-    }
+    // Reuse find logic or call generic driver.findOne if available
+    // Assuming driver has findOne
+    return driver.findOne(objectName, ast);
   }
 
-  /**
-   * Insert a new record (IDataEngine interface)
-   * 
-   * @param object - Object name
-   * @param data - Data to insert
-   * @returns Promise resolving to the created record
-   */
-  async insert(object: string, data: any): Promise<any> {
-    this.logger.debug('Insert operation starting', { object, hasData: !!data });
-    
+  async insert(object: string, data: any | any[], options?: DataEngineInsertOptions): Promise<any> {
+    this.logger.debug('Insert operation starting', { object, isBatch: Array.isArray(data) });
     const driver = this.getDriver(object);
-    
-    // 1. Get Schema
-    const schema = SchemaRegistry.getObject(object);
-    
-    if (schema) {
-       this.logger.debug('Schema found for object', { object });
-       // TODO: Validation Logic
-       // validate(schema, data);
-    } else {
-       this.logger.debug('No schema found for object', { object });
-    }
-    
-    // 2. Trigger Before Hook
+
     const hookContext: HookContext = {
         object,
         event: 'beforeInsert',
-        input: { data, options: undefined },
+        input: { data, options },
         ql: this
     };
     await this.triggerHooks('beforeInsert', hookContext);
-    
+
     try {
-      // 3. Execute Driver
-      this.logger.debug('Executing driver.create', { object, driver: driver.name });
-      const result = await driver.create(object, hookContext.input.data, hookContext.input.options);
-      
-      this.logger.debug('Insert operation completed', { object, recordId: result?.id });
-      
-      // 4. Trigger After Hook
+      let result;
+      if (Array.isArray(hookContext.input.data)) {
+        // Bulk Create
+        if (driver.bulkCreate) {
+             result = await driver.bulkCreate(object, hookContext.input.data, hookContext.input.options);
+        } else {
+             // Fallback loop
+             result = await Promise.all(hookContext.input.data.map((item: any) => driver.create(object, item, hookContext.input.options)));
+        }
+      } else {
+        result = await driver.create(object, hookContext.input.data, hookContext.input.options);
+      }
+
       hookContext.event = 'afterInsert';
       hookContext.result = result;
       await this.triggerHooks('afterInsert', hookContext);
@@ -455,79 +353,123 @@ export class ObjectQL implements IDataEngine {
     }
   }
 
-  /**
-   * Update a record by ID (IDataEngine interface)
-   * 
-   * @param object - Object name
-   * @param id - Record ID
-   * @param data - Updated data
-   * @returns Promise resolving to the updated record
-   */
-  async update(object: string, id: any, data: any): Promise<any> {
-    this.logger.debug('Update operation starting', { object, id, hasData: !!data });
-    
-    const driver = this.getDriver(object);
+  async update(object: string, data: any, options?: DataEngineUpdateOptions): Promise<any> {
+     // NOTE: This signature is tricky because Driver expects (obj, id, data) usually.
+     // DataEngine protocol puts filter in options.
+     this.logger.debug('Update operation starting', { object });
+     const driver = this.getDriver(object);
+     
+     // 1. Extract ID from data or filter if it's a single update by ID
+     // This is a simplification. Real implementation needs robust filter handling.
+     let id = data.id || data._id;
+     if (!id && options?.filter) {
+         // Optimization: If filter is simple ID check, extract it
+         if (typeof options.filter === 'string') id = options.filter;
+         else if (options.filter._id) id = options.filter._id;
+         else if (options.filter.id) id = options.filter.id;
+     }
 
-    const hookContext: HookContext = {
+     const hookContext: HookContext = {
         object,
         event: 'beforeUpdate',
-        input: { id, data, options: undefined },
+        input: { id, data, options },
         ql: this
     };
     await this.triggerHooks('beforeUpdate', hookContext);
 
-    try {
-      this.logger.debug('Executing driver.update', { object, id, driver: driver.name });
-      const result = await driver.update(object, hookContext.input.id, hookContext.input.data, hookContext.input.options);
+     try {
+         let result;
+         if (hookContext.input.id) {
+             // Single update by ID
+             result = await driver.update(object, hookContext.input.id, hookContext.input.data, hookContext.input.options);
+         } else if (options?.multi && driver.updateMany) {
+             // Bulk update by Query
+             const ast = this.toQueryAST(object, { filter: options.filter });
+             result = await driver.updateMany(object, ast, hookContext.input.data, hookContext.input.options);
+         } else {
+             throw new Error('Update requires an ID or options.multi=true');
+         }
 
-      this.logger.debug('Update operation completed', { object, id });
-
-      hookContext.event = 'afterUpdate';
-      hookContext.result = result;
-      await this.triggerHooks('afterUpdate', hookContext);
-      
-      return hookContext.result;
-    } catch (e) {
-      this.logger.error('Update operation failed', e as Error, { object, id });
-      throw e;
-    }
+         hookContext.event = 'afterUpdate';
+         hookContext.result = result;
+         await this.triggerHooks('afterUpdate', hookContext);
+         return hookContext.result;
+     } catch (e) {
+        this.logger.error('Update operation failed', e as Error, { object });
+        throw e;
+     }
   }
 
-  /**
-   * Delete a record by ID (IDataEngine interface)
-   * 
-   * @param object - Object name
-   * @param id - Record ID
-   * @returns Promise resolving to true if deleted, false otherwise
-   */
-  async delete(object: string, id: any): Promise<boolean> {
-    this.logger.debug('Delete operation starting', { object, id });
-    
+  async delete(object: string, options?: DataEngineDeleteOptions): Promise<any> {
+    this.logger.debug('Delete operation starting', { object });
     const driver = this.getDriver(object);
+
+    // Extract ID logic similar to update
+    let id: any = undefined;
+    if (options?.filter) {
+         if (typeof options.filter === 'string') id = options.filter;
+         else if (options.filter._id) id = options.filter._id;
+         else if (options.filter.id) id = options.filter.id;
+    }
 
     const hookContext: HookContext = {
         object,
         event: 'beforeDelete',
-        input: { id, options: undefined },
+        input: { id, options },
         ql: this
     };
     await this.triggerHooks('beforeDelete', hookContext);
 
     try {
-      this.logger.debug('Executing driver.delete', { object, id, driver: driver.name });
-      const result = await driver.delete(object, hookContext.input.id, hookContext.input.options);
+        let result;
+        if (hookContext.input.id) {
+            result = await driver.delete(object, hookContext.input.id, hookContext.input.options);
+        } else if (options?.multi && driver.deleteMany) {
+             const ast = this.toQueryAST(object, { filter: options.filter });
+             result = await driver.deleteMany(object, ast, hookContext.input.options);
+        } else {
+             throw new Error('Delete requires an ID or options.multi=true');
+        }
 
-      this.logger.debug('Delete operation completed', { object, id, deleted: result });
-
-      hookContext.event = 'afterDelete';
-      hookContext.result = result;
-      await this.triggerHooks('afterDelete', hookContext);
-
-      // Driver.delete() already returns boolean per DriverInterface spec
-      return hookContext.result;
+        hookContext.event = 'afterDelete';
+        hookContext.result = result;
+        await this.triggerHooks('afterDelete', hookContext);
+        return hookContext.result;
     } catch (e) {
-      this.logger.error('Delete operation failed', e as Error, { object, id });
-      throw e;
+        this.logger.error('Delete operation failed', e as Error, { object });
+        throw e;
     }
+  }
+
+  async count(object: string, query?: DataEngineCountOptions): Promise<number> {
+     const driver = this.getDriver(object);
+     if (driver.count) {
+         const ast = this.toQueryAST(object, { filter: query?.filter });
+         return driver.count(object, ast);
+     }
+     // Fallback to find().length
+     const res = await this.find(object, { filter: query?.filter, select: ['_id'] });
+     return res.length;
+  }
+
+  async aggregate(object: string, query: DataEngineAggregateOptions): Promise<any[]> {
+      const driver = this.getDriver(object);
+      // Driver needs support for raw aggregation or mapped aggregation
+      // For now, if driver supports 'execute', we might pass it down, or we need to add 'aggregate' to DriverInterface
+      // In this version, we'll assume driver might handle it via special 'find' or throw not implemented
+      throw new Error('Aggregate not yet fully implemented in ObjectQL->Driver mapping');
+  }
+  
+  async execute(command: any, options?: Record<string, any>): Promise<any> {
+      // Direct pass-through implies we know which driver to use?
+      // Usually execute is tied to a specific object context OR we need a way to select driver.
+      // If command has 'object', we use that.
+      if (options?.object) {
+          const driver = this.getDriver(options.object);
+          if (driver.execute) {
+              return driver.execute(command, undefined, options);
+          }
+      }
+      throw new Error('Execute requires options.object to select driver');
   }
 }
