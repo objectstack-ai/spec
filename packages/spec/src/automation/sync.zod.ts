@@ -1,13 +1,21 @@
 import { z } from 'zod';
 
 /**
- * Data Sync Protocol
+ * Data Sync Protocol - LEVEL 1: Simple Synchronization
  * 
  * Inspired by Salesforce Connect, Segment Sync, and Census Reverse ETL.
+ * 
+ * **Positioning in 3-Layer Architecture:**
+ * - **L1: Simple Sync** (THIS FILE) - Business users - Sync Salesforce to Sheets
+ * - **L2: ETL Pipeline** (automation/etl.zod.ts) - Data engineers - Aggregate 10 sources to warehouse
+ * - **L3: Enterprise Connector** (integration/connector.zod.ts) - System integrators - Full SAP integration
  * 
  * Data sync provides bidirectional or unidirectional data synchronization
  * between ObjectStack and external systems, maintaining data consistency
  * across platforms.
+ * 
+ * **SCOPE: Simple field mappings only. NO complex transformations.**
+ * For complex transformations (joins, aggregates, custom SQL), use ETL Pipeline (Level 2).
  * 
  * ## Use Cases
  * 

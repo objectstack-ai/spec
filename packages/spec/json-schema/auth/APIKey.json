@@ -1,17 +1,17 @@
 {
-  "$ref": "#/definitions/ApiKeyAuth",
+  "$ref": "#/definitions/APIKey",
   "definitions": {
-    "ApiKeyAuth": {
+    "APIKey": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "const": "api_key",
+          "const": "api-key",
           "description": "Authentication type"
         },
-        "apiKey": {
+        "key": {
           "type": "string",
-          "description": "API key (typically from ENV)"
+          "description": "API key value"
         },
         "headerName": {
           "type": "string",
@@ -25,7 +25,7 @@
       },
       "required": [
         "type",
-        "apiKey"
+        "key"
       ],
       "additionalProperties": false
     }

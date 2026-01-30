@@ -18,9 +18,9 @@ import {
   DatabaseAdapterSchema,
   DatabaseMappingSchema,
   AuthPluginConfigSchema,
-  AuthConfigSchema,
+  ApplicationAuthConfigSchema,
   StandardAuthProviderSchema,
-  type AuthConfig,
+  type ApplicationAuthConfig,
   type StandardAuthProvider,
   type OAuthProvider,
   type DatabaseMapping,
@@ -472,7 +472,7 @@ describe('EnterpriseAuthConfigSchema', () => {
       },
     };
 
-    expect(() => EnterpriseAuthConfigSchema.parse(config)).not.toThrow();
+    expect(() => EnterpriseApplicationAuthConfigSchema.parse(config)).not.toThrow();
   });
 
   it('should accept partial enterprise config', () => {
@@ -485,12 +485,12 @@ describe('EnterpriseAuthConfigSchema', () => {
       },
     };
 
-    expect(() => EnterpriseAuthConfigSchema.parse(config)).not.toThrow();
+    expect(() => EnterpriseApplicationAuthConfigSchema.parse(config)).not.toThrow();
   });
 
   it('should accept empty enterprise config', () => {
     const config = {};
-    expect(() => EnterpriseAuthConfigSchema.parse(config)).not.toThrow();
+    expect(() => EnterpriseApplicationAuthConfigSchema.parse(config)).not.toThrow();
   });
 });
 
@@ -648,7 +648,7 @@ describe('AuthPluginConfigSchema', () => {
   });
 });
 
-describe('AuthConfigSchema', () => {
+describe('ApplicationAuthConfigSchema', () => {
   it('should accept minimal valid configuration', () => {
     const config: AuthConfig = {
       name: 'main_auth',
@@ -662,7 +662,7 @@ describe('AuthConfigSchema', () => {
       accountLinking: {},
     };
 
-    expect(() => AuthConfigSchema.parse(config)).not.toThrow();
+    expect(() => ApplicationAuthConfigSchema.parse(config)).not.toThrow();
   });
 
   it('should accept comprehensive configuration', () => {
@@ -747,7 +747,7 @@ describe('AuthConfigSchema', () => {
       allowRegistration: true,
     };
 
-    expect(() => AuthConfigSchema.parse(config)).not.toThrow();
+    expect(() => ApplicationAuthConfigSchema.parse(config)).not.toThrow();
   });
 
   it('should enforce snake_case for name field', () => {
@@ -763,14 +763,14 @@ describe('AuthConfigSchema', () => {
       accountLinking: {},
     };
 
-    expect(() => AuthConfigSchema.parse(invalidConfig)).toThrow();
+    expect(() => ApplicationAuthConfigSchema.parse(invalidConfig)).toThrow();
 
     const validConfig = {
       ...invalidConfig,
       name: 'main_auth', // snake_case - valid
     };
 
-    expect(() => AuthConfigSchema.parse(validConfig)).not.toThrow();
+    expect(() => ApplicationAuthConfigSchema.parse(validConfig)).not.toThrow();
   });
 
   it('should require at least one strategy', () => {
@@ -786,7 +786,7 @@ describe('AuthConfigSchema', () => {
       accountLinking: {},
     };
 
-    expect(() => AuthConfigSchema.parse(config)).toThrow();
+    expect(() => ApplicationAuthConfigSchema.parse(config)).toThrow();
   });
 
   it('should require secret to be at least 32 characters', () => {
@@ -802,7 +802,7 @@ describe('AuthConfigSchema', () => {
       accountLinking: {},
     };
 
-    expect(() => AuthConfigSchema.parse(config)).toThrow();
+    expect(() => ApplicationAuthConfigSchema.parse(config)).toThrow();
   });
 
   it('should validate baseUrl is a valid URL', () => {
@@ -818,7 +818,7 @@ describe('AuthConfigSchema', () => {
       accountLinking: {},
     };
 
-    expect(() => AuthConfigSchema.parse(config)).toThrow();
+    expect(() => ApplicationAuthConfigSchema.parse(config)).toThrow();
   });
 
   it('should accept configuration with hooks', () => {
@@ -842,7 +842,7 @@ describe('AuthConfigSchema', () => {
       },
     };
 
-    expect(() => AuthConfigSchema.parse(config)).not.toThrow();
+    expect(() => ApplicationAuthConfigSchema.parse(config)).not.toThrow();
   });
 
   it('should accept configuration with security settings', () => {
@@ -865,7 +865,7 @@ describe('AuthConfigSchema', () => {
       },
     };
 
-    expect(() => AuthConfigSchema.parse(config)).not.toThrow();
+    expect(() => ApplicationAuthConfigSchema.parse(config)).not.toThrow();
   });
 
   it('should accept configuration with email settings', () => {
@@ -889,7 +889,7 @@ describe('AuthConfigSchema', () => {
       },
     };
 
-    expect(() => AuthConfigSchema.parse(config)).not.toThrow();
+    expect(() => ApplicationAuthConfigSchema.parse(config)).not.toThrow();
   });
 
   it('should accept configuration with UI customization', () => {
@@ -911,7 +911,7 @@ describe('AuthConfigSchema', () => {
       },
     };
 
-    expect(() => AuthConfigSchema.parse(config)).not.toThrow();
+    expect(() => ApplicationAuthConfigSchema.parse(config)).not.toThrow();
   });
 
   it('should accept configuration with enterprise authentication', () => {
@@ -941,7 +941,7 @@ describe('AuthConfigSchema', () => {
       },
     };
 
-    expect(() => AuthConfigSchema.parse(config)).not.toThrow();
+    expect(() => ApplicationAuthConfigSchema.parse(config)).not.toThrow();
   });
 
   it('should accept configuration with database field mapping', () => {
@@ -970,7 +970,7 @@ describe('AuthConfigSchema', () => {
       },
     };
 
-    expect(() => AuthConfigSchema.parse(config)).not.toThrow();
+    expect(() => ApplicationAuthConfigSchema.parse(config)).not.toThrow();
   });
 
   it('should accept configuration with better-auth compatible mapping', () => {
@@ -997,7 +997,7 @@ describe('AuthConfigSchema', () => {
       },
     };
 
-    const result = AuthConfigSchema.parse(config);
+    const result = ApplicationAuthConfigSchema.parse(config);
     
     // Verify mapping is preserved
     expect(result.mapping?.session?.sessionToken).toBe('token');
@@ -1013,7 +1013,7 @@ describe('AuthConfigSchema', () => {
       secret: 'a'.repeat(32),
     };
 
-    const result = AuthConfigSchema.parse(config);
+    const result = ApplicationAuthConfigSchema.parse(config);
     
     expect(result.active).toBe(true);
     expect(result.allowRegistration).toBe(true);
@@ -1039,7 +1039,7 @@ describe('AuthConfigSchema', () => {
       },
     };
 
-    expect(() => AuthConfigSchema.parse(config)).not.toThrow();
+    expect(() => ApplicationAuthConfigSchema.parse(config)).not.toThrow();
   });
 
   it('should use default values for organization settings', () => {
@@ -1056,7 +1056,7 @@ describe('AuthConfigSchema', () => {
       organization: {},
     };
 
-    const result = AuthConfigSchema.parse(config);
+    const result = ApplicationAuthConfigSchema.parse(config);
     
     expect(result.organization?.enabled).toBe(false);
     expect(result.organization?.allowUserToCreateOrg).toBe(true);
@@ -1080,7 +1080,7 @@ describe('AuthConfigSchema', () => {
       },
     };
 
-    const result = AuthConfigSchema.parse(config);
+    const result = ApplicationAuthConfigSchema.parse(config);
     
     expect(result.organization?.enabled).toBe(false);
   });

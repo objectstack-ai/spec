@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
+import { WebhookSchema } from './webhook.zod';
 
 /**
  * Trigger events for workflow automation
@@ -89,16 +90,12 @@ export const HttpCallActionSchema = z.object({
 
 /**
  * Schema for Workflow Webhook Trigger Action
+ * References the canonical WebhookSchema from automation/webhook.zod.ts
  */
 export const WebhookTriggerActionSchema = z.object({
   name: z.string().describe('Action name'),
   type: z.literal('webhook_trigger'),
-  url: z.string().describe('Webhook URL to call'),
-  method: z.enum(['POST', 'PUT']).default('POST').describe('HTTP method'),
-  headers: z.record(z.string()).optional().describe('Custom headers'),
-  payload: z.any().optional().describe('Webhook payload (uses record data if not specified)'),
-  retryOnFailure: z.boolean().default(true).describe('Retry if webhook fails'),
-  maxRetries: z.number().default(3).describe('Maximum retry attempts'),
+  config: WebhookSchema.describe('Webhook configuration (references canonical schema)'),
 });
 
 /**
