@@ -151,7 +151,10 @@ export class ObjectStackClient {
         if (res.status === 304) {
           return {
             notModified: true,
-            etag: cacheOptions?.ifNoneMatch ? { value: cacheOptions.ifNoneMatch, weak: false } : undefined
+            etag: cacheOptions?.ifNoneMatch ? { 
+              value: cacheOptions.ifNoneMatch.replace(/^W\/|"/g, ''),
+              weak: cacheOptions.ifNoneMatch.startsWith('W/')
+            } : undefined
           };
         }
         
@@ -161,7 +164,10 @@ export class ObjectStackClient {
         
         return {
           data,
-          etag: etag ? { value: etag.replace(/"/g, ''), weak: etag.startsWith('W/') } : undefined,
+          etag: etag ? { 
+            value: etag.replace(/^W\/|"/g, ''), 
+            weak: etag.startsWith('W/') 
+          } : undefined,
           lastModified: lastModified || undefined,
           notModified: false
         };
@@ -261,7 +267,7 @@ export class ObjectStackClient {
 
     createMany: async <T = any>(object: string, data: Partial<T>[]): Promise<T[]> => {
         const route = this.getRoute('data');
-        const res = await this.fetch(`${this.baseUrl}${route}/${object}/batch`, {
+        const res = await this.fetch(`${this.baseUrl}${route}/${object}/createMany`, {
             method: 'POST',
             body: JSON.stringify(data)
         });
@@ -292,7 +298,7 @@ export class ObjectStackClient {
 
     /**
      * Update multiple records (simplified batch update)
-     * @deprecated Use batch() method for full control
+     * Convenience method for batch updates without full BatchUpdateRequest
      */
     updateMany: async <T = any>(
       object: string, 
@@ -301,7 +307,7 @@ export class ObjectStackClient {
     ): Promise<BatchUpdateResponse> => {
         const route = this.getRoute('data');
         const request: UpdateManyRequest = {
-          records: records.map(r => ({ id: r.id, data: r.data })),
+          records,
           options
         };
         const res = await this.fetch(`${this.baseUrl}${route}/${object}/updateMany`, {

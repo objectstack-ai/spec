@@ -111,12 +111,12 @@ Initializes the client by fetching the system discovery manifest from `/api/v1`.
 - `get<T>(object, id)`: Get single record by ID.
 - `query<T>(object, ast)`: Execute complex query using full AST.
 - `create<T>(object, data)`: Create record.
-- `createMany<T>(object, data[])`: Batch create records.
+- `batch(object, request)`: **Recommended** - Execute batch operations (create/update/upsert/delete) with full control.
+- `createMany<T>(object, data[])`: Batch create records (convenience method).
 - `update<T>(object, id, data)`: Update record.
-- `batch(object, request)`: Execute batch operations (create/update/upsert/delete).
-- `updateMany<T>(object, records[], options?)`: Simplified batch update.
+- `updateMany<T>(object, records[], options?)`: Batch update records (convenience method).
 - `delete(object, id)`: Delete record.
-- `deleteMany(object, ids[], options?)`: Batch delete records.
+- `deleteMany(object, ids[], options?)`: Batch delete records (convenience method).
 
 ### `client.views` (New!)
 - `create(request)`: Create a new saved view.
