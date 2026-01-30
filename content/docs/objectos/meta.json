@@ -8,6 +8,7 @@
     "plugin-spec",
     "config-resolution",
     "i18n-standard",
+    "permission-model",
     "transport"
   ]
 }

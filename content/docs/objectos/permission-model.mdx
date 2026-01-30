@@ -1,24 +1,33 @@
-# ObjectStack Permission Model
-# ObjectStack 权限模型
+---
+title: Permission Model
+description: Three-layer access control architecture for enterprise data security
+---
 
-## Overview / 概览
+import { Shield, Lock, Users, Database, CheckCircle, XCircle } from 'lucide-react';
 
-ObjectStack 提供三层记录级访问控制:
+# Permission Model
 
-1. **RLS (Row-Level Security)** - 数据库级强制策略
-2. **Permission** - 应用级 CRUD 权限
-3. **Sharing** - 业务规则扩展
+ObjectStack provides a three-layer record-level access control system that combines database-level security, application permissions, and business sharing rules.
 
-## Precedence Order / 优先级顺序
+## Overview
 
-访问权限计算公式:
+The permission model consists of three layers:
+
+1. **RLS (Row-Level Security)** - Database-level enforcement policies
+2. **Permission** - Application-level CRUD permissions
+3. **Sharing** - Business rule extensions
+
+## Precedence Order
+
+Access rights are calculated using the formula:
+
 ```
 Final Access = RLS ∩ Permission ∩ Sharing
 ```
 
-**Most Restrictive Wins** (最严格的规则获胜)
+**Most Restrictive Wins** - The strictest rule takes precedence.
 
-### Evaluation Flow / 评估流程
+### Evaluation Flow
 
 ```
 RLS Policies (cannot bypass)
@@ -32,15 +41,26 @@ GRANT ACCESS
 
 ## Layer 1: Row-Level Security (RLS)
 
-### Purpose / 用途
-PostgreSQL-inspired database-level policies that **cannot be bypassed** even by admins.
+<Cards>
+  <Card
+    icon={<Database />}
+    title="Database-Level Enforcement"
+    description="PostgreSQL-inspired policies that cannot be bypassed, even by admins"
+  />
+</Cards>
 
-### When to Use / 使用场景
-- Multi-tenant data isolation
-- Regulatory compliance (GDPR, HIPAA)
-- Hard security boundaries
+### Purpose
 
-### Example / 示例
+Row-Level Security provides database-level policies that filter data before it reaches the application layer. These policies are enforced at the lowest level and cannot be circumvented.
+
+### When to Use
+
+- **Multi-tenant data isolation** - Ensure users only access their organization's data
+- **Regulatory compliance** - GDPR, HIPAA, and other data protection requirements
+- **Hard security boundaries** - Enforce security at the database level
+
+### Example
+
 ```typescript
 const rlsPolicy: RowLevelSecurityPolicy = {
   name: 'tenant_isolation',
@@ -51,9 +71,9 @@ const rlsPolicy: RowLevelSecurityPolicy = {
 };
 ```
 
-### Schema Reference / 架构引用
+### Schema Reference
 
-See `permission/rls.zod.ts`
+See `permission/rls.zod.ts` for the complete schema definition.
 
 **Key Fields:**
 - `name` - Unique policy identifier (snake_case)
@@ -66,11 +86,19 @@ See `permission/rls.zod.ts`
 
 ## Layer 2: Object Permissions
 
-### Purpose / 用途
+<Cards>
+  <Card
+    icon={<Shield />}
+    title="Application-Level Control"
+    description="CRUD permissions with View All and Modify All modifiers"
+  />
+</Cards>
 
-Application-level CRUD permissions with additional modifiers.
+### Purpose
 
-### Permission Matrix / 权限矩阵
+Application-level CRUD permissions control what operations users can perform on objects.
+
+### Permission Matrix
 
 | Permission | Field Name | Grants |
 |------------|------------|--------|
@@ -81,15 +109,15 @@ Application-level CRUD permissions with additional modifiers.
 | View All | `viewAllRecords` | See all records (bypasses sharing) |
 | Modify All | `modifyAllRecords` | Edit all records (bypasses sharing) |
 
-### Lifecycle Permissions / 生命周期权限
+### Lifecycle Permissions
 
-Additional permissions for enterprise data lifecycle:
+Additional permissions for enterprise data lifecycle management:
 
 - `allowTransfer` - Change record ownership
 - `allowRestore` - Restore from trash (Undelete)
 - `allowPurge` - Permanently delete (Hard Delete/GDPR compliance)
 
-### Example / 示例
+### Example
 
 ```typescript
 const permission: ObjectPermission = {
@@ -105,7 +133,7 @@ const permission: ObjectPermission = {
 };
 ```
 
-### Permission Set / 权限集
+### Permission Set
 
 ```typescript
 const permissionSet: PermissionSet = {
@@ -126,15 +154,23 @@ const permissionSet: PermissionSet = {
 };
 ```
 
-### Schema Reference / 架构引用
+### Schema Reference
 
-See `permission/permission.zod.ts`
+See `permission/permission.zod.ts` for the complete schema definition.
 
 ## Layer 3: Sharing Rules
 
-### Purpose / 用途
+<Cards>
+  <Card
+    icon={<Users />}
+    title="Business Rule Extensions"
+    description="Salesforce-inspired sharing that extends base permissions"
+  />
+</Cards>
 
-Salesforce-inspired sharing that extends base permissions.
+### Purpose
+
+Sharing rules provide Salesforce-inspired extensions to base permissions, allowing you to grant access beyond ownership boundaries.
 
 ### Organization-Wide Defaults (OWD)
 
@@ -145,9 +181,11 @@ Salesforce-inspired sharing that extends base permissions.
 | `public_read_write` | Everyone can edit |
 | `controlled_by_parent` | Access derived from parent record (Master-Detail) |
 
-### Sharing Rule Types / 规则类型
+### Sharing Rule Types
 
 #### Criteria-Based Sharing
+
+Share records matching specific field criteria:
 
 ```typescript
 const criteriaSharingRule: CriteriaSharingRule = {
@@ -165,6 +203,8 @@ const criteriaSharingRule: CriteriaSharingRule = {
 ```
 
 #### Owner-Based Sharing
+
+Share records based on owner attributes:
 
 ```typescript
 const ownerSharingRule: OwnerSharingRule = {
@@ -184,13 +224,13 @@ const ownerSharingRule: OwnerSharingRule = {
 };
 ```
 
-### Sharing Levels / 共享级别
+### Sharing Levels
 
 - `read` - Read Only
 - `edit` - Read / Write
 - `full` - Full Access (Transfer, Share, Delete)
 
-### Recipient Types / 接收者类型
+### Recipient Types
 
 - `user` - Individual user
 - `group` - User group
@@ -198,20 +238,20 @@ const ownerSharingRule: OwnerSharingRule = {
 - `role_and_subordinates` - Role hierarchy
 - `guest` - Public sharing
 
-### Schema Reference / 架构引用
+### Schema Reference
 
-See `permission/sharing.zod.ts`
+See `permission/sharing.zod.ts` for the complete schema definition.
 
-## Composition Rules / 组合规则
+## Composition Rules
 
 ### Rule 1: RLS is Always Evaluated First
 
-RLS policies filter data at the database level before any application logic.
+RLS policies filter data at the database level before any application logic runs.
 
 **Example:**
 - User has `Permission.viewAllRecords = true`
 - BUT `tenant_id` RLS policy filters to only their tenant
-- → User can ONLY see their tenant's data (RLS wins)
+- **Result:** User can ONLY see their tenant's data (RLS wins)
 
 ### Rule 2: Permission Controls Capabilities
 
@@ -219,7 +259,7 @@ Object permissions define what operations are possible.
 
 **Example:**
 - User has `Permission.allowRead = false`
-- → User cannot read ANY records (even if sharing grants access)
+- **Result:** User cannot read ANY records (even if sharing grants access)
 
 ### Rule 3: Sharing Extends Access
 
@@ -228,15 +268,15 @@ Sharing rules can grant access to records beyond ownership.
 **Example:**
 - User is NOT owner
 - BUT sharing rule grants 'read' access to region='APAC' records
-- → User can read APAC records (sharing extends)
+- **Result:** User can read APAC records (sharing extends)
 
-## Complete Example / 完整示例
+## Complete Example
 
-### Scenario / 场景
+### Scenario
 
 Sales organization with regional structure.
 
-### Configuration / 配置
+### Configuration
 
 **RLS:**
 ```typescript
@@ -260,7 +300,7 @@ Sales organization with regional structure.
       allowRead: true,
       allowEdit: true,
       allowDelete: false,
-      viewAllRecords: false, // Normal users can't see all
+      viewAllRecords: false,
       modifyAllRecords: false
     }
   }
@@ -283,7 +323,7 @@ Sales organization with regional structure.
 }
 ```
 
-### Test Cases / 测试用例
+### Test Cases
 
 | User | Scenario | Result | Reason |
 |------|----------|--------|--------|
@@ -293,17 +333,17 @@ Sales organization with regional structure.
 | Sales Manager | Edit closed_won opp | ❌ FAIL | Sharing only grants 'read' |
 | Admin (different tenant) | View any opp | ❌ FAIL | RLS blocks cross-tenant |
 
-## Territory Management / 领地管理
+## Territory Management
 
 ObjectStack supports territory-based data access control as a parallel hierarchy to roles.
 
-### Purpose / 用途
+### Purpose
 
 - Geographic sales territories (e.g., "EMEA", "APAC")
 - Industry verticals (e.g., "Healthcare", "Financial")
 - Strategic account management
 
-### Key Differences / 关键差异
+### Key Differences
 
 | Aspect | Role | Territory |
 |--------|------|-----------|
@@ -311,7 +351,7 @@ ObjectStack supports territory-based data access control as a parallel hierarchy
 | Flexibility | Stable (HR-driven) | Flexible (Sales-driven) |
 | Assignment | One role per user | Multiple territories per user |
 
-### Example / 示例
+### Example
 
 ```typescript
 const territory: Territory = {
@@ -327,13 +367,13 @@ const territory: Territory = {
 };
 ```
 
-### Schema Reference / 架构引用
+### Schema Reference
 
-See `permission/territory.zod.ts`
+See `permission/territory.zod.ts` for the complete schema definition.
 
-## Implementation Checklist / 实施检查清单
+## Implementation Checklist
 
-When implementing permission model:
+When implementing the permission model:
 
 - [ ] Define RLS policies for multi-tenant isolation
 - [ ] Configure object permissions per role
@@ -344,7 +384,7 @@ When implementing permission model:
 - [ ] Test composition scenarios
 - [ ] Document custom permission logic
 
-## Best Practices / 最佳实践
+## Best Practices
 
 1. **Start with RLS** - Define hard boundaries first
 2. **Use OWD Wisely** - Most objects should be 'private' or 'public_read'
@@ -353,22 +393,22 @@ When implementing permission model:
 5. **Audit Regularly** - Review permission grants quarterly
 6. **Document Territory Logic** - Keep assignment rules clear and maintainable
 
-## Security Considerations / 安全考虑
+## Security Considerations
 
-### Defense in Depth / 纵深防御
+### Defense in Depth
 
 Always implement multiple layers:
 - RLS for hard boundaries
 - Permissions for capability control
 - Sharing for business logic
 
-### Default Deny / 默认拒绝
+### Default Deny
 
 - No permission = No access
 - Explicit grants only
 - Audit all "View All" and "Modify All" assignments
 
-### Context Variables / 上下文变量
+### Context Variables
 
 Ensure these are always set correctly:
 - `current_user.id`
@@ -376,20 +416,13 @@ Ensure these are always set correctly:
 - `current_user.role`
 - `current_user.department`
 
-### SQL Injection Prevention / SQL注入防护
+### SQL Injection Prevention
 
 RLS conditions MUST use parameterized queries:
 - ✅ Good: `tenant_id = current_user.tenant_id`
 - ❌ Bad: Direct string concatenation
 
-## Related Documentation
-
-- `permission/permission.zod.ts` - Permission schema
-- `permission/rls.zod.ts` - RLS policy schema
-- `permission/sharing.zod.ts` - Sharing rule schema
-- `permission/territory.zod.ts` - Territory management schema
-
-## API Examples / API 示例
+## API Examples
 
 ### Check User Access
 
@@ -420,30 +453,30 @@ const opportunities = await db.query({
 // Returns only records user can access
 ```
 
-## Performance Considerations / 性能考虑
+## Performance Considerations
 
-### RLS Performance / RLS性能
+### RLS Performance
 
 - RLS evaluates at database level (efficient)
 - Index fields used in RLS conditions
 - Cache RLS evaluation results (default: 5 minutes)
 - Pre-fetch user context per request
 
-### Sharing Rules Performance / 共享规则性能
+### Sharing Rules Performance
 
 - Criteria-based rules can be expensive
 - Limit number of sharing rules per object
 - Use owner-based rules when possible
 - Consider territory hierarchy depth
 
-### Optimization Tips / 优化建议
+### Optimization Tips
 
 1. **Index Strategy**: Index all fields in RLS `using` clauses
 2. **Cache Context**: Pre-fetch `current_user` data
 3. **Batch Queries**: Evaluate permissions in batches
 4. **Monitor**: Log slow policy evaluations
 
-## Migration Guide / 迁移指南
+## Migration Guide
 
 ### From Simple RBAC
 
@@ -460,7 +493,7 @@ const opportunities = await db.query({
 4. Role Hierarchy → Territory hierarchy for sales
 5. OWD → Direct mapping
 
-## Troubleshooting / 故障排除
+## Troubleshooting
 
 ### User Can't Access Record
 
@@ -485,21 +518,9 @@ const opportunities = await db.query({
 4. Enable RLS result caching
 5. Profile query execution plans
 
-## Glossary / 术语表
+## Related Documentation
 
-| Term | Chinese | Definition |
-|------|---------|------------|
-| RLS | 行级安全 | Row-Level Security - Database-level filtering |
-| CRUD | 增删改查 | Create, Read, Update, Delete |
-| OWD | 组织级默认值 | Organization-Wide Defaults |
-| Permission Set | 权限集 | Collection of permissions assigned to users |
-| Profile | 用户配置文件 | Primary permission set for a user |
-| Sharing Rule | 共享规则 | Business rule that extends access |
-| Territory | 领地 | Geographic or vertical sales assignment |
-| VAMA | 全部查看/修改 | View All / Modify All |
-
----
-
-**Document Version**: 1.0  
-**Last Updated**: 2026-01-30  
-**Status**: Active
+- `permission/permission.zod.ts` - Permission schema
+- `permission/rls.zod.ts` - RLS policy schema
+- `permission/sharing.zod.ts` - Sharing rule schema
+- `permission/territory.zod.ts` - Territory management schema
