@@ -1,93 +1,82 @@
 import { z } from 'zod';
+import { DriverDefinitionSchema } from './../driver.zod';
 
 /**
- * MongoDB Driver Configuration Schema
- * Defines the connection settings specific to MongoDB.
+ * MongoDB Standard Driver Protocol
+ * 
+ * Defines the strict schema for MongoDB connection and capabilities.
+ * This is used by the Platform to validate `datasource.config` when `driver: 'mongo'`.
  */
+
+// ==========================================================================
+// 1. Connection Configuration
+// ==========================================================================
+
 export const MongoConfigSchema = z.object({
   /**
-   * Connection URI.
-   * If provided, it takes precedence over host/port/database.
+   * Connection URI (Standard Connection String)
+   * If provided, host/port/username/password fields may be ignored or merged depending on driver logic.
    * Format: mongodb://[username:password@]host1[:port1][,...hostN[:portN]][/[defaultauthdb][?options]]
    */
-  url: z.string().optional().describe('Connection URI'),
+  url: z.string().describe('Connection URI').optional(),
 
   /**
-   * Database Name.
-   * Required to identify which database to use within the cluster.
+   * Database Name (Required)
+   * The logical database to store collections.
    */
-  database: z.string().describe('Database Name'),
+  database: z.string().min(1).describe('Database Name'),
 
-  /**
-   * Hostname or IP address.
-   * Defaults to localhost if not specified.
-   */
-  host: z.string().default('127.0.0.1').describe('Host address'),
+  /** Hostname (Optional if url is provided) */
+  host: z.string().default('127.0.0.1').describe('Host address').optional(),
 
-  /**
-   * Port number.
-   * Defaults to 27017.
-   */
-  port: z.number().default(27017).describe('Port number'),
+  /** Port (Optional, default 27017) */
+  port: z.number().int().default(27017).describe('Port number').optional(),
 
-  /**
-   * Authentication Username.
-   */
-  username: z.string().optional().describe('Auth User'),
+  /** Username for authentication */
+  username: z.string().describe('Authentication Username').optional(),
 
-  /**
-   * Authentication Password.
-   */
-  password: z.string().optional().describe('Auth Password'),
-
-  /**
-   * Authentication Database.
-   * The database where the user credentials are stored (defaults to 'admin' or the target database).
-   */
-  authSource: z.string().optional().describe('Authentication Database'),
-
-  /**
-   * Enable SSL/TLS.
-   */
-  ssl: z.boolean().default(false).describe('Enable SSL'),
-
-  /**
-   * Replica Set Name.
-   * Required if connecting to a replica set.
-   */
-  replicaSet: z.string().optional().describe('Replica Set Name'),
-
-  /**
-   * Read Preference.
-   * Controls which members of the replica set usually receive read operations.
-   */
-  readPreference: z.enum(['primary', 'primaryPreferred', 'secondary', 'secondaryPreferred', 'nearest'])
-    .default('primary')
-    .describe('Read Preference'),
-
-  /**
-   * Connection Pool Size.
-   * The maximum number of connections in the connection pool.
-   */
-  maxPoolSize: z.number().optional().describe('Max Connection Pool Size'),
-
-  /**
-   * Min Connection Pool Size.
-   * The minimum number of connections in the connection pool.
-   */
-  minPoolSize: z.number().optional().describe('Min Connection Pool Size'),
+  /** Password for authentication */
+  password: z.string().describe('Authentication Password').optional(),
   
-  /**
-   * Connect Timeout (ms).
-   * How long to wait for a connection to be established before timing out.
-   */
-  connectTimeoutMS: z.number().optional().describe('Connection Timeout (ms)'),
+  /** Authentication Database (Defaults to admin or database name) */
+  authSource: z.string().describe('Authentication Database').optional(),
 
   /**
-   * Socket Timeout (ms).
-   * How long a socket can remain idle before being closed.
+   * Connection Options
+   * Passthrough options to the underlying MongoDB driver (e.g. valid certs, timeouts)
    */
-  socketTimeoutMS: z.number().optional().describe('Socket Timeout (ms)'),
+  options: z.record(z.any()).describe('Extra driver options (ssl, poolSize, etc)').optional(),
+}).describe('MongoDB Connection Configuration');
+
+// ==========================================================================
+// 2. Driver Definition (Metadata)
+// ==========================================================================
+
+/**
+ * The static definition of the Mongo driver's capabilities and default metadata.
+ * This implements the `DriverDefinitionSchema` contract.
+ */
+export const MongoDriverSpec = DriverDefinitionSchema.parse({
+  id: 'mongo',
+  label: 'MongoDB',
+  description: 'Official MongoDB Driver for ObjectStack. Supports rich queries, aggregation, and atomic updates.',
+  icon: 'database',
+  configSchema: {}, // Will be populated with JSON Schema version of MongoConfigSchema at runtime
+  capabilities: {
+    transactions: true,
+    // Query
+    fullTextSearch: true,
+    geoSpatial: true,
+    aggregation: true,
+    // Schema
+    mutableSchema: true,
+    jsonField: true,
+    // Relations
+    crossObjectJoin: true
+  }
 });
 
+/**
+ * Derived Types
+ */
 export type MongoConfig = z.infer<typeof MongoConfigSchema>;
