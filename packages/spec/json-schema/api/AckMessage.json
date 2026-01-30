@@ -1,0 +1,46 @@
+{
+  "$ref": "#/definitions/AckMessage",
+  "definitions": {
+    "AckMessage": {
+      "type": "object",
+      "properties": {
+        "messageId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique message identifier"
+        },
+        "type": {
+          "type": "string",
+          "const": "ack"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 datetime when message was sent"
+        },
+        "ackMessageId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the message being acknowledged"
+        },
+        "success": {
+          "type": "boolean",
+          "description": "Whether the operation was successful"
+        },
+        "error": {
+          "type": "string",
+          "description": "Error message if operation failed"
+        }
+      },
+      "required": [
+        "messageId",
+        "type",
+        "timestamp",
+        "ackMessageId",
+        "success"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

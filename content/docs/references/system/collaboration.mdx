@@ -1,0 +1,407 @@
+---
+title: Collaboration
+description: Collaboration protocol schemas
+---
+
+# Collaboration
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/collaboration.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AwarenessEventSchema, AwarenessSessionSchema, AwarenessUpdateSchema, AwarenessUserStateSchema, CRDTMergeResultSchema, CRDTStateSchema, CRDTTypeSchema, CollaborationModeSchema, CollaborationSessionSchema, CollaborationSessionConfigSchema, CollaborativeCursorSchema, CounterOperationSchema, CursorColorPresetSchema, CursorSelectionSchema, CursorStyleSchema, CursorUpdateSchema, GCounterSchema, LWWRegisterSchema, ORSetSchema, ORSetElementSchema, OTComponentSchema, OTOperationSchema, OTOperationTypeSchema, OTTransformResultSchema, PNCounterSchema, TextCRDTOperationSchema, TextCRDTStateSchema, UserActivityStatusSchema, VectorClockSchema } from '@objectstack/spec/system';
+import type { AwarenessEvent, AwarenessSession, AwarenessUpdate, AwarenessUserState, CRDTMergeResult, CRDTState, CRDTType, CollaborationMode, CollaborationSession, CollaborationSessionConfig, CollaborativeCursor, CounterOperation, CursorColorPreset, CursorSelection, CursorStyle, CursorUpdate, GCounter, LWWRegister, ORSet, ORSetElement, OTComponent, OTOperation, OTOperationType, OTTransformResult, PNCounter, TextCRDTOperation, TextCRDTState, UserActivityStatus, VectorClock } from '@objectstack/spec/system';
+
+// Validate data
+const result = AwarenessEventSchema.parse(data);
+```
+
+---
+
+## AwarenessEvent
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **eventId** | `string` | ✅ | Event identifier |
+| **sessionId** | `string` | ✅ | Session identifier |
+| **eventType** | `Enum<'user.joined' \| 'user.left' \| 'user.updated' \| 'session.created' \| 'session.ended'>` | ✅ | Type of awareness event |
+| **userId** | `string` | optional | User involved in event |
+| **timestamp** | `string` | ✅ | ISO 8601 datetime of event |
+| **payload** | `any` | optional | Event payload |
+
+---
+
+## AwarenessSession
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **sessionId** | `string` | ✅ | Session identifier |
+| **documentId** | `string` | optional | Document ID this session is for |
+| **users** | `object[]` | ✅ | Active users in session |
+| **startedAt** | `string` | ✅ | ISO 8601 datetime when session started |
+| **lastUpdate** | `string` | ✅ | ISO 8601 datetime of last update |
+| **metadata** | `Record<string, any>` | optional | Session metadata |
+
+---
+
+## AwarenessUpdate
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **status** | `Enum<'active' \| 'idle' \| 'viewing' \| 'disconnected'>` | optional | Updated status |
+| **currentDocument** | `string` | optional | Updated current document |
+| **currentView** | `string` | optional | Updated current view |
+| **metadata** | `Record<string, any>` | optional | Updated metadata |
+
+---
+
+## AwarenessUserState
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **userId** | `string` | ✅ | User identifier |
+| **sessionId** | `string` | ✅ | Session identifier |
+| **userName** | `string` | ✅ | Display name |
+| **userAvatar** | `string` | optional | User avatar URL |
+| **status** | `Enum<'active' \| 'idle' \| 'viewing' \| 'disconnected'>` | ✅ | Current activity status |
+| **currentDocument** | `string` | optional | Document ID user is currently editing |
+| **currentView** | `string` | optional | Current view/page user is on |
+| **lastActivity** | `string` | ✅ | ISO 8601 datetime of last activity |
+| **joinedAt** | `string` | ✅ | ISO 8601 datetime when user joined session |
+| **permissions** | `string[]` | optional | User permissions in this session |
+| **metadata** | `Record<string, any>` | optional | Additional user state metadata |
+
+---
+
+## CRDTMergeResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **state** | `object \| object \| object \| object \| object` | ✅ | Merged CRDT state |
+| **conflicts** | `object[]` | optional | Conflicts encountered during merge |
+
+---
+
+## CRDTState
+
+---
+
+## CRDTType
+
+### Allowed Values
+
+* `lww-register`
+* `g-counter`
+* `pn-counter`
+* `g-set`
+* `or-set`
+* `lww-map`
+* `text`
+* `tree`
+* `json`
+
+---
+
+## CollaborationMode
+
+### Allowed Values
+
+* `ot`
+* `crdt`
+* `lock`
+* `hybrid`
+
+---
+
+## CollaborationSession
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **sessionId** | `string` | ✅ | Session identifier |
+| **documentId** | `string` | ✅ | Document identifier |
+| **config** | `object` | ✅ | Session configuration |
+| **users** | `object[]` | ✅ | Active users |
+| **cursors** | `object[]` | ✅ | Active cursors |
+| **version** | `integer` | ✅ | Current document version |
+| **operations** | `object \| object[]` | optional | Recent operations |
+| **createdAt** | `string` | ✅ | ISO 8601 datetime when session was created |
+| **lastActivity** | `string` | ✅ | ISO 8601 datetime of last activity |
+| **status** | `Enum<'active' \| 'idle' \| 'ended'>` | ✅ | Session status |
+
+---
+
+## CollaborationSessionConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **mode** | `Enum<'ot' \| 'crdt' \| 'lock' \| 'hybrid'>` | ✅ | Collaboration mode to use |
+| **enableCursorSharing** | `boolean` | optional | Enable cursor sharing |
+| **enablePresence** | `boolean` | optional | Enable presence tracking |
+| **enableAwareness** | `boolean` | optional | Enable awareness state |
+| **maxUsers** | `integer` | optional | Maximum concurrent users |
+| **idleTimeout** | `integer` | optional | Idle timeout in milliseconds |
+| **conflictResolution** | `Enum<'ot' \| 'crdt' \| 'manual'>` | optional | Conflict resolution strategy |
+| **persistence** | `boolean` | optional | Enable operation persistence |
+| **snapshot** | `object` | optional | Snapshot configuration |
+
+---
+
+## CollaborativeCursor
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **userId** | `string` | ✅ | User identifier |
+| **sessionId** | `string` | ✅ | Session identifier |
+| **documentId** | `string` | ✅ | Document identifier |
+| **userName** | `string` | ✅ | Display name of user |
+| **position** | `object` | ✅ | Current cursor position |
+| **selection** | `object` | optional | Current text selection |
+| **style** | `object` | ✅ | Visual style for this cursor |
+| **isTyping** | `boolean` | optional | Whether user is currently typing |
+| **lastUpdate** | `string` | ✅ | ISO 8601 datetime of last cursor update |
+| **metadata** | `Record<string, any>` | optional | Additional cursor metadata |
+
+---
+
+## CounterOperation
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **replicaId** | `string` | ✅ | Replica identifier |
+| **delta** | `integer` | ✅ | Change amount (positive for increment, negative for decrement) |
+| **timestamp** | `string` | ✅ | ISO 8601 datetime of operation |
+
+---
+
+## CursorColorPreset
+
+### Allowed Values
+
+* `blue`
+* `green`
+* `red`
+* `yellow`
+* `purple`
+* `orange`
+* `pink`
+* `teal`
+* `indigo`
+* `cyan`
+
+---
+
+## CursorSelection
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **anchor** | `object` | ✅ | Selection anchor (start point) |
+| **focus** | `object` | ✅ | Selection focus (end point) |
+| **direction** | `Enum<'forward' \| 'backward'>` | optional | Selection direction |
+
+---
+
+## CursorStyle
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **color** | `Enum<'blue' \| 'green' \| 'red' \| 'yellow' \| 'purple' \| 'orange' \| 'pink' \| 'teal' \| 'indigo' \| 'cyan'> \| string` | ✅ | Cursor color (preset or custom hex) |
+| **opacity** | `number` | optional | Cursor opacity (0-1) |
+| **label** | `string` | optional | Label to display with cursor (usually username) |
+| **showLabel** | `boolean` | optional | Whether to show label |
+| **pulseOnUpdate** | `boolean` | optional | Whether to pulse when cursor moves |
+
+---
+
+## CursorUpdate
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **position** | `object` | optional | Updated cursor position |
+| **selection** | `object` | optional | Updated selection |
+| **isTyping** | `boolean` | optional | Updated typing state |
+| **metadata** | `Record<string, any>` | optional | Updated metadata |
+
+---
+
+## GCounter
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **counts** | `Record<string, integer>` | ✅ | Map of replica ID to count |
+
+---
+
+## LWWRegister
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **value** | `any` | optional | Current register value |
+| **timestamp** | `string` | ✅ | ISO 8601 datetime of last write |
+| **replicaId** | `string` | ✅ | ID of replica that performed last write |
+| **vectorClock** | `object` | optional | Optional vector clock for causality tracking |
+
+---
+
+## ORSet
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **elements** | `object[]` | ✅ | Set elements with metadata |
+
+---
+
+## ORSetElement
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **value** | `any` | optional | Element value |
+| **timestamp** | `string` | ✅ | Addition timestamp |
+| **replicaId** | `string` | ✅ | Replica that added the element |
+| **uid** | `string` | ✅ | Unique identifier for this addition |
+| **removed** | `boolean` | optional | Whether element has been removed |
+
+---
+
+## OTComponent
+
+---
+
+## OTOperation
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **operationId** | `string` | ✅ | Unique operation identifier |
+| **documentId** | `string` | ✅ | Document identifier |
+| **userId** | `string` | ✅ | User who created the operation |
+| **sessionId** | `string` | ✅ | Session identifier |
+| **components** | `object \| object \| object[]` | ✅ | Operation components |
+| **baseVersion** | `integer` | ✅ | Document version this operation is based on |
+| **timestamp** | `string` | ✅ | ISO 8601 datetime when operation was created |
+| **metadata** | `Record<string, any>` | optional | Additional operation metadata |
+
+---
+
+## OTOperationType
+
+### Allowed Values
+
+* `insert`
+* `delete`
+* `retain`
+
+---
+
+## OTTransformResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **operation** | `object` | ✅ | Transformed operation |
+| **transformed** | `boolean` | ✅ | Whether transformation was applied |
+| **conflicts** | `string[]` | optional | Conflict descriptions if any |
+
+---
+
+## PNCounter
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **positive** | `Record<string, integer>` | ✅ | Positive increments per replica |
+| **negative** | `Record<string, integer>` | ✅ | Negative increments per replica |
+
+---
+
+## TextCRDTOperation
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **operationId** | `string` | ✅ | Unique operation identifier |
+| **replicaId** | `string` | ✅ | Replica identifier |
+| **position** | `integer` | ✅ | Position in document |
+| **insert** | `string` | optional | Text to insert |
+| **delete** | `integer` | optional | Number of characters to delete |
+| **timestamp** | `string` | ✅ | ISO 8601 datetime of operation |
+| **lamportTimestamp** | `integer` | ✅ | Lamport timestamp for ordering |
+
+---
+
+## TextCRDTState
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **documentId** | `string` | ✅ | Document identifier |
+| **content** | `string` | ✅ | Current text content |
+| **operations** | `object[]` | ✅ | History of operations |
+| **lamportClock** | `integer` | ✅ | Current Lamport clock value |
+| **vectorClock** | `object` | ✅ | Vector clock for causality |
+
+---
+
+## UserActivityStatus
+
+### Allowed Values
+
+* `active`
+* `idle`
+* `viewing`
+* `disconnected`
+
+---
+
+## VectorClock
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **clock** | `Record<string, integer>` | ✅ | Map of replica ID to logical timestamp |
+
