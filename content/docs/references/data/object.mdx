@@ -39,7 +39,7 @@ const result = CDCConfigSchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Index name (auto-generated if not provided) |
+| **name** | `string` | optional | Index name (auto-generated if not provided) |
 | **fields** | `string[]` | ✅ | Fields included in the index |
 | **type** | `Enum<'btree' \| 'hash' \| 'gin' \| 'gist' \| 'fulltext'>` | optional | Index algorithm type |
 | **unique** | `boolean` | optional | Whether the index enforces uniqueness |
