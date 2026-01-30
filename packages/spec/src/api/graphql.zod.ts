@@ -1,0 +1,983 @@
+import { z } from 'zod';
+import { FieldType } from '../data/field.zod';
+
+/**
+ * GraphQL Protocol Support
+ * 
+ * GraphQL is a query language for APIs and a runtime for executing those queries.
+ * It provides a complete and understandable description of the data in your API,
+ * gives clients the power to ask for exactly what they need, and enables powerful
+ * developer tools.
+ * 
+ * ## Overview
+ * 
+ * GraphQL provides:
+ * - Type-safe schema definition
+ * - Precise data fetching (no over/under-fetching)
+ * - Introspection and documentation
+ * - Real-time subscriptions
+ * - Batched queries with DataLoader
+ * 
+ * ## Use Cases
+ * 
+ * 1. **Modern API Development**
+ *    - Mobile and web applications
+ *    - Microservices federation
+ *    - Real-time dashboards
+ * 
+ * 2. **Data Aggregation**
+ *    - Multi-source data integration
+ *    - Complex nested queries
+ *    - Efficient data loading
+ * 
+ * 3. **Developer Experience**
+ *    - Self-documenting API
+ *    - Type safety and validation
+ *    - GraphQL playground
+ * 
+ * @see https://graphql.org/
+ * @see https://spec.graphql.org/
+ * 
+ * @example GraphQL Query
+ * ```graphql
+ * query GetCustomer($id: ID!) {
+ *   customer(id: $id) {
+ *     id
+ *     name
+ *     email
+ *     orders(limit: 10, status: "active") {
+ *       id
+ *       total
+ *       items {
+ *         product {
+ *           name
+ *           price
+ *         }
+ *       }
+ *     }
+ *   }
+ * }
+ * ```
+ * 
+ * @example GraphQL Mutation
+ * ```graphql
+ * mutation CreateOrder($input: CreateOrderInput!) {
+ *   createOrder(input: $input) {
+ *     id
+ *     orderNumber
+ *     status
+ *   }
+ * }
+ * ```
+ */
+
+// ==========================================
+// 1. GraphQL Type System
+// ==========================================
+
+/**
+ * GraphQL Scalar Types
+ * 
+ * Built-in scalar types in GraphQL plus custom scalars.
+ */
+export const GraphQLScalarType = z.enum([
+  // Built-in GraphQL Scalars
+  'ID',
+  'String',
+  'Int',
+  'Float',
+  'Boolean',
+  
+  // Extended Scalars (common custom types)
+  'DateTime',
+  'Date',
+  'Time',
+  'JSON',
+  'JSONObject',
+  'Upload',
+  'URL',
+  'Email',
+  'PhoneNumber',
+  'Currency',
+  'Decimal',
+  'BigInt',
+  'Long',
+  'UUID',
+  'Base64',
+  'Void',
+]);
+
+export type GraphQLScalarType = z.infer<typeof GraphQLScalarType>;
+
+/**
+ * ObjectQL to GraphQL Type Mapping
+ * 
+ * Maps ObjectQL field types to GraphQL scalar types.
+ * This enables automatic schema generation from Object definitions.
+ */
+export const FieldTypeToGraphQLMapping = z.object({
+  // Core Text -> String
+  text: z.literal('String').default('String'),
+  textarea: z.literal('String').default('String'),
+  email: z.literal('Email').default('Email'),
+  url: z.literal('URL').default('URL'),
+  phone: z.literal('PhoneNumber').default('PhoneNumber'),
+  password: z.literal('String').default('String'),
+  
+  // Rich Content -> String
+  markdown: z.literal('String').default('String'),
+  html: z.literal('String').default('String'),
+  richtext: z.literal('String').default('String'),
+  
+  // Numbers
+  number: z.literal('Float').default('Float'),
+  currency: z.literal('Currency').default('Currency'),
+  percent: z.literal('Float').default('Float'),
+  
+  // Date & Time
+  date: z.literal('Date').default('Date'),
+  datetime: z.literal('DateTime').default('DateTime'),
+  time: z.literal('Time').default('Time'),
+  
+  // Logic
+  boolean: z.literal('Boolean').default('Boolean'),
+  toggle: z.literal('Boolean').default('Boolean'),
+  
+  // Selection -> String (enum values)
+  select: z.literal('String').default('String'),
+  multiselect: z.array(z.literal('String')).default(['String']),
+  radio: z.literal('String').default('String'),
+  checkboxes: z.array(z.literal('String')).default(['String']),
+  
+  // Relational -> ID
+  lookup: z.literal('ID').default('ID'),
+  master_detail: z.literal('ID').default('ID'),
+  tree: z.literal('ID').default('ID'),
+  
+  // Media -> String (URLs) or Upload
+  image: z.literal('URL').default('URL'),
+  file: z.literal('URL').default('URL'),
+  avatar: z.literal('URL').default('URL'),
+  video: z.literal('URL').default('URL'),
+  audio: z.literal('URL').default('URL'),
+  
+  // Calculated
+  formula: z.literal('String').default('String'),
+  summary: z.literal('Float').default('Float'),
+  autonumber: z.literal('String').default('String'),
+  
+  // Enhanced Types
+  location: z.literal('JSONObject').default('JSONObject'),
+  address: z.literal('JSONObject').default('JSONObject'),
+  code: z.literal('String').default('String'),
+  json: z.literal('JSON').default('JSON'),
+  color: z.literal('String').default('String'),
+  rating: z.literal('Float').default('Float'),
+  slider: z.literal('Float').default('Float'),
+  signature: z.literal('String').default('String'),
+  qrcode: z.literal('String').default('String'),
+  progress: z.literal('Float').default('Float'),
+  tags: z.array(z.literal('String')).default(['String']),
+  
+  // AI/ML Types
+  vector: z.array(z.literal('Float')).default(['Float']),
+}).optional().describe('Field type to GraphQL type mapping configuration');
+
+export type FieldTypeToGraphQLMapping = z.infer<typeof FieldTypeToGraphQLMapping>;
+
+/**
+ * GraphQL Type Configuration
+ * 
+ * Configuration for generating GraphQL types from Object definitions.
+ */
+export const GraphQLTypeConfigSchema = z.object({
+  /** Type name in GraphQL schema */
+  name: z.string().describe('GraphQL type name (PascalCase recommended)'),
+  
+  /** Source Object name */
+  object: z.string().describe('Source ObjectQL object name'),
+  
+  /** Description for GraphQL schema documentation */
+  description: z.string().optional().describe('Type description'),
+  
+  /** Fields to include/exclude */
+  fields: z.object({
+    /** Include only these fields (whitelist) */
+    include: z.array(z.string()).optional().describe('Fields to include'),
+    
+    /** Exclude these fields (blacklist) */
+    exclude: z.array(z.string()).optional().describe('Fields to exclude (e.g., sensitive fields)'),
+    
+    /** Custom field mappings */
+    mappings: z.record(z.object({
+      graphqlName: z.string().optional().describe('Custom GraphQL field name'),
+      graphqlType: z.string().optional().describe('Override GraphQL type'),
+      description: z.string().optional().describe('Field description'),
+      deprecationReason: z.string().optional().describe('Why field is deprecated'),
+      nullable: z.boolean().optional().describe('Override nullable'),
+    })).optional().describe('Field-level customizations'),
+  }).optional().describe('Field configuration'),
+  
+  /** Interfaces this type implements */
+  interfaces: z.array(z.string()).optional().describe('GraphQL interface names'),
+  
+  /** Whether this is an interface definition */
+  isInterface: z.boolean().optional().default(false).describe('Define as GraphQL interface'),
+  
+  /** Custom directives */
+  directives: z.array(z.object({
+    name: z.string().describe('Directive name'),
+    args: z.record(z.any()).optional().describe('Directive arguments'),
+  })).optional().describe('GraphQL directives'),
+});
+
+export type GraphQLTypeConfig = z.infer<typeof GraphQLTypeConfigSchema>;
+
+// ==========================================
+// 2. Query Generation Configuration
+// ==========================================
+
+/**
+ * GraphQL Query Configuration
+ * 
+ * Configuration for auto-generating query fields from Objects.
+ */
+export const GraphQLQueryConfigSchema = z.object({
+  /** Query name */
+  name: z.string().describe('Query field name (camelCase recommended)'),
+  
+  /** Source Object */
+  object: z.string().describe('Source ObjectQL object name'),
+  
+  /** Query type: single record or list */
+  type: z.enum(['get', 'list', 'search']).describe('Query type'),
+  
+  /** Description */
+  description: z.string().optional().describe('Query description'),
+  
+  /** Input arguments */
+  args: z.record(z.object({
+    type: z.string().describe('GraphQL type (e.g., "ID!", "String", "Int")'),
+    description: z.string().optional().describe('Argument description'),
+    defaultValue: z.any().optional().describe('Default value'),
+  })).optional().describe('Query arguments'),
+  
+  /** Filtering configuration */
+  filtering: z.object({
+    enabled: z.boolean().default(true).describe('Allow filtering'),
+    fields: z.array(z.string()).optional().describe('Filterable fields'),
+    operators: z.array(z.enum([
+      'eq', 'ne', 'gt', 'gte', 'lt', 'lte',
+      'in', 'notIn', 'contains', 'startsWith', 'endsWith',
+      'isNull', 'isNotNull',
+    ])).optional().describe('Allowed filter operators'),
+  }).optional().describe('Filtering capabilities'),
+  
+  /** Sorting configuration */
+  sorting: z.object({
+    enabled: z.boolean().default(true).describe('Allow sorting'),
+    fields: z.array(z.string()).optional().describe('Sortable fields'),
+    defaultSort: z.object({
+      field: z.string(),
+      direction: z.enum(['ASC', 'DESC']),
+    }).optional().describe('Default sort order'),
+  }).optional().describe('Sorting capabilities'),
+  
+  /** Pagination configuration */
+  pagination: z.object({
+    enabled: z.boolean().default(true).describe('Enable pagination'),
+    type: z.enum(['offset', 'cursor', 'relay']).default('offset').describe('Pagination style'),
+    defaultLimit: z.number().int().min(1).default(20).describe('Default page size'),
+    maxLimit: z.number().int().min(1).default(100).describe('Maximum page size'),
+  }).optional().describe('Pagination configuration'),
+  
+  /** Field selection */
+  fields: z.object({
+    /** Always include these fields */
+    required: z.array(z.string()).optional().describe('Required fields (always returned)'),
+    
+    /** Allow selecting these fields */
+    selectable: z.array(z.string()).optional().describe('Selectable fields'),
+  }).optional().describe('Field selection configuration'),
+  
+  /** Authorization */
+  authRequired: z.boolean().default(true).describe('Require authentication'),
+  permissions: z.array(z.string()).optional().describe('Required permissions'),
+  
+  /** Caching */
+  cache: z.object({
+    enabled: z.boolean().default(false).describe('Enable caching'),
+    ttl: z.number().int().min(0).optional().describe('Cache TTL in seconds'),
+    key: z.string().optional().describe('Cache key template'),
+  }).optional().describe('Query caching'),
+});
+
+export type GraphQLQueryConfig = z.infer<typeof GraphQLQueryConfigSchema>;
+
+// ==========================================
+// 3. Mutation Generation Configuration
+// ==========================================
+
+/**
+ * GraphQL Mutation Configuration
+ * 
+ * Configuration for auto-generating mutation fields from Objects.
+ */
+export const GraphQLMutationConfigSchema = z.object({
+  /** Mutation name */
+  name: z.string().describe('Mutation field name (camelCase recommended)'),
+  
+  /** Source Object */
+  object: z.string().describe('Source ObjectQL object name'),
+  
+  /** Mutation type */
+  type: z.enum(['create', 'update', 'delete', 'upsert', 'custom']).describe('Mutation type'),
+  
+  /** Description */
+  description: z.string().optional().describe('Mutation description'),
+  
+  /** Input type configuration */
+  input: z.object({
+    /** Input type name */
+    typeName: z.string().optional().describe('Custom input type name'),
+    
+    /** Fields to include in input */
+    fields: z.object({
+      include: z.array(z.string()).optional().describe('Fields to include'),
+      exclude: z.array(z.string()).optional().describe('Fields to exclude'),
+      required: z.array(z.string()).optional().describe('Required input fields'),
+    }).optional().describe('Input field configuration'),
+    
+    /** Validation */
+    validation: z.object({
+      enabled: z.boolean().default(true).describe('Enable input validation'),
+      rules: z.array(z.string()).optional().describe('Custom validation rules'),
+    }).optional().describe('Input validation'),
+  }).optional().describe('Input configuration'),
+  
+  /** Return type configuration */
+  output: z.object({
+    /** Type of output */
+    type: z.enum(['object', 'payload', 'boolean', 'custom']).default('object').describe('Output type'),
+    
+    /** Include success/error envelope */
+    includeEnvelope: z.boolean().optional().default(false).describe('Wrap in success/error payload'),
+    
+    /** Custom output type */
+    customType: z.string().optional().describe('Custom output type name'),
+  }).optional().describe('Output configuration'),
+  
+  /** Transaction handling */
+  transaction: z.object({
+    enabled: z.boolean().default(true).describe('Use database transaction'),
+    isolationLevel: z.enum(['read_uncommitted', 'read_committed', 'repeatable_read', 'serializable']).optional().describe('Transaction isolation level'),
+  }).optional().describe('Transaction configuration'),
+  
+  /** Authorization */
+  authRequired: z.boolean().default(true).describe('Require authentication'),
+  permissions: z.array(z.string()).optional().describe('Required permissions'),
+  
+  /** Hooks */
+  hooks: z.object({
+    before: z.array(z.string()).optional().describe('Pre-mutation hooks'),
+    after: z.array(z.string()).optional().describe('Post-mutation hooks'),
+  }).optional().describe('Lifecycle hooks'),
+});
+
+export type GraphQLMutationConfig = z.infer<typeof GraphQLMutationConfigSchema>;
+
+// ==========================================
+// 4. Subscription Configuration
+// ==========================================
+
+/**
+ * GraphQL Subscription Configuration
+ * 
+ * Configuration for real-time GraphQL subscriptions.
+ */
+export const GraphQLSubscriptionConfigSchema = z.object({
+  /** Subscription name */
+  name: z.string().describe('Subscription field name (camelCase recommended)'),
+  
+  /** Source Object */
+  object: z.string().describe('Source ObjectQL object name'),
+  
+  /** Subscription trigger events */
+  events: z.array(z.enum(['created', 'updated', 'deleted', 'custom'])).describe('Events to subscribe to'),
+  
+  /** Description */
+  description: z.string().optional().describe('Subscription description'),
+  
+  /** Filtering */
+  filter: z.object({
+    enabled: z.boolean().default(true).describe('Allow filtering subscriptions'),
+    fields: z.array(z.string()).optional().describe('Filterable fields'),
+  }).optional().describe('Subscription filtering'),
+  
+  /** Payload configuration */
+  payload: z.object({
+    /** Include the modified entity */
+    includeEntity: z.boolean().default(true).describe('Include entity in payload'),
+    
+    /** Include previous values (for updates) */
+    includePreviousValues: z.boolean().optional().default(false).describe('Include previous field values'),
+    
+    /** Include mutation metadata */
+    includeMeta: z.boolean().optional().default(true).describe('Include metadata (timestamp, user, etc.)'),
+  }).optional().describe('Payload configuration'),
+  
+  /** Authorization */
+  authRequired: z.boolean().default(true).describe('Require authentication'),
+  permissions: z.array(z.string()).optional().describe('Required permissions'),
+  
+  /** Rate limiting for subscriptions */
+  rateLimit: z.object({
+    enabled: z.boolean().default(true).describe('Enable rate limiting'),
+    maxSubscriptionsPerUser: z.number().int().min(1).default(10).describe('Max concurrent subscriptions per user'),
+    throttleMs: z.number().int().min(0).optional().describe('Throttle interval in milliseconds'),
+  }).optional().describe('Subscription rate limiting'),
+});
+
+export type GraphQLSubscriptionConfig = z.infer<typeof GraphQLSubscriptionConfigSchema>;
+
+// ==========================================
+// 5. Resolver Configuration
+// ==========================================
+
+/**
+ * GraphQL Resolver Configuration
+ * 
+ * Configuration for custom resolver logic.
+ */
+export const GraphQLResolverConfigSchema = z.object({
+  /** Field path (e.g., "Query.users", "Mutation.createUser") */
+  path: z.string().describe('Resolver path (Type.field)'),
+  
+  /** Resolver implementation type */
+  type: z.enum(['datasource', 'computed', 'script', 'proxy']).describe('Resolver implementation type'),
+  
+  /** Implementation details */
+  implementation: z.object({
+    /** For datasource type */
+    datasource: z.string().optional().describe('Datasource ID'),
+    query: z.string().optional().describe('Query/SQL to execute'),
+    
+    /** For computed type */
+    expression: z.string().optional().describe('Computation expression'),
+    dependencies: z.array(z.string()).optional().describe('Dependent fields'),
+    
+    /** For script type */
+    script: z.string().optional().describe('Script ID or inline code'),
+    
+    /** For proxy type */
+    url: z.string().optional().describe('Proxy URL'),
+    method: z.enum(['GET', 'POST', 'PUT', 'DELETE']).optional().describe('HTTP method'),
+  }).optional().describe('Implementation configuration'),
+  
+  /** Caching */
+  cache: z.object({
+    enabled: z.boolean().default(false).describe('Enable resolver caching'),
+    ttl: z.number().int().min(0).optional().describe('Cache TTL in seconds'),
+    keyArgs: z.array(z.string()).optional().describe('Arguments to include in cache key'),
+  }).optional().describe('Resolver caching'),
+});
+
+export type GraphQLResolverConfig = z.infer<typeof GraphQLResolverConfigSchema>;
+
+// ==========================================
+// 6. DataLoader Configuration
+// ==========================================
+
+/**
+ * GraphQL DataLoader Configuration
+ * 
+ * Configuration for batching and caching with DataLoader pattern.
+ * Prevents N+1 query problems in GraphQL.
+ */
+export const GraphQLDataLoaderConfigSchema = z.object({
+  /** Loader name */
+  name: z.string().describe('DataLoader name'),
+  
+  /** Source Object or datasource */
+  source: z.string().describe('Source object or datasource'),
+  
+  /** Batch function configuration */
+  batchFunction: z.object({
+    /** Type of batch operation */
+    type: z.enum(['findByIds', 'query', 'script', 'custom']).describe('Batch function type'),
+    
+    /** For findByIds */
+    keyField: z.string().optional().describe('Field to batch on (e.g., "id")'),
+    
+    /** For query */
+    query: z.string().optional().describe('Query template'),
+    
+    /** For script */
+    script: z.string().optional().describe('Script ID'),
+    
+    /** Maximum batch size */
+    maxBatchSize: z.number().int().min(1).optional().default(100).describe('Maximum batch size'),
+  }).describe('Batch function configuration'),
+  
+  /** Caching */
+  cache: z.object({
+    enabled: z.boolean().default(true).describe('Enable per-request caching'),
+    
+    /** Cache key function */
+    keyFn: z.string().optional().describe('Custom cache key function'),
+  }).optional().describe('DataLoader caching'),
+  
+  /** Options */
+  options: z.object({
+    /** Batch multiple requests in single tick */
+    batch: z.boolean().default(true).describe('Enable batching'),
+    
+    /** Cache loaded values */
+    cache: z.boolean().default(true).describe('Enable caching'),
+    
+    /** Maximum cache size */
+    maxCacheSize: z.number().int().min(0).optional().describe('Max cache entries'),
+  }).optional().describe('DataLoader options'),
+});
+
+export type GraphQLDataLoaderConfig = z.infer<typeof GraphQLDataLoaderConfigSchema>;
+
+// ==========================================
+// 7. GraphQL Directive Schema
+// ==========================================
+
+/**
+ * GraphQL Directive Location
+ * 
+ * Where a directive can be used in the schema.
+ */
+export const GraphQLDirectiveLocation = z.enum([
+  // Executable Directive Locations
+  'QUERY',
+  'MUTATION',
+  'SUBSCRIPTION',
+  'FIELD',
+  'FRAGMENT_DEFINITION',
+  'FRAGMENT_SPREAD',
+  'INLINE_FRAGMENT',
+  'VARIABLE_DEFINITION',
+  
+  // Type System Directive Locations
+  'SCHEMA',
+  'SCALAR',
+  'OBJECT',
+  'FIELD_DEFINITION',
+  'ARGUMENT_DEFINITION',
+  'INTERFACE',
+  'UNION',
+  'ENUM',
+  'ENUM_VALUE',
+  'INPUT_OBJECT',
+  'INPUT_FIELD_DEFINITION',
+]);
+
+export type GraphQLDirectiveLocation = z.infer<typeof GraphQLDirectiveLocation>;
+
+/**
+ * GraphQL Directive Configuration
+ * 
+ * Custom directives for schema metadata and behavior.
+ */
+export const GraphQLDirectiveConfigSchema = z.object({
+  /** Directive name */
+  name: z.string().regex(/^[a-z][a-zA-Z0-9]*$/).describe('Directive name (camelCase)'),
+  
+  /** Description */
+  description: z.string().optional().describe('Directive description'),
+  
+  /** Where directive can be used */
+  locations: z.array(GraphQLDirectiveLocation).describe('Directive locations'),
+  
+  /** Arguments */
+  args: z.record(z.object({
+    type: z.string().describe('Argument type'),
+    description: z.string().optional().describe('Argument description'),
+    defaultValue: z.any().optional().describe('Default value'),
+  })).optional().describe('Directive arguments'),
+  
+  /** Is repeatable */
+  repeatable: z.boolean().optional().default(false).describe('Can be applied multiple times'),
+  
+  /** Implementation */
+  implementation: z.object({
+    /** Directive behavior type */
+    type: z.enum(['auth', 'validation', 'transform', 'cache', 'deprecation', 'custom']).describe('Directive type'),
+    
+    /** Handler function */
+    handler: z.string().optional().describe('Handler function name or script'),
+  }).optional().describe('Directive implementation'),
+});
+
+export type GraphQLDirectiveConfig = z.infer<typeof GraphQLDirectiveConfigSchema>;
+
+// ==========================================
+// 8. GraphQL Security - Query Depth Limiting
+// ==========================================
+
+/**
+ * Query Depth Limiting Configuration
+ * 
+ * Prevents deeply nested queries that could cause performance issues.
+ */
+export const GraphQLQueryDepthLimitSchema = z.object({
+  /** Enable depth limiting */
+  enabled: z.boolean().default(true).describe('Enable query depth limiting'),
+  
+  /** Maximum allowed depth */
+  maxDepth: z.number().int().min(1).default(10).describe('Maximum query depth'),
+  
+  /** Fields to ignore in depth calculation */
+  ignoreFields: z.array(z.string()).optional().describe('Fields excluded from depth calculation'),
+  
+  /** Callback on depth exceeded */
+  onDepthExceeded: z.enum(['reject', 'log', 'warn']).default('reject').describe('Action when depth exceeded'),
+  
+  /** Custom error message */
+  errorMessage: z.string().optional().describe('Custom error message for depth violations'),
+});
+
+export type GraphQLQueryDepthLimit = z.infer<typeof GraphQLQueryDepthLimitSchema>;
+
+// ==========================================
+// 9. GraphQL Security - Query Complexity
+// ==========================================
+
+/**
+ * Query Complexity Calculation Configuration
+ * 
+ * Assigns complexity scores to fields and limits total query complexity.
+ * Prevents expensive queries from overloading the server.
+ */
+export const GraphQLQueryComplexitySchema = z.object({
+  /** Enable complexity limiting */
+  enabled: z.boolean().default(true).describe('Enable query complexity limiting'),
+  
+  /** Maximum allowed complexity score */
+  maxComplexity: z.number().int().min(1).default(1000).describe('Maximum query complexity'),
+  
+  /** Default field complexity */
+  defaultFieldComplexity: z.number().int().min(0).default(1).describe('Default complexity per field'),
+  
+  /** Field-specific complexity scores */
+  fieldComplexity: z.record(z.union([
+    z.number().int().min(0),
+    z.object({
+      /** Base complexity */
+      base: z.number().int().min(0).describe('Base complexity'),
+      
+      /** Multiplier based on arguments */
+      multiplier: z.string().optional().describe('Argument multiplier (e.g., "limit")'),
+      
+      /** Custom complexity calculation */
+      calculator: z.string().optional().describe('Custom calculator function'),
+    }),
+  ])).optional().describe('Per-field complexity configuration'),
+  
+  /** List multiplier */
+  listMultiplier: z.number().min(0).default(10).describe('Multiplier for list fields'),
+  
+  /** Callback on complexity exceeded */
+  onComplexityExceeded: z.enum(['reject', 'log', 'warn']).default('reject').describe('Action when complexity exceeded'),
+  
+  /** Custom error message */
+  errorMessage: z.string().optional().describe('Custom error message for complexity violations'),
+});
+
+export type GraphQLQueryComplexity = z.infer<typeof GraphQLQueryComplexitySchema>;
+
+// ==========================================
+// 10. GraphQL Security - Rate Limiting
+// ==========================================
+
+/**
+ * GraphQL Rate Limiting Configuration
+ * 
+ * Rate limiting for GraphQL operations.
+ */
+export const GraphQLRateLimitSchema = z.object({
+  /** Enable rate limiting */
+  enabled: z.boolean().default(true).describe('Enable rate limiting'),
+  
+  /** Rate limit strategy */
+  strategy: z.enum(['token_bucket', 'fixed_window', 'sliding_window', 'cost_based']).default('token_bucket').describe('Rate limiting strategy'),
+  
+  /** Global rate limits */
+  global: z.object({
+    /** Requests per time window */
+    maxRequests: z.number().int().min(1).default(1000).describe('Maximum requests per window'),
+    
+    /** Time window in milliseconds */
+    windowMs: z.number().int().min(1000).default(60000).describe('Time window in milliseconds'),
+  }).optional().describe('Global rate limits'),
+  
+  /** Per-user rate limits */
+  perUser: z.object({
+    /** Requests per time window */
+    maxRequests: z.number().int().min(1).default(100).describe('Maximum requests per user per window'),
+    
+    /** Time window in milliseconds */
+    windowMs: z.number().int().min(1000).default(60000).describe('Time window in milliseconds'),
+  }).optional().describe('Per-user rate limits'),
+  
+  /** Cost-based rate limiting */
+  costBased: z.object({
+    /** Enable cost-based limiting */
+    enabled: z.boolean().default(false).describe('Enable cost-based rate limiting'),
+    
+    /** Maximum cost per time window */
+    maxCost: z.number().int().min(1).default(10000).describe('Maximum cost per window'),
+    
+    /** Time window in milliseconds */
+    windowMs: z.number().int().min(1000).default(60000).describe('Time window in milliseconds'),
+    
+    /** Use complexity as cost */
+    useComplexityAsCost: z.boolean().default(true).describe('Use query complexity as cost'),
+  }).optional().describe('Cost-based rate limiting'),
+  
+  /** Operation-specific limits */
+  operations: z.record(z.object({
+    maxRequests: z.number().int().min(1).describe('Max requests for this operation'),
+    windowMs: z.number().int().min(1000).describe('Time window'),
+  })).optional().describe('Per-operation rate limits'),
+  
+  /** Callback on limit exceeded */
+  onLimitExceeded: z.enum(['reject', 'queue', 'log']).default('reject').describe('Action when rate limit exceeded'),
+  
+  /** Custom error message */
+  errorMessage: z.string().optional().describe('Custom error message for rate limit violations'),
+  
+  /** Headers to include in response */
+  includeHeaders: z.boolean().default(true).describe('Include rate limit headers in response'),
+});
+
+export type GraphQLRateLimit = z.infer<typeof GraphQLRateLimitSchema>;
+
+// ==========================================
+// 11. GraphQL Security - Persisted Queries
+// ==========================================
+
+/**
+ * Persisted Queries Configuration
+ * 
+ * Only allow pre-registered queries to execute (whitelist approach).
+ * Improves security and performance.
+ */
+export const GraphQLPersistedQuerySchema = z.object({
+  /** Enable persisted queries */
+  enabled: z.boolean().default(false).describe('Enable persisted queries'),
+  
+  /** Enforcement mode */
+  mode: z.enum(['optional', 'required']).default('optional').describe('Persisted query mode (optional: allow both, required: only persisted)'),
+  
+  /** Query store configuration */
+  store: z.object({
+    /** Store type */
+    type: z.enum(['memory', 'redis', 'database', 'file']).default('memory').describe('Query store type'),
+    
+    /** Store connection string */
+    connection: z.string().optional().describe('Store connection string or path'),
+    
+    /** TTL for cached queries */
+    ttl: z.number().int().min(0).optional().describe('TTL in seconds for stored queries'),
+  }).optional().describe('Query store configuration'),
+  
+  /** Automatic Persisted Queries (APQ) */
+  apq: z.object({
+    /** Enable APQ */
+    enabled: z.boolean().default(true).describe('Enable Automatic Persisted Queries'),
+    
+    /** Hash algorithm */
+    hashAlgorithm: z.enum(['sha256', 'sha1', 'md5']).default('sha256').describe('Hash algorithm for query IDs'),
+    
+    /** Cache control */
+    cache: z.object({
+      /** Cache TTL */
+      ttl: z.number().int().min(0).default(3600).describe('Cache TTL in seconds'),
+      
+      /** Max cache size */
+      maxSize: z.number().int().min(1).optional().describe('Maximum number of cached queries'),
+    }).optional().describe('APQ cache configuration'),
+  }).optional().describe('Automatic Persisted Queries configuration'),
+  
+  /** Query allowlist */
+  allowlist: z.object({
+    /** Enable allowlist mode */
+    enabled: z.boolean().default(false).describe('Enable query allowlist (reject queries not in list)'),
+    
+    /** Allowed query IDs */
+    queries: z.array(z.object({
+      id: z.string().describe('Query ID or hash'),
+      operation: z.string().optional().describe('Operation name'),
+      query: z.string().optional().describe('Query string'),
+    })).optional().describe('Allowed queries'),
+    
+    /** External allowlist source */
+    source: z.string().optional().describe('External allowlist source (file path or URL)'),
+  }).optional().describe('Query allowlist configuration'),
+  
+  /** Security */
+  security: z.object({
+    /** Maximum query size */
+    maxQuerySize: z.number().int().min(1).optional().describe('Maximum query string size in bytes'),
+    
+    /** Reject introspection in production */
+    rejectIntrospection: z.boolean().default(false).describe('Reject introspection queries'),
+  }).optional().describe('Security configuration'),
+});
+
+export type GraphQLPersistedQuery = z.infer<typeof GraphQLPersistedQuerySchema>;
+
+// ==========================================
+// 12. Complete GraphQL Configuration
+// ==========================================
+
+/**
+ * Complete GraphQL Configuration
+ * 
+ * Root configuration for GraphQL API generation and security.
+ */
+export const GraphQLConfigSchema = z.object({
+  /** Enable GraphQL API */
+  enabled: z.boolean().default(true).describe('Enable GraphQL API'),
+  
+  /** GraphQL endpoint path */
+  path: z.string().default('/graphql').describe('GraphQL endpoint path'),
+  
+  /** GraphQL Playground */
+  playground: z.object({
+    enabled: z.boolean().default(true).describe('Enable GraphQL Playground'),
+    path: z.string().default('/playground').describe('Playground path'),
+  }).optional().describe('GraphQL Playground configuration'),
+  
+  /** Schema generation */
+  schema: z.object({
+    /** Auto-generate types from Objects */
+    autoGenerateTypes: z.boolean().default(true).describe('Auto-generate types from Objects'),
+    
+    /** Type configurations */
+    types: z.array(GraphQLTypeConfigSchema).optional().describe('Type configurations'),
+    
+    /** Query configurations */
+    queries: z.array(GraphQLQueryConfigSchema).optional().describe('Query configurations'),
+    
+    /** Mutation configurations */
+    mutations: z.array(GraphQLMutationConfigSchema).optional().describe('Mutation configurations'),
+    
+    /** Subscription configurations */
+    subscriptions: z.array(GraphQLSubscriptionConfigSchema).optional().describe('Subscription configurations'),
+    
+    /** Custom resolvers */
+    resolvers: z.array(GraphQLResolverConfigSchema).optional().describe('Custom resolver configurations'),
+    
+    /** Custom directives */
+    directives: z.array(GraphQLDirectiveConfigSchema).optional().describe('Custom directive configurations'),
+  }).optional().describe('Schema generation configuration'),
+  
+  /** DataLoader configurations */
+  dataLoaders: z.array(GraphQLDataLoaderConfigSchema).optional().describe('DataLoader configurations'),
+  
+  /** Security configuration */
+  security: z.object({
+    /** Query depth limiting */
+    depthLimit: GraphQLQueryDepthLimitSchema.optional().describe('Query depth limiting'),
+    
+    /** Query complexity */
+    complexity: GraphQLQueryComplexitySchema.optional().describe('Query complexity calculation'),
+    
+    /** Rate limiting */
+    rateLimit: GraphQLRateLimitSchema.optional().describe('Rate limiting'),
+    
+    /** Persisted queries */
+    persistedQueries: GraphQLPersistedQuerySchema.optional().describe('Persisted queries'),
+  }).optional().describe('Security configuration'),
+});
+
+export const GraphQLConfig = Object.assign(GraphQLConfigSchema, {
+  create: <T extends z.input<typeof GraphQLConfigSchema>>(config: T) => config,
+});
+
+export type GraphQLConfig = z.infer<typeof GraphQLConfigSchema>;
+
+// ==========================================
+// Helper Functions
+// ==========================================
+
+/**
+ * Helper to map ObjectQL field type to GraphQL scalar type
+ */
+export const mapFieldTypeToGraphQL = (fieldType: z.infer<typeof FieldType>): string => {
+  const mapping: Record<string, string> = {
+    // Core Text
+    'text': 'String',
+    'textarea': 'String',
+    'email': 'Email',
+    'url': 'URL',
+    'phone': 'PhoneNumber',
+    'password': 'String',
+    
+    // Rich Content
+    'markdown': 'String',
+    'html': 'String',
+    'richtext': 'String',
+    
+    // Numbers
+    'number': 'Float',
+    'currency': 'Currency',
+    'percent': 'Float',
+    
+    // Date & Time
+    'date': 'Date',
+    'datetime': 'DateTime',
+    'time': 'Time',
+    
+    // Logic
+    'boolean': 'Boolean',
+    'toggle': 'Boolean',
+    
+    // Selection
+    'select': 'String',
+    'multiselect': '[String]',
+    'radio': 'String',
+    'checkboxes': '[String]',
+    
+    // Relational
+    'lookup': 'ID',
+    'master_detail': 'ID',
+    'tree': 'ID',
+    
+    // Media
+    'image': 'URL',
+    'file': 'URL',
+    'avatar': 'URL',
+    'video': 'URL',
+    'audio': 'URL',
+    
+    // Calculated
+    'formula': 'String',
+    'summary': 'Float',
+    'autonumber': 'String',
+    
+    // Enhanced Types
+    'location': 'JSONObject',
+    'address': 'JSONObject',
+    'code': 'String',
+    'json': 'JSON',
+    'color': 'String',
+    'rating': 'Float',
+    'slider': 'Float',
+    'signature': 'String',
+    'qrcode': 'String',
+    'progress': 'Float',
+    'tags': '[String]',
+    
+    // AI/ML
+    'vector': '[Float]',
+  };
+  
+  return mapping[fieldType] || 'String';
+};

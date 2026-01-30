@@ -4,6 +4,7 @@
     "contract",
     "discovery",
     "endpoint",
+    "graphql",
     "odata",
     "realtime",
     "router"
