@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { HttpMethod } from '../api/router.zod';
+import { CorsConfigSchema, RateLimitConfigSchema, StaticMountSchema } from '../shared/http.zod';
 
 /**
  * HTTP Server Protocol
@@ -47,16 +48,7 @@ export const HttpServerConfigSchema = z.object({
   /**
    * CORS configuration
    */
-  cors: z.object({
-    enabled: z.boolean().default(true).describe('Enable CORS'),
-    origins: z.union([
-      z.string(),
-      z.array(z.string())
-    ]).default('*').describe('Allowed origins (* for all)'),
-    methods: z.array(HttpMethod).optional().describe('Allowed HTTP methods'),
-    credentials: z.boolean().default(false).describe('Allow credentials (cookies, authorization headers)'),
-    maxAge: z.number().int().optional().describe('Preflight cache duration in seconds'),
-  }).optional().describe('CORS configuration'),
+  cors: CorsConfigSchema.optional().describe('CORS configuration'),
   
   /**
    * Request handling options
@@ -74,21 +66,13 @@ export const HttpServerConfigSchema = z.object({
    */
   security: z.object({
     helmet: z.boolean().default(true).describe('Enable security headers via helmet'),
-    rateLimit: z.object({
-      enabled: z.boolean().default(true).describe('Enable rate limiting'),
-      windowMs: z.number().int().default(60000).describe('Time window in milliseconds'),
-      maxRequests: z.number().int().default(100).describe('Max requests per window per IP'),
-    }).optional(),
+    rateLimit: RateLimitConfigSchema.optional().describe('Global rate limiting configuration'),
   }).optional().describe('Security configuration'),
   
   /**
    * Static file serving
    */
-  static: z.array(z.object({
-    path: z.string().describe('URL path to serve from'),
-    directory: z.string().describe('Physical directory to serve'),
-    cacheControl: z.string().optional().describe('Cache-Control header value'),
-  })).optional().describe('Static file serving configuration'),
+  static: z.array(StaticMountSchema).optional().describe('Static file serving configuration'),
   
   /**
    * Trust proxy settings

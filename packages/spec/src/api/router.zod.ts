@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { CorsConfigSchema, StaticMountSchema } from '../shared/http.zod';
 
 /**
  * HTTP Method Enum
@@ -102,20 +103,12 @@ export const RouterConfigSchema = z.object({
   /**
    * Cross-Origin Resource Sharing
    */
-  cors: z.object({
-    enabled: z.boolean().default(true),
-    origin: z.union([z.string(), z.array(z.string())]).default('*'),
-    methods: z.array(HttpMethod).optional(),
-  }).optional(),
+  cors: CorsConfigSchema.optional(),
   
   /**
    * Static asset mounts
    */
-  staticMounts: z.array(z.object({
-    path: z.string().describe('URL mount path'),
-    dir: z.string().describe('Physical directory path'),
-    cacheControl: z.string().optional()
-  })).optional(),
+  staticMounts: z.array(StaticMountSchema).optional(),
 });
 
 export type RouterConfig = z.infer<typeof RouterConfigSchema>;

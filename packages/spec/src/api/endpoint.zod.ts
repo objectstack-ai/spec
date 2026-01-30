@@ -1,14 +1,12 @@
 import { z } from 'zod';
 import { HttpMethod } from './router.zod';
+import { RateLimitConfigSchema } from '../shared/http.zod';
 
 /**
  * Rate Limit Strategy
+ * @deprecated Use RateLimitConfigSchema from shared/http.zod.ts instead
  */
-export const RateLimitSchema = z.object({
-  enabled: z.boolean().default(false),
-  windowMs: z.number().default(60000).describe('Time window in milliseconds'),
-  maxRequests: z.number().default(100).describe('Max requests per window'),
-});
+export const RateLimitSchema = RateLimitConfigSchema;
 
 /**
  * API Mapping Schema
