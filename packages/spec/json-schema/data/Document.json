@@ -1,0 +1,292 @@
+{
+  "$ref": "#/definitions/Document",
+  "definitions": {
+    "Document": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Document ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "Document name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Document description"
+        },
+        "fileType": {
+          "type": "string",
+          "description": "File MIME type"
+        },
+        "fileSize": {
+          "type": "number",
+          "description": "File size in bytes"
+        },
+        "category": {
+          "type": "string",
+          "description": "Document category"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Document tags"
+        },
+        "versioning": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Versioning enabled"
+            },
+            "versions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "versionNumber": {
+                    "type": "number",
+                    "description": "Version number"
+                  },
+                  "createdAt": {
+                    "type": "number",
+                    "description": "Creation timestamp"
+                  },
+                  "createdBy": {
+                    "type": "string",
+                    "description": "Creator user ID"
+                  },
+                  "size": {
+                    "type": "number",
+                    "description": "File size in bytes"
+                  },
+                  "checksum": {
+                    "type": "string",
+                    "description": "File checksum"
+                  },
+                  "downloadUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Download URL"
+                  },
+                  "isLatest": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Is latest version"
+                  }
+                },
+                "required": [
+                  "versionNumber",
+                  "createdAt",
+                  "createdBy",
+                  "size",
+                  "checksum",
+                  "downloadUrl"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Version history"
+            },
+            "majorVersion": {
+              "type": "number",
+              "description": "Major version"
+            },
+            "minorVersion": {
+              "type": "number",
+              "description": "Minor version"
+            }
+          },
+          "required": [
+            "enabled",
+            "versions",
+            "majorVersion",
+            "minorVersion"
+          ],
+          "additionalProperties": false,
+          "description": "Version control"
+        },
+        "template": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Template ID"
+            },
+            "name": {
+              "type": "string",
+              "description": "Template name"
+            },
+            "description": {
+              "type": "string",
+              "description": "Template description"
+            },
+            "fileUrl": {
+              "type": "string",
+              "format": "uri",
+              "description": "Template file URL"
+            },
+            "fileType": {
+              "type": "string",
+              "description": "File MIME type"
+            },
+            "placeholders": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "description": "Placeholder key"
+                  },
+                  "label": {
+                    "type": "string",
+                    "description": "Placeholder label"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "text",
+                      "number",
+                      "date",
+                      "image"
+                    ],
+                    "description": "Placeholder type"
+                  },
+                  "required": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Is required"
+                  }
+                },
+                "required": [
+                  "key",
+                  "label",
+                  "type"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Template placeholders"
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "fileUrl",
+            "fileType",
+            "placeholders"
+          ],
+          "additionalProperties": false,
+          "description": "Document template"
+        },
+        "eSignature": {
+          "type": "object",
+          "properties": {
+            "provider": {
+              "type": "string",
+              "enum": [
+                "docusign",
+                "adobe-sign",
+                "hellosign",
+                "custom"
+              ],
+              "description": "E-signature provider"
+            },
+            "enabled": {
+              "type": "boolean",
+              "default": false,
+              "description": "E-signature enabled"
+            },
+            "signers": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Signer email"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Signer name"
+                  },
+                  "role": {
+                    "type": "string",
+                    "description": "Signer role"
+                  },
+                  "order": {
+                    "type": "number",
+                    "description": "Signing order"
+                  }
+                },
+                "required": [
+                  "email",
+                  "name",
+                  "role",
+                  "order"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Document signers"
+            },
+            "expirationDays": {
+              "type": "number",
+              "default": 30,
+              "description": "Expiration days"
+            },
+            "reminderDays": {
+              "type": "number",
+              "default": 7,
+              "description": "Reminder interval days"
+            }
+          },
+          "required": [
+            "provider",
+            "signers"
+          ],
+          "additionalProperties": false,
+          "description": "E-signature config"
+        },
+        "access": {
+          "type": "object",
+          "properties": {
+            "isPublic": {
+              "type": "boolean",
+              "default": false,
+              "description": "Public access"
+            },
+            "sharedWith": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Shared with"
+            },
+            "expiresAt": {
+              "type": "number",
+              "description": "Access expiration"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Access control"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Custom metadata"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "fileType",
+        "fileSize"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,343 @@
+{
+  "$ref": "#/definitions/NotificationConfig",
+  "definitions": {
+    "NotificationConfig": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Notification ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "Notification name"
+        },
+        "channel": {
+          "type": "string",
+          "enum": [
+            "email",
+            "sms",
+            "push",
+            "in-app",
+            "slack",
+            "teams",
+            "webhook"
+          ],
+          "description": "Notification channel"
+        },
+        "template": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Template identifier"
+                },
+                "subject": {
+                  "type": "string",
+                  "description": "Email subject"
+                },
+                "body": {
+                  "type": "string",
+                  "description": "Email body content"
+                },
+                "bodyType": {
+                  "type": "string",
+                  "enum": [
+                    "text",
+                    "html",
+                    "markdown"
+                  ],
+                  "default": "html",
+                  "description": "Body content type"
+                },
+                "variables": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Template variables"
+                },
+                "attachments": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "description": "Attachment filename"
+                      },
+                      "url": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "Attachment URL"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "url"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "description": "Email attachments"
+                }
+              },
+              "required": [
+                "id",
+                "subject",
+                "body"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Template identifier"
+                },
+                "message": {
+                  "type": "string",
+                  "description": "SMS message content"
+                },
+                "maxLength": {
+                  "type": "number",
+                  "default": 160,
+                  "description": "Maximum message length"
+                },
+                "variables": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Template variables"
+                }
+              },
+              "required": [
+                "id",
+                "message"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "description": "Notification title"
+                },
+                "body": {
+                  "type": "string",
+                  "description": "Notification body"
+                },
+                "icon": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "Notification icon URL"
+                },
+                "badge": {
+                  "type": "number",
+                  "description": "Badge count"
+                },
+                "data": {
+                  "type": "object",
+                  "additionalProperties": {},
+                  "description": "Custom data"
+                },
+                "actions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "action": {
+                        "type": "string",
+                        "description": "Action identifier"
+                      },
+                      "title": {
+                        "type": "string",
+                        "description": "Action button title"
+                      }
+                    },
+                    "required": [
+                      "action",
+                      "title"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "description": "Notification actions"
+                }
+              },
+              "required": [
+                "title",
+                "body"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "description": "Notification title"
+                },
+                "message": {
+                  "type": "string",
+                  "description": "Notification message"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "info",
+                    "success",
+                    "warning",
+                    "error"
+                  ],
+                  "description": "Notification type"
+                },
+                "actionUrl": {
+                  "type": "string",
+                  "description": "Action URL"
+                },
+                "dismissible": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "User dismissible"
+                },
+                "expiresAt": {
+                  "type": "number",
+                  "description": "Expiration timestamp"
+                }
+              },
+              "required": [
+                "title",
+                "message",
+                "type"
+              ],
+              "additionalProperties": false
+            }
+          ],
+          "description": "Notification template"
+        },
+        "recipients": {
+          "type": "object",
+          "properties": {
+            "to": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Primary recipients"
+            },
+            "cc": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "CC recipients"
+            },
+            "bcc": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "BCC recipients"
+            }
+          },
+          "required": [
+            "to"
+          ],
+          "additionalProperties": false,
+          "description": "Recipients"
+        },
+        "schedule": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "immediate",
+                "delayed",
+                "scheduled"
+              ],
+              "description": "Schedule type"
+            },
+            "delay": {
+              "type": "number",
+              "description": "Delay in milliseconds"
+            },
+            "scheduledAt": {
+              "type": "number",
+              "description": "Scheduled timestamp"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false,
+          "description": "Scheduling"
+        },
+        "retryPolicy": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable retries"
+            },
+            "maxRetries": {
+              "type": "number",
+              "default": 3,
+              "description": "Max retry attempts"
+            },
+            "backoffStrategy": {
+              "type": "string",
+              "enum": [
+                "exponential",
+                "linear",
+                "fixed"
+              ],
+              "description": "Backoff strategy"
+            }
+          },
+          "required": [
+            "backoffStrategy"
+          ],
+          "additionalProperties": false,
+          "description": "Retry policy"
+        },
+        "tracking": {
+          "type": "object",
+          "properties": {
+            "trackOpens": {
+              "type": "boolean",
+              "default": false,
+              "description": "Track opens"
+            },
+            "trackClicks": {
+              "type": "boolean",
+              "default": false,
+              "description": "Track clicks"
+            },
+            "trackDelivery": {
+              "type": "boolean",
+              "default": true,
+              "description": "Track delivery"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Tracking configuration"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "channel",
+        "template",
+        "recipients"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,51 @@
+{
+  "$ref": "#/definitions/RollbackPlan",
+  "definitions": {
+    "RollbackPlan": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Rollback description"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "order": {
+                "type": "number",
+                "description": "Step order"
+              },
+              "description": {
+                "type": "string",
+                "description": "Step description"
+              },
+              "estimatedMinutes": {
+                "type": "number",
+                "description": "Estimated duration"
+              }
+            },
+            "required": [
+              "order",
+              "description",
+              "estimatedMinutes"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Rollback steps"
+        },
+        "testProcedure": {
+          "type": "string",
+          "description": "Test procedure"
+        }
+      },
+      "required": [
+        "description",
+        "steps"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

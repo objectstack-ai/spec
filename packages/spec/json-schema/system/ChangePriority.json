@@ -1,0 +1,15 @@
+{
+  "$ref": "#/definitions/ChangePriority",
+  "definitions": {
+    "ChangePriority": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -2,6 +2,8 @@
   "title": "Data Protocol",
   "pages": [
     "dataset",
+    "document",
+    "external-lookup",
     "field",
     "filter",
     "hook",
