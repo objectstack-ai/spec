@@ -16,10 +16,23 @@ import type {
     ListViewsResponse,
     SavedView
 } from '@objectstack/spec/api';
-import { createHash } from 'crypto';
 
 // We import SchemaRegistry directly since this class lives in the same package
 import { SchemaRegistry } from './registry';
+
+/**
+ * Simple hash function for ETag generation (browser-compatible)
+ * Uses a basic hash algorithm instead of crypto.createHash
+ */
+function simpleHash(str: string): string {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    return Math.abs(hash).toString(16);
+}
 
 export class ObjectStackProtocolImplementation implements IObjectStackProtocol {
     private engine: IDataEngine;
@@ -131,9 +144,9 @@ export class ObjectStackProtocolImplementation implements IObjectStackProtocol {
                 throw new Error(`Metadata item ${type}/${name} not found`);
             }
 
-            // Calculate ETag (MD5 hash of the stringified metadata)
+            // Calculate ETag (simple hash of the stringified metadata)
             const content = JSON.stringify(item);
-            const hash = createHash('md5').update(content).digest('hex');
+            const hash = simpleHash(content);
             const etag = { value: hash, weak: false };
 
             // Check If-None-Match header
