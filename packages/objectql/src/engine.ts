@@ -1,4 +1,4 @@
-import { QueryAST, HookContext, DataEngineRequestSchema } from '@objectstack/spec/data';
+import { QueryAST, HookContext } from '@objectstack/spec/data';
 import { 
   DataEngineQueryOptions, 
   DataEngineInsertOptions, 
@@ -454,6 +454,7 @@ export class ObjectQL implements IDataEngine {
 
   async aggregate(object: string, query: DataEngineAggregateOptions): Promise<any[]> {
       const driver = this.getDriver(object);
+      this.logger.debug(`Aggregate on ${object} using ${driver.name}`, query);
       // Driver needs support for raw aggregation or mapped aggregation
       // For now, if driver supports 'execute', we might pass it down, or we need to add 'aggregate' to DriverInterface
       // In this version, we'll assume driver might handle it via special 'find' or throw not implemented
