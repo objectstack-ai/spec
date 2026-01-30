@@ -4,8 +4,7 @@ import type {
     BatchUpdateRequest, 
     BatchUpdateResponse, 
     UpdateManyDataRequest,
-    DeleteManyDataRequest,
-    BatchOperationResult
+    DeleteManyDataRequest
 } from '@objectstack/spec/api';
 import type { MetadataCacheRequest, MetadataCacheResponse } from '@objectstack/spec/api';
 import type { 
@@ -42,7 +41,7 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         this.engine = engine;
     }
 
-    async getDiscovery(request: {}) {
+    async getDiscovery(_request: {}) {
         return {
             version: '1.0',
             apiName: 'ObjectStack API',
@@ -51,7 +50,7 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         };
     }
 
-    async getMetaTypes(request: {}) {
+    async getMetaTypes(_request: {}) {
         return {
             types: SchemaRegistry.getRegisteredTypes()
         };
@@ -219,7 +218,7 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
     // Batch Operations
     // ==========================================
 
-    async batchData(request: { object: string, request: BatchUpdateRequest }): Promise<BatchUpdateResponse> {
+    async batchData(_request: { object: string, request: BatchUpdateRequest }): Promise<BatchUpdateResponse> {
         // Map high-level batch request to DataEngine batch if available
         // Or implement loop here.
         // For now, let's just fail or implement basic loop to satisfying interface
@@ -236,7 +235,7 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         };
     }
     
-    async updateManyData(request: UpdateManyDataRequest): Promise<any> {
+    async updateManyData(_request: UpdateManyDataRequest): Promise<any> {
         // TODO: Implement proper updateMany in DataEngine
         throw new Error('updateManyData not implemented');
     }
@@ -255,6 +254,7 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
 
     async createView(request: CreateViewRequest): Promise<ViewResponse> {
         const id = Math.random().toString(36).substring(7);
+        // Cast to unknown then SavedView to bypass strict type checks for the mock
         const view: SavedView = {
             id,
             ...request,
@@ -262,7 +262,7 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
             updatedAt: new Date().toISOString(),
             createdBy: 'system',
             updatedBy: 'system'
-        } as SavedView;
+        } as unknown as SavedView;
         
         this.viewStorage.set(id, view);
         return { success: true, data: view };
@@ -295,7 +295,8 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         if (!view) throw new Error(`View ${request.id} not found`);
         
         const { id, ...updates } = request;
-        const updated = { ...view, ...updates, updatedAt: new Date().toISOString() };
+        // Cast to unknown then SavedView to bypass strict type checks for the mock
+        const updated = { ...view, ...updates, updatedAt: new Date().toISOString() } as unknown as SavedView;
         this.viewStorage.set(request.id, updated);
         return { success: true, data: updated };
     }
