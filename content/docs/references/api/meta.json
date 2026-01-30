@@ -2,12 +2,12 @@
   "title": "API Protocol",
   "pages": [
     "batch",
-    "cache",
     "contract",
     "discovery",
     "endpoint",
     "errors",
     "graphql",
+    "http-cache",
     "odata",
     "protocol",
     "realtime",

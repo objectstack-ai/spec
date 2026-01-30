@@ -1,45 +1,60 @@
 import { z } from 'zod';
 
 /**
- * Connector Registry Protocol
+ * Trigger Registry Protocol
  * 
+ * Lightweight automation triggers for simple integrations.
  * Inspired by Zapier, n8n, and Workato connector architectures.
  * 
- * Connectors are reusable components that provide pre-built integrations with
- * external systems (SaaS, databases, APIs, etc.).
+ * ## When to use Trigger Registry vs. Integration Connector?
+ * 
+ * **Use `automation/trigger-registry.zod.ts` when:**
+ * - Building simple automation triggers (e.g., "when Slack message received, create task")
+ * - No complex authentication needed (simple API keys, basic auth)
+ * - Lightweight, single-purpose integrations
+ * - Quick setup with minimal configuration
+ * - Webhook-based or polling triggers for automation workflows
+ * 
+ * **Use `integration/connector.zod.ts` when:**
+ * - Building enterprise-grade connectors (e.g., Salesforce, SAP, Oracle)
+ * - Complex OAuth2/SAML authentication required
+ * - Bidirectional sync with field mapping and transformations
+ * - Webhook management and rate limiting required
+ * - Full CRUD operations and data synchronization
  * 
  * ## Use Cases
  * 
- * 1. **SaaS Integration**
- *    - Connect to Salesforce, HubSpot, Stripe, etc.
- *    - Pre-built authentication and API clients
- *    - Standard operations (CRUD, search, etc.)
+ * 1. **Simple Automation Triggers**
+ *    - Slack notifications on record updates
+ *    - Twilio SMS on workflow events
+ *    - SendGrid email templates
  * 
- * 2. **Database Connectivity**
- *    - Connect to PostgreSQL, MySQL, MongoDB, etc.
- *    - Query builders and connection pooling
- *    - Schema introspection
+ * 2. **Lightweight Operations**
+ *    - Single-action integrations (send, notify, log)
+ *    - No bidirectional sync required
+ *    - Webhook receivers for incoming events
  * 
- * 3. **Third-Party Services**
- *    - Payment processors (Stripe, PayPal)
- *    - Communication (Twilio, SendGrid, Slack)
- *    - Storage (S3, Google Drive, Dropbox)
+ * 3. **Quick Integrations**
+ *    - Payment webhooks (Stripe, PayPal)
+ *    - Communication triggers (Twilio, SendGrid, Slack)
+ *    - Simple API calls to third-party services
  * 
  * @see https://zapier.com/developer/documentation/v2/
  * @see https://docs.n8n.io/integrations/creating-nodes/
+ * @see ../../integration/connector.zod.ts for enterprise connectors
  * 
  * @example
  * ```typescript
- * const stripeConnector: Connector = {
- *   id: 'stripe',
- *   name: 'Stripe',
- *   category: 'payment',
+ * const slackNotifier: Connector = {
+ *   id: 'slack_notify',
+ *   name: 'Slack Notification',
+ *   category: 'communication',
  *   authentication: {
  *     type: 'apiKey',
- *     fields: [{ name: 'api_key', label: 'API Key', type: 'password' }]
+ *     fields: [{ name: 'webhook_url', label: 'Webhook URL', type: 'url' }]
  *   },
  *   operations: [
- *     { id: 'create_customer', name: 'Create Customer', type: 'write' }
+ *     { id: 'send_message', name: 'Send Message', type: 'action' }
  *   ]
  * }
  * ```

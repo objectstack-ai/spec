@@ -4,7 +4,7 @@ import type {
     UpdateManyRequest,
     DeleteManyRequest 
 } from './batch.zod';
-import type { MetadataCacheRequest, MetadataCacheResponse } from './cache.zod';
+import type { MetadataCacheRequest, MetadataCacheResponse } from './http-cache.zod';
 import type { 
     CreateViewRequest, 
     UpdateViewRequest,
