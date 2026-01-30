@@ -4,6 +4,7 @@
   "pages": [
     "micro-kernel",
     "writing-plugins",
+    "plugin-ecosystem",
     "custom-widgets",
     "server-drivers",
     "cli-tools"

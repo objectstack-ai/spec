@@ -1,0 +1,776 @@
+---
+title: Plugin Ecosystem Architecture
+description: Building an interoperable plugin ecosystem for ObjectStack with vendor-agnostic protocols
+---
+
+# Plugin Ecosystem Architecture
+
+## Overview
+
+ObjectStack uses a MicroKernel Architecture where all functionality is implemented through plugins. This document defines a comprehensive plugin ecosystem specification that ensures plugins from different vendors can call each other, collaborate, and compose together.
+
+---
+
+## 🎯 Design Goals
+
+### 1. **Protocol-First**
+
+Plugins declare capabilities through implementing **Protocols** rather than hard-coded dependencies, similar to:
+- Kubernetes CRDs (Custom Resource Definitions)
+- OSGi Service Registry
+- Eclipse Extension Points
+
+### 2. **Semantic Versioning**
+
+All protocols and plugins must use Semantic Versioning (SemVer) for compatibility management:
+- Major: Breaking changes
+- Minor: Backwards-compatible feature additions
+- Patch: Backwards-compatible bug fixes
+
+### 3. **Reverse Domain Naming**
+
+All plugins and protocols use reverse domain notation to ensure global uniqueness:
+```
+{domain}.{category}.{name}
+```
+
+**Examples:**
+- Plugin: `com.acme.crm.customer-management`
+- Protocol: `com.objectstack.protocol.storage.v1`
+- Interface: `com.acme.crm.interface.contact_service`
+
+### 4. **Loose Coupling**
+
+Plugins communicate through **Interfaces** and **Extension Points**, not direct implementation dependencies.
+
+---
+
+## 🏗️ Core Components
+
+### 1. Protocol Declaration
+
+A **Protocol** defines a standardized set of capabilities. Plugins declare which protocols they implement.
+
+```typescript
+import { PluginCapabilityManifest } from '@objectstack/spec/system';
+
+const capabilities: PluginCapabilityManifest = {
+  implements: [
+    {
+      protocol: {
+        id: 'com.objectstack.protocol.storage.v1',
+        label: 'Storage Protocol v1',
+        version: { major: 1, minor: 0, patch: 0 },
+      },
+      conformance: 'full',  // full | partial | experimental | deprecated
+      certified: true,
+    },
+  ],
+};
+```
+
+#### Conformance Levels
+
+| Level | Description |
+|-------|-------------|
+| `full` | Complete implementation of all protocol features |
+| `partial` | Subset implementation with specific features listed |
+| `experimental` | Unstable/preview implementation |
+| `deprecated` | Still supported but scheduled for removal |
+
+### 2. Interface Provision
+
+An **Interface** defines the service contract a plugin provides. Other plugins can call these interfaces.
+
+```typescript
+const capabilities: PluginCapabilityManifest = {
+  provides: [
+    {
+      id: 'com.acme.crm.interface.contact_service',
+      name: 'ContactService',
+      version: { major: 1, minor: 0, patch: 0 },
+      stability: 'stable',  // stable | beta | alpha | experimental
+      
+      methods: [
+        {
+          name: 'getContact',
+          description: 'Retrieve a contact by ID',
+          parameters: [
+            { name: 'id', type: 'string', required: true },
+          ],
+          returnType: 'Contact',
+          async: true,
+        },
+        {
+          name: 'createContact',
+          parameters: [
+            { name: 'data', type: 'ContactInput', required: true },
+          ],
+          returnType: 'Contact',
+          async: true,
+        },
+      ],
+      
+      events: [
+        {
+          name: 'contactCreated',
+          description: 'Fired when a new contact is created',
+          payload: 'Contact',
+        },
+      ],
+    },
+  ],
+};
+```
+
+### 3. Dependency Declaration
+
+Plugins declare dependencies on other plugins and specify required capabilities.
+
+```typescript
+const capabilities: PluginCapabilityManifest = {
+  requires: [
+    {
+      pluginId: 'com.objectstack.driver.postgres',
+      version: '^1.0.0',
+      optional: false,
+      requiredCapabilities: [
+        'com.objectstack.protocol.storage.v1',
+        'com.objectstack.protocol.transactions.v1',
+      ],
+    },
+    {
+      pluginId: 'com.acme.analytics',
+      version: '>=2.0.0',
+      optional: true,
+      reason: 'Enhanced analytics features',
+    },
+  ],
+};
+```
+
+### 4. Extension Points
+
+**Extension Points** allow plugins to declare where other plugins can extend functionality.
+
+```typescript
+const capabilities: PluginCapabilityManifest = {
+  extensionPoints: [
+    {
+      id: 'com.acme.crm.extension.contact_validator',
+      name: 'Contact Validator',
+      type: 'validator',  // action | hook | widget | provider | transformer | validator | decorator
+      cardinality: 'multiple',  // single | multiple
+      contract: {
+        input: 'Contact',
+        output: 'ValidationResult',
+      },
+    },
+  ],
+  
+  extensions: [
+    {
+      targetPluginId: 'com.acme.crm',
+      extensionPointId: 'com.acme.crm.extension.contact_validator',
+      implementation: './validators/email-validator.ts',
+      priority: 50,
+    },
+  ],
+};
+```
+
+#### Extension Point Types
+
+| Type | Purpose |
+|------|---------|
+| `action` | Executable actions |
+| `hook` | Lifecycle event hooks |
+| `widget` | UI components |
+| `provider` | Data/service providers |
+| `transformer` | Data transformers |
+| `validator` | Data validators |
+| `decorator` | Functionality decorators |
+
+---
+
+## 📝 Naming Conventions
+
+### Overview
+
+ObjectStack uses different naming conventions to distinguish between **package-level identifiers** (for distribution and installation) and **code-level identifiers** (for services and data access).
+
+### 1. Plugin Identifiers
+
+**Format:**
+```
+{vendor-domain}.{category}.{plugin-name}
+```
+
+**Rules:**
+- Use reverse domain notation
+- All lowercase
+- Use hyphens for word separation (NPM package naming convention)
+- Avoid underscores and camelCase
+
+**Examples:**
+```
+✅ com.objectstack.driver.postgres
+✅ com.acme.crm.customer-management
+✅ org.apache.kafka.connector
+❌ com.acme.CRM  (Do not use uppercase)
+❌ com.acme.crm_plugin  (Do not use underscores)
+```
+
+### 2. Protocol Identifiers
+
+**Format:**
+```
+{vendor-domain}.protocol.{category}.{name}.v{major}
+```
+
+**Examples:**
+```
+com.objectstack.protocol.storage.v1
+com.objectstack.protocol.auth.oauth2.v2
+com.acme.protocol.payment.stripe.v1
+```
+
+### 3. Interface Identifiers
+
+**Format:**
+```
+{plugin-id}.interface.{interface-name}
+```
+
+**Rules:**
+- Use snake_case for interface names (consistent with service names in code)
+- Follow ObjectStack data layer naming convention
+
+**Examples:**
+```
+✅ com.acme.crm.interface.contact_service
+✅ com.acme.analytics.interface.metrics_collector
+✅ com.acme.auth.interface.user_provider
+```
+
+### 4. Extension Point Identifiers
+
+**Format:**
+```
+{plugin-id}.extension.{extension-name}
+```
+
+**Rules:**
+- Use snake_case for extension names (consistent with method/function naming)
+
+**Examples:**
+```
+✅ com.acme.crm.extension.contact_validator
+✅ com.acme.app.extension.theme_provider
+✅ com.acme.crm.extension.customer_enrichment
+```
+
+### Naming Convention Summary
+
+| Type | Format | Separator | Example |
+|------|--------|-----------|---------|
+| Plugin ID | `{domain}.{category}.{name}` | kebab-case (hyphens) | `com.acme.crm.customer-management` |
+| Protocol ID | `{domain}.protocol.{name}.v{N}` | kebab-case | `com.objectstack.protocol.storage.v1` |
+| Interface ID | `{plugin}.interface.{name}` | snake_case | `com.acme.crm.interface.contact_service` |
+| Extension ID | `{plugin}.extension.{name}` | snake_case | `com.acme.crm.extension.contact_validator` |
+
+**Important Notes:**
+- **Package-level identifiers** (plugins, protocols) use kebab-case, following NPM package naming convention
+- **Code-level identifiers** (interfaces, extensions) use snake_case, consistent with ObjectStack data layer naming
+
+---
+
+## 🔄 Plugin Discovery & Registry
+
+### Plugin Registry
+
+The ObjectStack Hub provides a centralized plugin registry that supports:
+- Plugin publishing and version management
+- Dependency resolution
+- Capability searching
+- Quality scoring
+- Security scanning
+
+```typescript
+import { PluginRegistryEntry } from '@objectstack/spec/hub';
+
+const registryEntry: PluginRegistryEntry = {
+  id: 'com.acme.crm.customer-management',
+  version: '1.2.3',
+  name: 'Customer Management Plugin',
+  description: 'Comprehensive customer relationship management',
+  
+  category: 'data',
+  tags: ['crm', 'customer', 'sales'],
+  
+  vendor: {
+    id: 'com.acme',
+    name: 'ACME Corporation',
+    verified: true,
+    trustLevel: 'verified',
+  },
+  
+  capabilities: { /* ... */ },
+  
+  quality: {
+    testCoverage: 85,
+    documentationScore: 90,
+    securityScan: {
+      passed: true,
+      vulnerabilities: { critical: 0, high: 0, medium: 0, low: 0 },
+    },
+  },
+  
+  statistics: {
+    downloads: 15000,
+    ratings: { average: 4.5, count: 120 },
+  },
+};
+```
+
+### Search & Filtering
+
+```typescript
+import { PluginSearchFilters } from '@objectstack/spec/hub';
+
+const filters: PluginSearchFilters = {
+  query: 'CRM',
+  category: ['data', 'integration'],
+  implementsProtocols: ['com.objectstack.protocol.storage.v1'],
+  trustLevel: ['official', 'verified'],
+  minRating: 4.0,
+  sortBy: 'downloads',
+};
+```
+
+---
+
+## 🔐 Plugin Security & Quality
+
+### 1. Vendor Verification
+
+The plugin registry supports multiple trust levels:
+
+| Trust Level | Description |
+|-------------|-------------|
+| `official` | Official ObjectStack plugins |
+| `verified` | Verified vendors |
+| `community` | Community contributions |
+| `unverified` | Unverified vendors |
+
+### 2. Quality Metrics
+
+```typescript
+quality: {
+  testCoverage: 85,
+  documentationScore: 90,
+  codeQuality: 88,
+  
+  securityScan: {
+    lastScanDate: '2024-01-15T00:00:00Z',
+    vulnerabilities: {
+      critical: 0,
+      high: 0,
+      medium: 1,
+      low: 3,
+    },
+    passed: true,
+  },
+  
+  conformanceTests: [
+    {
+      protocolId: 'com.objectstack.protocol.storage.v1',
+      passed: true,
+      totalTests: 150,
+      passedTests: 150,
+    },
+  ],
+}
+```
+
+### 3. Permission Declaration
+
+Plugins must declare required permissions in their manifest:
+
+```typescript
+// objectstack.config.ts
+export default {
+  id: 'com.acme.analytics',
+  permissions: [
+    'system.user.read',
+    'system.data.write',
+    'network.http.request',
+    'storage.local.write',
+  ],
+};
+```
+
+---
+
+## 🌐 Inter-Plugin Communication Patterns
+
+### Pattern 1: Interface Invocation
+
+Plugin A invokes services provided by Plugin B.
+
+```typescript
+// Plugin B: Provides Interface
+export class ContactServicePlugin implements Plugin {
+  name = 'com.acme.crm';
+  
+  async init(ctx: PluginContext) {
+    ctx.registerService('contact-service', {
+      async getContact(id: string): Promise<Contact> {
+        // Implementation
+      },
+    });
+  }
+}
+
+// Plugin A: Uses Interface
+export class ReportingPlugin implements Plugin {
+  name = 'com.acme.reporting';
+  dependencies = ['com.acme.crm'];
+  
+  async start(ctx: PluginContext) {
+    const contactService = ctx.getService('contact-service');
+    const contact = await contactService.getContact('123');
+  }
+}
+```
+
+### Pattern 2: Event Bus
+
+Plugins communicate through publish/subscribe pattern.
+
+```typescript
+// Plugin A: Publishes Events
+await ctx.trigger('crm:contact:created', {
+  contactId: '123',
+  data: contact,
+});
+
+// Plugin B: Subscribes to Events
+ctx.hook('crm:contact:created', async (event) => {
+  console.log('New contact:', event.data);
+});
+```
+
+### Pattern 3: Extension Contribution
+
+Plugin A contributes extensions to Plugin B.
+
+```typescript
+// Plugin B: Defines Extension Point
+capabilities: {
+  extensionPoints: [{
+    id: 'com.acme.crm.extension.contact_validator',
+    type: 'validator',
+    contract: {
+      input: 'Contact',
+      output: 'ValidationResult',
+    },
+  }],
+}
+
+// Plugin A: Contributes Extension
+capabilities: {
+  extensions: [{
+    targetPluginId: 'com.acme.crm',
+    extensionPointId: 'com.acme.crm.extension.contact_validator',
+    implementation: './validators/email-validator.ts',
+  }],
+}
+```
+
+---
+
+## 📦 Complete Example
+
+### Scenario: Building a CRM Ecosystem
+
+#### 1. Core CRM Plugin
+
+```typescript
+// objectstack.config.ts
+import { ObjectStackManifest } from '@objectstack/spec/system';
+
+const manifest: ObjectStackManifest = {
+  id: 'com.acme.crm',
+  version: '1.0.0',
+  type: 'plugin',
+  name: 'ACME CRM Core',
+  
+  capabilities: {
+    implements: [
+      {
+        protocol: {
+          id: 'com.objectstack.protocol.storage.v1',
+          label: 'Storage Protocol',
+          version: { major: 1, minor: 0, patch: 0 },
+        },
+        conformance: 'full',
+      },
+    ],
+    
+    provides: [
+      {
+        id: 'com.acme.crm.interface.customer_service',
+        name: 'CustomerService',
+        version: { major: 1, minor: 0, patch: 0 },
+        methods: [
+          {
+            name: 'getCustomer',
+            parameters: [{ name: 'id', type: 'string' }],
+            returnType: 'Customer',
+            async: true,
+          },
+        ],
+      },
+    ],
+    
+    extensionPoints: [
+      {
+        id: 'com.acme.crm.extension.customer_enrichment',
+        name: 'Customer Data Enrichment',
+        type: 'transformer',
+        cardinality: 'multiple',
+      },
+    ],
+  },
+  
+  objects: ['./src/objects/*.object.ts'],
+};
+
+export default manifest;
+```
+
+#### 2. Email Integration Plugin
+
+```typescript
+// objectstack.config.ts
+const manifest: ObjectStackManifest = {
+  id: 'com.acme.crm.email-integration',
+  version: '1.0.0',
+  type: 'plugin',
+  name: 'Email Integration for CRM',
+  
+  capabilities: {
+    requires: [
+      {
+        pluginId: 'com.acme.crm',
+        version: '^1.0.0',
+        requiredCapabilities: [
+          'com.acme.crm.interface.customer_service',
+        ],
+      },
+    ],
+    
+    implements: [
+      {
+        protocol: {
+          id: 'com.objectstack.protocol.email.v1',
+          label: 'Email Protocol',
+          version: { major: 1, minor: 0, patch: 0 },
+        },
+        conformance: 'full',
+      },
+    ],
+    
+    extensions: [
+      {
+        targetPluginId: 'com.acme.crm',
+        extensionPointId: 'com.acme.crm.extension.customer_enrichment',
+        implementation: './enrichment/email-enricher.ts',
+        priority: 100,
+      },
+    ],
+  },
+};
+
+export default manifest;
+```
+
+#### 3. Analytics Plugin
+
+```typescript
+const manifest: ObjectStackManifest = {
+  id: 'com.acme.crm.analytics',
+  version: '2.0.0',
+  type: 'plugin',
+  name: 'CRM Analytics',
+  
+  capabilities: {
+    requires: [
+      {
+        pluginId: 'com.acme.crm',
+        version: '^1.0.0',
+      },
+    ],
+    
+    provides: [
+      {
+        id: 'com.acme.crm.interface.analytics_service',
+        name: 'AnalyticsService',
+        version: { major: 2, minor: 0, patch: 0 },
+        methods: [
+          {
+            name: 'getMetrics',
+            parameters: [
+              { name: 'query', type: 'MetricsQuery' },
+            ],
+            returnType: 'MetricsResult',
+            async: true,
+          },
+        ],
+        events: [
+          {
+            name: 'metricsUpdated',
+            payload: 'MetricsSnapshot',
+          },
+        ],
+      },
+    ],
+  },
+};
+
+export default manifest;
+```
+
+---
+
+## 🚀 Best Practices
+
+### 1. Protocol Design
+
+#### ✅ Recommended
+
+- Use semantic versioning
+- Protocols should be stable and backwards compatible
+- Provide clear protocol documentation and examples
+- Define explicit test specifications
+
+#### ❌ Avoid
+
+- Exposing implementation details in protocols
+- Frequent breaking changes
+- Undocumented protocols
+
+### 2. Plugin Design
+
+#### ✅ Recommended
+```typescript
+// Explicitly declare dependencies
+requires: [{
+  pluginId: 'com.objectstack.driver.postgres',
+  version: '^1.0.0',
+  requiredCapabilities: ['com.objectstack.protocol.storage.v1'],
+}]
+
+// Use extension points instead of hard-coding
+extensionPoints: [{
+  id: 'com.acme.app.extension.authentication',
+  type: 'provider',
+  cardinality: 'single',
+}]
+
+// Provide clear interfaces
+provides: [{
+  id: 'com.acme.interface.user_service',
+  methods: [/* well-documented methods */],
+  stability: 'stable',
+}]
+```
+
+#### ❌ Avoid
+```typescript
+// ❌ Don't directly import other plugins
+import { UserService } from '@acme/other-plugin';
+
+// ❌ Don't use global state
+global.myPluginData = {};
+
+// ❌ Don't hard-code plugin identifiers
+const otherId = 'other-plugin';  // Should use id from manifest
+```
+
+### 3. Version Management
+
+```typescript
+// ✅ Use SemVer ranges
+version: '^1.0.0'    // >= 1.0.0 < 2.0.0
+version: '~1.2.3'    // >= 1.2.3 < 1.3.0
+version: '>=2.0.0 <3.0.0'
+
+// ✅ Mark deprecations
+deprecated: true,
+deprecationMessage: 'Use com.acme.crm.v2 instead',
+replacedBy: 'com.acme.crm.v2',
+```
+
+### 4. Testing & Validation
+
+```typescript
+// Protocol Conformance Tests
+describe('Storage Protocol Conformance', () => {
+  it('should implement all required methods', async () => {
+    const driver = new MyDriver();
+    expect(driver.query).toBeDefined();
+    expect(driver.insert).toBeDefined();
+    // ...
+  });
+});
+
+// Integration Tests
+describe('Plugin Integration', () => {
+  it('should work with CRM plugin', async () => {
+    const kernel = new ObjectKernel();
+    kernel.use(new CRMPlugin());
+    kernel.use(new MyPlugin());
+    await kernel.bootstrap();
+    // Test inter-plugin communication
+  });
+});
+```
+
+---
+
+## 📚 References
+
+### Related Documentation
+- [MicroKernel Architecture](/docs/developers/micro-kernel)
+- [Writing Plugins](/docs/developers/writing-plugins)
+- [Manifest Schema](/docs/references/system/manifest)
+- [Plugin Capability Protocol](/docs/references/system/plugin-capability)
+- [Plugin Registry](/docs/references/hub/plugin-registry)
+
+### Industry Standard References
+- [OSGi Service Platform](https://www.osgi.org/)
+- [Eclipse Extension Points](https://wiki.eclipse.org/FAQ_What_are_extensions_and_extension_points)
+- [Kubernetes CRDs](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/)
+- [VS Code Extension API](https://code.visualstudio.com/api)
+
+---
+
+## 🎓 Summary
+
+The ObjectStack plugin ecosystem ensures vendor interoperability through:
+
+1. **Protocol-First Design** - Plugins communicate through protocols not implementations
+2. **Reverse Domain Naming** - Ensures globally unique identifiers
+3. **Capability Declaration** - Explicit interface and dependency declarations
+4. **Extension Points** - Standardized extension mechanisms
+5. **Version Management** - Semantic versioning
+6. **Quality Assurance** - Testing, certification, and scoring systems
+7. **Centralized Registry** - Plugin discovery and dependency resolution
+
+By following these specifications, plugins from different vendors can:
+- 🔍 Discover and depend on each other
+- 🤝 Safely invoke each other's services
+- 🔌 Flexibly compose and extend
+- 📈 Continuously evolve without breaking compatibility

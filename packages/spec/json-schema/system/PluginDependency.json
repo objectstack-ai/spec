@@ -1,0 +1,39 @@
+{
+  "$ref": "#/definitions/PluginDependency",
+  "definitions": {
+    "PluginDependency": {
+      "type": "object",
+      "properties": {
+        "pluginId": {
+          "type": "string",
+          "pattern": "^([a-z][a-z0-9]*\\.)+[a-z][a-z0-9-]+$",
+          "description": "Required plugin identifier"
+        },
+        "version": {
+          "type": "string",
+          "description": "Semantic version constraint"
+        },
+        "optional": {
+          "type": "boolean",
+          "default": false
+        },
+        "reason": {
+          "type": "string"
+        },
+        "requiredCapabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Protocol IDs the dependency must support"
+        }
+      },
+      "required": [
+        "pluginId",
+        "version"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

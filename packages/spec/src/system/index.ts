@@ -17,6 +17,7 @@ export * from './types';
 // Re-export Core System Definitions
 export * from './manifest.zod';
 export * from './plugin.zod';
+export * from './plugin-capability.zod';
 export * from './logger.zod';
 export * from './context.zod';
 export * from './scoped-storage.zod';
