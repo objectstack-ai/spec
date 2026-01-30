@@ -12,8 +12,8 @@ description: Misc protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AckModeSchema, ApiVersionConfigSchema, CdcConfigSchema, ConsumerConfigSchema, DatabaseConnectorSchema, DatabasePoolConfigSchema, DatabaseProviderSchema, DatabaseTableSchema, DeliveryGuaranteeSchema, DlqConfigSchema, FileAccessPatternSchema, FileFilterConfigSchema, FileMetadataConfigSchema, FileStorageConnectorSchema, FileStorageProviderSchema, FileVersioningConfigSchema, MessageFormatSchema, MessageQueueConnectorSchema, MessageQueueProviderSchema, ProducerConfigSchema, SaasConnectorSchema, SaasObjectTypeSchema, SaasProviderSchema, SslConfigSchema, StorageBucketSchema, TopicQueueSchema } from '@objectstack/spec/integration';
-import type { AckMode, ApiVersionConfig, CdcConfig, ConsumerConfig, DatabaseConnector, DatabasePoolConfig, DatabaseProvider, DatabaseTable, DeliveryGuarantee, DlqConfig, FileAccessPattern, FileFilterConfig, FileMetadataConfig, FileStorageConnector, FileStorageProvider, FileVersioningConfig, MessageFormat, MessageQueueConnector, MessageQueueProvider, ProducerConfig, SaasConnector, SaasObjectType, SaasProvider, SslConfig, StorageBucket, TopicQueue } from '@objectstack/spec/integration';
+import { AckModeSchema, ApiVersionConfigSchema, CdcConfigSchema, DatabaseConnectorSchema, DatabasePoolConfigSchema, DatabaseProviderSchema, DatabaseTableSchema, DeliveryGuaranteeSchema, DlqConfigSchema, FileAccessPatternSchema, FileFilterConfigSchema, FileMetadataConfigSchema, FileStorageConnectorSchema, FileStorageProviderSchema, FileVersioningConfigSchema, MessageFormatSchema, MessageQueueConnectorSchema, ProducerConfigSchema, SaasConnectorSchema, SaasObjectTypeSchema, SaasProviderSchema, SslConfigSchema, StorageBucketSchema, TopicQueueSchema } from '@objectstack/spec/integration';
+import type { AckMode, ApiVersionConfig, CdcConfig, DatabaseConnector, DatabasePoolConfig, DatabaseProvider, DatabaseTable, DeliveryGuarantee, DlqConfig, FileAccessPattern, FileFilterConfig, FileMetadataConfig, FileStorageConnector, FileStorageProvider, FileVersioningConfig, MessageFormat, MessageQueueConnector, ProducerConfig, SaasConnector, SaasObjectType, SaasProvider, SslConfig, StorageBucket, TopicQueue } from '@objectstack/spec/integration';
 
 // Validate data
 const result = AckModeSchema.parse(data);
@@ -59,24 +59,6 @@ Message acknowledgment mode
 | **startPosition** | `string` | optional | Starting position/LSN for CDC stream |
 | **batchSize** | `number` | optional | CDC batch size |
 | **pollIntervalMs** | `number` | optional | CDC polling interval in ms |
-
----
-
-## ConsumerConfig
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional | Enable consumer |
-| **consumerGroup** | `string` | optional | Consumer group ID |
-| **concurrency** | `number` | optional | Number of concurrent consumers |
-| **prefetchCount** | `number` | optional | Prefetch count |
-| **ackMode** | `Enum<'auto' \| 'manual' \| 'client'>` | optional | Message acknowledgment mode |
-| **autoCommit** | `boolean` | optional | Auto-commit offsets |
-| **autoCommitIntervalMs** | `number` | optional | Auto-commit interval in ms |
-| **sessionTimeoutMs** | `number` | optional | Session timeout in ms |
-| **rebalanceTimeoutMs** | `number` | optional | Rebalance timeout in ms |
 
 ---
 
@@ -349,28 +331,6 @@ Message format/serialization
 | **preserveOrder** | `boolean` | optional | Preserve message ordering |
 | **enableMetrics** | `boolean` | optional | Enable message queue metrics |
 | **enableTracing** | `boolean` | optional | Enable distributed tracing |
-
----
-
-## MessageQueueProvider
-
-Message queue provider type
-
-### Allowed Values
-
-* `rabbitmq`
-* `kafka`
-* `redis_pubsub`
-* `redis_streams`
-* `aws_sqs`
-* `aws_sns`
-* `google_pubsub`
-* `azure_service_bus`
-* `azure_event_hubs`
-* `nats`
-* `pulsar`
-* `activemq`
-* `custom`
 
 ---
 

@@ -40,6 +40,20 @@ export * from './data-engine.zod';
 // Object Storage Protocol
 export * from './object-storage.zod';
 
+// Cache Protocol
+export * from './cache.zod';
+
+// Message Queue Protocol
+export * from './message-queue.zod';
+
+// Search Engine Protocol
+export * from './search-engine.zod';
+
+// Security & Compliance Protocols
+export * from './encryption.zod';
+export * from './compliance.zod';
+export * from './masking.zod';
+
 // Note: Auth, Identity, Policy, Role, Organization moved to @objectstack/spec/auth
 // Note: Territory moved to @objectstack/spec/permission
 // Note: Connector Protocol moved to @objectstack/spec/integration

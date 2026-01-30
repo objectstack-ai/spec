@@ -1,0 +1,33 @@
+---
+title: Search Engine
+description: Search Engine protocol schemas
+---
+
+# Search Engine
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/search-engine.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { SearchConfigSchema } from '@objectstack/spec/data';
+import type { SearchConfig } from '@objectstack/spec/data';
+
+// Validate data
+const result = SearchConfigSchema.parse(data);
+```
+
+---
+
+## SearchConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **fields** | `string[]` | ✅ | Fields to index for full-text search weighting |
+| **displayFields** | `string[]` | optional | Fields to display in search result cards |
+| **filters** | `string[]` | optional | Default filters for search results |
+

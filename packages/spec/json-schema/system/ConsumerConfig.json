@@ -1,0 +1,34 @@
+{
+  "$ref": "#/definitions/ConsumerConfig",
+  "definitions": {
+    "ConsumerConfig": {
+      "type": "object",
+      "properties": {
+        "groupId": {
+          "type": "string"
+        },
+        "autoOffsetReset": {
+          "type": "string",
+          "enum": [
+            "earliest",
+            "latest"
+          ],
+          "default": "latest"
+        },
+        "enableAutoCommit": {
+          "type": "boolean",
+          "default": true
+        },
+        "maxPollRecords": {
+          "type": "number",
+          "default": 500
+        }
+      },
+      "required": [
+        "groupId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

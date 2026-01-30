@@ -1,0 +1,52 @@
+{
+  "$ref": "#/definitions/CacheTier",
+  "definitions": {
+    "CacheTier": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "memory",
+            "redis",
+            "memcached",
+            "cdn"
+          ]
+        },
+        "maxSize": {
+          "type": "number",
+          "description": "Max size in MB"
+        },
+        "ttl": {
+          "type": "number",
+          "default": 300,
+          "description": "Default TTL in seconds"
+        },
+        "strategy": {
+          "type": "string",
+          "enum": [
+            "lru",
+            "lfu",
+            "fifo",
+            "ttl",
+            "adaptive"
+          ],
+          "default": "lru"
+        },
+        "warmup": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "name",
+        "type"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
