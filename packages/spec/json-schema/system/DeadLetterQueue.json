@@ -1,0 +1,26 @@
+{
+  "$ref": "#/definitions/DeadLetterQueue",
+  "definitions": {
+    "DeadLetterQueue": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "maxRetries": {
+          "type": "number",
+          "default": 3
+        },
+        "queueName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "queueName"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

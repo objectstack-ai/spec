@@ -1,0 +1,29 @@
+{
+  "$ref": "#/definitions/KeyRotationPolicy",
+  "definitions": {
+    "KeyRotationPolicy": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "frequencyDays": {
+          "type": "number",
+          "minimum": 1,
+          "default": 90
+        },
+        "retainOldVersions": {
+          "type": "number",
+          "default": 3
+        },
+        "autoRotate": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

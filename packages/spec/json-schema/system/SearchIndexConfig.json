@@ -1,0 +1,78 @@
+{
+  "$ref": "#/definitions/SearchIndexConfig",
+  "definitions": {
+    "SearchIndexConfig": {
+      "type": "object",
+      "properties": {
+        "indexName": {
+          "type": "string"
+        },
+        "objectName": {
+          "type": "string",
+          "description": "Source ObjectQL object"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "text",
+                  "keyword",
+                  "number",
+                  "date",
+                  "boolean",
+                  "geo"
+                ]
+              },
+              "analyzer": {
+                "type": "string"
+              },
+              "searchable": {
+                "type": "boolean",
+                "default": true
+              },
+              "filterable": {
+                "type": "boolean",
+                "default": false
+              },
+              "sortable": {
+                "type": "boolean",
+                "default": false
+              },
+              "boost": {
+                "type": "number",
+                "default": 1
+              }
+            },
+            "required": [
+              "name",
+              "type"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "replicas": {
+          "type": "number",
+          "default": 1
+        },
+        "shards": {
+          "type": "number",
+          "default": 1
+        }
+      },
+      "required": [
+        "indexName",
+        "objectName",
+        "fields"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

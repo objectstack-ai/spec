@@ -1,0 +1,16 @@
+{
+  "$ref": "#/definitions/CacheStrategy",
+  "definitions": {
+    "CacheStrategy": {
+      "type": "string",
+      "enum": [
+        "lru",
+        "lfu",
+        "fifo",
+        "ttl",
+        "adaptive"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

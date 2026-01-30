@@ -1,0 +1,202 @@
+{
+  "$ref": "#/definitions/ComplianceConfig",
+  "definitions": {
+    "ComplianceConfig": {
+      "type": "object",
+      "properties": {
+        "gdpr": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "dataSubjectRights": {
+              "type": "object",
+              "properties": {
+                "rightToAccess": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "rightToRectification": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "rightToErasure": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "rightToRestriction": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "rightToPortability": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "rightToObjection": {
+                  "type": "boolean",
+                  "default": true
+                }
+              },
+              "additionalProperties": false
+            },
+            "legalBasis": {
+              "type": "string",
+              "enum": [
+                "consent",
+                "contract",
+                "legal-obligation",
+                "vital-interests",
+                "public-task",
+                "legitimate-interests"
+              ]
+            },
+            "consentTracking": {
+              "type": "boolean",
+              "default": true
+            },
+            "dataRetentionDays": {
+              "type": "number"
+            },
+            "dataProcessingAgreement": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "enabled",
+            "dataSubjectRights",
+            "legalBasis"
+          ],
+          "additionalProperties": false
+        },
+        "hipaa": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "phi": {
+              "type": "object",
+              "properties": {
+                "encryption": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "accessControl": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "auditTrail": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "backupAndRecovery": {
+                  "type": "boolean",
+                  "default": true
+                }
+              },
+              "additionalProperties": false
+            },
+            "businessAssociateAgreement": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          "required": [
+            "enabled",
+            "phi"
+          ],
+          "additionalProperties": false
+        },
+        "pciDss": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "level": {
+              "type": "string",
+              "enum": [
+                "1",
+                "2",
+                "3",
+                "4"
+              ]
+            },
+            "cardDataFields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "tokenization": {
+              "type": "boolean",
+              "default": true
+            },
+            "encryptionInTransit": {
+              "type": "boolean",
+              "default": true
+            },
+            "encryptionAtRest": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          "required": [
+            "enabled",
+            "level",
+            "cardDataFields"
+          ],
+          "additionalProperties": false
+        },
+        "auditLog": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "retentionDays": {
+              "type": "number",
+              "default": 365
+            },
+            "immutable": {
+              "type": "boolean",
+              "default": true
+            },
+            "signLogs": {
+              "type": "boolean",
+              "default": false
+            },
+            "events": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "create",
+                  "read",
+                  "update",
+                  "delete",
+                  "export",
+                  "permission-change",
+                  "login",
+                  "logout",
+                  "failed-login"
+                ]
+              }
+            }
+          },
+          "required": [
+            "events"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "auditLog"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

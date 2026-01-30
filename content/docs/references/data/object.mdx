@@ -12,8 +12,8 @@ description: Object protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { IndexSchema, ObjectSchema, ObjectCapabilitiesSchema, SearchConfigSchema } from '@objectstack/spec/data';
-import type { Index, Object, ObjectCapabilities, SearchConfig } from '@objectstack/spec/data';
+import { IndexSchema, ObjectSchema, ObjectCapabilitiesSchema } from '@objectstack/spec/data';
+import type { Index, Object, ObjectCapabilities } from '@objectstack/spec/data';
 
 // Validate data
 const result = IndexSchema.parse(data);
@@ -77,16 +77,4 @@ const result = IndexSchema.parse(data);
 | **trash** | `boolean` | optional | Enable soft-delete with restore capability |
 | **mru** | `boolean` | optional | Track Most Recently Used (MRU) list for users |
 | **clone** | `boolean` | optional | Allow record deep cloning |
-
----
-
-## SearchConfig
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **fields** | `string[]` | ✅ | Fields to index for full-text search weighting |
-| **displayFields** | `string[]` | optional | Fields to display in search result cards |
-| **filters** | `string[]` | optional | Default filters for search results |
 

@@ -1,0 +1,90 @@
+---
+title: Compliance
+description: Compliance protocol schemas
+---
+
+# Compliance
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/compliance.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AuditLogConfigSchema, ComplianceConfigSchema, GDPRConfigSchema, HIPAAConfigSchema, PCIDSSConfigSchema } from '@objectstack/spec/system';
+import type { AuditLogConfig, ComplianceConfig, GDPRConfig, HIPAAConfig, PCIDSSConfig } from '@objectstack/spec/system';
+
+// Validate data
+const result = AuditLogConfigSchema.parse(data);
+```
+
+---
+
+## AuditLogConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional |  |
+| **retentionDays** | `number` | optional |  |
+| **immutable** | `boolean` | optional |  |
+| **signLogs** | `boolean` | optional |  |
+| **events** | `Enum<'create' \| 'read' \| 'update' \| 'delete' \| 'export' \| 'permission-change' \| 'login' \| 'logout' \| 'failed-login'>[]` | ✅ |  |
+
+---
+
+## ComplianceConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **gdpr** | `object` | optional |  |
+| **hipaa** | `object` | optional |  |
+| **pciDss** | `object` | optional |  |
+| **auditLog** | `object` | ✅ |  |
+
+---
+
+## GDPRConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ |  |
+| **dataSubjectRights** | `object` | ✅ |  |
+| **legalBasis** | `Enum<'consent' \| 'contract' \| 'legal-obligation' \| 'vital-interests' \| 'public-task' \| 'legitimate-interests'>` | ✅ |  |
+| **consentTracking** | `boolean` | optional |  |
+| **dataRetentionDays** | `number` | optional |  |
+| **dataProcessingAgreement** | `string` | optional |  |
+
+---
+
+## HIPAAConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ |  |
+| **phi** | `object` | ✅ |  |
+| **businessAssociateAgreement** | `boolean` | optional |  |
+
+---
+
+## PCIDSSConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ |  |
+| **level** | `Enum<'1' \| '2' \| '3' \| '4'>` | ✅ |  |
+| **cardDataFields** | `string[]` | ✅ |  |
+| **tokenization** | `boolean` | optional |  |
+| **encryptionInTransit** | `boolean` | optional |  |
+| **encryptionAtRest** | `boolean` | optional |  |
+
