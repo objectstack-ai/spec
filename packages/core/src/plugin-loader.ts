@@ -228,6 +228,8 @@ export class PluginLoader {
 
     /**
      * Detect circular dependencies in service factories
+     * Note: This only detects cycles in service dependencies, not plugin dependencies.
+     * Plugin dependency cycles are detected in the kernel's resolveDependencies method.
      */
     detectCircularDependencies(): string[] {
         const cycles: string[] = [];
@@ -369,9 +371,10 @@ export class PluginLoader {
             return;
         }
         
-        // Configuration validation would happen here
-        // For now, just log that schema is present
-        this.logger.debug(`Plugin ${plugin.name} has configuration schema`);
+        // TODO: Configuration validation implementation
+        // This requires plugin config to be passed during loading
+        // For now, just validate that the schema exists
+        this.logger.debug(`Plugin ${plugin.name} has configuration schema (validation not yet implemented)`);
     }
 
     private async verifyPluginSignature(plugin: PluginMetadata): Promise<void> {
@@ -379,14 +382,12 @@ export class PluginLoader {
             return;
         }
         
-        // Signature verification would happen here
-        // This is a placeholder for security implementation
-        this.logger.debug(`Plugin ${plugin.name} signature verification (placeholder)`);
-        
+        // TODO: Plugin signature verification implementation
         // In a real implementation:
         // 1. Extract public key from trusted source
         // 2. Verify signature against plugin code hash
         // 3. Throw error if verification fails
+        this.logger.debug(`Plugin ${plugin.name} signature verification (not yet implemented)`);
     }
 
     private async getSingletonService<T>(registration: ServiceRegistration): Promise<T> {

@@ -145,7 +145,7 @@ describe('EnhancedObjectKernel', () => {
             await expect(async () => {
                 await kernel.bootstrap();
             }).rejects.toThrow('timeout');
-        }, 10000);
+        }, 1000); // Test should complete in 1 second
 
         it('should timeout plugin start if it takes too long', async () => {
             const plugin: PluginMetadata = {
@@ -163,7 +163,7 @@ describe('EnhancedObjectKernel', () => {
             await expect(async () => {
                 await kernel.bootstrap();
             }).rejects.toThrow();
-        }, 10000);
+        }, 1000); // Test should complete in 1 second
 
         it('should complete plugin startup within timeout', async () => {
             const plugin: PluginMetadata = {

@@ -462,18 +462,28 @@ export class EnhancedObjectKernel {
 
     private registerShutdownSignals(): void {
         const signals: NodeJS.Signals[] = ['SIGINT', 'SIGTERM', 'SIGQUIT'];
+        let shutdownInProgress = false;
+        
+        const handleShutdown = async (signal: string) => {
+            if (shutdownInProgress) {
+                this.logger.warn(`Shutdown already in progress, ignoring ${signal}`);
+                return;
+            }
+            
+            shutdownInProgress = true;
+            this.logger.info(`Received ${signal} - initiating graceful shutdown`);
+            
+            try {
+                await this.shutdown();
+                process.exit(0);
+            } catch (error) {
+                this.logger.error('Shutdown failed', error as Error);
+                process.exit(1);
+            }
+        };
         
         for (const signal of signals) {
-            process.on(signal, async () => {
-                this.logger.info(`Received ${signal} - initiating graceful shutdown`);
-                try {
-                    await this.shutdown();
-                    process.exit(0);
-                } catch (error) {
-                    this.logger.error('Shutdown failed', error as Error);
-                    process.exit(1);
-                }
-            });
+            process.on(signal, () => handleShutdown(signal));
         }
     }
 

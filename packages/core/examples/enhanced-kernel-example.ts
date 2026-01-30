@@ -174,7 +174,7 @@ async function setupServiceFactories(kernel: EnhancedObjectKernel) {
   kernel.registerServiceFactory(
     'request-id',
     () => {
-      return `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      return `req-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
     },
     ServiceLifecycle.TRANSIENT
   );
