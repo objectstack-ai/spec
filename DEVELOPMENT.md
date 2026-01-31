@@ -260,273 +260,6 @@ pnpm objectstack --help
 pnpm objectstack <command> --help
 ```
 
----
-
-## 中文版
-
-## 快速开始
-
-### 环境设置
-
-```bash
-# 克隆仓库
-git clone https://github.com/objectstack-ai/spec.git
-cd spec
-
-# 安装依赖
-pnpm install
-
-# 构建核心包
-pnpm build
-
-# 运行健康检查
-pnpm doctor
-```
-
-### 开发工作流
-
-#### 使用 ObjectStack CLI
-
-```bash
-# 首先构建CLI（如未构建）
-pnpm --filter @objectstack/cli build
-
-# 编译配置为JSON
-pnpm objectstack compile objectstack.config.ts dist/objectstack.json
-
-# 启动开发模式（包的监听模式）
-pnpm objectstack dev [package-name]
-
-# 检查环境健康
-pnpm objectstack doctor
-
-# 创建新项目
-pnpm objectstack create plugin my-plugin
-pnpm objectstack create example my-app
-```
-
-#### 常用 npm 快捷命令
-
-```bash
-# 一次性设置
-pnpm setup              # 安装依赖并构建核心包
-
-# 开发
-pnpm dev                # 启动开发模式（默认：msw-react-crud示例）
-pnpm build              # 构建所有包
-pnpm test               # 运行测试
-
-# 诊断
-pnpm doctor             # 检查环境健康
-
-# 清理
-pnpm clean              # 清理构建产物
-```
-
-### 包开发
-
-#### 开发 @objectstack/spec
-
-```bash
-# 监听模式（更改时自动重建）
-cd packages/spec
-pnpm dev
-
-# 测试监听模式
-pnpm test:watch
-
-# 生成schemas和文档
-pnpm gen:schema
-pnpm gen:docs
-```
-
-#### 创建新插件
-
-```bash
-# 使用CLI
-pnpm objectstack create plugin my-feature
-
-# 然后开发
-cd packages/plugins/plugin-my-feature
-pnpm install
-pnpm dev
-```
-
-#### 创建新示例
-
-```bash
-# 使用CLI
-pnpm objectstack create example my-app
-
-# 然后开发
-cd examples/my-app
-pnpm install
-pnpm build
-```
-
-### 测试
-
-#### 单元测试
-
-```bash
-# 运行所有测试
-pnpm test
-
-# 运行特定包的测试
-pnpm --filter @objectstack/spec test
-
-# 监听模式
-pnpm --filter @objectstack/spec test:watch
-
-# 覆盖率报告
-pnpm --filter @objectstack/spec test:coverage
-```
-
-#### 集成测试
-
-```bash
-# 测试CRM示例
-cd examples/crm
-pnpm build
-pnpm test
-```
-
-### 调试
-
-#### VSCode 调试
-
-`.vscode/launch.json` 中预配置了启动配置：
-
-1. **Debug Current TypeScript File** - 调试任何 .ts 文件
-2. **Debug @objectstack/spec Tests** - 调试 spec 测试
-3. **Debug CLI (compile)** - 调试 compile 命令
-4. **Debug CLI (doctor)** - 调试 doctor 命令
-5. **Debug Example (CRM)** - 调试 CRM 示例
-
-**使用方法：**
-1. 打开要调试的文件
-2. 按 `F5` 或转到运行与调试面板
-3. 选择适当的配置
-4. 设置断点并调试
-
-#### 命令行调试
-
-```bash
-# 使用 tsx 调试
-tsx --inspect packages/cli/src/bin.ts doctor
-
-# 使用 node 调试
-node --inspect $(which tsx) packages/cli/src/bin.ts compile
-```
-
-#### 日志记录
-
-```bash
-# 启用详细日志
-DEBUG=* pnpm build
-
-# 特定包的日志
-DEBUG=objectstack:* pnpm build
-```
-
-### 常见任务
-
-#### 添加新的协议Schema
-
-```typescript
-// 1. 创建schema文件: packages/spec/src/data/my-schema.zod.ts
-import { z } from 'zod';
-
-/**
- * 我的新schema
- * @description schema的详细描述
- */
-export const MySchema = z.object({
-  /** 字段描述 */
-  name: z.string().describe('机器名称 (snake_case)'),
-  
-  /** 另一个字段 */
-  value: z.number().optional().describe('可选值'),
-});
-
-export type MyType = z.infer<typeof MySchema>;
-
-// 2. 从index导出
-// packages/spec/src/data/index.ts
-export * from './my-schema.zod.js';
-
-// 3. 构建生成JSON schema
-pnpm --filter @objectstack/spec build
-```
-
-#### 运行特定包命令
-
-```bash
-# 按包名过滤
-pnpm --filter @objectstack/spec <command>
-pnpm --filter @objectstack/cli <command>
-
-# 过滤模式（所有插件）
-pnpm --filter "@objectstack/plugin-*" build
-
-# 在所有包中运行
-pnpm -r <command>
-
-# 并行运行
-pnpm -r --parallel <command>
-```
-
-### 性能技巧
-
-1. **增量构建**: 开发期间使用监听模式 (`pnpm dev`)
-2. **选择性测试**: 只测试变更的包
-3. **并行执行**: 对独立任务使用 `--parallel`
-4. **过滤包**: 使用 `--filter` 针对特定包
-
-### 问题排查
-
-#### 常见问题
-
-**依赖未安装：**
-```bash
-pnpm doctor
-pnpm install
-```
-
-**构建错误：**
-```bash
-# 清理并重建
-pnpm clean
-pnpm build
-```
-
-**类型错误：**
-```bash
-# 确保先构建spec
-pnpm --filter @objectstack/spec build
-```
-
-**监听模式不工作：**
-```bash
-# 终止现有进程
-pkill -f "tsc --watch"
-# 重启
-pnpm dev
-```
-
-#### 获取帮助
-
-```bash
-# 检查环境
-pnpm doctor
-
-# CLI帮助
-pnpm objectstack --help
-pnpm objectstack <command> --help
-```
-
----
-
 ## Architecture Overview
 
 ### Monorepo Structure
@@ -550,9 +283,54 @@ spec/
 ├── apps/                # Applications
 │   └── docs/           # Documentation site
 └── packages/cli/        # Command-line tools
-    ├── src/commands/   # CLI commands (dev, doctor, create, compile)
+    ├── src/commands/   # CLI commands (dev, doctor, create, compile, serve)
     └── bin/           # Executable entry points
 ```
+
+### Starting a Server
+
+The `serve` command starts an ObjectStack server with plugins loaded from your configuration:
+
+```bash
+# Start server with default config
+pnpm objectstack serve
+
+# Start with custom config and port
+pnpm objectstack serve objectstack.config.ts --port 8080
+
+# Start without HTTP server plugin (headless mode)
+pnpm objectstack serve --no-server
+```
+
+**Configuration Example:**
+
+```typescript
+// objectstack.config.ts
+import { defineStack } from '@objectstack/spec';
+import { HonoServerPlugin } from '@objectstack/plugin-hono-server';
+
+export default defineStack({
+  metadata: {
+    name: 'my-app',
+    version: '1.0.0',
+  },
+  
+  objects: {
+    // Your data objects
+  },
+  
+  plugins: [
+    // Add plugins to load
+    new HonoServerPlugin({ port: 3000 }),
+  ],
+});
+```
+
+The server will:
+1. Load your configuration file
+2. Register all plugins specified in `config.plugins`
+3. Start the HTTP server (unless `--no-server` is specified)
+4. Listen on the specified port (default: 3000)
 
 ### Package Dependencies
 
@@ -574,8 +352,6 @@ spec/
 2. `@objectstack/cli` - Can build after spec
 3. Other packages - Can build in parallel after spec
 4. Examples - Build last
-
----
 
 ## Best Practices
 
@@ -608,8 +384,6 @@ spec/
 3. Update documentation if needed
 4. Follow the PR template
 
----
-
 ## Resources
 
 - [CONTRIBUTING.md](./CONTRIBUTING.md) - Detailed contribution guide
@@ -617,8 +391,7 @@ spec/
 - [Package Dependencies](./PACKAGE-DEPENDENCIES.md) - Dependency graph
 - [Quick Reference](./QUICK-REFERENCE.md) - API quick reference
 
----
-
 ## License
 
 Apache 2.0 © ObjectStack
+

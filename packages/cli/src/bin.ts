@@ -3,6 +3,7 @@ import { compileCommand } from './commands/compile.js';
 import { devCommand } from './commands/dev.js';
 import { doctorCommand } from './commands/doctor.js';
 import { createCommand } from './commands/create.js';
+import { serveCommand } from './commands/serve.js';
 
 const program = new Command();
 
@@ -13,6 +14,7 @@ program
 
 // Add all commands
 program.addCommand(compileCommand);
+program.addCommand(serveCommand);
 program.addCommand(devCommand);
 program.addCommand(doctorCommand);
 program.addCommand(createCommand);
