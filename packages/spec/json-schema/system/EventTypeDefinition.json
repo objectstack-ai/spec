@@ -1,0 +1,45 @@
+{
+  "$ref": "#/definitions/EventTypeDefinition",
+  "definitions": {
+    "EventTypeDefinition": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 3,
+          "pattern": "^[a-z][a-z0-9_.]*$",
+          "description": "Event type name (lowercase with dots)"
+        },
+        "version": {
+          "type": "string",
+          "default": "1.0.0",
+          "description": "Event schema version"
+        },
+        "schema": {
+          "description": "JSON Schema for event payload validation"
+        },
+        "description": {
+          "type": "string",
+          "description": "Event type description"
+        },
+        "deprecated": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this event type is deprecated"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Event type tags"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

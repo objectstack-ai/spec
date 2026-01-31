@@ -20,6 +20,26 @@
         "tenantId": {
           "type": "string",
           "description": "Tenant identifier for multi-tenant systems"
+        },
+        "correlationId": {
+          "type": "string",
+          "description": "Correlation ID for event tracing"
+        },
+        "causationId": {
+          "type": "string",
+          "description": "ID of the event that caused this event"
+        },
+        "priority": {
+          "type": "string",
+          "enum": [
+            "critical",
+            "high",
+            "normal",
+            "low",
+            "background"
+          ],
+          "default": "normal",
+          "description": "Event priority"
         }
       },
       "required": [

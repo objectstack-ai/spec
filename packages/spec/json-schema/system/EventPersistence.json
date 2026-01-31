@@ -13,6 +13,17 @@
           "type": "integer",
           "exclusiveMinimum": 0,
           "description": "Days to retain persisted events"
+        },
+        "storage": {
+          "type": "string",
+          "enum": [
+            "database",
+            "file",
+            "s3",
+            "custom"
+          ],
+          "default": "database",
+          "description": "Storage backend for persisted events"
         }
       },
       "required": [

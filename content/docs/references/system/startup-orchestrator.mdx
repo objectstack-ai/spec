@@ -1,6 +1,6 @@
 ---
 title: Startup Orchestrator
-description: Plugin startup orchestration protocol
+description: Startup Orchestrator protocol schemas
 ---
 
 # Startup Orchestrator
@@ -9,291 +9,67 @@ description: Plugin startup orchestration protocol
 **Source:** `packages/spec/src/system/startup-orchestrator.zod.ts`
 </Callout>
 
-## Overview
-
-Startup Orchestrator protocol defines schemas for orchestrating plugin startup sequences, including dependency resolution, health checks, and rollback on failure.
-
 ## TypeScript Usage
 
 ```typescript
-import { 
-  StartupOptionsSchema,
-  HealthStatusSchema,
-  PluginStartupResultSchema,
-  StartupOrchestrationResultSchema
-} from '@objectstack/spec/system';
+import { HealthStatusSchema, PluginStartupResultSchema, StartupOptionsSchema, StartupOrchestrationResultSchema } from '@objectstack/spec/system';
+import type { HealthStatus, PluginStartupResult, StartupOptions, StartupOrchestrationResult } from '@objectstack/spec/system';
 
-import type {
-  StartupOptions,
-  StartupOptionsInput,
-  HealthStatus,
-  PluginStartupResult,
-  StartupOrchestrationResult
-} from '@objectstack/spec/system';
-
-// Configure startup options
-const options: StartupOptionsInput = {
-  timeout: 30000,
-  rollbackOnFailure: true,
-  healthCheck: true,
-  parallel: false
-};
-
-const validated = StartupOptionsSchema.parse(options);
+// Validate data
+const result = HealthStatusSchema.parse(data);
 ```
 
 ---
 
-## Schemas
+## HealthStatus
 
-### StartupOptions
-
-Configuration for plugin startup orchestration.
-
-#### Properties
-
-| Property | Type | Required | Default | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| **timeout** | `number` | optional | 30000 | Maximum time (ms) to wait for each plugin to start |
-| **rollbackOnFailure** | `boolean` | optional | true | Whether to rollback (destroy) already-started plugins on failure |
-| **healthCheck** | `boolean` | optional | false | Whether to run health checks after startup |
-| **parallel** | `boolean` | optional | false | Whether to start plugins in parallel when dependencies allow |
-| **context** | `any` | optional | - | Custom context to pass to plugin lifecycle methods |
-
-#### Example
-
-```typescript
-const options: StartupOptions = {
-  timeout: 30000,
-  rollbackOnFailure: true,
-  healthCheck: true, // Enable health checks for production
-  parallel: false
-};
-```
-
----
-
-### HealthStatus
-
-Health status for a plugin after startup.
-
-#### Properties
+### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **healthy** | `boolean` | ✅ | Whether the plugin is healthy |
-| **timestamp** | `number` | ✅ | Unix timestamp in milliseconds when health check was performed |
+| **timestamp** | `integer` | ✅ | Unix timestamp in milliseconds when health check was performed |
 | **details** | `Record<string, any>` | optional | Optional plugin-specific health details |
 | **message** | `string` | optional | Error message if plugin is unhealthy |
 
-#### Example
-
-```json
-{
-  "healthy": true,
-  "timestamp": 1706659200000,
-  "details": {
-    "databaseConnected": true,
-    "memoryUsage": 45.2
-  }
-}
-```
-
 ---
 
-### PluginStartupResult
+## PluginStartupResult
 
-Result of a single plugin startup operation.
-
-#### Properties
+### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **plugin** | `object` | ✅ | Plugin metadata (name, version) |
-| **plugin.name** | `string` | ✅ | Plugin name |
-| **plugin.version** | `string` | optional | Plugin version |
+| **plugin** | `Record<string, any>` | ✅ | Plugin metadata |
 | **success** | `boolean` | ✅ | Whether the plugin started successfully |
 | **duration** | `number` | ✅ | Time taken to start the plugin in milliseconds |
-| **error** | `Error` | optional | Error object if startup failed |
-| **health** | `HealthStatus` | optional | Health status after startup (if healthCheck enabled) |
-
-#### Example
-
-```json
-{
-  "plugin": {
-    "name": "crm-plugin",
-    "version": "1.0.0"
-  },
-  "success": true,
-  "duration": 1250,
-  "health": {
-    "healthy": true,
-    "timestamp": 1706659200000
-  }
-}
-```
+| **error** | `any` | optional | Error object if startup failed |
+| **health** | `object` | optional | Health status after startup if health check was enabled |
 
 ---
 
-### StartupOrchestrationResult
+## StartupOptions
 
-Overall result of orchestrating startup for multiple plugins.
-
-#### Properties
+### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **results** | `PluginStartupResult[]` | ✅ | Startup results for each plugin |
+| **timeout** | `integer` | optional | Maximum time in milliseconds to wait for each plugin to start |
+| **rollbackOnFailure** | `boolean` | optional | Whether to rollback already-started plugins if any plugin fails |
+| **healthCheck** | `boolean` | optional | Whether to run health checks after plugin startup |
+| **parallel** | `boolean` | optional | Whether to start plugins in parallel when dependencies allow |
+| **context** | `any` | optional | Custom context object to pass to plugin lifecycle methods |
+
+---
+
+## StartupOrchestrationResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **results** | `object[]` | ✅ | Startup results for each plugin |
 | **totalDuration** | `number` | ✅ | Total time taken for all plugins in milliseconds |
 | **allSuccessful** | `boolean` | ✅ | Whether all plugins started successfully |
 | **rolledBack** | `string[]` | optional | Names of plugins that were rolled back |
 
-#### Example
-
-```json
-{
-  "results": [
-    {
-      "plugin": { "name": "plugin1" },
-      "success": true,
-      "duration": 1200
-    },
-    {
-      "plugin": { "name": "plugin2" },
-      "success": true,
-      "duration": 850
-    }
-  ],
-  "totalDuration": 2050,
-  "allSuccessful": true
-}
-```
-
----
-
-## Usage Examples
-
-### Basic Sequential Startup
-
-```typescript
-import { StartupOrchestrator } from '@objectstack/core';
-
-const orchestrator = new StartupOrchestrator(kernel);
-
-const result = await orchestrator.startPlugins({
-  timeout: 30000,
-  rollbackOnFailure: true,
-  parallel: false
-});
-
-if (result.allSuccessful) {
-  console.log(`All ${result.results.length} plugins started in ${result.totalDuration}ms`);
-} else {
-  console.error('Some plugins failed to start');
-}
-```
-
-### Parallel Startup with Health Checks
-
-```typescript
-const result = await orchestrator.startPlugins({
-  timeout: 60000,
-  rollbackOnFailure: true,
-  healthCheck: true,
-  parallel: true
-});
-
-result.results.forEach(r => {
-  if (r.success && r.health?.healthy) {
-    console.log(`✓ ${r.plugin.name} - healthy (${r.duration}ms)`);
-  } else if (r.success && !r.health?.healthy) {
-    console.warn(`⚠ ${r.plugin.name} - started but unhealthy`);
-  } else {
-    console.error(`✗ ${r.plugin.name} - failed:`, r.error);
-  }
-});
-```
-
-### Custom Context
-
-```typescript
-const result = await orchestrator.startPlugins({
-  timeout: 30000,
-  rollbackOnFailure: true,
-  context: {
-    environment: 'production',
-    region: 'us-east-1',
-    requestId: 'abc-123'
-  }
-});
-```
-
-### Handling Rollback
-
-```typescript
-const result = await orchestrator.startPlugins({
-  timeout: 30000,
-  rollbackOnFailure: true
-});
-
-if (!result.allSuccessful && result.rolledBack) {
-  console.log(`Rolled back plugins: ${result.rolledBack.join(', ')}`);
-}
-```
-
----
-
-## Best Practices
-
-### 1. Set Appropriate Timeouts
-
-```typescript
-// Short timeout for simple plugins
-const quickStartup = { timeout: 10000 };
-
-// Longer timeout for complex plugins (databases, external services)
-const complexStartup = { timeout: 60000 };
-```
-
-### 2. Enable Health Checks for Critical Systems
-
-```typescript
-const result = await orchestrator.startPlugins({
-  healthCheck: true, // Always check health for production
-  rollbackOnFailure: true
-});
-```
-
-### 3. Use Parallel Startup Carefully
-
-```typescript
-// Only use parallel when plugins are truly independent
-const result = await orchestrator.startPlugins({
-  parallel: true, // Faster, but requires careful dependency management
-  timeout: 30000
-});
-```
-
-### 4. Always Handle Errors
-
-```typescript
-const result = await orchestrator.startPlugins(options);
-
-for (const r of result.results) {
-  if (!r.success) {
-    logger.error(`Plugin ${r.plugin.name} failed:`, {
-      error: r.error,
-      duration: r.duration
-    });
-  }
-}
-```
-
----
-
-## Related
-
-- [Plugin](/docs/references/system/plugin) - Plugin protocol
-- [Plugin Lifecycle Events](/docs/references/system/plugin-lifecycle-events) - Lifecycle event schemas
-- [Manifest](/docs/references/system/manifest) - Plugin manifest specification

@@ -1,0 +1,145 @@
+{
+  "$ref": "#/definitions/Task",
+  "definitions": {
+    "Task": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique task identifier"
+        },
+        "type": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Task type (snake_case)"
+        },
+        "payload": {
+          "description": "Task payload data"
+        },
+        "queue": {
+          "type": "string",
+          "default": "default",
+          "description": "Queue name"
+        },
+        "priority": {
+          "type": "string",
+          "enum": [
+            "critical",
+            "high",
+            "normal",
+            "low",
+            "background"
+          ],
+          "default": "normal",
+          "description": "Task priority level"
+        },
+        "retryPolicy": {
+          "type": "object",
+          "properties": {
+            "maxRetries": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 3,
+              "description": "Maximum retry attempts"
+            },
+            "backoffStrategy": {
+              "type": "string",
+              "enum": [
+                "fixed",
+                "linear",
+                "exponential"
+              ],
+              "default": "exponential",
+              "description": "Backoff strategy between retries"
+            },
+            "initialDelayMs": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 1000,
+              "description": "Initial retry delay in milliseconds"
+            },
+            "maxDelayMs": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 60000,
+              "description": "Maximum retry delay in milliseconds"
+            },
+            "backoffMultiplier": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "default": 2,
+              "description": "Multiplier for exponential backoff"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Retry policy configuration"
+        },
+        "timeoutMs": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "description": "Task timeout in milliseconds"
+        },
+        "scheduledAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 datetime to execute task"
+        },
+        "attempts": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Number of execution attempts"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "queued",
+            "processing",
+            "completed",
+            "failed",
+            "cancelled",
+            "timeout",
+            "dead"
+          ],
+          "default": "pending",
+          "description": "Current task status"
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "createdAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "When task was created"
+            },
+            "updatedAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Last update time"
+            },
+            "createdBy": {
+              "type": "string",
+              "description": "User who created task"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Task tags for filtering"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Task metadata"
+        }
+      },
+      "required": [
+        "id",
+        "type"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
