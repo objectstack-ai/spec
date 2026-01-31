@@ -1,5 +1,11 @@
 # @objectstack/spec
 
+## 0.7.2
+
+### Patch Changes
+
+- fb41cc0: Patch release: Updated documentation and JSON schemas
+
 ## 0.7.1
 
 ### Patch Changes

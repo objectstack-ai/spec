@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/runtime",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "ObjectStack Core Runtime & Query Engine",
   "type": "module",
   "main": "dist/index.js",

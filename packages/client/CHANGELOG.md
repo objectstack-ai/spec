@@ -1,5 +1,14 @@
 # @objectstack/client
 
+## 0.7.2
+
+### Patch Changes
+
+- fb41cc0: Patch release: Updated documentation and JSON schemas
+- Updated dependencies [fb41cc0]
+  - @objectstack/spec@0.7.2
+  - @objectstack/core@0.7.2
+
 ## 0.7.1
 
 ### Patch Changes
