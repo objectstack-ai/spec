@@ -5,7 +5,7 @@
  * generate RESTful CRUD endpoints for your ObjectStack application.
  */
 
-import { RestServer, HttpServer } from '@objectstack/runtime';
+import { RestServer } from '@objectstack/runtime';
 import type { IProtocolProvider } from '@objectstack/runtime';
 
 /**
