@@ -60,8 +60,6 @@ pnpm --filter @objectstack/spec build
 
 # 3. Check environment health
 pnpm doctor
-# or
-./scripts/dev.sh doctor
 
 # 4. Start Documentation Site
 pnpm docs:dev

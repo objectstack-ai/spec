@@ -29,13 +29,12 @@ $ pnpm doctor
 ### 2. 快速设置 | Quick Setup
 
 ```bash
-$ ./scripts/dev.sh setup
+$ pnpm setup
 ```
 
 **功能 | Features:**
 - 自动安装依赖
 - 构建核心包
-- 链接工作区
 - 验证环境
 
 ### 3. 创建新插件 | Create New Plugin
@@ -88,8 +87,6 @@ $ pnpm dev
 |------|------|------|------|
 | 环境设置 | 30分钟 | 2分钟 | 15x |
 | 创建插件 | 15分钟 | 30秒 | 30x |
-| 生成Schema | 10分钟 | 5秒 | 120x |
-| 生成测试 | 8分钟 | 3秒 | 160x |
 | 环境检查 | 手动验证 | 5秒 | ∞ |
 
 **总体提升**: 开发效率提高 **20-30倍** 🎉
@@ -106,37 +103,20 @@ pnpm objectstack create plugin name # 创建插件
 pnpm objectstack create example app # 创建示例
 ```
 
-### 开发脚本
-
-```bash
-./scripts/dev.sh setup              # 环境设置
-./scripts/dev.sh dev spec           # 监听模式
-./scripts/dev.sh build cli          # 构建
-./scripts/dev.sh test spec          # 测试
-./scripts/dev.sh clean              # 清理
-./scripts/dev.sh doctor             # 健康检查
-```
-
-### 模板生成器
-
-```bash
-./scripts/generate.sh schema name category  # 生成Schema
-./scripts/generate.sh test path/to/schema   # 生成测试
-```
-
 ### npm快捷脚本
 
 ```bash
 pnpm doctor    # 环境健康检查
 pnpm setup     # 快速设置
 pnpm test      # 运行测试
+pnpm build     # 构建所有包
+pnpm clean     # 清理构建产物
 ```
 
 ## 🎓 学习资源 | Learning Resources
 
-- **[DEVELOPMENT.md](../DEVELOPMENT.md)** - 完整开发指南（中英双语）
-- **[CONTRIBUTING.md](../CONTRIBUTING.md)** - 贡献指南
-- **[scripts/README.md](../scripts/README.md)** - 脚本文档
+- **[DEVELOPMENT.md](./DEVELOPMENT.md)** - 完整开发指南（中英双语）
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)** - 贡献指南
 
 ## 💡 快速开始 | Quick Start
 
@@ -146,13 +126,13 @@ git clone https://github.com/objectstack-ai/spec.git
 cd spec
 
 # 2. 一键设置
-./scripts/dev.sh setup
+pnpm setup
 
 # 3. 验证环境
 pnpm doctor
 
 # 4. 开始开发！
-./scripts/dev.sh dev spec
+pnpm objectstack dev spec
 ```
 
 ---

@@ -11,59 +11,25 @@
 git clone https://github.com/objectstack-ai/spec.git
 cd spec
 
-# Install dependencies
-pnpm install
-
-# Build core packages
-pnpm build
+# Install dependencies and setup (one-time)
+pnpm setup
 
 # Run health check
-./scripts/dev.sh doctor
+pnpm doctor
 ```
 
 ### Development Workflow
 
-#### 1. Using the Development Helper Script
-
-The `scripts/dev.sh` provides common development tasks:
+#### Using the ObjectStack CLI
 
 ```bash
-# Setup development environment (first time)
-./scripts/dev.sh setup
-
-# Start watch mode for a package
-./scripts/dev.sh dev spec          # Watch @objectstack/spec
-./scripts/dev.sh dev cli           # Watch @objectstack/cli
-
-# Build packages
-./scripts/dev.sh build spec        # Build @objectstack/spec
-./scripts/dev.sh build             # Build all packages
-
-# Run tests
-./scripts/dev.sh test spec         # Test @objectstack/spec
-./scripts/dev.sh test              # Test all packages
-
-# Check environment health
-./scripts/dev.sh doctor
-
-# Create new project from template
-./scripts/dev.sh create plugin     # Create plugin (uses CLI)
-./scripts/dev.sh create example    # Create example (uses CLI)
-
-# Clean build artifacts
-./scripts/dev.sh clean
-```
-
-#### 2. Using the ObjectStack CLI
-
-```bash
-# Build CLI first
+# Build CLI first (if not built)
 pnpm --filter @objectstack/cli build
 
 # Compile configuration to JSON
 pnpm objectstack compile objectstack.config.ts dist/objectstack.json
 
-# Start development mode
+# Start development mode (watch mode for packages)
 pnpm objectstack dev [package-name]
 
 # Check environment health
@@ -72,6 +38,24 @@ pnpm objectstack doctor
 # Create new project
 pnpm objectstack create plugin my-plugin
 pnpm objectstack create example my-app
+```
+
+#### Common npm Shortcuts
+
+```bash
+# One-time setup
+pnpm setup              # Install dependencies and build core packages
+
+# Development
+pnpm dev                # Start development mode (default: msw-react-crud example)
+pnpm build              # Build all packages
+pnpm test               # Run tests
+
+# Diagnostics
+pnpm doctor             # Check environment health
+
+# Cleanup
+pnpm clean              # Clean build artifacts
 ```
 
 ### Package Development
@@ -94,11 +78,8 @@ pnpm gen:docs
 #### Creating a New Plugin
 
 ```bash
-# Method 1: Using CLI
+# Using CLI
 pnpm objectstack create plugin my-feature
-
-# Method 2: Using dev script
-./scripts/dev.sh create plugin
 
 # Then develop
 cd packages/plugins/plugin-my-feature
@@ -109,11 +90,8 @@ pnpm dev
 #### Creating a New Example
 
 ```bash
-# Method 1: Using CLI
+# Using CLI
 pnpm objectstack create example my-app
-
-# Method 2: Using dev script  
-./scripts/dev.sh create example
 
 # Then develop
 cd examples/my-app
@@ -246,14 +224,14 @@ pnpm -r --parallel <command>
 
 **Dependencies not installed:**
 ```bash
-./scripts/dev.sh doctor
+pnpm doctor
 pnpm install
 ```
 
 **Build errors:**
 ```bash
 # Clean and rebuild
-./scripts/dev.sh clean
+pnpm clean
 pnpm build
 ```
 
@@ -275,7 +253,7 @@ pnpm dev
 
 ```bash
 # Check environment
-./scripts/dev.sh doctor
+pnpm doctor
 
 # CLI help
 pnpm objectstack --help
@@ -302,52 +280,21 @@ pnpm install
 pnpm build
 
 # 运行健康检查
-./scripts/dev.sh doctor
+pnpm doctor
 ```
 
 ### 开发工作流
 
-#### 1. 使用开发辅助脚本
-
-`scripts/dev.sh` 提供常用开发任务：
+#### 使用 ObjectStack CLI
 
 ```bash
-# 首次设置开发环境
-./scripts/dev.sh setup
-
-# 启动包的监听模式
-./scripts/dev.sh dev spec          # 监听 @objectstack/spec
-./scripts/dev.sh dev cli           # 监听 @objectstack/cli
-
-# 构建包
-./scripts/dev.sh build spec        # 构建 @objectstack/spec
-./scripts/dev.sh build             # 构建所有包
-
-# 运行测试
-./scripts/dev.sh test spec         # 测试 @objectstack/spec
-./scripts/dev.sh test              # 测试所有包
-
-# 检查环境健康
-./scripts/dev.sh doctor
-
-# 从模板创建新项目
-./scripts/dev.sh create plugin     # 创建插件（使用CLI）
-./scripts/dev.sh create example    # 创建示例（使用CLI）
-
-# 清理构建产物
-./scripts/dev.sh clean
-```
-
-#### 2. 使用 ObjectStack CLI
-
-```bash
-# 首先构建CLI
+# 首先构建CLI（如未构建）
 pnpm --filter @objectstack/cli build
 
 # 编译配置为JSON
 pnpm objectstack compile objectstack.config.ts dist/objectstack.json
 
-# 启动开发模式
+# 启动开发模式（包的监听模式）
 pnpm objectstack dev [package-name]
 
 # 检查环境健康
@@ -356,6 +303,24 @@ pnpm objectstack doctor
 # 创建新项目
 pnpm objectstack create plugin my-plugin
 pnpm objectstack create example my-app
+```
+
+#### 常用 npm 快捷命令
+
+```bash
+# 一次性设置
+pnpm setup              # 安装依赖并构建核心包
+
+# 开发
+pnpm dev                # 启动开发模式（默认：msw-react-crud示例）
+pnpm build              # 构建所有包
+pnpm test               # 运行测试
+
+# 诊断
+pnpm doctor             # 检查环境健康
+
+# 清理
+pnpm clean              # 清理构建产物
 ```
 
 ### 包开发
@@ -378,11 +343,8 @@ pnpm gen:docs
 #### 创建新插件
 
 ```bash
-# 方法1：使用CLI
+# 使用CLI
 pnpm objectstack create plugin my-feature
-
-# 方法2：使用开发脚本
-./scripts/dev.sh create plugin
 
 # 然后开发
 cd packages/plugins/plugin-my-feature
@@ -393,11 +355,8 @@ pnpm dev
 #### 创建新示例
 
 ```bash
-# 方法1：使用CLI
+# 使用CLI
 pnpm objectstack create example my-app
-
-# 方法2：使用开发脚本
-./scripts/dev.sh create example
 
 # 然后开发
 cd examples/my-app
@@ -530,14 +489,14 @@ pnpm -r --parallel <command>
 
 **依赖未安装：**
 ```bash
-./scripts/dev.sh doctor
+pnpm doctor
 pnpm install
 ```
 
 **构建错误：**
 ```bash
 # 清理并重建
-./scripts/dev.sh clean
+pnpm clean
 pnpm build
 ```
 
@@ -559,7 +518,7 @@ pnpm dev
 
 ```bash
 # 检查环境
-./scripts/dev.sh doctor
+pnpm doctor
 
 # CLI帮助
 pnpm objectstack --help
@@ -590,12 +549,9 @@ spec/
 │   └── ...
 ├── apps/                # Applications
 │   └── docs/           # Documentation site
-├── scripts/            # Development scripts
-│   └── dev.sh         # Main development helper
-└── .vscode/           # VSCode configurations
-    ├── launch.json    # Debug configurations
-    ├── settings.json  # Editor settings
-    └── extensions.json # Recommended extensions
+└── packages/cli/        # Command-line tools
+    ├── src/commands/   # CLI commands (dev, doctor, create, compile)
+    └── bin/           # Executable entry points
 ```
 
 ### Package Dependencies
@@ -647,7 +603,7 @@ spec/
 
 ### Pull Requests
 
-1. Run `./scripts/dev.sh doctor` before submitting
+1. Run `pnpm doctor` before submitting
 2. Ensure all tests pass
 3. Update documentation if needed
 4. Follow the PR template
