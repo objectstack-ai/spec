@@ -64,27 +64,27 @@ export class HonoServerPlugin implements Plugin {
             
             ctx.logger.debug('Registering API routes');
             
-            this.server.get('/api/v1', (req, res) => {
+            this.server.get('/api/v1', async (req, res) => {
                 ctx.logger.debug('API discovery request');
-                res.json(p.getDiscovery());
+                res.json(await p.getDiscovery({}));
             });
 
             // Meta Protocol
-            this.server.get('/api/v1/meta', (req, res) => {
+            this.server.get('/api/v1/meta', async (req, res) => {
                 ctx.logger.debug('Meta types request');
-                res.json(p.getMetaTypes());
+                res.json(await p.getMetaTypes({}));
             });
-            this.server.get('/api/v1/meta/:type', (req, res) => {
+            this.server.get('/api/v1/meta/:type', async (req, res) => {
                 ctx.logger.debug('Meta items request', { type: req.params.type });
-                res.json(p.getMetaItems(req.params.type));
+                res.json(await p.getMetaItems({ type: req.params.type }));
             });
             
             // Data Protocol
             this.server.get('/api/v1/data/:object', async (req, res) => {
                 ctx.logger.debug('Data find request', { object: req.params.object, query: req.query });
                 try { 
-                    const result = await p.findData(req.params.object, req.query);
-                    ctx.logger.debug('Data find completed', { object: req.params.object, count: result?.length ?? 0 });
+                    const result = await p.findData({ object: req.params.object, query: req.query as any });
+                    ctx.logger.debug('Data find completed', { object: req.params.object, count: result?.records?.length ?? 0 });
                     res.json(result);
                 } 
                 catch(e:any) { 
@@ -95,7 +95,7 @@ export class HonoServerPlugin implements Plugin {
             this.server.get('/api/v1/data/:object/:id', async (req, res) => {
                 ctx.logger.debug('Data get request', { object: req.params.object, id: req.params.id });
                 try { 
-                    const result = await p.getData(req.params.object, req.params.id);
+                    const result = await p.getData({ object: req.params.object, id: req.params.id });
                     ctx.logger.debug('Data get completed', { object: req.params.object, id: req.params.id });
                     res.json(result);
                 }
@@ -107,7 +107,7 @@ export class HonoServerPlugin implements Plugin {
             this.server.post('/api/v1/data/:object', async (req, res) => {
                 ctx.logger.debug('Data create request', { object: req.params.object });
                 try { 
-                    const result = await p.createData(req.params.object, req.body);
+                    const result = await p.createData({ object: req.params.object, data: req.body });
                     ctx.logger.info('Data created', { object: req.params.object, id: result?.id });
                     res.status(201).json(result);
                 }
@@ -119,7 +119,7 @@ export class HonoServerPlugin implements Plugin {
             this.server.patch('/api/v1/data/:object/:id', async (req, res) => {
                 ctx.logger.debug('Data update request', { object: req.params.object, id: req.params.id });
                 try { 
-                    const result = await p.updateData(req.params.object, req.params.id, req.body);
+                    const result = await p.updateData({ object: req.params.object, id: req.params.id, data: req.body });
                     ctx.logger.info('Data updated', { object: req.params.object, id: req.params.id });
                     res.json(result);
                 }
@@ -131,8 +131,8 @@ export class HonoServerPlugin implements Plugin {
             this.server.delete('/api/v1/data/:object/:id', async (req, res) => {
                 ctx.logger.debug('Data delete request', { object: req.params.object, id: req.params.id });
                 try { 
-                    const result = await p.deleteData(req.params.object, req.params.id);
-                    ctx.logger.info('Data deleted', { object: req.params.object, id: req.params.id, success: result });
+                    const result = await p.deleteData({ object: req.params.object, id: req.params.id });
+                    ctx.logger.info('Data deleted', { object: req.params.object, id: req.params.id, success: result?.success });
                     res.json(result);
                 }
                 catch(e:any) { 
@@ -142,13 +142,12 @@ export class HonoServerPlugin implements Plugin {
             });
 
             // UI Protocol
-            // @ts-ignore
-            this.server.get('/api/v1/ui/view/:object', (req, res) => {
+            this.server.get('/api/v1/ui/view/:object', async (req, res) => {
                 const viewType = (req.query.type) || 'list';
                 const qt = Array.isArray(viewType) ? viewType[0] : viewType;
                 ctx.logger.debug('UI view request', { object: req.params.object, viewType: qt });
                 try { 
-                    res.json(p.getUiView(req.params.object, qt as any)); 
+                    res.json(await p.getUiView({ object: req.params.object, type: qt as any })); 
                 }
                 catch(e:any) { 
                     ctx.logger.warn('UI view not found', { object: req.params.object, viewType: qt });
@@ -166,7 +165,7 @@ export class HonoServerPlugin implements Plugin {
                     bodyKeys: req.body ? Object.keys(req.body) : []
                 });
                 try {
-                    const result = await p.batchData(req.params.object, req.body);
+                    const result = await p.batchData({ object: req.params.object, request: req.body });
                     ctx.logger.info('Batch operation completed', { 
                         object: req.params.object, 
                         operation: req.body?.operation,
@@ -184,8 +183,8 @@ export class HonoServerPlugin implements Plugin {
             this.server.post('/api/v1/data/:object/createMany', async (req, res) => {
                 ctx.logger.debug('Create many request', { object: req.params.object, count: req.body?.length });
                 try {
-                    const result = await p.createManyData(req.params.object, req.body || []);
-                    ctx.logger.info('Create many completed', { object: req.params.object, count: result.length });
+                    const result = await p.createManyData({ object: req.params.object, records: req.body || [] });
+                    ctx.logger.info('Create many completed', { object: req.params.object, count: result.records?.length ?? 0 });
                     res.status(201).json(result);
                 } catch (e: any) {
                     ctx.logger.error('Create many failed', e, { object: req.params.object });
@@ -196,7 +195,7 @@ export class HonoServerPlugin implements Plugin {
             this.server.post('/api/v1/data/:object/updateMany', async (req, res) => {
                 ctx.logger.debug('Update many request', { object: req.params.object, count: req.body?.records?.length });
                 try {
-                    const result = await p.updateManyData(req.params.object, req.body);
+                    const result = await p.updateManyData({ object: req.params.object, records: req.body?.records, options: req.body?.options });
                     ctx.logger.info('Update many completed', { 
                         object: req.params.object,
                         total: result.total,
@@ -213,7 +212,7 @@ export class HonoServerPlugin implements Plugin {
             this.server.post('/api/v1/data/:object/deleteMany', async (req, res) => {
                 ctx.logger.debug('Delete many request', { object: req.params.object, count: req.body?.ids?.length });
                 try {
-                    const result = await p.deleteManyData(req.params.object, req.body);
+                    const result = await p.deleteManyData({ object: req.params.object, ids: req.body?.ids, options: req.body?.options });
                     ctx.logger.info('Delete many completed', { 
                         object: req.params.object,
                         total: result.total,
@@ -240,7 +239,11 @@ export class HonoServerPlugin implements Plugin {
                         ifModifiedSince: req.headers['if-modified-since'] as string,
                     };
                     
-                    const result = await p.getMetaItemCached(req.params.type, req.params.name, cacheRequest);
+                    const result = await p.getMetaItemCached({ 
+                        type: req.params.type, 
+                        name: req.params.name, 
+                        cacheRequest 
+                    });
                     
                     if (result.notModified) {
                         ctx.logger.debug('Meta item not modified (304)', { type: req.params.type, name: req.params.name });
@@ -294,7 +297,7 @@ export class HonoServerPlugin implements Plugin {
             this.server.get('/api/v1/ui/views/:id', async (req, res) => {
                 ctx.logger.debug('Get view request', { id: req.params.id });
                 try {
-                    const result = await p.getView(req.params.id);
+                    const result = await p.getView({ id: req.params.id });
                     if (result.success) {
                         ctx.logger.debug('View retrieved', { id: req.params.id });
                         res.json(result);
@@ -349,7 +352,7 @@ export class HonoServerPlugin implements Plugin {
             this.server.delete('/api/v1/ui/views/:id', async (req, res) => {
                 ctx.logger.debug('Delete view request', { id: req.params.id });
                 try {
-                    const result = await p.deleteView(req.params.id);
+                    const result = await p.deleteView({ id: req.params.id });
                     if (result.success) {
                         ctx.logger.info('View deleted', { id: req.params.id });
                         res.json(result);
