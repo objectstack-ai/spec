@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import {
   ExternalDataSourceSchema,
-  FieldMappingSchema,
+  ExternalFieldMappingSchema,
   ExternalLookupSchema,
   type ExternalLookup,
   type ExternalDataSource,
-  type FieldMapping,
+  type ExternalFieldMapping,
 } from './external-lookup.zod';
 
 describe('ExternalDataSourceSchema', () => {
@@ -118,16 +118,16 @@ describe('ExternalDataSourceSchema', () => {
   });
 });
 
-describe('FieldMappingSchema', () => {
+describe('ExternalFieldMappingSchema', () => {
   it('should validate complete field mapping', () => {
-    const validMapping: FieldMapping = {
+    const validMapping: ExternalFieldMapping = {
       source: 'AccountName',
       target: 'name',
       type: 'text',
       readonly: true,
     };
 
-    expect(() => FieldMappingSchema.parse(validMapping)).not.toThrow();
+    expect(() => ExternalFieldMappingSchema.parse(validMapping)).not.toThrow();
   });
 
   it('should accept minimal field mapping', () => {
@@ -137,7 +137,7 @@ describe('FieldMappingSchema', () => {
       type: 'text',
     };
 
-    expect(() => FieldMappingSchema.parse(minimalMapping)).not.toThrow();
+    expect(() => ExternalFieldMappingSchema.parse(minimalMapping)).not.toThrow();
   });
 
   it('should default readonly to true', () => {
@@ -147,7 +147,7 @@ describe('FieldMappingSchema', () => {
       type: 'text',
     };
 
-    const parsed = FieldMappingSchema.parse(mapping);
+    const parsed = ExternalFieldMappingSchema.parse(mapping);
     expect(parsed.readonly).toBe(true);
   });
 
@@ -159,7 +159,7 @@ describe('FieldMappingSchema', () => {
       readonly: false,
     };
 
-    expect(() => FieldMappingSchema.parse(writableMapping)).not.toThrow();
+    expect(() => ExternalFieldMappingSchema.parse(writableMapping)).not.toThrow();
   });
 
   it('should accept various field types', () => {
@@ -172,7 +172,7 @@ describe('FieldMappingSchema', () => {
         type,
       };
 
-      expect(() => FieldMappingSchema.parse(mapping)).not.toThrow();
+      expect(() => ExternalFieldMappingSchema.parse(mapping)).not.toThrow();
     });
   });
 });
