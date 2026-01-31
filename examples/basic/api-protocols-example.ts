@@ -56,11 +56,13 @@ export const graphqlConfig: GraphQLConfig = {
         name: 'DateTime',
         object: 'scalar',
         description: 'ISO 8601 date-time string',
+        isInterface: false,
       },
       {
         name: 'JSON',
         object: 'scalar',
         description: 'JSON object',
+        isInterface: false,
       },
       {
         name: 'AggregationResult',
@@ -84,6 +86,7 @@ export const graphqlConfig: GraphQLConfig = {
         name: 'convertLead',
         object: 'lead',
         type: 'custom',
+        authRequired: true,
         description: 'Convert a lead to an account',
         input: {
           fields: {

@@ -148,6 +148,7 @@ export const crmPluginRegistry: PluginRegistryEntry = {
           version: { major: 1, minor: 0, patch: 0 },
         },
         conformance: 'full',
+        certified: false,
       },
       {
         protocol: {
@@ -157,6 +158,7 @@ export const crmPluginRegistry: PluginRegistryEntry = {
         },
         conformance: 'partial',
         implementedFeatures: ['reporting', 'dashboards'],
+        certified: false,
       },
     ],
     
@@ -244,15 +246,16 @@ export const crmPluginRegistry: PluginRegistryEntry = {
 
 export const crmMarketplaceListing: MarketplaceListing = {
   // Registry reference
-  pluginId: 'com.acme.crm.advanced',
+  id: 'com.acme.crm.advanced',
+  label: 'Advanced CRM',
   version: '2.1.0',
   
   // Pricing
   pricing: {
-    model: 'paid',
-    price: 29,
+    type: 'recurring',
+    amount: 29,
     currency: 'USD',
-    billingPeriod: 'monthly',
+    interval: 'month',
   },
 };
 /* Removed detailed pricing tiers due to schema mismatch */
@@ -446,38 +449,20 @@ export const crmLicense: License = {
   issuedAt: '2024-01-01T00:00:00Z',
   expiresAt: '2025-01-01T00:00:00Z',
   
-  // License type
-  type: 'subscription',
+  // Custom features beyond plan
+  customFeatures: [
+    'advanced-analytics',
+    'ai-lead-scoring',
+  ],
   
-  // Licensee
-  licensee: {
-    organization: 'My Company Inc.',
-    email: 'admin@mycompany.com',
-    
-    // Contact
-    contact: {
-      name: 'John Admin',
-      email: 'john@mycompany.com',
-    },
-  },
-  
-  // Tier
-  tier: 'professional',
-  
-  // Entitlements
-  entitlements: {
+  // Custom limits
+  customLimits: {
     users: 50,
-    records: 100000,
-    apiCalls: 1000000,
-    
-    // Features
-    features: [
-      'advanced-analytics',
-      'ai-lead-scoring',
-      'workflow-automation',
-      'priority-support',
-    ],
+    storage_gb: 100,
   },
+  
+  // Authorized plugins
+  plugins: ['com.acme.crm.advanced'],
   
   // Validity period
   validity: {
@@ -543,34 +528,23 @@ export const tenantConfig: Tenant = {
   // Tenant isolation level
   isolationLevel: 'shared_schema',
   
-  // Subscription
-  subscription: {
-    plan: 'enterprise',
-    status: 'active',
-    
-    // Billing
-    billing: {
-      cycle: 'annual',
-      startDate: '2024-01-01T00:00:00Z',
-      nextBillingDate: '2025-01-01T00:00:00Z',
-      
-      amount: 9540, // $199 * 50 users * 0.9 (10% discount)
-      currency: 'USD',
-    },
+  // Resource quotas
+  quotas: {
+    maxUsers: 50,
+    maxStorage: 100 * 1024 * 1024 * 1024, // 100GB
+    apiRateLimit: 1000,
   },
   
-  // Limits and quotas
-  limits: {
-    users: 50,
-    records: 100000,
-    storage: 100 * 1024 * 1024 * 1024, // 100GB
-    apiCalls: 1000000,
-    
-    // Custom objects
-    customObjects: 50,
-    
-    // Plugins
-    plugins: 20,
+  // Custom configuration
+  customizations: {
+    branding: {
+      primaryColor: '#0052CC',
+      logo: 'https://mycompany.com/logo.png',
+    },
+    features: {
+      advancedAnalytics: true,
+      aiLeadScoring: true,
+    },
   },
   
   // Current usage
@@ -708,6 +682,8 @@ export const salesSpace: Space = {
   name: 'Sales Team',
   slug: 'sales',
   ownerId: 'user-001',
+  createdAt: '2024-01-01T00:00:00Z',
+  updatedAt: '2024-01-02T00:00:00Z',
   
   bom: {
     tenantId: 'tenant-12345',
