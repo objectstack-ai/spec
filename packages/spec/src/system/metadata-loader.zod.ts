@@ -444,7 +444,7 @@ export const MetadataManagerConfigSchema = z.object({
 // Export types
 export type MetadataFormat = z.infer<typeof MetadataFormatSchema>;
 export type MetadataStats = z.infer<typeof MetadataStatsSchema>;
-export type MetadataLoadOptions = z.infer<typeof MetadataLoadOptionsSchema>;
+export type MetadataLoadOptions = z.input<typeof MetadataLoadOptionsSchema>;
 export type MetadataSaveOptions = z.infer<typeof MetadataSaveOptionsSchema>;
 export type MetadataExportOptions = z.infer<typeof MetadataExportOptionsSchema>;
 export type MetadataImportOptions = z.infer<typeof MetadataImportOptionsSchema>;
