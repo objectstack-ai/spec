@@ -264,7 +264,16 @@ export class MSWPlugin implements Plugin {
         this.handlers = [
             // Discovery endpoint
             http.get(`${baseUrl}`, async () => {
-                return HttpResponse.json(await protocol.getDiscovery({}));
+                const discovery = await protocol.getDiscovery({});
+                return HttpResponse.json({
+                    ...discovery,
+                    routes: {
+                        data: `${baseUrl}/data`,
+                        metadata: `${baseUrl}/meta`,
+                        ui: `${baseUrl}/ui`,
+                        auth: `${baseUrl}/auth`
+                    }
+                });
             }),
 
             // Meta endpoints
@@ -300,7 +309,10 @@ export class MSWPlugin implements Plugin {
                         params.object as string,
                         queryParams
                     );
-                    return HttpResponse.json(result.data, { status: result.status });
+                    return HttpResponse.json(result.data, { 
+                        status: result.status,
+                        headers: { 'Cache-Control': 'no-store' }
+                    });
                 } catch (error) {
                     const message = error instanceof Error ? error.message : 'Unknown error';
                     return HttpResponse.json({ error: message }, { status: 404 });
@@ -313,7 +325,10 @@ export class MSWPlugin implements Plugin {
                         params.object as string,
                         params.id as string
                     );
-                    return HttpResponse.json(result.data, { status: result.status });
+                    return HttpResponse.json(result.data, { 
+                        status: result.status,
+                        headers: { 'Cache-Control': 'no-store' }
+                    });
                 } catch (error) {
                     const message = error instanceof Error ? error.message : 'Unknown error';
                     return HttpResponse.json({ error: message }, { status: 404 });
