@@ -123,12 +123,20 @@ export class ObjectQL implements IDataEngine {
 
       // Register objects
       if (manifest.objects) {
-          this.logger.debug('Registering objects from manifest', { id, objectCount: Object.keys(manifest.objects).length });
-          for (const [name, objDef] of Object.entries(manifest.objects)) {
-              // Ensure name in definition matches key
-              (objDef as any).name = name;
-              SchemaRegistry.registerObject(objDef as any);
-              this.logger.debug('Registered Object', { object: name, from: id });
+          if (Array.isArray(manifest.objects)) {
+             this.logger.debug('Registering objects from manifest (Array)', { id, objectCount: manifest.objects.length });
+             for (const objDef of manifest.objects) {
+                SchemaRegistry.registerObject(objDef);
+                this.logger.debug('Registered Object', { object: objDef.name, from: id });
+             }
+          } else {
+             this.logger.debug('Registering objects from manifest (Map)', { id, objectCount: Object.keys(manifest.objects).length });
+             for (const [name, objDef] of Object.entries(manifest.objects)) {
+                // Ensure name in definition matches key
+                (objDef as any).name = name;
+                SchemaRegistry.registerObject(objDef as any);
+                this.logger.debug('Registered Object', { object: name, from: id });
+             }
           }
       }
 

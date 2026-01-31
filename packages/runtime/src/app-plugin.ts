@@ -38,7 +38,14 @@ export class AppPlugin implements Plugin {
         // Register the app manifest as a service
         // ObjectQLPlugin will discover this and call ql.registerApp()
         const serviceName = `app.${appId}`;
-        ctx.registerService(serviceName, this.bundle.manifest || this.bundle);
+
+        // Merge manifest with the bundle to ensure objects/apps are accessible at root
+        // This supports both Legacy Manifests and new Stack Definitions
+        const servicePayload = this.bundle.manifest 
+            ? { ...this.bundle.manifest, ...this.bundle }
+            : this.bundle;
+
+        ctx.registerService(serviceName, servicePayload);
     }
 
     async start(ctx: PluginContext) {
