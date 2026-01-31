@@ -36,13 +36,13 @@ export class FilesystemLoader implements MetadataLoader {
     private logger?: Logger
   ) {}
 
-  async load<T = any>(
+  async load(
     type: string,
     name: string,
     options?: MetadataLoadOptions
-  ): Promise<MetadataLoadResult<T>> {
+  ): Promise<MetadataLoadResult> {
     const startTime = Date.now();
-    const { validate = true, useCache = true, ifNoneMatch } = options || {};
+    const { validate: _validate = true, useCache = true, ifNoneMatch } = options || {};
 
     try {
       // Find the file
@@ -87,7 +87,7 @@ export class FilesystemLoader implements MetadataLoader {
         const cached = this.cache.get(cacheKey)!;
         if (cached.etag === stats.etag) {
           return {
-            data: cached.data as T,
+            data: cached.data,
             fromCache: true,
             notModified: false,
             etag: stats.etag,
@@ -105,7 +105,7 @@ export class FilesystemLoader implements MetadataLoader {
         throw new Error(`No serializer found for format: ${stats.format}`);
       }
 
-      const data = serializer.deserialize<T>(content);
+      const data = serializer.deserialize(content);
 
       // Update cache
       if (useCache) {
@@ -125,7 +125,7 @@ export class FilesystemLoader implements MetadataLoader {
         loadTime: Date.now() - startTime,
       };
     } catch (error) {
-      this.logger?.error('Failed to load metadata', {
+      this.logger?.error('Failed to load metadata', undefined, {
         type,
         name,
         error: error instanceof Error ? error.message : String(error),
@@ -138,7 +138,7 @@ export class FilesystemLoader implements MetadataLoader {
     type: string,
     options?: MetadataLoadOptions
   ): Promise<T[]> {
-    const { patterns = ['**/*'], recursive = true, limit } = options || {};
+    const { patterns = ['**/*'], recursive: _recursive = true, limit } = options || {};
 
     const typeDir = path.join(this.rootDir, type);
     const items: T[] = [];
@@ -184,7 +184,7 @@ export class FilesystemLoader implements MetadataLoader {
 
       return items;
     } catch (error) {
-      this.logger?.error('Failed to load many', {
+      this.logger?.error('Failed to load many', undefined, {
         type,
         patterns,
         error: error instanceof Error ? error.message : String(error),
@@ -219,7 +219,7 @@ export class FilesystemLoader implements MetadataLoader {
         path: filePath,
       };
     } catch (error) {
-      this.logger?.error('Failed to stat file', {
+      this.logger?.error('Failed to stat file', undefined, {
         type,
         name,
         filePath,
@@ -245,7 +245,7 @@ export class FilesystemLoader implements MetadataLoader {
         return basename;
       });
     } catch (error) {
-      this.logger?.error('Failed to list', {
+      this.logger?.error('Failed to list', undefined, {
         type,
         error: error instanceof Error ? error.message : String(error),
       });

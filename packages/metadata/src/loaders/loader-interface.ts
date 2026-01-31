@@ -28,11 +28,11 @@ export interface MetadataLoader {
    * @param options Load options
    * @returns Load result with data or null if not found
    */
-  load<T = any>(
+  load(
     type: string,
     name: string,
     options?: MetadataLoadOptions
-  ): Promise<MetadataLoadResult<T>>;
+  ): Promise<MetadataLoadResult>;
 
   /**
    * Load multiple items matching patterns

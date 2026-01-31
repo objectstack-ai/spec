@@ -77,7 +77,7 @@ export class MetadataManager {
     name: string,
     options?: MetadataLoadOptions
   ): Promise<T | null> {
-    const result = await this.loader.load<T>(type, name, options);
+    const result = await this.loader.load(type, name, options);
     return result.data;
   }
 
@@ -181,7 +181,7 @@ export class MetadataManager {
         backupPath,
       };
     } catch (error) {
-      this.logger.error('Failed to save metadata', {
+      this.logger.error('Failed to save metadata', undefined, {
         type,
         name,
         error: error instanceof Error ? error.message : String(error),
@@ -296,7 +296,7 @@ export class MetadataManager {
       try {
         data = await this.load(type, name, { useCache: false });
       } catch (error) {
-        this.logger.error('Failed to load changed file', {
+        this.logger.error('Failed to load changed file', undefined, {
           filePath,
           error: error instanceof Error ? error.message : String(error),
         });
@@ -317,7 +317,7 @@ export class MetadataManager {
       try {
         await callback(event);
       } catch (error) {
-        this.logger.error('Watch callback error', {
+        this.logger.error('Watch callback error', undefined, {
           type,
           name,
           error: error instanceof Error ? error.message : String(error),
