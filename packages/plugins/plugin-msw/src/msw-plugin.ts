@@ -508,8 +508,18 @@ export class MSWPlugin implements Plugin {
                     if (url.searchParams.get('visibility')) queryRequest.visibility = url.searchParams.get('visibility');
                     if (url.searchParams.get('createdBy')) queryRequest.createdBy = url.searchParams.get('createdBy');
                     if (url.searchParams.get('isDefault')) queryRequest.isDefault = url.searchParams.get('isDefault') === 'true';
-                    if (url.searchParams.get('limit')) queryRequest.limit = parseInt(url.searchParams.get('limit')!);
-                    if (url.searchParams.get('offset')) queryRequest.offset = parseInt(url.searchParams.get('offset')!);
+                    
+                    // Parse numeric parameters with validation
+                    const limitParam = url.searchParams.get('limit');
+                    const offsetParam = url.searchParams.get('offset');
+                    if (limitParam) {
+                        const limit = parseInt(limitParam, 10);
+                        if (!isNaN(limit) && limit > 0) queryRequest.limit = limit;
+                    }
+                    if (offsetParam) {
+                        const offset = parseInt(offsetParam, 10);
+                        if (!isNaN(offset) && offset >= 0) queryRequest.offset = offset;
+                    }
                     
                     const result = await protocol.listViews(queryRequest);
                     return HttpResponse.json(result);
@@ -522,7 +532,11 @@ export class MSWPlugin implements Plugin {
             http.patch(`${baseUrl}/ui/views/:id`, async ({ params, request }) => {
                 try {
                     const body = await request.json() as any;
-                    const updateData = typeof body === 'object' && body !== null ? { ...body, id: params.id as string } : { id: params.id as string };
+                    // Merge body with id parameter, ensuring body is an object
+                    const updateData = (typeof body === 'object' && body !== null) 
+                        ? { ...body, id: params.id as string } 
+                        : { id: params.id as string };
+                    
                     const result = await protocol.updateView(updateData as any);
                     if (result.success) {
                         return HttpResponse.json(result);
