@@ -39,102 +39,12 @@ export const crmPluginRegistry: PluginRegistryEntry = {
   id: 'com.acme.crm.advanced',
   name: 'Advanced CRM',
   version: '2.1.0',
-  
-  // Metadata
-  metadata: {
-    displayName: 'Advanced CRM Suite',
-    description: 'Enterprise-grade CRM with sales automation, analytics, and AI-powered insights',
-    author: {
-      name: 'Acme Corporation',
-      email: 'plugins@acme.com',
-      url: 'https://acme.com',
-    },
-    
-    // Keywords for discovery
-    keywords: [
-      'crm',
-      'sales',
-      'customer-management',
-      'analytics',
-      'ai',
-      'automation',
-    ],
-    
-    // Categories
-    categories: ['sales', 'analytics', 'productivity'],
-    
-    // Homepage and documentation
-    homepage: 'https://acme.com/plugins/advanced-crm',
-    documentation: 'https://docs.acme.com/advanced-crm',
-    repository: 'https://github.com/acme/advanced-crm',
-    
-    // Support
-    support: {
-      email: 'support@acme.com',
-      url: 'https://support.acme.com',
-      chat: 'https://chat.acme.com',
-    },
-    
-    // Screenshots
-    screenshots: [
-      {
-        url: 'https://cdn.acme.com/screenshots/dashboard.png',
-        caption: 'Sales Dashboard',
-      },
-      {
-        url: 'https://cdn.acme.com/screenshots/pipeline.png',
-        caption: 'Sales Pipeline',
-      },
-    ],
-    
-    // Demo
-    demo: {
-      url: 'https://demo.acme.com/crm',
-      credentials: {
-        username: 'demo',
-        password: 'demo',
-      },
-    },
-  },
-  
-  // Package information
-  package: {
-    // Package location
-    registry: 'npm',
-    name: '@acme/advanced-crm',
-    version: '2.1.0',
-    
-    // Checksums for integrity
-    checksums: {
-      sha256: 'abc123...',
-      sha512: 'def456...',
-    },
-    
-    // Size
-    size: 15728640, // 15MB
-    
-    // Bundle format
-    format: 'esm',
-  },
-  
-  // Dependencies
-  dependencies: {
-    // Required plugins
-    required: {
-      'com.objectstack.driver.postgres': '>=1.0.0',
-      'com.objectstack.auth.oauth2': '^2.0.0',
-    },
-    
-    // Optional plugins (enhanced features)
-    optional: {
-      'com.acme.analytics.basic': '>=1.5.0',
-      'com.acme.ai.assistant': '>=3.0.0',
-    },
-    
-    // Peer dependencies
-    peer: {
-      '@objectstack/core': '>=0.6.0',
-    },
+  deprecated: false,
+  vendor: {
+    id: 'com.acme',
+    name: 'Acme Corporation',
+    verified: true,
+    trustLevel: 'verified',
   },
   
   // Capabilities provided
@@ -142,111 +52,29 @@ export const crmPluginRegistry: PluginRegistryEntry = {
     // Protocols implemented
     implements: [
       {
-        id: 'com.objectstack.protocol.storage.v1',
-        version: '1.0.0',
+        protocol: {
+          id: 'com.objectstack.protocol.storage.v1',
+          label: 'Storage Protocol',
+          version: { major: 1, minor: 0, patch: 0 },
+        },
         conformance: 'full',
+        certified: false,
       },
       {
-        id: 'com.objectstack.protocol.analytics.v1',
-        version: '1.0.0',
+        protocol: {
+          id: 'com.objectstack.protocol.analytics.v1',
+          label: 'Analytics Protocol',
+          version: { major: 1, minor: 0, patch: 0 },
+        },
         conformance: 'partial',
-        features: ['reporting', 'dashboards'],
+        implementedFeatures: ['reporting', 'dashboards'],
+        certified: false,
       },
     ],
-    
-    // Services provided
-    services: [
-      {
-        interface: 'CustomerService',
-        version: '2.0.0',
-      },
-      {
-        interface: 'OpportunityService',
-        version: '2.0.0',
-      },
-    ],
-    
-    // Features
-    features: [
-      'sales-automation',
-      'lead-scoring',
-      'email-integration',
-      'calendar-sync',
-      'mobile-app',
-      'offline-mode',
-    ],
-  },
-  
-  // Compatibility
-  compatibility: {
-    // ObjectStack version
-    objectstack: '>=0.6.0 <1.0.0',
-    
-    // Node.js version
-    node: '>=18.0.0',
-    
-    // Platform support
-    platforms: ['linux', 'darwin', 'win32'],
-    
-    // CPU architectures
-    arch: ['x64', 'arm64'],
   },
   
   // Licensing
-  license: {
-    type: 'commercial',
-    spdx: 'SEE LICENSE IN LICENSE.txt',
-    
-    // Trial available
-    trial: {
-      enabled: true,
-      duration: 30, // days
-      features: 'full',
-    },
-  },
-  
-  // Publishing information
-  published: {
-    date: '2024-01-15T10:00:00Z',
-    by: 'acme-publisher',
-  },
-  
-  // Stats
-  stats: {
-    downloads: {
-      total: 125000,
-      lastMonth: 15000,
-      lastWeek: 3500,
-    },
-    
-    // Ratings
-    rating: {
-      average: 4.7,
-      count: 342,
-    },
-    
-    // GitHub stars (if applicable)
-    stars: 2100,
-  },
-  
-  // Verification
-  verification: {
-    // Verified publisher
-    verified: true,
-    
-    // Security scan
-    securityScan: {
-      passed: true,
-      lastScan: '2024-01-15T08:00:00Z',
-      vulnerabilities: 0,
-    },
-    
-    // Code quality
-    quality: {
-      score: 92,
-      coverage: 85,
-    },
-  },
+  license: 'SEE LICENSE IN LICENSE.txt',
 };
 
 /**
@@ -257,10 +85,23 @@ export const crmPluginRegistry: PluginRegistryEntry = {
 
 export const crmMarketplaceListing: MarketplaceListing = {
   // Registry reference
-  pluginId: 'com.acme.crm.advanced',
+  id: 'com.acme.crm.advanced',
+  label: 'Advanced CRM',
   version: '2.1.0',
   
   // Pricing
+  pricing: {
+    type: 'recurring',
+    amount: 29,
+    currency: 'USD',
+    interval: 'month',
+  },
+  
+  // Verified
+  verified: false,
+};
+/* Removed detailed pricing tiers due to schema mismatch */
+const crmMarketplaceListingRemoved = {
   pricing: {
     model: 'subscription',
     
@@ -439,99 +280,34 @@ export const crmMarketplaceListing: MarketplaceListing = {
  */
 
 export const crmLicense: License = {
-  // License key
-  key: 'ACME-CRM-PRO-XXXX-YYYY-ZZZZ',
-  
   // Plugin
-  plugin: {
-    id: 'com.acme.crm.advanced',
-    version: '2.x.x', // Valid for all 2.x versions
-  },
+  spaceId: 'space-12345',
+  planCode: 'pro',
   
-  // License type
-  type: 'subscription',
+  // Status
+  status: 'active',
   
-  // Licensee
-  licensee: {
-    organization: 'My Company Inc.',
-    email: 'admin@mycompany.com',
-    
-    // Contact
-    contact: {
-      name: 'John Admin',
-      email: 'john@mycompany.com',
-    },
-  },
+  // Validity
+  issuedAt: '2024-01-01T00:00:00Z',
+  expiresAt: '2025-01-01T00:00:00Z',
   
-  // Tier
-  tier: 'professional',
+  // Custom features beyond plan
+  customFeatures: [
+    'advanced-analytics',
+    'ai-lead-scoring',
+  ],
   
-  // Entitlements
-  entitlements: {
+  // Custom limits
+  customLimits: {
     users: 50,
-    records: 100000,
-    apiCalls: 1000000,
-    
-    // Features
-    features: [
-      'advanced-analytics',
-      'ai-lead-scoring',
-      'workflow-automation',
-      'priority-support',
-    ],
+    storage_gb: 100,
   },
   
-  // Validity period
-  validity: {
-    startDate: '2024-01-01T00:00:00Z',
-    endDate: '2025-01-01T00:00:00Z',
-    
-    // Auto-renewal
-    autoRenew: true,
-  },
-  
-  // Usage tracking
-  usage: {
-    currentUsers: 35,
-    currentRecords: 45000,
-    currentApiCalls: 250000,
-    
-    // Last reset (monthly)
-    lastReset: '2024-01-01T00:00:00Z',
-  },
-  
-  // Restrictions
-  restrictions: {
-    // Deployment restrictions
-    deployment: {
-      // Cloud or on-premise
-      type: 'cloud',
-      
-      // Geographic restrictions
-      regions: ['us', 'eu'],
-    },
-    
-    // Installation limits
-    installations: {
-      max: 1, // Single production instance
-      current: 1,
-    },
-  },
-  
-  // Support entitlement
-  support: {
-    level: 'priority',
-    sla: {
-      responseTime: 4, // hours
-      resolutionTime: 24, // hours
-    },
-  },
+  // Authorized plugins
+  plugins: ['com.acme.crm.advanced'],
   
   // Signature for verification
   signature: 'base64-encoded-signature',
-  
-  // Status
-  status: 'active', // or 'expired', 'suspended', 'revoked'
 };
 
 /**
@@ -543,164 +319,29 @@ export const crmLicense: License = {
 export const tenantConfig: Tenant = {
   // Tenant identity
   id: 'tenant-12345',
-  name: 'my-company',
-  displayName: 'My Company Inc.',
+  name: 'My Company Inc.',
   
-  // Tenant type
-  type: 'organization', // or 'individual', 'trial'
+  // Tenant isolation level
+  isolationLevel: 'shared_schema',
   
-  // Subscription
-  subscription: {
-    plan: 'enterprise',
-    status: 'active',
-    
-    // Billing
-    billing: {
-      cycle: 'annual',
-      startDate: '2024-01-01T00:00:00Z',
-      nextBillingDate: '2025-01-01T00:00:00Z',
-      
-      amount: 9540, // $199 * 50 users * 0.9 (10% discount)
-      currency: 'USD',
-    },
+  // Resource quotas
+  quotas: {
+    maxUsers: 50,
+    maxStorage: 100 * 1024 * 1024 * 1024, // 100GB
+    apiRateLimit: 1000,
   },
   
-  // Limits and quotas
-  limits: {
-    users: 50,
-    records: 100000,
-    storage: 100 * 1024 * 1024 * 1024, // 100GB
-    apiCalls: 1000000,
-    
-    // Custom objects
-    customObjects: 50,
-    
-    // Plugins
-    plugins: 20,
-  },
-  
-  // Current usage
-  usage: {
-    users: 35,
-    records: 45000,
-    storage: 25 * 1024 * 1024 * 1024, // 25GB
-    apiCalls: 250000,
-    
-    customObjects: 12,
-    plugins: 8,
-  },
-  
-  // Data isolation
-  isolation: {
-    // Database isolation
-    database: {
-      strategy: 'schema', // or 'database', 'row_level'
-      
-      // Dedicated schema
-      schema: 'tenant_my_company',
-      
-      // Connection pool
-      pool: {
-        min: 2,
-        max: 10,
-      },
-    },
-    
-    // Storage isolation
-    storage: {
-      // S3 bucket path
-      path: 'tenants/tenant-12345/',
-      
-      // Encryption
-      encryption: {
-        enabled: true,
-        keyId: 'tenant-12345-encryption-key',
-      },
-    },
-  },
-  
-  // Configuration
-  configuration: {
-    // Branding
+  // Custom configuration
+  customizations: {
     branding: {
+      primaryColor: '#0052CC',
       logo: 'https://mycompany.com/logo.png',
-      primaryColor: '#0066CC',
-      secondaryColor: '#FF6600',
     },
-    
-    // Domain
-    domain: {
-      // Custom domain
-      custom: 'crm.mycompany.com',
-      
-      // Default domain
-      default: 'my-company.objectstack.app',
-      
-      // SSL certificate
-      ssl: {
-        enabled: true,
-        certificate: 'auto', // or custom certificate
-      },
-    },
-    
-    // Features
     features: {
-      enabled: [
-        'advanced-analytics',
-        'ai-features',
-        'custom-objects',
-        'api-access',
-        'sso',
-      ],
-      disabled: [
-        'public-api',
-      ],
-    },
-    
-    // Security
-    security: {
-      // SSO
-      sso: {
-        enabled: true,
-        provider: 'okta',
-        config: {
-          domain: 'mycompany.okta.com',
-          clientId: '${env:OKTA_CLIENT_ID}',
-          clientSecret: '${env:OKTA_CLIENT_SECRET}',
-        },
-      },
-      
-      // IP whitelist
-      ipWhitelist: {
-        enabled: true,
-        ranges: [
-          '192.168.1.0/24',
-          '10.0.0.0/8',
-        ],
-      },
-      
-      // MFA requirement
-      mfa: {
-        required: true,
-        methods: ['totp', 'sms'],
-      },
+      advancedAnalytics: true,
+      aiLeadScoring: true,
     },
   },
-  
-  // Metadata
-  metadata: {
-    createdAt: '2024-01-01T00:00:00Z',
-    createdBy: 'system',
-    
-    // Onboarding
-    onboarding: {
-      completed: true,
-      completedAt: '2024-01-05T10:30:00Z',
-    },
-  },
-  
-  // Status
-  status: 'active', // or 'suspended', 'terminated'
 };
 
 /**
@@ -714,9 +355,12 @@ export const salesSpace: Space = {
   name: 'Sales Team',
   slug: 'sales',
   ownerId: 'user-001',
+  createdAt: '2024-01-01T00:00:00Z',
+  updatedAt: '2024-01-02T00:00:00Z',
   
   bom: {
     tenantId: 'tenant-12345',
+    resolutionStrategy: 'override',
     dependencies: [],
   },
 
@@ -794,6 +438,18 @@ const salesSpaceRemoved = {
  */
 
 export const composerConfig: ComposerConfig = {
+  // BOM (Bill of Materials)
+  bom: {
+    tenantId: 'tenant-12345',
+    resolutionStrategy: 'override',
+    dependencies: [],
+  },
+  
+  // Dry run mode
+  dryRun: false,
+};
+/* Removed UI builder configuration due to schema mismatch */
+const composerConfigRemoved = {
   // Enable composer
   enabled: true,
   

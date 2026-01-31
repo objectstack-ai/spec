@@ -39,12 +39,8 @@ import {
 
 // Cron-based scheduled job
 export const dailyReportJob: Job = {
+  id: 'daily_sales_report_001',
   name: 'daily_sales_report',
-  label: 'Daily Sales Report Generation',
-  description: 'Generate and email daily sales reports to managers',
-  
-  // Job type
-  type: 'scheduled',
   
   // Cron schedule (every day at 8:00 AM)
   schedule: {
@@ -54,91 +50,55 @@ export const dailyReportJob: Job = {
   },
   
   // Job handler
-  handler: {
-    type: 'script',
-    module: '@myapp/jobs/daily-report',
-    function: 'generateDailyReport',
+  handler: async () => {
+    // Implementation: Generate and send daily sales report
+    console.log('Generating daily sales report...');
   },
   
-  // Job parameters
-  parameters: {
-    reportType: 'sales_summary',
-    recipientGroup: 'sales_managers',
-    format: 'pdf',
+  // Retry policy
+  retryPolicy: {
+    maxRetries: 3,
+    backoffMs: 60000, // 1 minute
+    backoffMultiplier: 2,
   },
   
-  // Execution settings
-  execution: {
-    timeout: 300000, // 5 minutes
-    retries: 3,
-    retryDelay: 60000, // 1 minute
-    retryBackoff: 'exponential',
-    
-    // Concurrency control
-    maxConcurrency: 1, // Don't run multiple instances
-    queueIfRunning: false,
-  },
+  // Timeout
+  timeout: 300000, // 5 minutes
   
-  // Monitoring
-  monitoring: {
-    alertOnFailure: true,
-    alertChannels: ['email', 'slack'],
-    sla: {
-      maxDuration: 600000, // 10 minutes
-      alertOnBreach: true,
-    },
-  },
-  
-  // Logging
-  logging: {
-    level: 'info',
-    includeParameters: true,
-    retentionDays: 90,
-  },
+  enabled: true,
 };
 
 // Event-triggered job
 export const onAccountCreatedJob: Job = {
+  id: 'welcome_email_job_001',
   name: 'welcome_email_job',
-  label: 'Send Welcome Email',
-  description: 'Send welcome email when new account is created',
   
-  type: 'event_triggered',
-  
-  // Trigger configuration
-  trigger: {
-    event: 'object.created',
-    object: 'account',
-    
-    // Conditional execution
-    condition: {
-      field: 'status',
-      operator: 'equals',
-      value: 'active',
-    },
+  // Immediate execution when triggered
+  schedule: {
+    type: 'once',
+    at: new Date(Date.now() + 1000).toISOString(),
   },
   
-  handler: {
-    type: 'flow',
-    flowName: 'send_welcome_email',
+  handler: async () => {
+    // Implementation: Send welcome email to new user
+    console.log('Sending welcome email...');
   },
   
-  execution: {
-    timeout: 30000,
-    retries: 2,
-    
-    // Debouncing to avoid duplicate jobs
-    debounce: 5000, // 5 seconds
+  timeout: 30000,
+  
+  retryPolicy: {
+    maxRetries: 2,
+    backoffMs: 1000,
+    backoffMultiplier: 2,
   },
+  
+  enabled: true,
 };
 
 // Recurring batch job
 export const dataCleanupJob: Job = {
+  id: 'cleanup_old_records_001',
   name: 'cleanup_old_records',
-  label: 'Data Cleanup Job',
-  description: 'Archive and delete old records to maintain database performance',
-  
-  type: 'scheduled',
   
   // Run weekly on Sunday at 2:00 AM
   schedule: {
@@ -147,53 +107,20 @@ export const dataCleanupJob: Job = {
     timezone: 'UTC',
   },
   
-  handler: {
-    type: 'batch',
-    
-    // Batch configuration
-    batch: {
-      source: {
-        object: 'case',
-        filter: {
-          field: 'status',
-          operator: 'equals',
-          value: 'closed',
-          and: [
-            {
-              field: 'closed_date',
-              operator: 'lessThan',
-              value: { daysAgo: 365 },
-            },
-          ],
-        },
-      },
-      
-      // Process in chunks
-      chunkSize: 1000,
-      
-      // Action to perform
-      action: 'archive', // or 'delete', 'update'
-      
-      // Archive destination
-      archiveDestination: {
-        connector: 'archive_database',
-        table: 'archived_cases',
-      },
-    },
+  handler: async () => {
+    // Implementation: Archive closed cases
+    console.log('Archiving closed cases...');
   },
   
-  execution: {
-    timeout: 3600000, // 1 hour
-    retries: 1,
+  timeout: 3600000, // 1 hour
+  
+  retryPolicy: {
+    maxRetries: 1,
+    backoffMs: 1000,
+    backoffMultiplier: 2,
   },
   
-  monitoring: {
-    metrics: {
-      recordsProcessed: true,
-      recordsArchived: true,
-      duration: true,
-    },
-  },
+  enabled: true,
 };
 
 /**
@@ -203,33 +130,17 @@ export const dataCleanupJob: Job = {
  */
 
 export const metricsConfig: MetricsConfig = {
+  name: 'app_metrics',
+  label: 'Application Metrics',
+  
   // Enable metrics collection
   enabled: true,
   
-  // Metrics backend
-  backend: {
-    type: 'prometheus',
-    
-    // Prometheus configuration
-    prometheus: {
-      // Expose metrics endpoint
-      endpoint: '/metrics',
-      port: 9090,
-      
-      // Default labels added to all metrics
-      defaultLabels: {
-        service: 'objectstack',
-        environment: 'production',
-        region: 'us-east-1',
-      },
-      
-      // Pushgateway for batch jobs
-      pushgateway: {
-        enabled: true,
-        url: 'http://pushgateway.example.com:9091',
-        interval: 10000, // 10 seconds
-      },
-    },
+  // Default labels added to all metrics
+  defaultLabels: {
+    service: 'objectstack',
+    environment: 'production',
+    region: 'us-east-1',
   },
   
   // Metrics to collect
@@ -238,99 +149,77 @@ export const metricsConfig: MetricsConfig = {
     {
       name: 'http_requests_total',
       type: 'counter',
+      enabled: true,
       description: 'Total number of HTTP requests',
-      labels: ['method', 'path', 'status'],
+      labelNames: ['method', 'path', 'status'],
     },
     {
       name: 'http_request_duration_seconds',
       type: 'histogram',
+      enabled: true,
       description: 'HTTP request duration in seconds',
-      labels: ['method', 'path'],
-      buckets: [0.01, 0.05, 0.1, 0.5, 1, 2, 5, 10],
+      labelNames: ['method', 'path'],
+      histogram: {
+        type: 'explicit',
+        explicit: {
+          boundaries: [0.01, 0.05, 0.1, 0.5, 1, 2, 5, 10],
+        },
+      },
     },
     
     // Database metrics
     {
       name: 'db_query_duration_seconds',
       type: 'histogram',
+      enabled: true,
       description: 'Database query duration',
-      labels: ['object', 'operation'],
-      buckets: [0.001, 0.01, 0.1, 0.5, 1],
+      labelNames: ['object', 'operation'],
+      histogram: {
+        type: 'explicit',
+        explicit: {
+          boundaries: [0.001, 0.01, 0.1, 0.5, 1],
+        },
+      },
     },
     {
       name: 'db_connection_pool_size',
       type: 'gauge',
+      enabled: true,
       description: 'Database connection pool size',
-      labels: ['database'],
+      labelNames: ['database'],
     },
     
     // Business metrics
     {
       name: 'records_created_total',
       type: 'counter',
+      enabled: true,
       description: 'Total records created',
-      labels: ['object_type'],
+      labelNames: ['object_type'],
     },
     {
       name: 'active_users',
       type: 'gauge',
+      enabled: true,
       description: 'Number of active users',
-    },
-    
-    // Job metrics
-    {
-      name: 'job_execution_duration_seconds',
-      type: 'histogram',
-      description: 'Job execution duration',
-      labels: ['job_name', 'status'],
-      buckets: [1, 5, 10, 30, 60, 300, 600],
-    },
-    {
-      name: 'job_failures_total',
-      type: 'counter',
-      description: 'Total job failures',
-      labels: ['job_name', 'error_type'],
+      labelNames: [],
     },
   ],
+  
+  // Aggregations
+  aggregations: [],
+  
+  // SLIs
+  slis: [],
+  
+  // SLOs
+  slos: [],
+  
+  // Exports
+  exports: [],
   
   // Collection interval
-  collectInterval: 15000, // 15 seconds
-  
-  // Metric cardinality limits (prevent metric explosion)
-  cardinality: {
-    maxLabels: 10,
-    maxLabelValueLength: 100,
-  },
-};
-
-// Alternative: StatsD backend
-export const statsdMetricsConfig: MetricsConfig = {
-  enabled: true,
-  
-  backend: {
-    type: 'statsd',
-    
-    statsd: {
-      host: 'statsd.example.com',
-      port: 8125,
-      protocol: 'udp',
-      prefix: 'objectstack.',
-      
-      // Sampling for high-volume metrics
-      sampleRate: 0.1, // 10% sampling
-    },
-  },
-  
-  metrics: [
-    {
-      name: 'api.request',
-      type: 'counter',
-    },
-    {
-      name: 'api.latency',
-      type: 'timing',
-    },
-  ],
+  collectionInterval: 15, // seconds
 };
 
 /**
@@ -341,131 +230,28 @@ export const statsdMetricsConfig: MetricsConfig = {
  */
 
 export const tracingConfig: TracingConfig = {
+  name: 'app_tracing',
+  label: 'Application Tracing',
+  
   // Enable tracing
   enabled: true,
-  
-  // Tracing backend
-  backend: {
-    type: 'opentelemetry',
-    
-    // OpenTelemetry configuration
-    opentelemetry: {
-      // OTLP exporter
-      exporter: {
-        type: 'otlp',
-        endpoint: 'http://otel-collector.example.com:4318',
-        protocol: 'http',
-        
-        // Headers for authentication
-        headers: {
-          'x-api-key': '${env:OTEL_API_KEY}',
-        },
-      },
-      
-      // Service information
-      service: {
-        name: 'objectstack-api',
-        version: '1.0.0',
-        namespace: 'production',
-      },
-      
-      // Resource attributes
-      resource: {
-        'deployment.environment': 'production',
-        'cloud.provider': 'aws',
-        'cloud.region': 'us-east-1',
-        'k8s.cluster.name': 'prod-cluster',
-      },
-    },
-  },
   
   // Sampling strategy
   sampling: {
     type: 'probability',
-    probability: 0.1, // Sample 10% of traces
-    
-    // Always sample specific patterns
-    alwaysSample: [
-      { path: '/api/admin/*' },
-      { statusCode: { gte: 500 } },
-      { duration: { gte: 1000 } }, // > 1 second
-    ],
-    
-    // Never sample specific patterns
-    neverSample: [
-      { path: '/health' },
-      { path: '/metrics' },
-    ],
-  },
-  
-  // Instrumentation
-  instrumentation: {
-    // HTTP instrumentation
-    http: {
-      enabled: true,
-      captureHeaders: true,
-      captureRequestBody: false, // For security
-      captureResponseBody: false,
-    },
-    
-    // Database instrumentation
-    database: {
-      enabled: true,
-      captureStatements: true,
-      captureParameters: false, // For security
-      maxStatementLength: 1000,
-    },
-    
-    // External calls
-    external: {
-      enabled: true,
-      capturePayload: false,
-    },
-  },
-  
-  // Span limits
-  limits: {
-    maxAttributes: 128,
-    maxEvents: 128,
-    maxLinks: 128,
-    maxAttributeLength: 1024,
+    ratio: 0.1, // Sample 10% of traces
+    rules: [],
   },
   
   // Context propagation
   propagation: {
-    // W3C Trace Context
-    format: 'w3c',
-    
-    // Baggage for cross-service context
-    baggage: {
-      enabled: true,
-      maxItems: 10,
-    },
-  },
-};
-
-// Alternative: Jaeger backend
-export const jaegerTracingConfig: TracingConfig = {
-  enabled: true,
-  
-  backend: {
-    type: 'jaeger',
-    
-    jaeger: {
-      agentHost: 'jaeger-agent.example.com',
-      agentPort: 6831,
-      
-      // Or use collector directly
-      collectorEndpoint: 'http://jaeger-collector.example.com:14268/api/traces',
-      
-      service: 'objectstack-api',
-    },
+    formats: ['w3c'],
+    extract: true,
+    inject: true,
   },
   
-  sampling: {
-    type: 'rate_limiting',
-    maxTracesPerSecond: 100,
-  },
+  // Trace ID generator
+  traceIdGenerator: 'random',
 };
 
 /**
@@ -478,6 +264,33 @@ export const cacheConfig: CacheConfig = {
   // Enable caching
   enabled: true,
   
+  // Cache tiers
+  tiers: [
+    // L1: In-memory cache (fastest)
+    {
+      name: 'memory',
+      type: 'memory',
+      ttl: 300,
+      warmup: false,
+      strategy: 'lru',
+      maxSize: 10000,
+    },
+  ],
+  
+  // Encryption
+  encryption: false,
+  
+  // Compression
+  compression: false,
+  
+  // Invalidation
+  invalidation: [],
+  
+  // Prefetch
+  prefetch: false,
+};
+/* Removed detailed cache configuration due to schema complexity */
+const cacheConfigRemoved = {
   // Default TTL
   defaultTTL: 300, // 5 minutes
   
@@ -558,7 +371,7 @@ export const cacheConfig: CacheConfig = {
       stores: ['memory'],
       
       // Cache key includes query hash
-      keyGenerator: (params) => {
+      keyGenerator: (params: any) => {
         const hash = hashQuery(params.query);
         return `query:${params.object}:${hash}`;
       },
@@ -573,7 +386,7 @@ export const cacheConfig: CacheConfig = {
       varyBy: ['userId'],
       
       // Conditional caching
-      condition: (response) => {
+      condition: (response: any) => {
         return response.statusCode === 200;
       },
     },
@@ -607,65 +420,78 @@ export const cacheConfig: CacheConfig = {
  */
 
 export const auditConfig: AuditConfig = {
+  name: 'main_audit',
+  label: 'Main Audit Configuration',
+  
   // Enable audit logging
   enabled: true,
   
-  // Audit events to capture
-  events: [
+  // Minimum severity
+  minimumSeverity: 'info',
+  
+  // Storage configuration
+  storage: {
+    type: 'database',
+    bufferEnabled: false,
+    bufferSize: 1000,
+    flushIntervalSeconds: 60,
+    compression: true,
+  },
+  
+  // Retention policy
+  retentionPolicy: {
+    retentionDays: 180,
+    archiveAfterRetention: true,
+  },
+  
+  // Suspicious activity rules
+  suspiciousActivityRules: [],
+  
+  // Include sensitive data
+  includeSensitiveData: false,
+  
+  // Redact fields
+  redactFields: [
+    'password',
+    'passwordHash',
+    'token',
+    'apiKey',
+    'secret',
+    'creditCard',
+    'ssn',
+  ],
+  
+  // Log reads
+  logReads: false,
+  
+  // Read sampling rate
+  readSamplingRate: 0.1,
+  
+  // Log system events
+  logSystemEvents: true,
+  
+  // Event types to audit
+  eventTypes: [
     // Authentication events
-    'user.login',
-    'user.logout',
-    'user.login.failed',
-    'user.password.changed',
+    'auth.login',
+    'auth.logout',
+    'auth.login_failed',
+    'auth.password_changed',
     
     // Authorization events
-    'permission.granted',
-    'permission.denied',
-    'role.assigned',
-    'role.removed',
+    'authz.permission_granted',
+    'authz.permission_revoked',
+    'authz.role_assigned',
+    'authz.role_removed',
     
     // Data events
-    'record.created',
-    'record.updated',
-    'record.deleted',
-    'record.viewed', // For sensitive data
-    
-    // Admin events
-    'schema.modified',
-    'plugin.installed',
-    'plugin.uninstalled',
-    'settings.changed',
-    
-    // Export/Import
-    'data.exported',
-    'data.imported',
+    'data.create',
+    'data.update',
+    'data.delete',
   ],
-  
-  // Objects to audit (can be selective)
-  objects: [
-    {
-      name: 'account',
-      events: ['created', 'updated', 'deleted'],
-      
-      // Track field-level changes
-      trackFields: ['name', 'owner_id', 'annual_revenue'],
-    },
-    {
-      name: 'user',
-      events: ['created', 'updated', 'deleted', 'viewed'],
-      
-      // Audit all field changes
-      trackFields: '*',
-      
-      // Additional metadata
-      captureMetadata: {
-        ipAddress: true,
-        userAgent: true,
-        geolocation: true,
-      },
-    },
-  ],
-  
+};
+/* Removed audit storage configuration due to schema mismatch */
+const auditConfigRemoved = {
   // Audit storage
   storage: {
     // Primary storage
@@ -760,6 +586,17 @@ export const auditConfig: AuditConfig = {
  */
 
 export const complianceConfig: ComplianceConfig = {
+  // Audit log configuration
+  auditLog: {
+    enabled: true,
+    events: ['create', 'read', 'update', 'delete', 'export', 'permission-change', 'login', 'logout', 'failed-login'],
+    retentionDays: 2555,
+    immutable: true,
+    signLogs: true,
+  },
+};
+/* Removed frameworks and other detailed configuration due to schema mismatch */
+const complianceConfigRemoved = {
   // Compliance frameworks
   frameworks: ['gdpr', 'hipaa', 'soc2'],
   
@@ -843,7 +680,7 @@ export const complianceConfig: ComplianceConfig = {
     anonymization: {
       strategy: 'pseudonymization',
       fields: {
-        email: (value) => `user-${hash(value)}@anonymized.com`,
+        email: (value: any) => `user-${hash(value)}@anonymized.com`,
         name: () => '[Redacted]',
         ssn: () => '***-**-****',
       },
@@ -888,6 +725,28 @@ export const complianceConfig: ComplianceConfig = {
  */
 
 export const encryptionConfig: EncryptionConfig = {
+  // Enable encryption
+  enabled: true,
+  
+  // Encryption algorithm
+  algorithm: 'aes-256-gcm',
+  
+  // Key management
+  keyManagement: {
+    provider: 'local',
+  },
+  
+  // Scope
+  scope: 'database',
+  
+  // Deterministic encryption
+  deterministicEncryption: false,
+  
+  // Searchable encryption
+  searchableEncryption: false,
+};
+/* Removed detailed encryption configuration due to schema complexity */
+const encryptionConfigRemoved = {
   // Encryption at rest
   atRest: {
     enabled: true,

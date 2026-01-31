@@ -32,57 +32,75 @@ export const postgresConnector: DatabaseConnector = {
   name: 'production_postgres',
   label: 'Production PostgreSQL Database',
   type: 'database',
-  subtype: 'postgres',
+  provider: 'postgresql',
   description: 'Main production database for legacy CRM system',
   
+  // Authentication
+  authentication: {
+    type: 'basic',
+    username: '${env:POSTGRES_USER}',
+    password: '${env:POSTGRES_PASSWORD}',
+  },
+  
   // Connection configuration
-  config: {
+  connectionConfig: {
     host: 'db.production.example.com',
     port: 5432,
     database: 'crm_production',
-    schema: 'public',
-    
-    // Authentication
-    auth: {
-      type: 'password',
-      username: '${env:POSTGRES_USER}',
-      password: '${env:POSTGRES_PASSWORD}',
-    },
-    
-    // Connection pool settings
-    pool: {
-      min: 2,
-      max: 10,
-      idleTimeout: 30000,
-    },
-    
-    // SSL configuration
-    ssl: {
-      enabled: true,
-      rejectUnauthorized: true,
-      ca: '${file:./certs/ca.pem}',
+    username: '${env:POSTGRES_USER}',
+    password: '${env:POSTGRES_PASSWORD}',
+    options: {
+      schema: 'public',
     },
   },
   
-  // Query capabilities
-  capabilities: {
-    supportsTransactions: true,
-    supportsJoins: true,
-    supportsCTE: true,
-    supportsWindowFunctions: true,
-    maxQueryComplexity: 1000,
+  // Connection pool settings
+  poolConfig: {
+    min: 2,
+    max: 10,
+    idleTimeoutMs: 30000,
+    connectionTimeoutMs: 10000,
+    acquireTimeoutMs: 30000,
+    evictionRunIntervalMs: 30000,
+    testOnBorrow: true,
   },
   
-  // Schema discovery
-  schemaSync: {
+  // SSL configuration
+  sslConfig: {
     enabled: true,
-    schedule: '0 */6 * * *', // Every 6 hours
-    autoDiscoverTables: true,
-    tableFilter: {
-      include: ['accounts', 'contacts', 'opportunities'],
-      exclude: ['_internal_*', 'temp_*'],
-    },
+    rejectUnauthorized: true,
+    ca: '${file:./certs/ca.pem}',
   },
+  
+  // Tables to sync
+  tables: [
+    {
+      name: 'accounts',
+      label: 'Accounts',
+      tableName: 'accounts',
+      primaryKey: 'id',
+      enabled: true,
+    },
+    {
+      name: 'contacts',
+      label: 'Contacts',
+      tableName: 'contacts',
+      primaryKey: 'id',
+      enabled: true,
+    },
+  ],
+  
+  // Query timeout
+  queryTimeoutMs: 30000,
+  
+  // Enable query logging
+  enableQueryLogging: false,
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
+  status: 'active',
+  enabled: true,
 };
 
 // MongoDB Connector
@@ -90,29 +108,49 @@ export const mongoConnector: DatabaseConnector = {
   name: 'analytics_mongo',
   label: 'Analytics MongoDB',
   type: 'database',
-  subtype: 'mongodb',
+  provider: 'mongodb',
   description: 'MongoDB cluster for analytics and reporting',
   
-  config: {
-    uri: '${env:MONGODB_URI}',
+  // Authentication
+  authentication: {
+    type: 'none',
+  },
+  
+  // Connection configuration
+  connectionConfig: {
+    host: 'mongo.example.com',
+    port: 27017,
     database: 'analytics',
-    
-    // Replica set configuration
-    replicaSet: 'rs0',
-    readPreference: 'secondaryPreferred',
-    
-    // Authentication
-    auth: {
-      type: 'x509',
-      certificate: '${file:./certs/mongodb-client.pem}',
+    username: 'analytics_user',
+    password: '${env:MONGODB_PASSWORD}',
+    options: {
+      replicaSet: 'rs0',
+      readPreference: 'secondaryPreferred',
     },
   },
   
-  capabilities: {
-    supportsAggregation: true,
-    supportsFullTextSearch: true,
-    supportsGeoQueries: true,
-  },
+  // Tables (collections) to sync
+  tables: [
+    {
+      name: 'events',
+      label: 'Events',
+      tableName: 'events',
+      primaryKey: '_id',
+      enabled: true,
+    },
+  ],
+  
+  // Query timeout
+  queryTimeoutMs: 30000,
+  
+  // Enable query logging
+  enableQueryLogging: false,
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
+  status: 'active',
+  enabled: true,
 };
 
 /**
@@ -127,47 +165,49 @@ export const s3Connector: FileStorageConnector = {
   name: 'aws_s3_documents',
   label: 'AWS S3 Document Storage',
   type: 'file_storage',
-  subtype: 's3',
+  provider: 's3',
   description: 'S3 bucket for customer documents and attachments',
   
-  config: {
+  // Authentication
+  authentication: {
+    type: 'api-key',
+    key: '${env:AWS_ACCESS_KEY_ID}:${env:AWS_SECRET_ACCESS_KEY}',
+    headerName: 'Authorization',
+  },
+  
+  // Storage configuration
+  storageConfig: {
     region: 'us-east-1',
-    bucket: 'my-company-documents',
-    
-    // IAM authentication
-    auth: {
-      type: 'iam',
-      accessKeyId: '${env:AWS_ACCESS_KEY_ID}',
-      secretAccessKey: '${env:AWS_SECRET_ACCESS_KEY}',
-    },
-    
-    // Optional: assume role for cross-account access
-    assumeRole: {
-      roleArn: 'arn:aws:iam::123456789012:role/DocumentAccess',
-      sessionName: 'objectstack-session',
-    },
-    
-    // Upload settings
-    uploadOptions: {
-      serverSideEncryption: 'AES256',
-      storageClass: 'STANDARD_IA',
-      acl: 'private',
-    },
-    
-    // Presigned URL configuration
-    presignedUrlExpiry: 3600, // 1 hour
+    pathStyle: false,
   },
   
-  capabilities: {
-    supportsVersioning: true,
-    supportsMetadata: true,
-    supportsLifecyclePolicies: true,
-    supportsCORS: true,
-    maxFileSize: 5 * 1024 * 1024 * 1024, // 5GB
+  // Buckets to sync
+  buckets: [
+    {
+      name: 'documents',
+      bucketName: 'my-company-documents',
+      label: 'Documents',
+      enabled: true,
+    },
+  ],
+  
+  // Encryption
+  encryption: {
+    enabled: true,
+    algorithm: 'AES256',
   },
   
-  // Path structure for organizing files
-  pathTemplate: '/{object_type}/{record_id}/{year}/{month}/{filename}',
+  // Transfer acceleration
+  transferAcceleration: false,
+  
+  // Buffer size
+  bufferSize: 64 * 1024,
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
+  status: 'active',
+  enabled: true,
 };
 
 // Azure Blob Storage Connector
@@ -175,32 +215,37 @@ export const azureBlobConnector: FileStorageConnector = {
   name: 'azure_blob_media',
   label: 'Azure Blob Media Storage',
   type: 'file_storage',
-  subtype: 'azure_blob',
+  provider: 'azure_blob',
   description: 'Azure Blob Storage for media assets',
   
-  config: {
-    accountName: 'mycompanystorage',
-    containerName: 'media-assets',
-    
-    // Authentication
-    auth: {
-      type: 'connection_string',
-      connectionString: '${env:AZURE_STORAGE_CONNECTION_STRING}',
-    },
-    
-    // CDN configuration
-    cdn: {
-      enabled: true,
-      endpoint: 'https://cdn.example.com',
-    },
+  // Authentication
+  authentication: {
+    type: 'api-key',
+    key: '${env:AZURE_STORAGE_CONNECTION_STRING}',
+    headerName: 'Authorization',
   },
   
-  capabilities: {
-    supportsVersioning: false,
-    supportsMetadata: true,
-    supportsCDN: true,
-    maxFileSize: 4.77 * 1024 * 1024 * 1024, // ~4.77TB
-  },
+  // Buckets (containers) to sync
+  buckets: [
+    {
+      name: 'media_assets',
+      bucketName: 'media-assets',
+      label: 'Media Assets',
+      enabled: true,
+    },
+  ],
+  
+  // Transfer acceleration
+  transferAcceleration: false,
+  
+  // Buffer size
+  bufferSize: 64 * 1024,
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
+  status: 'active',
+  enabled: true,
 };
 
 // Local File System Connector (for development)
@@ -208,25 +253,35 @@ export const localFileConnector: FileStorageConnector = {
   name: 'local_dev_storage',
   label: 'Local Development Storage',
   type: 'file_storage',
-  subtype: 'local',
+  provider: 'local',
   description: 'Local file system for development',
   
-  config: {
-    basePath: './storage/uploads',
-    
-    // Create directories if they don't exist
-    autoCreateDirectories: true,
-    
-    // Permissions for created files/directories
-    fileMode: 0o644,
-    directoryMode: 0o755,
+  // Authentication (not needed for local)
+  authentication: {
+    type: 'none',
   },
   
-  capabilities: {
-    supportsVersioning: false,
-    supportsMetadata: false,
-    maxFileSize: 100 * 1024 * 1024, // 100MB
-  },
+  // Buckets (directories) to use
+  buckets: [
+    {
+      name: 'uploads',
+      bucketName: './storage/uploads',
+      label: 'Uploads',
+      enabled: true,
+    },
+  ],
+  
+  // Transfer acceleration
+  transferAcceleration: false,
+  
+  // Buffer size
+  bufferSize: 64 * 1024,
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
+  status: 'active',
+  enabled: true,
 };
 
 /**
@@ -241,55 +296,52 @@ export const rabbitmqConnector: MessageQueueConnector = {
   name: 'rabbitmq_events',
   label: 'RabbitMQ Event Bus',
   type: 'message_queue',
-  subtype: 'rabbitmq',
+  provider: 'rabbitmq',
   description: 'RabbitMQ for event-driven workflows',
   
-  config: {
-    host: 'rabbitmq.example.com',
-    port: 5672,
-    virtualHost: '/production',
-    
-    // Authentication
-    auth: {
-      type: 'password',
-      username: '${env:RABBITMQ_USER}',
-      password: '${env:RABBITMQ_PASSWORD}',
-    },
-    
-    // Connection settings
-    heartbeat: 60,
-    connectionTimeout: 10000,
-    
-    // Default exchange and queue configuration
-    exchanges: [
-      {
-        name: 'objectstack.events',
-        type: 'topic',
-        durable: true,
-        autoDelete: false,
-      },
-    ],
-    
-    queues: [
-      {
-        name: 'workflow.execution',
-        durable: true,
-        exclusive: false,
-        autoDelete: false,
-        arguments: {
-          'x-max-priority': 10,
-          'x-message-ttl': 86400000, // 24 hours
-        },
-      },
-    ],
+  // Authentication
+  authentication: {
+    type: 'basic',
+    username: '${env:RABBITMQ_USER}',
+    password: '${env:RABBITMQ_PASSWORD}',
   },
   
-  capabilities: {
-    supportsPriority: true,
-    supportsDelayedMessages: true,
-    supportsDLQ: true, // Dead Letter Queue
-    maxMessageSize: 128 * 1024 * 1024, // 128MB
+  // Broker configuration
+  brokerConfig: {
+    brokers: ['rabbitmq.example.com:5672'],
+    connectionTimeoutMs: 10000,
+    requestTimeoutMs: 30000,
   },
+  
+  // Topics/queues to sync
+  topics: [
+    {
+      name: 'workflow_execution',
+      topicName: 'workflow.execution',
+      label: 'Workflow Execution',
+      enabled: true,
+      mode: 'both',
+      messageFormat: 'json',
+    },
+  ],
+  
+  // Delivery guarantee
+  deliveryGuarantee: 'at_least_once',
+  
+  // Message ordering
+  preserveOrder: true,
+  
+  // Enable metrics
+  enableMetrics: true,
+  
+  // Enable distributed tracing
+  enableTracing: false,
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
+  status: 'active',
+  enabled: true,
 };
 
 // Apache Kafka Connector
@@ -297,62 +349,67 @@ export const kafkaConnector: MessageQueueConnector = {
   name: 'kafka_analytics',
   label: 'Kafka Analytics Stream',
   type: 'message_queue',
-  subtype: 'kafka',
+  provider: 'kafka',
   description: 'Kafka for real-time analytics streaming',
   
-  config: {
+  // Authentication
+  authentication: {
+    type: 'none',
+  },
+  
+  // Broker configuration
+  brokerConfig: {
     brokers: [
       'kafka-1.example.com:9092',
       'kafka-2.example.com:9092',
       'kafka-3.example.com:9092',
     ],
-    
-    // SASL authentication
-    auth: {
-      type: 'sasl',
-      mechanism: 'SCRAM-SHA-512',
-      username: '${env:KAFKA_USER}',
-      password: '${env:KAFKA_PASSWORD}',
-    },
-    
-    // SSL/TLS
-    ssl: {
-      enabled: true,
-      rejectUnauthorized: true,
-    },
-    
-    // Producer configuration
-    producer: {
-      idempotent: true,
-      maxInFlightRequests: 5,
-      compression: 'gzip',
-      batchSize: 16384,
-      linger: 10, // ms
-    },
-    
-    // Consumer configuration
-    consumer: {
-      groupId: 'objectstack-analytics',
-      sessionTimeout: 30000,
-      heartbeatInterval: 3000,
-      autoCommit: false,
-    },
-    
-    // Topics
-    topics: [
-      {
-        name: 'crm.events',
-        partitions: 12,
-        replicationFactor: 3,
-      },
-    ],
+    connectionTimeoutMs: 30000,
+    requestTimeoutMs: 30000,
   },
   
-  capabilities: {
-    supportsTransactions: true,
-    supportsPartitioning: true,
-    supportsCompaction: true,
+  // SASL authentication (Kafka-specific)
+  saslConfig: {
+    mechanism: 'scram-sha-512',
+    username: '${env:KAFKA_USER}',
+    password: '${env:KAFKA_PASSWORD}',
   },
+  
+  // Topics to sync
+  topics: [
+    {
+      name: 'crm_events',
+      topicName: 'crm.events',
+      label: 'CRM Events',
+      enabled: true,
+      mode: 'both',
+      messageFormat: 'json',
+    },
+  ],
+  
+  // SSL/TLS
+  sslConfig: {
+    enabled: true,
+    rejectUnauthorized: true,
+  },
+  
+  // Delivery guarantee
+  deliveryGuarantee: 'at_least_once',
+  
+  // Message ordering
+  preserveOrder: true,
+  
+  // Enable metrics
+  enableMetrics: true,
+  
+  // Enable distributed tracing
+  enableTracing: false,
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
+  status: 'active',
+  enabled: true,
 };
 
 // Redis Connector (for pub/sub and queues)
@@ -360,43 +417,52 @@ export const redisConnector: MessageQueueConnector = {
   name: 'redis_cache_queue',
   label: 'Redis Cache & Queue',
   type: 'message_queue',
-  subtype: 'redis',
+  provider: 'redis_pubsub',
   description: 'Redis for caching and lightweight queuing',
   
-  config: {
-    host: 'redis.example.com',
-    port: 6379,
-    db: 0,
-    
-    // Authentication
-    auth: {
-      type: 'password',
-      password: '${env:REDIS_PASSWORD}',
-    },
-    
-    // Sentinel for high availability
-    sentinels: [
-      { host: 'sentinel-1.example.com', port: 26379 },
-      { host: 'sentinel-2.example.com', port: 26379 },
-      { host: 'sentinel-3.example.com', port: 26379 },
-    ],
-    masterName: 'mymaster',
-    
-    // Connection pool
-    maxRetriesPerRequest: 3,
-    enableReadyCheck: true,
-    
-    // TLS
-    tls: {
-      enabled: true,
-    },
+  // Authentication
+  authentication: {
+    type: 'basic',
+    username: 'default',
+    password: '${env:REDIS_PASSWORD}',
   },
   
-  capabilities: {
-    supportsPubSub: true,
-    supportsStreams: true,
-    supportsTTL: true,
+  // Broker configuration
+  brokerConfig: {
+    brokers: ['redis.example.com:6379'],
+    connectionTimeoutMs: 30000,
+    requestTimeoutMs: 30000,
   },
+  
+  // Topics (channels) to sync
+  topics: [
+    {
+      name: 'notifications',
+      topicName: 'notifications',
+      label: 'Notifications',
+      enabled: true,
+      mode: 'both',
+      messageFormat: 'json',
+    },
+  ],
+  
+  // Delivery guarantee
+  deliveryGuarantee: 'at_least_once',
+  
+  // Message ordering
+  preserveOrder: true,
+  
+  // Enable metrics
+  enableMetrics: true,
+  
+  // Enable distributed tracing
+  enableTracing: false,
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
+  status: 'active',
+  enabled: true,
 };
 
 /**
@@ -411,69 +477,55 @@ export const salesforceConnector: SaaSConnector = {
   name: 'salesforce_sync',
   label: 'Salesforce CRM',
   type: 'saas',
-  subtype: 'salesforce',
+  provider: 'salesforce',
   description: 'Salesforce integration for bi-directional sync',
   
-  config: {
-    instanceUrl: 'https://mycompany.my.salesforce.com',
-    apiVersion: '58.0',
-    
-    // OAuth 2.0 authentication
-    auth: {
-      type: 'oauth2',
-      clientId: '${env:SALESFORCE_CLIENT_ID}',
-      clientSecret: '${env:SALESFORCE_CLIENT_SECRET}',
-      
-      // JWT bearer flow for server-to-server
-      grantType: 'jwt_bearer',
-      privateKey: '${file:./certs/salesforce-private-key.pem}',
-      username: 'integration@mycompany.com',
-    },
-    
-    // Sync configuration
-    sync: {
-      enabled: true,
-      direction: 'bidirectional',
-      
-      // Object mappings
-      mappings: [
-        {
-          local: 'account',
-          remote: 'Account',
-          fields: {
-            name: 'Name',
-            industry: 'Industry',
-            annual_revenue: 'AnnualRevenue',
-          },
-        },
-        {
-          local: 'contact',
-          remote: 'Contact',
-          fields: {
-            first_name: 'FirstName',
-            last_name: 'LastName',
-            email: 'Email',
-          },
-        },
-      ],
-      
-      // Conflict resolution
-      conflictResolution: 'remote_wins', // or 'local_wins', 'manual'
-      
-      // Schedule
-      schedule: '*/15 * * * *', // Every 15 minutes
-    },
+  // Authentication
+  authentication: {
+    type: 'oauth2',
+    clientId: '${env:SALESFORCE_CLIENT_ID}',
+    clientSecret: '${env:SALESFORCE_CLIENT_SECRET}',
+    authorizationUrl: 'https://login.salesforce.com/services/oauth2/authorize',
+    tokenUrl: 'https://login.salesforce.com/services/oauth2/token',
+    scopes: ['api', 'refresh_token'],
   },
   
-  capabilities: {
-    supportsRealtime: true, // via Platform Events
-    supportsBulkAPI: true,
-    supportsMetadataAPI: true,
-    rateLimit: {
-      requests: 15000,
-      window: 86400, // per day
-    },
+  // Base URL
+  baseUrl: 'https://mycompany.my.salesforce.com',
+  
+  // API version
+  apiVersion: {
+    version: '58.0',
+    isDefault: false,
   },
+  
+  // Object types to sync
+  objectTypes: [
+    {
+      name: 'account',
+      apiName: 'Account',
+      label: 'Accounts',
+      enabled: true,
+      supportsCreate: true,
+      supportsUpdate: true,
+      supportsDelete: true,
+    },
+    {
+      name: 'contact',
+      apiName: 'Contact',
+      label: 'Contacts',
+      enabled: true,
+      supportsCreate: true,
+      supportsUpdate: true,
+      supportsDelete: true,
+    },
+  ],
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
+  status: 'active',
+  enabled: true,
 };
 
 // HubSpot Connector
@@ -481,39 +533,46 @@ export const hubspotConnector: SaaSConnector = {
   name: 'hubspot_marketing',
   label: 'HubSpot Marketing',
   type: 'saas',
-  subtype: 'hubspot',
+  provider: 'hubspot',
   description: 'HubSpot for marketing automation integration',
   
-  config: {
-    portalId: '12345678',
-    
-    // Private App authentication
-    auth: {
-      type: 'api_key',
-      apiKey: '${env:HUBSPOT_API_KEY}',
-    },
-    
-    // Webhook configuration for real-time updates
-    webhooks: {
-      enabled: true,
-      endpoint: 'https://api.mycompany.com/webhooks/hubspot',
-      events: [
-        'contact.creation',
-        'contact.propertyChange',
-        'deal.creation',
-      ],
-      secret: '${env:HUBSPOT_WEBHOOK_SECRET}',
-    },
+  // Authentication
+  authentication: {
+    type: 'api-key',
+    key: '${env:HUBSPOT_API_KEY}',
+    headerName: 'Authorization',
   },
   
-  capabilities: {
-    supportsRealtime: true, // via webhooks
-    supportsBatch: true,
-    rateLimit: {
-      requests: 100,
-      window: 10, // per 10 seconds
+  // Base URL
+  baseUrl: 'https://api.hubapi.com',
+  
+  // Object types to sync
+  objectTypes: [
+    {
+      name: 'contact',
+      apiName: 'contacts',
+      label: 'Contacts',
+      enabled: true,
+      supportsCreate: true,
+      supportsUpdate: true,
+      supportsDelete: true,
     },
-  },
+    {
+      name: 'deal',
+      apiName: 'deals',
+      label: 'Deals',
+      enabled: true,
+      supportsCreate: true,
+      supportsUpdate: true,
+      supportsDelete: true,
+    },
+  ],
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
+  status: 'active',
+  enabled: true,
 };
 
 // Stripe Connector
@@ -521,41 +580,52 @@ export const stripeConnector: SaaSConnector = {
   name: 'stripe_payments',
   label: 'Stripe Payments',
   type: 'saas',
-  subtype: 'stripe',
+  provider: 'stripe',
   description: 'Stripe for payment processing and subscription management',
   
-  config: {
-    // API keys
-    auth: {
-      type: 'api_key',
-      apiKey: '${env:STRIPE_SECRET_KEY}',
-      publishableKey: '${env:STRIPE_PUBLISHABLE_KEY}',
-    },
-    
-    // Webhook for events
-    webhooks: {
-      enabled: true,
-      endpoint: 'https://api.mycompany.com/webhooks/stripe',
-      events: [
-        'payment_intent.succeeded',
-        'customer.subscription.created',
-        'invoice.payment_failed',
-      ],
-      secret: '${env:STRIPE_WEBHOOK_SECRET}',
-    },
-    
-    // API version
-    apiVersion: '2023-10-16',
+  // Authentication
+  authentication: {
+    type: 'api-key',
+    key: '${env:STRIPE_SECRET_KEY}',
+    headerName: 'Authorization',
   },
   
-  capabilities: {
-    supportsIdempotency: true,
-    supportsWebhooks: true,
-    rateLimit: {
-      requests: 100,
-      window: 1, // per second
-    },
+  // Base URL
+  baseUrl: 'https://api.stripe.com',
+  
+  // API version
+  apiVersion: {
+    version: '2023-10-16',
+    isDefault: false,
   },
+  
+  // Object types to sync
+  objectTypes: [
+    {
+      name: 'customer',
+      apiName: 'customers',
+      label: 'Customers',
+      enabled: true,
+      supportsCreate: true,
+      supportsUpdate: true,
+      supportsDelete: true,
+    },
+    {
+      name: 'subscription',
+      apiName: 'subscriptions',
+      label: 'Subscriptions',
+      enabled: true,
+      supportsCreate: true,
+      supportsUpdate: true,
+      supportsDelete: true,
+    },
+  ],
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
+  status: 'active',
+  enabled: true,
 };
 
 /**
@@ -568,52 +638,24 @@ export const customAPIConnector: Connector = {
   label: 'Custom ERP System',
   type: 'custom',
   description: 'Integration with legacy ERP system',
+  status: 'active',
+  enabled: true,
   
-  config: {
+  // Authentication
+  authentication: {
+    type: 'api-key',
+    key: '${env:ERP_API_KEY}',
+    headerName: 'X-API-Key',
+  },
+  
+  metadata: {
     baseUrl: 'https://erp.mycompany.com/api/v2',
-    
-    // Authentication
-    auth: {
-      type: 'custom',
-      headers: {
-        'X-API-Key': '${env:ERP_API_KEY}',
-        'X-Client-ID': '${env:ERP_CLIENT_ID}',
-      },
-    },
-    
-    // HTTP client configuration
-    http: {
-      timeout: 30000,
-      retry: {
-        enabled: true,
-        maxAttempts: 3,
-        backoff: 'exponential',
-        initialDelay: 1000,
-      },
-      
-      // Custom headers
-      headers: {
-        'User-Agent': 'ObjectStack/1.0',
-        'Accept': 'application/json',
-      },
-    },
-    
-    // Certificate pinning for security
-    certificatePinning: {
-      enabled: true,
-      fingerprints: [
-        'sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=',
-      ],
-    },
+    clientId: '${env:ERP_CLIENT_ID}',
   },
   
-  // Health check
-  healthCheck: {
-    enabled: true,
-    endpoint: '/health',
-    interval: 60000, // 1 minute
-    timeout: 5000,
-  },
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
 };
 
 /**
