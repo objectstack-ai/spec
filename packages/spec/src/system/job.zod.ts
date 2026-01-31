@@ -42,6 +42,7 @@ export type Schedule = z.infer<typeof ScheduleSchema>;
 export type CronSchedule = z.infer<typeof CronScheduleSchema>;
 export type IntervalSchedule = z.infer<typeof IntervalScheduleSchema>;
 export type OnceSchedule = z.infer<typeof OnceScheduleSchema>;
+export type JobSchedule = Schedule; // Alias for backwards compatibility
 
 /**
  * Retry Policy Schema

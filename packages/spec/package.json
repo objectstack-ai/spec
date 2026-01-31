@@ -52,6 +52,14 @@
     "./contracts": {
       "types": "./dist/contracts/index.d.ts",
       "default": "./dist/contracts/index.js"
+    },
+    "./integration": {
+      "types": "./dist/integration/index.d.ts",
+      "default": "./dist/integration/index.js"
+    },
+    "./permission": {
+      "types": "./dist/permission/index.d.ts",
+      "default": "./dist/permission/index.js"
     }
   },
   "files": [

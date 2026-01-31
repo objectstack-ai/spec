@@ -12,12 +12,24 @@ description: Batch protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { BatchOperationResultSchema, BatchOperationTypeSchema, BatchOptionsSchema, BatchRecordSchema, BatchUpdateRequestSchema, BatchUpdateResponseSchema, DeleteManyRequestSchema, UpdateManyRequestSchema } from '@objectstack/spec/api';
-import type { BatchOperationResult, BatchOperationType, BatchOptions, BatchRecord, BatchUpdateRequest, BatchUpdateResponse, DeleteManyRequest, UpdateManyRequest } from '@objectstack/spec/api';
+import { BatchConfigSchema, BatchOperationResultSchema, BatchOperationTypeSchema, BatchOptionsSchema, BatchRecordSchema, BatchUpdateRequestSchema, BatchUpdateResponseSchema, DeleteManyRequestSchema, UpdateManyRequestSchema } from '@objectstack/spec/api';
+import type { BatchConfig, BatchOperationResult, BatchOperationType, BatchOptions, BatchRecord, BatchUpdateRequest, BatchUpdateResponse, DeleteManyRequest, UpdateManyRequest } from '@objectstack/spec/api';
 
 // Validate data
-const result = BatchOperationResultSchema.parse(data);
+const result = BatchConfigSchema.parse(data);
 ```
+
+---
+
+## BatchConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional | Enable batch operations |
+| **maxRecordsPerBatch** | `integer` | optional | Maximum records per batch |
+| **defaultOptions** | `object` | optional | Default batch options |
 
 ---
 

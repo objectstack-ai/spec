@@ -118,3 +118,4 @@ export type SubscriptionStatus = z.infer<typeof SubscriptionStatus>;
 export type SpaceSubscription = z.infer<typeof SpaceSubscriptionSchema>;
 export type DeploymentTarget = z.infer<typeof DeploymentTargetSchema>;
 export type HubSpace = z.infer<typeof HubSpaceSchema>;
+export type Space = HubSpace; // Alias for backwards compatibility

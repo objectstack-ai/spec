@@ -127,3 +127,4 @@ export const ComposerResponseSchema = z.object({
 export type BillOfMaterials = z.infer<typeof BillOfMaterialsSchema>;
 export type ComposerRequest = z.infer<typeof ComposerRequestSchema>;
 export type ComposerResponse = z.infer<typeof ComposerResponseSchema>;
+export type ComposerConfig = ComposerRequest; // Alias for configuration context
