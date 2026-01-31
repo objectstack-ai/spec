@@ -28,27 +28,54 @@ export class TypeScriptSerializer implements MetadataSerializer {
 
   deserialize<T>(content: string, schema?: z.ZodSchema): T {
     // For TypeScript/JavaScript files, we need to extract the exported object
-    // This implementation extracts the object literal from common export patterns
+    // Note: This is a simplified parser that works with JSON-like object literals
+    // For complex TypeScript with nested objects, consider using a proper TypeScript parser
     
+    // Try to find the object literal in various export patterns
     // Pattern 1: export const metadata = {...};
-    let match = content.match(/export\s+const\s+\w+\s*=\s*({[\s\S]*?});/);
-    
-    // Pattern 2: export default {...};
-    if (!match) {
-      match = content.match(/export\s+default\s+({[\s\S]*?});/);
+    let objectStart = content.indexOf('export const');
+    if (objectStart === -1) {
+      // Pattern 2: export default {...};
+      objectStart = content.indexOf('export default');
     }
     
-    if (!match) {
+    if (objectStart === -1) {
       throw new Error(
         'Could not parse TypeScript/JavaScript module. ' +
         'Expected export pattern: "export const metadata = {...};" or "export default {...};"'
       );
     }
 
+    // Find the first opening brace after the export statement
+    const braceStart = content.indexOf('{', objectStart);
+    if (braceStart === -1) {
+      throw new Error('Could not find object literal in export statement');
+    }
+
+    // Find the matching closing brace by counting braces
+    let braceCount = 0;
+    let braceEnd = -1;
+    for (let i = braceStart; i < content.length; i++) {
+      if (content[i] === '{') braceCount++;
+      if (content[i] === '}') {
+        braceCount--;
+        if (braceCount === 0) {
+          braceEnd = i;
+          break;
+        }
+      }
+    }
+
+    if (braceEnd === -1) {
+      throw new Error('Could not find matching closing brace for object literal');
+    }
+
+    // Extract the object literal
+    const objectLiteral = content.substring(braceStart, braceEnd + 1);
+
     try {
-      // Parse the object literal as JSON
-      // This is safer than eval but still requires the content to be valid JSON-like syntax
-      const parsed = JSON.parse(match[1]);
+      // Parse as JSON
+      const parsed = JSON.parse(objectLiteral);
 
       if (schema) {
         return schema.parse(parsed) as T;
@@ -57,7 +84,8 @@ export class TypeScriptSerializer implements MetadataSerializer {
       return parsed as T;
     } catch (error) {
       throw new Error(
-        `Failed to parse object literal: ${error instanceof Error ? error.message : String(error)}`
+        `Failed to parse object literal as JSON: ${error instanceof Error ? error.message : String(error)}. ` +
+        'Make sure the TypeScript/JavaScript object uses JSON-compatible syntax.'
       );
     }
   }

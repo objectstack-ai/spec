@@ -330,7 +330,7 @@ export class MetadataManager {
    * Generate ETag for content
    */
   private generateETag(content: string): string {
-    const hash = createHash('md5').update(content).digest('hex');
+    const hash = createHash('sha256').update(content).digest('hex').substring(0, 32);
     return `"${hash}"`;
   }
 }
