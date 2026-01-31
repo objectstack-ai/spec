@@ -1,0 +1,195 @@
+---
+title: 'ObjectStack Builder Workflow'
+description: 'AI-driven development workflow for automated metadata generation and deployment'
+---
+
+# ObjectStack Builder Workflow
+
+The **ObjectStack Builder** is an AI-driven system that enables autonomous application development through metadata generation, Git integration, and automated deployment.
+
+## Architecture Overview
+
+The system consists of three core components:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                  ObjectStack Builder                     │
+│                                                          │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
+│  │   Architect  │  │   DevOps     │  │   Runtime    │  │
+│  │    Agent     │  │    Runner    │  │   Engine     │  │
+│  │   (Brain)    │  │ (Hands/Feet) │  │   (Body)     │  │
+│  └──────────────┘  └──────────────┘  └──────────────┘  │
+│         │                   │                  │         │
+└─────────┼───────────────────┼──────────────────┼─────────┘
+          │                   │                  │
+          ▼                   ▼                  ▼
+    ┌──────────┐        ┌─────────┐      �┌─────────────┐
+    │ Generate │        │ GitHub  │      │ ObjectStack │
+    │ Metadata │        │ Vercel  │      │ Framework   │
+    └──────────┘        └─────────┘      └─────────────┘
+```
+
+### Component Responsibilities
+
+#### 1. Architect Agent (Brain)
+**Purpose**: Understand requirements and generate metadata configurations
+
+**Capabilities**:
+- Parse natural language into structured operations
+- Generate valid TypeScript/JSON configurations
+- Follow P0 specifications strictly
+- Self-validate against Zod schemas
+- Detect and correct errors
+
+**Knowledge Base**:
+- Complete P0 protocol specifications
+- Field type catalog (45+ types)
+- Relationship patterns (lookup, master-detail, tree)
+- Validation formula syntax
+- Hook implementation guidelines
+
+#### 2. DevOps Runner (Hands/Feet)
+**Purpose**: Automate Git operations and deployment monitoring
+
+**Capabilities**:
+- Create feature branches
+- Commit generated code
+- Create pull requests
+- Monitor build status
+- Read deployment logs
+- Trigger self-healing on errors
+
+**Integrations**:
+- GitHub API (Octokit)
+- Vercel API
+- CI/CD webhooks
+
+#### 3. Runtime Engine (Body)
+**Purpose**: Execute and render the metadata
+
+**Capabilities**:
+- Parse metadata files
+- Validate against schemas
+- Generate database migrations
+- Render UI components
+- Execute business logic
+- Provide APIs
+
+**Components**:
+- `@objectstack/spec` - Schema definitions
+- `@objectstack/core` - Runtime kernel
+- `@objectstack/engine` - Metadata executor
+
+---
+
+## Development Roadmap
+
+### Version 1: Read-Only Mode (Repository Analysis)
+
+**Purpose**: Validate Agent understands ObjectStack specifications
+
+**Capabilities**:
+- Read GitHub repository via API
+- Parse existing metadata files
+- Answer questions about current system
+- Generate documentation
+
+**Example Queries**:
+- "What objects are currently defined?"
+- "What fields does the Customer object have?"
+- "Show me all lookup relationships"
+- "Which objects have validation rules?"
+
+**Success Criteria**:
+- ✅ Can read and parse all object files
+- ✅ Correctly identifies all relationships
+- ✅ Answers questions with 95%+ accuracy
+- ✅ Generates accurate documentation
+
+---
+
+### Version 2: Configuration Generator (Code Blocks)
+
+**Purpose**: Generate valid metadata without Git integration
+
+**Capabilities**:
+- Accept natural language requirements
+- Generate valid TypeScript configurations
+- Output code blocks for manual copy-paste
+- Provide validation feedback
+
+**Success Criteria**:
+- ✅ Generated code passes TypeScript compilation
+- ✅ Generated code passes Zod validation
+- ✅ Follows naming conventions 100%
+- ✅ Dependencies generated in correct order
+
+---
+
+### Version 3: Git Integration (Automated PRs)
+
+**Purpose**: Automatically commit and create pull requests
+
+**Capabilities**:
+- Create feature branches
+- Commit generated files
+- Create pull requests
+- Add descriptive PR descriptions
+- Link related issues
+
+**Git Ops Best Practices**:
+
+1. **Branch Naming**: `ai/feature-name` or `ai-update-{timestamp}`
+2. **Commit Messages**: Follow conventional commits
+   - `feat(domain): add object definition`
+   - `fix(validation): correct formula syntax`
+   - `refactor(structure): reorganize files`
+3. **PR Labels**: `ai-generated`, `needs-review`, `auto-deploy`
+4. **Never push to main**: Always create PR for review
+
+**Success Criteria**:
+- ✅ Branches created successfully
+- ✅ Files committed in dependency order
+- ✅ PRs contain comprehensive descriptions
+- ✅ CI/CD pipeline triggered correctly
+
+---
+
+### Version 4: Self-Healing (Error Recovery)
+
+**Purpose**: Automatically detect and fix deployment errors
+
+**Capabilities**:
+- Monitor Vercel deployment status
+- Read build and runtime logs
+- Diagnose common errors
+- Generate fixes
+- Re-deploy automatically
+- Notify on persistent failures
+
+**Architecture**:
+
+```
+GitHub Push → Vercel Build Triggered
+   │
+   ├─> SUCCESS ✅ → Merge PR → Deploy to production
+   │
+   └─> ERROR ❌ → Read Logs → Diagnose Issue → Generate Fix → Re-deploy
+```
+
+**Success Criteria**:
+- ✅ Detects 90%+ of common errors
+- ✅ Successfully fixes 70%+ of detected errors
+- ✅ Max 3 retry attempts before escalation
+- ✅ Notifies human on persistent failures
+- ✅ Maintains error history for learning
+
+---
+
+## Resources
+
+- [AI Builder Prompt](https://github.com/objectstack-ai/spec/blob/main/.github/prompts/ai-builder.prompt.md)
+- [Technical Specification](./technical-specification.mdx)
+- [P0 Specifications](../../../packages/spec/src/)
+- [Architecture Guide](../../../ARCHITECTURE.md)
