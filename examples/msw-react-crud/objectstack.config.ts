@@ -20,8 +20,8 @@ export const TaskObject = {
     id: { name: 'id', label: 'ID', type: 'text', required: true },
     subject: { name: 'subject', label: 'Subject', type: 'text', required: true },
     priority: { name: 'priority', label: 'Priority', type: 'number', defaultValue: 5 },
-    isCompleted: { name: 'isCompleted', label: 'Completed', type: 'boolean', defaultValue: false },
-    createdAt: { name: 'createdAt', label: 'Created At', type: 'datetime' }
+    is_completed: { name: 'is_completed', label: 'Completed', type: 'boolean', defaultValue: false },
+    created_at: { name: 'created_at', label: 'Created At', type: 'datetime' }
   }
 };
 

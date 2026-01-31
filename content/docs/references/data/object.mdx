@@ -85,7 +85,7 @@ const result = ApiMethodSchema.parse(data);
 | **abstract** | `boolean` | optional | Is abstract base object (cannot be instantiated) |
 | **datasource** | `string` | optional | Target Datasource ID. "default" is the primary DB. |
 | **tableName** | `string` | optional | Physical table/collection name in the target datasource |
-| **fields** | `Record<string, object>` | ✅ | Field definitions map |
+| **fields** | `Record<string, object>` | ✅ | Field definitions map. Keys must be snake_case identifiers. |
 | **indexes** | `object[]` | optional | Database performance indexes |
 | **tenancy** | `object` | optional | Multi-tenancy configuration for SaaS applications |
 | **softDelete** | `object` | optional | Soft delete (trash/recycle bin) configuration |

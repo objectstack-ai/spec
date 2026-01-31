@@ -136,6 +136,129 @@ describe('ObjectSchema', () => {
 
       expect(() => ObjectSchema.parse(objectWithFields)).not.toThrow();
     });
+
+    it('should enforce snake_case for field names', () => {
+      // Valid snake_case field names
+      const validFieldNames = ['first_name', 'last_name', 'email', 'company_name', 'annual_revenue', '_system_id'];
+      
+      validFieldNames.forEach(fieldName => {
+        const obj = {
+          name: 'test_object',
+          fields: {
+            [fieldName]: {
+              type: 'text' as const,
+              label: 'Test Field',
+            },
+          },
+        };
+        expect(() => ObjectSchema.parse(obj)).not.toThrow();
+      });
+    });
+
+    it('should reject PascalCase field names', () => {
+      const invalidObject = {
+        name: 'lead',
+        fields: {
+          FirstName: {
+            type: 'text' as const,
+            label: '名',
+          },
+        },
+      };
+
+      expect(() => ObjectSchema.parse(invalidObject)).toThrow();
+      expect(() => ObjectSchema.parse(invalidObject)).toThrow(/Field names must be lowercase snake_case/);
+    });
+
+    it('should reject camelCase field names', () => {
+      const invalidObject = {
+        name: 'lead',
+        fields: {
+          firstName: {
+            type: 'text' as const,
+            label: 'First Name',
+          },
+        },
+      };
+
+      expect(() => ObjectSchema.parse(invalidObject)).toThrow();
+      expect(() => ObjectSchema.parse(invalidObject)).toThrow(/Field names must be lowercase snake_case/);
+    });
+
+    it('should reject kebab-case field names', () => {
+      const invalidObject = {
+        name: 'lead',
+        fields: {
+          'first-name': {
+            type: 'text' as const,
+            label: 'First Name',
+          },
+        },
+      };
+
+      expect(() => ObjectSchema.parse(invalidObject)).toThrow();
+      expect(() => ObjectSchema.parse(invalidObject)).toThrow(/Field names must be lowercase snake_case/);
+    });
+
+    it('should reject field names with spaces', () => {
+      const invalidObject = {
+        name: 'lead',
+        fields: {
+          'first name': {
+            type: 'text' as const,
+            label: 'First Name',
+          },
+        },
+      };
+
+      expect(() => ObjectSchema.parse(invalidObject)).toThrow();
+      expect(() => ObjectSchema.parse(invalidObject)).toThrow(/Field names must be lowercase snake_case/);
+    });
+
+    it('should reject field names starting with numbers', () => {
+      const invalidObject = {
+        name: 'lead',
+        fields: {
+          '123field': {
+            type: 'text' as const,
+            label: 'Field',
+          },
+        },
+      };
+
+      expect(() => ObjectSchema.parse(invalidObject)).toThrow();
+      expect(() => ObjectSchema.parse(invalidObject)).toThrow(/Field names must be lowercase snake_case/);
+    });
+
+    it('should reject mixed-case field names like in AI-generated objects', () => {
+      // This is the exact problem from the issue
+      const aiGeneratedObject = {
+        name: 'lead',
+        label: '线索',
+        fields: {
+          FirstName: {
+            type: 'text' as const,
+            label: '名',
+            maxLength: 40,
+          },
+          LastName: {
+            type: 'text' as const,
+            label: '姓',
+            required: true,
+            maxLength: 80,
+          },
+          Company: {
+            type: 'text' as const,
+            label: '公司',
+            required: true,
+            maxLength: 255,
+          },
+        },
+      };
+
+      expect(() => ObjectSchema.parse(aiGeneratedObject)).toThrow();
+      expect(() => ObjectSchema.parse(aiGeneratedObject)).toThrow(/Field names must be lowercase snake_case/);
+    });
   });
 
   describe('Object Metadata', () => {
