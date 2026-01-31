@@ -6,6 +6,7 @@
 
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
+import { createHash } from 'node:crypto';
 import { watch as chokidarWatch, type FSWatcher } from 'chokidar';
 import type {
   MetadataManagerConfig,
@@ -329,8 +330,7 @@ export class MetadataManager {
    * Generate ETag for content
    */
   private generateETag(content: string): string {
-    const crypto = require('node:crypto');
-    const hash = crypto.createHash('md5').update(content).digest('hex');
+    const hash = createHash('md5').update(content).digest('hex');
     return `"${hash}"`;
   }
 }

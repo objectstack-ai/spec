@@ -27,26 +27,39 @@ export class TypeScriptSerializer implements MetadataSerializer {
   }
 
   deserialize<T>(content: string, schema?: z.ZodSchema): T {
-    // For TypeScript/JavaScript files, we expect them to be imported as modules
-    // This is a simplified version - in practice, you'd use dynamic import
-    // or a proper module loader
+    // For TypeScript/JavaScript files, we need to extract the exported object
+    // This implementation extracts the object literal from common export patterns
     
-    // Extract the JSON/object from the module content
-    const match = content.match(/export\s+(?:const|default)\s+\w+\s*=\s*({[\s\S]*?});?\s*$/m);
+    // Pattern 1: export const metadata = {...};
+    let match = content.match(/export\s+const\s+\w+\s*=\s*({[\s\S]*?});/);
+    
+    // Pattern 2: export default {...};
+    if (!match) {
+      match = content.match(/export\s+default\s+({[\s\S]*?});/);
+    }
     
     if (!match) {
-      throw new Error('Could not parse TypeScript/JavaScript module');
+      throw new Error(
+        'Could not parse TypeScript/JavaScript module. ' +
+        'Expected export pattern: "export const metadata = {...};" or "export default {...};"'
+      );
     }
 
-    // Use Function constructor to safely evaluate the object literal
-    // eslint-disable-next-line no-new-func
-    const parsed = new Function(`return ${match[1]}`)();
+    try {
+      // Parse the object literal as JSON
+      // This is safer than eval but still requires the content to be valid JSON-like syntax
+      const parsed = JSON.parse(match[1]);
 
-    if (schema) {
-      return schema.parse(parsed) as T;
+      if (schema) {
+        return schema.parse(parsed) as T;
+      }
+
+      return parsed as T;
+    } catch (error) {
+      throw new Error(
+        `Failed to parse object literal: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
-
-    return parsed as T;
   }
 
   getExtension(): string {
