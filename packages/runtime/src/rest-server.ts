@@ -109,11 +109,11 @@ export class RestServer {
      * Normalize configuration with defaults
      */
     private normalizeConfig(config: RestServerConfig): NormalizedRestServerConfig {
-        const api = config.api ?? {} as Partial<RestApiConfig>;
-        const crud = config.crud ?? {} as Partial<CrudEndpointsConfig>;
-        const metadata = config.metadata ?? {} as Partial<MetadataEndpointsConfig>;
-        const batch = config.batch ?? {} as Partial<BatchEndpointsConfig>;
-        const routes = config.routes ?? {} as Partial<RouteGenerationConfig>;
+        const api = (config.api ?? {}) as Partial<RestApiConfig>;
+        const crud = (config.crud ?? {}) as Partial<CrudEndpointsConfig>;
+        const metadata = (config.metadata ?? {}) as Partial<MetadataEndpointsConfig>;
+        const batch = (config.batch ?? {}) as Partial<BatchEndpointsConfig>;
+        const routes = (config.routes ?? {}) as Partial<RouteGenerationConfig>;
         
         return {
             api: {
