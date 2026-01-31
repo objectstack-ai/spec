@@ -1,0 +1,61 @@
+{
+  "$ref": "#/definitions/GitHubIssueTracking",
+  "definitions": {
+    "GitHubIssueTracking": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable issue tracking"
+        },
+        "defaultLabels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Default issue labels"
+        },
+        "templatePaths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Issue template paths"
+        },
+        "autoAssign": {
+          "type": "boolean",
+          "default": false,
+          "description": "Auto-assign issues"
+        },
+        "autoCloseStale": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "daysBeforeStale": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 60
+            },
+            "daysBeforeClose": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 7
+            },
+            "staleLabel": {
+              "type": "string",
+              "default": "stale"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Auto-close stale issues configuration"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

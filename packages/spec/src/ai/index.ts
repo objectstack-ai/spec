@@ -3,6 +3,7 @@
  * 
  * AI/ML Capabilities
  * - Agent Configuration
+ * - DevOps Agent (Self-iterating Development)
  * - Model Registry & Selection
  * - RAG Pipeline
  * - Natural Language Query (NLQ)
@@ -14,6 +15,7 @@
 
 export * from './agent.zod';
 export * from './agent-action.zod';
+export * from './devops-agent.zod';
 export * from './model-registry.zod';
 export * from './rag-pipeline.zod';
 export * from './nlq.zod';

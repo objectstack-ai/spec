@@ -1,0 +1,46 @@
+{
+  "$ref": "#/definitions/EnvironmentVariables",
+  "definitions": {
+    "EnvironmentVariables": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "Environment variable name"
+        },
+        "value": {
+          "type": "string",
+          "description": "Environment variable value"
+        },
+        "target": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "production",
+              "preview",
+              "development"
+            ]
+          },
+          "description": "Target environments"
+        },
+        "isSecret": {
+          "type": "boolean",
+          "default": false,
+          "description": "Encrypt this variable"
+        },
+        "gitBranch": {
+          "type": "string",
+          "description": "Specific git branch"
+        }
+      },
+      "required": [
+        "key",
+        "value",
+        "target"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

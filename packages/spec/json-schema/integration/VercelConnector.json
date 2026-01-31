@@ -1,0 +1,1344 @@
+{
+  "$ref": "#/definitions/VercelConnector",
+  "definitions": {
+    "VercelConnector": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Unique connector identifier"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label"
+        },
+        "type": {
+          "type": "string",
+          "const": "saas"
+        },
+        "description": {
+          "type": "string",
+          "description": "Connector description"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Icon identifier"
+        },
+        "authentication": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "oauth2",
+                  "description": "Authentication type"
+                },
+                "authorizationUrl": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "OAuth2 authorization endpoint"
+                },
+                "tokenUrl": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "OAuth2 token endpoint"
+                },
+                "clientId": {
+                  "type": "string",
+                  "description": "OAuth2 client ID"
+                },
+                "clientSecret": {
+                  "type": "string",
+                  "description": "OAuth2 client secret (typically from ENV)"
+                },
+                "scopes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Requested OAuth2 scopes"
+                },
+                "redirectUri": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "OAuth2 redirect URI"
+                },
+                "refreshToken": {
+                  "type": "string",
+                  "description": "Refresh token for token renewal"
+                },
+                "tokenExpiry": {
+                  "type": "number",
+                  "description": "Token expiry timestamp"
+                }
+              },
+              "required": [
+                "type",
+                "authorizationUrl",
+                "tokenUrl",
+                "clientId",
+                "clientSecret"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "api-key",
+                  "description": "Authentication type"
+                },
+                "key": {
+                  "type": "string",
+                  "description": "API key value"
+                },
+                "headerName": {
+                  "type": "string",
+                  "default": "X-API-Key",
+                  "description": "HTTP header name for API key"
+                },
+                "paramName": {
+                  "type": "string",
+                  "description": "Query parameter name (alternative to header)"
+                }
+              },
+              "required": [
+                "type",
+                "key"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "basic",
+                  "description": "Authentication type"
+                },
+                "username": {
+                  "type": "string",
+                  "description": "Username"
+                },
+                "password": {
+                  "type": "string",
+                  "description": "Password (typically from ENV)"
+                }
+              },
+              "required": [
+                "type",
+                "username",
+                "password"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "bearer",
+                  "description": "Authentication type"
+                },
+                "token": {
+                  "type": "string",
+                  "description": "Bearer token"
+                }
+              },
+              "required": [
+                "type",
+                "token"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "jwt",
+                  "description": "Authentication type"
+                },
+                "token": {
+                  "type": "string",
+                  "description": "Pre-generated JWT token"
+                },
+                "secretKey": {
+                  "type": "string",
+                  "description": "Secret key for JWT signing"
+                },
+                "algorithm": {
+                  "type": "string",
+                  "enum": [
+                    "HS256",
+                    "HS384",
+                    "HS512",
+                    "RS256",
+                    "RS384",
+                    "RS512",
+                    "ES256",
+                    "ES384",
+                    "ES512"
+                  ],
+                  "default": "HS256",
+                  "description": "JWT signing algorithm"
+                },
+                "issuer": {
+                  "type": "string",
+                  "description": "JWT issuer claim"
+                },
+                "audience": {
+                  "type": "string",
+                  "description": "JWT audience claim"
+                },
+                "subject": {
+                  "type": "string",
+                  "description": "JWT subject claim"
+                },
+                "expiresIn": {
+                  "type": "number",
+                  "default": 3600,
+                  "description": "Token expiry in seconds"
+                },
+                "claims": {
+                  "type": "object",
+                  "additionalProperties": {},
+                  "description": "Additional JWT claims"
+                }
+              },
+              "required": [
+                "type"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "saml",
+                  "description": "Authentication type"
+                },
+                "entryPoint": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "SAML IdP entry point URL"
+                },
+                "issuer": {
+                  "type": "string",
+                  "description": "SAML service provider issuer"
+                },
+                "certificate": {
+                  "type": "string",
+                  "description": "SAML IdP certificate (X.509)"
+                },
+                "privateKey": {
+                  "type": "string",
+                  "description": "SAML service provider private key"
+                },
+                "callbackUrl": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "SAML assertion consumer service URL"
+                },
+                "signatureAlgorithm": {
+                  "type": "string",
+                  "enum": [
+                    "sha1",
+                    "sha256",
+                    "sha512"
+                  ],
+                  "default": "sha256",
+                  "description": "SAML signature algorithm"
+                },
+                "wantAssertionsSigned": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Require signed SAML assertions"
+                },
+                "identifierFormat": {
+                  "type": "string",
+                  "description": "SAML NameID format"
+                }
+              },
+              "required": [
+                "type",
+                "entryPoint",
+                "issuer",
+                "certificate"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "none",
+                  "description": "No authentication required"
+                }
+              },
+              "required": [
+                "type"
+              ],
+              "additionalProperties": false
+            }
+          ],
+          "description": "Authentication configuration"
+        },
+        "syncConfig": {
+          "type": "object",
+          "properties": {
+            "strategy": {
+              "type": "string",
+              "enum": [
+                "full",
+                "incremental",
+                "upsert",
+                "append_only"
+              ],
+              "description": "Synchronization strategy",
+              "default": "incremental"
+            },
+            "direction": {
+              "type": "string",
+              "enum": [
+                "import",
+                "export",
+                "bidirectional"
+              ],
+              "default": "import",
+              "description": "Sync direction"
+            },
+            "schedule": {
+              "type": "string",
+              "description": "Cron expression for scheduled sync"
+            },
+            "realtimeSync": {
+              "type": "boolean",
+              "default": false,
+              "description": "Enable real-time sync"
+            },
+            "timestampField": {
+              "type": "string",
+              "description": "Field to track last modification time"
+            },
+            "conflictResolution": {
+              "type": "string",
+              "enum": [
+                "source_wins",
+                "target_wins",
+                "latest_wins",
+                "manual"
+              ],
+              "description": "Conflict resolution strategy",
+              "default": "latest_wins"
+            },
+            "batchSize": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1000,
+              "description": "Records per batch"
+            },
+            "deleteMode": {
+              "type": "string",
+              "enum": [
+                "hard_delete",
+                "soft_delete",
+                "ignore"
+              ],
+              "default": "soft_delete",
+              "description": "Delete handling mode"
+            },
+            "filters": {
+              "type": "object",
+              "additionalProperties": {},
+              "description": "Filter criteria for selective sync"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Data sync configuration"
+        },
+        "fieldMappings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string",
+                "description": "Source field name"
+              },
+              "target": {
+                "type": "string",
+                "description": "Target field name"
+              },
+              "transform": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "const": "constant"
+                      },
+                      "value": {
+                        "description": "Constant value to use"
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Set a constant value"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "const": "cast"
+                      },
+                      "targetType": {
+                        "type": "string",
+                        "enum": [
+                          "string",
+                          "number",
+                          "boolean",
+                          "date"
+                        ],
+                        "description": "Target data type"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "targetType"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Cast to a specific data type"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "const": "lookup"
+                      },
+                      "table": {
+                        "type": "string",
+                        "description": "Lookup table name"
+                      },
+                      "keyField": {
+                        "type": "string",
+                        "description": "Field to match on"
+                      },
+                      "valueField": {
+                        "type": "string",
+                        "description": "Field to retrieve"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "table",
+                      "keyField",
+                      "valueField"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Lookup value from another table"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "const": "javascript"
+                      },
+                      "expression": {
+                        "type": "string",
+                        "description": "JavaScript expression (e.g., \"value.toUpperCase()\")"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "expression"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Custom JavaScript transformation"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "const": "map"
+                      },
+                      "mappings": {
+                        "type": "object",
+                        "additionalProperties": {},
+                        "description": "Value mappings (e.g., {\"Active\": \"active\"})"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "mappings"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Map values using a dictionary"
+                  }
+                ],
+                "description": "Transformation to apply"
+              },
+              "defaultValue": {
+                "description": "Default if source is null/undefined"
+              },
+              "dataType": {
+                "type": "string",
+                "enum": [
+                  "string",
+                  "number",
+                  "boolean",
+                  "date",
+                  "datetime",
+                  "json",
+                  "array"
+                ],
+                "description": "Target data type"
+              },
+              "required": {
+                "type": "boolean",
+                "default": false,
+                "description": "Field is required"
+              },
+              "syncMode": {
+                "type": "string",
+                "enum": [
+                  "read_only",
+                  "write_only",
+                  "bidirectional"
+                ],
+                "default": "bidirectional",
+                "description": "Sync mode"
+              }
+            },
+            "required": [
+              "source",
+              "target"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Field mapping rules"
+        },
+        "webhooks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 2,
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Webhook unique name (lowercase snake_case)"
+              },
+              "label": {
+                "type": "string",
+                "description": "Human-readable webhook label"
+              },
+              "object": {
+                "type": "string",
+                "description": "Object to listen to (optional for manual webhooks)"
+              },
+              "triggers": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "create",
+                    "update",
+                    "delete",
+                    "undelete",
+                    "api"
+                  ]
+                },
+                "description": "Events that trigger execution"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "description": "External webhook endpoint URL"
+              },
+              "method": {
+                "type": "string",
+                "enum": [
+                  "GET",
+                  "POST",
+                  "PUT",
+                  "PATCH",
+                  "DELETE"
+                ],
+                "default": "POST",
+                "description": "HTTP method"
+              },
+              "headers": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "Custom HTTP headers"
+              },
+              "body": {
+                "description": "Request body payload (if not using default record data)"
+              },
+              "payloadFields": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Fields to include. Empty = All"
+              },
+              "includeSession": {
+                "type": "boolean",
+                "default": false,
+                "description": "Include user session info"
+              },
+              "authentication": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "bearer",
+                      "basic",
+                      "api-key"
+                    ],
+                    "description": "Authentication type"
+                  },
+                  "credentials": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "description": "Authentication credentials"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": false,
+                "description": "Authentication configuration"
+              },
+              "retryPolicy": {
+                "type": "object",
+                "properties": {
+                  "maxRetries": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10,
+                    "default": 3,
+                    "description": "Maximum retry attempts"
+                  },
+                  "backoffStrategy": {
+                    "type": "string",
+                    "enum": [
+                      "exponential",
+                      "linear",
+                      "fixed"
+                    ],
+                    "default": "exponential",
+                    "description": "Backoff strategy"
+                  },
+                  "initialDelayMs": {
+                    "type": "integer",
+                    "minimum": 100,
+                    "default": 1000,
+                    "description": "Initial retry delay in milliseconds"
+                  },
+                  "maxDelayMs": {
+                    "type": "integer",
+                    "minimum": 1000,
+                    "default": 60000,
+                    "description": "Maximum retry delay in milliseconds"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "Retry policy configuration"
+              },
+              "timeoutMs": {
+                "type": "integer",
+                "minimum": 1000,
+                "maximum": 300000,
+                "default": 30000,
+                "description": "Request timeout in milliseconds"
+              },
+              "secret": {
+                "type": "string",
+                "description": "Signing secret for HMAC signature verification"
+              },
+              "isActive": {
+                "type": "boolean",
+                "default": true,
+                "description": "Whether webhook is active"
+              },
+              "description": {
+                "type": "string",
+                "description": "Webhook description"
+              },
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Tags for organization"
+              },
+              "events": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "record.created",
+                    "record.updated",
+                    "record.deleted",
+                    "sync.started",
+                    "sync.completed",
+                    "sync.failed",
+                    "auth.expired",
+                    "rate_limit.exceeded"
+                  ],
+                  "description": "Webhook event type"
+                },
+                "description": "Connector events to subscribe to"
+              },
+              "signatureAlgorithm": {
+                "type": "string",
+                "enum": [
+                  "hmac_sha256",
+                  "hmac_sha512",
+                  "none"
+                ],
+                "description": "Webhook signature algorithm",
+                "default": "hmac_sha256"
+              }
+            },
+            "required": [
+              "name",
+              "url"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Webhook configurations"
+        },
+        "rateLimitConfig": {
+          "type": "object",
+          "properties": {
+            "strategy": {
+              "type": "string",
+              "enum": [
+                "fixed_window",
+                "sliding_window",
+                "token_bucket",
+                "leaky_bucket"
+              ],
+              "description": "Rate limiting strategy",
+              "default": "token_bucket"
+            },
+            "maxRequests": {
+              "type": "number",
+              "minimum": 1,
+              "description": "Maximum requests per window"
+            },
+            "windowSeconds": {
+              "type": "number",
+              "minimum": 1,
+              "description": "Time window in seconds"
+            },
+            "burstCapacity": {
+              "type": "number",
+              "minimum": 1,
+              "description": "Burst capacity"
+            },
+            "respectUpstreamLimits": {
+              "type": "boolean",
+              "default": true,
+              "description": "Respect external rate limit headers"
+            },
+            "rateLimitHeaders": {
+              "type": "object",
+              "properties": {
+                "remaining": {
+                  "type": "string",
+                  "default": "X-RateLimit-Remaining",
+                  "description": "Header for remaining requests"
+                },
+                "limit": {
+                  "type": "string",
+                  "default": "X-RateLimit-Limit",
+                  "description": "Header for rate limit"
+                },
+                "reset": {
+                  "type": "string",
+                  "default": "X-RateLimit-Reset",
+                  "description": "Header for reset time"
+                }
+              },
+              "additionalProperties": false,
+              "description": "Custom rate limit headers"
+            }
+          },
+          "required": [
+            "maxRequests",
+            "windowSeconds"
+          ],
+          "additionalProperties": false,
+          "description": "Rate limiting configuration"
+        },
+        "retryConfig": {
+          "type": "object",
+          "properties": {
+            "strategy": {
+              "type": "string",
+              "enum": [
+                "exponential_backoff",
+                "linear_backoff",
+                "fixed_delay",
+                "no_retry"
+              ],
+              "description": "Retry strategy",
+              "default": "exponential_backoff"
+            },
+            "maxAttempts": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10,
+              "default": 3,
+              "description": "Maximum retry attempts"
+            },
+            "initialDelayMs": {
+              "type": "number",
+              "minimum": 100,
+              "default": 1000,
+              "description": "Initial retry delay in ms"
+            },
+            "maxDelayMs": {
+              "type": "number",
+              "minimum": 1000,
+              "default": 60000,
+              "description": "Maximum retry delay in ms"
+            },
+            "backoffMultiplier": {
+              "type": "number",
+              "minimum": 1,
+              "default": 2,
+              "description": "Exponential backoff multiplier"
+            },
+            "retryableStatusCodes": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "default": [
+                408,
+                429,
+                500,
+                502,
+                503,
+                504
+              ],
+              "description": "HTTP status codes to retry"
+            },
+            "retryOnNetworkError": {
+              "type": "boolean",
+              "default": true,
+              "description": "Retry on network errors"
+            },
+            "jitter": {
+              "type": "boolean",
+              "default": true,
+              "description": "Add jitter to retry delays"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Retry configuration"
+        },
+        "connectionTimeoutMs": {
+          "type": "number",
+          "minimum": 1000,
+          "maximum": 300000,
+          "default": 30000,
+          "description": "Connection timeout in ms"
+        },
+        "requestTimeoutMs": {
+          "type": "number",
+          "minimum": 1000,
+          "maximum": 300000,
+          "default": 30000,
+          "description": "Request timeout in ms"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "inactive",
+            "error",
+            "configuring"
+          ],
+          "description": "Connector status",
+          "default": "inactive"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable connector"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Custom connector metadata"
+        },
+        "provider": {
+          "type": "string",
+          "enum": [
+            "vercel"
+          ],
+          "description": "Vercel provider"
+        },
+        "baseUrl": {
+          "type": "string",
+          "format": "uri",
+          "default": "https://api.vercel.com",
+          "description": "Vercel API base URL"
+        },
+        "team": {
+          "type": "object",
+          "properties": {
+            "teamId": {
+              "type": "string",
+              "description": "Team ID or slug"
+            },
+            "teamName": {
+              "type": "string",
+              "description": "Team name"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Vercel team configuration"
+        },
+        "projects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Vercel project name"
+              },
+              "framework": {
+                "type": "string",
+                "enum": [
+                  "nextjs",
+                  "react",
+                  "vue",
+                  "nuxtjs",
+                  "gatsby",
+                  "remix",
+                  "astro",
+                  "sveltekit",
+                  "solid",
+                  "angular",
+                  "static",
+                  "other"
+                ],
+                "description": "Frontend framework"
+              },
+              "gitRepository": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "github",
+                      "gitlab",
+                      "bitbucket"
+                    ],
+                    "description": "Git provider"
+                  },
+                  "repo": {
+                    "type": "string",
+                    "description": "Repository identifier (e.g., owner/repo)"
+                  },
+                  "productionBranch": {
+                    "type": "string",
+                    "default": "main",
+                    "description": "Production branch name"
+                  },
+                  "autoDeployProduction": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Auto-deploy production branch"
+                  },
+                  "autoDeployPreview": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Auto-deploy preview branches"
+                  }
+                },
+                "required": [
+                  "type",
+                  "repo"
+                ],
+                "additionalProperties": false,
+                "description": "Git repository configuration"
+              },
+              "buildConfig": {
+                "type": "object",
+                "properties": {
+                  "buildCommand": {
+                    "type": "string",
+                    "description": "Build command (e.g., npm run build)"
+                  },
+                  "outputDirectory": {
+                    "type": "string",
+                    "description": "Output directory (e.g., .next, dist)"
+                  },
+                  "installCommand": {
+                    "type": "string",
+                    "description": "Install command (e.g., npm install, pnpm install)"
+                  },
+                  "devCommand": {
+                    "type": "string",
+                    "description": "Development command (e.g., npm run dev)"
+                  },
+                  "nodeVersion": {
+                    "type": "string",
+                    "description": "Node.js version (e.g., 18.x, 20.x)"
+                  },
+                  "env": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "description": "Build environment variables"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "Build configuration"
+              },
+              "deploymentConfig": {
+                "type": "object",
+                "properties": {
+                  "autoDeployment": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable automatic deployments"
+                  },
+                  "regions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "iad1",
+                        "sfo1",
+                        "gru1",
+                        "lhr1",
+                        "fra1",
+                        "sin1",
+                        "syd1",
+                        "hnd1",
+                        "icn1"
+                      ]
+                    },
+                    "description": "Deployment regions"
+                  },
+                  "enablePreview": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable preview deployments"
+                  },
+                  "previewComments": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Post preview URLs in PR comments"
+                  },
+                  "productionProtection": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Require approval for production deployments"
+                  },
+                  "deployHooks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "description": "Hook name"
+                        },
+                        "url": {
+                          "type": "string",
+                          "format": "uri",
+                          "description": "Deploy hook URL"
+                        },
+                        "branch": {
+                          "type": "string",
+                          "description": "Target branch"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "url"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "description": "Deploy hooks"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "Deployment configuration"
+              },
+              "domains": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "domain": {
+                      "type": "string",
+                      "description": "Domain name (e.g., app.example.com)"
+                    },
+                    "httpsRedirect": {
+                      "type": "boolean",
+                      "default": true,
+                      "description": "Redirect HTTP to HTTPS"
+                    },
+                    "customCertificate": {
+                      "type": "object",
+                      "properties": {
+                        "cert": {
+                          "type": "string",
+                          "description": "SSL certificate"
+                        },
+                        "key": {
+                          "type": "string",
+                          "description": "Private key"
+                        },
+                        "ca": {
+                          "type": "string",
+                          "description": "Certificate authority"
+                        }
+                      },
+                      "required": [
+                        "cert",
+                        "key"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Custom SSL certificate"
+                    },
+                    "gitBranch": {
+                      "type": "string",
+                      "description": "Git branch to deploy to this domain"
+                    }
+                  },
+                  "required": [
+                    "domain"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "Custom domains"
+              },
+              "environmentVariables": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "description": "Environment variable name"
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "Environment variable value"
+                    },
+                    "target": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "production",
+                          "preview",
+                          "development"
+                        ]
+                      },
+                      "description": "Target environments"
+                    },
+                    "isSecret": {
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Encrypt this variable"
+                    },
+                    "gitBranch": {
+                      "type": "string",
+                      "description": "Specific git branch"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "value",
+                    "target"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "Environment variables"
+              },
+              "edgeFunctions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Edge function name"
+                    },
+                    "path": {
+                      "type": "string",
+                      "description": "Function path (e.g., /api/*)"
+                    },
+                    "regions": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Specific regions for this function"
+                    },
+                    "memoryLimit": {
+                      "type": "integer",
+                      "minimum": 128,
+                      "maximum": 3008,
+                      "default": 1024,
+                      "description": "Memory limit in MB"
+                    },
+                    "timeout": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 300,
+                      "default": 10,
+                      "description": "Timeout in seconds"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "path"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "Edge functions"
+              },
+              "rootDirectory": {
+                "type": "string",
+                "description": "Root directory (for monorepos)"
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Vercel projects"
+        },
+        "monitoring": {
+          "type": "object",
+          "properties": {
+            "enableWebAnalytics": {
+              "type": "boolean",
+              "default": false,
+              "description": "Enable Vercel Web Analytics"
+            },
+            "enableSpeedInsights": {
+              "type": "boolean",
+              "default": false,
+              "description": "Enable Vercel Speed Insights"
+            },
+            "logDrains": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Log drain name"
+                  },
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Log drain URL"
+                  },
+                  "headers": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "description": "Custom headers"
+                  },
+                  "sources": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "static",
+                        "lambda",
+                        "edge"
+                      ]
+                    },
+                    "description": "Log sources"
+                  }
+                },
+                "required": [
+                  "name",
+                  "url"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Log drains configuration"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Monitoring configuration"
+        },
+        "enableWebhooks": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Vercel webhooks"
+        },
+        "webhookEvents": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "deployment.created",
+              "deployment.succeeded",
+              "deployment.failed",
+              "deployment.ready",
+              "deployment.error",
+              "deployment.canceled",
+              "deployment-checks-completed",
+              "deployment-prepared",
+              "project.created",
+              "project.removed"
+            ]
+          },
+          "description": "Webhook events to subscribe to"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "type",
+        "authentication",
+        "provider",
+        "projects"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
