@@ -171,6 +171,9 @@ export async function createPluginContext(): Promise<CLIPluginContext> {
   const utils = new Utils();
   const packageManager = await detectPackageManager();
 
+  // Note: We use 'as any' here because Zod's function schemas expect (...args: unknown[])
+  // but our actual implementations have specific parameter types. This is a known limitation
+  // of Zod when dealing with function types. The runtime behavior is correct.
   return {
     cwd: process.cwd(),
     logger: logger as any,

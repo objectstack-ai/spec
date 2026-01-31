@@ -40,6 +40,10 @@ export const CLICommandOptionSchema = z.object({
 /**
  * CLI Command Definition Schema
  * Defines a single CLI command that a plugin provides
+ * 
+ * Note: We use z.ZodType<any> for the recursive subcommands reference.
+ * This is necessary because Zod's lazy() function requires explicit typing
+ * for recursive schemas. The actual validation still works correctly at runtime.
  */
 export const CLICommandDefinitionSchema: z.ZodType<any> = z.object({
   name: z.string()

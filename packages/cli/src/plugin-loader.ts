@@ -179,7 +179,12 @@ export class CLIPluginLoader {
     }
 
     if (cmdDef.hidden) {
-      (cmd as any).hideHelp?.();
+      // Use optional chaining to safely call hideHelp if it exists
+      // Some versions of Commander may not have this method
+      const hideHelp = (cmd as any).hideHelp;
+      if (typeof hideHelp === 'function') {
+        hideHelp.call(cmd);
+      }
     }
 
     // Add subcommands recursively
