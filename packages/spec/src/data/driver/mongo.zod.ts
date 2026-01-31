@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { DriverDefinitionSchema } from './../driver.zod';
+import { DriverDefinitionSchema } from '../../system/datasource.zod';
 
 /**
  * MongoDB Standard Driver Protocol

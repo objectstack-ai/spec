@@ -12,12 +12,33 @@ description: Object protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { CDCConfigSchema, IndexSchema, ObjectSchema, ObjectCapabilitiesSchema, PartitioningConfigSchema, SoftDeleteConfigSchema, TenancyConfigSchema, VersioningConfigSchema } from '@objectstack/spec/data';
-import type { CDCConfig, Index, Object, ObjectCapabilities, PartitioningConfig, SoftDeleteConfig, TenancyConfig, VersioningConfig } from '@objectstack/spec/data';
+import { ApiMethodSchema, CDCConfigSchema, IndexSchema, ObjectSchema, ObjectCapabilitiesSchema, PartitioningConfigSchema, SoftDeleteConfigSchema, TenancyConfigSchema, VersioningConfigSchema } from '@objectstack/spec/data';
+import type { ApiMethod, CDCConfig, Index, Object, ObjectCapabilities, PartitioningConfig, SoftDeleteConfig, TenancyConfig, VersioningConfig } from '@objectstack/spec/data';
 
 // Validate data
-const result = CDCConfigSchema.parse(data);
+const result = ApiMethodSchema.parse(data);
 ```
+
+---
+
+## ApiMethod
+
+### Allowed Values
+
+* `get`
+* `list`
+* `create`
+* `update`
+* `delete`
+* `upsert`
+* `bulk`
+* `aggregate`
+* `history`
+* `search`
+* `restore`
+* `purge`
+* `import`
+* `export`
 
 ---
 

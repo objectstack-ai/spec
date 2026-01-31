@@ -12,8 +12,8 @@ description: Mapping protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { FieldMappingSchema } from '@objectstack/spec/data';
-import type { FieldMapping } from '@objectstack/spec/data';
+import { FieldMappingSchema, MappingSchema, TransformTypeSchema } from '@objectstack/spec/data';
+import type { FieldMapping, Mapping, TransformType } from '@objectstack/spec/data';
 
 // Validate data
 const result = FieldMappingSchema.parse(data);
@@ -27,10 +27,41 @@ const result = FieldMappingSchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **source** | `string` | ✅ | Source field name |
-| **target** | `string` | ✅ | Target field name |
-| **transform** | `object \| object \| object \| object \| object` | optional | Transformation to apply |
-| **defaultValue** | `any` | optional | Default if source is null/undefined |
-| **type** | `string` | optional | Field type |
-| **readonly** | `boolean` | optional | Read-only field |
+| **source** | `string \| string[]` | ✅ | Source column header(s) |
+| **target** | `string \| string[]` | ✅ | Target object field(s) |
+| **transform** | `Enum<'none' \| 'constant' \| 'lookup' \| 'split' \| 'join' \| 'javascript' \| 'map'>` | optional |  |
+| **params** | `object` | optional |  |
+
+---
+
+## Mapping
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Mapping unique name (lowercase snake_case) |
+| **label** | `string` | optional |  |
+| **sourceFormat** | `Enum<'csv' \| 'json' \| 'xml' \| 'sql'>` | optional |  |
+| **targetObject** | `string` | ✅ | Target Object Name |
+| **fieldMapping** | `object[]` | ✅ |  |
+| **mode** | `Enum<'insert' \| 'update' \| 'upsert'>` | optional |  |
+| **upsertKey** | `string[]` | optional | Fields to match for upsert (e.g. email) |
+| **extractQuery** | `object` | optional | Query to run for export only |
+| **errorPolicy** | `Enum<'skip' \| 'abort' \| 'retry'>` | optional |  |
+| **batchSize** | `number` | optional |  |
+
+---
+
+## TransformType
+
+### Allowed Values
+
+* `none`
+* `constant`
+* `lookup`
+* `split`
+* `join`
+* `javascript`
+* `map`
 

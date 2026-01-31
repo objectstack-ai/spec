@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { BatchUpdateRequestSchema, BatchUpdateResponseSchema } from './batch.zod';
+import { BatchUpdateRequestSchema, BatchUpdateResponseSchema, BatchOptionsSchema } from './batch.zod';
 import { MetadataCacheRequestSchema, MetadataCacheResponseSchema } from './http-cache.zod';
 import { 
   CreateViewRequestSchema, 
@@ -266,9 +266,7 @@ export const UpdateManyDataRequestSchema = z.object({
     id: z.string().describe('Record ID'),
     data: z.record(z.any()).describe('Fields to update'),
   })).describe('Array of updates'),
-  options: z.object({
-    allOrNone: z.boolean().optional().describe('Atomic transaction mode'),
-  }).optional(),
+  options: BatchOptionsSchema.optional().describe('Update options'),
 });
 
 /**
@@ -283,9 +281,7 @@ export const UpdateManyDataResponseSchema = BatchUpdateResponseSchema;
 export const DeleteManyDataRequestSchema = z.object({
   object: z.string().describe('Object name'),
   ids: z.array(z.string()).describe('Array of record IDs to delete'),
-  options: z.object({
-    allOrNone: z.boolean().optional().describe('Atomic transaction mode'),
-  }).optional(),
+  options: BatchOptionsSchema.optional().describe('Delete options'),
 });
 
 /**
@@ -460,24 +456,24 @@ export type GetMetaItemCachedResponse = z.infer<typeof GetMetaItemCachedResponse
 export type GetUiViewRequest = z.infer<typeof GetUiViewRequestSchema>;
 export type GetUiViewResponse = z.infer<typeof GetUiViewResponseSchema>;
 
-export type FindDataRequest = z.infer<typeof FindDataRequestSchema>;
+export type FindDataRequest = z.input<typeof FindDataRequestSchema>;
 export type FindDataResponse = z.infer<typeof FindDataResponseSchema>;
-export type GetDataRequest = z.infer<typeof GetDataRequestSchema>;
+export type GetDataRequest = z.input<typeof GetDataRequestSchema>;
 export type GetDataResponse = z.infer<typeof GetDataResponseSchema>;
-export type CreateDataRequest = z.infer<typeof CreateDataRequestSchema>;
+export type CreateDataRequest = z.input<typeof CreateDataRequestSchema>;
 export type CreateDataResponse = z.infer<typeof CreateDataResponseSchema>;
-export type UpdateDataRequest = z.infer<typeof UpdateDataRequestSchema>;
+export type UpdateDataRequest = z.input<typeof UpdateDataRequestSchema>;
 export type UpdateDataResponse = z.infer<typeof UpdateDataResponseSchema>;
-export type DeleteDataRequest = z.infer<typeof DeleteDataRequestSchema>;
+export type DeleteDataRequest = z.input<typeof DeleteDataRequestSchema>;
 export type DeleteDataResponse = z.infer<typeof DeleteDataResponseSchema>;
 
-export type BatchDataRequest = z.infer<typeof BatchDataRequestSchema>;
+export type BatchDataRequest = z.input<typeof BatchDataRequestSchema>;
 export type BatchDataResponse = z.infer<typeof BatchDataResponseSchema>;
-export type CreateManyDataRequest = z.infer<typeof CreateManyDataRequestSchema>;
+export type CreateManyDataRequest = z.input<typeof CreateManyDataRequestSchema>;
 export type CreateManyDataResponse = z.infer<typeof CreateManyDataResponseSchema>;
-export type UpdateManyDataRequest = z.infer<typeof UpdateManyDataRequestSchema>;
+export type UpdateManyDataRequest = z.input<typeof UpdateManyDataRequestSchema>;
 export type UpdateManyDataResponse = z.infer<typeof UpdateManyDataResponseSchema>;
-export type DeleteManyDataRequest = z.infer<typeof DeleteManyDataRequestSchema>;
+export type DeleteManyDataRequest = z.input<typeof DeleteManyDataRequestSchema>;
 export type DeleteManyDataResponse = z.infer<typeof DeleteManyDataResponseSchema>;
 
 export type GetViewRequest = z.infer<typeof GetViewRequestSchema>;

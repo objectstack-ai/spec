@@ -6,14 +6,14 @@ description: Driver Nosql protocol schemas
 # Driver Nosql
 
 <Callout type="info">
-**Source:** `packages/spec/src/system/driver-nosql.zod.ts`
+**Source:** `packages/spec/src/data/driver-nosql.zod.ts`
 </Callout>
 
 ## TypeScript Usage
 
 ```typescript
-import { AggregationPipelineSchema, AggregationStageSchema, ConsistencyLevelSchema, DocumentValidationSchemaSchema, NoSQLDataTypeMappingSchema, NoSQLDatabaseTypeSchema, NoSQLDriverConfigSchema, NoSQLIndexSchema, NoSQLIndexTypeSchema, NoSQLOperationTypeSchema, NoSQLQueryOptionsSchema, NoSQLTransactionOptionsSchema, ReplicationConfigSchema, ShardingConfigSchema } from '@objectstack/spec/system';
-import type { AggregationPipeline, AggregationStage, ConsistencyLevel, DocumentValidationSchema, NoSQLDataTypeMapping, NoSQLDatabaseType, NoSQLDriverConfig, NoSQLIndex, NoSQLIndexType, NoSQLOperationType, NoSQLQueryOptions, NoSQLTransactionOptions, ReplicationConfig, ShardingConfig } from '@objectstack/spec/system';
+import { AggregationPipelineSchema, AggregationStageSchema, ConsistencyLevelSchema, DocumentValidationSchemaSchema, NoSQLDataTypeMappingSchema, NoSQLDatabaseTypeSchema, NoSQLDriverConfigSchema, NoSQLIndexSchema, NoSQLIndexTypeSchema, NoSQLOperationTypeSchema, NoSQLQueryOptionsSchema, NoSQLTransactionOptionsSchema, ReplicationConfigSchema, ShardingConfigSchema } from '@objectstack/spec/data';
+import type { AggregationPipeline, AggregationStage, ConsistencyLevel, DocumentValidationSchema, NoSQLDataTypeMapping, NoSQLDatabaseType, NoSQLDriverConfig, NoSQLIndex, NoSQLIndexType, NoSQLOperationType, NoSQLQueryOptions, NoSQLTransactionOptions, ReplicationConfig, ShardingConfig } from '@objectstack/spec/data';
 
 // Validate data
 const result = AggregationPipelineSchema.parse(data);

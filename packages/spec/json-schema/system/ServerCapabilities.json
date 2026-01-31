@@ -1,0 +1,63 @@
+{
+  "$ref": "#/definitions/ServerCapabilities",
+  "definitions": {
+    "ServerCapabilities": {
+      "type": "object",
+      "properties": {
+        "httpVersions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "1.0",
+              "1.1",
+              "2.0",
+              "3.0"
+            ]
+          },
+          "default": [
+            "1.1"
+          ],
+          "description": "Supported HTTP versions"
+        },
+        "websocket": {
+          "type": "boolean",
+          "default": false,
+          "description": "WebSocket support"
+        },
+        "sse": {
+          "type": "boolean",
+          "default": false,
+          "description": "Server-Sent Events support"
+        },
+        "serverPush": {
+          "type": "boolean",
+          "default": false,
+          "description": "HTTP/2 Server Push support"
+        },
+        "streaming": {
+          "type": "boolean",
+          "default": true,
+          "description": "Response streaming support"
+        },
+        "middleware": {
+          "type": "boolean",
+          "default": true,
+          "description": "Middleware chain support"
+        },
+        "routeParams": {
+          "type": "boolean",
+          "default": true,
+          "description": "URL parameter support (/users/:id)"
+        },
+        "compression": {
+          "type": "boolean",
+          "default": true,
+          "description": "Built-in compression support"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -27,15 +27,8 @@ export * from './plugin-capability.zod';
 export * from './context.zod';
 export * from './datasource.zod';
 
-// Driver Protocol
-export * from './driver.zod';
-export * from './driver-sql.zod';
-export * from './driver-nosql.zod';
-export * from './driver/mongo.zod';
-export * from './driver/postgres.zod';
-
 // Data Engine Protocol
-export * from './data-engine.zod';
+// export * from './data-engine.zod';
 
 // Object Storage Protocol (includes scoped storage functionality)
 export * from './object-storage.zod';
@@ -59,6 +52,9 @@ export * from './notification.zod';
 
 // Change Management Protocol
 export * from './change-management.zod';
+
+// HTTP Server Protocol
+export * from './http-server.zod';
 
 // Note: Auth, Identity, Policy, Role, Organization moved to @objectstack/spec/auth
 // Note: Territory moved to @objectstack/spec/permission

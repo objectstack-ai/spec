@@ -12,8 +12,8 @@ description: Connector protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AuthenticationSchema, ConflictResolutionSchema, ConnectorSchema, ConnectorStatusSchema, ConnectorTypeSchema, DataSyncConfigSchema, FieldTransformSchema, RateLimitConfigSchema, RateLimitStrategySchema, RetryConfigSchema, RetryStrategySchema, SyncStrategySchema, WebhookConfigSchema, WebhookEventSchema, WebhookSignatureAlgorithmSchema } from '@objectstack/spec/integration';
-import type { Authentication, ConflictResolution, Connector, ConnectorStatus, ConnectorType, DataSyncConfig, FieldTransform, RateLimitConfig, RateLimitStrategy, RetryConfig, RetryStrategy, SyncStrategy, WebhookConfig, WebhookEvent, WebhookSignatureAlgorithm } from '@objectstack/spec/integration';
+import { AuthenticationSchema, ConflictResolutionSchema, ConnectorSchema, ConnectorStatusSchema, ConnectorTypeSchema, DataSyncConfigSchema, FieldTransformSchema, RateLimitStrategySchema, RetryConfigSchema, RetryStrategySchema, SyncStrategySchema, WebhookConfigSchema, WebhookEventSchema, WebhookSignatureAlgorithmSchema } from '@objectstack/spec/integration';
+import type { Authentication, ConflictResolution, Connector, ConnectorStatus, ConnectorType, DataSyncConfig, FieldTransform, RateLimitStrategy, RetryConfig, RetryStrategy, SyncStrategy, WebhookConfig, WebhookEvent, WebhookSignatureAlgorithm } from '@objectstack/spec/integration';
 
 // Validate data
 const result = AuthenticationSchema.parse(data);
@@ -118,21 +118,6 @@ Connector type
 | **type** | `Enum<'uppercase' \| 'lowercase' \| 'trim' \| 'date_format' \| 'number_format' \| 'custom'>` | ✅ | Transformation type |
 | **params** | `Record<string, any>` | optional | Transformation parameters |
 | **function** | `string` | optional | Custom JavaScript function for transformation |
-
----
-
-## RateLimitConfig
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **strategy** | `Enum<'fixed_window' \| 'sliding_window' \| 'token_bucket' \| 'leaky_bucket'>` | optional | Rate limiting strategy |
-| **maxRequests** | `number` | ✅ | Maximum requests per window |
-| **windowSeconds** | `number` | ✅ | Time window in seconds |
-| **burstCapacity** | `number` | optional | Burst capacity |
-| **respectUpstreamLimits** | `boolean` | optional | Respect external rate limit headers |
-| **rateLimitHeaders** | `object` | optional | Custom rate limit headers |
 
 ---
 

@@ -6,14 +6,14 @@ description: Driver protocol schemas
 # Driver
 
 <Callout type="info">
-**Source:** `packages/spec/src/system/driver.zod.ts`
+**Source:** `packages/spec/src/data/driver.zod.ts`
 </Callout>
 
 ## TypeScript Usage
 
 ```typescript
-import { DriverCapabilitiesSchema, DriverConfigSchema, DriverInterfaceSchema, DriverOptionsSchema, PoolConfigSchema } from '@objectstack/spec/system';
-import type { DriverCapabilities, DriverConfig, DriverInterface, DriverOptions, PoolConfig } from '@objectstack/spec/system';
+import { DriverCapabilitiesSchema, DriverConfigSchema, DriverInterfaceSchema, DriverOptionsSchema, PoolConfigSchema } from '@objectstack/spec/data';
+import type { DriverCapabilities, DriverConfig, DriverInterface, DriverOptions, PoolConfig } from '@objectstack/spec/data';
 
 // Validate data
 const result = DriverCapabilitiesSchema.parse(data);

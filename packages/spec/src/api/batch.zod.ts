@@ -86,7 +86,7 @@ export const BatchUpdateRequestSchema = z.object({
   options: BatchOptionsSchema.optional().describe('Batch operation options'),
 });
 
-export type BatchUpdateRequest = z.infer<typeof BatchUpdateRequestSchema>;
+export type BatchUpdateRequest = z.input<typeof BatchUpdateRequestSchema>;
 
 /**
  * Simplified Batch Update Request (for updateMany API)
@@ -107,7 +107,7 @@ export const UpdateManyRequestSchema = z.object({
   options: BatchOptionsSchema.optional().describe('Update options'),
 });
 
-export type UpdateManyRequest = z.infer<typeof UpdateManyRequestSchema>;
+export type UpdateManyRequest = z.input<typeof UpdateManyRequestSchema>;
 
 // ==========================================
 // Batch Response Schemas

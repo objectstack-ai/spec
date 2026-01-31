@@ -6,14 +6,14 @@ description: Driver Sql protocol schemas
 # Driver Sql
 
 <Callout type="info">
-**Source:** `packages/spec/src/system/driver-sql.zod.ts`
+**Source:** `packages/spec/src/data/driver-sql.zod.ts`
 </Callout>
 
 ## TypeScript Usage
 
 ```typescript
-import { DataTypeMappingSchema, SQLDialectSchema, SQLDriverConfigSchema, SSLConfigSchema } from '@objectstack/spec/system';
-import type { DataTypeMapping, SQLDialect, SQLDriverConfig, SSLConfig } from '@objectstack/spec/system';
+import { DataTypeMappingSchema, SQLDialectSchema, SQLDriverConfigSchema, SSLConfigSchema } from '@objectstack/spec/data';
+import type { DataTypeMapping, SQLDialect, SQLDriverConfig, SSLConfig } from '@objectstack/spec/data';
 
 // Validate data
 const result = DataTypeMappingSchema.parse(data);

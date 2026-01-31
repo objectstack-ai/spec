@@ -6,15 +6,16 @@
       "properties": {
         "enabled": {
           "type": "boolean",
-          "default": false
+          "default": false,
+          "description": "Enable rate limiting"
         },
         "windowMs": {
-          "type": "number",
+          "type": "integer",
           "default": 60000,
           "description": "Time window in milliseconds"
         },
         "maxRequests": {
-          "type": "number",
+          "type": "integer",
           "default": 100,
           "description": "Max requests per window"
         }
