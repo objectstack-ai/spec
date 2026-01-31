@@ -1,6 +1,7 @@
 {
   "title": "Protocol Reference",
   "pages": [
+    "packages",
     "data",
     "ui",
     "automation",
@@ -8,6 +9,10 @@
     "permission",
     "ai",
     "api",
-    "driver"
+    "driver",
+    "hub",
+    "integration",
+    "auth",
+    "shared"
   ]
 }
