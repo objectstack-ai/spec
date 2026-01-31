@@ -16,7 +16,9 @@ ObjectStack is a metadata-driven platform built on three foundational protocols:
 - **ObjectOS** (Control Layer) - Runtime, permissions, and workflows  
 - **ObjectUI** (View Layer) - Presentation and user interaction
 
-**Learn more:** [Architecture Overview](./content/docs/introduction/architecture.mdx)
+**Learn more:** 
+- [Three-Layer Stack](./content/docs/introduction/architecture.mdx) - How ObjectQL, ObjectOS, and ObjectUI work together
+- [Architecture Guide](./ARCHITECTURE.md) - Complete microkernel architecture documentation
 
 ## 📚 Documentation
 
@@ -35,7 +37,9 @@ ObjectStack is a metadata-driven platform built on three foundational protocols:
   - [ObjectOS](./content/docs/objectos/) - System layer documentation
 
 - **Development:**
+  - [Architecture Guide](./ARCHITECTURE.md) - Complete architecture overview
   - [MicroKernel Architecture](./content/docs/developers/micro-kernel.mdx) - Plugin architecture guide
+  - [Plugin Ecosystem](./content/docs/developers/plugin-ecosystem.mdx) - Plugin interoperability
   - [Writing Plugins](./content/docs/developers/writing-plugins.mdx) - Plugin development guide
   - [Contributing Guide](./CONTRIBUTING.md) - How to contribute
 
@@ -55,13 +59,52 @@ pnpm docs:dev
 
 ## 📦 Monorepo Structure
 
+### Core Packages
+
 | Package | Description | Status |
 | :--- | :--- | :--- |
-| **[`@objectstack/spec`](packages/spec)** | Core protocol definitions (Zod schemas, Types, JSON Schemas) | 🟢 Active |
+| **[`@objectstack/spec`](packages/spec)** | Protocol definitions (Zod schemas, Types, JSON Schemas) - The "Constitution" | 🟢 Active |
+| **[`@objectstack/core`](packages/core)** | Microkernel runtime (Plugin system, DI, Event Bus, Logger) | 🟢 Active |
+| **[`@objectstack/types`](packages/types)** | Shared runtime type definitions | 🟢 Active |
+
+### Engine Packages
+
+| Package | Description | Status |
+| :--- | :--- | :--- |
+| **[`@objectstack/objectql`](packages/objectql)** | ObjectQL query engine and schema registry | 🟢 Active |
+| **[`@objectstack/runtime`](packages/runtime)** | Runtime utilities and plugin helpers | 🟢 Active |
+
+### Client Packages
+
+| Package | Description | Status |
+| :--- | :--- | :--- |
+| **[`@objectstack/client`](packages/client)** | Official Client SDK for ObjectStack Protocol | 🟢 Active |
+| **[`@objectstack/client-react`](packages/client-react)** | React hooks for ObjectStack | 🟢 Active |
+
+### Plugin Packages
+
+| Package | Description | Status |
+| :--- | :--- | :--- |
+| **[`@objectstack/driver-memory`](packages/plugins/driver-memory)** | In-memory driver (reference implementation) | 🟢 Active |
+| **[`@objectstack/plugin-hono-server`](packages/plugins/plugin-hono-server)** | HTTP server plugin (Hono-based) | 🟢 Active |
+| **[`@objectstack/plugin-msw`](packages/plugins/plugin-msw)** | Mock Service Worker plugin for testing | 🟢 Active |
+
+### Tools
+
+| Package | Description | Status |
+| :--- | :--- | :--- |
+| **[`@objectstack/cli`](packages/cli)** | Command-line interface and development tools | 🟢 Active |
+| **[`@objectstack/ai-bridge`](packages/ai-bridge)** | AI agent integration bridge | 🟢 Active |
 | **[`@objectstack/docs`](apps/docs)** | Documentation site (Fumadocs + Next.js) | 🟢 Active |
-| **[`@objectstack/plugins`](packages/plugins)** | Core plugins (Hono, MSW, Drivers) | 🟢 Active |
+
+### Examples
+
+| Package | Description | Status |
+| :--- | :--- | :--- |
 | [`examples/crm`](examples/crm) | Full-featured CRM example | 🟢 Complete |
 | [`examples/todo`](examples/todo) | Simple todo app example | 🟢 Active |
+
+📖 **[View Full Architecture Guide](./ARCHITECTURE.md)** - Comprehensive architecture documentation
 
 ## 🤝 Contributing
 

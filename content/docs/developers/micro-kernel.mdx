@@ -43,6 +43,13 @@ The kernel manages plugin lifecycle and provides core services.
 
 **Location:** `packages/core/src/kernel.ts`
 
+**Key Features:**
+- **Plugin Lifecycle Management**: Three-phase lifecycle (init → start → destroy)
+- **Dependency Resolution**: Topological sort ensures correct initialization order
+- **Service Registry**: Dependency injection container for inter-plugin communication
+- **Event Bus**: Hook system for loose coupling between plugins
+- **Universal Logger**: Pino-based logging for server and browser environments
+
 **API:**
 ```typescript
 import { ObjectKernel } from '@objectstack/core';
@@ -74,14 +81,22 @@ All plugins must implement the Plugin interface.
 **Definition:**
 ```typescript
 interface Plugin {
-  name: string;
-  version?: string;
-  dependencies?: string[];
-  init?(ctx: PluginContext): Promise<void> | void;
-  start?(ctx: PluginContext): Promise<void> | void;
-  destroy?(): Promise<void> | void;
+  name: string;                   // Reverse domain notation (e.g., 'com.objectstack.driver.postgres')
+  version?: string;               // Semantic version (e.g., '1.0.0')
+  dependencies?: string[];        // Plugin names this depends on
+  init(ctx: PluginContext): Promise<void> | void;     // Register services
+  start?(ctx: PluginContext): Promise<void> | void;   // Execute business logic
+  destroy?(): Promise<void> | void;                   // Clean up resources
 }
 ```
+
+**Plugin Naming Convention:**
+- Use reverse domain notation for global uniqueness
+- Format: `{domain}.{category}.{name}`
+- Examples: 
+  - `com.objectstack.engine.objectql`
+  - `com.objectstack.driver.postgres`
+  - `com.acme.crm.customer-management`
 
 ### 3. Plugin Lifecycle
 
@@ -121,19 +136,35 @@ interface PluginContext {
   // Service Registry
   registerService(name: string, service: any): void;
   getService<T>(name: string): T;
+  getServices(): Map<string, any>;
   
   // Event System
   hook(name: string, handler: Function): void;
   trigger(name: string, ...args: any[]): Promise<void>;
   
-  // Logger
+  // Logger (Pino-based)
   logger: Logger;
+  
+  // Kernel Access
+  getKernel(): ObjectKernel;
 }
+```
+
+**Logger Methods:**
+```typescript
+logger.debug(message, metadata?)  // Development/troubleshooting
+logger.info(message, metadata?)   // General information
+logger.warn(message, metadata?)   // Warnings
+logger.error(message, metadata?)  // Errors
+logger.fatal(message, metadata?)  // Fatal errors
 ```
 
 ## Built-in Plugins
 
 ### ObjectQLPlugin
+
+**Name**: `com.objectstack.engine.objectql`  
+**Location**: `packages/objectql/src/plugin.ts`
 
 Registers the ObjectQL query engine as a service.
 
@@ -152,9 +183,18 @@ const customQL = new ObjectQL({ /* config */ });
 kernel.use(new ObjectQLPlugin(customQL));
 ```
 
-**Registers service:** `objectql`
+**Services Registered:** 
+- `objectql` - ObjectQL engine instance
+- `protocol` - Protocol implementation shim
+
+**Lifecycle:**
+- **init**: Registers ObjectQL as a service
+- **start**: Discovers and registers drivers and apps from service registry
 
 ### DriverPlugin
+
+**Name**: `com.objectstack.driver.{name}`  
+**Location**: `packages/runtime/src/driver-plugin.ts`
 
 Registers a database driver with ObjectQL.
 
@@ -166,9 +206,30 @@ const driver = createMemoryDriver();
 kernel.use(new DriverPlugin(driver, 'memory'));
 ```
 
-**Dependencies:** `['com.objectstack.engine.objectql']`
+**Services Registered:** `driver.{name}`
+
+**Note**: Drivers are discovered by ObjectQLPlugin during its start phase.
+
+### AppPlugin
+
+**Name**: `com.objectstack.app.{name}`  
+**Location**: `packages/runtime/src/app-plugin.ts`
+
+Loads an application manifest.
+
+```typescript
+import { AppPlugin } from '@objectstack/runtime';
+import manifest from './objectstack.config';
+
+kernel.use(new AppPlugin(manifest));
+```
+
+**Services Registered:** `app.{name}`
 
 ### HonoServerPlugin
+
+**Name**: `com.objectstack.plugin.hono-server`  
+**Location**: `packages/plugins/plugin-hono-server/src/plugin.ts`
 
 Starts an HTTP server using Hono.
 
@@ -177,6 +238,14 @@ import { HonoServerPlugin } from '@objectstack/plugin-hono-server';
 
 kernel.use(new HonoServerPlugin({ port: 3000 }));
 ```
+
+**Dependencies**: Requires `objectql` service
+
+**Features**:
+- REST API endpoints
+- Middleware support
+- CRUD operations
+- Query execution
 
 ## Creating Custom Plugins
 
