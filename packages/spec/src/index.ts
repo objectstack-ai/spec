@@ -53,6 +53,7 @@ export * as AI from './ai';
 export * as API from './api';
 export * as Automation from './automation';
 export * as Integration from './integration';
+export * as Contracts from './contracts';
 
 export {
   defineStack,
