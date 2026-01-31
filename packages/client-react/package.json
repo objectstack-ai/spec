@@ -8,7 +8,7 @@
     "build": "tsc"
   },
   "peerDependencies": {
-    "react": "^18.0.0"
+    "react": ">=18.0.0"
   },
   "dependencies": {
     "@objectstack/client": "workspace:*",
