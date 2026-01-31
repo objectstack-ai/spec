@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import path from 'path';
 import { compileCommand } from './commands/compile.js';
+import { pluginCommand } from './commands/plugin.js';
 import { CLIPluginLoader } from './plugin-loader.js';
 import { createPluginContext } from './plugin-context.js';
 
@@ -13,6 +14,7 @@ program
 
 // Add built-in commands
 program.addCommand(compileCommand);
+program.addCommand(pluginCommand);
 
 // Initialize plugin system
 async function initPlugins() {
