@@ -304,6 +304,8 @@ export class FilesystemLoader implements MetadataLoader {
 
   /**
    * Generate ETag for content
+   * Uses SHA-256 hash truncated to 32 characters for reasonable collision resistance
+   * while keeping ETag headers compact (full 64-char hash is overkill for this use case)
    */
   private generateETag(content: string): string {
     const hash = createHash('sha256').update(content).digest('hex').substring(0, 32);
