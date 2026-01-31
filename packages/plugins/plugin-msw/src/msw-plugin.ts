@@ -362,6 +362,100 @@ export class MSWPlugin implements Plugin {
                 }
             }),
 
+            // Batch Operations
+            http.post(`${baseUrl}/data/:object/batch`, async ({ params, request }) => {
+                try {
+                    const body = await request.json();
+                    const result = await protocol.batchData({ object: params.object as string, request: body as any });
+                    return HttpResponse.json(result);
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : 'Unknown error';
+                    return HttpResponse.json({ error: message }, { status: 400 });
+                }
+            }),
+
+            http.post(`${baseUrl}/data/:object/createMany`, async ({ params, request }) => {
+                try {
+                    const body = await request.json();
+                    const records = Array.isArray(body) ? body : [];
+                    const result = await protocol.createManyData({ object: params.object as string, records });
+                    return HttpResponse.json(result, { status: 201 });
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : 'Unknown error';
+                    return HttpResponse.json({ error: message }, { status: 400 });
+                }
+            }),
+
+            http.post(`${baseUrl}/data/:object/updateMany`, async ({ params, request }) => {
+                try {
+                    const body = await request.json() as any;
+                    const result = await protocol.updateManyData({ 
+                        object: params.object as string, 
+                        records: body?.records || [], 
+                        options: body?.options 
+                    });
+                    return HttpResponse.json(result);
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : 'Unknown error';
+                    return HttpResponse.json({ error: message }, { status: 400 });
+                }
+            }),
+
+            http.post(`${baseUrl}/data/:object/deleteMany`, async ({ params, request }) => {
+                try {
+                    const body = await request.json() as any;
+                    const result = await protocol.deleteManyData({ 
+                        object: params.object as string, 
+                        ids: body?.ids || [], 
+                        options: body?.options 
+                    });
+                    return HttpResponse.json(result);
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : 'Unknown error';
+                    return HttpResponse.json({ error: message }, { status: 400 });
+                }
+            }),
+
+            // Enhanced Metadata with Cache Support
+            http.get(`${baseUrl}/meta/:type/:name`, async ({ params, request }) => {
+                try {
+                    const cacheRequest = {
+                        ifNoneMatch: request.headers.get('if-none-match') || undefined,
+                        ifModifiedSince: request.headers.get('if-modified-since') || undefined,
+                    };
+                    
+                    const result = await protocol.getMetaItemCached({ 
+                        type: params.type as string, 
+                        name: params.name as string, 
+                        cacheRequest 
+                    });
+                    
+                    if (result.notModified) {
+                        return new HttpResponse(null, { status: 304 });
+                    }
+                    
+                    // Build response headers
+                    const headers: Record<string, string> = {};
+                    if (result.etag) {
+                        const etagValue = result.etag.weak ? `W/"${result.etag.value}"` : `"${result.etag.value}"`;
+                        headers['ETag'] = etagValue;
+                    }
+                    if (result.lastModified) {
+                        headers['Last-Modified'] = new Date(result.lastModified).toUTCString();
+                    }
+                    if (result.cacheControl) {
+                        const directives = result.cacheControl.directives.join(', ');
+                        const maxAge = result.cacheControl.maxAge ? `, max-age=${result.cacheControl.maxAge}` : '';
+                        headers['Cache-Control'] = directives + maxAge;
+                    }
+                    
+                    return HttpResponse.json(result.data, { headers });
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : 'Unknown error';
+                    return HttpResponse.json({ error: message }, { status: 404 });
+                }
+            }),
+
             // UI Protocol endpoint
             http.get(`${baseUrl}/ui/view/:object`, async ({ params, request }) => {
                 try {
@@ -372,6 +466,87 @@ export class MSWPlugin implements Plugin {
                 } catch (error) {
                     const message = error instanceof Error ? error.message : 'Unknown error';
                     return HttpResponse.json({ error: message }, { status: 404 });
+                }
+            }),
+
+            // View Storage Operations
+            http.post(`${baseUrl}/ui/views`, async ({ request }) => {
+                try {
+                    const body = await request.json();
+                    const result = await protocol.createView(body as any);
+                    if (result.success) {
+                        return HttpResponse.json(result, { status: 201 });
+                    } else {
+                        return HttpResponse.json(result, { status: 400 });
+                    }
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : 'Unknown error';
+                    return HttpResponse.json({ success: false, error: { code: 'internal_error', message } }, { status: 500 });
+                }
+            }),
+
+            http.get(`${baseUrl}/ui/views/:id`, async ({ params }) => {
+                try {
+                    const result = await protocol.getView({ id: params.id as string });
+                    if (result.success) {
+                        return HttpResponse.json(result);
+                    } else {
+                        return HttpResponse.json(result, { status: 404 });
+                    }
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : 'Unknown error';
+                    return HttpResponse.json({ success: false, error: { code: 'internal_error', message } }, { status: 500 });
+                }
+            }),
+
+            http.get(`${baseUrl}/ui/views`, async ({ request }) => {
+                try {
+                    const url = new URL(request.url);
+                    const queryRequest: any = {};
+                    if (url.searchParams.get('object')) queryRequest.object = url.searchParams.get('object');
+                    if (url.searchParams.get('type')) queryRequest.type = url.searchParams.get('type');
+                    if (url.searchParams.get('visibility')) queryRequest.visibility = url.searchParams.get('visibility');
+                    if (url.searchParams.get('createdBy')) queryRequest.createdBy = url.searchParams.get('createdBy');
+                    if (url.searchParams.get('isDefault')) queryRequest.isDefault = url.searchParams.get('isDefault') === 'true';
+                    if (url.searchParams.get('limit')) queryRequest.limit = parseInt(url.searchParams.get('limit')!);
+                    if (url.searchParams.get('offset')) queryRequest.offset = parseInt(url.searchParams.get('offset')!);
+                    
+                    const result = await protocol.listViews(queryRequest);
+                    return HttpResponse.json(result);
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : 'Unknown error';
+                    return HttpResponse.json({ success: false, error: { code: 'internal_error', message } }, { status: 500 });
+                }
+            }),
+
+            http.patch(`${baseUrl}/ui/views/:id`, async ({ params, request }) => {
+                try {
+                    const body = await request.json() as any;
+                    const updateData = typeof body === 'object' && body !== null ? { ...body, id: params.id as string } : { id: params.id as string };
+                    const result = await protocol.updateView(updateData as any);
+                    if (result.success) {
+                        return HttpResponse.json(result);
+                    } else {
+                        const statusCode = result.error?.code === 'resource_not_found' ? 404 : 400;
+                        return HttpResponse.json(result, { status: statusCode });
+                    }
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : 'Unknown error';
+                    return HttpResponse.json({ success: false, error: { code: 'internal_error', message } }, { status: 500 });
+                }
+            }),
+
+            http.delete(`${baseUrl}/ui/views/:id`, async ({ params }) => {
+                try {
+                    const result = await protocol.deleteView({ id: params.id as string });
+                    if (result.success) {
+                        return HttpResponse.json(result);
+                    } else {
+                        return HttpResponse.json(result, { status: 404 });
+                    }
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : 'Unknown error';
+                    return HttpResponse.json({ success: false, error: { code: 'internal_error', message } }, { status: 500 });
                 }
             }),
 
