@@ -11,6 +11,7 @@ export * from './audit.zod';
 export * from './translation.zod';
 export * from './events.zod';
 export * from './job.zod';
+export * from './worker.zod';
 export * from './feature.zod';
 export * from './collaboration.zod';
 export * from './types';
