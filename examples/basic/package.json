@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/example-basic",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Basic protocol examples demonstrating ObjectStack core features",
   "private": true,
   "type": "module",

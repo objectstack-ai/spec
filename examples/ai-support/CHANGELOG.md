@@ -1,5 +1,12 @@
 # @objectstack/example-ai-support
 
+## 0.7.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @objectstack/spec@0.7.1
+
 ## 0.6.1
 
 ### Patch Changes
