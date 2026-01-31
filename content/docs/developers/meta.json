@@ -7,6 +7,15 @@
     "plugin-ecosystem",
     "custom-widgets",
     "server-drivers",
-    "cli-tools"
+    "cli-tools",
+    "---",
+    {
+      "title": "🤖 AI-Driven Development",
+      "pages": [
+        "ai-development-guide",
+        "ai-quick-reference",
+        "ai-erp-tutorial"
+      ]
+    }
   ]
 }
