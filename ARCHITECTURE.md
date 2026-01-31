@@ -646,7 +646,7 @@ export type Field = z.infer<typeof FieldSchema>;
 
 ## Related Documentation
 
-- [Package Dependency Graph](./docs/PACKAGE-DEPENDENCIES.md) - Complete dependency visualization
+- [Package Dependency Graph](./PACKAGE-DEPENDENCIES.md) - Complete dependency visualization
 - [MicroKernel Architecture Guide](./content/docs/developers/micro-kernel.mdx)
 - [Plugin Ecosystem Architecture](./content/docs/developers/plugin-ecosystem.mdx)
 - [Writing Plugins](./content/docs/developers/writing-plugins.mdx)
