@@ -24,6 +24,10 @@ export * from './tracing.zod';
 export * from './manifest.zod';
 export * from './plugin.zod';
 export * from './plugin-capability.zod';
+export * from './plugin-validator.zod';
+export * from './plugin-lifecycle-events.zod';
+export * from './startup-orchestrator.zod';
+export * from './service-registry.zod';
 export * from './context.zod';
 export * from './datasource.zod';
 
