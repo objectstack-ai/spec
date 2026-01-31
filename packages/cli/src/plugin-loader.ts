@@ -46,9 +46,12 @@ export class CLIPluginLoader {
         const entries = await fs.readdir(searchPath, { withFileTypes: true });
         
         for (const entry of entries) {
-          if (entry.isDirectory() && entry.name.startsWith('cli-plugin-')) {
-            const pluginPath = path.join(searchPath, entry.name);
-            discovered.push(pluginPath);
+          // Check if it's a directory or a symlink to a directory
+          const entryPath = path.join(searchPath, entry.name);
+          const stats = await fs.stat(entryPath);
+          
+          if (stats.isDirectory() && entry.name.startsWith('cli-plugin-')) {
+            discovered.push(entryPath);
           }
         }
       } catch (error) {

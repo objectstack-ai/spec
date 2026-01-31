@@ -95,6 +95,14 @@ pnpm docs:dev
 | **[`@objectstack/plugin-hono-server`](packages/plugins/plugin-hono-server)** | HTTP server plugin (Hono-based) | 🟢 Active |
 | **[`@objectstack/plugin-msw`](packages/plugins/plugin-msw)** | Mock Service Worker plugin for testing | 🟢 Active |
 
+### CLI Plugin Packages
+
+| Package | Description | Status |
+| :--- | :--- | :--- |
+| **[`@objectstack/cli-plugin-scaffold`](packages/plugins/cli-plugin-scaffold)** | Scaffolding and code generation plugin | 🟢 Active |
+
+**[Learn how to create CLI plugins →](./docs/CLI_PLUGIN_DEVELOPMENT.md)**
+
 ### Tools
 
 | Package | Description | Status |
