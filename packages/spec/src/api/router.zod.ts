@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import { CorsConfigSchema, StaticMountSchema, HttpMethod } from '../shared/http.zod';
 
+// Re-export HttpMethod for convenience
+export { HttpMethod };
+
 /**
  * Route Category Enum
  * Classifies routes for middleware application and security policies.

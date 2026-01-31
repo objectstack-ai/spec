@@ -245,3 +245,7 @@ export const ExternalLookupSchema = z.object({
 export type ExternalLookup = z.infer<typeof ExternalLookupSchema>;
 export type ExternalDataSource = z.infer<typeof ExternalDataSourceSchema>;
 export type ExternalFieldMapping = z.infer<typeof ExternalFieldMappingSchema>;
+
+// Re-export ExternalFieldMappingSchema as FieldMappingSchema for backward compatibility with tests
+export { ExternalFieldMappingSchema as FieldMappingSchema };
+export type FieldMapping = ExternalFieldMapping;
