@@ -22,7 +22,9 @@ export class YAMLSerializer implements MetadataSerializer {
   }
 
   deserialize<T>(content: string, schema?: z.ZodSchema): T {
-    const parsed = yaml.load(content);
+    // Use JSON_SCHEMA to prevent arbitrary code execution
+    // This restricts YAML to JSON-compatible types only
+    const parsed = yaml.load(content, { schema: yaml.JSON_SCHEMA });
 
     if (schema) {
       return schema.parse(parsed) as T;

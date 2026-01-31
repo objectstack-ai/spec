@@ -53,15 +53,36 @@ export class TypeScriptSerializer implements MetadataSerializer {
     }
 
     // Find the matching closing brace by counting braces
+    // Handle string literals to avoid counting braces inside strings
     let braceCount = 0;
     let braceEnd = -1;
+    let inString = false;
+    let stringChar = '';
+    
     for (let i = braceStart; i < content.length; i++) {
-      if (content[i] === '{') braceCount++;
-      if (content[i] === '}') {
-        braceCount--;
-        if (braceCount === 0) {
-          braceEnd = i;
-          break;
+      const char = content[i];
+      const prevChar = i > 0 ? content[i - 1] : '';
+      
+      // Track string literals (simple handling of " and ')
+      if ((char === '"' || char === "'") && prevChar !== '\\') {
+        if (!inString) {
+          inString = true;
+          stringChar = char;
+        } else if (char === stringChar) {
+          inString = false;
+          stringChar = '';
+        }
+      }
+      
+      // Count braces only when not inside strings
+      if (!inString) {
+        if (char === '{') braceCount++;
+        if (char === '}') {
+          braceCount--;
+          if (braceCount === 0) {
+            braceEnd = i;
+            break;
+          }
         }
       }
     }
@@ -85,7 +106,7 @@ export class TypeScriptSerializer implements MetadataSerializer {
     } catch (error) {
       throw new Error(
         `Failed to parse object literal as JSON: ${error instanceof Error ? error.message : String(error)}. ` +
-        'Make sure the TypeScript/JavaScript object uses JSON-compatible syntax.'
+        'Make sure the TypeScript/JavaScript object uses JSON-compatible syntax (no functions, comments, or trailing commas).'
       );
     }
   }
