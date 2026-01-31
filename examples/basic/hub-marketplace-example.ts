@@ -140,7 +140,7 @@ export const crmPluginRegistry: PluginRegistryEntry = {
   // Capabilities provided
   capabilities: {
     // Protocols implemented
-    protocols: [
+    implements: [
       {
         id: 'com.objectstack.protocol.storage.v1',
         version: '1.0.0',
@@ -710,6 +710,24 @@ export const tenantConfig: Tenant = {
  */
 
 export const salesSpace: Space = {
+  id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+  name: 'Sales Team',
+  slug: 'sales',
+  ownerId: 'user-001',
+  
+  bom: {
+    tenantId: 'tenant-12345',
+    dependencies: [],
+  },
+
+  lastBuild: {
+    id: 'build-001',
+    timestamp: '2024-01-02T00:00:00Z',
+    status: 'success',
+  },
+};
+/* Example configuration removed due to schema mismatch */
+const salesSpaceRemoved = {
   // Space identity
   id: 'space-sales-001',
   tenantId: 'tenant-12345',
