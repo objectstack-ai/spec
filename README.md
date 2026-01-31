@@ -37,7 +37,7 @@ ObjectStack is a metadata-driven platform built on three foundational protocols:
   - [Quick Start Examples](./examples/) - CRM, Todo, and plugin examples
   
 - **Protocol References:**
-  - [Protocol Reference](./content/docs/references/) - All 70 protocol specifications
+  - [Protocol Reference](./content/docs/references/) - All 109 protocol specifications
   - [ObjectQL](./content/docs/objectql/) - Data layer documentation
   - [ObjectUI](./content/docs/objectui/) - UI layer documentation
   - [ObjectOS](./content/docs/objectos/) - System layer documentation
