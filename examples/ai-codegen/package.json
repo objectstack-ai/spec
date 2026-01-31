@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/example-ai-codegen",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "AI code generator - Generate ObjectStack apps from natural language",
   "private": true,
   "main": "objectstack.config.ts",
