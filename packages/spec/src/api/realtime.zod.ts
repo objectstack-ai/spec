@@ -100,3 +100,21 @@ export const RealtimeEventSchema = z.object({
 });
 
 export type RealtimeEvent = z.infer<typeof RealtimeEventSchema>;
+
+/**
+ * Realtime Configuration Schema
+ * 
+ * Configuration for enabling realtime data synchronization.
+ */
+export const RealtimeConfigSchema = z.object({
+  /** Enable realtime sync */
+  enabled: z.boolean().default(true).describe('Enable realtime synchronization'),
+  
+  /** Transport protocol */
+  transport: TransportProtocol.default('websocket').describe('Transport protocol'),
+  
+  /** Default subscriptions */
+  subscriptions: z.array(SubscriptionSchema).optional().describe('Default subscriptions'),
+}).passthrough(); // Allow additional properties
+
+export type RealtimeConfig = z.infer<typeof RealtimeConfigSchema>;
