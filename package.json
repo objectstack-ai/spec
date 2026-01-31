@@ -6,7 +6,10 @@
   "scripts": {
     "build": "pnpm --filter ./packages/spec build && pnpm -r --stream --filter '!./packages/spec' build",
     "dev": "pnpm --filter @objectstack/client-react build && pnpm -r --filter @objectstack/example-msw-react-crud dev",
+    "test": "pnpm --filter @objectstack/spec test",
     "clean": "pnpm -r --parallel clean && rm -rf dist",
+    "doctor": "pnpm --filter @objectstack/cli build && node packages/cli/bin/objectstack.js doctor",
+    "setup": "pnpm install && pnpm --filter @objectstack/spec build",
     "version": "changeset version",
     "release": "pnpm run build && changeset publish",
     "docs:dev": "pnpm --filter @objectstack/docs dev",

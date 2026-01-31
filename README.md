@@ -58,10 +58,24 @@ pnpm install
 # 2. Build the Protocol (Generates Schemas & Docs)
 pnpm --filter @objectstack/spec build
 
-# 3. Start Documentation Site
+# 3. Check environment health
+pnpm doctor
+# or
+./scripts/dev.sh doctor
+
+# 4. Start Documentation Site
 pnpm docs:dev
 # Visit http://localhost:3000/docs
 ```
+
+### For Plugin/Package Development
+
+See **[DEVELOPMENT.md](./DEVELOPMENT.md)** for comprehensive development guide including:
+- Development workflow and tooling
+- CLI commands reference
+- Debugging configurations
+- Testing strategies
+- Common tasks and troubleshooting
 
 ## 📦 Monorepo Structure
 
