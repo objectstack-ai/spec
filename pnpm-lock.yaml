@@ -360,8 +360,8 @@ importers:
         specifier: workspace:*
         version: link:../spec
       react:
-        specifier: ^18.0.0
-        version: 18.3.1
+        specifier: '>=18.0.0'
+        version: 19.2.3
     devDependencies:
       '@types/react':
         specifier: ^18.0.0
