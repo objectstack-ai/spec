@@ -217,7 +217,9 @@ const ObjectSchemaBase = z.object({
   /** 
    * Data Model 
    */
-  fields: z.record(FieldSchema).describe('Field definitions map'),
+  fields: z.record(z.string().regex(/^[a-z_][a-z0-9_]*$/, {
+    message: 'Field names must be lowercase snake_case (e.g., "first_name", "company", "annual_revenue")',
+  }), FieldSchema).describe('Field definitions map. Keys must be snake_case identifiers.'),
   indexes: z.array(IndexSchema).optional().describe('Database performance indexes'),
   
   /**
