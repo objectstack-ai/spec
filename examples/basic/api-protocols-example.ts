@@ -43,234 +43,118 @@ export const graphqlConfig: GraphQLConfig = {
   playground: {
     enabled: true,
     path: '/playground',
-    settings: {
-      'editor.theme': 'dark',
-      'editor.reuseHeaders': true,
-      'request.credentials': 'include',
-    },
   },
   
   // Schema generation
   schema: {
-    // Auto-generate from objects
-    autoGenerate: true,
-    
-    // Custom scalars
-    customScalars: {
-      DateTime: {
-        description: 'ISO 8601 date-time string',
-        serialize: (value: Date) => value.toISOString(),
-        parseValue: (value: string) => new Date(value),
-        parseLiteral: (ast: any) => new Date(ast.value),
-      },
-      JSON: {
-        description: 'JSON object',
-      },
-      Upload: {
-        description: 'File upload',
-      },
-    },
-    
-    // Include/exclude objects
-    objects: {
-      include: ['account', 'contact', 'opportunity', 'lead'],
-      exclude: ['_internal_*'],
-    },
+    // Auto-generate types from Objects
+    autoGenerateTypes: true,
     
     // Custom types
-    customTypes: `
-      type AggregationResult {
-        count: Int!
-        sum: Float
-        avg: Float
-        min: Float
-        max: Float
+    types: [
+      {
+        name: 'DateTime',
+        kind: 'scalar',
+        description: 'ISO 8601 date-time string',
+      },
+      {
+        name: 'JSON',
+        kind: 'scalar',
+        description: 'JSON object',
+      },
+      {
+        name: 'AggregationResult',
+        kind: 'object',
+        fields: [
+          { name: 'count', type: 'Int!' },
+          { name: 'sum', type: 'Float' },
+          { name: 'avg', type: 'Float' },
+          { name: 'min', type: 'Float' },
+          { name: 'max', type: 'Float' },
+        ]
       }
-      
-      type SearchResult {
-        id: ID!
-        score: Float!
-        highlights: [String!]!
-        object: ObjectUnion!
-      }
-      
-      union ObjectUnion = Account | Contact | Opportunity | Lead
-    `,
-  },
-  
-  // Query configuration
-  query: {
-    // Maximum query depth to prevent abuse
-    maxDepth: 10,
-    
-    // Maximum query complexity
-    maxComplexity: 1000,
-    
-    // Pagination
-    pagination: {
-      defaultLimit: 20,
-      maxLimit: 100,
-    },
-    
-    // Enable query batching
-    batching: {
-      enabled: true,
-      maxBatchSize: 10,
-    },
-    
-    // Query cost analysis
-    costAnalysis: {
-      enabled: true,
-      
-      // Cost per field
-      fieldCost: 1,
-      
-      // Cost per object in list
-      objectCost: 10,
-      
-      // Maximum total cost
-      maxCost: 10000,
-    },
-  },
-  
-  // Mutations
-  mutation: {
-    // Enable mutations
-    enabled: true,
-    
-    // Auto-generate CRUD mutations
-    autoGenerate: {
-      create: true,
-      update: true,
-      delete: true,
-      upsert: true,
-    },
-    
+    ],
+
     // Custom mutations
-    customMutations: `
-      convertLead(id: ID!, accountName: String!): ConvertLeadResult!
-      mergeAccounts(sourceId: ID!, targetId: ID!): Account!
-      sendEmail(to: [String!]!, subject: String!, body: String!): Boolean!
-    `,
-  },
-  
-  // Subscriptions (real-time)
-  subscriptions: {
-    enabled: true,
-    
-    // Transport
-    transport: 'websocket',
-    
-    // Auto-generate subscriptions for object changes
-    autoGenerate: {
-      created: true,
-      updated: true,
-      deleted: true,
-    },
-    
+    mutations: [
+      {
+        name: 'convertLead',
+        args: [
+          { name: 'id', type: 'ID!' },
+          { name: 'accountName', type: 'String!' }
+        ],
+        type: 'ConvertLeadResult!',
+        description: 'Convert a lead to an account'
+      }
+    ],
+
     // Custom subscriptions
-    customSubscriptions: `
-      recordUpdated(object: String!, recordId: ID!): RecordUpdateEvent!
-      notificationReceived(userId: ID!): Notification!
-      dashboardRefresh(dashboardId: ID!): Dashboard!
-    `,
-    
-    // Subscription filters
-    filters: {
-      enabled: true,
-      maxFilters: 10,
-    },
+    subscriptions: [
+      {
+        name: 'recordUpdated',
+        args: [
+          { name: 'object', type: 'String!' },
+          { name: 'recordId', type: 'ID!' }
+        ],
+        type: 'RecordUpdateEvent!',
+        description: 'Subscribe to record updates'
+      }
+    ],
+
+    // Custom directives
+    directives: [
+      {
+        name: 'auth',
+        description: 'Requires authentication',
+        locations: ['FIELD_DEFINITION', 'OBJECT'],
+      },
+      {
+        name: 'permission',
+        description: 'Requires specific permission',
+        locations: ['FIELD_DEFINITION', 'OBJECT'],
+        args: [
+          { name: 'requires', type: 'String!' }
+        ]
+      },
+      {
+        name: 'deprecated',
+        description: 'Marks field as deprecated',
+        locations: ['FIELD_DEFINITION'],
+        args: [
+          { name: 'reason', type: 'String' }
+        ]
+      },
+    ],
   },
   
-  // Directives
-  directives: [
-    {
-      name: 'auth',
-      description: 'Requires authentication',
-      locations: ['FIELD_DEFINITION', 'OBJECT'],
-    },
-    {
-      name: 'permission',
-      description: 'Requires specific permission',
-      locations: ['FIELD_DEFINITION', 'OBJECT'],
-      args: {
-        requires: { type: 'String!' },
-      },
-    },
-    {
-      name: 'deprecated',
-      description: 'Marks field as deprecated',
-      locations: ['FIELD_DEFINITION'],
-      args: {
-        reason: { type: 'String' },
-      },
-    },
-    {
-      name: 'cost',
-      description: 'Query cost weight',
-      locations: ['FIELD_DEFINITION'],
-      args: {
-        complexity: { type: 'Int!' },
-      },
-    },
-  ],
-  
-  // Introspection
-  introspection: {
-    // Disable in production for security
-    enabled: true,
-  },
-  
-  // Performance
-  performance: {
-    // DataLoader for batching and caching
-    dataloader: {
+  // Security
+  security: {
+    // Query depth limiting
+    depthLimit: {
       enabled: true,
-      cacheEnabled: true,
-      batchScheduleFn: (callback) => setTimeout(callback, 16), // ~60fps
+      maxDepth: 10,
     },
     
-    // Query result caching
-    cache: {
+    // Query complexity
+    complexity: {
       enabled: true,
-      ttl: 300, // 5 minutes
+      maxComplexity: 1000,
+    },
+    
+    // Rate limiting
+    rateLimit: {
+      enabled: true,
+      window: '1m',
+      limit: 1000,
     },
     
     // Persisted queries
     persistedQueries: {
       enabled: true,
-      hashAlgorithm: 'sha256',
+      security: {
+        rejectIntrospection: true
+      }
     },
-  },
-  
-  // Security
-  security: {
-    // CSRF protection
-    csrf: {
-      enabled: true,
-    },
-    
-    // Query whitelisting (for production)
-    queryWhitelist: {
-      enabled: false,
-      queries: [],
-    },
-    
-    // Disable introspection in production
-    disableIntrospectionInProduction: true,
-  },
-  
-  // Error handling
-  errorHandling: {
-    // Include stack traces (development only)
-    includeStackTrace: false,
-    
-    // Custom error formatter
-    formatError: (error) => ({
-      message: error.message,
-      code: error.extensions?.code,
-      path: error.path,
-    }),
   },
 };
 
@@ -288,27 +172,26 @@ export const odataConfig: ODataConfig = {
   // Base path
   path: '/odata',
   
-  // OData version
-  version: '4.0',
-  
   // Metadata endpoint
   metadata: {
-    enabled: true,
-    path: '/$metadata',
-    
-    // Entity Data Model (EDM)
-    edmx: {
-      // Auto-generate from objects
-      autoGenerate: true,
-      
-      // Namespaces
-      namespace: 'MyCompany.CRM',
-      
-      // Schema version
-      version: '1.0',
-    },
+    namespace: 'MyCompany.CRM',
+    entityTypes: [
+      {
+        name: 'Account',
+        key: ['id'],
+        properties: [
+          { name: 'id', type: 'Edm.String', nullable: false },
+          { name: 'name', type: 'Edm.String', nullable: false },
+        ]
+      }
+    ],
+    entitySets: [
+      { name: 'Accounts', entityType: 'MyCompany.CRM.Account' }
+    ]
   },
-  
+};
+/* Example configuration removed due to schema mismatch */
+const odataConfigRemoved = {
   // Service document
   serviceDocument: {
     enabled: true,
@@ -479,6 +362,19 @@ export const odataConfig: ODataConfig = {
  */
 
 export const websocketConfig: WebSocketConfig = {
+  url: 'ws://localhost:3000/ws',
+  protocols: ['graphql-ws'],
+  reconnect: true,
+  reconnectInterval: 1000,
+  maxReconnectAttempts: 10,
+  pingInterval: 30000,
+  timeout: 5000,
+  headers: {
+    'Authorization': 'Bearer ...'
+  }
+};
+/* Example configuration removed due to schema mismatch */
+const websocketConfigRemoved = {
   // Enable WebSocket server
   enabled: true,
   
@@ -792,7 +688,16 @@ export const realtimeConfig: RealtimeConfig = {
 export const batchConfig: BatchConfig = {
   // Enable batch operations
   enabled: true,
-  
+  maxRecordsPerBatch: 200,
+  defaultOptions: {
+    atomic: true,
+    validateOnly: false,
+    continueOnError: false,
+    returnRecords: true,
+  },
+};
+/* Example configuration removed due to schema mismatch */
+const batchConfigRemoved = {
   // Batch endpoint
   path: '/api/v1/batch',
   
