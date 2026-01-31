@@ -143,6 +143,93 @@ Shows automation capabilities in ObjectStack:
 - Data transformation pipelines
 - Error handling and notifications
 
+### Integration Connectors
+**File:** [`integration-connectors-example.ts`](./integration-connectors-example.ts)
+
+Demonstrates external system integration connectors:
+- Database connectors (PostgreSQL, MySQL, MongoDB)
+- File storage connectors (AWS S3, Azure Blob, Local)
+- Message queue connectors (RabbitMQ, Kafka, Redis)
+- SaaS connectors (Salesforce, HubSpot, Stripe)
+- Custom API connectors
+
+**Key Concepts:**
+- Connection configuration and authentication
+- Schema synchronization
+- SSL/TLS security
+- Connection pooling
+- Rate limiting and retry strategies
+- Webhook integration
+- ETL pipeline integration
+
+### System Protocols (Advanced)
+**File:** [`system-protocols-example.ts`](./system-protocols-example.ts)
+
+Shows advanced system protocols for production applications:
+- Job scheduling (Cron, event-triggered, batch jobs)
+- Metrics & monitoring (Prometheus, StatsD)
+- Distributed tracing (OpenTelemetry, Jaeger)
+- Multi-level caching (In-memory, Redis)
+- Audit logging with tamper protection
+- Compliance controls (GDPR, HIPAA, SOC 2)
+- Encryption (at rest and in transit)
+
+**Key Concepts:**
+- Background job orchestration
+- Observability and monitoring
+- Performance optimization through caching
+- Compliance and data governance
+- Security and encryption
+- Distributed systems patterns
+
+### Logger & Debugging
+**File:** [`logger-example.ts`](./logger-example.ts)
+
+Demonstrates structured logging patterns for production applications.
+
+**Key Concepts:**
+- Structured logging with metadata
+- Log levels and filtering
+- Context propagation
+- Performance logging
+
+### API Protocols (Advanced)
+**File:** [`api-protocols-example.ts`](./api-protocols-example.ts)
+
+Demonstrates advanced API protocols beyond REST:
+- GraphQL API (Schema, Resolvers, Subscriptions)
+- OData API (Query capabilities, Metadata)
+- WebSocket/Realtime API (Pub/Sub, Live queries)
+- Batch Operations (Bulk create/update/delete)
+- API Rate Limiting & Versioning
+
+**Key Concepts:**
+- Flexible query languages (GraphQL, OData)
+- Real-time communication (WebSocket)
+- Subscription patterns
+- Batch processing for efficiency
+- Query complexity and cost analysis
+- API security and throttling
+
+### Hub & Marketplace
+**File:** [`hub-marketplace-example.ts`](./hub-marketplace-example.ts)
+
+Shows the ObjectStack ecosystem and plugin marketplace:
+- Plugin Registry (Publishing and discovery)
+- Marketplace (Commercial distribution)
+- Licensing (Subscription and perpetual)
+- Multi-tenancy (Tenant isolation)
+- Spaces (Team workspaces)
+- Composer (Visual app builder)
+
+**Key Concepts:**
+- Plugin ecosystem management
+- SaaS subscription models
+- Tenant data isolation
+- No-code/low-code platforms
+- Commercial software distribution
+- Enterprise features (SSO, custom domains)
+
 ## 🎯 Usage
 
 These examples are TypeScript files in a proper package that can be:

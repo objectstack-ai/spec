@@ -446,3 +446,21 @@ export const OData = {
     or: (...expressions: string[]) => expressions.join(' or '),
   },
 } as const;
+
+/**
+ * OData Configuration Schema
+ * 
+ * Configuration for enabling OData v4 API endpoint.
+ */
+export const ODataConfigSchema = z.object({
+  /** Enable OData endpoint */
+  enabled: z.boolean().default(true).describe('Enable OData API'),
+  
+  /** OData endpoint path */
+  path: z.string().default('/odata').describe('OData endpoint path'),
+  
+  /** Metadata configuration */
+  metadata: ODataMetadataSchema.optional().describe('OData metadata configuration'),
+}).passthrough(); // Allow additional properties for flexibility
+
+export type ODataConfig = z.infer<typeof ODataConfigSchema>;

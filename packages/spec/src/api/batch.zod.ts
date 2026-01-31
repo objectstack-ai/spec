@@ -222,3 +222,21 @@ export const BatchApiContracts = {
     output: BatchUpdateResponseSchema,
   },
 };
+
+/**
+ * Batch Configuration Schema
+ * 
+ * Configuration for enabling batch operations API.
+ */
+export const BatchConfigSchema = z.object({
+  /** Enable batch operations */
+  enabled: z.boolean().default(true).describe('Enable batch operations'),
+  
+  /** Maximum records per batch */
+  maxRecordsPerBatch: z.number().int().min(1).max(1000).default(200).describe('Maximum records per batch'),
+  
+  /** Default options */
+  defaultOptions: BatchOptionsSchema.optional().describe('Default batch options'),
+}).passthrough(); // Allow additional properties
+
+export type BatchConfig = z.infer<typeof BatchConfigSchema>;

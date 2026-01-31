@@ -121,6 +121,7 @@ export const SaasConnectorSchema = ConnectorSchema.extend({
 });
 
 export type SaasConnector = z.infer<typeof SaasConnectorSchema>;
+export type SaaSConnector = SaasConnector; // Alias for alternative capitalization
 
 // ============================================================================
 // Helper Functions & Examples

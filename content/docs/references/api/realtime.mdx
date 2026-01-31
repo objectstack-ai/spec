@@ -12,8 +12,8 @@ description: Realtime protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { PresenceSchema, PresenceStatusSchema, RealtimeActionSchema, RealtimeEventSchema, RealtimeEventTypeSchema, SubscriptionSchema, SubscriptionEventSchema, TransportProtocolSchema } from '@objectstack/spec/api';
-import type { Presence, PresenceStatus, RealtimeAction, RealtimeEvent, RealtimeEventType, Subscription, SubscriptionEvent, TransportProtocol } from '@objectstack/spec/api';
+import { PresenceSchema, PresenceStatusSchema, RealtimeActionSchema, RealtimeConfigSchema, RealtimeEventSchema, RealtimeEventTypeSchema, SubscriptionSchema, SubscriptionEventSchema, TransportProtocolSchema } from '@objectstack/spec/api';
+import type { Presence, PresenceStatus, RealtimeAction, RealtimeConfig, RealtimeEvent, RealtimeEventType, Subscription, SubscriptionEvent, TransportProtocol } from '@objectstack/spec/api';
 
 // Validate data
 const result = PresenceSchema.parse(data);
@@ -51,6 +51,18 @@ const result = PresenceSchema.parse(data);
 * `created`
 * `updated`
 * `deleted`
+
+---
+
+## RealtimeConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional | Enable realtime synchronization |
+| **transport** | `Enum<'websocket' \| 'sse' \| 'polling'>` | optional | Transport protocol |
+| **subscriptions** | `object[]` | optional | Default subscriptions |
 
 ---
 
