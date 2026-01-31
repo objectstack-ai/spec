@@ -1,0 +1,673 @@
+---
+title: ERP Tutorial
+description: Hands-on tutorial for building an ERP system with ObjectStack
+---
+
+# ERP Tutorial: Build SimpleERP from Scratch
+
+Learn ObjectStack by building a complete ERP system in 2-3 hours.
+
+## Project Overview
+
+**Project Name:** SimpleERP  
+**Core Modules:**
+- Product Management
+- Inventory Management
+- Purchase Management
+- Sales Management
+
+**Estimated Time:** 2-3 hours  
+**Difficulty:** Beginner to Intermediate
+
+## Phase 1: Project Setup (15 minutes)
+
+### Step 1: Create Project Structure
+
+```bash
+# In spec repository examples directory
+cd examples
+mkdir simple-erp
+cd simple-erp
+
+# Create directory structure
+mkdir -p src/objects/{product,inventory,purchase,sales}
+mkdir -p src/ui
+```
+
+### Step 2: Initialize Package
+
+Create `package.json`:
+
+```json
+{
+  "name": "@objectstack/example-simple-erp",
+  "version": "1.0.0",
+  "description": "Simple ERP system built with ObjectStack",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@objectstack/spec": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  }
+}
+```
+
+Install dependencies:
+
+```bash
+pnpm install
+```
+
+### Step 3: Configure TypeScript
+
+Create `tsconfig.json`:
+
+```json
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "."
+  },
+  "include": ["src/**/*", "objectstack.config.ts"]
+}
+```
+
+## Phase 2: Core Data Model (45 minutes)
+
+### Step 1: Product Object
+
+Create `src/objects/product/product.object.ts`:
+
+```typescript
+import { defineObject } from '@objectstack/spec/data';
+import type { ObjectDefinition } from '@objectstack/spec/data';
+
+export const Product: ObjectDefinition = defineObject({
+  name: 'product',
+  label: 'Product',
+  labelPlural: 'Products',
+  
+  fields: {
+    sku: {
+      type: 'text',
+      label: 'SKU',
+      required: true,
+      unique: true,
+      maxLength: 50
+    },
+    productName: {
+      type: 'text',
+      label: 'Product Name',
+      required: true,
+      maxLength: 255
+    },
+    category: {
+      type: 'select',
+      label: 'Category',
+      options: [
+        { value: 'raw_material', label: 'Raw Material', color: 'blue' },
+        { value: 'finished_good', label: 'Finished Good', color: 'green' },
+        { value: 'consumable', label: 'Consumable', color: 'gray' }
+      ],
+      required: true
+    },
+    unitPrice: {
+      type: 'currency',
+      label: 'Unit Price',
+      required: true,
+      min: 0,
+      precision: 2
+    },
+    cost: {
+      type: 'currency',
+      label: 'Unit Cost',
+      required: true,
+      min: 0,
+      precision: 2
+    },
+    profitMargin: {
+      type: 'formula',
+      label: 'Profit Margin %',
+      returnType: 'percent',
+      formula: '((unitPrice - cost) / unitPrice) * 100',
+      precision: 2
+    },
+    status: {
+      type: 'select',
+      label: 'Status',
+      options: [
+        { value: 'active', label: 'Active', color: 'green' },
+        { value: 'discontinued', label: 'Discontinued', color: 'red' }
+      ],
+      defaultValue: 'active'
+    }
+  },
+  
+  views: [
+    {
+      type: 'list',
+      name: 'all_products',
+      viewType: 'grid',
+      label: 'All Products',
+      columns: ['sku', 'productName', 'category', 'unitPrice', 'profitMargin', 'status'],
+      defaultSort: { field: 'productName', direction: 'asc' }
+    }
+  ],
+  
+  validations: [
+    {
+      type: 'script',
+      name: 'price_greater_than_cost',
+      errorMessage: 'Unit price must be greater than cost',
+      formula: 'unitPrice > cost'
+    }
+  ],
+  
+  enable: {
+    trackHistory: true,
+    apiEnabled: true,
+    searchEnabled: true
+  }
+});
+```
+
+### Step 2: Inventory Object
+
+Create `src/objects/inventory/inventory.object.ts`:
+
+```typescript
+import { defineObject } from '@objectstack/spec/data';
+import type { ObjectDefinition } from '@objectstack/spec/data';
+
+export const Inventory: ObjectDefinition = defineObject({
+  name: 'inventory',
+  label: 'Inventory',
+  labelPlural: 'Inventory',
+  
+  fields: {
+    product: {
+      type: 'lookup',
+      label: 'Product',
+      reference: 'product',
+      relationshipName: 'inventory_records',
+      required: true
+    },
+    warehouse: {
+      type: 'select',
+      label: 'Warehouse',
+      options: [
+        { value: 'main', label: 'Main Warehouse' },
+        { value: 'secondary', label: 'Secondary Warehouse' }
+      ],
+      required: true
+    },
+    quantityOnHand: {
+      type: 'number',
+      label: 'Quantity on Hand',
+      required: true,
+      defaultValue: 0,
+      min: 0
+    },
+    quantityReserved: {
+      type: 'number',
+      label: 'Quantity Reserved',
+      defaultValue: 0,
+      min: 0
+    },
+    quantityAvailable: {
+      type: 'formula',
+      label: 'Available Quantity',
+      returnType: 'number',
+      formula: 'quantityOnHand - quantityReserved'
+    },
+    minimumStock: {
+      type: 'number',
+      label: 'Minimum Stock Level',
+      defaultValue: 10,
+      min: 0
+    }
+  },
+  
+  views: [
+    {
+      type: 'list',
+      name: 'all_inventory',
+      viewType: 'grid',
+      label: 'All Inventory',
+      columns: ['product', 'warehouse', 'quantityOnHand', 'quantityAvailable'],
+      defaultSort: { field: 'product', direction: 'asc' }
+    },
+    {
+      type: 'list',
+      name: 'low_stock',
+      viewType: 'grid',
+      label: 'Low Stock Items',
+      columns: ['product', 'warehouse', 'quantityAvailable', 'minimumStock'],
+      filters: [
+        {
+          type: 'script',
+          formula: 'quantityAvailable <= minimumStock'
+        }
+      ]
+    }
+  ],
+  
+  validations: [
+    {
+      type: 'uniqueness',
+      fields: ['product', 'warehouse'],
+      errorMessage: 'Product already exists in this warehouse'
+    }
+  ],
+  
+  enable: {
+    trackHistory: true,
+    apiEnabled: true
+  }
+});
+```
+
+### Step 3: Purchase Order Object
+
+Create `src/objects/purchase/purchase_order.object.ts`:
+
+```typescript
+import { defineObject } from '@objectstack/spec/data';
+import type { ObjectDefinition } from '@objectstack/spec/data';
+
+export const PurchaseOrder: ObjectDefinition = defineObject({
+  name: 'purchase_order',
+  label: 'Purchase Order',
+  labelPlural: 'Purchase Orders',
+  
+  fields: {
+    orderNumber: {
+      type: 'autonumber',
+      label: 'PO Number',
+      format: 'PO-{0000}',
+      startingNumber: 1
+    },
+    supplier: {
+      type: 'text',
+      label: 'Supplier Name',
+      required: true,
+      maxLength: 255
+    },
+    orderDate: {
+      type: 'date',
+      label: 'Order Date',
+      required: true,
+      defaultValue: '$Today'
+    },
+    status: {
+      type: 'select',
+      label: 'Status',
+      options: [
+        { value: 'draft', label: 'Draft', color: 'gray' },
+        { value: 'submitted', label: 'Submitted', color: 'blue' },
+        { value: 'approved', label: 'Approved', color: 'green' },
+        { value: 'received', label: 'Received', color: 'green' }
+      ],
+      defaultValue: 'draft'
+    },
+    totalAmount: {
+      type: 'currency',
+      label: 'Total Amount',
+      required: true,
+      min: 0
+    }
+  },
+  
+  views: [
+    {
+      type: 'list',
+      name: 'all_purchase_orders',
+      viewType: 'grid',
+      label: 'All Purchase Orders',
+      columns: ['orderNumber', 'supplier', 'orderDate', 'totalAmount', 'status'],
+      defaultSort: { field: 'orderDate', direction: 'desc' }
+    }
+  ],
+  
+  validations: [
+    {
+      type: 'state_machine',
+      field: 'status',
+      transitions: [
+        { from: 'draft', to: ['submitted'] },
+        { from: 'submitted', to: ['approved'] },
+        { from: 'approved', to: ['received'] }
+      ]
+    }
+  ],
+  
+  enable: {
+    trackHistory: true,
+    apiEnabled: true
+  }
+});
+```
+
+### Step 4: Sales Order Object
+
+Create `src/objects/sales/sales_order.object.ts`:
+
+```typescript
+import { defineObject } from '@objectstack/spec/data';
+import type { ObjectDefinition } from '@objectstack/spec/data';
+
+export const SalesOrder: ObjectDefinition = defineObject({
+  name: 'sales_order',
+  label: 'Sales Order',
+  labelPlural: 'Sales Orders',
+  
+  fields: {
+    orderNumber: {
+      type: 'autonumber',
+      label: 'Order Number',
+      format: 'SO-{0000}',
+      startingNumber: 1
+    },
+    customerName: {
+      type: 'text',
+      label: 'Customer Name',
+      required: true,
+      maxLength: 255
+    },
+    orderDate: {
+      type: 'date',
+      label: 'Order Date',
+      required: true,
+      defaultValue: '$Today'
+    },
+    status: {
+      type: 'select',
+      label: 'Status',
+      options: [
+        { value: 'pending', label: 'Pending', color: 'yellow' },
+        { value: 'confirmed', label: 'Confirmed', color: 'blue' },
+        { value: 'shipped', label: 'Shipped', color: 'purple' },
+        { value: 'delivered', label: 'Delivered', color: 'green' }
+      ],
+      defaultValue: 'pending'
+    },
+    totalAmount: {
+      type: 'currency',
+      label: 'Total Amount',
+      required: true,
+      min: 0
+    }
+  },
+  
+  views: [
+    {
+      type: 'list',
+      name: 'all_sales_orders',
+      viewType: 'grid',
+      label: 'All Orders',
+      columns: ['orderNumber', 'customerName', 'orderDate', 'totalAmount', 'status'],
+      defaultSort: { field: 'orderDate', direction: 'desc' }
+    },
+    {
+      type: 'list',
+      name: 'orders_kanban',
+      viewType: 'kanban',
+      label: 'Order Pipeline',
+      groupBy: 'status',
+      cardFields: ['orderNumber', 'customerName', 'totalAmount'],
+      sumField: 'totalAmount'
+    }
+  ],
+  
+  enable: {
+    trackHistory: true,
+    apiEnabled: true
+  }
+});
+```
+
+## Phase 3: UI Configuration (30 minutes)
+
+### Create Dashboard
+
+Create `src/ui/dashboards.ts`:
+
+```typescript
+import { defineDashboard } from '@objectstack/spec/ui';
+
+export const ERPOverviewDashboard = defineDashboard({
+  name: 'erp_overview',
+  label: 'ERP Overview',
+  
+  layout: {
+    type: 'grid',
+    columns: 12
+  },
+  
+  widgets: [
+    {
+      type: 'metric',
+      title: 'Total Products',
+      object: 'product',
+      aggregation: 'count',
+      filters: [
+        { field: 'status', operator: 'equals', value: 'active' }
+      ],
+      size: { w: 3, h: 2 },
+      position: { x: 0, y: 0 }
+    },
+    {
+      type: 'metric',
+      title: 'Sales This Month',
+      object: 'sales_order',
+      aggregation: 'sum',
+      field: 'totalAmount',
+      filters: [
+        { field: 'orderDate', operator: 'this_month' }
+      ],
+      size: { w: 3, h: 2 },
+      position: { x: 3, y: 0 }
+    },
+    {
+      type: 'table',
+      title: 'Low Stock Items',
+      object: 'inventory',
+      columns: ['product.productName', 'warehouse', 'quantityAvailable'],
+      filters: [
+        {
+          type: 'script',
+          formula: 'quantityAvailable <= minimumStock'
+        }
+      ],
+      limit: 10,
+      size: { w: 6, h: 4 },
+      position: { x: 0, y: 2 }
+    }
+  ]
+});
+```
+
+## Phase 4: Application Config (15 minutes)
+
+Create `objectstack.config.ts`:
+
+```typescript
+import { defineStack } from '@objectstack/spec';
+import { App } from '@objectstack/spec/ui';
+
+// Import objects
+import { Product } from './src/objects/product/product.object';
+import { Inventory } from './src/objects/inventory/inventory.object';
+import { PurchaseOrder } from './src/objects/purchase/purchase_order.object';
+import { SalesOrder } from './src/objects/sales/sales_order.object';
+
+// Import UI
+import { ERPOverviewDashboard } from './src/ui/dashboards';
+
+export default defineStack({
+  manifest: {
+    id: 'com.example.simple-erp',
+    version: '1.0.0',
+    type: 'app',
+    name: 'SimpleERP',
+    description: 'Simple Enterprise Resource Planning system'
+  },
+  
+  objects: [
+    Product,
+    Inventory,
+    PurchaseOrder,
+    SalesOrder
+  ],
+  
+  dashboards: [
+    ERPOverviewDashboard
+  ],
+  
+  apps: [
+    App.create({
+      name: 'simple_erp',
+      label: 'SimpleERP',
+      icon: 'factory',
+      
+      branding: {
+        primaryColor: '#2563EB'
+      },
+      
+      navigation: [
+        {
+          id: 'home',
+          type: 'dashboard',
+          dashboardName: 'erp_overview',
+          label: 'Dashboard'
+        },
+        {
+          id: 'product_management',
+          type: 'group',
+          label: 'Product Management',
+          children: [
+            { id: 'products', type: 'object', objectName: 'product', label: 'Products' },
+            { id: 'inventory', type: 'object', objectName: 'inventory', label: 'Inventory' }
+          ]
+        },
+        {
+          id: 'procurement',
+          type: 'group',
+          label: 'Procurement',
+          children: [
+            { id: 'purchase_orders', type: 'object', objectName: 'purchase_order', label: 'Purchase Orders' }
+          ]
+        },
+        {
+          id: 'sales',
+          type: 'group',
+          label: 'Sales',
+          children: [
+            { id: 'sales_orders', type: 'object', objectName: 'sales_order', label: 'Sales Orders' }
+          ]
+        }
+      ]
+    })
+  ]
+});
+```
+
+## Phase 5: Build & Test (15 minutes)
+
+### Build Project
+
+```bash
+# From project root
+cd /path/to/spec
+
+# Build spec package first
+pnpm --filter @objectstack/spec build
+
+# Build ERP project
+pnpm --filter @objectstack/example-simple-erp build
+```
+
+### Type Check
+
+```bash
+# Run type checking
+pnpm --filter @objectstack/example-simple-erp typecheck
+
+# Should output: no errors
+```
+
+### Validate Configuration
+
+Create `scripts/validate.ts`:
+
+```typescript
+import config from '../objectstack.config';
+
+console.log('✅ Configuration loaded successfully!');
+console.log(`📦 App: ${config.manifest.name} v${config.manifest.version}`);
+console.log(`📊 Objects: ${config.objects?.length || 0}`);
+console.log(`🎨 Dashboards: ${config.dashboards?.length || 0}`);
+
+config.objects?.forEach(obj => {
+  console.log(`\n🔹 Object: ${obj.name}`);
+  console.log(`   Fields: ${Object.keys(obj.fields).length}`);
+  console.log(`   Views: ${obj.views?.length || 0}`);
+});
+```
+
+Run validation:
+
+```bash
+pnpm tsx scripts/validate.ts
+```
+
+## What You've Built
+
+✅ 4 core business objects (Product, Inventory, PurchaseOrder, SalesOrder)  
+✅ 10+ views configured  
+✅ Data validation rules  
+✅ Formula fields (profit margin, available quantity)  
+✅ State machine validation (order status transitions)  
+✅ Dashboard with metrics and tables  
+✅ Complete application navigation  
+
+## Next Steps
+
+### Immediate Extensions
+
+1. **Add Order Items**
+   - Create junction object linking orders to products
+   - Calculate line totals with formulas
+
+2. **Implement Inventory Updates**
+   - Add workflows to update inventory on order receipt
+   - Track inventory movements
+
+3. **Add More Reports**
+   - Sales analysis reports
+   - Inventory turnover reports
+
+### Long-term Enhancements
+
+1. **Multi-company Support**: Add Company object
+2. **User Permissions**: Fine-tune role permissions
+3. **Financial Module**: Accounts payable/receivable
+4. **Production Module**: BOM, work orders
+5. **AI Integration**: Smart reordering suggestions
+
+## Resources
+
+- [AI Development Guide](./ai-development-guide)
+- [Quick Reference](./ai-quick-reference)
+- [CRM Example](../../../examples/crm/)
+- [Protocol Reference](../references/)
+
+---
+
+**Congratulations!** You've built a complete ERP system using ObjectStack protocols.
