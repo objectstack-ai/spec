@@ -1,5 +1,12 @@
 # @objectstack/example-ai-codegen
 
+## 0.7.2
+
+### Patch Changes
+
+- Updated dependencies [fb41cc0]
+  - @objectstack/spec@0.7.2
+
 ## 0.7.1
 
 ### Patch Changes
