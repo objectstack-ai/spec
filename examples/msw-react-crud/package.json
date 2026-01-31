@@ -5,8 +5,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
+    "msw:init": "msw init public",
+    "dev": "pnpm msw:init && vite",
+    "build": "pnpm msw:init && tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
