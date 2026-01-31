@@ -59,6 +59,10 @@ export const postgresConnector: DatabaseConnector = {
     min: 2,
     max: 10,
     idleTimeoutMs: 30000,
+    connectionTimeoutMs: 10000,
+    acquireTimeoutMs: 30000,
+    evictionRunIntervalMs: 30000,
+    testOnBorrow: true,
   },
   
   // SSL configuration
@@ -75,14 +79,28 @@ export const postgresConnector: DatabaseConnector = {
       label: 'Accounts',
       tableName: 'accounts',
       primaryKey: 'id',
+      enabled: true,
     },
     {
       name: 'contacts',
       label: 'Contacts',
       tableName: 'contacts',
       primaryKey: 'id',
+      enabled: true,
     },
   ],
+  
+  // Query timeout
+  queryTimeoutMs: 30000,
+  
+  // Enable query logging
+  enableQueryLogging: false,
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
+  status: 'active',
+  enabled: true,
 };
 
 // MongoDB Connector
@@ -95,8 +113,7 @@ export const mongoConnector: DatabaseConnector = {
   
   // Authentication
   authentication: {
-    type: 'x509',
-    certificate: '${file:./certs/mongodb-client.pem}',
+    type: 'none',
   },
   
   // Connection configuration
@@ -119,8 +136,21 @@ export const mongoConnector: DatabaseConnector = {
       label: 'Events',
       tableName: 'events',
       primaryKey: '_id',
+      enabled: true,
     },
   ],
+  
+  // Query timeout
+  queryTimeoutMs: 30000,
+  
+  // Enable query logging
+  enableQueryLogging: false,
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
+  status: 'active',
+  enabled: true,
 };
 
 /**
@@ -140,14 +170,15 @@ export const s3Connector: FileStorageConnector = {
   
   // Authentication
   authentication: {
-    type: 'aws_iam',
-    accessKeyId: '${env:AWS_ACCESS_KEY_ID}',
-    secretAccessKey: '${env:AWS_SECRET_ACCESS_KEY}',
+    type: 'api-key',
+    key: '${env:AWS_ACCESS_KEY_ID}:${env:AWS_SECRET_ACCESS_KEY}',
+    headerName: 'Authorization',
   },
   
   // Storage configuration
   storageConfig: {
     region: 'us-east-1',
+    pathStyle: false,
   },
   
   // Buckets to sync
@@ -165,6 +196,18 @@ export const s3Connector: FileStorageConnector = {
     enabled: true,
     algorithm: 'AES256',
   },
+  
+  // Transfer acceleration
+  transferAcceleration: false,
+  
+  // Buffer size
+  bufferSize: 64 * 1024,
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
+  status: 'active',
+  enabled: true,
 };
 
 // Azure Blob Storage Connector
@@ -177,8 +220,9 @@ export const azureBlobConnector: FileStorageConnector = {
   
   // Authentication
   authentication: {
-    type: 'azure_connection_string',
-    connectionString: '${env:AZURE_STORAGE_CONNECTION_STRING}',
+    type: 'api-key',
+    key: '${env:AZURE_STORAGE_CONNECTION_STRING}',
+    headerName: 'Authorization',
   },
   
   // Buckets (containers) to sync
@@ -190,6 +234,18 @@ export const azureBlobConnector: FileStorageConnector = {
       enabled: true,
     },
   ],
+  
+  // Transfer acceleration
+  transferAcceleration: false,
+  
+  // Buffer size
+  bufferSize: 64 * 1024,
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
+  status: 'active',
+  enabled: true,
 };
 
 // Local File System Connector (for development)
@@ -215,11 +271,17 @@ export const localFileConnector: FileStorageConnector = {
     },
   ],
   
-  capabilities: {
-    supportsVersioning: false,
-    supportsMetadata: false,
-    maxFileSize: 100 * 1024 * 1024, // 100MB
-  },
+  // Transfer acceleration
+  transferAcceleration: false,
+  
+  // Buffer size
+  bufferSize: 64 * 1024,
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
+  status: 'active',
+  enabled: true,
 };
 
 /**
@@ -248,6 +310,7 @@ export const rabbitmqConnector: MessageQueueConnector = {
   brokerConfig: {
     brokers: ['rabbitmq.example.com:5672'],
     connectionTimeoutMs: 10000,
+    requestTimeoutMs: 30000,
   },
   
   // Topics/queues to sync
@@ -257,8 +320,28 @@ export const rabbitmqConnector: MessageQueueConnector = {
       topicName: 'workflow.execution',
       label: 'Workflow Execution',
       enabled: true,
+      mode: 'both',
+      messageFormat: 'json',
     },
   ],
+  
+  // Delivery guarantee
+  deliveryGuarantee: 'at_least_once',
+  
+  // Message ordering
+  preserveOrder: true,
+  
+  // Enable metrics
+  enableMetrics: true,
+  
+  // Enable distributed tracing
+  enableTracing: false,
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
+  status: 'active',
+  enabled: true,
 };
 
 // Apache Kafka Connector
@@ -271,10 +354,7 @@ export const kafkaConnector: MessageQueueConnector = {
   
   // Authentication
   authentication: {
-    type: 'sasl',
-    mechanism: 'SCRAM-SHA-512',
-    username: '${env:KAFKA_USER}',
-    password: '${env:KAFKA_PASSWORD}',
+    type: 'none',
   },
   
   // Broker configuration
@@ -284,6 +364,15 @@ export const kafkaConnector: MessageQueueConnector = {
       'kafka-2.example.com:9092',
       'kafka-3.example.com:9092',
     ],
+    connectionTimeoutMs: 30000,
+    requestTimeoutMs: 30000,
+  },
+  
+  // SASL authentication (Kafka-specific)
+  saslConfig: {
+    mechanism: 'scram-sha-512',
+    username: '${env:KAFKA_USER}',
+    password: '${env:KAFKA_PASSWORD}',
   },
   
   // Topics to sync
@@ -293,6 +382,8 @@ export const kafkaConnector: MessageQueueConnector = {
       topicName: 'crm.events',
       label: 'CRM Events',
       enabled: true,
+      mode: 'both',
+      messageFormat: 'json',
     },
   ],
   
@@ -301,6 +392,24 @@ export const kafkaConnector: MessageQueueConnector = {
     enabled: true,
     rejectUnauthorized: true,
   },
+  
+  // Delivery guarantee
+  deliveryGuarantee: 'at_least_once',
+  
+  // Message ordering
+  preserveOrder: true,
+  
+  // Enable metrics
+  enableMetrics: true,
+  
+  // Enable distributed tracing
+  enableTracing: false,
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
+  status: 'active',
+  enabled: true,
 };
 
 // Redis Connector (for pub/sub and queues)
@@ -321,6 +430,8 @@ export const redisConnector: MessageQueueConnector = {
   // Broker configuration
   brokerConfig: {
     brokers: ['redis.example.com:6379'],
+    connectionTimeoutMs: 30000,
+    requestTimeoutMs: 30000,
   },
   
   // Topics (channels) to sync
@@ -330,8 +441,28 @@ export const redisConnector: MessageQueueConnector = {
       topicName: 'notifications',
       label: 'Notifications',
       enabled: true,
+      mode: 'both',
+      messageFormat: 'json',
     },
   ],
+  
+  // Delivery guarantee
+  deliveryGuarantee: 'at_least_once',
+  
+  // Message ordering
+  preserveOrder: true,
+  
+  // Enable metrics
+  enableMetrics: true,
+  
+  // Enable distributed tracing
+  enableTracing: false,
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
+  status: 'active',
+  enabled: true,
 };
 
 /**
@@ -356,7 +487,7 @@ export const salesforceConnector: SaaSConnector = {
     clientSecret: '${env:SALESFORCE_CLIENT_SECRET}',
     authorizationUrl: 'https://login.salesforce.com/services/oauth2/authorize',
     tokenUrl: 'https://login.salesforce.com/services/oauth2/token',
-    scope: 'api refresh_token',
+    scopes: ['api', 'refresh_token'],
   },
   
   // Base URL
@@ -365,24 +496,36 @@ export const salesforceConnector: SaaSConnector = {
   // API version
   apiVersion: {
     version: '58.0',
-    header: 'Sforce-Api-Version',
+    isDefault: false,
   },
   
   // Object types to sync
   objectTypes: [
     {
       name: 'account',
-      objectName: 'Account',
+      apiName: 'Account',
       label: 'Accounts',
       enabled: true,
+      supportsCreate: true,
+      supportsUpdate: true,
+      supportsDelete: true,
     },
     {
       name: 'contact',
-      objectName: 'Contact',
+      apiName: 'Contact',
       label: 'Contacts',
       enabled: true,
+      supportsCreate: true,
+      supportsUpdate: true,
+      supportsDelete: true,
     },
   ],
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
+  status: 'active',
+  enabled: true,
 };
 
 // HubSpot Connector
@@ -395,9 +538,9 @@ export const hubspotConnector: SaaSConnector = {
   
   // Authentication
   authentication: {
-    type: 'api_key',
-    apiKey: '${env:HUBSPOT_API_KEY}',
-    header: 'Authorization',
+    type: 'api-key',
+    key: '${env:HUBSPOT_API_KEY}',
+    headerName: 'Authorization',
   },
   
   // Base URL
@@ -407,17 +550,29 @@ export const hubspotConnector: SaaSConnector = {
   objectTypes: [
     {
       name: 'contact',
-      objectName: 'contacts',
+      apiName: 'contacts',
       label: 'Contacts',
       enabled: true,
+      supportsCreate: true,
+      supportsUpdate: true,
+      supportsDelete: true,
     },
     {
       name: 'deal',
-      objectName: 'deals',
+      apiName: 'deals',
       label: 'Deals',
       enabled: true,
+      supportsCreate: true,
+      supportsUpdate: true,
+      supportsDelete: true,
     },
   ],
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
+  status: 'active',
+  enabled: true,
 };
 
 // Stripe Connector
@@ -430,9 +585,9 @@ export const stripeConnector: SaaSConnector = {
   
   // Authentication
   authentication: {
-    type: 'api_key',
-    apiKey: '${env:STRIPE_SECRET_KEY}',
-    header: 'Authorization',
+    type: 'api-key',
+    key: '${env:STRIPE_SECRET_KEY}',
+    headerName: 'Authorization',
   },
   
   // Base URL
@@ -441,24 +596,36 @@ export const stripeConnector: SaaSConnector = {
   // API version
   apiVersion: {
     version: '2023-10-16',
-    header: 'Stripe-Version',
+    isDefault: false,
   },
   
   // Object types to sync
   objectTypes: [
     {
       name: 'customer',
-      objectName: 'customers',
+      apiName: 'customers',
       label: 'Customers',
       enabled: true,
+      supportsCreate: true,
+      supportsUpdate: true,
+      supportsDelete: true,
     },
     {
       name: 'subscription',
-      objectName: 'subscriptions',
+      apiName: 'subscriptions',
       label: 'Subscriptions',
       enabled: true,
+      supportsCreate: true,
+      supportsUpdate: true,
+      supportsDelete: true,
     },
   ],
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
+  status: 'active',
+  enabled: true,
 };
 
 /**
@@ -476,15 +643,19 @@ export const customAPIConnector: Connector = {
   
   // Authentication
   authentication: {
-    type: 'api_key',
-    apiKey: '${env:ERP_API_KEY}',
-    header: 'X-API-Key',
+    type: 'api-key',
+    key: '${env:ERP_API_KEY}',
+    headerName: 'X-API-Key',
   },
   
   metadata: {
     baseUrl: 'https://erp.mycompany.com/api/v2',
     clientId: '${env:ERP_CLIENT_ID}',
   },
+  
+  // Connection timeouts
+  connectionTimeoutMs: 30000,
+  requestTimeoutMs: 30000,
 };
 
 /**

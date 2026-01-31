@@ -88,7 +88,11 @@ export const onAccountCreatedJob: Job = {
   
   retryPolicy: {
     maxRetries: 2,
+    backoffMs: 1000,
+    backoffMultiplier: 2,
   },
+  
+  enabled: true,
 };
 
 // Recurring batch job
@@ -112,7 +116,11 @@ export const dataCleanupJob: Job = {
   
   retryPolicy: {
     maxRetries: 1,
+    backoffMs: 1000,
+    backoffMultiplier: 2,
   },
+  
+  enabled: true,
 };
 
 /**
@@ -198,6 +206,18 @@ export const metricsConfig: MetricsConfig = {
     },
   ],
   
+  // Aggregations
+  aggregations: [],
+  
+  // SLIs
+  slis: [],
+  
+  // SLOs
+  slos: [],
+  
+  // Exports
+  exports: [],
+  
   // Collection interval
   collectionInterval: 15, // seconds
 };
@@ -219,7 +239,8 @@ export const tracingConfig: TracingConfig = {
   // Sampling strategy
   sampling: {
     type: 'probability',
-    probabilityRate: 0.1, // Sample 10% of traces
+    ratio: 0.1, // Sample 10% of traces
+    rules: [],
   },
   
   // Context propagation
@@ -228,6 +249,9 @@ export const tracingConfig: TracingConfig = {
     extract: true,
     inject: true,
   },
+  
+  // Trace ID generator
+  traceIdGenerator: 'random',
 };
 
 /**
@@ -408,9 +432,43 @@ export const auditConfig: AuditConfig = {
   // Storage configuration
   storage: {
     type: 'database',
-    tableName: 'audit_logs',
-    encrypt: true,
+    bufferEnabled: false,
+    bufferSize: 1000,
+    flushIntervalSeconds: 60,
+    compression: true,
   },
+  
+  // Retention policy
+  retentionPolicy: {
+    retentionDays: 180,
+    archiveAfterRetention: true,
+  },
+  
+  // Suspicious activity rules
+  suspiciousActivityRules: [],
+  
+  // Include sensitive data
+  includeSensitiveData: false,
+  
+  // Redact fields
+  redactFields: [
+    'password',
+    'passwordHash',
+    'token',
+    'apiKey',
+    'secret',
+    'creditCard',
+    'ssn',
+  ],
+  
+  // Log reads
+  logReads: false,
+  
+  // Read sampling rate
+  readSamplingRate: 0.1,
+  
+  // Log system events
+  logSystemEvents: true,
   
   // Event types to audit
   eventTypes: [
