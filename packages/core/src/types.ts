@@ -1,5 +1,5 @@
 import { ObjectKernel } from './kernel.js';
-import type { Logger } from './contracts/logger.js';
+import type { Logger } from '@objectstack/spec/contracts';
 
 /**
  * PluginContext - Runtime context available to plugins

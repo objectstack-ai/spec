@@ -1,5 +1,5 @@
 import { Plugin, PluginContext } from './types.js';
-import type { Logger } from './contracts/logger.js';
+import type { Logger } from '@objectstack/spec/contracts';
 import { z } from 'zod';
 
 /**

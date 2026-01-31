@@ -1,5 +1,5 @@
 import type { LoggerConfig, LogLevel } from '@objectstack/spec/system';
-import type { Logger } from './contracts/logger.js';
+import type { Logger } from '@objectstack/spec/contracts';
 
 /**
  * Universal Logger Implementation
