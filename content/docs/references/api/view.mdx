@@ -1,0 +1,35 @@
+---
+title: View
+description: View protocol schemas
+---
+
+# View
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/view.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { HttpMethodSchema } from '@objectstack/spec/api';
+import type { HttpMethod } from '@objectstack/spec/api';
+
+// Validate data
+const result = HttpMethodSchema.parse(data);
+```
+
+---
+
+## HttpMethod
+
+### Allowed Values
+
+* `GET`
+* `POST`
+* `PUT`
+* `DELETE`
+* `PATCH`
+* `HEAD`
+* `OPTIONS`
+
