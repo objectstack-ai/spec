@@ -22,7 +22,11 @@
     "object-storage",
     "plugin",
     "plugin-capability",
+    "plugin-lifecycle-events",
+    "plugin-validator",
     "search-engine",
+    "service-registry",
+    "startup-orchestrator",
     "tracing",
     "translation"
   ]

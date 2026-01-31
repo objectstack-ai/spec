@@ -1,0 +1,34 @@
+{
+  "$ref": "#/definitions/HookTriggeredEvent",
+  "definitions": {
+    "HookTriggeredEvent": {
+      "type": "object",
+      "properties": {
+        "hookName": {
+          "type": "string",
+          "description": "Name of the hook"
+        },
+        "timestamp": {
+          "type": "integer",
+          "description": "Unix timestamp in milliseconds"
+        },
+        "args": {
+          "type": "array",
+          "description": "Arguments passed to the hook handlers"
+        },
+        "handlerCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of handlers that will handle this event"
+        }
+      },
+      "required": [
+        "hookName",
+        "timestamp",
+        "args"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
