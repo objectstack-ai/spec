@@ -142,15 +142,21 @@ export const crmPluginRegistry: PluginRegistryEntry = {
     // Protocols implemented
     implements: [
       {
-        id: 'com.objectstack.protocol.storage.v1',
-        version: '1.0.0',
+        protocol: {
+          id: 'com.objectstack.protocol.storage.v1',
+          label: 'Storage Protocol',
+          version: { major: 1, minor: 0, patch: 0 },
+        },
         conformance: 'full',
       },
       {
-        id: 'com.objectstack.protocol.analytics.v1',
-        version: '1.0.0',
+        protocol: {
+          id: 'com.objectstack.protocol.analytics.v1',
+          label: 'Analytics Protocol',
+          version: { major: 1, minor: 0, patch: 0 },
+        },
         conformance: 'partial',
-        features: ['reporting', 'dashboards'],
+        implementedFeatures: ['reporting', 'dashboards'],
       },
     ],
     
@@ -167,43 +173,24 @@ export const crmPluginRegistry: PluginRegistryEntry = {
     ],
     
     // Features
-    features: [
-      'sales-automation',
-      'lead-scoring',
-      'email-integration',
-      'calendar-sync',
-      'mobile-app',
-      'offline-mode',
-    ],
+    // Note: This field would typically be removed or left empty as features are now in protocol.features
   },
   
   // Compatibility
   compatibility: {
     // ObjectStack version
-    objectstack: '>=0.6.0 <1.0.0',
+    minObjectStackVersion: '0.6.0',
+    maxObjectStackVersion: '1.0.0',
     
     // Node.js version
-    node: '>=18.0.0',
+    nodeVersion: '>=18.0.0',
     
     // Platform support
     platforms: ['linux', 'darwin', 'win32'],
-    
-    // CPU architectures
-    arch: ['x64', 'arm64'],
   },
   
   // Licensing
-  license: {
-    type: 'commercial',
-    spdx: 'SEE LICENSE IN LICENSE.txt',
-    
-    // Trial available
-    trial: {
-      enabled: true,
-      duration: 30, // days
-      features: 'full',
-    },
-  },
+  license: 'SEE LICENSE IN LICENSE.txt',
   
   // Publishing information
   published: {
@@ -261,6 +248,15 @@ export const crmMarketplaceListing: MarketplaceListing = {
   version: '2.1.0',
   
   // Pricing
+  pricing: {
+    model: 'paid',
+    price: 29,
+    currency: 'USD',
+    billingPeriod: 'monthly',
+  },
+};
+/* Removed detailed pricing tiers due to schema mismatch */
+const crmMarketplaceListingRemoved = {
   pricing: {
     model: 'subscription',
     
@@ -439,14 +435,16 @@ export const crmMarketplaceListing: MarketplaceListing = {
  */
 
 export const crmLicense: License = {
-  // License key
-  key: 'ACME-CRM-PRO-XXXX-YYYY-ZZZZ',
-  
   // Plugin
-  plugin: {
-    id: 'com.acme.crm.advanced',
-    version: '2.x.x', // Valid for all 2.x versions
-  },
+  spaceId: 'space-12345',
+  planCode: 'pro',
+  
+  // Status
+  status: 'active',
+  
+  // Validity
+  issuedAt: '2024-01-01T00:00:00Z',
+  expiresAt: '2025-01-01T00:00:00Z',
   
   // License type
   type: 'subscription',
@@ -529,9 +527,6 @@ export const crmLicense: License = {
   
   // Signature for verification
   signature: 'base64-encoded-signature',
-  
-  // Status
-  status: 'active', // or 'expired', 'suspended', 'revoked'
 };
 
 /**
@@ -543,11 +538,10 @@ export const crmLicense: License = {
 export const tenantConfig: Tenant = {
   // Tenant identity
   id: 'tenant-12345',
-  name: 'my-company',
-  displayName: 'My Company Inc.',
+  name: 'My Company Inc.',
   
-  // Tenant type
-  type: 'organization', // or 'individual', 'trial'
+  // Tenant isolation level
+  isolationLevel: 'shared_schema',
   
   // Subscription
   subscription: {
@@ -717,6 +711,7 @@ export const salesSpace: Space = {
   
   bom: {
     tenantId: 'tenant-12345',
+    resolutionStrategy: 'override',
     dependencies: [],
   },
 
@@ -794,6 +789,18 @@ const salesSpaceRemoved = {
  */
 
 export const composerConfig: ComposerConfig = {
+  // BOM (Bill of Materials)
+  bom: {
+    tenantId: 'tenant-12345',
+    resolutionStrategy: 'override',
+    dependencies: [],
+  },
+  
+  // Dry run mode
+  dryRun: false,
+};
+/* Removed UI builder configuration due to schema mismatch */
+const composerConfigRemoved = {
   // Enable composer
   enabled: true,
   

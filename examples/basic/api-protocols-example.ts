@@ -54,24 +54,27 @@ export const graphqlConfig: GraphQLConfig = {
     types: [
       {
         name: 'DateTime',
-        kind: 'scalar',
+        object: 'scalar',
         description: 'ISO 8601 date-time string',
       },
       {
         name: 'JSON',
-        kind: 'scalar',
+        object: 'scalar',
         description: 'JSON object',
       },
       {
         name: 'AggregationResult',
-        kind: 'object',
-        fields: [
-          { name: 'count', type: 'Int!' },
-          { name: 'sum', type: 'Float' },
-          { name: 'avg', type: 'Float' },
-          { name: 'min', type: 'Float' },
-          { name: 'max', type: 'Float' },
-        ]
+        object: 'aggregation_result',
+        isInterface: false,
+        fields: {
+          mappings: {
+            count: { graphqlType: 'Int!' },
+            sum: { graphqlType: 'Float' },
+            avg: { graphqlType: 'Float' },
+            min: { graphqlType: 'Float' },
+            max: { graphqlType: 'Float' },
+          }
+        }
       }
     ],
 
@@ -79,12 +82,14 @@ export const graphqlConfig: GraphQLConfig = {
     mutations: [
       {
         name: 'convertLead',
-        args: [
-          { name: 'id', type: 'ID!' },
-          { name: 'accountName', type: 'String!' }
-        ],
-        type: 'ConvertLeadResult!',
-        description: 'Convert a lead to an account'
+        object: 'lead',
+        type: 'custom',
+        description: 'Convert a lead to an account',
+        input: {
+          fields: {
+            include: ['id', 'accountName']
+          }
+        }
       }
     ],
 
@@ -92,12 +97,14 @@ export const graphqlConfig: GraphQLConfig = {
     subscriptions: [
       {
         name: 'recordUpdated',
-        args: [
-          { name: 'object', type: 'String!' },
-          { name: 'recordId', type: 'ID!' }
-        ],
-        type: 'RecordUpdateEvent!',
-        description: 'Subscribe to record updates'
+        object: 'record',
+        events: ['updated'],
+        authRequired: true,
+        description: 'Subscribe to record updates',
+        filter: {
+          enabled: true,
+          fields: ['object', 'recordId']
+        }
       }
     ],
 
@@ -107,22 +114,25 @@ export const graphqlConfig: GraphQLConfig = {
         name: 'auth',
         description: 'Requires authentication',
         locations: ['FIELD_DEFINITION', 'OBJECT'],
+        repeatable: false,
       },
       {
         name: 'permission',
         description: 'Requires specific permission',
         locations: ['FIELD_DEFINITION', 'OBJECT'],
-        args: [
-          { name: 'requires', type: 'String!' }
-        ]
+        repeatable: false,
+        args: {
+          requires: { type: 'String!', description: 'Required permission' }
+        }
       },
       {
         name: 'deprecated',
         description: 'Marks field as deprecated',
         locations: ['FIELD_DEFINITION'],
-        args: [
-          { name: 'reason', type: 'String' }
-        ]
+        repeatable: false,
+        args: {
+          reason: { type: 'String', description: 'Deprecation reason' }
+        }
       },
     ],
   },
@@ -133,24 +143,30 @@ export const graphqlConfig: GraphQLConfig = {
     depthLimit: {
       enabled: true,
       maxDepth: 10,
+      onDepthExceeded: 'reject',
     },
     
     // Query complexity
     complexity: {
       enabled: true,
       maxComplexity: 1000,
+      defaultFieldComplexity: 1,
+      listMultiplier: 10,
+      onComplexityExceeded: 'reject',
     },
     
     // Rate limiting
     rateLimit: {
       enabled: true,
-      window: '1m',
-      limit: 1000,
+      strategy: 'sliding_window',
+      onLimitExceeded: 'reject',
+      includeHeaders: true,
     },
     
     // Persisted queries
     persistedQueries: {
       enabled: true,
+      mode: 'optional',
       security: {
         rejectIntrospection: true
       }

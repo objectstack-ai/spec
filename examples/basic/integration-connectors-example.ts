@@ -32,7 +32,7 @@ export const postgresConnector: DatabaseConnector = {
   name: 'production_postgres',
   label: 'Production PostgreSQL Database',
   type: 'database',
-  subtype: 'postgres',
+  provider: 'postgresql',
   description: 'Main production database for legacy CRM system',
   
   // Connection configuration
@@ -90,7 +90,7 @@ export const mongoConnector: DatabaseConnector = {
   name: 'analytics_mongo',
   label: 'Analytics MongoDB',
   type: 'database',
-  subtype: 'mongodb',
+  provider: 'mongodb',
   description: 'MongoDB cluster for analytics and reporting',
   
   config: {
@@ -127,7 +127,7 @@ export const s3Connector: FileStorageConnector = {
   name: 'aws_s3_documents',
   label: 'AWS S3 Document Storage',
   type: 'file_storage',
-  subtype: 's3',
+  provider: 's3',
   description: 'S3 bucket for customer documents and attachments',
   
   config: {
@@ -175,7 +175,7 @@ export const azureBlobConnector: FileStorageConnector = {
   name: 'azure_blob_media',
   label: 'Azure Blob Media Storage',
   type: 'file_storage',
-  subtype: 'azure_blob',
+  provider: 'azure_blob',
   description: 'Azure Blob Storage for media assets',
   
   config: {
@@ -208,7 +208,7 @@ export const localFileConnector: FileStorageConnector = {
   name: 'local_dev_storage',
   label: 'Local Development Storage',
   type: 'file_storage',
-  subtype: 'local',
+  provider: 'local',
   description: 'Local file system for development',
   
   config: {
@@ -241,7 +241,7 @@ export const rabbitmqConnector: MessageQueueConnector = {
   name: 'rabbitmq_events',
   label: 'RabbitMQ Event Bus',
   type: 'message_queue',
-  subtype: 'rabbitmq',
+  provider: 'rabbitmq',
   description: 'RabbitMQ for event-driven workflows',
   
   config: {
@@ -297,7 +297,7 @@ export const kafkaConnector: MessageQueueConnector = {
   name: 'kafka_analytics',
   label: 'Kafka Analytics Stream',
   type: 'message_queue',
-  subtype: 'kafka',
+  provider: 'kafka',
   description: 'Kafka for real-time analytics streaming',
   
   config: {
@@ -360,7 +360,7 @@ export const redisConnector: MessageQueueConnector = {
   name: 'redis_cache_queue',
   label: 'Redis Cache & Queue',
   type: 'message_queue',
-  subtype: 'redis',
+  provider: 'redis_pubsub',
   description: 'Redis for caching and lightweight queuing',
   
   config: {
@@ -411,7 +411,7 @@ export const salesforceConnector: SaaSConnector = {
   name: 'salesforce_sync',
   label: 'Salesforce CRM',
   type: 'saas',
-  subtype: 'salesforce',
+  provider: 'salesforce',
   description: 'Salesforce integration for bi-directional sync',
   
   config: {
@@ -481,7 +481,7 @@ export const hubspotConnector: SaaSConnector = {
   name: 'hubspot_marketing',
   label: 'HubSpot Marketing',
   type: 'saas',
-  subtype: 'hubspot',
+  provider: 'hubspot',
   description: 'HubSpot for marketing automation integration',
   
   config: {
@@ -521,7 +521,7 @@ export const stripeConnector: SaaSConnector = {
   name: 'stripe_payments',
   label: 'Stripe Payments',
   type: 'saas',
-  subtype: 'stripe',
+  provider: 'stripe',
   description: 'Stripe for payment processing and subscription management',
   
   config: {
@@ -568,8 +568,10 @@ export const customAPIConnector: Connector = {
   label: 'Custom ERP System',
   type: 'custom',
   description: 'Integration with legacy ERP system',
+  status: 'active',
+  enabled: true,
   
-  config: {
+  metadata: {
     baseUrl: 'https://erp.mycompany.com/api/v2',
     
     // Authentication
