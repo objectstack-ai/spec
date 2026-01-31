@@ -70,4 +70,5 @@ next-env.d.ts
 # Fumadocs
 .source/
 apps/*/. source/
-apps/*/.next/
+apps/*/.next/docs/
+docs/
