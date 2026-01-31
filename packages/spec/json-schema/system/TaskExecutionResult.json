@@ -1,0 +1,85 @@
+{
+  "$ref": "#/definitions/TaskExecutionResult",
+  "definitions": {
+    "TaskExecutionResult": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "type": "string",
+          "description": "Task identifier"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "queued",
+            "processing",
+            "completed",
+            "failed",
+            "cancelled",
+            "timeout",
+            "dead"
+          ],
+          "description": "Execution status"
+        },
+        "result": {
+          "description": "Execution result data"
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string",
+              "description": "Error message"
+            },
+            "stack": {
+              "type": "string",
+              "description": "Error stack trace"
+            },
+            "code": {
+              "type": "string",
+              "description": "Error code"
+            }
+          },
+          "required": [
+            "message"
+          ],
+          "additionalProperties": false,
+          "description": "Error details if failed"
+        },
+        "durationMs": {
+          "type": "integer",
+          "description": "Execution duration in milliseconds"
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When execution started"
+        },
+        "completedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When execution completed"
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Attempt number (1-indexed)"
+        },
+        "willRetry": {
+          "type": "boolean",
+          "description": "Whether task will be retried"
+        }
+      },
+      "required": [
+        "taskId",
+        "status",
+        "startedAt",
+        "attempt",
+        "willRetry"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

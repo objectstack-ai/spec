@@ -1,6 +1,6 @@
 ---
 title: Plugin Validator
-description: Plugin validation protocol
+description: Plugin Validator protocol schemas
 ---
 
 # Plugin Validator
@@ -9,50 +9,36 @@ description: Plugin validation protocol
 **Source:** `packages/spec/src/system/plugin-validator.zod.ts`
 </Callout>
 
-## Overview
-
-Plugin Validator protocol defines schemas for validating plugin configurations, manifests, and metadata. It provides structured error and warning reporting for plugin validation operations.
-
 ## TypeScript Usage
 
 ```typescript
-import { 
-  ValidationErrorSchema,
-  ValidationWarningSchema,
-  ValidationResultSchema
-} from '@objectstack/spec/system';
+import { PluginMetadataSchema, ValidationErrorSchema, ValidationResultSchema, ValidationWarningSchema } from '@objectstack/spec/system';
+import type { PluginMetadata, ValidationError, ValidationResult, ValidationWarning } from '@objectstack/spec/system';
 
-import type {
-  ValidationError,
-  ValidationWarning,
-  ValidationResult
-} from '@objectstack/spec/system';
-
-// Validate plugin
-const result: ValidationResult = {
-  valid: false,
-  errors: [{
-    field: 'name',
-    message: 'Plugin name is required',
-    code: 'REQUIRED_FIELD'
-  }],
-  warnings: [{
-    field: 'description',
-    message: 'Description is recommended',
-    code: 'MISSING_DESCRIPTION'
-  }]
-};
+// Validate data
+const result = PluginMetadataSchema.parse(data);
 ```
 
 ---
 
-## Schemas
+## PluginMetadata
 
-### ValidationError
+Plugin metadata for validation
 
-Represents a single validation error that prevents plugin from loading.
+### Properties
 
-#### Properties
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique plugin identifier |
+| **version** | `string` | optional | Semantic version (e.g., 1.0.0) |
+| **dependencies** | `string[]` | optional | Array of plugin names this plugin depends on |
+| **signature** | `string` | optional | Cryptographic signature for plugin verification |
+
+---
+
+## ValidationError
+
+### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
@@ -60,23 +46,23 @@ Represents a single validation error that prevents plugin from loading.
 | **message** | `string` | ✅ | Human-readable error message |
 | **code** | `string` | optional | Machine-readable error code |
 
-#### Example
+---
 
-```json
-{
-  "field": "version",
-  "message": "Invalid semver format",
-  "code": "INVALID_VERSION"
-}
-```
+## ValidationResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **valid** | `boolean` | ✅ | Whether the plugin passed validation |
+| **errors** | `object[]` | optional | Validation errors |
+| **warnings** | `object[]` | optional | Validation warnings |
 
 ---
 
-### ValidationWarning
+## ValidationWarning
 
-Represents a non-fatal validation warning.
-
-#### Properties
+### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
@@ -84,214 +70,3 @@ Represents a non-fatal validation warning.
 | **message** | `string` | ✅ | Human-readable warning message |
 | **code** | `string` | optional | Machine-readable warning code |
 
-#### Example
-
-```json
-{
-  "field": "description",
-  "message": "Description is empty",
-  "code": "MISSING_DESCRIPTION"
-}
-```
-
----
-
-### ValidationResult
-
-Result of plugin validation operation.
-
-#### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **valid** | `boolean` | ✅ | Whether the plugin passed validation |
-| **errors** | `ValidationError[]` | optional | Validation errors (block loading) |
-| **warnings** | `ValidationWarning[]` | optional | Validation warnings (non-blocking) |
-
-#### Example
-
-```json
-{
-  "valid": false,
-  "errors": [{
-    "field": "name",
-    "message": "Plugin name is required",
-    "code": "REQUIRED_FIELD"
-  }],
-  "warnings": [{
-    "field": "description",
-    "message": "Description is recommended",
-    "code": "MISSING_DESCRIPTION"
-  }]
-}
-```
-
----
-
-## Common Error Codes
-
-### Required Field Errors
-
-| Code | Description |
-| :--- | :--- |
-| `REQUIRED_FIELD` | Required field is missing |
-| `INVALID_FORMAT` | Field format is invalid |
-| `INVALID_TYPE` | Field has wrong type |
-
-### Version Errors
-
-| Code | Description |
-| :--- | :--- |
-| `INVALID_VERSION` | Version is not valid semver |
-| `VERSION_MISMATCH` | Version conflicts with dependencies |
-
-### Dependency Errors
-
-| Code | Description |
-| :--- | :--- |
-| `MISSING_DEPENDENCY` | Required dependency not found |
-| `CIRCULAR_DEPENDENCY` | Circular dependency detected |
-| `INCOMPATIBLE_VERSION` | Dependency version incompatible |
-
-### Capability Errors
-
-| Code | Description |
-| :--- | :--- |
-| `INVALID_CAPABILITY` | Unknown capability declared |
-| `CAPABILITY_CONFLICT` | Conflicting capabilities |
-
----
-
-## Usage Examples
-
-### Basic Validation
-
-```typescript
-import { PluginValidator } from '@objectstack/core';
-
-const validator = new PluginValidator();
-
-const result = validator.validate(pluginManifest);
-
-if (!result.valid) {
-  console.error('Validation failed:');
-  result.errors?.forEach(err => {
-    console.error(`- ${err.field}: ${err.message} (${err.code})`);
-  });
-}
-
-if (result.warnings?.length) {
-  console.warn('Validation warnings:');
-  result.warnings.forEach(warn => {
-    console.warn(`- ${warn.field}: ${warn.message}`);
-  });
-}
-```
-
-### Validation with Error Handling
-
-```typescript
-try {
-  const result = validator.validate(pluginManifest);
-  
-  if (!result.valid) {
-    throw new ValidationError('Plugin validation failed', result.errors);
-  }
-  
-  // Continue with plugin loading
-  await loadPlugin(pluginManifest);
-} catch (error) {
-  if (error instanceof ValidationError) {
-    // Handle validation errors
-    logValidationErrors(error.errors);
-  } else {
-    // Handle other errors
-    throw error;
-  }
-}
-```
-
-### Custom Validation Rules
-
-```typescript
-const validator = new PluginValidator({
-  customRules: [
-    {
-      field: 'name',
-      validate: (value) => {
-        if (!value.startsWith('objectstack-')) {
-          return {
-            valid: false,
-            error: {
-              field: 'name',
-              message: 'Plugin name must start with "objectstack-"',
-              code: 'INVALID_PREFIX'
-            }
-          };
-        }
-        return { valid: true };
-      }
-    }
-  ]
-});
-```
-
----
-
-## Best Practices
-
-### 1. Always Check Validation Results
-
-```typescript
-const result = validator.validate(manifest);
-
-if (!result.valid) {
-  // Never ignore validation errors
-  throw new Error('Plugin validation failed');
-}
-```
-
-### 2. Log Warnings
-
-```typescript
-if (result.warnings?.length) {
-  // Log warnings for debugging
-  logger.warn('Plugin validation warnings:', result.warnings);
-}
-```
-
-### 3. Use Error Codes
-
-```typescript
-// Check specific error codes
-const hasVersionError = result.errors?.some(e => 
-  e.code === 'INVALID_VERSION'
-);
-
-if (hasVersionError) {
-  // Handle version errors specifically
-}
-```
-
-### 4. Provide Helpful Error Messages
-
-```typescript
-const customValidator = {
-  validate: (value) => ({
-    valid: false,
-    error: {
-      field: 'dependencies',
-      message: 'Dependency "@objectstack/core" version "^2.0.0" is incompatible with current version "1.5.0"',
-      code: 'INCOMPATIBLE_VERSION'
-    }
-  })
-};
-```
-
----
-
-## Related
-
-- [Plugin](/docs/references/system/plugin) - Plugin protocol
-- [Manifest](/docs/references/system/manifest) - Plugin manifest specification
-- [Plugin Capability](/docs/references/system/plugin-capability) - Plugin capabilities

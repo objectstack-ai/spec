@@ -1,6 +1,6 @@
 ---
 title: Metadata Loader
-description: Metadata loading and persistence protocol
+description: Metadata Loader protocol schemas
 ---
 
 # Metadata Loader
@@ -9,319 +9,193 @@ description: Metadata loading and persistence protocol
 **Source:** `packages/spec/src/system/metadata-loader.zod.ts`
 </Callout>
 
-## Overview
-
-Metadata Loader protocol defines the standard interface for loading and saving metadata in ObjectStack. It enables consistent metadata operations across different storage backends (filesystem, HTTP, S3, databases) and serialization formats (JSON, YAML, TypeScript).
-
 ## TypeScript Usage
 
 ```typescript
-import { 
-  MetadataFormatSchema,
-  MetadataStatsSchema,
-  MetadataLoadOptionsSchema
-} from '@objectstack/spec/system';
+import { MetadataCollectionInfoSchema, MetadataExportOptionsSchema, MetadataFormatSchema, MetadataImportOptionsSchema, MetadataLoadOptionsSchema, MetadataLoadResultSchema, MetadataLoaderContractSchema, MetadataManagerConfigSchema, MetadataSaveOptionsSchema, MetadataSaveResultSchema, MetadataStatsSchema, MetadataWatchEventSchema } from '@objectstack/spec/system';
+import type { MetadataCollectionInfo, MetadataExportOptions, MetadataFormat, MetadataImportOptions, MetadataLoadOptions, MetadataLoadResult, MetadataLoaderContract, MetadataManagerConfig, MetadataSaveOptions, MetadataSaveResult, MetadataStats, MetadataWatchEvent } from '@objectstack/spec/system';
 
-import type {
-  MetadataFormat,
-  MetadataStats,
-  MetadataLoadOptions
-} from '@objectstack/spec/system';
-
-// Load metadata with options
-const options: MetadataLoadOptions = {
-  patterns: ['**/*.object.ts', '**/*.object.json'],
-  validate: true,
-  useCache: true,
-  recursive: true
-};
+// Validate data
+const result = MetadataCollectionInfoSchema.parse(data);
 ```
 
 ---
 
-## Schemas
+## MetadataCollectionInfo
 
-### MetadataFormat
-
-Supported serialization formats for metadata.
-
-**Values:**
-- `json` - JSON format
-- `yaml` - YAML format
-- `typescript` - TypeScript files (.ts)
-- `javascript` - JavaScript files (.js)
-
-#### Example
-
-```typescript
-const format: MetadataFormat = 'json';
-```
-
----
-
-### MetadataStats
-
-Information about a metadata item without loading its full content.
-
-#### Properties
+### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **size** | `number` | ✅ | File size in bytes |
-| **modifiedAt** | `Date` | ✅ | Last modified date |
+| **type** | `string` | ✅ | Collection type |
+| **count** | `integer` | ✅ | Number of items |
+| **formats** | `Enum<'json' \| 'yaml' \| 'typescript' \| 'javascript'>[]` | ✅ | Formats in collection |
+| **totalSize** | `integer` | optional | Total size in bytes |
+| **lastModified** | `string` | optional | Last modification date |
+| **location** | `string` | optional | Collection location |
+
+---
+
+## MetadataExportOptions
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **output** | `string` | ✅ | Output file path |
+| **format** | `Enum<'json' \| 'yaml' \| 'typescript' \| 'javascript'>` | optional | Export format |
+| **filter** | `string` | optional | Filter items to export |
+| **includeStats** | `boolean` | optional | Include metadata statistics |
+| **compress** | `boolean` | optional | Compress output (gzip) |
+| **prettify** | `boolean` | optional | Pretty print output |
+
+---
+
+## MetadataFormat
+
+### Allowed Values
+
+* `json`
+* `yaml`
+* `typescript`
+* `javascript`
+
+---
+
+## MetadataImportOptions
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **conflictResolution** | `Enum<'skip' \| 'overwrite' \| 'merge' \| 'fail'>` | optional | How to handle existing items |
+| **validate** | `boolean` | optional | Validate before import |
+| **dryRun** | `boolean` | optional | Simulate import without saving |
+| **continueOnError** | `boolean` | optional | Continue if validation fails |
+| **transform** | `string` | optional | Transform items before import |
+
+---
+
+## MetadataLoadOptions
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **patterns** | `string[]` | optional | File glob patterns |
+| **ifNoneMatch** | `string` | optional | ETag for conditional request |
+| **ifModifiedSince** | `string` | optional | Only load if modified after this date |
+| **validate** | `boolean` | optional | Validate against schema |
+| **useCache** | `boolean` | optional | Enable caching |
+| **filter** | `string` | optional | Filter predicate as string |
+| **limit** | `integer` | optional | Maximum items to load |
+| **recursive** | `boolean` | optional | Search subdirectories |
+
+---
+
+## MetadataLoadResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **data** | `any \| null` | optional | Loaded metadata |
+| **fromCache** | `boolean` | optional | Loaded from cache |
+| **notModified** | `boolean` | optional | Not modified since last request |
+| **etag** | `string` | optional | Entity tag |
+| **stats** | `object` | optional | Metadata statistics |
+| **loadTime** | `number` | optional | Load duration in ms |
+
+---
+
+## MetadataLoaderContract
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Loader identifier |
+| **supportedFormats** | `Enum<'json' \| 'yaml' \| 'typescript' \| 'javascript'>[]` | ✅ | Supported formats |
+| **supportsWatch** | `boolean` | optional | Supports file watching |
+| **supportsWrite** | `boolean` | optional | Supports write operations |
+| **supportsCache** | `boolean` | optional | Supports caching |
+
+---
+
+## MetadataManagerConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **rootDir** | `string` | optional | Root directory path |
+| **formats** | `Enum<'json' \| 'yaml' \| 'typescript' \| 'javascript'>[]` | optional | Enabled formats |
+| **cache** | `object` | optional | Cache settings |
+| **watch** | `boolean` | optional | Enable file watching |
+| **watchOptions** | `object` | optional | File watcher options |
+| **validation** | `object` | optional | Validation settings |
+| **loaderOptions** | `Record<string, any>` | optional | Loader-specific configuration |
+
+---
+
+## MetadataSaveOptions
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **format** | `Enum<'json' \| 'yaml' \| 'typescript' \| 'javascript'>` | optional | Output format |
+| **prettify** | `boolean` | optional | Format with indentation |
+| **indent** | `integer` | optional | Indentation spaces |
+| **sortKeys** | `boolean` | optional | Sort object keys |
+| **includeDefaults** | `boolean` | optional | Include default values |
+| **backup** | `boolean` | optional | Create backup file |
+| **overwrite** | `boolean` | optional | Overwrite existing file |
+| **atomic** | `boolean` | optional | Use atomic write operation |
+| **path** | `string` | optional | Custom output path |
+
+---
+
+## MetadataSaveResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Save successful |
+| **path** | `string` | ✅ | Output path |
+| **etag** | `string` | optional | Generated entity tag |
+| **size** | `integer` | optional | File size |
+| **saveTime** | `number` | optional | Save duration in ms |
+| **backupPath** | `string` | optional | Backup file path |
+
+---
+
+## MetadataStats
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **size** | `integer` | ✅ | File size in bytes |
+| **modifiedAt** | `string` | ✅ | Last modified date |
 | **etag** | `string` | ✅ | Entity tag for cache validation |
-| **format** | `MetadataFormat` | ✅ | Serialization format |
+| **format** | `Enum<'json' \| 'yaml' \| 'typescript' \| 'javascript'>` | ✅ | Serialization format |
 | **path** | `string` | optional | File system path |
 | **metadata** | `Record<string, any>` | optional | Provider-specific metadata |
 
-#### Example
-
-```json
-{
-  "size": 2048,
-  "modifiedAt": "2026-01-31T08:00:00Z",
-  "etag": "abc123def456",
-  "format": "json",
-  "path": "/app/metadata/customer.object.json"
-}
-```
-
 ---
 
-### MetadataLoadOptions
+## MetadataWatchEvent
 
-Options for loading metadata.
+### Properties
 
-#### Properties
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'added' \| 'changed' \| 'deleted'>` | ✅ | Event type |
+| **metadataType** | `string` | ✅ | Type of metadata |
+| **name** | `string` | ✅ | Item identifier |
+| **path** | `string` | ✅ | File path |
+| **data** | `any` | optional | Item data |
+| **timestamp** | `string` | ✅ | Event timestamp |
 
-| Property | Type | Required | Default | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| **patterns** | `string[]` | optional | - | File glob patterns to match |
-| **ifNoneMatch** | `string` | optional | - | ETag for conditional request |
-| **ifModifiedSince** | `Date` | optional | - | Only load if modified after this date |
-| **validate** | `boolean` | optional | true | Validate against schema |
-| **useCache** | `boolean` | optional | true | Enable caching |
-| **filter** | `string` | optional | - | Filter predicate as string |
-| **limit** | `number` | optional | - | Maximum items to load |
-| **recursive** | `boolean` | optional | true | Search subdirectories |
-
-#### Example
-
-```typescript
-const options: MetadataLoadOptions = {
-  patterns: ['**/*.object.ts', '**/*.object.json'],
-  ifModifiedSince: new Date('2026-01-01'),
-  validate: true,
-  useCache: true,
-  recursive: true,
-  limit: 100
-};
-```
-
----
-
-## Usage Examples
-
-### Load All Objects
-
-```typescript
-import { MetadataLoader } from '@objectstack/core';
-
-const loader = new MetadataLoader();
-
-const objects = await loader.load({
-  patterns: ['**/*.object.ts'],
-  validate: true,
-  recursive: true
-});
-
-console.log(`Loaded ${objects.length} objects`);
-```
-
-### Load with Filtering
-
-```typescript
-const objects = await loader.load({
-  patterns: ['**/*.object.ts'],
-  filter: "(item) => item.name.startsWith('sys_')",
-  limit: 50
-});
-```
-
-### Conditional Loading (Cache Validation)
-
-```typescript
-const stats = await loader.getStats('/metadata/customer.object.json');
-
-const objects = await loader.load({
-  patterns: ['customer.object.json'],
-  ifNoneMatch: stats.etag,
-  ifModifiedSince: stats.modifiedAt
-});
-
-// Returns empty if not modified
-if (objects.length === 0) {
-  console.log('Using cached data');
-}
-```
-
-### Load from Multiple Formats
-
-```typescript
-const metadata = await loader.load({
-  patterns: [
-    '**/*.object.ts',    // TypeScript
-    '**/*.object.json',  // JSON
-    '**/*.object.yaml'   // YAML
-  ],
-  validate: true
-});
-```
-
-### Get Metadata Statistics
-
-```typescript
-const stats = await loader.getStats('/metadata/customer.object.json');
-
-console.log(`Size: ${stats.size} bytes`);
-console.log(`Modified: ${stats.modifiedAt}`);
-console.log(`Format: ${stats.format}`);
-console.log(`ETag: ${stats.etag}`);
-```
-
----
-
-## Glob Patterns
-
-### Common Patterns
-
-```typescript
-// All object files
-patterns: ['**/*.object.ts']
-
-// All files in specific directory
-patterns: ['src/domains/**/*.object.ts']
-
-// Multiple file types
-patterns: ['**/*.object.{ts,json,yaml}']
-
-// Exclude patterns (using filter)
-patterns: ['**/*.object.ts']
-filter: "(item) => !item.name.startsWith('test_')"
-```
-
-### Pattern Examples
-
-| Pattern | Matches |
-| :--- | :--- |
-| `**/*.object.ts` | All .object.ts files recursively |
-| `src/**/*.object.ts` | All .object.ts in src/ directory |
-| `*.object.json` | .object.json files in current directory only |
-| `{a,b}/*.ts` | .ts files in a/ or b/ directories |
-
----
-
-## Best Practices
-
-### 1. Use Specific Patterns
-
-```typescript
-// ✅ Good - specific patterns
-patterns: ['src/domains/**/*.object.ts']
-
-// ❌ Avoid - too broad
-patterns: ['**/*']
-```
-
-### 2. Enable Validation
-
-```typescript
-// ✅ Always validate in production
-const options: MetadataLoadOptions = {
-  validate: true,
-  patterns: ['**/*.object.ts']
-};
-```
-
-### 3. Use Caching
-
-```typescript
-// ✅ Enable caching for performance
-const options: MetadataLoadOptions = {
-  useCache: true,
-  ifModifiedSince: lastLoadTime
-};
-```
-
-### 4. Limit Results for Large Datasets
-
-```typescript
-// ✅ Use pagination for large datasets
-const options: MetadataLoadOptions = {
-  patterns: ['**/*.object.ts'],
-  limit: 100
-};
-```
-
-### 5. Handle Load Errors
-
-```typescript
-try {
-  const metadata = await loader.load(options);
-  // Process metadata
-} catch (error) {
-  if (error.code === 'VALIDATION_FAILED') {
-    // Handle validation errors
-    console.error('Invalid metadata:', error.details);
-  } else {
-    // Handle other errors
-    throw error;
-  }
-}
-```
-
----
-
-## Storage Backends
-
-### File System
-
-```typescript
-const loader = new FileSystemMetadataLoader({
-  basePath: '/app/metadata'
-});
-```
-
-### HTTP/Remote
-
-```typescript
-const loader = new HttpMetadataLoader({
-  baseUrl: 'https://api.example.com/metadata'
-});
-```
-
-### S3
-
-```typescript
-const loader = new S3MetadataLoader({
-  bucket: 'my-metadata-bucket',
-  prefix: 'metadata/'
-});
-```
-
-### Database
-
-```typescript
-const loader = new DatabaseMetadataLoader({
-  table: 'metadata',
-  connectionString: 'postgresql://...'
-});
-```
-
----
-
-## Related
-
-- [Manifest](/docs/references/system/manifest) - Plugin manifest specification
-- [Plugin](/docs/references/system/plugin) - Plugin protocol
-- [Object](/docs/references/data/object) - Object metadata schema

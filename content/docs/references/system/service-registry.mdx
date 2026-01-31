@@ -1,6 +1,6 @@
 ---
 title: Service Registry
-description: Service registry protocol
+description: Service Registry protocol schemas
 ---
 
 # Service Registry
@@ -9,417 +9,92 @@ description: Service registry protocol
 **Source:** `packages/spec/src/system/service-registry.zod.ts`
 </Callout>
 
-## Overview
-
-Service Registry protocol defines schemas for service registration, dependency injection, and service discovery. It provides configuration and metadata structures for managing services in the ObjectStack kernel.
-
 ## TypeScript Usage
 
 ```typescript
-import { 
-  ServiceMetadataSchema,
-  ServiceRegistryConfigSchema,
-  ServiceScopeType
-} from '@objectstack/spec/system';
+import { ScopeConfigSchema, ScopeInfoSchema, ServiceFactoryRegistrationSchema, ServiceMetadataSchema, ServiceRegistryConfigSchema, ServiceScopeTypeSchema } from '@objectstack/spec/system';
+import type { ScopeConfig, ScopeInfo, ServiceFactoryRegistration, ServiceMetadata, ServiceRegistryConfig, ServiceScopeType } from '@objectstack/spec/system';
 
-import type {
-  ServiceMetadata,
-  ServiceRegistryConfig,
-  ServiceScopeType
-} from '@objectstack/spec/system';
+// Validate data
+const result = ScopeConfigSchema.parse(data);
 ```
 
 ---
 
-## Schemas
+## ScopeConfig
 
-### ServiceScopeType
+### Properties
 
-Different service scoping strategies.
-
-**Values:**
-- `singleton` - Single instance shared across the application
-- `transient` - New instance created each time
-- `scoped` - Instance per scope (request, session, transaction, etc.)
-
-#### Example
-
-```typescript
-const scope: ServiceScopeType = 'singleton';
-```
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **scopeType** | `string` | ✅ | Type of scope |
+| **scopeId** | `string` | optional | Unique scope identifier |
+| **metadata** | `Record<string, any>` | optional | Scope-specific context metadata |
 
 ---
 
-### ServiceMetadata
+## ScopeInfo
 
-Metadata about a registered service.
+### Properties
 
-#### Properties
-
-| Property | Type | Required | Default | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | - | Unique service name identifier |
-| **scope** | `ServiceScopeType` | optional | 'singleton' | Service scope type |
-| **type** | `string` | optional | - | Service type or interface name |
-| **registeredAt** | `number` | optional | - | Unix timestamp in milliseconds when service was registered |
-| **metadata** | `Record<string, any>` | optional | - | Additional service-specific metadata |
-
-#### Example
-
-```json
-{
-  "name": "database",
-  "scope": "singleton",
-  "type": "IDataEngine",
-  "registeredAt": 1706659200000,
-  "metadata": {
-    "driver": "postgres",
-    "version": "1.0.0"
-  }
-}
-```
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **scopeId** | `string` | ✅ | Unique scope identifier |
+| **scopeType** | `string` | ✅ | Type of scope |
+| **createdAt** | `integer` | ✅ | Unix timestamp in milliseconds when scope was created |
+| **serviceCount** | `integer` | optional | Number of services registered in this scope |
+| **metadata** | `Record<string, any>` | optional | Scope-specific context metadata |
 
 ---
 
-### ServiceRegistryConfig
+## ServiceFactoryRegistration
 
-Configuration for service registry behavior.
+### Properties
 
-#### Properties
-
-| Property | Type | Required | Default | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| **strictMode** | `boolean` | optional | true | Throw errors on invalid operations |
-| **allowOverwrite** | `boolean` | optional | false | Allow overwriting existing service registrations |
-| **enableLogging** | `boolean` | optional | true | Enable service registration/resolution logging |
-| **scopeTypes** | `string[]` | optional | - | Custom scope types supported |
-
-#### Example
-
-```json
-{
-  "strictMode": true,
-  "allowOverwrite": false,
-  "enableLogging": true,
-  "scopeTypes": ["singleton", "transient", "request", "session"]
-}
-```
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique service name identifier |
+| **scope** | `Enum<'singleton' \| 'transient' \| 'scoped'>` | optional | Service scope type |
+| **factoryType** | `Enum<'sync' \| 'async'>` | optional | Whether factory is synchronous or asynchronous |
+| **singleton** | `boolean` | optional | Whether to cache the factory result (singleton pattern) |
 
 ---
 
-## Usage Examples
+## ServiceMetadata
 
-### Register Singleton Service
+### Properties
 
-```typescript
-import { ServiceRegistry } from '@objectstack/core';
-
-const registry = new ServiceRegistry();
-
-// Register a singleton service
-registry.register('database', dataEngineInstance, {
-  scope: 'singleton',
-  type: 'IDataEngine',
-  metadata: {
-    driver: 'postgres',
-    connectionPool: true
-  }
-});
-```
-
-### Register Transient Service
-
-```typescript
-// Register a transient service (new instance each time)
-registry.register('logger', LoggerFactory, {
-  scope: 'transient',
-  type: 'ILogger'
-});
-```
-
-### Register Scoped Service
-
-```typescript
-// Register a scoped service (per request)
-registry.register('userContext', UserContextFactory, {
-  scope: 'scoped',
-  type: 'IUserContext',
-  metadata: {
-    scopeType: 'request'
-  }
-});
-```
-
-### Resolve Service
-
-```typescript
-// Resolve a service
-const database = registry.resolve('database');
-
-// Resolve with type checking
-const logger = registry.resolve<ILogger>('logger');
-```
-
-### Get Service Metadata
-
-```typescript
-const metadata = registry.getMetadata('database');
-
-console.log(`Service: ${metadata.name}`);
-console.log(`Type: ${metadata.type}`);
-console.log(`Scope: ${metadata.scope}`);
-console.log(`Registered at: ${new Date(metadata.registeredAt!)}`);
-```
-
-### List All Services
-
-```typescript
-const services = registry.list();
-
-services.forEach(metadata => {
-  console.log(`${metadata.name} (${metadata.scope})`);
-});
-```
-
-### Unregister Service
-
-```typescript
-registry.unregister('database');
-```
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique service name identifier |
+| **scope** | `Enum<'singleton' \| 'transient' \| 'scoped'>` | optional | Service scope type |
+| **type** | `string` | optional | Service type or interface name |
+| **registeredAt** | `integer` | optional | Unix timestamp in milliseconds when service was registered |
+| **metadata** | `Record<string, any>` | optional | Additional service-specific metadata |
 
 ---
 
-## Service Scopes
+## ServiceRegistryConfig
 
-### Singleton
+### Properties
 
-Single instance shared across the entire application.
-
-```typescript
-registry.register('config', configInstance, {
-  scope: 'singleton'
-});
-
-const config1 = registry.resolve('config');
-const config2 = registry.resolve('config');
-// config1 === config2 (same instance)
-```
-
-### Transient
-
-New instance created for each resolution.
-
-```typescript
-registry.register('logger', LoggerFactory, {
-  scope: 'transient'
-});
-
-const logger1 = registry.resolve('logger');
-const logger2 = registry.resolve('logger');
-// logger1 !== logger2 (different instances)
-```
-
-### Scoped
-
-Instance per scope (request, session, transaction, etc.).
-
-```typescript
-// Create a request scope
-const requestScope = registry.createScope('request');
-
-registry.register('userContext', UserContextFactory, {
-  scope: 'scoped'
-});
-
-// Same instance within scope
-const ctx1 = requestScope.resolve('userContext');
-const ctx2 = requestScope.resolve('userContext');
-// ctx1 === ctx2
-
-// Different instance in different scope
-const requestScope2 = registry.createScope('request');
-const ctx3 = requestScope2.resolve('userContext');
-// ctx1 !== ctx3
-```
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **strictMode** | `boolean` | optional | Throw errors on invalid operations (duplicate registration, service not found, etc.) |
+| **allowOverwrite** | `boolean` | optional | Allow overwriting existing service registrations |
+| **enableLogging** | `boolean` | optional | Enable logging for service registration and retrieval |
+| **scopeTypes** | `string[]` | optional | Supported scope types |
+| **maxServices** | `integer` | optional | Maximum number of services that can be registered |
 
 ---
 
-## Configuration Examples
+## ServiceScopeType
 
-### Strict Mode
+Service scope type
 
-```typescript
-// Throw errors on invalid operations
-const registry = new ServiceRegistry({
-  strictMode: true
-});
+### Allowed Values
 
-// This will throw if service doesn't exist
-const service = registry.resolve('non-existent'); // Error!
+* `singleton`
+* `transient`
+* `scoped`
 
-// This will throw if service already exists
-registry.register('database', db1);
-registry.register('database', db2); // Error!
-```
-
-### Permissive Mode
-
-```typescript
-// Allow more flexible operations
-const registry = new ServiceRegistry({
-  strictMode: false,
-  allowOverwrite: true
-});
-
-// Returns undefined instead of throwing
-const service = registry.resolve('non-existent'); // undefined
-
-// Allows overwriting
-registry.register('database', db1);
-registry.register('database', db2); // OK, replaces db1
-```
-
-### Custom Scope Types
-
-```typescript
-const registry = new ServiceRegistry({
-  scopeTypes: ['singleton', 'transient', 'request', 'session', 'transaction']
-});
-
-// Register with custom scope
-registry.register('transactionManager', factory, {
-  scope: 'transaction'
-});
-```
-
----
-
-## Best Practices
-
-### 1. Use Singleton for Stateless Services
-
-```typescript
-// ✅ Good - configuration is stateless and shared
-registry.register('config', configInstance, {
-  scope: 'singleton'
-});
-
-// ✅ Good - shared connection pool
-registry.register('database', dataEngine, {
-  scope: 'singleton'
-});
-```
-
-### 2. Use Transient for Stateful Services
-
-```typescript
-// ✅ Good - each logger can have its own state
-registry.register('logger', LoggerFactory, {
-  scope: 'transient'
-});
-```
-
-### 3. Use Scoped for Request-Specific Data
-
-```typescript
-// ✅ Good - user context per request
-registry.register('userContext', UserContextFactory, {
-  scope: 'scoped',
-  metadata: { scopeType: 'request' }
-});
-
-// ✅ Good - transaction per request
-registry.register('transaction', TransactionFactory, {
-  scope: 'scoped',
-  metadata: { scopeType: 'request' }
-});
-```
-
-### 4. Include Type Information
-
-```typescript
-// ✅ Good - document the interface
-registry.register('database', dataEngine, {
-  scope: 'singleton',
-  type: 'IDataEngine',
-  metadata: {
-    driver: 'postgres',
-    version: '1.0.0'
-  }
-});
-```
-
-### 5. Handle Resolution Errors
-
-```typescript
-try {
-  const service = registry.resolve('database');
-} catch (error) {
-  if (error.code === 'SERVICE_NOT_FOUND') {
-    console.error('Database service not registered');
-  } else {
-    throw error;
-  }
-}
-```
-
----
-
-## Dependency Injection Patterns
-
-### Constructor Injection
-
-```typescript
-class UserService {
-  constructor(
-    private database: IDataEngine,
-    private logger: ILogger
-  ) {}
-}
-
-// Register factory that resolves dependencies
-registry.register('userService', () => {
-  const database = registry.resolve<IDataEngine>('database');
-  const logger = registry.resolve<ILogger>('logger');
-  return new UserService(database, logger);
-}, { scope: 'singleton' });
-```
-
-### Property Injection
-
-```typescript
-class OrderService {
-  database?: IDataEngine;
-  logger?: ILogger;
-  
-  init() {
-    this.database = registry.resolve<IDataEngine>('database');
-    this.logger = registry.resolve<ILogger>('logger');
-  }
-}
-```
-
-### Method Injection
-
-```typescript
-class ReportService {
-  generate(database: IDataEngine, logger: ILogger) {
-    // Use injected dependencies
-  }
-}
-
-// Resolve and inject at call time
-const reportService = new ReportService();
-reportService.generate(
-  registry.resolve('database'),
-  registry.resolve('logger')
-);
-```
-
----
-
-## Related
-
-- [Plugin](/docs/references/system/plugin) - Plugin protocol
-- [Startup Orchestrator](/docs/references/system/startup-orchestrator) - Plugin startup
-- [Plugin Lifecycle Events](/docs/references/system/plugin-lifecycle-events) - Service registration events
