@@ -6,14 +6,14 @@ description: Connector protocol schemas
 # Connector
 
 <Callout type="info">
-**Source:** `packages/spec/src/automation/connector.zod.ts`
+**Source:** `packages/spec/src/integration/connector.zod.ts`
 </Callout>
 
 ## TypeScript Usage
 
 ```typescript
-import { AuthenticationSchema, ConflictResolutionSchema, ConnectorSchema, DataSyncConfigSchema } from '@objectstack/spec/automation';
-import type { Authentication, ConflictResolution, Connector, DataSyncConfig } from '@objectstack/spec/automation';
+import { AuthenticationSchema, ConflictResolutionSchema, ConnectorSchema, DataSyncConfigSchema } from '@objectstack/spec/integration';
+import type { Authentication, ConflictResolution, Connector, DataSyncConfig } from '@objectstack/spec/integration';
 
 // Validate data
 const result = AuthenticationSchema.parse(data);

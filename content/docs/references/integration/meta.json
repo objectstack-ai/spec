@@ -1,6 +1,7 @@
 {
   "title": "Integration Protocol",
   "pages": [
-    "connector"
+    "connector",
+    "connector-file-storage"
   ]
 }

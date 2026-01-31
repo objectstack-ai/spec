@@ -1,0 +1,309 @@
+---
+title: Plugin Lifecycle Events
+description: Plugin lifecycle event schemas
+---
+
+# Plugin Lifecycle Events
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/plugin-lifecycle-events.zod.ts`
+</Callout>
+
+## Overview
+
+Plugin lifecycle events protocol defines Zod schemas for all event data structures emitted during plugin lifecycle phases. These schemas provide runtime validation and type safety for event handlers.
+
+## TypeScript Usage
+
+```typescript
+import { 
+  PluginRegisteredEventSchema,
+  PluginLifecyclePhaseEventSchema,
+  PluginErrorEventSchema,
+  ServiceRegisteredEventSchema,
+  HookRegisteredEventSchema,
+  KernelReadyEventSchema,
+  PluginLifecycleEventType
+} from '@objectstack/spec/system';
+
+import type {
+  PluginRegisteredEvent,
+  PluginLifecyclePhaseEvent,
+  PluginErrorEvent,
+  EventPhase
+} from '@objectstack/spec/system';
+
+// Validate event data
+const event = PluginRegisteredEventSchema.parse({
+  pluginName: 'crm-plugin',
+  timestamp: Date.now(),
+  version: '1.0.0'
+});
+```
+
+---
+
+## Event Types
+
+### PluginLifecycleEventType
+
+Enumeration of all possible plugin lifecycle event types:
+
+**Kernel Events:**
+- `kernel:ready` - Kernel initialization completed
+- `kernel:shutdown` - Kernel is shutting down
+- `kernel:before-init` - Before kernel initialization
+- `kernel:after-init` - After kernel initialization
+
+**Plugin Events:**
+- `plugin:registered` - Plugin registered with kernel
+- `plugin:before-init` - Before plugin initialization
+- `plugin:init` - During plugin initialization
+- `plugin:after-init` - After plugin initialization
+- `plugin:before-start` - Before plugin startup
+- `plugin:started` - Plugin started successfully
+- `plugin:after-start` - After plugin startup
+- `plugin:before-destroy` - Before plugin destruction
+- `plugin:destroyed` - Plugin destroyed
+- `plugin:after-destroy` - After plugin destruction
+- `plugin:error` - Plugin encountered an error
+
+**Service Events:**
+- `service:registered` - Service registered in DI container
+- `service:unregistered` - Service unregistered from DI container
+
+**Hook Events:**
+- `hook:registered` - Hook registered
+- `hook:triggered` - Hook triggered
+
+---
+
+## Event Schemas
+
+### PluginRegisteredEvent
+
+Emitted when a plugin is registered with the kernel.
+
+#### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **pluginName** | `string` | ✅ | Name of the plugin |
+| **timestamp** | `number` | ✅ | Unix timestamp in milliseconds |
+| **version** | `string` | optional | Plugin version |
+
+#### Example
+
+```json
+{
+  "pluginName": "crm-plugin",
+  "timestamp": 1706659200000,
+  "version": "1.0.0"
+}
+```
+
+---
+
+### PluginLifecyclePhaseEvent
+
+Emitted during plugin lifecycle phases (init, start, destroy).
+
+#### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **pluginName** | `string` | ✅ | Name of the plugin |
+| **timestamp** | `number` | ✅ | Unix timestamp in milliseconds |
+| **duration** | `number` | optional | Duration of the phase in milliseconds |
+| **phase** | `'init' \| 'start' \| 'destroy'` | optional | Lifecycle phase |
+
+#### Example
+
+```json
+{
+  "pluginName": "crm-plugin",
+  "timestamp": 1706659200000,
+  "duration": 1250,
+  "phase": "init"
+}
+```
+
+---
+
+### PluginErrorEvent
+
+Emitted when a plugin encounters an error.
+
+#### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **pluginName** | `string` | ✅ | Name of the plugin |
+| **timestamp** | `number` | ✅ | Unix timestamp in milliseconds |
+| **error** | `Error` | ✅ | Error object |
+| **phase** | `'init' \| 'start' \| 'destroy'` | ✅ | Lifecycle phase where error occurred |
+| **errorMessage** | `string` | optional | Error message (for serialization) |
+| **errorStack** | `string` | optional | Error stack trace (for debugging) |
+
+#### Example
+
+```json
+{
+  "pluginName": "crm-plugin",
+  "timestamp": 1706659200000,
+  "error": "Error: Connection failed",
+  "phase": "start",
+  "errorMessage": "Connection failed",
+  "errorStack": "Error: Connection failed\n  at ..."
+}
+```
+
+---
+
+### ServiceRegisteredEvent
+
+Emitted when a service is registered in the DI container.
+
+#### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **serviceName** | `string` | ✅ | Name of the registered service |
+| **timestamp** | `number` | ✅ | Unix timestamp in milliseconds |
+| **serviceType** | `string` | optional | Type or interface name of the service |
+
+#### Example
+
+```json
+{
+  "serviceName": "database",
+  "timestamp": 1706659200000,
+  "serviceType": "IDataEngine"
+}
+```
+
+---
+
+### ServiceUnregisteredEvent
+
+Emitted when a service is unregistered from the DI container.
+
+#### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **serviceName** | `string` | ✅ | Name of the unregistered service |
+| **timestamp** | `number` | ✅ | Unix timestamp in milliseconds |
+
+#### Example
+
+```json
+{
+  "serviceName": "database",
+  "timestamp": 1706659200000
+}
+```
+
+---
+
+### HookRegisteredEvent
+
+Emitted when a hook is registered.
+
+#### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **hookName** | `string` | ✅ | Name of the hook |
+| **timestamp** | `number` | ✅ | Unix timestamp in milliseconds |
+| **handlerCount** | `number` | ✅ | Number of handlers registered for this hook |
+
+#### Example
+
+```json
+{
+  "hookName": "data.beforeInsert",
+  "timestamp": 1706659200000,
+  "handlerCount": 3
+}
+```
+
+---
+
+### HookTriggeredEvent
+
+Emitted when a hook is triggered.
+
+#### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **hookName** | `string` | ✅ | Name of the hook |
+| **timestamp** | `number` | ✅ | Unix timestamp in milliseconds |
+| **args** | `any[]` | ✅ | Arguments passed to hook handlers |
+| **handlerCount** | `number` | optional | Number of handlers that will handle this event |
+
+#### Example
+
+```json
+{
+  "hookName": "data.beforeInsert",
+  "timestamp": 1706659200000,
+  "args": [{ "object": "customer", "data": {...} }],
+  "handlerCount": 3
+}
+```
+
+---
+
+### KernelReadyEvent
+
+Emitted when the kernel initialization is complete.
+
+#### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **timestamp** | `number` | ✅ | Unix timestamp in milliseconds |
+| **duration** | `number` | optional | Total initialization duration in milliseconds |
+| **pluginCount** | `number` | optional | Number of plugins initialized |
+
+#### Example
+
+```json
+{
+  "timestamp": 1706659200000,
+  "duration": 5400,
+  "pluginCount": 12
+}
+```
+
+---
+
+### KernelShutdownEvent
+
+Emitted when the kernel is shutting down.
+
+#### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **timestamp** | `number` | ✅ | Unix timestamp in milliseconds |
+| **reason** | `string` | optional | Reason for kernel shutdown |
+
+#### Example
+
+```json
+{
+  "timestamp": 1706659200000,
+  "reason": "SIGTERM received"
+}
+```
+
+---
+
+## Related
+
+- [Plugin](/docs/references/system/plugin) - Plugin protocol
+- [Startup Orchestrator](/docs/references/system/startup-orchestrator) - Plugin startup orchestration
+- [Events](/docs/references/system/events) - Event system protocol
