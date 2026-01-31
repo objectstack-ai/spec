@@ -54,6 +54,7 @@ export * as API from './api';
 export * as Automation from './automation';
 export * as Integration from './integration';
 export * as Contracts from './contracts';
+export * as CLI from './cli';
 
 export {
   defineStack,

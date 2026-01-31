@@ -1,0 +1,45 @@
+{
+  "$ref": "#/definitions/CLIPluginRegistryEntry",
+  "definitions": {
+    "CLIPluginRegistryEntry": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Plugin ID"
+        },
+        "version": {
+          "type": "string",
+          "description": "Installed version"
+        },
+        "path": {
+          "type": "string",
+          "description": "Installation path"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether plugin is enabled"
+        },
+        "installedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Installation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update timestamp"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "path",
+        "installedAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -451,6 +451,31 @@ importers:
         specifier: ^1.0.0
         version: 1.6.1(@types/node@20.19.30)(lightningcss@1.30.2)
 
+  packages/plugins/cli-plugin-scaffold:
+    dependencies:
+      '@objectstack/cli':
+        specifier: workspace:*
+        version: link:../../cli
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../../spec
+      chalk:
+        specifier: ^5.3.0
+        version: 5.6.2
+      commander:
+        specifier: ^11.1.0
+        version: 11.1.0
+    devDependencies:
+      '@types/node':
+        specifier: ^20.11.19
+        version: 20.19.30
+      tsup:
+        specifier: ^8.0.2
+        version: 8.5.1(jiti@2.6.1)(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
+
   packages/plugins/driver-memory:
     dependencies:
       '@objectstack/core':

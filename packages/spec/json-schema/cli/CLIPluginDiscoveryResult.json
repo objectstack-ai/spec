@@ -1,0 +1,121 @@
+{
+  "$ref": "#/definitions/CLIPluginDiscoveryResult",
+  "definitions": {
+    "CLIPluginDiscoveryResult": {
+      "type": "object",
+      "properties": {
+        "found": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "metadata": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^@?[a-z0-9-]+\\/[a-z0-9-]+$",
+                    "description": "Plugin ID (e.g., \"@objectstack/cli-plugin-scaffold\")"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Human-readable plugin name"
+                  },
+                  "version": {
+                    "type": "string",
+                    "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.-]+)?(\\+[a-zA-Z0-9.-]+)?$",
+                    "description": "Semantic version"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Plugin description"
+                  },
+                  "author": {
+                    "type": "string",
+                    "description": "Plugin author"
+                  },
+                  "homepage": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Plugin homepage URL"
+                  },
+                  "repository": {
+                    "type": "string",
+                    "description": "Repository URL"
+                  },
+                  "keywords": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Search keywords"
+                  },
+                  "license": {
+                    "type": "string",
+                    "default": "MIT",
+                    "description": "License type"
+                  },
+                  "engines": {
+                    "type": "object",
+                    "properties": {
+                      "node": {
+                        "type": "string",
+                        "description": "Required Node.js version"
+                      },
+                      "objectstack": {
+                        "type": "string",
+                        "description": "Required ObjectStack CLI version"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "version"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "path"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "error": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "error"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "found"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,132 @@
+{
+  "$ref": "#/definitions/CLICommandDefinition",
+  "definitions": {
+    "CLICommandDefinition": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "description": "Command name (e.g., \"init\", \"generate\")"
+        },
+        "description": {
+          "type": "string",
+          "description": "Command description"
+        },
+        "alias": {
+          "type": "string",
+          "description": "Short alias for the command"
+        },
+        "arguments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Argument name"
+              },
+              "description": {
+                "type": "string",
+                "description": "Argument description"
+              },
+              "required": {
+                "type": "boolean",
+                "default": true,
+                "description": "Whether argument is required"
+              },
+              "defaultValue": {
+                "type": "string",
+                "description": "Default value if not provided"
+              },
+              "variadic": {
+                "type": "boolean",
+                "default": false,
+                "description": "Whether argument accepts multiple values"
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Positional arguments"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "flags": {
+                "type": "string",
+                "description": "Option flags (e.g., \"-p, --port <number>\")"
+              },
+              "description": {
+                "type": "string",
+                "description": "Option description"
+              },
+              "defaultValue": {
+                "description": "Default value"
+              },
+              "required": {
+                "type": "boolean",
+                "default": false,
+                "description": "Whether option is required"
+              },
+              "choices": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Allowed values"
+              }
+            },
+            "required": [
+              "flags"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Command options/flags"
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "command": {
+                "type": "string",
+                "description": "Example command"
+              },
+              "description": {
+                "type": "string",
+                "description": "What the example does"
+              }
+            },
+            "required": [
+              "command",
+              "description"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Usage examples"
+        },
+        "subcommands": {
+          "type": "array",
+          "items": {},
+          "description": "Nested subcommands"
+        },
+        "hidden": {
+          "type": "boolean",
+          "default": false,
+          "description": "Hide from help output"
+        }
+      },
+      "required": [
+        "name",
+        "description"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

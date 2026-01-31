@@ -1,0 +1,37 @@
+{
+  "$ref": "#/definitions/CLICommandArgument",
+  "definitions": {
+    "CLICommandArgument": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Argument name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Argument description"
+        },
+        "required": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether argument is required"
+        },
+        "defaultValue": {
+          "type": "string",
+          "description": "Default value if not provided"
+        },
+        "variadic": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether argument accepts multiple values"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

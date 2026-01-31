@@ -1,3 +1,6 @@
 {
-  "title": "Cli Protocol"
+  "title": "Cli Protocol",
+  "pages": [
+    "plugin"
+  ]
 }

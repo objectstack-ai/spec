@@ -1,0 +1,230 @@
+{
+  "$ref": "#/definitions/CLIPlugin",
+  "definitions": {
+    "CLIPlugin": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^@?[a-z0-9-]+\\/[a-z0-9-]+$",
+              "description": "Plugin ID (e.g., \"@objectstack/cli-plugin-scaffold\")"
+            },
+            "name": {
+              "type": "string",
+              "description": "Human-readable plugin name"
+            },
+            "version": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.-]+)?(\\+[a-zA-Z0-9.-]+)?$",
+              "description": "Semantic version"
+            },
+            "description": {
+              "type": "string",
+              "description": "Plugin description"
+            },
+            "author": {
+              "type": "string",
+              "description": "Plugin author"
+            },
+            "homepage": {
+              "type": "string",
+              "format": "uri",
+              "description": "Plugin homepage URL"
+            },
+            "repository": {
+              "type": "string",
+              "description": "Repository URL"
+            },
+            "keywords": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Search keywords"
+            },
+            "license": {
+              "type": "string",
+              "default": "MIT",
+              "description": "License type"
+            },
+            "engines": {
+              "type": "object",
+              "properties": {
+                "node": {
+                  "type": "string",
+                  "description": "Required Node.js version"
+                },
+                "objectstack": {
+                  "type": "string",
+                  "description": "Required ObjectStack CLI version"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*$",
+                "description": "Command name (e.g., \"init\", \"generate\")"
+              },
+              "description": {
+                "type": "string",
+                "description": "Command description"
+              },
+              "alias": {
+                "type": "string",
+                "description": "Short alias for the command"
+              },
+              "arguments": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Argument name"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Argument description"
+                    },
+                    "required": {
+                      "type": "boolean",
+                      "default": true,
+                      "description": "Whether argument is required"
+                    },
+                    "defaultValue": {
+                      "type": "string",
+                      "description": "Default value if not provided"
+                    },
+                    "variadic": {
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Whether argument accepts multiple values"
+                    }
+                  },
+                  "required": [
+                    "name"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "Positional arguments"
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "flags": {
+                      "type": "string",
+                      "description": "Option flags (e.g., \"-p, --port <number>\")"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Option description"
+                    },
+                    "defaultValue": {
+                      "description": "Default value"
+                    },
+                    "required": {
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Whether option is required"
+                    },
+                    "choices": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Allowed values"
+                    }
+                  },
+                  "required": [
+                    "flags"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "Command options/flags"
+              },
+              "examples": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "command": {
+                      "type": "string",
+                      "description": "Example command"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "What the example does"
+                    }
+                  },
+                  "required": [
+                    "command",
+                    "description"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "Usage examples"
+              },
+              "subcommands": {
+                "type": "array",
+                "items": {},
+                "description": "Nested subcommands"
+              },
+              "hidden": {
+                "type": "boolean",
+                "default": false,
+                "description": "Hide from help output"
+              }
+            },
+            "required": [
+              "name",
+              "description"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "description": "CLI commands provided by this plugin"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Other plugins this plugin depends on"
+        },
+        "configSchema": {
+          "description": "Zod schema for plugin configuration"
+        },
+        "hooks": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "metadata",
+        "commands"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

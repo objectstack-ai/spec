@@ -1,0 +1,50 @@
+{
+  "$ref": "#/definitions/CLIPluginContext",
+  "definitions": {
+    "CLIPluginContext": {
+      "type": "object",
+      "properties": {
+        "cwd": {
+          "type": "string",
+          "description": "Current working directory"
+        },
+        "logger": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true,
+          "description": "Logger interface"
+        },
+        "config": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true,
+          "description": "Configuration interface"
+        },
+        "packageManager": {
+          "type": "string",
+          "enum": [
+            "npm",
+            "pnpm",
+            "yarn",
+            "bun"
+          ],
+          "description": "Detected package manager"
+        },
+        "utils": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true,
+          "description": "Utility functions"
+        }
+      },
+      "required": [
+        "cwd",
+        "logger",
+        "config",
+        "utils"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
