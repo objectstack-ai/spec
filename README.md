@@ -101,7 +101,7 @@ pnpm docs:dev
 | :--- | :--- | :--- |
 | **[`@objectstack/cli-plugin-scaffold`](packages/plugins/cli-plugin-scaffold)** | Scaffolding and code generation plugin | 🟢 Active |
 
-**[Learn how to create CLI plugins →](./docs/CLI_PLUGIN_DEVELOPMENT.md)**
+**[Learn how to create CLI plugins →](./CLI_PLUGINS.md)**
 
 ### Tools
 

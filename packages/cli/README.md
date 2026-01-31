@@ -112,7 +112,7 @@ npm install --save-dev @objectstack/cli-plugin-scaffold
 
 ### Creating Plugins
 
-See the **[CLI Plugin Development Guide](../../docs/CLI_PLUGIN_DEVELOPMENT.md)** for comprehensive documentation on creating your own plugins.
+See the **[CLI Plugin Development Documentation](../../CLI_PLUGINS.md)** for comprehensive documentation on creating your own plugins.
 
 **Quick example:**
 
