@@ -1,7 +1,7 @@
-import type { Report } from '@objectstack/spec/ui';
+import type { ReportInput } from '@objectstack/spec/ui';
 
 // Sales Report - Opportunities by Stage
-export const OpportunitiesByStageReport: Report = {
+export const OpportunitiesByStageReport: ReportInput = {
   name: 'opportunities_by_stage',
   label: 'Opportunities by Stage',
   description: 'Summary of opportunities grouped by stage',
@@ -56,7 +56,7 @@ export const OpportunitiesByStageReport: Report = {
 };
 
 // Sales Report - Won Opportunities by Owner
-export const WonOpportunitiesByOwnerReport: Report = {
+export const WonOpportunitiesByOwnerReport: ReportInput = {
   name: 'won_opportunities_by_owner',
   label: 'Won Opportunities by Owner',
   description: 'Closed won opportunities grouped by owner',
@@ -105,7 +105,7 @@ export const WonOpportunitiesByOwnerReport: Report = {
 };
 
 // Account Report - Accounts by Industry and Type (Matrix)
-export const AccountsByIndustryTypeReport: Report = {
+export const AccountsByIndustryTypeReport: ReportInput = {
   name: 'accounts_by_industry_type',
   label: 'Accounts by Industry and Type',
   description: 'Matrix report showing accounts by industry and type',
@@ -144,7 +144,7 @@ export const AccountsByIndustryTypeReport: Report = {
 };
 
 // Support Report - Cases by Status and Priority
-export const CasesByStatusPriorityReport: Report = {
+export const CasesByStatusPriorityReport: ReportInput = {
   name: 'cases_by_status_priority',
   label: 'Cases by Status and Priority',
   description: 'Summary of cases by status and priority',
@@ -197,7 +197,7 @@ export const CasesByStatusPriorityReport: Report = {
 };
 
 // Support Report - SLA Performance
-export const SlaPerformanceReport: Report = {
+export const SlaPerformanceReport: ReportInput = {
   name: 'sla_performance',
   label: 'SLA Performance Report',
   description: 'Analysis of SLA compliance',
@@ -243,7 +243,7 @@ export const SlaPerformanceReport: Report = {
 };
 
 // Lead Report - Leads by Source and Status
-export const LeadsBySourceReport: Report = {
+export const LeadsBySourceReport: ReportInput = {
   name: 'leads_by_source',
   label: 'Leads by Source and Status',
   description: 'Lead pipeline analysis',
@@ -291,7 +291,7 @@ export const LeadsBySourceReport: Report = {
 };
 
 // Contact Report - Contacts by Account
-export const ContactsByAccountReport: Report = {
+export const ContactsByAccountReport: ReportInput = {
   name: 'contacts_by_account',
   label: 'Contacts by Account',
   description: 'List of contacts grouped by account',
@@ -331,7 +331,7 @@ export const ContactsByAccountReport: Report = {
 };
 
 // Activity Report - Tasks by Owner
-export const TasksByOwnerReport: Report = {
+export const TasksByOwnerReport: ReportInput = {
   name: 'tasks_by_owner',
   label: 'Tasks by Owner',
   description: 'Task summary by owner',
