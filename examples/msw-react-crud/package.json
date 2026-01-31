@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@objectstack/client": "workspace:*",
+    "@objectstack/client-react": "workspace:*",
     "@objectstack/driver-memory": "workspace:*",
     "@objectstack/example-todo": "workspace:*",
     "@objectstack/plugin-msw": "workspace:*",

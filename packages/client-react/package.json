@@ -1,0 +1,22 @@
+{
+  "name": "@objectstack/client-react",
+  "version": "0.6.1",
+  "description": "React hooks for ObjectStack Client SDK",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "dependencies": {
+    "@objectstack/client": "workspace:*",
+    "@objectstack/spec": "workspace:*",
+    "@objectstack/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "typescript": "^5.0.0"
+  }
+}
