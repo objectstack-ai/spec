@@ -61,9 +61,16 @@ export class RouteManager {
      * @param entry - Route entry with method, path, handler, and metadata
      */
     register(entry: Omit<RouteEntry, 'handler'> & { handler: RouteHandler | string }): void {
-        const handler = typeof entry.handler === 'string' 
-            ? this.resolveHandler(entry.handler)
-            : entry.handler;
+        // Validate handler type - string handlers not yet supported
+        if (typeof entry.handler === 'string') {
+            throw new Error(
+                `String-based route handlers are not supported yet. ` +
+                `Received handler identifier "${entry.handler}". ` +
+                `Please provide a RouteHandler function instead.`
+            );
+        }
+        
+        const handler: RouteHandler = entry.handler;
         
         const routeEntry: RouteEntry = {
             method: entry.method,
@@ -199,13 +206,6 @@ export class RouteManager {
             default:
                 throw new Error(`Unsupported HTTP method: ${method}`);
         }
-    }
-    
-    /**
-     * Resolve handler by name (placeholder for future handler registry)
-     */
-    private resolveHandler(handlerName: string): RouteHandler {
-        throw new Error(`Handler resolution not implemented: ${handlerName}`);
     }
 }
 

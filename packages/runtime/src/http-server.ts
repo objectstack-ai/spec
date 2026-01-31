@@ -1,4 +1,4 @@
-import { IHttpServer, IHttpRequest, IHttpResponse, RouteHandler, Middleware } from '@objectstack/core';
+import { IHttpServer, RouteHandler, Middleware } from '@objectstack/core';
 
 /**
  * HttpServer - Unified HTTP Server Abstraction

@@ -1,7 +1,6 @@
-import { IHttpServer, RouteHandler } from '@objectstack/core';
+import { IHttpServer } from '@objectstack/core';
 import { RouteManager } from './route-manager';
-import { RestServerConfig, CrudOperation } from '@objectstack/spec/api';
-import { ObjectStackProtocol } from '@objectstack/spec/api';
+import { RestServerConfig } from '@objectstack/spec/api';
 
 /**
  * RestServer
@@ -221,7 +220,7 @@ export class RestServer {
                             });
                             
                             if (result.notModified) {
-                                res.status(304).json({});
+                                res.status(304).send();
                                 return;
                             }
                             
