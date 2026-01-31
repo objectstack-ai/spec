@@ -9,13 +9,8 @@
     "server-drivers",
     "cli-tools",
     "---",
-    {
-      "title": "🤖 AI-Driven Development",
-      "pages": [
-        "ai-development-guide",
-        "ai-quick-reference",
-        "ai-erp-tutorial"
-      ]
-    }
+    "ai-development-guide",
+    "ai-quick-reference",
+    "ai-erp-tutorial"
   ]
 }
