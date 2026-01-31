@@ -1,4 +1,4 @@
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse, passthrough } from 'msw';
 import { setupWorker } from 'msw/browser';
 import { 
     Plugin, 
@@ -262,6 +262,10 @@ export class MSWPlugin implements Plugin {
 
         // Define standard ObjectStack API handlers
         this.handlers = [
+            // Passthrough for external resources
+            http.get('https://fonts.googleapis.com/*', () => passthrough()),
+            http.get('https://fonts.gstatic.com/*', () => passthrough()),
+            
             // Discovery endpoint
             http.get(`${baseUrl}`, async () => {
                 const discovery = await protocol.getDiscovery({});
