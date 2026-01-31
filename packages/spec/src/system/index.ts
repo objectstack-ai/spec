@@ -43,6 +43,9 @@ export * from './cache.zod';
 // Message Queue Protocol
 export * from './message-queue.zod';
 
+// Metadata Loader Protocol
+export * from './metadata-loader.zod';
+
 // Search Engine Protocol
 export * from './search-engine.zod';
 

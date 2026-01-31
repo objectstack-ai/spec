@@ -36,8 +36,8 @@ export function TaskList({ client, onEdit, refreshTrigger }: TaskListProps) {
         sort: ['priority', '-created_at']
       });
 
-      // Handle { value: [] } (OData), { records: [] } (Protocol) and [] (Raw) formats
-      const rawValues = Array.isArray(result) ? result : (result.value || result.records || []);
+      // Handle { value: [] } (PaginatedResult) and [] (Raw) formats
+      const rawValues = Array.isArray(result) ? result : (result.value || []);
       const fetchedTasks = [...rawValues] as Task[];
       
       // Client-side sort fallback (since InMemoryDriver has limited sort support)
