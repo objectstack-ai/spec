@@ -306,6 +306,12 @@ importers:
 
   packages/cli:
     dependencies:
+      '@objectstack/core':
+        specifier: workspace:*
+        version: link:../core
+      '@objectstack/plugin-hono-server':
+        specifier: workspace:*
+        version: link:../plugins/plugin-hono-server
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../spec
