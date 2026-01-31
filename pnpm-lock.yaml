@@ -203,6 +203,9 @@ importers:
       '@objectstack/client':
         specifier: workspace:*
         version: link:../../packages/client
+      '@objectstack/client-react':
+        specifier: workspace:*
+        version: link:../../packages/client-react
       '@objectstack/driver-memory':
         specifier: workspace:*
         version: link:../../packages/plugins/driver-memory
