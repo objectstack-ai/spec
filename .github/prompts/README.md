@@ -97,7 +97,23 @@ These prompts help define the core ObjectStack protocols:
 
 These prompts help with specific development tasks:
 
-#### 6. [Testing Engineer](./testing-engineer.prompt.md)
+#### 6. [AI Builder](./ai-builder.prompt.md)
+**Focus:** AI-driven automated metadata generation  
+**Key Responsibilities:**
+- Natural language to metadata conversion
+- P0 protocol specification adherence
+- Object and field generation
+- Relationship pattern implementation
+- Validation rule creation
+- Hook implementation guidance
+- Code quality and naming conventions
+- Self-validation and error detection
+
+**Use When:** Building AI agents for automated development, generating metadata from requirements, or implementing the ObjectStack Builder system
+
+---
+
+#### 7. [Testing Engineer](./testing-engineer.prompt.md)
 **Focus:** Comprehensive test coverage for all protocols  
 **Key Responsibilities:**
 - Schema validation tests
@@ -112,7 +128,7 @@ These prompts help with specific development tasks:
 
 ---
 
-#### 7. [Documentation Writer](./documentation-writer.prompt.md)
+#### 8. [Documentation Writer](./documentation-writer.prompt.md)
 **Focus:** Clear, comprehensive documentation  
 **Key Responsibilities:**
 - TSDoc comments
@@ -126,7 +142,7 @@ These prompts help with specific development tasks:
 
 ---
 
-#### 8. [Example Creator](./example-creator.prompt.md)
+#### 9. [Example Creator](./example-creator.prompt.md)
 **Focus:** Realistic, runnable examples  
 **Key Responsibilities:**
 - Full application examples (CRM, Todo, etc.)
