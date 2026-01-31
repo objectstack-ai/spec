@@ -5,6 +5,7 @@
  * Provides plugin system, dependency injection, and lifecycle management.
  */
 
+export * from './kernel-base.js';
 export * from './kernel.js';
 export * from './types.js';
 export * from './logger.js';
