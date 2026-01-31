@@ -34,13 +34,23 @@ ObjectStack is a metadata-driven platform built on three foundational protocols:
 
 - **Getting Started:**
   - [Introduction](./content/docs/introduction/) - Core concepts and architecture
-  - [Quick Start Examples](./examples/) - CRM, Todo, and plugin examples
+  - [📚 Examples Catalog](./examples/README.md) - **Comprehensive examples for all protocols**
+  - [Quick Start: Todo App](./examples/todo/) - Simplest complete example
+  - [Quick Start: Basic Examples](./examples/basic/) - Protocol-by-protocol examples
   
 - **Protocol References:**
-  - [Protocol Reference](./content/docs/references/) - All 70 protocol specifications
+  - [Protocol Reference](./content/docs/references/) - All 70+ protocol specifications
   - [ObjectQL](./content/docs/objectql/) - Data layer documentation
   - [ObjectUI](./content/docs/objectui/) - UI layer documentation
   - [ObjectOS](./content/docs/objectos/) - System layer documentation
+
+- **Examples by Use Case:**
+  - [CRM Example](./examples/crm/) - Full-featured enterprise CRM
+  - [AI Examples](./examples/) - AI Sales, Support, Analyst, Codegen
+  - [Integration Examples](./examples/basic/integration-connectors-example.ts) - External system connectors
+  - [System Examples](./examples/basic/system-protocols-example.ts) - Production-grade patterns
+  - [API Examples](./examples/basic/api-protocols-example.ts) - GraphQL, OData, WebSocket
+  - [Hub Examples](./examples/basic/hub-marketplace-example.ts) - Marketplace & Plugins
 
 - **Development:**
   - [Architecture Guide](./ARCHITECTURE.md) - Complete architecture overview
