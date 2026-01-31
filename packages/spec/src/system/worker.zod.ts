@@ -359,6 +359,12 @@ export const BatchTaskSchema = z.object({
   
   /**
    * Progress callback
+   * 
+   * Called after each batch completes to report progress.
+   * Invoked asynchronously and should not throw errors.
+   * If the callback throws, the error is logged but batch processing continues.
+   * 
+   * @param progress - Object containing processed count, total count, and failed count
    */
   onProgress: z.function()
     .args(z.object({
@@ -368,7 +374,7 @@ export const BatchTaskSchema = z.object({
     }))
     .returns(z.void())
     .optional()
-    .describe('Progress callback function'),
+    .describe('Progress callback function (called after each batch)'),
 });
 
 export type BatchTask = z.infer<typeof BatchTaskSchema>;

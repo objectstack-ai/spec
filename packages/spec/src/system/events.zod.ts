@@ -740,20 +740,20 @@ export type EventBusConfig = z.infer<typeof EventBusConfigSchema>;
 /**
  * Helper to create event bus configuration
  */
-export const EventBusConfig = Object.assign(EventBusConfigSchema, {
-  create: <T extends z.input<typeof EventBusConfigSchema>>(config: T) => config,
-});
+export function createEventBusConfig<T extends z.input<typeof EventBusConfigSchema>>(config: T): T {
+  return config;
+}
 
 /**
  * Helper to create event type definition
  */
-export const EventTypeDefinition = Object.assign(EventTypeDefinitionSchema, {
-  create: <T extends z.input<typeof EventTypeDefinitionSchema>>(definition: T) => definition,
-});
+export function createEventTypeDefinition<T extends z.input<typeof EventTypeDefinitionSchema>>(definition: T): T {
+  return definition;
+}
 
 /**
  * Helper to create event webhook configuration
  */
-export const EventWebhookConfig = Object.assign(EventWebhookConfigSchema, {
-  create: <T extends z.input<typeof EventWebhookConfigSchema>>(config: T) => config,
-});
+export function createEventWebhookConfig<T extends z.input<typeof EventWebhookConfigSchema>>(config: T): T {
+  return config;
+}
