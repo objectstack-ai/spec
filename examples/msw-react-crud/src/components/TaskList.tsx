@@ -36,7 +36,7 @@ export function TaskList({ client, onEdit, refreshTrigger }: TaskListProps) {
         sort: ['priority', '-created_at']
       });
 
-      // Handle both { value: [] } (OData) and [] (Raw) formats
+      // Handle { value: [] } (PaginatedResult) and [] (Raw) formats
       const rawValues = Array.isArray(result) ? result : (result.value || []);
       const fetchedTasks = [...rawValues] as Task[];
       

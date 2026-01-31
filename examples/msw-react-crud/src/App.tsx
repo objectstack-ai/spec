@@ -33,6 +33,8 @@ export function App() {
       });
 
       // Connect to the server (will be intercepted by MSW)
+      // Wait a bit to ensure MSW is fully ready and to simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 500));
       await stackClient.connect();
       
       setClient(stackClient);

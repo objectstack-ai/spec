@@ -171,6 +171,19 @@ ObjectStack is organized as a **monorepo** with distinct package layers:
 
 **Dependencies**: `@objectstack/core`, `@objectstack/spec`, `@objectstack/types`
 
+#### `@objectstack/metadata`
+**Location**: `packages/metadata/`  
+**Role**: Metadata Loading & Persistence
+
+- Metadata serialization/deserialization (JSON, YAML, TypeScript)
+- File system operations (load, save, watch)
+- Validation using Zod schemas
+- ETag-based caching
+- Import/export tools
+- SchemaRegistry persistence bridge
+
+**Dependencies**: `@objectstack/spec`, `@objectstack/core`, `@objectstack/types`, `glob`, `js-yaml`, `chokidar`
+
 #### `@objectstack/runtime`
 **Location**: `packages/runtime/`  
 **Role**: Runtime Utilities & Plugins
@@ -408,6 +421,12 @@ interface PluginCapabilityManifest {
     │       ├── @objectstack/objectql (Query Engine)
     │       │       ↑
     │       │       └── @objectstack/plugin-msw
+    │       │
+    │       ├── @objectstack/metadata (Metadata I/O)
+    │       │       ↑
+    │       │       ├── @objectstack/runtime (Uses for manifest loading)
+    │       │       ├── @objectstack/cli (Uses for code generation)
+    │       │       └── @objectstack/objectql (Uses for registry persistence)
     │       │
     │       ├── @objectstack/runtime (Plugins & HTTP)
     │       │       ↑

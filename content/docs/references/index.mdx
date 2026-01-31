@@ -1,6 +1,6 @@
 ---
 title: Protocol Reference
-description: Complete reference of all 70 ObjectStack protocol specifications
+description: Complete reference of all 109 ObjectStack protocol specifications
 ---
 
 # Protocol Reference
@@ -11,26 +11,27 @@ This is the complete reference for all protocol specifications in the ObjectStac
 
 | Module | Protocols | Description |
 | :--- | :---: | :--- |
-| [Data Protocol](#data-protocol) | 8 | Core business logic and data modeling (ObjectQL) |
+| [Data Protocol](#data-protocol) | 16 | Core business logic and data modeling (ObjectQL) |
 | [UI Protocol](#ui-protocol) | 10 | User interface definitions and interactions (ObjectUI) |
-| [System Protocol](#system-protocol) | 14 | Runtime environment and platform capabilities (ObjectOS) |
-| [AI Protocol](#ai-protocol) | 8 | AI/ML integration and agent orchestration |
-| [API Protocol](#api-protocol) | 6 | Standardized API contracts and communication |
+| [System Protocol](#system-protocol) | 39 | Runtime environment and platform capabilities (ObjectOS) |
+| [AI Protocol](#ai-protocol) | 9 | AI/ML integration and agent orchestration |
+| [API Protocol](#api-protocol) | 13 | Standardized API contracts and communication |
 | [Automation Protocol](#automation-protocol) | 7 | Workflow automation and integration |
 | [Auth Protocol](#auth-protocol) | 6 | Identity, authentication, and authorization |
 | [Permission Protocol](#permission-protocol) | 4 | Access control and security policies |
-| [Hub Protocol](#hub-protocol) | 5 | Marketplace and multi-tenancy |
-| [Shared Protocol](#shared-protocol) | 1 | Common utilities and identifiers |
+| [Hub Protocol](#hub-protocol) | 6 | Marketplace and multi-tenancy |
+| [Integration Protocol](#integration-protocol) | 5 | External system connectors and adapters |
+| [Shared Protocol](#shared-protocol) | 3 | Common utilities and identifiers |
 | [Stack Protocol](#stack-protocol) | 1 | Root stack definition |
 
-**Total: 70 protocols**
+**Total: 109 protocols**
 
 ---
 
 ## Data Protocol (ObjectQL)
 
 **Location:** `packages/spec/src/data/`  
-**Count:** 8 protocols
+**Count:** 16 protocols
 
 Defines the "Shape of Data" and business logic.
 
@@ -44,6 +45,14 @@ Defines the "Shape of Data" and business logic.
 | `dataset.zod.ts` | `DatasetSchema` | Dataset definitions for reporting and analytics |
 | `mapping.zod.ts` | `FieldMappingSchema` | Field mapping configurations for data transformation |
 | `hook.zod.ts` | `HookSchema` | Lifecycle hooks (before/after insert, update, delete) |
+| `data-engine.zod.ts` | `DataEngineSchema` | Data engine configuration and capabilities |
+| `driver.zod.ts` | `DriverSchema` | Generic database driver interface and capabilities |
+| `driver-sql.zod.ts` | `SQLDriverSchema` | SQL-specific driver configuration |
+| `driver-nosql.zod.ts` | `NoSQLDriverSchema` | NoSQL-specific driver configuration |
+| `document.zod.ts` | `DocumentSchema` | Document-oriented data structures |
+| `external-lookup.zod.ts` | `ExternalLookupSchema` | External data source lookup configurations |
+| `driver/postgres.zod.ts` | `PostgresConfigSchema` | PostgreSQL driver configuration |
+| `driver/mongo.zod.ts` | `MongoConfigSchema` | MongoDB driver configuration |
 
 **Key Features:**
 - 44 field types including AI/ML vectors and GPS locations
@@ -88,7 +97,7 @@ Defines the "Shape of Interaction" for rendering interfaces.
 ## System Protocol (ObjectOS)
 
 **Location:** `packages/spec/src/system/`  
-**Count:** 14 protocols
+**Count:** 39 protocols
 
 Defines the "Runtime Environment" and platform capabilities.
 
@@ -96,18 +105,32 @@ Defines the "Runtime Environment" and platform capabilities.
 | :--- | :--- | :--- |
 | `manifest.zod.ts` | `ManifestSchema` | Application/plugin manifest (`objectstack.config.ts`) with 7 package types |
 | `datasource.zod.ts` | `DatasourceSchema` | Data source connection configurations |
-| `driver.zod.ts` | `DriverSchema` | Database driver definitions and options |
-| `driver/postgres.zod.ts` | `PostgresConfigSchema` | PostgreSQL-specific driver configuration |
-| `driver/mongo.zod.ts` | `MongoConfigSchema` | MongoDB-specific driver configuration |
-| `plugin.zod.ts` | `PluginSchema` | Plugin lifecycle and interface definitions |
 | `context.zod.ts` | `KernelContextSchema` | Kernel execution context with user, org, tenant info |
+| `plugin.zod.ts` | `PluginSchema` | Plugin lifecycle and interface definitions |
+| `plugin-capability.zod.ts` | `PluginCapabilitySchema` | Plugin capability declarations |
+| `plugin-lifecycle-events.zod.ts` | `PluginLifecycleEventsSchema` | Plugin lifecycle event definitions |
+| `plugin-validator.zod.ts` | `PluginValidatorSchema` | Plugin validation rules |
+| `startup-orchestrator.zod.ts` | `StartupOrchestratorSchema` | System startup orchestration |
+| `service-registry.zod.ts` | `ServiceRegistrySchema` | Service discovery and registration |
 | `events.zod.ts` | `EventSchema` | Event bus and pub/sub patterns |
 | `job.zod.ts` | `JobSchema` | Background job scheduling (cron, interval, delayed) |
 | `audit.zod.ts` | `AuditEventSchema` | Audit logging for compliance |
-| `logger.zod.ts` | `LoggerConfigSchema` | Structured logging configuration |
+| `logging.zod.ts` | `LoggingSchema` | Structured logging configuration |
+| `metrics.zod.ts` | `MetricsSchema` | Application metrics and monitoring |
+| `tracing.zod.ts` | `TracingSchema` | Distributed tracing configuration |
 | `translation.zod.ts` | `TranslationSchema` | i18n/l10n support |
 | `feature.zod.ts` | `FeatureFlagSchema` | Feature flag definitions |
-| `scoped-storage.zod.ts` | `ScopedStorageSchema` | Scoped key-value storage |
+| `cache.zod.ts` | `CacheSchema` | Caching layer configuration |
+| `object-storage.zod.ts` | `ObjectStorageSchema` | Object storage configuration |
+| `message-queue.zod.ts` | `MessageQueueSchema` | Message queue integration |
+| `search-engine.zod.ts` | `SearchEngineSchema` | Full-text search configuration |
+| `encryption.zod.ts` | `EncryptionSchema` | Encryption and key management |
+| `compliance.zod.ts` | `ComplianceSchema` | Compliance and regulatory controls |
+| `masking.zod.ts` | `MaskingSchema` | Data masking rules |
+| `notification.zod.ts` | `NotificationSchema` | Notification service configuration |
+| `change-management.zod.ts` | `ChangeManagementSchema` | Change tracking and deployment |
+| `collaboration.zod.ts` | `CollaborationSchema` | Real-time collaboration features |
+| `http-server.zod.ts` | `HTTPServerSchema` | HTTP server configuration |
 
 **Package Types:**
 - `app` - Business application package
@@ -125,13 +148,14 @@ Defines the "Runtime Environment" and platform capabilities.
 ## AI Protocol
 
 **Location:** `packages/spec/src/ai/`  
-**Count:** 8 protocols
+**Count:** 9 protocols
 
 Defines AI agent integration capabilities.
 
 | File | Schema | Purpose |
 | :--- | :--- | :--- |
 | `agent.zod.ts` | `AgentSchema` | AI agent definitions and configurations |
+| `agent-action.zod.ts` | `AgentActionSchema` | Actions that agents can perform |
 | `model-registry.zod.ts` | `ModelRegistrySchema` | LLM registry and selection |
 | `rag-pipeline.zod.ts` | `RAGPipelineSchema` | Retrieval-augmented generation |
 | `nlq.zod.ts` | `NLQSchema` | Natural language query processing (NL to ObjectQL) |
@@ -147,7 +171,7 @@ Defines AI agent integration capabilities.
 ## API Protocol
 
 **Location:** `packages/spec/src/api/`  
-**Count:** 6 protocols
+**Count:** 13 protocols
 
 Defines standardized API contracts.
 
@@ -157,10 +181,78 @@ Defines standardized API contracts.
 | `endpoint.zod.ts` | `EndpointSchema` | REST endpoint definitions with rate limiting |
 | `router.zod.ts` | `RouterSchema` | API routing configuration |
 | `odata.zod.ts` | `ODataSchema` | OData query protocol support |
+| `graphql.zod.ts` | `GraphQLSchema` | GraphQL API configuration |
 | `realtime.zod.ts` | `RealtimeSchema` | WebSocket/SSE real-time subscriptions |
+| `websocket.zod.ts` | `WebSocketSchema` | WebSocket protocol configuration |
 | `discovery.zod.ts` | `DiscoverySchema` | API discovery and introspection |
+| `batch.zod.ts` | `BatchSchema` | Batch API request processing |
+| `http-cache.zod.ts` | `HTTPCacheSchema` | HTTP caching strategies |
+| `errors.zod.ts` | `ErrorSchema` | Standardized error responses |
+| `view-storage.zod.ts` | `ViewStorageSchema` | View state persistence |
+| `protocol.zod.ts` | `ProtocolSchema` | API protocol definitions |
+| `rest-server.zod.ts` | `RESTServerSchema` | REST server configuration |
 
 **Learn more:** [API Protocol Reference](/docs/references/api)
+
+---
+
+## Automation Protocol
+
+**Location:** `packages/spec/src/automation/`  
+**Count:** 7 protocols
+
+Defines workflow automation and business process management.
+
+| File | Schema | Purpose |
+| :--- | :--- | :--- |
+| `workflow.zod.ts` | `WorkflowSchema` | State machine and approval processes |
+| `flow.zod.ts` | `FlowSchema` | Visual logic orchestration (autolaunched, screen, schedule) |
+| `approval.zod.ts` | `ApprovalSchema` | Approval process configuration |
+| `webhook.zod.ts` | `WebhookSchema` | Webhook definitions and handlers |
+| `etl.zod.ts` | `ETLSchema` | Extract, transform, load pipelines |
+| `trigger-registry.zod.ts` | `TriggerRegistrySchema` | Event-driven automation triggers |
+| `sync.zod.ts` | `SyncSchema` | Data synchronization configurations |
+
+**Learn more:** [Automation Protocol Reference](/docs/references/automation)
+
+---
+
+## Hub Protocol
+
+**Location:** `packages/spec/src/hub/`  
+**Count:** 6 protocols
+
+Defines marketplace and multi-tenancy capabilities.
+
+| File | Schema | Purpose |
+| :--- | :--- | :--- |
+| `marketplace.zod.ts` | `MarketplaceSchema` | Plugin marketplace configuration |
+| `plugin-registry.zod.ts` | `PluginRegistrySchema` | Plugin registry and versioning |
+| `composer.zod.ts` | `ComposerSchema` | Application composition tools |
+| `space.zod.ts` | `SpaceSchema` | Workspace and environment management |
+| `tenant.zod.ts` | `TenantSchema` | Multi-tenancy configuration |
+| `license.zod.ts` | `LicenseSchema` | Licensing and entitlement management |
+
+**Learn more:** [Hub Protocol Reference](/docs/references/hub)
+
+---
+
+## Integration Protocol
+
+**Location:** `packages/spec/src/integration/`  
+**Count:** 5 protocols
+
+Defines external system connectors and adapters.
+
+| File | Schema | Purpose |
+| :--- | :--- | :--- |
+| `connector.zod.ts` | `ConnectorSchema` | Generic connector interface |
+| `connector/saas.zod.ts` | `SaaSConnectorSchema` | SaaS platform connectors (Salesforce, HubSpot, etc.) |
+| `connector/database.zod.ts` | `DatabaseConnectorSchema` | Database connection adapters |
+| `connector/file-storage.zod.ts` | `FileStorageConnectorSchema` | Cloud storage connectors (S3, Azure Blob, etc.) |
+| `connector/message-queue.zod.ts` | `MessageQueueConnectorSchema` | Message queue integrations (RabbitMQ, Kafka, etc.) |
+
+**Learn more:** [Integration Protocol Reference](/docs/references/integration)
 
 ---
 

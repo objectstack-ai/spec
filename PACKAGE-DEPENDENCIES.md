@@ -45,6 +45,16 @@ This is the foundation layer. All other packages depend on `@objectstack/spec`.
 │   └── @objectstack/types
 └── Role: ObjectQL query engine
 
+@objectstack/metadata
+├── Dependencies:
+│   ├── @objectstack/core
+│   ├── @objectstack/spec
+│   ├── @objectstack/types
+│   ├── glob
+│   ├── js-yaml
+│   └── chokidar (optional)
+└── Role: Metadata loading, saving, and persistence
+
 @objectstack/runtime
 ├── Dependencies:
 │   ├── @objectstack/core
@@ -131,6 +141,12 @@ This is the foundation layer. All other packages depend on `@objectstack/spec`.
     │       │       ↑
     │       │       └── @objectstack/plugin-msw (Layer 5)
     │       │
+    │       ├── @objectstack/metadata (Layer 3)
+    │       │       ↑
+    │       │       ├── @objectstack/runtime (Layer 3)
+    │       │       ├── @objectstack/cli (Layer 6)
+    │       │       └── (Future integrations)
+    │       │
     │       ├── @objectstack/runtime (Layer 3)
     │       │       ↑
     │       │       └── (Used by server plugins)
@@ -156,6 +172,7 @@ This is the foundation layer. All other packages depend on `@objectstack/spec`.
 | `@objectstack/types` | `@objectstack/spec` |
 | `@objectstack/core` | `@objectstack/spec`, `pino`, `zod` |
 | `@objectstack/objectql` | `@objectstack/core`, `@objectstack/spec`, `@objectstack/types` |
+| `@objectstack/metadata` | `@objectstack/core`, `@objectstack/spec`, `@objectstack/types`, `glob`, `js-yaml`, `chokidar` |
 | `@objectstack/runtime` | `@objectstack/core`, `@objectstack/spec`, `@objectstack/types` |
 | `@objectstack/client` | `@objectstack/core`, `@objectstack/spec` |
 | `@objectstack/client-react` | `@objectstack/client`, `@objectstack/core`, `@objectstack/spec`, `react` (peer) |
@@ -181,6 +198,7 @@ pnpm --filter @objectstack/core build
 
 # Level 3
 pnpm --filter @objectstack/objectql build
+pnpm --filter @objectstack/metadata build
 pnpm --filter @objectstack/runtime build
 
 # Level 4
@@ -253,7 +271,8 @@ Use peer dependencies for:
 |---------|---------------|-------------------|
 | `@objectstack/spec` | Define protocols | Runtime behavior |
 | `@objectstack/core` | Manage plugin lifecycle | Query execution, HTTP handling |
-| `@objectstack/objectql` | Execute queries | HTTP routing, UI rendering |
+| `@objectstack/objectql` | Execute queries | HTTP routing, UI rendering, Metadata persistence |
+| `@objectstack/metadata` | Load/save metadata | Query execution, Plugin lifecycle |
 | `@objectstack/runtime` | Provide plugin utilities | Execute queries directly |
 
 ## External Dependencies

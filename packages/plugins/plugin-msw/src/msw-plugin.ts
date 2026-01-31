@@ -1,4 +1,4 @@
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse, passthrough } from 'msw';
 import { setupWorker } from 'msw/browser';
 import { 
     Plugin, 
@@ -262,9 +262,22 @@ export class MSWPlugin implements Plugin {
 
         // Define standard ObjectStack API handlers
         this.handlers = [
+            // Passthrough for external resources
+            http.get('https://fonts.googleapis.com/*', () => passthrough()),
+            http.get('https://fonts.gstatic.com/*', () => passthrough()),
+            
             // Discovery endpoint
             http.get(`${baseUrl}`, async () => {
-                return HttpResponse.json(await protocol.getDiscovery({}));
+                const discovery = await protocol.getDiscovery({});
+                return HttpResponse.json({
+                    ...discovery,
+                    routes: {
+                        data: `${baseUrl}/data`,
+                        metadata: `${baseUrl}/meta`,
+                        ui: `${baseUrl}/ui`,
+                        auth: `${baseUrl}/auth`
+                    }
+                });
             }),
 
             // Meta endpoints
@@ -300,7 +313,10 @@ export class MSWPlugin implements Plugin {
                         params.object as string,
                         queryParams
                     );
-                    return HttpResponse.json(result.data, { status: result.status });
+                    return HttpResponse.json(result.data, { 
+                        status: result.status,
+                        headers: { 'Cache-Control': 'no-store' }
+                    });
                 } catch (error) {
                     const message = error instanceof Error ? error.message : 'Unknown error';
                     return HttpResponse.json({ error: message }, { status: 404 });
@@ -313,7 +329,10 @@ export class MSWPlugin implements Plugin {
                         params.object as string,
                         params.id as string
                     );
-                    return HttpResponse.json(result.data, { status: result.status });
+                    return HttpResponse.json(result.data, { 
+                        status: result.status,
+                        headers: { 'Cache-Control': 'no-store' }
+                    });
                 } catch (error) {
                     const message = error instanceof Error ? error.message : 'Unknown error';
                     return HttpResponse.json({ error: message }, { status: 404 });

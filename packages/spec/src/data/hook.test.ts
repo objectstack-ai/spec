@@ -1,0 +1,690 @@
+import { describe, it, expect } from 'vitest';
+import {
+  HookEvent,
+  HookSchema,
+  HookContextSchema,
+  type Hook,
+  type HookContext,
+} from './hook.zod';
+
+describe('HookEvent', () => {
+  describe('Read Operations', () => {
+    it('should accept read operation events', () => {
+      const readEvents = [
+        'beforeFind', 'afterFind',
+        'beforeFindOne', 'afterFindOne',
+        'beforeCount', 'afterCount',
+        'beforeAggregate', 'afterAggregate',
+      ];
+
+      readEvents.forEach(event => {
+        expect(() => HookEvent.parse(event)).not.toThrow();
+      });
+    });
+  });
+
+  describe('Write Operations', () => {
+    it('should accept write operation events', () => {
+      const writeEvents = [
+        'beforeInsert', 'afterInsert',
+        'beforeUpdate', 'afterUpdate',
+        'beforeDelete', 'afterDelete',
+      ];
+
+      writeEvents.forEach(event => {
+        expect(() => HookEvent.parse(event)).not.toThrow();
+      });
+    });
+  });
+
+  describe('Bulk Operations', () => {
+    it('should accept bulk operation events', () => {
+      const bulkEvents = [
+        'beforeUpdateMany', 'afterUpdateMany',
+        'beforeDeleteMany', 'afterDeleteMany',
+      ];
+
+      bulkEvents.forEach(event => {
+        expect(() => HookEvent.parse(event)).not.toThrow();
+      });
+    });
+  });
+
+  it('should reject invalid event', () => {
+    expect(() => HookEvent.parse('invalidEvent')).toThrow();
+  });
+});
+
+describe('HookSchema', () => {
+  describe('Basic Hook Properties', () => {
+    it('should accept minimal valid hook', () => {
+      const hook = HookSchema.parse({
+        name: 'validate_email',
+        object: 'contact',
+        events: ['beforeInsert'],
+      });
+
+      expect(hook.name).toBe('validate_email');
+      expect(hook.object).toBe('contact');
+      expect(hook.events).toContain('beforeInsert');
+    });
+
+    it('should enforce snake_case for hook name', () => {
+      expect(() => HookSchema.parse({
+        name: 'ValidateEmail',
+        object: 'contact',
+        events: ['beforeInsert'],
+      })).toThrow();
+
+      expect(() => HookSchema.parse({
+        name: 'validate-email',
+        object: 'contact',
+        events: ['beforeInsert'],
+      })).toThrow();
+    });
+
+    it('should accept valid snake_case names', () => {
+      const validNames = ['validate_email', 'set_default_values', 'before_save_hook', '_system_hook'];
+
+      validNames.forEach(name => {
+        expect(() => HookSchema.parse({
+          name,
+          object: 'contact',
+          events: ['beforeInsert'],
+        })).not.toThrow();
+      });
+    });
+
+    it('should accept hook with label', () => {
+      const hook = HookSchema.parse({
+        name: 'validate_email',
+        label: 'Email Validation Hook',
+        object: 'contact',
+        events: ['beforeInsert', 'beforeUpdate'],
+      });
+
+      expect(hook.label).toBe('Email Validation Hook');
+    });
+  });
+
+  describe('Object Targeting', () => {
+    it('should accept single object', () => {
+      const hook = HookSchema.parse({
+        name: 'account_hook',
+        object: 'account',
+        events: ['beforeInsert'],
+      });
+
+      expect(hook.object).toBe('account');
+    });
+
+    it('should accept multiple objects', () => {
+      const hook = HookSchema.parse({
+        name: 'multi_object_hook',
+        object: ['account', 'contact', 'opportunity'],
+        events: ['beforeInsert'],
+      });
+
+      expect(hook.object).toEqual(['account', 'contact', 'opportunity']);
+    });
+
+    it('should accept wildcard for all objects', () => {
+      const hook = HookSchema.parse({
+        name: 'global_audit',
+        object: '*',
+        events: ['afterInsert', 'afterUpdate', 'afterDelete'],
+      });
+
+      expect(hook.object).toBe('*');
+    });
+  });
+
+  describe('Event Subscription', () => {
+    it('should accept single event', () => {
+      const hook = HookSchema.parse({
+        name: 'before_save',
+        object: 'account',
+        events: ['beforeInsert'],
+      });
+
+      expect(hook.events).toHaveLength(1);
+      expect(hook.events).toContain('beforeInsert');
+    });
+
+    it('should accept multiple events', () => {
+      const hook = HookSchema.parse({
+        name: 'audit_changes',
+        object: 'account',
+        events: ['afterInsert', 'afterUpdate', 'afterDelete'],
+      });
+
+      expect(hook.events).toHaveLength(3);
+    });
+
+    it('should accept before and after events', () => {
+      const hook = HookSchema.parse({
+        name: 'sync_to_external',
+        object: 'contact',
+        events: ['beforeInsert', 'afterInsert', 'beforeUpdate', 'afterUpdate'],
+      });
+
+      expect(hook.events).toHaveLength(4);
+    });
+  });
+
+  describe('Handler Configuration', () => {
+    it('should accept string handler', () => {
+      const hook = HookSchema.parse({
+        name: 'validate_data',
+        object: 'account',
+        events: ['beforeInsert'],
+        handler: 'validators.validateAccount',
+      });
+
+      expect(hook.handler).toBe('validators.validateAccount');
+    });
+
+    it('should accept optional handler', () => {
+      const hook = HookSchema.parse({
+        name: 'log_changes',
+        object: 'account',
+        events: ['afterUpdate'],
+      });
+
+      expect(hook.handler).toBeUndefined();
+    });
+  });
+
+  describe('Priority and Execution Order', () => {
+    it('should apply default priority', () => {
+      const hook = HookSchema.parse({
+        name: 'app_hook',
+        object: 'account',
+        events: ['beforeInsert'],
+      });
+
+      expect(hook.priority).toBe(100);
+    });
+
+    it('should accept system hook priority', () => {
+      const hook = HookSchema.parse({
+        name: 'system_validation',
+        object: '*',
+        events: ['beforeInsert'],
+        priority: 50,
+      });
+
+      expect(hook.priority).toBe(50);
+    });
+
+    it('should accept user hook priority', () => {
+      const hook = HookSchema.parse({
+        name: 'custom_logic',
+        object: 'account',
+        events: ['beforeInsert'],
+        priority: 1000,
+      });
+
+      expect(hook.priority).toBe(1000);
+    });
+  });
+
+  describe('Async Execution', () => {
+    it('should default async to false', () => {
+      const hook = HookSchema.parse({
+        name: 'sync_hook',
+        object: 'account',
+        events: ['afterInsert'],
+      });
+
+      expect(hook.async).toBe(false);
+    });
+
+    it('should accept async execution', () => {
+      const hook = HookSchema.parse({
+        name: 'send_notification',
+        object: 'account',
+        events: ['afterInsert'],
+        async: true,
+      });
+
+      expect(hook.async).toBe(true);
+    });
+
+    it('should accept blocking execution', () => {
+      const hook = HookSchema.parse({
+        name: 'validate_critical',
+        object: 'account',
+        events: ['beforeInsert'],
+        async: false,
+      });
+
+      expect(hook.async).toBe(false);
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('should default onError to abort', () => {
+      const hook = HookSchema.parse({
+        name: 'validation_hook',
+        object: 'account',
+        events: ['beforeInsert'],
+      });
+
+      expect(hook.onError).toBe('abort');
+    });
+
+    it('should accept abort error policy', () => {
+      const hook = HookSchema.parse({
+        name: 'critical_validation',
+        object: 'account',
+        events: ['beforeInsert'],
+        onError: 'abort',
+      });
+
+      expect(hook.onError).toBe('abort');
+    });
+
+    it('should accept log error policy', () => {
+      const hook = HookSchema.parse({
+        name: 'non_critical_hook',
+        object: 'account',
+        events: ['afterInsert'],
+        onError: 'log',
+      });
+
+      expect(hook.onError).toBe('log');
+    });
+  });
+
+  describe('Complete Hook Examples', () => {
+    it('should accept validation hook', () => {
+      const hook: Hook = {
+        name: 'validate_account_data',
+        label: 'Account Data Validation',
+        object: 'account',
+        events: ['beforeInsert', 'beforeUpdate'],
+        handler: 'validators.validateAccountData',
+        priority: 100,
+        async: false,
+        onError: 'abort',
+      };
+
+      expect(() => HookSchema.parse(hook)).not.toThrow();
+    });
+
+    it('should accept audit trail hook', () => {
+      const hook: Hook = {
+        name: 'audit_trail',
+        label: 'Audit Trail Logging',
+        object: '*',
+        events: ['afterInsert', 'afterUpdate', 'afterDelete'],
+        handler: 'audit.logChange',
+        priority: 200,
+        async: true,
+        onError: 'log',
+      };
+
+      expect(() => HookSchema.parse(hook)).not.toThrow();
+    });
+
+    it('should accept default value hook', () => {
+      const hook: Hook = {
+        name: 'set_defaults',
+        label: 'Set Default Values',
+        object: 'opportunity',
+        events: ['beforeInsert'],
+        handler: 'defaults.setOpportunityDefaults',
+        priority: 50,
+        async: false,
+        onError: 'abort',
+      };
+
+      expect(() => HookSchema.parse(hook)).not.toThrow();
+    });
+
+    it('should accept external sync hook', () => {
+      const hook: Hook = {
+        name: 'sync_to_salesforce',
+        label: 'Sync to Salesforce',
+        object: ['account', 'contact'],
+        events: ['afterInsert', 'afterUpdate'],
+        handler: 'integrations.syncToSalesforce',
+        priority: 500,
+        async: true,
+        onError: 'log',
+      };
+
+      expect(() => HookSchema.parse(hook)).not.toThrow();
+    });
+
+    it('should accept notification hook', () => {
+      const hook: Hook = {
+        name: 'send_email_notification',
+        label: 'Send Email Notification',
+        object: 'case',
+        events: ['afterInsert'],
+        handler: 'notifications.sendEmail',
+        priority: 800,
+        async: true,
+        onError: 'log',
+      };
+
+      expect(() => HookSchema.parse(hook)).not.toThrow();
+    });
+  });
+});
+
+describe('HookContextSchema', () => {
+  describe('Basic Context Properties', () => {
+    it('should accept minimal context', () => {
+      const context = HookContextSchema.parse({
+        object: 'account',
+        event: 'beforeInsert',
+        input: { doc: { name: 'Test Account' } },
+        ql: {},
+      });
+
+      expect(context.object).toBe('account');
+      expect(context.event).toBe('beforeInsert');
+    });
+
+    it('should accept context with id', () => {
+      const context = HookContextSchema.parse({
+        id: 'trace_123',
+        object: 'account',
+        event: 'beforeInsert',
+        input: {},
+        ql: {},
+      });
+
+      expect(context.id).toBe('trace_123');
+    });
+  });
+
+  describe('Input Parameters', () => {
+    it('should accept find input', () => {
+      const context = HookContextSchema.parse({
+        object: 'account',
+        event: 'beforeFind',
+        input: {
+          query: { where: { status: 'active' } },
+          options: {},
+        },
+        ql: {},
+      });
+
+      expect(context.input.query).toBeDefined();
+    });
+
+    it('should accept insert input', () => {
+      const context = HookContextSchema.parse({
+        object: 'account',
+        event: 'beforeInsert',
+        input: {
+          doc: {
+            name: 'New Account',
+            industry: 'Technology',
+          },
+          options: {},
+        },
+        ql: {},
+      });
+
+      expect(context.input.doc.name).toBe('New Account');
+    });
+
+    it('should accept update input', () => {
+      const context = HookContextSchema.parse({
+        object: 'account',
+        event: 'beforeUpdate',
+        input: {
+          id: '123',
+          doc: { status: 'active' },
+          options: {},
+        },
+        ql: {},
+      });
+
+      expect(context.input.id).toBe('123');
+      expect(context.input.doc.status).toBe('active');
+    });
+
+    it('should accept delete input', () => {
+      const context = HookContextSchema.parse({
+        object: 'account',
+        event: 'beforeDelete',
+        input: {
+          id: '123',
+          options: {},
+        },
+        ql: {},
+      });
+
+      expect(context.input.id).toBe('123');
+    });
+  });
+
+  describe('Operation Result', () => {
+    it('should accept result for after hooks', () => {
+      const context = HookContextSchema.parse({
+        object: 'account',
+        event: 'afterInsert',
+        input: {},
+        result: {
+          id: '123',
+          name: 'New Account',
+          createdAt: '2026-01-31T00:00:00Z',
+        },
+        ql: {},
+      });
+
+      expect(context.result.id).toBe('123');
+    });
+
+    it('should accept array result', () => {
+      const context = HookContextSchema.parse({
+        object: 'account',
+        event: 'afterFind',
+        input: {},
+        result: [
+          { id: '1', name: 'Account 1' },
+          { id: '2', name: 'Account 2' },
+        ],
+        ql: {},
+      });
+
+      expect(context.result).toHaveLength(2);
+    });
+  });
+
+  describe('Previous Data Snapshot', () => {
+    it('should accept previous data for update', () => {
+      const context = HookContextSchema.parse({
+        object: 'account',
+        event: 'beforeUpdate',
+        input: {},
+        previous: {
+          id: '123',
+          name: 'Old Name',
+          status: 'inactive',
+        },
+        ql: {},
+      });
+
+      expect(context.previous?.name).toBe('Old Name');
+    });
+
+    it('should accept previous data for delete', () => {
+      const context = HookContextSchema.parse({
+        object: 'account',
+        event: 'beforeDelete',
+        input: {},
+        previous: {
+          id: '123',
+          name: 'Account to Delete',
+        },
+        ql: {},
+      });
+
+      expect(context.previous?.name).toBe('Account to Delete');
+    });
+  });
+
+  describe('Session Context', () => {
+    it('should accept session with user info', () => {
+      const context = HookContextSchema.parse({
+        object: 'account',
+        event: 'beforeInsert',
+        input: {},
+        session: {
+          userId: 'user_123',
+          tenantId: 'tenant_456',
+          roles: ['user', 'admin'],
+        },
+        ql: {},
+      });
+
+      expect(context.session?.userId).toBe('user_123');
+      expect(context.session?.tenantId).toBe('tenant_456');
+      expect(context.session?.roles).toContain('admin');
+    });
+
+    it('should accept session with access token', () => {
+      const context = HookContextSchema.parse({
+        object: 'account',
+        event: 'beforeInsert',
+        input: {},
+        session: {
+          userId: 'user_123',
+          accessToken: 'token_abc123',
+        },
+        ql: {},
+      });
+
+      expect(context.session?.accessToken).toBe('token_abc123');
+    });
+  });
+
+  describe('Transaction Support', () => {
+    it('should accept transaction handle', () => {
+      const context = HookContextSchema.parse({
+        object: 'account',
+        event: 'beforeInsert',
+        input: {},
+        transaction: { id: 'tx_123' },
+        ql: {},
+      });
+
+      expect(context.transaction).toBeDefined();
+    });
+  });
+
+  describe('Complete Context Examples', () => {
+    it('should accept complete before insert context', () => {
+      const context: HookContext = {
+        id: 'trace_abc123',
+        object: 'account',
+        event: 'beforeInsert',
+        input: {
+          doc: {
+            name: 'New Account',
+            industry: 'Technology',
+            status: 'active',
+          },
+          options: {},
+        },
+        session: {
+          userId: 'user_123',
+          tenantId: 'tenant_456',
+          roles: ['user'],
+        },
+        transaction: { id: 'tx_789' },
+        ql: {},
+      };
+
+      expect(() => HookContextSchema.parse(context)).not.toThrow();
+    });
+
+    it('should accept complete after update context', () => {
+      const context: HookContext = {
+        id: 'trace_def456',
+        object: 'account',
+        event: 'afterUpdate',
+        input: {
+          id: '123',
+          doc: { status: 'active' },
+          options: {},
+        },
+        result: {
+          id: '123',
+          name: 'Account Name',
+          status: 'active',
+          updatedAt: '2026-01-31T00:00:00Z',
+        },
+        previous: {
+          id: '123',
+          name: 'Account Name',
+          status: 'inactive',
+        },
+        session: {
+          userId: 'user_123',
+        },
+        ql: {},
+      };
+
+      expect(() => HookContextSchema.parse(context)).not.toThrow();
+    });
+  });
+});
+
+describe('Integration Tests', () => {
+  it('should support hook lifecycle', () => {
+    // Define hook
+    const hook = HookSchema.parse({
+      name: 'validate_and_enrich',
+      label: 'Validate and Enrich Data',
+      object: 'account',
+      events: ['beforeInsert', 'beforeUpdate'],
+      handler: 'handlers.validateAndEnrich',
+      priority: 100,
+      async: false,
+      onError: 'abort',
+    });
+
+    // Before insert context
+    const beforeContext = HookContextSchema.parse({
+      object: 'account',
+      event: 'beforeInsert',
+      input: {
+        doc: { name: 'Test Account' },
+      },
+      session: {
+        userId: 'user_123',
+      },
+      ql: {},
+    });
+
+    // After insert context
+    const afterContext = HookContextSchema.parse({
+      object: 'account',
+      event: 'afterInsert',
+      input: {
+        doc: { name: 'Test Account' },
+      },
+      result: {
+        id: '123',
+        name: 'Test Account',
+        createdAt: '2026-01-31T00:00:00Z',
+      },
+      session: {
+        userId: 'user_123',
+      },
+      ql: {},
+    });
+
+    expect(hook.events).toContain('beforeInsert');
+    expect(beforeContext.event).toBe('beforeInsert');
+    expect(afterContext.result.id).toBe('123');
+  });
+});

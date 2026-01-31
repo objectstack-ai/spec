@@ -1,0 +1,349 @@
+---
+title: Package Reference
+description: Complete reference of all ObjectStack packages in the monorepo
+---
+
+# Package Reference
+
+ObjectStack is distributed as a monorepo containing **12 packages** organized into core packages and plugins.
+
+## Package Overview
+
+| Category | Count | Description |
+| :--- | :---: | :--- |
+| [Core Packages](#core-packages) | 9 | Essential runtime, protocols, and client SDKs |
+| [Plugin Packages](#plugin-packages) | 3 | Drivers and adapters for extending ObjectStack |
+
+**Total: 12 packages**
+
+---
+
+## Core Packages
+
+### @objectstack/spec
+
+**Description:** ObjectStack Protocol & Specification - TypeScript Interfaces, JSON Schemas, and Convention Configurations
+
+**Purpose:** The foundational package containing all protocol definitions and schemas. This is the "DNA" of ObjectStack.
+
+**Key Exports:**
+- `Data` - Data protocol schemas (Field, Object, Query, etc.)
+- `UI` - UI protocol schemas (View, App, Dashboard, etc.)
+- `System` - System protocol schemas (Manifest, Plugin, Events, etc.)
+- `AI` - AI protocol schemas (Agent, RAG Pipeline, etc.)
+- `API` - API protocol schemas (Contract, Endpoint, etc.)
+- `Automation` - Automation protocol schemas (Flow, Workflow, etc.)
+- `Auth` - Authentication protocol schemas
+- `Permission` - Permission protocol schemas
+- `Hub` - Hub protocol schemas
+- `Integration` - Integration protocol schemas
+- `Shared` - Shared utilities and identifiers
+
+**Protocol Count:** 109 Zod schemas
+
+**Learn more:** [Protocol Reference](/docs/references)
+
+---
+
+### @objectstack/core
+
+**Description:** Microkernel Core for ObjectStack
+
+**Purpose:** Provides the runtime foundation for ObjectStack, including the plugin system, service registry, and logging infrastructure.
+
+**Key Features:**
+- Plugin lifecycle management
+- Service registry for dependency injection
+- Structured logging system
+- Event bus for inter-plugin communication
+- Startup orchestration
+
+**Use Cases:**
+- Building custom ObjectStack runtimes
+- Creating plugin-based architectures
+- Implementing microkernel patterns
+
+---
+
+### @objectstack/runtime
+
+**Description:** ObjectStack Core Runtime & Query Engine
+
+**Purpose:** The main runtime engine that executes ObjectQL queries and manages data operations.
+
+**Key Features:**
+- Query execution engine
+- Data operation handlers (CRUD)
+- Runtime context management
+- Transaction support
+- Driver orchestration
+
+**Use Cases:**
+- Running ObjectStack applications
+- Executing data queries
+- Managing database operations
+
+---
+
+### @objectstack/objectql
+
+**Description:** Isomorphic ObjectQL Engine for ObjectStack
+
+**Purpose:** Standalone ObjectQL query engine that can run in any JavaScript environment (Node.js, browsers, edge).
+
+**Key Features:**
+- Isomorphic query execution (client and server)
+- ObjectQL AST parsing and compilation
+- Query optimization
+- Driver-agnostic query interface
+
+**Use Cases:**
+- Client-side data querying
+- Edge function data access
+- Serverless query execution
+
+---
+
+### @objectstack/client
+
+**Description:** Official Client SDK for ObjectStack Protocol
+
+**Purpose:** Type-safe client library for interacting with ObjectStack APIs.
+
+**Key Features:**
+- Type-safe API methods
+- Query builder interface
+- Authentication handling
+- Request/response transformation
+- Error handling
+
+**Use Cases:**
+- Building frontend applications
+- Consuming ObjectStack APIs
+- Type-safe data fetching
+
+---
+
+### @objectstack/client-react
+
+**Description:** React hooks for ObjectStack Client SDK
+
+**Purpose:** React-specific hooks and components for ObjectStack integration.
+
+**Requirements:** React 18+
+
+**Key Features:**
+- `useQuery` - Data fetching hook
+- `useMutation` - Data mutation hook
+- `useObject` - Object metadata hook
+- React Query integration
+- Optimistic updates
+
+**Use Cases:**
+- Building React applications
+- Real-time data synchronization
+- Form handling with ObjectStack data
+
+---
+
+### @objectstack/cli
+
+**Description:** Command Line Interface for ObjectStack Protocol
+
+**Purpose:** Developer tools for scaffolding, building, and managing ObjectStack applications.
+
+**Commands:**
+- `os init` / `objectstack init` - Initialize new project
+- `os build` / `objectstack build` - Build and validate metadata
+- `os dev` / `objectstack dev` - Development server
+- `os generate` - Code generation from schemas
+
+**Use Cases:**
+- Project scaffolding
+- Metadata validation
+- Development workflows
+- Code generation
+
+---
+
+### @objectstack/ai-bridge
+
+**Description:** AI/ML integration bridge for ObjectStack
+
+**Purpose:** Provides adapters and utilities for integrating AI/ML models with ObjectStack.
+
+**Key Features:**
+- LLM provider adapters (OpenAI, Anthropic, etc.)
+- Model registry and routing
+- Token usage tracking
+- Embedding generation
+- RAG pipeline support
+
+**Use Cases:**
+- Building AI-powered applications
+- Integrating LLMs with business data
+- Implementing RAG workflows
+
+---
+
+### @objectstack/types
+
+**Description:** Shared interfaces describing the ObjectStack Runtime environment
+
+**Purpose:** Common TypeScript type definitions used across all ObjectStack packages.
+
+**Key Exports:**
+- `IKernel` - Kernel interface
+- `RuntimePlugin` - Plugin interface
+- Shared utility types
+- Runtime context types
+
+**Use Cases:**
+- Plugin development
+- Type-safe integrations
+- Extending ObjectStack core
+
+---
+
+## Plugin Packages
+
+### @objectstack/driver-memory
+
+**Description:** In-Memory Driver for ObjectStack (Reference Implementation)
+
+**Purpose:** A fully functional in-memory database driver used for testing and development.
+
+**Key Features:**
+- Full ObjectQL support
+- Transaction support
+- Query execution
+- No external dependencies
+
+**Use Cases:**
+- Testing ObjectStack applications
+- Development without database setup
+- Understanding driver implementation patterns
+
+**Status:** Reference implementation for driver developers
+
+---
+
+### @objectstack/plugin-hono-server
+
+**Description:** Standard Hono Server Adapter for ObjectStack Runtime
+
+**Purpose:** HTTP server adapter using the Hono framework.
+
+**Key Features:**
+- Fast HTTP server using Hono
+- REST API endpoints
+- Middleware support
+- Edge runtime compatible
+
+**Use Cases:**
+- Production REST API deployment
+- Edge function hosting
+- Serverless deployments
+
+---
+
+### @objectstack/plugin-msw
+
+**Description:** MSW (Mock Service Worker) Plugin for ObjectStack Runtime
+
+**Purpose:** Testing plugin for mocking ObjectStack APIs in tests.
+
+**Key Features:**
+- API mocking for tests
+- Request interception
+- Response simulation
+- Integration with MSW
+
+**Use Cases:**
+- Unit testing
+- Integration testing
+- Frontend testing without backend
+
+---
+
+## Package Dependencies
+
+### Dependency Graph
+
+```
+@objectstack/spec (no dependencies)
+    ↓
+    ├─→ @objectstack/types
+    ├─→ @objectstack/core
+    ├─→ @objectstack/objectql
+    ├─→ @objectstack/runtime
+    │       ↓
+    │       └─→ @objectstack/client
+    │               ↓
+    │               └─→ @objectstack/client-react
+    ├─→ @objectstack/cli
+    └─→ @objectstack/ai-bridge
+
+Plugins (depend on core packages):
+    ├─→ @objectstack/driver-memory
+    ├─→ @objectstack/plugin-hono-server
+    └─→ @objectstack/plugin-msw
+```
+
+### Installation
+
+**For Application Development:**
+```bash
+pnpm add @objectstack/runtime @objectstack/client
+```
+
+**For React Applications:**
+```bash
+pnpm add @objectstack/client-react
+```
+
+**For Plugin Development:**
+```bash
+pnpm add @objectstack/core @objectstack/spec
+```
+
+**For CLI Tools:**
+```bash
+pnpm add -g @objectstack/cli
+```
+
+---
+
+## Version Compatibility
+
+All packages in the monorepo are versioned together and released simultaneously to ensure compatibility.
+
+**Current Version:** Check [CHANGELOG.md](https://github.com/objectstack-ai/spec/blob/main/CHANGELOG.md)
+
+**Compatibility Matrix:**
+
+| Package Version | Node.js | TypeScript | React (for client-react) |
+| :--- | :--- | :--- | :--- |
+| 0.6.x | ≥18.0.0 | ≥5.3.0 | ≥18.0.0 |
+
+---
+
+## Next Steps
+
+<Cards>
+  <Card 
+    href="/docs/references" 
+    title="Protocol Reference"
+    description="Explore the 109 protocol schemas"
+  />
+  <Card 
+    href="/docs/developers" 
+    title="Developer Guide"
+    description="Build with ObjectStack packages"
+  />
+  <Card 
+    href="https://github.com/objectstack-ai/spec" 
+    title="GitHub Repository"
+    description="View source code and contribute"
+  />
+</Cards>
