@@ -143,6 +143,45 @@ Shows automation capabilities in ObjectStack:
 - Data transformation pipelines
 - Error handling and notifications
 
+### Integration Connectors
+**File:** [`integration-connectors-example.ts`](./integration-connectors-example.ts)
+
+Demonstrates external system integration connectors:
+- Database connectors (PostgreSQL, MySQL, MongoDB)
+- File storage connectors (AWS S3, Azure Blob, Local)
+- Message queue connectors (RabbitMQ, Kafka, Redis)
+- SaaS connectors (Salesforce, HubSpot, Stripe)
+- Custom API connectors
+
+**Key Concepts:**
+- Connection configuration and authentication
+- Schema synchronization
+- SSL/TLS security
+- Connection pooling
+- Rate limiting and retry strategies
+- Webhook integration
+- ETL pipeline integration
+
+### System Protocols (Advanced)
+**File:** [`system-protocols-example.ts`](./system-protocols-example.ts)
+
+Shows advanced system protocols for production applications:
+- Job scheduling (Cron, event-triggered, batch jobs)
+- Metrics & monitoring (Prometheus, StatsD)
+- Distributed tracing (OpenTelemetry, Jaeger)
+- Multi-level caching (In-memory, Redis)
+- Audit logging with tamper protection
+- Compliance controls (GDPR, HIPAA, SOC 2)
+- Encryption (at rest and in transit)
+
+**Key Concepts:**
+- Background job orchestration
+- Observability and monitoring
+- Performance optimization through caching
+- Compliance and data governance
+- Security and encryption
+- Distributed systems patterns
+
 ## 🎯 Usage
 
 These examples are TypeScript files in a proper package that can be:
