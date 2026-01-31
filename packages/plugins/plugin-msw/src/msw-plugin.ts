@@ -55,8 +55,8 @@ export class ObjectStackServer {
         }
         
         this.logger?.debug?.('MSW: Finding records', { object, params });
-        const result = await this.protocol.findData(object, params || {});
-        this.logger?.debug?.('MSW: Find completed', { object, count: result?.length ?? 0 });
+        const result = await this.protocol.findData({ object, query: params || {} });
+        this.logger?.debug?.('MSW: Find completed', { object, count: result?.records?.length ?? 0 });
         return {
             status: 200,
             data: result
@@ -70,7 +70,7 @@ export class ObjectStackServer {
         
         this.logger?.debug?.('MSW: Getting record', { object, id });
         try {
-            const result = await this.protocol.getData(object, id);
+            const result = await this.protocol.getData({ object, id });
             this.logger?.debug?.('MSW: Get completed', { object, id });
             return {
                 status: 200,
@@ -93,7 +93,7 @@ export class ObjectStackServer {
         
         this.logger?.debug?.('MSW: Creating record', { object });
         try {
-            const result = await this.protocol.createData(object, data);
+            const result = await this.protocol.createData({ object, data });
             this.logger?.info?.('MSW: Record created', { object, id: result?.id });
             return {
                 status: 201,
@@ -116,7 +116,7 @@ export class ObjectStackServer {
         
         this.logger?.debug?.('MSW: Updating record', { object, id });
         try {
-            const result = await this.protocol.updateData(object, id, data);
+            const result = await this.protocol.updateData({ object, id, data });
             this.logger?.info?.('MSW: Record updated', { object, id });
             return {
                 status: 200,
@@ -139,8 +139,8 @@ export class ObjectStackServer {
         
         this.logger?.debug?.('MSW: Deleting record', { object, id });
         try {
-            const result = await this.protocol.deleteData(object, id);
-            this.logger?.info?.('MSW: Record deleted', { object, id, success: result });
+            const result = await this.protocol.deleteData({ object, id });
+            this.logger?.info?.('MSW: Record deleted', { object, id, success: result?.success });
             return {
                 status: 200,
                 data: result
@@ -263,23 +263,23 @@ export class MSWPlugin implements Plugin {
         // Define standard ObjectStack API handlers
         this.handlers = [
             // Discovery endpoint
-            http.get(`${baseUrl}`, () => {
-                return HttpResponse.json(protocol.getDiscovery());
+            http.get(`${baseUrl}`, async () => {
+                return HttpResponse.json(await protocol.getDiscovery({}));
             }),
 
             // Meta endpoints
-            http.get(`${baseUrl}/meta`, () => {
-                return HttpResponse.json(protocol.getMetaTypes());
+            http.get(`${baseUrl}/meta`, async () => {
+                return HttpResponse.json(await protocol.getMetaTypes({}));
             }),
 
-            http.get(`${baseUrl}/meta/:type`, ({ params }) => {
-                return HttpResponse.json(protocol.getMetaItems(params.type as string));
+            http.get(`${baseUrl}/meta/:type`, async ({ params }) => {
+                return HttpResponse.json(await protocol.getMetaItems({ type: params.type as string }));
             }),
 
-            http.get(`${baseUrl}/meta/:type/:name`, ({ params }) => {
+            http.get(`${baseUrl}/meta/:type/:name`, async ({ params }) => {
                 try {
                     return HttpResponse.json(
-                        protocol.getMetaItem(params.type as string, params.name as string)
+                        await protocol.getMetaItem({ type: params.type as string, name: params.name as string })
                     );
                 } catch (error) {
                     const message = error instanceof Error ? error.message : 'Unknown error';
@@ -363,11 +363,11 @@ export class MSWPlugin implements Plugin {
             }),
 
             // UI Protocol endpoint
-            http.get(`${baseUrl}/ui/view/:object`, ({ params, request }) => {
+            http.get(`${baseUrl}/ui/view/:object`, async ({ params, request }) => {
                 try {
                     const url = new URL(request.url);
                     const viewType = url.searchParams.get('type') || 'list';
-                    const view = protocol.getUiView(params.object as string, viewType as 'list' | 'form');
+                    const view = await protocol.getUiView({ object: params.object as string, type: viewType as 'list' | 'form' });
                     return HttpResponse.json(view);
                 } catch (error) {
                     const message = error instanceof Error ? error.message : 'Unknown error';
