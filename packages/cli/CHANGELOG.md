@@ -1,5 +1,40 @@
 # @objectstack/cli
 
+## Unreleased
+
+### Major Changes
+
+- **Plugin System Implementation**: Added comprehensive CLI plugin system
+  - Created Zod-first plugin protocol schema (`@objectstack/spec/cli`)
+  - Implemented `CLIPluginLoader` for dynamic plugin discovery and loading
+  - Added plugin context with logger, config, and utility functions
+  - Support for plugin discovery in global, local, and node_modules directories
+  - Automatic command registration from plugins
+
+### Minor Changes
+
+- **Plugin Management Commands**: Added `plugin` command with subcommands:
+  - `os plugin list` - List all discovered plugins with location badges
+  - `os plugin info <name>` - Show detailed information about a plugin
+
+### Features
+
+- **Example Scaffold Plugin**: Created `@objectstack/cli-plugin-scaffold` demonstrating:
+  - Project initialization (`os init`)
+  - Code generation (`os generate object|view|app|plugin`)
+  - Configuration management (`os config list|get|set`)
+
+### Documentation
+
+- Added comprehensive CLI Plugin Development Guide
+- Updated CLI README with plugin system documentation
+- Created example plugin with full TypeScript types
+
+### Bug Fixes
+
+- Fixed plugin discovery to properly handle symbolic links
+- Improved error handling for invalid plugins
+
 ## 0.7.1
 
 ### Patch Changes

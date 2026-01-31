@@ -59,6 +59,31 @@ os compile
 os compile src/config.ts dist/output.json
 ```
 
+#### `plugin`
+
+Manage CLI plugins.
+
+```bash
+os plugin <command>
+
+Commands:
+  list [options]  List all discovered plugins
+  info <name>     Show information about a specific plugin
+```
+
+**Examples:**
+
+```bash
+# List all plugins
+os plugin list
+
+# List with full details
+os plugin list --all
+
+# Show plugin information
+os plugin info scaffold
+```
+
 ## Plugin System
 
 The CLI supports a powerful plugin system that allows you to extend functionality without modifying the core CLI package.
