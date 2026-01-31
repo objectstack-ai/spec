@@ -345,6 +345,28 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
+  packages/client-react:
+    dependencies:
+      '@objectstack/client':
+        specifier: workspace:*
+        version: link:../client
+      '@objectstack/core':
+        specifier: workspace:*
+        version: link:../core
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../spec
+      react:
+        specifier: ^18.0.0
+        version: 18.3.1
+    devDependencies:
+      '@types/react':
+        specifier: ^18.0.0
+        version: 18.3.27
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
   packages/core:
     dependencies:
       '@objectstack/spec':

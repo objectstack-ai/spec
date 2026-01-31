@@ -522,6 +522,9 @@ export class ObjectStackClient {
   }
 }
 
+// Re-export type-safe query builder
+export { QueryBuilder, FilterBuilder, createQuery, createFilter } from './query-builder';
+
 // Re-export commonly used types from @objectstack/spec/api for convenience
 export type {
   BatchUpdateRequest,
