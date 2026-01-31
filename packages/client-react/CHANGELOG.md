@@ -1,5 +1,14 @@
 # @objectstack/client-react
 
+## 0.7.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @objectstack/spec@0.7.1
+  - @objectstack/client@0.7.1
+  - @objectstack/core@0.7.1
+
 ## 0.6.1
 
 ### Added

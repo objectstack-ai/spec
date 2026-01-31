@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/plugin-msw",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "MSW (Mock Service Worker) Plugin for ObjectStack Runtime",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,6 +19,6 @@
     "typescript": "^5.0.0"
   },
   "peerDependencies": {
-    "@objectstack/runtime": "^0.6.1"
+    "@objectstack/runtime": "^0.7.1"
   }
 }
