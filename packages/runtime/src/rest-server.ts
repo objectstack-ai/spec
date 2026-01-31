@@ -1,6 +1,65 @@
 import { IHttpServer } from '@objectstack/core';
 import { RouteManager } from './route-manager';
-import { RestServerConfig } from '@objectstack/spec/api';
+import { RestServerConfig, CrudOperation, RestApiConfig, CrudEndpointsConfig, MetadataEndpointsConfig, BatchEndpointsConfig, RouteGenerationConfig } from '@objectstack/spec/api';
+import { ObjectStackProtocol } from '@objectstack/spec/api';
+
+/**
+ * Normalized REST Server Configuration
+ * All nested properties are required after normalization
+ */
+type NormalizedRestServerConfig = {
+    api: {
+        version: string;
+        basePath: string;
+        apiPath: string | undefined;
+        enableCrud: boolean;
+        enableMetadata: boolean;
+        enableBatch: boolean;
+        enableDiscovery: boolean;
+        documentation: RestApiConfig['documentation'];
+        responseFormat: RestApiConfig['responseFormat'];
+    };
+    crud: {
+        operations: {
+            create: boolean;
+            read: boolean;
+            update: boolean;
+            delete: boolean;
+            list: boolean;
+        };
+        patterns: CrudEndpointsConfig['patterns'];
+        dataPrefix: string;
+        objectParamStyle: 'path' | 'query';
+    };
+    metadata: {
+        prefix: string;
+        enableCache: boolean;
+        cacheTtl: number;
+        endpoints: {
+            types: boolean;
+            items: boolean;
+            item: boolean;
+            schema: boolean;
+        };
+    };
+    batch: {
+        maxBatchSize: number;
+        enableBatchEndpoint: boolean;
+        operations: {
+            createMany: boolean;
+            updateMany: boolean;
+            deleteMany: boolean;
+            upsertMany: boolean;
+        };
+        defaultAtomic: boolean;
+    };
+    routes: {
+        includeObjects: string[] | undefined;
+        excludeObjects: string[] | undefined;
+        nameTransform: 'none' | 'plural' | 'kebab-case' | 'camelCase';
+        overrides: RouteGenerationConfig['overrides'];
+    };
+};
 
 /**
  * RestServer
@@ -32,7 +91,7 @@ import { RestServerConfig } from '@objectstack/spec/api';
 export class RestServer {
     private server: IHttpServer;
     private protocol: ObjectStackProtocol;
-    private config: RestServerConfig;
+    private config: NormalizedRestServerConfig;
     private routeManager: RouteManager;
     
     constructor(
@@ -49,48 +108,64 @@ export class RestServer {
     /**
      * Normalize configuration with defaults
      */
-    private normalizeConfig(config: RestServerConfig): Required<RestServerConfig> {
-        const api = config.api;
-        const crud = config.crud;
-        const metadata = config.metadata;
-        const batch = config.batch;
-        const routes = config.routes;
+    private normalizeConfig(config: RestServerConfig): NormalizedRestServerConfig {
+        const api = (config.api ?? {}) as Partial<RestApiConfig>;
+        const crud = (config.crud ?? {}) as Partial<CrudEndpointsConfig>;
+        const metadata = (config.metadata ?? {}) as Partial<MetadataEndpointsConfig>;
+        const batch = (config.batch ?? {}) as Partial<BatchEndpointsConfig>;
+        const routes = (config.routes ?? {}) as Partial<RouteGenerationConfig>;
         
         return {
             api: {
-                version: api?.version ?? 'v1',
-                basePath: api?.basePath ?? '/api',
-                apiPath: api?.apiPath,
-                enableCrud: api?.enableCrud ?? true,
-                enableMetadata: api?.enableMetadata ?? true,
-                enableBatch: api?.enableBatch ?? true,
-                enableDiscovery: api?.enableDiscovery ?? true,
-                documentation: api?.documentation,
-                responseFormat: api?.responseFormat,
+                version: api.version ?? 'v1',
+                basePath: api.basePath ?? '/api',
+                apiPath: api.apiPath,
+                enableCrud: api.enableCrud ?? true,
+                enableMetadata: api.enableMetadata ?? true,
+                enableBatch: api.enableBatch ?? true,
+                enableDiscovery: api.enableDiscovery ?? true,
+                documentation: api.documentation,
+                responseFormat: api.responseFormat,
             },
             crud: {
-                operations: crud?.operations,
-                patterns: crud?.patterns,
-                dataPrefix: crud?.dataPrefix ?? '/data',
-                objectParamStyle: crud?.objectParamStyle ?? 'path',
+                operations: crud.operations ?? {
+                    create: true,
+                    read: true,
+                    update: true,
+                    delete: true,
+                    list: true,
+                },
+                patterns: crud.patterns,
+                dataPrefix: crud.dataPrefix ?? '/data',
+                objectParamStyle: crud.objectParamStyle ?? 'path',
             },
             metadata: {
-                prefix: metadata?.prefix ?? '/meta',
-                enableCache: metadata?.enableCache ?? true,
-                cacheTtl: metadata?.cacheTtl ?? 3600,
-                endpoints: metadata?.endpoints,
+                prefix: metadata.prefix ?? '/meta',
+                enableCache: metadata.enableCache ?? true,
+                cacheTtl: metadata.cacheTtl ?? 3600,
+                endpoints: metadata.endpoints ?? {
+                    types: true,
+                    items: true,
+                    item: true,
+                    schema: true,
+                },
             },
             batch: {
-                maxBatchSize: batch?.maxBatchSize ?? 200,
-                enableBatchEndpoint: batch?.enableBatchEndpoint ?? true,
-                operations: batch?.operations,
-                defaultAtomic: batch?.defaultAtomic ?? true,
+                maxBatchSize: batch.maxBatchSize ?? 200,
+                enableBatchEndpoint: batch.enableBatchEndpoint ?? true,
+                operations: batch.operations ?? {
+                    createMany: true,
+                    updateMany: true,
+                    deleteMany: true,
+                    upsertMany: true,
+                },
+                defaultAtomic: batch.defaultAtomic ?? true,
             },
             routes: {
-                includeObjects: routes?.includeObjects,
-                excludeObjects: routes?.excludeObjects,
-                nameTransform: routes?.nameTransform ?? 'none',
-                overrides: routes?.overrides,
+                includeObjects: routes.includeObjects,
+                excludeObjects: routes.excludeObjects,
+                nameTransform: routes.nameTransform ?? 'none',
+                overrides: routes.overrides,
             },
         };
     }
@@ -160,7 +235,7 @@ export class RestServer {
         const metaPath = `${basePath}${metadata.prefix}`;
         
         // GET /meta - List all metadata types
-        if (metadata.endpoints?.types !== false) {
+        if (metadata.endpoints.types !== false) {
             this.routeManager.register({
                 method: 'GET',
                 path: metaPath,
@@ -180,7 +255,7 @@ export class RestServer {
         }
         
         // GET /meta/:type - List items of a type
-        if (metadata.endpoints?.items !== false) {
+        if (metadata.endpoints.items !== false) {
             this.routeManager.register({
                 method: 'GET',
                 path: `${metaPath}/:type`,
@@ -200,7 +275,7 @@ export class RestServer {
         }
         
         // GET /meta/:type/:name - Get specific item
-        if (metadata.endpoints?.item !== false) {
+        if (metadata.endpoints.item !== false) {
             this.routeManager.register({
                 method: 'GET',
                 path: `${metaPath}/:type/:name`,
@@ -267,13 +342,7 @@ export class RestServer {
         const { crud } = this.config;
         const dataPath = `${basePath}${crud.dataPrefix}`;
         
-        const operations = crud.operations ?? {
-            create: true,
-            read: true,
-            update: true,
-            delete: true,
-            list: true,
-        };
+        const operations = crud.operations;
         
         // GET /data/:object - List/query records
         if (operations.list) {
@@ -399,12 +468,7 @@ export class RestServer {
         const { crud, batch } = this.config;
         const dataPath = `${basePath}${crud.dataPrefix}`;
         
-        const operations = batch.operations ?? {
-            createMany: true,
-            updateMany: true,
-            deleteMany: true,
-            upsertMany: true,
-        };
+        const operations = batch.operations;
         
         // POST /data/:object/batch - Generic batch endpoint
         if (batch.enableBatchEndpoint && this.protocol.batchData) {

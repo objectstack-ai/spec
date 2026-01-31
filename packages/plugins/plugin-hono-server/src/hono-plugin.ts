@@ -1,5 +1,5 @@
 import { Plugin, PluginContext, IHttpServer } from '@objectstack/core';
-import { IObjectStackProtocol } from '@objectstack/spec/api';
+import { ObjectStackProtocol } from '@objectstack/spec/api';
 import { HonoHttpServer } from './adapter';
 
 export interface HonoPluginOptions {
@@ -49,10 +49,10 @@ export class HonoServerPlugin implements Plugin {
         ctx.logger.debug('Starting Hono server plugin');
         
         // Get protocol implementation instance
-        let protocol: IObjectStackProtocol | null = null;
+        let protocol: ObjectStackProtocol | null = null;
         
         try {
-            protocol = ctx.getService<IObjectStackProtocol>('protocol');
+            protocol = ctx.getService<ObjectStackProtocol>('protocol');
             ctx.logger.debug('Protocol service found, registering protocol routes');
         } catch (e) {
             ctx.logger.warn('Protocol service not found, skipping protocol routes');

@@ -7,7 +7,7 @@ import {
     IDataEngine
 } from '@objectstack/runtime';
 import { ObjectStackProtocolImplementation } from '@objectstack/objectql';
-import { IObjectStackProtocol } from '@objectstack/spec/api';
+import { ObjectStackProtocol } from '@objectstack/spec/api';
 // import { IDataEngine } from '@objectstack/core';
 
 export interface MSWPluginOptions {
@@ -36,10 +36,10 @@ export interface MSWPluginOptions {
  * ObjectStack Server Mock - Provides mock database functionality
  */
 export class ObjectStackServer {
-    private static protocol: IObjectStackProtocol | null = null;
+    private static protocol: ObjectStackProtocol | null = null;
     private static logger: any | null = null;
 
-    static init(protocol: IObjectStackProtocol, logger?: any) {
+    static init(protocol: ObjectStackProtocol, logger?: any) {
         this.protocol = protocol;
         this.logger = logger || { 
             info: console.log, 
@@ -190,7 +190,7 @@ export class MSWPlugin implements Plugin {
     private options: MSWPluginOptions;
     private worker: any;
     private handlers: Array<any> = [];
-    private protocol?: IObjectStackProtocol;
+    private protocol?: ObjectStackProtocol;
 
     constructor(options: MSWPluginOptions = {}) {
         this.options = {
