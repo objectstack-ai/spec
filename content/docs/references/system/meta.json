@@ -17,6 +17,7 @@
     "manifest",
     "masking",
     "message-queue",
+    "metadata-loader",
     "metrics",
     "notification",
     "object-storage",
