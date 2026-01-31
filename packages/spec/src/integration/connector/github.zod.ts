@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import {
   ConnectorSchema,
-  FieldMappingSchema,
 } from '../connector.zod';
 
 /**
@@ -373,7 +372,7 @@ export type GitHubConnector = z.infer<typeof GitHubConnectorSchema>;
 /**
  * Example: GitHub.com Connector Configuration
  */
-export const githubPublicConnectorExample: GitHubConnector = {
+export const githubPublicConnectorExample = {
   name: 'github_public',
   label: 'GitHub.com',
   type: 'saas',
@@ -386,7 +385,6 @@ export const githubPublicConnectorExample: GitHubConnector = {
     clientSecret: '${GITHUB_CLIENT_SECRET}',
     authorizationUrl: 'https://github.com/login/oauth/authorize',
     tokenUrl: 'https://github.com/login/oauth/access_token',
-    grantType: 'authorization_code',
     scopes: ['repo', 'workflow', 'write:packages'],
   },
   
@@ -467,7 +465,7 @@ export const githubPublicConnectorExample: GitHubConnector = {
 /**
  * Example: GitHub Enterprise Connector Configuration
  */
-export const githubEnterpriseConnectorExample: GitHubConnector = {
+export const githubEnterpriseConnectorExample = {
   name: 'github_enterprise',
   label: 'GitHub Enterprise',
   type: 'saas',
@@ -480,7 +478,6 @@ export const githubEnterpriseConnectorExample: GitHubConnector = {
     clientSecret: '${GITHUB_ENTERPRISE_CLIENT_SECRET}',
     authorizationUrl: 'https://github.enterprise.com/login/oauth/authorize',
     tokenUrl: 'https://github.enterprise.com/login/oauth/access_token',
-    grantType: 'authorization_code',
     scopes: ['repo', 'admin:org', 'workflow'],
   },
   

@@ -1,0 +1,77 @@
+{
+  "$ref": "#/definitions/DeploymentConfig",
+  "definitions": {
+    "DeploymentConfig": {
+      "type": "object",
+      "properties": {
+        "autoDeployment": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable automatic deployments"
+        },
+        "regions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "iad1",
+              "sfo1",
+              "gru1",
+              "lhr1",
+              "fra1",
+              "sin1",
+              "syd1",
+              "hnd1",
+              "icn1"
+            ]
+          },
+          "description": "Deployment regions"
+        },
+        "enablePreview": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable preview deployments"
+        },
+        "previewComments": {
+          "type": "boolean",
+          "default": true,
+          "description": "Post preview URLs in PR comments"
+        },
+        "productionProtection": {
+          "type": "boolean",
+          "default": true,
+          "description": "Require approval for production deployments"
+        },
+        "deployHooks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Hook name"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "description": "Deploy hook URL"
+              },
+              "branch": {
+                "type": "string",
+                "description": "Target branch"
+              }
+            },
+            "required": [
+              "name",
+              "url"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Deploy hooks"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

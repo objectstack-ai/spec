@@ -5,6 +5,7 @@
     "agent-action",
     "conversation",
     "cost",
+    "devops-agent",
     "model-registry",
     "nlq",
     "orchestration",

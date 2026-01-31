@@ -445,11 +445,11 @@ describe('DevOpsAgentSchema', () => {
         
         tools: [
           {
-            type: 'code_generation',
+            type: 'action',
             name: 'generate_code',
           },
           {
-            type: 'test_execution',
+            type: 'action',
             name: 'run_tests',
           },
         ],

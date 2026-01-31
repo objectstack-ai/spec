@@ -1,0 +1,51 @@
+{
+  "$ref": "#/definitions/DomainConfig",
+  "definitions": {
+    "DomainConfig": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string",
+          "description": "Domain name (e.g., app.example.com)"
+        },
+        "httpsRedirect": {
+          "type": "boolean",
+          "default": true,
+          "description": "Redirect HTTP to HTTPS"
+        },
+        "customCertificate": {
+          "type": "object",
+          "properties": {
+            "cert": {
+              "type": "string",
+              "description": "SSL certificate"
+            },
+            "key": {
+              "type": "string",
+              "description": "Private key"
+            },
+            "ca": {
+              "type": "string",
+              "description": "Certificate authority"
+            }
+          },
+          "required": [
+            "cert",
+            "key"
+          ],
+          "additionalProperties": false,
+          "description": "Custom SSL certificate"
+        },
+        "gitBranch": {
+          "type": "string",
+          "description": "Git branch to deploy to this domain"
+        }
+      },
+      "required": [
+        "domain"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

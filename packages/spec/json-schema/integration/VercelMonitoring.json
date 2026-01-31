@@ -1,0 +1,64 @@
+{
+  "$ref": "#/definitions/VercelMonitoring",
+  "definitions": {
+    "VercelMonitoring": {
+      "type": "object",
+      "properties": {
+        "enableWebAnalytics": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable Vercel Web Analytics"
+        },
+        "enableSpeedInsights": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable Vercel Speed Insights"
+        },
+        "logDrains": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Log drain name"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "description": "Log drain URL"
+              },
+              "headers": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "Custom headers"
+              },
+              "sources": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "static",
+                    "lambda",
+                    "edge"
+                  ]
+                },
+                "description": "Log sources"
+              }
+            },
+            "required": [
+              "name",
+              "url"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Log drains configuration"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

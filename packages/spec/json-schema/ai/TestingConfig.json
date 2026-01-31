@@ -1,0 +1,57 @@
+{
+  "$ref": "#/definitions/TestingConfig",
+  "definitions": {
+    "TestingConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable automated testing"
+        },
+        "testTypes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "unit",
+              "integration",
+              "e2e",
+              "performance",
+              "security",
+              "accessibility"
+            ]
+          },
+          "default": [
+            "unit",
+            "integration"
+          ],
+          "description": "Types of tests to run"
+        },
+        "coverageThreshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 80,
+          "description": "Minimum test coverage percentage"
+        },
+        "framework": {
+          "type": "string",
+          "description": "Testing framework (e.g., vitest, jest, playwright)"
+        },
+        "preCommitTests": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run tests before committing"
+        },
+        "autoFix": {
+          "type": "boolean",
+          "default": false,
+          "description": "Attempt to auto-fix failing tests"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -448,7 +448,7 @@ export type VercelConnector = z.infer<typeof VercelConnectorSchema>;
 /**
  * Example: Vercel Next.js Project Configuration
  */
-export const vercelNextJsConnectorExample: VercelConnector = {
+export const vercelNextJsConnectorExample = {
   name: 'vercel_production',
   label: 'Vercel Production',
   type: 'saas',
@@ -561,7 +561,7 @@ export const vercelNextJsConnectorExample: VercelConnector = {
 /**
  * Example: Vercel Static Site Configuration
  */
-export const vercelStaticSiteConnectorExample: VercelConnector = {
+export const vercelStaticSiteConnectorExample = {
   name: 'vercel_docs',
   label: 'Vercel Documentation',
   type: 'saas',
