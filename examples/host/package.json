@@ -15,8 +15,7 @@
     "@objectstack/objectql": "workspace:*",
     "@objectstack/plugin-bi": "workspace:*",
     "@objectstack/plugin-hono-server": "workspace:*",
-    "@objectstack/runtime": "workspace:*",
-    "@objectstack/spec": "workspace:*"
+    "@objectstack/runtime": "workspace:*"
   },
   "devDependencies": {
     "ts-node": "^10.9.1",

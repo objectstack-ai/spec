@@ -1,22 +1,36 @@
 import { Plugin, PluginContext } from '@objectstack/core';
-import { MetadataManager } from '@objectstack/metadata';
+import { MetadataManager } from './metadata-manager.js';
 import { ObjectStackDefinitionSchema } from '@objectstack/spec';
-import path from 'path';
+
+export interface MetadataPluginOptions {
+    rootDir?: string;
+    watch?: boolean;
+}
 
 export class MetadataPlugin implements Plugin {
-    name = 'metadata-loader';
+    name = 'com.objectstack.metadata';
+    version = '1.0.0';
+    
     private manager: MetadataManager;
+    private options: MetadataPluginOptions;
 
-    constructor(private rootDir: string) {
-        this.manager = new MetadataManager({ 
-            rootDir: this.rootDir,
+    constructor(options: MetadataPluginOptions = {}) {
+        this.options = {
             watch: true,
-            formats: ['yaml', 'json', 'typescript'] 
+            ...options
+        };
+
+        const rootDir = this.options.rootDir || process.cwd();
+
+        this.manager = new MetadataManager({ 
+            rootDir,
+            watch: this.options.watch,
+            formats: ['yaml', 'json', 'typescript', 'javascript'] 
         });
     }
 
     async init(ctx: PluginContext) {
-        ctx.logger.info('Initializing Metadata Manager', { root: this.rootDir });
+        ctx.logger.info('Initializing Metadata Manager', { root: this.options.rootDir || process.cwd() });
         
         // Register Metadata Manager as a service
         // This allows other plugins to query raw metadata or listen to changes
@@ -44,7 +58,7 @@ export class MetadataPlugin implements Plugin {
                      // Helper: Register with ObjectQL if it is an Object
                      if (type === 'objects') {
                         const ql = ctx.getService('objectql');
-                        if (ql) {
+                        if (ql && ql.registry && typeof ql.registry.registerObject === 'function') {
                             items.forEach((obj: any) => {
                                 ql.registry.registerObject(obj.name, obj);
                             });
@@ -53,7 +67,7 @@ export class MetadataPlugin implements Plugin {
                 }
             } catch (e: any) {
                 // Ignore missing directories or errors
-                ctx.logger.debug(`No metadata found for type: ${type}`);
+                // ctx.logger.debug(`No metadata found for type: ${type}`);
             }
         }
     }

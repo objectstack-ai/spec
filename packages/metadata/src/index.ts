@@ -7,6 +7,9 @@
 // Main Manager
 export { MetadataManager, type WatchCallback } from './metadata-manager.js';
 
+// Plugin
+export { MetadataPlugin } from './plugin.js';
+
 // Loaders
 export { type MetadataLoader } from './loaders/loader-interface.js';
 export { FilesystemLoader } from './loaders/filesystem-loader.js';
