@@ -2,6 +2,8 @@ import { ObjectKernel, DriverPlugin, AppPlugin } from '@objectstack/runtime';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { ObjectQLPlugin } from '@objectstack/objectql';
 import { HonoServerPlugin } from '@objectstack/plugin-hono-server';
+import { MetadataPlugin } from './metadata-plugin';
+import path from 'path';
 
 import CrmApp from '@objectstack/example-crm/objectstack.config';
 import TodoApp from '@objectstack/example-todo/objectstack.config';
@@ -14,6 +16,10 @@ import BiPluginManifest from '@objectstack/plugin-bi/objectstack.config';
   const kernel = new ObjectKernel();
   
   kernel
+      // Register Metadata Plugin (File System Loader)
+      // Best Practice: Load metadata early so it's available for other plugins
+      .use(new MetadataPlugin(path.resolve(__dirname, '../metadata')))
+
       // Register ObjectQL engine
       .use(new ObjectQLPlugin())
       

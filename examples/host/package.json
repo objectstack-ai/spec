@@ -11,6 +11,7 @@
     "@objectstack/driver-memory": "workspace:*",
     "@objectstack/example-crm": "workspace:*",
     "@objectstack/example-todo": "workspace:*",
+    "@objectstack/metadata": "workspace:*",
     "@objectstack/objectql": "workspace:*",
     "@objectstack/plugin-bi": "workspace:*",
     "@objectstack/plugin-hono-server": "workspace:*",

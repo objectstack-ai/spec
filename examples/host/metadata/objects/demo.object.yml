@@ -1,0 +1,6 @@
+name: metadata_demo
+label: Metadata Demo Object
+fields:
+  name:
+    type: text
+    label: Name
