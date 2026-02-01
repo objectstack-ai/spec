@@ -287,8 +287,8 @@ Define the context passed to trigger functions.
 ```typescript
 export const TriggerContextSchema = z.object({
   // Record data
-  doc: z.record(z.any()).describe('Current record'),
-  previousDoc: z.record(z.any()).optional().describe('Before update'),
+  doc: z.record(z.string(), z.any()).describe('Current record'),
+  previousDoc: z.record(z.string(), z.any()).optional().describe('Before update'),
   
   // Metadata
   object: z.string(),

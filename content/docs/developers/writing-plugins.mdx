@@ -372,7 +372,7 @@ import { z } from 'zod';
 
 const WebhookPayloadSchema = z.object({
   event: z.enum(['account.created', 'account.updated']),
-  data: z.record(z.any()),
+  data: z.record(z.string(), z.any()),
   timestamp: z.string(),
 });
 

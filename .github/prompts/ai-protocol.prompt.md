@@ -47,7 +47,7 @@ export const AgentSchema = z.object({
     type: z.enum(['action', 'flow', 'query', 'vector_search', 'api', 'function']),
     name: z.string().describe('Tool reference name'),
     description: z.string().optional().describe('Override description for LLM'),
-    parameters: z.record(z.any()).optional(),
+    parameters: z.record(z.string(), z.any()).optional(),
   })).optional(),
   
   // Knowledge
@@ -105,7 +105,7 @@ export const AIToolSchema = z.discriminatedUnion('type', [
     name: z.string(),
     description: z.string(),
     actionName: z.string().describe('Reference to Action definition'),
-    parameters: z.record(z.any()).optional(),
+    parameters: z.record(z.string(), z.any()).optional(),
   }),
   
   // Flow tool
@@ -114,7 +114,7 @@ export const AIToolSchema = z.discriminatedUnion('type', [
     name: z.string(),
     description: z.string(),
     flowName: z.string().describe('Reference to Flow definition'),
-    inputs: z.record(z.any()).optional(),
+    inputs: z.record(z.string(), z.any()).optional(),
   }),
   
   // Query tool
@@ -226,7 +226,7 @@ export const KnowledgeBaseSchema = z.object({
   vectorStore: z.object({
     type: z.enum(['memory', 'pinecone', 'qdrant', 'weaviate', 'chroma']),
     index: z.string(),
-    config: z.record(z.any()).optional(),
+    config: z.record(z.string(), z.any()).optional(),
   }),
   
   // Metadata
@@ -260,7 +260,7 @@ export const ConversationMessageSchema = z.object({
     id: z.string(),
     type: z.string(),
     name: z.string(),
-    arguments: z.record(z.any()),
+    arguments: z.record(z.string(), z.any()),
     result: z.any().optional(),
   })).optional(),
   
@@ -287,7 +287,7 @@ export const ConversationSchema = z.object({
   messages: z.array(ConversationMessageSchema),
   
   // Context
-  context: z.record(z.any()).optional().describe('Conversation-specific context'),
+  context: z.record(z.string(), z.any()).optional().describe('Conversation-specific context'),
   summary: z.string().optional().describe('Conversation summary'),
   
   // Status
@@ -339,7 +339,7 @@ export const PromptTemplateSchema = z.object({
   // Examples
   examples: z.array(z.object({
     title: z.string(),
-    input: z.record(z.any()),
+    input: z.record(z.string(), z.any()),
     expectedOutput: z.string().optional(),
   })).optional(),
   

@@ -59,7 +59,7 @@ export const ListResponseSchema = SuccessResponseSchema.extend({
 
 // Record response
 export const RecordResponseSchema = SuccessResponseSchema.extend({
-  data: z.record(z.any()),
+  data: z.record(z.string(), z.any()),
 });
 
 // Bulk operation response
@@ -67,12 +67,12 @@ export const BulkResponseSchema = SuccessResponseSchema.extend({
   data: z.object({
     success: z.array(z.object({
       id: z.string(),
-      record: z.record(z.any()),
+      record: z.record(z.string(), z.any()),
     })),
     failed: z.array(z.object({
       index: z.number(),
       error: z.string(),
-      data: z.record(z.any()).optional(),
+      data: z.record(z.string(), z.any()).optional(),
     })),
   }),
   meta: z.object({
@@ -90,7 +90,7 @@ Define standard request payloads.
 ```typescript
 // Create request
 export const CreateRequestSchema = z.object({
-  data: z.record(z.any()).describe('Field values'),
+  data: z.record(z.string(), z.any()).describe('Field values'),
   options: z.object({
     returnRecord: z.boolean().default(true),
     validate: z.boolean().default(true),
@@ -101,7 +101,7 @@ export const CreateRequestSchema = z.object({
 // Update request
 export const UpdateRequestSchema = z.object({
   id: z.string(),
-  data: z.record(z.any()).describe('Field values to update'),
+  data: z.record(z.string(), z.any()).describe('Field values to update'),
   options: z.object({
     returnRecord: z.boolean().default(true),
     validate: z.boolean().default(true),
@@ -134,7 +134,7 @@ export const QueryRequestSchema = z.object({
 
 // Bulk create request
 export const BulkCreateRequestSchema = z.object({
-  records: z.array(z.record(z.any())),
+  records: z.array(z.record(z.string(), z.any())),
   options: z.object({
     validate: z.boolean().default(true),
     triggers: z.boolean().default(true),
@@ -147,7 +147,7 @@ export const BulkCreateRequestSchema = z.object({
 export const BulkUpdateRequestSchema = z.object({
   updates: z.array(z.object({
     id: z.string(),
-    data: z.record(z.any()),
+    data: z.record(z.string(), z.any()),
   })),
   options: z.object({
     validate: z.boolean().default(true),
@@ -434,8 +434,8 @@ export const WebhookPayloadSchema = z.object({
   
   // Data
   data: z.object({
-    current: z.record(z.any()).describe('Current record state'),
-    previous: z.record(z.any()).optional().describe('Previous state (for updates)'),
+    current: z.record(z.string(), z.any()).describe('Current record state'),
+    previous: z.record(z.string(), z.any()).optional().describe('Previous state (for updates)'),
   }),
   
   // Context
