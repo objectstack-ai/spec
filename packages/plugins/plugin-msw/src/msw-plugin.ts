@@ -185,7 +185,7 @@ export class ObjectStackServer {
  */
 export class MSWPlugin implements Plugin {
     name = 'com.objectstack.plugin.msw';
-    version = '1.0.0';
+    version = '0.9.0';
     
     private options: MSWPluginOptions;
     private worker: any;

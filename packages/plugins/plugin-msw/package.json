@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "test": "vitest run"
   },
   "dependencies": {
     "@objectstack/spec": "workspace:*",
@@ -16,7 +17,8 @@
   "devDependencies": {
     "@objectstack/runtime": "workspace:*",
     "@types/node": "^25.1.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vitest": "^4.0.18"
   },
   "peerDependencies": {
     "@objectstack/runtime": "^0.8.2"

@@ -15,7 +15,7 @@ export interface HonoPluginOptions {
  */
 export class HonoServerPlugin implements Plugin {
     name = 'com.objectstack.server.hono';
-    version = '1.0.0';
+    version = '0.9.0';
     
     private options: HonoPluginOptions;
     private server: HonoHttpServer;
