@@ -6,7 +6,7 @@ import {
     ObjectKernel,
     IDataEngine
 } from '@objectstack/runtime';
-import { ObjectStackProtocolImplementation } from '@objectstack/objectql';
+// import { ObjectStackProtocolImplementation } from '@objectstack/objectql';
 import { ObjectStackProtocol } from '@objectstack/spec/api';
 // import { IDataEngine } from '@objectstack/core';
 
@@ -221,12 +221,39 @@ export class MSWPlugin implements Plugin {
         ctx.logger.debug('Starting MSW plugin');
         
         try {
-            const dataEngine = ctx.getService<IDataEngine>('objectql');
-            this.protocol = new ObjectStackProtocolImplementation(dataEngine);
-            ctx.logger.debug('Protocol implementation created');
+            // 1. Try to get existing protocol service
+            try {
+                this.protocol = ctx.getService<ObjectStackProtocol>('protocol');
+                ctx.logger.debug('Protocol service found from context');
+            } catch (e) {
+                // Ignore, will try to create default implementation
+            }
+
+            // 2. If not found, try to instantiate default implementation dynamically
+            if (!this.protocol) {
+                try {
+                    const dataEngine = ctx.getService<IDataEngine>('objectql');
+                    // Dynamically import ObjectStackProtocolImplementation to avoid hard dependency
+                    const { ObjectStackProtocolImplementation } = await import('@objectstack/objectql');
+                    this.protocol = new ObjectStackProtocolImplementation(dataEngine);
+                    ctx.logger.debug('Protocol implementation created dynamically');
+                } catch (e: any) {
+                    if (e.code === 'ERR_MODULE_NOT_FOUND') {
+                         ctx.logger.warn('Module @objectstack/objectql not found. Protocol not initialized.');
+                    } else {
+                         throw e;
+                    }
+                }
+            }
+        
+            if (!this.protocol) {
+                // Without a protocol, MSW can't serve data APIs
+                ctx.logger.warn('No ObjectStackProtocol service available. MSW will only serve static/custom handlers if configured.');
+            }
+
         } catch (e) {
             ctx.logger.error('Failed to initialize protocol', e as Error);
-            throw new Error('[MSWPlugin] Failed to initialize protocol (missing objectql service?)');
+            throw new Error('[MSWPlugin] Failed to initialize protocol');
         }
         
         this.setupHandlers(ctx);
@@ -245,7 +272,11 @@ export class MSWPlugin implements Plugin {
      */
     private setupHandlers(ctx: PluginContext) {
         if (!this.protocol) {
-            throw new Error('[MSWPlugin] Protocol not initialized');
+            ctx.logger.warn('[MSWPlugin] Protocol not initialized. Skipping default API handlers.');
+            this.handlers = [
+                ...(this.options.customHandlers || [])
+            ];
+            return;
         }
 
         const protocol = this.protocol;
@@ -485,101 +516,6 @@ export class MSWPlugin implements Plugin {
                 } catch (error) {
                     const message = error instanceof Error ? error.message : 'Unknown error';
                     return HttpResponse.json({ error: message }, { status: 404 });
-                }
-            }),
-
-            // View Storage Operations
-            http.post(`${baseUrl}/ui/views`, async ({ request }) => {
-                try {
-                    const body = await request.json();
-                    const result = await protocol.createView(body as any);
-                    if (result.success) {
-                        return HttpResponse.json(result, { status: 201 });
-                    } else {
-                        return HttpResponse.json(result, { status: 400 });
-                    }
-                } catch (error) {
-                    const message = error instanceof Error ? error.message : 'Unknown error';
-                    return HttpResponse.json({ success: false, error: { code: 'internal_error', message } }, { status: 500 });
-                }
-            }),
-
-            http.get(`${baseUrl}/ui/views/:id`, async ({ params }) => {
-                try {
-                    const result = await protocol.getView({ id: params.id as string });
-                    if (result.success) {
-                        return HttpResponse.json(result);
-                    } else {
-                        return HttpResponse.json(result, { status: 404 });
-                    }
-                } catch (error) {
-                    const message = error instanceof Error ? error.message : 'Unknown error';
-                    return HttpResponse.json({ success: false, error: { code: 'internal_error', message } }, { status: 500 });
-                }
-            }),
-
-            http.get(`${baseUrl}/ui/views`, async ({ request }) => {
-                try {
-                    const url = new URL(request.url);
-                    const queryRequest: any = {};
-                    if (url.searchParams.get('object')) queryRequest.object = url.searchParams.get('object');
-                    if (url.searchParams.get('type')) queryRequest.type = url.searchParams.get('type');
-                    if (url.searchParams.get('visibility')) queryRequest.visibility = url.searchParams.get('visibility');
-                    if (url.searchParams.get('createdBy')) queryRequest.createdBy = url.searchParams.get('createdBy');
-                    if (url.searchParams.get('isDefault')) queryRequest.isDefault = url.searchParams.get('isDefault') === 'true';
-                    
-                    // Parse numeric parameters with validation
-                    const limitParam = url.searchParams.get('limit');
-                    const offsetParam = url.searchParams.get('offset');
-                    if (limitParam) {
-                        const limit = parseInt(limitParam, 10);
-                        if (!isNaN(limit) && limit > 0) queryRequest.limit = limit;
-                    }
-                    if (offsetParam) {
-                        const offset = parseInt(offsetParam, 10);
-                        if (!isNaN(offset) && offset >= 0) queryRequest.offset = offset;
-                    }
-                    
-                    const result = await protocol.listViews(queryRequest);
-                    return HttpResponse.json(result);
-                } catch (error) {
-                    const message = error instanceof Error ? error.message : 'Unknown error';
-                    return HttpResponse.json({ success: false, error: { code: 'internal_error', message } }, { status: 500 });
-                }
-            }),
-
-            http.patch(`${baseUrl}/ui/views/:id`, async ({ params, request }) => {
-                try {
-                    const body = await request.json() as any;
-                    // Merge body with id parameter, ensuring body is an object
-                    const updateData = (typeof body === 'object' && body !== null) 
-                        ? { ...body, id: params.id as string } 
-                        : { id: params.id as string };
-                    
-                    const result = await protocol.updateView(updateData as any);
-                    if (result.success) {
-                        return HttpResponse.json(result);
-                    } else {
-                        const statusCode = result.error?.code === 'resource_not_found' ? 404 : 400;
-                        return HttpResponse.json(result, { status: statusCode });
-                    }
-                } catch (error) {
-                    const message = error instanceof Error ? error.message : 'Unknown error';
-                    return HttpResponse.json({ success: false, error: { code: 'internal_error', message } }, { status: 500 });
-                }
-            }),
-
-            http.delete(`${baseUrl}/ui/views/:id`, async ({ params }) => {
-                try {
-                    const result = await protocol.deleteView({ id: params.id as string });
-                    if (result.success) {
-                        return HttpResponse.json(result);
-                    } else {
-                        return HttpResponse.json(result, { status: 404 });
-                    }
-                } catch (error) {
-                    const message = error instanceof Error ? error.message : 'Unknown error';
-                    return HttpResponse.json({ success: false, error: { code: 'internal_error', message } }, { status: 500 });
                 }
             }),
 
