@@ -1,5 +1,14 @@
 # @objectstack/runtime
 
+## 0.8.2
+
+### Patch Changes
+
+- Updated dependencies [555e6a7]
+  - @objectstack/spec@0.8.2
+  - @objectstack/core@0.8.2
+  - @objectstack/types@0.8.2
+
 ## 0.8.1
 
 ### Patch Changes
