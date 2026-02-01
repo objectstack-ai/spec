@@ -1,5 +1,12 @@
 # @objectstack/core
 
+## 1.0.0
+
+### Patch Changes
+
+- Updated dependencies [555e6a7]
+  - @objectstack/spec@1.0.0
+
 ## 0.8.1
 
 ### Patch Changes

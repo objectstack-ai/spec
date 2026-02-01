@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/core",
-  "version": "0.8.1",
+  "version": "1.0.0",
   "description": "Microkernel Core for ObjectStack",
   "type": "module",
   "main": "dist/index.js",

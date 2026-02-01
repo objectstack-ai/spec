@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/docs",
-  "version": "0.8.1",
+  "version": "1.0.0",
   "private": true,
   "description": "ObjectStack Protocol Documentation Site",
   "scripts": {

@@ -1,5 +1,23 @@
 # @objectstack/objectql
 
+## 1.0.0
+
+### Major Changes
+
+- 555e6a7: Refactor: Deprecated View Storage protocol in favor of Metadata Views.
+
+  - **BREAKING**: Removed `view-storage.zod.ts` and `ViewStorage` related types from `@objectstack/spec`.
+  - **BREAKING**: Removed `createView`, `updateView`, `deleteView`, `listViews` from `ObjectStackProtocol` interface.
+  - **BREAKING**: Removed in-memory View Storage implementation from `@objectstack/objectql`.
+  - **UPDATE**: `@objectstack/plugin-msw` now dynamically loads `@objectstack/objectql` to avoid hard dependencies.
+
+### Patch Changes
+
+- Updated dependencies [555e6a7]
+  - @objectstack/spec@1.0.0
+  - @objectstack/core@1.0.0
+  - @objectstack/types@1.0.0
+
 ## 0.8.1
 
 ### Patch Changes

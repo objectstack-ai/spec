@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/plugin-bi",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "main": "src/index.ts",
   "license": "MIT",
   "private": true,
