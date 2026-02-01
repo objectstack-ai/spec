@@ -10,7 +10,7 @@ const program = new Command();
 program
   .name('objectstack')
   .description('CLI for ObjectStack Protocol - Development Tools for Microkernel Architecture')
-  .version('0.7.1');
+  .version('0.8.0');
 
 // Add all commands
 program.addCommand(compileCommand);

@@ -48,15 +48,6 @@ export const serveCommand = new Command('serve')
         objects: config.objects || {},
       });
 
-      const supportsUse = typeof (kernel as any).use === 'function';
-      const supportsBootstrap = typeof (kernel as any).bootstrap === 'function';
-
-      if (!supportsUse || !supportsBootstrap) {
-        throw new Error(
-          'Incompatible @objectstack/core version. Please use @objectstack/core@^0.8.0 or newer.'
-        );
-      }
-
       // Load plugins from configuration
       const plugins = config.plugins || [];
       
