@@ -182,7 +182,7 @@ async function examplePluginLogging() {
     dependencies: ['database'],
     
     init: async (ctx: PluginContext) => {
-      const db = ctx.getService('db') as any;
+      const db = ctx.getService('db') as { connected: boolean };
       ctx.logger.info('API plugin initialized', { dbConnected: db.connected });
       
       ctx.registerService('api', { server: 'http://localhost:3000' });
