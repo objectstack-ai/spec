@@ -198,7 +198,7 @@ export const PipelineStageSchema = z.object({
   /**
    * Environment variables
    */
-  env: z.record(z.string()).optional().describe('Stage-specific environment variables'),
+  env: z.record(z.string(), z.string()).optional().describe('Stage-specific environment variables'),
   
   /**
    * Timeout in seconds
@@ -402,7 +402,7 @@ export const DevelopmentConfigSchema = z.object({
   linting: z.object({
     enabled: z.boolean().optional().default(true),
     autoFix: z.boolean().optional().default(true),
-    rules: z.record(z.any()).optional(),
+    rules: z.record(z.string(), z.any()).optional(),
   }).optional().describe('Code linting configuration'),
   
   /**
@@ -411,7 +411,7 @@ export const DevelopmentConfigSchema = z.object({
   formatting: z.object({
     enabled: z.boolean().optional().default(true),
     autoFormat: z.boolean().optional().default(true),
-    config: z.record(z.any()).optional(),
+    config: z.record(z.string(), z.any()).optional(),
   }).optional().describe('Code formatting configuration'),
 });
 
@@ -503,7 +503,7 @@ export const IntegrationConfigSchema = z.object({
   /**
    * Additional integrations
    */
-  additional: z.record(z.any()).optional().describe('Additional integration configurations'),
+  additional: z.record(z.string(), z.any()).optional().describe('Additional integration configurations'),
 });
 
 export type IntegrationConfig = z.infer<typeof IntegrationConfigSchema>;

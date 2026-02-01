@@ -101,7 +101,7 @@ export const HyperparametersSchema = z.object({
   forecastHorizon: z.number().int().optional().describe('Number of periods to forecast'),
   
   /** Additional custom parameters */
-  custom: z.record(z.any()).optional().describe('Algorithm-specific parameters'),
+  custom: z.record(z.string(), z.any()).optional().describe('Algorithm-specific parameters'),
 });
 
 /**
@@ -161,7 +161,7 @@ export const EvaluationMetricsSchema = z.object({
   smape: z.number().optional().describe('Symmetric MAPE'),
   
   /** Additional Metrics */
-  custom: z.record(z.number()).optional(),
+  custom: z.record(z.string(), z.number()).optional(),
 });
 
 /**
@@ -236,7 +236,7 @@ export const PredictiveModelSchema = z.object({
 export const PredictionRequestSchema = z.object({
   modelName: z.string().describe('Model to use for prediction'),
   recordIds: z.array(z.string()).optional().describe('Specific records to predict (if not provided, uses all)'),
-  inputData: z.record(z.any()).optional().describe('Direct input data (alternative to recordIds)'),
+  inputData: z.record(z.string(), z.any()).optional().describe('Direct input data (alternative to recordIds)'),
   returnConfidence: z.boolean().optional().default(true),
   returnExplanation: z.boolean().optional().default(false),
 });
@@ -251,7 +251,7 @@ export const PredictionResultSchema = z.object({
   recordId: z.string().optional(),
   prediction: z.any().describe('The predicted value'),
   confidence: z.number().optional().describe('Confidence score (0-1)'),
-  probabilities: z.record(z.number()).optional().describe('Class probabilities (for classification)'),
+  probabilities: z.record(z.string(), z.number()).optional().describe('Class probabilities (for classification)'),
   explanation: z.object({
     topFeatures: z.array(z.object({
       feature: z.string(),

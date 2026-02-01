@@ -156,7 +156,7 @@ export const ObjectMetadataSchema = z.object({
     algorithm: z.string().describe('Encryption algorithm (e.g., AES256, aws:kms)'),
     keyId: z.string().optional().describe('KMS key ID if using managed encryption'),
   }).optional().describe('Server-side encryption configuration'),
-  custom: z.record(z.string()).optional().describe('Custom user-defined metadata'),
+  custom: z.record(z.string(), z.string()).optional().describe('Custom user-defined metadata'),
 });
 
 export type ObjectMetadata = z.infer<typeof ObjectMetadataSchema>;
@@ -287,7 +287,7 @@ export const LifecyclePolicyRuleSchema = z.object({
   enabled: z.boolean().default(true).describe('Enable this rule'),
   action: LifecycleActionSchema.describe('Action to perform'),
   prefix: z.string().optional().describe('Object key prefix filter (e.g., "uploads/")'),
-  tags: z.record(z.string()).optional().describe('Object tag filters'),
+  tags: z.record(z.string(), z.string()).optional().describe('Object tag filters'),
   daysAfterCreation: z.number().min(0).optional().describe('Days after object creation'),
   daysAfterModification: z.number().min(0).optional().describe('Days after last modification'),
   targetStorageClass: StorageClassSchema.optional().describe('Target storage class for transition action'),
@@ -380,7 +380,7 @@ export const BucketConfigSchema = z.object({
   lifecyclePolicy: LifecyclePolicyConfigSchema.optional().describe('Lifecycle policy configuration'),
   multipartConfig: MultipartUploadConfigSchema.optional().describe('Multipart upload configuration'),
   
-  tags: z.record(z.string()).optional().describe('Bucket tags for organization'),
+  tags: z.record(z.string(), z.string()).optional().describe('Bucket tags for organization'),
   description: z.string().optional().describe('Bucket description'),
   enabled: z.boolean().default(true).describe('Enable this bucket'),
 });
@@ -488,7 +488,7 @@ export const ObjectStorageConfigSchema = z.object({
   /**
    * Provider-specific options
    */
-  options: z.record(z.any()).optional().describe('Provider-specific configuration options'),
+  options: z.record(z.string(), z.any()).optional().describe('Provider-specific configuration options'),
   
   enabled: z.boolean().default(true).describe('Enable this storage configuration'),
   description: z.string().optional().describe('Configuration description'),

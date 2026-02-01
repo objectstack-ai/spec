@@ -61,7 +61,7 @@ export const DashboardNavItemSchema = BaseNavItemSchema.extend({
 export const PageNavItemSchema = BaseNavItemSchema.extend({
   type: z.literal('page'),
   pageName: z.string().describe('Target custom page component name'),
-  params: z.record(z.any()).optional().describe('Parameters passed to the page context'),
+  params: z.record(z.string(), z.any()).optional().describe('Parameters passed to the page context'),
 });
 
 /**

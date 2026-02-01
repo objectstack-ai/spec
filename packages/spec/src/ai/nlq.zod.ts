@@ -155,7 +155,7 @@ export const NLQResponseSchema = z.object({
   parseResult: NLQParseResultSchema,
   
   /** Query Results (if executeQuery = true) */
-  results: z.array(z.record(z.any())).optional().describe('Query results'),
+  results: z.array(z.record(z.string(), z.any())).optional().describe('Query results'),
   totalCount: z.number().int().optional(),
   
   /** Execution Metadata */
@@ -233,7 +233,7 @@ export const NLQAnalyticsSchema = z.object({
   averageConfidence: z.number().min(0).max(1),
   
   /** Intent Distribution */
-  intentDistribution: z.record(z.number().int()).describe('Count by intent type'),
+  intentDistribution: z.record(z.string(), z.number().int()).describe('Count by intent type'),
   
   /** Common Patterns */
   topQueries: z.array(z.object({

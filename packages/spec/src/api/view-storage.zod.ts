@@ -161,7 +161,7 @@ export const SavedViewSchema = z.object({
   updatedAt: z.string().datetime().optional().describe('When the view was last updated'),
   
   // Settings
-  settings: z.record(z.any()).optional().describe('Additional view-specific settings'),
+  settings: z.record(z.string(), z.any()).optional().describe('Additional view-specific settings'),
 });
 
 export type SavedView = z.infer<typeof SavedViewSchema>;
@@ -184,7 +184,7 @@ export const CreateViewRequestSchema = z.object({
   layout: ViewLayoutSchema.optional().describe('Layout configuration'),
   sharedWith: z.array(z.string()).optional().describe('Users/teams to share with'),
   isDefault: z.boolean().optional().default(false).describe('Set as default view'),
-  settings: z.record(z.any()).optional(),
+  settings: z.record(z.string(), z.any()).optional(),
 });
 
 export type CreateViewRequest = z.input<typeof CreateViewRequestSchema>;

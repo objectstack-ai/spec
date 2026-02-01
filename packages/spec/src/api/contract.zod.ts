@@ -26,7 +26,7 @@ export const BaseResponseSchema = z.object({
 // 2. Request Payloads (Inputs)
 // ==========================================
 
-export const RecordDataSchema = z.record(z.any()).describe('Key-value map of record data');
+export const RecordDataSchema = z.record(z.string(), z.any()).describe('Key-value map of record data');
 
 /**
  * Standard Create Request

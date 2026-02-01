@@ -133,7 +133,7 @@ export const GraphQLTypeConfigSchema = z.object({
     exclude: z.array(z.string()).optional().describe('Fields to exclude (e.g., sensitive fields)'),
     
     /** Custom field mappings */
-    mappings: z.record(z.object({
+    mappings: z.record(z.string(), z.object({
       graphqlName: z.string().optional().describe('Custom GraphQL field name'),
       graphqlType: z.string().optional().describe('Override GraphQL type'),
       description: z.string().optional().describe('Field description'),
@@ -151,7 +151,7 @@ export const GraphQLTypeConfigSchema = z.object({
   /** Custom directives */
   directives: z.array(z.object({
     name: z.string().describe('Directive name'),
-    args: z.record(z.any()).optional().describe('Directive arguments'),
+    args: z.record(z.string(), z.any()).optional().describe('Directive arguments'),
   })).optional().describe('GraphQL directives'),
 });
 
@@ -180,7 +180,7 @@ export const GraphQLQueryConfigSchema = z.object({
   description: z.string().optional().describe('Query description'),
   
   /** Input arguments */
-  args: z.record(z.object({
+  args: z.record(z.string(), z.object({
     type: z.string().describe('GraphQL type (e.g., "ID!", "String", "Int")'),
     description: z.string().optional().describe('Argument description'),
     defaultValue: z.any().optional().describe('Default value'),
@@ -518,7 +518,7 @@ export const GraphQLDirectiveConfigSchema = z.object({
   locations: z.array(GraphQLDirectiveLocation).describe('Directive locations'),
   
   /** Arguments */
-  args: z.record(z.object({
+  args: z.record(z.string(), z.object({
     type: z.string().describe('Argument type'),
     description: z.string().optional().describe('Argument description'),
     defaultValue: z.any().optional().describe('Default value'),
@@ -588,7 +588,7 @@ export const GraphQLQueryComplexitySchema = z.object({
   defaultFieldComplexity: z.number().int().min(0).default(1).describe('Default complexity per field'),
   
   /** Field-specific complexity scores */
-  fieldComplexity: z.record(z.union([
+  fieldComplexity: z.record(z.string(), z.union([
     z.number().int().min(0),
     z.object({
       /** Base complexity */
@@ -664,7 +664,7 @@ export const GraphQLRateLimitSchema = z.object({
   }).optional().describe('Cost-based rate limiting'),
   
   /** Operation-specific limits */
-  operations: z.record(z.object({
+  operations: z.record(z.string(), z.object({
     maxRequests: z.number().int().min(1).describe('Max requests for this operation'),
     windowMs: z.number().int().min(1000).describe('Time window'),
   })).optional().describe('Per-operation rate limits'),

@@ -22,13 +22,13 @@ export const DependencyRequirementSchema = z.object({
    * Tenant-specific settings that override plugin defaults.
    * Example: { "currency": "USD", "apiKey": "..." }
    */
-  configuration: z.record(z.any()).optional().describe('Configuration overrides'),
+  configuration: z.record(z.string(), z.any()).optional().describe('Configuration overrides'),
   
   /**
    * Feature Flags
    * Enable/Disable specific features within the plugin.
    */
-  features: z.record(z.boolean()).optional().describe('Feature toggles'),
+  features: z.record(z.string(), z.boolean()).optional().describe('Feature toggles'),
 });
 
 /**
@@ -49,7 +49,7 @@ export const BillOfMaterialsSchema = z.object({
    * Environment Variables injection.
    * Maps abstract keys to secure vault references or concrete values.
    */
-  environment: z.record(z.string()).optional(),
+  environment: z.record(z.string(), z.string()).optional(),
   
   /**
    * Global Resolution Strategy

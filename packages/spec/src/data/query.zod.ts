@@ -418,7 +418,7 @@ export const FullTextSearchSchema = z.object({
   fields: z.array(z.string()).optional().describe('Fields to search in (if not specified, searches all text fields)'),
   fuzzy: z.boolean().optional().default(false).describe('Enable fuzzy matching (tolerates typos)'),
   operator: z.enum(['and', 'or']).optional().default('or').describe('Logical operator between terms'),
-  boost: z.record(z.number()).optional().describe('Field-specific relevance boosting (field name -> boost factor)'),
+  boost: z.record(z.string(), z.number()).optional().describe('Field-specific relevance boosting (field name -> boost factor)'),
   minScore: z.number().optional().describe('Minimum relevance score threshold'),
   language: z.string().optional().describe('Language for text analysis (e.g., "en", "zh", "es")'),
   highlight: z.boolean().optional().default(false).describe('Enable search result highlighting'),
@@ -492,7 +492,7 @@ export const QuerySchema = z.object({
   /** Pagination */
   limit: z.number().optional().describe('Max records to return (LIMIT)'),
   offset: z.number().optional().describe('Records to skip (OFFSET)'),
-  cursor: z.record(z.any()).optional().describe('Cursor for keyset pagination'),
+  cursor: z.record(z.string(), z.any()).optional().describe('Cursor for keyset pagination'),
   
   /** Joins */
   joins: z.array(JoinNodeSchema).optional().describe('Explicit Table Joins'),

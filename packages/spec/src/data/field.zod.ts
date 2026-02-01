@@ -382,7 +382,7 @@ export const FieldSchema = z.object({
   // Slider field config
   step: z.number().optional().describe('Step increment for slider (default: 1)'),
   showValue: z.boolean().optional().describe('Display current value on slider'),
-  marks: z.record(z.string()).optional().describe('Custom marks/labels at specific values (e.g., {0: "Low", 50: "Medium", 100: "High"})'),
+  marks: z.record(z.string(), z.string()).optional().describe('Custom marks/labels at specific values (e.g., {0: "Low", 50: "Medium", 100: "High"})'),
   
   // QR Code / Barcode field config
   // Note: qrErrorCorrection is only applicable when barcodeFormat='qr'

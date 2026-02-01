@@ -46,7 +46,7 @@ export const GetDiscoveryResponseSchema = z.object({
   version: z.string().describe('API version (e.g., "v1", "2024-01")'),
   apiName: z.string().describe('API name'),
   capabilities: z.array(z.string()).optional().describe('Supported features/capabilities'),
-  endpoints: z.record(z.string()).optional().describe('Available endpoint paths'),
+  endpoints: z.record(z.string(), z.string()).optional().describe('Available endpoint paths'),
 });
 
 /**
@@ -147,7 +147,7 @@ export const FindDataRequestSchema = z.object({
  */
 export const FindDataResponseSchema = z.object({
   object: z.string().describe('Object name'),
-  records: z.array(z.record(z.any())).describe('Array of records'),
+  records: z.array(z.record(z.string(), z.any())).describe('Array of records'),
   total: z.number().optional().describe('Total count (if requested)'),
   hasMore: z.boolean().optional().describe('Whether more records exist'),
 });
@@ -167,7 +167,7 @@ export const GetDataRequestSchema = z.object({
 export const GetDataResponseSchema = z.object({
   object: z.string().describe('Object name'),
   id: z.string().describe('Record ID'),
-  record: z.record(z.any()).describe('Record data'),
+  record: z.record(z.string(), z.any()).describe('Record data'),
 });
 
 /**
@@ -175,7 +175,7 @@ export const GetDataResponseSchema = z.object({
  */
 export const CreateDataRequestSchema = z.object({
   object: z.string().describe('Object name'),
-  data: z.record(z.any()).describe('Record data to create'),
+  data: z.record(z.string(), z.any()).describe('Record data to create'),
 });
 
 /**
@@ -184,7 +184,7 @@ export const CreateDataRequestSchema = z.object({
 export const CreateDataResponseSchema = z.object({
   object: z.string().describe('Object name'),
   id: z.string().describe('Created record ID'),
-  record: z.record(z.any()).describe('Created record (with server-generated fields)'),
+  record: z.record(z.string(), z.any()).describe('Created record (with server-generated fields)'),
 });
 
 /**
@@ -193,7 +193,7 @@ export const CreateDataResponseSchema = z.object({
 export const UpdateDataRequestSchema = z.object({
   object: z.string().describe('Object name'),
   id: z.string().describe('Record ID to update'),
-  data: z.record(z.any()).describe('Fields to update'),
+  data: z.record(z.string(), z.any()).describe('Fields to update'),
 });
 
 /**
@@ -202,7 +202,7 @@ export const UpdateDataRequestSchema = z.object({
 export const UpdateDataResponseSchema = z.object({
   object: z.string().describe('Object name'),
   id: z.string().describe('Updated record ID'),
-  record: z.record(z.any()).describe('Updated record'),
+  record: z.record(z.string(), z.any()).describe('Updated record'),
 });
 
 /**
@@ -245,7 +245,7 @@ export const BatchDataResponseSchema = BatchUpdateResponseSchema;
  */
 export const CreateManyDataRequestSchema = z.object({
   object: z.string().describe('Object name'),
-  records: z.array(z.record(z.any())).describe('Array of records to create'),
+  records: z.array(z.record(z.string(), z.any())).describe('Array of records to create'),
 });
 
 /**
@@ -253,7 +253,7 @@ export const CreateManyDataRequestSchema = z.object({
  */
 export const CreateManyDataResponseSchema = z.object({
   object: z.string().describe('Object name'),
-  records: z.array(z.record(z.any())).describe('Created records'),
+  records: z.array(z.record(z.string(), z.any())).describe('Created records'),
   count: z.number().describe('Number of records created'),
 });
 
@@ -264,7 +264,7 @@ export const UpdateManyDataRequestSchema = z.object({
   object: z.string().describe('Object name'),
   records: z.array(z.object({
     id: z.string().describe('Record ID'),
-    data: z.record(z.any()).describe('Fields to update'),
+    data: z.record(z.string(), z.any()).describe('Fields to update'),
   })).describe('Array of updates'),
   options: BatchOptionsSchema.optional().describe('Update options'),
 });

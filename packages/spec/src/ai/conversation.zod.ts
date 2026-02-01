@@ -39,7 +39,7 @@ export const MessageContentSchema = z.object({
   imageUrl: z.string().url().optional().describe('Image URL for vision models'),
   fileUrl: z.string().url().optional().describe('File attachment URL'),
   mimeType: z.string().optional().describe('MIME type for files'),
-  metadata: z.record(z.any()).optional().describe('Additional metadata'),
+  metadata: z.record(z.string(), z.any()).optional().describe('Additional metadata'),
 });
 
 /**
@@ -91,7 +91,7 @@ export const ConversationMessageSchema = z.object({
   embedding: z.array(z.number()).optional().describe('Vector embedding for semantic search'),
   
   /** Annotations */
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
 /**
@@ -167,13 +167,13 @@ export const ConversationContextSchema = z.object({
   /** Context Data */
   object: z.string().optional().describe('Related object (e.g., "case", "project")'),
   recordId: z.string().optional().describe('Related record ID'),
-  scope: z.record(z.any()).optional().describe('Additional context scope'),
+  scope: z.record(z.string(), z.any()).optional().describe('Additional context scope'),
   
   /** System Instructions */
   systemMessage: z.string().optional().describe('System prompt/instructions'),
   
   /** Metadata */
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
 /**
@@ -207,7 +207,7 @@ export const ConversationSessionSchema = z.object({
   
   /** Metadata */
   tags: z.array(z.string()).optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
 /**

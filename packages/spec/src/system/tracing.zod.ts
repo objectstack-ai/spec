@@ -19,7 +19,7 @@ export const TraceStateSchema = z.object({
   /**
    * Vendor-specific key-value pairs
    */
-  entries: z.record(z.string()).describe('Trace state entries'),
+  entries: z.record(z.string(), z.string()).describe('Trace state entries'),
 }).describe('Trace state');
 
 export type TraceState = z.infer<typeof TraceStateSchema>;
@@ -126,7 +126,7 @@ export type SpanAttributeValue = z.infer<typeof SpanAttributeValueSchema>;
  * Span Attributes Schema
  * OpenTelemetry semantic conventions
  */
-export const SpanAttributesSchema = z.record(SpanAttributeValueSchema).describe('Span attributes');
+export const SpanAttributesSchema = z.record(z.string(), SpanAttributeValueSchema).describe('Span attributes');
 
 export type SpanAttributes = z.infer<typeof SpanAttributesSchema>;
 
@@ -321,7 +321,7 @@ export const TraceSamplingConfigSchema = z.object({
   composite: z.array(z.object({
     strategy: SamplingStrategyType.describe('Strategy type'),
     ratio: z.number().min(0).max(1).optional(),
-    condition: z.record(z.any()).optional().describe('Condition for this strategy'),
+    condition: z.record(z.string(), z.any()).optional().describe('Condition for this strategy'),
   })).optional(),
 
   /**
@@ -350,7 +350,7 @@ export const TraceSamplingConfigSchema = z.object({
       /**
        * Attribute filters
        */
-      attributes: z.record(z.any()).optional(),
+      attributes: z.record(z.string(), z.any()).optional(),
     }).optional(),
 
     /**
@@ -503,7 +503,7 @@ export const OpenTelemetryCompatibilitySchema = z.object({
     /**
      * Headers
      */
-    headers: z.record(z.string()).optional().describe('HTTP headers'),
+    headers: z.record(z.string(), z.string()).optional().describe('HTTP headers'),
 
     /**
      * Timeout in milliseconds
@@ -629,12 +629,12 @@ export const TracingConfigSchema = z.object({
   /**
    * Sampling configuration
    */
-  sampling: TraceSamplingConfigSchema.optional().default({ type: 'always_on' }),
+  sampling: TraceSamplingConfigSchema.optional(),
 
   /**
    * Context propagation
    */
-  propagation: TraceContextPropagationSchema.optional().default({ formats: ['w3c'] }),
+  propagation: TraceContextPropagationSchema.optional(),
 
   /**
    * OpenTelemetry configuration

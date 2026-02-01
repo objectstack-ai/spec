@@ -96,7 +96,7 @@ export const HealthStatusSchema = z.object({
   /**
    * Optional health details (plugin-specific)
    */
-  details: z.record(z.any()).optional().describe('Optional plugin-specific health details'),
+  details: z.record(z.string(), z.any()).optional().describe('Optional plugin-specific health details'),
   
   /**
    * Optional error message if unhealthy

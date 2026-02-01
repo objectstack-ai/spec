@@ -117,7 +117,7 @@ export const SaasConnectorSchema = ConnectorSchema.extend({
   /**
    * Custom request headers
    */
-  customHeaders: z.record(z.string()).optional().describe('Custom HTTP headers for all requests'),
+  customHeaders: z.record(z.string(), z.string()).optional().describe('Custom HTTP headers for all requests'),
 });
 
 export type SaasConnector = z.infer<typeof SaasConnectorSchema>;

@@ -44,7 +44,7 @@ export const SpaceSubscriptionSchema = z.object({
    * Quota Usage Snapshot
    * Cached usage metrics for quick display/validation.
    */
-  usage: z.record(z.number()).optional(),
+  usage: z.record(z.string(), z.number()).optional(),
 });
 
 /**
@@ -55,7 +55,7 @@ export const DeploymentTargetSchema = z.object({
   provider: z.enum(['vercel', 'docker', 'kubernetes']),
   region: z.string().optional(),
   url: z.string().url().optional().describe('Public Access URL'),
-  env: z.record(z.string()).optional().describe('Runtime Environment Variables'),
+  env: z.record(z.string(), z.string()).optional().describe('Runtime Environment Variables'),
 });
 
 /**

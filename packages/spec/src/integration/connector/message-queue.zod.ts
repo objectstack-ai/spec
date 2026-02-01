@@ -186,8 +186,8 @@ export const TopicQueueSchema = z.object({
    * Message filter
    */
   messageFilter: z.object({
-    headers: z.record(z.string()).optional().describe('Filter by message headers'),
-    attributes: z.record(z.any()).optional().describe('Filter by message attributes'),
+    headers: z.record(z.string(), z.string()).optional().describe('Filter by message headers'),
+    attributes: z.record(z.string(), z.any()).optional().describe('Filter by message attributes'),
   }).optional().describe('Message filter criteria'),
 });
 

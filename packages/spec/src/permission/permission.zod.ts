@@ -85,10 +85,10 @@ export const PermissionSetSchema = z.object({
   isProfile: z.boolean().default(false).describe('Whether this is a user profile'),
   
   /** Object Permissions Map: <entity_name> -> permissions */
-  objects: z.record(ObjectPermissionSchema).describe('Entity permissions'),
+  objects: z.record(z.string(), ObjectPermissionSchema).describe('Entity permissions'),
   
   /** Field Permissions Map: <entity_name>.<field_name> -> permissions */
-  fields: z.record(FieldPermissionSchema).optional().describe('Field level security'),
+  fields: z.record(z.string(), FieldPermissionSchema).optional().describe('Field level security'),
   
   /** System permissions (e.g., "manage_users") */
   systemPermissions: z.array(z.string()).optional().describe('System level capabilities'),
@@ -140,7 +140,7 @@ export const PermissionSetSchema = z.object({
    * }
    * ```
    */
-  contextVariables: z.record(z.any()).optional().describe('Context variables for RLS evaluation'),
+  contextVariables: z.record(z.string(), z.any()).optional().describe('Context variables for RLS evaluation'),
 });
 
 export type PermissionSet = z.infer<typeof PermissionSetSchema>;

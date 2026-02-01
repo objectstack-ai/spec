@@ -40,7 +40,7 @@ export const FlowNodeSchema = z.object({
   label: z.string().describe('Node label'),
   
   /** Node Configuration Options (Specific to type) */
-  config: z.record(z.any()).optional().describe('Node configuration'),
+  config: z.record(z.string(), z.any()).optional().describe('Node configuration'),
   
   /** UI Position (for the canvas) */
   position: z.object({ x: z.number(), y: z.number() }).optional(),

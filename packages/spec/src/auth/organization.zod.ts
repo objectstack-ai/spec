@@ -41,7 +41,7 @@ export const OrganizationSchema = z.object({
    * Custom metadata for the organization
    * Can store additional configuration, settings, or custom fields
    */
-  metadata: z.record(z.any()).optional().describe('Custom metadata'),
+  metadata: z.record(z.string(), z.any()).optional().describe('Custom metadata'),
   
   /**
    * Organization creation timestamp

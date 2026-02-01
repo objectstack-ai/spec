@@ -45,7 +45,7 @@ export const MongoConfigSchema = z.object({
    * Connection Options
    * Passthrough options to the underlying MongoDB driver (e.g. valid certs, timeouts)
    */
-  options: z.record(z.any()).describe('Extra driver options (ssl, poolSize, etc)').optional(),
+  options: z.record(z.string(), z.any()).describe('Extra driver options (ssl, poolSize, etc)').optional(),
 }).describe('MongoDB Connection Configuration');
 
 // ==========================================================================

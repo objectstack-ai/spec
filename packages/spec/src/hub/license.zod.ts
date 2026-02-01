@@ -40,7 +40,7 @@ export const PlanSchema = z.object({
   features: z.array(z.string()).describe('List of enabled boolean features'),
   
   /** Limit Quotas */
-  limits: z.record(z.number()).describe('Map of metric codes to limit values (e.g. { storage_gb: 10 })'),
+  limits: z.record(z.string(), z.number()).describe('Map of metric codes to limit values (e.g. { storage_gb: 10 })'),
   
   /** Pricing (Optional Metadata) */
   currency: z.string().default('USD').optional(),
@@ -67,7 +67,7 @@ export const LicenseSchema = z.object({
   
   /** Overrides (Specific to this space, exceeding the plan) */
   customFeatures: z.array(z.string()).optional(),
-  customLimits: z.record(z.number()).optional(),
+  customLimits: z.record(z.string(), z.number()).optional(),
   
   /** Authorized Add-ons */
   plugins: z.array(z.string()).optional().describe('List of enabled plugin package IDs'),

@@ -59,7 +59,7 @@ export const ExternalDataSourceSchema = z.object({
      * Authentication-specific configuration
      * Structure varies based on auth type
      */
-    config: z.record(z.any()).describe('Auth configuration'),
+    config: z.record(z.string(), z.any()).describe('Auth configuration'),
   }).describe('Authentication'),
 });
 
@@ -172,7 +172,7 @@ export const ExternalLookupSchema = z.object({
     /**
      * Query parameters or request body
      */
-    parameters: z.record(z.any()).optional().describe('Query parameters'),
+    parameters: z.record(z.string(), z.any()).optional().describe('Query parameters'),
   }).describe('Query configuration'),
 
   /**

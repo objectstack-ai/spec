@@ -97,7 +97,7 @@ export const JWTAuthSchema = z.object({
   audience: z.string().optional().describe('JWT audience claim'),
   subject: z.string().optional().describe('JWT subject claim'),
   expiresIn: z.number().default(3600).describe('Token expiry in seconds'),
-  claims: z.record(z.any()).optional().describe('Additional JWT claims'),
+  claims: z.record(z.string(), z.any()).optional().describe('Additional JWT claims'),
 });
 
 export type JWTAuth = z.infer<typeof JWTAuthSchema>;
@@ -386,7 +386,7 @@ export const OIDCConfigSchema = z.object({
   
   scopes: z.array(z.string()).default(['openid', 'profile', 'email']).describe('OIDC scopes'),
   
-  attributeMapping: z.record(z.string()).optional().describe('Map IdP claims to User fields'),
+  attributeMapping: z.record(z.string(), z.string()).optional().describe('Map IdP claims to User fields'),
   
   displayName: z.string().optional().describe('Display name for the provider button'),
   
@@ -410,7 +410,7 @@ export const SAMLConfigSchema = z.object({
   
   signatureAlgorithm: z.enum(['sha256', 'sha512']).default('sha256').describe('Signature algorithm'),
   
-  attributeMapping: z.record(z.string()).optional().describe('Map SAML attributes to User fields'),
+  attributeMapping: z.record(z.string(), z.string()).optional().describe('Map SAML attributes to User fields'),
   
   displayName: z.string().optional().describe('Display name for the provider button'),
   
@@ -533,25 +533,25 @@ export const DatabaseMappingSchema = z.object({
    * User model field mapping
    * Maps ObjectStack User fields to driver fields
    */
-  user: z.record(z.string()).optional().describe('User field mapping (e.g., { "emailVerified": "email_verified" })'),
+  user: z.record(z.string(), z.string()).optional().describe('User field mapping (e.g., { "emailVerified": "email_verified" })'),
   
   /**
    * Session model field mapping
    * Maps ObjectStack Session fields to driver fields
    */
-  session: z.record(z.string()).default(BETTER_AUTH_FIELD_MAPPINGS.session).describe('Session field mapping'),
+  session: z.record(z.string(), z.string()).default(BETTER_AUTH_FIELD_MAPPINGS.session).describe('Session field mapping'),
   
   /**
    * Account model field mapping
    * Maps ObjectStack Account fields to driver fields
    */
-  account: z.record(z.string()).default(BETTER_AUTH_FIELD_MAPPINGS.account).describe('Account field mapping'),
+  account: z.record(z.string(), z.string()).default(BETTER_AUTH_FIELD_MAPPINGS.account).describe('Account field mapping'),
   
   /**
    * Verification token field mapping
    * Maps ObjectStack VerificationToken fields to driver fields
    */
-  verificationToken: z.record(z.string()).optional().describe('VerificationToken field mapping'),
+  verificationToken: z.record(z.string(), z.string()).optional().describe('VerificationToken field mapping'),
 });
 
 export type DatabaseMapping = z.infer<typeof DatabaseMappingSchema>;
@@ -565,7 +565,7 @@ export const AuthPluginConfigSchema = z.object({
   
   enabled: z.boolean().default(true),
   
-  options: z.record(z.any()).optional().describe('Plugin-specific options'),
+  options: z.record(z.string(), z.any()).optional().describe('Plugin-specific options'),
 });
 
 export type AuthPluginConfig = z.infer<typeof AuthPluginConfigSchema>;
@@ -666,22 +666,22 @@ export const ApplicationAuthConfigSchema = z.object({
   /**
    * Session configuration
    */
-  session: SessionConfigSchema.default({}),
+  session: SessionConfigSchema.optional(),
   
   /**
    * Rate limiting configuration
    */
-  rateLimit: RateLimitConfigSchema.default({}),
+  rateLimit: RateLimitConfigSchema.optional(),
   
   /**
    * CSRF protection configuration
    */
-  csrf: CSRFConfigSchema.default({}),
+  csrf: CSRFConfigSchema.optional(),
   
   /**
    * Account linking configuration
    */
-  accountLinking: AccountLinkingConfigSchema.default({}),
+  accountLinking: AccountLinkingConfigSchema.optional(),
   
   /**
    * Two-factor authentication configuration
@@ -710,7 +710,7 @@ export const ApplicationAuthConfigSchema = z.object({
   /**
    * User field mapping
    */
-  userFieldMapping: UserFieldMappingSchema.default({}),
+  userFieldMapping: UserFieldMappingSchema.optional(),
   
   /**
    * Database adapter configuration
@@ -798,7 +798,7 @@ export const ApplicationAuthConfigSchema = z.object({
     
     provider: z.enum(['smtp', 'sendgrid', 'mailgun', 'ses', 'resend', 'custom']).describe('Email provider'),
     
-    config: z.record(z.any()).optional().describe('Provider-specific configuration'),
+    config: z.record(z.string(), z.any()).optional().describe('Provider-specific configuration'),
   }).optional().describe('Email configuration'),
   
   /**

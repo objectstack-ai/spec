@@ -156,7 +156,7 @@ export const PresenceStateSchema = z.object({
   currentLocation: z.string().optional().describe('Current page/route user is viewing'),
   device: z.enum(['desktop', 'mobile', 'tablet', 'other']).optional().describe('Device type'),
   customStatus: z.string().optional().describe('Custom user status message'),
-  metadata: z.record(z.any()).optional().describe('Additional custom presence data'),
+  metadata: z.record(z.string(), z.any()).optional().describe('Additional custom presence data'),
 });
 
 export type PresenceState = z.infer<typeof PresenceStateSchema>;
@@ -169,7 +169,7 @@ export const PresenceUpdateSchema = z.object({
   status: WebSocketPresenceStatus.optional().describe('Updated presence status'),
   currentLocation: z.string().optional().describe('Updated current location'),
   customStatus: z.string().optional().describe('Updated custom status message'),
-  metadata: z.record(z.any()).optional().describe('Updated metadata'),
+  metadata: z.record(z.string(), z.any()).optional().describe('Updated metadata'),
 });
 
 export type PresenceUpdate = z.infer<typeof PresenceUpdateSchema>;
@@ -427,7 +427,7 @@ export const WebSocketConfigSchema = z.object({
   maxReconnectAttempts: z.number().int().positive().optional().default(5).describe('Maximum reconnection attempts'),
   pingInterval: z.number().int().positive().optional().default(30000).describe('Ping interval in milliseconds'),
   timeout: z.number().int().positive().optional().default(5000).describe('Message timeout in milliseconds'),
-  headers: z.record(z.string()).optional().describe('Custom headers for WebSocket handshake'),
+  headers: z.record(z.string(), z.string()).optional().describe('Custom headers for WebSocket handshake'),
 });
 
 export type WebSocketConfig = z.infer<typeof WebSocketConfigSchema>;
@@ -503,7 +503,7 @@ export const SimplePresenceStateSchema = z.object({
   userName: z.string().describe('User display name'),
   status: z.enum(['online', 'away', 'offline']).describe('User presence status'),
   lastSeen: z.number().describe('Unix timestamp of last activity in milliseconds'),
-  metadata: z.record(z.any()).optional().describe('Additional presence metadata (e.g., current page, custom status)'),
+  metadata: z.record(z.string(), z.any()).optional().describe('Additional presence metadata (e.g., current page, custom status)'),
 });
 
 export type SimplePresenceState = z.infer<typeof SimplePresenceStateSchema>;

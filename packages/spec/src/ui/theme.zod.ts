@@ -214,7 +214,7 @@ export const ThemeSchema = z.object({
   zIndex: ZIndexSchema.optional().describe('Z-index scale for layering'),
   
   /** Custom CSS variables */
-  customVars: z.record(z.string()).optional().describe('Custom CSS variables (key-value pairs)'),
+  customVars: z.record(z.string(), z.string()).optional().describe('Custom CSS variables (key-value pairs)'),
   
   /** Logo */
   logo: z.object({

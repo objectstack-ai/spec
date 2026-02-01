@@ -70,8 +70,8 @@ export const PluginContextSchema = z.object({
     }),
   }).passthrough().describe('Internationalization Interface'),
 
-  metadata: z.record(z.any()),
-  events: z.record(z.any()),
+  metadata: z.record(z.string(), z.any()),
+  events: z.record(z.string(), z.any()),
   
   app: z.object({
     router: z.object({

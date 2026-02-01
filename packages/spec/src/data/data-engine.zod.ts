@@ -22,7 +22,7 @@ import { SortNodeSchema } from './query.zod';
  * Supports simple key-value map or complex Logic/Field expressions (DSL)
  */
 export const DataEngineFilterSchema = z.union([
-  z.record(z.any()),
+  z.record(z.string(), z.any()),
   FilterConditionSchema
 ]).describe('Data Engine query filter conditions');
 
@@ -34,8 +34,8 @@ export const DataEngineFilterSchema = z.union([
  * - [{ field: 'name', order: 'asc' }]
  */
 export const DataEngineSortSchema = z.union([
-  z.record(z.enum(['asc', 'desc'])), 
-  z.record(z.union([z.literal(1), z.literal(-1)])),
+  z.record(z.string(), z.enum(['asc', 'desc'])), 
+  z.record(z.string(), z.union([z.literal(1), z.literal(-1)])),
   z.array(SortNodeSchema)
 ]).describe('Sort order definition');
 
@@ -176,12 +176,12 @@ export const DataEngineContractSchema = z.object({
   }),
     
   insert: z.function({
-    input: z.tuple([z.string(), z.union([z.record(z.any()), z.array(z.record(z.any()))]), DataEngineInsertOptionsSchema.optional()]),
+    input: z.tuple([z.string(), z.union([z.record(z.string(), z.any()), z.array(z.record(z.string(), z.any()))]), DataEngineInsertOptionsSchema.optional()]),
     output: z.promise(z.any())
   }),
     
   update: z.function({
-    input: z.tuple([z.string(), z.record(z.any()), DataEngineUpdateOptionsSchema.optional()]),
+    input: z.tuple([z.string(), z.record(z.string(), z.any()), DataEngineUpdateOptionsSchema.optional()]),
     output: z.promise(z.any())
   }),
     
@@ -230,14 +230,14 @@ export const DataEngineFindOneRequestSchema = z.object({
 export const DataEngineInsertRequestSchema = z.object({
   method: z.literal('insert'),
   object: z.string(),
-  data: z.union([z.record(z.any()), z.array(z.record(z.any()))]),
+  data: z.union([z.record(z.string(), z.any()), z.array(z.record(z.string(), z.any()))]),
   options: DataEngineInsertOptionsSchema.optional()
 });
 
 export const DataEngineUpdateRequestSchema = z.object({
   method: z.literal('update'),
   object: z.string(),
-  data: z.record(z.any()),
+  data: z.record(z.string(), z.any()),
   id: z.any().optional().describe('ID for single update, or use filter in options'),
   options: DataEngineUpdateOptionsSchema.optional()
 });
@@ -270,7 +270,7 @@ export const DataEngineExecuteRequestSchema = z.object({
   /** The abstract command (string SQL, or JSON object) */
   command: z.any(),
   /** Optional options */
-  options: z.record(z.any()).optional()
+  options: z.record(z.string(), z.any()).optional()
 });
 
 /**

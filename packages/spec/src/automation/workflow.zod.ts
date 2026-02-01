@@ -79,11 +79,11 @@ export const HttpCallActionSchema = z.object({
   type: z.literal('http_call'),
   url: z.string().describe('Target URL'),
   method: z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']).describe('HTTP method'),
-  headers: z.record(z.string()).optional().describe('Request headers'),
+  headers: z.record(z.string(), z.string()).optional().describe('Request headers'),
   body: z.any().optional().describe('Request body (object/string)'),
   authentication: z.object({
     type: z.enum(['none', 'basic', 'bearer', 'api_key', 'oauth2']),
-    credentials: z.record(z.string()).optional(),
+    credentials: z.record(z.string(), z.string()).optional(),
   }).optional().describe('Authentication configuration'),
   timeout: z.number().optional().describe('Request timeout in milliseconds'),
 });
@@ -111,7 +111,7 @@ export const TaskCreationActionSchema = z.object({
   dueDate: z.string().optional().describe('Due date (ISO string or formula)'),
   priority: z.string().optional().describe('Task priority'),
   relatedTo: z.string().optional().describe('Related record ID or field reference'),
-  additionalFields: z.record(z.any()).optional().describe('Additional custom fields'),
+  additionalFields: z.record(z.string(), z.any()).optional().describe('Additional custom fields'),
 });
 
 /**
@@ -123,7 +123,7 @@ export const PushNotificationActionSchema = z.object({
   title: z.string().describe('Notification title'),
   body: z.string().describe('Notification body text'),
   recipients: z.array(z.string()).describe('User IDs or device tokens'),
-  data: z.record(z.any()).optional().describe('Additional data payload'),
+  data: z.record(z.string(), z.any()).optional().describe('Additional data payload'),
   badge: z.number().optional().describe('Badge count (iOS)'),
   sound: z.string().optional().describe('Notification sound'),
   clickAction: z.string().optional().describe('Action/URL when notification is clicked'),
@@ -138,7 +138,7 @@ export const CustomScriptActionSchema = z.object({
   language: z.enum(['javascript', 'typescript', 'python']).default('javascript').describe('Script language'),
   code: z.string().describe('Script code to execute'),
   timeout: z.number().default(30000).describe('Execution timeout in milliseconds'),
-  context: z.record(z.any()).optional().describe('Additional context variables'),
+  context: z.record(z.string(), z.any()).optional().describe('Additional context variables'),
 });
 
 /**

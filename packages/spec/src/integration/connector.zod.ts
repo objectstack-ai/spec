@@ -98,7 +98,7 @@ export const FieldTransformSchema = z.object({
     'custom',
   ]).describe('Transformation type'),
   
-  params: z.record(z.any()).optional().describe('Transformation parameters'),
+  params: z.record(z.string(), z.any()).optional().describe('Transformation parameters'),
   
   function: z.string().optional().describe('Custom JavaScript function for transformation'),
 });
@@ -225,7 +225,7 @@ export const DataSyncConfigSchema = z.object({
   /**
    * Filter criteria for selective sync
    */
-  filters: z.record(z.any()).optional().describe('Filter criteria for selective sync'),
+  filters: z.record(z.string(), z.any()).optional().describe('Filter criteria for selective sync'),
 });
 
 export type DataSyncConfig = z.infer<typeof DataSyncConfigSchema>;
@@ -511,7 +511,7 @@ export const ConnectorSchema = z.object({
   /**
    * Custom metadata
    */
-  metadata: z.record(z.any()).optional().describe('Custom connector metadata'),
+  metadata: z.record(z.string(), z.any()).optional().describe('Custom connector metadata'),
 });
 
 export type Connector = z.infer<typeof ConnectorSchema>;

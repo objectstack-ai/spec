@@ -143,7 +143,7 @@ export const PushNotificationSchema = z.object({
   /**
    * Custom data payload
    */
-  data: z.record(z.any()).optional().describe('Custom data'),
+  data: z.record(z.string(), z.any()).optional().describe('Custom data'),
 
   /**
    * Action buttons for the notification

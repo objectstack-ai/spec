@@ -99,7 +99,7 @@ export const TenantSchema = z.object({
   /**
    * Custom configuration values
    */
-  customizations: z.record(z.any()).optional().describe('Custom configuration values'),
+  customizations: z.record(z.string(), z.any()).optional().describe('Custom configuration values'),
   
   /**
    * Resource quotas

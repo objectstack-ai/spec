@@ -126,7 +126,7 @@ export type HistogramBucketConfig = z.infer<typeof HistogramBucketConfigSchema>;
  * Metric Labels Schema
  * Key-value pairs for metric dimensions
  */
-export const MetricLabelsSchema = z.record(z.string()).describe('Metric labels');
+export const MetricLabelsSchema = z.record(z.string(), z.string()).describe('Metric labels');
 
 export type MetricLabels = z.infer<typeof MetricLabelsSchema>;
 
@@ -273,7 +273,7 @@ export const TimeSeriesDataPointSchema = z.object({
   /**
    * Labels/tags
    */
-  labels: z.record(z.string()).optional().describe('Labels'),
+  labels: z.record(z.string(), z.string()).optional().describe('Labels'),
 }).describe('Time series data point');
 
 export type TimeSeriesDataPoint = z.infer<typeof TimeSeriesDataPointSchema>;
@@ -290,7 +290,7 @@ export const TimeSeriesSchema = z.object({
   /**
    * Series labels
    */
-  labels: z.record(z.string()).optional().describe('Series labels'),
+  labels: z.record(z.string(), z.string()).optional().describe('Series labels'),
 
   /**
    * Data points
@@ -347,7 +347,7 @@ export const MetricAggregationConfigSchema = z.object({
   /**
    * Filters
    */
-  filters: z.record(z.any()).optional().describe('Filter criteria'),
+  filters: z.record(z.string(), z.any()).optional().describe('Filter criteria'),
 }).describe('Metric aggregation configuration');
 
 export type MetricAggregationConfig = z.infer<typeof MetricAggregationConfigSchema>;
@@ -598,7 +598,7 @@ export const MetricExportConfigSchema = z.object({
   /**
    * Additional configuration
    */
-  config: z.record(z.any()).optional().describe('Additional configuration'),
+  config: z.record(z.string(), z.any()).optional().describe('Additional configuration'),
 }).describe('Metric export configuration');
 
 export type MetricExportConfig = z.infer<typeof MetricExportConfigSchema>;

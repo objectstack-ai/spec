@@ -26,7 +26,7 @@ export const DriverOptionsSchema = z.object({
    * Distributed Tracing Context.
    * Used for passing OpenTelemetry span context or request IDs for observability.
    */
-  traceContext: z.record(z.string()).optional().describe('OpenTelemetry context or request ID'),
+  traceContext: z.record(z.string(), z.string()).optional().describe('OpenTelemetry context or request ID'),
 
   /**
    * Tenant Identifier.
@@ -375,7 +375,7 @@ export const DriverInterfaceSchema = z.object({
    */
   find: z.function({
     input: z.tuple([z.string(), QuerySchema, DriverOptionsSchema.optional()]),
-    output: z.promise(z.array(z.record(z.any())))
+    output: z.promise(z.array(z.record(z.string(), z.any())))
   }).describe('Find records'),
 
   /**
@@ -404,7 +404,7 @@ export const DriverInterfaceSchema = z.object({
    */
   findOne: z.function({
     input: z.tuple([z.string(), QuerySchema, DriverOptionsSchema.optional()]),
-    output: z.promise(z.record(z.any()).nullable())
+    output: z.promise(z.record(z.string(), z.any()).nullable())
   }).describe('Find one record'),
 
   /**
@@ -417,8 +417,8 @@ export const DriverInterfaceSchema = z.object({
    *          MUST return `id` as string. MUST NOT return implementation details like `_id`.
    */
   create: z.function({
-    input: z.tuple([z.string(), z.record(z.any()), DriverOptionsSchema.optional()]),
-    output: z.promise(z.record(z.any()))
+    input: z.tuple([z.string(), z.record(z.string(), z.any()), DriverOptionsSchema.optional()]),
+    output: z.promise(z.record(z.string(), z.any()))
   }).describe('Create record'),
 
   /**
@@ -432,8 +432,8 @@ export const DriverInterfaceSchema = z.object({
    *          MUST return `id` as string. MUST NOT return implementation details like `_id`.
    */
   update: z.function({
-    input: z.tuple([z.string(), z.string().or(z.number()), z.record(z.any()), DriverOptionsSchema.optional()]),
-    output: z.promise(z.record(z.any()))
+    input: z.tuple([z.string(), z.string().or(z.number()), z.record(z.string(), z.any()), DriverOptionsSchema.optional()]),
+    output: z.promise(z.record(z.string(), z.any()))
   }).describe('Update record'),
 
   /**
@@ -446,8 +446,8 @@ export const DriverInterfaceSchema = z.object({
    * @returns The created or updated record.
    */
   upsert: z.function({
-    input: z.tuple([z.string(), z.record(z.any()), z.array(z.string()).optional(), DriverOptionsSchema.optional()]),
-    output: z.promise(z.record(z.any()))
+    input: z.tuple([z.string(), z.record(z.string(), z.any()), z.array(z.string()).optional(), DriverOptionsSchema.optional()]),
+    output: z.promise(z.record(z.string(), z.any()))
   }).describe('Upsert record'),
 
   /**
@@ -489,8 +489,8 @@ export const DriverInterfaceSchema = z.object({
    * @returns Array of created records.
    */
   bulkCreate: z.function({
-    input: z.tuple([z.string(), z.array(z.record(z.any())), DriverOptionsSchema.optional()]),
-    output: z.promise(z.array(z.record(z.any())))
+    input: z.tuple([z.string(), z.array(z.record(z.string(), z.any())), DriverOptionsSchema.optional()]),
+    output: z.promise(z.array(z.record(z.string(), z.any())))
   }),
 
   /**
@@ -501,8 +501,8 @@ export const DriverInterfaceSchema = z.object({
    * @returns Array of updated records.
    */
   bulkUpdate: z.function({
-    input: z.tuple([z.string(), z.array(z.object({ id: z.string().or(z.number()), data: z.record(z.any()) })), DriverOptionsSchema.optional()]),
-    output: z.promise(z.array(z.record(z.any())))
+    input: z.tuple([z.string(), z.array(z.object({ id: z.string().or(z.number()), data: z.record(z.string(), z.any()) })), DriverOptionsSchema.optional()]),
+    output: z.promise(z.array(z.record(z.string(), z.any())))
   }),
 
   /**
@@ -526,7 +526,7 @@ export const DriverInterfaceSchema = z.object({
    * @returns Count of modified records.
    */
   updateMany: z.function({
-    input: z.tuple([z.string(), QuerySchema, z.record(z.any()), DriverOptionsSchema.optional()]),
+    input: z.tuple([z.string(), QuerySchema, z.record(z.string(), z.any()), DriverOptionsSchema.optional()]),
     output: z.promise(z.number())
   }).optional(),
 

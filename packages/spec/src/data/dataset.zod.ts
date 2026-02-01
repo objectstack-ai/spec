@@ -53,7 +53,7 @@ export const DatasetSchema = z.object({
    * The Payload
    * Array of raw JSON objects matching the Object Schema.
    */
-  records: z.array(z.record(z.any())).describe('Data records'),
+  records: z.array(z.record(z.string(), z.any())).describe('Data records'),
 });
 
 export type Dataset = z.infer<typeof DatasetSchema>;

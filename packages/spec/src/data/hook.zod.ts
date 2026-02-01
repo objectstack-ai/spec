@@ -122,7 +122,7 @@ export const HookContextSchema = z.object({
    * - updateMany: { query: QueryAST, doc: Record, options: DriverOptions }
    * - deleteMany: { query: QueryAST, options: DriverOptions }
    */
-  input: z.record(z.any()).describe('Mutable input parameters'),
+  input: z.record(z.string(), z.any()).describe('Mutable input parameters'),
 
   /** 
    * Operation Result (Mutable)
@@ -134,7 +134,7 @@ export const HookContextSchema = z.object({
    * Data Snapshot
    * The state of the record BEFORE the operation (for update/delete).
    */
-  previous: z.record(z.any()).optional().describe('Record state before operation'),
+  previous: z.record(z.string(), z.any()).optional().describe('Record state before operation'),
 
   /**
    * Execution Session

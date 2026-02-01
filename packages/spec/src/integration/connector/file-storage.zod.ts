@@ -60,7 +60,7 @@ export const FileMetadataConfigSchema = z.object({
     'custom',
   ])).optional().describe('Metadata fields to extract'),
   
-  customMetadata: z.record(z.string()).optional().describe('Custom metadata key-value pairs'),
+  customMetadata: z.record(z.string(), z.string()).optional().describe('Custom metadata key-value pairs'),
 });
 
 export type FileMetadataConfig = z.infer<typeof FileMetadataConfigSchema>;

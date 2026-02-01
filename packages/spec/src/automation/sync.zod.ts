@@ -197,7 +197,7 @@ export const DataDestinationConfigSchema = z.object({
    * Maps source fields to destination fields
    */
   mapping: z.union([
-    z.record(z.string()),                    // Simple mapping: { sourceField: 'destField' }
+    z.record(z.string(), z.string()),                    // Simple mapping: { sourceField: 'destField' }
     z.array(FieldMappingSchema),             // Advanced mapping with transformations
   ]).optional().describe('Field mappings'),
 
@@ -354,7 +354,7 @@ export const DataSyncConfigSchema = z.object({
   /**
    * Custom metadata
    */
-  metadata: z.record(z.any()).optional().describe('Custom metadata'),
+  metadata: z.record(z.string(), z.any()).optional().describe('Custom metadata'),
 });
 
 export type DataSyncConfig = z.infer<typeof DataSyncConfigSchema>;
