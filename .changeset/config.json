@@ -5,15 +5,18 @@
   "fixed": [
     [
       "@objectstack/spec",
+      "@objectstack/cli",
+      "@objectstack/core",
       "@objectstack/client",
-      "@objectstack/driver-memory",
+      "@objectstack/client-react",
+      "@objectstack/types",
+      "@objectstack/metadata",
       "@objectstack/objectql",
+      "@objectstack/runtime",
+      "@objectstack/ai-bridge",
+      "@objectstack/driver-memory",
       "@objectstack/plugin-hono-server",
       "@objectstack/plugin-msw",
-      "@objectstack/runtime",
-      "@objectstack/types",
-      "@objectstack/ai-bridge",
-      "@objectstack/cli",
       "@objectstack/docs"
     ]
   ],
