@@ -1,8 +1,34 @@
 import { Command } from 'commander';
 import path from 'path';
 import fs from 'fs';
+import net from 'net';
 import chalk from 'chalk';
 import { bundleRequire } from 'bundle-require';
+
+// Helper to find available port
+const getAvailablePort = async (startPort: number): Promise<number> => {
+  const isPortAvailable = (port: number): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const server = net.createServer();
+      server.once('error', (err: any) => {
+        resolve(false);
+      });
+      server.once('listening', () => {
+        server.close(() => resolve(true));
+      });
+      server.listen(port);
+    });
+  };
+
+  let port = startPort;
+  while (!(await isPortAvailable(port))) {
+    port++;
+    if (port > startPort + 100) {
+       throw new Error(`Could not find an available port starting from ${startPort}`);
+    }
+  }
+  return port;
+};
 
 export const serveCommand = new Command('serve')
   .description('Start ObjectStack server with plugins from configuration')
@@ -10,11 +36,26 @@ export const serveCommand = new Command('serve')
   .option('-p, --port <port>', 'Server port', '3000')
   .option('--no-server', 'Skip starting HTTP server plugin')
   .action(async (configPath, options) => {
+    let port = parseInt(options.port);
+    try {
+      const availablePort = await getAvailablePort(port);
+      if (availablePort !== port) {
+        port = availablePort;
+      }
+    } catch (e) {
+      // Ignore error and try with original port, or let it fail later
+    }
+
     console.log(chalk.bold(`\n🚀 ObjectStack Server`));
     console.log(chalk.dim(`------------------------`));
     console.log(`📂 Config: ${chalk.blue(configPath)}`);
-    console.log(`🌐 Port: ${chalk.blue(options.port)}`);
+    if (parseInt(options.port) !== port) {
+      console.log(`🌐 Port: ${chalk.blue(port)} ${chalk.yellow(`(requested: ${options.port} in use)`)}`);
+    } else {
+      console.log(`🌐 Port: ${chalk.blue(port)}`);
+    }
     console.log('');
+
 
     const absolutePath = path.resolve(process.cwd(), configPath);
     
@@ -69,9 +110,9 @@ export const serveCommand = new Command('serve')
       if (options.server !== false) {
         try {
           const { HonoServerPlugin } = await import('@objectstack/plugin-hono-server');
-          const serverPlugin = new HonoServerPlugin({ port: parseInt(options.port) });
+          const serverPlugin = new HonoServerPlugin({ port });
           kernel.use(serverPlugin);
-          console.log(chalk.green(`  ✓ Registered HTTP server plugin (port: ${options.port})`));
+          console.log(chalk.green(`  ✓ Registered HTTP server plugin (port: ${port})`));
         } catch (e: any) {
           console.warn(chalk.yellow(`  ⚠ HTTP server plugin not available: ${e.message}`));
         }
