@@ -279,6 +279,33 @@ export const DeleteManyDataRequestSchema = z.object({
 export const DeleteManyDataResponseSchema = BatchUpdateResponseSchema;
 
 // ==========================================
+// View Storage Operations
+// ==========================================
+
+/**
+ * Get View Request
+ * Get a stored view configuration by ID
+ */
+export const GetViewRequestSchema = z.object({
+  id: z.string().describe('View ID'),
+});
+
+/**
+ * Delete View Request
+ * Delete a stored view configuration
+ */
+export const DeleteViewRequestSchema = z.object({
+  id: z.string().describe('View ID to delete'),
+});
+
+/**
+ * Delete View Response
+ */
+export const DeleteViewResponseSchema = z.object({
+  success: z.boolean().describe('Whether deletion succeeded'),
+});
+
+// ==========================================
 // Protocol Interface Schema
 // ==========================================
 
@@ -411,6 +438,10 @@ export type UpdateManyDataRequest = z.input<typeof UpdateManyDataRequestSchema>;
 export type UpdateManyDataResponse = z.infer<typeof UpdateManyDataResponseSchema>;
 export type DeleteManyDataRequest = z.input<typeof DeleteManyDataRequestSchema>;
 export type DeleteManyDataResponse = z.infer<typeof DeleteManyDataResponseSchema>;
+
+export type GetViewRequest = z.infer<typeof GetViewRequestSchema>;
+export type DeleteViewRequest = z.infer<typeof DeleteViewRequestSchema>;
+export type DeleteViewResponse = z.infer<typeof DeleteViewResponseSchema>;
 
 export type ObjectStackProtocol = z.infer<typeof ObjectStackProtocolSchema>;
 
