@@ -303,16 +303,7 @@ Object.entries(CATEGORIES).forEach(([category, title]) => {
 // We want references to list categories in specific order
 const rootMetaProps = {
   title: "Protocol Reference",
-  pages: [
-    "data",
-    "ui",
-    "automation",
-    "system",
-    "permission",
-    "ai",
-    "api",
-    "driver"
-  ]
+  pages: Object.keys(CATEGORIES).sort()
 };
 fs.writeFileSync(path.join(DOCS_ROOT, 'meta.json'), JSON.stringify(rootMetaProps, null, 2));
 
