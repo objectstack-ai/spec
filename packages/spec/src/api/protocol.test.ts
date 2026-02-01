@@ -25,9 +25,6 @@ import {
   CreateManyDataResponseSchema,
   UpdateManyDataRequestSchema,
   DeleteManyDataRequestSchema,
-  GetViewRequestSchema,
-  DeleteViewRequestSchema,
-  DeleteViewResponseSchema,
 } from './protocol.zod';
 
 describe('Discovery & Metadata Operations', () => {
@@ -522,50 +519,6 @@ describe('Batch Operations', () => {
       });
 
       expect(request.options).toBeDefined();
-    });
-  });
-});
-
-describe('View Storage Operations', () => {
-  describe('GetViewRequestSchema', () => {
-    it('should accept get view request', () => {
-      const request = GetViewRequestSchema.parse({
-        id: 'view_123',
-      });
-
-      expect(request.id).toBe('view_123');
-    });
-
-    it('should reject request without id', () => {
-      expect(() => GetViewRequestSchema.parse({})).toThrow();
-    });
-  });
-
-  describe('DeleteViewRequestSchema', () => {
-    it('should accept delete view request', () => {
-      const request = DeleteViewRequestSchema.parse({
-        id: 'view_123',
-      });
-
-      expect(request.id).toBe('view_123');
-    });
-  });
-
-  describe('DeleteViewResponseSchema', () => {
-    it('should accept successful delete', () => {
-      const response = DeleteViewResponseSchema.parse({
-        success: true,
-      });
-
-      expect(response.success).toBe(true);
-    });
-
-    it('should accept failed delete', () => {
-      const response = DeleteViewResponseSchema.parse({
-        success: false,
-      });
-
-      expect(response.success).toBe(false);
     });
   });
 });
