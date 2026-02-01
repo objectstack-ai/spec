@@ -8,13 +8,7 @@ import {
   MetadataCacheRequest,
   MetadataCacheResponse,
   StandardErrorCode,
-  ErrorCategory,
-  CreateViewRequest,
-  UpdateViewRequest,
-  ListViewsRequest,
-  SavedView,
-  ListViewsResponse,
-  ViewResponse
+  ErrorCategory
 } from '@objectstack/spec/api';
 import { Logger, createLogger } from '@objectstack/core';
 
@@ -342,103 +336,7 @@ export class ObjectStackClient {
     }
   };
 
-  /**
-   * View Storage Operations
-   * Save, load, and manage UI view configurations
-   */
-  views = {
-    /**
-     * Create a new saved view
-     */
-    create: async (request: CreateViewRequest): Promise<ViewResponse> => {
-      const route = this.getRoute('ui');
-      const res = await this.fetch(`${this.baseUrl}${route}/views`, {
-        method: 'POST',
-        body: JSON.stringify(request)
-      });
-      return res.json();
-    },
 
-    /**
-     * Get a saved view by ID
-     */
-    get: async (id: string): Promise<ViewResponse> => {
-      const route = this.getRoute('ui');
-      const res = await this.fetch(`${this.baseUrl}${route}/views/${id}`);
-      return res.json();
-    },
-
-    /**
-     * List saved views with optional filters
-     */
-    list: async (request?: ListViewsRequest): Promise<ListViewsResponse> => {
-      const route = this.getRoute('ui');
-      const queryParams = new URLSearchParams();
-      
-      if (request?.object) queryParams.set('object', request.object);
-      if (request?.type) queryParams.set('type', request.type);
-      if (request?.visibility) queryParams.set('visibility', request.visibility);
-      if (request?.createdBy) queryParams.set('createdBy', request.createdBy);
-      if (request?.isDefault !== undefined) queryParams.set('isDefault', String(request.isDefault));
-      if (request?.limit) queryParams.set('limit', String(request.limit));
-      if (request?.offset) queryParams.set('offset', String(request.offset));
-      
-      const url = queryParams.toString() 
-        ? `${this.baseUrl}${route}/views?${queryParams.toString()}`
-        : `${this.baseUrl}${route}/views`;
-        
-      const res = await this.fetch(url);
-      return res.json();
-    },
-
-    /**
-     * Update an existing view
-     */
-    update: async (request: UpdateViewRequest): Promise<ViewResponse> => {
-      const route = this.getRoute('ui');
-      const { id, ...updateData } = request;
-      const res = await this.fetch(`${this.baseUrl}${route}/views/${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(updateData)
-      });
-      return res.json();
-    },
-
-    /**
-     * Delete a saved view
-     */
-    delete: async (id: string): Promise<{ success: boolean }> => {
-      const route = this.getRoute('ui');
-      const res = await this.fetch(`${this.baseUrl}${route}/views/${id}`, {
-        method: 'DELETE'
-      });
-      return res.json();
-    },
-
-    /**
-     * Share a view with users/teams
-     */
-    share: async (id: string, userIds: string[]): Promise<ViewResponse> => {
-      const route = this.getRoute('ui');
-      const res = await this.fetch(`${this.baseUrl}${route}/views/${id}/share`, {
-        method: 'POST',
-        body: JSON.stringify({ sharedWith: userIds })
-      });
-      return res.json();
-    },
-
-    /**
-     * Set a view as default for an object
-     */
-    setDefault: async (id: string, object: string): Promise<ViewResponse> => {
-      const route = this.getRoute('ui');
-      const res = await this.fetch(`${this.baseUrl}${route}/views/${id}/set-default`, {
-        method: 'POST',
-        body: JSON.stringify({ object })
-      });
-      return res.json();
-    }
-  };
 
   /**
    * Private Helpers
@@ -537,15 +435,5 @@ export type {
   MetadataCacheRequest,
   MetadataCacheResponse,
   StandardErrorCode,
-  ErrorCategory,
-  CreateViewRequest,
-  UpdateViewRequest,
-  ListViewsRequest,
-  SavedView,
-  ViewResponse,
-  ListViewsResponse,
-  ViewType,
-  ViewVisibility,
-  ViewColumn,
-  ViewLayout
+  ErrorCategory
 } from '@objectstack/spec/api';

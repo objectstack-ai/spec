@@ -276,95 +276,20 @@ export class HonoServerPlugin implements Plugin {
                 }
             });
 
-            // View Storage Routes
-            this.server.post('/api/v1/ui/views', async (req, res) => {
-                ctx.logger.debug('Create view request', { name: req.body?.name, object: req.body?.object });
+            // UI Protocol endpoint
+            this.server.get('/api/v1/ui/view/:object', async (req, res) => {
+                ctx.logger.debug('Get UI view request', { object: req.params.object, type: req.query.type });
                 try {
-                    const result = await p.createView(req.body);
-                    if (result.success) {
-                        ctx.logger.info('View created', { id: result.data?.id, name: result.data?.name });
-                        res.status(201).json(result);
-                    } else {
-                        ctx.logger.warn('View creation failed', { error: result.error });
-                        res.status(400).json(result);
-                    }
+                    const viewType = (req.query.type as 'list' | 'form') || 'list';
+                    const view = await p.getUiView({ object: req.params.object, type: viewType });
+                    res.json(view);
                 } catch (e: any) {
-                    ctx.logger.error('View creation error', e);
-                    res.status(500).json({ success: false, error: { code: 'internal_error', message: e.message } });
+                    ctx.logger.warn('UI view not found', { object: req.params.object, error: e.message });
+                    res.status(404).json({ error: e.message });
                 }
             });
 
-            this.server.get('/api/v1/ui/views/:id', async (req, res) => {
-                ctx.logger.debug('Get view request', { id: req.params.id });
-                try {
-                    const result = await p.getView({ id: req.params.id });
-                    if (result.success) {
-                        ctx.logger.debug('View retrieved', { id: req.params.id });
-                        res.json(result);
-                    } else {
-                        ctx.logger.warn('View not found', { id: req.params.id });
-                        res.status(404).json(result);
-                    }
-                } catch (e: any) {
-                    ctx.logger.error('Get view error', e, { id: req.params.id });
-                    res.status(500).json({ success: false, error: { code: 'internal_error', message: e.message } });
-                }
-            });
 
-            this.server.get('/api/v1/ui/views', async (req, res) => {
-                ctx.logger.debug('List views request', { query: req.query });
-                try {
-                    const request: any = {};
-                    if (req.query.object) request.object = req.query.object as string;
-                    if (req.query.type) request.type = req.query.type;
-                    if (req.query.visibility) request.visibility = req.query.visibility;
-                    if (req.query.createdBy) request.createdBy = req.query.createdBy as string;
-                    if (req.query.isDefault !== undefined) request.isDefault = req.query.isDefault === 'true';
-                    if (req.query.limit) request.limit = parseInt(req.query.limit as string);
-                    if (req.query.offset) request.offset = parseInt(req.query.offset as string);
-                    
-                    const result = await p.listViews(request);
-                    ctx.logger.debug('Views listed', { count: result.data?.length, total: result.pagination?.total });
-                    res.json(result);
-                } catch (e: any) {
-                    ctx.logger.error('List views error', e);
-                    res.status(500).json({ success: false, error: { code: 'internal_error', message: e.message } });
-                }
-            });
-
-            this.server.patch('/api/v1/ui/views/:id', async (req, res) => {
-                ctx.logger.debug('Update view request', { id: req.params.id });
-                try {
-                    const result = await p.updateView({ ...req.body, id: req.params.id });
-                    if (result.success) {
-                        ctx.logger.info('View updated', { id: req.params.id });
-                        res.json(result);
-                    } else {
-                        ctx.logger.warn('View update failed', { id: req.params.id, error: result.error });
-                        res.status(result.error?.code === 'resource_not_found' ? 404 : 400).json(result);
-                    }
-                } catch (e: any) {
-                    ctx.logger.error('Update view error', e, { id: req.params.id });
-                    res.status(500).json({ success: false, error: { code: 'internal_error', message: e.message } });
-                }
-            });
-
-            this.server.delete('/api/v1/ui/views/:id', async (req, res) => {
-                ctx.logger.debug('Delete view request', { id: req.params.id });
-                try {
-                    const result = await p.deleteView({ id: req.params.id });
-                    if (result.success) {
-                        ctx.logger.info('View deleted', { id: req.params.id });
-                        res.json(result);
-                    } else {
-                        ctx.logger.warn('View deletion failed', { id: req.params.id });
-                        res.status(404).json(result);
-                    }
-                } catch (e: any) {
-                    ctx.logger.error('Delete view error', e, { id: req.params.id });
-                    res.status(500).json({ success: false, error: { code: 'internal_error', message: e.message } });
-                }
-            });
             
             ctx.logger.info('All API routes registered');
         }
