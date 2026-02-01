@@ -24,7 +24,7 @@ export class MetadataPlugin implements Plugin {
 
         this.manager = new MetadataManager({ 
             rootDir,
-            watch: this.options.watch,
+            watch: this.options.watch ?? true,
             formats: ['yaml', 'json', 'typescript', 'javascript'] 
         });
     }
@@ -56,7 +56,7 @@ export class MetadataPlugin implements Plugin {
                      ctx.logger.info(`Loaded ${items.length} ${type}`);
                      
                      // Helper: Register with ObjectQL Registry
-                     const ql = ctx.getService('objectql');
+                     const ql = ctx.getService('objectql') as any;
                      if (ql && ql.registry) {
                         items.forEach((item: any) => {
                             // Determine key field (id or name)
