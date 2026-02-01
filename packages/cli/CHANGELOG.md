@@ -1,5 +1,15 @@
 # @objectstack/cli
 
+## 0.8.1
+
+### Patch Changes
+
+- 254f290: fix: serve command now detects available ports to avoid conflicts
+  refactor: update to use Core v0.8.0 API (kernel.use/bootstrap)
+  - @objectstack/spec@0.8.1
+  - @objectstack/core@0.8.1
+  - @objectstack/plugin-hono-server@0.8.1
+
 ## 1.0.0
 
 ### Minor Changes
