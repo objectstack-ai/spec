@@ -175,6 +175,9 @@ importers:
       '@objectstack/example-todo':
         specifier: workspace:*
         version: link:../todo
+      '@objectstack/metadata':
+        specifier: workspace:*
+        version: link:../../packages/metadata
       '@objectstack/objectql':
         specifier: workspace:*
         version: link:../../packages/objectql
