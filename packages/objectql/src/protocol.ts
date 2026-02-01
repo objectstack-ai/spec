@@ -99,11 +99,7 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
                 ]
             };
         }
-        return {
-            object: request.object,
-            type: request.type,
-            view
-        };
+        return view;
     }
 
     async findData(request: { object: string, query?: any }) {
