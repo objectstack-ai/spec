@@ -1,0 +1,38 @@
+{
+  "$ref": "#/definitions/PluginLifecyclePhaseEvent",
+  "definitions": {
+    "PluginLifecyclePhaseEvent": {
+      "type": "object",
+      "properties": {
+        "pluginName": {
+          "type": "string",
+          "description": "Name of the plugin"
+        },
+        "timestamp": {
+          "type": "integer",
+          "description": "Unix timestamp in milliseconds when event occurred"
+        },
+        "duration": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Duration of the lifecycle phase in milliseconds"
+        },
+        "phase": {
+          "type": "string",
+          "enum": [
+            "init",
+            "start",
+            "destroy"
+          ],
+          "description": "Lifecycle phase"
+        }
+      },
+      "required": [
+        "pluginName",
+        "timestamp"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,35 @@
+{
+  "$ref": "#/definitions/GitHubCommitConfig",
+  "definitions": {
+    "GitHubCommitConfig": {
+      "type": "object",
+      "properties": {
+        "authorName": {
+          "type": "string",
+          "description": "Commit author name"
+        },
+        "authorEmail": {
+          "type": "string",
+          "format": "email",
+          "description": "Commit author email"
+        },
+        "signCommits": {
+          "type": "boolean",
+          "default": false,
+          "description": "Sign commits with GPG"
+        },
+        "messageTemplate": {
+          "type": "string",
+          "description": "Commit message template"
+        },
+        "useConventionalCommits": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use conventional commits format"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

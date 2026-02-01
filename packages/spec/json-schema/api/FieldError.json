@@ -1,0 +1,88 @@
+{
+  "$ref": "#/definitions/FieldError",
+  "definitions": {
+    "FieldError": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "Field path (supports dot notation)"
+        },
+        "code": {
+          "type": "string",
+          "enum": [
+            "validation_error",
+            "invalid_field",
+            "missing_required_field",
+            "invalid_format",
+            "value_too_long",
+            "value_too_short",
+            "value_out_of_range",
+            "invalid_reference",
+            "duplicate_value",
+            "invalid_query",
+            "invalid_filter",
+            "invalid_sort",
+            "max_records_exceeded",
+            "unauthenticated",
+            "invalid_credentials",
+            "expired_token",
+            "invalid_token",
+            "session_expired",
+            "mfa_required",
+            "email_not_verified",
+            "permission_denied",
+            "insufficient_privileges",
+            "field_not_accessible",
+            "record_not_accessible",
+            "license_required",
+            "ip_restricted",
+            "time_restricted",
+            "resource_not_found",
+            "object_not_found",
+            "record_not_found",
+            "field_not_found",
+            "endpoint_not_found",
+            "resource_conflict",
+            "concurrent_modification",
+            "delete_restricted",
+            "duplicate_record",
+            "lock_conflict",
+            "rate_limit_exceeded",
+            "quota_exceeded",
+            "concurrent_limit_exceeded",
+            "internal_error",
+            "database_error",
+            "timeout",
+            "service_unavailable",
+            "not_implemented",
+            "external_service_error",
+            "integration_error",
+            "webhook_delivery_failed",
+            "batch_partial_failure",
+            "batch_complete_failure",
+            "transaction_failed"
+          ],
+          "description": "Error code for this field"
+        },
+        "message": {
+          "type": "string",
+          "description": "Human-readable error message"
+        },
+        "value": {
+          "description": "The invalid value that was provided"
+        },
+        "constraint": {
+          "description": "The constraint that was violated (e.g., max length)"
+        }
+      },
+      "required": [
+        "field",
+        "code",
+        "message"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

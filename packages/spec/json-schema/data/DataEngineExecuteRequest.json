@@ -1,0 +1,24 @@
+{
+  "$ref": "#/definitions/DataEngineExecuteRequest",
+  "definitions": {
+    "DataEngineExecuteRequest": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "type": "string",
+          "const": "execute"
+        },
+        "command": {},
+        "options": {
+          "type": "object",
+          "additionalProperties": {}
+        }
+      },
+      "required": [
+        "method"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

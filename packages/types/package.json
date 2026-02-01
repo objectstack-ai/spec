@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/types",
-  "version": "0.6.1",
+  "version": "0.7.2",
   "description": "Shared interfaces describing the ObjectStack Runtime environment",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

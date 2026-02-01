@@ -1,11 +1,19 @@
 {
   "title": "API Protocol",
   "pages": [
+    "batch",
     "contract",
     "discovery",
     "endpoint",
+    "errors",
+    "graphql",
+    "http-cache",
     "odata",
+    "protocol",
     "realtime",
-    "router"
+    "rest-server",
+    "router",
+    "view-storage",
+    "websocket"
   ]
 }

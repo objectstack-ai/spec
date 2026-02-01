@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { SystemIdentifierSchema } from '../shared/identifiers.zod';
+import { EncryptionConfigSchema } from '../system/encryption.zod';
+import { MaskingRuleSchema } from '../system/masking.zod';
 
 /**
  * Field Type Enum
@@ -156,6 +158,160 @@ export const VectorConfigSchema = z.object({
 });
 
 /**
+ * File Attachment Configuration Schema
+ * Configuration for file and attachment field types
+ * 
+ * Provides comprehensive file upload capabilities with:
+ * - File type restrictions (allowed/blocked)
+ * - File size limits (min/max)
+ * - Virus scanning integration
+ * - Storage provider integration
+ * - Image-specific features (dimensions, thumbnails)
+ * 
+ * @example Basic file upload with size limit
+ * {
+ *   maxSize: 10485760,  // 10MB
+ *   allowedTypes: ['.pdf', '.docx', '.xlsx'],
+ *   virusScan: true
+ * }
+ * 
+ * @example Image upload with validation
+ * {
+ *   maxSize: 5242880,  // 5MB
+ *   allowedTypes: ['.jpg', '.jpeg', '.png', '.webp'],
+ *   imageValidation: {
+ *     maxWidth: 4096,
+ *     maxHeight: 4096,
+ *     generateThumbnails: true
+ *   }
+ * }
+ */
+export const FileAttachmentConfigSchema = z.object({
+  /** File Size Limits */
+  minSize: z.number().min(0).optional().describe('Minimum file size in bytes'),
+  maxSize: z.number().min(1).optional().describe('Maximum file size in bytes (e.g., 10485760 = 10MB)'),
+  
+  /** File Type Restrictions */
+  allowedTypes: z.array(z.string()).optional().describe('Allowed file extensions (e.g., [".pdf", ".docx", ".jpg"])'),
+  blockedTypes: z.array(z.string()).optional().describe('Blocked file extensions (e.g., [".exe", ".bat", ".sh"])'),
+  allowedMimeTypes: z.array(z.string()).optional().describe('Allowed MIME types (e.g., ["image/jpeg", "application/pdf"])'),
+  blockedMimeTypes: z.array(z.string()).optional().describe('Blocked MIME types'),
+  
+  /** Virus Scanning */
+  virusScan: z.boolean().default(false).describe('Enable virus scanning for uploaded files'),
+  virusScanProvider: z.enum(['clamav', 'virustotal', 'metadefender', 'custom']).optional().describe('Virus scanning service provider'),
+  virusScanOnUpload: z.boolean().default(true).describe('Scan files immediately on upload'),
+  quarantineOnThreat: z.boolean().default(true).describe('Quarantine files if threat detected'),
+  
+  /** Storage Configuration */
+  storageProvider: z.string().optional().describe('Object storage provider name (references ObjectStorageConfig)'),
+  storageBucket: z.string().optional().describe('Target bucket name'),
+  storagePrefix: z.string().optional().describe('Storage path prefix (e.g., "uploads/documents/")'),
+  
+  /** Image-Specific Validation */
+  imageValidation: z.object({
+    minWidth: z.number().min(1).optional().describe('Minimum image width in pixels'),
+    maxWidth: z.number().min(1).optional().describe('Maximum image width in pixels'),
+    minHeight: z.number().min(1).optional().describe('Minimum image height in pixels'),
+    maxHeight: z.number().min(1).optional().describe('Maximum image height in pixels'),
+    aspectRatio: z.string().optional().describe('Required aspect ratio (e.g., "16:9", "1:1")'),
+    generateThumbnails: z.boolean().default(false).describe('Auto-generate thumbnails'),
+    thumbnailSizes: z.array(z.object({
+      name: z.string().describe('Thumbnail variant name (e.g., "small", "medium", "large")'),
+      width: z.number().min(1).describe('Thumbnail width in pixels'),
+      height: z.number().min(1).describe('Thumbnail height in pixels'),
+      crop: z.boolean().default(false).describe('Crop to exact dimensions'),
+    })).optional().describe('Thumbnail size configurations'),
+    preserveMetadata: z.boolean().default(false).describe('Preserve EXIF metadata'),
+    autoRotate: z.boolean().default(true).describe('Auto-rotate based on EXIF orientation'),
+  }).optional().describe('Image-specific validation rules'),
+  
+  /** Upload Behavior */
+  allowMultiple: z.boolean().default(false).describe('Allow multiple file uploads (overrides field.multiple)'),
+  allowReplace: z.boolean().default(true).describe('Allow replacing existing files'),
+  allowDelete: z.boolean().default(true).describe('Allow deleting uploaded files'),
+  requireUpload: z.boolean().default(false).describe('Require at least one file when field is required'),
+  
+  /** Metadata Extraction */
+  extractMetadata: z.boolean().default(true).describe('Extract file metadata (name, size, type, etc.)'),
+  extractText: z.boolean().default(false).describe('Extract text content from documents (OCR/parsing)'),
+  
+  /** Versioning */
+  versioningEnabled: z.boolean().default(false).describe('Keep previous versions of replaced files'),
+  maxVersions: z.number().min(1).optional().describe('Maximum number of versions to retain'),
+  
+  /** Access Control */
+  publicRead: z.boolean().default(false).describe('Allow public read access to uploaded files'),
+  presignedUrlExpiry: z.number().min(60).max(604800).default(3600).describe('Presigned URL expiration in seconds (default: 1 hour)'),
+}).refine((data) => {
+  // Validate minSize is less than or equal to maxSize
+  if (data.minSize !== undefined && data.maxSize !== undefined && data.minSize > data.maxSize) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'minSize must be less than or equal to maxSize',
+}).refine((data) => {
+  // Validate virusScanProvider requires virusScan to be enabled
+  if (data.virusScanProvider !== undefined && data.virusScan !== true) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'virusScanProvider requires virusScan to be enabled',
+});
+
+/**
+ * Data Quality Rules Schema
+ * Defines data quality validation and monitoring for fields
+ * 
+ * @example Unique SSN field with completeness requirement
+ * {
+ *   uniqueness: true,
+ *   completeness: 0.95,  // 95% of records must have this field
+ *   accuracy: {
+ *     source: 'government_db',
+ *     threshold: 0.98
+ *   }
+ * }
+ */
+export const DataQualityRulesSchema = z.object({
+  /** Enforce uniqueness constraint */
+  uniqueness: z.boolean().default(false).describe('Enforce unique values across all records'),
+  
+  /** Completeness ratio (0-1) indicating minimum percentage of non-null values */
+  completeness: z.number().min(0).max(1).default(0).describe('Minimum ratio of non-null values (0-1, default: 0 = no requirement)'),
+  
+  /** Accuracy validation against authoritative source */
+  accuracy: z.object({
+    source: z.string().describe('Reference data source for validation (e.g., "api.verify.com", "master_data")'),
+    threshold: z.number().min(0).max(1).describe('Minimum accuracy threshold (0-1, e.g., 0.95 = 95% match required)'),
+  }).optional().describe('Accuracy validation configuration'),
+});
+
+/**
+ * Computed Field Caching Schema
+ * Configuration for caching computed/formula field results
+ * 
+ * @example Cache product price with 1-hour TTL, invalidate on inventory changes
+ * {
+ *   enabled: true,
+ *   ttl: 3600,
+ *   invalidateOn: ['inventory.quantity', 'pricing.discount']
+ * }
+ */
+export const ComputedFieldCacheSchema = z.object({
+  /** Enable caching for this computed field */
+  enabled: z.boolean().describe('Enable caching for computed field results'),
+  
+  /** Time-to-live in seconds */
+  ttl: z.number().min(0).describe('Cache TTL in seconds (0 = no expiration)'),
+  
+  /** Array of field paths that trigger cache invalidation when changed */
+  invalidateOn: z.array(z.string()).describe('Field paths that invalidate cache (e.g., ["inventory.quantity", "pricing.base_price"])'),
+});
+
+/**
  * Field Schema - Best Practice Enterprise Pattern
  */
 export const FieldSchema = z.object({
@@ -242,10 +398,35 @@ export const FieldSchema = z.object({
   // Vector field config
   vectorConfig: VectorConfigSchema.optional().describe('Configuration for vector field type (AI/ML embeddings)'),
 
+  // File attachment field config
+  fileAttachmentConfig: FileAttachmentConfigSchema.optional().describe('Configuration for file and attachment field types'),
+
+  /** Enhanced Security & Compliance */
+  // Encryption configuration
+  encryptionConfig: EncryptionConfigSchema.optional().describe('Field-level encryption configuration for sensitive data (GDPR/HIPAA/PCI-DSS)'),
+  
+  // Data masking rules
+  maskingRule: MaskingRuleSchema.optional().describe('Data masking rules for PII protection'),
+  
+  // Audit trail
+  auditTrail: z.boolean().default(false).describe('Enable detailed audit trail for this field (tracks all changes with user and timestamp)'),
+  
+  /** Field Dependencies & Relationships */
+  // Field dependencies
+  dependencies: z.array(z.string()).optional().describe('Array of field names that this field depends on (for formulas, visibility rules, etc.)'),
+  
+  /** Computed Field Optimization */
+  // Computed field caching
+  cached: ComputedFieldCacheSchema.optional().describe('Caching configuration for computed/formula fields'),
+  
+  /** Data Quality & Governance */
+  // Data quality rules
+  dataQuality: DataQualityRulesSchema.optional().describe('Data quality validation and monitoring rules'),
+
   /** Security & Visibility */
   hidden: z.boolean().default(false).describe('Hidden from default UI'),
   readonly: z.boolean().default(false).describe('Read-only in UI'),
-  encryption: z.boolean().default(false).describe('Encrypt at rest'),
+  encryption: z.boolean().default(false).describe('Deprecated: Use encryptionConfig for enhanced encryption features. Simple flag for backward compatibility.'),
   
   /** Indexing */
   index: z.boolean().default(false).describe('Create standard database index'),
@@ -259,6 +440,9 @@ export type Address = z.infer<typeof AddressSchema>;
 export type CurrencyConfig = z.infer<typeof CurrencyConfigSchema>;
 export type CurrencyValue = z.infer<typeof CurrencyValueSchema>;
 export type VectorConfig = z.infer<typeof VectorConfigSchema>;
+export type FileAttachmentConfig = z.infer<typeof FileAttachmentConfigSchema>;
+export type DataQualityRules = z.infer<typeof DataQualityRulesSchema>;
+export type ComputedFieldCache = z.infer<typeof ComputedFieldCacheSchema>;
 
 /**
  * Field Factory Helper

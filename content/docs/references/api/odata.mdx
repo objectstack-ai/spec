@@ -12,12 +12,24 @@ description: Odata protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ODataErrorSchema, ODataFilterFunctionSchema, ODataFilterOperatorSchema, ODataMetadataSchema, ODataQuerySchema, ODataResponseSchema } from '@objectstack/spec/api';
-import type { ODataError, ODataFilterFunction, ODataFilterOperator, ODataMetadata, ODataQuery, ODataResponse } from '@objectstack/spec/api';
+import { ODataConfigSchema, ODataErrorSchema, ODataFilterFunctionSchema, ODataFilterOperatorSchema, ODataMetadataSchema, ODataQuerySchema, ODataResponseSchema } from '@objectstack/spec/api';
+import type { ODataConfig, ODataError, ODataFilterFunction, ODataFilterOperator, ODataMetadata, ODataQuery, ODataResponse } from '@objectstack/spec/api';
 
 // Validate data
-const result = ODataErrorSchema.parse(data);
+const result = ODataConfigSchema.parse(data);
 ```
+
+---
+
+## ODataConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional | Enable OData API |
+| **path** | `string` | optional | OData endpoint path |
+| **metadata** | `object` | optional | OData metadata configuration |
 
 ---
 

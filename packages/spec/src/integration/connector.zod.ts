@@ -1,0 +1,517 @@
+import { z } from 'zod';
+import { WebhookSchema } from '../automation/webhook.zod';
+import { AuthConfigSchema as ConnectorAuthConfigSchema } from '../auth/config.zod';
+import { FieldMappingSchema as BaseFieldMappingSchema } from '../shared/mapping.zod';
+
+/**
+ * Connector Protocol - LEVEL 3: Enterprise Connector
+ * 
+ * Defines the standard connector specification for external system integration.
+ * Connectors enable ObjectStack to sync data with SaaS apps, databases, file storage,
+ * and message queues through a unified protocol.
+ * 
+ * **Positioning in 3-Layer Architecture:**
+ * - **L1: Simple Sync** (automation/sync.zod.ts) - Business users - Sync Salesforce to Sheets
+ * - **L2: ETL Pipeline** (automation/etl.zod.ts) - Data engineers - Aggregate 10 sources to warehouse
+ * - **L3: Enterprise Connector** (THIS FILE) - System integrators - Full SAP integration
+ * 
+ * **SCOPE: Most comprehensive integration layer.**
+ * Includes authentication, webhooks, rate limiting, field mapping, bidirectional sync,
+ * retry policies, and complete lifecycle management.
+ * 
+ * This protocol supports multiple authentication strategies, bidirectional sync,
+ * field mapping, webhooks, and comprehensive rate limiting.
+ * 
+ * Authentication is now imported from the canonical auth/config.zod.ts.
+ * 
+ * ## When to Use This Layer
+ * 
+ * **Use Enterprise Connector when:**
+ * - Building enterprise-grade connectors (e.g., Salesforce, SAP, Oracle)
+ * - Complex OAuth2/SAML authentication required
+ * - Bidirectional sync with field mapping and transformations
+ * - Webhook management and rate limiting required
+ * - Full CRUD operations and data synchronization
+ * - Need comprehensive retry strategies and error handling
+ * 
+ * **Examples:**
+ * - Full Salesforce integration with webhooks
+ * - SAP ERP connector with CDC (Change Data Capture)
+ * - Microsoft Dynamics 365 connector
+ * 
+ * **When to downgrade:**
+ * - Simple field sync → Use {@link file://../automation/sync.zod.ts | Simple Sync}
+ * - Data transformation only → Use {@link file://../automation/etl.zod.ts | ETL Pipeline}
+ * 
+ * @see {@link file://../automation/sync.zod.ts} for Level 1 (simple sync)
+ * @see {@link file://../automation/etl.zod.ts} for Level 2 (data engineering)
+ * 
+ * ## When to use Integration Connector vs. Trigger Registry?
+ * 
+ * **Use `integration/connector.zod.ts` when:**
+ * - Building enterprise-grade connectors (e.g., Salesforce, SAP, Oracle)
+ * - Complex OAuth2/SAML authentication required
+ * - Bidirectional sync with field mapping and transformations
+ * - Webhook management and rate limiting required
+ * - Full CRUD operations and data synchronization
+ * - Need comprehensive retry strategies and error handling
+ * 
+ * **Use `automation/trigger-registry.zod.ts` when:**
+ * - Building simple automation triggers (e.g., "when Slack message received, create task")
+ * - No complex authentication needed (simple API keys, basic auth)
+ * - Lightweight, single-purpose integrations
+ * - Quick setup with minimal configuration
+ * 
+ * @see ../../automation/trigger-registry.zod.ts for lightweight automation triggers
+ */
+
+// ============================================================================
+// Authentication Schemas - IMPORTED FROM CANONICAL SOURCE
+// For backward compatibility, we re-export the auth types from auth/config.zod.ts
+// ============================================================================
+
+/**
+ * @deprecated Use ConnectorAuthConfigSchema from auth/config.zod instead
+ * Kept for backward compatibility
+ */
+export const AuthenticationSchema = ConnectorAuthConfigSchema;
+export type Authentication = z.infer<typeof ConnectorAuthConfigSchema>;
+
+// ============================================================================
+// Field Mapping Schema
+// Uses the canonical field mapping protocol from shared/mapping.zod.ts
+// Extended with connector-specific features
+// ============================================================================
+
+/**
+ * Field Transformation Function (Connector-specific)
+ * 
+ * @deprecated Use TransformTypeSchema from shared/mapping.zod.ts instead
+ */
+export const FieldTransformSchema = z.object({
+  type: z.enum([
+    'uppercase',
+    'lowercase',
+    'trim',
+    'date_format',
+    'number_format',
+    'custom',
+  ]).describe('Transformation type'),
+  
+  params: z.record(z.any()).optional().describe('Transformation parameters'),
+  
+  function: z.string().optional().describe('Custom JavaScript function for transformation'),
+});
+
+export type FieldTransform = z.infer<typeof FieldTransformSchema>;
+
+/**
+ * Connector Field Mapping Configuration
+ * 
+ * Extends the base field mapping with connector-specific features
+ * like bidirectional sync modes and data type mapping.
+ */
+export const FieldMappingSchema = BaseFieldMappingSchema.extend({
+  /**
+   * Data type mapping (connector-specific)
+   */
+  dataType: z.enum([
+    'string',
+    'number',
+    'boolean',
+    'date',
+    'datetime',
+    'json',
+    'array',
+  ]).optional().describe('Target data type'),
+  
+  /**
+   * Is this field required?
+   */
+  required: z.boolean().default(false).describe('Field is required'),
+  
+  /**
+   * Bidirectional sync mode (connector-specific)
+   */
+  syncMode: z.enum([
+    'read_only',      // Only sync from external to ObjectStack
+    'write_only',     // Only sync from ObjectStack to external
+    'bidirectional',  // Sync both ways
+  ]).default('bidirectional').describe('Sync mode'),
+});
+
+export type FieldMapping = z.infer<typeof FieldMappingSchema>;
+
+// ============================================================================
+// Data Synchronization Configuration
+// ============================================================================
+
+/**
+ * Sync Strategy Schema
+ */
+export const SyncStrategySchema = z.enum([
+  'full',           // Full refresh (delete all and re-import)
+  'incremental',    // Only sync changes since last sync
+  'upsert',         // Insert new, update existing
+  'append_only',    // Only insert new records
+]).describe('Synchronization strategy');
+
+export type SyncStrategy = z.infer<typeof SyncStrategySchema>;
+
+/**
+ * Conflict Resolution Strategy
+ */
+export const ConflictResolutionSchema = z.enum([
+  'source_wins',    // External system data takes precedence
+  'target_wins',    // ObjectStack data takes precedence
+  'latest_wins',    // Most recently modified wins
+  'manual',         // Flag for manual resolution
+]).describe('Conflict resolution strategy');
+
+export type ConflictResolution = z.infer<typeof ConflictResolutionSchema>;
+
+/**
+ * Data Synchronization Configuration
+ */
+export const DataSyncConfigSchema = z.object({
+  /**
+   * Sync strategy
+   */
+  strategy: SyncStrategySchema.optional().default('incremental'),
+  
+  /**
+   * Sync direction
+   */
+  direction: z.enum([
+    'import',         // External → ObjectStack
+    'export',         // ObjectStack → External
+    'bidirectional',  // Both ways
+  ]).optional().default('import').describe('Sync direction'),
+  
+  /**
+   * Sync frequency (cron expression)
+   */
+  schedule: z.string().optional().describe('Cron expression for scheduled sync'),
+  
+  /**
+   * Enable real-time sync via webhooks
+   */
+  realtimeSync: z.boolean().optional().default(false).describe('Enable real-time sync'),
+  
+  /**
+   * Field to track last sync timestamp
+   */
+  timestampField: z.string().optional().describe('Field to track last modification time'),
+  
+  /**
+   * Conflict resolution strategy
+   */
+  conflictResolution: ConflictResolutionSchema.optional().default('latest_wins'),
+  
+  /**
+   * Batch size for bulk operations
+   */
+  batchSize: z.number().min(1).max(10000).optional().default(1000).describe('Records per batch'),
+  
+  /**
+   * Delete handling
+   */
+  deleteMode: z.enum([
+    'hard_delete',    // Permanently delete
+    'soft_delete',    // Mark as deleted
+    'ignore',         // Don't sync deletions
+  ]).optional().default('soft_delete').describe('Delete handling mode'),
+  
+  /**
+   * Filter criteria for selective sync
+   */
+  filters: z.record(z.any()).optional().describe('Filter criteria for selective sync'),
+});
+
+export type DataSyncConfig = z.infer<typeof DataSyncConfigSchema>;
+
+// ============================================================================
+// Webhook Configuration
+// ============================================================================
+
+/**
+ * Webhook Event Schema
+ */
+export const WebhookEventSchema = z.enum([
+  'record.created',
+  'record.updated',
+  'record.deleted',
+  'sync.started',
+  'sync.completed',
+  'sync.failed',
+  'auth.expired',
+  'rate_limit.exceeded',
+]).describe('Webhook event type');
+
+export type WebhookEvent = z.infer<typeof WebhookEventSchema>;
+
+/**
+ * Webhook Signature Algorithm
+ */
+export const WebhookSignatureAlgorithmSchema = z.enum([
+  'hmac_sha256',
+  'hmac_sha512',
+  'none',
+]).describe('Webhook signature algorithm');
+
+export type WebhookSignatureAlgorithm = z.infer<typeof WebhookSignatureAlgorithmSchema>;
+
+/**
+ * Webhook Configuration Schema
+ * 
+ * Extends the canonical WebhookSchema with connector-specific event types.
+ * This allows connectors to subscribe to both data events and connector lifecycle events.
+ */
+export const WebhookConfigSchema = WebhookSchema.extend({
+  /**
+   * Events to listen for
+   * Connector-specific events like sync completion, auth expiry, etc.
+   */
+  events: z.array(WebhookEventSchema).optional().describe('Connector events to subscribe to'),
+  
+  /**
+   * Signature algorithm for webhook security
+   */
+  signatureAlgorithm: WebhookSignatureAlgorithmSchema.optional().default('hmac_sha256'),
+});
+
+export type WebhookConfig = z.infer<typeof WebhookConfigSchema>;
+
+// ============================================================================
+// Rate Limiting and Retry Configuration
+// ============================================================================
+
+/**
+ * Rate Limiting Strategy
+ */
+export const RateLimitStrategySchema = z.enum([
+  'fixed_window',       // Fixed time window
+  'sliding_window',     // Sliding time window
+  'token_bucket',       // Token bucket algorithm
+  'leaky_bucket',       // Leaky bucket algorithm
+]).describe('Rate limiting strategy');
+
+export type RateLimitStrategy = z.infer<typeof RateLimitStrategySchema>;
+
+/**
+ * Rate Limiting Configuration
+ */
+export const RateLimitConfigSchema = z.object({
+  /**
+   * Rate limiting strategy
+   */
+  strategy: RateLimitStrategySchema.optional().default('token_bucket'),
+  
+  /**
+   * Maximum requests per window
+   */
+  maxRequests: z.number().min(1).describe('Maximum requests per window'),
+  
+  /**
+   * Time window in seconds
+   */
+  windowSeconds: z.number().min(1).describe('Time window in seconds'),
+  
+  /**
+   * Burst capacity (for token bucket)
+   */
+  burstCapacity: z.number().min(1).optional().describe('Burst capacity'),
+  
+  /**
+   * Respect external system rate limits
+   */
+  respectUpstreamLimits: z.boolean().optional().default(true).describe('Respect external rate limit headers'),
+  
+  /**
+   * Custom rate limit headers to check
+   */
+  rateLimitHeaders: z.object({
+    remaining: z.string().optional().default('X-RateLimit-Remaining').describe('Header for remaining requests'),
+    limit: z.string().optional().default('X-RateLimit-Limit').describe('Header for rate limit'),
+    reset: z.string().optional().default('X-RateLimit-Reset').describe('Header for reset time'),
+  }).optional().describe('Custom rate limit headers'),
+});
+
+export type RateLimitConfig = z.infer<typeof RateLimitConfigSchema>;
+
+/**
+ * Retry Strategy
+ */
+export const RetryStrategySchema = z.enum([
+  'exponential_backoff',
+  'linear_backoff',
+  'fixed_delay',
+  'no_retry',
+]).describe('Retry strategy');
+
+export type RetryStrategy = z.infer<typeof RetryStrategySchema>;
+
+/**
+ * Retry Configuration
+ */
+export const RetryConfigSchema = z.object({
+  /**
+   * Retry strategy
+   */
+  strategy: RetryStrategySchema.optional().default('exponential_backoff'),
+  
+  /**
+   * Maximum retry attempts
+   */
+  maxAttempts: z.number().min(0).max(10).optional().default(3).describe('Maximum retry attempts'),
+  
+  /**
+   * Initial delay in milliseconds
+   */
+  initialDelayMs: z.number().min(100).optional().default(1000).describe('Initial retry delay in ms'),
+  
+  /**
+   * Maximum delay in milliseconds
+   */
+  maxDelayMs: z.number().min(1000).optional().default(60000).describe('Maximum retry delay in ms'),
+  
+  /**
+   * Backoff multiplier (for exponential backoff)
+   */
+  backoffMultiplier: z.number().min(1).optional().default(2).describe('Exponential backoff multiplier'),
+  
+  /**
+   * HTTP status codes to retry
+   */
+  retryableStatusCodes: z.array(z.number()).optional().default([408, 429, 500, 502, 503, 504]).describe('HTTP status codes to retry'),
+  
+  /**
+   * Retry on network errors
+   */
+  retryOnNetworkError: z.boolean().optional().default(true).describe('Retry on network errors'),
+  
+  /**
+   * Jitter to add randomness to retry delays
+   */
+  jitter: z.boolean().optional().default(true).describe('Add jitter to retry delays'),
+});
+
+export type RetryConfig = z.infer<typeof RetryConfigSchema>;
+
+// ============================================================================
+// Base Connector Schema
+// ============================================================================
+
+/**
+ * Connector Type
+ */
+export const ConnectorTypeSchema = z.enum([
+  'saas',           // SaaS application connector
+  'database',       // Database connector
+  'file_storage',   // File storage connector
+  'message_queue',  // Message queue connector
+  'api',            // Generic REST/GraphQL API
+  'custom',         // Custom connector
+]).describe('Connector type');
+
+export type ConnectorType = z.infer<typeof ConnectorTypeSchema>;
+
+/**
+ * Connector Status
+ */
+export const ConnectorStatusSchema = z.enum([
+  'active',         // Connector is active and syncing
+  'inactive',       // Connector is configured but disabled
+  'error',          // Connector has errors
+  'configuring',    // Connector is being set up
+]).describe('Connector status');
+
+export type ConnectorStatus = z.infer<typeof ConnectorStatusSchema>;
+
+/**
+ * Base Connector Schema
+ * Core connector configuration shared across all connector types
+ */
+export const ConnectorSchema = z.object({
+  /**
+   * Machine name (snake_case)
+   */
+  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Unique connector identifier'),
+  
+  /**
+   * Human-readable label
+   */
+  label: z.string().describe('Display label'),
+  
+  /**
+   * Connector type
+   */
+  type: ConnectorTypeSchema.describe('Connector type'),
+  
+  /**
+   * Description
+   */
+  description: z.string().optional().describe('Connector description'),
+  
+  /**
+   * Icon identifier
+   */
+  icon: z.string().optional().describe('Icon identifier'),
+  
+  /**
+   * Authentication configuration
+   */
+  authentication: AuthenticationSchema.describe('Authentication configuration'),
+  
+  /**
+   * Data synchronization configuration
+   */
+  syncConfig: DataSyncConfigSchema.optional().describe('Data sync configuration'),
+  
+  /**
+   * Field mappings
+   */
+  fieldMappings: z.array(FieldMappingSchema).optional().describe('Field mapping rules'),
+  
+  /**
+   * Webhook configuration
+   */
+  webhooks: z.array(WebhookConfigSchema).optional().describe('Webhook configurations'),
+  
+  /**
+   * Rate limiting configuration
+   */
+  rateLimitConfig: RateLimitConfigSchema.optional().describe('Rate limiting configuration'),
+  
+  /**
+   * Retry configuration
+   */
+  retryConfig: RetryConfigSchema.optional().describe('Retry configuration'),
+  
+  /**
+   * Connection timeout in milliseconds
+   */
+  connectionTimeoutMs: z.number().min(1000).max(300000).optional().default(30000).describe('Connection timeout in ms'),
+  
+  /**
+   * Request timeout in milliseconds
+   */
+  requestTimeoutMs: z.number().min(1000).max(300000).optional().default(30000).describe('Request timeout in ms'),
+  
+  /**
+   * Connector status
+   */
+  status: ConnectorStatusSchema.optional().default('inactive').describe('Connector status'),
+  
+  /**
+   * Enable connector
+   */
+  enabled: z.boolean().optional().default(true).describe('Enable connector'),
+  
+  /**
+   * Custom metadata
+   */
+  metadata: z.record(z.any()).optional().describe('Custom connector metadata'),
+});
+
+export type Connector = z.infer<typeof ConnectorSchema>;

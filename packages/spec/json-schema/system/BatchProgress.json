@@ -1,0 +1,72 @@
+{
+  "$ref": "#/definitions/BatchProgress",
+  "definitions": {
+    "BatchProgress": {
+      "type": "object",
+      "properties": {
+        "batchId": {
+          "type": "string",
+          "description": "Batch job identifier"
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of items"
+        },
+        "processed": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Items processed"
+        },
+        "succeeded": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Items succeeded"
+        },
+        "failed": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Items failed"
+        },
+        "percentage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Progress percentage"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "running",
+            "completed",
+            "failed",
+            "cancelled"
+          ],
+          "description": "Batch status"
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When batch started"
+        },
+        "completedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When batch completed"
+        }
+      },
+      "required": [
+        "batchId",
+        "total",
+        "percentage",
+        "status"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

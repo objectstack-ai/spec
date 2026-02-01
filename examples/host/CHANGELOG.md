@@ -1,5 +1,31 @@
 # @objectstack/example-host
 
+## 0.7.2
+
+### Patch Changes
+
+- Updated dependencies [fb41cc0]
+  - @objectstack/objectql@0.7.2
+  - @objectstack/runtime@0.7.2
+  - @objectstack/driver-memory@0.7.2
+  - @objectstack/plugin-hono-server@0.7.2
+  - @objectstack/example-crm@0.7.2
+  - @objectstack/plugin-bi@0.7.2
+  - @objectstack/example-todo@0.7.2
+
+## 0.7.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @objectstack/driver-memory@0.7.1
+  - @objectstack/objectql@0.7.1
+  - @objectstack/plugin-hono-server@0.7.1
+  - @objectstack/runtime@0.7.1
+  - @objectstack/example-crm@0.7.1
+  - @objectstack/plugin-bi@0.7.1
+  - @objectstack/example-todo@0.7.1
+
 ## 0.6.1
 
 ### Patch Changes

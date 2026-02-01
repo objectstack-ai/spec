@@ -100,6 +100,86 @@
             "type": "string"
           },
           "description": "System level capabilities"
+        },
+        "rowLevelSecurity": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z_][a-z0-9_]*$",
+                "description": "Policy unique identifier (snake_case)"
+              },
+              "label": {
+                "type": "string",
+                "description": "Human-readable policy label"
+              },
+              "description": {
+                "type": "string",
+                "description": "Policy description and business justification"
+              },
+              "object": {
+                "type": "string",
+                "description": "Target object name"
+              },
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "select",
+                  "insert",
+                  "update",
+                  "delete",
+                  "all"
+                ],
+                "description": "Database operation this policy applies to"
+              },
+              "using": {
+                "type": "string",
+                "description": "Filter condition for SELECT/UPDATE/DELETE (PostgreSQL SQL WHERE clause syntax with parameterized context variables). Optional for INSERT-only policies."
+              },
+              "check": {
+                "type": "string",
+                "description": "Validation condition for INSERT/UPDATE (defaults to USING clause if not specified - enforced at application level)"
+              },
+              "roles": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Roles this policy applies to (omit for all roles)"
+              },
+              "enabled": {
+                "type": "boolean",
+                "default": true,
+                "description": "Whether this policy is active"
+              },
+              "priority": {
+                "type": "integer",
+                "default": 0,
+                "description": "Policy evaluation priority (higher = evaluated first)"
+              },
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Policy categorization tags"
+              }
+            },
+            "required": [
+              "name",
+              "object",
+              "operation"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Row-level security policies (see rls.zod.ts for full spec)"
+        },
+        "contextVariables": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Context variables for RLS evaluation"
         }
       },
       "required": [

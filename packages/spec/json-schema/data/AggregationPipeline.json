@@ -1,0 +1,99 @@
+{
+  "$ref": "#/definitions/AggregationPipeline",
+  "definitions": {
+    "AggregationPipeline": {
+      "type": "object",
+      "properties": {
+        "collection": {
+          "type": "string",
+          "description": "Collection/table name"
+        },
+        "stages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "operator": {
+                "type": "string",
+                "description": "Aggregation operator (e.g., $match, $group, $sort)"
+              },
+              "options": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Stage-specific options"
+              }
+            },
+            "required": [
+              "operator",
+              "options"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Aggregation pipeline stages"
+        },
+        "options": {
+          "type": "object",
+          "properties": {
+            "consistency": {
+              "type": "string",
+              "enum": [
+                "all",
+                "quorum",
+                "one",
+                "local_quorum",
+                "each_quorum",
+                "eventual"
+              ],
+              "description": "Consistency level override"
+            },
+            "readFromSecondary": {
+              "type": "boolean",
+              "description": "Allow reading from secondary replicas"
+            },
+            "projection": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number",
+                "enum": [
+                  0,
+                  1
+                ]
+              },
+              "description": "Field projection"
+            },
+            "timeout": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "Query timeout (ms)"
+            },
+            "useCursor": {
+              "type": "boolean",
+              "description": "Use cursor instead of loading all results"
+            },
+            "batchSize": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "Cursor batch size"
+            },
+            "profile": {
+              "type": "boolean",
+              "description": "Enable query profiling"
+            },
+            "hint": {
+              "type": "string",
+              "description": "Index hint for query optimization"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Query options"
+        }
+      },
+      "required": [
+        "collection",
+        "stages"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

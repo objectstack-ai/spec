@@ -1,0 +1,63 @@
+{
+  "$ref": "#/definitions/BatchTask",
+  "definitions": {
+    "BatchTask": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique batch job identifier"
+        },
+        "type": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Task type (snake_case)"
+        },
+        "items": {
+          "type": "array",
+          "description": "Array of items to process"
+        },
+        "batchSize": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 100,
+          "description": "Number of items per batch"
+        },
+        "queue": {
+          "type": "string",
+          "default": "batch",
+          "description": "Queue for batch tasks"
+        },
+        "priority": {
+          "type": "string",
+          "enum": [
+            "critical",
+            "high",
+            "normal",
+            "low",
+            "background"
+          ],
+          "default": "normal",
+          "description": "Batch task priority"
+        },
+        "parallel": {
+          "type": "boolean",
+          "default": true,
+          "description": "Process batches in parallel"
+        },
+        "stopOnError": {
+          "type": "boolean",
+          "default": false,
+          "description": "Stop batch if any item fails"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "items"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

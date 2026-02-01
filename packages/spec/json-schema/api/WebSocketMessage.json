@@ -1,0 +1,707 @@
+{
+  "$ref": "#/definitions/WebSocketMessage",
+  "definitions": {
+    "WebSocketMessage": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "messageId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Unique message identifier"
+            },
+            "type": {
+              "type": "string",
+              "const": "subscribe"
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "ISO 8601 datetime when message was sent"
+            },
+            "subscription": {
+              "type": "object",
+              "properties": {
+                "subscriptionId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Unique subscription identifier"
+                },
+                "events": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[a-z*][a-z0-9_.*]*$",
+                    "description": "Event pattern (supports wildcards like \"record.*\" or \"*.created\")"
+                  },
+                  "description": "Event patterns to subscribe to (supports wildcards, e.g., \"record.*\", \"user.created\")"
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Object names to filter events by (e.g., [\"account\", \"contact\"])"
+                },
+                "filters": {
+                  "type": "object",
+                  "properties": {
+                    "conditions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "field": {
+                            "type": "string",
+                            "description": "Field path to filter on (supports dot notation, e.g., \"user.email\")"
+                          },
+                          "operator": {
+                            "type": "string",
+                            "enum": [
+                              "eq",
+                              "ne",
+                              "gt",
+                              "gte",
+                              "lt",
+                              "lte",
+                              "in",
+                              "nin",
+                              "contains",
+                              "startsWith",
+                              "endsWith",
+                              "exists",
+                              "regex"
+                            ],
+                            "description": "Comparison operator"
+                          },
+                          "value": {
+                            "description": "Value to compare against (not needed for \"exists\" operator)"
+                          }
+                        },
+                        "required": [
+                          "field",
+                          "operator"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "Array of filter conditions"
+                    },
+                    "and": {
+                      "type": "array",
+                      "items": {},
+                      "description": "AND logical combination of filters"
+                    },
+                    "or": {
+                      "type": "array",
+                      "items": {},
+                      "description": "OR logical combination of filters"
+                    },
+                    "not": {
+                      "description": "NOT logical negation of filter"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "Advanced filter conditions for event payloads"
+                },
+                "channels": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Channel names for scoped subscriptions"
+                }
+              },
+              "required": [
+                "subscriptionId",
+                "events"
+              ],
+              "additionalProperties": false,
+              "description": "Subscription configuration"
+            }
+          },
+          "required": [
+            "messageId",
+            "type",
+            "timestamp",
+            "subscription"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "messageId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Unique message identifier"
+            },
+            "type": {
+              "type": "string",
+              "const": "unsubscribe"
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "ISO 8601 datetime when message was sent"
+            },
+            "request": {
+              "type": "object",
+              "properties": {
+                "subscriptionId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Subscription ID to unsubscribe from"
+                }
+              },
+              "required": [
+                "subscriptionId"
+              ],
+              "additionalProperties": false,
+              "description": "Unsubscribe request"
+            }
+          },
+          "required": [
+            "messageId",
+            "type",
+            "timestamp",
+            "request"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "messageId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Unique message identifier"
+            },
+            "type": {
+              "type": "string",
+              "const": "event"
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "ISO 8601 datetime when message was sent"
+            },
+            "subscriptionId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Subscription ID this event belongs to"
+            },
+            "eventName": {
+              "type": "string",
+              "minLength": 3,
+              "pattern": "^[a-z][a-z0-9_.]*$",
+              "description": "Event name"
+            },
+            "object": {
+              "type": "string",
+              "description": "Object name the event relates to"
+            },
+            "payload": {
+              "description": "Event payload data"
+            },
+            "userId": {
+              "type": "string",
+              "description": "User who triggered the event"
+            }
+          },
+          "required": [
+            "messageId",
+            "type",
+            "timestamp",
+            "subscriptionId",
+            "eventName"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "messageId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Unique message identifier"
+            },
+            "type": {
+              "type": "string",
+              "const": "presence"
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "ISO 8601 datetime when message was sent"
+            },
+            "presence": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "string",
+                  "description": "User identifier"
+                },
+                "sessionId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Unique session identifier"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "online",
+                    "away",
+                    "busy",
+                    "offline"
+                  ],
+                  "description": "Current presence status"
+                },
+                "lastSeen": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "ISO 8601 datetime of last activity"
+                },
+                "currentLocation": {
+                  "type": "string",
+                  "description": "Current page/route user is viewing"
+                },
+                "device": {
+                  "type": "string",
+                  "enum": [
+                    "desktop",
+                    "mobile",
+                    "tablet",
+                    "other"
+                  ],
+                  "description": "Device type"
+                },
+                "customStatus": {
+                  "type": "string",
+                  "description": "Custom user status message"
+                },
+                "metadata": {
+                  "type": "object",
+                  "additionalProperties": {},
+                  "description": "Additional custom presence data"
+                }
+              },
+              "required": [
+                "userId",
+                "sessionId",
+                "status",
+                "lastSeen"
+              ],
+              "additionalProperties": false,
+              "description": "Presence state"
+            }
+          },
+          "required": [
+            "messageId",
+            "type",
+            "timestamp",
+            "presence"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "messageId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Unique message identifier"
+            },
+            "type": {
+              "type": "string",
+              "const": "cursor"
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "ISO 8601 datetime when message was sent"
+            },
+            "cursor": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "string",
+                  "description": "User identifier"
+                },
+                "sessionId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Session identifier"
+                },
+                "documentId": {
+                  "type": "string",
+                  "description": "Document identifier being edited"
+                },
+                "position": {
+                  "type": "object",
+                  "properties": {
+                    "line": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Line number (0-indexed)"
+                    },
+                    "column": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Column number (0-indexed)"
+                    }
+                  },
+                  "required": [
+                    "line",
+                    "column"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Cursor position in document"
+                },
+                "selection": {
+                  "type": "object",
+                  "properties": {
+                    "start": {
+                      "type": "object",
+                      "properties": {
+                        "line": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "column": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "line",
+                        "column"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "end": {
+                      "type": "object",
+                      "properties": {
+                        "line": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "column": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "line",
+                        "column"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "start",
+                    "end"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Selection range (if text is selected)"
+                },
+                "color": {
+                  "type": "string",
+                  "description": "Cursor color for visual representation"
+                },
+                "userName": {
+                  "type": "string",
+                  "description": "Display name of user"
+                },
+                "lastUpdate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "ISO 8601 datetime of last cursor update"
+                }
+              },
+              "required": [
+                "userId",
+                "sessionId",
+                "documentId",
+                "lastUpdate"
+              ],
+              "additionalProperties": false,
+              "description": "Cursor position"
+            }
+          },
+          "required": [
+            "messageId",
+            "type",
+            "timestamp",
+            "cursor"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "messageId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Unique message identifier"
+            },
+            "type": {
+              "type": "string",
+              "const": "edit"
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "ISO 8601 datetime when message was sent"
+            },
+            "operation": {
+              "type": "object",
+              "properties": {
+                "operationId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Unique operation identifier"
+                },
+                "documentId": {
+                  "type": "string",
+                  "description": "Document identifier"
+                },
+                "userId": {
+                  "type": "string",
+                  "description": "User who performed the edit"
+                },
+                "sessionId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Session identifier"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "insert",
+                    "delete",
+                    "replace"
+                  ],
+                  "description": "Type of edit operation"
+                },
+                "position": {
+                  "type": "object",
+                  "properties": {
+                    "line": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Line number (0-indexed)"
+                    },
+                    "column": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Column number (0-indexed)"
+                    }
+                  },
+                  "required": [
+                    "line",
+                    "column"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Starting position of the operation"
+                },
+                "endPosition": {
+                  "type": "object",
+                  "properties": {
+                    "line": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "column": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "line",
+                    "column"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Ending position (for delete/replace operations)"
+                },
+                "content": {
+                  "type": "string",
+                  "description": "Content to insert/replace"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Document version before this operation"
+                },
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "ISO 8601 datetime when operation was created"
+                },
+                "baseOperationId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Previous operation ID this builds upon (for OT)"
+                }
+              },
+              "required": [
+                "operationId",
+                "documentId",
+                "userId",
+                "sessionId",
+                "type",
+                "position",
+                "version",
+                "timestamp"
+              ],
+              "additionalProperties": false,
+              "description": "Edit operation"
+            }
+          },
+          "required": [
+            "messageId",
+            "type",
+            "timestamp",
+            "operation"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "messageId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Unique message identifier"
+            },
+            "type": {
+              "type": "string",
+              "const": "ack"
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "ISO 8601 datetime when message was sent"
+            },
+            "ackMessageId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID of the message being acknowledged"
+            },
+            "success": {
+              "type": "boolean",
+              "description": "Whether the operation was successful"
+            },
+            "error": {
+              "type": "string",
+              "description": "Error message if operation failed"
+            }
+          },
+          "required": [
+            "messageId",
+            "type",
+            "timestamp",
+            "ackMessageId",
+            "success"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "messageId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Unique message identifier"
+            },
+            "type": {
+              "type": "string",
+              "const": "error"
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "ISO 8601 datetime when message was sent"
+            },
+            "code": {
+              "type": "string",
+              "description": "Error code"
+            },
+            "message": {
+              "type": "string",
+              "description": "Error message"
+            },
+            "details": {
+              "description": "Additional error details"
+            }
+          },
+          "required": [
+            "messageId",
+            "type",
+            "timestamp",
+            "code",
+            "message"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "messageId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Unique message identifier"
+            },
+            "type": {
+              "type": "string",
+              "const": "ping"
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "ISO 8601 datetime when message was sent"
+            }
+          },
+          "required": [
+            "messageId",
+            "type",
+            "timestamp"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "messageId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Unique message identifier"
+            },
+            "type": {
+              "type": "string",
+              "const": "pong"
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "ISO 8601 datetime when message was sent"
+            },
+            "pingMessageId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID of ping message being responded to"
+            }
+          },
+          "required": [
+            "messageId",
+            "type",
+            "timestamp"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

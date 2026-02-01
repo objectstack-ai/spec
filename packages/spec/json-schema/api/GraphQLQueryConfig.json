@@ -1,0 +1,231 @@
+{
+  "$ref": "#/definitions/GraphQLQueryConfig",
+  "definitions": {
+    "GraphQLQueryConfig": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Query field name (camelCase recommended)"
+        },
+        "object": {
+          "type": "string",
+          "description": "Source ObjectQL object name"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "get",
+            "list",
+            "search"
+          ],
+          "description": "Query type"
+        },
+        "description": {
+          "type": "string",
+          "description": "Query description"
+        },
+        "args": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "description": "GraphQL type (e.g., \"ID!\", \"String\", \"Int\")"
+              },
+              "description": {
+                "type": "string",
+                "description": "Argument description"
+              },
+              "defaultValue": {
+                "description": "Default value"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Query arguments"
+        },
+        "filtering": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Allow filtering"
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Filterable fields"
+            },
+            "operators": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "eq",
+                  "ne",
+                  "gt",
+                  "gte",
+                  "lt",
+                  "lte",
+                  "in",
+                  "notIn",
+                  "contains",
+                  "startsWith",
+                  "endsWith",
+                  "isNull",
+                  "isNotNull"
+                ]
+              },
+              "description": "Allowed filter operators"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Filtering capabilities"
+        },
+        "sorting": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Allow sorting"
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Sortable fields"
+            },
+            "defaultSort": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "direction": {
+                  "type": "string",
+                  "enum": [
+                    "ASC",
+                    "DESC"
+                  ]
+                }
+              },
+              "required": [
+                "field",
+                "direction"
+              ],
+              "additionalProperties": false,
+              "description": "Default sort order"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Sorting capabilities"
+        },
+        "pagination": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable pagination"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "offset",
+                "cursor",
+                "relay"
+              ],
+              "default": "offset",
+              "description": "Pagination style"
+            },
+            "defaultLimit": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 20,
+              "description": "Default page size"
+            },
+            "maxLimit": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 100,
+              "description": "Maximum page size"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Pagination configuration"
+        },
+        "fields": {
+          "type": "object",
+          "properties": {
+            "required": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Required fields (always returned)"
+            },
+            "selectable": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Selectable fields"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Field selection configuration"
+        },
+        "authRequired": {
+          "type": "boolean",
+          "default": true,
+          "description": "Require authentication"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Required permissions"
+        },
+        "cache": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false,
+              "description": "Enable caching"
+            },
+            "ttl": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Cache TTL in seconds"
+            },
+            "key": {
+              "type": "string",
+              "description": "Cache key template"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Query caching"
+        }
+      },
+      "required": [
+        "name",
+        "object",
+        "type"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,63 @@
+{
+  "$ref": "#/definitions/NoSQLDataTypeMapping",
+  "definitions": {
+    "NoSQLDataTypeMapping": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "NoSQL type for text fields"
+        },
+        "number": {
+          "type": "string",
+          "description": "NoSQL type for number fields"
+        },
+        "boolean": {
+          "type": "string",
+          "description": "NoSQL type for boolean fields"
+        },
+        "date": {
+          "type": "string",
+          "description": "NoSQL type for date fields"
+        },
+        "datetime": {
+          "type": "string",
+          "description": "NoSQL type for datetime fields"
+        },
+        "json": {
+          "type": "string",
+          "description": "NoSQL type for JSON/object fields"
+        },
+        "uuid": {
+          "type": "string",
+          "description": "NoSQL type for UUID fields"
+        },
+        "binary": {
+          "type": "string",
+          "description": "NoSQL type for binary fields"
+        },
+        "array": {
+          "type": "string",
+          "description": "NoSQL type for array fields"
+        },
+        "objectId": {
+          "type": "string",
+          "description": "NoSQL type for ObjectID fields (MongoDB)"
+        },
+        "geopoint": {
+          "type": "string",
+          "description": "NoSQL type for geospatial point fields"
+        }
+      },
+      "required": [
+        "text",
+        "number",
+        "boolean",
+        "date",
+        "datetime"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

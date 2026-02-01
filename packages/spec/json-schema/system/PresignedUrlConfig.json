@@ -1,0 +1,49 @@
+{
+  "$ref": "#/definitions/PresignedUrlConfig",
+  "definitions": {
+    "PresignedUrlConfig": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "type": "string",
+          "enum": [
+            "get",
+            "put",
+            "delete",
+            "head"
+          ],
+          "description": "Allowed operation"
+        },
+        "expiresIn": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 604800,
+          "description": "Expiration time in seconds (max 7 days)"
+        },
+        "contentType": {
+          "type": "string",
+          "description": "Required content type for PUT operations"
+        },
+        "maxSize": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Maximum file size in bytes for PUT operations"
+        },
+        "responseContentType": {
+          "type": "string",
+          "description": "Override content-type for GET operations"
+        },
+        "responseContentDisposition": {
+          "type": "string",
+          "description": "Override content-disposition for GET operations"
+        }
+      },
+      "required": [
+        "operation",
+        "expiresIn"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

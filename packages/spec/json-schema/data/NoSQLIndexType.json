@@ -1,0 +1,19 @@
+{
+  "$ref": "#/definitions/NoSQLIndexType",
+  "definitions": {
+    "NoSQLIndexType": {
+      "type": "string",
+      "enum": [
+        "single",
+        "compound",
+        "unique",
+        "text",
+        "geospatial",
+        "hashed",
+        "ttl",
+        "sparse"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

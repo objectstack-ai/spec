@@ -1,0 +1,38 @@
+{
+  "$ref": "#/definitions/DataActionParams",
+  "definitions": {
+    "DataActionParams": {
+      "type": "object",
+      "properties": {
+        "recordIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Record IDs to select/operate on"
+        },
+        "filters": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Filter for bulk operations"
+        },
+        "updateData": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Data for bulk update"
+        },
+        "exportFormat": {
+          "type": "string",
+          "enum": [
+            "csv",
+            "xlsx",
+            "pdf",
+            "json"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

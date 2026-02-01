@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TokenUsageSchema } from './cost.zod';
 
 /**
  * AI Agentic Orchestration Protocol
@@ -219,6 +220,8 @@ export const AIOrchestrationExecutionResultSchema = z.object({
     modelUsed: z.string().optional(),
     tokensUsed: z.number().optional(),
   })).optional(),
+  tokens: TokenUsageSchema.optional().describe('Total token usage for this execution'),
+  cost: z.number().nonnegative().optional().describe('Total cost for this execution in USD'),
   error: z.string().optional(),
   startedAt: z.string().describe('ISO timestamp'),
   completedAt: z.string().optional().describe('ISO timestamp'),

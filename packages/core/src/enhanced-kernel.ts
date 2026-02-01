@@ -1,0 +1,496 @@
+import { Plugin, PluginContext } from './types.js';
+import { createLogger, ObjectLogger } from './logger.js';
+import type { LoggerConfig } from '@objectstack/spec/system';
+import { PluginLoader, PluginMetadata, ServiceLifecycle, ServiceFactory, PluginStartupResult } from './plugin-loader.js';
+
+/**
+ * Enhanced Kernel Configuration
+ */
+export interface EnhancedKernelConfig {
+    logger?: Partial<LoggerConfig>;
+    
+    /** Default plugin startup timeout in milliseconds */
+    defaultStartupTimeout?: number;
+    
+    /** Whether to enable graceful shutdown */
+    gracefulShutdown?: boolean;
+    
+    /** Graceful shutdown timeout in milliseconds */
+    shutdownTimeout?: number;
+    
+    /** Whether to rollback on startup failure */
+    rollbackOnFailure?: boolean;
+}
+
+/**
+ * Enhanced ObjectKernel with Advanced Plugin Management
+ * 
+ * Extends the basic ObjectKernel with:
+ * - Async plugin loading with validation
+ * - Version compatibility checking
+ * - Plugin signature verification
+ * - Configuration validation (Zod)
+ * - Factory-based dependency injection
+ * - Service lifecycle management (singleton/transient/scoped)
+ * - Circular dependency detection
+ * - Lazy loading services
+ * - Graceful shutdown
+ * - Plugin startup timeout control
+ * - Startup failure rollback
+ * - Plugin health checks
+ */
+export class EnhancedObjectKernel {
+    private plugins: Map<string, PluginMetadata> = new Map();
+    private services: Map<string, any> = new Map();
+    private hooks: Map<string, Array<(...args: any[]) => void | Promise<void>>> = new Map();
+    private state: 'idle' | 'initializing' | 'running' | 'stopping' | 'stopped' = 'idle';
+    private logger: ObjectLogger;
+    private context: PluginContext;
+    private pluginLoader: PluginLoader;
+    private config: EnhancedKernelConfig;
+    private startedPlugins: Set<string> = new Set();
+    private pluginStartTimes: Map<string, number> = new Map();
+    private shutdownHandlers: Array<() => Promise<void>> = [];
+
+    constructor(config: EnhancedKernelConfig = {}) {
+        this.config = {
+            defaultStartupTimeout: 30000, // 30 seconds
+            gracefulShutdown: true,
+            shutdownTimeout: 60000, // 60 seconds
+            rollbackOnFailure: true,
+            ...config,
+        };
+
+        this.logger = createLogger(config.logger);
+        this.pluginLoader = new PluginLoader(this.logger);
+        
+        // Initialize context
+        this.context = {
+            registerService: (name, service) => {
+                if (this.services.has(name)) {
+                    throw new Error(`[Kernel] Service '${name}' already registered`);
+                }
+                this.services.set(name, service);
+                this.pluginLoader.registerService(name, service);
+                this.logger.info(`Service '${name}' registered`, { service: name });
+            },
+            getService: <T>(name: string) => {
+                // Try to get from plugin loader (supports factories and lifecycle)
+                try {
+                    const service = this.pluginLoader.getService(name);
+                    if (service instanceof Promise) {
+                        throw new Error(`Service '${name}' is async - use await`);
+                    }
+                    return service as T;
+                } catch {
+                    // Fall back to direct service map
+                    const service = this.services.get(name);
+                    if (!service) {
+                        throw new Error(`[Kernel] Service '${name}' not found`);
+                    }
+                    return service as T;
+                }
+            },
+            hook: (name, handler) => {
+                if (!this.hooks.has(name)) {
+                    this.hooks.set(name, []);
+                }
+                this.hooks.get(name)!.push(handler);
+            },
+            trigger: async (name, ...args) => {
+                const handlers = this.hooks.get(name) || [];
+                for (const handler of handlers) {
+                    await handler(...args);
+                }
+            },
+            getServices: () => {
+                return new Map(this.services);
+            },
+            logger: this.logger,
+            getKernel: () => this as any, // Type compatibility
+        };
+
+        // Register shutdown handler
+        if (this.config.gracefulShutdown) {
+            this.registerShutdownSignals();
+        }
+    }
+
+    /**
+     * Register a plugin with enhanced validation
+     */
+    async use(plugin: Plugin): Promise<this> {
+        if (this.state !== 'idle') {
+            throw new Error('[Kernel] Cannot register plugins after bootstrap has started');
+        }
+
+        // Load plugin through enhanced loader
+        const result = await this.pluginLoader.loadPlugin(plugin);
+        
+        if (!result.success || !result.plugin) {
+            throw new Error(`Failed to load plugin: ${plugin.name} - ${result.error?.message}`);
+        }
+
+        const pluginMeta = result.plugin;
+        this.plugins.set(pluginMeta.name, pluginMeta);
+        
+        this.logger.info(`Plugin registered: ${pluginMeta.name}@${pluginMeta.version}`, {
+            plugin: pluginMeta.name,
+            version: pluginMeta.version,
+        });
+
+        return this;
+    }
+
+    /**
+     * Register a service factory with lifecycle management
+     */
+    registerServiceFactory<T>(
+        name: string,
+        factory: ServiceFactory<T>,
+        lifecycle: ServiceLifecycle = ServiceLifecycle.SINGLETON,
+        dependencies?: string[]
+    ): this {
+        this.pluginLoader.registerServiceFactory({
+            name,
+            factory,
+            lifecycle,
+            dependencies,
+        });
+        return this;
+    }
+
+    /**
+     * Bootstrap the kernel with enhanced features
+     */
+    async bootstrap(): Promise<void> {
+        if (this.state !== 'idle') {
+            throw new Error('[Kernel] Kernel already bootstrapped');
+        }
+
+        this.state = 'initializing';
+        this.logger.info('Bootstrap started');
+
+        try {
+            // Check for circular dependencies
+            const cycles = this.pluginLoader.detectCircularDependencies();
+            if (cycles.length > 0) {
+                this.logger.warn('Circular service dependencies detected:', { cycles });
+            }
+
+            // Resolve plugin dependencies
+            const orderedPlugins = this.resolveDependencies();
+
+            // Phase 1: Init - Plugins register services
+            this.logger.info('Phase 1: Init plugins');
+            for (const plugin of orderedPlugins) {
+                await this.initPluginWithTimeout(plugin);
+            }
+
+            // Phase 2: Start - Plugins execute business logic
+            this.logger.info('Phase 2: Start plugins');
+            this.state = 'running';
+            
+            for (const plugin of orderedPlugins) {
+                const result = await this.startPluginWithTimeout(plugin);
+                
+                if (!result.success) {
+                    this.logger.error(`Plugin startup failed: ${plugin.name}`, result.error);
+                    
+                    if (this.config.rollbackOnFailure) {
+                        this.logger.warn('Rolling back started plugins...');
+                        await this.rollbackStartedPlugins();
+                        throw new Error(`Plugin ${plugin.name} failed to start - rollback complete`);
+                    }
+                }
+            }
+
+            // Phase 3: Trigger kernel:ready hook
+            this.logger.debug('Triggering kernel:ready hook');
+            await this.context.trigger('kernel:ready');
+
+            this.logger.info('✅ Bootstrap complete');
+        } catch (error) {
+            this.state = 'stopped';
+            throw error;
+        }
+    }
+
+    /**
+     * Graceful shutdown with timeout
+     */
+    async shutdown(): Promise<void> {
+        if (this.state === 'stopped' || this.state === 'stopping') {
+            this.logger.warn('Kernel already stopped or stopping');
+            return;
+        }
+
+        if (this.state !== 'running') {
+            throw new Error('[Kernel] Kernel not running');
+        }
+
+        this.state = 'stopping';
+        this.logger.info('Graceful shutdown started');
+
+        try {
+            // Create shutdown promise with timeout
+            const shutdownPromise = this.performShutdown();
+            const timeoutPromise = new Promise<void>((_, reject) => {
+                setTimeout(() => {
+                    reject(new Error('Shutdown timeout exceeded'));
+                }, this.config.shutdownTimeout);
+            });
+
+            // Race between shutdown and timeout
+            await Promise.race([shutdownPromise, timeoutPromise]);
+
+            this.state = 'stopped';
+            this.logger.info('✅ Graceful shutdown complete');
+        } catch (error) {
+            this.logger.error('Shutdown error - forcing stop', error as Error);
+            this.state = 'stopped';
+            throw error;
+        } finally {
+            // Cleanup logger resources
+            await this.logger.destroy();
+        }
+    }
+
+    /**
+     * Check health of a specific plugin
+     */
+    async checkPluginHealth(pluginName: string): Promise<any> {
+        return await this.pluginLoader.checkPluginHealth(pluginName);
+    }
+
+    /**
+     * Check health of all plugins
+     */
+    async checkAllPluginsHealth(): Promise<Map<string, any>> {
+        const results = new Map();
+        
+        for (const pluginName of this.plugins.keys()) {
+            const health = await this.checkPluginHealth(pluginName);
+            results.set(pluginName, health);
+        }
+        
+        return results;
+    }
+
+    /**
+     * Get plugin startup metrics
+     */
+    getPluginMetrics(): Map<string, number> {
+        return new Map(this.pluginStartTimes);
+    }
+
+    /**
+     * Get a service (sync helper)
+     */
+    getService<T>(name: string): T {
+        return this.context.getService<T>(name);
+    }
+
+    /**
+     * Get a service asynchronously (supports factories)
+     */
+    async getServiceAsync<T>(name: string, scopeId?: string): Promise<T> {
+        return await this.pluginLoader.getService<T>(name, scopeId);
+    }
+
+    /**
+     * Check if kernel is running
+     */
+    isRunning(): boolean {
+        return this.state === 'running';
+    }
+
+    /**
+     * Get kernel state
+     */
+    getState(): string {
+        return this.state;
+    }
+
+    // Private methods
+
+    private async initPluginWithTimeout(plugin: PluginMetadata): Promise<void> {
+        const timeout = plugin.startupTimeout || this.config.defaultStartupTimeout!;
+        
+        this.logger.debug(`Init: ${plugin.name}`, { plugin: plugin.name });
+        
+        const initPromise = plugin.init(this.context);
+        const timeoutPromise = new Promise<void>((_, reject) => {
+            setTimeout(() => {
+                reject(new Error(`Plugin ${plugin.name} init timeout after ${timeout}ms`));
+            }, timeout);
+        });
+
+        await Promise.race([initPromise, timeoutPromise]);
+    }
+
+    private async startPluginWithTimeout(plugin: PluginMetadata): Promise<PluginStartupResult> {
+        if (!plugin.start) {
+            return { success: true, pluginName: plugin.name };
+        }
+
+        const timeout = plugin.startupTimeout || this.config.defaultStartupTimeout!;
+        const startTime = Date.now();
+        
+        this.logger.debug(`Start: ${plugin.name}`, { plugin: plugin.name });
+        
+        try {
+            const startPromise = plugin.start(this.context);
+            const timeoutPromise = new Promise<void>((_, reject) => {
+                setTimeout(() => {
+                    reject(new Error(`Plugin ${plugin.name} start timeout after ${timeout}ms`));
+                }, timeout);
+            });
+
+            await Promise.race([startPromise, timeoutPromise]);
+            
+            const duration = Date.now() - startTime;
+            this.startedPlugins.add(plugin.name);
+            this.pluginStartTimes.set(plugin.name, duration);
+            
+            this.logger.debug(`Plugin started: ${plugin.name} (${duration}ms)`);
+            
+            return {
+                success: true,
+                pluginName: plugin.name,
+                startTime: duration,
+            };
+        } catch (error) {
+            const duration = Date.now() - startTime;
+            const isTimeout = (error as Error).message.includes('timeout');
+            
+            return {
+                success: false,
+                pluginName: plugin.name,
+                error: error as Error,
+                startTime: duration,
+                timedOut: isTimeout,
+            };
+        }
+    }
+
+    private async rollbackStartedPlugins(): Promise<void> {
+        const pluginsToRollback = Array.from(this.startedPlugins).reverse();
+        
+        for (const pluginName of pluginsToRollback) {
+            const plugin = this.plugins.get(pluginName);
+            if (plugin?.destroy) {
+                try {
+                    this.logger.debug(`Rollback: ${pluginName}`);
+                    await plugin.destroy();
+                } catch (error) {
+                    this.logger.error(`Rollback failed for ${pluginName}`, error as Error);
+                }
+            }
+        }
+        
+        this.startedPlugins.clear();
+    }
+
+    private async performShutdown(): Promise<void> {
+        // Trigger shutdown hook
+        await this.context.trigger('kernel:shutdown');
+
+        // Destroy plugins in reverse order
+        const orderedPlugins = Array.from(this.plugins.values()).reverse();
+        for (const plugin of orderedPlugins) {
+            if (plugin.destroy) {
+                this.logger.debug(`Destroy: ${plugin.name}`, { plugin: plugin.name });
+                try {
+                    await plugin.destroy();
+                } catch (error) {
+                    this.logger.error(`Error destroying plugin ${plugin.name}`, error as Error);
+                }
+            }
+        }
+
+        // Execute custom shutdown handlers
+        for (const handler of this.shutdownHandlers) {
+            try {
+                await handler();
+            } catch (error) {
+                this.logger.error('Shutdown handler error', error as Error);
+            }
+        }
+    }
+
+    private resolveDependencies(): PluginMetadata[] {
+        const resolved: PluginMetadata[] = [];
+        const visited = new Set<string>();
+        const visiting = new Set<string>();
+
+        const visit = (pluginName: string) => {
+            if (visited.has(pluginName)) return;
+            
+            if (visiting.has(pluginName)) {
+                throw new Error(`[Kernel] Circular dependency detected: ${pluginName}`);
+            }
+
+            const plugin = this.plugins.get(pluginName);
+            if (!plugin) {
+                throw new Error(`[Kernel] Plugin '${pluginName}' not found`);
+            }
+
+            visiting.add(pluginName);
+
+            // Visit dependencies first
+            const deps = plugin.dependencies || [];
+            for (const dep of deps) {
+                if (!this.plugins.has(dep)) {
+                    throw new Error(`[Kernel] Dependency '${dep}' not found for plugin '${pluginName}'`);
+                }
+                visit(dep);
+            }
+
+            visiting.delete(pluginName);
+            visited.add(pluginName);
+            resolved.push(plugin);
+        };
+
+        // Visit all plugins
+        for (const pluginName of this.plugins.keys()) {
+            visit(pluginName);
+        }
+
+        return resolved;
+    }
+
+    private registerShutdownSignals(): void {
+        const signals: NodeJS.Signals[] = ['SIGINT', 'SIGTERM', 'SIGQUIT'];
+        let shutdownInProgress = false;
+        
+        const handleShutdown = async (signal: string) => {
+            if (shutdownInProgress) {
+                this.logger.warn(`Shutdown already in progress, ignoring ${signal}`);
+                return;
+            }
+            
+            shutdownInProgress = true;
+            this.logger.info(`Received ${signal} - initiating graceful shutdown`);
+            
+            try {
+                await this.shutdown();
+                process.exit(0);
+            } catch (error) {
+                this.logger.error('Shutdown failed', error as Error);
+                process.exit(1);
+            }
+        };
+        
+        for (const signal of signals) {
+            process.on(signal, () => handleShutdown(signal));
+        }
+    }
+
+    /**
+     * Register a custom shutdown handler
+     */
+    onShutdown(handler: () => Promise<void>): void {
+        this.shutdownHandlers.push(handler);
+    }
+}

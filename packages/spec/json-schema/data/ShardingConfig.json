@@ -1,0 +1,35 @@
+{
+  "$ref": "#/definitions/ShardingConfig",
+  "definitions": {
+    "ShardingConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable sharding"
+        },
+        "shardKey": {
+          "type": "string",
+          "description": "Field to use as shard key"
+        },
+        "shardingStrategy": {
+          "type": "string",
+          "enum": [
+            "hash",
+            "range",
+            "zone"
+          ],
+          "description": "Sharding strategy"
+        },
+        "numShards": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "description": "Number of shards"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
+import { RowLevelSecurityPolicySchema } from './rls.zod';
 
 /**
  * Entity (Object) Level Permissions
@@ -91,6 +92,55 @@ export const PermissionSetSchema = z.object({
   
   /** System permissions (e.g., "manage_users") */
   systemPermissions: z.array(z.string()).optional().describe('System level capabilities'),
+  
+  /** 
+   * Row-Level Security Rules
+   * 
+   * Row-level security policies that filter records based on user context.
+   * These rules are applied in addition to object-level permissions.
+   * 
+   * Uses the canonical RLS protocol from rls.zod.ts for comprehensive
+   * row-level security features including PostgreSQL-style USING and CHECK clauses.
+   * 
+   * @see {@link RowLevelSecurityPolicySchema} for full RLS specification
+   * @see {@link file://../permission/rls.zod.ts} for comprehensive RLS documentation
+   * 
+   * @example Multi-tenant isolation
+   * ```typescript
+   * rls: [{
+   *   name: 'tenant_filter',
+   *   object: 'account',
+   *   operation: 'select',
+   *   using: 'tenant_id = current_user.tenant_id'
+   * }]
+   * ```
+   */
+  rowLevelSecurity: z.array(RowLevelSecurityPolicySchema).optional()
+    .describe('Row-level security policies (see rls.zod.ts for full spec)'),
+  
+  /**
+   * Context-Based Access Control Variables
+   * 
+   * Custom context variables that can be referenced in RLS rules.
+   * These variables are evaluated at runtime based on the user's session.
+   * 
+   * Common context variables:
+   * - `current_user.id` - Current user ID
+   * - `current_user.tenant_id` - User's tenant/organization ID
+   * - `current_user.department` - User's department
+   * - `current_user.role` - User's role
+   * - `current_user.region` - User's geographic region
+   * 
+   * @example Custom context
+   * ```typescript
+   * contextVariables: {
+   *   allowed_regions: ['US', 'EU'],
+   *   access_level: 2,
+   *   custom_attribute: 'value'
+   * }
+   * ```
+   */
+  contextVariables: z.record(z.any()).optional().describe('Context variables for RLS evaluation'),
 });
 
 export type PermissionSet = z.infer<typeof PermissionSetSchema>;

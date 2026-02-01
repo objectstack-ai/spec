@@ -1,0 +1,69 @@
+{
+  "$ref": "#/definitions/AgentActionResult",
+  "definitions": {
+    "AgentActionResult": {
+      "type": "object",
+      "properties": {
+        "actionId": {
+          "type": "string",
+          "description": "ID of the executed action"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "success",
+            "error",
+            "cancelled",
+            "pending"
+          ],
+          "description": "Execution status"
+        },
+        "data": {
+          "description": "Action result data"
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {}
+          },
+          "required": [
+            "code",
+            "message"
+          ],
+          "additionalProperties": false,
+          "description": "Error details if status is \"error\""
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "startTime": {
+              "type": "string",
+              "description": "Execution start time (ISO 8601)"
+            },
+            "endTime": {
+              "type": "string",
+              "description": "Execution end time (ISO 8601)"
+            },
+            "duration": {
+              "type": "number",
+              "description": "Execution duration in ms"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "actionId",
+        "status"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,16 @@
+{
+  "$ref": "#/definitions/KeyManagementProvider",
+  "definitions": {
+    "KeyManagementProvider": {
+      "type": "string",
+      "enum": [
+        "local",
+        "aws-kms",
+        "azure-key-vault",
+        "gcp-kms",
+        "hashicorp-vault"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

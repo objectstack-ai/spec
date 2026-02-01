@@ -6,11 +6,13 @@ import {
   CurrencyConfigSchema,
   CurrencyValueSchema,
   VectorConfigSchema,
+  FileAttachmentConfigSchema,
   Field,
   type SelectOption,
   type CurrencyConfig,
   type CurrencyValue,
-  type VectorConfig
+  type VectorConfig,
+  type FileAttachmentConfig,
 } from './field.zod';
 
 describe('FieldType', () => {
@@ -1013,6 +1015,375 @@ describe('Field Factory Helpers', () => {
       expect(ragField.searchable).toBe(true);
       expect(ragField.vectorConfig?.indexed).toBe(true);
       expect(ragField.vectorConfig?.indexType).toBe('hnsw');
+    });
+  });
+
+  describe('FileAttachmentConfigSchema', () => {
+    it('should accept minimal config', () => {
+      const config = FileAttachmentConfigSchema.parse({});
+      
+      expect(config.virusScan).toBe(false);
+      expect(config.virusScanOnUpload).toBe(true);
+      expect(config.quarantineOnThreat).toBe(true);
+      expect(config.allowMultiple).toBe(false);
+      expect(config.allowReplace).toBe(true);
+      expect(config.allowDelete).toBe(true);
+      expect(config.requireUpload).toBe(false);
+      expect(config.extractMetadata).toBe(true);
+      expect(config.extractText).toBe(false);
+      expect(config.versioningEnabled).toBe(false);
+      expect(config.publicRead).toBe(false);
+      expect(config.presignedUrlExpiry).toBe(3600);
+    });
+
+    it('should accept file size limits', () => {
+      const config = FileAttachmentConfigSchema.parse({
+        minSize: 1024,
+        maxSize: 10485760, // 10MB
+      });
+      
+      expect(config.minSize).toBe(1024);
+      expect(config.maxSize).toBe(10485760);
+    });
+
+    it('should accept allowed file types', () => {
+      const config = FileAttachmentConfigSchema.parse({
+        allowedTypes: ['.pdf', '.docx', '.xlsx'],
+        allowedMimeTypes: ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+      });
+      
+      expect(config.allowedTypes).toHaveLength(3);
+      expect(config.allowedMimeTypes).toHaveLength(2);
+    });
+
+    it('should accept blocked file types', () => {
+      const config = FileAttachmentConfigSchema.parse({
+        blockedTypes: ['.exe', '.bat', '.sh'],
+        blockedMimeTypes: ['application/x-executable'],
+      });
+      
+      expect(config.blockedTypes).toHaveLength(3);
+      expect(config.blockedMimeTypes).toHaveLength(1);
+    });
+
+    it('should accept virus scanning configuration', () => {
+      const config = FileAttachmentConfigSchema.parse({
+        virusScan: true,
+        virusScanProvider: 'clamav',
+        virusScanOnUpload: true,
+        quarantineOnThreat: true,
+      });
+      
+      expect(config.virusScan).toBe(true);
+      expect(config.virusScanProvider).toBe('clamav');
+      expect(config.virusScanOnUpload).toBe(true);
+      expect(config.quarantineOnThreat).toBe(true);
+    });
+
+    it('should accept all virus scan providers', () => {
+      const providers = ['clamav', 'virustotal', 'metadefender', 'custom'] as const;
+      
+      providers.forEach(provider => {
+        const config = {
+          virusScan: true,
+          virusScanProvider: provider,
+        };
+        
+        expect(() => FileAttachmentConfigSchema.parse(config)).not.toThrow();
+      });
+    });
+
+    it('should accept storage configuration', () => {
+      const config = FileAttachmentConfigSchema.parse({
+        storageProvider: 'aws_s3_storage',
+        storageBucket: 'user_uploads',
+        storagePrefix: 'documents/',
+      });
+      
+      expect(config.storageProvider).toBe('aws_s3_storage');
+      expect(config.storageBucket).toBe('user_uploads');
+      expect(config.storagePrefix).toBe('documents/');
+    });
+
+    it('should accept image validation config', () => {
+      const config = FileAttachmentConfigSchema.parse({
+        imageValidation: {
+          minWidth: 100,
+          maxWidth: 4096,
+          minHeight: 100,
+          maxHeight: 4096,
+          aspectRatio: '16:9',
+          generateThumbnails: true,
+          thumbnailSizes: [
+            { name: 'small', width: 150, height: 150, crop: true },
+            { name: 'medium', width: 300, height: 300, crop: true },
+            { name: 'large', width: 600, height: 600, crop: false },
+          ],
+          preserveMetadata: false,
+          autoRotate: true,
+        },
+      });
+      
+      expect(config.imageValidation?.minWidth).toBe(100);
+      expect(config.imageValidation?.maxWidth).toBe(4096);
+      expect(config.imageValidation?.generateThumbnails).toBe(true);
+      expect(config.imageValidation?.thumbnailSizes).toHaveLength(3);
+    });
+
+    it('should accept upload behavior config', () => {
+      const config = FileAttachmentConfigSchema.parse({
+        allowMultiple: true,
+        allowReplace: false,
+        allowDelete: false,
+        requireUpload: true,
+      });
+      
+      expect(config.allowMultiple).toBe(true);
+      expect(config.allowReplace).toBe(false);
+      expect(config.allowDelete).toBe(false);
+      expect(config.requireUpload).toBe(true);
+    });
+
+    it('should accept metadata extraction config', () => {
+      const config = FileAttachmentConfigSchema.parse({
+        extractMetadata: true,
+        extractText: true,
+      });
+      
+      expect(config.extractMetadata).toBe(true);
+      expect(config.extractText).toBe(true);
+    });
+
+    it('should accept versioning config', () => {
+      const config = FileAttachmentConfigSchema.parse({
+        versioningEnabled: true,
+        maxVersions: 10,
+      });
+      
+      expect(config.versioningEnabled).toBe(true);
+      expect(config.maxVersions).toBe(10);
+    });
+
+    it('should accept access control config', () => {
+      const config = FileAttachmentConfigSchema.parse({
+        publicRead: true,
+        presignedUrlExpiry: 1800,
+      });
+      
+      expect(config.publicRead).toBe(true);
+      expect(config.presignedUrlExpiry).toBe(1800);
+    });
+
+    it('should enforce presigned URL expiry limits', () => {
+      // Min 60 seconds
+      expect(() => FileAttachmentConfigSchema.parse({
+        presignedUrlExpiry: 59,
+      })).toThrow();
+      
+      expect(() => FileAttachmentConfigSchema.parse({
+        presignedUrlExpiry: 60,
+      })).not.toThrow();
+      
+      // Max 7 days
+      expect(() => FileAttachmentConfigSchema.parse({
+        presignedUrlExpiry: 604800,
+      })).not.toThrow();
+      
+      expect(() => FileAttachmentConfigSchema.parse({
+        presignedUrlExpiry: 604801,
+      })).toThrow();
+    });
+
+    it('should validate file field with attachment config', () => {
+      const field = {
+        name: 'resume',
+        label: 'Resume',
+        type: 'file' as const,
+        required: true,
+        multiple: false,
+        fileAttachmentConfig: {
+          maxSize: 5242880, // 5MB
+          allowedTypes: ['.pdf', '.docx'],
+          virusScan: true,
+          virusScanProvider: 'clamav' as const,
+          storageProvider: 'main_storage',
+          storageBucket: 'user_uploads',
+          storagePrefix: 'resumes/',
+        },
+      };
+
+      const result = FieldSchema.safeParse(field);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.fileAttachmentConfig?.maxSize).toBe(5242880);
+        expect(result.data.fileAttachmentConfig?.allowedTypes).toHaveLength(2);
+        expect(result.data.fileAttachmentConfig?.virusScan).toBe(true);
+      }
+    });
+
+    it('should validate image field with attachment config', () => {
+      const field = {
+        name: 'profile_picture',
+        label: 'Profile Picture',
+        type: 'image' as const,
+        required: false,
+        fileAttachmentConfig: {
+          maxSize: 2097152, // 2MB
+          allowedTypes: ['.jpg', '.jpeg', '.png', '.webp'],
+          imageValidation: {
+            minWidth: 200,
+            maxWidth: 2048,
+            minHeight: 200,
+            maxHeight: 2048,
+            aspectRatio: '1:1',
+            generateThumbnails: true,
+            thumbnailSizes: [
+              { name: 'thumb', width: 100, height: 100, crop: true },
+              { name: 'small', width: 200, height: 200, crop: true },
+            ],
+            autoRotate: true,
+          },
+          storageProvider: 'main_storage',
+          storageBucket: 'user_uploads',
+          storagePrefix: 'avatars/',
+        },
+      };
+
+      const result = FieldSchema.safeParse(field);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.fileAttachmentConfig?.imageValidation?.aspectRatio).toBe('1:1');
+        expect(result.data.fileAttachmentConfig?.imageValidation?.thumbnailSizes).toHaveLength(2);
+      }
+    });
+
+    it('should work with comprehensive file upload configuration', () => {
+      const field = {
+        name: 'contract_document',
+        label: 'Contract Document',
+        type: 'file' as const,
+        description: 'Upload signed contract (PDF only)',
+        required: true,
+        multiple: false,
+        fileAttachmentConfig: {
+          minSize: 1024, // 1KB
+          maxSize: 52428800, // 50MB
+          allowedTypes: ['.pdf'],
+          allowedMimeTypes: ['application/pdf'],
+          virusScan: true,
+          virusScanProvider: 'virustotal' as const,
+          virusScanOnUpload: true,
+          quarantineOnThreat: true,
+          storageProvider: 'secure_storage',
+          storageBucket: 'legal_documents',
+          storagePrefix: 'contracts/',
+          allowMultiple: false,
+          allowReplace: true,
+          allowDelete: false,
+          requireUpload: true,
+          extractMetadata: true,
+          extractText: true,
+          versioningEnabled: true,
+          maxVersions: 5,
+          publicRead: false,
+          presignedUrlExpiry: 3600,
+        },
+      };
+
+      const result = FieldSchema.safeParse(field);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.type).toBe('file');
+        expect(result.data.fileAttachmentConfig?.virusScan).toBe(true);
+        expect(result.data.fileAttachmentConfig?.versioningEnabled).toBe(true);
+        expect(result.data.fileAttachmentConfig?.extractText).toBe(true);
+        expect(result.data.fileAttachmentConfig?.allowDelete).toBe(false);
+      }
+    });
+
+    it('should reject negative file sizes', () => {
+      expect(() => FileAttachmentConfigSchema.parse({
+        minSize: -1,
+      })).toThrow();
+      
+      expect(() => FileAttachmentConfigSchema.parse({
+        maxSize: 0,
+      })).toThrow();
+    });
+
+    it('should reject invalid image dimensions', () => {
+      expect(() => FileAttachmentConfigSchema.parse({
+        imageValidation: {
+          minWidth: 0,
+        },
+      })).toThrow();
+      
+      expect(() => FileAttachmentConfigSchema.parse({
+        imageValidation: {
+          maxHeight: -100,
+        },
+      })).toThrow();
+    });
+
+    it('should reject invalid versioning config', () => {
+      expect(() => FileAttachmentConfigSchema.parse({
+        versioningEnabled: true,
+        maxVersions: 0,
+      })).toThrow();
+    });
+
+    it('should reject minSize greater than maxSize', () => {
+      expect(() => FileAttachmentConfigSchema.parse({
+        minSize: 1000,
+        maxSize: 500,
+      })).toThrow();
+      
+      // Verify the specific error message
+      try {
+        FileAttachmentConfigSchema.parse({
+          minSize: 1000,
+          maxSize: 500,
+        });
+      } catch (error: any) {
+        expect(error.issues[0].message).toContain('minSize must be less than or equal to maxSize');
+      }
+    });
+
+    it('should accept valid minSize and maxSize', () => {
+      const config = FileAttachmentConfigSchema.parse({
+        minSize: 500,
+        maxSize: 1000,
+      });
+      
+      expect(config.minSize).toBe(500);
+      expect(config.maxSize).toBe(1000);
+    });
+
+    it('should reject virusScanProvider without virusScan enabled', () => {
+      expect(() => FileAttachmentConfigSchema.parse({
+        virusScan: false,
+        virusScanProvider: 'clamav',
+      })).toThrow();
+      
+      // Verify the specific error message
+      try {
+        FileAttachmentConfigSchema.parse({
+          virusScan: false,
+          virusScanProvider: 'clamav',
+        });
+      } catch (error: any) {
+        expect(error.issues[0].message).toContain('virusScanProvider requires virusScan to be enabled');
+      }
+    });
+
+    it('should accept virusScanProvider when virusScan is enabled', () => {
+      const config = FileAttachmentConfigSchema.parse({
+        virusScan: true,
+        virusScanProvider: 'clamav',
+      });
+      
+      expect(config.virusScan).toBe(true);
+      expect(config.virusScanProvider).toBe('clamav');
     });
   });
 });

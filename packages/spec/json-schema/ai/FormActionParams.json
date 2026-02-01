@@ -1,0 +1,36 @@
+{
+  "$ref": "#/definitions/FormActionParams",
+  "definitions": {
+    "FormActionParams": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "Object name"
+        },
+        "recordId": {
+          "type": "string",
+          "description": "Record ID (for edit/delete)"
+        },
+        "fieldValues": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Field name-value pairs"
+        },
+        "fieldName": {
+          "type": "string",
+          "description": "Specific field to fill/clear"
+        },
+        "fieldValue": {
+          "description": "Value to set"
+        },
+        "validateOnly": {
+          "type": "boolean",
+          "description": "Validate without saving"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

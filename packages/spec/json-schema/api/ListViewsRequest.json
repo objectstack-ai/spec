@@ -1,0 +1,58 @@
+{
+  "$ref": "#/definitions/ListViewsRequest",
+  "definitions": {
+    "ListViewsRequest": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "Filter by object name"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "list",
+            "kanban",
+            "calendar",
+            "gantt",
+            "timeline",
+            "chart",
+            "pivot",
+            "custom"
+          ],
+          "description": "Filter by view type"
+        },
+        "visibility": {
+          "type": "string",
+          "enum": [
+            "private",
+            "shared",
+            "public",
+            "organization"
+          ],
+          "description": "Filter by visibility"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "Filter by creator user ID"
+        },
+        "isDefault": {
+          "type": "boolean",
+          "description": "Filter for default views"
+        },
+        "limit": {
+          "type": "number",
+          "default": 50,
+          "description": "Max results"
+        },
+        "offset": {
+          "type": "number",
+          "default": 0,
+          "description": "Offset for pagination"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

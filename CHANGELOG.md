@@ -19,6 +19,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [0.7.2] - 2026-01-31
+
+### Changed
+- Updated system protocol JSON schemas (events, worker, metadata-loader)
+- Enhanced documentation structure for system protocols
+- Generated comprehensive JSON schema documentation
+
+## [0.7.1] - 2026-01-31
+
+### Changed
+- Patch release for maintenance and stability improvements
+- Updated all packages to version 0.7.1
+
 ## [0.6.1] - 2026-01-28
 
 ### Changed
@@ -179,7 +192,10 @@ Mark breaking changes clearly:
 
 ---
 
-[Unreleased]: https://github.com/objectstack-ai/spec/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/objectstack-ai/spec/compare/v0.7.2...HEAD
+[0.7.2]: https://github.com/objectstack-ai/spec/compare/v0.7.1...v0.7.2
+[0.7.1]: https://github.com/objectstack-ai/spec/compare/v0.6.1...v0.7.1
+[0.6.1]: https://github.com/objectstack-ai/spec/compare/v0.4.1...v0.6.1
 [0.4.1]: https://github.com/objectstack-ai/spec/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/objectstack-ai/spec/compare/v0.3.3...v0.4.0
 [0.3.3]: https://github.com/objectstack-ai/spec/compare/v0.3.2...v0.3.3

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PluginCapabilityManifestSchema } from './plugin-capability.zod';
 
 /**
  * Schema for the ObjectStack Manifest.
@@ -182,6 +183,14 @@ export const ManifestSchema = z.object({
     records: z.array(z.record(z.any())).describe('List of records to insert'),
     mode: z.enum(['upsert', 'insert', 'ignore']).default('upsert').describe('Seeding mode')
   })).optional().describe('Initial seed data'),
+
+  /**
+   * Plugin Capability Manifest.
+   * Declares protocols implemented, interfaces provided, dependencies, and extension points.
+   * This enables plugin interoperability and automatic discovery.
+   */
+  capabilities: PluginCapabilityManifestSchema.optional()
+    .describe('Plugin capability declarations for interoperability'),
 
   /** 
    * Extension points contributed by this package.

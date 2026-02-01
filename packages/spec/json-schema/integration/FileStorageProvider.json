@@ -1,0 +1,23 @@
+{
+  "$ref": "#/definitions/FileStorageProvider",
+  "definitions": {
+    "FileStorageProvider": {
+      "type": "string",
+      "enum": [
+        "s3",
+        "azure_blob",
+        "gcs",
+        "dropbox",
+        "box",
+        "onedrive",
+        "google_drive",
+        "sharepoint",
+        "ftp",
+        "local",
+        "custom"
+      ],
+      "description": "File storage provider type"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

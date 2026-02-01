@@ -1,57 +1,94 @@
-import { IObjectStackProtocol } from '@objectstack/spec/api';
+import { ObjectStackProtocol } from '@objectstack/spec/api';
 import { IDataEngine } from '@objectstack/core';
+import type { 
+    BatchUpdateRequest, 
+    BatchUpdateResponse, 
+    UpdateManyDataRequest,
+    DeleteManyDataRequest
+} from '@objectstack/spec/api';
+import type { MetadataCacheRequest, MetadataCacheResponse } from '@objectstack/spec/api';
+import type { 
+    CreateViewRequest, 
+    UpdateViewRequest,
+    ListViewsRequest,
+    ViewResponse,
+    ListViewsResponse,
+    SavedView
+} from '@objectstack/spec/api';
 
 // We import SchemaRegistry directly since this class lives in the same package
-import { SchemaRegistry } from './registry';
+import { SchemaRegistry } from './registry.js';
 
-export class ObjectStackProtocolImplementation implements IObjectStackProtocol {
+/**
+ * Simple hash function for ETag generation (browser-compatible)
+ * Uses a basic hash algorithm instead of crypto.createHash
+ */
+function simpleHash(str: string): string {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    return Math.abs(hash).toString(16);
+}
+
+export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
     private engine: IDataEngine;
+    private viewStorage: Map<string, SavedView> = new Map();
 
     constructor(engine: IDataEngine) {
         this.engine = engine;
     }
 
-    getDiscovery() {
+    async getDiscovery(_request: {}) {
         return {
-            name: 'ObjectStack API',
             version: '1.0',
-            capabilities: {
-                metadata: true,
-                data: true,
-                ui: true
-            }
+            apiName: 'ObjectStack API',
+            capabilities: ['metadata', 'data', 'ui'],
+            endpoints: {}
         };
     }
 
-    getMetaTypes() {
-        return SchemaRegistry.getRegisteredTypes();
+    async getMetaTypes(_request: {}) {
+        return {
+            types: SchemaRegistry.getRegisteredTypes()
+        };
     }
 
-    getMetaItems(type: string) {
-        return SchemaRegistry.listItems(type);
+    async getMetaItems(request: { type: string }) {
+        return {
+            type: request.type,
+            items: SchemaRegistry.listItems(request.type)
+        };
     }
 
-    getMetaItem(type: string, name: string) {
-        return SchemaRegistry.getItem(type, name);
+    async getMetaItem(request: { type: string, name: string }) {
+        return {
+            type: request.type,
+            name: request.name,
+            item: SchemaRegistry.getItem(request.type, request.name)
+        };
     }
 
-    getUiView(object: string, type: 'list' | 'form') {
-        const schema = SchemaRegistry.getObject(object);
-        if (!schema) throw new Error(`Object ${object} not found`);
+    async getUiView(request: { object: string, type: 'list' | 'form' }) {
+        const schema = SchemaRegistry.getObject(request.object);
+        if (!schema) throw new Error(`Object ${request.object} not found`);
 
-        if (type === 'list') {
-            return {
+        let view: any;
+        if (request.type === 'list') {
+            view = {
                 type: 'list',
-                object: object,
+                object: request.object,
                 columns: Object.keys(schema.fields || {}).slice(0, 5).map(f => ({
                     field: f,
                     label: schema.fields[f].label || f
                 }))
             };
         } else {
-             return {
+             view = {
                 type: 'form',
-                object: object,
+                object: request.object,
                 sections: [
                     {
                         label: 'General',
@@ -62,43 +99,212 @@ export class ObjectStackProtocolImplementation implements IObjectStackProtocol {
                 ]
             };
         }
+        return {
+            object: request.object,
+            type: request.type,
+            view
+        };
     }
 
-    findData(object: string, query: any) {
-        return this.engine.find(object, query);
+    async findData(request: { object: string, query?: any }) {
+        // TODO: Normalize query from HTTP Query params (string values) to DataEngineQueryOptions (typed)
+        // For now, we assume query is partially compatible or simple enough.
+        // We should parse 'top', 'skip', 'limit' to numbers if they are strings.
+        const options: any = { ...request.query };
+        if (options.top) options.top = Number(options.top);
+        if (options.skip) options.skip = Number(options.skip);
+        if (options.limit) options.limit = Number(options.limit);
+        
+        // Handle OData style $filter if present, or flat filters
+        // This is a naive implementation, a real OData parser is needed for complex scenarios.
+        
+        const records = await this.engine.find(request.object, options);
+        return {
+            object: request.object,
+            value: records, // OData compaibility
+            records, // Legacy
+            total: records.length,
+            hasMore: false
+        };
     }
 
-    async getData(object: string, id: string) {
-        // IDataEngine doesn't have findOne, so we simulate it with find and limit 1
-        // Assuming the ID field is named '_id' or 'id'. 
-        // For broad compatibility, we might need to know the ID field name.
-        // But traditionally it is _id in ObjectStack/mongo or id in others.
-        // Let's rely on finding by ID if the engine supports it via find?
-        // Actually, ObjectQL (the implementation) DOES have findOne.
-        // But we are programming against IDataEngine interface here.
-        
-        // If the engine IS ObjectQL (which it practically is), we could cast it.
-        // But let's try to stick to interface.
-        
-        const results = await this.engine.find(object, {
-            filter: { _id: id }, // Default Assumption: _id
-            limit: 1
+    async getData(request: { object: string, id: string }) {
+        const result = await this.engine.findOne(request.object, {
+            filter: { _id: request.id }
         });
-        if (results && results.length > 0) {
-            return results[0];
+        if (result) {
+            return {
+                object: request.object,
+                id: request.id,
+                record: result
+            };
         }
-        throw new Error(`Record ${id} not found in ${object}`);
+        throw new Error(`Record ${request.id} not found in ${request.object}`);
     }
 
-    createData(object: string, data: any) {
-        return this.engine.insert(object, data);
+    async createData(request: { object: string, data: any }) {
+        const result = await this.engine.insert(request.object, request.data);
+        return {
+            object: request.object,
+            id: result._id || result.id,
+            record: result
+        };
     }
 
-    updateData(object: string, id: string, data: any) {
-        return this.engine.update(object, id, data);
+    async updateData(request: { object: string, id: string, data: any }) {
+        // Adapt: update(obj, id, data) -> update(obj, data, options)
+        const result = await this.engine.update(request.object, request.data, { filter: { _id: request.id } });
+        return {
+            object: request.object,
+            id: request.id,
+            record: result
+        };
     }
 
-    deleteData(object: string, id: string) {
-        return this.engine.delete(object, id);
+    async deleteData(request: { object: string, id: string }) {
+        // Adapt: delete(obj, id) -> delete(obj, options)
+        await this.engine.delete(request.object, { filter: { _id: request.id } });
+        return {
+            object: request.object,
+            id: request.id,
+            success: true
+        };
+    }
+
+    // ==========================================
+    // Metadata Caching
+    // ==========================================
+
+    async getMetaItemCached(request: { type: string, name: string, cacheRequest?: MetadataCacheRequest }): Promise<MetadataCacheResponse> {
+        try {
+            const item = SchemaRegistry.getItem(request.type, request.name);
+            if (!item) {
+                throw new Error(`Metadata item ${request.type}/${request.name} not found`);
+            }
+
+            // Calculate ETag (simple hash of the stringified metadata)
+            const content = JSON.stringify(item);
+            const hash = simpleHash(content);
+            const etag = { value: hash, weak: false };
+
+            // Check If-None-Match header
+            if (request.cacheRequest?.ifNoneMatch) {
+                const clientEtag = request.cacheRequest.ifNoneMatch.replace(/^"(.*)"$/, '$1').replace(/^W\/"(.*)"$/, '$1');
+                if (clientEtag === hash) {
+                    // Return 304 Not Modified
+                    return {
+                        notModified: true,
+                        etag,
+                    };
+                }
+            }
+
+            // Return full metadata with cache headers
+            return {
+                data: item,
+                etag,
+                lastModified: new Date().toISOString(),
+                cacheControl: {
+                    directives: ['public', 'max-age'],
+                    maxAge: 3600, // 1 hour
+                },
+                notModified: false,
+            };
+        } catch (error: any) {
+            throw error;
+        }
+    }
+
+    // ==========================================
+    // Batch Operations
+    // ==========================================
+
+    async batchData(_request: { object: string, request: BatchUpdateRequest }): Promise<BatchUpdateResponse> {
+        // Map high-level batch request to DataEngine batch if available
+        // Or implement loop here.
+        // For now, let's just fail or implement basic loop to satisfying interface
+        // since full batch mapping requires careful type handling.
+        throw new Error('Batch operations not yet fully implemented in protocol adapter');
+    }
+    
+    async createManyData(request: { object: string, records: any[] }): Promise<any> {
+        const records = await this.engine.insert(request.object, request.records);
+        return {
+            object: request.object,
+            records,
+            count: records.length
+        };
+    }
+    
+    async updateManyData(_request: UpdateManyDataRequest): Promise<any> {
+        // TODO: Implement proper updateMany in DataEngine
+        throw new Error('updateManyData not implemented');
+    }
+
+    async deleteManyData(request: DeleteManyDataRequest): Promise<any> {
+        // This expects deleting by IDs.
+        return this.engine.delete(request.object, {
+            filter: { _id: { $in: request.ids } },
+            ...request.options
+        });
+    }
+
+    // ==========================================
+    // View Storage (Mock Implementation for now)
+    // ==========================================
+
+    async createView(request: CreateViewRequest): Promise<ViewResponse> {
+        const id = Math.random().toString(36).substring(7);
+        // Cast to unknown then SavedView to bypass strict type checks for the mock
+        const view: SavedView = {
+            id,
+            ...request,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            createdBy: 'system',
+            updatedBy: 'system'
+        } as unknown as SavedView;
+        
+        this.viewStorage.set(id, view);
+        return { success: true, data: view };
+    }
+
+    async getView(request: { id: string }): Promise<ViewResponse> {
+        const view = this.viewStorage.get(request.id);
+        if (!view) throw new Error(`View ${request.id} not found`);
+        return { success: true, data: view };
+    }
+
+    async listViews(request: ListViewsRequest): Promise<ListViewsResponse> {
+        const views = Array.from(this.viewStorage.values())
+            .filter(v => !request?.object || v.object === request.object);
+        
+        return { 
+            success: true, 
+            data: views, 
+            pagination: {
+                total: views.length,
+                limit: request.limit || 50,
+                offset: request.offset || 0,
+                hasMore: false
+            } 
+        };
+    }
+
+    async updateView(request: UpdateViewRequest): Promise<ViewResponse> {
+        const view = this.viewStorage.get(request.id);
+        if (!view) throw new Error(`View ${request.id} not found`);
+        
+        const { id, ...updates } = request;
+        // Cast to unknown then SavedView to bypass strict type checks for the mock
+        const updated = { ...view, ...updates, updatedAt: new Date().toISOString() } as unknown as SavedView;
+        this.viewStorage.set(request.id, updated);
+        return { success: true, data: updated };
+    }
+
+    async deleteView(request: { id: string }): Promise<{ success: boolean, object: string, id: string }> {
+        const deleted = this.viewStorage.delete(request.id);
+        if (!deleted) throw new Error(`View ${request.id} not found`);
+        return { success: true, object: 'view', id: request.id };
     }
 }

@@ -1,6 +1,6 @@
 import { QueryAST, QueryInput } from '@objectstack/spec/data';
-import { DriverOptions } from '@objectstack/spec/system';
-import { DriverInterface } from '@objectstack/core';
+import { DriverOptions } from '@objectstack/spec/data';
+import { DriverInterface, Logger, createLogger } from '@objectstack/core';
 
 /**
  * Example: In-Memory Driver
@@ -12,15 +12,22 @@ export class InMemoryDriver implements DriverInterface {
   name = 'in-memory-driver';
   version = '0.0.1';
   private config: any;
+  private logger: Logger;
 
   constructor(config?: any) {
     this.config = config || {};
+    this.logger = config?.logger || createLogger({ level: 'info', format: 'pretty' });
+    this.logger.debug('InMemory driver instance created', { config: this.config });
   }
 
   // Duck-typed RuntimePlugin hook
   install(ctx: any) {
+    this.logger.debug('Installing InMemory driver via plugin hook');
     if (ctx.engine && ctx.engine.ql && typeof ctx.engine.ql.registerDriver === 'function') {
         ctx.engine.ql.registerDriver(this);
+        this.logger.info('InMemory driver registered with ObjectQL engine');
+    } else {
+        this.logger.warn('Could not register driver - ObjectQL engine not found in context');
     }
   }
   
@@ -55,15 +62,25 @@ export class InMemoryDriver implements DriverInterface {
   // ===================================
 
   async connect() {
-    console.log('🔌 [InMemory] Database Connected (Virtual)');
+    this.logger.info('InMemory Database Connected (Virtual)');
   }
 
   async disconnect() {
+    const tableCount = Object.keys(this.db).length;
+    const recordCount = Object.values(this.db).reduce((sum, table) => sum + table.length, 0);
+    
     this.db = {};
-    console.log('🔌 [InMemory] Database Disconnected & Cleared');
+    this.logger.info('InMemory Database Disconnected & Cleared', { 
+      tableCount, 
+      recordCount 
+    });
   }
 
   async checkHealth() {
+    this.logger.debug('Health check performed', { 
+      tableCount: Object.keys(this.db).length,
+      status: 'healthy' 
+    });
     return true; 
   }
 
@@ -72,7 +89,7 @@ export class InMemoryDriver implements DriverInterface {
   // ===================================
 
   async execute(command: any, params?: any[]) {
-    console.log('⚠️ [InMemory] Raw execution not supported, received:', command);
+    this.logger.warn('Raw execution not supported in InMemory driver', { command });
     return null;
   }
 
@@ -81,6 +98,8 @@ export class InMemoryDriver implements DriverInterface {
   // ===================================
 
   async find(object: string, query: QueryInput, options?: DriverOptions) {
+    this.logger.debug('Find operation', { object, query });
+    
     const table = this.getTable(object);
     
     // 💡 Naive Implementation
@@ -91,10 +110,13 @@ export class InMemoryDriver implements DriverInterface {
       results = results.slice(0, query.limit);
     }
 
+    this.logger.debug('Find completed', { object, resultCount: results.length });
     return results;
   }
 
   async *findStream(object: string, query: QueryInput, options?: DriverOptions) {
+    this.logger.debug('FindStream operation', { object });
+    
     const results = await this.find(object, query, options);
     for (const record of results) {
       yield record;
@@ -102,11 +124,18 @@ export class InMemoryDriver implements DriverInterface {
   }
 
   async findOne(object: string, query: QueryInput, options?: DriverOptions) {
+    this.logger.debug('FindOne operation', { object, query });
+    
     const results = await this.find(object, { ...query, limit: 1 }, options);
-    return results[0] || null;
+    const result = results[0] || null;
+    
+    this.logger.debug('FindOne completed', { object, found: !!result });
+    return result;
   }
 
   async create(object: string, data: Record<string, any>, options?: DriverOptions) {
+    this.logger.debug('Create operation', { object, hasData: !!data });
+    
     const table = this.getTable(object);
     
     // COMPATIBILITY: Driver must return 'id' as string
@@ -118,14 +147,18 @@ export class InMemoryDriver implements DriverInterface {
     };
 
     table.push(newRecord);
+    this.logger.debug('Record created', { object, id: newRecord.id, tableSize: table.length });
     return newRecord;
   }
 
   async update(object: string, id: string | number, data: Record<string, any>, options?: DriverOptions) {
+    this.logger.debug('Update operation', { object, id });
+    
     const table = this.getTable(object);
     const index = table.findIndex(r => r.id == id);
     
     if (index === -1) {
+      this.logger.warn('Record not found for update', { object, id });
       throw new Error(`Record with ID ${id} not found in ${object}`);
     }
 
@@ -136,10 +169,13 @@ export class InMemoryDriver implements DriverInterface {
     };
     
     table[index] = updatedRecord;
+    this.logger.debug('Record updated', { object, id });
     return updatedRecord;
   }
 
   async upsert(object: string, data: Record<string, any>, conflictKeys?: string[], options?: DriverOptions) {
+    this.logger.debug('Upsert operation', { object, conflictKeys });
+    
     const table = this.getTable(object);
     let existingRecord: any = null;
 
@@ -150,24 +186,34 @@ export class InMemoryDriver implements DriverInterface {
     }
 
     if (existingRecord) {
+        this.logger.debug('Record exists, updating', { object, id: existingRecord.id });
         return this.update(object, existingRecord.id, data, options);
     } else {
+        this.logger.debug('Record does not exist, creating', { object });
         return this.create(object, data, options);
     }
   }
 
   async delete(object: string, id: string | number, options?: DriverOptions) {
+    this.logger.debug('Delete operation', { object, id });
+    
     const table = this.getTable(object);
     const index = table.findIndex(r => r.id == id);
     
-    if (index === -1) return false;
+    if (index === -1) {
+      this.logger.warn('Record not found for deletion', { object, id });
+      return false;
+    }
 
     table.splice(index, 1);
+    this.logger.debug('Record deleted', { object, id, tableSize: table.length });
     return true;
   }
 
   async count(object: string, query?: QueryInput, options?: DriverOptions) {
-    return this.getTable(object).length;
+    const count = this.getTable(object).length;
+    this.logger.debug('Count operation', { object, count });
+    return count;
   }
 
   // ===================================
@@ -175,15 +221,23 @@ export class InMemoryDriver implements DriverInterface {
   // ===================================
 
   async bulkCreate(object: string, dataArray: Record<string, any>[], options?: DriverOptions) {
-    return Promise.all(dataArray.map(data => this.create(object, data, options)));
+    this.logger.debug('BulkCreate operation', { object, count: dataArray.length });
+    const results = await Promise.all(dataArray.map(data => this.create(object, data, options)));
+    this.logger.debug('BulkCreate completed', { object, count: results.length });
+    return results;
   }
 
   async bulkUpdate(object: string, updates: { id: string | number, data: Record<string, any> }[], options?: DriverOptions) {
-    return Promise.all(updates.map(u => this.update(object, u.id, u.data, options)));
+    this.logger.debug('BulkUpdate operation', { object, count: updates.length });
+    const results = await Promise.all(updates.map(u => this.update(object, u.id, u.data, options)));
+    this.logger.debug('BulkUpdate completed', { object, count: results.length });
+    return results;
   }
 
   async bulkDelete(object: string, ids: (string | number)[], options?: DriverOptions) {
+    this.logger.debug('BulkDelete operation', { object, count: ids.length });
     await Promise.all(ids.map(id => this.delete(object, id, options)));
+    this.logger.debug('BulkDelete completed', { object, count: ids.length });
   }
 
   // ===================================
@@ -193,13 +247,15 @@ export class InMemoryDriver implements DriverInterface {
   async syncSchema(object: string, schema: any, options?: DriverOptions) {
     if (!this.db[object]) {
       this.db[object] = [];
-      console.log(`✨ [InMemory] Created table: ${object}`);
+      this.logger.info('Created in-memory table', { object });
     }
   }
 
   async dropTable(object: string, options?: DriverOptions) {
     if (this.db[object]) {
+      const recordCount = this.db[object].length;
       delete this.db[object];
+      this.logger.info('Dropped in-memory table', { object, recordCount });
     }
   }
 

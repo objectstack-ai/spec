@@ -12,12 +12,25 @@ description: Config protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AccountLinkingConfigSchema, AuthConfigSchema, AuthPluginConfigSchema, AuthStrategySchema, CSRFConfigSchema, DatabaseAdapterSchema, DatabaseMappingSchema, EmailPasswordConfigSchema, EnterpriseAuthConfigSchema, LDAPConfigSchema, MagicLinkConfigSchema, OAuthProviderSchema, OIDCConfigSchema, PasskeyConfigSchema, RateLimitConfigSchema, SAMLConfigSchema, SessionConfigSchema, StandardAuthProviderSchema, TwoFactorConfigSchema, UserFieldMappingSchema } from '@objectstack/spec/auth';
-import type { AccountLinkingConfig, AuthConfig, AuthPluginConfig, AuthStrategy, CSRFConfig, DatabaseAdapter, DatabaseMapping, EmailPasswordConfig, EnterpriseAuthConfig, LDAPConfig, MagicLinkConfig, OAuthProvider, OIDCConfig, PasskeyConfig, RateLimitConfig, SAMLConfig, SessionConfig, StandardAuthProvider, TwoFactorConfig, UserFieldMapping } from '@objectstack/spec/auth';
+import { APIKeySchema, AccountLinkingConfigSchema, ApplicationAuthConfigSchema, AuthConfigSchema, AuthPluginConfigSchema, AuthStrategySchema, BasicAuthSchema, BearerAuthSchema, CSRFConfigSchema, DatabaseAdapterSchema, DatabaseMappingSchema, EmailPasswordConfigSchema, EnterpriseAuthConfigSchema, JWTAuthSchema, LDAPConfigSchema, MagicLinkConfigSchema, NoAuthSchema, OAuth2Schema, OAuthProviderSchema, OIDCConfigSchema, PasskeyConfigSchema, SAMLAuthSchema, SAMLConfigSchema, SessionConfigSchema, StandardAuthProviderSchema, TwoFactorConfigSchema, UserFieldMappingSchema } from '@objectstack/spec/auth';
+import type { APIKey, AccountLinkingConfig, ApplicationAuthConfig, AuthConfig, AuthPluginConfig, AuthStrategy, BasicAuth, BearerAuth, CSRFConfig, DatabaseAdapter, DatabaseMapping, EmailPasswordConfig, EnterpriseAuthConfig, JWTAuth, LDAPConfig, MagicLinkConfig, NoAuth, OAuth2, OAuthProvider, OIDCConfig, PasskeyConfig, SAMLAuth, SAMLConfig, SessionConfig, StandardAuthProvider, TwoFactorConfig, UserFieldMapping } from '@objectstack/spec/auth';
 
 // Validate data
-const result = AccountLinkingConfigSchema.parse(data);
+const result = APIKeySchema.parse(data);
 ```
+
+---
+
+## APIKey
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Authentication type |
+| **key** | `string` | ✅ | API key value |
+| **headerName** | `string` | optional | HTTP header name for API key |
+| **paramName** | `string` | optional | Query parameter name (alternative to header) |
 
 ---
 
@@ -33,7 +46,7 @@ const result = AccountLinkingConfigSchema.parse(data);
 
 ---
 
-## AuthConfig
+## ApplicationAuthConfig
 
 ### Properties
 
@@ -69,6 +82,10 @@ const result = AccountLinkingConfigSchema.parse(data);
 
 ---
 
+## AuthConfig
+
+---
+
 ## AuthPluginConfig
 
 ### Properties
@@ -91,6 +108,29 @@ const result = AccountLinkingConfigSchema.parse(data);
 * `passkey`
 * `otp`
 * `anonymous`
+
+---
+
+## BasicAuth
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Authentication type |
+| **username** | `string` | ✅ | Username |
+| **password** | `string` | ✅ | Password (typically from ENV) |
+
+---
+
+## BearerAuth
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Authentication type |
+| **token** | `string` | ✅ | Bearer token |
 
 ---
 
@@ -160,6 +200,24 @@ const result = AccountLinkingConfigSchema.parse(data);
 
 ---
 
+## JWTAuth
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Authentication type |
+| **token** | `string` | optional | Pre-generated JWT token |
+| **secretKey** | `string` | optional | Secret key for JWT signing |
+| **algorithm** | `Enum<'HS256' \| 'HS384' \| 'HS512' \| 'RS256' \| 'RS384' \| 'RS512' \| 'ES256' \| 'ES384' \| 'ES512'>` | optional | JWT signing algorithm |
+| **issuer** | `string` | optional | JWT issuer claim |
+| **audience** | `string` | optional | JWT audience claim |
+| **subject** | `string` | optional | JWT subject claim |
+| **expiresIn** | `number` | optional | Token expiry in seconds |
+| **claims** | `Record<string, any>` | optional | Additional JWT claims |
+
+---
+
 ## LDAPConfig
 
 ### Properties
@@ -186,6 +244,34 @@ const result = AccountLinkingConfigSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **enabled** | `boolean` | optional |  |
 | **expiryTime** | `number` | optional | Magic link expiry time in seconds (default 15 min) |
+
+---
+
+## NoAuth
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | No authentication required |
+
+---
+
+## OAuth2
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Authentication type |
+| **authorizationUrl** | `string` | ✅ | OAuth2 authorization endpoint |
+| **tokenUrl** | `string` | ✅ | OAuth2 token endpoint |
+| **clientId** | `string` | ✅ | OAuth2 client ID |
+| **clientSecret** | `string` | ✅ | OAuth2 client secret (typically from ENV) |
+| **scopes** | `string[]` | optional | Requested OAuth2 scopes |
+| **redirectUri** | `string` | optional | OAuth2 redirect URI |
+| **refreshToken** | `string` | optional | Refresh token for token renewal |
+| **tokenExpiry** | `number` | optional | Token expiry timestamp |
 
 ---
 
@@ -238,17 +324,21 @@ const result = AccountLinkingConfigSchema.parse(data);
 
 ---
 
-## RateLimitConfig
+## SAMLAuth
 
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional |  |
-| **maxAttempts** | `number` | optional | Maximum login attempts |
-| **windowMs** | `number` | optional | Time window in milliseconds (default 15 min) |
-| **blockDuration** | `number` | optional | Block duration after max attempts in ms |
-| **skipSuccessfulRequests** | `boolean` | optional | Only count failed requests |
+| **type** | `string` | ✅ | Authentication type |
+| **entryPoint** | `string` | ✅ | SAML IdP entry point URL |
+| **issuer** | `string` | ✅ | SAML service provider issuer |
+| **certificate** | `string` | ✅ | SAML IdP certificate (X.509) |
+| **privateKey** | `string` | optional | SAML service provider private key |
+| **callbackUrl** | `string` | optional | SAML assertion consumer service URL |
+| **signatureAlgorithm** | `Enum<'sha1' \| 'sha256' \| 'sha512'>` | optional | SAML signature algorithm |
+| **wantAssertionsSigned** | `boolean` | optional | Require signed SAML assertions |
+| **identifierFormat** | `string` | optional | SAML NameID format |
 
 ---
 

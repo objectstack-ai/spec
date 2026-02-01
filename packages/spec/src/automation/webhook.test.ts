@@ -61,15 +61,13 @@ describe('WebhookSchema', () => {
   it('should apply default values', () => {
     const webhook = WebhookSchema.parse({
       name: 'test_webhook',
-      object: 'account',
-      triggers: ['create'],
       url: 'https://example.com/webhook',
     });
 
     expect(webhook.method).toBe('POST');
     expect(webhook.includeSession).toBe(false);
-    expect(webhook.retryCount).toBe(3);
     expect(webhook.isActive).toBe(true);
+    expect(webhook.timeoutMs).toBe(30000);
   });
 
   it('should accept webhook with all fields', () => {
@@ -114,10 +112,8 @@ describe('WebhookSchema', () => {
   it('should reject invalid HTTP method', () => {
     expect(() => WebhookSchema.parse({
       name: 'test_webhook',
-      object: 'account',
-      triggers: ['create'],
       url: 'https://example.com/webhook',
-      method: 'DELETE',
+      method: 'TRACE',
     })).toThrow();
   });
 
@@ -187,13 +183,14 @@ describe('WebhookSchema', () => {
   it('should accept custom retry count', () => {
     const webhook = WebhookSchema.parse({
       name: 'retry_webhook',
-      object: 'account',
-      triggers: ['create'],
       url: 'https://example.com/webhook',
-      retryCount: 10,
+      retryPolicy: {
+        maxRetries: 10,
+        backoffStrategy: 'linear',
+      }
     });
 
-    expect(webhook.retryCount).toBe(10);
+    expect(webhook.retryPolicy?.maxRetries).toBe(10);
   });
 
   it('should accept inactive webhook', () => {
@@ -253,21 +250,11 @@ describe('WebhookSchema', () => {
 
   it('should reject webhook without required fields', () => {
     expect(() => WebhookSchema.parse({
-      object: 'account',
-      triggers: ['create'],
       url: 'https://example.com/webhook',
     })).toThrow();
 
     expect(() => WebhookSchema.parse({
       name: 'test_webhook',
-      triggers: ['create'],
-      url: 'https://example.com/webhook',
-    })).toThrow();
-
-    expect(() => WebhookSchema.parse({
-      name: 'test_webhook',
-      object: 'account',
-      url: 'https://example.com/webhook',
     })).toThrow();
   });
 });

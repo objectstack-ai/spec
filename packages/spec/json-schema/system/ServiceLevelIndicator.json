@@ -1,0 +1,105 @@
+{
+  "$ref": "#/definitions/ServiceLevelIndicator",
+  "definitions": {
+    "ServiceLevelIndicator": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "SLI name (snake_case)"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label"
+        },
+        "description": {
+          "type": "string",
+          "description": "SLI description"
+        },
+        "metric": {
+          "type": "string",
+          "description": "Base metric name"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "availability",
+            "latency",
+            "throughput",
+            "error_rate",
+            "saturation",
+            "custom"
+          ],
+          "description": "SLI type"
+        },
+        "successCriteria": {
+          "type": "object",
+          "properties": {
+            "threshold": {
+              "type": "number",
+              "description": "Threshold value"
+            },
+            "operator": {
+              "type": "string",
+              "enum": [
+                "lt",
+                "lte",
+                "gt",
+                "gte",
+                "eq"
+              ],
+              "description": "Comparison operator"
+            },
+            "percentile": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Percentile (0-1)"
+            }
+          },
+          "required": [
+            "threshold",
+            "operator"
+          ],
+          "additionalProperties": false,
+          "description": "Success criteria"
+        },
+        "window": {
+          "type": "object",
+          "properties": {
+            "size": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "Window size in seconds"
+            },
+            "rolling": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          "required": [
+            "size"
+          ],
+          "additionalProperties": false,
+          "description": "Measurement window"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "metric",
+        "type",
+        "successCriteria",
+        "window"
+      ],
+      "additionalProperties": false,
+      "description": "Service Level Indicator"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

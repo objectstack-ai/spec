@@ -1,0 +1,42 @@
+{
+  "$ref": "#/definitions/WebSocketServerConfig",
+  "definitions": {
+    "WebSocketServerConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable WebSocket server"
+        },
+        "path": {
+          "type": "string",
+          "default": "/ws",
+          "description": "WebSocket endpoint path"
+        },
+        "heartbeatInterval": {
+          "type": "number",
+          "default": 30000,
+          "description": "Heartbeat interval in milliseconds"
+        },
+        "reconnectAttempts": {
+          "type": "number",
+          "default": 5,
+          "description": "Maximum reconnection attempts for clients"
+        },
+        "presence": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable presence tracking"
+        },
+        "cursorSharing": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable collaborative cursor sharing"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

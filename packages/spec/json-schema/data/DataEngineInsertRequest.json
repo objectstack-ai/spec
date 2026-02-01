@@ -1,0 +1,50 @@
+{
+  "$ref": "#/definitions/DataEngineInsertRequest",
+  "definitions": {
+    "DataEngineInsertRequest": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "type": "string",
+          "const": "insert"
+        },
+        "object": {
+          "type": "string"
+        },
+        "data": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {}
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": {}
+              }
+            }
+          ]
+        },
+        "options": {
+          "type": "object",
+          "properties": {
+            "returning": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          "additionalProperties": false,
+          "description": "Options for DataEngine.insert operations"
+        }
+      },
+      "required": [
+        "method",
+        "object",
+        "data"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

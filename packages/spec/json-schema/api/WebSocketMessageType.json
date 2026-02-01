@@ -1,0 +1,21 @@
+{
+  "$ref": "#/definitions/WebSocketMessageType",
+  "definitions": {
+    "WebSocketMessageType": {
+      "type": "string",
+      "enum": [
+        "subscribe",
+        "unsubscribe",
+        "event",
+        "ping",
+        "pong",
+        "ack",
+        "error",
+        "presence",
+        "cursor",
+        "edit"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,67 @@
+{
+  "$ref": "#/definitions/UpdateManyRequest",
+  "definitions": {
+    "UpdateManyRequest": {
+      "type": "object",
+      "properties": {
+        "records": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Record ID (required for update/delete)"
+              },
+              "data": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Record data (required for create/update/upsert)"
+              },
+              "externalId": {
+                "type": "string",
+                "description": "External ID for upsert matching"
+              }
+            },
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 200,
+          "description": "Array of records to update (max 200 per batch)"
+        },
+        "options": {
+          "type": "object",
+          "properties": {
+            "atomic": {
+              "type": "boolean",
+              "default": true,
+              "description": "If true, rollback entire batch on any failure (transaction mode)"
+            },
+            "returnRecords": {
+              "type": "boolean",
+              "default": false,
+              "description": "If true, return full record data in response"
+            },
+            "continueOnError": {
+              "type": "boolean",
+              "default": false,
+              "description": "If true (and atomic=false), continue processing remaining records after errors"
+            },
+            "validateOnly": {
+              "type": "boolean",
+              "default": false,
+              "description": "If true, validate records without persisting changes (dry-run mode)"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Update options"
+        }
+      },
+      "required": [
+        "records"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

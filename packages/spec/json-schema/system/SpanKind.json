@@ -1,0 +1,17 @@
+{
+  "$ref": "#/definitions/SpanKind",
+  "definitions": {
+    "SpanKind": {
+      "type": "string",
+      "enum": [
+        "internal",
+        "server",
+        "client",
+        "producer",
+        "consumer"
+      ],
+      "description": "Span kind"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

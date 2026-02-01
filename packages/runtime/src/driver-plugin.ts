@@ -30,11 +30,15 @@ export class DriverPlugin implements Plugin {
         // Register driver as a service instead of directly to objectql
         const serviceName = `driver.${this.driver.name || 'unknown'}`;
         ctx.registerService(serviceName, this.driver);
-        ctx.logger.log(`[DriverPlugin] Registered driver service: ${serviceName}`);
+        ctx.logger.info('Driver service registered', { 
+            serviceName, 
+            driverName: this.driver.name,
+            driverVersion: this.driver.version 
+        });
     }
 
     async start(ctx: PluginContext) {
         // Drivers don't need start phase, initialization happens in init
-        ctx.logger.log(`[DriverPlugin] Driver ready: ${this.driver.name || 'unknown'}`);
+        ctx.logger.debug('Driver plugin started', { driverName: this.driver.name || 'unknown' });
     }
 }

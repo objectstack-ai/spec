@@ -1,0 +1,39 @@
+{
+  "$ref": "#/definitions/ServiceRegistryConfig",
+  "definitions": {
+    "ServiceRegistryConfig": {
+      "type": "object",
+      "properties": {
+        "strictMode": {
+          "type": "boolean",
+          "default": true,
+          "description": "Throw errors on invalid operations (duplicate registration, service not found, etc.)"
+        },
+        "allowOverwrite": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow overwriting existing service registrations"
+        },
+        "enableLogging": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable logging for service registration and retrieval"
+        },
+        "scopeTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Supported scope types"
+        },
+        "maxServices": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum number of services that can be registered"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

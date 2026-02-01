@@ -1,0 +1,38 @@
+---
+title: Mapping
+description: Mapping protocol schemas
+---
+
+# Mapping
+
+<Callout type="info">
+**Source:** `packages/spec/src/shared/mapping.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { FieldMappingSchema, TransformTypeSchema } from '@objectstack/spec/shared';
+import type { FieldMapping, TransformType } from '@objectstack/spec/shared';
+
+// Validate data
+const result = FieldMappingSchema.parse(data);
+```
+
+---
+
+## FieldMapping
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **source** | `string` | ✅ | Source field name |
+| **target** | `string` | ✅ | Target field name |
+| **transform** | `object \| object \| object \| object \| object` | optional | Transformation to apply |
+| **defaultValue** | `any` | optional | Default if source is null/undefined |
+
+---
+
+## TransformType
+

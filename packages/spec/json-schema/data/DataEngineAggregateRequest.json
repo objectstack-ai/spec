@@ -1,0 +1,98 @@
+{
+  "$ref": "#/definitions/DataEngineAggregateRequest",
+  "definitions": {
+    "DataEngineAggregateRequest": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "type": "string",
+          "const": "aggregate"
+        },
+        "object": {
+          "type": "string"
+        },
+        "query": {
+          "type": "object",
+          "properties": {
+            "filter": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": {}
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "$and": {
+                          "type": "array",
+                          "items": {}
+                        },
+                        "$or": {
+                          "type": "array",
+                          "items": {}
+                        },
+                        "$not": {}
+                      }
+                    }
+                  ]
+                }
+              ],
+              "description": "Data Engine query filter conditions"
+            },
+            "groupBy": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "aggregations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "string"
+                  },
+                  "method": {
+                    "type": "string",
+                    "enum": [
+                      "count",
+                      "sum",
+                      "avg",
+                      "min",
+                      "max",
+                      "count_distinct"
+                    ]
+                  },
+                  "alias": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "field",
+                  "method"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false,
+          "description": "Options for DataEngine.aggregate operations"
+        }
+      },
+      "required": [
+        "method",
+        "object",
+        "query"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

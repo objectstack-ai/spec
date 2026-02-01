@@ -250,30 +250,38 @@ describe('WebhookTriggerActionSchema', () => {
     const action = {
       name: 'trigger_webhook',
       type: 'webhook_trigger' as const,
-      url: 'https://webhook.site/unique-id',
+      config: {
+        name: 'order_webhook',
+        url: 'https://webhook.site/unique-id',
+        method: 'POST' as const,
+      }
     };
 
     const result = WebhookTriggerActionSchema.parse(action);
-    expect(result.method).toBe('POST');
-    expect(result.retryOnFailure).toBe(true);
-    expect(result.maxRetries).toBe(3);
+    expect(result.config.method).toBe('POST');
+    expect(result.config.isActive).toBe(true);
   });
 
   it('should accept webhook with custom configuration', () => {
     const action = {
       name: 'custom_webhook',
       type: 'webhook_trigger' as const,
-      url: 'https://api.example.com/webhook',
-      method: 'PUT' as const,
-      headers: {
-        'X-Webhook-Secret': 'secret-key',
-      },
-      payload: {
-        event: 'record.created',
-        data: '{record}',
-      },
-      retryOnFailure: false,
-      maxRetries: 5,
+      config: {
+        name: 'custom_hook',
+        url: 'https://api.example.com/webhook',
+        method: 'PUT' as const,
+        headers: {
+          'X-Webhook-Secret': 'secret-key',
+        },
+        body: {
+          event: 'record.created',
+          data: '{record}',
+        },
+        retryPolicy: {
+          maxRetries: 5,
+          backoffStrategy: 'exponential' as const,
+        }
+      }
     };
 
     expect(() => WebhookTriggerActionSchema.parse(action)).not.toThrow();
@@ -463,7 +471,10 @@ describe('WorkflowActionSchema', () => {
     const action = {
       name: 'trigger_webhook',
       type: 'webhook_trigger' as const,
-      url: 'https://webhook.example.com',
+      config: {
+        name: 'test_webhook',
+        url: 'https://webhook.example.com',
+      },
     };
 
     expect(() => WorkflowActionSchema.parse(action)).not.toThrow();
@@ -832,10 +843,14 @@ describe('WorkflowRuleSchema', () => {
           {
             name: 'trigger_fulfillment_webhook',
             type: 'webhook_trigger',
-            url: 'https://fulfillment.example.com/webhook/new-order',
-            payload: {
-              order: '{record}',
-            },
+            config: {
+              name: 'fulfillment_hook',
+              url: 'https://fulfillment.example.com/webhook/new-order',
+              method: 'POST',
+              body: {
+                order: '{record}',
+              },
+            }
           },
         ],
       };

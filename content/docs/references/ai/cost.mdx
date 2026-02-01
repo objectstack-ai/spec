@@ -12,12 +12,29 @@ description: Cost protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { BillingPeriodSchema, BudgetLimitSchema, BudgetStatusSchema, BudgetTypeSchema, CostAlertSchema, CostAlertTypeSchema, CostAnalyticsSchema, CostBreakdownDimensionSchema, CostBreakdownEntrySchema, CostEntrySchema, CostMetricTypeSchema, CostOptimizationRecommendationSchema, CostQueryFiltersSchema, CostReportSchema } from '@objectstack/spec/ai';
-import type { BillingPeriod, BudgetLimit, BudgetStatus, BudgetType, CostAlert, CostAlertType, CostAnalytics, CostBreakdownDimension, CostBreakdownEntry, CostEntry, CostMetricType, CostOptimizationRecommendation, CostQueryFilters, CostReport } from '@objectstack/spec/ai';
+import { AIOperationCostSchema, BillingPeriodSchema, BudgetLimitSchema, BudgetStatusSchema, BudgetTypeSchema, CostAlertSchema, CostAlertTypeSchema, CostAnalyticsSchema, CostBreakdownDimensionSchema, CostBreakdownEntrySchema, CostEntrySchema, CostMetricTypeSchema, CostOptimizationRecommendationSchema, CostQueryFiltersSchema, CostReportSchema, TokenUsageSchema } from '@objectstack/spec/ai';
+import type { AIOperationCost, BillingPeriod, BudgetLimit, BudgetStatus, BudgetType, CostAlert, CostAlertType, CostAnalytics, CostBreakdownDimension, CostBreakdownEntry, CostEntry, CostMetricType, CostOptimizationRecommendation, CostQueryFilters, CostReport, TokenUsage } from '@objectstack/spec/ai';
 
 // Validate data
-const result = BillingPeriodSchema.parse(data);
+const result = AIOperationCostSchema.parse(data);
 ```
+
+---
+
+## AIOperationCost
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **operationId** | `string` | ✅ |  |
+| **operationType** | `Enum<'conversation' \| 'orchestration' \| 'prediction' \| 'rag' \| 'nlq'>` | ✅ |  |
+| **agentName** | `string` | optional | Agent that performed the operation |
+| **modelId** | `string` | ✅ |  |
+| **tokens** | `object` | ✅ |  |
+| **cost** | `number` | ✅ | Cost in USD |
+| **timestamp** | `string` | ✅ |  |
+| **metadata** | `Record<string, any>` | optional |  |
 
 ---
 
@@ -315,4 +332,16 @@ const result = BillingPeriodSchema.parse(data);
 | **forecastedBudgetStatus** | `Enum<'under' \| 'at' \| 'over'>` | optional |  |
 | **format** | `Enum<'summary' \| 'detailed' \| 'executive'>` | optional |  |
 | **currency** | `string` | optional |  |
+
+---
+
+## TokenUsage
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **prompt** | `integer` | ✅ | Input tokens |
+| **completion** | `integer` | ✅ | Output tokens |
+| **total** | `integer` | ✅ | Total tokens |
 

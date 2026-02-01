@@ -1,0 +1,46 @@
+{
+  "$ref": "#/definitions/PluginErrorEvent",
+  "definitions": {
+    "PluginErrorEvent": {
+      "type": "object",
+      "properties": {
+        "pluginName": {
+          "type": "string",
+          "description": "Name of the plugin"
+        },
+        "timestamp": {
+          "type": "integer",
+          "description": "Unix timestamp in milliseconds when event occurred"
+        },
+        "error": {
+          "description": "Error object"
+        },
+        "phase": {
+          "type": "string",
+          "enum": [
+            "init",
+            "start",
+            "destroy"
+          ],
+          "description": "Lifecycle phase where error occurred"
+        },
+        "errorMessage": {
+          "type": "string",
+          "description": "Error message"
+        },
+        "errorStack": {
+          "type": "string",
+          "description": "Error stack trace"
+        }
+      },
+      "required": [
+        "pluginName",
+        "timestamp",
+        "error",
+        "phase"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

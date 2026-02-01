@@ -4,8 +4,13 @@
   "pages": [
     "micro-kernel",
     "writing-plugins",
+    "plugin-ecosystem",
     "custom-widgets",
     "server-drivers",
-    "cli-tools"
+    "cli-tools",
+    "---",
+    "ai-development-guide",
+    "ai-quick-reference",
+    "ai-erp-tutorial"
   ]
 }

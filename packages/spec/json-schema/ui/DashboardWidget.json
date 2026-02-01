@@ -11,25 +11,107 @@
         "type": {
           "type": "string",
           "enum": [
-            "metric",
             "bar",
+            "horizontal-bar",
+            "column",
+            "grouped-bar",
+            "stacked-bar",
             "line",
+            "area",
+            "stacked-area",
+            "step-line",
             "pie",
             "donut",
-            "gauge",
             "funnel",
-            "radar",
             "scatter",
+            "bubble",
+            "treemap",
+            "sunburst",
+            "sankey",
+            "gauge",
+            "metric",
+            "kpi",
+            "choropleth",
+            "bubble-map",
             "heatmap",
-            "pivot",
+            "radar",
+            "waterfall",
+            "box-plot",
+            "violin",
             "table",
-            "list",
-            "text",
-            "image",
-            "frame"
+            "pivot"
           ],
           "default": "metric",
           "description": "Visualization type"
+        },
+        "chartConfig": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "bar",
+                "horizontal-bar",
+                "column",
+                "grouped-bar",
+                "stacked-bar",
+                "line",
+                "area",
+                "stacked-area",
+                "step-line",
+                "pie",
+                "donut",
+                "funnel",
+                "scatter",
+                "bubble",
+                "treemap",
+                "sunburst",
+                "sankey",
+                "gauge",
+                "metric",
+                "kpi",
+                "choropleth",
+                "bubble-map",
+                "heatmap",
+                "radar",
+                "waterfall",
+                "box-plot",
+                "violin",
+                "table",
+                "pivot"
+              ]
+            },
+            "title": {
+              "type": "string",
+              "description": "Chart title"
+            },
+            "description": {
+              "type": "string",
+              "description": "Chart description"
+            },
+            "showLegend": {
+              "type": "boolean",
+              "default": true,
+              "description": "Display legend"
+            },
+            "showDataLabels": {
+              "type": "boolean",
+              "default": false,
+              "description": "Display data labels on chart"
+            },
+            "colors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Custom color palette"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false,
+          "description": "Chart visualization configuration"
         },
         "object": {
           "type": "string",

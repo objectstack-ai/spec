@@ -1,0 +1,99 @@
+{
+  "$ref": "#/definitions/StorageBucket",
+  "definitions": {
+    "StorageBucket": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Bucket identifier in ObjectStack (snake_case)"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label"
+        },
+        "bucketName": {
+          "type": "string",
+          "description": "Actual bucket/container name in storage system"
+        },
+        "region": {
+          "type": "string",
+          "description": "Storage region"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable sync for this bucket"
+        },
+        "prefix": {
+          "type": "string",
+          "description": "Prefix/path within bucket"
+        },
+        "accessPattern": {
+          "type": "string",
+          "enum": [
+            "public_read",
+            "private",
+            "authenticated_read",
+            "bucket_owner_read",
+            "bucket_owner_full"
+          ],
+          "description": "Access pattern"
+        },
+        "fileFilters": {
+          "type": "object",
+          "properties": {
+            "includePatterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "File patterns to include (glob)"
+            },
+            "excludePatterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "File patterns to exclude (glob)"
+            },
+            "minFileSize": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Minimum file size in bytes"
+            },
+            "maxFileSize": {
+              "type": "number",
+              "minimum": 1,
+              "description": "Maximum file size in bytes"
+            },
+            "allowedExtensions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Allowed file extensions"
+            },
+            "blockedExtensions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Blocked file extensions"
+            }
+          },
+          "additionalProperties": false,
+          "description": "File filter configuration"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "bucketName"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

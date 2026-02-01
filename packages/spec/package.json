@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/spec",
-  "version": "0.6.1",
+  "version": "0.7.2",
   "description": "ObjectStack Protocol & Specification - TypeScript Interfaces, JSON Schemas, and Convention Configurations",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -48,6 +48,18 @@
     "./ui": {
       "types": "./dist/ui/index.d.ts",
       "default": "./dist/ui/index.js"
+    },
+    "./contracts": {
+      "types": "./dist/contracts/index.d.ts",
+      "default": "./dist/contracts/index.js"
+    },
+    "./integration": {
+      "types": "./dist/integration/index.d.ts",
+      "default": "./dist/integration/index.js"
+    },
+    "./permission": {
+      "types": "./dist/permission/index.d.ts",
+      "default": "./dist/permission/index.js"
     }
   },
   "files": [

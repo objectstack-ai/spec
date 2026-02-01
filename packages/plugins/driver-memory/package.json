@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/driver-memory",
-  "version": "0.6.1",
+  "version": "0.7.2",
   "description": "In-Memory Driver for ObjectStack (Reference Implementation)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

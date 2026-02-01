@@ -1,0 +1,25 @@
+{
+  "$ref": "#/definitions/ApiMethod",
+  "definitions": {
+    "ApiMethod": {
+      "type": "string",
+      "enum": [
+        "get",
+        "list",
+        "create",
+        "update",
+        "delete",
+        "upsert",
+        "bulk",
+        "aggregate",
+        "history",
+        "search",
+        "restore",
+        "purge",
+        "import",
+        "export"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

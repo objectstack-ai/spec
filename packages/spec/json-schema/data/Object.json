@@ -448,6 +448,440 @@
                 "additionalProperties": false,
                 "description": "Configuration for vector field type (AI/ML embeddings)"
               },
+              "fileAttachmentConfig": {
+                "type": "object",
+                "properties": {
+                  "minSize": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Minimum file size in bytes"
+                  },
+                  "maxSize": {
+                    "type": "number",
+                    "minimum": 1,
+                    "description": "Maximum file size in bytes (e.g., 10485760 = 10MB)"
+                  },
+                  "allowedTypes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Allowed file extensions (e.g., [\".pdf\", \".docx\", \".jpg\"])"
+                  },
+                  "blockedTypes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Blocked file extensions (e.g., [\".exe\", \".bat\", \".sh\"])"
+                  },
+                  "allowedMimeTypes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Allowed MIME types (e.g., [\"image/jpeg\", \"application/pdf\"])"
+                  },
+                  "blockedMimeTypes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Blocked MIME types"
+                  },
+                  "virusScan": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable virus scanning for uploaded files"
+                  },
+                  "virusScanProvider": {
+                    "type": "string",
+                    "enum": [
+                      "clamav",
+                      "virustotal",
+                      "metadefender",
+                      "custom"
+                    ],
+                    "description": "Virus scanning service provider"
+                  },
+                  "virusScanOnUpload": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Scan files immediately on upload"
+                  },
+                  "quarantineOnThreat": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Quarantine files if threat detected"
+                  },
+                  "storageProvider": {
+                    "type": "string",
+                    "description": "Object storage provider name (references ObjectStorageConfig)"
+                  },
+                  "storageBucket": {
+                    "type": "string",
+                    "description": "Target bucket name"
+                  },
+                  "storagePrefix": {
+                    "type": "string",
+                    "description": "Storage path prefix (e.g., \"uploads/documents/\")"
+                  },
+                  "imageValidation": {
+                    "type": "object",
+                    "properties": {
+                      "minWidth": {
+                        "type": "number",
+                        "minimum": 1,
+                        "description": "Minimum image width in pixels"
+                      },
+                      "maxWidth": {
+                        "type": "number",
+                        "minimum": 1,
+                        "description": "Maximum image width in pixels"
+                      },
+                      "minHeight": {
+                        "type": "number",
+                        "minimum": 1,
+                        "description": "Minimum image height in pixels"
+                      },
+                      "maxHeight": {
+                        "type": "number",
+                        "minimum": 1,
+                        "description": "Maximum image height in pixels"
+                      },
+                      "aspectRatio": {
+                        "type": "string",
+                        "description": "Required aspect ratio (e.g., \"16:9\", \"1:1\")"
+                      },
+                      "generateThumbnails": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Auto-generate thumbnails"
+                      },
+                      "thumbnailSizes": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "description": "Thumbnail variant name (e.g., \"small\", \"medium\", \"large\")"
+                            },
+                            "width": {
+                              "type": "number",
+                              "minimum": 1,
+                              "description": "Thumbnail width in pixels"
+                            },
+                            "height": {
+                              "type": "number",
+                              "minimum": 1,
+                              "description": "Thumbnail height in pixels"
+                            },
+                            "crop": {
+                              "type": "boolean",
+                              "default": false,
+                              "description": "Crop to exact dimensions"
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "width",
+                            "height"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "description": "Thumbnail size configurations"
+                      },
+                      "preserveMetadata": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Preserve EXIF metadata"
+                      },
+                      "autoRotate": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Auto-rotate based on EXIF orientation"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Image-specific validation rules"
+                  },
+                  "allowMultiple": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Allow multiple file uploads (overrides field.multiple)"
+                  },
+                  "allowReplace": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Allow replacing existing files"
+                  },
+                  "allowDelete": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Allow deleting uploaded files"
+                  },
+                  "requireUpload": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Require at least one file when field is required"
+                  },
+                  "extractMetadata": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Extract file metadata (name, size, type, etc.)"
+                  },
+                  "extractText": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Extract text content from documents (OCR/parsing)"
+                  },
+                  "versioningEnabled": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Keep previous versions of replaced files"
+                  },
+                  "maxVersions": {
+                    "type": "number",
+                    "minimum": 1,
+                    "description": "Maximum number of versions to retain"
+                  },
+                  "publicRead": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Allow public read access to uploaded files"
+                  },
+                  "presignedUrlExpiry": {
+                    "type": "number",
+                    "minimum": 60,
+                    "maximum": 604800,
+                    "default": 3600,
+                    "description": "Presigned URL expiration in seconds (default: 1 hour)"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "Configuration for file and attachment field types"
+              },
+              "encryptionConfig": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "algorithm": {
+                    "type": "string",
+                    "enum": [
+                      "aes-256-gcm",
+                      "aes-256-cbc",
+                      "chacha20-poly1305"
+                    ],
+                    "default": "aes-256-gcm"
+                  },
+                  "keyManagement": {
+                    "type": "object",
+                    "properties": {
+                      "provider": {
+                        "type": "string",
+                        "enum": [
+                          "local",
+                          "aws-kms",
+                          "azure-key-vault",
+                          "gcp-kms",
+                          "hashicorp-vault"
+                        ]
+                      },
+                      "keyId": {
+                        "type": "string"
+                      },
+                      "rotationPolicy": {
+                        "type": "object",
+                        "properties": {
+                          "enabled": {
+                            "type": "boolean",
+                            "default": false
+                          },
+                          "frequencyDays": {
+                            "type": "number",
+                            "minimum": 1,
+                            "default": 90
+                          },
+                          "retainOldVersions": {
+                            "type": "number",
+                            "default": 3
+                          },
+                          "autoRotate": {
+                            "type": "boolean",
+                            "default": true
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "provider"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "scope": {
+                    "type": "string",
+                    "enum": [
+                      "field",
+                      "record",
+                      "table",
+                      "database"
+                    ]
+                  },
+                  "deterministicEncryption": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Allows equality queries on encrypted data"
+                  },
+                  "searchableEncryption": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Allows search on encrypted data"
+                  }
+                },
+                "required": [
+                  "keyManagement",
+                  "scope"
+                ],
+                "additionalProperties": false,
+                "description": "Field-level encryption configuration for sensitive data (GDPR/HIPAA/PCI-DSS)"
+              },
+              "maskingRule": {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "string"
+                  },
+                  "strategy": {
+                    "type": "string",
+                    "enum": [
+                      "redact",
+                      "partial",
+                      "hash",
+                      "tokenize",
+                      "randomize",
+                      "nullify",
+                      "substitute"
+                    ]
+                  },
+                  "pattern": {
+                    "type": "string",
+                    "description": "Regex pattern for partial masking"
+                  },
+                  "preserveFormat": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "preserveLength": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Roles that see masked data"
+                  },
+                  "exemptRoles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Roles that see unmasked data"
+                  }
+                },
+                "required": [
+                  "field",
+                  "strategy"
+                ],
+                "additionalProperties": false,
+                "description": "Data masking rules for PII protection"
+              },
+              "auditTrail": {
+                "type": "boolean",
+                "default": false,
+                "description": "Enable detailed audit trail for this field (tracks all changes with user and timestamp)"
+              },
+              "dependencies": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Array of field names that this field depends on (for formulas, visibility rules, etc.)"
+              },
+              "cached": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "description": "Enable caching for computed field results"
+                  },
+                  "ttl": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Cache TTL in seconds (0 = no expiration)"
+                  },
+                  "invalidateOn": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Field paths that invalidate cache (e.g., [\"inventory.quantity\", \"pricing.base_price\"])"
+                  }
+                },
+                "required": [
+                  "enabled",
+                  "ttl",
+                  "invalidateOn"
+                ],
+                "additionalProperties": false,
+                "description": "Caching configuration for computed/formula fields"
+              },
+              "dataQuality": {
+                "type": "object",
+                "properties": {
+                  "uniqueness": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enforce unique values across all records"
+                  },
+                  "completeness": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "default": 0,
+                    "description": "Minimum ratio of non-null values (0-1, default: 0 = no requirement)"
+                  },
+                  "accuracy": {
+                    "type": "object",
+                    "properties": {
+                      "source": {
+                        "type": "string",
+                        "description": "Reference data source for validation (e.g., \"api.verify.com\", \"master_data\")"
+                      },
+                      "threshold": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1,
+                        "description": "Minimum accuracy threshold (0-1, e.g., 0.95 = 95% match required)"
+                      }
+                    },
+                    "required": [
+                      "source",
+                      "threshold"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Accuracy validation configuration"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "Data quality validation and monitoring rules"
+              },
               "hidden": {
                 "type": "boolean",
                 "default": false,
@@ -461,7 +895,7 @@
               "encryption": {
                 "type": "boolean",
                 "default": false,
-                "description": "Encrypt at rest"
+                "description": "Deprecated: Use encryptionConfig for enhanced encryption features. Simple flag for backward compatibility."
               },
               "index": {
                 "type": "boolean",
@@ -479,7 +913,10 @@
             ],
             "additionalProperties": false
           },
-          "description": "Field definitions map"
+          "propertyNames": {
+            "pattern": "^[a-z_][a-z0-9_]*$"
+          },
+          "description": "Field definitions map. Keys must be snake_case identifiers."
         },
         "indexes": {
           "type": "array",
@@ -488,7 +925,7 @@
             "properties": {
               "name": {
                 "type": "string",
-                "description": "Index name"
+                "description": "Index name (auto-generated if not provided)"
               },
               "fields": {
                 "type": "array",
@@ -497,19 +934,26 @@
                 },
                 "description": "Fields included in the index"
               },
-              "unique": {
-                "type": "boolean",
-                "description": "Whether the index is unique"
-              },
               "type": {
                 "type": "string",
                 "enum": [
                   "btree",
                   "hash",
                   "gin",
-                  "gist"
+                  "gist",
+                  "fulltext"
                 ],
-                "description": "Index type (default: btree)"
+                "default": "btree",
+                "description": "Index algorithm type"
+              },
+              "unique": {
+                "type": "boolean",
+                "default": false,
+                "description": "Whether the index enforces uniqueness"
+              },
+              "partial": {
+                "type": "string",
+                "description": "Partial index condition (SQL WHERE clause for conditional indexes)"
               }
             },
             "required": [
@@ -518,6 +962,163 @@
             "additionalProperties": false
           },
           "description": "Database performance indexes"
+        },
+        "tenancy": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable multi-tenancy for this object"
+            },
+            "strategy": {
+              "type": "string",
+              "enum": [
+                "shared",
+                "isolated",
+                "hybrid"
+              ],
+              "description": "Tenant isolation strategy: shared (single DB, row-level), isolated (separate DB per tenant), hybrid (mix)"
+            },
+            "tenantField": {
+              "type": "string",
+              "default": "tenant_id",
+              "description": "Field name for tenant identifier"
+            },
+            "crossTenantAccess": {
+              "type": "boolean",
+              "default": false,
+              "description": "Allow cross-tenant data access (with explicit permission)"
+            }
+          },
+          "required": [
+            "enabled",
+            "strategy"
+          ],
+          "additionalProperties": false,
+          "description": "Multi-tenancy configuration for SaaS applications"
+        },
+        "softDelete": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable soft delete (trash/recycle bin)"
+            },
+            "field": {
+              "type": "string",
+              "default": "deleted_at",
+              "description": "Field name for soft delete timestamp"
+            },
+            "cascadeDelete": {
+              "type": "boolean",
+              "default": false,
+              "description": "Cascade soft delete to related records"
+            }
+          },
+          "required": [
+            "enabled"
+          ],
+          "additionalProperties": false,
+          "description": "Soft delete (trash/recycle bin) configuration"
+        },
+        "versioning": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable record versioning"
+            },
+            "strategy": {
+              "type": "string",
+              "enum": [
+                "snapshot",
+                "delta",
+                "event-sourcing"
+              ],
+              "description": "Versioning strategy: snapshot (full copy), delta (changes only), event-sourcing (event log)"
+            },
+            "retentionDays": {
+              "type": "number",
+              "minimum": 1,
+              "description": "Number of days to retain old versions (undefined = infinite)"
+            },
+            "versionField": {
+              "type": "string",
+              "default": "version",
+              "description": "Field name for version number/timestamp"
+            }
+          },
+          "required": [
+            "enabled",
+            "strategy"
+          ],
+          "additionalProperties": false,
+          "description": "Record versioning and history tracking configuration"
+        },
+        "partitioning": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable table partitioning"
+            },
+            "strategy": {
+              "type": "string",
+              "enum": [
+                "range",
+                "hash",
+                "list"
+              ],
+              "description": "Partitioning strategy: range (date ranges), hash (consistent hashing), list (predefined values)"
+            },
+            "key": {
+              "type": "string",
+              "description": "Field name to partition by"
+            },
+            "interval": {
+              "type": "string",
+              "description": "Partition interval for range strategy (e.g., \"1 month\", \"1 year\")"
+            }
+          },
+          "required": [
+            "enabled",
+            "strategy",
+            "key"
+          ],
+          "additionalProperties": false,
+          "description": "Table partitioning configuration for performance"
+        },
+        "cdc": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable Change Data Capture"
+            },
+            "events": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "insert",
+                  "update",
+                  "delete"
+                ]
+              },
+              "description": "Event types to capture"
+            },
+            "destination": {
+              "type": "string",
+              "description": "Destination endpoint (e.g., \"kafka://topic\", \"webhook://url\")"
+            }
+          },
+          "required": [
+            "enabled",
+            "events",
+            "destination"
+          ],
+          "additionalProperties": false,
+          "description": "Change Data Capture (CDC) configuration for real-time data streaming"
         },
         "validations": {
           "type": "array",

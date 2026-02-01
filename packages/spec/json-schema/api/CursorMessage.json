@@ -1,0 +1,139 @@
+{
+  "$ref": "#/definitions/CursorMessage",
+  "definitions": {
+    "CursorMessage": {
+      "type": "object",
+      "properties": {
+        "messageId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique message identifier"
+        },
+        "type": {
+          "type": "string",
+          "const": "cursor"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 datetime when message was sent"
+        },
+        "cursor": {
+          "type": "object",
+          "properties": {
+            "userId": {
+              "type": "string",
+              "description": "User identifier"
+            },
+            "sessionId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Session identifier"
+            },
+            "documentId": {
+              "type": "string",
+              "description": "Document identifier being edited"
+            },
+            "position": {
+              "type": "object",
+              "properties": {
+                "line": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Line number (0-indexed)"
+                },
+                "column": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Column number (0-indexed)"
+                }
+              },
+              "required": [
+                "line",
+                "column"
+              ],
+              "additionalProperties": false,
+              "description": "Cursor position in document"
+            },
+            "selection": {
+              "type": "object",
+              "properties": {
+                "start": {
+                  "type": "object",
+                  "properties": {
+                    "line": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "column": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "line",
+                    "column"
+                  ],
+                  "additionalProperties": false
+                },
+                "end": {
+                  "type": "object",
+                  "properties": {
+                    "line": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "column": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "line",
+                    "column"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "start",
+                "end"
+              ],
+              "additionalProperties": false,
+              "description": "Selection range (if text is selected)"
+            },
+            "color": {
+              "type": "string",
+              "description": "Cursor color for visual representation"
+            },
+            "userName": {
+              "type": "string",
+              "description": "Display name of user"
+            },
+            "lastUpdate": {
+              "type": "string",
+              "format": "date-time",
+              "description": "ISO 8601 datetime of last cursor update"
+            }
+          },
+          "required": [
+            "userId",
+            "sessionId",
+            "documentId",
+            "lastUpdate"
+          ],
+          "additionalProperties": false,
+          "description": "Cursor position"
+        }
+      },
+      "required": [
+        "messageId",
+        "type",
+        "timestamp",
+        "cursor"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

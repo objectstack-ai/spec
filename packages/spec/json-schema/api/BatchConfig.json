@@ -1,0 +1,51 @@
+{
+  "$ref": "#/definitions/BatchConfig",
+  "definitions": {
+    "BatchConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable batch operations"
+        },
+        "maxRecordsPerBatch": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "default": 200,
+          "description": "Maximum records per batch"
+        },
+        "defaultOptions": {
+          "type": "object",
+          "properties": {
+            "atomic": {
+              "type": "boolean",
+              "default": true,
+              "description": "If true, rollback entire batch on any failure (transaction mode)"
+            },
+            "returnRecords": {
+              "type": "boolean",
+              "default": false,
+              "description": "If true, return full record data in response"
+            },
+            "continueOnError": {
+              "type": "boolean",
+              "default": false,
+              "description": "If true (and atomic=false), continue processing remaining records after errors"
+            },
+            "validateOnly": {
+              "type": "boolean",
+              "default": false,
+              "description": "If true, validate records without persisting changes (dry-run mode)"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Default batch options"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

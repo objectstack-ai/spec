@@ -12,29 +12,12 @@ description: Connector protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AuthFieldSchema, AuthenticationSchema, AuthenticationTypeSchema, ConnectorSchema, ConnectorCategorySchema, ConnectorInstanceSchema, ConnectorOperationSchema, ConnectorTriggerSchema, OAuth2ConfigSchema, OperationParameterSchema, OperationTypeSchema } from '@objectstack/spec/automation';
-import type { AuthField, Authentication, AuthenticationType, Connector, ConnectorCategory, ConnectorInstance, ConnectorOperation, ConnectorTrigger, OAuth2Config, OperationParameter, OperationType } from '@objectstack/spec/automation';
+import { AuthenticationSchema, ConflictResolutionSchema, ConnectorSchema, DataSyncConfigSchema } from '@objectstack/spec/automation';
+import type { Authentication, ConflictResolution, Connector, DataSyncConfig } from '@objectstack/spec/automation';
 
 // Validate data
-const result = AuthFieldSchema.parse(data);
+const result = AuthenticationSchema.parse(data);
 ```
-
----
-
-## AuthField
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Field name (snake_case) |
-| **label** | `string` | ✅ | Field label |
-| **type** | `Enum<'text' \| 'password' \| 'url' \| 'select'>` | optional | Field type |
-| **description** | `string` | optional | Field description |
-| **required** | `boolean` | optional | Required field |
-| **default** | `string` | optional | Default value |
-| **options** | `object[]` | optional | Select field options |
-| **placeholder** | `string` | optional | Placeholder text |
 
 ---
 
@@ -51,17 +34,15 @@ const result = AuthFieldSchema.parse(data);
 
 ---
 
-## AuthenticationType
+## ConflictResolution
 
 ### Allowed Values
 
-* `none`
-* `apiKey`
-* `basic`
-* `bearer`
-* `oauth1`
-* `oauth2`
-* `custom`
+* `source_wins`
+* `destination_wins`
+* `latest_wins`
+* `manual`
+* `merge`
 
 ---
 
@@ -92,120 +73,29 @@ const result = AuthFieldSchema.parse(data);
 
 ---
 
-## ConnectorCategory
-
-### Allowed Values
-
-* `crm`
-* `payment`
-* `communication`
-* `storage`
-* `analytics`
-* `database`
-* `marketing`
-* `accounting`
-* `hr`
-* `productivity`
-* `ecommerce`
-* `support`
-* `devtools`
-* `social`
-* `other`
-
----
-
-## ConnectorInstance
+## DataSyncConfig
 
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ | Instance ID |
-| **connectorId** | `string` | ✅ | Connector ID |
-| **name** | `string` | ✅ | Instance name |
-| **description** | `string` | optional | Instance description |
-| **credentials** | `Record<string, any>` | ✅ | Encrypted credentials |
-| **config** | `Record<string, any>` | optional | Additional config |
-| **active** | `boolean` | optional | Instance active status |
-| **createdAt** | `string` | optional | Creation time |
-| **lastTestedAt** | `string` | optional | Last test time |
-| **testStatus** | `Enum<'unknown' \| 'success' \| 'failed'>` | optional | Connection test status |
-
----
-
-## ConnectorOperation
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ | Operation ID (snake_case) |
-| **name** | `string` | ✅ | Operation name |
-| **description** | `string` | optional | Operation description |
-| **type** | `Enum<'read' \| 'write' \| 'delete' \| 'search' \| 'trigger' \| 'action'>` | ✅ | Operation type |
-| **inputSchema** | `object[]` | optional | Input parameters |
-| **outputSchema** | `Record<string, any>` | optional | Output schema |
-| **sampleOutput** | `any` | optional | Sample output |
-| **supportsPagination** | `boolean` | optional | Supports pagination |
-| **supportsFiltering** | `boolean` | optional | Supports filtering |
-
----
-
-## ConnectorTrigger
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ | Trigger ID (snake_case) |
-| **name** | `string` | ✅ | Trigger name |
-| **description** | `string` | optional | Trigger description |
-| **type** | `Enum<'webhook' \| 'polling' \| 'stream'>` | ✅ | Trigger mechanism |
-| **config** | `Record<string, any>` | optional | Trigger configuration |
-| **outputSchema** | `Record<string, any>` | optional | Event payload schema |
-| **pollingIntervalMs** | `integer` | optional | Polling interval in ms |
-
----
-
-## OAuth2Config
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **authorizationUrl** | `string` | ✅ | Authorization endpoint URL |
-| **tokenUrl** | `string` | ✅ | Token endpoint URL |
-| **scopes** | `string[]` | optional | OAuth scopes |
-| **clientIdField** | `string` | optional | Client ID field name |
-| **clientSecretField** | `string` | optional | Client secret field name |
-
----
-
-## OperationParameter
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Parameter name |
-| **label** | `string` | ✅ | Parameter label |
-| **description** | `string` | optional | Parameter description |
-| **type** | `Enum<'string' \| 'number' \| 'boolean' \| 'array' \| 'object' \| 'date' \| 'file'>` | ✅ | Parameter type |
-| **required** | `boolean` | optional | Required parameter |
-| **default** | `any` | optional | Default value |
-| **validation** | `Record<string, any>` | optional | Validation rules |
-| **dynamicOptions** | `string` | optional | Function to load dynamic options |
-
----
-
-## OperationType
-
-### Allowed Values
-
-* `read`
-* `write`
-* `delete`
-* `search`
-* `trigger`
-* `action`
+| **name** | `string` | ✅ | Sync configuration name (snake_case) |
+| **label** | `string` | optional | Sync display name |
+| **description** | `string` | optional | Sync description |
+| **source** | `object` | ✅ | Data source |
+| **destination** | `object` | ✅ | Data destination |
+| **direction** | `Enum<'push' \| 'pull' \| 'bidirectional'>` | optional | Sync direction |
+| **syncMode** | `Enum<'full' \| 'incremental' \| 'realtime'>` | optional | Sync mode |
+| **conflictResolution** | `Enum<'source_wins' \| 'destination_wins' \| 'latest_wins' \| 'manual' \| 'merge'>` | optional | Conflict resolution |
+| **schedule** | `string` | optional | Cron schedule |
+| **enabled** | `boolean` | optional | Sync enabled |
+| **changeTrackingField** | `string` | optional | Field for change tracking |
+| **batchSize** | `integer` | optional | Batch size for processing |
+| **retry** | `object` | optional | Retry configuration |
+| **validation** | `object` | optional | Validation rules |
+| **errorHandling** | `object` | optional | Error handling |
+| **optimization** | `object` | optional | Performance optimization |
+| **audit** | `object` | optional | Audit configuration |
+| **tags** | `string[]` | optional | Sync tags |
+| **metadata** | `Record<string, any>` | optional | Custom metadata |
 

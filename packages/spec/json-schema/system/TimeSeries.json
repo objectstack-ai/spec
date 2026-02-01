@@ -1,0 +1,69 @@
+{
+  "$ref": "#/definitions/TimeSeries",
+  "definitions": {
+    "TimeSeries": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Series name"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Series labels"
+        },
+        "dataPoints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "timestamp": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Timestamp"
+              },
+              "value": {
+                "type": "number",
+                "description": "Value"
+              },
+              "labels": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "Labels"
+              }
+            },
+            "required": [
+              "timestamp",
+              "value"
+            ],
+            "additionalProperties": false,
+            "description": "Time series data point"
+          },
+          "description": "Data points"
+        },
+        "startTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Start time"
+        },
+        "endTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "End time"
+        }
+      },
+      "required": [
+        "name",
+        "dataPoints"
+      ],
+      "additionalProperties": false,
+      "description": "Time series"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,66 @@
+---
+title: External Lookup
+description: External Lookup protocol schemas
+---
+
+# External Lookup
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/external-lookup.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { ExternalDataSourceSchema, ExternalFieldMappingSchema, ExternalLookupSchema } from '@objectstack/spec/data';
+import type { ExternalDataSource, ExternalFieldMapping, ExternalLookup } from '@objectstack/spec/data';
+
+// Validate data
+const result = ExternalDataSourceSchema.parse(data);
+```
+
+---
+
+## ExternalDataSource
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Data source ID |
+| **name** | `string` | ✅ | Data source name |
+| **type** | `Enum<'odata' \| 'rest-api' \| 'graphql' \| 'custom'>` | ✅ | Protocol type |
+| **endpoint** | `string` | ✅ | API endpoint URL |
+| **authentication** | `object` | ✅ | Authentication |
+
+---
+
+## ExternalFieldMapping
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **source** | `string` | ✅ | Source field name |
+| **target** | `string` | ✅ | Target field name |
+| **transform** | `object \| object \| object \| object \| object` | optional | Transformation to apply |
+| **defaultValue** | `any` | optional | Default if source is null/undefined |
+| **type** | `string` | optional | Field type |
+| **readonly** | `boolean` | optional | Read-only field |
+
+---
+
+## ExternalLookup
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **fieldName** | `string` | ✅ | Field name |
+| **dataSource** | `object` | ✅ | External data source |
+| **query** | `object` | ✅ | Query configuration |
+| **fieldMappings** | `object[]` | ✅ | Field mappings |
+| **caching** | `object` | optional | Caching configuration |
+| **fallback** | `object` | optional | Fallback configuration |
+| **rateLimit** | `object` | optional | Rate limiting |
+

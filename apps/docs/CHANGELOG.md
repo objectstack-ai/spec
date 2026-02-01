@@ -1,5 +1,13 @@
 # @objectstack/docs
 
+## 0.7.2
+
+## 0.7.1
+
+### Patch Changes
+
+- Patch release for maintenance and stability improvements
+
 ## 0.6.1
 
 ## 0.6.0

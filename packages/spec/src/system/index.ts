@@ -11,24 +11,59 @@ export * from './audit.zod';
 export * from './translation.zod';
 export * from './events.zod';
 export * from './job.zod';
+export * from './worker.zod';
 export * from './feature.zod';
+export * from './collaboration.zod';
 export * from './types';
+
+// Observability Protocol
+export * from './logging.zod';
+export * from './metrics.zod';
+export * from './tracing.zod';
 
 // Re-export Core System Definitions
 export * from './manifest.zod';
 export * from './plugin.zod';
-export * from './logger.zod';
+export * from './plugin-capability.zod';
+export * from './plugin-validator.zod';
+export * from './plugin-lifecycle-events.zod';
+export * from './startup-orchestrator.zod';
+export * from './service-registry.zod';
 export * from './context.zod';
-export * from './scoped-storage.zod';
 export * from './datasource.zod';
 
-// Driver Protocol
-export * from './driver.zod';
-export * from './driver/mongo.zod';
-export * from './driver/postgres.zod';
-
 // Data Engine Protocol
-export * from './data-engine.zod';
+// export * from './data-engine.zod';
+
+// Object Storage Protocol (includes scoped storage functionality)
+export * from './object-storage.zod';
+
+// Cache Protocol
+export * from './cache.zod';
+
+// Message Queue Protocol
+export * from './message-queue.zod';
+
+// Metadata Loader Protocol
+export * from './metadata-loader.zod';
+
+// Search Engine Protocol
+export * from './search-engine.zod';
+
+// Security & Compliance Protocols
+export * from './encryption.zod';
+export * from './compliance.zod';
+export * from './masking.zod';
+
+// Notification Protocol
+export * from './notification.zod';
+
+// Change Management Protocol
+export * from './change-management.zod';
+
+// HTTP Server Protocol
+export * from './http-server.zod';
 
 // Note: Auth, Identity, Policy, Role, Organization moved to @objectstack/spec/auth
 // Note: Territory moved to @objectstack/spec/permission
+// Note: Connector Protocol moved to @objectstack/spec/integration

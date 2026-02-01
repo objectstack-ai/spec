@@ -396,6 +396,37 @@ export const FieldNodeSchema: z.ZodType<any> = z.lazy(() =>
 );
 
 /**
+ * Full-Text Search Configuration
+ * Defines full-text search parameters for text queries.
+ * 
+ * Supports:
+ * - Multi-field search
+ * - Relevance scoring
+ * - Fuzzy matching
+ * - Language-specific analyzers
+ * 
+ * @example
+ * {
+ *   query: "John Smith",
+ *   fields: ["name", "email", "description"],
+ *   fuzzy: true,
+ *   boost: { "name": 2.0, "email": 1.5 }
+ * }
+ */
+export const FullTextSearchSchema = z.object({
+  query: z.string().describe('Search query text'),
+  fields: z.array(z.string()).optional().describe('Fields to search in (if not specified, searches all text fields)'),
+  fuzzy: z.boolean().optional().default(false).describe('Enable fuzzy matching (tolerates typos)'),
+  operator: z.enum(['and', 'or']).optional().default('or').describe('Logical operator between terms'),
+  boost: z.record(z.number()).optional().describe('Field-specific relevance boosting (field name -> boost factor)'),
+  minScore: z.number().optional().describe('Minimum relevance score threshold'),
+  language: z.string().optional().describe('Language for text analysis (e.g., "en", "zh", "es")'),
+  highlight: z.boolean().optional().default(false).describe('Enable search result highlighting'),
+});
+
+export type FullTextSearch = z.infer<typeof FullTextSearchSchema>;
+
+/**
  * Query AST Schema
  * The universal data retrieval contract defined in `ast-structure.mdx`.
  * 
@@ -407,6 +438,9 @@ export const FieldNodeSchema: z.ZodType<any> = z.lazy(() =>
  * - Added `cursor` based pagination support
  * - Renamed `top`/`skip` to `limit`/`offset`
  * - Unified filtering syntax with `FilterConditionSchema`
+ * 
+ * Updates (v3):
+ * - Added `search` parameter for full-text search (P2 requirement)
  * 
  * @example
  * // Simple query: SELECT name, email FROM account WHERE status = 'active'
@@ -425,6 +459,19 @@ export const FieldNodeSchema: z.ZodType<any> = z.lazy(() =>
  *   limit: 20,
  *   offset: 40
  * }
+ * 
+ * @example
+ * // Full-text search
+ * {
+ *   object: 'article',
+ *   search: {
+ *     query: "machine learning",
+ *     fields: ["title", "content"],
+ *     fuzzy: true,
+ *     boost: { "title": 2.0 }
+ *   },
+ *   limit: 10
+ * }
  */
 export const QuerySchema = z.object({
   /** Target Entity */
@@ -435,6 +482,9 @@ export const QuerySchema = z.object({
   
   /** Where Clause (Filtering) */
   where: FilterConditionSchema.optional().describe('Filtering criteria (WHERE)'),
+  
+  /** Full-Text Search */
+  search: FullTextSearchSchema.optional().describe('Full-text search configuration ($search parameter)'),
   
   /** Order By Clause (Sorting) */
   orderBy: z.array(SortNodeSchema).optional().describe('Sorting instructions (ORDER BY)'),

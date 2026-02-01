@@ -1,0 +1,18 @@
+{
+  "$ref": "#/definitions/TransformType",
+  "definitions": {
+    "TransformType": {
+      "type": "string",
+      "enum": [
+        "none",
+        "constant",
+        "lookup",
+        "split",
+        "join",
+        "javascript",
+        "map"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

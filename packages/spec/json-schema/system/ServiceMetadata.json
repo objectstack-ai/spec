@@ -1,0 +1,43 @@
+{
+  "$ref": "#/definitions/ServiceMetadata",
+  "definitions": {
+    "ServiceMetadata": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique service name identifier"
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "singleton",
+            "transient",
+            "scoped"
+          ],
+          "description": "Service scope type",
+          "default": "singleton"
+        },
+        "type": {
+          "type": "string",
+          "description": "Service type or interface name"
+        },
+        "registeredAt": {
+          "type": "integer",
+          "description": "Unix timestamp in milliseconds when service was registered"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Additional service-specific metadata"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,1188 @@
+---
+title: AI-Driven Development Guide
+description: Complete guide for AI agents to rapidly develop enterprise applications using ObjectStack protocols
+---
+
+# AI-Driven Development Guide
+
+This guide enables AI agents to build production-grade enterprise applications (CRM, ERP, etc.) using ObjectStack protocols with rapid iteration and version management capabilities.
+
+## Core Philosophy
+
+### ObjectStack Three-Layer Architecture
+
+```
+┌─────────────────────────────────────────┐
+│  ObjectUI (View Layer)                  │  ← User Interface Protocol
+│  - Apps, Views, Actions, Dashboards     │
+├─────────────────────────────────────────┤
+│  ObjectOS (Control Layer)               │  ← Business Logic Protocol
+│  - Workflows, Permissions, Validations  │
+├─────────────────────────────────────────┤
+│  ObjectQL (Data Layer)                  │  ← Data Model Protocol
+│  - Objects, Fields, Relationships       │
+└─────────────────────────────────────────┘
+```
+
+### Core Principles
+
+1. **Metadata-Driven**: Everything is configuration, no runtime code needed
+2. **Zod First**: All definitions start with Zod Schema for type safety
+3. **Convention over Configuration**: Follow file suffix system
+4. **Progressive Development**: From simple to complex, iterative layers
+
+## Quick Start
+
+### Environment Setup
+
+```bash
+# Clone the spec repository
+git clone https://github.com/objectstack-ai/spec.git
+cd spec
+
+# Install dependencies
+pnpm install
+
+# Build core protocols
+pnpm --filter @objectstack/spec build
+```
+
+### Create New Application
+
+```bash
+# Create app directory
+mkdir -p examples/my-app
+cd examples/my-app
+
+# Initialize package.json
+pnpm init
+
+# Install dependencies
+pnpm add @objectstack/spec
+```
+
+### Define Application Config
+
+Create `objectstack.config.ts`:
+
+```typescript
+import { defineStack } from '@objectstack/spec';
+import { App } from '@objectstack/spec/ui';
+
+export default defineStack({
+  manifest: {
+    id: 'com.mycompany.app',
+    version: '1.0.0',
+    type: 'app',
+    name: 'My Application',
+    description: 'Enterprise application built with ObjectStack'
+  },
+  
+  objects: [],  // Add objects here
+  apps: [
+    App.create({
+      name: 'my_app',
+      label: 'My Application',
+      icon: 'building',
+      navigation: []
+    })
+  ]
+});
+```
+
+## Development Workflow
+
+### Complete Development Process
+
+The development workflow follows three main phases:
+
+#### Phase 1: Data Layer Development (60% effort)
+
+Define business objects, fields, relationships and validation rules.
+
+**Example Object Definition:**
+
+```typescript
+import { defineObject } from '@objectstack/spec/data';
+import type { ObjectDefinition } from '@objectstack/spec/data';
+
+export const Customer: ObjectDefinition = defineObject({
+  name: 'customer',
+  label: 'Customer',
+  labelPlural: 'Customers',
+  
+  fields: {
+    name: {
+      type: 'text',
+      label: 'Company Name',
+      required: true,
+      maxLength: 255
+    },
+    industry: {
+      type: 'select',
+      label: 'Industry',
+      options: [
+        { value: 'tech', label: 'Technology' },
+        { value: 'finance', label: 'Finance' },
+        { value: 'retail', label: 'Retail' }
+      ]
+    },
+    revenue: {
+      type: 'currency',
+      label: 'Annual Revenue',
+      min: 0
+    }
+  },
+  
+  enable: {
+    trackHistory: true,
+    apiEnabled: true,
+    searchEnabled: true
+  }
+});
+```
+
+#### Phase 2: Business Logic Layer (20% effort)
+
+Add validation rules, workflow automation, and permission control.
+
+**Validation Rules:**
+
+```typescript
+validations: [
+  {
+    type: 'script',
+    name: 'revenue_positive',
+    errorMessage: 'Revenue must be greater than 0',
+    formula: 'revenue > 0'
+  },
+  {
+    type: 'uniqueness',
+    fields: ['email'],
+    errorMessage: 'Email must be unique'
+  }
+]
+```
+
+**Workflows:**
+
+```typescript
+workflows: [
+  {
+    type: 'field_update',
+    name: 'set_status_on_approval',
+    trigger: {
+      on: 'update',
+      when: 'approval_status == "approved"'
+    },
+    actions: [
+      {
+        type: 'update_field',
+        field: 'status',
+        value: 'active'
+      }
+    ]
+  }
+]
+```
+
+#### Phase 3: UI Layer Development (20% effort)
+
+Create views, actions, dashboards and reports.
+
+**List Views:**
+
+```typescript
+views: [
+  {
+    type: 'list',
+    name: 'all_customers',
+    viewType: 'grid',
+    label: 'All Customers',
+    columns: ['name', 'industry', 'revenue', 'status'],
+    defaultSort: { field: 'name', direction: 'asc' }
+  },
+  {
+    type: 'list',
+    name: 'customer_kanban',
+    viewType: 'kanban',
+    label: 'Customer Pipeline',
+    groupBy: 'status',
+    cardFields: ['name', 'industry', 'revenue']
+  }
+]
+```
+
+## Protocol Mapping Guide
+
+### File Suffix System
+
+AI agents **must** strictly follow file suffix conventions:
+
+| File Suffix | Business Meaning | Zod Schema | Use Case |
+|------------|------------------|------------|----------|
+| `*.object.ts` | Business Object | `ObjectSchema` | Define data table structure (e.g., Product, Customer) |
+| `*.field.ts` | Reusable Field | `FieldSchema` | Define common field configurations |
+| `*.view.ts` | View Configuration | `ViewSchema` | List views, form views |
+| `*.action.ts` | Action Button | `ActionSchema` | Custom action logic |
+| `*.dashboard.ts` | Dashboard | `DashboardSchema` | Data visualization panels |
+| `*.report.ts` | Report | `ReportSchema` | Data analysis reports |
+| `*.flow.ts` | Visual Flow | `FlowSchema` | Approval flows, business processes |
+| `*.workflow.ts` | Workflow Rules | `WorkflowSchema` | Automation rules |
+| `*.validation.ts` | Validation Rules | `ValidationSchema` | Data validation logic |
+| `*.permission.ts` | Permission Config | `PermissionSchema` | Access control |
+| `*.agent.ts` | AI Agent | `AgentSchema` | AI functionality integration |
+
+### Naming Conventions
+
+```typescript
+// ✅ CORRECT
+export const ProjectTask: ObjectDefinition = defineObject({
+  name: 'project_task',           // snake_case (machine name)
+  label: 'Project Task',          // Human readable
+  
+  fields: {
+    taskName: {                   // camelCase (config key)
+      type: 'text',
+      label: 'Task Name',
+      maxLength: 255              // camelCase (config key)
+    }
+  }
+});
+
+// ❌ WRONG
+export const projectTask = {      // Missing type annotation
+  name: 'ProjectTask',            // Wrong: should be snake_case
+  fields: {
+    task_name: {                  // Wrong: should be camelCase
+      max_length: 255             // Wrong: should be camelCase
+    }
+  }
+};
+```
+
+## Iterative Development Strategy
+
+### MVP Development Path
+
+#### Iteration 1: Core Objects (Week 1)
+
+**Goal:** Establish basic data model
+
+```typescript
+// Identify core objects
+// CRM Example: Account, Contact, Opportunity
+// ERP Example: Product, Order, Inventory
+
+// Create minimal field set
+fields: {
+  name: { type: 'text', required: true },
+  status: { type: 'select', options: ['active', 'inactive'] }
+}
+
+// Basic views
+views: [
+  { type: 'list', name: 'all', viewType: 'grid' }
+]
+```
+
+**Validation Criteria:**
+- All objects support CRUD operations
+- List views display correctly
+- Field types render properly
+
+#### Iteration 2: Relationships & Validation (Week 2)
+
+**Goal:** Establish object relationships and data integrity
+
+```typescript
+// Add relationship fields
+fields: {
+  account: {
+    type: 'lookup',
+    reference: 'account',
+    relationshipName: 'contacts'
+  }
+}
+
+// Add validation rules
+validations: [
+  {
+    type: 'uniqueness',
+    fields: ['email'],
+    errorMessage: 'Email must be unique'
+  }
+]
+```
+
+**Validation Criteria:**
+- Relationship fields link correctly
+- Validation rules trigger properly
+- Error messages are user-friendly
+
+#### Iteration 3: Business Logic (Week 3)
+
+**Goal:** Add automation and workflows
+
+```typescript
+// Add workflows
+workflows: [
+  {
+    type: 'field_update',
+    name: 'auto_assign_owner',
+    trigger: { on: 'create' },
+    actions: [
+      { type: 'update_field', field: 'owner', value: '$CurrentUser' }
+    ]
+  }
+]
+
+// Add formula fields
+fields: {
+  fullName: {
+    type: 'formula',
+    returnType: 'text',
+    formula: 'firstName + " " + lastName'
+  }
+}
+```
+
+**Validation Criteria:**
+- Workflows trigger automatically
+- Formula fields calculate correctly
+- Approval processes work properly
+
+#### Iteration 4: UI Enhancement (Week 4)
+
+**Goal:** Optimize user experience
+
+```typescript
+// Multiple view types
+views: [
+  { type: 'list', viewType: 'grid' },
+  { type: 'list', viewType: 'kanban', groupBy: 'status' },
+  { type: 'list', viewType: 'calendar', dateField: 'dueDate' }
+]
+
+// Custom actions
+actions: [
+  { name: 'convert_lead', label: 'Convert to Customer', type: 'flow' }
+]
+
+// Dashboards
+dashboards: [
+  { name: 'sales_dashboard', widgets: [...] }
+]
+```
+
+**Validation Criteria:**
+- Multiple view types work smoothly
+- Custom actions execute as expected
+- Dashboard data is accurate
+
+#### Iteration 5: Advanced Features (Week 5+)
+
+**Goal:** AI integration, advanced reports, fine-grained permissions
+
+```typescript
+// AI Agent integration
+agents: [
+  {
+    name: 'sales_assistant',
+    type: 'chat',
+    capabilities: ['answer_questions', 'create_records'],
+    model: 'gpt-4',
+    systemPrompt: 'You are a sales assistant...'
+  }
+]
+
+// Advanced reports
+reports: [
+  {
+    type: 'matrix',
+    groupBy: ['region', 'product_category'],
+    aggregations: [
+      { field: 'revenue', function: 'sum' }
+    ]
+  }
+]
+```
+
+### Iteration Checklist
+
+Check at the end of each iteration:
+
+- [ ] All new fields have clear labels and types
+- [ ] Relationship fields configured with relationshipName
+- [ ] Validation rules have clear error messages
+- [ ] Workflows have explicit trigger conditions
+- [ ] Views configured with reasonable default sorting
+- [ ] Action buttons have appropriate permission checks
+- [ ] All changes pass TypeScript type checking
+- [ ] CHANGELOG.md updated
+
+## Version Release Process
+
+### Semantic Versioning
+
+Follow [SemVer 2.0.0](https://semver.org/) specification:
+
+```
+MAJOR.MINOR.PATCH
+
+1.0.0 → 1.0.1  (Patch: Bug fixes)
+1.0.0 → 1.1.0  (Minor: New features, backward compatible)
+1.0.0 → 2.0.0  (Major: Breaking changes)
+```
+
+### Release Steps
+
+#### Step 1: Prepare Release
+
+```bash
+# Ensure all tests pass
+pnpm test
+
+# Update version number in objectstack.config.ts
+manifest: {
+  version: '1.1.0',  // Update version
+  // ...
+}
+
+# Update CHANGELOG.md
+```
+
+#### Step 2: Write Changelog
+
+Create `CHANGELOG.md`:
+
+```markdown
+# Changelog
+
+## [1.1.0] - 2024-01-30
+
+### Added
+- New Product object with inventory tracking
+- Kanban view for Order management
+- Sales dashboard with revenue metrics
+
+### Changed
+- Improved validation rules for Customer email
+- Updated Contact form layout to tabbed view
+
+### Fixed
+- Fixed calculation error in Order total amount
+- Resolved permission issue for sales_user role
+
+### Deprecated
+- Legacy status field will be removed in v2.0.0
+```
+
+#### Step 3: Git Commit
+
+```bash
+# Stage changes
+git add .
+
+# Commit (using conventional commits)
+git commit -m "chore(release): version 1.1.0
+
+- Add Product object with inventory tracking
+- Add Sales dashboard
+- Fix Order calculation bug
+"
+
+# Tag
+git tag -a v1.1.0 -m "Release version 1.1.0"
+
+# Push
+git push origin main --tags
+```
+
+#### Step 4: Build Release
+
+```bash
+# Build package
+pnpm build
+
+# If publishing to npm
+pnpm publish
+```
+
+### Version Management Best Practices
+
+1. **Feature Branches**
+   ```bash
+   # Create feature branch
+   git checkout -b feature/add-inventory-module
+   
+   # Merge after development
+   git checkout main
+   git merge feature/add-inventory-module
+   ```
+
+2. **Changeset Management**
+   
+   Use `@changesets/cli` for version management:
+   
+   ```bash
+   # Add changeset
+   pnpm changeset add
+   
+   # Version upgrade
+   pnpm changeset version
+   
+   # Publish
+   pnpm changeset publish
+   ```
+
+3. **Backward Compatibility Check**
+   
+   ```typescript
+   // ✅ Backward compatible: Add new optional field
+   fields: {
+     newField: { type: 'text', required: false }
+   }
+   
+   // ❌ Breaking: Remove existing field
+   // fields: {
+   //   oldField: { ... }  // Don't delete directly
+   // }
+   
+   // ✅ Correct: Mark as deprecated
+   fields: {
+     oldField: { 
+       type: 'text',
+       deprecated: true,
+       deprecationMessage: 'Use newField instead'
+     }
+   }
+   ```
+
+## Best Practices
+
+### Data Modeling
+
+#### Object Design Principles
+
+```typescript
+// ✅ GOOD: Single Responsibility Principle
+export const Customer = defineObject({
+  name: 'customer',
+  label: 'Customer',
+  fields: {
+    // Only customer-related fields
+    companyName: { type: 'text' },
+    industry: { type: 'select' },
+    annualRevenue: { type: 'currency' }
+  }
+});
+
+// ❌ BAD: Mixed responsibilities
+export const CustomerAndOrder = defineObject({
+  name: 'customer_and_order',
+  fields: {
+    companyName: { type: 'text' },
+    orderTotal: { type: 'currency' },  // Should be in Order object
+    productSKU: { type: 'text' }       // Should be in Product object
+  }
+});
+```
+
+#### Relationship Design Patterns
+
+```typescript
+// Pattern 1: Lookup (many-to-one)
+// Many Contacts belong to one Account
+export const Contact = defineObject({
+  fields: {
+    account: {
+      type: 'lookup',
+      reference: 'account',
+      relationshipName: 'contacts',  // Account.contacts access
+      required: true
+    }
+  }
+});
+
+// Pattern 2: Master-Detail (cascade delete)
+// Order Items deleted with Order
+export const OrderItem = defineObject({
+  fields: {
+    order: {
+      type: 'master_detail',
+      reference: 'order',
+      relationshipName: 'items',
+      cascadeDelete: true
+    }
+  }
+});
+
+// Pattern 3: Many-to-Many (via junction object)
+// Product and Category many-to-many relationship
+export const ProductCategory = defineObject({
+  name: 'product_category',
+  fields: {
+    product: { type: 'lookup', reference: 'product' },
+    category: { type: 'lookup', reference: 'category' }
+  },
+  indexes: [
+    { fields: ['product', 'category'], unique: true }
+  ]
+});
+```
+
+### Performance Optimization
+
+#### Index Strategy
+
+```typescript
+export const Order = defineObject({
+  fields: {
+    orderNumber: { type: 'text' },
+    customer: { type: 'lookup', reference: 'customer' },
+    status: { type: 'select' },
+    createdDate: { type: 'datetime' }
+  },
+  
+  // Add indexes to improve query performance
+  indexes: [
+    { fields: ['orderNumber'], unique: true },           // Unique index
+    { fields: ['customer'] },                            // Foreign key index
+    { fields: ['status'] },                              // Frequently filtered field
+    { fields: ['createdDate'], direction: 'desc' },      // Sort field
+    { fields: ['customer', 'status'] }                   // Composite index
+  ]
+});
+```
+
+#### Field Selection Optimization
+
+```typescript
+// ✅ GOOD: Query only needed fields
+views: [{
+  type: 'list',
+  name: 'order_list',
+  columns: ['orderNumber', 'customer', 'total', 'status'],
+  // Automatically optimizes: queries only displayed fields
+}]
+
+// ❌ BAD: Querying all fields (including large text, files)
+// Avoid showing markdown, html, file type fields in list views
+```
+
+### Security Best Practices
+
+#### Field-Level Security
+
+```typescript
+export const Employee = defineObject({
+  fields: {
+    name: { type: 'text' },
+    salary: { 
+      type: 'currency',
+      // Sensitive field: only HR can see
+      encrypted: true
+    }
+  },
+  
+  permissions: [
+    {
+      profile: 'hr_manager',
+      fieldPermissions: {
+        salary: { read: true, edit: true }
+      }
+    },
+    {
+      profile: 'regular_user',
+      fieldPermissions: {
+        salary: { read: false, edit: false }
+      }
+    }
+  ]
+});
+```
+
+#### Row-Level Security
+
+```typescript
+export const SalesOrder = defineObject({
+  permissions: [
+    {
+      profile: 'sales_rep',
+      objectPermissions: {
+        create: true,
+        read: true,
+        update: true,
+        delete: false
+      },
+      // RLS: Only see own orders
+      recordAccess: {
+        type: 'owner_based',
+        ownerField: 'sales_rep'
+      }
+    }
+  ]
+});
+```
+
+### User Experience Best Practices
+
+#### Form Layout Optimization
+
+```typescript
+// ✅ GOOD: Group related fields
+views: [{
+  type: 'form',
+  name: 'customer_form',
+  layout: 'tabbed',
+  tabs: [
+    {
+      label: 'Basic Info',
+      sections: [
+        {
+          label: 'Company Details',
+          columns: 2,
+          fields: ['companyName', 'industry', 'website', 'phone']
+        }
+      ]
+    },
+    {
+      label: 'Address',
+      sections: [
+        {
+          label: 'Billing Address',
+          columns: 2,
+          fields: ['billingStreet', 'billingCity', 'billingState', 'billingZip']
+        }
+      ]
+    }
+  ]
+}]
+```
+
+#### Defaults and Auto-population
+
+```typescript
+fields: {
+  status: {
+    type: 'select',
+    options: ['draft', 'submitted', 'approved'],
+    defaultValue: 'draft'  // New record default
+  },
+  createdDate: {
+    type: 'datetime',
+    defaultValue: '$Now'  // System variable
+  },
+  owner: {
+    type: 'lookup',
+    reference: 'user',
+    defaultValue: '$CurrentUser'  // Current user
+  }
+}
+```
+
+## Common Application Templates
+
+### CRM Application Template
+
+```typescript
+// File: examples/my-crm/objectstack.config.ts
+
+import { defineStack } from '@objectstack/spec';
+import { App } from '@objectstack/spec/ui';
+
+// Import objects
+import { Account } from './src/objects/account.object';
+import { Contact } from './src/objects/contact.object';
+import { Opportunity } from './src/objects/opportunity.object';
+import { Lead } from './src/objects/lead.object';
+
+export default defineStack({
+  manifest: {
+    id: 'com.mycompany.crm',
+    version: '1.0.0',
+    type: 'app',
+    name: 'CRM System'
+  },
+  
+  objects: [Account, Contact, Opportunity, Lead],
+  
+  apps: [
+    App.create({
+      name: 'crm_app',
+      label: 'CRM',
+      icon: 'users',
+      navigation: [
+        {
+          id: 'sales',
+          type: 'group',
+          label: 'Sales',
+          children: [
+            { id: 'leads', type: 'object', objectName: 'lead' },
+            { id: 'accounts', type: 'object', objectName: 'account' },
+            { id: 'contacts', type: 'object', objectName: 'contact' },
+            { id: 'opportunities', type: 'object', objectName: 'opportunity' }
+          ]
+        }
+      ]
+    })
+  ]
+});
+```
+
+**Core Objects:**
+- Account (Customer accounts)
+- Contact (People associated with accounts)
+- Opportunity (Sales opportunities)
+- Lead (Potential customers)
+- Case (Customer service cases)
+- Task (Activity tracking)
+
+**Reference Implementation:** `examples/crm/`
+
+### ERP Application Template
+
+```typescript
+// File: examples/my-erp/objectstack.config.ts
+
+export default defineStack({
+  manifest: {
+    id: 'com.mycompany.erp',
+    version: '1.0.0',
+    type: 'app',
+    name: 'ERP System'
+  },
+  
+  objects: [
+    Product,
+    Inventory,
+    PurchaseOrder,
+    SalesOrder,
+    Supplier,
+    Customer,
+    Invoice
+  ],
+  
+  apps: [
+    App.create({
+      name: 'erp_app',
+      label: 'ERP',
+      navigation: [
+        {
+          id: 'procurement',
+          type: 'group',
+          label: 'Procurement',
+          children: [
+            { id: 'suppliers', type: 'object', objectName: 'supplier' },
+            { id: 'purchase_orders', type: 'object', objectName: 'purchase_order' }
+          ]
+        },
+        {
+          id: 'inventory',
+          type: 'group',
+          label: 'Inventory',
+          children: [
+            { id: 'products', type: 'object', objectName: 'product' },
+            { id: 'inventory', type: 'object', objectName: 'inventory' }
+          ]
+        },
+        {
+          id: 'sales',
+          type: 'group',
+          label: 'Sales',
+          children: [
+            { id: 'customers', type: 'object', objectName: 'customer' },
+            { id: 'sales_orders', type: 'object', objectName: 'sales_order' },
+            { id: 'invoices', type: 'object', objectName: 'invoice' }
+          ]
+        }
+      ]
+    })
+  ]
+});
+```
+
+**Core Objects:**
+- Product (Products)
+- Inventory (Stock)
+- PurchaseOrder (Purchase orders)
+- SalesOrder (Sales orders)
+- Supplier (Suppliers)
+- Customer (Customers)
+- Invoice (Invoices)
+
+### Project Management Template
+
+```typescript
+export default defineStack({
+  manifest: {
+    id: 'com.mycompany.pm',
+    version: '1.0.0',
+    type: 'app',
+    name: 'Project Management'
+  },
+  
+  objects: [
+    Project,
+    Task,
+    Milestone,
+    TimeEntry,
+    TeamMember,
+    Sprint
+  ],
+  
+  apps: [
+    App.create({
+      name: 'pm_app',
+      label: 'Projects',
+      navigation: [
+        { id: 'projects', type: 'object', objectName: 'project' },
+        { id: 'tasks', type: 'object', objectName: 'task' },
+        { id: 'sprints', type: 'object', objectName: 'sprint' },
+        { id: 'team', type: 'object', objectName: 'team_member' }
+      ]
+    })
+  ]
+});
+```
+
+## Troubleshooting
+
+### Common Issues and Solutions
+
+#### 1. Type Errors
+
+**Problem:** TypeScript reports type mismatch
+
+```typescript
+// ❌ Error: Type 'string' is not assignable to type 'FieldType'
+fields: {
+  status: {
+    type: 'dropdown'  // Wrong type name
+  }
+}
+```
+
+**Solution:**
+```typescript
+// ✅ Solution: Use correct type from spec
+import type { FieldType } from '@objectstack/spec/data';
+
+fields: {
+  status: {
+    type: 'select' as FieldType  // Correct type
+  }
+}
+```
+
+#### 2. Relationship Configuration Error
+
+**Problem:** Relationship field doesn't link correctly
+
+```typescript
+// ❌ Missing relationshipName
+fields: {
+  account: {
+    type: 'lookup',
+    reference: 'account'
+    // Missing relationshipName!
+  }
+}
+```
+
+**Solution:**
+```typescript
+// ✅ Add relationshipName
+fields: {
+  account: {
+    type: 'lookup',
+    reference: 'account',
+    relationshipName: 'contacts'  // Required for reverse lookup
+  }
+}
+```
+
+#### 3. Validation Rules Not Working
+
+**Problem:** Validation rules don't trigger
+
+```typescript
+// ❌ Incorrect formula syntax
+validations: [
+  {
+    type: 'script',
+    formula: 'amount > 0'  // Missing error handling
+  }
+]
+```
+
+**Solution:**
+```typescript
+// ✅ Complete validation configuration
+validations: [
+  {
+    type: 'script',
+    name: 'amount_positive',
+    errorMessage: 'Amount must be greater than 0',
+    formula: 'amount > 0',
+    errorField: 'amount'  // Specify which field shows error
+  }
+]
+```
+
+#### 4. Build Errors
+
+**Problem:** `pnpm build` fails
+
+```bash
+# Check error message
+pnpm build
+
+# Common causes:
+# - Missing dependencies
+# - Circular imports
+# - Invalid Zod schema
+```
+
+**Solution:**
+```bash
+# 1. Clear cache
+rm -rf node_modules dist
+pnpm install
+
+# 2. Build dependencies first
+pnpm --filter @objectstack/spec build
+
+# 3. Build your app
+pnpm build
+```
+
+### Debugging Tips
+
+#### 1. Use TypeScript Compiler
+
+```bash
+# Check types without building
+pnpm tsc --noEmit
+
+# Watch mode for continuous checking
+pnpm tsc --noEmit --watch
+```
+
+#### 2. Validate Zod Schema
+
+```typescript
+import { ObjectSchema } from '@objectstack/spec/data';
+
+// Validate your definition
+try {
+  ObjectSchema.parse(myObjectDefinition);
+  console.log('✅ Valid schema');
+} catch (error) {
+  console.error('❌ Schema validation failed:', error);
+}
+```
+
+#### 3. Inspect Generated JSON Schema
+
+```bash
+# Build generates JSON schemas
+pnpm build
+
+# Check output
+cat dist/schemas/object.schema.json
+```
+
+## Next Steps
+
+### Learning Path
+
+1. **Beginner**
+   - Read [Quick Start Guide](../introduction/)
+   - Study [Todo Example](../../examples/todo/)
+   - Explore [Basic Protocol Examples](../../examples/basic/)
+
+2. **Intermediate**
+   - Deep dive into [CRM Example](../../examples/crm/)
+   - Read [Protocol Reference](../references/)
+   - Practice building your own application
+
+3. **Advanced**
+   - Learn [Plugin Development](./writing-plugins)
+   - Explore [AI Integration](../references/ai/)
+   - Contribute to open source
+
+### Resource Links
+
+- **Official Docs**: [ObjectStack Documentation](/)
+- **API Reference**: [Protocol Reference](../references/)
+- **Community**: [GitHub Discussions](https://github.com/objectstack-ai/spec/discussions)
+- **Examples**: [Examples Directory](../../examples/)
+
+### Getting Help
+
+- **Report Issues**: [GitHub Issues](https://github.com/objectstack-ai/spec/issues)
+- **Feature Requests**: [GitHub Discussions](https://github.com/objectstack-ai/spec/discussions)
+- **Contributing**: [CONTRIBUTING.md](https://github.com/objectstack-ai/spec/blob/main/CONTRIBUTING.md)
+
+## Appendix
+
+### Complete Field Type Reference
+
+| Type | Description | Example Value |
+|------|-------------|---------------|
+| `text` | Single-line text | "John Doe" |
+| `textarea` | Multi-line text | "Long description..." |
+| `email` | Email address | "user@example.com" |
+| `url` | Web URL | "https://example.com" |
+| `phone` | Phone number | "+1-555-1234" |
+| `number` | Number | 42 |
+| `currency` | Currency | 99.99 |
+| `percent` | Percentage | 75 |
+| `boolean` | Boolean | true/false |
+| `date` | Date | "2024-01-30" |
+| `datetime` | Date and time | "2024-01-30T10:00:00Z" |
+| `time` | Time | "10:00:00" |
+| `select` | Single select | "option1" |
+| `multiselect` | Multi select | ["option1", "option2"] |
+| `lookup` | Lookup relationship | `{ id: "123", name: "..." }` |
+| `master_detail` | Master-detail relationship | `{ id: "123", name: "..." }` |
+| `formula` | Formula field | (computed) |
+| `summary` | Summary field | (computed) |
+| `autonumber` | Auto-number | "ACC-0001" |
+| `avatar` | Avatar | `{ url: "..." }` |
+| `image` | Image | `{ url: "..." }` |
+| `file` | File | `{ url: "...", name: "..." }` |
+| `markdown` | Markdown | "# Title\n..." |
+| `html` | HTML | "<p>Content</p>" |
+| `json` | JSON data | `{ key: "value" }` |
+
+### Workflow Action Types
+
+| Action Type | Description | Configuration Example |
+|-------------|-------------|----------------------|
+| `update_field` | Update field value | `{ type: 'update_field', field: 'status', value: 'approved' }` |
+| `send_email` | Send email | `{ type: 'send_email', template: 'approval_notification', to: '$Owner' }` |
+| `create_record` | Create new record | `{ type: 'create_record', object: 'task', fields: {...} }` |
+| `call_api` | Call API | `{ type: 'call_api', endpoint: '/api/notify', method: 'POST' }` |
+| `execute_script` | Execute script | `{ type: 'execute_script', script: '...' }` |
+
+### View Type Reference
+
+| View Type | Best Use Case | Key Configuration |
+|-----------|--------------|-------------------|
+| `grid` | Table list | Specify columns, filters, sort |
+| `kanban` | Kanban board | Specify groupBy (status, etc.) |
+| `calendar` | Calendar view | Specify dateField, endDateField |
+| `gantt` | Gantt chart | Specify startDateField, endDateField |
+| `timeline` | Timeline | Specify dateField |
+| `map` | Map view | Specify locationField |
+
+---
+
+**Version:** 1.0.0  
+**Last Updated:** 2024-01-31  
+**Maintainer:** ObjectStack Team
+
+**License:** Apache 2.0 © ObjectStack

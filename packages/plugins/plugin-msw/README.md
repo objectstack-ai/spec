@@ -2,6 +2,16 @@
 
 MSW (Mock Service Worker) Plugin for ObjectStack Runtime. This plugin enables seamless integration with [Mock Service Worker](https://mswjs.io/) for testing and development environments.
 
+## Plugin Capabilities
+
+This plugin implements the ObjectStack plugin capability protocol:
+- **Protocol**: `com.objectstack.protocol.testing.mock.v1` (full conformance)
+- **Protocol**: `com.objectstack.protocol.api.rest.v1` (full conformance)
+- **Provides**: `ObjectStackServer` interface for mock API operations
+- **Requires**: `com.objectstack.engine.objectql` for data operations
+
+See [objectstack.config.ts](./objectstack.config.ts) for the complete capability manifest.
+
 ## Features
 
 - 🎯 **Automatic API Mocking**: Automatically generates MSW handlers for all ObjectStack API endpoints

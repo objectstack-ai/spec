@@ -1,30 +1,6 @@
 import { z } from 'zod';
 import { FilterConditionSchema } from '../data/filter.zod';
-
-/**
- * Chart Type Enum
- */
-export const ChartType = z.enum([
-  // Analysis
-  'metric',    // KPI / Big Number
-  'bar',       // Bar / Column
-  'line',      // Line / Area
-  'pie',       // Pie
-  'donut',     // Donut
-  'gauge',     // Gauge / Speedometer
-  'funnel',    // Conversion Funnel
-  'radar',     // Spider / Radar
-  'scatter',   // Scatter Plot
-  'heatmap',   // Heatmap
-  'pivot',     // Pivot Table (Cross-tab)
-  
-  // Content
-  'table',     // Data Grid
-  'list',      // Simple List
-  'text',      // Markdown / HTML
-  'image',     // Static Image
-  'frame',     // IFrame / Embed
-]);
+import { ChartTypeSchema, ChartConfigSchema } from './chart.zod';
 
 /**
  * Dashboard Widget Schema
@@ -35,7 +11,10 @@ export const DashboardWidgetSchema = z.object({
   title: z.string().optional().describe('Widget title'),
   
   /** Visualization Type */
-  type: ChartType.default('metric').describe('Visualization type'),
+  type: ChartTypeSchema.default('metric').describe('Visualization type'),
+  
+  /** Chart Configuration */
+  chartConfig: ChartConfigSchema.optional().describe('Chart visualization configuration'),
   
   /** Data Source Object */
   object: z.string().optional().describe('Data source object name'),

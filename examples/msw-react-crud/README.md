@@ -159,6 +159,91 @@ pnpm dev
 
 Open `http://localhost:3000`. You can now create, edit, and delete tasks. The data persists in the browser memory as long as you don't refresh (simulate persistence by seeding data in step 2).
 
+## ⚛️ React Hooks (NEW!)
+
+This example now includes **two different approaches** for using ObjectStack in React:
+
+### 1. Traditional Approach (`App.tsx`)
+Direct client usage with manual state management:
+
+```tsx
+const [tasks, setTasks] = useState([]);
+const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  loadTasks();
+}, []);
+
+async function loadTasks() {
+  setLoading(true);
+  const result = await client.data.find('todo_task');
+  setTasks(result.value);
+  setLoading(false);
+}
+```
+
+### 2. React Hooks Approach (`AppWithHooks.tsx`)
+Declarative data fetching with `@objectstack/client-react`:
+
+```tsx
+import { usePagination, useMutation } from '@objectstack/client-react';
+
+function TaskList() {
+  const {
+    data,
+    isLoading,
+    page,
+    nextPage,
+    previousPage
+  } = usePagination<Task>('todo_task', {
+    pageSize: 10,
+    sort: ['priority', '-created_at']
+  });
+
+  const { mutate: deleteTask } = useMutation('todo_task', 'delete', {
+    onSuccess: () => refetch()
+  });
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return (
+    <div>
+      {data?.value.map(task => <TaskItem task={task} />)}
+      <button onClick={previousPage}>Previous</button>
+      <button onClick={nextPage}>Next</button>
+    </div>
+  );
+}
+```
+
+### Switching Between Approaches
+
+Edit `src/main.tsx` and change the `useHooks` flag:
+
+```typescript
+const useHooks = false; // Set to true to use React hooks
+```
+
+### Available Hooks
+
+From `@objectstack/client-react`:
+
+**Data Hooks:**
+- `useQuery` - Query data with automatic caching and refetching
+- `useMutation` - Create, update, or delete data
+- `usePagination` - Paginated data queries with navigation
+- `useInfiniteQuery` - Infinite scrolling / load more
+
+**Metadata Hooks:**
+- `useObject` - Fetch object schema/metadata
+- `useView` - Fetch view configuration
+- `useFields` - Get fields list
+- `useMetadata` - Generic metadata queries
+
+**Context:**
+- `ObjectStackProvider` - Context provider for ObjectStackClient
+- `useClient` - Access ObjectStackClient from context
+
 ## 📦 Migration to Production
 
 When you are ready to go to production:

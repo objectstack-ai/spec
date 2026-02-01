@@ -2,8 +2,10 @@
   "title": "AI Protocol",
   "pages": [
     "agent",
+    "agent-action",
     "conversation",
     "cost",
+    "devops-agent",
     "model-registry",
     "nlq",
     "orchestration",

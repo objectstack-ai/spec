@@ -1,13 +1,43 @@
 import { z } from 'zod';
+import { FieldMappingSchema } from '../shared/mapping.zod';
 
 /**
- * Data Sync Protocol
+ * Data Sync Protocol - LEVEL 1: Simple Synchronization
  * 
  * Inspired by Salesforce Connect, Segment Sync, and Census Reverse ETL.
+ * 
+ * **Positioning in 3-Layer Architecture:**
+ * - **L1: Simple Sync** (THIS FILE) - Business users - Sync Salesforce to Sheets
+ * - **L2: ETL Pipeline** (automation/etl.zod.ts) - Data engineers - Aggregate 10 sources to warehouse
+ * - **L3: Enterprise Connector** (integration/connector.zod.ts) - System integrators - Full SAP integration
  * 
  * Data sync provides bidirectional or unidirectional data synchronization
  * between ObjectStack and external systems, maintaining data consistency
  * across platforms.
+ * 
+ * **SCOPE: Simple field mappings only. NO complex transformations.**
+ * For complex transformations (joins, aggregates, custom SQL), use ETL Pipeline (Level 2).
+ * 
+ * ## When to Use This Layer
+ * 
+ * **Use Simple Sync when:**
+ * - Syncing 1:1 fields between two systems
+ * - Simple field transformations (uppercase, cast, etc.)
+ * - No complex logic required
+ * - Business users need to configure integrations
+ * 
+ * **Examples:**
+ * - Salesforce Contact ↔ Google Sheets
+ * - HubSpot Company ↔ CRM Account
+ * - Shopify Orders → Accounting System
+ * 
+ * **When to upgrade:**
+ * - Need multi-source joins → Use {@link file://./etl.zod.ts | ETL Pipeline}
+ * - Need complex authentication/webhooks → Use {@link file://../integration/connector.zod.ts | Enterprise Connector}
+ * - Need aggregations or data warehousing → Use {@link file://./etl.zod.ts | ETL Pipeline}
+ * 
+ * @see {@link file://./etl.zod.ts} for Level 2 (data engineering)
+ * @see {@link file://../integration/connector.zod.ts} for Level 3 (enterprise integration)
  * 
  * ## Use Cases
  * 
@@ -90,42 +120,13 @@ export const ConflictResolutionSchema = z.enum([
 export type ConflictResolution = z.infer<typeof ConflictResolutionSchema>;
 
 /**
- * Field Mapping Schema
+ * Field Mapping for Data Sync
  * 
- * Maps fields between source and destination systems.
+ * Uses the canonical field mapping protocol from shared/mapping.zod.ts
+ * for simple 1:1 field transformations.
+ * 
+ * @see {@link FieldMappingSchema} for the base field mapping schema
  */
-export const FieldMappingSchema = z.object({
-  /**
-   * Source field name
-   */
-  sourceField: z.string().describe('Source field name'),
-
-  /**
-   * Destination field name
-   */
-  destinationField: z.string().describe('Destination field name'),
-
-  /**
-   * Transformation formula
-   * JavaScript expression to transform the value
-   * 
-   * @example "value.toUpperCase()"
-   * @example "new Date(value).toISOString()"
-   */
-  transform: z.string().optional().describe('Transformation formula'),
-
-  /**
-   * Default value if source is null/undefined
-   */
-  default: z.any().optional().describe('Default value'),
-
-  /**
-   * Whether to sync null values
-   */
-  syncNull: z.boolean().default(false).describe('Sync null values'),
-});
-
-export type FieldMapping = z.infer<typeof FieldMappingSchema>;
 
 /**
  * Data Source Configuration

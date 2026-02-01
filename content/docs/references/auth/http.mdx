@@ -1,0 +1,35 @@
+---
+title: Http
+description: Http protocol schemas
+---
+
+# Http
+
+<Callout type="info">
+**Source:** `packages/spec/src/auth/http.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { RateLimitConfigSchema } from '@objectstack/spec/auth';
+import type { RateLimitConfig } from '@objectstack/spec/auth';
+
+// Validate data
+const result = RateLimitConfigSchema.parse(data);
+```
+
+---
+
+## RateLimitConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional |  |
+| **maxAttempts** | `number` | optional | Maximum login attempts |
+| **windowMs** | `number` | optional | Time window in milliseconds (default 15 min) |
+| **blockDuration** | `number` | optional | Block duration after max attempts in ms |
+| **skipSuccessfulRequests** | `boolean` | optional | Only count failed requests |
+

@@ -1,0 +1,69 @@
+{
+  "$ref": "#/definitions/VercelIntegration",
+  "definitions": {
+    "VercelIntegration": {
+      "type": "object",
+      "properties": {
+        "connector": {
+          "type": "string",
+          "description": "Vercel connector name"
+        },
+        "project": {
+          "type": "string",
+          "description": "Vercel project name"
+        },
+        "environments": {
+          "type": "object",
+          "properties": {
+            "production": {
+              "type": "string",
+              "default": "main",
+              "description": "Production branch"
+            },
+            "preview": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [
+                "develop",
+                "feature/*"
+              ],
+              "description": "Preview branches"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Environment mapping"
+        },
+        "deployment": {
+          "type": "object",
+          "properties": {
+            "autoDeployProduction": {
+              "type": "boolean",
+              "default": false,
+              "description": "Auto-deploy to production"
+            },
+            "autoDeployPreview": {
+              "type": "boolean",
+              "default": true,
+              "description": "Auto-deploy preview environments"
+            },
+            "requireApproval": {
+              "type": "boolean",
+              "default": true,
+              "description": "Require approval for production deployments"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Deployment settings"
+        }
+      },
+      "required": [
+        "connector",
+        "project"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

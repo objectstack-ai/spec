@@ -1,6 +1,8 @@
 {
   "title": "Shared Protocol",
   "pages": [
-    "identifiers"
+    "http",
+    "identifiers",
+    "mapping"
   ]
 }

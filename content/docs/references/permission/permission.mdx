@@ -62,4 +62,6 @@ const result = FieldPermissionSchema.parse(data);
 | **objects** | `Record<string, object>` | ✅ | Entity permissions |
 | **fields** | `Record<string, object>` | optional | Field level security |
 | **systemPermissions** | `string[]` | optional | System level capabilities |
+| **rowLevelSecurity** | `object[]` | optional | Row-level security policies (see rls.zod.ts for full spec) |
+| **contextVariables** | `Record<string, any>` | optional | Context variables for RLS evaluation |
 

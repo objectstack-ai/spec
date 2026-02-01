@@ -4,3 +4,5 @@
  */
 
 export * from './identifiers.zod';
+export * from './mapping.zod';
+export * from './http.zod';

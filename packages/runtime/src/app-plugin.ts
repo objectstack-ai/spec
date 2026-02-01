@@ -29,41 +29,72 @@ export class AppPlugin implements Plugin {
         const sys = this.bundle.manifest || this.bundle;
         const appId = sys.id || sys.name;
 
-        ctx.logger?.log(`[AppPlugin] Registering App Service: ${appId}`);
+        ctx.logger.info('Registering App Service', { 
+            appId, 
+            pluginName: this.name,
+            version: this.version 
+        });
         
         // Register the app manifest as a service
         // ObjectQLPlugin will discover this and call ql.registerApp()
         const serviceName = `app.${appId}`;
-        ctx.registerService(serviceName, this.bundle.manifest || this.bundle);
+
+        // Merge manifest with the bundle to ensure objects/apps are accessible at root
+        // This supports both Legacy Manifests and new Stack Definitions
+        const servicePayload = this.bundle.manifest 
+            ? { ...this.bundle.manifest, ...this.bundle }
+            : this.bundle;
+
+        ctx.registerService(serviceName, servicePayload);
     }
 
     async start(ctx: PluginContext) {
+        const sys = this.bundle.manifest || this.bundle;
+        const appId = sys.id || sys.name;
+        
         // Execute Runtime Step
         // Retrieve ObjectQL engine from services
         // We cast to any/ObjectQL because ctx.getService returns unknown
         const ql = ctx.getService('objectql') as any;
         
         if (!ql) {
-            ctx.logger?.warn(`[AppPlugin] ObjectQL engine service not found for app: ${this.name}`);
+            ctx.logger.warn('ObjectQL engine service not found', { 
+                appName: this.name,
+                appId 
+            });
             return;
         }
+
+        ctx.logger.debug('Retrieved ObjectQL engine service', { appId });
 
         const runtime = this.bundle.default || this.bundle;
         
         if (runtime && typeof runtime.onEnable === 'function') {
-             ctx.logger?.log(`[AppPlugin] Executing runtime.onEnable for: ${this.name}`);
+             ctx.logger.info('Executing runtime.onEnable', { 
+                 appName: this.name,
+                 appId 
+             });
              
              // Construct the Host Context (mirroring old ObjectQL.use logic)
              const hostContext = {
                 ...ctx,
                 ql,
-                logger: ctx.logger || console,
+                logger: ctx.logger,
                 drivers: {
-                    register: (driver: any) => ql.registerDriver(driver)
+                    register: (driver: any) => {
+                        ctx.logger.debug('Registering driver via app runtime', { 
+                            driverName: driver.name,
+                            appId 
+                        });
+                        ql.registerDriver(driver);
+                    }
                 },
              };
              
              await runtime.onEnable(hostContext);
+             ctx.logger.debug('Runtime.onEnable completed', { appId });
+        } else {
+             ctx.logger.debug('No runtime.onEnable function found', { appId });
         }
     }
 }
