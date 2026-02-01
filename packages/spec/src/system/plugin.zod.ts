@@ -1,9 +1,5 @@
 import { z } from 'zod';
-
-// Helper to create async function schema compatible with Zod v4
-// In Zod v4, z.function with z.promise doesn't infer correctly, so we use z.custom for proper typing
-const createAsyncFunctionSchema = <T extends z.ZodFunction<any, any>>(_schema: T) =>
-  z.custom<Parameters<T['implementAsync']>[0]>((fn) => typeof fn === 'function');
+import { createAsyncFunctionSchema } from '../shared/zod-helpers';
 
 // We use z.any() for services that are interfaces with methods, 
 // as Zod cannot easily validate function signatures at runtime.

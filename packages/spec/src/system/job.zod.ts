@@ -1,8 +1,5 @@
 import { z } from 'zod';
-
-// Helper to create async function schema compatible with Zod v4
-const createAsyncFunctionSchema = <T extends z.ZodFunction<any, any>>(_schema: T) =>
-  z.custom<Parameters<T['implementAsync']>[0]>((fn) => typeof fn === 'function');
+import { createAsyncFunctionSchema } from '../shared/zod-helpers';
 
 /**
  * Cron Schedule Schema
