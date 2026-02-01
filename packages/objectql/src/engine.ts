@@ -8,7 +8,7 @@ import {
   DataEngineCountOptions 
 } from '@objectstack/spec/data';
 import { DriverInterface, IDataEngine, Logger, createLogger } from '@objectstack/core';
-import { SchemaRegistry } from './registry';
+import { SchemaRegistry } from './registry.js';
 
 export type HookHandler = (context: HookContext) => Promise<void> | void;
 

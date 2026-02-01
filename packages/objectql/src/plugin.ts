@@ -1,5 +1,5 @@
-import { ObjectQL } from './engine';
-import { ObjectStackProtocolImplementation } from './protocol';
+import { ObjectQL } from './engine.js';
+import { ObjectStackProtocolImplementation } from './protocol.js';
 import { Plugin, PluginContext } from '@objectstack/core';
 
 export type { Plugin, PluginContext };

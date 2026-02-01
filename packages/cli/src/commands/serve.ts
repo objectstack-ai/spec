@@ -39,11 +39,11 @@ export const serveCommand = new Command('serve')
       console.log(chalk.green(`✓ Configuration loaded`));
 
       // Import ObjectStack runtime
-      const { ObjectStackKernel } = await import('@objectstack/core');
+      const { ObjectKernel } = await import('@objectstack/core');
       
       // Create kernel instance
       console.log(chalk.yellow(`🔧 Initializing ObjectStack kernel...`));
-      const kernel = new ObjectStackKernel({
+      const kernel = new ObjectKernel({
         metadata: config.metadata || {},
         objects: config.objects || {},
       });
