@@ -48,6 +48,15 @@ export const serveCommand = new Command('serve')
         objects: config.objects || {},
       });
 
+      const supportsUse = typeof (kernel as any).use === 'function';
+      const supportsBootstrap = typeof (kernel as any).bootstrap === 'function';
+
+      if (!supportsUse || !supportsBootstrap) {
+        throw new Error(
+          'Incompatible @objectstack/core version. Please use @objectstack/core@^0.8.0 or newer.'
+        );
+      }
+
       // Load plugins from configuration
       const plugins = config.plugins || [];
       
@@ -56,7 +65,7 @@ export const serveCommand = new Command('serve')
         
         for (const plugin of plugins) {
           try {
-            kernel.registerPlugin(plugin);
+            kernel.use(plugin);
             const pluginName = plugin.name || plugin.constructor?.name || 'unnamed';
             console.log(chalk.green(`  ✓ Registered plugin: ${pluginName}`));
           } catch (e: any) {
@@ -70,7 +79,7 @@ export const serveCommand = new Command('serve')
         try {
           const { HonoServerPlugin } = await import('@objectstack/plugin-hono-server');
           const serverPlugin = new HonoServerPlugin({ port: parseInt(options.port) });
-          kernel.registerPlugin(serverPlugin);
+          kernel.use(serverPlugin);
           console.log(chalk.green(`  ✓ Registered HTTP server plugin (port: ${options.port})`));
         } catch (e: any) {
           console.warn(chalk.yellow(`  ⚠ HTTP server plugin not available: ${e.message}`));
@@ -79,7 +88,7 @@ export const serveCommand = new Command('serve')
 
       // Boot the kernel
       console.log(chalk.yellow(`\n🚀 Starting ObjectStack...`));
-      await kernel.boot();
+      await kernel.bootstrap();
 
       console.log(chalk.green(`\n✅ ObjectStack server is running!`));
       console.log(chalk.dim(`   Press Ctrl+C to stop\n`));
