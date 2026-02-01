@@ -629,12 +629,12 @@ export const TracingConfigSchema = z.object({
   /**
    * Sampling configuration
    */
-  sampling: TraceSamplingConfigSchema.optional(),
+  sampling: TraceSamplingConfigSchema.optional().default({ type: 'always_on', rules: [] }),
 
   /**
    * Context propagation
    */
-  propagation: TraceContextPropagationSchema.optional(),
+  propagation: TraceContextPropagationSchema.optional().default({ formats: ['w3c'], extract: true, inject: true }),
 
   /**
    * OpenTelemetry configuration

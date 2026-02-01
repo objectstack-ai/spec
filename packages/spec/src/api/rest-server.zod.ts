@@ -182,7 +182,7 @@ export const CrudEndpointsConfigSchema = z.object({
   /**
    * Custom endpoint patterns (override defaults)
    */
-  patterns: z.record(CrudOperation, CrudEndpointPatternSchema).optional()
+  patterns: z.record(CrudOperation, CrudEndpointPatternSchema.optional()).optional()
     .describe('Custom URL patterns for operations'),
   
   /**

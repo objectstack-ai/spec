@@ -5,67 +5,67 @@ import { z } from 'zod';
 export const PluginContextSchema = z.object({
   ql: z.object({
     object: z.function({
-      input: z.tuple([]),
+      input: z.tuple([]).rest(z.any()),
       output: z.any()
     }), // Return any to allow method chaining
     query: z.function({
-      input: z.tuple([]),
+      input: z.tuple([]).rest(z.any()),
       output: z.any()
     }),
   }).passthrough().describe('ObjectQL Engine Interface'),
 
   os: z.object({
     getCurrentUser: z.function({
-      input: z.tuple([]),
+      input: z.tuple([]).rest(z.any()),
       output: z.any()
     }),
     getConfig: z.function({
-      input: z.tuple([]),
+      input: z.tuple([]).rest(z.any()),
       output: z.any()
     }),
   }).passthrough().describe('ObjectStack Kernel Interface'),
 
   logger: z.object({
     debug: z.function({
-      input: z.tuple([]),
+      input: z.tuple([]).rest(z.any()),
       output: z.void()
     }),
     info: z.function({
-      input: z.tuple([]),
+      input: z.tuple([]).rest(z.any()),
       output: z.void()
     }),
     warn: z.function({
-      input: z.tuple([]),
+      input: z.tuple([]).rest(z.any()),
       output: z.void()
     }),
     error: z.function({
-      input: z.tuple([]),
+      input: z.tuple([]).rest(z.any()),
       output: z.void()
     }),
   }).passthrough().describe('Logger Interface'),
 
   storage: z.object({
     get: z.function({
-      input: z.tuple([]),
+      input: z.tuple([]).rest(z.any()),
       output: z.any()
     }),
     set: z.function({
-      input: z.tuple([]),
+      input: z.tuple([]).rest(z.any()),
       output: z.promise(z.void())
     }),
     delete: z.function({
-      input: z.tuple([]),
+      input: z.tuple([]).rest(z.any()),
       output: z.promise(z.void())
     }),
   }).passthrough().describe('Storage Interface'),
 
   i18n: z.object({
     t: z.function({
-      input: z.tuple([]),
+      input: z.tuple([]).rest(z.any()),
       output: z.string()
     }),
     getLocale: z.function({
-      input: z.tuple([]),
+      input: z.tuple([]).rest(z.any()),
       output: z.string()
     }),
   }).passthrough().describe('Internationalization Interface'),
@@ -76,15 +76,15 @@ export const PluginContextSchema = z.object({
   app: z.object({
     router: z.object({
       get: z.function({
-        input: z.tuple([]),
+        input: z.tuple([]).rest(z.any()),
         output: z.any()
       }),
       post: z.function({
-        input: z.tuple([]),
+        input: z.tuple([]).rest(z.any()),
         output: z.any()
       }),
       use: z.function({
-        input: z.tuple([]),
+        input: z.tuple([]).rest(z.any()),
         output: z.any()
       }),
     }).passthrough()
@@ -92,7 +92,7 @@ export const PluginContextSchema = z.object({
 
   drivers: z.object({
     register: z.function({
-      input: z.tuple([]),
+      input: z.tuple([]).rest(z.any()),
       output: z.void()
     }),
   }).passthrough().describe('Driver Registry'),
