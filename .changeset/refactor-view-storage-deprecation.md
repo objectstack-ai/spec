@@ -1,6 +1,6 @@
 ---
-"@objectstack/spec": major
-"@objectstack/objectql": major
+"@objectstack/spec": patch
+"@objectstack/objectql": patch
 "@objectstack/plugin-msw": patch
 ---
 
