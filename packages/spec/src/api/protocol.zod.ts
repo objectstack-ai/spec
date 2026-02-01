@@ -1,13 +1,6 @@
 import { z } from 'zod';
 import { BatchUpdateRequestSchema, BatchUpdateResponseSchema, BatchOptionsSchema } from './batch.zod';
 import { MetadataCacheRequestSchema, MetadataCacheResponseSchema } from './http-cache.zod';
-import { 
-  CreateViewRequestSchema, 
-  UpdateViewRequestSchema,
-  ListViewsRequestSchema,
-  ViewResponseSchema,
-  ListViewsResponseSchema 
-} from './view-storage.zod';
 import { QuerySchema } from '../data/query.zod';
 
 /**
@@ -123,11 +116,7 @@ export const GetUiViewRequestSchema = z.object({
 /**
  * Get UI View Response
  */
-export const GetUiViewResponseSchema = z.object({
-  object: z.string().describe('Object name'),
-  type: z.enum(['list', 'form']).describe('View type'),
-  view: z.any().describe('View definition'),
-});
+export const GetUiViewResponseSchema = z.any();
 
 // ==========================================
 // Data Operations
@@ -290,33 +279,6 @@ export const DeleteManyDataRequestSchema = z.object({
 export const DeleteManyDataResponseSchema = BatchUpdateResponseSchema;
 
 // ==========================================
-// View Storage Operations
-// ==========================================
-
-/**
- * All View Storage schemas are imported from view-storage.zod.ts
- * - CreateViewRequest/Response
- * - GetViewRequest/Response
- * - ListViewsRequest/Response
- * - UpdateViewRequest/Response
- * - DeleteViewRequest/Response
- */
-
-export const GetViewRequestSchema = z.object({
-  id: z.string().describe('View ID'),
-});
-
-export const GetViewResponseSchema = ViewResponseSchema;
-
-export const DeleteViewRequestSchema = z.object({
-  id: z.string().describe('View ID to delete'),
-});
-
-export const DeleteViewResponseSchema = z.object({
-  success: z.boolean().describe('Whether deletion succeeded'),
-});
-
-// ==========================================
 // Protocol Interface Schema
 // ==========================================
 
@@ -411,32 +373,6 @@ export const ObjectStackProtocolSchema = z.object({
     input: z.tuple([DeleteManyDataRequestSchema]),
     output: z.promise(DeleteManyDataResponseSchema)
   }).describe('Delete multiple records'),
-
-  // View Storage
-  createView: z.function({
-    input: z.tuple([CreateViewRequestSchema]),
-    output: z.promise(ViewResponseSchema)
-  }).describe('Create a saved view'),
-
-  getView: z.function({
-    input: z.tuple([GetViewRequestSchema]),
-    output: z.promise(ViewResponseSchema)
-  }).describe('Get a saved view'),
-
-  listViews: z.function({
-    input: z.tuple([ListViewsRequestSchema]),
-    output: z.promise(ListViewsResponseSchema)
-  }).describe('List saved views'),
-
-  updateView: z.function({
-    input: z.tuple([UpdateViewRequestSchema]),
-    output: z.promise(ViewResponseSchema)
-  }).describe('Update a saved view'),
-
-  deleteView: z.function({
-    input: z.tuple([DeleteViewRequestSchema]),
-    output: z.promise(DeleteViewResponseSchema)
-  }).describe('Delete a saved view'),
 });
 
 /**
@@ -476,11 +412,6 @@ export type UpdateManyDataResponse = z.infer<typeof UpdateManyDataResponseSchema
 export type DeleteManyDataRequest = z.input<typeof DeleteManyDataRequestSchema>;
 export type DeleteManyDataResponse = z.infer<typeof DeleteManyDataResponseSchema>;
 
-export type GetViewRequest = z.infer<typeof GetViewRequestSchema>;
-export type GetViewResponse = z.infer<typeof GetViewResponseSchema>;
-export type DeleteViewRequest = z.infer<typeof DeleteViewRequestSchema>;
-export type DeleteViewResponse = z.infer<typeof DeleteViewResponseSchema>;
-
 export type ObjectStackProtocol = z.infer<typeof ObjectStackProtocolSchema>;
 
 /**
@@ -506,10 +437,4 @@ export interface IObjectStackProtocolLegacy {
   createManyData(request: CreateManyDataRequest): Promise<CreateManyDataResponse>;
   updateManyData(request: UpdateManyDataRequest): Promise<UpdateManyDataResponse>;
   deleteManyData(request: DeleteManyDataRequest): Promise<DeleteManyDataResponse>;
-  
-  createView(request: z.infer<typeof CreateViewRequestSchema>): Promise<z.infer<typeof ViewResponseSchema>>;
-  getView(request: GetViewRequest): Promise<GetViewResponse>;
-  listViews(request: z.infer<typeof ListViewsRequestSchema>): Promise<z.infer<typeof ListViewsResponseSchema>>;
-  updateView(request: z.infer<typeof UpdateViewRequestSchema>): Promise<z.infer<typeof ViewResponseSchema>>;
-  deleteView(request: DeleteViewRequest): Promise<DeleteViewResponse>;
 }

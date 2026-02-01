@@ -7,7 +7,6 @@
  * - OData v4 compatibility
  * - Batch operations
  * - Metadata caching
- * - View storage
  */
 
 export * from './contract.zod';
@@ -21,7 +20,6 @@ export * from './graphql.zod';
 export * from './batch.zod';
 export * from './http-cache.zod';
 export * from './errors.zod';
-export * from './view-storage.zod';
 export * from './protocol.zod';
 export * from './rest-server.zod';
 

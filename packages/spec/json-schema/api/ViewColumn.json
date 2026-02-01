@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/ViewColumn",
-  "definitions": {
-    "ViewColumn": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

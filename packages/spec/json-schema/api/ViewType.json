@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/ViewType",
-  "definitions": {
-    "ViewType": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

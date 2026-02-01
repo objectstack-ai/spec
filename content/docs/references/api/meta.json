@@ -13,7 +13,6 @@
     "realtime",
     "rest-server",
     "router",
-    "view-storage",
     "websocket"
   ]
 }

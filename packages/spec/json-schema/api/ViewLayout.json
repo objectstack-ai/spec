@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/ViewLayout",
-  "definitions": {
-    "ViewLayout": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

@@ -7,14 +7,6 @@ import type {
     DeleteManyDataRequest
 } from '@objectstack/spec/api';
 import type { MetadataCacheRequest, MetadataCacheResponse } from '@objectstack/spec/api';
-import type { 
-    CreateViewRequest, 
-    UpdateViewRequest,
-    ListViewsRequest,
-    ViewResponse,
-    ListViewsResponse,
-    SavedView
-} from '@objectstack/spec/api';
 
 // We import SchemaRegistry directly since this class lives in the same package
 import { SchemaRegistry } from './registry.js';
@@ -35,7 +27,6 @@ function simpleHash(str: string): string {
 
 export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
     private engine: IDataEngine;
-    private viewStorage: Map<string, SavedView> = new Map();
 
     constructor(engine: IDataEngine) {
         this.engine = engine;
@@ -245,62 +236,4 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         });
     }
 
-    // ==========================================
-    // View Storage (Mock Implementation for now)
-    // ==========================================
-
-    async createView(request: CreateViewRequest): Promise<ViewResponse> {
-        const id = Math.random().toString(36).substring(7);
-        // Cast to unknown then SavedView to bypass strict type checks for the mock
-        const view: SavedView = {
-            id,
-            ...request,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            createdBy: 'system',
-            updatedBy: 'system'
-        } as unknown as SavedView;
-        
-        this.viewStorage.set(id, view);
-        return { success: true, data: view };
-    }
-
-    async getView(request: { id: string }): Promise<ViewResponse> {
-        const view = this.viewStorage.get(request.id);
-        if (!view) throw new Error(`View ${request.id} not found`);
-        return { success: true, data: view };
-    }
-
-    async listViews(request: ListViewsRequest): Promise<ListViewsResponse> {
-        const views = Array.from(this.viewStorage.values())
-            .filter(v => !request?.object || v.object === request.object);
-        
-        return { 
-            success: true, 
-            data: views, 
-            pagination: {
-                total: views.length,
-                limit: request.limit || 50,
-                offset: request.offset || 0,
-                hasMore: false
-            } 
-        };
-    }
-
-    async updateView(request: UpdateViewRequest): Promise<ViewResponse> {
-        const view = this.viewStorage.get(request.id);
-        if (!view) throw new Error(`View ${request.id} not found`);
-        
-        const { id, ...updates } = request;
-        // Cast to unknown then SavedView to bypass strict type checks for the mock
-        const updated = { ...view, ...updates, updatedAt: new Date().toISOString() } as unknown as SavedView;
-        this.viewStorage.set(request.id, updated);
-        return { success: true, data: updated };
-    }
-
-    async deleteView(request: { id: string }): Promise<{ success: boolean, object: string, id: string }> {
-        const deleted = this.viewStorage.delete(request.id);
-        if (!deleted) throw new Error(`View ${request.id} not found`);
-        return { success: true, object: 'view', id: request.id };
-    }
 }
