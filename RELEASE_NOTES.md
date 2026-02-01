@@ -1,5 +1,43 @@
 # Release Notes
 
+## v0.7.3 - Maintenance Release (2026-02-01)
+
+### 📦 Released Packages
+
+All packages have been updated to version **0.7.3**:
+
+- **@objectstack/spec@0.7.3** - Core protocol definitions and TypeScript types
+- **@objectstack/types@0.7.3** - Shared TypeScript type definitions
+- **@objectstack/objectql@0.7.3** - ObjectQL query language and runtime
+- **@objectstack/runtime@0.7.3** - Runtime execution environment
+- **@objectstack/client@0.7.3** - Client library for ObjectStack
+- **@objectstack/client-react@0.7.3** - React client library
+- **@objectstack/driver-memory@0.7.3** - In-memory data storage driver
+- **@objectstack/plugin-hono-server@0.7.3** - Hono server plugin for REST API
+- **@objectstack/plugin-msw@0.7.3** - MSW (Mock Service Worker) plugin
+- **@objectstack/ai-bridge@0.7.3** - AI integration bridge
+- **@objectstack/cli@0.7.3** - Command-line interface
+- **@objectstack/docs@0.7.3** - Documentation site
+- **@objectstack/core@0.7.3** - Core utilities
+- **@objectstack/metadata@0.7.3** - Metadata management
+
+### 📝 Changes
+
+This patch release includes:
+- Maintenance and stability improvements across all packages
+- Package version synchronization
+- Updated dependencies
+
+### 🚀 Publishing
+
+This release is ready for publishing to npm. When this PR is merged to `main`:
+1. The GitHub Actions release workflow will automatically detect the version bump
+2. Build all packages
+3. Publish to npm registry using NPM_TOKEN secret
+4. Create GitHub release with appropriate tags
+
+---
+
 ## v0.4.1 - Version Synchronization (2026-01-27)
 
 ### 📦 Released Packages

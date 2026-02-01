@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/ai-bridge",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
