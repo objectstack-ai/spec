@@ -252,14 +252,14 @@ export const MagicLinkConfigSchema = z.object({
   
   expiryTime: z.number().default(900).describe('Magic link expiry time in seconds (default 15 min)'),
   
-  sendEmail: z.function(
-    z.tuple([z.object({
+  sendEmail: z.function({
+    input: z.tuple([z.object({
       to: z.string().email(),
       link: z.string().url(),
       token: z.string(),
     })]),
-    z.promise(z.void())
-  ).optional()
+    output: z.promise(z.void())
+  }).optional()
     .describe('Custom email sending function'),
 });
 
@@ -736,40 +736,40 @@ export const ApplicationAuthConfigSchema = z.object({
    * Custom hooks for authentication events
    */
   hooks: z.object({
-    beforeSignIn: z.function(
-      z.tuple([z.object({ email: z.string() })]),
-      z.promise(z.void())
-    ).optional()
+    beforeSignIn: z.function({
+      input: z.tuple([z.object({ email: z.string() })]),
+      output: z.promise(z.void())
+    }).optional()
       .describe('Called before user sign in'),
     
-    afterSignIn: z.function(
-      z.tuple([z.object({ user: z.any(), session: z.any() })]),
-      z.promise(z.void())
-    ).optional()
+    afterSignIn: z.function({
+      input: z.tuple([z.object({ user: z.any(), session: z.any() })]),
+      output: z.promise(z.void())
+    }).optional()
       .describe('Called after user sign in'),
     
-    beforeSignUp: z.function(
-      z.tuple([z.object({ email: z.string(), name: z.string().optional() })]),
-      z.promise(z.void())
-    ).optional()
+    beforeSignUp: z.function({
+      input: z.tuple([z.object({ email: z.string(), name: z.string().optional() })]),
+      output: z.promise(z.void())
+    }).optional()
       .describe('Called before user registration'),
     
-    afterSignUp: z.function(
-      z.tuple([z.object({ user: z.any() })]),
-      z.promise(z.void())
-    ).optional()
+    afterSignUp: z.function({
+      input: z.tuple([z.object({ user: z.any() })]),
+      output: z.promise(z.void())
+    }).optional()
       .describe('Called after user registration'),
     
-    beforeSignOut: z.function(
-      z.tuple([z.object({ sessionId: z.string() })]),
-      z.promise(z.void())
-    ).optional()
+    beforeSignOut: z.function({
+      input: z.tuple([z.object({ sessionId: z.string() })]),
+      output: z.promise(z.void())
+    }).optional()
       .describe('Called before user sign out'),
     
-    afterSignOut: z.function(
-      z.tuple([z.object({ sessionId: z.string() })]),
-      z.promise(z.void())
-    ).optional()
+    afterSignOut: z.function({
+      input: z.tuple([z.object({ sessionId: z.string() })]),
+      output: z.promise(z.void())
+    }).optional()
       .describe('Called after user sign out'),
   }).optional().describe('Authentication lifecycle hooks'),
   
