@@ -1,5 +1,9 @@
 import { z } from 'zod';
 
+// Helper to create async function schema compatible with Zod v4
+const createAsyncFunctionSchema = <T extends z.ZodFunction<any, any>>(_schema: T) =>
+  z.custom<Parameters<T['implementAsync']>[0]>((fn) => typeof fn === 'function');
+
 /**
  * Cron Schedule Schema
  * Schedule jobs using cron expressions
@@ -64,10 +68,12 @@ export const JobSchema = z.object({
   id: z.string().describe('Unique job identifier'),
   name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Job name (snake_case)'),
   schedule: ScheduleSchema.describe('Job schedule configuration'),
-  handler: z.function({
-    input: z.tuple([]),
-    output: z.promise(z.void())
-  }).describe('Job handler function'),
+  handler: createAsyncFunctionSchema(
+    z.function({
+      input: z.tuple([]),
+      output: z.promise(z.void())
+    })
+  ).describe('Job handler function'),
   retryPolicy: RetryPolicySchema.optional().describe('Retry policy configuration'),
   timeout: z.number().int().positive().optional().describe('Timeout in milliseconds'),
   enabled: z.boolean().default(true).describe('Whether the job is enabled'),

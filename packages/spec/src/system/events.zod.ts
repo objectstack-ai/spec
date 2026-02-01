@@ -1,6 +1,10 @@
 import { z } from 'zod';
 import { EventNameSchema } from '../shared/identifiers.zod';
 
+// Helper to create async function schema compatible with Zod v4
+const createAsyncFunctionSchema = <T extends z.ZodFunction<any, any>>(_schema: T) =>
+  z.custom<Parameters<T['implementAsync']>[0]>((fn) => typeof fn === 'function');
+
 // ==========================================
 // Event Priority
 // ==========================================
@@ -136,10 +140,12 @@ export const EventHandlerSchema = z.object({
   /**
    * Handler function
    */
-  handler: z.function({
-    input: z.tuple([EventSchema]),
-    output: z.promise(z.void())
-  }).describe('Handler function'),
+  handler: createAsyncFunctionSchema(
+    z.function({
+      input: z.tuple([EventSchema]),
+      output: z.promise(z.void())
+    })
+  ).describe('Handler function'),
   
   /**
    * Execution priority

@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+// Helper to create async function schema compatible with Zod v4
+// In Zod v4, z.function with z.promise doesn't infer correctly, so we use z.custom for proper typing
+const createAsyncFunctionSchema = <T extends z.ZodFunction<any, any>>(_schema: T) =>
+  z.custom<Parameters<T['implementAsync']>[0]>((fn) => typeof fn === 'function');
+
 // We use z.any() for services that are interfaces with methods, 
 // as Zod cannot easily validate function signatures at runtime.
 export const PluginContextSchema = z.object({
@@ -49,14 +54,18 @@ export const PluginContextSchema = z.object({
       input: z.tuple([]).rest(z.any()),
       output: z.any()
     }),
-    set: z.function({
-      input: z.tuple([]).rest(z.any()),
-      output: z.promise(z.void())
-    }),
-    delete: z.function({
-      input: z.tuple([]).rest(z.any()),
-      output: z.promise(z.void())
-    }),
+    set: createAsyncFunctionSchema(
+      z.function({
+        input: z.tuple([]).rest(z.any()),
+        output: z.promise(z.void())
+      })
+    ),
+    delete: createAsyncFunctionSchema(
+      z.function({
+        input: z.tuple([]).rest(z.any()),
+        output: z.promise(z.void())
+      })
+    ),
   }).passthrough().describe('Storage Interface'),
 
   i18n: z.object({
@@ -101,30 +110,40 @@ export const PluginContextSchema = z.object({
 export type PluginContextData = z.infer<typeof PluginContextSchema>;
 
 export const PluginLifecycleSchema = z.object({
-  onInstall: z.function({
-    input: z.tuple([PluginContextSchema]),
-    output: z.promise(z.void())
-  }).optional(),
+  onInstall: createAsyncFunctionSchema(
+    z.function({
+      input: z.tuple([PluginContextSchema]),
+      output: z.promise(z.void())
+    })
+  ).optional(),
   
-  onEnable: z.function({
-    input: z.tuple([PluginContextSchema]),
-    output: z.promise(z.void())
-  }).optional(),
+  onEnable: createAsyncFunctionSchema(
+    z.function({
+      input: z.tuple([PluginContextSchema]),
+      output: z.promise(z.void())
+    })
+  ).optional(),
   
-  onDisable: z.function({
-    input: z.tuple([PluginContextSchema]),
-    output: z.promise(z.void())
-  }).optional(),
+  onDisable: createAsyncFunctionSchema(
+    z.function({
+      input: z.tuple([PluginContextSchema]),
+      output: z.promise(z.void())
+    })
+  ).optional(),
   
-  onUninstall: z.function({
-    input: z.tuple([PluginContextSchema]),
-    output: z.promise(z.void())
-  }).optional(),
+  onUninstall: createAsyncFunctionSchema(
+    z.function({
+      input: z.tuple([PluginContextSchema]),
+      output: z.promise(z.void())
+    })
+  ).optional(),
   
-  onUpgrade: z.function({
-    input: z.tuple([PluginContextSchema, z.string(), z.string()]),
-    output: z.promise(z.void())
-  }).optional(),
+  onUpgrade: createAsyncFunctionSchema(
+    z.function({
+      input: z.tuple([PluginContextSchema, z.string(), z.string()]),
+      output: z.promise(z.void())
+    })
+  ).optional(),
 });
 
 export type PluginLifecycleHooks = z.infer<typeof PluginLifecycleSchema>;
