@@ -1,5 +1,6 @@
 import { Plugin, PluginContext } from '@objectstack/core';
 import { MetadataManager } from '@objectstack/metadata';
+import { ObjectStackDefinitionSchema } from '@objectstack/spec';
 import path from 'path';
 
 export class MetadataPlugin implements Plugin {
@@ -25,11 +26,35 @@ export class MetadataPlugin implements Plugin {
     async start(ctx: PluginContext) {
         ctx.logger.info('Loading metadata...');
         
-        // Example: Load all objects from the 'objects' directory
-        // and register them with the App or ObjectQL service
-        // Note: In a real implementation, we would recursively load all supported types
-        
-        // We can access the ObjectQL service if it's registered
-        // const ql = ctx.getService('objectql'); 
+        // Define metadata types directly from the Protocol Definition
+        // This ensures the loader is always in sync with the Spec
+        const metadataTypes = Object.keys(ObjectStackDefinitionSchema.shape)
+            .filter(key => key !== 'manifest'); // Manifest is handled separately
+
+        for (const type of metadataTypes) {
+            try {
+                // Try to load metadata of this type
+                const items = await this.manager.loadMany(type, {
+                    recursive: true
+                });
+
+                if (items.length > 0) {
+                     ctx.logger.info(`Loaded ${items.length} ${type}`);
+                     
+                     // Helper: Register with ObjectQL if it is an Object
+                     if (type === 'objects') {
+                        const ql = ctx.getService('objectql');
+                        if (ql) {
+                            items.forEach((obj: any) => {
+                                ql.registry.registerObject(obj.name, obj);
+                            });
+                        }
+                     }
+                }
+            } catch (e: any) {
+                // Ignore missing directories or errors
+                ctx.logger.debug(`No metadata found for type: ${type}`);
+            }
+        }
     }
 }
