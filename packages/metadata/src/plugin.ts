@@ -55,14 +55,29 @@ export class MetadataPlugin implements Plugin {
                 if (items.length > 0) {
                      ctx.logger.info(`Loaded ${items.length} ${type}`);
                      
-                     // Helper: Register with ObjectQL if it is an Object
-                     if (type === 'objects') {
-                        const ql = ctx.getService('objectql');
-                        if (ql && ql.registry && typeof ql.registry.registerObject === 'function') {
-                            items.forEach((obj: any) => {
-                                ql.registry.registerObject(obj.name, obj);
-                            });
-                        }
+                     // Helper: Register with ObjectQL Registry
+                     const ql = ctx.getService('objectql');
+                     if (ql && ql.registry) {
+                        items.forEach((item: any) => {
+                            // Determine key field (id or name)
+                            const keyField = item.id ? 'id' : 'name';
+                            
+                            // Map plural type to singular/registry type if needed
+                            // For now, we use the singular form for standard types: 
+                            // objects -> object, apps -> app, etc.
+                            // But Registry seems to accept arbitrary strings.
+                            // To match Protocol standard, we might want to normalize.
+                            // Let's use the directory name (plural) as the type for now,
+                            // OR map 'objects' -> 'object' specifically.
+                            
+                            let registryType = type;
+                            if (type === 'objects') registryType = 'object';
+                            if (type === 'apps') registryType = 'app';
+                            if (type === 'plugins') registryType = 'plugin';
+                            if (type === 'functions') registryType = 'function';
+                            
+                            ql.registry.registerItem(registryType, item, keyField);
+                        });
                      }
                 }
             } catch (e: any) {

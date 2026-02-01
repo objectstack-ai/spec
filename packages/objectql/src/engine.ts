@@ -51,6 +51,13 @@ export class ObjectQL implements IDataEngine {
   }
 
   /**
+   * Expose the SchemaRegistry for plugins to register metadata
+   */
+  get registry() {
+    return SchemaRegistry;
+  }
+
+  /**
    * Load and Register a Plugin
    */
   async use(manifestPart: any, runtimePart?: any) {
