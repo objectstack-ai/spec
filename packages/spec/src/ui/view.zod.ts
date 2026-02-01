@@ -12,8 +12,8 @@ export const HttpMethodSchema = z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
 export const HttpRequestSchema = z.object({
   url: z.string().describe('API endpoint URL'),
   method: HttpMethodSchema.optional().default('GET').describe('HTTP method'),
-  headers: z.record(z.string()).optional().describe('Custom HTTP headers'),
-  params: z.record(z.unknown()).optional().describe('Query parameters'),
+  headers: z.record(z.string(), z.string()).optional().describe('Custom HTTP headers'),
+  params: z.record(z.string(), z.unknown()).optional().describe('Query parameters'),
   body: z.unknown().optional().describe('Request body for POST/PUT/PATCH'),
 });
 
@@ -226,8 +226,8 @@ export const FormViewSchema = z.object({
 export const ViewSchema = z.object({
     list: ListViewSchema.optional(), // Default list view
     form: FormViewSchema.optional(), // Default form view
-    listViews: z.record(ListViewSchema).optional().describe('Additional named list views'),
-    formViews: z.record(FormViewSchema).optional().describe('Additional named form views'),
+    listViews: z.record(z.string(), ListViewSchema).optional().describe('Additional named list views'),
+    formViews: z.record(z.string(), FormViewSchema).optional().describe('Additional named form views'),
 });
 
 export type View = z.infer<typeof ViewSchema>;

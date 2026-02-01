@@ -1,14 +1,7 @@
 {
   "$ref": "#/definitions/EncryptionAlgorithm",
   "definitions": {
-    "EncryptionAlgorithm": {
-      "type": "string",
-      "enum": [
-        "aes-256-gcm",
-        "aes-256-cbc",
-        "chacha20-poly1305"
-      ]
-    }
+    "EncryptionAlgorithm": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

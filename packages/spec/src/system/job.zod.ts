@@ -64,7 +64,10 @@ export const JobSchema = z.object({
   id: z.string().describe('Unique job identifier'),
   name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Job name (snake_case)'),
   schedule: ScheduleSchema.describe('Job schedule configuration'),
-  handler: z.function().returns(z.promise(z.void())).describe('Job handler function'),
+  handler: z.function({
+    input: z.tuple([]),
+    output: z.promise(z.void())
+  }).describe('Job handler function'),
   retryPolicy: RetryPolicySchema.optional().describe('Retry policy configuration'),
   timeout: z.number().int().positive().optional().describe('Timeout in milliseconds'),
   enabled: z.boolean().default(true).describe('Whether the job is enabled'),

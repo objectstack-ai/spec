@@ -26,7 +26,7 @@ export const DriverOptionsSchema = z.object({
    * Distributed Tracing Context.
    * Used for passing OpenTelemetry span context or request IDs for observability.
    */
-  traceContext: z.record(z.string()).optional().describe('OpenTelemetry context or request ID'),
+  traceContext: z.record(z.string(), z.string()).optional().describe('OpenTelemetry context or request ID'),
 
   /**
    * Tenant Identifier.
@@ -289,37 +289,41 @@ export const DriverInterfaceSchema = z.object({
   /**
    * Initialize connection pool or authenticate.
    */
-  connect: z.function()
-    .returns(z.promise(z.void()))
-    .describe('Establish connection'),
+  connect: z.function({
+    input: z.tuple([]),
+    output: z.promise(z.void())
+  }).describe('Establish connection'),
 
   /**
    * Close connections and cleanup resources.
    */
-  disconnect: z.function()
-    .returns(z.promise(z.void()))
-    .describe('Close connection'),
+  disconnect: z.function({
+    input: z.tuple([]),
+    output: z.promise(z.void())
+  }).describe('Close connection'),
 
   /**
    * Check connection health.
    * @returns true if healthy, false otherwise.
    */
-  checkHealth: z.function()
-    .returns(z.promise(z.boolean()))
-    .describe('Health check'),
+  checkHealth: z.function({
+    input: z.tuple([]),
+    output: z.promise(z.boolean())
+  }).describe('Health check'),
   
   /**
    * Get Connection Pool Statistics.
    * Useful for monitoring database load.
    */
-  getPoolStats: z.function()
-    .returns(z.object({
+  getPoolStats: z.function({
+    input: z.tuple([]),
+    output: z.object({
       total: z.number(),
       idle: z.number(),
       active: z.number(),
       waiting: z.number(),
-    }).optional())
-    .optional()
+    }).optional()
+  }).optional()
     .describe('Get connection pool statistics'),
 
   // ============================================================================
@@ -342,10 +346,10 @@ export const DriverInterfaceSchema = z.object({
    * // Mongo Driver
    * await driver.execute({ aggregate: 'orders', pipeline: [...] });
    */
-  execute: z.function()
-    .args(z.any(), z.array(z.any()).optional(), DriverOptionsSchema.optional())
-    .returns(z.promise(z.any()))
-    .describe('Execute raw command'),
+  execute: z.function({
+    input: z.tuple([z.any(), z.array(z.any()).optional(), DriverOptionsSchema.optional()]),
+    output: z.promise(z.any())
+  }).describe('Execute raw command'),
 
   // ============================================================================
   // CRUD Operations
@@ -369,10 +373,10 @@ export const DriverInterfaceSchema = z.object({
    * @returns Array of records.
    *          MUST return `id` as string. MUST NOT return implementation details like `_id`.
    */
-  find: z.function()
-    .args(z.string(), QuerySchema, DriverOptionsSchema.optional())
-    .returns(z.promise(z.array(z.record(z.any()))))
-    .describe('Find records'),
+  find: z.function({
+    input: z.tuple([z.string(), QuerySchema, DriverOptionsSchema.optional()]),
+    output: z.promise(z.array(z.record(z.string(), z.any())))
+  }).describe('Find records'),
 
   /**
    * Stream records matching the structured query.
@@ -383,10 +387,10 @@ export const DriverInterfaceSchema = z.object({
    * @param options - Driver options.
    * @returns AsyncIterable/ReadableStream of records.
    */
-  findStream: z.function()
-    .args(z.string(), QuerySchema, DriverOptionsSchema.optional())
-    .returns(z.any()) // Zod cannot easily represent AsyncIterable<T>
-    .describe('Stream records (AsyncIterable)'),
+  findStream: z.function({
+    input: z.tuple([z.string(), QuerySchema, DriverOptionsSchema.optional()]),
+    output: z.any()
+  }).describe('Stream records (AsyncIterable)'),
 
   /**
    * Find a single record by query.
@@ -398,10 +402,10 @@ export const DriverInterfaceSchema = z.object({
    * @returns The record or null.
    *          MUST return `id` as string. MUST NOT return implementation details like `_id`.
    */
-  findOne: z.function()
-    .args(z.string(), QuerySchema, DriverOptionsSchema.optional())
-    .returns(z.promise(z.record(z.any()).nullable()))
-    .describe('Find one record'),
+  findOne: z.function({
+    input: z.tuple([z.string(), QuerySchema, DriverOptionsSchema.optional()]),
+    output: z.promise(z.record(z.string(), z.any()).nullable())
+  }).describe('Find one record'),
 
   /**
    * Create a new record.
@@ -412,10 +416,10 @@ export const DriverInterfaceSchema = z.object({
    * @returns The created record, including server-generated fields (id, created_at, etc.).
    *          MUST return `id` as string. MUST NOT return implementation details like `_id`.
    */
-  create: z.function()
-    .args(z.string(), z.record(z.any()), DriverOptionsSchema.optional())
-    .returns(z.promise(z.record(z.any())))
-    .describe('Create record'),
+  create: z.function({
+    input: z.tuple([z.string(), z.record(z.string(), z.any()), DriverOptionsSchema.optional()]),
+    output: z.promise(z.record(z.string(), z.any()))
+  }).describe('Create record'),
 
   /**
    * Update an existing record by ID.
@@ -427,10 +431,10 @@ export const DriverInterfaceSchema = z.object({
    * @returns The updated record.
    *          MUST return `id` as string. MUST NOT return implementation details like `_id`.
    */
-  update: z.function()
-    .args(z.string(), z.string().or(z.number()), z.record(z.any()), DriverOptionsSchema.optional())
-    .returns(z.promise(z.record(z.any())))
-    .describe('Update record'),
+  update: z.function({
+    input: z.tuple([z.string(), z.string().or(z.number()), z.record(z.string(), z.any()), DriverOptionsSchema.optional()]),
+    output: z.promise(z.record(z.string(), z.any()))
+  }).describe('Update record'),
 
   /**
    * Upsert (Update or Insert) a record.
@@ -441,10 +445,10 @@ export const DriverInterfaceSchema = z.object({
    * @param options - Driver options.
    * @returns The created or updated record.
    */
-  upsert: z.function()
-    .args(z.string(), z.record(z.any()), z.array(z.string()).optional(), DriverOptionsSchema.optional())
-    .returns(z.promise(z.record(z.any())))
-    .describe('Upsert record'),
+  upsert: z.function({
+    input: z.tuple([z.string(), z.record(z.string(), z.any()), z.array(z.string()).optional(), DriverOptionsSchema.optional()]),
+    output: z.promise(z.record(z.string(), z.any()))
+  }).describe('Upsert record'),
 
   /**
    * Delete a record by ID.
@@ -454,10 +458,10 @@ export const DriverInterfaceSchema = z.object({
    * @param options - Driver options.
    * @returns True if deleted, false if not found.
    */
-  delete: z.function()
-    .args(z.string(), z.string().or(z.number()), DriverOptionsSchema.optional())
-    .returns(z.promise(z.boolean()))
-    .describe('Delete record'),
+  delete: z.function({
+    input: z.tuple([z.string(), z.string().or(z.number()), DriverOptionsSchema.optional()]),
+    output: z.promise(z.boolean())
+  }).describe('Delete record'),
 
   /**
    * Count records matching a query.
@@ -467,10 +471,10 @@ export const DriverInterfaceSchema = z.object({
    * @param options - Driver options.
    * @returns Total count.
    */
-  count: z.function()
-    .args(z.string(), QuerySchema.optional(), DriverOptionsSchema.optional())
-    .returns(z.promise(z.number()))
-    .describe('Count records'),
+  count: z.function({
+    input: z.tuple([z.string(), QuerySchema.optional(), DriverOptionsSchema.optional()]),
+    output: z.promise(z.number())
+  }).describe('Count records'),
 
   // ============================================================================
   // Bulk Operations
@@ -484,9 +488,10 @@ export const DriverInterfaceSchema = z.object({
    * @param dataArray - Array of record data.
    * @returns Array of created records.
    */
-  bulkCreate: z.function()
-    .args(z.string(), z.array(z.record(z.any())), DriverOptionsSchema.optional())
-    .returns(z.promise(z.array(z.record(z.any())))),
+  bulkCreate: z.function({
+    input: z.tuple([z.string(), z.array(z.record(z.string(), z.any())), DriverOptionsSchema.optional()]),
+    output: z.promise(z.array(z.record(z.string(), z.any())))
+  }),
 
   /**
    * Update multiple records in a single batch.
@@ -495,9 +500,10 @@ export const DriverInterfaceSchema = z.object({
    * @param updates - Array of objects containing {id, data}.
    * @returns Array of updated records.
    */
-  bulkUpdate: z.function()
-    .args(z.string(), z.array(z.object({ id: z.string().or(z.number()), data: z.record(z.any()) })), DriverOptionsSchema.optional())
-    .returns(z.promise(z.array(z.record(z.any())))),
+  bulkUpdate: z.function({
+    input: z.tuple([z.string(), z.array(z.object({ id: z.string().or(z.number()), data: z.record(z.string(), z.any()) })), DriverOptionsSchema.optional()]),
+    output: z.promise(z.array(z.record(z.string(), z.any())))
+  }),
 
   /**
    * Delete multiple records in a single batch.
@@ -505,9 +511,10 @@ export const DriverInterfaceSchema = z.object({
    * @param object - The object name.
    * @param ids - Array of record IDs.
    */
-  bulkDelete: z.function()
-    .args(z.string(), z.array(z.string().or(z.number())), DriverOptionsSchema.optional())
-    .returns(z.promise(z.void())),
+  bulkDelete: z.function({
+    input: z.tuple([z.string(), z.array(z.string().or(z.number())), DriverOptionsSchema.optional()]),
+    output: z.promise(z.void())
+  }),
 
   /**
    * Update multiple records matching a query.
@@ -518,10 +525,10 @@ export const DriverInterfaceSchema = z.object({
    * @param data - The data to update.
    * @returns Count of modified records.
    */
-  updateMany: z.function()
-    .args(z.string(), QuerySchema, z.record(z.any()), DriverOptionsSchema.optional())
-    .returns(z.promise(z.number()))
-    .optional(),
+  updateMany: z.function({
+    input: z.tuple([z.string(), QuerySchema, z.record(z.string(), z.any()), DriverOptionsSchema.optional()]),
+    output: z.promise(z.number())
+  }).optional(),
 
   /**
    * Delete multiple records matching a query.
@@ -531,10 +538,10 @@ export const DriverInterfaceSchema = z.object({
    * @param query - The filtering criteria.
    * @returns Count of deleted records.
    */
-  deleteMany: z.function()
-    .args(z.string(), QuerySchema, DriverOptionsSchema.optional())
-    .returns(z.promise(z.number()))
-    .optional(),
+  deleteMany: z.function({
+    input: z.tuple([z.string(), QuerySchema, DriverOptionsSchema.optional()]),
+    output: z.promise(z.number())
+  }).optional(),
 
   // ============================================================================
   // Transaction Management
@@ -545,30 +552,30 @@ export const DriverInterfaceSchema = z.object({
    * @param options - Isolation level and other settings.
    * @returns A transaction handle to be passed to subsequent operations via `options.transaction`.
    */
-  beginTransaction: z.function()
-    .args(z.object({
+  beginTransaction: z.function({
+    input: z.tuple([z.object({
       isolationLevel: z.enum(['READ UNCOMMITTED', 'READ COMMITTED', 'REPEATABLE READ', 'SERIALIZABLE', 'SNAPSHOT']).optional()
-    }).optional())
-    .returns(z.promise(z.any()))
-    .describe('Start transaction'),
+    }).optional()]),
+    output: z.promise(z.any())
+  }).describe('Start transaction'),
 
   /**
    * Commit the transaction.
    * @param transaction - The transaction handle.
    */
-  commit: z.function()
-    .args(z.any())
-    .returns(z.promise(z.void()))
-    .describe('Commit transaction'),
+  commit: z.function({
+    input: z.tuple([z.any()]),
+    output: z.promise(z.void())
+  }).describe('Commit transaction'),
 
   /**
    * Rollback the transaction.
    * @param transaction - The transaction handle.
    */
-  rollback: z.function()
-    .args(z.any())
-    .returns(z.promise(z.void()))
-    .describe('Rollback transaction'),
+  rollback: z.function({
+    input: z.tuple([z.any()]),
+    output: z.promise(z.void())
+  }).describe('Rollback transaction'),
 
   // ============================================================================
   // Schema Management
@@ -583,10 +590,10 @@ export const DriverInterfaceSchema = z.object({
    * @param schema - The full Object Schema (fields, indexes, etc).
    * @param options - Driver options.
    */
-  syncSchema: z.function()
-    .args(z.string(), z.any(), DriverOptionsSchema.optional())
-    .returns(z.promise(z.void()))
-    .describe('Sync object schema to DB'),
+  syncSchema: z.function({
+    input: z.tuple([z.string(), z.any(), DriverOptionsSchema.optional()]),
+    output: z.promise(z.void())
+  }).describe('Sync object schema to DB'),
   
   /**
    * Drop the underlying table or collection for an object.
@@ -594,9 +601,10 @@ export const DriverInterfaceSchema = z.object({
    * 
    * @param object - The object name.
    */
-  dropTable: z.function()
-    .args(z.string(), DriverOptionsSchema.optional())
-    .returns(z.promise(z.void())),
+  dropTable: z.function({
+    input: z.tuple([z.string(), DriverOptionsSchema.optional()]),
+    output: z.promise(z.void())
+  }),
 
   /**
    * Analyze query performance.
@@ -606,10 +614,10 @@ export const DriverInterfaceSchema = z.object({
    * @param query - The query to explain.
    * @returns The execution plan details.
    */
-  explain: z.function()
-    .args(z.string(), QuerySchema, DriverOptionsSchema.optional())
-    .returns(z.promise(z.any()))
-    .optional(),
+  explain: z.function({
+    input: z.tuple([z.string(), QuerySchema, DriverOptionsSchema.optional()]),
+    output: z.promise(z.any())
+  }).optional(),
 });
 
 /**

@@ -100,7 +100,7 @@ export const UniquenessValidationSchema = BaseValidationSchema.extend({
 export const StateMachineValidationSchema = BaseValidationSchema.extend({
   type: z.literal('state_machine'),
   field: z.string().describe('State field (e.g. status)'),
-  transitions: z.record(z.array(z.string())).describe('Map of { OldState: [AllowedNewStates] }'),
+  transitions: z.record(z.string(), z.array(z.string())).describe('Map of { OldState: [AllowedNewStates] }'),
 });
 
 /**
@@ -195,7 +195,7 @@ export const CrossFieldValidationSchema = BaseValidationSchema.extend({
 export const JSONValidationSchema = BaseValidationSchema.extend({
   type: z.literal('json_schema'),
   field: z.string().describe('JSON field to validate'),
-  schema: z.record(z.any()).describe('JSON Schema object definition'),
+  schema: z.record(z.string(), z.any()).describe('JSON Schema object definition'),
 });
 
 /**
@@ -318,11 +318,11 @@ export const AsyncValidationSchema = BaseValidationSchema.extend({
   field: z.string().describe('Field to validate'),
   validatorUrl: z.string().optional().describe('External API endpoint for validation'),
   method: z.enum(['GET', 'POST']).default('GET').describe('HTTP method for external call'),
-  headers: z.record(z.string()).optional().describe('Custom headers for the request'),
+  headers: z.record(z.string(), z.string()).optional().describe('Custom headers for the request'),
   validatorFunction: z.string().optional().describe('Reference to custom validator function'),
   timeout: z.number().optional().default(5000).describe('Timeout in milliseconds'),
   debounce: z.number().optional().describe('Debounce delay in milliseconds'),
-  params: z.record(z.any()).optional().describe('Additional parameters to pass to validator'),
+  params: z.record(z.string(), z.any()).optional().describe('Additional parameters to pass to validator'),
 });
 
 /**
@@ -332,7 +332,7 @@ export const AsyncValidationSchema = BaseValidationSchema.extend({
 export const CustomValidatorSchema = BaseValidationSchema.extend({
   type: z.literal('custom'),
   handler: z.string().describe('Name of the custom validation function registered in the system'),
-  params: z.record(z.any()).optional().describe('Parameters passed to the custom handler'),
+  params: z.record(z.string(), z.any()).optional().describe('Parameters passed to the custom handler'),
 });
 
 /**

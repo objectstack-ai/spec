@@ -1,34 +1,7 @@
 {
   "$ref": "#/definitions/DataSourceConfig",
   "definitions": {
-    "DataSourceConfig": {
-      "type": "object",
-      "properties": {
-        "object": {
-          "type": "string",
-          "description": "ObjectStack object name"
-        },
-        "filters": {
-          "description": "Filter conditions"
-        },
-        "fields": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Fields to sync"
-        },
-        "connectorInstanceId": {
-          "type": "string",
-          "description": "Connector instance ID"
-        },
-        "externalResource": {
-          "type": "string",
-          "description": "External resource ID"
-        }
-      },
-      "additionalProperties": false
-    }
+    "DataSourceConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

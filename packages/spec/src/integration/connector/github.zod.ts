@@ -209,7 +209,7 @@ export const GitHubActionsWorkflowSchema = z.object({
   /**
    * Environment variables
    */
-  env: z.record(z.string()).optional().describe('Environment variables'),
+  env: z.record(z.string(), z.string()).optional().describe('Environment variables'),
   
   /**
    * Secrets required

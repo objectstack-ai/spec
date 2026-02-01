@@ -1,22 +1,7 @@
 {
   "$ref": "#/definitions/NoSQLOperationType",
   "definitions": {
-    "NoSQLOperationType": {
-      "type": "string",
-      "enum": [
-        "find",
-        "findOne",
-        "insert",
-        "update",
-        "delete",
-        "aggregate",
-        "mapReduce",
-        "count",
-        "distinct",
-        "createIndex",
-        "dropIndex"
-      ]
-    }
+    "NoSQLOperationType": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,20 +1,7 @@
 {
   "$ref": "#/definitions/UnsubscribeRequest",
   "definitions": {
-    "UnsubscribeRequest": {
-      "type": "object",
-      "properties": {
-        "subscriptionId": {
-          "type": "string",
-          "format": "uuid",
-          "description": "Subscription ID to unsubscribe from"
-        }
-      },
-      "required": [
-        "subscriptionId"
-      ],
-      "additionalProperties": false
-    }
+    "UnsubscribeRequest": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,68 +1,7 @@
 {
   "$ref": "#/definitions/DataEngineDeleteRequest",
   "definitions": {
-    "DataEngineDeleteRequest": {
-      "type": "object",
-      "properties": {
-        "method": {
-          "type": "string",
-          "const": "delete"
-        },
-        "object": {
-          "type": "string"
-        },
-        "id": {
-          "description": "ID for single delete, or use filter in options"
-        },
-        "options": {
-          "type": "object",
-          "properties": {
-            "filter": {
-              "anyOf": [
-                {
-                  "type": "object",
-                  "additionalProperties": {}
-                },
-                {
-                  "allOf": [
-                    {
-                      "type": "object",
-                      "additionalProperties": {}
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "$and": {
-                          "type": "array",
-                          "items": {}
-                        },
-                        "$or": {
-                          "type": "array",
-                          "items": {}
-                        },
-                        "$not": {}
-                      }
-                    }
-                  ]
-                }
-              ],
-              "description": "Data Engine query filter conditions"
-            },
-            "multi": {
-              "type": "boolean",
-              "default": false
-            }
-          },
-          "additionalProperties": false,
-          "description": "Options for DataEngine.delete operations"
-        }
-      },
-      "required": [
-        "method",
-        "object"
-      ],
-      "additionalProperties": false
-    }
+    "DataEngineDeleteRequest": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

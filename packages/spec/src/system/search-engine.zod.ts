@@ -52,10 +52,10 @@ export type FacetConfig = z.infer<typeof FacetConfigSchema>;
 export const SearchConfigSchema = z.object({
   provider: SearchProviderSchema,
   indexes: z.array(SearchIndexConfigSchema),
-  analyzers: z.record(AnalyzerConfigSchema).optional(),
+  analyzers: z.record(z.string(), AnalyzerConfigSchema).optional(),
   facets: z.array(FacetConfigSchema).optional(),
   typoTolerance: z.boolean().default(true),
-  synonyms: z.record(z.array(z.string())).optional(),
+  synonyms: z.record(z.string(), z.array(z.string())).optional(),
   ranking: z.array(z.enum(['typo', 'geo', 'words', 'filters', 'proximity', 'attribute', 'exact', 'custom'])).optional(),
 });
 

@@ -23,258 +23,71 @@ const result = OpenTelemetryCompatibilitySchema.parse(data);
 
 ## OpenTelemetryCompatibility
 
-OpenTelemetry compatibility configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **sdkVersion** | `string` | optional | OTel SDK version |
-| **exporter** | `object` | ✅ | Exporter configuration |
-| **resource** | `object` | ✅ | Resource attributes |
-| **instrumentation** | `object` | optional |  |
-| **semanticConventionsVersion** | `string` | optional | Semantic conventions version |
-
 ---
 
 ## OtelExporterType
-
-OpenTelemetry exporter type
-
-### Allowed Values
-
-* `otlp_http`
-* `otlp_grpc`
-* `jaeger`
-* `zipkin`
-* `console`
-* `datadog`
-* `honeycomb`
-* `lightstep`
-* `newrelic`
-* `custom`
 
 ---
 
 ## SamplingDecision
 
-Sampling decision
-
-### Allowed Values
-
-* `drop`
-* `record_only`
-* `record_and_sample`
-
 ---
 
 ## SamplingStrategyType
-
-Sampling strategy type
-
-### Allowed Values
-
-* `always_on`
-* `always_off`
-* `trace_id_ratio`
-* `rate_limiting`
-* `parent_based`
-* `probability`
-* `composite`
-* `custom`
 
 ---
 
 ## Span
 
-OpenTelemetry span
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **context** | `object` | ✅ | Trace context |
-| **name** | `string` | ✅ | Span name |
-| **kind** | `Enum<'internal' \| 'server' \| 'client' \| 'producer' \| 'consumer'>` | optional | Span kind |
-| **startTime** | `string` | ✅ | Span start time |
-| **endTime** | `string` | optional | Span end time |
-| **duration** | `number` | optional | Duration in milliseconds |
-| **status** | `object` | optional |  |
-| **attributes** | `Record<string, string \| number \| boolean \| string[] \| number[] \| boolean[]>` | optional | Span attributes |
-| **events** | `object[]` | optional |  |
-| **links** | `object[]` | optional |  |
-| **resource** | `Record<string, string \| number \| boolean \| string[] \| number[] \| boolean[]>` | optional | Resource attributes |
-| **instrumentationLibrary** | `object` | optional |  |
-
 ---
 
 ## SpanAttributeValue
-
-Span attribute value
 
 ---
 
 ## SpanAttributes
 
-Span attributes
-
 ---
 
 ## SpanEvent
-
-Span event
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Event name |
-| **timestamp** | `string` | ✅ | Event timestamp |
-| **attributes** | `Record<string, string \| number \| boolean \| string[] \| number[] \| boolean[]>` | optional | Event attributes |
 
 ---
 
 ## SpanKind
 
-Span kind
-
-### Allowed Values
-
-* `internal`
-* `server`
-* `client`
-* `producer`
-* `consumer`
-
 ---
 
 ## SpanLink
-
-Span link
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **context** | `object` | ✅ | Linked trace context |
-| **attributes** | `Record<string, string \| number \| boolean \| string[] \| number[] \| boolean[]>` | optional | Link attributes |
 
 ---
 
 ## SpanStatus
 
-Span status
-
-### Allowed Values
-
-* `unset`
-* `ok`
-* `error`
-
 ---
 
 ## TraceContext
-
-Trace context (W3C Trace Context)
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **traceId** | `string` | ✅ | Trace ID (32 hex chars) |
-| **spanId** | `string` | ✅ | Span ID (16 hex chars) |
-| **traceFlags** | `integer` | optional | Trace flags bitmap |
-| **traceState** | `object` | optional | Trace state |
-| **parentSpanId** | `string` | optional | Parent span ID (16 hex chars) |
-| **sampled** | `boolean` | optional |  |
-| **remote** | `boolean` | optional |  |
 
 ---
 
 ## TraceContextPropagation
 
-Trace context propagation
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **formats** | `Enum<'w3c' \| 'b3' \| 'b3_multi' \| 'jaeger' \| 'xray' \| 'ottrace' \| 'custom'>[]` | optional |  |
-| **extract** | `boolean` | optional |  |
-| **inject** | `boolean` | optional |  |
-| **headers** | `object` | optional |  |
-| **baggage** | `object` | optional |  |
-
 ---
 
 ## TraceFlags
-
-Trace flags bitmap
 
 ---
 
 ## TracePropagationFormat
 
-Trace propagation format
-
-### Allowed Values
-
-* `w3c`
-* `b3`
-* `b3_multi`
-* `jaeger`
-* `xray`
-* `ottrace`
-* `custom`
-
 ---
 
 ## TraceSamplingConfig
-
-Trace sampling configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `Enum<'always_on' \| 'always_off' \| 'trace_id_ratio' \| 'rate_limiting' \| 'parent_based' \| 'probability' \| 'composite' \| 'custom'>` | ✅ | Sampling strategy |
-| **ratio** | `number` | optional | Sample ratio (0-1) |
-| **rateLimit** | `number` | optional | Traces per second |
-| **parentBased** | `object` | optional |  |
-| **composite** | `object[]` | optional |  |
-| **rules** | `object[]` | optional |  |
-| **customSamplerId** | `string` | optional | Custom sampler identifier |
 
 ---
 
 ## TraceState
 
-Trace state
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **entries** | `Record<string, string>` | ✅ | Trace state entries |
-
 ---
 
 ## TracingConfig
-
-Tracing configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Configuration name (snake_case, max 64 chars) |
-| **label** | `string` | ✅ | Display label |
-| **enabled** | `boolean` | optional |  |
-| **sampling** | `object` | optional | Trace sampling configuration |
-| **propagation** | `object` | optional | Trace context propagation |
-| **openTelemetry** | `object` | optional | OpenTelemetry compatibility configuration |
-| **spanLimits** | `object` | optional |  |
-| **traceIdGenerator** | `Enum<'random' \| 'uuid' \| 'custom'>` | optional |  |
-| **customTraceIdGeneratorId** | `string` | optional | Custom generator identifier |
-| **performance** | `object` | optional |  |
 

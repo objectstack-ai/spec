@@ -168,7 +168,7 @@ export type NavigationActionParams = z.infer<typeof NavigationActionParamsSchema
  */
 export const ViewActionParamsSchema = z.object({
   viewMode: z.enum(['list', 'kanban', 'calendar', 'gantt', 'pivot']).optional(),
-  filters: z.record(z.any()).optional().describe('Filter conditions'),
+  filters: z.record(z.string(), z.any()).optional().describe('Filter conditions'),
   sort: z.array(z.object({
     field: z.string(),
     order: z.enum(['asc', 'desc']),
@@ -187,7 +187,7 @@ export type ViewActionParams = z.infer<typeof ViewActionParamsSchema>;
 export const FormActionParamsSchema = z.object({
   object: z.string().optional().describe('Object name'),
   recordId: z.string().optional().describe('Record ID (for edit/delete)'),
-  fieldValues: z.record(z.any()).optional().describe('Field name-value pairs'),
+  fieldValues: z.record(z.string(), z.any()).optional().describe('Field name-value pairs'),
   fieldName: z.string().optional().describe('Specific field to fill/clear'),
   fieldValue: z.any().optional().describe('Value to set'),
   validateOnly: z.boolean().optional().describe('Validate without saving'),
@@ -200,8 +200,8 @@ export type FormActionParams = z.infer<typeof FormActionParamsSchema>;
  */
 export const DataActionParamsSchema = z.object({
   recordIds: z.array(z.string()).optional().describe('Record IDs to select/operate on'),
-  filters: z.record(z.any()).optional().describe('Filter for bulk operations'),
-  updateData: z.record(z.any()).optional().describe('Data for bulk update'),
+  filters: z.record(z.string(), z.any()).optional().describe('Filter for bulk operations'),
+  updateData: z.record(z.string(), z.any()).optional().describe('Data for bulk update'),
   exportFormat: z.enum(['csv', 'xlsx', 'pdf', 'json']).optional(),
 });
 
@@ -219,9 +219,9 @@ export const WorkflowActionParamsSchema = z.object({
   recipients: z.array(z.string()).optional().describe('Email recipients'),
   subject: z.string().optional().describe('Email subject'),
   message: z.string().optional().describe('Notification/email message'),
-  taskData: z.record(z.any()).optional().describe('Task creation data'),
+  taskData: z.record(z.string(), z.any()).optional().describe('Task creation data'),
   scheduleTime: z.string().optional().describe('Schedule time (ISO 8601)'),
-  contextData: z.record(z.any()).optional().describe('Additional context data'),
+  contextData: z.record(z.string(), z.any()).optional().describe('Additional context data'),
 });
 
 export type WorkflowActionParams = z.infer<typeof WorkflowActionParamsSchema>;
@@ -466,7 +466,7 @@ export const IntentActionMappingSchema = z.object({
   /**
    * Parameter extraction rules
    */
-  paramExtraction: z.record(z.object({
+  paramExtraction: z.record(z.string(), z.object({
     type: z.enum(['entity', 'slot', 'context']),
     required: z.boolean().default(false),
     default: z.any().optional(),

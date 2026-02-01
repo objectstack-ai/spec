@@ -1,31 +1,7 @@
 {
   "$ref": "#/definitions/PingMessage",
   "definitions": {
-    "PingMessage": {
-      "type": "object",
-      "properties": {
-        "messageId": {
-          "type": "string",
-          "format": "uuid",
-          "description": "Unique message identifier"
-        },
-        "type": {
-          "type": "string",
-          "const": "ping"
-        },
-        "timestamp": {
-          "type": "string",
-          "format": "date-time",
-          "description": "ISO 8601 datetime when message was sent"
-        }
-      },
-      "required": [
-        "messageId",
-        "type",
-        "timestamp"
-      ],
-      "additionalProperties": false
-    }
+    "PingMessage": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -138,7 +138,7 @@ export const BuildConfigSchema = z.object({
   /**
    * Environment variables
    */
-  env: z.record(z.string()).optional().describe('Build environment variables'),
+  env: z.record(z.string(), z.string()).optional().describe('Build environment variables'),
 });
 
 export type BuildConfig = z.infer<typeof BuildConfigSchema>;
@@ -361,7 +361,7 @@ export const VercelMonitoringSchema = z.object({
   logDrains: z.array(z.object({
     name: z.string().describe('Log drain name'),
     url: z.string().url().describe('Log drain URL'),
-    headers: z.record(z.string()).optional().describe('Custom headers'),
+    headers: z.record(z.string(), z.string()).optional().describe('Custom headers'),
     sources: z.array(z.enum(['static', 'lambda', 'edge'])).optional().describe('Log sources'),
   })).optional().describe('Log drains configuration'),
 });

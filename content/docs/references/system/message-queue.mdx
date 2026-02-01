@@ -23,66 +23,19 @@ const result = ConsumerConfigSchema.parse(data);
 
 ## ConsumerConfig
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **groupId** | `string` | ✅ |  |
-| **autoOffsetReset** | `Enum<'earliest' \| 'latest'>` | optional |  |
-| **enableAutoCommit** | `boolean` | optional |  |
-| **maxPollRecords** | `number` | optional |  |
-
 ---
 
 ## DeadLetterQueue
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional |  |
-| **maxRetries** | `number` | optional |  |
-| **queueName** | `string` | ✅ |  |
 
 ---
 
 ## MessageQueueConfig
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **provider** | `Enum<'kafka' \| 'rabbitmq' \| 'aws-sqs' \| 'redis-pubsub' \| 'google-pubsub' \| 'azure-service-bus'>` | ✅ |  |
-| **topics** | `object[]` | ✅ |  |
-| **consumers** | `object[]` | optional |  |
-| **deadLetterQueue** | `object` | optional |  |
-| **ssl** | `boolean` | optional |  |
-| **sasl** | `object` | optional |  |
-
 ---
 
 ## MessageQueueProvider
 
-### Allowed Values
-
-* `kafka`
-* `rabbitmq`
-* `aws-sqs`
-* `redis-pubsub`
-* `google-pubsub`
-* `azure-service-bus`
-
 ---
 
 ## TopicConfig
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ |  |
-| **partitions** | `number` | optional |  |
-| **replicationFactor** | `number` | optional |  |
-| **retentionMs** | `number` | optional |  |
-| **compressionType** | `Enum<'none' \| 'gzip' \| 'snappy' \| 'lz4'>` | optional |  |
 

@@ -64,7 +64,7 @@ export const TransformTypeSchema = z.discriminatedUnion('type', [
   
   z.object({
     type: z.literal('map'),
-    mappings: z.record(z.any()).describe('Value mappings (e.g., {"Active": "active"})'),
+    mappings: z.record(z.string(), z.any()).describe('Value mappings (e.g., {"Active": "active"})'),
   }).describe('Map values using a dictionary'),
 ]);
 

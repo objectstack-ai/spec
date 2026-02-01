@@ -360,7 +360,7 @@ export const DocumentSchema = z.object({
   /**
    * Custom metadata fields
    */
-  metadata: z.record(z.any()).optional().describe('Custom metadata'),
+  metadata: z.record(z.string(), z.any()).optional().describe('Custom metadata'),
 });
 
 // Type exports

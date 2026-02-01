@@ -267,7 +267,7 @@ export const OperationParameterSchema = z.object({
   /**
    * Validation schema
    */
-  validation: z.record(z.any()).optional().describe('Validation rules'),
+  validation: z.record(z.string(), z.any()).optional().describe('Validation rules'),
 
   /**
    * Dynamic options function
@@ -313,7 +313,7 @@ export const ConnectorOperationSchema = z.object({
   /**
    * Output schema
    */
-  outputSchema: z.record(z.any())
+  outputSchema: z.record(z.string(), z.any())
     .optional()
     .describe('Output schema'),
 
@@ -367,14 +367,14 @@ export const ConnectorTriggerSchema = z.object({
   /**
    * Trigger configuration
    */
-  config: z.record(z.any())
+  config: z.record(z.string(), z.any())
     .optional()
     .describe('Trigger configuration'),
 
   /**
    * Output schema
    */
-  outputSchema: z.record(z.any())
+  outputSchema: z.record(z.string(), z.any())
     .optional()
     .describe('Event payload schema'),
 
@@ -494,7 +494,7 @@ export const ConnectorSchema = z.object({
   /**
    * Custom metadata
    */
-  metadata: z.record(z.any()).optional().describe('Custom metadata'),
+  metadata: z.record(z.string(), z.any()).optional().describe('Custom metadata'),
 });
 
 export type Connector = z.infer<typeof ConnectorSchema>;
@@ -528,12 +528,12 @@ export const ConnectorInstanceSchema = z.object({
   /**
    * Authentication credentials (encrypted)
    */
-  credentials: z.record(z.any()).describe('Encrypted credentials'),
+  credentials: z.record(z.string(), z.any()).describe('Encrypted credentials'),
 
   /**
    * Additional configuration
    */
-  config: z.record(z.any()).optional().describe('Additional config'),
+  config: z.record(z.string(), z.any()).optional().describe('Additional config'),
 
   /**
    * Whether instance is active

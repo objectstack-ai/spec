@@ -64,7 +64,7 @@ export const AITaskSchema = z.object({
   
   /** Input Configuration */
   inputFields: z.array(z.string()).describe('Source fields to process (e.g., ["description", "comments"])'),
-  inputContext: z.record(z.any()).optional().describe('Additional context for the AI model'),
+  inputContext: z.record(z.string(), z.any()).optional().describe('Additional context for the AI model'),
   
   /** Output Configuration */
   outputField: z.string().describe('Target field to store the result'),
@@ -75,7 +75,7 @@ export const AITaskSchema = z.object({
   multiClass: z.boolean().optional().default(false).describe('Allow multiple classes to be selected'),
   
   /** Extraction-specific options */
-  extractionSchema: z.record(z.any()).optional().describe('JSON schema for structured extraction'),
+  extractionSchema: z.record(z.string(), z.any()).optional().describe('JSON schema for structured extraction'),
   
   /** Generation-specific options */
   maxLength: z.number().optional().describe('Maximum length for generated content'),
@@ -124,7 +124,7 @@ export const WorkflowScheduleSchema = z.object({
 export const PostProcessingActionSchema = z.object({
   type: z.enum(['field_update', 'send_email', 'create_record', 'update_related', 'trigger_flow', 'webhook']),
   name: z.string().describe('Action name'),
-  config: z.record(z.any()).describe('Action-specific configuration'),
+  config: z.record(z.string(), z.any()).describe('Action-specific configuration'),
   condition: z.string().optional().describe('Execute only if condition is TRUE'),
 });
 
@@ -149,7 +149,7 @@ export const AIOrchestrationSchema = z.object({
   schedule: WorkflowScheduleSchema.optional().describe('Schedule configuration (for scheduled trigger)'),
   webhookConfig: z.object({
     secret: z.string().optional().describe('Webhook verification secret'),
-    headers: z.record(z.string()).optional().describe('Expected headers'),
+    headers: z.record(z.string(), z.string()).optional().describe('Expected headers'),
   }).optional().describe('Webhook configuration (for webhook trigger)'),
   
   /** Entry Criteria */

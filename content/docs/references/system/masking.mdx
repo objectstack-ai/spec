@@ -23,41 +23,11 @@ const result = MaskingConfigSchema.parse(data);
 
 ## MaskingConfig
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional |  |
-| **rules** | `object[]` | ✅ |  |
-| **auditUnmasking** | `boolean` | optional |  |
-
 ---
 
 ## MaskingRule
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **field** | `string` | ✅ |  |
-| **strategy** | `Enum<'redact' \| 'partial' \| 'hash' \| 'tokenize' \| 'randomize' \| 'nullify' \| 'substitute'>` | ✅ |  |
-| **pattern** | `string` | optional | Regex pattern for partial masking |
-| **preserveFormat** | `boolean` | optional |  |
-| **preserveLength** | `boolean` | optional |  |
-| **roles** | `string[]` | optional | Roles that see masked data |
-| **exemptRoles** | `string[]` | optional | Roles that see unmasked data |
-
 ---
 
 ## MaskingStrategy
-
-### Allowed Values
-
-* `redact`
-* `partial`
-* `hash`
-* `tokenize`
-* `randomize`
-* `nullify`
-* `substitute`
 

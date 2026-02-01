@@ -1,51 +1,7 @@
 {
   "$ref": "#/definitions/WorkflowSchedule",
   "definitions": {
-    "WorkflowSchedule": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "cron",
-            "interval",
-            "daily",
-            "weekly",
-            "monthly"
-          ],
-          "default": "cron"
-        },
-        "cron": {
-          "type": "string",
-          "description": "Cron expression (required if type is \"cron\")"
-        },
-        "interval": {
-          "type": "number",
-          "description": "Interval in minutes (required if type is \"interval\")"
-        },
-        "time": {
-          "type": "string",
-          "description": "Time of day for daily schedules (HH:MM format)"
-        },
-        "dayOfWeek": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 6,
-          "description": "Day of week for weekly (0=Sunday)"
-        },
-        "dayOfMonth": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 31,
-          "description": "Day of month for monthly"
-        },
-        "timezone": {
-          "type": "string",
-          "default": "UTC"
-        }
-      },
-      "additionalProperties": false
-    }
+    "WorkflowSchedule": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

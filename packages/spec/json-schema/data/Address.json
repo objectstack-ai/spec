@@ -1,40 +1,7 @@
 {
   "$ref": "#/definitions/Address",
   "definitions": {
-    "Address": {
-      "type": "object",
-      "properties": {
-        "street": {
-          "type": "string",
-          "description": "Street address"
-        },
-        "city": {
-          "type": "string",
-          "description": "City name"
-        },
-        "state": {
-          "type": "string",
-          "description": "State/Province"
-        },
-        "postalCode": {
-          "type": "string",
-          "description": "Postal/ZIP code"
-        },
-        "country": {
-          "type": "string",
-          "description": "Country name or code"
-        },
-        "countryCode": {
-          "type": "string",
-          "description": "ISO country code (e.g., US, GB)"
-        },
-        "formatted": {
-          "type": "string",
-          "description": "Formatted address string"
-        }
-      },
-      "additionalProperties": false
-    }
+    "Address": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

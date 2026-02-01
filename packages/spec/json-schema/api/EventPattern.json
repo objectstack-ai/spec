@@ -1,12 +1,7 @@
 {
   "$ref": "#/definitions/EventPattern",
   "definitions": {
-    "EventPattern": {
-      "type": "string",
-      "minLength": 1,
-      "pattern": "^[a-z*][a-z0-9_.*]*$",
-      "description": "Event pattern (supports wildcards like \"record.*\" or \"*.created\")"
-    }
+    "EventPattern": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

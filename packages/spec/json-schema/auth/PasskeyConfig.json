@@ -1,54 +1,7 @@
 {
   "$ref": "#/definitions/PasskeyConfig",
   "definitions": {
-    "PasskeyConfig": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "default": false
-        },
-        "rpName": {
-          "type": "string",
-          "description": "Relying Party name"
-        },
-        "rpId": {
-          "type": "string",
-          "description": "Relying Party ID (defaults to domain)"
-        },
-        "allowedOrigins": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uri"
-          },
-          "description": "Allowed origins for WebAuthn"
-        },
-        "userVerification": {
-          "type": "string",
-          "enum": [
-            "required",
-            "preferred",
-            "discouraged"
-          ],
-          "default": "preferred"
-        },
-        "attestation": {
-          "type": "string",
-          "enum": [
-            "none",
-            "indirect",
-            "direct",
-            "enterprise"
-          ],
-          "default": "none"
-        }
-      },
-      "required": [
-        "rpName"
-      ],
-      "additionalProperties": false
-    }
+    "PasskeyConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

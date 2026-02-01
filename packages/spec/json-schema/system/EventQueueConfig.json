@@ -1,67 +1,7 @@
 {
   "$ref": "#/definitions/EventQueueConfig",
   "definitions": {
-    "EventQueueConfig": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "default": "events",
-          "description": "Event queue name"
-        },
-        "concurrency": {
-          "type": "integer",
-          "minimum": 1,
-          "default": 10,
-          "description": "Max concurrent event handlers"
-        },
-        "retryPolicy": {
-          "type": "object",
-          "properties": {
-            "maxRetries": {
-              "type": "integer",
-              "minimum": 0,
-              "default": 3,
-              "description": "Max retries for failed events"
-            },
-            "backoffStrategy": {
-              "type": "string",
-              "enum": [
-                "fixed",
-                "linear",
-                "exponential"
-              ],
-              "default": "exponential",
-              "description": "Backoff strategy"
-            },
-            "initialDelayMs": {
-              "type": "integer",
-              "exclusiveMinimum": 0,
-              "default": 1000,
-              "description": "Initial retry delay"
-            },
-            "maxDelayMs": {
-              "type": "integer",
-              "exclusiveMinimum": 0,
-              "default": 60000,
-              "description": "Maximum retry delay"
-            }
-          },
-          "additionalProperties": false,
-          "description": "Default retry policy for events"
-        },
-        "deadLetterQueue": {
-          "type": "string",
-          "description": "Dead letter queue name for failed events"
-        },
-        "priorityEnabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Process events based on priority"
-        }
-      },
-      "additionalProperties": false
-    }
+    "EventQueueConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

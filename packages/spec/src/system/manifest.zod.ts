@@ -62,7 +62,7 @@ export const ManifestSchema = z.object({
    * Package Dependencies.
    * Map of package IDs to version requirements.
    */
-  dependencies: z.record(z.string()).optional().describe('Package dependencies'),
+  dependencies: z.record(z.string(), z.string()).optional().describe('Package dependencies'),
 
   /**
    * Plugin Configuration Schema.
@@ -71,7 +71,7 @@ export const ManifestSchema = z.object({
    */
   configuration: z.object({
     title: z.string().optional(),
-    properties: z.record(z.object({
+    properties: z.record(z.string(), z.object({
        type: z.enum(['string', 'number', 'boolean', 'array', 'object']).describe('Data type of the setting'),
        default: z.any().optional().describe('Default value'),
        description: z.string().optional().describe('Tooltip description'),
@@ -106,7 +106,7 @@ export const ManifestSchema = z.object({
     /**
      * Register UI Menus.
      */
-    menus: z.record(z.array(z.object({
+    menus: z.record(z.string(), z.array(z.object({
        id: z.string(),
        label: z.string(),
        command: z.string().optional(),
@@ -180,7 +180,7 @@ export const ManifestSchema = z.object({
    */
   data: z.array(z.object({
     object: z.string().describe('Target Object Name'),
-    records: z.array(z.record(z.any())).describe('List of records to insert'),
+    records: z.array(z.record(z.string(), z.any())).describe('List of records to insert'),
     mode: z.enum(['upsert', 'insert', 'ignore']).default('upsert').describe('Seeding mode')
   })).optional().describe('Initial seed data'),
 
@@ -196,7 +196,7 @@ export const ManifestSchema = z.object({
    * Extension points contributed by this package.
    * Allows packages to extend UI components, add functionality, etc.
    */
-  extensions: z.record(z.any()).optional().describe('Extension points and contributions'),
+  extensions: z.record(z.string(), z.any()).optional().describe('Extension points and contributions'),
 });
 
 /**

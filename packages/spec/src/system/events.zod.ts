@@ -136,7 +136,10 @@ export const EventHandlerSchema = z.object({
   /**
    * Handler function
    */
-  handler: z.function().args(EventSchema).returns(z.promise(z.void())).describe('Handler function'),
+  handler: z.function({
+    input: z.tuple([EventSchema]),
+    output: z.promise(z.void())
+  }).describe('Handler function'),
   
   /**
    * Execution priority
@@ -165,7 +168,10 @@ export const EventHandlerSchema = z.object({
   /**
    * Filter function
    */
-  filter: z.function().args(EventSchema).returns(z.boolean()).optional()
+  filter: z.function({
+    input: z.tuple([EventSchema]),
+    output: z.boolean()
+  }).optional()
     .describe('Optional filter to determine if handler should execute'),
 });
 
@@ -523,7 +529,10 @@ export const EventWebhookConfigSchema = z.object({
   /**
    * Event transformation
    */
-  transform: z.function().args(EventSchema).returns(z.any()).optional()
+  transform: z.function({
+    input: z.tuple([EventSchema]),
+    output: z.any()
+  }).optional()
     .describe('Transform event before sending'),
   
   /**
@@ -649,7 +658,10 @@ export const RealTimeNotificationConfigSchema = z.object({
   channels: z.array(z.object({
     name: z.string().describe('Channel name'),
     eventPattern: z.string().describe('Event pattern for channel'),
-    filter: z.function().args(EventSchema).returns(z.boolean()).optional()
+    filter: z.function({
+      input: z.tuple([EventSchema]),
+      output: z.boolean()
+    }).optional()
       .describe('Additional filter function'),
   })).optional().describe('Named channels for event broadcasting'),
   

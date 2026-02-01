@@ -1,28 +1,7 @@
 {
   "$ref": "#/definitions/ApiCapabilities",
   "definitions": {
-    "ApiCapabilities": {
-      "type": "object",
-      "properties": {
-        "graphql": {
-          "type": "boolean",
-          "default": false
-        },
-        "search": {
-          "type": "boolean",
-          "default": false
-        },
-        "websockets": {
-          "type": "boolean",
-          "default": false
-        },
-        "files": {
-          "type": "boolean",
-          "default": true
-        }
-      },
-      "additionalProperties": false
-    }
+    "ApiCapabilities": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

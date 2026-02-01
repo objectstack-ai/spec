@@ -301,7 +301,7 @@ export const ODataResponseSchema = z.object({
   /**
    * Result array
    */
-  value: z.array(z.record(z.any())).describe('Results array'),
+  value: z.array(z.record(z.string(), z.any())).describe('Results array'),
 });
 
 export type ODataResponse = z.infer<typeof ODataResponseSchema>;
@@ -340,7 +340,7 @@ export const ODataErrorSchema = z.object({
     /**
      * Inner error for debugging
      */
-    innererror: z.record(z.any()).optional().describe('Inner error details'),
+    innererror: z.record(z.string(), z.any()).optional().describe('Inner error details'),
   }),
 });
 

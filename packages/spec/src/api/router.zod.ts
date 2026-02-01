@@ -86,7 +86,14 @@ export const RouterConfigSchema = z.object({
     automation: z.string().default('/automation').describe('Automation Protocol'),
     storage: z.string().default('/storage').describe('Storage Protocol'),
     graphql: z.string().default('/graphql').describe('GraphQL Endpoint'),
-  }).default({}), // Defaults match standardized spec
+  }).default({
+    data: '/data',
+    metadata: '/meta',
+    auth: '/auth',
+    automation: '/automation',
+    storage: '/storage',
+    graphql: '/graphql'
+  }), // Defaults match standardized spec
 
   /**
    * Cross-Origin Resource Sharing

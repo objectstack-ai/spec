@@ -41,7 +41,7 @@ export const FieldMappingSchema = z.object({
     autoCreate: z.boolean().optional(), // Create if missing
     
     // Map
-    valueMap: z.record(z.any()).optional(), // { "Open": "draft" }
+    valueMap: z.record(z.string(), z.any()).optional(), // { "Open": "draft" }
     
     // Split/Join
     separator: z.string().optional()

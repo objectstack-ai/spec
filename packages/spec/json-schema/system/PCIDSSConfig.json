@@ -1,47 +1,7 @@
 {
   "$ref": "#/definitions/PCIDSSConfig",
   "definitions": {
-    "PCIDSSConfig": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean"
-        },
-        "level": {
-          "type": "string",
-          "enum": [
-            "1",
-            "2",
-            "3",
-            "4"
-          ]
-        },
-        "cardDataFields": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "tokenization": {
-          "type": "boolean",
-          "default": true
-        },
-        "encryptionInTransit": {
-          "type": "boolean",
-          "default": true
-        },
-        "encryptionAtRest": {
-          "type": "boolean",
-          "default": true
-        }
-      },
-      "required": [
-        "enabled",
-        "level",
-        "cardDataFields"
-      ],
-      "additionalProperties": false
-    }
+    "PCIDSSConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

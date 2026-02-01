@@ -1,27 +1,7 @@
 {
   "$ref": "#/definitions/EventRoute",
   "definitions": {
-    "EventRoute": {
-      "type": "object",
-      "properties": {
-        "from": {
-          "type": "string",
-          "description": "Source event pattern (supports wildcards, e.g., user.* or *.created)"
-        },
-        "to": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Target event names to route to"
-        }
-      },
-      "required": [
-        "from",
-        "to"
-      ],
-      "additionalProperties": false
-    }
+    "EventRoute": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

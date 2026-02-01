@@ -1,27 +1,7 @@
 {
   "$ref": "#/definitions/RateLimitConfig",
   "definitions": {
-    "RateLimitConfig": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable rate limiting"
-        },
-        "windowMs": {
-          "type": "integer",
-          "default": 60000,
-          "description": "Time window in milliseconds"
-        },
-        "maxRequests": {
-          "type": "integer",
-          "default": 100,
-          "description": "Max requests per window"
-        }
-      },
-      "additionalProperties": false
-    }
+    "RateLimitConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

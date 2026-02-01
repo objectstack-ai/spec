@@ -1,48 +1,7 @@
 {
   "$ref": "#/definitions/DatabaseMapping",
   "definitions": {
-    "DatabaseMapping": {
-      "type": "object",
-      "properties": {
-        "user": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "description": "User field mapping (e.g., { \"emailVerified\": \"email_verified\" })"
-        },
-        "session": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "default": {
-            "sessionToken": "token",
-            "expires": "expiresAt"
-          },
-          "description": "Session field mapping"
-        },
-        "account": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "default": {
-            "providerAccountId": "accountId",
-            "provider": "providerId"
-          },
-          "description": "Account field mapping"
-        },
-        "verificationToken": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "description": "VerificationToken field mapping"
-        }
-      },
-      "additionalProperties": false
-    }
+    "DatabaseMapping": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

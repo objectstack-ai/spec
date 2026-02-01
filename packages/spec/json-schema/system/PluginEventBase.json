@@ -1,24 +1,7 @@
 {
   "$ref": "#/definitions/PluginEventBase",
   "definitions": {
-    "PluginEventBase": {
-      "type": "object",
-      "properties": {
-        "pluginName": {
-          "type": "string",
-          "description": "Name of the plugin"
-        },
-        "timestamp": {
-          "type": "integer",
-          "description": "Unix timestamp in milliseconds when event occurred"
-        }
-      },
-      "required": [
-        "pluginName",
-        "timestamp"
-      ],
-      "additionalProperties": false
-    }
+    "PluginEventBase": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

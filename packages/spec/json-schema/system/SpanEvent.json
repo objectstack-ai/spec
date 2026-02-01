@@ -1,62 +1,7 @@
 {
   "$ref": "#/definitions/SpanEvent",
   "definitions": {
-    "SpanEvent": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "Event name"
-        },
-        "timestamp": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Event timestamp"
-        },
-        "attributes": {
-          "type": "object",
-          "additionalProperties": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "number"
-              },
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              {
-                "type": "array",
-                "items": {
-                  "type": "number"
-                }
-              },
-              {
-                "type": "array",
-                "items": {
-                  "type": "boolean"
-                }
-              }
-            ],
-            "description": "Span attribute value"
-          },
-          "description": "Event attributes"
-        }
-      },
-      "required": [
-        "name",
-        "timestamp"
-      ],
-      "additionalProperties": false,
-      "description": "Span event"
-    }
+    "SpanEvent": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

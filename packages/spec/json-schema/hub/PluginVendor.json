@@ -1,47 +1,7 @@
 {
   "$ref": "#/definitions/PluginVendor",
   "definitions": {
-    "PluginVendor": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$",
-          "description": "Vendor identifier (reverse domain)"
-        },
-        "name": {
-          "type": "string"
-        },
-        "website": {
-          "type": "string",
-          "format": "uri"
-        },
-        "email": {
-          "type": "string",
-          "format": "email"
-        },
-        "verified": {
-          "type": "boolean",
-          "default": false,
-          "description": "Whether vendor is verified by ObjectStack"
-        },
-        "trustLevel": {
-          "type": "string",
-          "enum": [
-            "official",
-            "verified",
-            "community",
-            "unverified"
-          ],
-          "default": "unverified"
-        }
-      },
-      "required": [
-        "id",
-        "name"
-      ],
-      "additionalProperties": false
-    }
+    "PluginVendor": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

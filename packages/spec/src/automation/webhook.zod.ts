@@ -68,7 +68,7 @@ export const WebhookSchema = z.object({
   method: z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']).default('POST').describe('HTTP method'),
   
   /** Headers */
-  headers: z.record(z.string()).optional().describe('Custom HTTP headers'),
+  headers: z.record(z.string(), z.string()).optional().describe('Custom HTTP headers'),
   
   /** Body/Payload */
   body: z.any().optional().describe('Request body payload (if not using default record data)'),
@@ -80,7 +80,7 @@ export const WebhookSchema = z.object({
   /** Authentication */
   authentication: z.object({
     type: z.enum(['none', 'bearer', 'basic', 'api-key']).describe('Authentication type'),
-    credentials: z.record(z.string()).optional().describe('Authentication credentials'),
+    credentials: z.record(z.string(), z.string()).optional().describe('Authentication credentials'),
   }).optional().describe('Authentication configuration'),
   
   /** Retry Policy */

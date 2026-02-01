@@ -112,7 +112,7 @@ export const PluginCapabilitySchema = z.object({
   /**
    * Custom metadata for vendor-specific information
    */
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
   
   /**
    * Testing/Certification status

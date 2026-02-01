@@ -139,7 +139,7 @@ export const WidgetEventSchema = z.object({
    * 
    * @example { userId: 'string', timestamp: 'number' }
    */
-  payload: z.record(z.any()).optional().describe('Event payload schema'),
+  payload: z.record(z.string(), z.any()).optional().describe('Event payload schema'),
 });
 
 export type WidgetEvent = z.infer<typeof WidgetEventSchema>;
@@ -206,7 +206,7 @@ export const WidgetPropertySchema = z.object({
    * Property validation schema
    * Can include min/max, regex, enum values, etc.
    */
-  validation: z.record(z.any()).optional().describe('Validation rules'),
+  validation: z.record(z.string(), z.any()).optional().describe('Validation rules'),
 
   /**
    * Property category for grouping in UI
@@ -367,10 +367,10 @@ export const FieldWidgetPropsSchema = z.object({
    * 
    * @param newValue - The new value to set
    */
-  onChange: z.function()
-    .args(z.any())
-    .returns(z.void())
-    .describe('Callback to update field value'),
+  onChange: z.function({
+    input: z.tuple([z.any()]),
+    output: z.void()
+  }).describe('Callback to update field value'),
 
   /**
    * Whether the field is in read-only mode.
@@ -400,13 +400,13 @@ export const FieldWidgetPropsSchema = z.object({
    * The complete record/document being edited.
    * Useful for conditional logic and cross-field dependencies.
    */
-  record: z.record(z.any()).optional().describe('Complete record data'),
+  record: z.record(z.string(), z.any()).optional().describe('Complete record data'),
 
   /**
    * Custom options passed to the widget.
    * Can contain widget-specific configuration like themes, behaviors, etc.
    */
-  options: z.record(z.any()).optional().describe('Custom widget options'),
+  options: z.record(z.string(), z.any()).optional().describe('Custom widget options'),
 });
 
 /**

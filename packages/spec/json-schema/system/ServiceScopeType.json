@@ -1,15 +1,7 @@
 {
   "$ref": "#/definitions/ServiceScopeType",
   "definitions": {
-    "ServiceScopeType": {
-      "type": "string",
-      "enum": [
-        "singleton",
-        "transient",
-        "scoped"
-      ],
-      "description": "Service scope type"
-    }
+    "ServiceScopeType": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

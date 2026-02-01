@@ -135,7 +135,7 @@ export const PromptTemplateSchema = z.object({
   category: z.string().optional().describe('Template category (e.g., "code_generation", "support")'),
   tags: z.array(z.string()).optional(),
   examples: z.array(z.object({
-    input: z.record(z.any()).describe('Example variable values'),
+    input: z.record(z.string(), z.any()).describe('Example variable values'),
     output: z.string().describe('Expected output'),
   })).optional(),
 });
@@ -161,8 +161,8 @@ export const ModelRegistryEntrySchema = z.object({
  */
 export const ModelRegistrySchema = z.object({
   name: z.string().describe('Registry name'),
-  models: z.record(ModelRegistryEntrySchema).describe('Model entries by ID'),
-  promptTemplates: z.record(PromptTemplateSchema).optional().describe('Prompt templates by name'),
+  models: z.record(z.string(), ModelRegistryEntrySchema).describe('Model entries by ID'),
+  promptTemplates: z.record(z.string(), PromptTemplateSchema).optional().describe('Prompt templates by name'),
   defaultModel: z.string().optional().describe('Default model ID'),
   enableAutoFallback: z.boolean().default(true).describe('Auto-fallback on errors'),
 });

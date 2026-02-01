@@ -44,7 +44,7 @@ export const KernelContextSchema = z.object({
   /**
    * Feature Flags (Global)
    */
-  features: z.record(z.boolean()).default({}).describe('Global feature toggles')
+  features: z.record(z.string(), z.boolean()).default({}).describe('Global feature toggles')
 });
 
 export type KernelContext = z.infer<typeof KernelContextSchema>;

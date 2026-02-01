@@ -48,7 +48,7 @@ export const MetadataStatsSchema = z.object({
   /**
    * Additional metadata provider-specific properties
    */
-  metadata: z.record(z.any()).optional().describe('Provider-specific metadata'),
+  metadata: z.record(z.string(), z.any()).optional().describe('Provider-specific metadata'),
 });
 
 /**
@@ -438,7 +438,7 @@ export const MetadataManagerConfigSchema = z.object({
   /**
    * Loader-specific options
    */
-  loaderOptions: z.record(z.any()).optional().describe('Loader-specific configuration'),
+  loaderOptions: z.record(z.string(), z.any()).optional().describe('Loader-specific configuration'),
 });
 
 // Export types

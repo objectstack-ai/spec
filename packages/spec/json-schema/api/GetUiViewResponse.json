@@ -1,31 +1,7 @@
 {
   "$ref": "#/definitions/GetUiViewResponse",
   "definitions": {
-    "GetUiViewResponse": {
-      "type": "object",
-      "properties": {
-        "object": {
-          "type": "string",
-          "description": "Object name"
-        },
-        "type": {
-          "type": "string",
-          "enum": [
-            "list",
-            "form"
-          ],
-          "description": "View type"
-        },
-        "view": {
-          "description": "View definition"
-        }
-      },
-      "required": [
-        "object",
-        "type"
-      ],
-      "additionalProperties": false
-    }
+    "GetUiViewResponse": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

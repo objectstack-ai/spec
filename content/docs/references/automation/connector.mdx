@@ -23,79 +23,15 @@ const result = AuthenticationSchema.parse(data);
 
 ## Authentication
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `Enum<'none' \| 'apiKey' \| 'basic' \| 'bearer' \| 'oauth1' \| 'oauth2' \| 'custom'>` | ✅ | Authentication type |
-| **fields** | `object[]` | optional | Authentication fields |
-| **oauth2** | `object` | optional | OAuth 2.0 configuration |
-| **test** | `object` | optional | Authentication test configuration |
-
 ---
 
 ## ConflictResolution
-
-### Allowed Values
-
-* `source_wins`
-* `destination_wins`
-* `latest_wins`
-* `manual`
-* `merge`
 
 ---
 
 ## Connector
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ | Connector ID (snake_case) |
-| **name** | `string` | ✅ | Connector name |
-| **description** | `string` | optional | Connector description |
-| **version** | `string` | optional | Connector version |
-| **icon** | `string` | optional | Connector icon |
-| **category** | `Enum<'crm' \| 'payment' \| 'communication' \| 'storage' \| 'analytics' \| 'database' \| 'marketing' \| 'accounting' \| 'hr' \| 'productivity' \| 'ecommerce' \| 'support' \| 'devtools' \| 'social' \| 'other'>` | ✅ | Connector category |
-| **baseUrl** | `string` | optional | API base URL |
-| **authentication** | `object` | ✅ | Authentication config |
-| **operations** | `object[]` | optional | Connector operations |
-| **triggers** | `object[]` | optional | Connector triggers |
-| **rateLimit** | `object` | optional | Rate limiting |
-| **author** | `string` | optional | Connector author |
-| **documentation** | `string` | optional | Documentation URL |
-| **homepage** | `string` | optional | Homepage URL |
-| **license** | `string` | optional | License (SPDX identifier) |
-| **tags** | `string[]` | optional | Connector tags |
-| **verified** | `boolean` | optional | Verified connector |
-| **metadata** | `Record<string, any>` | optional | Custom metadata |
-
 ---
 
 ## DataSyncConfig
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Sync configuration name (snake_case) |
-| **label** | `string` | optional | Sync display name |
-| **description** | `string` | optional | Sync description |
-| **source** | `object` | ✅ | Data source |
-| **destination** | `object` | ✅ | Data destination |
-| **direction** | `Enum<'push' \| 'pull' \| 'bidirectional'>` | optional | Sync direction |
-| **syncMode** | `Enum<'full' \| 'incremental' \| 'realtime'>` | optional | Sync mode |
-| **conflictResolution** | `Enum<'source_wins' \| 'destination_wins' \| 'latest_wins' \| 'manual' \| 'merge'>` | optional | Conflict resolution |
-| **schedule** | `string` | optional | Cron schedule |
-| **enabled** | `boolean` | optional | Sync enabled |
-| **changeTrackingField** | `string` | optional | Field for change tracking |
-| **batchSize** | `integer` | optional | Batch size for processing |
-| **retry** | `object` | optional | Retry configuration |
-| **validation** | `object` | optional | Validation rules |
-| **errorHandling** | `object` | optional | Error handling |
-| **optimization** | `object` | optional | Performance optimization |
-| **audit** | `object` | optional | Audit configuration |
-| **tags** | `string[]` | optional | Sync tags |
-| **metadata** | `Record<string, any>` | optional | Custom metadata |
 

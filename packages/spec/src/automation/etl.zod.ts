@@ -123,7 +123,7 @@ export const ETLSourceSchema = z.object({
    * @example For API: { endpoint: '/api/users', method: 'GET' }
    * @example For file: { path: 's3://bucket/data.csv', format: 'csv' }
    */
-  config: z.record(z.any()).describe('Source configuration'),
+  config: z.record(z.string(), z.any()).describe('Source configuration'),
 
   /**
    * Incremental sync configuration
@@ -155,7 +155,7 @@ export const ETLDestinationSchema = z.object({
   /**
    * Destination-specific configuration
    */
-  config: z.record(z.any()).describe('Destination configuration'),
+  config: z.record(z.string(), z.any()).describe('Destination configuration'),
 
   /**
    * Write mode
@@ -214,7 +214,7 @@ export const ETLTransformationSchema = z.object({
    * @example For filter: { condition: 'status == "active"' }
    * @example For script: { language: 'javascript', code: '...' }
    */
-  config: z.record(z.any()).describe('Transformation config'),
+  config: z.record(z.string(), z.any()).describe('Transformation config'),
 
   /**
    * Whether to continue on error
@@ -319,7 +319,7 @@ export const ETLPipelineSchema = z.object({
   /**
    * Custom metadata
    */
-  metadata: z.record(z.any()).optional().describe('Custom metadata'),
+  metadata: z.record(z.string(), z.any()).optional().describe('Custom metadata'),
 });
 
 export type ETLPipeline = z.infer<typeof ETLPipelineSchema>;

@@ -1,63 +1,7 @@
 {
   "$ref": "#/definitions/EventHandler",
   "definitions": {
-    "EventHandler": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique handler identifier"
-        },
-        "eventName": {
-          "type": "string",
-          "description": "Name of event to handle (supports wildcards like user.*)"
-        },
-        "priority": {
-          "type": "integer",
-          "default": 0,
-          "description": "Execution priority (lower numbers execute first)"
-        },
-        "async": {
-          "type": "boolean",
-          "default": true,
-          "description": "Execute in background (true) or block (false)"
-        },
-        "retry": {
-          "type": "object",
-          "properties": {
-            "maxRetries": {
-              "type": "integer",
-              "minimum": 0,
-              "default": 3,
-              "description": "Maximum retry attempts"
-            },
-            "backoffMs": {
-              "type": "integer",
-              "exclusiveMinimum": 0,
-              "default": 1000,
-              "description": "Initial backoff delay"
-            },
-            "backoffMultiplier": {
-              "type": "number",
-              "exclusiveMinimum": 0,
-              "default": 2,
-              "description": "Backoff multiplier"
-            }
-          },
-          "additionalProperties": false,
-          "description": "Retry policy for failed handlers"
-        },
-        "timeoutMs": {
-          "type": "integer",
-          "exclusiveMinimum": 0,
-          "description": "Handler timeout in milliseconds"
-        }
-      },
-      "required": [
-        "eventName"
-      ],
-      "additionalProperties": false
-    }
+    "EventHandler": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

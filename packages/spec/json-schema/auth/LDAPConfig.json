@@ -1,56 +1,7 @@
 {
   "$ref": "#/definitions/LDAPConfig",
   "definitions": {
-    "LDAPConfig": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "default": false
-        },
-        "url": {
-          "type": "string",
-          "format": "uri",
-          "description": "LDAP Server URL (ldap:// or ldaps://)"
-        },
-        "bindDn": {
-          "type": "string",
-          "description": "Bind DN for LDAP authentication"
-        },
-        "bindCredentials": {
-          "type": "string",
-          "description": "Bind credentials"
-        },
-        "searchBase": {
-          "type": "string",
-          "description": "Search base DN"
-        },
-        "searchFilter": {
-          "type": "string",
-          "description": "Search filter"
-        },
-        "groupSearchBase": {
-          "type": "string",
-          "description": "Group search base DN"
-        },
-        "displayName": {
-          "type": "string",
-          "description": "Display name for the provider button"
-        },
-        "icon": {
-          "type": "string",
-          "description": "Icon URL or identifier"
-        }
-      },
-      "required": [
-        "url",
-        "bindDn",
-        "bindCredentials",
-        "searchBase",
-        "searchFilter"
-      ],
-      "additionalProperties": false
-    }
+    "LDAPConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

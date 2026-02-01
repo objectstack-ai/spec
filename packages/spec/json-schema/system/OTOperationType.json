@@ -1,14 +1,7 @@
 {
   "$ref": "#/definitions/OTOperationType",
   "definitions": {
-    "OTOperationType": {
-      "type": "string",
-      "enum": [
-        "insert",
-        "delete",
-        "retain"
-      ]
-    }
+    "OTOperationType": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -68,7 +68,7 @@ export const ServiceMetadataSchema = z.object({
   /**
    * Additional metadata
    */
-  metadata: z.record(z.any()).optional()
+  metadata: z.record(z.string(), z.any()).optional()
     .describe('Additional service-specific metadata'),
 });
 
@@ -203,7 +203,7 @@ export const ScopeConfigSchema = z.object({
   /**
    * Scope metadata (context information)
    */
-  metadata: z.record(z.any()).optional()
+  metadata: z.record(z.string(), z.any()).optional()
     .describe('Scope-specific context metadata'),
 });
 
@@ -249,7 +249,7 @@ export const ScopeInfoSchema = z.object({
   /**
    * Scope metadata
    */
-  metadata: z.record(z.any()).optional()
+  metadata: z.record(z.string(), z.any()).optional()
     .describe('Scope-specific context metadata'),
 });
 

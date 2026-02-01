@@ -366,14 +366,14 @@ export const BatchTaskSchema = z.object({
    * 
    * @param progress - Object containing processed count, total count, and failed count
    */
-  onProgress: z.function()
-    .args(z.object({
+  onProgress: z.function({
+    input: z.tuple([z.object({
       processed: z.number(),
       total: z.number(),
       failed: z.number(),
-    }))
-    .returns(z.void())
-    .optional()
+    })]),
+    output: z.void()
+  }).optional()
     .describe('Progress callback function (called after each batch)'),
 });
 

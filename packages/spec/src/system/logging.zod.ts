@@ -97,8 +97,8 @@ export const LogEntrySchema = z.object({
   timestamp: z.string().datetime().describe('ISO 8601 timestamp'),
   level: LogLevel,
   message: z.string().describe('Log message'),
-  context: z.record(z.any()).optional().describe('Structured context data'),
-  error: z.record(z.any()).optional().describe('Error object if present'),
+  context: z.record(z.string(), z.any()).optional().describe('Structured context data'),
+  error: z.record(z.string(), z.any()).optional().describe('Error object if present'),
   
   /** Tracing */
   traceId: z.string().optional().describe('Distributed trace ID'),
@@ -239,7 +239,7 @@ export const HttpDestinationConfigSchema = z.object({
   /**
    * Headers to include
    */
-  headers: z.record(z.string()).optional(),
+  headers: z.record(z.string(), z.string()).optional(),
 
   /**
    * Authentication
@@ -331,7 +331,7 @@ export const ExternalServiceDestinationConfigSchema = z.object({
   /**
    * Service-specific configuration
    */
-  config: z.record(z.any()).optional(),
+  config: z.record(z.string(), z.any()).optional(),
 }).describe('External service destination configuration');
 
 export type ExternalServiceDestinationConfig = z.infer<typeof ExternalServiceDestinationConfigSchema>;
@@ -404,7 +404,7 @@ export const LogEnrichmentConfigSchema = z.object({
   /**
    * Static fields to add to all logs
    */
-  staticFields: z.record(z.any()).optional().describe('Static fields added to every log'),
+  staticFields: z.record(z.string(), z.any()).optional().describe('Static fields added to every log'),
 
   /**
    * Dynamic field enrichers (runtime only)
@@ -471,7 +471,7 @@ export const StructuredLogEntrySchema = z.object({
   /**
    * Structured context data
    */
-  context: z.record(z.any()).optional().describe('Structured context'),
+  context: z.record(z.string(), z.any()).optional().describe('Structured context'),
 
   /**
    * Error information
@@ -481,7 +481,7 @@ export const StructuredLogEntrySchema = z.object({
     message: z.string().optional(),
     stack: z.string().optional(),
     code: z.string().optional(),
-    details: z.record(z.any()).optional(),
+    details: z.record(z.string(), z.any()).optional(),
   }).optional().describe('Error details'),
 
   /**
@@ -542,12 +542,12 @@ export const StructuredLogEntrySchema = z.object({
   /**
    * Custom labels/tags
    */
-  labels: z.record(z.string()).optional().describe('Custom labels'),
+  labels: z.record(z.string(), z.string()).optional().describe('Custom labels'),
 
   /**
    * Additional metadata
    */
-  metadata: z.record(z.any()).optional().describe('Additional metadata'),
+  metadata: z.record(z.string(), z.any()).optional().describe('Additional metadata'),
 }).describe('Structured log entry');
 
 export type StructuredLogEntry = z.infer<typeof StructuredLogEntrySchema>;
@@ -590,7 +590,7 @@ export const LoggingConfigSchema = z.object({
    * Named logger configurations
    * Map of logger name to logger config for different components/modules
    */
-  loggers: z.record(LoggerConfigSchema).optional().describe('Named logger configurations'),
+  loggers: z.record(z.string(), LoggerConfigSchema).optional().describe('Named logger configurations'),
 
   /**
    * Log destinations
@@ -600,7 +600,7 @@ export const LoggingConfigSchema = z.object({
   /**
    * Log enrichment configuration
    */
-  enrichment: LogEnrichmentConfigSchema.optional().default({}),
+  enrichment: LogEnrichmentConfigSchema.optional(),
 
   /**
    * Fields to redact from logs
@@ -633,7 +633,7 @@ export const LoggingConfigSchema = z.object({
     /**
      * Sample rate by level
      */
-    rateByLevel: z.record(z.number().min(0).max(1)).optional(),
+    rateByLevel: z.record(z.string(), z.number().min(0).max(1)).optional(),
   }).optional(),
 
   /**

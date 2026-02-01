@@ -1,69 +1,7 @@
 {
   "$ref": "#/definitions/ConnectorInstance",
   "definitions": {
-    "ConnectorInstance": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Instance ID"
-        },
-        "connectorId": {
-          "type": "string",
-          "description": "Connector ID"
-        },
-        "name": {
-          "type": "string",
-          "description": "Instance name"
-        },
-        "description": {
-          "type": "string",
-          "description": "Instance description"
-        },
-        "credentials": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "Encrypted credentials"
-        },
-        "config": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "Additional config"
-        },
-        "active": {
-          "type": "boolean",
-          "default": true,
-          "description": "Instance active status"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Creation time"
-        },
-        "lastTestedAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Last test time"
-        },
-        "testStatus": {
-          "type": "string",
-          "enum": [
-            "unknown",
-            "success",
-            "failed"
-          ],
-          "default": "unknown",
-          "description": "Connection test status"
-        }
-      },
-      "required": [
-        "id",
-        "connectorId",
-        "name",
-        "credentials"
-      ],
-      "additionalProperties": false
-    }
+    "ConnectorInstance": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

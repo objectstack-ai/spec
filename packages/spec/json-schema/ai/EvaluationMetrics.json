@@ -1,64 +1,7 @@
 {
   "$ref": "#/definitions/EvaluationMetrics",
   "definitions": {
-    "EvaluationMetrics": {
-      "type": "object",
-      "properties": {
-        "accuracy": {
-          "type": "number"
-        },
-        "precision": {
-          "type": "number"
-        },
-        "recall": {
-          "type": "number"
-        },
-        "f1Score": {
-          "type": "number"
-        },
-        "auc": {
-          "type": "number",
-          "description": "Area Under ROC Curve"
-        },
-        "mse": {
-          "type": "number",
-          "description": "Mean Squared Error"
-        },
-        "rmse": {
-          "type": "number",
-          "description": "Root Mean Squared Error"
-        },
-        "mae": {
-          "type": "number",
-          "description": "Mean Absolute Error"
-        },
-        "r2Score": {
-          "type": "number",
-          "description": "R-squared score"
-        },
-        "silhouetteScore": {
-          "type": "number"
-        },
-        "daviesBouldinIndex": {
-          "type": "number"
-        },
-        "mape": {
-          "type": "number",
-          "description": "Mean Absolute Percentage Error"
-        },
-        "smape": {
-          "type": "number",
-          "description": "Symmetric MAPE"
-        },
-        "custom": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "number"
-          }
-        }
-      },
-      "additionalProperties": false
-    }
+    "EvaluationMetrics": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

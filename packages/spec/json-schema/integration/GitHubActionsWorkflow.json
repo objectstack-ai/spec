@@ -1,58 +1,7 @@
 {
   "$ref": "#/definitions/GitHubActionsWorkflow",
   "definitions": {
-    "GitHubActionsWorkflow": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "Workflow name"
-        },
-        "path": {
-          "type": "string",
-          "description": "Workflow file path (e.g., .github/workflows/ci.yml)"
-        },
-        "enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable workflow"
-        },
-        "triggers": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "enum": [
-              "push",
-              "pull_request",
-              "release",
-              "schedule",
-              "workflow_dispatch",
-              "repository_dispatch"
-            ]
-          },
-          "description": "Workflow triggers"
-        },
-        "env": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "description": "Environment variables"
-        },
-        "secrets": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Required secrets"
-        }
-      },
-      "required": [
-        "name",
-        "path"
-      ],
-      "additionalProperties": false
-    }
+    "GitHubActionsWorkflow": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

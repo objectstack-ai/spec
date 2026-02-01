@@ -769,7 +769,7 @@ export const SCIMListResponseSchema = z.object({
    * Resources returned in this response
    * Use SCIMListResponseOf<T> for type-safe responses
    */
-  Resources: z.array(z.union([SCIMUserSchema, SCIMGroupSchema, z.record(z.any())]))
+  Resources: z.array(z.union([SCIMUserSchema, SCIMGroupSchema, z.record(z.string(), z.any())]))
     .describe('Resources array (Users, Groups, or custom resources)'),
 
   /**

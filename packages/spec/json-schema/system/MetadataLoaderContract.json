@@ -1,48 +1,7 @@
 {
   "$ref": "#/definitions/MetadataLoaderContract",
   "definitions": {
-    "MetadataLoaderContract": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "Loader identifier"
-        },
-        "supportedFormats": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "enum": [
-              "json",
-              "yaml",
-              "typescript",
-              "javascript"
-            ]
-          },
-          "description": "Supported formats"
-        },
-        "supportsWatch": {
-          "type": "boolean",
-          "default": false,
-          "description": "Supports file watching"
-        },
-        "supportsWrite": {
-          "type": "boolean",
-          "default": true,
-          "description": "Supports write operations"
-        },
-        "supportsCache": {
-          "type": "boolean",
-          "default": true,
-          "description": "Supports caching"
-        }
-      },
-      "required": [
-        "name",
-        "supportedFormats"
-      ],
-      "additionalProperties": false
-    }
+    "MetadataLoaderContract": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

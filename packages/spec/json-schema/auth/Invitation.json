@@ -1,69 +1,7 @@
 {
   "$ref": "#/definitions/Invitation",
   "definitions": {
-    "Invitation": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique invitation identifier"
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Organization ID"
-        },
-        "email": {
-          "type": "string",
-          "format": "email",
-          "description": "Invitee email address"
-        },
-        "role": {
-          "type": "string",
-          "description": "Role to assign upon acceptance"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "pending",
-            "accepted",
-            "rejected",
-            "expired"
-          ],
-          "default": "pending",
-          "description": "Invitation status"
-        },
-        "expiresAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Invitation expiry timestamp"
-        },
-        "inviterId": {
-          "type": "string",
-          "description": "User ID of the inviter"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Invitation creation timestamp"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Last update timestamp"
-        }
-      },
-      "required": [
-        "id",
-        "organizationId",
-        "email",
-        "role",
-        "expiresAt",
-        "inviterId",
-        "createdAt",
-        "updatedAt"
-      ],
-      "additionalProperties": false
-    }
+    "Invitation": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

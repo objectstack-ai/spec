@@ -4,7 +4,7 @@
   "private": true,
   "description": "ObjectStack Protocol & Specification - Monorepo for TypeScript Interfaces, JSON Schemas, and Convention Configurations",
   "scripts": {
-    "build": "pnpm --filter ./packages/spec build && pnpm -r --stream --filter '!./packages/spec' build",
+    "build": "pnpm -r build",
     "dev": "pnpm --filter @objectstack/client-react build && pnpm -r --filter @objectstack/example-msw-react-crud dev",
     "test": "pnpm --filter @objectstack/spec test",
     "clean": "pnpm -r --parallel clean && rm -rf dist",

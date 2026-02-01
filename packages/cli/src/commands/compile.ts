@@ -4,6 +4,7 @@ import fs from 'fs';
 import { pathToFileURL } from 'url';
 import chalk from 'chalk';
 import { bundleRequire } from 'bundle-require';
+import { ZodError } from 'zod';
 import { ObjectStackDefinitionSchema } from '@objectstack/spec';
 
 export const compileCommand = new Command('compile')
@@ -42,7 +43,8 @@ export const compileCommand = new Command('compile')
       if (!result.success) {
         console.error(chalk.red(`\n❌ Validation Failed!`));
         
-        result.error.errors.forEach(e => {
+        const error = result.error as ZodError;
+        error.issues.forEach((e: any) => {
           console.error(chalk.red(`   - [${e.path.join('.')}] ${e.message}`));
         });
         

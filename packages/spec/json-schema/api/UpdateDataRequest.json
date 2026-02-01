@@ -1,30 +1,7 @@
 {
   "$ref": "#/definitions/UpdateDataRequest",
   "definitions": {
-    "UpdateDataRequest": {
-      "type": "object",
-      "properties": {
-        "object": {
-          "type": "string",
-          "description": "Object name"
-        },
-        "id": {
-          "type": "string",
-          "description": "Record ID to update"
-        },
-        "data": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "Fields to update"
-        }
-      },
-      "required": [
-        "object",
-        "id",
-        "data"
-      ],
-      "additionalProperties": false
-    }
+    "UpdateDataRequest": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -68,7 +68,7 @@ export const PresenceSchema = z.object({
   userId: z.string().describe('User identifier'),
   status: PresenceStatus.describe('Current presence status'),
   lastSeen: z.string().datetime().describe('ISO 8601 datetime of last activity'),
-  metadata: z.record(z.any()).optional().describe('Custom presence data (e.g., current page, custom status)'),
+  metadata: z.record(z.string(), z.any()).optional().describe('Custom presence data (e.g., current page, custom status)'),
 });
 
 export type Presence = z.infer<typeof PresenceSchema>;

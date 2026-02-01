@@ -1,31 +1,7 @@
 {
   "$ref": "#/definitions/AuditPolicy",
   "definitions": {
-    "AuditPolicy": {
-      "type": "object",
-      "properties": {
-        "logRetentionDays": {
-          "type": "number",
-          "default": 180
-        },
-        "sensitiveFields": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Fields to redact in logs (e.g. password, ssn)"
-        },
-        "captureRead": {
-          "type": "boolean",
-          "default": false,
-          "description": "Log read access (High volume!)"
-        }
-      },
-      "required": [
-        "sensitiveFields"
-      ],
-      "additionalProperties": false
-    }
+    "AuditPolicy": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

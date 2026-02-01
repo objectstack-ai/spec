@@ -46,7 +46,7 @@ export const GetDiscoveryResponseSchema = z.object({
   version: z.string().describe('API version (e.g., "v1", "2024-01")'),
   apiName: z.string().describe('API name'),
   capabilities: z.array(z.string()).optional().describe('Supported features/capabilities'),
-  endpoints: z.record(z.string()).optional().describe('Available endpoint paths'),
+  endpoints: z.record(z.string(), z.string()).optional().describe('Available endpoint paths'),
 });
 
 /**
@@ -147,7 +147,7 @@ export const FindDataRequestSchema = z.object({
  */
 export const FindDataResponseSchema = z.object({
   object: z.string().describe('Object name'),
-  records: z.array(z.record(z.any())).describe('Array of records'),
+  records: z.array(z.record(z.string(), z.any())).describe('Array of records'),
   total: z.number().optional().describe('Total count (if requested)'),
   hasMore: z.boolean().optional().describe('Whether more records exist'),
 });
@@ -167,7 +167,7 @@ export const GetDataRequestSchema = z.object({
 export const GetDataResponseSchema = z.object({
   object: z.string().describe('Object name'),
   id: z.string().describe('Record ID'),
-  record: z.record(z.any()).describe('Record data'),
+  record: z.record(z.string(), z.any()).describe('Record data'),
 });
 
 /**
@@ -175,7 +175,7 @@ export const GetDataResponseSchema = z.object({
  */
 export const CreateDataRequestSchema = z.object({
   object: z.string().describe('Object name'),
-  data: z.record(z.any()).describe('Record data to create'),
+  data: z.record(z.string(), z.any()).describe('Record data to create'),
 });
 
 /**
@@ -184,7 +184,7 @@ export const CreateDataRequestSchema = z.object({
 export const CreateDataResponseSchema = z.object({
   object: z.string().describe('Object name'),
   id: z.string().describe('Created record ID'),
-  record: z.record(z.any()).describe('Created record (with server-generated fields)'),
+  record: z.record(z.string(), z.any()).describe('Created record (with server-generated fields)'),
 });
 
 /**
@@ -193,7 +193,7 @@ export const CreateDataResponseSchema = z.object({
 export const UpdateDataRequestSchema = z.object({
   object: z.string().describe('Object name'),
   id: z.string().describe('Record ID to update'),
-  data: z.record(z.any()).describe('Fields to update'),
+  data: z.record(z.string(), z.any()).describe('Fields to update'),
 });
 
 /**
@@ -202,7 +202,7 @@ export const UpdateDataRequestSchema = z.object({
 export const UpdateDataResponseSchema = z.object({
   object: z.string().describe('Object name'),
   id: z.string().describe('Updated record ID'),
-  record: z.record(z.any()).describe('Updated record'),
+  record: z.record(z.string(), z.any()).describe('Updated record'),
 });
 
 /**
@@ -245,7 +245,7 @@ export const BatchDataResponseSchema = BatchUpdateResponseSchema;
  */
 export const CreateManyDataRequestSchema = z.object({
   object: z.string().describe('Object name'),
-  records: z.array(z.record(z.any())).describe('Array of records to create'),
+  records: z.array(z.record(z.string(), z.any())).describe('Array of records to create'),
 });
 
 /**
@@ -253,7 +253,7 @@ export const CreateManyDataRequestSchema = z.object({
  */
 export const CreateManyDataResponseSchema = z.object({
   object: z.string().describe('Object name'),
-  records: z.array(z.record(z.any())).describe('Created records'),
+  records: z.array(z.record(z.string(), z.any())).describe('Created records'),
   count: z.number().describe('Number of records created'),
 });
 
@@ -264,7 +264,7 @@ export const UpdateManyDataRequestSchema = z.object({
   object: z.string().describe('Object name'),
   records: z.array(z.object({
     id: z.string().describe('Record ID'),
-    data: z.record(z.any()).describe('Fields to update'),
+    data: z.record(z.string(), z.any()).describe('Fields to update'),
   })).describe('Array of updates'),
   options: BatchOptionsSchema.optional().describe('Update options'),
 });
@@ -335,108 +335,108 @@ export const DeleteViewResponseSchema = z.object({
  */
 export const ObjectStackProtocolSchema = z.object({
   // Discovery & Metadata
-  getDiscovery: z.function()
-    .args(GetDiscoveryRequestSchema)
-    .returns(z.promise(GetDiscoveryResponseSchema))
-    .describe('Get API discovery information'),
+  getDiscovery: z.function({
+    input: z.tuple([GetDiscoveryRequestSchema]),
+    output: z.promise(GetDiscoveryResponseSchema)
+  }).describe('Get API discovery information'),
 
-  getMetaTypes: z.function()
-    .args(GetMetaTypesRequestSchema)
-    .returns(z.promise(GetMetaTypesResponseSchema))
-    .describe('Get available metadata types'),
+  getMetaTypes: z.function({
+    input: z.tuple([GetMetaTypesRequestSchema]),
+    output: z.promise(GetMetaTypesResponseSchema)
+  }).describe('Get available metadata types'),
 
-  getMetaItems: z.function()
-    .args(GetMetaItemsRequestSchema)
-    .returns(z.promise(GetMetaItemsResponseSchema))
-    .describe('Get all items of a metadata type'),
+  getMetaItems: z.function({
+    input: z.tuple([GetMetaItemsRequestSchema]),
+    output: z.promise(GetMetaItemsResponseSchema)
+  }).describe('Get all items of a metadata type'),
 
-  getMetaItem: z.function()
-    .args(GetMetaItemRequestSchema)
-    .returns(z.promise(GetMetaItemResponseSchema))
-    .describe('Get a specific metadata item'),
+  getMetaItem: z.function({
+    input: z.tuple([GetMetaItemRequestSchema]),
+    output: z.promise(GetMetaItemResponseSchema)
+  }).describe('Get a specific metadata item'),
 
-  getMetaItemCached: z.function()
-    .args(GetMetaItemCachedRequestSchema)
-    .returns(z.promise(GetMetaItemCachedResponseSchema))
-    .describe('Get a metadata item with cache validation'),
+  getMetaItemCached: z.function({
+    input: z.tuple([GetMetaItemCachedRequestSchema]),
+    output: z.promise(GetMetaItemCachedResponseSchema)
+  }).describe('Get a metadata item with cache validation'),
 
-  getUiView: z.function()
-    .args(GetUiViewRequestSchema)
-    .returns(z.promise(GetUiViewResponseSchema))
-    .describe('Get UI view definition'),
+  getUiView: z.function({
+    input: z.tuple([GetUiViewRequestSchema]),
+    output: z.promise(GetUiViewResponseSchema)
+  }).describe('Get UI view definition'),
 
   // Data Operations
-  findData: z.function()
-    .args(FindDataRequestSchema)
-    .returns(z.promise(FindDataResponseSchema))
-    .describe('Find data records'),
+  findData: z.function({
+    input: z.tuple([FindDataRequestSchema]),
+    output: z.promise(FindDataResponseSchema)
+  }).describe('Find data records'),
 
-  getData: z.function()
-    .args(GetDataRequestSchema)
-    .returns(z.promise(GetDataResponseSchema))
-    .describe('Get single data record'),
+  getData: z.function({
+    input: z.tuple([GetDataRequestSchema]),
+    output: z.promise(GetDataResponseSchema)
+  }).describe('Get single data record'),
 
-  createData: z.function()
-    .args(CreateDataRequestSchema)
-    .returns(z.promise(CreateDataResponseSchema))
-    .describe('Create a data record'),
+  createData: z.function({
+    input: z.tuple([CreateDataRequestSchema]),
+    output: z.promise(CreateDataResponseSchema)
+  }).describe('Create a data record'),
 
-  updateData: z.function()
-    .args(UpdateDataRequestSchema)
-    .returns(z.promise(UpdateDataResponseSchema))
-    .describe('Update a data record'),
+  updateData: z.function({
+    input: z.tuple([UpdateDataRequestSchema]),
+    output: z.promise(UpdateDataResponseSchema)
+  }).describe('Update a data record'),
 
-  deleteData: z.function()
-    .args(DeleteDataRequestSchema)
-    .returns(z.promise(DeleteDataResponseSchema))
-    .describe('Delete a data record'),
+  deleteData: z.function({
+    input: z.tuple([DeleteDataRequestSchema]),
+    output: z.promise(DeleteDataResponseSchema)
+  }).describe('Delete a data record'),
 
   // Batch Operations
-  batchData: z.function()
-    .args(BatchDataRequestSchema)
-    .returns(z.promise(BatchDataResponseSchema))
-    .describe('Perform batch operations'),
+  batchData: z.function({
+    input: z.tuple([BatchDataRequestSchema]),
+    output: z.promise(BatchDataResponseSchema)
+  }).describe('Perform batch operations'),
 
-  createManyData: z.function()
-    .args(CreateManyDataRequestSchema)
-    .returns(z.promise(CreateManyDataResponseSchema))
-    .describe('Create multiple records'),
+  createManyData: z.function({
+    input: z.tuple([CreateManyDataRequestSchema]),
+    output: z.promise(CreateManyDataResponseSchema)
+  }).describe('Create multiple records'),
 
-  updateManyData: z.function()
-    .args(UpdateManyDataRequestSchema)
-    .returns(z.promise(UpdateManyDataResponseSchema))
-    .describe('Update multiple records'),
+  updateManyData: z.function({
+    input: z.tuple([UpdateManyDataRequestSchema]),
+    output: z.promise(UpdateManyDataResponseSchema)
+  }).describe('Update multiple records'),
 
-  deleteManyData: z.function()
-    .args(DeleteManyDataRequestSchema)
-    .returns(z.promise(DeleteManyDataResponseSchema))
-    .describe('Delete multiple records'),
+  deleteManyData: z.function({
+    input: z.tuple([DeleteManyDataRequestSchema]),
+    output: z.promise(DeleteManyDataResponseSchema)
+  }).describe('Delete multiple records'),
 
   // View Storage
-  createView: z.function()
-    .args(CreateViewRequestSchema)
-    .returns(z.promise(ViewResponseSchema))
-    .describe('Create a saved view'),
+  createView: z.function({
+    input: z.tuple([CreateViewRequestSchema]),
+    output: z.promise(ViewResponseSchema)
+  }).describe('Create a saved view'),
 
-  getView: z.function()
-    .args(GetViewRequestSchema)
-    .returns(z.promise(ViewResponseSchema))
-    .describe('Get a saved view'),
+  getView: z.function({
+    input: z.tuple([GetViewRequestSchema]),
+    output: z.promise(ViewResponseSchema)
+  }).describe('Get a saved view'),
 
-  listViews: z.function()
-    .args(ListViewsRequestSchema)
-    .returns(z.promise(ListViewsResponseSchema))
-    .describe('List saved views'),
+  listViews: z.function({
+    input: z.tuple([ListViewsRequestSchema]),
+    output: z.promise(ListViewsResponseSchema)
+  }).describe('List saved views'),
 
-  updateView: z.function()
-    .args(UpdateViewRequestSchema)
-    .returns(z.promise(ViewResponseSchema))
-    .describe('Update a saved view'),
+  updateView: z.function({
+    input: z.tuple([UpdateViewRequestSchema]),
+    output: z.promise(ViewResponseSchema)
+  }).describe('Update a saved view'),
 
-  deleteView: z.function()
-    .args(DeleteViewRequestSchema)
-    .returns(z.promise(DeleteViewResponseSchema))
-    .describe('Delete a saved view'),
+  deleteView: z.function({
+    input: z.tuple([DeleteViewRequestSchema]),
+    output: z.promise(DeleteViewResponseSchema)
+  }).describe('Delete a saved view'),
 });
 
 /**

@@ -1,58 +1,7 @@
 {
   "$ref": "#/definitions/ViewColumn",
   "definitions": {
-    "ViewColumn": {
-      "type": "object",
-      "properties": {
-        "field": {
-          "type": "string",
-          "description": "Field name"
-        },
-        "label": {
-          "type": "string",
-          "description": "Custom column label"
-        },
-        "width": {
-          "type": "number",
-          "description": "Column width in pixels"
-        },
-        "sortable": {
-          "type": "boolean",
-          "default": true,
-          "description": "Whether column is sortable"
-        },
-        "filterable": {
-          "type": "boolean",
-          "default": true,
-          "description": "Whether column is filterable"
-        },
-        "visible": {
-          "type": "boolean",
-          "default": true,
-          "description": "Whether column is visible"
-        },
-        "pinned": {
-          "type": "string",
-          "enum": [
-            "left",
-            "right"
-          ],
-          "description": "Pin column to left or right"
-        },
-        "formatter": {
-          "type": "string",
-          "description": "Custom formatter name"
-        },
-        "aggregation": {
-          "type": "string",
-          "description": "Aggregation function for column (sum, avg, etc.)"
-        }
-      },
-      "required": [
-        "field"
-      ],
-      "additionalProperties": false
-    }
+    "ViewColumn": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -23,42 +23,11 @@ const result = TerritorySchema.parse(data);
 
 ## Territory
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Territory unique name (lowercase snake_case) |
-| **label** | `string` | ✅ | Territory Label (e.g. "West Coast") |
-| **modelId** | `string` | ✅ | Belongs to which Territory Model |
-| **parent** | `string` | optional | Parent Territory |
-| **type** | `Enum<'geography' \| 'industry' \| 'named_account' \| 'product_line'>` | optional |  |
-| **assignmentRule** | `string` | optional | Criteria based assignment rule |
-| **assignedUsers** | `string[]` | optional |  |
-| **accountAccess** | `Enum<'read' \| 'edit'>` | optional |  |
-| **opportunityAccess** | `Enum<'read' \| 'edit'>` | optional |  |
-| **caseAccess** | `Enum<'read' \| 'edit'>` | optional |  |
-
 ---
 
 ## TerritoryModel
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Model Name (e.g. FY24 Planning) |
-| **state** | `Enum<'planning' \| 'active' \| 'archived'>` | optional |  |
-| **startDate** | `string` | optional |  |
-| **endDate** | `string` | optional |  |
-
 ---
 
 ## TerritoryType
-
-### Allowed Values
-
-* `geography`
-* `industry`
-* `named_account`
-* `product_line`
 

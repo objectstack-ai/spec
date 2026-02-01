@@ -1,21 +1,7 @@
 {
   "$ref": "#/definitions/MagicLinkConfig",
   "definitions": {
-    "MagicLinkConfig": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "default": true
-        },
-        "expiryTime": {
-          "type": "number",
-          "default": 900,
-          "description": "Magic link expiry time in seconds (default 15 min)"
-        }
-      },
-      "additionalProperties": false
-    }
+    "MagicLinkConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

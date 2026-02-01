@@ -538,7 +538,7 @@ export const RLSUserContextSchema = z.object({
    * Additional custom attributes
    * Can include any custom user fields for RLS evaluation
    */
-  attributes: z.record(z.any())
+  attributes: z.record(z.string(), z.any())
     .optional()
     .describe('Additional custom user attributes'),
 });

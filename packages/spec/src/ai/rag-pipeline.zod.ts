@@ -80,7 +80,7 @@ export const DocumentMetadataSchema = z.object({
   tags: z.array(z.string()).optional(),
   category: z.string().optional(),
   language: z.string().optional().describe('Document language (ISO 639-1 code)'),
-  custom: z.record(z.any()).optional().describe('Custom metadata fields'),
+  custom: z.record(z.string(), z.any()).optional().describe('Custom metadata fields'),
 });
 
 /**
@@ -178,7 +178,7 @@ export const DocumentLoaderConfigSchema = z.object({
   extractTables: z.boolean().optional().default(false).describe('Extract and format tables'),
   
   /** Custom Loader */
-  loaderConfig: z.record(z.any()).optional().describe('Custom loader-specific config'),
+  loaderConfig: z.record(z.string(), z.any()).optional().describe('Custom loader-specific config'),
 });
 
 /**
@@ -205,7 +205,7 @@ export const RAGPipelineConfigSchema = z.object({
   contextWindow: z.number().int().positive().optional().describe('LLM context window size'),
   
   /** Metadata Filtering */
-  metadataFilters: z.record(z.union([
+  metadataFilters: z.record(z.string(), z.union([
     z.string(),
     z.number(),
     z.boolean(),
@@ -227,7 +227,7 @@ export const RAGQueryRequestSchema = z.object({
   
   /** Override defaults */
   topK: z.number().int().positive().optional(),
-  metadataFilters: z.record(z.any()).optional(),
+  metadataFilters: z.record(z.string(), z.any()).optional(),
   
   /** Context */
   conversationHistory: z.array(z.object({

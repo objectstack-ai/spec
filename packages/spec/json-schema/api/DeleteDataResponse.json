@@ -1,29 +1,7 @@
 {
   "$ref": "#/definitions/DeleteDataResponse",
   "definitions": {
-    "DeleteDataResponse": {
-      "type": "object",
-      "properties": {
-        "object": {
-          "type": "string",
-          "description": "Object name"
-        },
-        "id": {
-          "type": "string",
-          "description": "Deleted record ID"
-        },
-        "success": {
-          "type": "boolean",
-          "description": "Whether deletion succeeded"
-        }
-      },
-      "required": [
-        "object",
-        "id",
-        "success"
-      ],
-      "additionalProperties": false
-    }
+    "DeleteDataResponse": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

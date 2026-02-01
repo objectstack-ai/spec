@@ -23,169 +23,45 @@ const result = CustomScriptActionSchema.parse(data);
 
 ## CustomScriptAction
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Action name |
-| **type** | `string` | ✅ |  |
-| **language** | `Enum<'javascript' \| 'typescript' \| 'python'>` | optional | Script language |
-| **code** | `string` | ✅ | Script code to execute |
-| **timeout** | `number` | optional | Execution timeout in milliseconds |
-| **context** | `Record<string, any>` | optional | Additional context variables |
-
 ---
 
 ## EmailAlertAction
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Action name |
-| **type** | `string` | ✅ |  |
-| **template** | `string` | ✅ | Email template ID/DevName |
-| **recipients** | `string[]` | ✅ | List of recipient emails or user IDs |
 
 ---
 
 ## FieldUpdateAction
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Action name |
-| **type** | `string` | ✅ |  |
-| **field** | `string` | ✅ | Field to update |
-| **value** | `any` | optional | Value or Formula to set |
-
 ---
 
 ## HttpCallAction
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Action name |
-| **type** | `string` | ✅ |  |
-| **url** | `string` | ✅ | Target URL |
-| **method** | `Enum<'GET' \| 'POST' \| 'PUT' \| 'PATCH' \| 'DELETE'>` | ✅ | HTTP method |
-| **headers** | `Record<string, string>` | optional | Request headers |
-| **body** | `any` | optional | Request body (object/string) |
-| **authentication** | `object` | optional | Authentication configuration |
-| **timeout** | `number` | optional | Request timeout in milliseconds |
 
 ---
 
 ## PushNotificationAction
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Action name |
-| **type** | `string` | ✅ |  |
-| **title** | `string` | ✅ | Notification title |
-| **body** | `string` | ✅ | Notification body text |
-| **recipients** | `string[]` | ✅ | User IDs or device tokens |
-| **data** | `Record<string, any>` | optional | Additional data payload |
-| **badge** | `number` | optional | Badge count (iOS) |
-| **sound** | `string` | optional | Notification sound |
-| **clickAction** | `string` | optional | Action/URL when notification is clicked |
-
 ---
 
 ## SlackMessageAction
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Action name |
-| **type** | `string` | ✅ |  |
-| **channel** | `string` | ✅ | Slack channel ID or name (#channel) |
-| **message** | `string` | ✅ | Message text with optional markdown |
-| **mentions** | `string[]` | optional | User IDs or @username to mention |
-| **threadId** | `string` | optional | Thread ID for replies |
 
 ---
 
 ## SmsNotificationAction
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Action name |
-| **type** | `string` | ✅ |  |
-| **provider** | `Enum<'twilio' \| 'vonage'>` | ✅ | SMS provider |
-| **recipients** | `string[]` | ✅ | List of phone numbers or user field references |
-| **message** | `string` | ✅ | SMS message text or template |
-| **fromNumber** | `string` | optional | Sender phone number (provider-specific) |
-
 ---
 
 ## TaskCreationAction
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Action name |
-| **type** | `string` | ✅ |  |
-| **taskObject** | `string` | ✅ | Task object name (e.g., "task", "project_task") |
-| **subject** | `string` | ✅ | Task subject/title |
-| **description** | `string` | optional | Task description |
-| **assignedTo** | `string` | optional | User ID or field reference for assignee |
-| **dueDate** | `string` | optional | Due date (ISO string or formula) |
-| **priority** | `string` | optional | Task priority |
-| **relatedTo** | `string` | optional | Related record ID or field reference |
-| **additionalFields** | `Record<string, any>` | optional | Additional custom fields |
 
 ---
 
 ## TeamsMessageAction
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Action name |
-| **type** | `string` | ✅ |  |
-| **channel** | `string` | ✅ | Teams channel ID |
-| **message** | `string` | ✅ | Message text with optional markdown |
-| **mentions** | `string[]` | optional | User IDs to mention |
-| **teamId** | `string` | optional | Team ID (if not in default team) |
-
 ---
 
 ## TimeTrigger
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **id** | `string` | optional | Unique identifier |
-| **timeLength** | `integer` | ✅ | Duration amount (e.g. 1, 30) |
-| **timeUnit** | `Enum<'minutes' \| 'hours' \| 'days'>` | ✅ | Unit of time |
-| **offsetDirection** | `Enum<'before' \| 'after'>` | ✅ | Before or After the reference date |
-| **offsetFrom** | `Enum<'trigger_date' \| 'date_field'>` | ✅ | Basis for calculation |
-| **dateField** | `string` | optional | Date field to calculate from (required if offsetFrom is date_field) |
-| **actions** | `object \| object \| object \| object \| object \| object \| object \| object \| object \| object[]` | ✅ | Actions to execute at the scheduled time |
-
 ---
 
 ## WebhookTriggerAction
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Action name |
-| **type** | `string` | ✅ |  |
-| **config** | `object` | ✅ | Webhook configuration (references canonical schema) |
 
 ---
 
@@ -195,28 +71,7 @@ const result = CustomScriptActionSchema.parse(data);
 
 ## WorkflowRule
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Unique workflow name (lowercase snake_case) |
-| **objectName** | `string` | ✅ | Target Object |
-| **triggerType** | `Enum<'on_create' \| 'on_update' \| 'on_create_or_update' \| 'on_delete' \| 'schedule'>` | ✅ | When to evaluate |
-| **criteria** | `string` | optional | Formula condition. If TRUE, actions execute. |
-| **actions** | `object \| object \| object \| object \| object \| object \| object \| object \| object \| object[]` | optional | Immediate actions |
-| **timeTriggers** | `object[]` | optional | Scheduled actions relative to trigger or date field |
-| **active** | `boolean` | optional | Whether this workflow is active |
-| **reevaluateOnChange** | `boolean` | optional | Re-evaluate rule if field updates change the record validity |
-
 ---
 
 ## WorkflowTriggerType
-
-### Allowed Values
-
-* `on_create`
-* `on_update`
-* `on_create_or_update`
-* `on_delete`
-* `schedule`
 

@@ -1,29 +1,7 @@
 {
   "$ref": "#/definitions/ConsoleDestinationConfig",
   "definitions": {
-    "ConsoleDestinationConfig": {
-      "type": "object",
-      "properties": {
-        "stream": {
-          "type": "string",
-          "enum": [
-            "stdout",
-            "stderr"
-          ],
-          "default": "stdout"
-        },
-        "colors": {
-          "type": "boolean",
-          "default": true
-        },
-        "prettyPrint": {
-          "type": "boolean",
-          "default": false
-        }
-      },
-      "additionalProperties": false,
-      "description": "Console destination configuration"
-    }
+    "ConsoleDestinationConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

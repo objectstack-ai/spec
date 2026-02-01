@@ -23,93 +23,19 @@ const result = DriverCapabilitiesSchema.parse(data);
 
 ## DriverCapabilities
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **create** | `boolean` | optional | Supports CREATE operations |
-| **read** | `boolean` | optional | Supports READ operations |
-| **update** | `boolean` | optional | Supports UPDATE operations |
-| **delete** | `boolean` | optional | Supports DELETE operations |
-| **bulkCreate** | `boolean` | optional | Supports bulk CREATE operations |
-| **bulkUpdate** | `boolean` | optional | Supports bulk UPDATE operations |
-| **bulkDelete** | `boolean` | optional | Supports bulk DELETE operations |
-| **transactions** | `boolean` | optional | Supports ACID transactions |
-| **savepoints** | `boolean` | optional | Supports transaction savepoints |
-| **isolationLevels** | `Enum<'read-uncommitted' \| 'read-committed' \| 'repeatable-read' \| 'serializable'>[]` | optional | Supported transaction isolation levels |
-| **queryFilters** | `boolean` | optional | Supports WHERE clause filtering |
-| **queryAggregations** | `boolean` | optional | Supports GROUP BY and aggregation functions |
-| **querySorting** | `boolean` | optional | Supports ORDER BY sorting |
-| **queryPagination** | `boolean` | optional | Supports LIMIT/OFFSET pagination |
-| **queryWindowFunctions** | `boolean` | optional | Supports window functions with OVER clause |
-| **querySubqueries** | `boolean` | optional | Supports subqueries |
-| **queryCTE** | `boolean` | optional | Supports Common Table Expressions (WITH clause) |
-| **joins** | `boolean` | optional | Supports SQL joins |
-| **fullTextSearch** | `boolean` | optional | Supports full-text search |
-| **jsonQuery** | `boolean` | optional | Supports JSON field querying |
-| **geospatialQuery** | `boolean` | optional | Supports geospatial queries |
-| **streaming** | `boolean` | optional | Supports result streaming (cursors/iterators) |
-| **jsonFields** | `boolean` | optional | Supports JSON field types |
-| **arrayFields** | `boolean` | optional | Supports array field types |
-| **vectorSearch** | `boolean` | optional | Supports vector embeddings and similarity search |
-| **geoSpatial** | `boolean` | optional | Supports geospatial queries (deprecated: use geospatialQuery) |
-| **schemaSync** | `boolean` | optional | Supports automatic schema synchronization |
-| **migrations** | `boolean` | optional | Supports database migrations |
-| **indexes** | `boolean` | optional | Supports index creation and management |
-| **connectionPooling** | `boolean` | optional | Supports connection pooling |
-| **preparedStatements** | `boolean` | optional | Supports prepared statements (SQL injection prevention) |
-| **queryCache** | `boolean` | optional | Supports query result caching |
-
 ---
 
 ## DriverConfig
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Driver instance name |
-| **type** | `Enum<'sql' \| 'nosql' \| 'cache' \| 'search' \| 'graph' \| 'timeseries'>` | ✅ | Driver type category |
-| **capabilities** | `object` | ✅ | Driver capability flags |
-| **connectionString** | `string` | optional | Database connection string (driver-specific format) |
-| **poolConfig** | `object` | optional | Connection pool configuration |
 
 ---
 
 ## DriverInterface
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Driver unique name |
-| **version** | `string` | ✅ | Driver version |
-| **supports** | `object` | ✅ |  |
-
 ---
 
 ## DriverOptions
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **transaction** | `any` | optional | Transaction handle |
-| **timeout** | `number` | optional | Timeout in ms |
-| **skipCache** | `boolean` | optional | Bypass cache |
-| **traceContext** | `Record<string, string>` | optional | OpenTelemetry context or request ID |
-| **tenantId** | `string` | optional | Tenant Isolation identifier |
-
 ---
 
 ## PoolConfig
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **min** | `number` | optional | Minimum number of connections in pool |
-| **max** | `number` | optional | Maximum number of connections in pool |
-| **idleTimeoutMillis** | `number` | optional | Time in ms before idle connection is closed |
-| **connectionTimeoutMillis** | `number` | optional | Time in ms to wait for available connection |
 

@@ -23,39 +23,7 @@ const result = ConsumerConfigSchema.parse(data);
 
 ## ConsumerConfig
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional | Enable consumer |
-| **consumerGroup** | `string` | optional | Consumer group ID |
-| **concurrency** | `number` | optional | Number of concurrent consumers |
-| **prefetchCount** | `number` | optional | Prefetch count |
-| **ackMode** | `Enum<'auto' \| 'manual' \| 'client'>` | optional | Message acknowledgment mode |
-| **autoCommit** | `boolean` | optional | Auto-commit offsets |
-| **autoCommitIntervalMs** | `number` | optional | Auto-commit interval in ms |
-| **sessionTimeoutMs** | `number` | optional | Session timeout in ms |
-| **rebalanceTimeoutMs** | `number` | optional | Rebalance timeout in ms |
-
 ---
 
 ## MessageQueueProvider
-
-Message queue provider type
-
-### Allowed Values
-
-* `rabbitmq`
-* `kafka`
-* `redis_pubsub`
-* `redis_streams`
-* `aws_sqs`
-* `aws_sns`
-* `google_pubsub`
-* `azure_service_bus`
-* `azure_event_hubs`
-* `nats`
-* `pulsar`
-* `activemq`
-* `custom`
 

@@ -31,7 +31,7 @@ export const AIOperationCostSchema = z.object({
   tokens: TokenUsageSchema,
   cost: z.number().nonnegative().describe('Cost in USD'),
   timestamp: z.string().datetime(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
 export type AIOperationCost = z.infer<typeof AIOperationCostSchema>;
@@ -96,7 +96,7 @@ export const CostEntrySchema = z.object({
   
   /** Metadata */
   tags: z.array(z.string()).optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
 /**
@@ -221,7 +221,7 @@ export const CostAlertSchema = z.object({
   resolved: z.boolean().default(false),
   
   /** Metadata */
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
 /**

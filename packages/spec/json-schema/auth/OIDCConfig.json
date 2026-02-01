@@ -1,61 +1,7 @@
 {
   "$ref": "#/definitions/OIDCConfig",
   "definitions": {
-    "OIDCConfig": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "default": false
-        },
-        "issuer": {
-          "type": "string",
-          "format": "uri",
-          "description": "OIDC Issuer URL (.well-known/openid-configuration)"
-        },
-        "clientId": {
-          "type": "string",
-          "description": "OIDC client ID"
-        },
-        "clientSecret": {
-          "type": "string",
-          "description": "OIDC client secret"
-        },
-        "scopes": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [
-            "openid",
-            "profile",
-            "email"
-          ],
-          "description": "OIDC scopes"
-        },
-        "attributeMapping": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "description": "Map IdP claims to User fields"
-        },
-        "displayName": {
-          "type": "string",
-          "description": "Display name for the provider button"
-        },
-        "icon": {
-          "type": "string",
-          "description": "Icon URL or identifier"
-        }
-      },
-      "required": [
-        "issuer",
-        "clientId",
-        "clientSecret"
-      ],
-      "additionalProperties": false
-    }
+    "OIDCConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

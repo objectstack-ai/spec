@@ -1,21 +1,7 @@
 {
   "$ref": "#/definitions/QueryIntent",
   "definitions": {
-    "QueryIntent": {
-      "type": "string",
-      "enum": [
-        "select",
-        "aggregate",
-        "filter",
-        "sort",
-        "compare",
-        "trend",
-        "insight",
-        "create",
-        "update",
-        "delete"
-      ]
-    }
+    "QueryIntent": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

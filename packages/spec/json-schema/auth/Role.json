@@ -1,33 +1,7 @@
 {
   "$ref": "#/definitions/Role",
   "definitions": {
-    "Role": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "minLength": 2,
-          "pattern": "^[a-z][a-z0-9_]*$",
-          "description": "Unique role name (lowercase snake_case)"
-        },
-        "label": {
-          "type": "string",
-          "description": "Display label (e.g. VP of Sales)"
-        },
-        "parent": {
-          "type": "string",
-          "description": "Parent Role ID (Reports To)"
-        },
-        "description": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "label"
-      ],
-      "additionalProperties": false
-    }
+    "Role": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

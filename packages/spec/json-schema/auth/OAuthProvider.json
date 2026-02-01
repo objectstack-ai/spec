@@ -1,66 +1,7 @@
 {
   "$ref": "#/definitions/OAuthProvider",
   "definitions": {
-    "OAuthProvider": {
-      "type": "object",
-      "properties": {
-        "provider": {
-          "type": "string",
-          "enum": [
-            "google",
-            "github",
-            "facebook",
-            "twitter",
-            "linkedin",
-            "microsoft",
-            "apple",
-            "discord",
-            "gitlab",
-            "custom"
-          ],
-          "description": "OAuth provider type"
-        },
-        "clientId": {
-          "type": "string",
-          "description": "OAuth client ID"
-        },
-        "clientSecret": {
-          "type": "string",
-          "description": "OAuth client secret (typically from ENV)"
-        },
-        "scopes": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Requested OAuth scopes"
-        },
-        "redirectUri": {
-          "type": "string",
-          "format": "uri",
-          "description": "OAuth callback URL"
-        },
-        "enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Whether this provider is enabled"
-        },
-        "displayName": {
-          "type": "string",
-          "description": "Display name for the provider button"
-        },
-        "icon": {
-          "type": "string",
-          "description": "Icon URL or identifier"
-        }
-      },
-      "required": [
-        "provider",
-        "clientId",
-        "clientSecret"
-      ],
-      "additionalProperties": false
-    }
+    "OAuthProvider": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

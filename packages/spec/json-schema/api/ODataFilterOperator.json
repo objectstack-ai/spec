@@ -1,24 +1,7 @@
 {
   "$ref": "#/definitions/ODataFilterOperator",
   "definitions": {
-    "ODataFilterOperator": {
-      "type": "string",
-      "enum": [
-        "eq",
-        "ne",
-        "lt",
-        "le",
-        "gt",
-        "ge",
-        "and",
-        "or",
-        "not",
-        "(",
-        ")",
-        "in",
-        "has"
-      ]
-    }
+    "ODataFilterOperator": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }
