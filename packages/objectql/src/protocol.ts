@@ -17,7 +17,7 @@ import type {
 } from '@objectstack/spec/api';
 
 // We import SchemaRegistry directly since this class lives in the same package
-import { SchemaRegistry } from './registry';
+import { SchemaRegistry } from './registry.js';
 
 /**
  * Simple hash function for ETag generation (browser-compatible)

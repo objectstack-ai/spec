@@ -1,5 +1,5 @@
 import { IHttpServer } from '@objectstack/core';
-import { RouteManager } from './route-manager';
+import { RouteManager } from './route-manager.js';
 import { RestServerConfig, CrudOperation, RestApiConfig, CrudEndpointsConfig, MetadataEndpointsConfig, BatchEndpointsConfig, RouteGenerationConfig } from '@objectstack/spec/api';
 import { ObjectStackProtocol } from '@objectstack/spec/api';
 
