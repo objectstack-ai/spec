@@ -267,6 +267,9 @@ importers:
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../packages/spec
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       typescript:
         specifier: ^5.0.0

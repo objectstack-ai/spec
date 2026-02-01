@@ -8,7 +8,8 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@objectstack/spec": "workspace:*"
+    "@objectstack/spec": "workspace:*",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "typescript": "^5.0.0"

@@ -1,4 +1,4 @@
-import { PluginDefinition, PluginContextData } from '@objectstack/spec/system';
+import { PluginDefinition } from '@objectstack/spec/system';
 
 export class BiEngine {
   constructor() {
@@ -19,7 +19,7 @@ const plugin: PluginDefinition = {
   id: 'com.objectstack.bi',
   version: '1.0.0',
 
-  onEnable: async (context: PluginContextData) => {
+  onEnable: async (context) => {
     // 1. Destructure strict APIs
     const { logger, ql, os, app, storage, i18n } = context;
 
