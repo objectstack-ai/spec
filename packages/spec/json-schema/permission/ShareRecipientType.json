@@ -1,16 +1,7 @@
 {
   "$ref": "#/definitions/ShareRecipientType",
   "definitions": {
-    "ShareRecipientType": {
-      "type": "string",
-      "enum": [
-        "user",
-        "group",
-        "role",
-        "role_and_subordinates",
-        "guest"
-      ]
-    }
+    "ShareRecipientType": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

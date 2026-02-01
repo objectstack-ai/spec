@@ -1,34 +1,7 @@
 {
   "$ref": "#/definitions/SslConfig",
   "definitions": {
-    "SslConfig": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable SSL/TLS"
-        },
-        "rejectUnauthorized": {
-          "type": "boolean",
-          "default": true,
-          "description": "Reject unauthorized certificates"
-        },
-        "ca": {
-          "type": "string",
-          "description": "Certificate Authority certificate"
-        },
-        "cert": {
-          "type": "string",
-          "description": "Client certificate"
-        },
-        "key": {
-          "type": "string",
-          "description": "Client private key"
-        }
-      },
-      "additionalProperties": false
-    }
+    "SslConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

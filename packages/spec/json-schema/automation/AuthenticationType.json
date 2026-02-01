@@ -1,18 +1,7 @@
 {
   "$ref": "#/definitions/AuthenticationType",
   "definitions": {
-    "AuthenticationType": {
-      "type": "string",
-      "enum": [
-        "none",
-        "apiKey",
-        "basic",
-        "bearer",
-        "oauth1",
-        "oauth2",
-        "custom"
-      ]
-    }
+    "AuthenticationType": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

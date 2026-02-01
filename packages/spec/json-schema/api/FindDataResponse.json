@@ -1,36 +1,7 @@
 {
   "$ref": "#/definitions/FindDataResponse",
   "definitions": {
-    "FindDataResponse": {
-      "type": "object",
-      "properties": {
-        "object": {
-          "type": "string",
-          "description": "Object name"
-        },
-        "records": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "additionalProperties": {}
-          },
-          "description": "Array of records"
-        },
-        "total": {
-          "type": "number",
-          "description": "Total count (if requested)"
-        },
-        "hasMore": {
-          "type": "boolean",
-          "description": "Whether more records exist"
-        }
-      },
-      "required": [
-        "object",
-        "records"
-      ],
-      "additionalProperties": false
-    }
+    "FindDataResponse": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

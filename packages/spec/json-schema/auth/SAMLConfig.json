@@ -1,58 +1,7 @@
 {
   "$ref": "#/definitions/SAMLConfig",
   "definitions": {
-    "SAMLConfig": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "default": false
-        },
-        "entryPoint": {
-          "type": "string",
-          "format": "uri",
-          "description": "IdP SSO URL"
-        },
-        "cert": {
-          "type": "string",
-          "description": "IdP Public Certificate (PEM format)"
-        },
-        "issuer": {
-          "type": "string",
-          "description": "Entity ID of the IdP"
-        },
-        "signatureAlgorithm": {
-          "type": "string",
-          "enum": [
-            "sha256",
-            "sha512"
-          ],
-          "default": "sha256",
-          "description": "Signature algorithm"
-        },
-        "attributeMapping": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "description": "Map SAML attributes to User fields"
-        },
-        "displayName": {
-          "type": "string",
-          "description": "Display name for the provider button"
-        },
-        "icon": {
-          "type": "string",
-          "description": "Icon URL or identifier"
-        }
-      },
-      "required": [
-        "entryPoint",
-        "cert",
-        "issuer"
-      ],
-      "additionalProperties": false
-    }
+    "SAMLConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

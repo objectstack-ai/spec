@@ -23,172 +23,39 @@ const result = CreateViewRequestSchema.parse(data);
 
 ## CreateViewRequest
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | View machine name |
-| **label** | `string` | ✅ | Display label |
-| **description** | `string` | optional |  |
-| **object** | `string` | ✅ | Object name |
-| **type** | `Enum<'list' \| 'kanban' \| 'calendar' \| 'gantt' \| 'timeline' \| 'chart' \| 'pivot' \| 'custom'>` | ✅ | View type |
-| **visibility** | `Enum<'private' \| 'shared' \| 'public' \| 'organization'>` | ✅ | View visibility |
-| **query** | `object` | ✅ | Query configuration |
-| **layout** | `object` | optional | Layout configuration |
-| **sharedWith** | `string[]` | optional | Users/teams to share with |
-| **isDefault** | `boolean` | optional | Set as default view |
-| **settings** | `Record<string, any>` | optional |  |
-
 ---
 
 ## ListViewsRequest
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **object** | `string` | optional | Filter by object name |
-| **type** | `Enum<'list' \| 'kanban' \| 'calendar' \| 'gantt' \| 'timeline' \| 'chart' \| 'pivot' \| 'custom'>` | optional | Filter by view type |
-| **visibility** | `Enum<'private' \| 'shared' \| 'public' \| 'organization'>` | optional | Filter by visibility |
-| **createdBy** | `string` | optional | Filter by creator user ID |
-| **isDefault** | `boolean` | optional | Filter for default views |
-| **limit** | `number` | optional | Max results |
-| **offset** | `number` | optional | Offset for pagination |
 
 ---
 
 ## ListViewsResponse
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **success** | `boolean` | ✅ |  |
-| **data** | `object[]` | ✅ | Array of saved views |
-| **pagination** | `object` | ✅ |  |
-| **error** | `object` | optional |  |
-
 ---
 
 ## SavedView
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ | Unique view identifier |
-| **name** | `string` | ✅ | View machine name (snake_case) |
-| **label** | `string` | ✅ | Display label |
-| **description** | `string` | optional | View description |
-| **object** | `string` | ✅ | Object/table this view is for |
-| **type** | `Enum<'list' \| 'kanban' \| 'calendar' \| 'gantt' \| 'timeline' \| 'chart' \| 'pivot' \| 'custom'>` | ✅ | View type |
-| **visibility** | `Enum<'private' \| 'shared' \| 'public' \| 'organization'>` | ✅ | Who can access this view |
-| **query** | `object` | ✅ | Query configuration (filters, sorting, etc.) |
-| **layout** | `object` | optional | Layout configuration |
-| **sharedWith** | `string[]` | optional | User/team IDs this view is shared with |
-| **isDefault** | `boolean` | optional | Is this the default view for this object? |
-| **isSystem** | `boolean` | optional | Is this a system-defined view? |
-| **createdBy** | `string` | ✅ | User ID who created this view |
-| **createdAt** | `string` | ✅ | When the view was created |
-| **updatedBy** | `string` | optional | User ID who last updated this view |
-| **updatedAt** | `string` | optional | When the view was last updated |
-| **settings** | `Record<string, any>` | optional | Additional view-specific settings |
 
 ---
 
 ## UpdateViewRequest
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | optional | View machine name |
-| **label** | `string` | optional | Display label |
-| **description** | `string` | optional |  |
-| **object** | `string` | optional | Object name |
-| **type** | `Enum<'list' \| 'kanban' \| 'calendar' \| 'gantt' \| 'timeline' \| 'chart' \| 'pivot' \| 'custom'>` | optional | View type |
-| **visibility** | `Enum<'private' \| 'shared' \| 'public' \| 'organization'>` | optional | View visibility |
-| **query** | `object` | optional | Query configuration |
-| **layout** | `object` | optional | Layout configuration |
-| **sharedWith** | `string[]` | optional | Users/teams to share with |
-| **isDefault** | `boolean` | optional | Set as default view |
-| **settings** | `Record<string, any>` | optional |  |
-| **id** | `string` | ✅ | View ID to update |
-
 ---
 
 ## ViewColumn
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **field** | `string` | ✅ | Field name |
-| **label** | `string` | optional | Custom column label |
-| **width** | `number` | optional | Column width in pixels |
-| **sortable** | `boolean` | optional | Whether column is sortable |
-| **filterable** | `boolean` | optional | Whether column is filterable |
-| **visible** | `boolean` | optional | Whether column is visible |
-| **pinned** | `Enum<'left' \| 'right'>` | optional | Pin column to left or right |
-| **formatter** | `string` | optional | Custom formatter name |
-| **aggregation** | `string` | optional | Aggregation function for column (sum, avg, etc.) |
 
 ---
 
 ## ViewLayout
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **columns** | `object[]` | optional | Column configuration for list views |
-| **rowHeight** | `number` | optional | Row height in pixels |
-| **groupByField** | `string` | optional | Field to group by (for kanban) |
-| **cardFields** | `string[]` | optional | Fields to display on cards |
-| **dateField** | `string` | optional | Date field for calendar view |
-| **startDateField** | `string` | optional | Start date field for event ranges |
-| **endDateField** | `string` | optional | End date field for event ranges |
-| **titleField** | `string` | optional | Field to use as event title |
-| **chartType** | `Enum<'bar' \| 'line' \| 'pie' \| 'scatter' \| 'area'>` | optional | Chart type |
-| **xAxis** | `string` | optional | X-axis field |
-| **yAxis** | `string` | optional | Y-axis field |
-| **series** | `string[]` | optional | Series fields for multi-series charts |
-
 ---
 
 ## ViewResponse
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **success** | `boolean` | ✅ |  |
-| **data** | `object` | optional | The saved view |
-| **error** | `object` | optional |  |
 
 ---
 
 ## ViewType
 
-### Allowed Values
-
-* `list`
-* `kanban`
-* `calendar`
-* `gantt`
-* `timeline`
-* `chart`
-* `pivot`
-* `custom`
-
 ---
 
 ## ViewVisibility
-
-### Allowed Values
-
-* `private`
-* `shared`
-* `public`
-* `organization`
 

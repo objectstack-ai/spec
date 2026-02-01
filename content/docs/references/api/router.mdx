@@ -23,44 +23,11 @@ const result = RouteCategorySchema.parse(data);
 
 ## RouteCategory
 
-### Allowed Values
-
-* `system`
-* `api`
-* `auth`
-* `static`
-* `webhook`
-* `plugin`
-
 ---
 
 ## RouteDefinition
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **method** | `Enum<'GET' \| 'POST' \| 'PUT' \| 'DELETE' \| 'PATCH' \| 'HEAD' \| 'OPTIONS'>` | ✅ |  |
-| **path** | `string` | ✅ | URL Path pattern |
-| **category** | `Enum<'system' \| 'api' \| 'auth' \| 'static' \| 'webhook' \| 'plugin'>` | optional |  |
-| **handler** | `string` | ✅ | Unique handler identifier |
-| **summary** | `string` | optional | OpenAPI summary |
-| **description** | `string` | optional | OpenAPI description |
-| **public** | `boolean` | optional | Is publicly accessible |
-| **permissions** | `string[]` | optional | Required permissions |
-| **timeout** | `integer` | optional | Execution timeout in ms |
-| **rateLimit** | `string` | optional | Rate limit policy name |
-
 ---
 
 ## RouterConfig
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **basePath** | `string` | optional | Global API prefix |
-| **mounts** | `object` | optional |  |
-| **cors** | `object` | optional |  |
-| **staticMounts** | `object[]` | optional |  |
 

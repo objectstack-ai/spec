@@ -1,35 +1,7 @@
 {
   "$ref": "#/definitions/ReportColumn",
   "definitions": {
-    "ReportColumn": {
-      "type": "object",
-      "properties": {
-        "field": {
-          "type": "string",
-          "description": "Field name"
-        },
-        "label": {
-          "type": "string",
-          "description": "Override label"
-        },
-        "aggregate": {
-          "type": "string",
-          "enum": [
-            "sum",
-            "avg",
-            "max",
-            "min",
-            "count",
-            "unique"
-          ],
-          "description": "Aggregation function"
-        }
-      },
-      "required": [
-        "field"
-      ],
-      "additionalProperties": false
-    }
+    "ReportColumn": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

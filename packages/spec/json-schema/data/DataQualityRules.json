@@ -1,45 +1,7 @@
 {
   "$ref": "#/definitions/DataQualityRules",
   "definitions": {
-    "DataQualityRules": {
-      "type": "object",
-      "properties": {
-        "uniqueness": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enforce unique values across all records"
-        },
-        "completeness": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 1,
-          "default": 0,
-          "description": "Minimum ratio of non-null values (0-1, default: 0 = no requirement)"
-        },
-        "accuracy": {
-          "type": "object",
-          "properties": {
-            "source": {
-              "type": "string",
-              "description": "Reference data source for validation (e.g., \"api.verify.com\", \"master_data\")"
-            },
-            "threshold": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 1,
-              "description": "Minimum accuracy threshold (0-1, e.g., 0.95 = 95% match required)"
-            }
-          },
-          "required": [
-            "source",
-            "threshold"
-          ],
-          "additionalProperties": false,
-          "description": "Accuracy validation configuration"
-        }
-      },
-      "additionalProperties": false
-    }
+    "DataQualityRules": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

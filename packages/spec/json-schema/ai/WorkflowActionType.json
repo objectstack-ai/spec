@@ -1,18 +1,7 @@
 {
   "$ref": "#/definitions/WorkflowActionType",
   "definitions": {
-    "WorkflowActionType": {
-      "type": "string",
-      "enum": [
-        "trigger_flow",
-        "trigger_approval",
-        "trigger_webhook",
-        "run_report",
-        "send_email",
-        "send_notification",
-        "schedule_task"
-      ]
-    }
+    "WorkflowActionType": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

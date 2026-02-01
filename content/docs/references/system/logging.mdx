@@ -23,249 +23,55 @@ const result = ConsoleDestinationConfigSchema.parse(data);
 
 ## ConsoleDestinationConfig
 
-Console destination configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **stream** | `Enum<'stdout' \| 'stderr'>` | optional |  |
-| **colors** | `boolean` | optional |  |
-| **prettyPrint** | `boolean` | optional |  |
-
 ---
 
 ## ExtendedLogLevel
-
-Extended log severity level
-
-### Allowed Values
-
-* `trace`
-* `debug`
-* `info`
-* `warn`
-* `error`
-* `fatal`
 
 ---
 
 ## ExternalServiceDestinationConfig
 
-External service destination configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **endpoint** | `string` | optional |  |
-| **region** | `string` | optional |  |
-| **credentials** | `object` | optional |  |
-| **logGroup** | `string` | optional |  |
-| **logStream** | `string` | optional |  |
-| **index** | `string` | optional |  |
-| **config** | `Record<string, any>` | optional |  |
-
 ---
 
 ## FileDestinationConfig
-
-File destination configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **path** | `string` | ✅ | Log file path |
-| **rotation** | `object` | optional |  |
-| **encoding** | `string` | optional |  |
-| **append** | `boolean` | optional |  |
 
 ---
 
 ## HttpDestinationConfig
 
-HTTP destination configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **url** | `string` | ✅ | HTTP endpoint URL |
-| **method** | `Enum<'POST' \| 'PUT'>` | optional |  |
-| **headers** | `Record<string, string>` | optional |  |
-| **auth** | `object` | optional |  |
-| **batch** | `object` | optional |  |
-| **retry** | `object` | optional |  |
-| **timeout** | `integer` | optional |  |
-
 ---
 
 ## LogDestination
-
-Log destination configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Destination name (snake_case) |
-| **type** | `Enum<'console' \| 'file' \| 'syslog' \| 'elasticsearch' \| 'cloudwatch' \| 'stackdriver' \| 'azure_monitor' \| 'datadog' \| 'splunk' \| 'loki' \| 'http' \| 'kafka' \| 'redis' \| 'custom'>` | ✅ | Destination type |
-| **level** | `Enum<'trace' \| 'debug' \| 'info' \| 'warn' \| 'error' \| 'fatal'>` | optional | Extended log severity level |
-| **enabled** | `boolean` | optional |  |
-| **console** | `object` | optional | Console destination configuration |
-| **file** | `object` | optional | File destination configuration |
-| **http** | `object` | optional | HTTP destination configuration |
-| **externalService** | `object` | optional | External service destination configuration |
-| **format** | `Enum<'json' \| 'text' \| 'pretty'>` | optional |  |
-| **filterId** | `string` | optional | Filter function identifier |
 
 ---
 
 ## LogDestinationType
 
-Log destination type
-
-### Allowed Values
-
-* `console`
-* `file`
-* `syslog`
-* `elasticsearch`
-* `cloudwatch`
-* `stackdriver`
-* `azure_monitor`
-* `datadog`
-* `splunk`
-* `loki`
-* `http`
-* `kafka`
-* `redis`
-* `custom`
-
 ---
 
 ## LogEnrichmentConfig
-
-Log enrichment configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **staticFields** | `Record<string, any>` | optional | Static fields added to every log |
-| **dynamicEnrichers** | `string[]` | optional | Dynamic enricher function IDs |
-| **addHostname** | `boolean` | optional |  |
-| **addProcessId** | `boolean` | optional |  |
-| **addEnvironment** | `boolean` | optional |  |
-| **addTimestampFormats** | `object` | optional |  |
-| **addCaller** | `boolean` | optional |  |
-| **addCorrelationIds** | `boolean` | optional |  |
 
 ---
 
 ## LogEntry
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **timestamp** | `string` | ✅ | ISO 8601 timestamp |
-| **level** | `Enum<'debug' \| 'info' \| 'warn' \| 'error' \| 'fatal'>` | ✅ | Log severity level |
-| **message** | `string` | ✅ | Log message |
-| **context** | `Record<string, any>` | optional | Structured context data |
-| **error** | `Record<string, any>` | optional | Error object if present |
-| **traceId** | `string` | optional | Distributed trace ID |
-| **spanId** | `string` | optional | Span ID |
-| **service** | `string` | optional | Service name |
-| **component** | `string` | optional | Component name (e.g. plugin id) |
-
 ---
 
 ## LogFormat
-
-Log output format
-
-### Allowed Values
-
-* `json`
-* `text`
-* `pretty`
 
 ---
 
 ## LogLevel
 
-Log severity level
-
-### Allowed Values
-
-* `debug`
-* `info`
-* `warn`
-* `error`
-* `fatal`
-
 ---
 
 ## LoggerConfig
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | optional | Logger name identifier |
-| **level** | `Enum<'debug' \| 'info' \| 'warn' \| 'error' \| 'fatal'>` | optional | Log severity level |
-| **format** | `Enum<'json' \| 'text' \| 'pretty'>` | optional | Log output format |
-| **redact** | `string[]` | optional | Keys to redact from log context |
-| **sourceLocation** | `boolean` | optional | Include file and line number |
-| **file** | `string` | optional | Path to log file |
-| **rotation** | `object` | optional |  |
 
 ---
 
 ## LoggingConfig
 
-Logging configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Configuration name (snake_case, max 64 chars) |
-| **label** | `string` | ✅ | Display label |
-| **enabled** | `boolean` | optional |  |
-| **level** | `Enum<'trace' \| 'debug' \| 'info' \| 'warn' \| 'error' \| 'fatal'>` | optional | Extended log severity level |
-| **default** | `object` | optional | Default logger configuration |
-| **loggers** | `Record<string, object>` | optional | Named logger configurations |
-| **destinations** | `object[]` | ✅ | Log destinations |
-| **enrichment** | `object` | optional | Log enrichment configuration |
-| **redact** | `string[]` | optional | Fields to redact |
-| **sampling** | `object` | optional |  |
-| **buffer** | `object` | optional |  |
-| **performance** | `object` | optional |  |
-
 ---
 
 ## StructuredLogEntry
-
-Structured log entry
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **timestamp** | `string` | ✅ | ISO 8601 timestamp |
-| **level** | `Enum<'trace' \| 'debug' \| 'info' \| 'warn' \| 'error' \| 'fatal'>` | ✅ | Log severity level |
-| **message** | `string` | ✅ | Log message |
-| **context** | `Record<string, any>` | optional | Structured context |
-| **error** | `object` | optional | Error details |
-| **trace** | `object` | optional | Distributed tracing context |
-| **source** | `object` | optional | Source information |
-| **host** | `object` | optional | Host information |
-| **environment** | `string` | optional | Environment (e.g., production, staging) |
-| **user** | `object` | optional | User context |
-| **request** | `object` | optional | Request context |
-| **labels** | `Record<string, string>` | optional | Custom labels |
-| **metadata** | `Record<string, any>` | optional | Additional metadata |
 

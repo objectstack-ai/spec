@@ -23,61 +23,19 @@ const result = EncryptionAlgorithmSchema.parse(data);
 
 ## EncryptionAlgorithm
 
-### Allowed Values
-
-* `aes-256-gcm`
-* `aes-256-cbc`
-* `chacha20-poly1305`
-
 ---
 
 ## EncryptionConfig
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional |  |
-| **algorithm** | `Enum<'aes-256-gcm' \| 'aes-256-cbc' \| 'chacha20-poly1305'>` | optional |  |
-| **keyManagement** | `object` | ✅ |  |
-| **scope** | `Enum<'field' \| 'record' \| 'table' \| 'database'>` | ✅ |  |
-| **deterministicEncryption** | `boolean` | optional | Allows equality queries on encrypted data |
-| **searchableEncryption** | `boolean` | optional | Allows search on encrypted data |
 
 ---
 
 ## FieldEncryption
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **fieldName** | `string` | ✅ |  |
-| **encryptionConfig** | `object` | ✅ |  |
-| **indexable** | `boolean` | optional |  |
-
 ---
 
 ## KeyManagementProvider
 
-### Allowed Values
-
-* `local`
-* `aws-kms`
-* `azure-key-vault`
-* `gcp-kms`
-* `hashicorp-vault`
-
 ---
 
 ## KeyRotationPolicy
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional |  |
-| **frequencyDays** | `number` | optional |  |
-| **retainOldVersions** | `number` | optional |  |
-| **autoRotate** | `boolean` | optional |  |
 

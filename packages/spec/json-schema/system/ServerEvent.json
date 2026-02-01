@@ -1,39 +1,7 @@
 {
   "$ref": "#/definitions/ServerEvent",
   "definitions": {
-    "ServerEvent": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "starting",
-            "started",
-            "stopping",
-            "stopped",
-            "request",
-            "response",
-            "error"
-          ],
-          "description": "Event type"
-        },
-        "timestamp": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Event timestamp (ISO 8601)"
-        },
-        "data": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "Event-specific data"
-        }
-      },
-      "required": [
-        "type",
-        "timestamp"
-      ],
-      "additionalProperties": false
-    }
+    "ServerEvent": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,24 +1,7 @@
 {
   "$ref": "#/definitions/VercelFramework",
   "definitions": {
-    "VercelFramework": {
-      "type": "string",
-      "enum": [
-        "nextjs",
-        "react",
-        "vue",
-        "nuxtjs",
-        "gatsby",
-        "remix",
-        "astro",
-        "sveltekit",
-        "solid",
-        "angular",
-        "static",
-        "other"
-      ],
-      "description": "Frontend framework"
-    }
+    "VercelFramework": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

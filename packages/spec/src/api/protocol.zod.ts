@@ -335,108 +335,108 @@ export const DeleteViewResponseSchema = z.object({
  */
 export const ObjectStackProtocolSchema = z.object({
   // Discovery & Metadata
-  getDiscovery: z.function()
-    .args(GetDiscoveryRequestSchema)
-    .returns(z.promise(GetDiscoveryResponseSchema))
-    .describe('Get API discovery information'),
+  getDiscovery: z.function(
+    z.tuple([GetDiscoveryRequestSchema]),
+    z.promise(GetDiscoveryResponseSchema)
+  ).describe('Get API discovery information'),
 
-  getMetaTypes: z.function()
-    .args(GetMetaTypesRequestSchema)
-    .returns(z.promise(GetMetaTypesResponseSchema))
-    .describe('Get available metadata types'),
+  getMetaTypes: z.function(
+    z.tuple([GetMetaTypesRequestSchema]),
+    z.promise(GetMetaTypesResponseSchema)
+  ).describe('Get available metadata types'),
 
-  getMetaItems: z.function()
-    .args(GetMetaItemsRequestSchema)
-    .returns(z.promise(GetMetaItemsResponseSchema))
-    .describe('Get all items of a metadata type'),
+  getMetaItems: z.function(
+    z.tuple([GetMetaItemsRequestSchema]),
+    z.promise(GetMetaItemsResponseSchema)
+  ).describe('Get all items of a metadata type'),
 
-  getMetaItem: z.function()
-    .args(GetMetaItemRequestSchema)
-    .returns(z.promise(GetMetaItemResponseSchema))
-    .describe('Get a specific metadata item'),
+  getMetaItem: z.function(
+    z.tuple([GetMetaItemRequestSchema]),
+    z.promise(GetMetaItemResponseSchema)
+  ).describe('Get a specific metadata item'),
 
-  getMetaItemCached: z.function()
-    .args(GetMetaItemCachedRequestSchema)
-    .returns(z.promise(GetMetaItemCachedResponseSchema))
-    .describe('Get a metadata item with cache validation'),
+  getMetaItemCached: z.function(
+    z.tuple([GetMetaItemCachedRequestSchema]),
+    z.promise(GetMetaItemCachedResponseSchema)
+  ).describe('Get a metadata item with cache validation'),
 
-  getUiView: z.function()
-    .args(GetUiViewRequestSchema)
-    .returns(z.promise(GetUiViewResponseSchema))
-    .describe('Get UI view definition'),
+  getUiView: z.function(
+    z.tuple([GetUiViewRequestSchema]),
+    z.promise(GetUiViewResponseSchema)
+  ).describe('Get UI view definition'),
 
   // Data Operations
-  findData: z.function()
-    .args(FindDataRequestSchema)
-    .returns(z.promise(FindDataResponseSchema))
-    .describe('Find data records'),
+  findData: z.function(
+    z.tuple([FindDataRequestSchema]),
+    z.promise(FindDataResponseSchema)
+  ).describe('Find data records'),
 
-  getData: z.function()
-    .args(GetDataRequestSchema)
-    .returns(z.promise(GetDataResponseSchema))
-    .describe('Get single data record'),
+  getData: z.function(
+    z.tuple([GetDataRequestSchema]),
+    z.promise(GetDataResponseSchema)
+  ).describe('Get single data record'),
 
-  createData: z.function()
-    .args(CreateDataRequestSchema)
-    .returns(z.promise(CreateDataResponseSchema))
-    .describe('Create a data record'),
+  createData: z.function(
+    z.tuple([CreateDataRequestSchema]),
+    z.promise(CreateDataResponseSchema)
+  ).describe('Create a data record'),
 
-  updateData: z.function()
-    .args(UpdateDataRequestSchema)
-    .returns(z.promise(UpdateDataResponseSchema))
-    .describe('Update a data record'),
+  updateData: z.function(
+    z.tuple([UpdateDataRequestSchema]),
+    z.promise(UpdateDataResponseSchema)
+  ).describe('Update a data record'),
 
-  deleteData: z.function()
-    .args(DeleteDataRequestSchema)
-    .returns(z.promise(DeleteDataResponseSchema))
-    .describe('Delete a data record'),
+  deleteData: z.function(
+    z.tuple([DeleteDataRequestSchema]),
+    z.promise(DeleteDataResponseSchema)
+  ).describe('Delete a data record'),
 
   // Batch Operations
-  batchData: z.function()
-    .args(BatchDataRequestSchema)
-    .returns(z.promise(BatchDataResponseSchema))
-    .describe('Perform batch operations'),
+  batchData: z.function(
+    z.tuple([BatchDataRequestSchema]),
+    z.promise(BatchDataResponseSchema)
+  ).describe('Perform batch operations'),
 
-  createManyData: z.function()
-    .args(CreateManyDataRequestSchema)
-    .returns(z.promise(CreateManyDataResponseSchema))
-    .describe('Create multiple records'),
+  createManyData: z.function(
+    z.tuple([CreateManyDataRequestSchema]),
+    z.promise(CreateManyDataResponseSchema)
+  ).describe('Create multiple records'),
 
-  updateManyData: z.function()
-    .args(UpdateManyDataRequestSchema)
-    .returns(z.promise(UpdateManyDataResponseSchema))
-    .describe('Update multiple records'),
+  updateManyData: z.function(
+    z.tuple([UpdateManyDataRequestSchema]),
+    z.promise(UpdateManyDataResponseSchema)
+  ).describe('Update multiple records'),
 
-  deleteManyData: z.function()
-    .args(DeleteManyDataRequestSchema)
-    .returns(z.promise(DeleteManyDataResponseSchema))
-    .describe('Delete multiple records'),
+  deleteManyData: z.function(
+    z.tuple([DeleteManyDataRequestSchema]),
+    z.promise(DeleteManyDataResponseSchema)
+  ).describe('Delete multiple records'),
 
   // View Storage
-  createView: z.function()
-    .args(CreateViewRequestSchema)
-    .returns(z.promise(ViewResponseSchema))
-    .describe('Create a saved view'),
+  createView: z.function(
+    z.tuple([CreateViewRequestSchema]),
+    z.promise(ViewResponseSchema)
+  ).describe('Create a saved view'),
 
-  getView: z.function()
-    .args(GetViewRequestSchema)
-    .returns(z.promise(ViewResponseSchema))
-    .describe('Get a saved view'),
+  getView: z.function(
+    z.tuple([GetViewRequestSchema]),
+    z.promise(ViewResponseSchema)
+  ).describe('Get a saved view'),
 
-  listViews: z.function()
-    .args(ListViewsRequestSchema)
-    .returns(z.promise(ListViewsResponseSchema))
-    .describe('List saved views'),
+  listViews: z.function(
+    z.tuple([ListViewsRequestSchema]),
+    z.promise(ListViewsResponseSchema)
+  ).describe('List saved views'),
 
-  updateView: z.function()
-    .args(UpdateViewRequestSchema)
-    .returns(z.promise(ViewResponseSchema))
-    .describe('Update a saved view'),
+  updateView: z.function(
+    z.tuple([UpdateViewRequestSchema]),
+    z.promise(ViewResponseSchema)
+  ).describe('Update a saved view'),
 
-  deleteView: z.function()
-    .args(DeleteViewRequestSchema)
-    .returns(z.promise(DeleteViewResponseSchema))
-    .describe('Delete a saved view'),
+  deleteView: z.function(
+    z.tuple([DeleteViewRequestSchema]),
+    z.promise(DeleteViewResponseSchema)
+  ).describe('Delete a saved view'),
 });
 
 /**

@@ -1,77 +1,7 @@
 {
   "$ref": "#/definitions/PipelineStage",
   "definitions": {
-    "PipelineStage": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "Pipeline stage name"
-        },
-        "type": {
-          "type": "string",
-          "enum": [
-            "build",
-            "test",
-            "lint",
-            "security_scan",
-            "deploy",
-            "smoke_test",
-            "rollback"
-          ],
-          "description": "Stage type"
-        },
-        "order": {
-          "type": "integer",
-          "minimum": 0,
-          "description": "Execution order"
-        },
-        "parallel": {
-          "type": "boolean",
-          "default": false,
-          "description": "Can run in parallel with other stages"
-        },
-        "commands": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Commands to execute"
-        },
-        "env": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "description": "Stage-specific environment variables"
-        },
-        "timeout": {
-          "type": "integer",
-          "minimum": 60,
-          "default": 600,
-          "description": "Stage timeout in seconds"
-        },
-        "retryOnFailure": {
-          "type": "boolean",
-          "default": false,
-          "description": "Retry stage on failure"
-        },
-        "maxRetries": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 5,
-          "default": 0,
-          "description": "Maximum retry attempts"
-        }
-      },
-      "required": [
-        "name",
-        "type",
-        "order",
-        "commands"
-      ],
-      "additionalProperties": false
-    }
+    "PipelineStage": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

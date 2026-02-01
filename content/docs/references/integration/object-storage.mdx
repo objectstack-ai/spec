@@ -23,12 +23,3 @@ const result = MultipartUploadConfigSchema.parse(data);
 
 ## MultipartUploadConfig
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional | Enable multipart uploads |
-| **partSize** | `number` | optional | Part size in bytes (min 5MB) |
-| **maxConcurrentParts** | `number` | optional | Maximum concurrent part uploads |
-| **threshold** | `number` | optional | File size threshold for multipart upload in bytes |
-

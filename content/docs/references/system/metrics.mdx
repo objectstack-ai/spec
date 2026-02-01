@@ -23,246 +23,55 @@ const result = HistogramBucketConfigSchema.parse(data);
 
 ## HistogramBucketConfig
 
-Histogram bucket configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `Enum<'linear' \| 'exponential' \| 'explicit'>` | ✅ | Bucket type |
-| **linear** | `object` | optional |  |
-| **exponential** | `object` | optional |  |
-| **explicit** | `object` | optional |  |
-
 ---
 
 ## MetricAggregationConfig
-
-Metric aggregation configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `Enum<'sum' \| 'avg' \| 'min' \| 'max' \| 'count' \| 'p50' \| 'p75' \| 'p90' \| 'p95' \| 'p99' \| 'p999' \| 'rate' \| 'stddev'>` | ✅ | Aggregation type |
-| **window** | `object` | optional |  |
-| **groupBy** | `string[]` | optional | Group by label names |
-| **filters** | `Record<string, any>` | optional | Filter criteria |
 
 ---
 
 ## MetricAggregationType
 
-Metric aggregation type
-
-### Allowed Values
-
-* `sum`
-* `avg`
-* `min`
-* `max`
-* `count`
-* `p50`
-* `p75`
-* `p90`
-* `p95`
-* `p99`
-* `p999`
-* `rate`
-* `stddev`
-
 ---
 
 ## MetricDataPoint
-
-Metric data point
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Metric name |
-| **type** | `Enum<'counter' \| 'gauge' \| 'histogram' \| 'summary'>` | ✅ | Metric type |
-| **timestamp** | `string` | ✅ | Observation timestamp |
-| **value** | `number` | optional | Metric value |
-| **labels** | `Record<string, string>` | optional | Metric labels |
-| **histogram** | `object` | optional |  |
-| **summary** | `object` | optional |  |
 
 ---
 
 ## MetricDefinition
 
-Metric definition
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Metric name (snake_case) |
-| **label** | `string` | optional | Display label |
-| **type** | `Enum<'counter' \| 'gauge' \| 'histogram' \| 'summary'>` | ✅ | Metric type |
-| **unit** | `Enum<'nanoseconds' \| 'microseconds' \| 'milliseconds' \| 'seconds' \| 'minutes' \| 'hours' \| 'days' \| 'bytes' \| 'kilobytes' \| 'megabytes' \| 'gigabytes' \| 'terabytes' \| 'requests_per_second' \| 'events_per_second' \| 'bytes_per_second' \| 'percent' \| 'ratio' \| 'count' \| 'operations' \| 'custom'>` | optional | Metric unit |
-| **description** | `string` | optional | Metric description |
-| **labelNames** | `string[]` | optional | Label names |
-| **histogram** | `object` | optional | Histogram bucket configuration |
-| **summary** | `object` | optional |  |
-| **enabled** | `boolean` | optional |  |
-
 ---
 
 ## MetricExportConfig
-
-Metric export configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `Enum<'prometheus' \| 'openmetrics' \| 'graphite' \| 'statsd' \| 'influxdb' \| 'datadog' \| 'cloudwatch' \| 'stackdriver' \| 'azure_monitor' \| 'http' \| 'custom'>` | ✅ | Export type |
-| **endpoint** | `string` | optional | Export endpoint |
-| **interval** | `integer` | optional |  |
-| **batch** | `object` | optional |  |
-| **auth** | `object` | optional |  |
-| **config** | `Record<string, any>` | optional | Additional configuration |
 
 ---
 
 ## MetricLabels
 
-Metric labels
-
 ---
 
 ## MetricType
-
-Metric type
-
-### Allowed Values
-
-* `counter`
-* `gauge`
-* `histogram`
-* `summary`
 
 ---
 
 ## MetricUnit
 
-Metric unit
-
-### Allowed Values
-
-* `nanoseconds`
-* `microseconds`
-* `milliseconds`
-* `seconds`
-* `minutes`
-* `hours`
-* `days`
-* `bytes`
-* `kilobytes`
-* `megabytes`
-* `gigabytes`
-* `terabytes`
-* `requests_per_second`
-* `events_per_second`
-* `bytes_per_second`
-* `percent`
-* `ratio`
-* `count`
-* `operations`
-* `custom`
-
 ---
 
 ## MetricsConfig
-
-Metrics configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Configuration name (snake_case, max 64 chars) |
-| **label** | `string` | ✅ | Display label |
-| **enabled** | `boolean` | optional |  |
-| **metrics** | `object[]` | optional |  |
-| **defaultLabels** | `Record<string, string>` | optional | Metric labels |
-| **aggregations** | `object[]` | optional |  |
-| **slis** | `object[]` | optional |  |
-| **slos** | `object[]` | optional |  |
-| **exports** | `object[]` | optional |  |
-| **collectionInterval** | `integer` | optional |  |
-| **retention** | `object` | optional |  |
-| **cardinalityLimits** | `object` | optional |  |
 
 ---
 
 ## ServiceLevelIndicator
 
-Service Level Indicator
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | SLI name (snake_case) |
-| **label** | `string` | ✅ | Display label |
-| **description** | `string` | optional | SLI description |
-| **metric** | `string` | ✅ | Base metric name |
-| **type** | `Enum<'availability' \| 'latency' \| 'throughput' \| 'error_rate' \| 'saturation' \| 'custom'>` | ✅ | SLI type |
-| **successCriteria** | `object` | ✅ | Success criteria |
-| **window** | `object` | ✅ | Measurement window |
-| **enabled** | `boolean` | optional |  |
-
 ---
 
 ## ServiceLevelObjective
-
-Service Level Objective
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | SLO name (snake_case) |
-| **label** | `string` | ✅ | Display label |
-| **description** | `string` | optional | SLO description |
-| **sli** | `string` | ✅ | SLI name |
-| **target** | `number` | ✅ | Target percentage |
-| **period** | `object` | ✅ | Time period |
-| **errorBudget** | `object` | optional |  |
-| **alerts** | `object[]` | optional |  |
-| **enabled** | `boolean` | optional |  |
 
 ---
 
 ## TimeSeries
 
-Time series
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Series name |
-| **labels** | `Record<string, string>` | optional | Series labels |
-| **dataPoints** | `object[]` | ✅ | Data points |
-| **startTime** | `string` | optional | Start time |
-| **endTime** | `string` | optional | End time |
-
 ---
 
 ## TimeSeriesDataPoint
-
-Time series data point
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **timestamp** | `string` | ✅ | Timestamp |
-| **value** | `number` | ✅ | Value |
-| **labels** | `Record<string, string>` | optional | Labels |
 

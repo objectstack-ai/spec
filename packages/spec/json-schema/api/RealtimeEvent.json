@@ -1,51 +1,7 @@
 {
   "$ref": "#/definitions/RealtimeEvent",
   "definitions": {
-    "RealtimeEvent": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "description": "Unique event identifier"
-        },
-        "type": {
-          "type": "string",
-          "description": "Event type (e.g., record.created, record.updated)"
-        },
-        "object": {
-          "type": "string",
-          "description": "Object name the event relates to"
-        },
-        "action": {
-          "type": "string",
-          "enum": [
-            "created",
-            "updated",
-            "deleted"
-          ],
-          "description": "Action performed"
-        },
-        "payload": {
-          "description": "Event payload data"
-        },
-        "timestamp": {
-          "type": "string",
-          "format": "date-time",
-          "description": "ISO 8601 datetime when event occurred"
-        },
-        "userId": {
-          "type": "string",
-          "description": "User who triggered the event"
-        }
-      },
-      "required": [
-        "id",
-        "type",
-        "timestamp"
-      ],
-      "additionalProperties": false
-    }
+    "RealtimeEvent": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

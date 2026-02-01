@@ -1,39 +1,7 @@
 {
   "$ref": "#/definitions/ORSetElement",
   "definitions": {
-    "ORSetElement": {
-      "type": "object",
-      "properties": {
-        "value": {
-          "description": "Element value"
-        },
-        "timestamp": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Addition timestamp"
-        },
-        "replicaId": {
-          "type": "string",
-          "description": "Replica that added the element"
-        },
-        "uid": {
-          "type": "string",
-          "format": "uuid",
-          "description": "Unique identifier for this addition"
-        },
-        "removed": {
-          "type": "boolean",
-          "default": false,
-          "description": "Whether element has been removed"
-        }
-      },
-      "required": [
-        "timestamp",
-        "replicaId",
-        "uid"
-      ],
-      "additionalProperties": false
-    }
+    "ORSetElement": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

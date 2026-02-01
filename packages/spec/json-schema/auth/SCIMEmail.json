@@ -1,38 +1,7 @@
 {
   "$ref": "#/definitions/SCIMEmail",
   "definitions": {
-    "SCIMEmail": {
-      "type": "object",
-      "properties": {
-        "value": {
-          "type": "string",
-          "format": "email",
-          "description": "Email address"
-        },
-        "type": {
-          "type": "string",
-          "enum": [
-            "work",
-            "home",
-            "other"
-          ],
-          "description": "Email type"
-        },
-        "display": {
-          "type": "string",
-          "description": "Display label"
-        },
-        "primary": {
-          "type": "boolean",
-          "default": false,
-          "description": "Primary email indicator"
-        }
-      },
-      "required": [
-        "value"
-      ],
-      "additionalProperties": false
-    }
+    "SCIMEmail": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

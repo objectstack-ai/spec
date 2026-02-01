@@ -1,20 +1,7 @@
 {
   "$ref": "#/definitions/WebhookEvent",
   "definitions": {
-    "WebhookEvent": {
-      "type": "string",
-      "enum": [
-        "record.created",
-        "record.updated",
-        "record.deleted",
-        "sync.started",
-        "sync.completed",
-        "sync.failed",
-        "auth.expired",
-        "rate_limit.exceeded"
-      ],
-      "description": "Webhook event type"
-    }
+    "WebhookEvent": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

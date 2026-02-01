@@ -1,72 +1,7 @@
 {
   "$ref": "#/definitions/QueryContext",
   "definitions": {
-    "QueryContext": {
-      "type": "object",
-      "properties": {
-        "userId": {
-          "type": "string"
-        },
-        "userRole": {
-          "type": "string"
-        },
-        "currentObject": {
-          "type": "string",
-          "description": "Current object being viewed"
-        },
-        "currentRecordId": {
-          "type": "string",
-          "description": "Current record ID"
-        },
-        "conversationHistory": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "query": {
-                "type": "string"
-              },
-              "timestamp": {
-                "type": "string"
-              },
-              "intent": {
-                "type": "string",
-                "enum": [
-                  "select",
-                  "aggregate",
-                  "filter",
-                  "sort",
-                  "compare",
-                  "trend",
-                  "insight",
-                  "create",
-                  "update",
-                  "delete"
-                ]
-              }
-            },
-            "required": [
-              "query",
-              "timestamp"
-            ],
-            "additionalProperties": false
-          }
-        },
-        "defaultLimit": {
-          "type": "integer",
-          "default": 100
-        },
-        "timezone": {
-          "type": "string",
-          "default": "UTC"
-        },
-        "locale": {
-          "type": "string",
-          "default": "en-US"
-        }
-      },
-      "additionalProperties": false
-    }
+    "QueryContext": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

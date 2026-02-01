@@ -23,71 +23,19 @@ const result = ReportSchema.parse(data);
 
 ## Report
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Report unique name |
-| **label** | `string` | ✅ | Report label |
-| **description** | `string` | optional |  |
-| **objectName** | `string` | ✅ | Primary object |
-| **type** | `Enum<'tabular' \| 'summary' \| 'matrix' \| 'joined'>` | optional | Report format type |
-| **columns** | `object[]` | ✅ | Columns to display |
-| **groupingsDown** | `object[]` | optional | Row groupings |
-| **groupingsAcross** | `object[]` | optional | Column groupings (Matrix only) |
-| **filter** | `any` | optional | Filter criteria |
-| **chart** | `object` | optional | Embedded chart configuration |
-
 ---
 
 ## ReportChart
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `Enum<'bar' \| 'horizontal-bar' \| 'column' \| 'grouped-bar' \| 'stacked-bar' \| 'line' \| 'area' \| 'stacked-area' \| 'step-line' \| 'pie' \| 'donut' \| 'funnel' \| 'scatter' \| 'bubble' \| 'treemap' \| 'sunburst' \| 'sankey' \| 'gauge' \| 'metric' \| 'kpi' \| 'choropleth' \| 'bubble-map' \| 'heatmap' \| 'radar' \| 'waterfall' \| 'box-plot' \| 'violin' \| 'table' \| 'pivot'>` | ✅ |  |
-| **title** | `string` | optional | Chart title |
-| **description** | `string` | optional | Chart description |
-| **showLegend** | `boolean` | optional | Display legend |
-| **showDataLabels** | `boolean` | optional | Display data labels on chart |
-| **colors** | `string[]` | optional | Custom color palette |
-| **xAxis** | `string` | ✅ | Grouping field for X-Axis |
-| **yAxis** | `string` | ✅ | Summary field for Y-Axis |
-| **groupBy** | `string` | optional | Additional grouping field |
 
 ---
 
 ## ReportColumn
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **field** | `string` | ✅ | Field name |
-| **label** | `string` | optional | Override label |
-| **aggregate** | `Enum<'sum' \| 'avg' \| 'max' \| 'min' \| 'count' \| 'unique'>` | optional | Aggregation function |
-
 ---
 
 ## ReportGrouping
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **field** | `string` | ✅ | Field to group by |
-| **sortOrder** | `Enum<'asc' \| 'desc'>` | optional |  |
-| **dateGranularity** | `Enum<'day' \| 'week' \| 'month' \| 'quarter' \| 'year'>` | optional | For date fields |
-
 ---
 
 ## ReportType
-
-### Allowed Values
-
-* `tabular`
-* `summary`
-* `matrix`
-* `joined`
 

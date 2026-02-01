@@ -1,28 +1,7 @@
 {
   "$ref": "#/definitions/ScopeConfig",
   "definitions": {
-    "ScopeConfig": {
-      "type": "object",
-      "properties": {
-        "scopeType": {
-          "type": "string",
-          "description": "Type of scope"
-        },
-        "scopeId": {
-          "type": "string",
-          "description": "Unique scope identifier"
-        },
-        "metadata": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "Scope-specific context metadata"
-        }
-      },
-      "required": [
-        "scopeType"
-      ],
-      "additionalProperties": false
-    }
+    "ScopeConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,60 +1,7 @@
 {
   "$ref": "#/definitions/FullTextSearch",
   "definitions": {
-    "FullTextSearch": {
-      "type": "object",
-      "properties": {
-        "query": {
-          "type": "string",
-          "description": "Search query text"
-        },
-        "fields": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Fields to search in (if not specified, searches all text fields)"
-        },
-        "fuzzy": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable fuzzy matching (tolerates typos)"
-        },
-        "operator": {
-          "type": "string",
-          "enum": [
-            "and",
-            "or"
-          ],
-          "default": "or",
-          "description": "Logical operator between terms"
-        },
-        "boost": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "number"
-          },
-          "description": "Field-specific relevance boosting (field name -> boost factor)"
-        },
-        "minScore": {
-          "type": "number",
-          "description": "Minimum relevance score threshold"
-        },
-        "language": {
-          "type": "string",
-          "description": "Language for text analysis (e.g., \"en\", \"zh\", \"es\")"
-        },
-        "highlight": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable search result highlighting"
-        }
-      },
-      "required": [
-        "query"
-      ],
-      "additionalProperties": false
-    }
+    "FullTextSearch": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,36 +1,7 @@
 {
   "$ref": "#/definitions/StartupOptions",
   "definitions": {
-    "StartupOptions": {
-      "type": "object",
-      "properties": {
-        "timeout": {
-          "type": "integer",
-          "minimum": 0,
-          "default": 30000,
-          "description": "Maximum time in milliseconds to wait for each plugin to start"
-        },
-        "rollbackOnFailure": {
-          "type": "boolean",
-          "default": true,
-          "description": "Whether to rollback already-started plugins if any plugin fails"
-        },
-        "healthCheck": {
-          "type": "boolean",
-          "default": false,
-          "description": "Whether to run health checks after plugin startup"
-        },
-        "parallel": {
-          "type": "boolean",
-          "default": false,
-          "description": "Whether to start plugins in parallel when dependencies allow"
-        },
-        "context": {
-          "description": "Custom context object to pass to plugin lifecycle methods"
-        }
-      },
-      "additionalProperties": false
-    }
+    "StartupOptions": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

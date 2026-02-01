@@ -1,26 +1,7 @@
 {
   "$ref": "#/definitions/PluginAuthor",
   "definitions": {
-    "PluginAuthor": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string",
-          "format": "email"
-        },
-        "url": {
-          "type": "string",
-          "format": "uri"
-        }
-      },
-      "required": [
-        "name"
-      ],
-      "additionalProperties": false
-    }
+    "PluginAuthor": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -23,82 +23,19 @@ const result = FlowSchema.parse(data);
 
 ## Flow
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Machine name |
-| **label** | `string` | ✅ | Flow label |
-| **description** | `string` | optional |  |
-| **version** | `integer` | optional | Version number |
-| **status** | `Enum<'draft' \| 'active' \| 'obsolete' \| 'invalid'>` | optional | Deployment status |
-| **template** | `boolean` | optional | Is logic template (Subflow) |
-| **type** | `Enum<'autolaunched' \| 'record_change' \| 'schedule' \| 'screen' \| 'api'>` | ✅ | Flow type |
-| **variables** | `object[]` | optional | Flow variables |
-| **nodes** | `object[]` | ✅ | Flow nodes |
-| **edges** | `object[]` | ✅ | Flow connections |
-| **active** | `boolean` | optional | Is active (Deprecated: use status) |
-| **runAs** | `Enum<'system' \| 'user'>` | optional | Execution context |
-
 ---
 
 ## FlowEdge
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ | Edge unique ID |
-| **source** | `string` | ✅ | Source Node ID |
-| **target** | `string` | ✅ | Target Node ID |
-| **condition** | `string` | optional | Expression returning boolean used for branching |
-| **type** | `Enum<'default' \| 'fault'>` | optional | Connection type: Standard (Success) or Fault (Error) path |
-| **label** | `string` | optional | Label on the connector |
 
 ---
 
 ## FlowNode
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ | Node unique ID |
-| **type** | `Enum<'start' \| 'end' \| 'decision' \| 'assignment' \| 'loop' \| 'create_record' \| 'update_record' \| 'delete_record' \| 'get_record' \| 'http_request' \| 'script' \| 'wait' \| 'subflow'>` | ✅ | Action type |
-| **label** | `string` | ✅ | Node label |
-| **config** | `Record<string, any>` | optional | Node configuration |
-| **position** | `object` | optional |  |
-
 ---
 
 ## FlowNodeAction
 
-### Allowed Values
-
-* `start`
-* `end`
-* `decision`
-* `assignment`
-* `loop`
-* `create_record`
-* `update_record`
-* `delete_record`
-* `get_record`
-* `http_request`
-* `script`
-* `wait`
-* `subflow`
-
 ---
 
 ## FlowVariable
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Variable name |
-| **type** | `string` | ✅ | Data type (text, number, boolean, object, list) |
-| **isInput** | `boolean` | optional | Is input parameter |
-| **isOutput** | `boolean` | optional | Is output parameter |
 

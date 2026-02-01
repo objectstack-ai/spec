@@ -23,42 +23,11 @@ const result = ApiCapabilitiesSchema.parse(data);
 
 ## ApiCapabilities
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **graphql** | `boolean` | optional |  |
-| **search** | `boolean` | optional |  |
-| **websockets** | `boolean` | optional |  |
-| **files** | `boolean` | optional |  |
-
 ---
 
 ## ApiRoutes
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **data** | `string` | ✅ | e.g. /api/data |
-| **metadata** | `string` | ✅ | e.g. /api/meta |
-| **auth** | `string` | ✅ | e.g. /api/auth |
-| **automation** | `string` | optional | e.g. /api/automation |
-| **storage** | `string` | optional | e.g. /api/storage |
-| **graphql** | `string` | optional | e.g. /graphql |
-
 ---
 
 ## Discovery
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ |  |
-| **version** | `string` | ✅ |  |
-| **environment** | `Enum<'production' \| 'sandbox' \| 'development'>` | ✅ |  |
-| **routes** | `object` | ✅ |  |
-| **features** | `object` | ✅ |  |
-| **locale** | `object` | ✅ |  |
 

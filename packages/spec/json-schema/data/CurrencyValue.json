@@ -1,26 +1,7 @@
 {
   "$ref": "#/definitions/CurrencyValue",
   "definitions": {
-    "CurrencyValue": {
-      "type": "object",
-      "properties": {
-        "value": {
-          "type": "number",
-          "description": "Monetary amount"
-        },
-        "currency": {
-          "type": "string",
-          "minLength": 3,
-          "maxLength": 3,
-          "description": "Currency code (ISO 4217)"
-        }
-      },
-      "required": [
-        "value",
-        "currency"
-      ],
-      "additionalProperties": false
-    }
+    "CurrencyValue": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

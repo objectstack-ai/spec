@@ -1,62 +1,7 @@
 {
   "$ref": "#/definitions/KernelContext",
   "definitions": {
-    "KernelContext": {
-      "type": "object",
-      "properties": {
-        "instanceId": {
-          "type": "string",
-          "format": "uuid",
-          "description": "Unique UUID for this running kernel process"
-        },
-        "mode": {
-          "type": "string",
-          "enum": [
-            "development",
-            "production",
-            "test",
-            "provisioning"
-          ],
-          "description": "Kernel operating mode",
-          "default": "production"
-        },
-        "version": {
-          "type": "string",
-          "description": "Kernel version"
-        },
-        "appName": {
-          "type": "string",
-          "description": "Host application name"
-        },
-        "cwd": {
-          "type": "string",
-          "description": "Current working directory"
-        },
-        "workspaceRoot": {
-          "type": "string",
-          "description": "Workspace root if different from cwd"
-        },
-        "startTime": {
-          "type": "integer",
-          "description": "Boot timestamp (ms)"
-        },
-        "features": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "boolean"
-          },
-          "default": {},
-          "description": "Global feature toggles"
-        }
-      },
-      "required": [
-        "instanceId",
-        "version",
-        "cwd",
-        "startTime"
-      ],
-      "additionalProperties": false
-    }
+    "KernelContext": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

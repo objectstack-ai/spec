@@ -23,60 +23,15 @@ const result = DeploymentTargetSchema.parse(data);
 
 ## DeploymentTarget
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **provider** | `Enum<'vercel' \| 'docker' \| 'kubernetes'>` | ✅ |  |
-| **region** | `string` | optional |  |
-| **url** | `string` | optional | Public Access URL |
-| **env** | `Record<string, string>` | optional | Runtime Environment Variables |
-
 ---
 
 ## HubSpace
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ |  |
-| **name** | `string` | ✅ |  |
-| **slug** | `string` | ✅ | URL friendly identifier |
-| **ownerId** | `string` | ✅ |  |
-| **runtime** | `object` | optional | Runtime instance configuration |
-| **bom** | `object` | ✅ |  |
-| **lastBuild** | `object` | optional |  |
-| **subscription** | `object` | optional |  |
-| **deployment** | `object` | optional |  |
-| **createdAt** | `string` | ✅ |  |
-| **updatedAt** | `string` | ✅ |  |
 
 ---
 
 ## SpaceSubscription
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **planId** | `string` | ✅ | Reference to Plan Code |
-| **status** | `Enum<'active' \| 'past_due' \| 'canceled' \| 'trialing' \| 'incomplete'>` | ✅ |  |
-| **currentPeriodEnd** | `string` | optional |  |
-| **stripeCustomerId** | `string` | optional |  |
-| **stripeSubscriptionId** | `string` | optional |  |
-| **addons** | `object[]` | optional |  |
-| **usage** | `Record<string, number>` | optional |  |
-
 ---
 
 ## SubscriptionStatus
-
-### Allowed Values
-
-* `active`
-* `past_due`
-* `canceled`
-* `trialing`
-* `incomplete`
 

@@ -1,44 +1,7 @@
 {
   "$ref": "#/definitions/GroupNavItem",
   "definitions": {
-    "GroupNavItem": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "minLength": 2,
-          "pattern": "^[a-z][a-z0-9_]*$",
-          "description": "Unique identifier for this navigation item (lowercase snake_case)"
-        },
-        "label": {
-          "type": "string",
-          "description": "Display proper label"
-        },
-        "icon": {
-          "type": "string",
-          "description": "Icon name"
-        },
-        "visible": {
-          "type": "string",
-          "description": "Visibility formula condition"
-        },
-        "type": {
-          "type": "string",
-          "const": "group"
-        },
-        "expanded": {
-          "type": "boolean",
-          "default": false,
-          "description": "Default expansion state in sidebar"
-        }
-      },
-      "required": [
-        "id",
-        "label",
-        "type"
-      ],
-      "additionalProperties": false
-    }
+    "GroupNavItem": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

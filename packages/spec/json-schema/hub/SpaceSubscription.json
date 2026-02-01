@@ -1,77 +1,7 @@
 {
   "$ref": "#/definitions/SpaceSubscription",
   "definitions": {
-    "SpaceSubscription": {
-      "type": "object",
-      "properties": {
-        "planId": {
-          "type": "string",
-          "description": "Reference to Plan Code"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "active",
-            "past_due",
-            "canceled",
-            "trialing",
-            "incomplete"
-          ]
-        },
-        "currentPeriodEnd": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "stripeCustomerId": {
-          "type": "string"
-        },
-        "stripeSubscriptionId": {
-          "type": "string"
-        },
-        "addons": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "pluginId": {
-                "type": "string",
-                "description": "Marketplace Plugin ID (NPM package name)"
-              },
-              "quantity": {
-                "type": "number",
-                "default": 1
-              },
-              "status": {
-                "type": "string",
-                "enum": [
-                  "active",
-                  "past_due",
-                  "canceled",
-                  "trialing",
-                  "incomplete"
-                ],
-                "default": "active"
-              }
-            },
-            "required": [
-              "pluginId"
-            ],
-            "additionalProperties": false
-          }
-        },
-        "usage": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "number"
-          }
-        }
-      },
-      "required": [
-        "planId",
-        "status"
-      ],
-      "additionalProperties": false
-    }
+    "SpaceSubscription": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,57 +1,7 @@
 {
   "$ref": "#/definitions/ListColumn",
   "definitions": {
-    "ListColumn": {
-      "type": "object",
-      "properties": {
-        "field": {
-          "type": "string",
-          "description": "Field name (snake_case)"
-        },
-        "label": {
-          "type": "string",
-          "description": "Display label override"
-        },
-        "width": {
-          "type": "number",
-          "exclusiveMinimum": 0,
-          "description": "Column width in pixels"
-        },
-        "align": {
-          "type": "string",
-          "enum": [
-            "left",
-            "center",
-            "right"
-          ],
-          "description": "Text alignment"
-        },
-        "hidden": {
-          "type": "boolean",
-          "description": "Hide column by default"
-        },
-        "sortable": {
-          "type": "boolean",
-          "description": "Allow sorting by this column"
-        },
-        "resizable": {
-          "type": "boolean",
-          "description": "Allow resizing this column"
-        },
-        "wrap": {
-          "type": "boolean",
-          "description": "Allow text wrapping"
-        },
-        "type": {
-          "type": "string",
-          "description": "Renderer type override (e.g., \"currency\", \"date\")"
-        }
-      },
-      "required": [
-        "field"
-      ],
-      "additionalProperties": false
-    }
+    "ListColumn": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

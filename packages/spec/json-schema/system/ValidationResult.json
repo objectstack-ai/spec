@@ -1,71 +1,7 @@
 {
   "$ref": "#/definitions/ValidationResult",
   "definitions": {
-    "ValidationResult": {
-      "type": "object",
-      "properties": {
-        "valid": {
-          "type": "boolean",
-          "description": "Whether the plugin passed validation"
-        },
-        "errors": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "field": {
-                "type": "string",
-                "description": "Field name that failed validation"
-              },
-              "message": {
-                "type": "string",
-                "description": "Human-readable error message"
-              },
-              "code": {
-                "type": "string",
-                "description": "Machine-readable error code"
-              }
-            },
-            "required": [
-              "field",
-              "message"
-            ],
-            "additionalProperties": false
-          },
-          "description": "Validation errors"
-        },
-        "warnings": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "field": {
-                "type": "string",
-                "description": "Field name with warning"
-              },
-              "message": {
-                "type": "string",
-                "description": "Human-readable warning message"
-              },
-              "code": {
-                "type": "string",
-                "description": "Machine-readable warning code"
-              }
-            },
-            "required": [
-              "field",
-              "message"
-            ],
-            "additionalProperties": false
-          },
-          "description": "Validation warnings"
-        }
-      },
-      "required": [
-        "valid"
-      ],
-      "additionalProperties": false
-    }
+    "ValidationResult": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

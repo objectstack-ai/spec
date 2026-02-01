@@ -1,54 +1,7 @@
 {
   "$ref": "#/definitions/MetadataEndpointsConfig",
   "definitions": {
-    "MetadataEndpointsConfig": {
-      "type": "object",
-      "properties": {
-        "prefix": {
-          "type": "string",
-          "default": "/meta",
-          "description": "URL prefix for metadata endpoints"
-        },
-        "enableCache": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable HTTP cache headers (ETag, Last-Modified)"
-        },
-        "cacheTtl": {
-          "type": "integer",
-          "default": 3600,
-          "description": "Cache TTL in seconds"
-        },
-        "endpoints": {
-          "type": "object",
-          "properties": {
-            "types": {
-              "type": "boolean",
-              "default": true,
-              "description": "GET /meta - List all metadata types"
-            },
-            "items": {
-              "type": "boolean",
-              "default": true,
-              "description": "GET /meta/:type - List items of type"
-            },
-            "item": {
-              "type": "boolean",
-              "default": true,
-              "description": "GET /meta/:type/:name - Get specific item"
-            },
-            "schema": {
-              "type": "boolean",
-              "default": true,
-              "description": "GET /meta/:type/:name/schema - Get JSON schema"
-            }
-          },
-          "additionalProperties": false,
-          "description": "Enable/disable specific endpoints"
-        }
-      },
-      "additionalProperties": false
-    }
+    "MetadataEndpointsConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

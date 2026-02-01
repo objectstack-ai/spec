@@ -1,24 +1,7 @@
 {
   "$ref": "#/definitions/FilterOperator",
   "definitions": {
-    "FilterOperator": {
-      "type": "string",
-      "enum": [
-        "eq",
-        "ne",
-        "gt",
-        "gte",
-        "lt",
-        "lte",
-        "in",
-        "nin",
-        "contains",
-        "startsWith",
-        "endsWith",
-        "exists",
-        "regex"
-      ]
-    }
+    "FilterOperator": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

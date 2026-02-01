@@ -1,23 +1,7 @@
 {
   "$ref": "#/definitions/KernelShutdownEvent",
   "definitions": {
-    "KernelShutdownEvent": {
-      "type": "object",
-      "properties": {
-        "timestamp": {
-          "type": "integer",
-          "description": "Unix timestamp in milliseconds"
-        },
-        "reason": {
-          "type": "string",
-          "description": "Reason for kernel shutdown"
-        }
-      },
-      "required": [
-        "timestamp"
-      ],
-      "additionalProperties": false
-    }
+    "KernelShutdownEvent": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

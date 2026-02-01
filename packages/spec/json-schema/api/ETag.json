@@ -1,24 +1,7 @@
 {
   "$ref": "#/definitions/ETag",
   "definitions": {
-    "ETag": {
-      "type": "object",
-      "properties": {
-        "value": {
-          "type": "string",
-          "description": "ETag value (hash or version identifier)"
-        },
-        "weak": {
-          "type": "boolean",
-          "default": false,
-          "description": "Whether this is a weak ETag"
-        }
-      },
-      "required": [
-        "value"
-      ],
-      "additionalProperties": false
-    }
+    "ETag": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,22 +1,7 @@
 {
   "$ref": "#/definitions/SelectionConfig",
   "definitions": {
-    "SelectionConfig": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "none",
-            "single",
-            "multiple"
-          ],
-          "default": "none",
-          "description": "Selection mode"
-        }
-      },
-      "additionalProperties": false
-    }
+    "SelectionConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

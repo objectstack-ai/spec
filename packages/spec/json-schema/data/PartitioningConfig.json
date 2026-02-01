@@ -1,38 +1,7 @@
 {
   "$ref": "#/definitions/PartitioningConfig",
   "definitions": {
-    "PartitioningConfig": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "description": "Enable table partitioning"
-        },
-        "strategy": {
-          "type": "string",
-          "enum": [
-            "range",
-            "hash",
-            "list"
-          ],
-          "description": "Partitioning strategy: range (date ranges), hash (consistent hashing), list (predefined values)"
-        },
-        "key": {
-          "type": "string",
-          "description": "Field name to partition by"
-        },
-        "interval": {
-          "type": "string",
-          "description": "Partition interval for range strategy (e.g., \"1 month\", \"1 year\")"
-        }
-      },
-      "required": [
-        "enabled",
-        "strategy",
-        "key"
-      ],
-      "additionalProperties": false
-    }
+    "PartitioningConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

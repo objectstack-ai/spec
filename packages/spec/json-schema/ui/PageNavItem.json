@@ -1,49 +1,7 @@
 {
   "$ref": "#/definitions/PageNavItem",
   "definitions": {
-    "PageNavItem": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "minLength": 2,
-          "pattern": "^[a-z][a-z0-9_]*$",
-          "description": "Unique identifier for this navigation item (lowercase snake_case)"
-        },
-        "label": {
-          "type": "string",
-          "description": "Display proper label"
-        },
-        "icon": {
-          "type": "string",
-          "description": "Icon name"
-        },
-        "visible": {
-          "type": "string",
-          "description": "Visibility formula condition"
-        },
-        "type": {
-          "type": "string",
-          "const": "page"
-        },
-        "pageName": {
-          "type": "string",
-          "description": "Target custom page component name"
-        },
-        "params": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "Parameters passed to the page context"
-        }
-      },
-      "required": [
-        "id",
-        "label",
-        "type",
-        "pageName"
-      ],
-      "additionalProperties": false
-    }
+    "PageNavItem": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

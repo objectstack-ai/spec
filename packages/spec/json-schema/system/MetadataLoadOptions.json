@@ -1,52 +1,7 @@
 {
   "$ref": "#/definitions/MetadataLoadOptions",
   "definitions": {
-    "MetadataLoadOptions": {
-      "type": "object",
-      "properties": {
-        "patterns": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "File glob patterns"
-        },
-        "ifNoneMatch": {
-          "type": "string",
-          "description": "ETag for conditional request"
-        },
-        "ifModifiedSince": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Only load if modified after this date"
-        },
-        "validate": {
-          "type": "boolean",
-          "default": true,
-          "description": "Validate against schema"
-        },
-        "useCache": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable caching"
-        },
-        "filter": {
-          "type": "string",
-          "description": "Filter predicate as string"
-        },
-        "limit": {
-          "type": "integer",
-          "minimum": 1,
-          "description": "Maximum items to load"
-        },
-        "recursive": {
-          "type": "boolean",
-          "default": true,
-          "description": "Search subdirectories"
-        }
-      },
-      "additionalProperties": false
-    }
+    "MetadataLoadOptions": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

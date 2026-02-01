@@ -1,19 +1,7 @@
 {
   "$ref": "#/definitions/DeleteViewResponse",
   "definitions": {
-    "DeleteViewResponse": {
-      "type": "object",
-      "properties": {
-        "success": {
-          "type": "boolean",
-          "description": "Whether deletion succeeded"
-        }
-      },
-      "required": [
-        "success"
-      ],
-      "additionalProperties": false
-    }
+    "DeleteViewResponse": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

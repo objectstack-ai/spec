@@ -1,15 +1,7 @@
 {
   "$ref": "#/definitions/SpanStatus",
   "definitions": {
-    "SpanStatus": {
-      "type": "string",
-      "enum": [
-        "unset",
-        "ok",
-        "error"
-      ],
-      "description": "Span status"
-    }
+    "SpanStatus": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,21 +1,7 @@
 {
   "$ref": "#/definitions/ChangeStatus",
   "definitions": {
-    "ChangeStatus": {
-      "type": "string",
-      "enum": [
-        "draft",
-        "submitted",
-        "in-review",
-        "approved",
-        "scheduled",
-        "in-progress",
-        "completed",
-        "failed",
-        "rolled-back",
-        "cancelled"
-      ]
-    }
+    "ChangeStatus": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

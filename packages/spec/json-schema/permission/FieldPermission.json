@@ -1,22 +1,7 @@
 {
   "$ref": "#/definitions/FieldPermission",
   "definitions": {
-    "FieldPermission": {
-      "type": "object",
-      "properties": {
-        "readable": {
-          "type": "boolean",
-          "default": true,
-          "description": "Field read access"
-        },
-        "editable": {
-          "type": "boolean",
-          "default": false,
-          "description": "Field edit access"
-        }
-      },
-      "additionalProperties": false
-    }
+    "FieldPermission": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

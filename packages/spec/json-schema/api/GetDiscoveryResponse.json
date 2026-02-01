@@ -1,38 +1,7 @@
 {
   "$ref": "#/definitions/GetDiscoveryResponse",
   "definitions": {
-    "GetDiscoveryResponse": {
-      "type": "object",
-      "properties": {
-        "version": {
-          "type": "string",
-          "description": "API version (e.g., \"v1\", \"2024-01\")"
-        },
-        "apiName": {
-          "type": "string",
-          "description": "API name"
-        },
-        "capabilities": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Supported features/capabilities"
-        },
-        "endpoints": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "description": "Available endpoint paths"
-        }
-      },
-      "required": [
-        "version",
-        "apiName"
-      ],
-      "additionalProperties": false
-    }
+    "GetDiscoveryResponse": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

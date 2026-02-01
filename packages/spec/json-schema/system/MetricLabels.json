@@ -1,13 +1,7 @@
 {
   "$ref": "#/definitions/MetricLabels",
   "definitions": {
-    "MetricLabels": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "string"
-      },
-      "description": "Metric labels"
-    }
+    "MetricLabels": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

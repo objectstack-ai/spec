@@ -1,30 +1,7 @@
 {
   "$ref": "#/definitions/UpdateDataResponse",
   "definitions": {
-    "UpdateDataResponse": {
-      "type": "object",
-      "properties": {
-        "object": {
-          "type": "string",
-          "description": "Object name"
-        },
-        "id": {
-          "type": "string",
-          "description": "Updated record ID"
-        },
-        "record": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "Updated record"
-        }
-      },
-      "required": [
-        "object",
-        "id",
-        "record"
-      ],
-      "additionalProperties": false
-    }
+    "UpdateDataResponse": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

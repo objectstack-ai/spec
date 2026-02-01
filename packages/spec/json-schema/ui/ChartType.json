@@ -1,40 +1,7 @@
 {
   "$ref": "#/definitions/ChartType",
   "definitions": {
-    "ChartType": {
-      "type": "string",
-      "enum": [
-        "bar",
-        "horizontal-bar",
-        "column",
-        "grouped-bar",
-        "stacked-bar",
-        "line",
-        "area",
-        "stacked-area",
-        "step-line",
-        "pie",
-        "donut",
-        "funnel",
-        "scatter",
-        "bubble",
-        "treemap",
-        "sunburst",
-        "sankey",
-        "gauge",
-        "metric",
-        "kpi",
-        "choropleth",
-        "bubble-map",
-        "heatmap",
-        "radar",
-        "waterfall",
-        "box-plot",
-        "violin",
-        "table",
-        "pivot"
-      ]
-    }
+    "ChartType": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

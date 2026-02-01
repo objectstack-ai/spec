@@ -1,44 +1,7 @@
 {
   "$ref": "#/definitions/Shadow",
   "definitions": {
-    "Shadow": {
-      "type": "object",
-      "properties": {
-        "none": {
-          "type": "string",
-          "description": "No shadow"
-        },
-        "sm": {
-          "type": "string",
-          "description": "Small shadow"
-        },
-        "base": {
-          "type": "string",
-          "description": "Base shadow"
-        },
-        "md": {
-          "type": "string",
-          "description": "Medium shadow"
-        },
-        "lg": {
-          "type": "string",
-          "description": "Large shadow"
-        },
-        "xl": {
-          "type": "string",
-          "description": "Extra large shadow"
-        },
-        "2xl": {
-          "type": "string",
-          "description": "2X large shadow"
-        },
-        "inner": {
-          "type": "string",
-          "description": "Inner shadow (inset)"
-        }
-      },
-      "additionalProperties": false
-    }
+    "Shadow": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

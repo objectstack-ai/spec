@@ -1,56 +1,7 @@
 {
   "$ref": "#/definitions/DatasourceCapabilities",
   "definitions": {
-    "DatasourceCapabilities": {
-      "type": "object",
-      "properties": {
-        "transactions": {
-          "type": "boolean",
-          "default": false
-        },
-        "queryFilters": {
-          "type": "boolean",
-          "default": false
-        },
-        "queryAggregations": {
-          "type": "boolean",
-          "default": false
-        },
-        "querySorting": {
-          "type": "boolean",
-          "default": false
-        },
-        "queryPagination": {
-          "type": "boolean",
-          "default": false
-        },
-        "queryWindowFunctions": {
-          "type": "boolean",
-          "default": false
-        },
-        "querySubqueries": {
-          "type": "boolean",
-          "default": false
-        },
-        "joins": {
-          "type": "boolean",
-          "default": false
-        },
-        "fullTextSearch": {
-          "type": "boolean",
-          "default": false
-        },
-        "readOnly": {
-          "type": "boolean",
-          "default": false
-        },
-        "dynamicSchema": {
-          "type": "boolean",
-          "default": false
-        }
-      },
-      "additionalProperties": false
-    }
+    "DatasourceCapabilities": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

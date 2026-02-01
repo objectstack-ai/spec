@@ -1,39 +1,7 @@
 {
   "$ref": "#/definitions/VersioningConfig",
   "definitions": {
-    "VersioningConfig": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "description": "Enable record versioning"
-        },
-        "strategy": {
-          "type": "string",
-          "enum": [
-            "snapshot",
-            "delta",
-            "event-sourcing"
-          ],
-          "description": "Versioning strategy: snapshot (full copy), delta (changes only), event-sourcing (event log)"
-        },
-        "retentionDays": {
-          "type": "number",
-          "minimum": 1,
-          "description": "Number of days to retain old versions (undefined = infinite)"
-        },
-        "versionField": {
-          "type": "string",
-          "default": "version",
-          "description": "Field name for version number/timestamp"
-        }
-      },
-      "required": [
-        "enabled",
-        "strategy"
-      ],
-      "additionalProperties": false
-    }
+    "VersioningConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

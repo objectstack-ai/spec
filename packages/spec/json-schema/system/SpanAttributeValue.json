@@ -1,38 +1,7 @@
 {
   "$ref": "#/definitions/SpanAttributeValue",
   "definitions": {
-    "SpanAttributeValue": {
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "number"
-        },
-        {
-          "type": "boolean"
-        },
-        {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        {
-          "type": "array",
-          "items": {
-            "type": "number"
-          }
-        },
-        {
-          "type": "array",
-          "items": {
-            "type": "boolean"
-          }
-        }
-      ],
-      "description": "Span attribute value"
-    }
+    "SpanAttributeValue": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

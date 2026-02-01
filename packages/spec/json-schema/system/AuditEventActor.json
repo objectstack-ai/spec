@@ -1,48 +1,7 @@
 {
   "$ref": "#/definitions/AuditEventActor",
   "definitions": {
-    "AuditEventActor": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "user",
-            "system",
-            "service",
-            "api_client",
-            "integration"
-          ],
-          "description": "Actor type"
-        },
-        "id": {
-          "type": "string",
-          "description": "Actor identifier"
-        },
-        "name": {
-          "type": "string",
-          "description": "Actor display name"
-        },
-        "email": {
-          "type": "string",
-          "format": "email",
-          "description": "Actor email address"
-        },
-        "ipAddress": {
-          "type": "string",
-          "description": "Actor IP address"
-        },
-        "userAgent": {
-          "type": "string",
-          "description": "User agent string"
-        }
-      },
-      "required": [
-        "type",
-        "id"
-      ],
-      "additionalProperties": false
-    }
+    "AuditEventActor": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

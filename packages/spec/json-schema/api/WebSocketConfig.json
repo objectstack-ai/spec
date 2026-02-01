@@ -1,63 +1,7 @@
 {
   "$ref": "#/definitions/WebSocketConfig",
   "definitions": {
-    "WebSocketConfig": {
-      "type": "object",
-      "properties": {
-        "url": {
-          "type": "string",
-          "format": "uri",
-          "description": "WebSocket server URL"
-        },
-        "protocols": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "WebSocket sub-protocols"
-        },
-        "reconnect": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable automatic reconnection"
-        },
-        "reconnectInterval": {
-          "type": "integer",
-          "exclusiveMinimum": 0,
-          "default": 1000,
-          "description": "Reconnection interval in milliseconds"
-        },
-        "maxReconnectAttempts": {
-          "type": "integer",
-          "exclusiveMinimum": 0,
-          "default": 5,
-          "description": "Maximum reconnection attempts"
-        },
-        "pingInterval": {
-          "type": "integer",
-          "exclusiveMinimum": 0,
-          "default": 30000,
-          "description": "Ping interval in milliseconds"
-        },
-        "timeout": {
-          "type": "integer",
-          "exclusiveMinimum": 0,
-          "default": 5000,
-          "description": "Message timeout in milliseconds"
-        },
-        "headers": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "description": "Custom headers for WebSocket handshake"
-        }
-      },
-      "required": [
-        "url"
-      ],
-      "additionalProperties": false
-    }
+    "WebSocketConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

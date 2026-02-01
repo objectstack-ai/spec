@@ -1,77 +1,7 @@
 {
   "$ref": "#/definitions/Event",
   "definitions": {
-    "Event": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique event identifier"
-        },
-        "name": {
-          "type": "string",
-          "minLength": 3,
-          "pattern": "^[a-z][a-z0-9_.]*$",
-          "description": "Event name (lowercase with dots, e.g., user.created, order.paid)"
-        },
-        "payload": {
-          "description": "Event payload schema"
-        },
-        "metadata": {
-          "type": "object",
-          "properties": {
-            "source": {
-              "type": "string",
-              "description": "Event source (e.g., plugin name, system component)"
-            },
-            "timestamp": {
-              "type": "string",
-              "format": "date-time",
-              "description": "ISO 8601 datetime when event was created"
-            },
-            "userId": {
-              "type": "string",
-              "description": "User who triggered the event"
-            },
-            "tenantId": {
-              "type": "string",
-              "description": "Tenant identifier for multi-tenant systems"
-            },
-            "correlationId": {
-              "type": "string",
-              "description": "Correlation ID for event tracing"
-            },
-            "causationId": {
-              "type": "string",
-              "description": "ID of the event that caused this event"
-            },
-            "priority": {
-              "type": "string",
-              "enum": [
-                "critical",
-                "high",
-                "normal",
-                "low",
-                "background"
-              ],
-              "default": "normal",
-              "description": "Event priority"
-            }
-          },
-          "required": [
-            "source",
-            "timestamp"
-          ],
-          "additionalProperties": false,
-          "description": "Event metadata"
-        }
-      },
-      "required": [
-        "name",
-        "metadata"
-      ],
-      "additionalProperties": false
-    }
+    "Event": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

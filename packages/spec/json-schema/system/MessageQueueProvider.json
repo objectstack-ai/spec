@@ -1,17 +1,7 @@
 {
   "$ref": "#/definitions/MessageQueueProvider",
   "definitions": {
-    "MessageQueueProvider": {
-      "type": "string",
-      "enum": [
-        "kafka",
-        "rabbitmq",
-        "aws-sqs",
-        "redis-pubsub",
-        "google-pubsub",
-        "azure-service-bus"
-      ]
-    }
+    "MessageQueueProvider": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

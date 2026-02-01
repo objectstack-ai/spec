@@ -1,16 +1,7 @@
 {
   "$ref": "#/definitions/RetryStrategy",
   "definitions": {
-    "RetryStrategy": {
-      "type": "string",
-      "enum": [
-        "exponential_backoff",
-        "linear_backoff",
-        "fixed_delay",
-        "no_retry"
-      ],
-      "description": "Retry strategy"
-    }
+    "RetryStrategy": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

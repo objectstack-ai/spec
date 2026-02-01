@@ -1,73 +1,7 @@
 {
   "$ref": "#/definitions/RetryConfig",
   "definitions": {
-    "RetryConfig": {
-      "type": "object",
-      "properties": {
-        "strategy": {
-          "type": "string",
-          "enum": [
-            "exponential_backoff",
-            "linear_backoff",
-            "fixed_delay",
-            "no_retry"
-          ],
-          "description": "Retry strategy",
-          "default": "exponential_backoff"
-        },
-        "maxAttempts": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 10,
-          "default": 3,
-          "description": "Maximum retry attempts"
-        },
-        "initialDelayMs": {
-          "type": "number",
-          "minimum": 100,
-          "default": 1000,
-          "description": "Initial retry delay in ms"
-        },
-        "maxDelayMs": {
-          "type": "number",
-          "minimum": 1000,
-          "default": 60000,
-          "description": "Maximum retry delay in ms"
-        },
-        "backoffMultiplier": {
-          "type": "number",
-          "minimum": 1,
-          "default": 2,
-          "description": "Exponential backoff multiplier"
-        },
-        "retryableStatusCodes": {
-          "type": "array",
-          "items": {
-            "type": "number"
-          },
-          "default": [
-            408,
-            429,
-            500,
-            502,
-            503,
-            504
-          ],
-          "description": "HTTP status codes to retry"
-        },
-        "retryOnNetworkError": {
-          "type": "boolean",
-          "default": true,
-          "description": "Retry on network errors"
-        },
-        "jitter": {
-          "type": "boolean",
-          "default": true,
-          "description": "Add jitter to retry delays"
-        }
-      },
-      "additionalProperties": false
-    }
+    "RetryConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

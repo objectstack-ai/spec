@@ -1,33 +1,7 @@
 {
   "$ref": "#/definitions/TimeSeriesDataPoint",
   "definitions": {
-    "TimeSeriesDataPoint": {
-      "type": "object",
-      "properties": {
-        "timestamp": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Timestamp"
-        },
-        "value": {
-          "type": "number",
-          "description": "Value"
-        },
-        "labels": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "description": "Labels"
-        }
-      },
-      "required": [
-        "timestamp",
-        "value"
-      ],
-      "additionalProperties": false,
-      "description": "Time series data point"
-    }
+    "TimeSeriesDataPoint": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }
