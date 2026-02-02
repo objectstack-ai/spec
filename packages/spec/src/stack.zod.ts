@@ -100,6 +100,12 @@ export const ObjectStackDefinitionSchema = z.object({
    * ObjectAI: Artificial Intelligence Layer
    */
   agents: z.array(AgentSchema).optional().describe('AI Agents and Assistants'),
+
+  /**
+   * Plugins: External Capabilities
+   * List of plugins to load. Can be a Manifest object or a package name string.
+   */
+  plugins: z.array(z.union([ManifestSchema, z.string()])).optional().describe('Plugins to load'),
 });
 
 export type ObjectStackDefinition = z.infer<typeof ObjectStackDefinitionSchema>;
