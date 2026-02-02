@@ -4,6 +4,7 @@ import { devCommand } from './commands/dev.js';
 import { doctorCommand } from './commands/doctor.js';
 import { createCommand } from './commands/create.js';
 import { serveCommand } from './commands/serve.js';
+import { testCommand } from './commands/test.js';
 
 const program = new Command();
 
@@ -18,5 +19,6 @@ program.addCommand(serveCommand);
 program.addCommand(devCommand);
 program.addCommand(doctorCommand);
 program.addCommand(createCommand);
+program.addCommand(testCommand);
 
 program.parse(process.argv);

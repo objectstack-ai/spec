@@ -1,0 +1,45 @@
+{
+  "name": "Integration Test Demo",
+  "scenarios": [
+    {
+      "id": "scn_001",
+      "name": "Check Health",
+      "steps": [
+        {
+          "name": "Ping Server",
+          "action": {
+            "type": "api_call",
+            "target": "/health",
+            "payload": {
+                "method": "GET"
+            }
+          },
+          "assertions": [
+            {
+              "field": "status",
+              "operator": "equals",
+              "expectedValue": "ok"
+            }
+          ]
+        },
+        {
+          "name": "Check Version",
+           "action": {
+            "type": "api_call",
+            "target": "/api",
+            "payload": {
+                "method": "GET"
+            }
+          },
+          "assertions": [
+            {
+              "field": "version",
+              "operator": "not_null",
+              "expectedValue": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

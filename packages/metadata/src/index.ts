@@ -18,6 +18,7 @@ export { FilesystemLoader } from './loaders/filesystem-loader.js';
 export { type MetadataSerializer, type SerializeOptions } from './serializers/serializer-interface.js';
 export { JSONSerializer } from './serializers/json-serializer.js';
 export { YAMLSerializer } from './serializers/yaml-serializer.js';
+export * as Migration from './migration/index.js';
 export { TypeScriptSerializer } from './serializers/typescript-serializer.js';
 
 // Re-export types from spec

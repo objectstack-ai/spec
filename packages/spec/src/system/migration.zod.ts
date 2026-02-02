@@ -7,6 +7,7 @@ import { ObjectSchema } from '../data/object.zod';
 export const AddFieldOperation = z.object({
   type: z.literal('add_field'),
   objectName: z.string(),
+  fieldName: z.string(),
   field: FieldSchema
 });
 

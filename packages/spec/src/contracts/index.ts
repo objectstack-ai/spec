@@ -12,3 +12,4 @@ export * from './service-registry.js';
 export * from './plugin-validator.js';
 export * from './startup-orchestrator.js';
 export * from './plugin-lifecycle-events.js';
+export * from './schema-driver.js';
