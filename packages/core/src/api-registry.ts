@@ -7,6 +7,7 @@ import type {
   ApiDiscoveryQuery,
   ApiDiscoveryResponse,
 } from '@objectstack/spec/api';
+import { ApiRegistryEntrySchema } from '@objectstack/spec/api';
 import type { Logger } from '@objectstack/spec/contracts';
 
 /**
@@ -80,8 +81,8 @@ export class ApiRegistry {
       throw new Error(`[ApiRegistry] API '${api.id}' already registered`);
     }
 
-    // Cast to full type after validation
-    const fullApi = api as ApiRegistryEntry;
+    // Parse and validate the input using Zod schema
+    const fullApi = ApiRegistryEntrySchema.parse(api);
 
     // Validate and register endpoints
     for (const endpoint of fullApi.endpoints) {
