@@ -60,6 +60,7 @@ export * from './notification.zod';
 
 // Change Management Protocol
 export * from './change-management.zod';
+export * from './migration.zod';
 
 // HTTP Server Protocol
 export * from './http-server.zod';

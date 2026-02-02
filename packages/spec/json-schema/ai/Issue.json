@@ -1,0 +1,7 @@
+{
+  "$ref": "#/definitions/Issue",
+  "definitions": {
+    "Issue": {}
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,7 @@
+{
+  "$ref": "#/definitions/AddFieldOperation",
+  "definitions": {
+    "AddFieldOperation": {}
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

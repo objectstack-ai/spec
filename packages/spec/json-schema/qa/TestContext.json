@@ -1,0 +1,7 @@
+{
+  "$ref": "#/definitions/TestContext",
+  "definitions": {
+    "TestContext": {}
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

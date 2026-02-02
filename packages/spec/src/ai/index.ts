@@ -23,3 +23,4 @@ export * from './orchestration.zod';
 export * from './predictive.zod';
 export * from './conversation.zod';
 export * from './cost.zod';
+export * from './feedback-loop.zod';

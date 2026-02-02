@@ -47,6 +47,7 @@ export * as Data from './data';
 export * as Permission from './permission';
 export * as UI from './ui';
 export * as System from './system';
+export * as QA from './qa';
 export * as Auth from './auth';
 export * as Hub from './hub';
 export * as AI from './ai';

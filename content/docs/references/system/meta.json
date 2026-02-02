@@ -19,6 +19,7 @@
     "message-queue",
     "metadata-loader",
     "metrics",
+    "migration",
     "notification",
     "object-storage",
     "plugin",
