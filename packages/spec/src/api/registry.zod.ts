@@ -87,10 +87,22 @@ export type HttpStatusCode = z.infer<typeof HttpStatusCode>;
  * is dynamically derived from the object definition, enabling automatic updates
  * when the object schema changes.
  * 
+ * **IMPORTANT - Schema Resolution Responsibility:**
+ * The API Registry STORES these references as metadata but does NOT resolve them.
+ * Schema resolution (expanding references into actual JSON Schema) is performed by:
+ * - **API Gateway**: For runtime request/response validation
+ * - **OpenAPI Generator**: For Swagger/OpenAPI documentation
+ * - **GraphQL Schema Builder**: For GraphQL type generation
+ * - **Documentation Tools**: For developer documentation
+ * 
+ * This separation allows the Registry to remain lightweight and focused on
+ * registration/discovery, while specialized tools handle schema transformation.
+ * 
  * **Benefits:**
  * - Auto-updating API documentation when object schemas change
  * - Consistent type definitions across API and database
  * - Reduced duplication and maintenance
+ * - Registry remains protocol-agnostic and lightweight
  * 
  * @example Reference Customer object
  * ```json
@@ -266,6 +278,7 @@ export const ApiResponseSchema = z.object({
 });
 
 export type ApiResponse = z.infer<typeof ApiResponseSchema>;
+export type ApiResponseInput = z.input<typeof ApiResponseSchema>;
 
 /**
  * API Endpoint Registration Schema
@@ -514,6 +527,7 @@ export const ApiEndpointRegistrationSchema = z.object({
 });
 
 export type ApiEndpointRegistration = z.infer<typeof ApiEndpointRegistrationSchema>;
+export type ApiEndpointRegistrationInput = z.input<typeof ApiEndpointRegistrationSchema>;
 
 // ==========================================
 // API Registry Entry
@@ -543,6 +557,7 @@ export const ApiMetadataSchema = z.object({
 });
 
 export type ApiMetadata = z.infer<typeof ApiMetadataSchema>;
+export type ApiMetadataInput = z.input<typeof ApiMetadataSchema>;
 
 /**
  * API Registry Entry Schema
@@ -629,6 +644,7 @@ export const ApiRegistryEntrySchema = z.object({
 });
 
 export type ApiRegistryEntry = z.infer<typeof ApiRegistryEntrySchema>;
+export type ApiRegistryEntryInput = z.input<typeof ApiRegistryEntrySchema>;
 
 // ==========================================
 // API Registry

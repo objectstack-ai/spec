@@ -11,6 +11,8 @@ export * from './types.js';
 export * from './logger.js';
 export * from './plugin-loader.js';
 export * from './enhanced-kernel.js';
+export * from './api-registry.js';
+export * from './api-registry-plugin.js';
 export * as QA from './qa/index.js';
 
 // Re-export contracts from @objectstack/spec for backward compatibility
