@@ -85,9 +85,15 @@ export const serveCommand = new Command('serve')
       
       // Create kernel instance
       console.log(chalk.yellow(`🔧 Initializing ObjectStack kernel...`));
+      
+      // Auto-configure pretty logging in development mode
+      const isDev = options.dev || process.env.NODE_ENV === 'development';
+      const loggerConfig = isDev ? { format: 'pretty' } : undefined;
+
       const kernel = new ObjectKernel({
         metadata: config.metadata || {},
         objects: config.objects || {},
+        logger: loggerConfig
       });
 
       // Load plugins from configuration
