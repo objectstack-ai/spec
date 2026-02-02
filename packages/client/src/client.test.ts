@@ -15,7 +15,12 @@ describe('ObjectStackClient', () => {
     it('should make discovery request on connect', async () => {
         const fetchMock = vi.fn().mockResolvedValue({
             ok: true,
-            json: async () => ({ routes: { data: '/api/v1/data' } })
+            json: async () => ({ 
+                version: 'v1', 
+                apiName: 'ObjectStack',
+                capabilities: ['metadata', 'data', 'ui'],
+                endpoints: {}
+            })
         });
 
         const client = new ObjectStackClient({ 
