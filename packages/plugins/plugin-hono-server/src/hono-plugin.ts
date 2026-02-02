@@ -37,6 +37,11 @@ export class HonoServerPlugin implements Plugin {
     name = 'com.objectstack.server.hono';
     version = '0.9.0';
     
+    // Constants
+    private static readonly DEFAULT_ENDPOINT_PRIORITY = 100;
+    private static readonly CORE_ENDPOINT_PRIORITY = 950;
+    private static readonly DISCOVERY_ENDPOINT_PRIORITY = 900;
+    
     private options: HonoPluginOptions;
     private server: HonoHttpServer;
 
@@ -62,6 +67,16 @@ export class HonoServerPlugin implements Plugin {
         // Register HTTP server service as IHttpServer
         ctx.registerService('http-server', this.server);
         ctx.logger.info('HTTP server service registered', { serviceName: 'http-server' });
+    }
+
+    /**
+     * Helper to create cache request object from HTTP headers
+     */
+    private createCacheRequest(headers: any) {
+        return {
+            ifNoneMatch: headers['if-none-match'] as string,
+            ifModifiedSince: headers['if-modified-since'] as string,
+        };
     }
 
     /**
@@ -139,7 +154,7 @@ export class HonoServerPlugin implements Plugin {
                     statusCode: 200,
                     description: 'API discovery information'
                 }],
-                priority: 900
+                priority: HonoServerPlugin.DISCOVERY_ENDPOINT_PRIORITY
             });
         }
 
@@ -158,7 +173,7 @@ export class HonoServerPlugin implements Plugin {
                         statusCode: 200,
                         description: 'List of metadata types'
                     }],
-                    priority: 900
+                    priority: HonoServerPlugin.DISCOVERY_ENDPOINT_PRIORITY
                 },
                 {
                     id: 'get_meta_items',
@@ -176,7 +191,7 @@ export class HonoServerPlugin implements Plugin {
                         statusCode: 200,
                         description: 'List of metadata items'
                     }],
-                    priority: 900
+                    priority: HonoServerPlugin.DISCOVERY_ENDPOINT_PRIORITY
                 },
                 {
                     id: 'get_meta_item_cached',
@@ -213,7 +228,7 @@ export class HonoServerPlugin implements Plugin {
                             description: 'Not Modified'
                         }
                     ],
-                    priority: 900
+                    priority: HonoServerPlugin.DISCOVERY_ENDPOINT_PRIORITY
                 }
             );
         }
@@ -240,7 +255,7 @@ export class HonoServerPlugin implements Plugin {
                         statusCode: 200,
                         description: 'List of records'
                     }],
-                    priority: 950
+                    priority: HonoServerPlugin.CORE_ENDPOINT_PRIORITY
                 },
                 // Get by ID
                 {
@@ -273,7 +288,7 @@ export class HonoServerPlugin implements Plugin {
                             description: 'Record not found'
                         }
                     ],
-                    priority: 950
+                    priority: HonoServerPlugin.CORE_ENDPOINT_PRIORITY
                 },
                 // Create
                 {
@@ -296,7 +311,7 @@ export class HonoServerPlugin implements Plugin {
                         statusCode: 201,
                         description: 'Record created'
                     }],
-                    priority: 950
+                    priority: HonoServerPlugin.CORE_ENDPOINT_PRIORITY
                 },
                 // Update
                 {
@@ -327,7 +342,7 @@ export class HonoServerPlugin implements Plugin {
                         statusCode: 200,
                         description: 'Record updated'
                     }],
-                    priority: 950
+                    priority: HonoServerPlugin.CORE_ENDPOINT_PRIORITY
                 },
                 // Delete
                 {
@@ -354,7 +369,7 @@ export class HonoServerPlugin implements Plugin {
                         statusCode: 200,
                         description: 'Record deleted'
                     }],
-                    priority: 950
+                    priority: HonoServerPlugin.CORE_ENDPOINT_PRIORITY
                 }
             );
         }
@@ -384,7 +399,7 @@ export class HonoServerPlugin implements Plugin {
                         statusCode: 200,
                         description: 'Batch operation completed'
                     }],
-                    priority: 900
+                    priority: HonoServerPlugin.DISCOVERY_ENDPOINT_PRIORITY
                 },
                 {
                     id: 'create_many_data',
@@ -406,7 +421,7 @@ export class HonoServerPlugin implements Plugin {
                         statusCode: 201,
                         description: 'Records created'
                     }],
-                    priority: 900
+                    priority: HonoServerPlugin.DISCOVERY_ENDPOINT_PRIORITY
                 },
                 {
                     id: 'update_many_data',
@@ -428,7 +443,7 @@ export class HonoServerPlugin implements Plugin {
                         statusCode: 200,
                         description: 'Records updated'
                     }],
-                    priority: 900
+                    priority: HonoServerPlugin.DISCOVERY_ENDPOINT_PRIORITY
                 },
                 {
                     id: 'delete_many_data',
@@ -450,7 +465,7 @@ export class HonoServerPlugin implements Plugin {
                         statusCode: 200,
                         description: 'Records deleted'
                     }],
-                    priority: 900
+                    priority: HonoServerPlugin.DISCOVERY_ENDPOINT_PRIORITY
                 }
             );
         }
@@ -489,7 +504,7 @@ export class HonoServerPlugin implements Plugin {
                     description: 'View not found'
                 }
             ],
-            priority: 900
+            priority: HonoServerPlugin.DISCOVERY_ENDPOINT_PRIORITY
         });
 
         // Register the API in the registry
@@ -542,7 +557,10 @@ export class HonoServerPlugin implements Plugin {
         }
 
         // Sort by priority (highest first)
-        allEndpoints.sort((a, b) => (b.endpoint.priority || 100) - (a.endpoint.priority || 100));
+        allEndpoints.sort((a, b) => 
+            (b.endpoint.priority || HonoServerPlugin.DEFAULT_ENDPOINT_PRIORITY) - 
+            (a.endpoint.priority || HonoServerPlugin.DEFAULT_ENDPOINT_PRIORITY)
+        );
 
         // Bind routes
         for (const { api: apiId, endpoint } of allEndpoints) {
@@ -623,10 +641,7 @@ export class HonoServerPlugin implements Plugin {
                     const result = await p.getMetaItemCached({ 
                         type: req.params.type, 
                         name: req.params.name,
-                        cacheRequest: {
-                            ifNoneMatch: req.headers['if-none-match'] as string,
-                            ifModifiedSince: req.headers['if-modified-since'] as string,
-                        }
+                        cacheRequest: this.createCacheRequest(req.headers)
                     });
                     
                     if (result.notModified) {
@@ -969,10 +984,7 @@ export class HonoServerPlugin implements Plugin {
                 ifNoneMatch: req.headers['if-none-match']
             });
             try {
-                const cacheRequest = {
-                    ifNoneMatch: req.headers['if-none-match'] as string,
-                    ifModifiedSince: req.headers['if-modified-since'] as string,
-                };
+                const cacheRequest = this.createCacheRequest(req.headers);
                 
                 const result = await p.getMetaItemCached({ 
                     type: req.params.type, 
