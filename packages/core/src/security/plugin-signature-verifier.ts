@@ -1,6 +1,18 @@
 import type { Logger } from '@objectstack/spec/contracts';
 import type { PluginMetadata } from '../plugin-loader.js';
 
+// Conditionally import crypto for Node.js environments
+let cryptoModule: typeof import('crypto') | null = null;
+if (typeof window === 'undefined') {
+  try {
+    // Dynamic import for Node.js crypto module
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    cryptoModule = require('crypto');
+  } catch {
+    // Crypto module not available (e.g., browser environment)
+  }
+}
+
 /**
  * Plugin Signature Configuration
  * Controls how plugin signatures are verified
@@ -217,18 +229,15 @@ export class PluginSignatureVerifier {
   }
   
   private computePluginHashNode(plugin: PluginMetadata): string {
-    // Import crypto dynamically to avoid breaking browser builds
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const crypto = require('crypto');
-      
-      // Compute hash of plugin code
-      const pluginCode = this.serializePluginCode(plugin);
-      return crypto.createHash('sha256').update(pluginCode).digest('hex');
-    } catch (error) {
-      this.logger.warn('crypto module not available, using fallback hash', error as Error);
+    // Use pre-loaded crypto module
+    if (!cryptoModule) {
+      this.logger.warn('crypto module not available, using fallback hash');
       return this.computePluginHashFallback(plugin);
     }
+    
+    // Compute hash of plugin code
+    const pluginCode = this.serializePluginCode(plugin);
+    return cryptoModule.createHash('sha256').update(pluginCode).digest('hex');
   }
   
   private computePluginHashBrowser(plugin: PluginMetadata): string {
@@ -291,17 +300,32 @@ export class PluginSignatureVerifier {
     signature: string,
     publicKey: string
   ): boolean {
+    if (!cryptoModule) {
+      this.logger.error('Crypto module not available for signature verification');
+      return false;
+    }
+    
     try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const crypto = require('crypto');
-      
       // Create verify object based on algorithm
-      const algorithm = this.config.algorithm === 'ES256' ? 'sha256' : 'SHA256';
-      const verify = crypto.createVerify(algorithm);
-      verify.update(data);
-      
-      // Verify signature
-      return verify.verify(publicKey, signature, 'base64');
+      if (this.config.algorithm === 'ES256') {
+        // ECDSA verification
+        const verify = cryptoModule.createVerify('SHA256');
+        verify.update(data);
+        return verify.verify(
+          {
+            key: publicKey,
+            format: 'pem',
+            type: 'spki',
+          },
+          signature,
+          'base64'
+        );
+      } else {
+        // RSA verification (RS256)
+        const verify = cryptoModule.createVerify('RSA-SHA256');
+        verify.update(data);
+        return verify.verify(publicKey, signature, 'base64');
+      }
     } catch (error) {
       this.logger.error('Signature verification failed', error as Error);
       return false;
