@@ -7,6 +7,40 @@
 - **Find by Category**: Browse protocols by domain (Data, UI, System, etc.)
 - **Find by Example**: Every protocol links to practical examples
 - **Find by Feature**: Use the index to jump to specific features
+- **Client SDKs**: See [Client SDK](#client-sdk) section for TypeScript and React integration
+
+---
+
+## 🔌 Client SDK
+
+Access ObjectStack from your applications using the official client libraries:
+
+| SDK | Description | Documentation | Status |
+|-----|-------------|---------------|--------|
+| **@objectstack/client** | Official TypeScript client with metadata caching, batch operations, and view storage | [Client SDK Docs](./content/docs/references/client-sdk/) | ✅ |
+| **@objectstack/client-react** | React hooks for data fetching, mutations, pagination, and infinite scrolling | [React Hooks Docs](./content/docs/references/client-sdk/react-hooks.mdx) | ✅ |
+
+**Quick Start:**
+```typescript
+import { ObjectStackClient } from '@objectstack/client';
+
+const client = new ObjectStackClient({ baseUrl: 'http://localhost:3004' });
+await client.connect();
+
+// Query data with filtering and sorting
+const tasks = await client.data.find('todo_task', {
+  filters: ['status', '=', 'active'],
+  sort: ['-priority'],
+  top: 10
+});
+
+// Batch operations with transaction support
+await client.data.batch('todo_task', {
+  operation: 'update',
+  records: [/* ... */],
+  options: { atomic: true }
+});
+```
 
 ---
 

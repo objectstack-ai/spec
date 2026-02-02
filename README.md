@@ -61,6 +61,49 @@ ObjectStack is a metadata-driven platform built on three foundational protocols:
 
 ## 🚀 Quick Start
 
+### For Application Developers (Using the Client SDK)
+
+If you want to build applications using ObjectStack:
+
+```bash
+# Install the client SDK
+pnpm add @objectstack/client
+
+# For React applications
+pnpm add @objectstack/client-react
+```
+
+```typescript
+import { ObjectStackClient } from '@objectstack/client';
+
+// Connect to your ObjectStack server
+const client = new ObjectStackClient({
+  baseUrl: 'http://localhost:3004'
+});
+
+await client.connect();
+
+// Query data
+const tasks = await client.data.find('todo_task', {
+  select: ['subject', 'priority'],
+  filters: ['status', '=', 'active'],
+  sort: ['-priority'],
+  top: 10
+});
+
+// Create data
+await client.data.create('todo_task', {
+  subject: 'New Task',
+  priority: 1
+});
+```
+
+📖 **[View Client SDK Documentation](./content/docs/references/client-sdk/)** - Complete SDK reference with React hooks
+
+### For Protocol Developers (Contributing to ObjectStack)
+
+If you want to contribute to the ObjectStack protocol or build plugins:
+
 ```bash
 # 1. Install dependencies
 pnpm install

@@ -200,21 +200,40 @@ ObjectStack is organized as a **monorepo** with distinct package layers:
 
 #### `@objectstack/client`
 **Location**: `packages/client/`  
-**Role**: Client SDK
+**Role**: Official TypeScript Client SDK for ObjectStack Protocol
 
-- Client-side API wrapper
-- Request/response handling
-- Type-safe API calls
+**Features**:
+- **Auto-Discovery**: Connects to ObjectStack server and auto-configures API endpoints
+- **Typed Metadata**: Retrieve Object and View definitions with full TypeScript support
+- **Metadata Caching**: ETag-based conditional requests for efficient metadata caching
+- **Data Operations**: 
+  - Advanced queries with filtering, sorting, and field selection
+  - CRUD operations (create, read, update, delete)
+  - Batch operations with transaction support (batch create/update/upsert/delete)
+  - Query builder with type-safe filters
+- **View Storage**: Save, load, share, and manage custom UI view configurations
+- **Error Handling**: Standardized error codes with retry guidance
+- **HTTP Caching**: ETag support for optimized metadata requests
+
+**API Surface**:
+- `client.connect()`: Initialize client with server discovery
+- `client.meta.*`: Metadata operations (getObject, getCached, getView)
+- `client.data.*`: Data operations (find, get, query, create, batch, update, delete)
+- `client.views.*`: View storage operations (create, get, list, update, delete, share)
 
 **Dependencies**: `@objectstack/core`, `@objectstack/spec`
 
 #### `@objectstack/client-react`
 **Location**: `packages/client-react/`  
-**Role**: React Hooks
+**Role**: React Hooks for ObjectStack Client SDK
 
-- React hooks for ObjectStack
-- State management integration
-- React Query / SWR patterns
+**Features**:
+- **Data Hooks**: `useQuery`, `useMutation`, `usePagination`, `useInfiniteQuery`
+- **Metadata Hooks**: `useObject`, `useView`, `useFields`, `useMetadata`
+- **Context Management**: `ObjectStackProvider`, `useClient`
+- **Type Safety**: Full TypeScript generics support for type-safe data
+- **Auto-refetch**: Automatic data refetching and caching
+- **Loading States**: Built-in loading and error state management
 
 **Dependencies**: `@objectstack/client`, `@objectstack/core`, `@objectstack/spec`  
 **Peer Dependencies**: `react`
