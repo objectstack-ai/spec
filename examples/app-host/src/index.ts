@@ -5,9 +5,9 @@ import { HonoServerPlugin } from '@objectstack/plugin-hono-server';
 import { MetadataPlugin } from '@objectstack/metadata';
 import path from 'path';
 
-import CrmApp from '@objectstack/example-crm/objectstack.config';
-import TodoApp from '@objectstack/example-todo/objectstack.config';
-import BiPluginManifest from '@objectstack/plugin-bi/objectstack.config';
+import CrmApp from '@example/app-crm/objectstack.config';
+import TodoApp from '@example/app-todo/objectstack.config';
+import BiPluginManifest from '@example/plugin-bi/objectstack.config';
 
 (async () => {
   console.log('🚀 Booting Kernel...');

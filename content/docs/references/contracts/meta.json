@@ -1,14 +1,3 @@
 {
-  "title": "Contracts",
-  "pages": [
-    "index",
-    "data-engine",
-    "plugin-validator",
-    "logger",
-    "http-server",
-    "schema-driver",
-    "service-registry",
-    "plugin-lifecycle-events",
-    "startup-orchestrator"
-  ]
+  "title": "Contracts Protocol"
 }

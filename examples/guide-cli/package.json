@@ -1,5 +1,5 @@
 {
-  "name": "@examples/cli-usage",
+  "name": "@example/guide-cli",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -12,6 +12,6 @@
   "dependencies": {
     "@objectstack/cli": "workspace:*",
     "@objectstack/spec": "workspace:*",
-    "@objectstack/plugin-bi": "workspace:*"
+    "@example/plugin-bi": "workspace:*"
   }
 }

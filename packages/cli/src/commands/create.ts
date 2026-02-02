@@ -96,7 +96,7 @@ MIT
     description: 'Create a new ObjectStack example application',
     files: {
       'package.json': (name: string) => ({
-        name: `@objectstack/example-${name}`,
+        name: `@example/${name}`,
         version: '0.1.0',
         private: true,
         description: `ObjectStack Example: ${name}`,

@@ -173,10 +173,10 @@ pnpm install
 pnpm --filter @objectstack/spec build
 
 # Build this example
-pnpm --filter @objectstack/example-crm build
+pnpm --filter @example/app-crm build
 
 # Run type checking
-pnpm --filter @objectstack/example-crm typecheck
+pnpm --filter @example/app-crm typecheck
 ```
 
 ## 📖 Learning Resources

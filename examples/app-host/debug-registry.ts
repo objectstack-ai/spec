@@ -3,7 +3,7 @@ import { ObjectKernel, DriverPlugin, AppPlugin } from '@objectstack/runtime';
 import { SchemaRegistry, ObjectQL, ObjectQLPlugin } from '@objectstack/objectql';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 
-import TodoApp from '@objectstack/example-todo/objectstack.config';
+import TodoApp from '@example/app-todo/objectstack.config';
 
 (async () => {
     console.log('--- Debug Registry ---');

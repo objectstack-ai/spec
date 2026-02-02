@@ -1,5 +1,5 @@
 {
-  "name": "@objectstack/example-msw-react-crud",
+  "name": "@example/app-react-crud",
   "version": "0.9.0",
   "description": "Complete MSW integration example with React CRUD components using ObjectStack Client",
   "private": true,
@@ -14,7 +14,7 @@
     "@objectstack/client": "workspace:*",
     "@objectstack/client-react": "workspace:*",
     "@objectstack/driver-memory": "workspace:*",
-    "@objectstack/example-todo": "workspace:*",
+    "@example/app-todo": "workspace:*",
     "@objectstack/plugin-msw": "workspace:*",
     "@objectstack/runtime": "workspace:*",
     "@objectstack/objectql": "workspace:*",

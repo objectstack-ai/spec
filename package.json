@@ -5,8 +5,8 @@
   "description": "ObjectStack Protocol & Specification - Monorepo for TypeScript Interfaces, JSON Schemas, and Convention Configurations",
   "scripts": {
     "build": "pnpm -r build",
-    "dev": "pnpm -r --filter @objectstack/example-host dev",
-    "dev:msw": "pnpm --filter @objectstack/client-react build && pnpm -r --filter @objectstack/example-msw-react-crud dev",
+    "dev": "pnpm -r --filter @example/app-host dev",
+    "dev:msw": "pnpm --filter @objectstack/client-react build && pnpm -r --filter @example/app-react-crud dev",
     "test": "pnpm --filter @objectstack/spec test",
     "clean": "pnpm -r --parallel clean && rm -rf dist",
     "doctor": "pnpm --filter @objectstack/cli build && node packages/cli/bin/objectstack.js doctor",

@@ -1,5 +1,5 @@
 {
-  "name": "@objectstack/example-features",
+  "name": "@example/features",
   "version": "0.9.0",
   "description": "Feature examples demonstrating ObjectStack core protocols",
   "private": true,

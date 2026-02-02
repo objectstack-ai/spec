@@ -101,67 +101,39 @@ importers:
         specifier: 4.3.6
         version: 4.3.6
 
-  examples/basic:
+  examples/app-crm:
     dependencies:
-      '@objectstack/core':
-        specifier: workspace:*
-        version: link:../../packages/core
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../packages/spec
     devDependencies:
-      tsx:
-        specifier: ^4.21.0
-        version: 4.21.0
+      '@objectstack/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
 
-  examples/cli-usage:
+  examples/app-host:
     dependencies:
-      '@objectstack/cli':
+      '@example/app-crm':
         specifier: workspace:*
-        version: link:../../packages/cli
-      '@objectstack/plugin-bi':
+        version: link:../app-crm
+      '@example/app-todo':
+        specifier: workspace:*
+        version: link:../app-todo
+      '@example/plugin-bi':
         specifier: workspace:*
         version: link:../plugin-bi
-      '@objectstack/spec':
-        specifier: workspace:*
-        version: link:../../packages/spec
-
-  examples/crm:
-    dependencies:
-      '@objectstack/spec':
-        specifier: workspace:*
-        version: link:../../packages/spec
-    devDependencies:
-      '@objectstack/cli':
-        specifier: workspace:*
-        version: link:../../packages/cli
-      typescript:
-        specifier: ^5.0.0
-        version: 5.9.3
-
-  examples/host:
-    dependencies:
       '@objectstack/driver-memory':
         specifier: workspace:*
         version: link:../../packages/plugins/driver-memory
-      '@objectstack/example-crm':
-        specifier: workspace:*
-        version: link:../crm
-      '@objectstack/example-todo':
-        specifier: workspace:*
-        version: link:../todo
       '@objectstack/metadata':
         specifier: workspace:*
         version: link:../../packages/metadata
       '@objectstack/objectql':
         specifier: workspace:*
         version: link:../../packages/objectql
-      '@objectstack/plugin-bi':
-        specifier: workspace:*
-        version: link:../plugin-bi
       '@objectstack/plugin-hono-server':
         specifier: workspace:*
         version: link:../../packages/plugins/plugin-hono-server
@@ -179,8 +151,11 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
-  examples/msw-react-crud:
+  examples/app-react-crud:
     dependencies:
+      '@example/app-todo':
+        specifier: workspace:*
+        version: link:../app-todo
       '@objectstack/client':
         specifier: workspace:*
         version: link:../../packages/client
@@ -190,9 +165,6 @@ importers:
       '@objectstack/driver-memory':
         specifier: workspace:*
         version: link:../../packages/plugins/driver-memory
-      '@objectstack/example-todo':
-        specifier: workspace:*
-        version: link:../todo
       '@objectstack/objectql':
         specifier: workspace:*
         version: link:../../packages/objectql
@@ -243,15 +215,49 @@ importers:
         specifier: ^7.3.1
         version: 7.3.1(@types/node@25.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)
 
-  examples/plugin-advanced-crm:
+  examples/app-todo:
     dependencies:
+      '@objectstack/client':
+        specifier: workspace:*
+        version: link:../../packages/client
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../packages/spec
     devDependencies:
+      '@objectstack/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
+
+  examples/features:
+    dependencies:
+      '@objectstack/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../../packages/spec
+    devDependencies:
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
+  examples/guide-cli:
+    dependencies:
+      '@example/plugin-bi':
+        specifier: workspace:*
+        version: link:../plugin-bi
+      '@objectstack/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../../packages/spec
 
   examples/plugin-bi:
     dependencies:
@@ -266,18 +272,12 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
-  examples/todo:
+  examples/plugin-crm:
     dependencies:
-      '@objectstack/client':
-        specifier: workspace:*
-        version: link:../../packages/client
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../packages/spec
     devDependencies:
-      '@objectstack/cli':
-        specifier: workspace:*
-        version: link:../../packages/cli
       typescript:
         specifier: ^5.0.0
         version: 5.9.3

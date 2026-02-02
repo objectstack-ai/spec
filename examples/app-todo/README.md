@@ -53,10 +53,10 @@ This package is part of the `examples` workspace. To build and verify:
 pnpm install
 
 # Build the example
-pnpm --filter @objectstack/example-todo build
+pnpm --filter @example/app-todo build
 
 # Run type checking
-pnpm --filter @objectstack/example-todo typecheck
+pnpm --filter @example/app-todo typecheck
 ```
 
 ## 📖 Learning Path

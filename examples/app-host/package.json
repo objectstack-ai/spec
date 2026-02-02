@@ -1,5 +1,5 @@
 {
-  "name": "@objectstack/example-host",
+  "name": "@example/app-host",
   "version": "0.9.0",
   "private": true,
   "scripts": {
@@ -9,11 +9,11 @@
   },
   "dependencies": {
     "@objectstack/driver-memory": "workspace:*",
-    "@objectstack/example-crm": "workspace:*",
-    "@objectstack/example-todo": "workspace:*",
+    "@example/app-crm": "workspace:*",
+    "@example/app-todo": "workspace:*",
     "@objectstack/metadata": "workspace:*",
     "@objectstack/objectql": "workspace:*",
-    "@objectstack/plugin-bi": "workspace:*",
+    "@example/plugin-bi": "workspace:*",
     "@objectstack/plugin-hono-server": "workspace:*",
     "@objectstack/runtime": "workspace:*"
   },
