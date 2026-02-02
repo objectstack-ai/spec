@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "tsx src/index.ts",
     "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rm -rf dist node_modules"
   },
   "dependencies": {

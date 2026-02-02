@@ -5,7 +5,9 @@
   "private": true,
   "scripts": {
     "dev": "objectstack dev",
-    "build": "objectstack compile objectstack.config.ts dist/objectstack.json"
+    "build": "objectstack compile objectstack.config.ts dist/objectstack.json",
+    "typecheck": "tsc --noEmit",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "@objectstack/spec": "workspace:*",

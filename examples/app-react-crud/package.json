@@ -8,6 +8,8 @@
     "msw:init": "msw init -y public",
     "dev": "pnpm msw:init && vite",
     "build": "pnpm msw:init && tsc && vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "echo \"Error: no test specified\" && exit 1",
     "preview": "vite preview"
   },
   "dependencies": {
