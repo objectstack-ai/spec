@@ -29,7 +29,6 @@
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
     "@types/node": "^25.1.0",
-    "pino-pretty": "^10.3.1",
     "tsx": "^4.21.0",
     "typescript": "^5.3.0"
   },
