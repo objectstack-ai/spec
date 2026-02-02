@@ -136,7 +136,8 @@ export class ObjectStackClient {
 
     /**
      * Get a specific object definition by name
-     * Legacy method - prefer getItem for consistency
+     * @deprecated Use `getItem('object', name)` instead for consistency with spec protocol
+     * @param name - Object name (snake_case identifier)
      */
     getObject: async (name: string) => {
         const route = this.getRoute('metadata');
