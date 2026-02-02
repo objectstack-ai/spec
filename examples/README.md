@@ -21,7 +21,6 @@ Welcome to the ObjectStack examples catalog! This directory contains carefully c
 | **Data (ObjectQL)** | [Basic Data](./basic/), [CRM Objects](./crm/), [Todo](./todo/) | ✅ Complete |
 | **UI (ObjectUI)** | [Basic UI](./basic/), [CRM UI](./crm/), [MSW React](./msw-react-crud/) | ✅ Complete |
 | **System (ObjectOS)** | [Basic System](./basic/), [Host Server](./host/), [Middleware](./middleware-example.ts) | ✅ Complete |
-| **AI** | [AI Sales](./ai-sales/), [AI Support](./ai-support/), [AI Analyst](./ai-analyst/), [AI Codegen](./ai-codegen/), [Basic AI/RAG](./basic/) | ✅ Complete |
 | **Automation** | [Basic Automation](./basic/automation-example.ts), [CRM Workflows](./crm/) | ✅ Complete |
 | **Auth & Permissions** | [Basic Auth](./basic/auth-permission-example.ts), [CRM Permissions](./crm/) | ✅ Complete |
 | **API** | [REST Server](./rest-server-example.ts), [API Discovery](./basic/api-discovery-example.ts), [Host Server](./host/) | ✅ Complete |
@@ -63,7 +62,6 @@ Comprehensive standalone examples for every core protocol. Each file is self-con
 - [`stack-definition-example.ts`](./basic/stack-definition-example.ts) - Complete stack configuration patterns
 - [`capabilities-example.ts`](./basic/capabilities-example.ts) - Runtime capabilities
 - [`api-discovery-example.ts`](./basic/api-discovery-example.ts) - API introspection
-- [`ai-rag-example.ts`](./basic/ai-rag-example.ts) - RAG pipeline and AI agents
 - [`auth-permission-example.ts`](./basic/auth-permission-example.ts) - RBAC, RLS, sharing
 - [`automation-example.ts`](./basic/automation-example.ts) - Workflows, flows, ETL
 - [`logger-example.ts`](./basic/logger-example.ts) - Structured logging
