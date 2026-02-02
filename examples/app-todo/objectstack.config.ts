@@ -4,10 +4,10 @@ import { TodoTask } from './src/domains/todo/task.object';
 
 // Runtime Plugins
 import { ObjectQLPlugin } from '@objectstack/objectql';
-import { AppPlugin, DriverPlugin } from '@objectstack/runtime';
+import { DriverPlugin } from '@objectstack/runtime';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 
-const stackConfig = defineStack({
+export default defineStack({
   objects: [
     TodoTask
   ],
@@ -54,16 +54,10 @@ const stackConfig = defineStack({
         ]
       }
     ]
-  }
-});
-
-// Export with Runtime Plugins injected
-export default {
-  ...stackConfig,
+  },
   plugins: [
     new ObjectQLPlugin(),
-    new DriverPlugin(new InMemoryDriver()),
-    new AppPlugin(stackConfig)
+    new DriverPlugin(new InMemoryDriver())
   ]
-};
+});
 

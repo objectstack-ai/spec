@@ -96,6 +96,17 @@ export const serveCommand = new Command('serve')
         logger: loggerConfig
       });
 
+      // Auto-register AppPlugin if config contains app definitions
+      if (config.objects || config.manifest || config.apps) {
+        try {
+           const { AppPlugin } = await import('@objectstack/runtime');
+           kernel.use(new AppPlugin(config));
+           console.log(chalk.green(`  ✓ Registered App Plugin (auto-detected)`));
+        } catch (e: any) {
+           console.warn(chalk.yellow(`  ⚠ Could not auto-load AppPlugin: ${e.message}`));
+        }
+      }
+
       // Load plugins from configuration
       let plugins = config.plugins || [];
 

@@ -299,6 +299,9 @@ importers:
       '@objectstack/plugin-hono-server':
         specifier: workspace:*
         version: link:../plugins/plugin-hono-server
+      '@objectstack/runtime':
+        specifier: workspace:^
+        version: link:../runtime
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../spec
