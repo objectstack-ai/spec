@@ -220,6 +220,15 @@ importers:
       '@objectstack/client':
         specifier: workspace:*
         version: link:../../packages/client
+      '@objectstack/driver-memory':
+        specifier: workspace:^
+        version: link:../../packages/plugins/driver-memory
+      '@objectstack/objectql':
+        specifier: workspace:^
+        version: link:../../packages/objectql
+      '@objectstack/runtime':
+        specifier: workspace:^
+        version: link:../../packages/runtime
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../packages/spec

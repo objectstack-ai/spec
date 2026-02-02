@@ -10,11 +10,14 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@objectstack/spec": "workspace:*",
-    "@objectstack/client": "workspace:*"
+    "@objectstack/client": "workspace:*",
+    "@objectstack/driver-memory": "workspace:^",
+    "@objectstack/objectql": "workspace:^",
+    "@objectstack/runtime": "workspace:^",
+    "@objectstack/spec": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.0.0",
-    "@objectstack/cli": "workspace:*"
+    "@objectstack/cli": "workspace:*",
+    "typescript": "^5.0.0"
   }
 }

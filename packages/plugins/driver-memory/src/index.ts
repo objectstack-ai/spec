@@ -1,4 +1,4 @@
-import { InMemoryDriver } from './memory-driver';
+import { InMemoryDriver } from './memory-driver.js';
 
 export { InMemoryDriver }; // Export class for direct usage
 
