@@ -1,0 +1,16 @@
+{
+  "name": "@examples/cli-usage",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "objectstack dev",
+    "serve": "objectstack serve",
+    "build": "objectstack compile",
+    "doctor": "objectstack doctor",
+    "debug": "node --inspect-brk node_modules/.bin/objectstack serve"
+  },
+  "dependencies": {
+    "@objectstack/cli": "workspace:*",
+    "@objectstack/spec": "workspace:*"
+  }
+}

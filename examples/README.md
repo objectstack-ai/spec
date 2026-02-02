@@ -148,6 +148,28 @@ pnpm dev
 
 **Complete server implementation** showing how to build a metadata-driven backend.
 
+---
+
+### CLI Usage Example
+**Path:** [`examples/cli-usage/`](./cli-usage/)  
+**Level:** 🟢 Beginner  
+**Protocols:** System  
+
+**CLI Development Workflow** - Learn how to use `@objectstack/cli` for development and debugging.
+
+**What you'll learn:**
+- Setting up a project for CLI
+- `dev` vs `serve` commands
+- Debugging configurations for VS Code
+- Project structure best practices
+
+**Quick Start:**
+```bash
+cd examples/cli-usage
+pnpm install
+pnpm dev
+```
+
 **Features:**
 - Dynamic schema loading from plugins
 - Auto-generated REST APIs
