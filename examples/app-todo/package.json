@@ -4,6 +4,7 @@
   "description": "Example Todo App using ObjectStack Protocol",
   "private": true,
   "scripts": {
+    "dev": "objectstack dev",
     "build": "objectstack compile objectstack.config.ts dist/objectstack.json"
   },
   "dependencies": {
