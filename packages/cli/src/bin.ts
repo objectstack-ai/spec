@@ -1,3 +1,4 @@
+import { createRequire } from 'module';
 import { Command } from 'commander';
 import { compileCommand } from './commands/compile.js';
 import { devCommand } from './commands/dev.js';
@@ -6,12 +7,15 @@ import { createCommand } from './commands/create.js';
 import { serveCommand } from './commands/serve.js';
 import { testCommand } from './commands/test.js';
 
+const require = createRequire(import.meta.url);
+const pkg = require('../package.json');
+
 const program = new Command();
 
 program
   .name('objectstack')
   .description('CLI for ObjectStack Protocol - Development Tools for Microkernel Architecture')
-  .version('0.8.0');
+  .version(pkg.version);
 
 // Add all commands
 program.addCommand(compileCommand);
