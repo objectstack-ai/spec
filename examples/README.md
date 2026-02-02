@@ -185,34 +185,6 @@ pnpm dev
 
 ---
 
-### AI Examples
-
-#### AI Sales Assistant
-**Path:** [`examples/ai-sales/`](./ai-sales/)  
-**Protocols:** AI (Agent, RAG, NLQ)
-
-Intelligent sales automation with lead qualification, email personalization, and opportunity insights.
-
-#### AI Support Assistant
-**Path:** [`examples/ai-support/`](./ai-support/)  
-**Protocols:** AI (Agent, RAG, Model Registry)
-
-RAG-powered customer support with vector search knowledge base.
-
-#### AI Data Analyst
-**Path:** [`examples/ai-analyst/`](./ai-analyst/)  
-**Protocols:** AI (NLQ, Agent)
-
-Natural language query system transforming questions into ObjectQL queries.
-
-#### AI Code Generator
-**Path:** [`examples/ai-codegen/`](./ai-codegen/)  
-**Protocols:** AI (Agent, Orchestration)
-
-Generate complete ObjectStack applications from natural language descriptions.
-
----
-
 ### Plugin Examples
 
 #### Plugin Advanced CRM
@@ -298,13 +270,13 @@ Demonstrates plugin middleware patterns and HTTP interceptors.
 ### AI Protocol
 | Protocol | Example | Location |
 |----------|---------|----------|
-| Agent | ✅ Complete | [AI Sales](./ai-sales/), [AI Support](./ai-support/) |
-| RAG Pipeline | ✅ Complete | [AI Support](./ai-support/), [Basic RAG](./basic/ai-rag-example.ts) |
-| Model Registry | ✅ Complete | [AI Support](./ai-support/) |
-| NLQ (Natural Language Query) | ✅ Complete | [AI Analyst](./ai-analyst/) |
-| Conversation | ✅ Complete | [AI Sales](./ai-sales/) |
-| Orchestration | ✅ Complete | [AI Codegen](./ai-codegen/) |
-| Cost Tracking | 🟡 Partial | [AI Examples](./ai-support/) |
+| Agent | ✅ Complete | _Spec Only_ |
+| RAG Pipeline | ✅ Complete | _Spec Only_ |
+| Model Registry | ✅ Complete | _Spec Only_ |
+| NLQ (Natural Language Query) | ✅ Complete | _Spec Only_ |
+| Conversation | ✅ Complete | _Spec Only_ |
+| Orchestration | ✅ Complete | _Spec Only_ |
+| Cost Tracking | 🟡 Partial | _Spec Only_ |
 | Predictive Analytics | 🔴 Missing | _Planned_ |
 
 ### Automation Protocol
@@ -405,10 +377,7 @@ pnpm build
 
 #### Path 3: AI & Advanced (2-3 days)
 1. Complete Path 1 & 2
-2. Study [AI Support](./ai-support/) - RAG patterns
-3. Try [AI Analyst](./ai-analyst/) - NLQ patterns
-4. Explore [AI Codegen](./ai-codegen/) - AI orchestration
-5. Build [Host Server](./host/) - Production backend
+2. Build [Host Server](./host/) - Production backend
 
 ---
 

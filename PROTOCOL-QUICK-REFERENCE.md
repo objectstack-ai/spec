@@ -142,15 +142,15 @@ await client.data.batch('todo_task', {
 
 | Protocol | Description | Example | Status |
 |----------|-------------|---------|--------|
-| **Agent** | AI agent definition | [AI Sales](./examples/ai-sales/), [AI Support](./examples/ai-support/) | ✅ |
-| **RAG Pipeline** | Retrieval-Augmented Generation | [AI Support](./examples/ai-support/), [Basic RAG](./examples/basic/ai-rag-example.ts) | ✅ |
-| **Model Registry** | LLM configuration and routing | [AI Support](./examples/ai-support/) | ✅ |
-| **NLQ** | Natural Language Query | [AI Analyst](./examples/ai-analyst/) | ✅ |
-| **Conversation** | Conversation management | [AI Sales](./examples/ai-sales/) | ✅ |
-| **Orchestration** | AI workflow orchestration | [AI Codegen](./examples/ai-codegen/) | ✅ |
-| **Cost** | Cost tracking and budgeting | [AI Examples](./examples/ai-support/) | 🟡 |
+| **Agent** | AI agent definition | _Spec Only_ | ✅ |
+| **RAG Pipeline** | Retrieval-Augmented Generation | _Spec Only_ | ✅ |
+| **Model Registry** | LLM configuration and routing | _Spec Only_ | ✅ |
+| **NLQ** | Natural Language Query | _Spec Only_ | ✅ |
+| **Conversation** | Conversation management | _Spec Only_ | ✅ |
+| **Orchestration** | AI workflow orchestration | _Spec Only_ | ✅ |
+| **Cost** | Cost tracking and budgeting | _Spec Only_ | 🟡 |
 | **Predictive** | Predictive analytics | _Planned_ | 🔴 |
-| **Agent Action** | Agent tool calling | [AI Examples](./examples/) | ✅ |
+| **Agent Action** | Agent tool calling | _Spec Only_ | ✅ |
 
 ### Automation Protocol
 

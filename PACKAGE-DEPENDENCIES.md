@@ -118,12 +118,6 @@ This is the foundation layer. All other packages depend on `@objectstack/spec`.
 │   ├── chalk
 │   └── tsx
 └── Role: CLI tools
-
-@objectstack/ai-bridge
-├── Dependencies:
-│   ├── @objectstack/spec
-│   └── zod
-└── Role: AI integration
 ```
 
 ## Full Dependency Tree
@@ -160,8 +154,6 @@ This is the foundation layer. All other packages depend on `@objectstack/spec`.
     │       └── @objectstack/plugin-hono-server (Layer 5)
     │
     ├── @objectstack/cli (Layer 6)
-    │
-    └── @objectstack/ai-bridge (Layer 6)
 ```
 
 ## Dependency Matrix
@@ -180,7 +172,6 @@ This is the foundation layer. All other packages depend on `@objectstack/spec`.
 | `@objectstack/plugin-hono-server` | `@objectstack/core`, `@objectstack/spec`, `@objectstack/types`, `hono` |
 | `@objectstack/plugin-msw` | `@objectstack/objectql`, `@objectstack/spec`, `@objectstack/types`, `@objectstack/runtime` (peer), `msw` |
 | `@objectstack/cli` | `@objectstack/spec`, `commander`, `chalk`, `tsx` |
-| `@objectstack/ai-bridge` | `@objectstack/spec`, `zod` |
 
 ## Build Order
 
@@ -212,7 +203,6 @@ pnpm --filter @objectstack/plugin-msw build
 
 # Level 6 (Tools)
 pnpm --filter @objectstack/cli build
-pnpm --filter @objectstack/ai-bridge build
 ```
 
 Or build all in correct order:
@@ -281,7 +271,7 @@ Use peer dependencies for:
 
 | Dependency | Used By | Purpose |
 |------------|---------|---------|
-| `zod` | spec, core, ai-bridge, cli | Schema validation |
+| `zod` | spec, core, cli | Schema validation |
 | `pino` | core | Logging |
 | `pino-pretty` | core | Log formatting |
 | `hono` | plugin-hono-server | HTTP server |

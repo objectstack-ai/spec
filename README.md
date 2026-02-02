@@ -165,7 +165,6 @@ See **[DEVELOPMENT.md](./DEVELOPMENT.md)** for comprehensive development guide i
 | Package | Description | Status |
 | :--- | :--- | :--- |
 | **[`@objectstack/cli`](packages/cli)** | Command-line interface and development tools | 🟢 Active |
-| **[`@objectstack/ai-bridge`](packages/ai-bridge)** | AI agent integration bridge | 🟢 Active |
 | **[`@objectstack/docs`](apps/docs)** | Documentation site (Fumadocs + Next.js) | 🟢 Active |
 
 ### Examples
