@@ -1,0 +1,7 @@
+{
+  "$ref": "#/definitions/PluginPerformanceMonitoring",
+  "definitions": {
+    "PluginPerformanceMonitoring": {}
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
