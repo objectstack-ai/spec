@@ -1,10 +1,10 @@
-# Basic Protocol Examples
+# ObjectStack Feature Examples
 
 A standalone package containing comprehensive examples demonstrating core ObjectStack protocols and features.
 
 ## 📦 Package Information
 
-- **Package**: `@objectstack/example-basic`
+- **Package**: `@objectstack/example-features`
 - **Type**: Demonstration/Reference
 - **Status**: Standalone examples with type checking
 
@@ -20,10 +20,10 @@ pnpm install
 pnpm --filter @objectstack/spec build
 
 # Type check the examples
-pnpm --filter @objectstack/example-basic typecheck
+pnpm --filter @objectstack/example-features typecheck
 
 # Or run directly with tsx
-npx tsx examples/basic/stack-definition-example.ts
+npx tsx examples/features/stack-definition-example.ts
 ```
 
 ### Running Examples
@@ -32,7 +32,7 @@ Each example file can be run independently with `tsx`:
 
 ```bash
 # Run a specific example
-npx tsx examples/basic/stack-definition-example.ts
+npx tsx examples/features/stack-definition-example.ts
 
 # Or uncomment the demonstration function calls at the end of each file
 ```

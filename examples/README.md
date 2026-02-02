@@ -10,27 +10,27 @@ Welcome to the ObjectStack examples catalog! This directory contains carefully c
 
 | Level | Examples | Description |
 |-------|----------|-------------|
-| 🟢 **Beginner** | [Todo](#todo-app), [Basic](#basic-protocol-examples) | Start here - simple, focused examples |
-| 🟡 **Intermediate** | [CRM](#crm-example), [Plugin Advanced CRM](#plugin-advanced-crm) | Real-world applications |
-| 🔴 **Advanced** | [MSW React CRUD](#msw-react-crud), [Host Server](#host-server) | Complex integrations |
+| 🟢 **Beginner** | [App Todo](#app-todo), [Features](#features) | Start here - simple, focused examples |
+| 🟡 **Intermediate** | [App CRM](#app-crm), [Plugin CRM](#plugin-crm) | Real-world applications |
+| 🔴 **Advanced** | [App React CRUD](#app-react-crud), [App Host](#app-host) | Complex integrations |
 
 ### By Protocol Category
 
 | Protocol | Examples | Status |
 |----------|----------|--------|
-| **Data (ObjectQL)** | [Basic Data](./basic/), [CRM Objects](./crm/), [Todo](./todo/) | ✅ Complete |
-| **UI (ObjectUI)** | [Basic UI](./basic/), [CRM UI](./crm/), [MSW React](./msw-react-crud/) | ✅ Complete |
-| **System (ObjectOS)** | [Basic System](./basic/), [Host Server](./host/), [Middleware](./middleware-example.ts) | ✅ Complete |
-| **Automation** | [Basic Automation](./basic/automation-example.ts), [CRM Workflows](./crm/) | ✅ Complete |
-| **Auth & Permissions** | [Basic Auth](./basic/auth-permission-example.ts), [CRM Permissions](./crm/) | ✅ Complete |
-| **API** | [REST Server](./rest-server-example.ts), [API Discovery](./basic/api-discovery-example.ts), [Host Server](./host/) | ✅ Complete |
-| **Integration** | [Plugin BI](./plugin-bi/), [Advanced CRM Plugin](./plugin-advanced-crm/) | 🟡 Partial |
+| **Data (ObjectQL)** | [Features](./features/), [App CRM](./app-crm/), [App Todo](./app-todo/) | ✅ Complete |
+| **UI (ObjectUI)** | [Features](./features/), [App CRM](./app-crm/), [App React](./app-react-crud/) | ✅ Complete |
+| **System (ObjectOS)** | [Features](./features/), [App Host](./app-host/), [Middleware](./features/middleware-example.ts) | ✅ Complete |
+| **Automation** | [Automation Feature](./features/automation-example.ts), [App CRM](./app-crm/) | ✅ Complete |
+| **Auth & Permissions** | [Auth Feature](./features/auth-permission-example.ts), [App CRM](./app-crm/) | ✅ Complete |
+| **API** | [REST Server](./features/rest-server-example.ts), [Discovery](./features/api-discovery-example.ts), [App Host](./app-host/) | ✅ Complete |
+| **Integration** | [Plugin BI](./plugin-bi/), [Plugin CRM](./plugin-crm/) | 🟡 Partial |
 | **Hub & Marketplace** | _Coming soon_ | 🔴 Missing |
 
 ## 🎯 Example Descriptions
 
-### Todo App
-**Path:** [`examples/todo/`](./todo/)  
+### App Todo
+**Path:** [`examples/app-todo/`](./app-todo/)  
 **Level:** 🟢 Beginner  
 **Protocols:** Data, UI, System  
 
@@ -44,42 +44,45 @@ The simplest complete example. Perfect for your first ObjectStack application.
 
 **Quick Start:**
 ```bash
-cd examples/todo
+cd examples/app-todo
 pnpm install
 pnpm typecheck
 ```
 
 ---
 
-### Basic Protocol Examples
-**Path:** [`examples/basic/`](./basic/)  
+### Features
+**Path:** [`examples/features/`](./features/)  
 **Level:** 🟢 Beginner  
 **Protocols:** All (70+ protocols)  
 
 Comprehensive standalone examples for every core protocol. Each file is self-contained and runnable.
 
 **Examples included:**
-- [`stack-definition-example.ts`](./basic/stack-definition-example.ts) - Complete stack configuration patterns
-- [`capabilities-example.ts`](./basic/capabilities-example.ts) - Runtime capabilities
-- [`api-discovery-example.ts`](./basic/api-discovery-example.ts) - API introspection
-- [`auth-permission-example.ts`](./basic/auth-permission-example.ts) - RBAC, RLS, sharing
-- [`automation-example.ts`](./basic/automation-example.ts) - Workflows, flows, ETL
-- [`logger-example.ts`](./basic/logger-example.ts) - Structured logging
+- [`stack-definition-example.ts`](./features/stack-definition-example.ts) - Complete stack configuration patterns
+- [`capabilities-example.ts`](./features/capabilities-example.ts) - Runtime capabilities
+- [`api-discovery-example.ts`](./features/api-discovery-example.ts) - API introspection
+- [`auth-permission-example.ts`](./features/auth-permission-example.ts) - RBAC, RLS, sharing
+- [`automation-example.ts`](./features/automation-example.ts) - Workflows, flows, ETL
+- [`logger-example.ts`](./features/logger-example.ts) - Structured logging
+- [`rest-server-example.ts`](./features/rest-server-example.ts) - Minimal REST server
+- [`middleware-example.ts`](./features/middleware-example.ts) - Plugin middleware patterns
+- [`registry-example.ts`](./features/registry-example.ts) - API registry usage
 
 **Quick Start:**
 ```bash
 # Run any example directly
-npx tsx examples/basic/stack-definition-example.ts
+npx tsx examples/features/stack-definition-example.ts
 
 # Or type check all examples
-cd examples/basic
+cd examples/features
 pnpm typecheck
 ```
 
 ---
 
-### CRM Example
-**Path:** [`examples/crm/`](./crm/)  
+### App CRM
+**Path:** [`examples/app-crm/`](./app-crm/)  
 **Level:** 🟡 Intermediate  
 **Protocols:** Data, UI, Automation, Auth  
 
@@ -103,15 +106,15 @@ pnpm typecheck
 
 **Quick Start:**
 ```bash
-cd examples/crm
+cd examples/app-crm
 pnpm install
 pnpm build
 ```
 
 ---
 
-### MSW React CRUD
-**Path:** [`examples/msw-react-crud/`](./msw-react-crud/)  
+### App React CRUD
+**Path:** [`examples/app-react-crud/`](./app-react-crud/)  
 **Level:** 🔴 Advanced  
 **Protocols:** Data, UI, API, Client  
 
@@ -131,7 +134,7 @@ React App → Service Worker → ObjectStack Kernel → In-Memory Driver
 
 **Quick Start:**
 ```bash
-cd examples/msw-react-crud
+cd examples/app-react-crud
 pnpm install
 pnpm dev
 # Open http://localhost:5173
@@ -139,17 +142,25 @@ pnpm dev
 
 ---
 
-### Host Server
-**Path:** [`examples/host/`](./host/)  
+### App Host
+**Path:** [`examples/app-host/`](./app-host/)  
 **Level:** 🔴 Advanced  
 **Protocols:** System, API, Data  
 
-**Complete server implementation** showing how to build a metadata-driven backend.
+**Complete server implementation** showing how to build a metadata-driven backend. Features dynamic schema loading from plugins, auto-generated REST APIs, unified metadata API, and plugin orchestration.
+
+**Quick Start:**
+```bash
+cd examples/app-host
+pnpm install
+pnpm dev
+# API available at http://localhost:3000
+```
 
 ---
 
-### CLI Usage Example
-**Path:** [`examples/cli-usage/`](./cli-usage/)  
+### CLI Usage Guide
+**Path:** [`examples/guide-cli/`](./guide-cli/)  
 **Level:** 🟢 Beginner  
 **Protocols:** System  
 
@@ -163,32 +174,17 @@ pnpm dev
 
 **Quick Start:**
 ```bash
-cd examples/cli-usage
+cd examples/guide-cli
 pnpm install
 pnpm dev
-```
-
-**Features:**
-- Dynamic schema loading from plugins
-- Auto-generated REST APIs
-- Unified metadata API
-- Plugin orchestration
-- Production-ready patterns
-
-**Quick Start:**
-```bash
-cd examples/host
-pnpm install
-pnpm dev
-# API available at http://localhost:3000
 ```
 
 ---
 
 ### Plugin Examples
 
-#### Plugin Advanced CRM
-**Path:** [`examples/plugin-advanced-crm/`](./plugin-advanced-crm/)  
+#### Plugin CRM
+**Path:** [`examples/plugin-crm/`](./plugin-crm/)  
 **Protocols:** System (Plugin, Capabilities, Services)
 
 Demonstrates plugin architecture with capability manifests, protocol conformance, and service interfaces.

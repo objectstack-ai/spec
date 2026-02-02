@@ -1,5 +1,5 @@
 {
-  "name": "@objectstack/plugin-advanced-crm",
+  "name": "@objectstack/plugin-crm",
   "version": "0.1.0",
   "main": "objectstack.config.ts",
   "private": true,
