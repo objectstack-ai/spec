@@ -21,10 +21,12 @@ This is the complete reference for all protocol specifications in the ObjectStac
 | [Permission Protocol](#permission-protocol) | 4 | Access control and security policies |
 | [Hub Protocol](#hub-protocol) | 6 | Marketplace and multi-tenancy |
 | [Integration Protocol](#integration-protocol) | 5 | External system connectors and adapters |
+| [QA Protocol](#qa-protocol) | 1 | Testing and quality assurance |
+| [Contracts](#contracts) | 9 | TypeScript contract interfaces |
 | [Shared Protocol](#shared-protocol) | 3 | Common utilities and identifiers |
 | [Stack Protocol](#stack-protocol) | 1 | Root stack definition |
 
-**Total: 109 protocols**
+**Total: 119 protocols**
 
 ---
 
@@ -253,6 +255,55 @@ Defines external system connectors and adapters.
 | `connector/message-queue.zod.ts` | `MessageQueueConnectorSchema` | Message queue integrations (RabbitMQ, Kafka, etc.) |
 
 **Learn more:** [Integration Protocol Reference](/docs/references/integration)
+
+---
+
+## QA Protocol
+
+**Location:** `packages/spec/src/qa/`  
+**Count:** 1 protocol
+
+Defines testing and quality assurance capabilities.
+
+| File | Schema | Purpose |
+| :--- | :--- | :--- |
+| `testing.zod.ts` | `TestSuiteSchema` | Test suites, scenarios, steps, actions, and assertions |
+
+**Key Features:**
+- Declarative test definitions with setup/teardown
+- Action-based testing (create, update, delete, API calls)
+- Comprehensive assertion operators
+- Test context and variable capture between steps
+- Permission testing with user impersonation
+
+**Learn more:** [QA Protocol Reference](/docs/references/qa)
+
+---
+
+## Contracts
+
+**Location:** `packages/spec/src/contracts/`  
+**Count:** 9 contracts
+
+Defines TypeScript contract interfaces for plugin implementations.
+
+| File | Interface | Purpose |
+| :--- | :--- | :--- |
+| `data-engine.ts` | `IDataEngine`, `DriverInterface` | Standard data persistence interface |
+| `plugin-validator.ts` | `IPluginValidator` | Plugin validation interface |
+| `logger.ts` | `ILogger` | Logging interface |
+| `http-server.ts` | `IHTTPServer` | HTTP server interface |
+| `schema-driver.ts` | `ISchemaDriver` | Schema management interface |
+| `service-registry.ts` | `IServiceRegistry` | Service discovery interface |
+| `plugin-lifecycle-events.ts` | Plugin lifecycle events | Plugin event interfaces |
+| `startup-orchestrator.ts` | `IStartupOrchestrator` | Startup orchestration interface |
+
+**Key Principles:**
+- **Dependency Inversion**: Plugins depend on abstract interfaces
+- **Type Safety**: Compile-time guarantees for implementations
+- **Extensibility**: Easy to extend and customize behavior
+
+**Learn more:** [Contracts Reference](/docs/references/contracts)
 
 ---
 
