@@ -1,5 +1,8 @@
+import { createRequire } from 'module';
 import type { LoggerConfig, LogLevel } from '@objectstack/spec/system';
 import type { Logger } from '@objectstack/spec/contracts';
+
+const require = createRequire(import.meta.url);
 
 /**
  * Universal Logger Implementation
@@ -49,14 +52,12 @@ export class ObjectLogger implements Logger {
     /**
      * Initialize Pino logger for Node.js
      */
-    private async initPinoLogger() {
+    private initPinoLogger() {
         if (!this.isNode) return;
 
         try {
-            // Dynamic import for Pino (Node.js only)
-            // Use dynamic import for ESM compatibility
-            const pinoModule = await import('pino');
-            const pino = pinoModule.default || pinoModule;
+            // Synchronous import for Pino using createRequire (works in ESM)
+            const pino = require('pino');
             
             // Build Pino options
             const pinoOptions: any = {
@@ -77,15 +78,34 @@ export class ObjectLogger implements Logger {
 
             // Console transport
             if (this.config.format === 'pretty') {
-                targets.push({
-                    target: 'pino-pretty',
-                    options: {
-                        colorize: true,
-                        translateTime: 'SYS:standard',
-                        ignore: 'pid,hostname'
-                    },
-                    level: this.config.level
-                });
+                // Check if pino-pretty is available
+                let hasPretty = false;
+                try {
+                    require.resolve('pino-pretty');
+                    hasPretty = true;
+                } catch (e) {
+                    // ignore
+                }
+
+                if (hasPretty) {
+                    targets.push({
+                        target: 'pino-pretty',
+                        options: {
+                            colorize: true,
+                            translateTime: 'SYS:standard',
+                            ignore: 'pid,hostname'
+                        },
+                        level: this.config.level
+                    });
+                } else {
+                     console.warn('[Logger] pino-pretty not found. Install it for pretty logging: pnpm add -D pino-pretty');
+                     // Fallback to text/simple
+                     targets.push({
+                        target: 'pino/file',
+                        options: { destination: 1 },
+                        level: this.config.level
+                    });
+                }
             } else if (this.config.format === 'json') {
                 // JSON to stdout
                 targets.push({
