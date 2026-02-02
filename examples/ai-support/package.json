@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/example-ai-support",
-  "version": "0.7.5",
+  "version": "0.9.0",
   "description": "AI-powered customer support system with RAG knowledge base",
   "private": true,
   "main": "objectstack.config.ts",
