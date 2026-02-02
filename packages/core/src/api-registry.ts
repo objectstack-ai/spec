@@ -695,10 +695,12 @@ export class ApiRegistry {
    * @internal
    */
   private ensureIndexSet(map: Map<string, Set<string>>, key: string): Set<string> {
-    if (!map.has(key)) {
-      map.set(key, new Set());
+    let set = map.get(key);
+    if (!set) {
+      set = new Set();
+      map.set(key, set);
     }
-    return map.get(key)!;
+    return set;
   }
 
   /**

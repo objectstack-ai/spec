@@ -989,76 +989,82 @@ describe('ApiRegistry', () => {
   describe('Safety Guards', () => {
     it('should allow clear() in non-production environment', () => {
       const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'test';
+      try {
+        process.env.NODE_ENV = 'test';
 
-      registry.registerApi({
-        id: 'test_api',
-        name: 'Test API',
-        type: 'rest',
-        version: 'v1',
-        basePath: '/test',
-        endpoints: [{ id: 'e1', path: '/test', responses: [] }],
-      });
+        registry.registerApi({
+          id: 'test_api',
+          name: 'Test API',
+          type: 'rest',
+          version: 'v1',
+          basePath: '/test',
+          endpoints: [{ id: 'e1', path: '/test', responses: [] }],
+        });
 
-      expect(registry.getStats().totalApis).toBe(1);
+        expect(registry.getStats().totalApis).toBe(1);
 
-      // Should work without force flag in non-production
-      registry.clear();
-      expect(registry.getStats().totalApis).toBe(0);
-
-      process.env.NODE_ENV = originalEnv;
+        // Should work without force flag in non-production
+        registry.clear();
+        expect(registry.getStats().totalApis).toBe(0);
+      } finally {
+        process.env.NODE_ENV = originalEnv;
+      }
     });
 
     it('should prevent clear() in production without force flag', () => {
       const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
+      try {
+        process.env.NODE_ENV = 'production';
 
-      registry.registerApi({
-        id: 'prod_api',
-        name: 'Production API',
-        type: 'rest',
-        version: 'v1',
-        basePath: '/prod',
-        endpoints: [{ id: 'e1', path: '/prod', responses: [] }],
-      });
+        registry.registerApi({
+          id: 'prod_api',
+          name: 'Production API',
+          type: 'rest',
+          version: 'v1',
+          basePath: '/prod',
+          endpoints: [{ id: 'e1', path: '/prod', responses: [] }],
+        });
 
-      // Should throw error in production without force flag
-      expect(() => registry.clear()).toThrow(
-        'Cannot clear registry in production environment without force flag'
-      );
+        // Should throw error in production without force flag
+        expect(() => registry.clear()).toThrow(
+          'Cannot clear registry in production environment without force flag'
+        );
 
-      // API should still exist
-      expect(registry.getStats().totalApis).toBe(1);
-
-      process.env.NODE_ENV = originalEnv;
+        // API should still exist
+        expect(registry.getStats().totalApis).toBe(1);
+      } finally {
+        process.env.NODE_ENV = originalEnv;
+      }
     });
 
     it('should allow clear() in production with force flag', () => {
       const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
+      try {
+        process.env.NODE_ENV = 'production';
 
-      registry.registerApi({
-        id: 'prod_api',
-        name: 'Production API',
-        type: 'rest',
-        version: 'v1',
-        basePath: '/prod',
-        endpoints: [{ id: 'e1', path: '/prod', responses: [] }],
-      });
+        registry.registerApi({
+          id: 'prod_api',
+          name: 'Production API',
+          type: 'rest',
+          version: 'v1',
+          basePath: '/prod',
+          endpoints: [{ id: 'e1', path: '/prod', responses: [] }],
+        });
 
-      expect(registry.getStats().totalApis).toBe(1);
+        expect(registry.getStats().totalApis).toBe(1);
 
-      // Should work with force flag
-      registry.clear({ force: true });
-      expect(registry.getStats().totalApis).toBe(0);
+        // Should work with force flag
+        registry.clear({ force: true });
+        expect(registry.getStats().totalApis).toBe(0);
 
-      // Verify logger warned about forced clear
-      expect(logger.warn).toHaveBeenCalledWith(
-        'API registry forcefully cleared in production',
-        { force: true }
-      );
-
-      process.env.NODE_ENV = originalEnv;
+        // Verify logger warned about forced clear
+        expect(logger.warn).toHaveBeenCalledWith(
+          'API registry forcefully cleared in production',
+          { force: true }
+        );
+      } finally {
+        process.env.NODE_ENV = originalEnv;
+      }
     });
 
     it('should clear all indices when clear() is called', () => {
