@@ -77,7 +77,128 @@ interface HonoPluginOptions {
    * Path to static files directory (optional)
    */
   staticRoot?: string;
+  
+  /**
+   * REST server configuration
+   * Controls automatic endpoint generation and API behavior
+   */
+  restConfig?: RestServerConfig;
+  
+  /**
+   * Whether to register standard ObjectStack CRUD endpoints
+   * @default true
+   */
+  registerStandardEndpoints?: boolean;
+  
+  /**
+   * Whether to load endpoints from API Registry
+   * When enabled, routes are loaded dynamically from the API Registry
+   * When disabled, uses legacy static route registration
+   * @default true
+   */
+  useApiRegistry?: boolean;
 }
+```
+
+### Using API Registry (New in v0.9.0)
+
+The plugin now integrates with the ObjectStack API Registry for centralized endpoint management:
+
+```typescript
+import { createApiRegistryPlugin } from '@objectstack/core';
+import { HonoServerPlugin } from '@objectstack/plugin-hono-server';
+
+const kernel = new ObjectKernel();
+
+// 1. Register API Registry Plugin first
+kernel.use(createApiRegistryPlugin({
+  conflictResolution: 'priority' // Handle route conflicts by priority
+}));
+
+// 2. Register Hono Server Plugin
+kernel.use(new HonoServerPlugin({
+  port: 3000,
+  useApiRegistry: true,
+  registerStandardEndpoints: true,
+  restConfig: {
+    api: {
+      version: 'v1',
+      basePath: '/api',
+      enableCrud: true,
+      enableMetadata: true,
+      enableBatch: true
+    }
+  }
+}));
+
+await kernel.bootstrap();
+```
+
+**Benefits of API Registry Integration:**
+- 📋 Centralized endpoint registration and discovery
+- 🔀 Priority-based route conflict resolution
+- 🧩 Support for plugin-registered custom endpoints
+- ⚙️ Configurable endpoint generation via `RestServerConfig`
+- 🔍 API introspection and documentation generation
+
+### Configuring REST Server Behavior
+
+Use `restConfig` to control which endpoints are automatically generated:
+
+```typescript
+new HonoServerPlugin({
+  restConfig: {
+    api: {
+      version: 'v2',
+      basePath: '/api',
+      enableCrud: true,
+      enableMetadata: true,
+      enableBatch: true,
+      enableDiscovery: true
+    },
+    crud: {
+      dataPrefix: '/data',
+      operations: {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+        list: true
+      }
+    },
+    metadata: {
+      prefix: '/meta',
+      enableCache: true,
+      cacheTtl: 3600
+    },
+    batch: {
+      maxBatchSize: 200,
+      operations: {
+        createMany: true,
+        updateMany: true,
+        deleteMany: true,
+        upsertMany: true
+      }
+    }
+  }
+})
+```
+
+### Legacy Mode (Without API Registry)
+
+If the API Registry plugin is not registered, the server automatically falls back to legacy mode:
+
+```typescript
+// No API Registry needed for simple setups
+const kernel = new ObjectKernel();
+
+kernel.use(new HonoServerPlugin({
+  port: 3000,
+  useApiRegistry: false  // Explicitly disable API Registry
+}));
+
+await kernel.bootstrap();
+// All standard routes registered statically
 ```
 
 ## API Endpoints
@@ -163,6 +284,60 @@ export class MyPlugin implements Plugin {
   }
 }
 ```
+
+### Registering Custom Endpoints via API Registry
+
+Plugins can register their own endpoints through the API Registry:
+
+```typescript
+export class MyApiPlugin implements Plugin {
+  name = 'my-api-plugin';
+  version = '1.0.0';
+  
+  async init(ctx: PluginContext) {
+    const apiRegistry = ctx.getService<ApiRegistry>('api-registry');
+    
+    apiRegistry.registerApi({
+      id: 'my_custom_api',
+      name: 'My Custom API',
+      type: 'rest',
+      version: 'v1',
+      basePath: '/api/v1/custom',
+      endpoints: [
+        {
+          id: 'get_custom_data',
+          method: 'GET',
+          path: '/api/v1/custom/data',
+          summary: 'Get custom data',
+          priority: 500, // Lower than core endpoints (950)
+          responses: [{
+            statusCode: 200,
+            description: 'Custom data retrieved'
+          }]
+        }
+      ],
+      metadata: {
+        pluginSource: 'my-api-plugin',
+        status: 'active',
+        tags: ['custom']
+      }
+    });
+    
+    ctx.logger.info('Custom API endpoints registered');
+  }
+  
+  async start(ctx: PluginContext) {
+    // Bind the actual handler implementation
+    const httpServer = ctx.getService<IHttpServer>('http-server');
+    
+    httpServer.get('/api/v1/custom/data', async (req, res) => {
+      res.json({ data: 'my custom data' });
+    });
+  }
+}
+```
+
+**Note:** The Hono Server Plugin loads routes from the API Registry sorted by priority (highest first), ensuring core endpoints take precedence over plugin endpoints.
 
 ### Extending with Middleware
 
