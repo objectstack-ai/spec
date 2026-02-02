@@ -49,12 +49,14 @@ export class ObjectLogger implements Logger {
     /**
      * Initialize Pino logger for Node.js
      */
-    private initPinoLogger() {
+    private async initPinoLogger() {
         if (!this.isNode) return;
 
         try {
             // Dynamic import for Pino (Node.js only)
-            const pino = require('pino');
+            // Use dynamic import for ESM compatibility
+            const pinoModule = await import('pino');
+            const pino = pinoModule.default || pinoModule;
             
             // Build Pino options
             const pinoOptions: any = {
