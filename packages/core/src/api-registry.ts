@@ -649,25 +649,16 @@ export class ApiRegistry {
    */
   private updateIndices(api: ApiRegistryEntry): void {
     // Index by type
-    if (!this.apisByType.has(api.type)) {
-      this.apisByType.set(api.type, new Set());
-    }
-    this.apisByType.get(api.type)!.add(api.id);
+    this.ensureIndexSet(this.apisByType, api.type).add(api.id);
 
     // Index by status
     const status = api.metadata?.status || 'active';
-    if (!this.apisByStatus.has(status)) {
-      this.apisByStatus.set(status, new Set());
-    }
-    this.apisByStatus.get(status)!.add(api.id);
+    this.ensureIndexSet(this.apisByStatus, status).add(api.id);
 
     // Index by tags
     const tags = api.metadata?.tags || [];
     for (const tag of tags) {
-      if (!this.apisByTag.has(tag)) {
-        this.apisByTag.set(tag, new Set());
-      }
-      this.apisByTag.get(tag)!.add(api.id);
+      this.ensureIndexSet(this.apisByTag, tag).add(api.id);
     }
   }
 
@@ -680,33 +671,51 @@ export class ApiRegistry {
    */
   private removeFromIndices(api: ApiRegistryEntry): void {
     // Remove from type index
-    const typeSet = this.apisByType.get(api.type);
-    if (typeSet) {
-      typeSet.delete(api.id);
-      if (typeSet.size === 0) {
-        this.apisByType.delete(api.type);
-      }
-    }
+    this.removeFromIndexSet(this.apisByType, api.type, api.id);
 
     // Remove from status index
     const status = api.metadata?.status || 'active';
-    const statusSet = this.apisByStatus.get(status);
-    if (statusSet) {
-      statusSet.delete(api.id);
-      if (statusSet.size === 0) {
-        this.apisByStatus.delete(status);
-      }
-    }
+    this.removeFromIndexSet(this.apisByStatus, status, api.id);
 
     // Remove from tag indices
     const tags = api.metadata?.tags || [];
     for (const tag of tags) {
-      const tagSet = this.apisByTag.get(tag);
-      if (tagSet) {
-        tagSet.delete(api.id);
-        if (tagSet.size === 0) {
-          this.apisByTag.delete(tag);
-        }
+      this.removeFromIndexSet(this.apisByTag, tag, api.id);
+    }
+  }
+
+  /**
+   * Helper to ensure an index set exists and return it
+   * 
+   * @param map - Index map
+   * @param key - Index key
+   * @returns The Set for this key (created if needed)
+   * @private
+   * @internal
+   */
+  private ensureIndexSet(map: Map<string, Set<string>>, key: string): Set<string> {
+    if (!map.has(key)) {
+      map.set(key, new Set());
+    }
+    return map.get(key)!;
+  }
+
+  /**
+   * Helper to remove an ID from an index set and clean up empty sets
+   * 
+   * @param map - Index map
+   * @param key - Index key
+   * @param id - API ID to remove
+   * @private
+   * @internal
+   */
+  private removeFromIndexSet(map: Map<string, Set<string>>, key: string, id: string): void {
+    const set = map.get(key);
+    if (set) {
+      set.delete(id);
+      // Clean up empty sets to avoid memory leaks
+      if (set.size === 0) {
+        map.delete(key);
       }
     }
   }
