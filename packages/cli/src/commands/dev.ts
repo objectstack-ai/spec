@@ -7,7 +7,7 @@ import path from 'path';
 
 export const devCommand = new Command('dev')
   .description('Start development mode for a package')
-  .argument('[package]', 'Package name (without @objectstack/ prefix)', 'all')
+  .argument('[package]', 'Package name or filter pattern', 'all')
   .option('-w, --watch', 'Enable watch mode (default)', true)
   .option('-v, --verbose', 'Verbose output')
   .action(async (packageName, options) => {
@@ -38,9 +38,21 @@ export const devCommand = new Command('dev')
     // Monorepo Orchestration Mode
     try {
       const cwd = process.cwd();
-      const filter = packageName === 'all' ? '' : `--filter @objectstack/${packageName}`;
       
-      console.log(`📦 Package: ${chalk.blue(packageName === 'all' ? 'All packages' : `@objectstack/${packageName}`)}`);
+      // Only attempt monorepo orchestration if we are in a workspace root
+      const workspaceConfigPath = path.resolve(cwd, 'pnpm-workspace.yaml');
+      const isWorkspaceRoot = fs.existsSync(workspaceConfigPath);
+
+      if (packageName === 'all' && !isWorkspaceRoot) {
+          console.error(chalk.red(`\n❌ Configuration file (objectstack.config.ts) not found in ${cwd}`));
+          console.error(chalk.yellow(`   To start development mode, run this command in a directory with objectstack.config.ts`));
+          console.error(chalk.yellow(`   OR run from the monorepo root to start all packages.`));
+          process.exit(1);
+      }
+
+      const filter = packageName === 'all' ? '' : `--filter ${packageName}`;
+      
+      console.log(`📦 Package: ${chalk.blue(packageName === 'all' ? 'All packages' : packageName)}`);
       console.log(`🔄 Watch mode: ${chalk.green('enabled')}`);
       console.log('');
       
