@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@objectstack/cli": "workspace:*",
-    "@objectstack/spec": "workspace:*"
+    "@objectstack/spec": "workspace:*",
+    "@objectstack/plugin-bi": "workspace:*"
   }
 }

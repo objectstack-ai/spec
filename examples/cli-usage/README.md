@@ -43,4 +43,13 @@ You can also use a launch configuration. Add this to your `.vscode/launch.json`:
 ## Project Structure
 
 - `src/project.object.ts`: Defines a simple "Project" object.
-- `objectstack.config.ts`: Registers the object.
+- `objectstack.config.ts`: Registers the object and imports plugins from other examples.
+
+## Plugins Integration
+
+This example demonstrates how to compose multiple plugins:
+
+1.  **NPM Package Plugin**: `@objectstack/plugin-bi` is installed via workspace dependency.
+2.  **Local Config Plugin**: `CRMPlugin` is imported directly from `../plugin-advanced-crm/objectstack.config.ts`.
+
+
