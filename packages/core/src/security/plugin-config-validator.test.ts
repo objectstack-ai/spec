@@ -9,7 +9,7 @@ describe('PluginConfigValidator', () => {
   let logger: ReturnType<typeof createLogger>;
   
   beforeEach(() => {
-    logger = createLogger({ level: 'silent' });
+    logger = createLogger({ level: 'error' });
     validator = new PluginConfigValidator(logger);
   });
   

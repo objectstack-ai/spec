@@ -172,8 +172,8 @@ export class PluginConfigValidator {
   
   // Private methods
   
-  private formatZodErrors(error: z.ZodError): Array<{path: string; message: string}> {
-    return error.errors.map((e: z.ZodIssue) => ({
+  private formatZodErrors(error: z.ZodError<any>): Array<{path: string; message: string}> {
+    return error.issues.map((e: z.ZodIssue) => ({
       path: e.path.join('.') || 'root',
       message: e.message,
     }));

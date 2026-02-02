@@ -9,7 +9,7 @@ describe('PluginPermissionEnforcer', () => {
   let logger: ReturnType<typeof createLogger>;
   
   beforeEach(() => {
-    logger = createLogger({ level: 'silent' });
+    logger = createLogger({ level: 'error' });
     enforcer = new PluginPermissionEnforcer(logger);
   });
   
@@ -172,12 +172,12 @@ describe('SecurePluginContext', () => {
   let mockBaseContext: PluginContext;
   
   beforeEach(() => {
-    logger = createLogger({ level: 'silent' });
+    logger = createLogger({ level: 'error' });
     enforcer = new PluginPermissionEnforcer(logger);
     
     mockBaseContext = {
       registerService: () => {},
-      getService: (name: string) => ({ name }),
+      getService: <T>(name: string): T => ({ name } as any),
       getServices: () => new Map(),
       hook: () => {},
       trigger: async () => {},
