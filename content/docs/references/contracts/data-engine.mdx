@@ -59,7 +59,7 @@ Query multiple records from an object.
 - `objectName` (string) - The name of the object to query
 - `query` (DataEngineQueryOptions, optional) - Query options (filters, select, sort, pagination)
 
-**Returns:** Promise<any[]> - Array of matching records
+**Returns:** `Promise<any[]>` - Array of matching records
 
 **Example:**
 ```typescript
@@ -81,7 +81,7 @@ Query a single record from an object.
 - `objectName` (string) - The name of the object to query
 - `query` (DataEngineQueryOptions, optional) - Query options
 
-**Returns:** Promise<any> - The matching record or null
+**Returns:** `Promise<any>` - The matching record or null
 
 **Example:**
 ```typescript
@@ -101,7 +101,7 @@ Insert one or more records.
 - `data` (any | any[]) - Single record or array of records to insert
 - `options` (DataEngineInsertOptions, optional) - Insert options
 
-**Returns:** Promise<any> - The created record(s)
+**Returns:** `Promise<any>` - The created record(s)
 
 **Example:**
 ```typescript
@@ -130,7 +130,7 @@ Update a record.
 - `data` (any) - Record data with _id or update criteria
 - `options` (DataEngineUpdateOptions, optional) - Update options
 
-**Returns:** Promise<any> - The updated record
+**Returns:** `Promise<any>` - The updated record
 
 **Example:**
 ```typescript
@@ -150,7 +150,7 @@ Delete one or more records.
 - `objectName` (string) - The name of the object
 - `options` (DataEngineDeleteOptions, optional) - Delete options (filters, _id)
 
-**Returns:** Promise<any> - Deletion result
+**Returns:** `Promise<any>` - Deletion result
 
 **Example:**
 ```typescript
@@ -175,7 +175,7 @@ Count records matching criteria.
 - `objectName` (string) - The name of the object
 - `query` (DataEngineCountOptions, optional) - Count options (filters)
 
-**Returns:** Promise<number> - Number of matching records
+**Returns:** `Promise<number>` - Number of matching records
 
 **Example:**
 ```typescript
@@ -194,7 +194,7 @@ Perform aggregation queries.
 - `objectName` (string) - The name of the object
 - `query` (DataEngineAggregateOptions) - Aggregation options (groupBy, aggregations)
 
-**Returns:** Promise<any[]> - Aggregation results
+**Returns:** `Promise<any[]>` - Aggregation results
 
 **Example:**
 ```typescript
@@ -224,7 +224,7 @@ Vector similarity search for AI/RAG applications.
   - `select` (string[], optional) - Fields to return
   - `threshold` (number, optional) - Similarity threshold
 
-**Returns:** Promise<any[]> - Similar records
+**Returns:** `Promise<any[]>` - Similar records
 
 **Example:**
 ```typescript
@@ -245,7 +245,7 @@ Execute multiple operations in a batch, optionally with transaction support.
 - `options` (object, optional)
   - `transaction` (boolean, optional) - Execute in transaction
 
-**Returns:** Promise<any[]> - Results for each operation
+**Returns:** `Promise<any[]>` - Results for each operation
 
 **Example:**
 ```typescript
@@ -263,9 +263,9 @@ Execute raw database command (escape hatch).
 
 **Parameters:**
 - `command` (any) - Database-specific command
-- `options` (Record<string, any>, optional) - Command options
+- `options` (`Record<string, any>`, optional) - Command options
 
-**Returns:** Promise<any> - Command result
+**Returns:** `Promise<any>` - Command result
 
 **Warning:** Use sparingly - this breaks abstraction.
 

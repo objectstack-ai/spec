@@ -113,7 +113,7 @@ Defines an action to be performed during a test step.
 **Properties:**
 - `type` (TestActionType) - The type of action to perform
 - `target` (string) - Target Object, API Endpoint, or Function Name
-- `payload` (Record<string, unknown>, optional) - Data to send or use
+- `payload` (`Record<string, unknown>`, optional) - Data to send or use
 - `user` (string, optional) - Run as specific user/role (impersonation)
 
 **Example:**
@@ -179,7 +179,7 @@ A single step in a test scenario.
 - `description` (string, optional) - Step description
 - `action` (TestAction) - Action to perform
 - `assertions` (TestAssertion[], optional) - Assertions to validate
-- `capture` (Record<string, string>, optional) - Capture result fields to context variables
+- `capture` (`Record<string, string>`, optional) - Capture result fields to context variables
 
 **Example:**
 ```typescript
