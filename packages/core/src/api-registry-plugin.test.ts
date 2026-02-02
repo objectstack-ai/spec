@@ -3,7 +3,7 @@ import { ObjectKernel } from './kernel';
 import { createApiRegistryPlugin } from './api-registry-plugin';
 import { ApiRegistry } from './api-registry';
 import type { Plugin } from './types';
-import type { ApiRegistryEntry } from '@objectstack/spec/api';
+import type { ApiRegistryEntryInput } from '@objectstack/spec/api';
 
 describe('API Registry Plugin', () => {
   let kernel: ObjectKernel;
@@ -49,7 +49,7 @@ describe('API Registry Plugin', () => {
         init: async (ctx) => {
           const registry = ctx.getService<ApiRegistry>('api-registry');
 
-          const api: ApiRegistryEntry = {
+          const api: ApiRegistryEntryInput = {
             id: 'test_api',
             name: 'Test API',
             type: 'rest',

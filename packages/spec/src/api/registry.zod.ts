@@ -266,6 +266,7 @@ export const ApiResponseSchema = z.object({
 });
 
 export type ApiResponse = z.infer<typeof ApiResponseSchema>;
+export type ApiResponseInput = z.input<typeof ApiResponseSchema>;
 
 /**
  * API Endpoint Registration Schema
@@ -514,6 +515,7 @@ export const ApiEndpointRegistrationSchema = z.object({
 });
 
 export type ApiEndpointRegistration = z.infer<typeof ApiEndpointRegistrationSchema>;
+export type ApiEndpointRegistrationInput = z.input<typeof ApiEndpointRegistrationSchema>;
 
 // ==========================================
 // API Registry Entry
@@ -543,6 +545,7 @@ export const ApiMetadataSchema = z.object({
 });
 
 export type ApiMetadata = z.infer<typeof ApiMetadataSchema>;
+export type ApiMetadataInput = z.input<typeof ApiMetadataSchema>;
 
 /**
  * API Registry Entry Schema
@@ -629,6 +632,7 @@ export const ApiRegistryEntrySchema = z.object({
 });
 
 export type ApiRegistryEntry = z.infer<typeof ApiRegistryEntrySchema>;
+export type ApiRegistryEntryInput = z.input<typeof ApiRegistryEntrySchema>;
 
 // ==========================================
 // API Registry

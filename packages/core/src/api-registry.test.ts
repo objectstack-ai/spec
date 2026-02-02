@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ApiRegistry } from './api-registry';
 import type {
-  ApiRegistryEntry,
+  ApiRegistryEntryInput,
 } from '@objectstack/spec/api';
 import type { Logger } from '@objectstack/spec/contracts';
 
@@ -40,7 +40,7 @@ describe('ApiRegistry', () => {
 
   describe('registerApi', () => {
     it('should register a simple REST API', () => {
-      const api: ApiRegistryEntry = {
+      const api: ApiRegistryEntryInput = {
         id: 'customer_api',
         name: 'Customer API',
         type: 'rest',
@@ -71,7 +71,7 @@ describe('ApiRegistry', () => {
     });
 
     it('should throw error when registering duplicate API', () => {
-      const api: ApiRegistryEntry = {
+      const api: ApiRegistryEntryInput = {
         id: 'test_api',
         name: 'Test API',
         type: 'rest',
@@ -88,7 +88,7 @@ describe('ApiRegistry', () => {
     });
 
     it('should register API with multiple endpoints', () => {
-      const api: ApiRegistryEntry = {
+      const api: ApiRegistryEntryInput = {
         id: 'crud_api',
         name: 'CRUD API',
         type: 'rest',
@@ -135,7 +135,7 @@ describe('ApiRegistry', () => {
     });
 
     it('should register API with RBAC permissions', () => {
-      const api: ApiRegistryEntry = {
+      const api: ApiRegistryEntryInput = {
         id: 'protected_api',
         name: 'Protected API',
         type: 'rest',
@@ -162,7 +162,7 @@ describe('ApiRegistry', () => {
 
   describe('unregisterApi', () => {
     it('should unregister an API', () => {
-      const api: ApiRegistryEntry = {
+      const api: ApiRegistryEntryInput = {
         id: 'temp_api',
         name: 'Temporary API',
         type: 'rest',
@@ -195,7 +195,7 @@ describe('ApiRegistry', () => {
   describe('Route Conflict Detection', () => {
     describe('error strategy', () => {
       it('should throw error on route conflict', () => {
-        const api1: ApiRegistryEntry = {
+        const api1: ApiRegistryEntryInput = {
           id: 'api1',
           name: 'API 1',
           type: 'rest',
@@ -211,7 +211,7 @@ describe('ApiRegistry', () => {
           ],
         };
 
-        const api2: ApiRegistryEntry = {
+        const api2: ApiRegistryEntryInput = {
           id: 'api2',
           name: 'API 2',
           type: 'rest',
@@ -232,7 +232,7 @@ describe('ApiRegistry', () => {
       });
 
       it('should allow same path with different methods', () => {
-        const api: ApiRegistryEntry = {
+        const api: ApiRegistryEntryInput = {
           id: 'multi_method',
           name: 'Multi Method API',
           type: 'rest',
@@ -271,7 +271,7 @@ describe('ApiRegistry', () => {
       });
 
       it('should prefer higher priority endpoint', () => {
-        const api1: ApiRegistryEntry = {
+        const api1: ApiRegistryEntryInput = {
           id: 'low_priority',
           name: 'Low Priority API',
           type: 'rest',
@@ -288,7 +288,7 @@ describe('ApiRegistry', () => {
           ],
         };
 
-        const api2: ApiRegistryEntry = {
+        const api2: ApiRegistryEntryInput = {
           id: 'high_priority',
           name: 'High Priority API',
           type: 'rest',
@@ -314,7 +314,7 @@ describe('ApiRegistry', () => {
       });
 
       it('should keep higher priority when registering lower priority', () => {
-        const api1: ApiRegistryEntry = {
+        const api1: ApiRegistryEntryInput = {
           id: 'high_priority',
           name: 'High Priority API',
           type: 'rest',
@@ -331,7 +331,7 @@ describe('ApiRegistry', () => {
           ],
         };
 
-        const api2: ApiRegistryEntry = {
+        const api2: ApiRegistryEntryInput = {
           id: 'low_priority',
           name: 'Low Priority API',
           type: 'rest',
@@ -363,7 +363,7 @@ describe('ApiRegistry', () => {
       });
 
       it('should keep first registered endpoint', () => {
-        const api1: ApiRegistryEntry = {
+        const api1: ApiRegistryEntryInput = {
           id: 'first',
           name: 'First API',
           type: 'rest',
@@ -379,7 +379,7 @@ describe('ApiRegistry', () => {
           ],
         };
 
-        const api2: ApiRegistryEntry = {
+        const api2: ApiRegistryEntryInput = {
           id: 'second',
           name: 'Second API',
           type: 'rest',
@@ -410,7 +410,7 @@ describe('ApiRegistry', () => {
       });
 
       it('should use last registered endpoint', () => {
-        const api1: ApiRegistryEntry = {
+        const api1: ApiRegistryEntryInput = {
           id: 'first',
           name: 'First API',
           type: 'rest',
@@ -426,7 +426,7 @@ describe('ApiRegistry', () => {
           ],
         };
 
-        const api2: ApiRegistryEntry = {
+        const api2: ApiRegistryEntryInput = {
           id: 'second',
           name: 'Second API',
           type: 'rest',
@@ -543,7 +543,7 @@ describe('ApiRegistry', () => {
 
   describe('getEndpoint', () => {
     it('should get endpoint by API and endpoint ID', () => {
-      const api: ApiRegistryEntry = {
+      const api: ApiRegistryEntryInput = {
         id: 'test_api',
         name: 'Test API',
         type: 'rest',
@@ -575,7 +575,7 @@ describe('ApiRegistry', () => {
 
   describe('findEndpointByRoute', () => {
     it('should find endpoint by method and path', () => {
-      const api: ApiRegistryEntry = {
+      const api: ApiRegistryEntryInput = {
         id: 'route_api',
         name: 'Route API',
         type: 'rest',
@@ -721,7 +721,7 @@ describe('ApiRegistry', () => {
 
   describe('Multi-protocol Support', () => {
     it('should register GraphQL API', () => {
-      const api: ApiRegistryEntry = {
+      const api: ApiRegistryEntryInput = {
         id: 'graphql',
         name: 'GraphQL API',
         type: 'graphql',
@@ -742,7 +742,7 @@ describe('ApiRegistry', () => {
     });
 
     it('should register WebSocket API', () => {
-      const api: ApiRegistryEntry = {
+      const api: ApiRegistryEntryInput = {
         id: 'websocket',
         name: 'WebSocket API',
         type: 'websocket',
@@ -769,7 +769,7 @@ describe('ApiRegistry', () => {
     });
 
     it('should register Plugin API', () => {
-      const api: ApiRegistryEntry = {
+      const api: ApiRegistryEntryInput = {
         id: 'custom_plugin',
         name: 'Custom Plugin API',
         type: 'plugin',

@@ -1,8 +1,8 @@
 import type {
   ApiRegistry as ApiRegistryType,
   ApiRegistryEntry,
+  ApiRegistryEntryInput,
   ApiEndpointRegistration,
-  ApiProtocolType,
   ConflictResolutionStrategy,
   ApiDiscoveryQuery,
   ApiDiscoveryResponse,
@@ -74,30 +74,33 @@ export class ApiRegistry {
    * @param api - API registry entry
    * @throws Error if API already registered or route conflicts detected
    */
-  registerApi(api: ApiRegistryEntry): void {
+  registerApi(api: ApiRegistryEntryInput): void {
     // Check if API already exists
     if (this.apis.has(api.id)) {
       throw new Error(`[ApiRegistry] API '${api.id}' already registered`);
     }
 
+    // Cast to full type after validation
+    const fullApi = api as ApiRegistryEntry;
+
     // Validate and register endpoints
-    for (const endpoint of api.endpoints) {
-      this.validateEndpoint(endpoint, api.id);
+    for (const endpoint of fullApi.endpoints) {
+      this.validateEndpoint(endpoint, fullApi.id);
     }
 
     // Register the API
-    this.apis.set(api.id, api);
+    this.apis.set(fullApi.id, fullApi);
     
     // Register endpoints
-    for (const endpoint of api.endpoints) {
-      this.registerEndpoint(api.id, endpoint);
+    for (const endpoint of fullApi.endpoints) {
+      this.registerEndpoint(fullApi.id, endpoint);
     }
 
     this.updatedAt = new Date().toISOString();
-    this.logger.info(`API registered: ${api.id}`, {
-      api: api.id,
-      type: api.type,
-      endpointCount: api.endpoints.length,
+    this.logger.info(`API registered: ${fullApi.id}`, {
+      api: fullApi.id,
+      type: fullApi.type,
+      endpointCount: fullApi.endpoints.length,
     });
   }
 
