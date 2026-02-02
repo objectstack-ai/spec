@@ -563,7 +563,7 @@ export class HonoServerPlugin implements Plugin {
         );
 
         // Bind routes
-        for (const { api: apiId, endpoint } of allEndpoints) {
+        for (const { endpoint } of allEndpoints) {
             this.bindEndpoint(endpoint, protocol, ctx);
         }
 
