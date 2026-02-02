@@ -101,40 +101,6 @@ importers:
         specifier: 4.3.6
         version: 4.3.6
 
-  examples/ai-analyst:
-    dependencies:
-      '@objectstack/spec':
-        specifier: workspace:*
-        version: link:../../packages/spec
-
-  examples/ai-codegen:
-    dependencies:
-      '@objectstack/spec':
-        specifier: workspace:*
-        version: link:../../packages/spec
-
-  examples/ai-sales:
-    dependencies:
-      '@objectstack/spec':
-        specifier: workspace:*
-        version: link:../../packages/spec
-
-  examples/ai-support:
-    dependencies:
-      '@objectstack/spec':
-        specifier: workspace:*
-        version: link:../../packages/spec
-    devDependencies:
-      '@types/node':
-        specifier: ^25.1.0
-        version: 25.1.0
-      tsx:
-        specifier: ^4.21.0
-        version: 4.21.0
-      typescript:
-        specifier: ^5.3.0
-        version: 5.9.3
-
   examples/basic:
     dependencies:
       '@objectstack/core':
@@ -150,6 +116,18 @@ importers:
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
+
+  examples/cli-usage:
+    dependencies:
+      '@objectstack/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@objectstack/plugin-bi':
+        specifier: workspace:*
+        version: link:../plugin-bi
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../../packages/spec
 
   examples/crm:
     dependencies:
@@ -265,6 +243,16 @@ importers:
         specifier: ^7.3.1
         version: 7.3.1(@types/node@25.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)
 
+  examples/plugin-advanced-crm:
+    dependencies:
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../../packages/spec
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
   examples/plugin-bi:
     dependencies:
       '@objectstack/spec':
@@ -292,22 +280,6 @@ importers:
         version: link:../../packages/cli
       typescript:
         specifier: ^5.0.0
-        version: 5.9.3
-
-  packages/ai-bridge:
-    dependencies:
-      '@objectstack/spec':
-        specifier: workspace:*
-        version: link:../spec
-      zod:
-        specifier: ^4.3.6
-        version: 4.3.6
-    devDependencies:
-      '@types/node':
-        specifier: ^25.1.0
-        version: 25.1.0
-      typescript:
-        specifier: ^5.3.3
         version: 5.9.3
 
   packages/cli:

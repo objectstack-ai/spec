@@ -13,7 +13,6 @@
       "@objectstack/metadata",
       "@objectstack/objectql",
       "@objectstack/runtime",
-      "@objectstack/ai-bridge",
       "@objectstack/driver-memory",
       "@objectstack/plugin-hono-server",
       "@objectstack/plugin-msw",
