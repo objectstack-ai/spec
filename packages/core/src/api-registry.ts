@@ -53,6 +53,12 @@ export class ApiRegistry {
   private apis: Map<string, ApiRegistryEntry> = new Map();
   private endpoints: Map<string, { api: string; endpoint: ApiEndpointRegistration }> = new Map();
   private routes: Map<string, { api: string; endpointId: string; priority: number }> = new Map();
+  
+  // Performance optimization: Auxiliary indices for O(1) lookups
+  private apisByType: Map<string, Set<string>> = new Map();
+  private apisByTag: Map<string, Set<string>> = new Map();
+  private apisByStatus: Map<string, Set<string>> = new Map();
+  
   private conflictResolution: ConflictResolutionStrategy;
   private logger: Logger;
   private version: string;
@@ -97,6 +103,9 @@ export class ApiRegistry {
       this.registerEndpoint(fullApi.id, endpoint);
     }
 
+    // Update auxiliary indices for performance optimization
+    this.updateIndices(fullApi);
+
     this.updatedAt = new Date().toISOString();
     this.logger.info(`API registered: ${fullApi.id}`, {
       api: fullApi.id,
@@ -120,6 +129,9 @@ export class ApiRegistry {
     for (const endpoint of api.endpoints) {
       this.unregisterEndpoint(apiId, endpoint.id);
     }
+
+    // Remove from auxiliary indices
+    this.removeFromIndices(api);
 
     // Remove the API
     this.apis.delete(apiId);
@@ -293,6 +305,14 @@ export class ApiRegistry {
   /**
    * Generate a unique route key for conflict detection
    * 
+   * NOTE: This implementation uses exact string matching for route conflict detection.
+   * It works well for static paths but has limitations with parameterized routes.
+   * For example, `/api/users/:id` and `/api/users/detail` will NOT be detected as conflicts
+   * even though they may overlap at runtime depending on the routing library.
+   * 
+   * For more advanced conflict detection (e.g., path-to-regexp pattern matching),
+   * consider integrating with your routing library's conflict detection mechanism.
+   * 
    * @param endpoint - Endpoint registration
    * @returns Route key (e.g., "GET:/api/v1/customers/:id")
    */
@@ -340,24 +360,84 @@ export class ApiRegistry {
   /**
    * Find APIs matching query criteria
    * 
+   * Performance optimized with auxiliary indices for O(1) lookups on type, tags, and status.
+   * 
    * @param query - Discovery query parameters
    * @returns Matching APIs
    */
   findApis(query: ApiDiscoveryQuery): ApiDiscoveryResponse {
-    let results = Array.from(this.apis.values());
+    let resultIds: Set<string> | undefined;
 
-    // Filter by type
+    // Use indices for performance-optimized filtering
+    // Start with the most restrictive filter to minimize subsequent filtering
+    
+    // Filter by type (using index for O(1) lookup)
     if (query.type) {
-      results = results.filter((api) => api.type === query.type);
+      const typeIds = this.apisByType.get(query.type);
+      if (!typeIds || typeIds.size === 0) {
+        return { apis: [], total: 0, filters: query };
+      }
+      resultIds = new Set(typeIds);
     }
 
-    // Filter by status
+    // Filter by status (using index for O(1) lookup)
     if (query.status) {
-      results = results.filter(
-        (api) => api.metadata?.status === query.status
-      );
+      const statusIds = this.apisByStatus.get(query.status);
+      if (!statusIds || statusIds.size === 0) {
+        return { apis: [], total: 0, filters: query };
+      }
+      
+      if (resultIds) {
+        // Intersect with previous results
+        resultIds = new Set([...resultIds].filter(id => statusIds.has(id)));
+      } else {
+        resultIds = new Set(statusIds);
+      }
+      
+      if (resultIds.size === 0) {
+        return { apis: [], total: 0, filters: query };
+      }
     }
 
+    // Filter by tags (using index for O(M) lookup where M is number of tags)
+    if (query.tags && query.tags.length > 0) {
+      const tagMatches = new Set<string>();
+      
+      for (const tag of query.tags) {
+        const tagIds = this.apisByTag.get(tag);
+        if (tagIds) {
+          tagIds.forEach(id => tagMatches.add(id));
+        }
+      }
+      
+      if (tagMatches.size === 0) {
+        return { apis: [], total: 0, filters: query };
+      }
+      
+      if (resultIds) {
+        // Intersect with previous results
+        resultIds = new Set([...resultIds].filter(id => tagMatches.has(id)));
+      } else {
+        resultIds = tagMatches;
+      }
+      
+      if (resultIds.size === 0) {
+        return { apis: [], total: 0, filters: query };
+      }
+    }
+
+    // Get the actual API objects
+    let results: ApiRegistryEntry[];
+    if (resultIds) {
+      results = Array.from(resultIds)
+        .map(id => this.apis.get(id))
+        .filter((api): api is ApiRegistryEntry => api !== undefined);
+    } else {
+      results = Array.from(this.apis.values());
+    }
+
+    // Apply remaining filters that don't have indices (less common filters)
+    
     // Filter by plugin source
     if (query.pluginSource) {
       results = results.filter(
@@ -368,14 +448,6 @@ export class ApiRegistry {
     // Filter by version
     if (query.version) {
       results = results.filter((api) => api.version === query.version);
-    }
-
-    // Filter by tags (ANY match)
-    if (query.tags && query.tags.length > 0) {
-      results = results.filter((api) => {
-        const apiTags = api.metadata?.tags || [];
-        return query.tags!.some((tag) => apiTags.includes(tag));
-      });
     }
 
     // Search in name/description
@@ -482,14 +554,57 @@ export class ApiRegistry {
 
   /**
    * Clear all registered APIs
-   * Useful for testing or hot-reload scenarios
+   * 
+   * **⚠️ SAFETY WARNING:**
+   * This method clears all registered APIs and should be used with caution.
+   * 
+   * **Usage Restrictions:**
+   * - In production environments (NODE_ENV=production), a `force: true` parameter is required
+   * - Primarily intended for testing and development hot-reload scenarios
+   * 
+   * @param options - Clear options
+   * @param options.force - Force clear in production environment (default: false)
+   * @throws Error if called in production without force flag
+   * 
+   * @example Safe usage in tests
+   * ```typescript
+   * beforeEach(() => {
+   *   registry.clear(); // OK in test environment
+   * });
+   * ```
+   * 
+   * @example Usage in production (requires explicit force)
+   * ```typescript
+   * // In production, explicit force is required
+   * registry.clear({ force: true });
+   * ```
    */
-  clear(): void {
+  clear(options: { force?: boolean } = {}): void {
+    const isProduction = process.env.NODE_ENV === 'production';
+    
+    if (isProduction && !options.force) {
+      throw new Error(
+        '[ApiRegistry] Cannot clear registry in production environment without force flag. ' +
+        'Use clear({ force: true }) if you really want to clear the registry.'
+      );
+    }
+
     this.apis.clear();
     this.endpoints.clear();
     this.routes.clear();
+    
+    // Clear auxiliary indices
+    this.apisByType.clear();
+    this.apisByTag.clear();
+    this.apisByStatus.clear();
+    
     this.updatedAt = new Date().toISOString();
-    this.logger.info('API registry cleared');
+    
+    if (isProduction) {
+      this.logger.warn('API registry forcefully cleared in production', { force: options.force });
+    } else {
+      this.logger.info('API registry cleared');
+    }
   }
 
   /**
@@ -523,5 +638,76 @@ export class ApiRegistry {
       apisByType,
       endpointsByApi,
     };
+  }
+
+  /**
+   * Update auxiliary indices when an API is registered
+   * 
+   * @param api - API entry to index
+   * @private
+   * @internal
+   */
+  private updateIndices(api: ApiRegistryEntry): void {
+    // Index by type
+    if (!this.apisByType.has(api.type)) {
+      this.apisByType.set(api.type, new Set());
+    }
+    this.apisByType.get(api.type)!.add(api.id);
+
+    // Index by status
+    const status = api.metadata?.status || 'active';
+    if (!this.apisByStatus.has(status)) {
+      this.apisByStatus.set(status, new Set());
+    }
+    this.apisByStatus.get(status)!.add(api.id);
+
+    // Index by tags
+    const tags = api.metadata?.tags || [];
+    for (const tag of tags) {
+      if (!this.apisByTag.has(tag)) {
+        this.apisByTag.set(tag, new Set());
+      }
+      this.apisByTag.get(tag)!.add(api.id);
+    }
+  }
+
+  /**
+   * Remove API from auxiliary indices when unregistered
+   * 
+   * @param api - API entry to remove from indices
+   * @private
+   * @internal
+   */
+  private removeFromIndices(api: ApiRegistryEntry): void {
+    // Remove from type index
+    const typeSet = this.apisByType.get(api.type);
+    if (typeSet) {
+      typeSet.delete(api.id);
+      if (typeSet.size === 0) {
+        this.apisByType.delete(api.type);
+      }
+    }
+
+    // Remove from status index
+    const status = api.metadata?.status || 'active';
+    const statusSet = this.apisByStatus.get(status);
+    if (statusSet) {
+      statusSet.delete(api.id);
+      if (statusSet.size === 0) {
+        this.apisByStatus.delete(status);
+      }
+    }
+
+    // Remove from tag indices
+    const tags = api.metadata?.tags || [];
+    for (const tag of tags) {
+      const tagSet = this.apisByTag.get(tag);
+      if (tagSet) {
+        tagSet.delete(api.id);
+        if (tagSet.size === 0) {
+          this.apisByTag.delete(tag);
+        }
+      }
+    }
   }
 }
