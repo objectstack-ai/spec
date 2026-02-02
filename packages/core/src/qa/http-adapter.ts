@@ -4,7 +4,7 @@ import { TestExecutionAdapter } from './adapter.js';
 export class HttpTestAdapter implements TestExecutionAdapter {
   constructor(private baseUrl: string, private authToken?: string) {}
 
-  async execute(action: QA.TestAction, context: Record<string, unknown>): Promise<unknown> {
+  async execute(action: QA.TestAction, _context: Record<string, unknown>): Promise<unknown> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };

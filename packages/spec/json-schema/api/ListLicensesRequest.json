@@ -1,0 +1,7 @@
+{
+  "$ref": "#/definitions/ListLicensesRequest",
+  "definitions": {
+    "ListLicensesRequest": {}
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

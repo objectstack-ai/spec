@@ -8,6 +8,7 @@
     "errors",
     "graphql",
     "http-cache",
+    "hub",
     "odata",
     "protocol",
     "realtime",

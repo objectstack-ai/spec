@@ -77,6 +77,7 @@ export const TestSuiteSchema = z.object({
   scenarios: z.array(TestScenarioSchema)
 });
 
+export type TestSuite = z.infer<typeof TestSuiteSchema>;
 export type TestScenario = z.infer<typeof TestScenarioSchema>;
 export type TestStep = z.infer<typeof TestStepSchema>;
 export type TestAction = z.infer<typeof TestActionSchema>;
