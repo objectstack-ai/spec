@@ -11,6 +11,43 @@
 
 ---
 
+## 🏗️ Project & Plugin Definition
+
+Use `objectstack.config.ts` to define your stack.
+
+```typescript
+import { defineStack } from '@objectstack/spec';
+
+export default defineStack({
+  manifest: {
+    id: 'com.example.app',
+    version: '1.0.0',
+    type: 'app',
+  },
+
+  // 1. Objects & Logic
+  objects: [ ... ],
+  flows: [ ... ],
+
+  // 2. Production Dependencies
+  plugins: [
+    '@objectstack/driver-postgres',
+  ],
+
+  // 3. Development Dependencies (like package.json devDependencies)
+  // These are ONLY loaded when running `objectstack dev`
+  devPlugins: [
+    '@objectstack/plugin-bi', // Debug integration with BI
+    {
+      manifest: { id: 'dev-db' },
+      datasources: [{ type: 'sqlite', url: 'file:dev.db' }]
+    }
+  ]
+});
+```
+
+---
+
 ## 🔌 Client SDK
 
 Access ObjectStack from your applications using the official client libraries:

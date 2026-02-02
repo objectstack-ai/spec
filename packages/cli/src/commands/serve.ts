@@ -34,6 +34,7 @@ export const serveCommand = new Command('serve')
   .description('Start ObjectStack server with plugins from configuration')
   .argument('[config]', 'Configuration file path', 'objectstack.config.ts')
   .option('-p, --port <port>', 'Server port', '3000')
+  .option('--dev', 'Run in development mode (load devPlugins)')
   .option('--no-server', 'Skip starting HTTP server plugin')
   .action(async (configPath, options) => {
     let port = parseInt(options.port);
@@ -90,14 +91,35 @@ export const serveCommand = new Command('serve')
       });
 
       // Load plugins from configuration
-      const plugins = config.plugins || [];
+      let plugins = config.plugins || [];
+
+      // Merge devPlugins if in dev mode
+      if (options.dev && config.devPlugins) {
+        console.log(chalk.blue(`📦 Loading development plugins...`));
+        plugins = [...plugins, ...config.devPlugins];
+      }
       
       if (plugins.length > 0) {
         console.log(chalk.yellow(`📦 Loading ${plugins.length} plugin(s)...`));
         
         for (const plugin of plugins) {
           try {
-            kernel.use(plugin);
+            let pluginToLoad = plugin;
+
+            // Resolve string references (package names)
+            if (typeof plugin === 'string') {
+              console.log(chalk.dim(`  Trying to resolve plugin: ${plugin}`));
+              try {
+                // Try dynamic import for packages
+                 const imported = await import(plugin);
+                 pluginToLoad = imported.default || imported;
+              } catch (importError: any) {
+                 // Fallback: try bundleRequire for local paths if needed, otherwise throw
+                 throw new Error(`Failed to import plugin '${plugin}': ${importError.message}`);
+              }
+            }
+
+            kernel.use(pluginToLoad);
             const pluginName = plugin.name || plugin.constructor?.name || 'unnamed';
             console.log(chalk.green(`  ✓ Registered plugin: ${pluginName}`));
           } catch (e: any) {

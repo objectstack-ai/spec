@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
-import { execSync } from 'child_process';
+import { execSync, spawn } from 'child_process';
 import os from 'os';
 import fs from 'fs';
 import path from 'path';
@@ -14,6 +14,28 @@ export const devCommand = new Command('dev')
     console.log(chalk.bold(`\n🚀 ObjectStack Development Mode`));
     console.log(chalk.dim(`-------------------------------`));
     
+    // Check if we are running inside a package (Single Package Mode)
+    // If "package" argument is 'all' (default) AND objectstack.config.ts exists in CWD
+    const configPath = path.resolve(process.cwd(), 'objectstack.config.ts');
+    if (packageName === 'all' && fs.existsSync(configPath)) {
+       console.log(chalk.blue(`📂 Detected package config: ${configPath}`));
+       console.log(chalk.green(`⚡ Starting Dev Server...`));
+       console.log('');
+
+       // Delegate to 'serve --dev'
+       // We spawn a new process to ensure clean environment and watch capabilities (plugin-loader etc)
+       // usage: objectstack serve --dev
+       const binPath = process.argv[1]; // path to objectstack bin
+       
+       const child = spawn(process.execPath, [binPath, 'serve', '--dev', ...(options.verbose ? ['--verbose'] : [])], {
+         stdio: 'inherit',
+         env: { ...process.env, NODE_ENV: 'development' }
+       });
+
+       return;
+    }
+
+    // Monorepo Orchestration Mode
     try {
       const cwd = process.cwd();
       const filter = packageName === 'all' ? '' : `--filter @objectstack/${packageName}`;
