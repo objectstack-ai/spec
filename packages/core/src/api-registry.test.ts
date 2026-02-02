@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ApiRegistry } from './api-registry';
 import type {
   ApiRegistryEntry,
-  ApiEndpointRegistration,
 } from '@objectstack/spec/api';
 import type { Logger } from '@objectstack/spec/contracts';
 
