@@ -1,0 +1,7 @@
+{
+  "$ref": "#/definitions/ValidateLicenseResponse",
+  "definitions": {
+    "ValidateLicenseResponse": {}
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
