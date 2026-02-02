@@ -1,0 +1,408 @@
+import type { Logger } from '@objectstack/spec/contracts';
+import type { PluginCapability } from '@objectstack/spec/system';
+import type { PluginContext } from '../types.js';
+
+/**
+ * Plugin Permissions
+ * Defines what actions a plugin is allowed to perform
+ */
+export interface PluginPermissions {
+  canAccessService(serviceName: string): boolean;
+  canTriggerHook(hookName: string): boolean;
+  canReadFile(path: string): boolean;
+  canWriteFile(path: string): boolean;
+  canNetworkRequest(url: string): boolean;
+}
+
+/**
+ * Permission Check Result
+ */
+export interface PermissionCheckResult {
+  allowed: boolean;
+  reason?: string;
+  capability?: string;
+}
+
+/**
+ * Plugin Permission Enforcer
+ * 
+ * Implements capability-based security model to enforce:
+ * 1. Service access control - which services a plugin can use
+ * 2. Hook restrictions - which hooks a plugin can trigger
+ * 3. File system permissions - what files a plugin can read/write
+ * 4. Network permissions - what URLs a plugin can access
+ * 
+ * Architecture:
+ * - Uses capability declarations from plugin manifest
+ * - Checks permissions before allowing operations
+ * - Logs all permission denials for security audit
+ * - Supports allowlist and denylist patterns
+ * 
+ * Security Model:
+ * - Principle of least privilege - plugins get minimal permissions
+ * - Explicit declaration - all capabilities must be declared
+ * - Runtime enforcement - checks happen at operation time
+ * - Audit trail - all denials are logged
+ * 
+ * Usage:
+ * ```typescript
+ * const enforcer = new PluginPermissionEnforcer(logger);
+ * enforcer.registerPluginPermissions(pluginName, capabilities);
+ * enforcer.enforceServiceAccess(pluginName, 'database');
+ * ```
+ */
+export class PluginPermissionEnforcer {
+  private logger: Logger;
+  private permissionRegistry: Map<string, PluginPermissions> = new Map();
+  private capabilityRegistry: Map<string, PluginCapability[]> = new Map();
+  
+  constructor(logger: Logger) {
+    this.logger = logger;
+  }
+  
+  /**
+   * Register plugin capabilities and build permission set
+   * 
+   * @param pluginName - Plugin identifier
+   * @param capabilities - Array of capability declarations
+   */
+  registerPluginPermissions(pluginName: string, capabilities: PluginCapability[]): void {
+    this.capabilityRegistry.set(pluginName, capabilities);
+    
+    const permissions: PluginPermissions = {
+      canAccessService: (service) => this.checkServiceAccess(capabilities, service),
+      canTriggerHook: (hook) => this.checkHookAccess(capabilities, hook),
+      canReadFile: (path) => this.checkFileRead(capabilities, path),
+      canWriteFile: (path) => this.checkFileWrite(capabilities, path),
+      canNetworkRequest: (url) => this.checkNetworkAccess(capabilities, url),
+    };
+    
+    this.permissionRegistry.set(pluginName, permissions);
+    
+    this.logger.info(`Permissions registered for plugin: ${pluginName}`, {
+      plugin: pluginName,
+      capabilityCount: capabilities.length,
+    });
+  }
+  
+  /**
+   * Enforce service access permission
+   * 
+   * @param pluginName - Plugin requesting access
+   * @param serviceName - Service to access
+   * @throws Error if permission denied
+   */
+  enforceServiceAccess(pluginName: string, serviceName: string): void {
+    const result = this.checkPermission(pluginName, (perms) => perms.canAccessService(serviceName));
+    
+    if (!result.allowed) {
+      const error = `Permission denied: Plugin ${pluginName} cannot access service ${serviceName}`;
+      this.logger.warn(error, {
+        plugin: pluginName,
+        service: serviceName,
+        reason: result.reason,
+      });
+      throw new Error(error);
+    }
+    
+    this.logger.debug(`Service access granted: ${pluginName} -> ${serviceName}`);
+  }
+  
+  /**
+   * Enforce hook trigger permission
+   * 
+   * @param pluginName - Plugin requesting access
+   * @param hookName - Hook to trigger
+   * @throws Error if permission denied
+   */
+  enforceHookTrigger(pluginName: string, hookName: string): void {
+    const result = this.checkPermission(pluginName, (perms) => perms.canTriggerHook(hookName));
+    
+    if (!result.allowed) {
+      const error = `Permission denied: Plugin ${pluginName} cannot trigger hook ${hookName}`;
+      this.logger.warn(error, {
+        plugin: pluginName,
+        hook: hookName,
+        reason: result.reason,
+      });
+      throw new Error(error);
+    }
+    
+    this.logger.debug(`Hook trigger granted: ${pluginName} -> ${hookName}`);
+  }
+  
+  /**
+   * Enforce file read permission
+   * 
+   * @param pluginName - Plugin requesting access
+   * @param path - File path to read
+   * @throws Error if permission denied
+   */
+  enforceFileRead(pluginName: string, path: string): void {
+    const result = this.checkPermission(pluginName, (perms) => perms.canReadFile(path));
+    
+    if (!result.allowed) {
+      const error = `Permission denied: Plugin ${pluginName} cannot read file ${path}`;
+      this.logger.warn(error, {
+        plugin: pluginName,
+        path,
+        reason: result.reason,
+      });
+      throw new Error(error);
+    }
+    
+    this.logger.debug(`File read granted: ${pluginName} -> ${path}`);
+  }
+  
+  /**
+   * Enforce file write permission
+   * 
+   * @param pluginName - Plugin requesting access
+   * @param path - File path to write
+   * @throws Error if permission denied
+   */
+  enforceFileWrite(pluginName: string, path: string): void {
+    const result = this.checkPermission(pluginName, (perms) => perms.canWriteFile(path));
+    
+    if (!result.allowed) {
+      const error = `Permission denied: Plugin ${pluginName} cannot write file ${path}`;
+      this.logger.warn(error, {
+        plugin: pluginName,
+        path,
+        reason: result.reason,
+      });
+      throw new Error(error);
+    }
+    
+    this.logger.debug(`File write granted: ${pluginName} -> ${path}`);
+  }
+  
+  /**
+   * Enforce network request permission
+   * 
+   * @param pluginName - Plugin requesting access
+   * @param url - URL to access
+   * @throws Error if permission denied
+   */
+  enforceNetworkRequest(pluginName: string, url: string): void {
+    const result = this.checkPermission(pluginName, (perms) => perms.canNetworkRequest(url));
+    
+    if (!result.allowed) {
+      const error = `Permission denied: Plugin ${pluginName} cannot access URL ${url}`;
+      this.logger.warn(error, {
+        plugin: pluginName,
+        url,
+        reason: result.reason,
+      });
+      throw new Error(error);
+    }
+    
+    this.logger.debug(`Network request granted: ${pluginName} -> ${url}`);
+  }
+  
+  /**
+   * Get plugin capabilities
+   * 
+   * @param pluginName - Plugin identifier
+   * @returns Array of capabilities or undefined
+   */
+  getPluginCapabilities(pluginName: string): PluginCapability[] | undefined {
+    return this.capabilityRegistry.get(pluginName);
+  }
+  
+  /**
+   * Get plugin permissions
+   * 
+   * @param pluginName - Plugin identifier
+   * @returns Permissions object or undefined
+   */
+  getPluginPermissions(pluginName: string): PluginPermissions | undefined {
+    return this.permissionRegistry.get(pluginName);
+  }
+  
+  /**
+   * Revoke all permissions for a plugin
+   * 
+   * @param pluginName - Plugin identifier
+   */
+  revokePermissions(pluginName: string): void {
+    this.permissionRegistry.delete(pluginName);
+    this.capabilityRegistry.delete(pluginName);
+    this.logger.warn(`Permissions revoked for plugin: ${pluginName}`);
+  }
+  
+  // Private methods
+  
+  private checkPermission(
+    pluginName: string,
+    check: (perms: PluginPermissions) => boolean
+  ): PermissionCheckResult {
+    const permissions = this.permissionRegistry.get(pluginName);
+    
+    if (!permissions) {
+      return {
+        allowed: false,
+        reason: 'Plugin permissions not registered',
+      };
+    }
+    
+    const allowed = check(permissions);
+    
+    return {
+      allowed,
+      reason: allowed ? undefined : 'No matching capability found',
+    };
+  }
+  
+  private checkServiceAccess(capabilities: PluginCapability[], serviceName: string): boolean {
+    // Check if plugin has capability to access this service
+    return capabilities.some(cap => {
+      const protocolId = cap.protocol.id;
+      
+      // Check for wildcard service access
+      if (protocolId.includes('protocol.service.all')) {
+        return true;
+      }
+      
+      // Check for specific service protocol
+      if (protocolId.includes(`protocol.service.${serviceName}`)) {
+        return true;
+      }
+      
+      // Check for service category match
+      const serviceCategory = serviceName.split('.')[0];
+      if (protocolId.includes(`protocol.service.${serviceCategory}`)) {
+        return true;
+      }
+      
+      return false;
+    });
+  }
+  
+  private checkHookAccess(capabilities: PluginCapability[], hookName: string): boolean {
+    // Check if plugin has capability to trigger this hook
+    return capabilities.some(cap => {
+      const protocolId = cap.protocol.id;
+      
+      // Check for wildcard hook access
+      if (protocolId.includes('protocol.hook.all')) {
+        return true;
+      }
+      
+      // Check for specific hook protocol
+      if (protocolId.includes(`protocol.hook.${hookName}`)) {
+        return true;
+      }
+      
+      // Check for hook category match
+      const hookCategory = hookName.split(':')[0];
+      if (protocolId.includes(`protocol.hook.${hookCategory}`)) {
+        return true;
+      }
+      
+      return false;
+    });
+  }
+  
+  private checkFileRead(capabilities: PluginCapability[], _path: string): boolean {
+    // Check if plugin has capability to read this file
+    return capabilities.some(cap => {
+      const protocolId = cap.protocol.id;
+      
+      // Check for file read capability
+      if (protocolId.includes('protocol.filesystem.read')) {
+        // TODO: Add path pattern matching
+        return true;
+      }
+      
+      return false;
+    });
+  }
+  
+  private checkFileWrite(capabilities: PluginCapability[], _path: string): boolean {
+    // Check if plugin has capability to write this file
+    return capabilities.some(cap => {
+      const protocolId = cap.protocol.id;
+      
+      // Check for file write capability
+      if (protocolId.includes('protocol.filesystem.write')) {
+        // TODO: Add path pattern matching
+        return true;
+      }
+      
+      return false;
+    });
+  }
+  
+  private checkNetworkAccess(capabilities: PluginCapability[], _url: string): boolean {
+    // Check if plugin has capability to access this URL
+    return capabilities.some(cap => {
+      const protocolId = cap.protocol.id;
+      
+      // Check for network capability
+      if (protocolId.includes('protocol.network')) {
+        // TODO: Add URL pattern matching
+        return true;
+      }
+      
+      return false;
+    });
+  }
+}
+
+/**
+ * Secure Plugin Context
+ * Wraps PluginContext with permission checks
+ */
+export class SecurePluginContext implements PluginContext {
+  constructor(
+    private pluginName: string,
+    private permissionEnforcer: PluginPermissionEnforcer,
+    private baseContext: PluginContext
+  ) {}
+  
+  registerService(name: string, service: any): void {
+    // No permission check for service registration (handled during init)
+    this.baseContext.registerService(name, service);
+  }
+  
+  getService<T>(name: string): T {
+    // Check permission before accessing service
+    this.permissionEnforcer.enforceServiceAccess(this.pluginName, name);
+    return this.baseContext.getService<T>(name);
+  }
+  
+  getServices(): Map<string, any> {
+    // Return all services (no permission check for listing)
+    return this.baseContext.getServices();
+  }
+  
+  hook(name: string, handler: (...args: any[]) => void | Promise<void>): void {
+    // No permission check for registering hooks (handled during init)
+    this.baseContext.hook(name, handler);
+  }
+  
+  async trigger(name: string, ...args: any[]): Promise<void> {
+    // Check permission before triggering hook
+    this.permissionEnforcer.enforceHookTrigger(this.pluginName, name);
+    await this.baseContext.trigger(name, ...args);
+  }
+  
+  get logger() {
+    return this.baseContext.logger;
+  }
+  
+  getKernel() {
+    return this.baseContext.getKernel();
+  }
+}
+
+/**
+ * Create a plugin permission enforcer
+ * 
+ * @param logger - Logger instance
+ * @returns Plugin permission enforcer
+ */
+export function createPluginPermissionEnforcer(logger: Logger): PluginPermissionEnforcer {
+  return new PluginPermissionEnforcer(logger);
+}

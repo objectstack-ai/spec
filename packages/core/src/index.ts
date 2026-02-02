@@ -15,6 +15,9 @@ export * from './api-registry.js';
 export * from './api-registry-plugin.js';
 export * as QA from './qa/index.js';
 
+// Export security utilities
+export * from './security/index.js';
+
 // Re-export contracts from @objectstack/spec for backward compatibility
 export type { 
     Logger,
