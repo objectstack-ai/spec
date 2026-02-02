@@ -4,6 +4,7 @@
     "batch",
     "contract",
     "discovery",
+    "documentation",
     "endpoint",
     "errors",
     "graphql",
@@ -12,6 +13,7 @@
     "odata",
     "protocol",
     "realtime",
+    "registry",
     "rest-server",
     "router",
     "websocket"
