@@ -7,6 +7,7 @@
  * - OData v4 compatibility
  * - Batch operations
  * - Metadata caching
+ * - Hub Management APIs
  */
 
 export * from './contract.zod';
@@ -22,6 +23,7 @@ export * from './http-cache.zod';
 export * from './errors.zod';
 export * from './protocol.zod';
 export * from './rest-server.zod';
+export * from './hub.zod';
 
 // Legacy interface export (deprecated)
 // export type { IObjectStackProtocol } from './protocol';
