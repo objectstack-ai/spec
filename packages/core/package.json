@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@objectstack/spec": "workspace:*",
-    "pino": "^8.17.0",
+    "pino": "^10.3.0",
     "pino-pretty": "^10.3.0",
     "zod": "^4.3.6"
   },
