@@ -8,7 +8,10 @@ import {
   MetadataCacheRequest,
   MetadataCacheResponse,
   StandardErrorCode,
-  ErrorCategory
+  ErrorCategory,
+  GetDiscoveryResponse,
+  GetMetaTypesResponse,
+  GetMetaItemsResponse
 } from '@objectstack/spec/api';
 import { Logger, createLogger } from '@objectstack/core';
 
@@ -29,16 +32,11 @@ export interface ClientConfig {
   debug?: boolean;
 }
 
-export interface DiscoveryResult {
-  routes: {
-    discovery: string;
-    metadata: string;
-    data: string;
-    auth: string;
-    ui: string;
-  };
-  capabilities?: Record<string, boolean>;
-}
+/**
+ * Discovery Result
+ * Re-export from @objectstack/spec/api for convenience
+ */
+export type DiscoveryResult = GetDiscoveryResponse;
 
 export interface QueryOptions {
   select?: string[]; // Simplified Selection
@@ -69,7 +67,7 @@ export class ObjectStackClient {
   private baseUrl: string;
   private token?: string;
   private fetchImpl: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
-  private routes?: DiscoveryResult['routes'];
+  private discoveryInfo?: DiscoveryResult;
   private logger: Logger;
 
   constructor(config: ClientConfig) {
@@ -87,21 +85,21 @@ export class ObjectStackClient {
   }
 
   /**
-   * Initialize the client by discovering server capabilities and routes.
+   * Initialize the client by discovering server capabilities.
    */
   async connect() {
     this.logger.debug('Connecting to ObjectStack server', { baseUrl: this.baseUrl });
     
     try {
-      // Connect to the discovery endpoint
-      // During boot, we might not know routes, so we check convention /api/v1 first
+      // Connect to the discovery endpoint at /api/v1
       const res = await this.fetch(`${this.baseUrl}/api/v1`);
       
       const data = await res.json();
-      this.routes = data.routes;
+      this.discoveryInfo = data;
       
       this.logger.info('Connected to ObjectStack server', { 
-        routes: Object.keys(data.routes || {}),
+        version: data.version,
+        apiName: data.apiName,
         capabilities: data.capabilities 
       });
       
@@ -116,9 +114,45 @@ export class ObjectStackClient {
    * Metadata Operations
    */
   meta = {
+    /**
+     * Get all available metadata types
+     * Returns types like 'object', 'plugin', 'view', etc.
+     */
+    getTypes: async (): Promise<GetMetaTypesResponse> => {
+        const route = this.getRoute('metadata');
+        const res = await this.fetch(`${this.baseUrl}${route}`);
+        return res.json();
+    },
+
+    /**
+     * Get all items of a specific metadata type
+     * @param type - Metadata type name (e.g., 'object', 'plugin')
+     */
+    getItems: async (type: string): Promise<GetMetaItemsResponse> => {
+        const route = this.getRoute('metadata');
+        const res = await this.fetch(`${this.baseUrl}${route}/${type}`);
+        return res.json();
+    },
+
+    /**
+     * Get a specific object definition by name
+     * @deprecated Use `getItem('object', name)` instead for consistency with spec protocol
+     * @param name - Object name (snake_case identifier)
+     */
     getObject: async (name: string) => {
         const route = this.getRoute('metadata');
         const res = await this.fetch(`${this.baseUrl}${route}/object/${name}`);
+        return res.json();
+    },
+
+    /**
+     * Get a specific metadata item by type and name
+     * @param type - Metadata type (e.g., 'object', 'plugin')
+     * @param name - Item name (snake_case identifier)
+     */
+    getItem: async (type: string, name: string) => {
+        const route = this.getRoute('metadata');
+        const res = await this.fetch(`${this.baseUrl}${route}/${type}/${name}`);
         return res.json();
     },
     
@@ -407,16 +441,20 @@ export class ObjectStackClient {
     return res;
   }
 
-  private getRoute(key: keyof DiscoveryResult['routes']): string {
-    if (!this.routes) {
-        // Fallback for strictness, but we allow bootstrapping
-        this.logger.warn('Accessing route before connect()', { 
-          route: key, 
-          fallback: `/api/v1/${key}` 
-        });
-        return `/api/v1/${key}`;
-    }
-    return this.routes[key] || `/api/v1/${key}`; 
+  /**
+   * Get the conventional route path for a given API endpoint type
+   * ObjectStack uses standard conventions: /api/v1/data, /api/v1/meta, /api/v1/ui
+   */
+  private getRoute(type: 'data' | 'metadata' | 'ui' | 'auth'): string {
+    // Use conventional ObjectStack API paths
+    const routeMap: Record<string, string> = {
+      data: '/api/v1/data',
+      metadata: '/api/v1/meta',
+      ui: '/api/v1/ui',
+      auth: '/api/v1/auth'
+    };
+    
+    return routeMap[type] || `/api/v1/${type}`;
   }
 }
 
@@ -435,5 +473,8 @@ export type {
   MetadataCacheRequest,
   MetadataCacheResponse,
   StandardErrorCode,
-  ErrorCategory
+  ErrorCategory,
+  GetDiscoveryResponse,
+  GetMetaTypesResponse,
+  GetMetaItemsResponse
 } from '@objectstack/spec/api';
