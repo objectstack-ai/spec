@@ -2,9 +2,11 @@
   "title": "Hub Protocol",
   "pages": [
     "composer",
+    "hub-federation",
     "license",
     "marketplace",
     "plugin-registry",
+    "plugin-security",
     "space",
     "tenant"
   ]

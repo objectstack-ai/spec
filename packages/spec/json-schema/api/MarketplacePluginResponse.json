@@ -1,0 +1,7 @@
+{
+  "$ref": "#/definitions/MarketplacePluginResponse",
+  "definitions": {
+    "MarketplacePluginResponse": {}
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

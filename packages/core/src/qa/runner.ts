@@ -129,7 +129,7 @@ export class TestRunner {
     return result;
   }
 
-  private resolveVariables(action: QA.TestAction, context: Record<string, unknown>): QA.TestAction {
+  private resolveVariables(action: QA.TestAction, _context: Record<string, unknown>): QA.TestAction {
     // TODO: Implement JSON path variable substitution stringify/parse
     // For now returning as is
     return action; 
@@ -146,7 +146,7 @@ export class TestRunner {
     return current;
   }
 
-  private assert(result: unknown, assertion: QA.TestAssertion, context: Record<string, unknown>) {
+  private assert(result: unknown, assertion: QA.TestAssertion, _context: Record<string, unknown>) {
     const actual = this.getValueByPath(result, assertion.field);
     // Resolve expected value if it's a variable ref? 
     const expected = assertion.expectedValue; // Simplify for now
