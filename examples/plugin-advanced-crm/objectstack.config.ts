@@ -1,4 +1,6 @@
 import { defineStack } from '@objectstack/spec';
+// @ts-ignore
+import BiPlugin from '../../plugin-bi/objectstack.config.js';
 
 /**
  * Advanced CRM Plugin Example
@@ -24,6 +26,18 @@ export default defineStack({
     '@objectstack/spec': '^0.6.0',
     '@objectstack/driver-postgres': '^1.0.0',
   },
+
+  // Developer Plugins (Example: Load BI Plugin for local testing)
+  devPlugins: [
+    BiPlugin,
+    // Define a local SQLite datasource for testing
+    {
+      manifest: { id: 'dev-db' },
+      datasources: [
+        { type: 'sqlite', url: 'file:./dev.db' }
+      ]
+    } 
+  ],
 
   // Required System Permissions
   permissions: [

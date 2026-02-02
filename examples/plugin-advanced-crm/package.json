@@ -1,0 +1,15 @@
+{
+  "name": "@objectstack/plugin-advanced-crm",
+  "version": "0.1.0",
+  "main": "objectstack.config.ts",
+  "private": true,
+  "scripts": {
+     "dev": "objectstack dev"
+  },
+  "dependencies": {
+    "@objectstack/spec": "workspace:*"
+  },
+  "devDependencies": {
+     "typescript": "^5.0.0"
+  }
+}

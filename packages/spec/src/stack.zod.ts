@@ -106,6 +106,14 @@ export const ObjectStackDefinitionSchema = z.object({
    * List of plugins to load. Can be a Manifest object or a package name string.
    */
   plugins: z.array(z.union([ManifestSchema, z.string()])).optional().describe('Plugins to load'),
+
+  /**
+   * DevPlugins: Development Capabilities
+   * List of plugins to load ONLY in development environment.
+   * Equivalent to `devDependencies` in package.json.
+   * Useful for loading dev-tools, mock data generators, or referencing local sibling packages for debugging.
+   */
+  devPlugins: z.array(z.union([ManifestSchema, z.string()])).optional().describe('Plugins to load only in development (CLI dev command)'),
 });
 
 export type ObjectStackDefinition = z.infer<typeof ObjectStackDefinitionSchema>;
