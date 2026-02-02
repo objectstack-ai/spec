@@ -1,15 +1,15 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { z } from 'zod';
-import { PluginConfigValidator } from '../plugin-config-validator.js';
-import { createLogger } from '../../logger.js';
-import type { PluginMetadata } from '../../plugin-loader.js';
+import { PluginConfigValidator } from './plugin-config-validator.js';
+import { createLogger } from '../logger.js';
+import type { PluginMetadata } from '../plugin-loader.js';
 
 describe('PluginConfigValidator', () => {
   let validator: PluginConfigValidator;
   let logger: ReturnType<typeof createLogger>;
   
   beforeEach(() => {
-    logger = createLogger({ level: 'silent' });
+    logger = createLogger({ level: 'error' });
     validator = new PluginConfigValidator(logger);
   });
   

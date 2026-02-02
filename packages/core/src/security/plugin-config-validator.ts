@@ -62,7 +62,7 @@ export class PluginConfigValidator {
           ...formattedErrors.map(e => `  - ${e.path}: ${e.message}`),
         ].join('\n');
         
-        this.logger.error(errorMessage, {
+        this.logger.error(errorMessage, undefined, {
           plugin: plugin.name,
           errors: formattedErrors,
         });
@@ -89,7 +89,8 @@ export class PluginConfigValidator {
     
     try {
       // Use Zod's partial() method for partial validation
-      const partialSchema = plugin.configSchema.partial();
+      // Cast to ZodObject to access partial() method
+      const partialSchema = (plugin.configSchema as any).partial();
       const validatedConfig = partialSchema.parse(partialConfig);
       
       this.logger.debug(`✅ Partial config validated: ${plugin.name}`);
@@ -171,8 +172,8 @@ export class PluginConfigValidator {
   
   // Private methods
   
-  private formatZodErrors(error: z.ZodError): Array<{path: string; message: string}> {
-    return error.errors.map(e => ({
+  private formatZodErrors(error: z.ZodError<any>): Array<{path: string; message: string}> {
+    return error.issues.map((e: z.ZodIssue) => ({
       path: e.path.join('.') || 'root',
       message: e.message,
     }));

@@ -1,15 +1,15 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { PluginPermissionEnforcer, SecurePluginContext } from '../plugin-permission-enforcer.js';
-import { createLogger } from '../../logger.js';
+import { PluginPermissionEnforcer, SecurePluginContext } from './plugin-permission-enforcer.js';
+import { createLogger } from '../logger.js';
 import type { PluginCapability } from '@objectstack/spec/system';
-import type { PluginContext } from '../../types.js';
+import type { PluginContext } from '../types.js';
 
 describe('PluginPermissionEnforcer', () => {
   let enforcer: PluginPermissionEnforcer;
   let logger: ReturnType<typeof createLogger>;
   
   beforeEach(() => {
-    logger = createLogger({ level: 'silent' });
+    logger = createLogger({ level: 'error' });
     enforcer = new PluginPermissionEnforcer(logger);
   });
   
@@ -23,6 +23,7 @@ describe('PluginPermissionEnforcer', () => {
             version: { major: 1, minor: 0, patch: 0 },
           },
           conformance: 'full',
+          certified: false,
         },
       ];
       
@@ -43,6 +44,7 @@ describe('PluginPermissionEnforcer', () => {
             version: { major: 1, minor: 0, patch: 0 },
           },
           conformance: 'full',
+          certified: false,
         },
       ];
       
@@ -63,6 +65,7 @@ describe('PluginPermissionEnforcer', () => {
             version: { major: 1, minor: 0, patch: 0 },
           },
           conformance: 'full',
+          certified: false,
         },
       ];
       
@@ -82,6 +85,7 @@ describe('PluginPermissionEnforcer', () => {
             version: { major: 1, minor: 0, patch: 0 },
           },
           conformance: 'full',
+          certified: false,
         },
       ];
       
@@ -106,6 +110,7 @@ describe('PluginPermissionEnforcer', () => {
             version: { major: 1, minor: 0, patch: 0 },
           },
           conformance: 'full',
+          certified: false,
         },
       ];
       
@@ -125,6 +130,7 @@ describe('PluginPermissionEnforcer', () => {
             version: { major: 1, minor: 0, patch: 0 },
           },
           conformance: 'full',
+          certified: false,
         },
       ];
       
@@ -146,6 +152,7 @@ describe('PluginPermissionEnforcer', () => {
             version: { major: 1, minor: 0, patch: 0 },
           },
           conformance: 'full',
+          certified: false,
         },
       ];
       
@@ -165,12 +172,12 @@ describe('SecurePluginContext', () => {
   let mockBaseContext: PluginContext;
   
   beforeEach(() => {
-    logger = createLogger({ level: 'silent' });
+    logger = createLogger({ level: 'error' });
     enforcer = new PluginPermissionEnforcer(logger);
     
     mockBaseContext = {
       registerService: () => {},
-      getService: (name: string) => ({ name }),
+      getService: <T>(name: string): T => ({ name } as any),
       getServices: () => new Map(),
       hook: () => {},
       trigger: async () => {},
@@ -189,6 +196,7 @@ describe('SecurePluginContext', () => {
             version: { major: 1, minor: 0, patch: 0 },
           },
           conformance: 'full',
+          certified: false,
         },
       ];
       
@@ -221,6 +229,7 @@ describe('SecurePluginContext', () => {
             version: { major: 1, minor: 0, patch: 0 },
           },
           conformance: 'full',
+          certified: false,
         },
       ];
       

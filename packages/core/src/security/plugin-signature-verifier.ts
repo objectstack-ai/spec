@@ -3,7 +3,7 @@ import type { PluginMetadata } from '../plugin-loader.js';
 
 // Conditionally import crypto for Node.js environments
 let cryptoModule: typeof import('crypto') | null = null;
-if (typeof window === 'undefined') {
+if (typeof (globalThis as any).window === 'undefined') {
   try {
     // Dynamic import for Node.js crypto module
     // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -132,7 +132,7 @@ export class PluginSignatureVerifier {
       
       if (!isValid) {
         const error = `Signature verification failed for plugin: ${plugin.name}`;
-        this.logger.error(error, { plugin: plugin.name, publisherId });
+        this.logger.error(error, undefined, { plugin: plugin.name, publisherId });
         throw new Error(error);
       }
       
@@ -190,7 +190,7 @@ export class PluginSignatureVerifier {
   private handleUnsignedPlugin(plugin: PluginMetadata): SignatureVerificationResult {
     if (this.config.strictMode) {
       const error = `Plugin missing signature (strict mode): ${plugin.name}`;
-      this.logger.error(error, { plugin: plugin.name });
+      this.logger.error(error, undefined, { plugin: plugin.name });
       throw new Error(error);
     }
     
@@ -220,7 +220,7 @@ export class PluginSignatureVerifier {
   
   private computePluginHash(plugin: PluginMetadata): string {
     // In browser environment, use SubtleCrypto
-    if (typeof window !== 'undefined') {
+    if (typeof (globalThis as any).window !== 'undefined') {
       return this.computePluginHashBrowser(plugin);
     }
     
@@ -287,7 +287,7 @@ export class PluginSignatureVerifier {
     publicKey: string
   ): Promise<boolean> {
     // In browser environment, use SubtleCrypto
-    if (typeof window !== 'undefined') {
+    if (typeof (globalThis as any).window !== 'undefined') {
       return this.verifyCryptoSignatureBrowser(data, signature, publicKey);
     }
     
