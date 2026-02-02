@@ -307,8 +307,9 @@ export class ApiRegistry {
    * 
    * NOTE: This implementation uses exact string matching for route conflict detection.
    * It works well for static paths but has limitations with parameterized routes.
-   * For example, `/api/users/:id` and `/api/users/detail` will NOT be detected as conflicts
-   * even though they may overlap at runtime depending on the routing library.
+   * For example, `/api/users/:id` and `/api/users/:userId` will NOT be detected as conflicts
+   * even though they are semantically identical parameterized patterns. Similarly,
+   * `/api/:resource/list` and `/api/:entity/list` would also not be detected as conflicting.
    * 
    * For more advanced conflict detection (e.g., path-to-regexp pattern matching),
    * consider integrating with your routing library's conflict detection mechanism.
@@ -580,7 +581,7 @@ export class ApiRegistry {
    * ```
    */
   clear(options: { force?: boolean } = {}): void {
-    const isProduction = process.env.NODE_ENV === 'production';
+    const isProduction = this.isProductionEnvironment();
     
     if (isProduction && !options.force) {
       throw new Error(
@@ -718,5 +719,16 @@ export class ApiRegistry {
         map.delete(key);
       }
     }
+  }
+
+  /**
+   * Check if running in production environment
+   * 
+   * @returns true if NODE_ENV is 'production'
+   * @private
+   * @internal
+   */
+  private isProductionEnvironment(): boolean {
+    return process.env.NODE_ENV === 'production';
   }
 }
