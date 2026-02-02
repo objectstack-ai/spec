@@ -32,7 +32,7 @@ Each example file can be run independently with `tsx`:
 
 ```bash
 # Run a specific example
-npx tsx examples/basic/ai-rag-example.ts
+npx tsx examples/basic/stack-definition-example.ts
 
 # Or uncomment the demonstration function calls at the end of each file
 ```
@@ -86,24 +86,6 @@ Demonstrates the API Discovery protocol for runtime introspection:
 - Runtime capabilities
 - Authentication configuration
 - Feature flags
-
-### AI & RAG Pipeline
-**File:** [`ai-rag-example.ts`](./ai-rag-example.ts)
-
-Shows Retrieval-Augmented Generation (RAG) pipeline configuration:
-- Document ingestion and chunking
-- Vector embeddings and storage
-- Semantic search and retrieval
-- Context assembly for LLMs
-- AI agent with RAG integration
-
-**Key Concepts:**
-- RAG pipeline configuration
-- Document processing
-- Vector database integration
-- Hybrid search (vector + keyword)
-- Reranking for better results
-- Context template formatting
 
 ### Auth & Permissions
 **File:** [`auth-permission-example.ts`](./auth-permission-example.ts)

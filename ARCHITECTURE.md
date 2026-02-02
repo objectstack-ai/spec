@@ -285,16 +285,6 @@ Located in `packages/plugins/*`:
 
 **Dependencies**: `@objectstack/spec`, `commander`, `chalk`, `tsx`, `zod`
 
-#### `@objectstack/ai-bridge`
-**Location**: `packages/ai-bridge/`  
-**Role**: AI Integration
-
-- AI agent bridge
-- LLM integrations
-- RAG pipeline
-
-**Dependencies**: `@objectstack/spec`, `zod`
-
 ---
 
 ## Layer Architecture
@@ -458,8 +448,6 @@ interface PluginCapabilityManifest {
     │       └── @objectstack/driver-memory
     │
     ├── @objectstack/cli (Standalone tool)
-    │
-    └── @objectstack/ai-bridge
 ```
 
 ### Dependency Rules
