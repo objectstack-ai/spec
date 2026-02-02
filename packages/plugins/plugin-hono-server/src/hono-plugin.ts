@@ -645,7 +645,7 @@ export class HonoServerPlugin implements Plugin {
                     });
                     
                     if (result.notModified) {
-                        res.status(304).json({});
+                        res.status(304).send('');
                     } else {
                         // Set cache headers
                         if (result.etag) {
@@ -994,7 +994,7 @@ export class HonoServerPlugin implements Plugin {
                 
                 if (result.notModified) {
                     ctx.logger.debug('Meta item not modified (304)', { type: req.params.type, name: req.params.name });
-                    res.status(304).json({});
+                    res.status(304).send('');
                 } else {
                     // Set cache headers
                     if (result.etag) {
