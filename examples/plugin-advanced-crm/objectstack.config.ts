@@ -1,4 +1,4 @@
-import { ObjectStackManifest } from '@objectstack/spec/system';
+import { defineStack } from '@objectstack/spec';
 
 /**
  * Advanced CRM Plugin Example
@@ -10,7 +10,8 @@ import { ObjectStackManifest } from '@objectstack/spec/system';
  * - Defines extension points
  * - Uses proper naming conventions
  */
-const CRMPlugin: ObjectStackManifest = {
+export default defineStack({
+  manifest: {
   // Basic Information
   id: 'com.acme.crm.advanced',
   name: 'ACME Advanced CRM',
@@ -392,6 +393,4 @@ const CRMPlugin: ObjectStackManifest = {
       entry: './src/index.ts',
     },
   },
-};
-
-export default CRMPlugin;
+}});

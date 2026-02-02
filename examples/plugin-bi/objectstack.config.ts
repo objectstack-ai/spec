@@ -1,14 +1,15 @@
-import { ObjectStackManifest } from '@objectstack/spec/system';
+import { defineStack } from '@objectstack/spec';
 
-const BiPlugin: ObjectStackManifest = {
-  id: 'com.objectstack.bi',
-  name: 'Business Intelligence Plugin',
-  version: '1.0.0',
-  type: 'plugin',
-  description: 'Provides BI capabilities, dataset definitions, and chart rendering.',
-  
-  // 1. Configuration (Settings)
-  configuration: {
+export default defineStack({
+  manifest: {
+    id: 'com.objectstack.bi',
+    name: 'Business Intelligence Plugin',
+    version: '1.0.0',
+    type: 'plugin',
+    description: 'Provides BI capabilities, dataset definitions, and chart rendering.',
+    
+    // 1. Configuration (Settings)
+    configuration: {
     title: 'BI Plugin Configuration',
     properties: {
       enableCache: {
@@ -53,13 +54,12 @@ const BiPlugin: ObjectStackManifest = {
     ]
   },
 
-  // 3. Lifecycle Entry Point
-  // in a real scenario, this would be a path or module name
-  extensions: {
-    runtime: {
-      entry: './src/index.ts'
+    // 3. Lifecycle Entry Point
+    // in a real scenario, this would be a path or module name
+    extensions: {
+      runtime: {
+        entry: './src/index.ts'
+      }
     }
   }
-};
-
-export default BiPlugin;
+});
