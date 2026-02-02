@@ -1,0 +1,7 @@
+{
+  "$ref": "#/definitions/ApiTestRequest",
+  "definitions": {
+    "ApiTestRequest": {}
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
