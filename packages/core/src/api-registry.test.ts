@@ -795,4 +795,295 @@ describe('ApiRegistry', () => {
       expect(result.total).toBe(1);
     });
   });
+
+  describe('Performance Optimizations', () => {
+    it('should use indices for fast type-based lookups', () => {
+      // Register multiple APIs with different types
+      registry.registerApi({
+        id: 'rest_api_1',
+        name: 'REST API 1',
+        type: 'rest',
+        version: 'v1',
+        basePath: '/api/rest1',
+        endpoints: [{ id: 'e1', path: '/api/rest1', responses: [] }],
+      });
+
+      registry.registerApi({
+        id: 'rest_api_2',
+        name: 'REST API 2',
+        type: 'rest',
+        version: 'v1',
+        basePath: '/api/rest2',
+        endpoints: [{ id: 'e2', path: '/api/rest2', responses: [] }],
+      });
+
+      registry.registerApi({
+        id: 'graphql_api',
+        name: 'GraphQL API',
+        type: 'graphql',
+        version: 'v1',
+        basePath: '/graphql',
+        endpoints: [{ id: 'e3', path: '/graphql', responses: [] }],
+      });
+
+      // Should efficiently find all REST APIs
+      const restApis = registry.findApis({ type: 'rest' });
+      expect(restApis.total).toBe(2);
+      expect(restApis.apis.every(api => api.type === 'rest')).toBe(true);
+
+      // Should efficiently find GraphQL APIs
+      const graphqlApis = registry.findApis({ type: 'graphql' });
+      expect(graphqlApis.total).toBe(1);
+      expect(graphqlApis.apis[0].id).toBe('graphql_api');
+    });
+
+    it('should use indices for fast tag-based lookups', () => {
+      registry.registerApi({
+        id: 'api_1',
+        name: 'API 1',
+        type: 'rest',
+        version: 'v1',
+        basePath: '/api1',
+        endpoints: [{ id: 'e1', path: '/api1', responses: [] }],
+        metadata: { tags: ['customer', 'crm'] },
+      });
+
+      registry.registerApi({
+        id: 'api_2',
+        name: 'API 2',
+        type: 'rest',
+        version: 'v1',
+        basePath: '/api2',
+        endpoints: [{ id: 'e2', path: '/api2', responses: [] }],
+        metadata: { tags: ['order', 'sales'] },
+      });
+
+      registry.registerApi({
+        id: 'api_3',
+        name: 'API 3',
+        type: 'rest',
+        version: 'v1',
+        basePath: '/api3',
+        endpoints: [{ id: 'e3', path: '/api3', responses: [] }],
+        metadata: { tags: ['customer', 'analytics'] },
+      });
+
+      // Should efficiently find APIs by tag
+      const customerApis = registry.findApis({ tags: ['customer'] });
+      expect(customerApis.total).toBe(2);
+      expect(customerApis.apis.map(a => a.id).sort()).toEqual(['api_1', 'api_3']);
+
+      // Should support multiple tags (ANY match)
+      const multiTagApis = registry.findApis({ tags: ['crm', 'sales'] });
+      expect(multiTagApis.total).toBe(2);
+    });
+
+    it('should use indices for fast status-based lookups', () => {
+      registry.registerApi({
+        id: 'active_api',
+        name: 'Active API',
+        type: 'rest',
+        version: 'v1',
+        basePath: '/active',
+        endpoints: [{ id: 'e1', path: '/active', responses: [] }],
+        metadata: { status: 'active' },
+      });
+
+      registry.registerApi({
+        id: 'beta_api',
+        name: 'Beta API',
+        type: 'rest',
+        version: 'v1',
+        basePath: '/beta',
+        endpoints: [{ id: 'e2', path: '/beta', responses: [] }],
+        metadata: { status: 'beta' },
+      });
+
+      registry.registerApi({
+        id: 'deprecated_api',
+        name: 'Deprecated API',
+        type: 'rest',
+        version: 'v1',
+        basePath: '/deprecated',
+        endpoints: [{ id: 'e3', path: '/deprecated', responses: [] }],
+        metadata: { status: 'deprecated' },
+      });
+
+      // Should efficiently find by status
+      const activeApis = registry.findApis({ status: 'active' });
+      expect(activeApis.total).toBe(1);
+      expect(activeApis.apis[0].id).toBe('active_api');
+
+      const betaApis = registry.findApis({ status: 'beta' });
+      expect(betaApis.total).toBe(1);
+    });
+
+    it('should combine multiple indexed filters efficiently', () => {
+      registry.registerApi({
+        id: 'rest_crm_active',
+        name: 'REST CRM Active',
+        type: 'rest',
+        version: 'v1',
+        basePath: '/crm',
+        endpoints: [{ id: 'e1', path: '/crm', responses: [] }],
+        metadata: { status: 'active', tags: ['crm', 'customer'] },
+      });
+
+      registry.registerApi({
+        id: 'rest_crm_beta',
+        name: 'REST CRM Beta',
+        type: 'rest',
+        version: 'v1',
+        basePath: '/crm-beta',
+        endpoints: [{ id: 'e2', path: '/crm-beta', responses: [] }],
+        metadata: { status: 'beta', tags: ['crm'] },
+      });
+
+      registry.registerApi({
+        id: 'graphql_crm_active',
+        name: 'GraphQL CRM Active',
+        type: 'graphql',
+        version: 'v1',
+        basePath: '/graphql',
+        endpoints: [{ id: 'e3', path: '/graphql', responses: [] }],
+        metadata: { status: 'active', tags: ['crm'] },
+      });
+
+      // Combine type + status + tags filters
+      const result = registry.findApis({
+        type: 'rest',
+        status: 'active',
+        tags: ['crm'],
+      });
+
+      expect(result.total).toBe(1);
+      expect(result.apis[0].id).toBe('rest_crm_active');
+    });
+
+    it('should maintain indices when APIs are unregistered', () => {
+      registry.registerApi({
+        id: 'temp_api',
+        name: 'Temporary API',
+        type: 'rest',
+        version: 'v1',
+        basePath: '/temp',
+        endpoints: [{ id: 'e1', path: '/temp', responses: [] }],
+        metadata: { status: 'beta', tags: ['temp', 'test'] },
+      });
+
+      // Verify it's in indices
+      expect(registry.findApis({ type: 'rest' }).total).toBe(1);
+      expect(registry.findApis({ status: 'beta' }).total).toBe(1);
+      expect(registry.findApis({ tags: ['temp'] }).total).toBe(1);
+
+      // Unregister
+      registry.unregisterApi('temp_api');
+
+      // Verify removed from indices
+      expect(registry.findApis({ type: 'rest' }).total).toBe(0);
+      expect(registry.findApis({ status: 'beta' }).total).toBe(0);
+      expect(registry.findApis({ tags: ['temp'] }).total).toBe(0);
+    });
+  });
+
+  describe('Safety Guards', () => {
+    it('should allow clear() in non-production environment', () => {
+      const originalEnv = process.env.NODE_ENV;
+      try {
+        process.env.NODE_ENV = 'test';
+
+        registry.registerApi({
+          id: 'test_api',
+          name: 'Test API',
+          type: 'rest',
+          version: 'v1',
+          basePath: '/test',
+          endpoints: [{ id: 'e1', path: '/test', responses: [] }],
+        });
+
+        expect(registry.getStats().totalApis).toBe(1);
+
+        // Should work without force flag in non-production
+        registry.clear();
+        expect(registry.getStats().totalApis).toBe(0);
+      } finally {
+        process.env.NODE_ENV = originalEnv;
+      }
+    });
+
+    it('should prevent clear() in production without force flag', () => {
+      const originalEnv = process.env.NODE_ENV;
+      try {
+        process.env.NODE_ENV = 'production';
+
+        registry.registerApi({
+          id: 'prod_api',
+          name: 'Production API',
+          type: 'rest',
+          version: 'v1',
+          basePath: '/prod',
+          endpoints: [{ id: 'e1', path: '/prod', responses: [] }],
+        });
+
+        // Should throw error in production without force flag
+        expect(() => registry.clear()).toThrow(
+          'Cannot clear registry in production environment without force flag'
+        );
+
+        // API should still exist
+        expect(registry.getStats().totalApis).toBe(1);
+      } finally {
+        process.env.NODE_ENV = originalEnv;
+      }
+    });
+
+    it('should allow clear() in production with force flag', () => {
+      const originalEnv = process.env.NODE_ENV;
+      try {
+        process.env.NODE_ENV = 'production';
+
+        registry.registerApi({
+          id: 'prod_api',
+          name: 'Production API',
+          type: 'rest',
+          version: 'v1',
+          basePath: '/prod',
+          endpoints: [{ id: 'e1', path: '/prod', responses: [] }],
+        });
+
+        expect(registry.getStats().totalApis).toBe(1);
+
+        // Should work with force flag
+        registry.clear({ force: true });
+        expect(registry.getStats().totalApis).toBe(0);
+
+        // Verify logger warned about forced clear
+        expect(logger.warn).toHaveBeenCalledWith(
+          'API registry forcefully cleared in production',
+          { force: true }
+        );
+      } finally {
+        process.env.NODE_ENV = originalEnv;
+      }
+    });
+
+    it('should clear all indices when clear() is called', () => {
+      registry.registerApi({
+        id: 'api_1',
+        name: 'API 1',
+        type: 'rest',
+        version: 'v1',
+        basePath: '/api1',
+        endpoints: [{ id: 'e1', path: '/api1', responses: [] }],
+        metadata: { status: 'active', tags: ['test'] },
+      });
+
+      registry.clear();
+
+      // All lookups should return empty
+      expect(registry.findApis({ type: 'rest' }).total).toBe(0);
+      expect(registry.findApis({ status: 'active' }).total).toBe(0);
+      expect(registry.findApis({ tags: ['test'] }).total).toBe(0);
+    });
+  });
 });

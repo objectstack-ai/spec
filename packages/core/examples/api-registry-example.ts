@@ -477,6 +477,16 @@ async function example5_DynamicSchemas() {
                 statusCode: 200,
                 description: 'Customer retrieved',
                 // Dynamic schema linked to ObjectQL
+                // 
+                // IMPORTANT: The API Registry stores this ObjectQL reference as-is.
+                // The actual schema resolution (expanding the reference into a full JSON Schema)
+                // is performed by downstream tools:
+                // - API Gateway: For runtime request/response validation
+                // - OpenAPI/Swagger Generator: For API documentation generation
+                // - GraphQL Schema Builder: For GraphQL type generation
+                // 
+                // The Registry's responsibility is to STORE the reference metadata,
+                // not to resolve or transform it.
                 schema: {
                   $ref: {
                     objectId: 'customer', // References ObjectQL object
@@ -506,10 +516,12 @@ async function example5_DynamicSchemas() {
   
   if (endpoint?.responses?.[0]?.schema && '$ref' in endpoint.responses[0].schema) {
     const ref = endpoint.responses[0].schema.$ref;
-    console.log('\n  Schema Reference:');
+    console.log('\n  Schema Reference (stored as metadata):');
     console.log(`    Object: ${ref.objectId}`);
     console.log(`    Excluded Fields: ${ref.excludeFields?.join(', ')}`);
     console.log(`    Included Related: ${ref.includeRelated?.join(', ')}`);
+    console.log('\n  ℹ️  Note: Schema resolution is handled by gateway/documentation tools,');
+    console.log('     not by the API Registry itself.');
   }
 
   await kernel.shutdown();
