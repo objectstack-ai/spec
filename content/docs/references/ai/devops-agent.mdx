@@ -1,0 +1,293 @@
+---
+title: DevOps Agent
+description: DevOps Agent protocol schemas
+---
+
+# DevOps Agent
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/devops-agent.zod.ts`
+</Callout>
+
+## Overview
+
+The DevOps Agent Protocol defines autonomous DevOps agents that can self-iterate on enterprise management software development using the ObjectStack specification. These agents integrate with GitHub for version control and Vercel for deployment, enabling fully automated development, testing, and release cycles.
+
+## TypeScript Usage
+
+```typescript
+import {
+  DevOpsAgentSchema,
+  CodeGenerationConfigSchema,
+  CICDPipelineConfigSchema,
+  DeploymentStrategySchema,
+  MonitoringConfigSchema
+} from '@objectstack/spec/ai';
+
+import type {
+  DevOpsAgent,
+  CodeGenerationConfig,
+  CICDPipelineConfig,
+  DeploymentStrategy,
+  MonitoringConfig
+} from '@objectstack/spec/ai';
+
+// Define a DevOps agent
+const devOpsAgent: DevOpsAgent = {
+  name: 'devops_automation_agent',
+  label: 'DevOps Automation Agent',
+  role: 'Senior Full-Stack DevOps Engineer',
+  instructions: '...',
+  model: {
+    provider: 'openai',
+    model: 'gpt-4-turbo-preview',
+    temperature: 0.3
+  },
+  developmentConfig: {
+    specificationSource: 'packages/spec',
+    codeGeneration: {
+      enabled: true,
+      targets: ['frontend', 'backend', 'api']
+    }
+  },
+  integrations: {
+    github: {
+      connector: 'github_production',
+      repository: {
+        owner: 'objectstack-ai',
+        name: 'app'
+      }
+    },
+    vercel: {
+      connector: 'vercel_production',
+      project: 'objectstack-app'
+    }
+  }
+};
+
+// Validate
+const validatedAgent = DevOpsAgentSchema.parse(devOpsAgent);
+```
+
+---
+
+## Key Components
+
+### DevOpsAgent
+
+Extends the base `AgentSchema` with DevOps-specific configurations:
+
+**Additional Properties:**
+- `developmentConfig` (DevelopmentConfig) - Development configuration
+- `pipelines` (CICDPipelineConfig[], optional) - CI/CD pipelines
+- `versionManagement` (VersionManagement, optional) - Version management
+- `deploymentStrategy` (DeploymentStrategy, optional) - Deployment strategy
+- `monitoring` (MonitoringConfig, optional) - Monitoring configuration
+- `integrations` (IntegrationConfig) - GitHub and Vercel integrations
+- `selfIteration` (object, optional) - Self-iteration configuration
+
+---
+
+### CodeGenerationConfig
+
+Configuration for automated code generation.
+
+**Properties:**
+- `enabled` (boolean) - Enable code generation (default: true)
+- `targets` (CodeGenerationTarget[]) - Generation targets
+- `templateRepo` (string, optional) - Template repository
+- `styleGuide` (string, optional) - Code style guide
+- `includeTests` (boolean) - Generate tests (default: true)
+- `includeDocumentation` (boolean) - Generate docs (default: true)
+- `validationMode` ('strict' | 'moderate' | 'permissive') - Validation strictness
+
+**Code Generation Targets:**
+- `frontend` - Frontend UI components
+- `backend` - Backend services
+- `api` - API endpoints
+- `database` - Database schemas
+- `tests` - Test suites
+- `documentation` - Documentation
+- `infrastructure` - Infrastructure as code
+
+---
+
+### CICDPipelineConfig
+
+CI/CD pipeline configuration.
+
+**Properties:**
+- `name` (string) - Pipeline name
+- `trigger` ('push' | 'pull_request' | 'release' | 'schedule' | 'manual') - Trigger type
+- `branches` (string[], optional) - Branch filters
+- `stages` (PipelineStage[]) - Pipeline stages
+- `notifications` (object, optional) - Notification settings
+
+**Pipeline Stage Types:**
+- `build` - Build stage
+- `test` - Test execution
+- `lint` - Code linting
+- `security_scan` - Security scanning
+- `deploy` - Deployment
+- `smoke_test` - Post-deployment tests
+- `rollback` - Rollback to previous version
+
+---
+
+### DeploymentStrategy
+
+Deployment strategy configuration.
+
+**Properties:**
+- `type` ('rolling' | 'blue_green' | 'canary' | 'recreate') - Strategy type
+- `canaryPercentage` (number) - Canary percentage (default: 10)
+- `healthCheckUrl` (string, optional) - Health check endpoint
+- `healthCheckTimeout` (number) - Timeout in seconds (default: 60)
+- `autoRollback` (boolean) - Auto-rollback on failure (default: true)
+- `smokeTests` (string[], optional) - Smoke test commands
+
+---
+
+### GitHubIntegration
+
+GitHub integration configuration.
+
+**Properties:**
+- `connector` (string) - GitHub connector name
+- `repository` (object) - Repository config (owner, name)
+- `featureBranch` (string) - Default feature branch (default: 'develop')
+- `pullRequest` (object, optional) - PR settings
+  - `autoCreate` (boolean) - Auto-create PRs (default: true)
+  - `autoMerge` (boolean) - Auto-merge when checks pass (default: false)
+  - `requireReviews` (boolean) - Require reviews (default: true)
+  - `deleteBranchOnMerge` (boolean) - Delete after merge (default: true)
+
+---
+
+### VercelIntegration
+
+Vercel deployment integration configuration.
+
+**Properties:**
+- `connector` (string) - Vercel connector name
+- `project` (string) - Vercel project name
+- `environments` (object, optional) - Environment mapping
+  - `production` (string) - Production branch (default: 'main')
+  - `preview` (string[]) - Preview branches
+- `deployment` (object, optional) - Deployment settings
+  - `autoDeployProduction` (boolean) - Auto-deploy prod (default: false)
+  - `autoDeployPreview` (boolean) - Auto-deploy preview (default: true)
+  - `requireApproval` (boolean) - Require approval (default: true)
+
+---
+
+## Use Cases
+
+### 1. Automated Feature Development
+
+```typescript
+const featureDevAgent: DevOpsAgent = {
+  name: 'feature_dev_agent',
+  label: 'Feature Development Agent',
+  role: 'Full-Stack Developer',
+  instructions: 'Generate features from specifications',
+  model: { provider: 'openai', model: 'gpt-4-turbo' },
+  developmentConfig: {
+    specificationSource: 'packages/spec',
+    codeGeneration: {
+      enabled: true,
+      targets: ['frontend', 'backend', 'api', 'tests'],
+      validationMode: 'strict',
+      includeTests: true
+    }
+  },
+  integrations: {
+    github: {
+      connector: 'github_main',
+      repository: { owner: 'myorg', name: 'app' },
+      pullRequest: {
+        autoCreate: true,
+        requireReviews: true
+      }
+    },
+    vercel: {
+      connector: 'vercel_main',
+      project: 'myapp',
+      deployment: {
+        autoDeployPreview: true,
+        autoDeployProduction: false
+      }
+    }
+  }
+};
+```
+
+### 2. Continuous Integration Pipeline
+
+```typescript
+const ciPipeline: CICDPipelineConfig = {
+  name: 'CI Pipeline',
+  trigger: 'pull_request',
+  branches: ['main', 'develop'],
+  stages: [
+    {
+      name: 'Lint',
+      type: 'lint',
+      order: 1,
+      parallel: false,
+      commands: ['pnpm run lint'],
+      timeout: 180,
+      retryOnFailure: false,
+      maxRetries: 0
+    },
+    {
+      name: 'Test',
+      type: 'test',
+      order: 2,
+      parallel: false,
+      commands: ['pnpm run test:ci'],
+      timeout: 600,
+      retryOnFailure: false,
+      maxRetries: 0
+    }
+  ]
+};
+```
+
+### 3. Canary Deployment
+
+```typescript
+const canaryDeployment: DeploymentStrategy = {
+  type: 'canary',
+  canaryPercentage: 10,
+  healthCheckUrl: '/api/health',
+  healthCheckTimeout: 60,
+  autoRollback: true,
+  smokeTests: ['pnpm run test:smoke']
+};
+```
+
+---
+
+## Architecture
+
+The DevOps Agent follows these principles:
+
+1. **Self-Iterating Development**: Continuously improves based on feedback
+2. **Automated Code Generation**: Follows ObjectStack specifications
+3. **Continuous Integration**: Automated testing and validation
+4. **Version Management**: Semantic versioning with changelogs
+5. **Monitoring and Rollback**: Automated health checks and rollbacks
+
+---
+
+## Best Practices
+
+1. **Start with strict validation**: Use `validationMode: 'strict'` for production
+2. **Enable testing**: Always set `includeTests: true`
+3. **Require reviews**: Set `requireReviews: true` for production deployments
+4. **Auto-rollback**: Enable `autoRollback: true` for safety
+5. **Monitor deployments**: Configure comprehensive monitoring alerts
+6. **Use feature branches**: Follow Git flow with feature branches
+7. **Semantic versioning**: Use `scheme: 'semver'` for version management
+8. **Gradual rollouts**: Use canary deployments for critical changes

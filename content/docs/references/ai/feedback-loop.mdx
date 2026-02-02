@@ -1,0 +1,427 @@
+---
+title: Feedback Loop
+description: Feedback Loop protocol schemas
+---
+
+# Feedback Loop
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/feedback-loop.zod.ts`
+</Callout>
+
+## Overview
+
+The Feedback Loop Protocol defines the structure for AI-powered runtime issue detection, analysis, and automated resolution. It enables the system to identify issues, trace them back to their metadata source, and propose automated fixes.
+
+This creates a self-healing architecture where runtime errors can trigger metadata changes, closing the loop between development and production.
+
+## TypeScript Usage
+
+```typescript
+import {
+  FeedbackLoopSchema,
+  IssueSchema,
+  ResolutionSchema,
+  MetadataSourceSchema
+} from '@objectstack/spec/ai';
+
+import type {
+  FeedbackLoop,
+  Issue,
+  Resolution,
+  MetadataSource
+} from '@objectstack/spec/ai';
+
+// Record a runtime issue
+const issue: Issue = {
+  id: 'issue-001',
+  severity: 'error',
+  message: 'Validation failed on field "email"',
+  timestamp: new Date().toISOString(),
+  userId: 'user-123',
+  context: {
+    object: 'contact',
+    field: 'email',
+    value: 'invalid-email'
+  },
+  source: {
+    package: '@myapp/crm',
+    object: 'contact',
+    field: 'email',
+    file: 'packages/crm/src/objects/contact.object.ts',
+    line: 45
+  }
+};
+
+// Create a feedback loop
+const feedbackLoop: FeedbackLoop = {
+  issue,
+  analysis: 'Email validation rule is too permissive',
+  resolutions: [
+    {
+      issueId: 'issue-001',
+      reasoning: 'Add stricter email validation pattern',
+      confidence: 0.95,
+      fix: {
+        type: 'metadata_change',
+        changeSet: {
+          // ChangeSet definition
+        }
+      }
+    }
+  ],
+  status: 'analyzing'
+};
+
+// Validate
+const validatedLoop = FeedbackLoopSchema.parse(feedbackLoop);
+```
+
+---
+
+## MetadataSource
+
+Identifies the source of truth for metadata that caused the issue.
+
+**Properties:**
+- `file` (string, optional) - Source file path
+- `line` (number, optional) - Line number in file
+- `column` (number, optional) - Column number in file
+- `package` (string, optional) - Package name
+- `object` (string, optional) - Object name
+- `field` (string, optional) - Field name
+- `component` (string, optional) - UI component or flow node
+
+**Example:**
+```typescript
+const source: MetadataSource = {
+  file: 'packages/crm/src/objects/contact.object.ts',
+  line: 45,
+  column: 12,
+  package: '@myapp/crm',
+  object: 'contact',
+  field: 'email'
+};
+```
+
+---
+
+## Issue
+
+Represents a runtime issue detected in the system.
+
+**Properties:**
+- `id` (string) - Unique issue identifier
+- `severity` ('critical' | 'error' | 'warning' | 'info') - Issue severity
+- `message` (string) - Error message
+- `stackTrace` (string, optional) - Stack trace
+- `timestamp` (string) - ISO datetime when issue occurred
+- `userId` (string, optional) - User who encountered the issue
+- `context` (`Record<string, unknown>`, optional) - Context snapshot
+- `source` (MetadataSource, optional) - Suspected metadata source
+
+**Severity Levels:**
+- `critical` - System-breaking issues requiring immediate attention
+- `error` - Functional errors that prevent normal operation
+- `warning` - Issues that may cause problems but don't break functionality
+- `info` - Informational issues for optimization
+
+**Example:**
+```typescript
+const issue: Issue = {
+  id: 'issue-002',
+  severity: 'critical',
+  message: 'Database connection failed',
+  stackTrace: 'Error: ECONNREFUSED...',
+  timestamp: '2026-02-02T10:30:00.000Z',
+  context: {
+    datasource: 'postgres_main',
+    operation: 'connect'
+  },
+  source: {
+    package: '@myapp/core',
+    file: 'packages/core/src/datasources.ts',
+    line: 23
+  }
+};
+```
+
+---
+
+## Resolution
+
+AI-proposed resolution for an issue.
+
+**Properties:**
+- `issueId` (string) - Reference to issue ID
+- `reasoning` (string) - Explanation of why this fix is needed
+- `confidence` (number) - Confidence score (0-1)
+- `fix` (discriminated union) - The proposed fix
+
+**Fix Types:**
+
+### 1. Metadata Change
+Proposes a change to metadata configuration.
+
+```typescript
+{
+  type: 'metadata_change',
+  changeSet: ChangeSetSchema
+}
+```
+
+### 2. Manual Intervention
+Requires human intervention with instructions.
+
+```typescript
+{
+  type: 'manual_intervention',
+  instructions: 'Update database credentials in environment variables'
+}
+```
+
+**Example:**
+```typescript
+const resolution: Resolution = {
+  issueId: 'issue-001',
+  reasoning: 'Add email validation pattern to prevent invalid formats',
+  confidence: 0.95,
+  fix: {
+    type: 'metadata_change',
+    changeSet: {
+      operation: 'update',
+      object: 'contact',
+      field: 'email',
+      changes: {
+        validation: {
+          pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+          message: 'Please enter a valid email address'
+        }
+      }
+    }
+  }
+};
+```
+
+---
+
+## FeedbackLoop
+
+Complete feedback loop record tracking issue resolution.
+
+**Properties:**
+- `issue` (Issue) - The detected issue
+- `analysis` (string, optional) - AI analysis of root cause
+- `resolutions` (Resolution[], optional) - Proposed resolutions
+- `status` ('open' | 'analyzing' | 'resolved' | 'ignored') - Current status
+
+**Workflow:**
+1. **open** - Issue detected, awaiting analysis
+2. **analyzing** - AI is analyzing the issue
+3. **resolved** - Fix applied successfully
+4. **ignored** - Issue marked as non-critical or false positive
+
+**Example:**
+```typescript
+const feedbackLoop: FeedbackLoop = {
+  issue: {
+    id: 'issue-003',
+    severity: 'warning',
+    message: 'Slow query detected on contact list',
+    timestamp: '2026-02-02T11:00:00.000Z',
+    context: {
+      object: 'contact',
+      query: 'list_all_contacts',
+      duration: 2500
+    }
+  },
+  analysis: 'Missing database index on frequently queried field "last_name"',
+  resolutions: [
+    {
+      issueId: 'issue-003',
+      reasoning: 'Add index on last_name field to improve query performance',
+      confidence: 0.98,
+      fix: {
+        type: 'metadata_change',
+        changeSet: {
+          operation: 'add_index',
+          object: 'contact',
+          index: {
+            fields: ['last_name'],
+            type: 'btree'
+          }
+        }
+      }
+    }
+  ],
+  status: 'resolved'
+};
+```
+
+---
+
+## Use Cases
+
+### 1. Automated Validation Fix
+
+```typescript
+const validationIssue: FeedbackLoop = {
+  issue: {
+    id: 'val-001',
+    severity: 'error',
+    message: 'Invalid phone number format',
+    timestamp: new Date().toISOString(),
+    context: {
+      object: 'contact',
+      field: 'phone',
+      value: '123'
+    },
+    source: {
+      object: 'contact',
+      field: 'phone'
+    }
+  },
+  analysis: 'Phone validation rule is missing or too permissive',
+  resolutions: [
+    {
+      issueId: 'val-001',
+      reasoning: 'Add phone number validation pattern',
+      confidence: 0.92,
+      fix: {
+        type: 'metadata_change',
+        changeSet: {
+          operation: 'update',
+          object: 'contact',
+          field: 'phone',
+          changes: {
+            validation: {
+              pattern: '^\\+?[1-9]\\d{1,14}$',
+              message: 'Please enter a valid phone number'
+            }
+          }
+        }
+      }
+    }
+  ],
+  status: 'resolved'
+};
+```
+
+### 2. Permission Issue Detection
+
+```typescript
+const permissionIssue: FeedbackLoop = {
+  issue: {
+    id: 'perm-001',
+    severity: 'critical',
+    message: 'Unauthorized access to sensitive data',
+    timestamp: new Date().toISOString(),
+    userId: 'user-456',
+    context: {
+      object: 'financial_record',
+      operation: 'read',
+      userRole: 'guest'
+    },
+    source: {
+      object: 'financial_record',
+      file: 'packages/finance/src/objects/financial-record.object.ts'
+    }
+  },
+  analysis: 'Missing or incorrect permission rules for financial_record object',
+  resolutions: [
+    {
+      issueId: 'perm-001',
+      reasoning: 'Add strict permission rules to prevent unauthorized access',
+      confidence: 0.99,
+      fix: {
+        type: 'metadata_change',
+        changeSet: {
+          operation: 'update',
+          object: 'financial_record',
+          changes: {
+            permissions: {
+              read: ['admin', 'finance_manager'],
+              write: ['admin'],
+              delete: ['admin']
+            }
+          }
+        }
+      }
+    }
+  ],
+  status: 'resolved'
+};
+```
+
+### 3. Performance Optimization
+
+```typescript
+const performanceIssue: FeedbackLoop = {
+  issue: {
+    id: 'perf-001',
+    severity: 'warning',
+    message: 'Query timeout on large dataset',
+    timestamp: new Date().toISOString(),
+    context: {
+      object: 'order',
+      query: 'list_orders',
+      duration: 5000,
+      recordCount: 50000
+    }
+  },
+  analysis: 'Missing indexes on frequently queried fields',
+  resolutions: [
+    {
+      issueId: 'perf-001',
+      reasoning: 'Add composite index on status and created_at for better query performance',
+      confidence: 0.97,
+      fix: {
+        type: 'metadata_change',
+        changeSet: {
+          operation: 'add_index',
+          object: 'order',
+          index: {
+            fields: ['status', 'created_at'],
+            type: 'btree'
+          }
+        }
+      }
+    }
+  ],
+  status: 'resolved'
+};
+```
+
+---
+
+## Architecture
+
+The Feedback Loop creates a self-healing system:
+
+```
+Runtime Issue → AI Analysis → Metadata Fix → Deployment → Monitoring
+     ↑                                                          ↓
+     └─────────────────── Continuous Learning ←───────────────┘
+```
+
+**Flow:**
+1. **Detection**: Runtime issue occurs in production
+2. **Capture**: Issue details and context are captured
+3. **Analysis**: AI analyzes the root cause
+4. **Resolution**: AI proposes metadata changes
+5. **Validation**: Changes are validated before deployment
+6. **Deployment**: Metadata updates are deployed
+7. **Monitoring**: Issue is monitored to confirm resolution
+
+---
+
+## Best Practices
+
+1. **Capture rich context**: Include as much context as possible in issues
+2. **Track metadata source**: Always include source file/line information
+3. **High confidence threshold**: Only auto-apply fixes with confidence > 0.9
+4. **Human review for critical**: Require manual approval for critical severity
+5. **Version control**: Store all metadata changes in version control
+6. **Monitor resolutions**: Track if resolutions actually fixed the issue
+7. **Learn from patterns**: Use historical data to improve future resolutions
+8. **Graceful fallback**: Use manual intervention for low-confidence fixes
