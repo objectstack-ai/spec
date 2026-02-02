@@ -309,9 +309,9 @@ export class PluginSignatureVerifier {
   }
   
   private async verifyCryptoSignatureBrowser(
-    data: string,
-    signature: string,
-    publicKey: string
+    _data: string,
+    _signature: string,
+    _publicKey: string
   ): Promise<boolean> {
     // Browser implementation using SubtleCrypto
     // TODO: Implement SubtleCrypto-based verification

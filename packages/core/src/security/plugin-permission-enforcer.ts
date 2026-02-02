@@ -304,7 +304,7 @@ export class PluginPermissionEnforcer {
     });
   }
   
-  private checkFileRead(capabilities: PluginCapability[], path: string): boolean {
+  private checkFileRead(capabilities: PluginCapability[], _path: string): boolean {
     // Check if plugin has capability to read this file
     return capabilities.some(cap => {
       const protocolId = cap.protocol.id;
@@ -319,7 +319,7 @@ export class PluginPermissionEnforcer {
     });
   }
   
-  private checkFileWrite(capabilities: PluginCapability[], path: string): boolean {
+  private checkFileWrite(capabilities: PluginCapability[], _path: string): boolean {
     // Check if plugin has capability to write this file
     return capabilities.some(cap => {
       const protocolId = cap.protocol.id;
@@ -334,7 +334,7 @@ export class PluginPermissionEnforcer {
     });
   }
   
-  private checkNetworkAccess(capabilities: PluginCapability[], url: string): boolean {
+  private checkNetworkAccess(capabilities: PluginCapability[], _url: string): boolean {
     // Check if plugin has capability to access this URL
     return capabilities.some(cap => {
       const protocolId = cap.protocol.id;
