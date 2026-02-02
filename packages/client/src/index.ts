@@ -9,7 +9,9 @@ import {
   MetadataCacheResponse,
   StandardErrorCode,
   ErrorCategory,
-  GetDiscoveryResponse
+  GetDiscoveryResponse,
+  GetMetaTypesResponse,
+  GetMetaItemsResponse
 } from '@objectstack/spec/api';
 import { Logger, createLogger } from '@objectstack/core';
 
@@ -112,9 +114,44 @@ export class ObjectStackClient {
    * Metadata Operations
    */
   meta = {
+    /**
+     * Get all available metadata types
+     * Returns types like 'object', 'plugin', 'view', etc.
+     */
+    getTypes: async (): Promise<GetMetaTypesResponse> => {
+        const route = this.getRoute('metadata');
+        const res = await this.fetch(`${this.baseUrl}${route}`);
+        return res.json();
+    },
+
+    /**
+     * Get all items of a specific metadata type
+     * @param type - Metadata type name (e.g., 'object', 'plugin')
+     */
+    getItems: async (type: string): Promise<GetMetaItemsResponse> => {
+        const route = this.getRoute('metadata');
+        const res = await this.fetch(`${this.baseUrl}${route}/${type}`);
+        return res.json();
+    },
+
+    /**
+     * Get a specific object definition by name
+     * Legacy method - prefer getItem for consistency
+     */
     getObject: async (name: string) => {
         const route = this.getRoute('metadata');
         const res = await this.fetch(`${this.baseUrl}${route}/object/${name}`);
+        return res.json();
+    },
+
+    /**
+     * Get a specific metadata item by type and name
+     * @param type - Metadata type (e.g., 'object', 'plugin')
+     * @param name - Item name (snake_case identifier)
+     */
+    getItem: async (type: string, name: string) => {
+        const route = this.getRoute('metadata');
+        const res = await this.fetch(`${this.baseUrl}${route}/${type}/${name}`);
         return res.json();
     },
     
@@ -436,5 +473,7 @@ export type {
   MetadataCacheResponse,
   StandardErrorCode,
   ErrorCategory,
-  GetDiscoveryResponse
+  GetDiscoveryResponse,
+  GetMetaTypesResponse,
+  GetMetaItemsResponse
 } from '@objectstack/spec/api';
