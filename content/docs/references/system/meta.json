@@ -25,6 +25,7 @@
     "plugin",
     "plugin-capability",
     "plugin-lifecycle-events",
+    "plugin-loading",
     "plugin-validator",
     "search-engine",
     "service-registry",

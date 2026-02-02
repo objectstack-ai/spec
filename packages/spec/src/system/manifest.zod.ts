@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { PluginCapabilityManifestSchema } from './plugin-capability.zod';
+import { PluginLoadingConfigSchema } from './plugin-loading.zod';
 
 /**
  * Schema for the ObjectStack Manifest.
@@ -197,6 +198,14 @@ export const ManifestSchema = z.object({
    * Allows packages to extend UI components, add functionality, etc.
    */
   extensions: z.record(z.string(), z.any()).optional().describe('Extension points and contributions'),
+
+  /**
+   * Plugin Loading Configuration.
+   * Configures how the plugin is loaded, initialized, and managed at runtime.
+   * Includes strategies for lazy loading, code splitting, caching, and hot reload.
+   */
+  loading: PluginLoadingConfigSchema.optional()
+    .describe('Plugin loading and runtime behavior configuration'),
 });
 
 /**
