@@ -116,46 +116,15 @@ export type ObjectStack = ObjectStackDefinition;
 
 /**
  * Type-safe helper to define a generic stack.
- * @deprecated Use `defineProject` or `definePlugin` for better semantics.
+ * 
+ * In ObjectStack, the concept of "Project" and "Plugin" is fluid:
+ * - A **Project** is simply a Stack that is currently being executed (the `cwd`).
+ * - A **Plugin** is a Stack that is being loaded by another Stack.
+ * 
+ * This unified definition allows any "Project" (e.g., Todo App) to be imported 
+ * as a "Plugin" into a larger system (e.g., Company PaaS) without code changes.
  */
 export const defineStack = (config: z.input<typeof ObjectStackDefinitionSchema>) => config;
-
-/**
- * Semantic Helper: Define a runnable Project (Root)
- * 
- * Used for the main `objectstack.config.ts` of an application.
- * Describes a full ObjectStack instance, including Datasources and root Manifest.
- * 
- * @example
- * export default defineProject({
- *   // Project Identity
- *   manifest: { package: 'my-crm-app' },
- *   
- *   // Runtime Connectivity
- *   datasources: [...],
- *   
- *   // Capabilities
- *   plugins: ['@objectstack/plugin-bi'],
- *   objects: [ ... ]
- * })
- */
-export const defineProject = (config: z.input<typeof ObjectStackDefinitionSchema>) => config;
-
-/**
- * Semantic Helper: Define a reusable Plugin (Extension)
- * 
- * Used for `objectstack.config.ts` inside a plugin package.
- * Plugins should focus on providing capabilities (Objects, Apps, Flows) 
- * and avoid defining specific `datasources` or runtime bindings.
- * 
- * @example
- * export default definePlugin({
- *   manifest: { package: '@objectstack/plugin-workflow' },
- *   objects: [ WorkflowRequest ],
- *   flows: [ ApproveRequestFlow ]
- * })
- */
-export const definePlugin = (config: z.input<typeof ObjectStackDefinitionSchema>) => config;
 
 
 /**

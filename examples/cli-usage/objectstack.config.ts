@@ -1,9 +1,9 @@
-import { defineProject } from '@objectstack/spec';
+import { defineStack } from '@objectstack/spec';
 import { Project } from './src/project.object.js';
 // @ts-ignore
 import CRMPlugin from '../../plugin-advanced-crm/objectstack.config.js';
 
-export default defineProject({
+export default defineStack({
   objects: [
     Project
   ],
