@@ -308,8 +308,8 @@ export class PluginSignatureVerifier {
     try {
       // Create verify object based on algorithm
       if (this.config.algorithm === 'ES256') {
-        // ECDSA verification
-        const verify = cryptoModule.createVerify('SHA256');
+        // ECDSA verification - requires lowercase 'sha256'
+        const verify = cryptoModule.createVerify('sha256');
         verify.update(data);
         return verify.verify(
           {
