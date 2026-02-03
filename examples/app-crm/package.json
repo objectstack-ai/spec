@@ -1,6 +1,6 @@
 {
   "name": "@example/app-crm",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Example CRM implementation using ObjectStack Protocol",
   "private": true,
   "scripts": {

@@ -1,6 +1,6 @@
 {
   "name": "@example/plugin-bi",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "main": "src/index.ts",
   "license": "MIT",
   "private": true,

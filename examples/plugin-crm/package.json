@@ -1,15 +1,15 @@
 {
   "name": "@example/plugin-crm",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "objectstack.config.ts",
   "private": true,
   "scripts": {
-     "dev": "objectstack dev"
+    "dev": "objectstack dev"
   },
   "dependencies": {
     "@objectstack/spec": "workspace:*"
   },
   "devDependencies": {
-     "typescript": "^5.0.0"
+    "typescript": "^5.0.0"
   }
 }
