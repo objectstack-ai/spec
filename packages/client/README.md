@@ -12,6 +12,17 @@ The official TypeScript client for ObjectStack.
 - **View Storage**: Save, load, and share custom UI view configurations.
 - **Standardized Errors**: Machine-readable error codes with retry guidance.
 
+## 🤖 AI Development Context
+
+**Role**: Browser/Node Client SDK
+**Usage**:
+- Use this in Frontend Apps (React, etc.) or external Node scripts.
+- Interacts with `packages/runtime` over HTTP.
+
+**Key namespaces**:
+- `client.meta`: Metadata operations.
+- `client.data`: Data operations.
+
 ## Installation
 
 ```bash

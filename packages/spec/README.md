@@ -14,6 +14,20 @@ This package defines the **DNA** of ObjectStack. It contains:
 
 **Guiding Principle:** *"Strict Types, No Logic"*
 
+## 🤖 AI Development Context
+
+**Role**: Protocol Definition (Source of Truth)
+**Usage**: 
+- Import Zod schemas from here for validation.
+- Import Types from here for type safety.
+- DO NOT implement business logic here.
+- DO NOT duplicate schemas in other packages; import from here.
+
+**Key Exports**:
+- `Data.ObjectSchema` -> The definition of a Business Object.
+- `Data.FieldSchema` -> Sub-schema for fields.
+- `UI.ViewSchema` -> Definition of UI Views.
+
 ## 🚀 Installation
 
 ```bash

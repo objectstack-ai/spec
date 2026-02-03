@@ -2,6 +2,13 @@
 
 HTTP Server Adapter for ObjectStack Runtime using the [Hono](https://hono.dev/) framework. This plugin provides a production-ready REST API gateway for ObjectStack applications.
 
+## 🤖 AI Development Context
+
+**Role**: HTTP Server Adapter
+**Usage**:
+- Replaces the default server implementation with Hono.
+- Ideal for Edge runtimes (Cloudflare Workers, etc.).
+
 ## Plugin Capabilities
 
 This plugin implements the ObjectStack plugin capability protocol:

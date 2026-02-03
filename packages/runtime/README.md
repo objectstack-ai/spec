@@ -12,6 +12,16 @@ The runtime package provides the **Standard Library** for the ObjectStack Operat
 - **Core Integration**: Re-exports `ObjectKernel` for convenience
 - **Capability Contracts**: Abstract interfaces for HTTP server and data persistence
 
+## 🤖 AI Development Context
+
+**Role**: Server Runtime & REST API
+**Usage**:
+- Use `RestServer` to spawn HTTP endpoints.
+- Configures the HTTP layer.
+
+**Key Concepts**:
+- `RestServer`: Generates `/api/*` endpoints from ObjectQL schemas.
+
 ## Installation
 
 ```bash

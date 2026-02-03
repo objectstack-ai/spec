@@ -2,6 +2,14 @@
 
 In-Memory Driver for ObjectStack. A reference implementation of the DriverInterface that stores data in memory using JavaScript arrays.
 
+## 🤖 AI Development Context
+
+**Role**: Reference Driver Implementation
+**Usage**:
+- Use for testing or prototypes.
+- Stores data in JS RAM (volatile).
+- **Do not** use for production.
+
 ## Plugin Capabilities
 
 This driver implements the ObjectStack plugin capability protocol:

@@ -2,6 +2,13 @@
 
 React hooks for ObjectStack Client SDK - Type-safe data fetching and mutations for React applications.
 
+## 🤖 AI Development Context
+
+**Role**: React Bindings for Client SDK
+**Usage**:
+- Use `useQuery`, `useMutation` hooks.
+- Similar to TanStack Query but specialized for ObjectStack.
+
 ## Installation
 
 ```bash

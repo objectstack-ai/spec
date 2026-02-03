@@ -10,6 +10,19 @@
 - **Plugin System**: Load objects and logic via standard Manifests.
 - **Middleware**: (Planned) Support for Hooks and Validators.
 
+## 🤖 AI Development Context
+
+**Role**: Data Engine / Query Layer
+**Usage**:
+- Use this package to execute data operations (`find`, `insert`).
+- Do NOT bypass this layer to access drivers directly unless building a driver.
+- This is the "Backend Brain" for data.
+
+**Key Concepts**:
+- `SchemaRegistry`: Holds all object definitions.
+- `ObjectQL`: The main facade.
+- `Driver`: Interface for storage adapters.
+
 ## Usage
 
 ### 1. Standalone Usage

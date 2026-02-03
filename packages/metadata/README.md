@@ -12,6 +12,13 @@ The `@objectstack/metadata` package provides a unified interface for managing me
 - **Caching** - ETag-based caching for performance optimization
 - **File Watching** - Development mode with automatic reload on file changes
 
+## 🤖 AI Development Context
+
+**Role**: Metadata IO & Persistence
+**Usage**:
+- Use `MetadataManager` to read/write `.object.ts`, `.view.yaml` files.
+- Handles format loading (TS, JSON, YAML).
+
 ## Installation
 
 ```bash

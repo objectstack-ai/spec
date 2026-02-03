@@ -13,6 +13,19 @@ This package defines the fundamental runtime mechanics of the ObjectStack archit
 
 It is completely agnostic of "Data", "HTTP", or "Apps". It only knows `Plugin` and `Service`.
 
+## 🤖 AI Development Context
+
+**Role**: Microkernel / Runtime Orchestrator
+**Usage**:
+- Use `ObjectKernel` to bootstrap the application.
+- Implement `Plugin` interface to add functionality (not business logic directly).
+- Use `PluginLoader` features for dependency injection.
+
+**Architectural Interaction**:
+- `Kernel` loads `Plugins`.
+- `Plugins` register `Services`.
+- `Services` implement logic defined in `spec`.
+
 ## Features
 
 ### Core Features

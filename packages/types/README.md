@@ -15,6 +15,14 @@ The `@objectstack/types` package exists to:
 3. **Enable Type Safety** - Ensures type compatibility across the ObjectStack ecosystem
 4. **Minimal Footprint** - Ultra-lightweight with minimal dependencies
 
+## 🤖 AI Development Context
+
+**Role**: Shared Type Definitions
+**Usage**:
+- Use this to import interfaces like `IKernel`, `RuntimePlugin`.
+- Helps avoid circular dependencies.
+- **Do not** add implementation code here, only types.
+
 ## Installation
 
 ```bash

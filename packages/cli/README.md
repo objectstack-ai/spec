@@ -11,6 +11,14 @@ Command Line Interface for ObjectStack Protocol - Development tools for building
 - 🧪 **Test Runner** - Execute Quality Protocol test scenarios
 - ⚡ **Auto-Configuration** - Smart defaults with minimal configuration
 
+## 🤖 AI Development Context
+
+**Role**: Developer Tools & Terminal Interface
+**Usage**:
+- Runs the development server (`serve` command).
+- Compiles metadata.
+- Scaffolds new projects (`create`).
+
 ## Installation
 
 ### Global Installation (Recommended)
