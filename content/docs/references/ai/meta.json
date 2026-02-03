@@ -10,7 +10,9 @@
     "model-registry",
     "nlq",
     "orchestration",
+    "plugin-development",
     "predictive",
-    "rag-pipeline"
+    "rag-pipeline",
+    "runtime-ops"
   ]
 }
