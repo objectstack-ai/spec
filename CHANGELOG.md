@@ -19,6 +19,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [0.9.1] - 2026-02-03
+
+### Changed
+- Patch release for maintenance and stability improvements
+- Updated all packages to version 0.9.1 with unified versioning
+
+## [0.9.0] - 2026-02-03
+
+### Changed
+- Minor version bump for new features and improvements
+- All packages updated to version 0.9.0
+
+## [0.8.2] - 2026-02-02
+
+### Changed
+- **BREAKING**: Removed `view-storage.zod.ts` and `ViewStorage` related types from `@objectstack/spec`
+- **BREAKING**: Removed `createView`, `updateView`, `deleteView`, `listViews` from `ObjectStackProtocol` interface
+- **BREAKING**: Removed in-memory View Storage implementation from `@objectstack/objectql`
+- Updated `@objectstack/plugin-msw` to dynamically load `@objectstack/objectql` to avoid hard dependencies
+
+## [0.8.1] - 2026-02-01
+
+### Changed
+- Patch release for maintenance and stability improvements
+- Updated all packages to version 0.8.1
+
+## [0.8.0] - 2026-02-01
+
+### Changed
+- Upgrade to Zod v4 and protocol improvements
+- Aligned all protocol definitions with stricter type safety
+- Updated all packages to version 0.8.0
+
 ## [0.7.2] - 2026-01-31
 
 ### Changed
@@ -192,7 +225,12 @@ Mark breaking changes clearly:
 
 ---
 
-[Unreleased]: https://github.com/objectstack-ai/spec/compare/v0.7.2...HEAD
+[Unreleased]: https://github.com/objectstack-ai/spec/compare/v0.9.1...HEAD
+[0.9.1]: https://github.com/objectstack-ai/spec/compare/v0.9.0...v0.9.1
+[0.9.0]: https://github.com/objectstack-ai/spec/compare/v0.8.2...v0.9.0
+[0.8.2]: https://github.com/objectstack-ai/spec/compare/v0.8.1...v0.8.2
+[0.8.1]: https://github.com/objectstack-ai/spec/compare/v0.8.0...v0.8.1
+[0.8.0]: https://github.com/objectstack-ai/spec/compare/v0.7.2...v0.8.0
 [0.7.2]: https://github.com/objectstack-ai/spec/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/objectstack-ai/spec/compare/v0.6.1...v0.7.1
 [0.6.1]: https://github.com/objectstack-ai/spec/compare/v0.4.1...v0.6.1
