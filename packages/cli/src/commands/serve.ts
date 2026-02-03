@@ -96,7 +96,44 @@ export const serveCommand = new Command('serve')
         logger: loggerConfig
       });
 
-      // Auto-register AppPlugin if config contains app definitions
+      // Load plugins from configuration
+      let plugins = config.plugins || [];
+
+      // Merge devPlugins if in dev mode
+      if (options.dev && config.devPlugins) {
+        console.log(chalk.blue(`📦 Loading development plugins...`));
+        plugins = [...plugins, ...config.devPlugins];
+      }
+
+      // 1. Auto-register ObjectQL Plugin if objects define but plugins missing
+      const hasObjectQL = plugins.some((p: any) => p.name?.includes('objectql') || p.constructor?.name?.includes('ObjectQL'));
+      if (config.objects && !hasObjectQL) {
+         try {
+           console.log(chalk.dim(`  Auto-injecting ObjectQL Engine...`));
+           const { ObjectQLPlugin } = await import('@objectstack/objectql');
+           kernel.use(new ObjectQLPlugin());
+           console.log(chalk.green(`  ✓ Registered ObjectQL Plugin (auto-detected)`));
+         } catch (e: any) {
+           console.warn(chalk.yellow(`  ⚠ Could not auto-load ObjectQL: ${e.message}`));
+         }
+      }
+
+      // 2. Auto-register Memory Driver if in Dev and no driver configured
+      const hasDriver = plugins.some((p: any) => p.name?.includes('driver') || p.constructor?.name?.includes('Driver'));
+      if (isDev && !hasDriver && config.objects) {
+         try {
+           console.log(chalk.dim(`  Auto-injecting Memory Driver (Dev Mode)...`));
+           const { DriverPlugin } = await import('@objectstack/runtime');
+           const { InMemoryDriver } = await import('@objectstack/driver-memory');
+           kernel.use(new DriverPlugin(new InMemoryDriver()));
+           console.log(chalk.green(`  ✓ Registered Memory Driver (auto-detected)`));
+         } catch (e: any) {
+           // Silent fail - maybe they don't want a driver or don't have the package
+           console.log(chalk.dim(`  ℹ No default driver loaded: ${e.message}`));
+         }
+      }
+
+      // 3. Auto-register AppPlugin if config contains app definitions
       if (config.objects || config.manifest || config.apps) {
         try {
            const { AppPlugin } = await import('@objectstack/runtime');
@@ -107,14 +144,6 @@ export const serveCommand = new Command('serve')
         }
       }
 
-      // Load plugins from configuration
-      let plugins = config.plugins || [];
-
-      // Merge devPlugins if in dev mode
-      if (options.dev && config.devPlugins) {
-        console.log(chalk.blue(`📦 Loading development plugins...`));
-        plugins = [...plugins, ...config.devPlugins];
-      }
       
       if (plugins.length > 0) {
         console.log(chalk.yellow(`📦 Loading ${plugins.length} plugin(s)...`));

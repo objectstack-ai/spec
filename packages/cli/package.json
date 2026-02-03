@@ -23,6 +23,8 @@
   "license": "MIT",
   "dependencies": {
     "@objectstack/core": "workspace:*",
+    "@objectstack/driver-memory": "workspace:^",
+    "@objectstack/objectql": "workspace:^",
     "@objectstack/plugin-hono-server": "workspace:*",
     "@objectstack/runtime": "workspace:^",
     "@objectstack/spec": "workspace:*",

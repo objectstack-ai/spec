@@ -296,6 +296,12 @@ importers:
       '@objectstack/core':
         specifier: workspace:*
         version: link:../core
+      '@objectstack/driver-memory':
+        specifier: workspace:^
+        version: link:../plugins/driver-memory
+      '@objectstack/objectql':
+        specifier: workspace:^
+        version: link:../objectql
       '@objectstack/plugin-hono-server':
         specifier: workspace:*
         version: link:../plugins/plugin-hono-server

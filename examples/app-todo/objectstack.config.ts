@@ -2,11 +2,6 @@ import { defineStack } from '@objectstack/spec';
 import { App } from '@objectstack/spec/ui';
 import { TodoTask } from './src/domains/todo/task.object';
 
-// Runtime Plugins
-import { ObjectQLPlugin } from '@objectstack/objectql';
-import { DriverPlugin } from '@objectstack/runtime';
-import { InMemoryDriver } from '@objectstack/driver-memory';
-
 export default defineStack({
   objects: [
     TodoTask
@@ -54,10 +49,6 @@ export default defineStack({
         ]
       }
     ]
-  },
-  plugins: [
-    new ObjectQLPlugin(),
-    new DriverPlugin(new InMemoryDriver())
-  ]
+  }
 });
 
