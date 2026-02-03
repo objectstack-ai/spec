@@ -53,8 +53,10 @@ const config = {
 ```typescript
 const config = {
   sandbox: {
-    maxHeap: 512, // Renamed to accurately reflect Node.js heap limit
-    timeout: 1000
+    memory: {
+      maxHeap: 512 * 1024 * 1024 // Moved to 'memory' object and renamed. Value in bytes.
+    },
+    // timeout moved to runtime config or specific execution limits
   }
 };
 ```
@@ -88,5 +90,5 @@ const conflict: DependencyConflict = {
 If you are using Cursor, Copilot, or other AI agents, add the following rule to your prompt context:
 
 > **Rule:** When using `@objectstack/core` >= 0.9.0, NEVER use `EnhancedObjectKernel`. Always use `ObjectKernel`. `ObjectKernel` includes all advanced features (Sandboxing, Hot Reload).
-> **Rule:** Sandbox configuration property `maxMemory` is now `maxHeap`.
+> **Rule:** Sandbox configuration `maxMemory` is now `memory.maxHeap` (in bytes).
 

@@ -10,14 +10,14 @@ export type KernelState = 'idle' | 'initializing' | 'running' | 'stopping' | 'st
 /**
  * ObjectKernelBase - Abstract Base Class for Microkernel
  * 
- * Provides common functionality for both ObjectKernel and EnhancedObjectKernel:
+ * Provides common functionality for ObjectKernel and LiteKernel:
  * - Plugin management (Map storage)
  * - Dependency resolution (topological sort)
  * - Hook/Event system
  * - Context creation
  * - State validation
  * 
- * This eliminates ~120 lines of duplicate code between the two implementations.
+ * This eliminates code duplication between the implementations.
  */
 export abstract class ObjectKernelBase {
     protected plugins: Map<string, Plugin> = new Map();

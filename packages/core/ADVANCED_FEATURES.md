@@ -1,10 +1,10 @@
-# Enhanced ObjectKernel - Advanced Plugin Features
+# ObjectKernel - Advanced Plugin Features
 
-This document describes the enhanced features added to ObjectKernel for production-grade plugin management.
+This document describes the advanced features of ObjectKernel for production-grade plugin management.
 
 ## Overview
 
-The `EnhancedObjectKernel` extends the basic `ObjectKernel` with enterprise-grade features for plugin lifecycle management, dependency injection, and operational resilience.
+The `ObjectKernel` (formerly `EnhancedObjectKernel`) provides enterprise-grade features for plugin lifecycle management, dependency injection, and operational resilience.
 
 ## Features
 
@@ -13,9 +13,9 @@ The `EnhancedObjectKernel` extends the basic `ObjectKernel` with enterprise-grad
 Async plugin loading with comprehensive validation:
 
 ```typescript
-import { EnhancedObjectKernel, PluginMetadata } from '@objectstack/core';
+import { ObjectKernel, PluginMetadata } from '@objectstack/core';
 
-const kernel = new EnhancedObjectKernel({
+const kernel = new ObjectKernel({
   logger: { level: 'info' },
   defaultStartupTimeout: 30000,  // 30 seconds
   gracefulShutdown: true,
@@ -242,7 +242,7 @@ for (const [pluginName, startTime] of metrics) {
 Properly cleanup resources on shutdown:
 
 ```typescript
-const kernel = new EnhancedObjectKernel({
+const kernel = new ObjectKernel({
   gracefulShutdown: true,
   shutdownTimeout: 60000  // 60 second timeout
 });
@@ -309,25 +309,25 @@ const plugin: PluginMetadata = {
 };
 ```
 
-## Migration from ObjectKernel
+## Migration from LiteKernel
 
-To migrate from `ObjectKernel` to `EnhancedObjectKernel`:
+To migrate from `LiteKernel` to `ObjectKernel`:
 
 ```typescript
 // Before
-import { ObjectKernel } from '@objectstack/core';
-const kernel = new ObjectKernel();
+import { LiteKernel } from '@objectstack/core';
+const kernel = new LiteKernel();
 
 // After
-import { EnhancedObjectKernel } from '@objectstack/core';
-const kernel = new EnhancedObjectKernel({
+import { ObjectKernel } from '@objectstack/core';
+const kernel = new ObjectKernel({
   logger: { level: 'info' },
   gracefulShutdown: true,
   rollbackOnFailure: true
 });
 ```
 
-Both kernels are compatible - `EnhancedObjectKernel` is a superset of `ObjectKernel`.
+Both kernels adhere to the same `Plugin` interface, but `ObjectKernel` supports advanced features like Rollback, Sandbox, and Hot Reload.
 
 ## Best Practices
 

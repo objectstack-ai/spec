@@ -254,15 +254,15 @@ kernel.use(apiPlugin);
 await kernel.bootstrap();
 ```
 
-## Enhanced Kernel Usage
+## Advanced Kernel Usage
 
-For production applications, use `EnhancedObjectKernel` for advanced features:
+For production applications, use `ObjectKernel` (formerly `EnhancedObjectKernel`) for advanced features:
 
 ```typescript
-import { EnhancedObjectKernel, PluginMetadata, ServiceLifecycle } from '@objectstack/core';
+import { ObjectKernel, PluginMetadata, ServiceLifecycle } from '@objectstack/core';
 
-// Create enhanced kernel
-const kernel = new EnhancedObjectKernel({
+// Create kernel with advanced configuration
+const kernel = new ObjectKernel({
   logger: { level: 'info', format: 'pretty' },
   defaultStartupTimeout: 30000,   // 30 seconds
   gracefulShutdown: true,
@@ -338,15 +338,15 @@ Automatic sensitive data redaction:
 
 ## API Reference
 
-### ObjectKernel (Basic)
-- `ObjectKernel` - Basic microkernel class
+### LiteKernel (Minimal)
+- `LiteKernel` - Lightweight microkernel for serverless/test
 - `createLogger(config)` - Create standalone logger
 - `Plugin` - Plugin interface
 - `PluginContext` - Runtime context for plugins
 - `Logger` - Logger interface
 
-### EnhancedObjectKernel (Advanced)
-- `EnhancedObjectKernel` - Enhanced microkernel with production features
+### ObjectKernel (Production)
+- `ObjectKernel` - Full-featured enterprise microkernel
 - `PluginLoader` - Plugin loading and validation
 - `ServiceLifecycle` - Service lifecycle management (SINGLETON, TRANSIENT, SCOPED)
 - `PluginMetadata` - Extended plugin interface with metadata
@@ -356,8 +356,8 @@ See [TypeScript definitions](./src/types.ts) for complete API.
 
 ## Documentation
 
-- [ENHANCED_FEATURES.md](./ENHANCED_FEATURES.md) - Comprehensive guide to enhanced features
-- [examples/enhanced-kernel-example.ts](./examples/enhanced-kernel-example.ts) - Complete working example
+- [ADVANCED_FEATURES.md](./ADVANCED_FEATURES.md) - Comprehensive guide to kernel features
+- [examples/kernel-features-example.ts](./examples/kernel-features-example.ts) - Complete working example
 
 ## License
 

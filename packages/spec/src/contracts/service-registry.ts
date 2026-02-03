@@ -72,7 +72,7 @@ export interface IBasicServiceRegistry extends IServiceRegistry {
 
 /**
  * AdvancedServiceRegistry - Enhanced implementation with additional features
- * Used by EnhancedObjectKernel for advanced service management
+ * Used by ObjectKernel for advanced service management
  */
 export interface IAdvancedServiceRegistry extends IServiceRegistry {
     /**

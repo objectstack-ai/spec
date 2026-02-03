@@ -1,5 +1,5 @@
 /**
- * Enhanced ObjectKernel Example
+ * ObjectKernel Features Example
  * 
  * Demonstrates advanced plugin features:
  * - Version compatibility
@@ -12,7 +12,7 @@
  */
 
 import { 
-  EnhancedObjectKernel, 
+  ObjectKernel, 
   PluginMetadata, 
   ServiceLifecycle,
   PluginContext 
@@ -156,7 +156,7 @@ const cachePlugin: PluginMetadata = {
 // Example 4: Using Service Factories
 // ============================================================================
 
-async function setupServiceFactories(kernel: EnhancedObjectKernel) {
+async function setupServiceFactories(kernel: ObjectKernel) {
   // Singleton: Created once, shared across all requests
   kernel.registerServiceFactory(
     'logger-service',
@@ -197,10 +197,10 @@ async function setupServiceFactories(kernel: EnhancedObjectKernel) {
 // ============================================================================
 
 async function main() {
-  console.log('🚀 Starting Enhanced ObjectKernel Example\n');
+  console.log('🚀 Starting ObjectKernel Advanced Features Example\n');
   
-  // Create enhanced kernel with configuration
-  const kernel = new EnhancedObjectKernel({
+  // Create object kernel with configuration
+  const kernel = new ObjectKernel({
     logger: {
       level: 'info',
       format: 'pretty'
