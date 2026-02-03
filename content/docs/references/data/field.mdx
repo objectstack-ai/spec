@@ -12,8 +12,8 @@ description: Field protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AddressSchema, ComputedFieldCacheSchema, CurrencyConfigSchema, CurrencyValueSchema, DataQualityRulesSchema, FieldSchema, FieldTypeSchema, FileAttachmentConfigSchema, LocationCoordinatesSchema, SelectOptionSchema, VectorConfigSchema } from '@objectstack/spec/data';
-import type { Address, ComputedFieldCache, CurrencyConfig, CurrencyValue, DataQualityRules, Field, FieldType, FileAttachmentConfig, LocationCoordinates, SelectOption, VectorConfig } from '@objectstack/spec/data';
+import { AddressSchema, ComputedFieldCacheSchema, CurrencyConfigSchema, CurrencyValueSchema, DataQualityRulesSchema, FieldSchema, FieldTypeSchema, FileAttachmentConfigSchema, LocationCoordinatesSchema, VectorConfigSchema } from '@objectstack/spec/data';
+import type { Address, ComputedFieldCache, CurrencyConfig, CurrencyValue, DataQualityRules, Field, FieldType, FileAttachmentConfig, LocationCoordinates, VectorConfig } from '@objectstack/spec/data';
 
 // Validate data
 const result = AddressSchema.parse(data);
@@ -54,10 +54,6 @@ const result = AddressSchema.parse(data);
 ---
 
 ## LocationCoordinates
-
----
-
-## SelectOption
 
 ---
 

@@ -1,0 +1,7 @@
+{
+  "$ref": "#/definitions/CascaderOption",
+  "definitions": {
+    "CascaderOption": {}
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

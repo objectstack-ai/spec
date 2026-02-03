@@ -1,0 +1,7 @@
+{
+  "$ref": "#/definitions/BreadcrumbProps",
+  "definitions": {
+    "BreadcrumbProps": {}
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

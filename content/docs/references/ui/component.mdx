@@ -12,12 +12,36 @@ description: Component protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { PageCardPropsSchema, PageHeaderPropsSchema, PageTabsPropsSchema, RecordDetailsPropsSchema, RecordHighlightsPropsSchema, RecordRelatedListPropsSchema } from '@objectstack/spec/ui';
-import type { PageCardProps, PageHeaderProps, PageTabsProps, RecordDetailsProps, RecordHighlightsProps, RecordRelatedListProps } from '@objectstack/spec/ui';
+import { AlertPropsSchema, BottomNavigationPropsSchema, DataTablePropsSchema, EmptyStatePropsSchema, FloatingActionButtonPropsSchema, KanbanBoardPropsSchema, PageCardPropsSchema, PageHeaderPropsSchema, PageTabsPropsSchema, PullToRefreshPropsSchema, RecordDetailsPropsSchema, RecordHighlightsPropsSchema, RecordRelatedListPropsSchema, TreeViewPropsSchema } from '@objectstack/spec/ui';
+import type { AlertProps, BottomNavigationProps, DataTableProps, EmptyStateProps, FloatingActionButtonProps, KanbanBoardProps, PageCardProps, PageHeaderProps, PageTabsProps, PullToRefreshProps, RecordDetailsProps, RecordHighlightsProps, RecordRelatedListProps, TreeViewProps } from '@objectstack/spec/ui';
 
 // Validate data
-const result = PageCardPropsSchema.parse(data);
+const result = AlertPropsSchema.parse(data);
 ```
+
+---
+
+## AlertProps
+
+---
+
+## BottomNavigationProps
+
+---
+
+## DataTableProps
+
+---
+
+## EmptyStateProps
+
+---
+
+## FloatingActionButtonProps
+
+---
+
+## KanbanBoardProps
 
 ---
 
@@ -33,6 +57,10 @@ const result = PageCardPropsSchema.parse(data);
 
 ---
 
+## PullToRefreshProps
+
+---
+
 ## RecordDetailsProps
 
 ---
@@ -42,4 +70,8 @@ const result = PageCardPropsSchema.parse(data);
 ---
 
 ## RecordRelatedListProps
+
+---
+
+## TreeViewProps
 

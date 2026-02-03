@@ -1,0 +1,7 @@
+{
+  "$ref": "#/definitions/DescriptionListProps",
+  "definitions": {
+    "DescriptionListProps": {}
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

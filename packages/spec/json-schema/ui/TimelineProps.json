@@ -1,0 +1,7 @@
+{
+  "$ref": "#/definitions/TimelineProps",
+  "definitions": {
+    "TimelineProps": {}
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,7 @@
+{
+  "$ref": "#/definitions/KpiCardProps",
+  "definitions": {
+    "KpiCardProps": {}
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

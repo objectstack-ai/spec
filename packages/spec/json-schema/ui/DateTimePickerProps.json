@@ -1,0 +1,7 @@
+{
+  "$ref": "#/definitions/DateTimePickerProps",
+  "definitions": {
+    "DateTimePickerProps": {}
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

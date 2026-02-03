@@ -1,0 +1,7 @@
+{
+  "$ref": "#/definitions/SelectProps",
+  "definitions": {
+    "SelectProps": {}
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
