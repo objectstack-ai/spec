@@ -1,0 +1,7 @@
+{
+  "$ref": "#/definitions/CodeStyle",
+  "definitions": {
+    "CodeStyle": {}
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
