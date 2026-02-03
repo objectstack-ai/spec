@@ -20,6 +20,12 @@ Mission: Build the "Post-SaaS Operating System" — an open-core, local-first ec
     *   **Philosophy:** "Data as Code", Idempotency, and Immutable Infrastructure are the defaults.
     *   **Style:** Enforce `camelCase` for all schema property keys (e.g. `maxLength`, `referenceFilters` NOT `max_length`, `reference_filters`).
 
+### **Kernel Architecture Standards**
+
+*   **Primary Kernel:** Use `ObjectKernel` (not `EnhancedObjectKernel`).
+*   **Lite Kernel:** Use `LiteKernel` for serverless/test environments.
+*   **Constraint:** `ObjectKernel` is the default runtime for all production services.
+
 ---
 
 ## 📘 1. The Metamodel Standards (Knowledge Base)
