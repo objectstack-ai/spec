@@ -86,7 +86,7 @@ export const RecordRelatedListProps = z.object({
 });
 
 export const RecordHighlightsProps = z.object({
-  fields: z.array(z.string()).min(1).max(7).describe('Key fields to highlights (max 7)'),
+  fields: z.array(z.string()).min(1).max(7).describe('Key fields to highlight (max 7)'),
   layout: z.enum(['horizontal', 'grid']).default('horizontal').describe('Layout mode'),
 });
 
