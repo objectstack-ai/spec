@@ -1,11 +1,15 @@
 ---
 title: Protocol Reference
-description: Complete reference of all 109 ObjectStack protocol specifications
+description: Complete reference of all 123 ObjectStack protocol specifications
 ---
 
 # Protocol Reference
 
 This is the complete reference for all protocol specifications in the ObjectStack ecosystem. Each protocol is implemented as a Zod schema providing runtime validation and TypeScript type safety.
+
+<Callout type="tip">
+**New:** Check the [Implementation Status Matrix](./implementation-status) to see which protocols are production-ready.
+</Callout>
 
 ## Quick Navigation
 
@@ -14,7 +18,7 @@ This is the complete reference for all protocol specifications in the ObjectStac
 | [Data Protocol](#data-protocol) | 16 | Core business logic and data modeling (ObjectQL) |
 | [UI Protocol](#ui-protocol) | 10 | User interface definitions and interactions (ObjectUI) |
 | [System Protocol](#system-protocol) | 39 | Runtime environment and platform capabilities (ObjectOS) |
-| [AI Protocol](#ai-protocol) | 9 | AI/ML integration and agent orchestration |
+| [AI Protocol](#ai-protocol) | 12 | AI/ML integration and agent orchestration |
 | [API Protocol](#api-protocol) | 13 | Standardized API contracts and communication |
 | [Automation Protocol](#automation-protocol) | 7 | Workflow automation and integration |
 | [Auth Protocol](#auth-protocol) | 6 | Identity, authentication, and authorization |
@@ -26,7 +30,7 @@ This is the complete reference for all protocol specifications in the ObjectStac
 | [Shared Protocol](#shared-protocol) | 3 | Common utilities and identifiers |
 | [Stack Protocol](#stack-protocol) | 1 | Root stack definition |
 
-**Total: 119 protocols**
+**Total: 123 protocols**
 
 ---
 
@@ -150,7 +154,7 @@ Defines the "Runtime Environment" and platform capabilities.
 ## AI Protocol
 
 **Location:** `packages/spec/src/ai/`  
-**Count:** 9 protocols
+**Count:** 12 protocols
 
 Defines AI agent integration capabilities.
 
@@ -165,6 +169,8 @@ Defines AI agent integration capabilities.
 | `cost.zod.ts` | `CostTrackingSchema` | AI cost tracking and budget management |
 | `predictive.zod.ts` | `PredictiveModelSchema` | Predictive analytics models |
 | `orchestration.zod.ts` | `OrchestrationSchema` | AI-powered workflow automation |
+| `feedback-loop.zod.ts` | `FeedbackLoopSchema` | AI feedback loop and learning |
+| `devops-agent.zod.ts` | `DevOpsAgentSchema` | DevOps automation agents |
 
 **Learn more:** [AI Protocol Reference](/docs/references/ai)
 
@@ -340,6 +346,29 @@ All schemas follow these conventions:
 ---
 
 ## Next Steps
+
+<Cards>
+  <Card 
+    href="./implementation-status" 
+    title="Implementation Status"
+    description="See which protocols are production-ready"
+  />
+  <Card 
+    href="./packages" 
+    title="Package Reference"
+    description="Explore the 10 ObjectStack packages"
+  />
+  <Card 
+    href="./protocol-map" 
+    title="Protocol Architecture"
+    description="Understand protocol relationships"
+  />
+  <Card 
+    href="./quick-reference" 
+    title="Quick Reference"
+    description="Fast protocol lookup table"
+  />
+</Cards>
 
 - **Explore by Module:** Navigate to specific protocol sections above
 - **See Examples:** Check [examples/crm](https://github.com/objectstack-ai/spec/tree/main/examples/crm) for real-world usage

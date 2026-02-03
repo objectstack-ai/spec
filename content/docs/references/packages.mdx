@@ -5,16 +5,16 @@ description: Complete reference of all ObjectStack packages in the monorepo
 
 # Package Reference
 
-ObjectStack is distributed as a monorepo containing **12 packages** organized into core packages and plugins.
+ObjectStack is distributed as a monorepo containing **10 packages** organized into core packages and plugins.
 
 ## Package Overview
 
 | Category | Count | Description |
 | :--- | :---: | :--- |
-| [Core Packages](#core-packages) | 9 | Essential runtime, protocols, and client SDKs |
+| [Core Packages](#core-packages) | 7 | Essential runtime, protocols, and client SDKs |
 | [Plugin Packages](#plugin-packages) | 3 | Drivers and adapters for extending ObjectStack |
 
-**Total: 12 packages**
+**Total: 10 packages**
 
 ---
 
@@ -39,7 +39,7 @@ ObjectStack is distributed as a monorepo containing **12 packages** organized in
 - `Integration` - Integration protocol schemas
 - `Shared` - Shared utilities and identifiers
 
-**Protocol Count:** 109 Zod schemas
+**Protocol Count:** 123 Zod schemas
 
 **Learn more:** [Protocol Reference](/docs/references)
 
@@ -52,75 +52,115 @@ ObjectStack is distributed as a monorepo containing **12 packages** organized in
 **Purpose:** Provides the runtime foundation for ObjectStack, including the plugin system, service registry, and logging infrastructure.
 
 **Key Features:**
-- Plugin lifecycle management
-- Service registry for dependency injection
-- Structured logging system
-- Event bus for inter-plugin communication
-- Startup orchestration
+- **ObjectKernel**: Plugin-based microkernel with dependency injection
+- **Plugin Lifecycle**: Init → Start → Destroy with topological dependency resolution
+- **Service Registry**: Dependency injection (registerService, getService)
+- **Hook/Event System**: Inter-plugin communication (beforeFind, afterInsert, etc.)
+- **Security**: PluginConfigValidator, PluginSignatureVerifier, PluginPermissionEnforcer
+- **Logging**: Cross-platform logger (browser + server) with multiple formats
+- **API Registry**: Central API registry for dynamic endpoint management
+- **QA Framework**: Testing framework with HTTP adapter support
 
 **Use Cases:**
 - Building custom ObjectStack runtimes
 - Creating plugin-based architectures
 - Implementing microkernel patterns
 
+**Implementation Status:** ✅ **FULLY IMPLEMENTED** - Production ready
+
 ---
 
 ### @objectstack/runtime
 
-**Description:** ObjectStack Core Runtime & Query Engine
+**Description:** ObjectStack Server Runtime & REST API Engine
 
-**Purpose:** The main runtime engine that executes ObjectQL queries and manages data operations.
+**Purpose:** The main server runtime that provides HTTP endpoints and REST API generation.
 
 **Key Features:**
-- Query execution engine
-- Data operation handlers (CRUD)
-- Runtime context management
-- Transaction support
-- Driver orchestration
+- **RestServer**: Auto-generates RESTful CRUD endpoints from object schemas
+- **Route Management**: Centralized route registration and middleware chain management
+- **HTTP Server**: Implements IHttpServer interface (adapter pattern)
+- **Endpoint Generation**: Configuration-driven CRUD API (GET/POST/PATCH/DELETE)
+- **Batch Operations**: /createMany, /updateMany, /deleteMany, /batch endpoints
+- **Metadata Endpoints**: /meta, /meta/{type}, /meta/{type}/{name}
+- **Discovery**: /api/v1 API discovery endpoint
+- **HTTP Caching**: ETag, Last-Modified headers support
+- **Path Transformations**: plural, kebab-case, camelCase
+- **Plugin Adapters**: AppPlugin, DriverPlugin for kernel integration
 
 **Use Cases:**
-- Running ObjectStack applications
-- Executing data queries
-- Managing database operations
+- Running ObjectStack server applications
+- Auto-generating REST APIs from metadata
+- Building production API servers
+
+**Implementation Status:** ✅ **FULLY IMPLEMENTED** - Production ready
 
 ---
 
 ### @objectstack/objectql
 
-**Description:** Isomorphic ObjectQL Engine for ObjectStack
+**Description:** Isomorphic ObjectQL Engine & Protocol Implementation
 
-**Purpose:** Standalone ObjectQL query engine that can run in any JavaScript environment (Node.js, browsers, edge).
+**Purpose:** Standalone ObjectQL query engine that implements the ObjectStack protocol and can run in any JavaScript environment (Node.js, browsers, edge).
 
 **Key Features:**
-- Isomorphic query execution (client and server)
-- ObjectQL AST parsing and compilation
-- Query optimization
-- Driver-agnostic query interface
+- **ObjectQL Engine**: Implements `IDataEngine` interface
+  - Query operations: find, insert, update, delete, count
+  - Hook system: beforeFind, afterFind, beforeInsert, afterInsert, etc.
+  - Driver management: registerDriver, getDriver
+- **SchemaRegistry**: Central metadata registry
+  - registerObject, registerApp, registerMetadata
+  - getObject, getItem, listItems, getRegisteredTypes
+- **ObjectStackProtocolImplementation**: Full `ObjectStackProtocol` implementation
+  - Discovery: getDiscovery()
+  - Metadata: getMetaTypes(), getMetaItems(type), getMetaItem(type, name)
+  - UI Views: getUiView(object, type)
+  - CRUD operations: findData, getData, createData, updateData, deleteData
+  - Batch operations: batchUpdate, batchDelete
+  - HTTP Caching: ETag-based caching with 304 Not Modified support
+- **Isomorphic**: Works in Node.js, browsers, and edge environments
+- **Driver-agnostic**: Query interface abstraction
 
 **Use Cases:**
 - Client-side data querying
 - Edge function data access
 - Serverless query execution
+- Implementing ObjectStack protocol
+
+**Implementation Status:** ✅ **FULLY IMPLEMENTED** - Production ready
 
 ---
 
 ### @objectstack/client
 
-**Description:** Official Client SDK for ObjectStack Protocol
+**Description:** Official TypeScript Client SDK for ObjectStack Protocol
 
-**Purpose:** Type-safe client library for interacting with ObjectStack APIs.
+**Purpose:** Type-safe client library for interacting with ObjectStack REST APIs.
 
 **Key Features:**
-- Type-safe API methods
-- Query builder interface
-- Authentication handling
-- Request/response transformation
-- Error handling
+- **Discovery API**: `connect()` → /api/v1 endpoint
+- **Metadata API**: 
+  - `meta.getTypes()`, `meta.getItems(type)`, `meta.getItem(type, name)`
+  - `meta.getObject(name)` - Object definitions
+  - `meta.getView(object, type)` - UI schemas with ETag caching
+  - `meta.getCached()` - Conditional 304 Not Modified support
+- **Data Operations (CRUD)**:
+  - `data.query(object, ast)` - Advanced AST queries via POST
+  - `data.find(object, options)` - Simplified queries with filters/sort/select
+  - `data.get(id)`, `data.create()`, `data.update()`, `data.delete()`
+  - `data.createMany()`, `data.updateMany()`, `data.deleteMany()`
+  - `data.batch()` - Atomic batch operations
+- **Query Builder**: `QueryBuilder`, `FilterBuilder`, `createQuery()`, `createFilter()`
+- **Error Handling**: StandardError with code, category, httpStatus, retryable flag
+- **Authentication**: Bearer token support via `token` config
+- **Type Safety**: Full TypeScript types from spec schemas
 
 **Use Cases:**
 - Building frontend applications
 - Consuming ObjectStack APIs
 - Type-safe data fetching
+
+**Implementation Status:** ✅ **FULLY IMPLEMENTED** - Production ready
 
 ---
 
@@ -133,75 +173,88 @@ ObjectStack is distributed as a monorepo containing **12 packages** organized in
 **Requirements:** React 18+
 
 **Key Features:**
-- `useQuery` - Data fetching hook
-- `useMutation` - Data mutation hook
-- `useObject` - Object metadata hook
-- React Query integration
-- Optimistic updates
+- **Context & Provider**:
+  - `ObjectStackProvider` - Makes client available to all React components
+  - `useClient()` - Access ObjectStackClient instance
+- **Data Hooks**:
+  - `useQuery<T>(object, options)` - Query with caching, refetch, enabled flag
+  - `useMutation<TData, TVariables>(object, options)` - Create/Update/Delete with optimistic updates
+  - `usePagination<T>(object, options)` - Paginated queries with next/previous helpers
+  - `useInfiniteQuery<T>(object, options)` - Infinite scroll support
+- **Metadata Hooks**:
+  - `useObject(name)` - Get object schema
+  - `useView(object, type)` - Get list/form UI schema
+  - `useFields(object)` - Get field definitions
+  - `useMetadata<T>(type, name, options)` - Generic metadata access
+- **Automatic Caching**: Built-in cache management
+- **TypeScript Support**: Full type inference from schemas
 
 **Use Cases:**
 - Building React applications
 - Real-time data synchronization
 - Form handling with ObjectStack data
 
+**Implementation Status:** ✅ **FULLY IMPLEMENTED** - Production ready
+
 ---
 
 ### @objectstack/cli
 
-**Description:** Command Line Interface for ObjectStack Protocol
+**Description:** Command Line Interface for ObjectStack Development
 
 **Purpose:** Developer tools for scaffolding, building, and managing ObjectStack applications.
 
 **Commands:**
-- `os init` / `objectstack init` - Initialize new project
-- `os build` / `objectstack build` - Build and validate metadata
-- `os dev` / `objectstack dev` - Development server
-- `os generate` - Code generation from schemas
+- `compile` - Bundle & validate `objectstack.config.ts` against schema
+- `serve` - Start ObjectStack server from config (supports --dev mode)
+- `dev` - Development mode orchestrator (single package or monorepo)
+- `doctor` - Environment health check (Node.js, pnpm, dependencies)
+- `create` - Project scaffolding
+- `test` - Test runner
+
+**Key Features:**
+- **Config Compilation**: Zod validation against `ObjectStackDefinitionSchema`
+- **Development Server**: Automatic port discovery, handles port conflicts
+- **Hot Reload**: Watch mode for config changes
+- **Monorepo Support**: pnpm workspace integration
+- **Health Checks**: Environment validation and diagnostics
 
 **Use Cases:**
 - Project scaffolding
 - Metadata validation
 - Development workflows
-- Code generation
+- Environment diagnostics
+
+**Implementation Status:** ✅ **FULLY IMPLEMENTED** - Production ready
 
 ---
 
-### @objectstack/ai-bridge
+### @objectstack/metadata
 
-**Description:** AI/ML integration bridge for ObjectStack
+**Description:** Metadata Management System
 
-**Purpose:** Provides adapters and utilities for integrating AI/ML models with ObjectStack.
+**Purpose:** Provides metadata loading, saving, watching, and caching capabilities for ObjectStack.
 
 **Key Features:**
-- LLM provider adapters (OpenAI, Anthropic, etc.)
-- Model registry and routing
-- Token usage tracking
-- Embedding generation
-- RAG pipeline support
+- **MetadataManager**: Orchestrates loading, saving, watching, caching metadata
+- **MetadataPlugin**: Kernel plugin adapter for metadata system
+- **Loaders**:
+  - `FilesystemLoader` - Loads metadata from disk (rootDir)
+- **Serializers**:
+  - `JSONSerializer` - `.json` files
+  - `YAMLSerializer` - `.yaml` files  
+  - `TypeScriptSerializer` - `.ts` files (also handles JavaScript)
+- **Watch Mode**: File system notifications with chokidar
+- **Auto-detection**: Format auto-detection for load/save
+- **Caching**: Metadata caching with statistics
+- **Migration**: Metadata migration system
 
 **Use Cases:**
-- Building AI-powered applications
-- Integrating LLMs with business data
-- Implementing RAG workflows
+- Loading metadata from multiple formats
+- Hot-reloading metadata during development
+- Managing metadata lifecycle
 
----
-
-### @objectstack/types
-
-**Description:** Shared interfaces describing the ObjectStack Runtime environment
-
-**Purpose:** Common TypeScript type definitions used across all ObjectStack packages.
-
-**Key Exports:**
-- `IKernel` - Kernel interface
-- `RuntimePlugin` - Plugin interface
-- Shared utility types
-- Runtime context types
-
-**Use Cases:**
-- Plugin development
-- Type-safe integrations
-- Extending ObjectStack core
+**Implementation Status:** ✅ **FULLY IMPLEMENTED** - Production ready
 
 ---
 
@@ -211,58 +264,80 @@ ObjectStack is distributed as a monorepo containing **12 packages** organized in
 
 **Description:** In-Memory Driver for ObjectStack (Reference Implementation)
 
-**Purpose:** A fully functional in-memory database driver used for testing and development.
+**Purpose:** A reference in-memory database driver used for testing and development.
 
 **Key Features:**
-- Full ObjectQL support
-- Transaction support
-- Query execution
-- No external dependencies
+- **CRUD Operations**: create, read, update, delete, find
+- **Pagination Support**: Offset-based pagination
+- **Health Checks**: Built-in health monitoring
+- **Array & JSON Fields**: Support for complex field types
+- **Simple Implementation**: No external dependencies
+
+**Limitations:**
+- ⚠️ No transaction support
+- ⚠️ No advanced filtering (basic only)
+- ⚠️ No aggregations
+- ⚠️ No sorting
+- ⚠️ No window functions or subqueries
 
 **Use Cases:**
 - Testing ObjectStack applications
 - Development without database setup
 - Understanding driver implementation patterns
+- Quick prototyping
 
-**Status:** Reference implementation for driver developers
+**Status:** ✅ Reference implementation for driver developers
+
+**Implementation Status:** ⚠️ **PARTIALLY IMPLEMENTED** - Basic CRUD only, suitable for testing
 
 ---
 
 ### @objectstack/plugin-hono-server
 
-**Description:** Standard Hono Server Adapter for ObjectStack Runtime
+**Description:** Hono HTTP Server Adapter for ObjectStack Runtime
 
-**Purpose:** HTTP server adapter using the Hono framework.
+**Purpose:** Production HTTP server adapter using the Hono framework.
 
 **Key Features:**
-- Fast HTTP server using Hono
-- REST API endpoints
-- Middleware support
-- Edge runtime compatible
+- **Fast HTTP Server**: Uses Hono framework for high performance
+- **Port Configuration**: Configurable port with conflict detection
+- **Static File Serving**: Built-in static file support
+- **REST Endpoint Auto-registration**: Configurable via restConfig
+- **CRUD Endpoint Generation**: Automatic standard endpoint creation
+- **API Registry Integration**: Centralized endpoint management
+- **Metadata Caching**: ETag-based caching for metadata endpoints
+- **Edge Runtime Compatible**: Can run on edge environments
 
 **Use Cases:**
 - Production REST API deployment
-- Edge function hosting
+- Edge function hosting (Cloudflare Workers, Deno Deploy, etc.)
 - Serverless deployments
+- Local development server
+
+**Implementation Status:** ✅ **FULLY IMPLEMENTED** - Production ready
 
 ---
 
 ### @objectstack/plugin-msw
 
-**Description:** MSW (Mock Service Worker) Plugin for ObjectStack Runtime
+**Description:** Mock Service Worker (MSW) Plugin for ObjectStack Testing
 
-**Purpose:** Testing plugin for mocking ObjectStack APIs in tests.
+**Purpose:** Testing plugin for mocking ObjectStack APIs in browser environments.
 
 **Key Features:**
-- API mocking for tests
-- Request interception
-- Response simulation
-- Integration with MSW
+- **Browser Testing**: HTTP request mocking in browser environment
+- **Custom Handlers**: Support for custom request handlers
+- **Request Logging**: Built-in request/response logging
+- **ObjectStackServer Mock**: Integrates with ObjectStackServer for testing
+- **Service Worker Based**: Uses MSW's service worker approach
 
 **Use Cases:**
-- Unit testing
-- Integration testing
-- Frontend testing without backend
+- Unit testing React components
+- Integration testing frontend applications
+- Browser-based testing without backend
+- E2E testing with mocked APIs
+
+**Implementation Status:** ✅ **FULLY IMPLEMENTED** - Production ready for testing
 
 ---
 
@@ -273,28 +348,28 @@ ObjectStack is distributed as a monorepo containing **12 packages** organized in
 ```
 @objectstack/spec (no dependencies)
     ↓
-    ├─→ @objectstack/types
-    ├─→ @objectstack/core
-    ├─→ @objectstack/objectql
-    ├─→ @objectstack/runtime
+    ├─→ @objectstack/core (uses spec contracts)
+    ├─→ @objectstack/metadata (uses spec system schemas)
+    ├─→ @objectstack/objectql (implements spec protocols)
     │       ↓
-    │       └─→ @objectstack/client
+    │       └─→ @objectstack/runtime (uses objectql engine)
     │               ↓
-    │               └─→ @objectstack/client-react
-    ├─→ @objectstack/cli
-    └─→ @objectstack/ai-bridge
+    │               └─→ @objectstack/client (consumes runtime APIs)
+    │                       ↓
+    │                       └─→ @objectstack/client-react (wraps client)
+    └─→ @objectstack/cli (validates against spec schemas)
 
 Plugins (depend on core packages):
-    ├─→ @objectstack/driver-memory
-    ├─→ @objectstack/plugin-hono-server
-    └─→ @objectstack/plugin-msw
+    ├─→ @objectstack/driver-memory (implements driver interface)
+    ├─→ @objectstack/plugin-hono-server (implements HTTP server)
+    └─→ @objectstack/plugin-msw (mocks for testing)
 ```
 
 ### Installation
 
 **For Application Development:**
 ```bash
-pnpm add @objectstack/runtime @objectstack/client
+pnpm add @objectstack/runtime @objectstack/client @objectstack/plugin-hono-server
 ```
 
 **For React Applications:**
@@ -309,6 +384,8 @@ pnpm add @objectstack/core @objectstack/spec
 
 **For CLI Tools:**
 ```bash
+pnpm add -D @objectstack/cli
+# Or install globally
 pnpm add -g @objectstack/cli
 ```
 
