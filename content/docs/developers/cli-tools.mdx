@@ -78,35 +78,28 @@ npx objectstack --version
 ### Create a New Project
 
 ```bash
-# Interactive mode
-objectstack init
+# General syntax
+objectstack create <type> <name>
 
-# Or specify project name
-objectstack init my-app
+# Create a new example application (Todo list)
+objectstack create example my-todo-app
 
-# With template
-objectstack init my-app --template=crm
+# Create a new plugin
+objectstack create plugin my-plugin
 ```
 
-**Available Templates:**
+**Available Types:**
 
-- `blank` - Minimal setup (default)
-- `crm` - Customer relationship management
-- `ecommerce` - E-commerce platform
-- `saas` - Multi-tenant SaaS starter
-- `helpdesk` - Ticketing system
+- `example` - A functional example application
+- `plugin` - Reusable plugin structure
 
 **Project Structure:**
 
 ```
-my-app/
+my-todo-app/
 ├── src/
-│   ├── objects/           # Object definitions
-│   ├── views/             # UI views
-│   ├── flows/             # Business logic flows
-│   ├── plugins/           # Custom plugins
+│   ├── domains/           # Domain logic (Objects)
 │   └── index.ts           # Entry point
-├── tests/
 ├── objectstack.config.ts  # Project configuration
 ├── package.json
 └── tsconfig.json
@@ -118,74 +111,56 @@ my-app/
 
 ### objectstack.config.ts
 
-```typescript
-import { defineConfig } from '@objectstack/cli';
+ObjectStack uses a **Zero-Config** approach for development. You only need to define your Objects and Apps. The runtime, database, and server are auto-configured for you.
 
-export default defineConfig({
-  // ============================================================================
-  // Project Metadata
-  // ============================================================================
-  
-  name: 'my_app',
-  version: '1.0.0',
-  description: 'My ObjectStack Application',
-  
-  // ============================================================================
-  // Build Settings
-  // ============================================================================
-  
-  build: {
-    outDir: './dist',
-    sourcemap: true,
-    minify: true,
-    target: 'node18',
+```typescript
+import { defineStack } from '@objectstack/spec';
+import { Task } from './src/objects/task';
+
+export default defineStack({
+  // Metadata
+  manifest: {
+    name: 'my_app',
+    version: '1.0.0',
+    description: 'My ObjectStack Application',
   },
   
-  // ============================================================================
-  // Database Configuration
-  // ============================================================================
-  
-  datasources: {
-    default: {
-      driver: 'postgres',
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5432'),
-      database: process.env.DB_NAME || 'myapp',
-      user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD,
-    },
-  },
-  
-  // ============================================================================
-  // Plugin Configuration
-  // ============================================================================
-  
-  plugins: [
-    '@objectstack/plugin-auth',
-    '@objectstack/plugin-email',
-    './src/plugins/custom-integration',
+  // Data Layer (ObjectQL)
+  objects: [
+    Task
   ],
   
-  // ============================================================================
-  // Development Server
-  // ============================================================================
-  
-  dev: {
-    port: 3000,
-    host: '0.0.0.0',
-    watch: true,
-    hotReload: true,
-  },
-  
-  // ============================================================================
-  // Deployment
-  // ============================================================================
-  
-  deploy: {
-    target: 'cloud', // 'cloud' | 'self-hosted' | 'docker'
-    region: 'us-east-1',
-  },
+  // UI Layer (Apps & Visualizations)
+  apps: [
+    // Define your apps here
+  ]
 });
+```
+
+When you run `objectstack dev`, the CLI automatically:
+1.  **Injects ObjectQL Engine** if objects are detected.
+2.  **Injects Memory Driver** if no other driver is configured (Development Mode).
+3.  **Injects Http Server** to serve the API.
+
+---
+
+## 💻 Development Commands
+
+### Start Development Server
+
+```bash
+# Start the dev server with hot reload
+objectstack dev
+
+# Watch specific package in a monorepo
+objectstack dev @my/app
+```
+
+### Check Environment Health
+
+```bash
+# Verify Node.js, pnpm, and dependencies
+objectstack doctor
 ```
 
 ---
