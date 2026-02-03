@@ -268,6 +268,157 @@ const { mutate } = useMutation<Task, Partial<Task>>('todo_task', 'create');
 // mutate expects Partial<Task>
 ```
 
+## Common Patterns
+
+### Master-Detail View
+
+```tsx
+function TaskList() {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  
+  const { data: tasks } = useQuery('todo_task', {
+    select: ['id', 'subject'],
+    sort: ['-created_at']
+  });
+  
+  const { data: selectedTask } = useQuery('todo_task', {
+    filters: ['id', '=', selectedId],
+    enabled: !!selectedId // Only fetch when ID is selected
+  });
+  
+  return (
+    <div className="flex">
+      <TaskListPanel tasks={tasks?.value} onSelect={setSelectedId} />
+      <TaskDetail task={selectedTask?.value?.[0]} />
+    </div>
+  );
+}
+```
+
+### Optimistic Updates
+
+```tsx
+function TaskToggle({ taskId, completed }) {
+  const { mutate } = useMutation('todo_task', 'update', {
+    onMutate: async (variables) => {
+      // Optimistically update UI
+      return { previousValue: completed };
+    },
+    onError: (error, variables, context) => {
+      // Revert on error
+      console.error('Update failed, reverting', context.previousValue);
+    },
+    onSuccess: () => {
+      // Refetch to ensure data consistency
+      queryClient.invalidateQueries(['todo_task']);
+    }
+  });
+  
+  return (
+    <Checkbox 
+      checked={completed}
+      onChange={(e) => mutate({ id: taskId, is_completed: e.target.checked })}
+    />
+  );
+}
+```
+
+### Dependent Queries
+
+```tsx
+function ProjectTasks({ projectId }) {
+  // First, get project details
+  const { data: project } = useQuery('project', {
+    filters: ['id', '=', projectId]
+  });
+  
+  // Then, get tasks for this project
+  const { data: tasks } = useQuery('todo_task', {
+    filters: ['project_id', '=', projectId],
+    enabled: !!project // Only fetch when project is loaded
+  });
+  
+  return (
+    <div>
+      <h2>{project?.value?.[0]?.name}</h2>
+      <TaskList tasks={tasks?.value} />
+    </div>
+  );
+}
+```
+
+### Search with Debounce
+
+```tsx
+import { useDeferredValue } from 'react';
+
+function TaskSearch() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const deferredSearch = useDeferredValue(searchTerm);
+  
+  const { data, isLoading } = useQuery('todo_task', {
+    filters: ['subject', 'contains', deferredSearch],
+    enabled: deferredSearch.length >= 3 // Only search with 3+ chars
+  });
+  
+  return (
+    <div>
+      <input 
+        type="text"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        placeholder="Search tasks..."
+      />
+      {isLoading && <Spinner />}
+      <TaskList tasks={data?.value} />
+    </div>
+  );
+}
+```
+
+### Form with Validation
+
+```tsx
+function TaskForm() {
+  const { mutate, isLoading, error } = useMutation('todo_task', 'create', {
+    onSuccess: () => {
+      router.push('/tasks');
+    }
+  });
+  
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    
+    mutate({
+      subject: formData.get('subject'),
+      priority: Number(formData.get('priority')),
+      due_date: formData.get('due_date')
+    });
+  };
+  
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="subject" required />
+      <input name="priority" type="number" min="1" max="5" />
+      <input name="due_date" type="date" />
+      
+      {error && (
+        <div className="error">
+          {error.code === 'validation_error' 
+            ? 'Please check your input' 
+            : error.message}
+        </div>
+      )}
+      
+      <button type="submit" disabled={isLoading}>
+        {isLoading ? 'Creating...' : 'Create Task'}
+      </button>
+    </form>
+  );
+}
+```
+
 ## License
 
 Apache-2.0

@@ -54,6 +54,43 @@ The specification is organized into five namespaces mapping to the three-layer a
 
 ## 📚 Usage
 
+### 🤖 AI Quick Reference
+
+**For AI Agents and LLMs:** This package is the single source of truth for ObjectStack protocol definitions. When working with ObjectStack:
+
+1. **Import Patterns**: Always use namespace imports (`Data.Field`, `UI.View`) or direct subpath imports
+2. **Validation**: Use Zod schemas for runtime validation (e.g., `ObjectSchema.parse(config)`)
+3. **Type Inference**: Derive TypeScript types from Zod (`type Field = z.infer<typeof FieldSchema>`)
+4. **Naming Convention**: 
+   - Configuration keys (TypeScript properties): `camelCase` (e.g., `maxLength`, `defaultValue`)
+   - Machine names (data values): `snake_case` (e.g., `name: 'todo_task'`, `field: 'due_date'`)
+5. **Context Files**: Load prompts from `prompts/` directory for architectural understanding
+
+**Common Tasks:**
+```typescript
+// Define an Object
+import { Data } from '@objectstack/spec';
+const task: Data.Object = {
+  name: 'todo_task',
+  fields: {
+    subject: { type: 'text', label: 'Subject', required: true },
+    priority: { type: 'number', min: 1, max: 5 }
+  }
+};
+
+// Validate at runtime
+import { ObjectSchema } from '@objectstack/spec/data';
+const result = ObjectSchema.safeParse(task);
+
+// Define an App
+import { UI } from '@objectstack/spec';
+const app: UI.App = {
+  id: 'crm',
+  name: 'CRM',
+  navigation: { /* ... */ }
+};
+```
+
 ### Import Styles
 
 **Important:** This package does NOT export types at the root level to prevent naming conflicts. You must use one of the following import styles:
