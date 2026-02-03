@@ -1,5 +1,13 @@
 # @objectstack/driver-memory
 
+## 0.9.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @objectstack/spec@0.9.2
+  - @objectstack/core@0.9.2
+
 ## 0.9.1
 
 ### Patch Changes

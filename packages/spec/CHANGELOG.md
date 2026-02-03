@@ -1,5 +1,11 @@
 # @objectstack/spec
 
+## 0.9.2
+
+### Patch Changes
+
+- Refactor documentation architecture and terminology (Data/System/UI Protocols).
+
 ## 0.9.1
 
 ### Patch Changes
