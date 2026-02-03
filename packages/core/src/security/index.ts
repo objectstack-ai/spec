@@ -32,7 +32,7 @@ export {
 export {
   PluginPermissionManager,
   type PermissionGrant,
-  type PermissionCheckResult as AdvancedPermissionCheckResult,
+  type PermissionCheckResult as PluginPermissionCheckResult,
 } from './permission-manager.js';
 
 export {
