@@ -3,6 +3,7 @@
   "pages": [
     "http",
     "identifiers",
-    "mapping"
+    "mapping",
+    "version"
   ]
 }

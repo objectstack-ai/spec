@@ -1,0 +1,7 @@
+{
+  "$ref": "#/definitions/VersionMetadata",
+  "definitions": {
+    "VersionMetadata": {}
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
