@@ -132,40 +132,60 @@ See **[DEVELOPMENT.md](./DEVELOPMENT.md)** for comprehensive development guide i
 
 ### Core Packages
 
-| Package | Description | Status |
-| :--- | :--- | :--- |
-| **[`@objectstack/spec`](packages/spec)** | Protocol definitions (Zod schemas, Types, JSON Schemas) - The "Constitution" | 🟢 Active |
-| **[`@objectstack/core`](packages/core)** | Microkernel runtime (Plugin system, DI, Event Bus, Logger) | 🟢 Active |
-| **[`@objectstack/types`](packages/types)** | Shared runtime type definitions | 🟢 Active |
+| Package | Description | Key Features | Status |
+| :--- | :--- | :--- | :--- |
+| **[`@objectstack/spec`](packages/spec)** | Protocol definitions (Zod schemas, Types, JSON Schemas) - The "Constitution" | Runtime validation, Type inference, JSON Schema generation | 🟢 Active |
+| **[`@objectstack/core`](packages/core)** | Microkernel runtime (Plugin system, DI, Event Bus, Logger) | Plugin lifecycle, Service registry, High-performance logging | 🟢 Active |
+| **[`@objectstack/types`](packages/types)** | Shared runtime type definitions | IKernel, RuntimePlugin, RuntimeContext interfaces | 🟢 Active |
 
 ### Engine Packages
 
-| Package | Description | Status |
-| :--- | :--- | :--- |
-| **[`@objectstack/objectql`](packages/objectql)** | ObjectQL query engine and schema registry | 🟢 Active |
-| **[`@objectstack/runtime`](packages/runtime)** | Runtime utilities and plugin helpers | 🟢 Active |
+| Package | Description | Key Features | Status |
+| :--- | :--- | :--- | :--- |
+| **[`@objectstack/objectql`](packages/objectql)** | ObjectQL query engine and schema registry | Cross-datasource queries, Driver routing, Schema registry | 🟢 Active |
+| **[`@objectstack/runtime`](packages/runtime)** | Runtime utilities and plugin helpers | Standard library, DriverPlugin, AppPlugin | 🟢 Active |
+| **[`@objectstack/metadata`](packages/metadata)** | Metadata loading and persistence | Multi-format support, File watching, Validation | 🟢 Active |
 
 ### Client Packages
 
-| Package | Description | Status |
-| :--- | :--- | :--- |
-| **[`@objectstack/client`](packages/client)** | Official Client SDK for ObjectStack Protocol | 🟢 Active |
-| **[`@objectstack/client-react`](packages/client-react)** | React hooks for ObjectStack | 🟢 Active |
+| Package | Description | Key Features | Status |
+| :--- | :--- | :--- | :--- |
+| **[`@objectstack/client`](packages/client)** | Official Client SDK for ObjectStack Protocol | CRUD operations, Batch API, View storage, Error handling | 🟢 Active |
+| **[`@objectstack/client-react`](packages/client-react)** | React hooks for ObjectStack | useQuery, useMutation, usePagination, useInfiniteQuery | 🟢 Active |
 
 ### Plugin Packages
 
-| Package | Description | Status |
-| :--- | :--- | :--- |
-| **[`@objectstack/driver-memory`](packages/plugins/driver-memory)** | In-memory driver (reference implementation) | 🟢 Active |
-| **[`@objectstack/plugin-hono-server`](packages/plugins/plugin-hono-server)** | HTTP server plugin (Hono-based) | 🟢 Active |
-| **[`@objectstack/plugin-msw`](packages/plugins/plugin-msw)** | Mock Service Worker plugin for testing | 🟢 Active |
+| Package | Description | Key Features | Status |
+| :--- | :--- | :--- | :--- |
+| **[`@objectstack/driver-memory`](packages/plugins/driver-memory)** | In-memory driver (reference implementation) | Zero dependencies, Perfect for testing, Fast in-memory storage | 🟢 Active |
+| **[`@objectstack/plugin-hono-server`](packages/plugins/plugin-hono-server)** | HTTP server plugin (Hono-based) | Universal runtime, Auto-discovery, API Registry integration | 🟢 Active |
+| **[`@objectstack/plugin-msw`](packages/plugins/plugin-msw)** | Mock Service Worker plugin for testing | Automatic API mocking, Browser & Node support | 🟢 Active |
 
 ### Tools
 
-| Package | Description | Status |
-| :--- | :--- | :--- |
-| **[`@objectstack/cli`](packages/cli)** | Command-line interface and development tools | 🟢 Active |
-| **[`@objectstack/docs`](apps/docs)** | Documentation site (Fumadocs + Next.js) | 🟢 Active |
+| Package | Description | Key Features | Status |
+| :--- | :--- | :--- | :--- |
+| **[`@objectstack/cli`](packages/cli)** | Command-line interface and development tools | serve, dev, compile, doctor, create, test:run | 🟢 Active |
+| **[`@objectstack/docs`](apps/docs)** | Documentation site (Fumadocs + Next.js) | Interactive docs, API reference, Examples | 🟢 Active |
+
+### Package Quick Links
+
+**For Application Developers:**
+- Start here: [`@objectstack/client`](packages/client/README.md) - Official SDK
+- React apps: [`@objectstack/client-react`](packages/client-react/README.md) - React hooks
+- Development: [`@objectstack/cli`](packages/cli/README.md) - CLI tools
+
+**For Protocol Developers:**
+- Protocols: [`@objectstack/spec`](packages/spec/README.md) - Schema definitions
+- Runtime: [`@objectstack/core`](packages/core/README.md) - Microkernel
+- Data layer: [`@objectstack/objectql`](packages/objectql/README.md) - Query engine
+
+**For Plugin Developers:**
+- Runtime: [`@objectstack/runtime`](packages/runtime/README.md) - Plugin patterns
+- Types: [`@objectstack/types`](packages/types/README.md) - Shared interfaces
+- Examples: 
+  - [`@objectstack/driver-memory`](packages/plugins/driver-memory/README.md) - Driver reference
+  - [`@objectstack/plugin-hono-server`](packages/plugins/plugin-hono-server/README.md) - Server plugin
 
 ### Examples
 
