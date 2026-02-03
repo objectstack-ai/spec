@@ -348,7 +348,8 @@ async function example() {
   });
 }
 
-// Run example if this file is executed directly
-if (require.main === module) {
+// Run example if this file is executed directly (ES Module compatible)
+// Note: In ES modules, use import.meta.url instead of require.main
+if (import.meta.url === `file://${process.argv[1]}`) {
   example().catch(console.error);
 }

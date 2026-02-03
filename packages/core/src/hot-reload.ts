@@ -123,10 +123,12 @@ class PluginStateManager {
 
   /**
    * Calculate simple checksum for state verification
+   * WARNING: This is a simple hash for demo purposes.
+   * In production, use a cryptographic hash like SHA-256.
    */
   private calculateChecksum(state: Record<string, any>): string {
     // Simple checksum using JSON serialization
-    // In production, use a proper hash function like SHA-256
+    // TODO: Replace with crypto.createHash('sha256') for production
     const stateStr = JSON.stringify(state);
     let hash = 0;
     for (let i = 0; i < stateStr.length; i++) {

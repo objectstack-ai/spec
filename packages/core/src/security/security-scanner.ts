@@ -47,8 +47,13 @@ export class PluginSecurityScanner {
   // Scan results cache
   private scanResults = new Map<string, SecurityScanResult>();
 
-  constructor(logger: ObjectLogger) {
+  private passThreshold: number = 70;
+
+  constructor(logger: ObjectLogger, config?: { passThreshold?: number }) {
     this.logger = logger.child({ component: 'SecurityScanner' });
+    if (config?.passThreshold !== undefined) {
+      this.passThreshold = config.passThreshold;
+    }
   }
 
   /**
@@ -94,7 +99,7 @@ export class PluginSecurityScanner {
         version: target.version,
         timestamp: new Date().toISOString(),
         score,
-        passed: score >= 70, // Pass if score is 70 or higher
+        passed: score >= this.passThreshold, // Use configurable threshold
         issues: issues.map(issue => ({
           id: issue.id,
           severity: issue.severity,

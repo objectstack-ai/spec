@@ -139,6 +139,8 @@ export class PluginSandboxRuntime {
 
   /**
    * Check file system access
+   * WARNING: Uses simple prefix matching. For production, use proper path
+   * resolution with path.resolve() and path.normalize() to prevent traversal.
    */
   private checkFileAccess(
     config: SandboxConfig,
@@ -157,10 +159,12 @@ export class PluginSandboxRuntime {
       return { allowed: config.filesystem.mode !== 'none' };
     }
 
+    // TODO: Use path.resolve() and path.normalize() for production
     // Check allowed paths
     const allowedPaths = config.filesystem.allowedPaths || [];
     const isAllowed = allowedPaths.some(allowed => {
-      // Simple prefix matching - in production use proper path resolution
+      // Simple prefix matching - vulnerable to traversal attacks
+      // TODO: Use proper path resolution
       return path.startsWith(allowed);
     });
 
@@ -189,6 +193,8 @@ export class PluginSandboxRuntime {
 
   /**
    * Check network access
+   * WARNING: Uses simple string matching. For production, use proper URL
+   * parsing with new URL() and check hostname property.
    */
   private checkNetworkAccess(
     config: SandboxConfig,
@@ -212,10 +218,13 @@ export class PluginSandboxRuntime {
       return { allowed: config.network.mode !== 'none' };
     }
 
+    // TODO: Use new URL() and check hostname property for production
     // Check allowed hosts
     const allowedHosts = config.network.allowedHosts || [];
     if (allowedHosts.length > 0) {
       const isAllowed = allowedHosts.some(host => {
+        // Simple string matching - vulnerable to bypass
+        // TODO: Use proper URL parsing
         return url.includes(host);
       });
 
@@ -361,6 +370,11 @@ export class PluginSandboxRuntime {
 
   /**
    * Update resource usage statistics
+   * 
+   * NOTE: Currently uses global process.memoryUsage() which tracks the entire
+   * Node.js process, not individual plugins. For production, implement proper
+   * per-plugin tracking using V8 heap snapshots or allocation tracking at
+   * plugin boundaries.
    */
   private updateResourceUsage(pluginId: string): void {
     const context = this.sandboxes.get(pluginId);
@@ -371,7 +385,8 @@ export class PluginSandboxRuntime {
     // In a real implementation, this would collect actual metrics
     // For now, this is a placeholder structure
     
-    // Update memory usage (would use process.memoryUsage() or similar)
+    // Update memory usage (global process memory - not per-plugin)
+    // TODO: Implement per-plugin memory tracking
     const memoryUsage = process.memoryUsage();
     context.resourceUsage.memory.current = memoryUsage.heapUsed;
     context.resourceUsage.memory.peak = Math.max(
@@ -381,6 +396,7 @@ export class PluginSandboxRuntime {
 
     // Update CPU usage (would use process.cpuUsage() or similar)
     // This is a placeholder - real implementation would track per-plugin CPU
+    // TODO: Implement per-plugin CPU tracking
     context.resourceUsage.cpu.current = 0;
 
     // Check for violations
