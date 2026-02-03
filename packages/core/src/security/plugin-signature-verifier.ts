@@ -5,9 +5,9 @@ import type { PluginMetadata } from '../plugin-loader.js';
 let cryptoModule: typeof import('crypto') | null = null;
 if (typeof (globalThis as any).window === 'undefined') {
   try {
-    // Dynamic import for Node.js crypto module
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    cryptoModule = require('crypto');
+    // Dynamic import for Node.js crypto module (using eval to avoid bundling issues)
+    // @ts-ignore - dynamic require for Node.js
+    cryptoModule = eval('require("crypto")');
   } catch {
     // Crypto module not available (e.g., browser environment)
   }

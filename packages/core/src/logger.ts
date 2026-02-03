@@ -1,8 +1,5 @@
-import { createRequire } from 'module';
 import type { LoggerConfig, LogLevel } from '@objectstack/spec/system';
 import type { Logger } from '@objectstack/spec/contracts';
-
-const require = createRequire(import.meta.url);
 
 /**
  * Universal Logger Implementation
@@ -24,6 +21,7 @@ export class ObjectLogger implements Logger {
     private isNode: boolean;
     private pinoLogger?: any; // Pino logger instance for Node.js
     private pinoInstance?: any; // Base Pino instance for creating child loggers
+    private require?: any; // CommonJS require function for Node.js
 
     constructor(config: Partial<LoggerConfig> = {}) {
         // Detect runtime environment
@@ -56,8 +54,13 @@ export class ObjectLogger implements Logger {
         if (!this.isNode) return;
 
         try {
+            // Create require function dynamically for Node.js (avoids bundling issues in browser)
+            // @ts-ignore - dynamic import of Node.js module
+            const { createRequire } = eval('require("module")');
+            this.require = createRequire(import.meta.url);
+            
             // Synchronous import for Pino using createRequire (works in ESM)
-            const pino = require('pino');
+            const pino = this.require('pino');
             
             // Build Pino options
             const pinoOptions: any = {
@@ -81,7 +84,7 @@ export class ObjectLogger implements Logger {
                 // Check if pino-pretty is available
                 let hasPretty = false;
                 try {
-                    require.resolve('pino-pretty');
+                    this.require.resolve('pino-pretty');
                     hasPretty = true;
                 } catch (e) {
                     // ignore
