@@ -245,6 +245,9 @@ importers:
       '@objectstack/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@objectstack/runtime':
+        specifier: workspace:*
+        version: link:../../packages/runtime
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../packages/spec

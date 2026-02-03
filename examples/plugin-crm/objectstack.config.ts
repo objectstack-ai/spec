@@ -1,6 +1,6 @@
 import { defineStack } from '@objectstack/spec';
 // @ts-ignore
-import BiPlugin from '../../plugin-bi/objectstack.config.js';
+import BiPlugin from '../plugin-bi/objectstack.config.js';
 
 /**
  * Advanced CRM Plugin Example

@@ -5,8 +5,8 @@
  * generate RESTful CRUD endpoints for your ObjectStack application.
  */
 
-import { RestServer } from '@objectstack/runtime';
-import type { IProtocolProvider } from '@objectstack/runtime';
+import { RestServer, RouteEntry } from '@objectstack/runtime';
+import type { ObjectStackProtocol } from '@objectstack/spec/api';
 
 /**
  * Example: Mock Protocol Provider
@@ -14,7 +14,7 @@ import type { IProtocolProvider } from '@objectstack/runtime';
  * In a real application, this would be provided by your ObjectQL engine
  * or data layer implementation.
  */
-class MockProtocolProvider implements IProtocolProvider {
+class MockProtocolProvider {
     private data: Map<string, any[]> = new Map();
     
     getDiscovery() {
@@ -105,12 +105,67 @@ class MockProtocolProvider implements IProtocolProvider {
         return { success: true };
     }
     
+    async getMetaItemCached(request: any) {
+        return {
+            type: request.type,
+            name: request.name,
+            item: await this.getMetaItem(request.type, request.name),
+            cached: false
+        };
+    }
+    
+    async batchData(request: any) {
+        const results = [];
+        for (const op of request.operations || []) {
+            try {
+                let result;
+                if (op.operation === 'create') {
+                    result = await this.createData(op.object, op.data);
+                } else if (op.operation === 'update') {
+                    result = await this.updateData(op.object, op.id, op.data);
+                } else if (op.operation === 'delete') {
+                    result = await this.deleteData(op.object, op.id);
+                }
+                results.push({ success: true, data: result });
+            } catch (error) {
+                results.push({ success: false, error: (error as Error).message });
+            }
+        }
+        return { results };
+    }
+    
     async createManyData(object: string, records: any[]) {
         const existing = this.data.get(object) || [];
         const newRecords = records.map(r => ({ id: Date.now().toString(), ...r }));
         existing.push(...newRecords);
         this.data.set(object, existing);
         return newRecords;
+    }
+    
+    async updateManyData(request: any) {
+        const results = [];
+        for (const id of request.ids || []) {
+            try {
+                const result = await this.updateData(request.object, id, request.data);
+                results.push({ success: true, data: result });
+            } catch (error) {
+                results.push({ success: false, error: (error as Error).message });
+            }
+        }
+        return { results };
+    }
+    
+    async deleteManyData(request: any) {
+        const results = [];
+        for (const id of request.ids || []) {
+            try {
+                const result = await this.deleteData(request.object, id);
+                results.push({ success: true, data: result });
+            } catch (error) {
+                results.push({ success: false, error: (error as Error).message });
+            }
+        }
+        return { results };
     }
 }
 
@@ -123,7 +178,7 @@ async function setupRestServer() {
     const httpServer = {} as any; // Placeholder - use actual server in production
     
     // 2. Create a protocol provider
-    const protocol = new MockProtocolProvider();
+    const protocol = new MockProtocolProvider() as any as ObjectStackProtocol;
     
     // 3. Create REST server with configuration
     const restServer = new RestServer(httpServer, protocol, {
@@ -137,6 +192,7 @@ async function setupRestServer() {
         },
         crud: {
             dataPrefix: '/data',
+            objectParamStyle: 'path' as const,
             operations: {
                 create: true,
                 read: true,
@@ -148,10 +204,12 @@ async function setupRestServer() {
         metadata: {
             prefix: '/meta',
             enableCache: true,
+            cacheTtl: 300, // 5 minutes
         },
         batch: {
             maxBatchSize: 200,
             enableBatchEndpoint: true,
+            defaultAtomic: true,
             operations: {
                 createMany: true,
                 updateMany: true,
@@ -167,7 +225,7 @@ async function setupRestServer() {
     // 5. Get route information (useful for debugging)
     const routes = restServer.getRoutes();
     console.log(`Registered ${routes.length} routes:`);
-    routes.forEach(route => {
+    routes.forEach((route: RouteEntry) => {
         console.log(`  ${route.method} ${route.path}`);
     });
     
@@ -214,7 +272,7 @@ async function exampleApiUsage() {
             email: 'john@example.com'
         })
     });
-    const newUser = await createResponse.json();
+    const newUser = await createResponse.json() as { id: string; name: string; email: string };
     console.log('Created user:', newUser);
     
     // List users
