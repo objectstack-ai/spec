@@ -14,7 +14,7 @@ describe('API Registry Plugin', () => {
 
   describe('Plugin Registration', () => {
     it('should register API Registry as a service', async () => {
-      kernel.use(createApiRegistryPlugin());
+      await kernel.use(createApiRegistryPlugin());
       await kernel.bootstrap();
 
       const registry = kernel.getService<ApiRegistry>('api-registry');
@@ -25,7 +25,7 @@ describe('API Registry Plugin', () => {
     });
 
     it('should register with custom conflict resolution', async () => {
-      kernel.use(createApiRegistryPlugin({
+      await kernel.use(createApiRegistryPlugin({
         conflictResolution: 'priority',
         version: '2.0.0',
       }));
@@ -42,7 +42,7 @@ describe('API Registry Plugin', () => {
 
   describe('Integration with Plugins', () => {
     it('should allow plugins to register APIs', async () => {
-      kernel.use(createApiRegistryPlugin());
+      await kernel.use(createApiRegistryPlugin());
 
       const testPlugin: Plugin = {
         name: 'test-plugin',
@@ -75,7 +75,7 @@ describe('API Registry Plugin', () => {
         },
       };
 
-      kernel.use(testPlugin);
+      await kernel.use(testPlugin);
       await kernel.bootstrap();
 
       const registry = kernel.getService<ApiRegistry>('api-registry');
@@ -88,7 +88,7 @@ describe('API Registry Plugin', () => {
     });
 
     it('should allow multiple plugins to register APIs', async () => {
-      kernel.use(createApiRegistryPlugin());
+      await kernel.use(createApiRegistryPlugin());
 
       const plugin1: Plugin = {
         name: 'plugin-1',
@@ -133,8 +133,8 @@ describe('API Registry Plugin', () => {
         },
       };
 
-      kernel.use(plugin1);
-      kernel.use(plugin2);
+      await kernel.use(plugin1);
+      await kernel.use(plugin2);
       await kernel.bootstrap();
 
       const registry = kernel.getService<ApiRegistry>('api-registry');
@@ -147,7 +147,7 @@ describe('API Registry Plugin', () => {
     });
 
     it('should support API discovery across plugins', async () => {
-      kernel.use(createApiRegistryPlugin());
+      await kernel.use(createApiRegistryPlugin());
 
       const dataPlugin: Plugin = {
         name: 'data-plugin',
@@ -200,8 +200,8 @@ describe('API Registry Plugin', () => {
         },
       };
 
-      kernel.use(dataPlugin);
-      kernel.use(analyticsPlugin);
+      await kernel.use(dataPlugin);
+      await kernel.use(analyticsPlugin);
       await kernel.bootstrap();
 
       const registry = kernel.getService<ApiRegistry>('api-registry');
@@ -223,7 +223,7 @@ describe('API Registry Plugin', () => {
     });
 
     it('should handle route conflicts based on strategy', async () => {
-      kernel.use(createApiRegistryPlugin({
+      await kernel.use(createApiRegistryPlugin({
         conflictResolution: 'priority',
       }));
 
@@ -275,8 +275,8 @@ describe('API Registry Plugin', () => {
         },
       };
 
-      kernel.use(corePlugin);
-      kernel.use(pluginOverride);
+      await kernel.use(corePlugin);
+      await kernel.use(pluginOverride);
       await kernel.bootstrap();
 
       const registry = kernel.getService<ApiRegistry>('api-registry');
@@ -290,7 +290,7 @@ describe('API Registry Plugin', () => {
     });
 
     it('should support cleanup on plugin unload', async () => {
-      kernel.use(createApiRegistryPlugin());
+      await kernel.use(createApiRegistryPlugin());
 
       const dynamicPlugin: Plugin = {
         name: 'dynamic-plugin',
@@ -318,7 +318,7 @@ describe('API Registry Plugin', () => {
         },
       };
 
-      kernel.use(dynamicPlugin);
+      await kernel.use(dynamicPlugin);
       await kernel.bootstrap();
 
       const registry = kernel.getService<ApiRegistry>('api-registry');
@@ -334,7 +334,7 @@ describe('API Registry Plugin', () => {
 
   describe('API Registry Lifecycle', () => {
     it('should be available during plugin start phase', async () => {
-      kernel.use(createApiRegistryPlugin());
+      await kernel.use(createApiRegistryPlugin());
 
       let registryAvailable = false;
 
@@ -350,7 +350,7 @@ describe('API Registry Plugin', () => {
         },
       };
 
-      kernel.use(testPlugin);
+      await kernel.use(testPlugin);
       await kernel.bootstrap();
 
       expect(registryAvailable).toBe(true);
@@ -359,7 +359,7 @@ describe('API Registry Plugin', () => {
     });
 
     it('should provide consistent registry across all plugins', async () => {
-      kernel.use(createApiRegistryPlugin());
+      await kernel.use(createApiRegistryPlugin());
 
       let registry1: ApiRegistry | undefined;
       let registry2: ApiRegistry | undefined;
@@ -378,8 +378,8 @@ describe('API Registry Plugin', () => {
         },
       };
 
-      kernel.use(plugin1);
-      kernel.use(plugin2);
+      await kernel.use(plugin1);
+      await kernel.use(plugin2);
       await kernel.bootstrap();
 
       // Same registry instance should be shared

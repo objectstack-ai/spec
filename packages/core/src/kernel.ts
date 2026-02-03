@@ -75,20 +75,26 @@ export class ObjectKernel {
                 this.logger.info(`Service '${name}' registered`, { service: name });
             },
             getService: <T>(name: string) => {
-                // Try to get from plugin loader (supports factories and lifecycle)
+                // 1. Try direct service map first (synchronous cache)
+                const service = this.services.get(name);
+                if (service) {
+                    return service as T;
+                }
+
+                // 2. Try to get from plugin loader (supports factories and lifecycle)
                 try {
                     const service = this.pluginLoader.getService(name);
                     if (service instanceof Promise) {
+                        // If we found it in the loader but not in the sync map, it's likely a factory-based service
                         throw new Error(`Service '${name}' is async - use await`);
                     }
                     return service as T;
-                } catch {
-                    // Fall back to direct service map
-                    const service = this.services.get(name);
-                    if (!service) {
-                        throw new Error(`[Kernel] Service '${name}' not found`);
+                } catch (error: any) {
+                    if (error.message?.includes('is async')) {
+                        throw error;
                     }
-                    return service as T;
+
+                    throw new Error(`[Kernel] Service '${name}' not found`);
                 }
             },
             hook: (name, handler) => {
