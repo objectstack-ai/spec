@@ -109,7 +109,7 @@ const request: CodeGenerationRequest = {
   codeStyle: 'production',
   output: {
     includeTests: true,
-    includeDo cumentation: true,
+    includeDocumentation: true,
     testCoverage: 80
   }
 };
