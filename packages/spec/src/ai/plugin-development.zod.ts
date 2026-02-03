@@ -75,7 +75,7 @@ export const CodeGenerationRequestSchema = z.object({
     indentation: z.enum(['tab', '2spaces', '4spaces']).default('2spaces'),
     quotes: z.enum(['single', 'double']).default('single'),
     semicolons: z.boolean().default(true),
-    trailing-comma: z.boolean().default(true),
+    trailingComma: z.boolean().default(true),
   }).optional(),
   
   /**

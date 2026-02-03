@@ -83,10 +83,10 @@ export const PluginRatingSchema = z.object({
 });
 
 /**
- * Plugin Quality Metrics
- * Objective quality measurements
+ * Plugin Quality Metrics (Marketplace)
+ * Objective quality measurements for marketplace listing
  */
-export const PluginQualityMetricsSchema = z.object({
+export const MarketplaceQualityMetricsSchema = z.object({
   /**
    * Code quality score (0-100)
    */
@@ -369,7 +369,7 @@ export const PluginMarketplaceListingSchema = z.object({
   /**
    * Quality metrics
    */
-  quality: PluginQualityMetricsSchema.optional(),
+  quality: MarketplaceQualityMetricsSchema.optional(),
   
   /**
    * Certification
@@ -682,7 +682,7 @@ export const PluginRevenueSharingSchema = z.object({
 export type PluginCategory = z.infer<typeof PluginCategorySchema>;
 export type PluginTag = z.infer<typeof PluginTagSchema>;
 export type PluginRating = z.infer<typeof PluginRatingSchema>;
-export type PluginQualityMetrics = z.infer<typeof PluginQualityMetricsSchema>;
+export type MarketplaceQualityMetrics = z.infer<typeof MarketplaceQualityMetricsSchema>;
 export type PluginCertification = z.infer<typeof PluginCertificationSchema>;
 export type PluginLicense = z.infer<typeof PluginLicenseSchema>;
 export type PluginMarketplaceListing = z.infer<typeof PluginMarketplaceListingSchema>;

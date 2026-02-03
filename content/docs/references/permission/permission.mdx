@@ -12,8 +12,8 @@ description: Permission protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { FieldPermissionSchema, ObjectPermissionSchema, PermissionSetSchema } from '@objectstack/spec/permission';
-import type { FieldPermission, ObjectPermission, PermissionSet } from '@objectstack/spec/permission';
+import { FieldPermissionSchema, ObjectPermissionSchema } from '@objectstack/spec/permission';
+import type { FieldPermission, ObjectPermission } from '@objectstack/spec/permission';
 
 // Validate data
 const result = FieldPermissionSchema.parse(data);
@@ -26,8 +26,4 @@ const result = FieldPermissionSchema.parse(data);
 ---
 
 ## ObjectPermission
-
----
-
-## PermissionSet
 
