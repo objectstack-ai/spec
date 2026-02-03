@@ -15,27 +15,26 @@ import BiPluginManifest from '@example/plugin-bi/objectstack.config';
   // Use MiniKernel architecture
   const kernel = new ObjectKernel();
   
-  kernel
-      // Register Metadata Plugin (File System Loader)
-      // Best Practice: Load metadata early so it's available for other plugins
-      .use(new MetadataPlugin({ rootDir: path.resolve(__dirname, '../metadata') }))
+  // Register Metadata Plugin (File System Loader)
+  // Best Practice: Load metadata early so it's available for other plugins
+  await kernel.use(new MetadataPlugin({ rootDir: path.resolve(__dirname, '../metadata') }));
 
-      // Register ObjectQL engine
-      .use(new ObjectQLPlugin())
-      
-      // Database driver
-      .use(new DriverPlugin(new InMemoryDriver(), 'memory'))
-      
-      // App manifests
-      .use(new AppPlugin(CrmApp))
-      .use(new AppPlugin(TodoApp))
-      .use(new AppPlugin(BiPluginManifest))
-      
-      // Load the Hono Server Plugin
-      .use(new HonoServerPlugin({ 
-        port: 3004, 
-        staticRoot: './public' 
-      }));
+  // Register ObjectQL engine
+  await kernel.use(new ObjectQLPlugin());
+
+  // Database driver
+  await kernel.use(new DriverPlugin(new InMemoryDriver(), 'memory'));
+
+  // App manifests
+  await kernel.use(new AppPlugin(CrmApp));
+  await kernel.use(new AppPlugin(TodoApp));
+  await kernel.use(new AppPlugin(BiPluginManifest));
+
+  // Load the Hono Server Plugin
+  await kernel.use(new HonoServerPlugin({ 
+    port: 3004, 
+    staticRoot: './public' 
+  }));
 
   await kernel.bootstrap();
 })();
