@@ -93,12 +93,21 @@ export class ObjectKernel {
                 try {
                     const service = this.pluginLoader.getService(name);
                     if (service instanceof Promise) {
-                        // If we found it in the loader but not in the sync map, it's likely a factory-based service
+                        // If we found it in the loader but not in the sync map, it's likely a factory-based service or still loading
                         throw new Error(`Service '${name}' is async - use await`);
                     }
                     return service as T;
                 } catch (error: any) {
                     if (error.message?.includes('is async')) {
+                        throw error;
+                    }
+                    
+                    // Re-throw critical factory errors instead of masking them as "not found"
+                    // If the error came from the factory execution (e.g. database connection failed), we must see it.
+                    // "Service '${name}' not found" comes from PluginLoader.getService fallback.
+                    const isNotFoundError = error.message === `Service '${name}' not found`;
+                    
+                    if (!isNotFoundError) {
                         throw error;
                     }
 

@@ -1,6 +1,7 @@
 import { Plugin, PluginContext } from './types.js';
 import type { Logger } from '@objectstack/spec/contracts';
 import { z } from 'zod';
+import { PluginConfigValidator } from './security/plugin-config-validator.js';
 
 /**
  * Service Lifecycle Types
@@ -112,13 +113,16 @@ export interface VersionCompatibility {
 export class PluginLoader {
     private logger: Logger;
     private context?: PluginContext;
+    private configValidator: PluginConfigValidator;
     private loadedPlugins: Map<string, PluginMetadata> = new Map();
     private serviceFactories: Map<string, ServiceRegistration> = new Map();
     private serviceInstances: Map<string, any> = new Map();
     private scopedServices: Map<string, Map<string, any>> = new Map();
+    private creating: Set<string> = new Set();
 
     constructor(logger: Logger) {
         this.logger = logger;
+        this.configValidator = new PluginConfigValidator(logger);
     }
 
     /**
@@ -386,16 +390,16 @@ export class PluginLoader {
         if (!plugin.configSchema) {
             return;
         }
-        
-        if (!config) {
-            this.logger.debug(`Plugin ${plugin.name} has configuration schema but no config provided`);
-            return;
+
+        if (config === undefined) {
+             // In loadPlugin, we often don't have the config yet.
+             // We skip validation here or valid against empty object if schema allows?
+             // For now, let's keep the logging behavior but note it's delegating
+             this.logger.debug(`Plugin ${plugin.name} has configuration schema (config validation postponed)`);
+             return;
         }
-        
-        // Configuration validation is now implemented in PluginConfigValidator
-        // This is a placeholder that logs the validation would happen
-        // The actual validation should be done by the caller when config is available
-        this.logger.debug(`Plugin ${plugin.name} has configuration schema (use PluginConfigValidator for validation)`);
+
+        this.configValidator.validatePluginConfig(plugin, config);
     }
 
     private async verifyPluginSignature(plugin: PluginMetadata): Promise<void> {
@@ -449,6 +453,16 @@ export class PluginLoader {
         if (!this.context) {
             throw new Error(`[PluginLoader] Context not set - cannot create service '${registration.name}'`);
         }
-        return await registration.factory(this.context);
+
+        if (this.creating.has(registration.name)) {
+            throw new Error(`Circular dependency detected: ${Array.from(this.creating).join(' -> ')} -> ${registration.name}`);
+        }
+
+        this.creating.add(registration.name);
+        try {
+            return await registration.factory(this.context);
+        } finally {
+            this.creating.delete(registration.name);
+        }
     }
 }
