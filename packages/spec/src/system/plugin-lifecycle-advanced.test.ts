@@ -3,6 +3,7 @@ import {
   PluginHealthStatusSchema,
   PluginHealthCheckSchema,
   PluginHealthReportSchema,
+  DistributedStateConfigSchema,
   HotReloadConfigSchema,
   GracefulDegradationSchema,
   PluginUpdateStrategySchema,
@@ -134,6 +135,71 @@ describe('Plugin Lifecycle Advanced Schemas', () => {
       };
       const result = HotReloadConfigSchema.parse(config);
       expect(result).toEqual(config);
+    });
+
+    it('should validate distributed state strategy', () => {
+      const config = {
+        enabled: true,
+        stateStrategy: 'distributed' as const,
+        distributedConfig: {
+          provider: 'redis' as const,
+          endpoints: ['redis://localhost:6379'],
+          keyPrefix: 'plugin:my-plugin:',
+          ttl: 3600,
+        },
+      };
+      const result = HotReloadConfigSchema.parse(config);
+      expect(result.stateStrategy).toBe('distributed');
+      expect(result.distributedConfig?.provider).toBe('redis');
+      expect(result.distributedConfig?.keyPrefix).toBe('plugin:my-plugin:');
+    });
+  });
+
+  describe('DistributedStateConfigSchema', () => {
+    it('should validate Redis configuration', () => {
+      const config = {
+        provider: 'redis' as const,
+        endpoints: ['redis://localhost:6379', 'redis://localhost:6380'],
+        keyPrefix: 'objectstack:',
+        ttl: 7200,
+        auth: {
+          username: 'admin',
+          password: 'secret',
+        },
+        replication: {
+          enabled: true,
+          minReplicas: 2,
+        },
+      };
+      const result = DistributedStateConfigSchema.parse(config);
+      expect(result.provider).toBe('redis');
+      expect(result.endpoints).toHaveLength(2);
+      expect(result.ttl).toBe(7200);
+    });
+
+    it('should validate Etcd configuration', () => {
+      const config = {
+        provider: 'etcd' as const,
+        endpoints: ['http://localhost:2379'],
+        auth: {
+          certificate: '/path/to/cert.pem',
+        },
+      };
+      const result = DistributedStateConfigSchema.parse(config);
+      expect(result.provider).toBe('etcd');
+    });
+
+    it('should validate custom provider configuration', () => {
+      const config = {
+        provider: 'custom' as const,
+        customConfig: {
+          type: 'consul',
+          address: 'consul.example.com:8500',
+        },
+      };
+      const result = DistributedStateConfigSchema.parse(config);
+      expect(result.provider).toBe('custom');
+      expect(result.customConfig).toBeDefined();
     });
   });
 

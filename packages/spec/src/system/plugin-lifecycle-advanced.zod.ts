@@ -133,6 +133,60 @@ export const PluginHealthReportSchema = z.object({
 });
 
 /**
+ * Distributed State Configuration
+ * Configuration for distributed state management in cluster environments
+ */
+export const DistributedStateConfigSchema = z.object({
+  /**
+   * Distributed cache provider
+   */
+  provider: z.enum(['redis', 'etcd', 'custom'])
+    .describe('Distributed state backend provider'),
+  
+  /**
+   * Connection URL or endpoints
+   */
+  endpoints: z.array(z.string()).optional()
+    .describe('Backend connection endpoints'),
+  
+  /**
+   * Key prefix for namespacing
+   */
+  keyPrefix: z.string().optional()
+    .describe('Prefix for all keys (e.g., "plugin:my-plugin:")'),
+  
+  /**
+   * Time to live in seconds
+   */
+  ttl: z.number().int().min(0).optional()
+    .describe('State expiration time in seconds'),
+  
+  /**
+   * Authentication configuration
+   */
+  auth: z.object({
+    username: z.string().optional(),
+    password: z.string().optional(),
+    token: z.string().optional(),
+    certificate: z.string().optional(),
+  }).optional(),
+  
+  /**
+   * Replication settings
+   */
+  replication: z.object({
+    enabled: z.boolean().default(true),
+    minReplicas: z.number().int().min(1).default(1),
+  }).optional(),
+  
+  /**
+   * Custom provider configuration
+   */
+  customConfig: z.record(z.string(), z.any()).optional()
+    .describe('Provider-specific configuration'),
+});
+
+/**
  * Hot Reload Configuration
  * Controls how plugins handle live updates
  */
@@ -163,8 +217,14 @@ export const HotReloadConfigSchema = z.object({
   /**
    * State serialization strategy
    */
-  stateStrategy: z.enum(['memory', 'disk', 'none']).default('memory')
+  stateStrategy: z.enum(['memory', 'disk', 'distributed', 'none']).default('memory')
     .describe('How to preserve state during reload'),
+  
+  /**
+   * Distributed state configuration (required when stateStrategy is "distributed")
+   */
+  distributedConfig: DistributedStateConfigSchema.optional()
+    .describe('Configuration for distributed state management'),
   
   /**
    * Graceful shutdown timeout
@@ -412,6 +472,7 @@ export const AdvancedPluginLifecycleConfigSchema = z.object({
 export type PluginHealthStatus = z.infer<typeof PluginHealthStatusSchema>;
 export type PluginHealthCheck = z.infer<typeof PluginHealthCheckSchema>;
 export type PluginHealthReport = z.infer<typeof PluginHealthReportSchema>;
+export type DistributedStateConfig = z.infer<typeof DistributedStateConfigSchema>;
 export type HotReloadConfig = z.infer<typeof HotReloadConfigSchema>;
 export type GracefulDegradation = z.infer<typeof GracefulDegradationSchema>;
 export type PluginUpdateStrategy = z.infer<typeof PluginUpdateStrategySchema>;

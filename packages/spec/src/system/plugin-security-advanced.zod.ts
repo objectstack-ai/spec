@@ -159,6 +159,130 @@ export const PermissionSetSchema = z.object({
 });
 
 /**
+ * Runtime Configuration
+ * Defines the execution environment for plugin isolation
+ */
+export const RuntimeConfigSchema = z.object({
+  /**
+   * Runtime engine type
+   */
+  engine: z.enum([
+    'v8-isolate',   // V8 isolate-based isolation (lightweight, fast)
+    'wasm',         // WebAssembly-based isolation (secure, portable)
+    'container',    // Container-based isolation (Docker, podman)
+    'process',      // Process-based isolation (traditional)
+  ]).default('v8-isolate')
+    .describe('Execution environment engine'),
+  
+  /**
+   * Engine-specific configuration
+   */
+  engineConfig: z.object({
+    /**
+     * WASM-specific settings (when engine is "wasm")
+     */
+    wasm: z.object({
+      /**
+       * Maximum memory pages (64KB per page)
+       */
+      maxMemoryPages: z.number().int().min(1).max(65536).optional()
+        .describe('Maximum WASM memory pages (64KB each)'),
+      
+      /**
+       * Instruction execution limit
+       */
+      instructionLimit: z.number().int().min(1).optional()
+        .describe('Maximum instructions before timeout'),
+      
+      /**
+       * Enable SIMD instructions
+       */
+      enableSimd: z.boolean().default(false)
+        .describe('Enable WebAssembly SIMD support'),
+      
+      /**
+       * Enable threads
+       */
+      enableThreads: z.boolean().default(false)
+        .describe('Enable WebAssembly threads'),
+      
+      /**
+       * Enable bulk memory operations
+       */
+      enableBulkMemory: z.boolean().default(true)
+        .describe('Enable bulk memory operations'),
+    }).optional(),
+    
+    /**
+     * Container-specific settings (when engine is "container")
+     */
+    container: z.object({
+      /**
+       * Container image
+       */
+      image: z.string().optional()
+        .describe('Container image to use'),
+      
+      /**
+       * Container runtime
+       */
+      runtime: z.enum(['docker', 'podman', 'containerd']).default('docker'),
+      
+      /**
+       * Resource limits
+       */
+      resources: z.object({
+        cpuLimit: z.string().optional().describe('CPU limit (e.g., "0.5", "2")'),
+        memoryLimit: z.string().optional().describe('Memory limit (e.g., "512m", "1g")'),
+      }).optional(),
+      
+      /**
+       * Network mode
+       */
+      networkMode: z.enum(['none', 'bridge', 'host']).default('bridge'),
+    }).optional(),
+    
+    /**
+     * V8 Isolate-specific settings (when engine is "v8-isolate")
+     */
+    v8Isolate: z.object({
+      /**
+       * Heap size limit in MB
+       */
+      heapSizeMb: z.number().int().min(1).optional(),
+      
+      /**
+       * Enable snapshot
+       */
+      enableSnapshot: z.boolean().default(true),
+    }).optional(),
+  }).optional(),
+  
+  /**
+   * General resource limits (applies to all engines)
+   */
+  resourceLimits: z.object({
+    /**
+     * Maximum memory in bytes
+     */
+    maxMemory: z.number().int().optional()
+      .describe('Maximum memory allocation'),
+    
+    /**
+     * Maximum CPU percentage
+     */
+    maxCpu: z.number().min(0).max(100).optional()
+      .describe('Maximum CPU usage percentage'),
+    
+    /**
+     * Execution timeout in milliseconds
+     */
+    timeout: z.number().int().min(0).optional()
+      .describe('Maximum execution time'),
+  }).optional(),
+});
+
+/**
  * Sandbox Configuration
  * Defines how plugin is isolated
  */
@@ -178,6 +302,12 @@ export const SandboxConfigSchema = z.object({
     'strict',      // Strict isolation
     'paranoid',    // Maximum isolation
   ]).default('standard'),
+  
+  /**
+   * Runtime environment configuration
+   */
+  runtime: RuntimeConfigSchema.optional()
+    .describe('Execution environment and isolation settings'),
   
   /**
    * File system access
@@ -547,6 +677,7 @@ export type PermissionAction = z.infer<typeof PermissionActionSchema>;
 export type ResourceType = z.infer<typeof ResourceTypeSchema>;
 export type Permission = z.infer<typeof PermissionSchema>;
 export type PermissionSet = z.infer<typeof PermissionSetSchema>;
+export type RuntimeConfig = z.infer<typeof RuntimeConfigSchema>;
 export type SandboxConfig = z.infer<typeof SandboxConfigSchema>;
 export type SecurityVulnerability = z.infer<typeof SecurityVulnerabilitySchema>;
 export type SecurityScanResult = z.infer<typeof SecurityScanResultSchema>;

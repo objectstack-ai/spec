@@ -36,7 +36,17 @@ export const CodeGenerationRequestSchema = z.object({
   ]),
   
   /**
-   * Target programming language
+   * Output format for generated code
+   */
+  outputFormat: z.enum([
+    'source-code',        // Generate TypeScript/JavaScript source code
+    'low-code-schema',    // Generate ObjectStack JSON/YAML schema definitions
+    'dsl',                // Generate domain-specific language definitions
+  ]).default('source-code')
+    .describe('Format of the generated output'),
+  
+  /**
+   * Target programming language (for source-code format)
    */
   language: z.enum(['typescript', 'javascript', 'python']).default('typescript'),
   
@@ -69,13 +79,46 @@ export const CodeGenerationRequestSchema = z.object({
   })).optional(),
   
   /**
-   * Code style preferences
+   * Code style preferences (for source-code format)
    */
   style: z.object({
     indentation: z.enum(['tab', '2spaces', '4spaces']).default('2spaces'),
     quotes: z.enum(['single', 'double']).default('single'),
     semicolons: z.boolean().default(true),
     trailingComma: z.boolean().default(true),
+  }).optional(),
+  
+  /**
+   * Low-code schema preferences (for low-code-schema format)
+   */
+  schemaOptions: z.object({
+    /**
+     * Schema format
+     */
+    format: z.enum(['json', 'yaml', 'typescript']).default('typescript')
+      .describe('Output schema format'),
+    
+    /**
+     * Include example data
+     */
+    includeExamples: z.boolean().default(true),
+    
+    /**
+     * Validation strictness
+     */
+    strictValidation: z.boolean().default(true),
+    
+    /**
+     * Generate UI definitions
+     */
+    generateUI: z.boolean().default(true)
+      .describe('Generate view, dashboard, and page definitions'),
+    
+    /**
+     * Generate data models
+     */
+    generateDataModels: z.boolean().default(true)
+      .describe('Generate object and field definitions'),
   }).optional(),
   
   /**
@@ -135,14 +178,30 @@ export const CodeGenerationRequestSchema = z.object({
  */
 export const GeneratedCodeSchema = z.object({
   /**
-   * Main plugin code
+   * Output format used
    */
-  code: z.string(),
+  outputFormat: z.enum(['source-code', 'low-code-schema', 'dsl']),
   
   /**
-   * Language used
+   * Main plugin code (for source-code format)
    */
-  language: z.string(),
+  code: z.string().optional(),
+  
+  /**
+   * Language used (for source-code format)
+   */
+  language: z.string().optional(),
+  
+  /**
+   * Low-code schema definitions (for low-code-schema format)
+   */
+  schemas: z.array(z.object({
+    type: z.enum(['object', 'view', 'dashboard', 'app', 'workflow', 'api', 'page']),
+    path: z.string().describe('File path for the schema'),
+    content: z.string().describe('Schema content (JSON/YAML/TypeScript)'),
+    description: z.string().optional(),
+  })).optional()
+    .describe('Generated low-code schema files'),
   
   /**
    * File structure
