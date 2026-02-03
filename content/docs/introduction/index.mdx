@@ -22,22 +22,22 @@ When requirements change, you update code in multiple places. This is **Implemen
 
 ## The Solution
 
-ObjectStack centralizes the "Intent" into a single Protocol Definition (JSON/YAML). The implementation layers (React, Node.js, SQL) act merely as **Runtime Engines** that interpret this protocol.
+We centralize the "Intent" into a single Protocol Definition (JSON/YAML). The implementation layers (React, Node.js, SQL) act merely as **Runtime Engines** that interpret this protocol.
 
 <Cards>
   <Card
     icon={<Database />}
-    title="ObjectQL (Data Layer)"
+    title="Data Protocol"
     description="Define data structures, queries, and business logic. Database-agnostic abstraction layer."
   />
   <Card
     icon={<Layout />}
-    title="ObjectUI (Presentation Layer)"
+    title="UI Protocol"
     description="Server-driven UI definitions. Express interfaces as JSON, not code."
   />
   <Card
     icon={<Cog />}
-    title="ObjectOS (Control Layer)"
+    title="System Protocol"
     description="Runtime kernel, plugins, security, and integration. The platform foundation."
   />
 </Cards>

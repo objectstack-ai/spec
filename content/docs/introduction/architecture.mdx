@@ -1,29 +1,29 @@
 ---
-title: The Stack - ObjectQL + ObjectUI + ObjectOS
-description: How the three protocols work together as one cohesive system
+title: Protocol Architecture
+description: How the Data, System, and UI protocols work together as one cohesive system
 ---
 
 import { Database, Layout, Cpu, ArrowRight, CheckCircle, Workflow } from 'lucide-react';
 
-# The Three-Layer Stack
+# The Protocol Stack
 
-ObjectStack is built on three foundational protocols that work together as a unified system:
+The architecture is built on three foundational protocols that work together as a unified system:
 
 <Cards>
   <Card
     icon={<Database />}
-    title="ObjectQL"
-    description="Data Protocol - Structure and queries"
+    title="Data Protocol"
+    description="Structure, queries, and constraints."
   />
   <Card
     icon={<Cpu />}
-    title="ObjectOS"
-    description="Control Protocol - Runtime and governance"
+    title="System Protocol"
+    description="Control, runtime, and governance."
   />
   <Card
     icon={<Layout />}
-    title="ObjectUI"
-    description="View Protocol - Presentation and interaction"
+    title="UI Protocol"
+    description="Presentation, interaction, and routing."
   />
 </Cards>
 
@@ -35,19 +35,19 @@ ObjectStack enforces **Separation of Concerns** through protocol boundaries:
 
 ```
 ┌─────────────────────────────────────────┐
-│          ObjectUI (View Layer)          │
+│              UI Protocol                │
 │  Apps, Views, Dashboards, Reports       │
 │  "How do users interact?"                │
 └──────────────┬──────────────────────────┘
-               │ API Protocol
+               │ View-Data Interface
 ┌──────────────┴──────────────────────────┐
-│        ObjectOS (Control Layer)         │
+│            System Protocol              │
 │  Auth, Permissions, Workflows, Events   │
 │  "Who can do what, when?"                │
 └──────────────┬──────────────────────────┘
-               │ Query Protocol
+               │ Control-Data Interface
 ┌──────────────┴──────────────────────────┐
-│         ObjectQL (Data Layer)           │
+│             Data Protocol               │
 │  Objects, Fields, Queries, Drivers      │
 │  "What is the data structure?"           │
 └─────────────────────────────────────────┘
