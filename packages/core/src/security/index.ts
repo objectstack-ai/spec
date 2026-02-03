@@ -27,3 +27,22 @@ export {
   type PluginPermissions,
   type PermissionCheckResult,
 } from './plugin-permission-enforcer.js';
+
+// Advanced security components (Phase 2)
+export {
+  PluginPermissionManager,
+  type PermissionGrant,
+  type PermissionCheckResult as PluginPermissionCheckResult,
+} from './permission-manager.js';
+
+export {
+  PluginSandboxRuntime,
+  type SandboxContext,
+  type ResourceUsage,
+} from './sandbox-runtime.js';
+
+export {
+  PluginSecurityScanner,
+  type ScanTarget,
+  type SecurityIssue,
+} from './security-scanner.js';

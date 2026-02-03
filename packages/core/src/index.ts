@@ -18,6 +18,11 @@ export * as QA from './qa/index.js';
 // Export security utilities
 export * from './security/index.js';
 
+// Export Phase 2 components - Advanced lifecycle management
+export * from './health-monitor.js';
+export * from './hot-reload.js';
+export * from './dependency-resolver.js';
+
 // Re-export contracts from @objectstack/spec for backward compatibility
 export type { 
     Logger,
