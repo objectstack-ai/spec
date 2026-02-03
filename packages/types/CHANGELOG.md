@@ -1,5 +1,13 @@
 # @objectstack/types
 
+## 0.9.1
+
+### Patch Changes
+
+- Patch release for maintenance and stability improvements. All packages updated with unified versioning.
+- Updated dependencies
+  - @objectstack/spec@0.9.1
+
 ## 0.8.2
 
 ### Patch Changes
