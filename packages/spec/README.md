@@ -54,20 +54,74 @@ The specification is organized into five namespaces mapping to the three-layer a
 
 ## 📚 Usage
 
+### 🤖 AI Quick Reference
+
+**For AI Agents and LLMs:** This package is the single source of truth for ObjectStack protocol definitions. When working with ObjectStack:
+
+1. **Import Patterns**: Always use namespace imports (`Data.Field`, `UI.View`) or direct subpath imports
+2. **Validation**: Use Zod schemas for runtime validation (e.g., `ObjectSchema.parse(config)`)
+3. **Type Inference**: Derive TypeScript types from Zod (`type Field = z.infer<typeof FieldSchema>`)
+4. **Naming Convention**: 
+   - Configuration keys (TypeScript properties): `camelCase` (e.g., `maxLength`, `defaultValue`)
+   - Machine names (data values): `snake_case` (e.g., `name: 'todo_task'`, `field: 'due_date'`)
+5. **Context Files**: Load prompts from `prompts/` directory for architectural understanding
+
+**Common Tasks:**
+```typescript
+// Define an Object
+import { Data } from '@objectstack/spec';
+const task: Data.Object = {
+  name: 'todo_task',
+  fields: {
+    subject: { type: 'text', label: 'Subject', required: true },
+    priority: { type: 'number', min: 1, max: 5 }
+  }
+};
+
+// Validate at runtime
+import { ObjectSchema } from '@objectstack/spec/data';
+const result = ObjectSchema.safeParse(task);
+
+// Define an App
+import { UI } from '@objectstack/spec';
+const app: UI.App = {
+  id: 'crm',
+  name: 'CRM',
+  navigation: { /* ... */ }
+};
+```
+
 ### Import Styles
 
 **Important:** This package does NOT export types at the root level to prevent naming conflicts. You must use one of the following import styles:
 
 ### 🤖 AI-Ready Context
 
-This package includes a `prompts/` directory containing system instructions and architectural context. This is useful for:
+This package includes a `prompts/` directory in the package root containing system instructions and architectural context:
+
+```
+node_modules/@objectstack/spec/prompts/
+├── architecture.md    # System architecture overview
+├── plugin/           # Plugin development guides
+└── development/      # Development workflows
+```
+
+These prompts are useful for:
 1.  **AI Agents**: Creating agents that understand ObjectStack.
 2.  **IDE Context**: Adding `node_modules/@objectstack/spec/prompts/*.md` to your Cursor/Copilot context.
-3.  **LLM Auto-Discovery**: The `llms.txt` file in the root provides a knowledge base for autonomous agents.
+3.  **LLM Auto-Discovery**: The `llms.txt` file in the repository root provides a knowledge base for autonomous agents.
 
 ```typescript
-import context from '@objectstack/spec/prompts/architecture.md?raw'; // If using Vite/bundler
-// Or just read the file from disk
+// If using Vite/bundler with raw import support
+import context from '@objectstack/spec/prompts/architecture.md?raw';
+
+// Or read from disk in Node.js
+import fs from 'fs';
+import path from 'path';
+const context = fs.readFileSync(
+  path.join(process.cwd(), 'node_modules/@objectstack/spec/prompts/architecture.md'),
+  'utf-8'
+);
 ```
 
 #### 1. Namespace Imports from Root

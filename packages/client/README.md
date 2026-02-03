@@ -157,10 +157,48 @@ try {
 }
 ```
 
-Common error codes:
-- `validation_error`: Input validation failed
-- `unauthenticated`: Authentication required
-- `permission_denied`: Insufficient permissions
-- `resource_not_found`: Resource does not exist
-- `rate_limit_exceeded`: Too many requests
+### Error Code Reference
+
+#### Client Errors (4xx)
+
+| Error Code | HTTP Status | Retryable | Description |
+|------------|-------------|-----------|-------------|
+| `validation_error` | 400 | No | Input validation failed. Check error.details for field-specific errors |
+| `unauthenticated` | 401 | No | Authentication required. Provide valid token |
+| `permission_denied` | 403 | No | Insufficient permissions for this operation |
+| `resource_not_found` | 404 | No | Resource does not exist. Verify object name or record ID |
+| `conflict` | 409 | No | Resource conflict (e.g., duplicate unique field) |
+| `rate_limit_exceeded` | 429 | Yes | Too many requests. Wait before retrying |
+
+#### Server Errors (5xx)
+
+| Error Code | HTTP Status | Retryable | Description |
+|------------|-------------|-----------|-------------|
+| `internal_error` | 500 | Yes | Server encountered an error. Retry with backoff |
+| `service_unavailable` | 503 | Yes | Service temporarily unavailable. Retry later |
+| `gateway_timeout` | 504 | Yes | Request timeout. Consider increasing timeout or retrying |
+
+**Retry Strategy Example:**
+
+```typescript
+async function retryableRequest<T>(fn: () => Promise<T>, maxRetries = 3): Promise<T> {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error: any) {
+      if (!error.retryable || i === maxRetries - 1) {
+        throw error;
+      }
+      // Exponential backoff
+      await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+    }
+  }
+  throw new Error('Max retries exceeded');
+}
+
+// Usage
+const data = await retryableRequest(() => 
+  client.data.create('todo_task', { subject: 'Task' })
+);
+```
 

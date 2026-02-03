@@ -82,6 +82,42 @@ const service = kernel.getService('my-service');
 await kernel.shutdown();
 ```
 
+## 🤖 AI Quick Reference
+
+**For AI Agents:** This package implements a microkernel architecture. Key concepts:
+
+1. **Plugin Lifecycle**: `init()` → `start()` → `destroy()`
+2. **Service Registry**: Share functionality via `ctx.registerService(name, service)` and `ctx.getService(name)`
+3. **Dependencies**: Declare plugin dependencies for automatic load ordering
+4. **Hooks/Events**: Decouple plugins with `ctx.hook(event, handler)` and `ctx.trigger(event, ...args)`
+5. **Logger**: Always use `ctx.logger` for consistent, structured logging
+
+**Common Plugin Pattern:**
+```typescript
+const plugin: Plugin = {
+  name: 'my-plugin',
+  dependencies: ['other-plugin'], // Load after these plugins
+  
+  async init(ctx: PluginContext) {
+    // Register services and hooks
+    const otherService = ctx.getService('other-service');
+    ctx.registerService('my-service', new MyService(otherService));
+    ctx.hook('data:created', async (data) => { /* ... */ });
+  },
+  
+  async start(ctx: PluginContext) {
+    // Execute business logic
+    const service = ctx.getService('my-service');
+    await service.initialize();
+  },
+  
+  async destroy() {
+    // Cleanup resources
+    await service.close();
+  }
+};
+```
+
 ## Configurable Logger
 
 The logger uses **[Pino](https://github.com/pinojs/pino)** for Node.js environments (high-performance, low-overhead) and a simple console-based logger for browsers. It automatically detects the runtime environment.
