@@ -25,7 +25,8 @@ export const LogLevel = z.enum([
   'info',
   'warn',
   'error',
-  'fatal'
+  'fatal',
+  'silent'
 ]).describe('Log severity level');
 
 export type LogLevel = z.infer<typeof LogLevel>;

@@ -217,7 +217,7 @@ describe('DependencyResolver', () => {
 
   describe('detectConflicts', () => {
     it('should detect version mismatches', () => {
-      const plugins = new Map([
+      const plugins = new Map<string, any>([
         ['core', { version: '1.0.0', dependencies: {} }],
         ['plugin-a', { version: '1.0.0', dependencies: { core: '^2.0.0' } }],
       ]);
@@ -228,7 +228,7 @@ describe('DependencyResolver', () => {
     });
 
     it('should return no conflicts for compatible versions', () => {
-      const plugins = new Map([
+      const plugins = new Map<string, any>([
         ['core', { version: '1.2.0', dependencies: {} }],
         ['plugin-a', { version: '1.0.0', dependencies: { core: '^1.0.0' } }],
       ]);

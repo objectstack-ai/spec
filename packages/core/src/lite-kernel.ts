@@ -1,0 +1,135 @@
+import { Plugin } from './types.js';
+import { createLogger, ObjectLogger } from './logger.js';
+import type { LoggerConfig } from '@objectstack/spec/system';
+import { ObjectKernelBase } from './kernel-base.js';
+
+/**
+ * ObjectKernel - MiniKernel Architecture
+ * 
+ * A highly modular, plugin-based microkernel that:
+ * - Manages plugin lifecycle (init, start, destroy)
+ * - Provides dependency injection via service registry
+ * - Implements event/hook system for inter-plugin communication
+ * - Handles dependency resolution (topological sort)
+ * - Provides configurable logging for server and browser
+ * 
+ * Core philosophy:
+ * - Business logic is completely separated into plugins
+ * - Kernel only manages lifecycle, DI, and hooks
+ * - Plugins are loaded as equal building blocks
+ */
+export class LiteKernel extends ObjectKernelBase {
+    constructor(config?: { logger?: Partial<LoggerConfig> }) {
+        const logger = createLogger(config?.logger);
+        super(logger);
+        
+        // Initialize context after logger is created
+        this.context = this.createContext();
+    }
+
+    /**
+     * Register a plugin
+     * @param plugin - Plugin instance
+     */
+    use(plugin: Plugin): this {
+        this.validateIdle();
+
+        const pluginName = plugin.name;
+        if (this.plugins.has(pluginName)) {
+            throw new Error(`[Kernel] Plugin '${pluginName}' already registered`);
+        }
+
+        this.plugins.set(pluginName, plugin);
+        return this;
+    }
+
+    /**
+     * Bootstrap the kernel
+     * 1. Resolve dependencies (topological sort)
+     * 2. Init phase - plugins register services
+     * 3. Start phase - plugins execute business logic
+     * 4. Trigger 'kernel:ready' hook
+     */
+    async bootstrap(): Promise<void> {
+        this.validateState('idle');
+
+        this.state = 'initializing';
+        this.logger.info('Bootstrap started');
+
+        // Resolve dependencies
+        const orderedPlugins = this.resolveDependencies();
+
+        // Phase 1: Init - Plugins register services
+        this.logger.info('Phase 1: Init plugins');
+        for (const plugin of orderedPlugins) {
+            await this.runPluginInit(plugin);
+        }
+
+        // Phase 2: Start - Plugins execute business logic
+        this.logger.info('Phase 2: Start plugins');
+        this.state = 'running';
+        
+        for (const plugin of orderedPlugins) {
+            await this.runPluginStart(plugin);
+        }
+
+        // Trigger ready hook
+        await this.triggerHook('kernel:ready');
+        this.logger.info('✅ Bootstrap complete', { 
+            pluginCount: this.plugins.size 
+        });
+    }
+
+    /**
+     * Shutdown the kernel
+     * Calls destroy on all plugins in reverse order
+     */
+    async shutdown(): Promise<void> {
+        await this.destroy();
+    }
+
+    /**
+     * Graceful shutdown - destroy all plugins in reverse order
+     */
+    async destroy(): Promise<void> {
+        if (this.state === 'stopped') {
+            this.logger.warn('Kernel already stopped');
+            return;
+        }
+
+        this.state = 'stopping';
+        this.logger.info('Shutdown started');
+
+        // Trigger shutdown hook
+        await this.triggerHook('kernel:shutdown');
+
+        // Destroy plugins in reverse order
+        const orderedPlugins = this.resolveDependencies();
+        for (const plugin of orderedPlugins.reverse()) {
+            await this.runPluginDestroy(plugin);
+        }
+
+        this.state = 'stopped';
+        this.logger.info('✅ Shutdown complete');
+        
+        // Cleanup logger resources
+        if (this.logger && typeof (this.logger as ObjectLogger).destroy === 'function') {
+            await (this.logger as ObjectLogger).destroy();
+        }
+    }
+
+    /**
+     * Get a service from the registry
+     * Convenience method for external access
+     */
+    getService<T>(name: string): T {
+        return this.context.getService<T>(name);
+    }
+
+    /**
+     * Check if kernel is running
+     */
+    isRunning(): boolean {
+        return this.state === 'running';
+    }
+}

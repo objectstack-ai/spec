@@ -66,7 +66,6 @@ export class PluginSecurityScanner {
     });
 
     const issues: SecurityIssue[] = [];
-    const startTime = Date.now();
 
     try {
       // 1. Scan for code vulnerabilities
@@ -89,34 +88,33 @@ export class PluginSecurityScanner {
       const configIssues = await this.scanConfiguration(target);
       issues.push(...configIssues);
 
-      const duration = Date.now() - startTime;
-
       // Calculate security score (0-100, higher is better)
       const score = this.calculateSecurityScore(issues);
 
       const result: SecurityScanResult = {
-        pluginId: target.pluginId,
-        version: target.version,
         timestamp: new Date().toISOString(),
-        score,
-        passed: score >= this.passThreshold, // Use configurable threshold
-        issues: issues.map(issue => ({
+        scanner: { name: 'ObjectStack Security Scanner', version: '1.0.0' },
+        status: score >= this.passThreshold ? 'passed' : 'failed',
+        vulnerabilities: issues.map(issue => ({
           id: issue.id,
           severity: issue.severity,
           category: issue.category,
           title: issue.title,
           description: issue.description,
-          location: issue.location,
+          location: issue.location ? `${issue.location.file}:${issue.location.line}` : undefined,
           remediation: issue.remediation,
+          affectedVersions: [],
+          exploitAvailable: false,
+          patchAvailable: false,
         })),
         summary: {
-          critical: issues.filter(i => i.severity === 'critical').length,
-          high: issues.filter(i => i.severity === 'high').length,
-          medium: issues.filter(i => i.severity === 'medium').length,
-          low: issues.filter(i => i.severity === 'low').length,
-          info: issues.filter(i => i.severity === 'info').length,
+          totalVulnerabilities: issues.length,
+          criticalCount: issues.filter(i => i.severity === 'critical').length,
+          highCount: issues.filter(i => i.severity === 'high').length,
+          mediumCount: issues.filter(i => i.severity === 'medium').length,
+          lowCount: issues.filter(i => i.severity === 'low').length,
+          infoCount: issues.filter(i => i.severity === 'info').length,
         },
-        scanDuration: duration,
       };
 
       this.scanResults.set(`${target.pluginId}:${target.version}`, result);
@@ -124,8 +122,8 @@ export class PluginSecurityScanner {
       this.logger.info('Security scan complete', { 
         pluginId: target.pluginId,
         score,
-        passed: result.passed,
-        issues: result.summary
+        status: result.status,
+        summary: result.summary
       });
 
       return result;

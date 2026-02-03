@@ -299,6 +299,8 @@ export class DependencyResolver {
       if (unsatisfied.length > 0) {
         conflicts.push({
           type: 'version-mismatch',
+          severity: 'error',
+          description: `Version mismatch for ${depName}: detected ${unsatisfied.length} unsatisfied requirements`,
           plugins: [
             { pluginId: depName, version: depInfo.version },
             ...unsatisfied,
@@ -308,7 +310,7 @@ export class DependencyResolver {
             description: `Upgrade ${depName} to satisfy all constraints`,
             targetPlugins: [depName],
             automatic: false,
-          }],
+          } as any],
         });
       }
     }
@@ -325,12 +327,14 @@ export class DependencyResolver {
       if (error instanceof Error && error.message.includes('Circular dependency')) {
         conflicts.push({
           type: 'circular-dependency',
+          severity: 'critical',
+          description: error.message,
           plugins: [], // Would need to extract from error
           resolutions: [{
             strategy: 'manual',
             description: 'Remove circular dependency by restructuring plugins',
             automatic: false,
-          }],
+          } as any],
         });
       }
     }

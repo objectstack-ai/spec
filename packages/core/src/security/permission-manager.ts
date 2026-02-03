@@ -2,8 +2,7 @@ import type {
   Permission,
   PermissionSet,
   PermissionAction,
-  ResourceType,
-  PermissionScope
+  ResourceType
 } from '@objectstack/spec/system';
 import type { ObjectLogger } from '../logger.js';
 

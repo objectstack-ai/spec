@@ -7,10 +7,10 @@
 
 export * from './kernel-base.js';
 export * from './kernel.js';
+export * from './lite-kernel.js';
 export * from './types.js';
 export * from './logger.js';
 export * from './plugin-loader.js';
-export * from './enhanced-kernel.js';
 export * from './api-registry.js';
 export * from './api-registry-plugin.js';
 export * as QA from './qa/index.js';

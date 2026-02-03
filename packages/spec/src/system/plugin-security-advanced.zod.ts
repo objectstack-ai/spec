@@ -386,10 +386,25 @@ export const SecurityVulnerabilitySchema = z.object({
   severity: z.enum(['critical', 'high', 'medium', 'low', 'info']),
   
   /**
+   * Category (e.g., SAST, DAST, Dependency)
+   */
+  category: z.string().optional(),
+
+  /**
    * Title
    */
   title: z.string(),
   
+  /**
+   * Location of the vulnerability
+   */
+  location: z.string().optional(),
+
+  /**
+   * Remediation steps
+   */
+  remediation: z.string().optional(),
+
   /**
    * Description
    */

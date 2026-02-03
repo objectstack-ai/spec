@@ -204,7 +204,8 @@ export class ObjectLogger implements Logger {
             info: '\x1b[32m',    // Green
             warn: '\x1b[33m',    // Yellow
             error: '\x1b[31m',   // Red
-            fatal: '\x1b[35m'    // Magenta
+            fatal: '\x1b[35m',   // Magenta
+            silent: ''
         };
         const reset = '\x1b[0m';
         const color = levelColors[level] || '';
@@ -263,21 +264,41 @@ export class ObjectLogger implements Logger {
         }
     }
 
-    error(message: string, error?: Error, meta?: Record<string, any>): void {
+    error(message: string, errorOrMeta?: Error | Record<string, any>, meta?: Record<string, any>): void {
+        let error: Error | undefined;
+        let context: Record<string, any> = {};
+
+        if (errorOrMeta instanceof Error) {
+            error = errorOrMeta;
+            context = meta || {};
+        } else {
+             context = errorOrMeta || {};
+        }
+
         if (this.isNode && this.pinoLogger) {
-            const errorContext = error ? { err: error, ...meta } : meta || {};
+            const errorContext = error ? { err: error, ...context } : context;
             this.pinoLogger.error(errorContext, message);
         } else {
-            this.logBrowser('error', message, meta, error);
+            this.logBrowser('error', message, context, error);
         }
     }
 
-    fatal(message: string, error?: Error, meta?: Record<string, any>): void {
+    fatal(message: string, errorOrMeta?: Error | Record<string, any>, meta?: Record<string, any>): void {
+        let error: Error | undefined;
+        let context: Record<string, any> = {};
+
+        if (errorOrMeta instanceof Error) {
+            error = errorOrMeta;
+            context = meta || {};
+        } else {
+             context = errorOrMeta || {};
+        }
+
         if (this.isNode && this.pinoLogger) {
-            const errorContext = error ? { err: error, ...meta } : meta || {};
+            const errorContext = error ? { err: error, ...context } : context;
             this.pinoLogger.fatal(errorContext, message);
         } else {
-            this.logBrowser('fatal', message, meta, error);
+            this.logBrowser('fatal', message, context, error);
         }
     }
 

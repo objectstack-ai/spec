@@ -66,8 +66,8 @@ export class PluginSandboxRuntime {
       config,
       startTime: new Date(),
       resourceUsage: {
-        memory: { current: 0, peak: 0, limit: config.memory?.maxMemory },
-        cpu: { current: 0, average: 0, limit: config.process?.maxCpu },
+        memory: { current: 0, peak: 0, limit: config.memory?.maxHeap },
+        cpu: { current: 0, average: 0, limit: config.cpu?.maxCpuPercent },
         connections: { current: 0, limit: config.network?.maxConnections },
       },
     };
@@ -80,8 +80,8 @@ export class PluginSandboxRuntime {
     this.logger.info('Sandbox created', { 
       pluginId,
       level: config.level,
-      memoryLimit: config.memory?.maxMemory,
-      cpuLimit: config.process?.maxCpu
+      memoryLimit: config.memory?.maxHeap,
+      cpuLimit: config.cpu?.maxCpuPercent
     });
 
     return context;
@@ -215,7 +215,7 @@ export class PluginSandboxRuntime {
 
     // If no URL specified, check general access
     if (!url) {
-      return { allowed: config.network.mode !== 'none' };
+      return { allowed: (config.network.mode as string) !== 'none' };
     }
 
     // TODO: Use new URL() and check hostname property for production
