@@ -97,14 +97,31 @@ const app: UI.App = {
 
 ### 🤖 AI-Ready Context
 
-This package includes a `prompts/` directory containing system instructions and architectural context. This is useful for:
+This package includes a `prompts/` directory in the package root containing system instructions and architectural context:
+
+```
+node_modules/@objectstack/spec/prompts/
+├── architecture.md    # System architecture overview
+├── plugin/           # Plugin development guides
+└── development/      # Development workflows
+```
+
+These prompts are useful for:
 1.  **AI Agents**: Creating agents that understand ObjectStack.
 2.  **IDE Context**: Adding `node_modules/@objectstack/spec/prompts/*.md` to your Cursor/Copilot context.
-3.  **LLM Auto-Discovery**: The `llms.txt` file in the root provides a knowledge base for autonomous agents.
+3.  **LLM Auto-Discovery**: The `llms.txt` file in the repository root provides a knowledge base for autonomous agents.
 
 ```typescript
-import context from '@objectstack/spec/prompts/architecture.md?raw'; // If using Vite/bundler
-// Or just read the file from disk
+// If using Vite/bundler with raw import support
+import context from '@objectstack/spec/prompts/architecture.md?raw';
+
+// Or read from disk in Node.js
+import fs from 'fs';
+import path from 'path';
+const context = fs.readFileSync(
+  path.join(process.cwd(), 'node_modules/@objectstack/spec/prompts/architecture.md'),
+  'utf-8'
+);
 ```
 
 #### 1. Namespace Imports from Root

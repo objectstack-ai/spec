@@ -411,9 +411,10 @@ import { Plugin, PluginContext } from '@objectstack/core';
 
 export class ConnectionPoolPlugin implements Plugin {
   name = 'connection-pool';
+  private pool: any;
   
   async init(ctx: PluginContext) {
-    const pool = {
+    this.pool = {
       connections: new Map(),
       
       getConnection(name: string) {
@@ -431,12 +432,14 @@ export class ConnectionPoolPlugin implements Plugin {
       }
     };
     
-    ctx.registerService('connection-pool', pool);
+    ctx.registerService('connection-pool', this.pool);
   }
   
   async destroy() {
-    const pool = kernel.getService('connection-pool');
-    pool.closeAll();
+    // Use stored reference from init phase
+    if (this.pool) {
+      this.pool.closeAll();
+    }
   }
 }
 ```

@@ -122,8 +122,8 @@ objectstack dev @objectstack/core
 ```
 
 **Behavior:**
-- **Single Package Mode**: If `objectstack.config.ts` exists in current directory, delegates to `objectstack serve --dev`
-- **Monorepo Mode**: If in workspace root, runs `pnpm dev` with optional package filter
+- **Single Package Mode**: If `objectstack.config.ts` exists in current directory, delegates to `objectstack serve --dev` to start a development server with hot reload
+- **Monorepo Mode**: If `pnpm-workspace.yaml` exists in current directory (workspace root), executes `pnpm dev` with optional package filter to run development builds across multiple packages in the workspace. The command uses pnpm's workspace filtering to target specific packages or all packages.
 
 ### `objectstack compile`
 

@@ -285,11 +285,15 @@ ql.registerHook('beforeInsert', async (ctx) => {
 ql.registerHook('afterInsert', async (ctx) => {
   console.log(`Created ${ctx.object}:`, ctx.result);
   
-  // Trigger events
-  await eventBus.emit('data:created', {
-    object: ctx.object,
-    id: ctx.result.id
-  });
+  // Trigger events - get event bus from kernel or context
+  // Note: eventBus should be injected or accessed from context
+  const eventBus = ctx.getService?.('event-bus');
+  if (eventBus) {
+    await eventBus.emit('data:created', {
+      object: ctx.object,
+      id: ctx.result.id
+    });
+  }
 });
 
 ql.registerHook('beforeUpdate', async (ctx) => {

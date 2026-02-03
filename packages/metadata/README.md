@@ -349,6 +349,14 @@ async function versionMetadata() {
   
   const objects = await manager.loadMany('object');
   
+  // Get git user name safely
+  let modifiedBy = 'unknown';
+  try {
+    modifiedBy = execSync('git config user.name', { encoding: 'utf-8' }).trim();
+  } catch (error) {
+    console.warn('Could not get git user name, using "unknown"');
+  }
+  
   // Add version metadata
   const versioned = objects.map(obj => ({
     ...obj,
@@ -356,7 +364,7 @@ async function versionMetadata() {
       ...obj.metadata,
       version: '2.0.0',
       lastModified: new Date().toISOString(),
-      modifiedBy: execSync('git config user.name').toString().trim()
+      modifiedBy
     }
   }));
   
@@ -368,9 +376,13 @@ async function versionMetadata() {
     });
   }
   
-  // Commit to version control
-  execSync('git add metadata/');
-  execSync('git commit -m "Version bump to 2.0.0"');
+  // Commit to version control (if git is available)
+  try {
+    execSync('git add metadata/', { stdio: 'inherit' });
+    execSync('git commit -m "Version bump to 2.0.0"', { stdio: 'inherit' });
+  } catch (error) {
+    console.warn('Git commit failed, changes are staged but not committed');
+  }
 }
 ```
 
