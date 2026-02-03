@@ -2,6 +2,11 @@
   "name": "@example/plugin-bi",
   "version": "0.9.0",
   "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./objectstack.config": "./objectstack.config.ts"
+  },
   "license": "MIT",
   "private": true,
   "scripts": {
