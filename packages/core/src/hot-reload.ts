@@ -4,7 +4,19 @@ import type {
 } from '@objectstack/spec/system';
 import type { ObjectLogger } from './logger.js';
 import type { Plugin } from './types.js';
-import { randomUUID } from 'crypto';
+
+// Polyfill for UUID generation to support both Node.js and Browser
+const generateUUID = () => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  // Basic UUID v4 fallback
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
 
 /**
  * Plugin State Manager
@@ -40,7 +52,7 @@ class PluginStateManager {
       },
     };
 
-    const snapshotId = randomUUID();
+    const snapshotId = generateUUID();
 
     switch (config.stateStrategy) {
       case 'memory':
