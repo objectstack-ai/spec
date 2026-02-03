@@ -1,5 +1,5 @@
 {
-  "title": "ObjectQL (Data Protocol)",
+  "title": "Protocol: Data (ObjectQL)",
   "root": true,
   "pages": [
     "schema",

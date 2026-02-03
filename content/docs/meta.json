@@ -2,10 +2,11 @@
   "title": "Documentation",
   "pages": [
     "introduction",
+    "framework",
+    "---",
     "objectql",
     "objectui",
     "objectos",
-    "developers",
     "---",
     "references"
   ]
