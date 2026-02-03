@@ -287,7 +287,7 @@ console.log('Found', restApis.length, 'REST APIs');
 
 // Discover plugin-registered APIs
 const pluginApis = registry.apis.filter(
-  api => api.metadata?.pluginSource !== undefined
+  api => api.metadata && 'pluginSource' in api.metadata && api.metadata.pluginSource !== undefined
 );
 console.log('Found', pluginApis.length, 'plugin APIs');
 

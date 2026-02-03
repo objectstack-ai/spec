@@ -147,7 +147,7 @@ function applyMiddlewareToServer(server: any, manager: MiddlewareManager) {
     const chain = manager.getMiddlewareChain();
     
     // Apply each middleware to the server
-    chain.forEach(middleware => {
+    chain.forEach((middleware: Middleware) => {
         server.use(middleware);
     });
     
@@ -263,12 +263,14 @@ function setupAdvancedMiddleware() {
     manager.register({
         name: 'cors',
         type: 'custom',
+        enabled: true,
         order: 10,
     }, corsMiddleware);
     
     manager.register({
         name: 'logger',
         type: 'logging',
+        enabled: true,
         order: 20,
     }, loggingMiddleware);
     
@@ -276,6 +278,7 @@ function setupAdvancedMiddleware() {
     manager.register({
         name: 'rate_limit',
         type: 'custom',
+        enabled: true,
         order: 25,
         config: {
             windowMs: 60000,
@@ -290,6 +293,7 @@ function setupAdvancedMiddleware() {
     manager.register({
         name: 'auth',
         type: 'authentication',
+        enabled: true,
         order: 30,
         paths: {
             exclude: ['/health', '/metrics', '/api/v1']
@@ -300,6 +304,7 @@ function setupAdvancedMiddleware() {
     manager.register({
         name: 'cache',
         type: 'custom',
+        enabled: true,
         order: 35,
         paths: {
             include: ['/api/v1/meta/*']  // Only cache metadata
@@ -309,6 +314,7 @@ function setupAdvancedMiddleware() {
     manager.register({
         name: 'validation',
         type: 'validation',
+        enabled: true,
         order: 40,
     }, validationMiddleware);
     
