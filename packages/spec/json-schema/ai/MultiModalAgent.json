@@ -1,0 +1,7 @@
+{
+  "$ref": "#/definitions/MultiModalAgent",
+  "definitions": {
+    "MultiModalAgent": {}
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

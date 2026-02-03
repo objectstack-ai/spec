@@ -16,4 +16,7 @@ export * from './dataset.zod';
 export * from './document.zod';
 
 // External Lookup Protocol
-export * from './external-lookup.zod'; 
+export * from './external-lookup.zod';
+
+// Real-Time Streaming Protocol
+export * from './streaming.zod'; 
