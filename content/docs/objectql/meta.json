@@ -1,6 +1,5 @@
 {
   "title": "Data Protocol",
-  "root": true,
   "pages": [
     "schema",
     "types",
