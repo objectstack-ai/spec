@@ -23,23 +23,22 @@ export async function startMockServer() {
 
   // Create kernel with MiniKernel architecture
   kernel = new ObjectKernel();
+
+  // Register ObjectQL engine
+  await kernel.use(new ObjectQLPlugin());
   
-  kernel
-    // Register ObjectQL engine
-    .use(new ObjectQLPlugin())
-    
-    // Register the driver
-    .use(new DriverPlugin(driver, 'memory'))
-    
-    // Load todo app config as a plugin
-    .use(new AppPlugin(todoConfig))
-    
-    // MSW Plugin (intercepts network requests)
-    .use(new MSWPlugin({
-      enableBrowser: true,
-      baseUrl: '/api/v1',
-      logRequests: true
-    }));
+  // Register the driver
+  await kernel.use(new DriverPlugin(driver, 'memory'));
+  
+  // Load todo app config as a plugin
+  await kernel.use(new AppPlugin(todoConfig));
+  
+  // MSW Plugin (intercepts network requests)
+  await kernel.use(new MSWPlugin({
+    enableBrowser: true,
+    baseUrl: '/api/v1',
+    logRequests: true
+  }));
   
   await kernel.bootstrap();
 
