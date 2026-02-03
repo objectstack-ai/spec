@@ -105,18 +105,18 @@ class MockProtocolProvider {
         return { success: true };
     }
     
-    async getMetaItemCached(req: any) {
+    async getMetaItemCached(request: any) {
         return {
-            type: req.type,
-            name: req.name,
-            item: await this.getMetaItem(req.type, req.name),
+            type: request.type,
+            name: request.name,
+            item: await this.getMetaItem(request.type, request.name),
             cached: false
         };
     }
     
-    async batchData(req: any) {
+    async batchData(request: any) {
         const results = [];
-        for (const op of req.operations || []) {
+        for (const op of request.operations || []) {
             try {
                 let result;
                 if (op.operation === 'create') {
@@ -142,11 +142,11 @@ class MockProtocolProvider {
         return newRecords;
     }
     
-    async updateManyData(req: any) {
+    async updateManyData(request: any) {
         const results = [];
-        for (const id of req.ids || []) {
+        for (const id of request.ids || []) {
             try {
-                const result = await this.updateData(req.object, id, req.data);
+                const result = await this.updateData(request.object, id, request.data);
                 results.push({ success: true, data: result });
             } catch (error) {
                 results.push({ success: false, error: (error as Error).message });
@@ -155,11 +155,11 @@ class MockProtocolProvider {
         return { results };
     }
     
-    async deleteManyData(req: any) {
+    async deleteManyData(request: any) {
         const results = [];
-        for (const id of req.ids || []) {
+        for (const id of request.ids || []) {
             try {
-                const result = await this.deleteData(req.object, id);
+                const result = await this.deleteData(request.object, id);
                 results.push({ success: true, data: result });
             } catch (error) {
                 results.push({ success: false, error: (error as Error).message });
