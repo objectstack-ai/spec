@@ -111,6 +111,7 @@ export interface VersionCompatibility {
  */
 export class PluginLoader {
     private logger: Logger;
+    private context?: PluginContext;
     private loadedPlugins: Map<string, PluginMetadata> = new Map();
     private serviceFactories: Map<string, ServiceRegistration> = new Map();
     private serviceInstances: Map<string, any> = new Map();
@@ -118,6 +119,20 @@ export class PluginLoader {
 
     constructor(logger: Logger) {
         this.logger = logger;
+    }
+
+    /**
+     * Set the plugin context for service factories
+     */
+    setContext(context: PluginContext): void {
+        this.context = context;
+    }
+
+    /**
+     * Get a synchronous service instance if it exists (Sync Helper)
+     */
+    getServiceInstance<T>(name: string): T | undefined {
+        return this.serviceInstances.get(name) as T;
     }
 
     /**
@@ -431,9 +446,9 @@ export class PluginLoader {
     }
 
     private async createServiceInstance(registration: ServiceRegistration): Promise<any> {
-        // This is a simplified version - in real implementation,
-        // we would need to pass proper context with resolved dependencies
-        const mockContext = {} as PluginContext;
-        return await registration.factory(mockContext);
+        if (!this.context) {
+            throw new Error(`[PluginLoader] Context not set - cannot create service '${registration.name}'`);
+        }
+        return await registration.factory(this.context);
     }
 }

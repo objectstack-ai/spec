@@ -81,7 +81,15 @@ export class ObjectKernel {
                     return service as T;
                 }
 
-                // 2. Try to get from plugin loader (supports factories and lifecycle)
+                // 2. Try to get from plugin loader cache (Sync access to factories)
+                const loaderService = this.pluginLoader.getServiceInstance<T>(name);
+                if (loaderService) {
+                    // Cache it locally for faster next access
+                    this.services.set(name, loaderService);
+                    return loaderService;
+                }
+
+                // 3. Try to get from plugin loader (support async factories)
                 try {
                     const service = this.pluginLoader.getService(name);
                     if (service instanceof Promise) {
@@ -115,6 +123,8 @@ export class ObjectKernel {
             logger: this.logger,
             getKernel: () => this as any, // Type compatibility
         };
+
+        this.pluginLoader.setContext(this.context);
 
         // Register shutdown handler
         if (this.config.gracefulShutdown) {

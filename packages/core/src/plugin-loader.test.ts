@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { PluginLoader, ServiceLifecycle, PluginMetadata } from './plugin-loader';
 import { createLogger } from './logger';
-import type { Plugin } from './types';
+import type { Plugin, PluginContext } from './types';
 
 describe('PluginLoader', () => {
     let loader: PluginLoader;
@@ -9,6 +9,15 @@ describe('PluginLoader', () => {
     beforeEach(() => {
         const logger = createLogger({ level: 'error' }); // Suppress logs in tests
         loader = new PluginLoader(logger);
+        loader.setContext({
+            registerService: () => {},
+            getService: () => { throw new Error('Mock service not found'); },
+            hook: () => {},
+            trigger: async () => {},
+            getServices: () => new Map(),
+            logger: logger,
+            getKernel: () => ({}) as any
+        } as PluginContext);
     });
 
     describe('Plugin Loading', () => {
