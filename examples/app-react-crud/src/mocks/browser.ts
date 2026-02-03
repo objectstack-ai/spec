@@ -10,7 +10,7 @@ import { ObjectQLPlugin } from '@objectstack/objectql';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { MSWPlugin } from '@objectstack/plugin-msw';
 // import appConfig from '../../objectstack.config';
-import todoConfig from '@objectstack/example-todo/objectstack.config';
+import todoConfig from '@example/app-todo/objectstack.config';
 
 let kernel: ObjectKernel | null = null;
 

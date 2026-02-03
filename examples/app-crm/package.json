@@ -3,6 +3,12 @@
   "version": "0.9.0",
   "description": "Example CRM implementation using ObjectStack Protocol",
   "private": true,
+  "main": "./objectstack.config.ts",
+  "types": "./objectstack.config.ts",
+  "exports": {
+    ".": "./objectstack.config.ts",
+    "./objectstack.config": "./objectstack.config.ts"
+  },
   "scripts": {
     "dev": "objectstack dev",
     "build": "objectstack compile objectstack.config.ts dist/crm.json",
