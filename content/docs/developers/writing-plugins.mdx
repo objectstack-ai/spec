@@ -154,58 +154,35 @@ import { startSyncJob } from './jobs/sync';
 const myPlugin: Plugin = {
   name: 'my-crm-plugin',
   version: '1.0.0',
+  dependencies: ['com.objectstack.engine.objectql'],
   
   /**
-   * Called when the plugin is enabled.
-   * Register objects, routes, jobs, and event listeners here.
+   * Init Phase: Register services.
    */
-  init: async (context) => {
-    // context comes from @objectstack/core
+  init: (context) => {
+    // context.logger.info('Init...');
+  },
+
+  /**
+   * Start Phase: Business Logic.
+   */
+  start: async (context) => {
     const { logger } = context;
-    
     logger.info('My CRM Plugin enabled');
     
-    /* 
-       Note: Accessing services like 'ql' or 'router' depends on 
-       what plugins are installed in the kernel.
-       const ql = context.getService('objectql');
-    */
-  },
+    // Get dependencies
+    // const ql = context.getService('objectql');
     
-    // Register custom objects
-    await ql.registerObject(Account);
-    
-    // Register API routes
-    registerWebhooks(router);
-    
-    // Schedule background jobs
-    const interval = await os.getConfig('my_crm_plugin.syncInterval');
-    scheduler.schedule('sync-accounts', `*/${interval} * * * *`, () => {
-      return startSyncJob(context);
-    });
-    
-    // Listen to events
-    ql.on('account.created', async (event) => {
-      logger.info('New account created', { id: event.record.id });
-      await storage.set(`last_account_id`, event.record.id);
-    });
+    // Logic here
+    // await ql.registerObject(Account);
   },
   
   /**
-   * Called when the plugin is disabled.
-   * Clean up resources here.
+   * Destroy Phase: Cleanup.
    */
-  onDisable: async (context: PluginContext) => {
-    context.logger.info('My CRM Plugin disabled');
-    // Unregister listeners, close connections, etc.
-  },
-  
-  /**
-   * Called when plugin settings are updated.
-   */
-  onSettingsChange: async (context: PluginContext, oldSettings, newSettings) => {
-    context.logger.info('Settings updated', { oldSettings, newSettings });
-  },
+  destroy: async () => {
+    console.log('Plugin stopped');
+  }
 };
 ```
 

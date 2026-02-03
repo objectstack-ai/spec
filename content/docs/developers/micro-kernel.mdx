@@ -135,6 +135,14 @@ The context provides access to kernel services and hooks.
 interface PluginContext {
   // Service Registry
   registerService(name: string, service: any): void;
+  // Factory registration with lifecycle control
+  registerServiceFactory(options: {
+    name: string;
+    factory: (ctx: PluginContext) => T;
+    lifecycle: 'singleton' | 'transient' | 'scoped';
+    dependencies?: string[];
+  }): void;
+  
   getService<T>(name: string): T;
   getServices(): Map<string, any>;
   
@@ -150,14 +158,40 @@ interface PluginContext {
 }
 ```
 
-**Logger Methods:**
+## 🚀 Enhanced Capabilities
+
+The ObjectKernel provides advanced runtime features to ensure stability and developer experience.
+
+### 1. Advanced Dependency Injection
+Beyond simple static services, the Kernel supports sophisticated lifecycles:
+
+- **Singleton**: Created once, shared forever. (Default)
+- **Transient**: Created every time it is requested.
+- **Scoped**: Created once per specific scope (e.g., HTTP Request).
+
 ```typescript
-logger.debug(message, metadata?)  // Development/troubleshooting
-logger.info(message, metadata?)   // General information
-logger.warn(message, metadata?)   // Warnings
-logger.error(message, metadata?)  // Errors
-logger.fatal(message, metadata?)  // Fatal errors
+ctx.registerServiceFactory({
+  name: 'my-service',
+  lifecycle: 'singleton',
+  factory: (context) => new MyService(context)
+});
 ```
+
+### 2. Runtime Circular Dependency Detection
+The Kernel protects against infinite recursion. If your plugins create a loop (Service A -> Service B -> Service A), the Kernel detects this at runtime and throws a clear error path instead of crashing the stack.
+
+### 3. Configuration Validation
+Plugins can define a Zod schema for their configuration. The Kernel automatically validates the config on load.
+
+```typescript
+const MyPlugin = {
+  configSchema: z.object({ apiKey: z.string() }),
+  init(ctx) { /* ... */ }
+}
+```
+
+### 4. Reliable Error Handling
+Factory errors (e.g., database connection failure during init) are propagated correctly up the stack, preserving the original error message for easier debugging.
 
 ## Built-in Plugins
 
