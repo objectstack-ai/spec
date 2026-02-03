@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 
-const templates = {
+export const templates = {
   plugin: {
     description: 'Create a new ObjectStack plugin',
     files: {
@@ -102,7 +102,7 @@ MIT
         description: `ObjectStack Example: ${name}`,
         scripts: {
           build: 'objectstack compile',
-          dev: 'tsx watch objectstack.config.ts',
+          dev: 'objectstack dev',
           test: 'vitest',
         },
         dependencies: {
@@ -120,20 +120,20 @@ MIT
       'objectstack.config.ts': (name: string) => `import { defineStack } from '@objectstack/spec';
 
 export default defineStack({
-  metadata: {
+  manifest: {
     name: '${name}',
     version: '0.1.0',
     description: '${name} example application',
   },
   
-  objects: {
+  objects: [
     // Define your data objects here
-  },
+    // { name: 'my_object', fields: { ... } }
+  ],
   
-  ui: {
-    apps: [],
-    views: [],
-  },
+  apps: [
+    // Define your apps here
+  ],
 });
 `,
       'README.md': (name: string) => `# ${name} Example
