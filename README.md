@@ -24,6 +24,11 @@ ObjectStack is a metadata-driven platform built on three foundational protocols:
 
 📖 **[Read the Full Documentation](./content/docs/)**
 
+### Strategic Reports
+
+- **[Strategic Report (中文)](./STRATEGIC_REPORT.md)** - 商业模式与产品设计深度报告
+- **[Strategic Report (English)](./STRATEGIC_REPORT_EN.md)** - Business Model & Product Design Analysis
+
 ### Architecture Documentation
 
 - **[Architecture Guide](./ARCHITECTURE.md)** - Complete microkernel architecture overview
