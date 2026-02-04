@@ -44,11 +44,11 @@
 // and establish clear boundaries between different protocol layers.
 export * as Shared from './shared';
 export * as Data from './data';
-export * as Permission from './permission';
+export * as Security from './security';
 export * as UI from './ui';
 export * as System from './system';
 export * as QA from './qa';
-export * as Auth from './auth';
+export * as Identity from './identity';
 export * as Hub from './hub';
 export * as AI from './ai';
 export * as API from './api';
