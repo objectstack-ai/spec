@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PluginHealthStatusSchema } from '../system/plugin-lifecycle-advanced.zod';
+import { PluginHealthStatusSchema } from '../kernel/plugin-lifecycle-advanced.zod';
 
 /**
  * # Runtime AI Operations (AIOps) Protocol

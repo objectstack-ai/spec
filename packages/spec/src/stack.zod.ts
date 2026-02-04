@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-import { ManifestSchema } from './system/manifest.zod';
-import { DatasourceSchema } from './system/datasource.zod';
+import { ManifestSchema } from './kernel/manifest.zod';
+import { DatasourceSchema } from './data/datasource.zod';
 import { TranslationBundleSchema } from './system/translation.zod';
 
 // Data Protocol
