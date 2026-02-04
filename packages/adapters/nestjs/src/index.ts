@@ -1,4 +1,4 @@
-import { DynamicModule, Module, Global, Inject, Provider, Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Res, All, createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { DynamicModule, Module, Global, Inject, Provider, Controller, Post, Get, Body, Query, Req, Res, All, createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
 import { ObjectKernel, HttpDispatcher, HttpDispatcherResult } from '@objectstack/runtime';
 

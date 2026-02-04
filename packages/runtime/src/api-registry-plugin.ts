@@ -45,12 +45,12 @@ export function createApiRegistryPlugin(config: ApiRegistryConfig = {}): Plugin 
             ctx.logger.info('Hydrating REST API from Protocol...');
             
             try {
-                const restServer = new RestServer(server, protocol, config.api);
+                const restServer = new RestServer(server, protocol, config.api as any);
                 restServer.registerRoutes();
                 
                 ctx.logger.info('REST API successfully registered');
             } catch (err: any) {
-                ctx.logger.error('Failed to register REST API routes', { error: err.message });
+                ctx.logger.error('Failed to register REST API routes', { error: err.message } as any);
                 throw err;
             }
         }

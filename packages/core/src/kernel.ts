@@ -71,12 +71,7 @@ export class ObjectKernel {
         // Initialize context
         this.context = {
             registerService: (name, service) => {
-                if (this.services.has(name)) {
-                    throw new Error(`[Kernel] Service '${name}' already registered`);
-                }
-                this.services.set(name, service);
-                this.pluginLoader.registerService(name, service);
-                this.logger.info(`Service '${name}' registered`, { service: name });
+                this.registerService(name, service);
             },
             getService: <T>(name: string) => {
                 // 1. Try direct service map first (synchronous cache)
@@ -168,6 +163,19 @@ export class ObjectKernel {
             version: pluginMeta.version,
         });
 
+        return this;
+    }
+
+    /**
+     * Register a service instance directly
+     */
+    registerService<T>(name: string, service: T): this {
+        if (this.services.has(name)) {
+            throw new Error(`[Kernel] Service '${name}' already registered`);
+        }
+        this.services.set(name, service);
+        this.pluginLoader.registerService(name, service);
+        this.logger.info(`Service '${name}' registered`, { service: name });
         return this;
     }
 

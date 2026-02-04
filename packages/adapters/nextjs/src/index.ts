@@ -68,7 +68,7 @@ export function createRouteHandler(options: NextAdapterOptions) {
         // --- 2. GraphQL ---
         if (segments[0] === 'graphql' && method === 'POST') {
             const body = await req.json();
-            const result = await dispatcher.handleGraphQL(body, { request: rawRequest });
+            const result = await dispatcher.handleGraphQL(body as any, { request: rawRequest } as any);
             return NextResponse.json(result);
         }
 
@@ -82,7 +82,7 @@ export function createRouteHandler(options: NextAdapterOptions) {
         // --- 4. Data ---
         if (segments[0] === 'data') {
             const subPath = segments.slice(1).join('/');
-            let body = {};
+            let body: any = {};
             if (method === 'POST' || method === 'PATCH') {
                 body = await req.json().catch(() => ({}));
             }
@@ -92,7 +92,7 @@ export function createRouteHandler(options: NextAdapterOptions) {
             const queryParams: Record<string, any> = {};
             url.searchParams.forEach((val, key) => queryParams[key] = val);
 
-            const result = await dispatcher.handleData(subPath, method, body, queryParams, { request: rawRequest });
+            const result = await dispatcher.handleData(subPath, method, body, queryParams, { request: rawRequest } as any);
             return toResponse(result);
         }
 

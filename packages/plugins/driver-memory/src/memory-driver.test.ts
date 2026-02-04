@@ -19,7 +19,7 @@ describe('InMemoryDriver', () => {
     it('should clear data on disconnect', async () => {
       await driver.create(testTable, { id: '1', name: 'test' });
       await driver.disconnect();
-      const results = await driver.find(testTable, { select: ['id'] });
+      const results = await driver.find(testTable, { fields: ['id'], object: testTable });
       expect(results).toHaveLength(0);
     });
   });
@@ -51,7 +51,8 @@ describe('InMemoryDriver', () => {
       expect(created.id).toBe('1');
 
       const results = await driver.find(testTable, { 
-          select: ['id', 'name', 'age'] 
+          fields: ['id', 'name', 'age'],
+          object: testTable
       });
       
       expect(results).toHaveLength(1);
@@ -70,7 +71,7 @@ describe('InMemoryDriver', () => {
       
       expect(updateResult.active).toBe(false);
       
-      const results = await driver.find(testTable, { select: ['active'] });
+      const results = await driver.find(testTable, { fields: ['active'], object: testTable });
       expect(results[0].active).toBe(false);
     });
 
@@ -81,7 +82,7 @@ describe('InMemoryDriver', () => {
        const deleteResult = await driver.delete(testTable, '1');
        expect(deleteResult).toBe(true);
        
-       const results = await driver.find(testTable, { select: ['name'] });
+       const results = await driver.find(testTable, { fields: ['name'], object: testTable });
        expect(results).toHaveLength(1);
        expect(results[0].name).toBe('David');
     });
@@ -94,7 +95,8 @@ describe('InMemoryDriver', () => {
           await driver.create(testTable, { id: '3', role: 'user' });
           
           const results = await driver.find(testTable, {
-              select: ['id'],
+              fields: ['id'],
+              object: testTable,
               where: { role: 'user' }
           });
           
@@ -107,7 +109,8 @@ describe('InMemoryDriver', () => {
            await driver.create(testTable, { id: '3' });
           
           const results = await driver.find(testTable, {
-              select: ['id'],
+              fields: ['id'],
+              object: testTable,
               limit: 2
           });
           

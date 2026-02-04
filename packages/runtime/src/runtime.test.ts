@@ -33,9 +33,14 @@ describe('Runtime', () => {
 
     it('should register external http server if provided', () => {
         const mockServer: IHttpServer = {
-            start: vi.fn(),
-            stop: vi.fn(),
-            registerRoute: vi.fn()
+            listen: vi.fn(),
+            close: vi.fn(),
+            get: vi.fn(),
+            post: vi.fn(),
+            put: vi.fn(),
+            delete: vi.fn(),
+            patch: vi.fn(),
+            use: vi.fn(),
         };
         
         const runtime = new Runtime({ server: mockServer });

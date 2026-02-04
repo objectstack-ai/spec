@@ -133,20 +133,14 @@ export class InMemoryDriver implements DriverInterface {
         });
     }
 
-    // 3. Pagination (Offset/Skip)
+    // 3. Pagination (Offset)
     if (query.offset) {
         results = results.slice(query.offset);
-    } else if (query.skip) {
-        // Alias for offset
-        results = results.slice(query.skip);
     }
 
-    // 4. Pagination (Limit/Top)
+    // 4. Pagination (Limit)
     if (query.limit) {
       results = results.slice(0, query.limit);
-    } else if (query.top) {
-        // Alias for limit
-        results = results.slice(0, query.top);
     }
 
     this.logger.debug('Find completed', { object, resultCount: results.length });
