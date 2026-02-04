@@ -1,6 +1,6 @@
 import { DynamicModule, Module, Global, Inject, Provider, Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Res, All, createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
-import { ObjectKernel } from '@objectstack/runtime';
+import { ObjectKernel, HttpDispatcher, HttpDispatcherResult } from '@objectstack/runtime';
 
 export const OBJECT_KERNEL = 'OBJECT_KERNEL';
 
@@ -23,14 +23,6 @@ export class ObjectStackService {
   getKernel() {
     return this.kernel;
   }
-
-  async call(action: string, params: any, request: any) {
-    const k = this.kernel as any;
-    if (k.broker) {
-        return k.broker.call(action, params, { request });
-    }
-    throw new Error('Kernel Broker not available');
-  }
 }
 
 // --- Controller ---
@@ -39,8 +31,57 @@ export class ObjectStackService {
 export class ObjectStackController {
   constructor(private readonly service: ObjectStackService) {}
 
-  private success(data: any, meta?: any) {
-    return { success: true, data, meta };
+  private async normalizeResponse(result: HttpDispatcherResult, res: any) {
+      if (result.handled) {
+          if (result.response) {
+               res.status(result.response.status);
+               if (result.response.headers) {
+                   Object.entries(result.response.headers).forEach(([k, v]) => res.setHeader(k, v));
+               }
+               return res.json(result.response.body);
+          }
+          if (result.result) {
+             const response = result.result;
+             
+             // Handle redirect
+             if (response.type === 'redirect' && response.url) {
+                 return res.redirect(response.url);
+             }
+
+             // Handle stream
+             if (response.type === 'stream' && response.stream) {
+                 if (response.headers) {
+                     Object.entries(response.headers).forEach(([k, v]) => res.setHeader(k, v));
+                 }
+                 response.stream.pipe(res);
+                 return;
+             }
+             
+             // If response is a standard Response object
+             if (response && typeof response.status === 'number' && typeof response.text === 'function') {
+                  res.status(response.status);
+                  if (response.headers && typeof response.headers.forEach === 'function') {
+                      response.headers.forEach((v: string, k: string) => res.setHeader(k, v));
+                  }
+                  const text = await response.text();
+                  res.send(text);
+                  return;
+             }
+             return res.status(200).json(response);
+          }
+      }
+      return res.status(404).json({ success: false, error: { message: 'Not Found', code: 404 } });
+  }
+
+  private async handleError(err: any, res: any) {
+      return res.status(err.statusCode || 500).json({ 
+          success: false, 
+          error: { 
+              message: err.message || 'Internal Server Error', 
+              code: err.statusCode || 500,
+              details: err.details 
+          } 
+      });
   }
 
   // --- Discovery Endpoint ---
@@ -50,8 +91,13 @@ export class ObjectStackController {
   }
 
   @Post('graphql')
-  async graphql(@Body() body: any, @Req() req: any) {
-    return this.service.dispatcher.handleGraphQL(body, { request: req });
+  async graphql(@Body() body: any, @Req() req: any, @Res() res: any) {
+    try {
+        const result = await this.service.dispatcher.handleGraphQL(body, { request: req });
+        return res.json(result);
+    } catch (err) {
+        return this.handleError(err, res);
+    }
   }
 
   // Auth (Generic Auth Handler)
@@ -59,149 +105,62 @@ export class ObjectStackController {
   async auth(@Req() req: any, @Res() res: any, @Body() body: any) {
     try {
         const path = req.params[0] || req.url.split('/auth/')[1]?.split('?')[0] || '';
-
         const result = await this.service.dispatcher.handleAuth(path, req.method, body, { request: req, response: res });
-        
-        if (result.handled) {
-            if (result.response) {
-                 res.status(result.response.status);
-                 if (result.response.headers) {
-                     Object.entries(result.response.headers).forEach(([k, v]) => res.setHeader(k, v));
-                 }
-                 return res.json(result.response.body);
-            }
-            if (result.result) {
-               const response = result.result;
-               // If response is a standard Response object
-               if (response && typeof response.status === 'number' && typeof response.text === 'function') {
-                    res.status(response.status);
-                    if (response.headers && typeof response.headers.forEach === 'function') {
-                        response.headers.forEach((v: string, k: string) => res.setHeader(k, v));
-                    }
-                    const text = await response.text();
-                    res.send(text);
-                    return;
-               }
-               return res.status(200).json(response);
-            }
-        }
-        
-        return res.status(404).json({ success: false, error: { message: 'Auth provider not configured', code: 404 } });
-        
+        return this.normalizeResponse(result, res);
     } catch (err: any) {
-        return res.status(err.statusCode || 500).json({ 
-            success: false, 
-            error: { 
-                message: err.message || 'Internal Server Error', 
-                code: err.statusCode || 500
-            } 
-        });
+        return this.handleError(err, res);
     }
   }
 
   // Metadata
-  @Get('metadata')
-  async listObjects(@Req() req: any) {
-    const data = await this.service.call('metadata.objects', {}, req);
-    return this.success(data);
-  }
-
-  @Get('metadata/:objectName')
-  async getObject(@Param('objectName') objectName: string, @Req() req: any) {
-    const data = await this.service.call('metadata.getObject', { objectName }, req);
-    return this.success(data);
+  @All('metadata*')
+  async metadata(@Req() req: any, @Res() res: any) {
+      try {
+          // /api/metadata/objects -> objects
+          let path = req.params[0] || ''; 
+          if (req.url.includes('/metadata')) {
+             path = req.url.split('/metadata')[1].split('?')[0];
+          }
+          const result = await this.service.dispatcher.handleMetadata(path, { request: req });
+          return this.normalizeResponse(result, res);
+      } catch (err) {
+          return this.handleError(err, res);
+      }
   }
 
   // Data
-  @Get('data/:objectName')
-  async list(@Param('objectName') objectName: string, @Query() query: any, @Req() req: any) {
-    const result = await this.service.call('data.query', { object: objectName, filters: query }, req);
-    return this.success(result.data, { count: result.count });
-  }
-
-  @Post('data/:objectName/query')
-  async query(@Param('objectName') objectName: string, @Body() body: any, @Req() req: any) {
-    const result = await this.service.call('data.query', { object: objectName, ...body }, req);
-    return this.success(result.data, { count: result.count, limit: body.limit, skip: body.skip });
-  }
-
-  @Get('data/:objectName/:id')
-  async get(@Param('objectName') objectName: string, @Param('id') id: string, @Query() query: any, @Req() req: any) {
-    const data = await this.service.call('data.get', { object: objectName, id, ...query }, req);
-    return this.success(data);
-  }
-
-  @Post('data/:objectName')
-  async create(@Param('objectName') objectName: string, @Body() body: any, @Req() req: any) {
-    const data = await this.service.call('data.create', { object: objectName, data: body }, req);
-    return this.success(data);
-  }
-
-  @Patch('data/:objectName/:id')
-  async update(@Param('objectName') objectName: string, @Param('id') id: string, @Body() body: any, @Req() req: any) {
-    const data = await this.service.call('data.update', { object: objectName, id, data: body }, req);
-    return this.success(data);
-  }
-
-  @Delete('data/:objectName/:id')
-  async delete(@Param('objectName') objectName: string, @Param('id') id: string, @Req() req: any) {
-    await this.service.call('data.delete', { object: objectName, id }, req);
-    return this.success({ id, deleted: true });
-  }
-
-  @Post('data/:objectName/batch')
-  async batch(@Param('objectName') objectName: string, @Body() body: any, @Req() req: any) {
-    const data = await this.service.call('data.batch', { object: objectName, operations: body.operations }, req);
-    return this.success(data);
-  }
-
-  // --- Storage (Files) ---
-  
-  // Note: Handling file uploads in NestJS in abstract Adapter is hard because we don't want to enforce multer/platform-express.
-  // We will assume the request object is raw or handled by a global interceptor if available.
-  // But for now, we provide the definition.
-  
-  @Post('storage/upload')
-  async upload(@ConnectReq() req: any) {
-      // We need to access the kernel service
-      const kernel = this.service.getKernel() as any;
-      const storageService = kernel.getService?.('file-storage') || kernel.services?.['file-storage'];
-      if (!storageService) throw { statusCode: 501, message: 'File storage not configured' };
-      
-      // In NestJS/Express, file is usually in req.file or req.files if multer is used.
-      // If using Fastify, it's different.
-      // We will try to find the file or pass the request.
-      const file = req.file || req.files?.file;
-      
-      if (!file && !req.body) throw { statusCode: 400, message: 'No file provided' };
-      
-      // Pass underlying object
-      const result = await storageService.upload(file || req, { request: req });
-      return this.success(result);
-  }
-
-  @Get('storage/file/:id')
-  async download(@Param('id') id: string, @Req() req: any, @Res() res: any) {
-      const kernel = this.service.getKernel() as any;
-      const storageService = kernel.getService?.('file-storage') || kernel.services?.['file-storage'];
-      if (!storageService) throw { statusCode: 501, message: 'File storage not configured' };
-      
-      const result = await storageService.download(id, { request: req });
-      
-      if (result.url && result.redirect) {
-          return res.redirect(result.url);
+  @All('data*')
+  async data(@Req() req: any, @Res() res: any, @Body() body: any, @Query() query: any) {
+      try {
+          let path = req.params[0] || '';
+          if (req.url.includes('/data')) {
+             path = req.url.substring(req.url.indexOf('/data') + 5).split('?')[0];
+          }
+           
+          const result = await this.service.dispatcher.handleData(path, req.method, body, query, { request: req });
+          return this.normalizeResponse(result, res);
+      } catch (err) {
+          return this.handleError(err, res);
       }
-      
-      if (result.stream) {
-          res.set({
-              'Content-Type': result.mimeType || 'application/octet-stream',
-              'Content-Length': result.size,
-          });
-          result.stream.pipe(res);
-          return;
+  }
+
+  // Storage
+  @All('storage*')
+  async storage(@Req() req: any, @Res() res: any) {
+      try {
+          let path = req.params[0] || '';
+          if (req.url.includes('/storage')) {
+             path = req.url.substring(req.url.indexOf('/storage') + 8).split('?')[0];
+          }
+
+          // Handle File for NestJS (Express/Fastify)
+          const file = req.file || req.files?.file;
+          
+          const result = await this.service.dispatcher.handleStorage(path, req.method, file, { request: req });
+          return this.normalizeResponse(result, res);
+      } catch (err) {
+          return this.handleError(err, res);
       }
-      
-      return res.json(this.success(result));
   }
 }
 

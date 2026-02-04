@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { type ObjectKernel, HttpDispatcher } from '@objectstack/runtime';
+import { type ObjectKernel, HttpDispatcher, HttpDispatcherResult } from '@objectstack/runtime';
 
 export interface ObjectStackHonoOptions {
   kernel: ObjectKernel;
@@ -14,57 +14,48 @@ export interface ObjectStackHonoOptions {
 export function createHonoApp(options: ObjectStackHonoOptions) {
   const app = new Hono();
   const { prefix = '/api' } = options;
-  const kernel = options.kernel as any;
   const dispatcher = new HttpDispatcher(options.kernel);
 
   app.use('*', cors());
 
-  // --- Helper for Success Response ---
-  const success = (data: any, meta?: any) => ({
-    success: true,
-    data,
-    meta,
-  });
-
-  // --- Helper for Error Response ---
-  const errorHandler = async (c: any, fn: () => Promise<any>) => {
-    try {
-      return await fn();
-    } catch (err: any) {
-      return c.json({
-        success: false,
-        error: {
-          code: err.statusCode || 500,
-          message: err.message || 'Internal Server Error',
-          details: err.details,
-        },
-      }, err.statusCode || 500);
-    }
-  };
+  // --- Helper for Response Normalization ---
+  const normalizeResponse = (c: any, result: HttpDispatcherResult) => {
+      if (result.handled) {
+          if (result.response) {
+               return c.json(result.response.body, result.response.status as any, result.response.headers);
+          }
+          if (result.result) {
+              const res = result.result;
+              // Redirect
+              if (res.type === 'redirect' && res.url) {
+                  return c.redirect(res.url);
+              }
+              // Stream
+              if (res.type === 'stream' && res.stream) {
+                  return c.body(res.stream, 200, res.headers);
+              }
+               
+              // Hono handles standard Response objects
+              return res;
+          }
+      }
+      return c.json({ success: false, error: { message: 'Not Found', code: 404 } }, 404);
+  }
 
   // --- 0. Discovery Endpoint ---
   app.get(prefix, (c) => {
     return c.json(dispatcher.getDiscoveryInfo(prefix));
   });
 
-  // --- 1. Auth (Generic Auth Handler) ---
+  // --- 1. Auth ---
   app.all(`${prefix}/auth/*`, async (c) => {
-    // subpath from /api/auth/login -> login
-    const path = c.req.path.substring(c.req.path.indexOf('/auth/') + 6);
-    
     try {
-      const result = await dispatcher.handleAuth(path, c.req.method, await c.req.parseBody().catch(() => ({})), { request: c.req.raw });
+      // subpath from /api/auth/login -> login
+      const path = c.req.path.substring(c.req.path.indexOf('/auth/') + 6);
+      const body = await c.req.parseBody().catch(() => ({})); 
       
-      if (result.handled) {
-        if (result.response) {
-             return c.json(result.response.body, result.response.status as any, result.response.headers);
-        }
-        if (result.result) {
-             // If handler returns a response object
-             return result.result;
-        }
-      }
-      return c.json({ success: false, error: { message: 'Auth provider not configured', code: 404 } }, 404);
+      const result = await dispatcher.handleAuth(path, c.req.method, body, { request: c.req.raw });
+      return normalizeResponse(c, result);
     } catch (err: any) {
       return c.json({ success: false, error: { message: err.message, code: err.statusCode || 500 } }, err.statusCode || 500);
     }
@@ -72,146 +63,62 @@ export function createHonoApp(options: ObjectStackHonoOptions) {
 
   // --- 2. GraphQL ---
   app.post(`${prefix}/graphql`, async (c) => {
-    return errorHandler(c, async () => {
+    try {
       const body = await c.req.json();
       const result = await dispatcher.handleGraphQL(body, { request: c.req.raw });
       return c.json(result);
-    });
+    } catch (err: any) {
+      return c.json({ success: false, error: { message: err.message, code: err.statusCode || 500 } }, err.statusCode || 500);
+    }
   });
 
-  // --- 2. Metadata Endpoints ---
-
-  // List All Objects
-  app.get(`${prefix}/metadata`, async (c) => {
-    return errorHandler(c, async () => {
-      const data = await kernel.broker.call('metadata.objects', {}, { request: c.req.raw });
-      return c.json(success(data));
-    });
+  // --- 3. Metadata Endpoints ---
+  app.all(`${prefix}/metadata*`, async (c) => {
+    try {
+      const path = c.req.path.substring(c.req.path.indexOf('/metadata') + 9);
+      const result = await dispatcher.handleMetadata(path, { request: c.req.raw });
+      return normalizeResponse(c, result);
+    } catch (err: any) {
+      return c.json({ success: false, error: { message: err.message, code: err.statusCode || 500 } }, err.statusCode || 500);
+    }
   });
 
-  // Get Object Metadata
-  app.get(`${prefix}/metadata/:objectName`, async (c) => {
-    return errorHandler(c, async () => {
-      const { objectName } = c.req.param();
-      const data = await kernel.broker.call('metadata.getObject', { objectName }, { request: c.req.raw });
-      return c.json(success(data));
-    });
-  });
-
-  // --- 3. Data Endpoints ---
-
-  // List Records (Standard REST)
-  app.get(`${prefix}/data/:objectName`, async (c) => {
-    return errorHandler(c, async () => {
-      const { objectName } = c.req.param();
+  // --- 4. Data Endpoints ---
+  app.all(`${prefix}/data*`, async (c) => {
+    try {
+      const path = c.req.path.substring(c.req.path.indexOf('/data') + 5);
+      const method = c.req.method;
+      
+      let body = {};
+      if (method === 'POST' || method === 'PATCH') {
+          body = await c.req.json().catch(() => ({}));
+      }
       const query = c.req.query();
-      // Basic support: pass query params as filter
-      // In a real implementation, we might parse OData or JSON filters from query params
-      const result = await kernel.broker.call('data.query', { object: objectName, filters: query }, { request: c.req.raw });
-      return c.json(success(result.data, { count: result.count }));
-    });
+
+      const result = await dispatcher.handleData(path, method, body, query, { request: c.req.raw });
+      return normalizeResponse(c, result);
+    } catch (err: any) {
+      return c.json({ success: false, error: { message: err.message, code: err.statusCode || 500 } }, err.statusCode || 500);
+    }
   });
 
-  // Query Records (POST with JSON body)
-  app.post(`${prefix}/data/:objectName/query`, async (c) => {
-    return errorHandler(c, async () => {
-      const { objectName } = c.req.param();
-      const body = await c.req.json();
-      const result = await kernel.broker.call('data.query', { object: objectName, ...body }, { request: c.req.raw });
-      return c.json(success(result.data, { count: result.count, limit: body.limit, skip: body.skip }));
-    });
-  });
-
-  // Get Single Record
-  app.get(`${prefix}/data/:objectName/:id`, async (c) => {
-    return errorHandler(c, async () => {
-      const { objectName, id } = c.req.param();
-      const query = c.req.query(); 
-      const data = await kernel.broker.call('data.get', { object: objectName, id, ...query }, { request: c.req.raw });
-      return c.json(success(data));
-    });
-  });
-
-  // Create Record
-  app.post(`${prefix}/data/:objectName`, async (c) => {
-    return errorHandler(c, async () => {
-      const { objectName } = c.req.param();
-      const body = await c.req.json();
-      const data = await kernel.broker.call('data.create', { object: objectName, data: body }, { request: c.req.raw });
-      return c.json(success(data), 201);
-    });
-  });
-
-  // Update Record
-  app.patch(`${prefix}/data/:objectName/:id`, async (c) => {
-    return errorHandler(c, async () => {
-      const { objectName, id } = c.req.param();
-      const body = await c.req.json();
-      const data = await kernel.broker.call('data.update', { object: objectName, id, data: body }, { request: c.req.raw });
-      return c.json(success(data));
-    });
-  });
-
-  // Delete Record
-  app.delete(`${prefix}/data/:objectName/:id`, async (c) => {
-    return errorHandler(c, async () => {
-      const { objectName, id } = c.req.param();
-      await kernel.broker.call('data.delete', { object: objectName, id }, { request: c.req.raw });
-      return c.json(success({ id, deleted: true }));
-    });
-  });
-
-  // Batch Operations
-  app.post(`${prefix}/data/:objectName/batch`, async (c) => {
-    return errorHandler(c, async () => {
-        const { objectName } = c.req.param();
-        const { operations } = await c.req.json();
-        const data = await kernel.broker.call('data.batch', { object: objectName, operations }, { request: c.req.raw });
-        return c.json(success(data));
-    });
-  });
-
-  // --- 4. Storage & Files ---
-  
-  // Upload File
-  app.post(`${prefix}/storage/upload`, async (c) => {
-    return errorHandler(c, async () => {
-      const storageService = (kernel as any).getService?.('file-storage') || (kernel as any).services?.['file-storage'];
-      if (!storageService) throw { statusCode: 501, message: 'File storage not configured' };
-
-      const body = await c.req.parseBody();
-      const file = body['file']; 
+  // --- 5. Storage Endpoints ---
+  app.all(`${prefix}/storage*`, async (c) => {
+    try {
+      const path = c.req.path.substring(c.req.path.indexOf('/storage') + 8);
+      const method = c.req.method;
       
-      if (!file) throw { statusCode: 400, message: 'No file provided' };
-      
-      // Allow service to handle raw file object or buffer
-      const result = await storageService.upload(file, { request: c.req.raw });
-      return c.json(success(result));
-    });
-  });
+      let file: any = undefined;
+      if (method === 'POST' && path.includes('upload')) {
+          const body = await c.req.parseBody();
+          file = body['file'];
+      }
 
-  // Get File
-  app.get(`${prefix}/storage/file/:id`, async (c) => {
-    return errorHandler(c, async () => {
-        const storageService = (kernel as any).getService?.('file-storage') || (kernel as any).services?.['file-storage'];
-        if (!storageService) throw { statusCode: 501, message: 'File storage not configured' };
-
-        const { id } = c.req.param();
-        const result = await storageService.download(id, { request: c.req.raw });
-        
-        // If result is a stream or blob, return it. 
-        // If result is a URL (e.g. S3 signed url), redirect.
-        if (result.url && result.redirect) {
-            return c.redirect(result.url);
-        }
-        if (result.stream) {
-            return c.body(result.stream, 200, {
-                'Content-Type': result.mimeType || 'application/octet-stream',
-                'Content-Length': result.size,
-            });
-        }
-        return c.json(success(result));
-    });
+      const result = await dispatcher.handleStorage(path, method, file, { request: c.req.raw });
+      return normalizeResponse(c, result);
+    } catch (err: any) {
+      return c.json({ success: false, error: { message: err.message, code: err.statusCode || 500 } }, err.statusCode || 500);
+    }
   });
 
   return app;
