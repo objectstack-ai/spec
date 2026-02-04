@@ -96,7 +96,7 @@ export const spaceCreatedResponse = {
   slug: 'sales-team',
   ownerId: 'user_abc123',
   runtime: {
-    isolation: 'shared_schema',
+    isolation: 'shared_schema' as const,
     quotas: {
       maxUsers: 50,
       maxStorage: 107374182400,
@@ -106,7 +106,7 @@ export const spaceCreatedResponse = {
   bom: {
     tenantId: 'tenant_abc123',
     dependencies: [],
-    resolutionStrategy: 'override',
+    resolutionStrategy: 'override' as const,
   },
   createdAt: '2024-01-01T00:00:00Z',
   updatedAt: '2024-01-01T00:00:00Z',
@@ -116,6 +116,7 @@ export const spaceCreatedResponse = {
  * Listing all spaces for an organization
  */
 export const listSpacesExample: ListSpacesResponse = {
+  success: true,
   data: [
     spaceCreatedResponse,
     {
@@ -768,6 +769,7 @@ export const compileManifestExample: CompileManifestRequest = {
 export const compileManifestResultExample: CompileManifestResponse = {
   success: true,
   data: {
+    success: true,
     buildId: 'build_abc123',
     timestamp: '2024-01-15T12:00:00Z',
     duration: 5420,  // 5.4 seconds

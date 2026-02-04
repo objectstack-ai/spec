@@ -463,7 +463,7 @@ export class MSWPlugin implements Plugin {
             http.get(`${baseUrl}/meta/:type/:name`, async ({ params }) => {
                 try {
                     return HttpResponse.json(
-                        await protocol.getMetaItem({ type: params.type as string, name: params.name as string })
+                        await protocol.getMetaItem({ type: params.type as string, name: params.name as string } as any)
                     );
                 } catch (error) {
                     const message = error instanceof Error ? error.message : 'Unknown error';
