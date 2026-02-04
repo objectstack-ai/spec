@@ -26,6 +26,7 @@ export * from './rest-server.zod';
 export * from './hub.zod';
 export * from './registry.zod';
 export * from './documentation.zod';
+export * from './analytics.zod';
 
 // Legacy interface export (deprecated)
 // export type { IObjectStackProtocol } from './protocol';
