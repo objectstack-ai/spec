@@ -12,134 +12,404 @@ description: Protocol protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { BatchDataRequestSchema, BatchDataResponseSchema, CreateDataRequestSchema, CreateDataResponseSchema, CreateManyDataRequestSchema, CreateManyDataResponseSchema, DeleteDataRequestSchema, DeleteDataResponseSchema, DeleteManyDataRequestSchema, DeleteManyDataResponseSchema, FindDataRequestSchema, FindDataResponseSchema, GetDataRequestSchema, GetDataResponseSchema, GetDiscoveryRequestSchema, GetDiscoveryResponseSchema, GetMetaItemCachedRequestSchema, GetMetaItemCachedResponseSchema, GetMetaItemRequestSchema, GetMetaItemResponseSchema, GetMetaItemsRequestSchema, GetMetaItemsResponseSchema, GetMetaTypesRequestSchema, GetMetaTypesResponseSchema, GetUiViewRequestSchema, GetUiViewResponseSchema, ObjectStackProtocolSchema, UpdateDataRequestSchema, UpdateDataResponseSchema, UpdateManyDataRequestSchema, UpdateManyDataResponseSchema } from '@objectstack/spec/api';
-import type { BatchDataRequest, BatchDataResponse, CreateDataRequest, CreateDataResponse, CreateManyDataRequest, CreateManyDataResponse, DeleteDataRequest, DeleteDataResponse, DeleteManyDataRequest, DeleteManyDataResponse, FindDataRequest, FindDataResponse, GetDataRequest, GetDataResponse, GetDiscoveryRequest, GetDiscoveryResponse, GetMetaItemCachedRequest, GetMetaItemCachedResponse, GetMetaItemRequest, GetMetaItemResponse, GetMetaItemsRequest, GetMetaItemsResponse, GetMetaTypesRequest, GetMetaTypesResponse, GetUiViewRequest, GetUiViewResponse, ObjectStackProtocol, UpdateDataRequest, UpdateDataResponse, UpdateManyDataRequest, UpdateManyDataResponse } from '@objectstack/spec/api';
+import { AutomationTriggerRequestSchema, AutomationTriggerResponseSchema, BatchDataRequestSchema, BatchDataResponseSchema, CreateDataRequestSchema, CreateDataResponseSchema, CreateManyDataRequestSchema, CreateManyDataResponseSchema, DeleteDataRequestSchema, DeleteDataResponseSchema, DeleteManyDataRequestSchema, DeleteManyDataResponseSchema, FindDataRequestSchema, FindDataResponseSchema, GetDataRequestSchema, GetDataResponseSchema, GetDiscoveryRequestSchema, GetDiscoveryResponseSchema, GetMetaItemCachedRequestSchema, GetMetaItemCachedResponseSchema, GetMetaItemRequestSchema, GetMetaItemResponseSchema, GetMetaItemsRequestSchema, GetMetaItemsResponseSchema, GetMetaTypesRequestSchema, GetMetaTypesResponseSchema, GetUiViewRequestSchema, GetUiViewResponseSchema, ObjectStackProtocolSchema, UpdateDataRequestSchema, UpdateDataResponseSchema, UpdateManyDataRequestSchema, UpdateManyDataResponseSchema } from '@objectstack/spec/api';
+import type { AutomationTriggerRequest, AutomationTriggerResponse, BatchDataRequest, BatchDataResponse, CreateDataRequest, CreateDataResponse, CreateManyDataRequest, CreateManyDataResponse, DeleteDataRequest, DeleteDataResponse, DeleteManyDataRequest, DeleteManyDataResponse, FindDataRequest, FindDataResponse, GetDataRequest, GetDataResponse, GetDiscoveryRequest, GetDiscoveryResponse, GetMetaItemCachedRequest, GetMetaItemCachedResponse, GetMetaItemRequest, GetMetaItemResponse, GetMetaItemsRequest, GetMetaItemsResponse, GetMetaTypesRequest, GetMetaTypesResponse, GetUiViewRequest, GetUiViewResponse, ObjectStackProtocol, UpdateDataRequest, UpdateDataResponse, UpdateManyDataRequest, UpdateManyDataResponse } from '@objectstack/spec/api';
 
 // Validate data
-const result = BatchDataRequestSchema.parse(data);
+const result = AutomationTriggerRequestSchema.parse(data);
 ```
+
+---
+
+## AutomationTriggerRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **trigger** | `string` | ✅ |  |
+| **payload** | `Record<string, any>` | ✅ |  |
+
+---
+
+## AutomationTriggerResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ |  |
+| **jobId** | `string` | optional |  |
+| **result** | `any` | optional |  |
 
 ---
 
 ## BatchDataRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **request** | `object` | ✅ | Batch operation request |
+
 ---
 
 ## BatchDataResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `object` | optional | Error details if success is false |
+| **meta** | `object` | optional | Response metadata |
+| **operation** | `Enum<'create' \| 'update' \| 'upsert' \| 'delete'>` | optional | Operation type that was performed |
+| **total** | `number` | ✅ | Total number of records in the batch |
+| **succeeded** | `number` | ✅ | Number of records that succeeded |
+| **failed** | `number` | ✅ | Number of records that failed |
+| **results** | `object[]` | ✅ | Detailed results for each record |
 
 ---
 
 ## CreateDataRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | The object name. |
+| **data** | `Record<string, any>` | ✅ | The dictionary of field values to insert. |
+
 ---
 
 ## CreateDataResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | The object name. |
+| **id** | `string` | ✅ | The ID of the newly created record. |
+| **record** | `Record<string, any>` | ✅ | The created record, including server-generated fields (created_at, owner). |
 
 ---
 
 ## CreateManyDataRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **records** | `Record<string, any>[]` | ✅ | Array of records to create |
+
 ---
 
 ## CreateManyDataResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **records** | `Record<string, any>[]` | ✅ | Created records |
+| **count** | `number` | ✅ | Number of records created |
 
 ---
 
 ## DeleteDataRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **id** | `string` | ✅ | Record ID to delete |
+
 ---
 
 ## DeleteDataResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **id** | `string` | ✅ | Deleted record ID |
+| **success** | `boolean` | ✅ | Whether deletion succeeded |
 
 ---
 
 ## DeleteManyDataRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **ids** | `string[]` | ✅ | Array of record IDs to delete |
+| **options** | `object` | optional | Delete options |
+
 ---
 
 ## DeleteManyDataResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `object` | optional | Error details if success is false |
+| **meta** | `object` | optional | Response metadata |
+| **operation** | `Enum<'create' \| 'update' \| 'upsert' \| 'delete'>` | optional | Operation type that was performed |
+| **total** | `number` | ✅ | Total number of records in the batch |
+| **succeeded** | `number` | ✅ | Number of records that succeeded |
+| **failed** | `number` | ✅ | Number of records that failed |
+| **results** | `object[]` | ✅ | Detailed results for each record |
 
 ---
 
 ## FindDataRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | The unique machine name of the object to query (e.g. "account"). |
+| **query** | `object` | optional | Structured query definition (filter, sort, select, pagination). |
+
 ---
 
 ## FindDataResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | The object name for the returned records. |
+| **records** | `Record<string, any>[]` | ✅ | The list of matching records. |
+| **total** | `number` | optional | Total number of records matching the filter (if requested). |
+| **hasMore** | `boolean` | optional | True if there are more records available (pagination). |
 
 ---
 
 ## GetDataRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | The object name. |
+| **id** | `string` | ✅ | The unique record identifier (primary key). |
+
 ---
 
 ## GetDataResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | The object name. |
+| **id** | `string` | ✅ | The record ID. |
+| **record** | `Record<string, any>` | ✅ | The complete record data. |
 
 ---
 
 ## GetDiscoveryRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+
 ---
 
 ## GetDiscoveryResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **version** | `string` | ✅ | API version (e.g., "v1", "2024-01") |
+| **apiName** | `string` | ✅ | API name |
+| **capabilities** | `object` | optional | Supported features/capabilities |
+| **endpoints** | `object` | optional | Available endpoint paths |
 
 ---
 
 ## GetMetaItemCachedRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Metadata type name |
+| **name** | `string` | ✅ | Item name |
+| **cacheRequest** | `object` | optional | Cache validation parameters |
+
 ---
 
 ## GetMetaItemCachedResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **data** | `any` | optional | Metadata payload (omitted for 304 Not Modified) |
+| **etag** | `object` | optional | ETag for this resource version |
+| **lastModified** | `string` | optional | Last modification timestamp |
+| **cacheControl** | `object` | optional | Cache control directives |
+| **notModified** | `boolean` | optional | True if resource has not been modified (304 response) |
+| **version** | `string` | optional | Metadata version identifier |
 
 ---
 
 ## GetMetaItemRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Metadata type name |
+| **name** | `string` | ✅ | Item name (snake_case identifier) |
+
 ---
 
 ## GetMetaItemResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Metadata type name |
+| **name** | `string` | ✅ | Item name |
+| **item** | `any` | optional | Metadata item definition |
 
 ---
 
 ## GetMetaItemsRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Metadata type name (e.g., "object", "plugin") |
+
 ---
 
 ## GetMetaItemsResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Metadata type name |
+| **items** | `any[]` | ✅ | Array of metadata items |
 
 ---
 
 ## GetMetaTypesRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+
 ---
 
 ## GetMetaTypesResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **types** | `string[]` | ✅ | Available metadata type names (e.g., "object", "plugin", "view") |
 
 ---
 
 ## GetUiViewRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (snake_case) |
+| **type** | `Enum<'list' \| 'form'>` | ✅ | View type |
+
 ---
 
 ## GetUiViewResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **list** | `object` | optional |  |
+| **form** | `object` | optional |  |
+| **listViews** | `Record<string, object>` | optional | Additional named list views |
+| **formViews** | `Record<string, object>` | optional | Additional named form views |
 
 ---
 
 ## ObjectStackProtocol
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+
 ---
 
 ## UpdateDataRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | The object name. |
+| **id** | `string` | ✅ | The ID of the record to update. |
+| **data** | `Record<string, any>` | ✅ | The fields to update (partial update). |
 
 ---
 
 ## UpdateDataResponse
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **id** | `string` | ✅ | Updated record ID |
+| **record** | `Record<string, any>` | ✅ | Updated record |
+
 ---
 
 ## UpdateManyDataRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **records** | `object[]` | ✅ | Array of updates |
+| **options** | `object` | optional | Update options |
+
 ---
 
 ## UpdateManyDataResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `object` | optional | Error details if success is false |
+| **meta** | `object` | optional | Response metadata |
+| **operation** | `Enum<'create' \| 'update' \| 'upsert' \| 'delete'>` | optional | Operation type that was performed |
+| **total** | `number` | ✅ | Total number of records in the batch |
+| **succeeded** | `number` | ✅ | Number of records that succeeded |
+| **failed** | `number` | ✅ | Number of records that failed |
+| **results** | `object[]` | ✅ | Detailed results for each record |
 

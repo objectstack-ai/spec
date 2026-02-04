@@ -1,7 +1,18 @@
 {
   "$ref": "#/definitions/ConnectorType",
   "definitions": {
-    "ConnectorType": {}
+    "ConnectorType": {
+      "type": "string",
+      "enum": [
+        "saas",
+        "database",
+        "file_storage",
+        "message_queue",
+        "api",
+        "custom"
+      ],
+      "description": "Connector type"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

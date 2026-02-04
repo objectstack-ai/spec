@@ -23,23 +23,108 @@ const result = PluginInstallConfigSchema.parse(data);
 
 ## PluginInstallConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **pluginId** | `string` | ✅ |  |
+| **version** | `string` | optional | Defaults to latest |
+| **config** | `Record<string, any>` | optional |  |
+| **autoUpdate** | `boolean` | optional |  |
+| **options** | `object` | optional |  |
+
 ---
 
 ## PluginQualityMetrics
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **testCoverage** | `number` | optional |  |
+| **documentationScore** | `number` | optional |  |
+| **codeQuality** | `number` | optional |  |
+| **securityScan** | `object` | optional |  |
+| **conformanceTests** | `object[]` | optional |  |
 
 ---
 
 ## PluginRegistryEntry
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Plugin identifier (reverse domain notation) |
+| **version** | `string` | ✅ |  |
+| **name** | `string` | ✅ |  |
+| **description** | `string` | optional |  |
+| **readme** | `string` | optional |  |
+| **category** | `Enum<'data' \| 'integration' \| 'ui' \| 'analytics' \| 'security' \| 'automation' \| 'ai' \| 'utility' \| 'driver' \| 'gateway' \| 'adapter'>` | optional |  |
+| **tags** | `string[]` | optional |  |
+| **vendor** | `object` | ✅ |  |
+| **capabilities** | `object` | optional |  |
+| **compatibility** | `object` | optional |  |
+| **links** | `object` | optional |  |
+| **media** | `object` | optional |  |
+| **quality** | `object` | optional |  |
+| **statistics** | `object` | optional |  |
+| **license** | `string` | optional | SPDX license identifier |
+| **pricing** | `object` | optional |  |
+| **publishedAt** | `string` | optional |  |
+| **updatedAt** | `string` | optional |  |
+| **deprecated** | `boolean` | optional |  |
+| **deprecationMessage** | `string` | optional |  |
+| **replacedBy** | `string` | optional | Plugin ID that replaces this one |
+| **flags** | `object` | optional |  |
+
 ---
 
 ## PluginSearchFilters
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **query** | `string` | optional |  |
+| **category** | `string[]` | optional |  |
+| **tags** | `string[]` | optional |  |
+| **trustLevel** | `Enum<'official' \| 'verified' \| 'community' \| 'unverified'>[]` | optional |  |
+| **implementsProtocols** | `string[]` | optional |  |
+| **pricingModel** | `Enum<'free' \| 'freemium' \| 'paid' \| 'enterprise'>[]` | optional |  |
+| **minRating** | `number` | optional |  |
+| **sortBy** | `Enum<'relevance' \| 'downloads' \| 'rating' \| 'updated' \| 'name'>` | optional |  |
+| **sortOrder** | `Enum<'asc' \| 'desc'>` | optional |  |
+| **page** | `integer` | optional |  |
+| **limit** | `integer` | optional |  |
 
 ---
 
 ## PluginStatistics
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **downloads** | `integer` | optional |  |
+| **downloadsLastMonth** | `integer` | optional |  |
+| **activeInstallations** | `integer` | optional |  |
+| **ratings** | `object` | optional |  |
+| **stars** | `integer` | optional |  |
+| **dependents** | `integer` | optional |  |
+
 ---
 
 ## PluginVendor
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Vendor identifier (reverse domain) |
+| **name** | `string` | ✅ |  |
+| **website** | `string` | optional |  |
+| **email** | `string` | optional |  |
+| **verified** | `boolean` | optional | Whether vendor is verified by ObjectStack |
+| **trustLevel** | `Enum<'official' \| 'verified' \| 'community' \| 'unverified'>` | optional |  |
 

@@ -1,7 +1,39 @@
 {
   "$ref": "#/definitions/BuildConfig",
   "definitions": {
-    "BuildConfig": {}
+    "BuildConfig": {
+      "type": "object",
+      "properties": {
+        "buildCommand": {
+          "type": "string",
+          "description": "Build command (e.g., npm run build)"
+        },
+        "outputDirectory": {
+          "type": "string",
+          "description": "Output directory (e.g., .next, dist)"
+        },
+        "installCommand": {
+          "type": "string",
+          "description": "Install command (e.g., npm install, pnpm install)"
+        },
+        "devCommand": {
+          "type": "string",
+          "description": "Development command (e.g., npm run dev)"
+        },
+        "nodeVersion": {
+          "type": "string",
+          "description": "Node.js version (e.g., 18.x, 20.x)"
+        },
+        "env": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Build environment variables"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

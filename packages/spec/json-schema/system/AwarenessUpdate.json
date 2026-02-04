@@ -1,7 +1,35 @@
 {
   "$ref": "#/definitions/AwarenessUpdate",
   "definitions": {
-    "AwarenessUpdate": {}
+    "AwarenessUpdate": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "idle",
+            "viewing",
+            "disconnected"
+          ],
+          "description": "Updated status"
+        },
+        "currentDocument": {
+          "type": "string",
+          "description": "Updated current document"
+        },
+        "currentView": {
+          "type": "string",
+          "description": "Updated current view"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Updated metadata"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

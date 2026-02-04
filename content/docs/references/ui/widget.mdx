@@ -23,21 +23,91 @@ const result = FieldWidgetPropsSchema.parse(data);
 
 ## FieldWidgetProps
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **value** | `any` | optional | Current field value |
+| **readonly** | `boolean` | optional | Read-only mode flag |
+| **required** | `boolean` | optional | Required field flag |
+| **error** | `string` | optional | Validation error message |
+| **field** | `object` | ✅ | Field schema definition |
+| **record** | `Record<string, any>` | optional | Complete record data |
+| **options** | `Record<string, any>` | optional | Custom widget options |
+
 ---
 
 ## WidgetEvent
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Event name |
+| **label** | `string` | optional | Human-readable event label |
+| **description** | `string` | optional | Event description and usage |
+| **bubbles** | `boolean` | optional | Whether event bubbles |
+| **cancelable** | `boolean` | optional | Whether event is cancelable |
+| **payload** | `Record<string, any>` | optional | Event payload schema |
 
 ---
 
 ## WidgetLifecycle
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **onMount** | `string` | optional | Initialization code when widget mounts |
+| **onUpdate** | `string` | optional | Code to run when props change |
+| **onUnmount** | `string` | optional | Cleanup code when widget unmounts |
+| **onValidate** | `string` | optional | Custom validation logic |
+| **onFocus** | `string` | optional | Code to run on focus |
+| **onBlur** | `string` | optional | Code to run on blur |
+| **onError** | `string` | optional | Error handling code |
+
 ---
 
 ## WidgetManifest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Widget identifier (snake_case) |
+| **label** | `string` | ✅ | Widget display name |
+| **description** | `string` | optional | Widget description |
+| **version** | `string` | optional | Widget version (semver) |
+| **author** | `string` | optional | Widget author |
+| **icon** | `string` | optional | Widget icon |
+| **fieldTypes** | `string[]` | optional | Supported field types |
+| **category** | `Enum<'input' \| 'display' \| 'picker' \| 'editor' \| 'custom'>` | optional | Widget category |
+| **lifecycle** | `object` | optional | Lifecycle hooks |
+| **events** | `object[]` | optional | Custom events |
+| **properties** | `object[]` | optional | Configuration properties |
+| **implementation** | `object \| object \| object` | optional | Widget implementation source |
+| **dependencies** | `object[]` | optional | Widget dependencies |
+| **screenshots** | `string[]` | optional | Screenshot URLs |
+| **documentation** | `string` | optional | Documentation URL |
+| **license** | `string` | optional | License (SPDX identifier) |
+| **tags** | `string[]` | optional | Tags for categorization |
+
 ---
 
 ## WidgetProperty
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Property name (camelCase) |
+| **label** | `string` | optional | Human-readable label |
+| **type** | `Enum<'string' \| 'number' \| 'boolean' \| 'array' \| 'object' \| 'function' \| 'any'>` | ✅ | TypeScript type |
+| **required** | `boolean` | optional | Whether property is required |
+| **default** | `any` | optional | Default value |
+| **description** | `string` | optional | Property description |
+| **validation** | `Record<string, any>` | optional | Validation rules |
+| **category** | `string` | optional | Property category |
 
 ---
 

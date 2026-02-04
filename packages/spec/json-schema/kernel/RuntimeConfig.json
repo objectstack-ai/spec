@@ -1,7 +1,138 @@
 {
   "$ref": "#/definitions/RuntimeConfig",
   "definitions": {
-    "RuntimeConfig": {}
+    "RuntimeConfig": {
+      "type": "object",
+      "properties": {
+        "engine": {
+          "type": "string",
+          "enum": [
+            "v8-isolate",
+            "wasm",
+            "container",
+            "process"
+          ],
+          "default": "v8-isolate",
+          "description": "Execution environment engine"
+        },
+        "engineConfig": {
+          "type": "object",
+          "properties": {
+            "wasm": {
+              "type": "object",
+              "properties": {
+                "maxMemoryPages": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65536,
+                  "description": "Maximum WASM memory pages (64KB each)"
+                },
+                "instructionLimit": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Maximum instructions before timeout"
+                },
+                "enableSimd": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Enable WebAssembly SIMD support"
+                },
+                "enableThreads": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Enable WebAssembly threads"
+                },
+                "enableBulkMemory": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Enable bulk memory operations"
+                }
+              },
+              "additionalProperties": false
+            },
+            "container": {
+              "type": "object",
+              "properties": {
+                "image": {
+                  "type": "string",
+                  "description": "Container image to use"
+                },
+                "runtime": {
+                  "type": "string",
+                  "enum": [
+                    "docker",
+                    "podman",
+                    "containerd"
+                  ],
+                  "default": "docker"
+                },
+                "resources": {
+                  "type": "object",
+                  "properties": {
+                    "cpuLimit": {
+                      "type": "string",
+                      "description": "CPU limit (e.g., \"0.5\", \"2\")"
+                    },
+                    "memoryLimit": {
+                      "type": "string",
+                      "description": "Memory limit (e.g., \"512m\", \"1g\")"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "networkMode": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "bridge",
+                    "host"
+                  ],
+                  "default": "bridge"
+                }
+              },
+              "additionalProperties": false
+            },
+            "v8Isolate": {
+              "type": "object",
+              "properties": {
+                "heapSizeMb": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "enableSnapshot": {
+                  "type": "boolean",
+                  "default": true
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "resourceLimits": {
+          "type": "object",
+          "properties": {
+            "maxMemory": {
+              "type": "integer",
+              "description": "Maximum memory allocation"
+            },
+            "maxCpu": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Maximum CPU usage percentage"
+            },
+            "timeout": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Maximum execution time"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

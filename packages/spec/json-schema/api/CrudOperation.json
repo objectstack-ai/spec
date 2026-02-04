@@ -1,7 +1,16 @@
 {
   "$ref": "#/definitions/CrudOperation",
   "definitions": {
-    "CrudOperation": {}
+    "CrudOperation": {
+      "type": "string",
+      "enum": [
+        "create",
+        "read",
+        "update",
+        "delete",
+        "list"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

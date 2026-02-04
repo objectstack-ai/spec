@@ -1,7 +1,16 @@
 {
   "$ref": "#/definitions/GetAnalyticsMetaRequest",
   "definitions": {
-    "GetAnalyticsMetaRequest": {}
+    "GetAnalyticsMetaRequest": {
+      "type": "object",
+      "properties": {
+        "cube": {
+          "type": "string",
+          "description": "Optional cube name to filter"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

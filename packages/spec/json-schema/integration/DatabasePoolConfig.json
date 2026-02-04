@@ -1,7 +1,53 @@
 {
   "$ref": "#/definitions/DatabasePoolConfig",
   "definitions": {
-    "DatabasePoolConfig": {}
+    "DatabasePoolConfig": {
+      "type": "object",
+      "properties": {
+        "min": {
+          "type": "number",
+          "minimum": 0,
+          "default": 2,
+          "description": "Minimum connections in pool"
+        },
+        "max": {
+          "type": "number",
+          "minimum": 1,
+          "default": 10,
+          "description": "Maximum connections in pool"
+        },
+        "idleTimeoutMs": {
+          "type": "number",
+          "minimum": 1000,
+          "default": 30000,
+          "description": "Idle connection timeout in ms"
+        },
+        "connectionTimeoutMs": {
+          "type": "number",
+          "minimum": 1000,
+          "default": 10000,
+          "description": "Connection establishment timeout in ms"
+        },
+        "acquireTimeoutMs": {
+          "type": "number",
+          "minimum": 1000,
+          "default": 30000,
+          "description": "Connection acquisition timeout in ms"
+        },
+        "evictionRunIntervalMs": {
+          "type": "number",
+          "minimum": 1000,
+          "default": 30000,
+          "description": "Connection eviction check interval in ms"
+        },
+        "testOnBorrow": {
+          "type": "boolean",
+          "default": true,
+          "description": "Test connection before use"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

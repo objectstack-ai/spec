@@ -1,7 +1,16 @@
 {
   "$ref": "#/definitions/TokenBudgetStrategy",
   "definitions": {
-    "TokenBudgetStrategy": {}
+    "TokenBudgetStrategy": {
+      "type": "string",
+      "enum": [
+        "fifo",
+        "importance",
+        "semantic",
+        "sliding_window",
+        "summary"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,19 @@
 {
   "$ref": "#/definitions/FieldReference",
   "definitions": {
-    "FieldReference": {}
+    "FieldReference": {
+      "type": "object",
+      "properties": {
+        "$field": {
+          "type": "string",
+          "description": "Field Reference/Column Name"
+        }
+      },
+      "required": [
+        "$field"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

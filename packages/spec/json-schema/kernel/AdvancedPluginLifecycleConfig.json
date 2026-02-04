@@ -1,7 +1,424 @@
 {
   "$ref": "#/definitions/AdvancedPluginLifecycleConfig",
   "definitions": {
-    "AdvancedPluginLifecycleConfig": {}
+    "AdvancedPluginLifecycleConfig": {
+      "type": "object",
+      "properties": {
+        "health": {
+          "type": "object",
+          "properties": {
+            "interval": {
+              "type": "integer",
+              "minimum": 1000,
+              "default": 30000,
+              "description": "How often to perform health checks (default: 30s)"
+            },
+            "timeout": {
+              "type": "integer",
+              "minimum": 100,
+              "default": 5000,
+              "description": "Maximum time to wait for health check response"
+            },
+            "failureThreshold": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 3,
+              "description": "Consecutive failures needed to mark unhealthy"
+            },
+            "successThreshold": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "description": "Consecutive successes needed to mark healthy"
+            },
+            "checkMethod": {
+              "type": "string",
+              "description": "Method name to call for health check"
+            },
+            "autoRestart": {
+              "type": "boolean",
+              "default": false,
+              "description": "Automatically restart plugin on health check failure"
+            },
+            "maxRestartAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 3,
+              "description": "Maximum restart attempts before giving up"
+            },
+            "restartBackoff": {
+              "type": "string",
+              "enum": [
+                "fixed",
+                "linear",
+                "exponential"
+              ],
+              "default": "exponential",
+              "description": "Backoff strategy for restart delays"
+            }
+          },
+          "additionalProperties": false
+        },
+        "hotReload": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "watchPatterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Glob patterns to watch for changes"
+            },
+            "debounceDelay": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 1000,
+              "description": "Wait time after change detection before reload"
+            },
+            "preserveState": {
+              "type": "boolean",
+              "default": true,
+              "description": "Keep plugin state across reloads"
+            },
+            "stateStrategy": {
+              "type": "string",
+              "enum": [
+                "memory",
+                "disk",
+                "distributed",
+                "none"
+              ],
+              "default": "memory",
+              "description": "How to preserve state during reload"
+            },
+            "distributedConfig": {
+              "type": "object",
+              "properties": {
+                "provider": {
+                  "type": "string",
+                  "enum": [
+                    "redis",
+                    "etcd",
+                    "custom"
+                  ],
+                  "description": "Distributed state backend provider"
+                },
+                "endpoints": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Backend connection endpoints"
+                },
+                "keyPrefix": {
+                  "type": "string",
+                  "description": "Prefix for all keys (e.g., \"plugin:my-plugin:\")"
+                },
+                "ttl": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "State expiration time in seconds"
+                },
+                "auth": {
+                  "type": "object",
+                  "properties": {
+                    "username": {
+                      "type": "string"
+                    },
+                    "password": {
+                      "type": "string"
+                    },
+                    "token": {
+                      "type": "string"
+                    },
+                    "certificate": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "replication": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "default": true
+                    },
+                    "minReplicas": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "default": 1
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "customConfig": {
+                  "type": "object",
+                  "additionalProperties": {},
+                  "description": "Provider-specific configuration"
+                }
+              },
+              "required": [
+                "provider"
+              ],
+              "additionalProperties": false,
+              "description": "Configuration for distributed state management"
+            },
+            "shutdownTimeout": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 30000,
+              "description": "Maximum time to wait for graceful shutdown"
+            },
+            "beforeReload": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Hook names to call before reload"
+            },
+            "afterReload": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Hook names to call after reload"
+            }
+          },
+          "additionalProperties": false
+        },
+        "degradation": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "fallbackMode": {
+              "type": "string",
+              "enum": [
+                "minimal",
+                "cached",
+                "readonly",
+                "offline",
+                "disabled"
+              ],
+              "default": "minimal"
+            },
+            "criticalDependencies": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Plugin IDs that are required for operation"
+            },
+            "optionalDependencies": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Plugin IDs that are nice to have but not required"
+            },
+            "degradedFeatures": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "feature": {
+                    "type": "string",
+                    "description": "Feature name"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "description": "Whether feature is available in degraded mode"
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "feature",
+                  "enabled"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "autoRecovery": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "retryInterval": {
+                  "type": "integer",
+                  "minimum": 1000,
+                  "default": 60000,
+                  "description": "Interval between recovery attempts (ms)"
+                },
+                "maxAttempts": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "default": 5,
+                  "description": "Maximum recovery attempts before giving up"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "updates": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "manual",
+                "automatic",
+                "scheduled",
+                "rolling"
+              ],
+              "default": "manual"
+            },
+            "autoUpdateConstraints": {
+              "type": "object",
+              "properties": {
+                "major": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Allow major version updates"
+                },
+                "minor": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Allow minor version updates"
+                },
+                "patch": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Allow patch version updates"
+                }
+              },
+              "additionalProperties": false
+            },
+            "schedule": {
+              "type": "object",
+              "properties": {
+                "cron": {
+                  "type": "string"
+                },
+                "timezone": {
+                  "type": "string",
+                  "default": "UTC"
+                },
+                "maintenanceWindow": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 60
+                }
+              },
+              "additionalProperties": false
+            },
+            "rollback": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "automatic": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "keepVersions": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 3
+                },
+                "timeout": {
+                  "type": "integer",
+                  "minimum": 1000,
+                  "default": 30000
+                }
+              },
+              "additionalProperties": false
+            },
+            "validation": {
+              "type": "object",
+              "properties": {
+                "checkCompatibility": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "runTests": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "testSuite": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "maxMemory": {
+              "type": "integer",
+              "description": "Maximum memory in bytes"
+            },
+            "maxCpu": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Maximum CPU percentage"
+            },
+            "maxConnections": {
+              "type": "integer",
+              "description": "Maximum concurrent connections"
+            },
+            "timeout": {
+              "type": "integer",
+              "description": "Operation timeout in milliseconds"
+            }
+          },
+          "additionalProperties": false
+        },
+        "observability": {
+          "type": "object",
+          "properties": {
+            "enableMetrics": {
+              "type": "boolean",
+              "default": true
+            },
+            "enableTracing": {
+              "type": "boolean",
+              "default": true
+            },
+            "enableProfiling": {
+              "type": "boolean",
+              "default": false
+            },
+            "metricsInterval": {
+              "type": "integer",
+              "minimum": 1000,
+              "default": 60000,
+              "description": "Metrics collection interval in ms"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

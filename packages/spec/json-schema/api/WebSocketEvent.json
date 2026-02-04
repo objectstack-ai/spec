@@ -1,7 +1,40 @@
 {
   "$ref": "#/definitions/WebSocketEvent",
   "definitions": {
-    "WebSocketEvent": {}
+    "WebSocketEvent": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "subscribe",
+            "unsubscribe",
+            "data-change",
+            "presence-update",
+            "cursor-update",
+            "error"
+          ],
+          "description": "Event type"
+        },
+        "channel": {
+          "type": "string",
+          "description": "Channel identifier (e.g., \"record.account.123\", \"user.456\")"
+        },
+        "payload": {
+          "description": "Event payload data"
+        },
+        "timestamp": {
+          "type": "number",
+          "description": "Unix timestamp in milliseconds"
+        }
+      },
+      "required": [
+        "type",
+        "channel",
+        "timestamp"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,16 @@
 {
   "$ref": "#/definitions/FeatureStrategy",
   "definitions": {
-    "FeatureStrategy": {}
+    "FeatureStrategy": {
+      "type": "string",
+      "enum": [
+        "boolean",
+        "percentage",
+        "user_list",
+        "group",
+        "custom"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

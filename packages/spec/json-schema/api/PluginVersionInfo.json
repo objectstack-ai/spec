@@ -1,7 +1,35 @@
 {
   "$ref": "#/definitions/PluginVersionInfo",
   "definitions": {
-    "PluginVersionInfo": {}
+    "PluginVersionInfo": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "publishedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "deprecated": {
+          "type": "boolean",
+          "default": false
+        },
+        "yanked": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this version was removed"
+        },
+        "changelog": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "publishedAt"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

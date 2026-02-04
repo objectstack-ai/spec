@@ -1,0 +1,33 @@
+{
+  "$ref": "#/definitions/InstallPluginRequest",
+  "definitions": {
+    "InstallPluginRequest": {
+      "type": "object",
+      "properties": {
+        "spaceId": {
+          "type": "string",
+          "description": "Target Space ID"
+        },
+        "pluginId": {
+          "type": "string",
+          "description": "Plugin Package ID"
+        },
+        "version": {
+          "type": "string",
+          "description": "Version requirement"
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Plugin configuration"
+        }
+      },
+      "required": [
+        "spaceId",
+        "pluginId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

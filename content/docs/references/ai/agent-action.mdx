@@ -23,69 +23,266 @@ const result = AgentActionSchema.parse(data);
 
 ## AgentAction
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Unique action ID |
+| **type** | `Enum<'navigate_to_object_list' \| 'navigate_to_object_form' \| 'navigate_to_record_detail' \| 'navigate_to_dashboard' \| 'navigate_to_report' \| 'navigate_to_app' \| 'navigate_back' \| 'navigate_home' \| 'open_tab' \| 'close_tab' \| 'change_view_mode' \| 'apply_filter' \| 'clear_filter' \| 'apply_sort' \| 'change_grouping' \| 'show_columns' \| 'expand_record' \| 'collapse_record' \| 'refresh_view' \| 'export_data' \| 'create_record' \| 'update_record' \| 'delete_record' \| 'fill_field' \| 'clear_field' \| 'submit_form' \| 'cancel_form' \| 'validate_form' \| 'save_draft' \| 'select_record' \| 'deselect_record' \| 'select_all' \| 'deselect_all' \| 'bulk_update' \| 'bulk_delete' \| 'bulk_export' \| 'trigger_flow' \| 'trigger_approval' \| 'trigger_webhook' \| 'run_report' \| 'send_email' \| 'send_notification' \| 'schedule_task' \| 'open_modal' \| 'close_modal' \| 'open_sidebar' \| 'close_sidebar' \| 'show_notification' \| 'hide_notification' \| 'open_dropdown' \| 'close_dropdown' \| 'toggle_section'>` | ✅ | Type of UI action to perform |
+| **params** | `object \| object \| object \| object \| object \| object` | ✅ | Action-specific parameters |
+| **requireConfirmation** | `boolean` | optional | Require user confirmation before executing |
+| **confirmationMessage** | `string` | optional | Message to show in confirmation dialog |
+| **successMessage** | `string` | optional | Message to show on success |
+| **onError** | `Enum<'retry' \| 'skip' \| 'abort'>` | optional | Error handling strategy |
+| **metadata** | `object` | optional |  |
+
 ---
 
 ## AgentActionResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **actionId** | `string` | ✅ | ID of the executed action |
+| **status** | `Enum<'success' \| 'error' \| 'cancelled' \| 'pending'>` | ✅ | Execution status |
+| **data** | `any` | optional | Action result data |
+| **error** | `object` | optional | Error details if status is "error" |
+| **metadata** | `object` | optional |  |
 
 ---
 
 ## AgentActionSequence
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Unique sequence ID |
+| **actions** | `object[]` | ✅ | Ordered list of actions |
+| **mode** | `Enum<'sequential' \| 'parallel'>` | optional | Execution mode |
+| **stopOnError** | `boolean` | optional | Stop sequence on first error |
+| **atomic** | `boolean` | optional | Transaction mode (all-or-nothing) |
+| **startTime** | `string` | optional | Execution start time (ISO 8601) |
+| **endTime** | `string` | optional | Execution end time (ISO 8601) |
+| **metadata** | `object` | optional |  |
+
 ---
 
 ## AgentActionSequenceResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **sequenceId** | `string` | ✅ | ID of the executed sequence |
+| **status** | `Enum<'success' \| 'partial_success' \| 'error' \| 'cancelled'>` | ✅ | Overall execution status |
+| **results** | `object[]` | ✅ | Results for each action |
+| **summary** | `object` | ✅ |  |
+| **metadata** | `object` | optional |  |
 
 ---
 
 ## ComponentActionParams
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **componentId** | `string` | optional | Component ID |
+| **modalConfig** | `object` | optional |  |
+| **notificationConfig** | `object` | optional |  |
+| **sidebarConfig** | `object` | optional |  |
+
 ---
 
 ## ComponentActionType
+
+### Allowed Values
+
+* `open_modal`
+* `close_modal`
+* `open_sidebar`
+* `close_sidebar`
+* `show_notification`
+* `hide_notification`
+* `open_dropdown`
+* `close_dropdown`
+* `toggle_section`
 
 ---
 
 ## ComponentAgentAction
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Unique action ID |
+| **type** | `Enum<'open_modal' \| 'close_modal' \| 'open_sidebar' \| 'close_sidebar' \| 'show_notification' \| 'hide_notification' \| 'open_dropdown' \| 'close_dropdown' \| 'toggle_section'>` | ✅ |  |
+| **params** | `object` | ✅ |  |
+| **requireConfirmation** | `boolean` | optional | Require user confirmation before executing |
+| **confirmationMessage** | `string` | optional | Message to show in confirmation dialog |
+| **successMessage** | `string` | optional | Message to show on success |
+| **onError** | `Enum<'retry' \| 'skip' \| 'abort'>` | optional | Error handling strategy |
+| **metadata** | `object` | optional |  |
+
 ---
 
 ## DataActionParams
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **recordIds** | `string[]` | optional | Record IDs to select/operate on |
+| **filters** | `Record<string, any>` | optional | Filter for bulk operations |
+| **updateData** | `Record<string, any>` | optional | Data for bulk update |
+| **exportFormat** | `Enum<'csv' \| 'xlsx' \| 'pdf' \| 'json'>` | optional |  |
 
 ---
 
 ## DataActionType
 
+### Allowed Values
+
+* `select_record`
+* `deselect_record`
+* `select_all`
+* `deselect_all`
+* `bulk_update`
+* `bulk_delete`
+* `bulk_export`
+
 ---
 
 ## DataAgentAction
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Unique action ID |
+| **type** | `Enum<'select_record' \| 'deselect_record' \| 'select_all' \| 'deselect_all' \| 'bulk_update' \| 'bulk_delete' \| 'bulk_export'>` | ✅ |  |
+| **params** | `object` | ✅ |  |
+| **requireConfirmation** | `boolean` | optional | Require user confirmation before executing |
+| **confirmationMessage** | `string` | optional | Message to show in confirmation dialog |
+| **successMessage** | `string` | optional | Message to show on success |
+| **onError** | `Enum<'retry' \| 'skip' \| 'abort'>` | optional | Error handling strategy |
+| **metadata** | `object` | optional |  |
 
 ---
 
 ## FormActionParams
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | optional | Object name |
+| **recordId** | `string` | optional | Record ID (for edit/delete) |
+| **fieldValues** | `Record<string, any>` | optional | Field name-value pairs |
+| **fieldName** | `string` | optional | Specific field to fill/clear |
+| **fieldValue** | `any` | optional | Value to set |
+| **validateOnly** | `boolean` | optional | Validate without saving |
+
 ---
 
 ## FormActionType
+
+### Allowed Values
+
+* `create_record`
+* `update_record`
+* `delete_record`
+* `fill_field`
+* `clear_field`
+* `submit_form`
+* `cancel_form`
+* `validate_form`
+* `save_draft`
 
 ---
 
 ## FormAgentAction
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Unique action ID |
+| **type** | `Enum<'create_record' \| 'update_record' \| 'delete_record' \| 'fill_field' \| 'clear_field' \| 'submit_form' \| 'cancel_form' \| 'validate_form' \| 'save_draft'>` | ✅ |  |
+| **params** | `object` | ✅ |  |
+| **requireConfirmation** | `boolean` | optional | Require user confirmation before executing |
+| **confirmationMessage** | `string` | optional | Message to show in confirmation dialog |
+| **successMessage** | `string` | optional | Message to show on success |
+| **onError** | `Enum<'retry' \| 'skip' \| 'abort'>` | optional | Error handling strategy |
+| **metadata** | `object` | optional |  |
+
 ---
 
 ## IntentActionMapping
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **intent** | `string` | ✅ | Intent pattern (e.g., "open_new_record_form") |
+| **examples** | `string[]` | optional | Example user queries |
+| **actionTemplate** | `object` | ✅ | Action to execute |
+| **paramExtraction** | `Record<string, object>` | optional | Rules for extracting parameters from user input |
+| **minConfidence** | `number` | optional | Minimum confidence to execute |
 
 ---
 
 ## NavigationActionParams
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | optional | Object name (for object-specific navigation) |
+| **recordId** | `string` | optional | Record ID (for detail page) |
+| **viewType** | `Enum<'list' \| 'form' \| 'detail' \| 'kanban' \| 'calendar' \| 'gantt'>` | optional |  |
+| **dashboardId** | `string` | optional | Dashboard ID |
+| **reportId** | `string` | optional | Report ID |
+| **appName** | `string` | optional | App name |
+| **mode** | `Enum<'new' \| 'edit' \| 'view'>` | optional | Form mode |
+| **openInNewTab** | `boolean` | optional | Open in new tab |
+
 ---
 
 ## NavigationActionType
 
+### Allowed Values
+
+* `navigate_to_object_list`
+* `navigate_to_object_form`
+* `navigate_to_record_detail`
+* `navigate_to_dashboard`
+* `navigate_to_report`
+* `navigate_to_app`
+* `navigate_back`
+* `navigate_home`
+* `open_tab`
+* `close_tab`
+
 ---
 
 ## NavigationAgentAction
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Unique action ID |
+| **type** | `Enum<'navigate_to_object_list' \| 'navigate_to_object_form' \| 'navigate_to_record_detail' \| 'navigate_to_dashboard' \| 'navigate_to_report' \| 'navigate_to_app' \| 'navigate_back' \| 'navigate_home' \| 'open_tab' \| 'close_tab'>` | ✅ |  |
+| **params** | `object` | ✅ |  |
+| **requireConfirmation** | `boolean` | optional | Require user confirmation before executing |
+| **confirmationMessage** | `string` | optional | Message to show in confirmation dialog |
+| **successMessage** | `string` | optional | Message to show on success |
+| **onError** | `Enum<'retry' \| 'skip' \| 'abort'>` | optional | Error handling strategy |
+| **metadata** | `object` | optional |  |
 
 ---
 
@@ -95,27 +292,159 @@ const result = AgentActionSchema.parse(data);
 
 ## UIActionType
 
+### Allowed Values
+
+* `navigate_to_object_list`
+* `navigate_to_object_form`
+* `navigate_to_record_detail`
+* `navigate_to_dashboard`
+* `navigate_to_report`
+* `navigate_to_app`
+* `navigate_back`
+* `navigate_home`
+* `open_tab`
+* `close_tab`
+* `change_view_mode`
+* `apply_filter`
+* `clear_filter`
+* `apply_sort`
+* `change_grouping`
+* `show_columns`
+* `expand_record`
+* `collapse_record`
+* `refresh_view`
+* `export_data`
+* `create_record`
+* `update_record`
+* `delete_record`
+* `fill_field`
+* `clear_field`
+* `submit_form`
+* `cancel_form`
+* `validate_form`
+* `save_draft`
+* `select_record`
+* `deselect_record`
+* `select_all`
+* `deselect_all`
+* `bulk_update`
+* `bulk_delete`
+* `bulk_export`
+* `trigger_flow`
+* `trigger_approval`
+* `trigger_webhook`
+* `run_report`
+* `send_email`
+* `send_notification`
+* `schedule_task`
+* `open_modal`
+* `close_modal`
+* `open_sidebar`
+* `close_sidebar`
+* `show_notification`
+* `hide_notification`
+* `open_dropdown`
+* `close_dropdown`
+* `toggle_section`
+
 ---
 
 ## ViewActionParams
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **viewMode** | `Enum<'list' \| 'kanban' \| 'calendar' \| 'gantt' \| 'pivot'>` | optional |  |
+| **filters** | `Record<string, any>` | optional | Filter conditions |
+| **sort** | `object[]` | optional |  |
+| **groupBy** | `string` | optional | Field to group by |
+| **columns** | `string[]` | optional | Columns to show/hide |
+| **recordId** | `string` | optional | Record to expand/collapse |
+| **exportFormat** | `Enum<'csv' \| 'xlsx' \| 'pdf' \| 'json'>` | optional |  |
 
 ---
 
 ## ViewActionType
 
+### Allowed Values
+
+* `change_view_mode`
+* `apply_filter`
+* `clear_filter`
+* `apply_sort`
+* `change_grouping`
+* `show_columns`
+* `expand_record`
+* `collapse_record`
+* `refresh_view`
+* `export_data`
+
 ---
 
 ## ViewAgentAction
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Unique action ID |
+| **type** | `Enum<'change_view_mode' \| 'apply_filter' \| 'clear_filter' \| 'apply_sort' \| 'change_grouping' \| 'show_columns' \| 'expand_record' \| 'collapse_record' \| 'refresh_view' \| 'export_data'>` | ✅ |  |
+| **params** | `object` | ✅ |  |
+| **requireConfirmation** | `boolean` | optional | Require user confirmation before executing |
+| **confirmationMessage** | `string` | optional | Message to show in confirmation dialog |
+| **successMessage** | `string` | optional | Message to show on success |
+| **onError** | `Enum<'retry' \| 'skip' \| 'abort'>` | optional | Error handling strategy |
+| **metadata** | `object` | optional |  |
 
 ---
 
 ## WorkflowActionParams
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **flowName** | `string` | optional | Flow/workflow name |
+| **approvalProcessName** | `string` | optional | Approval process name |
+| **webhookUrl** | `string` | optional | Webhook URL |
+| **reportName** | `string` | optional | Report name |
+| **emailTemplate** | `string` | optional | Email template |
+| **recipients** | `string[]` | optional | Email recipients |
+| **subject** | `string` | optional | Email subject |
+| **message** | `string` | optional | Notification/email message |
+| **taskData** | `Record<string, any>` | optional | Task creation data |
+| **scheduleTime** | `string` | optional | Schedule time (ISO 8601) |
+| **contextData** | `Record<string, any>` | optional | Additional context data |
+
 ---
 
 ## WorkflowActionType
 
+### Allowed Values
+
+* `trigger_flow`
+* `trigger_approval`
+* `trigger_webhook`
+* `run_report`
+* `send_email`
+* `send_notification`
+* `schedule_task`
+
 ---
 
 ## WorkflowAgentAction
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Unique action ID |
+| **type** | `Enum<'trigger_flow' \| 'trigger_approval' \| 'trigger_webhook' \| 'run_report' \| 'send_email' \| 'send_notification' \| 'schedule_task'>` | ✅ |  |
+| **params** | `object` | ✅ |  |
+| **requireConfirmation** | `boolean` | optional | Require user confirmation before executing |
+| **confirmationMessage** | `string` | optional | Message to show in confirmation dialog |
+| **successMessage** | `string` | optional | Message to show on success |
+| **onError** | `Enum<'retry' \| 'skip' \| 'abort'>` | optional | Error handling strategy |
+| **metadata** | `object` | optional |  |
 

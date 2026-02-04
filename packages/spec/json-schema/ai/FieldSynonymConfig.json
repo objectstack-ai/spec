@@ -1,7 +1,39 @@
 {
   "$ref": "#/definitions/FieldSynonymConfig",
   "definitions": {
-    "FieldSynonymConfig": {}
+    "FieldSynonymConfig": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "Object name"
+        },
+        "field": {
+          "type": "string",
+          "description": "Field name"
+        },
+        "synonyms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Natural language synonyms"
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Example queries using synonyms"
+        }
+      },
+      "required": [
+        "object",
+        "field",
+        "synonyms"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

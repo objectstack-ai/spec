@@ -1,7 +1,19 @@
 {
   "$ref": "#/definitions/TimeUpdateInterval",
   "definitions": {
-    "TimeUpdateInterval": {}
+    "TimeUpdateInterval": {
+      "type": "string",
+      "enum": [
+        "second",
+        "minute",
+        "hour",
+        "day",
+        "week",
+        "month",
+        "quarter",
+        "year"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

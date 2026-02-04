@@ -1,7 +1,26 @@
 {
   "$ref": "#/definitions/ConnectorCategory",
   "definitions": {
-    "ConnectorCategory": {}
+    "ConnectorCategory": {
+      "type": "string",
+      "enum": [
+        "crm",
+        "payment",
+        "communication",
+        "storage",
+        "analytics",
+        "database",
+        "marketing",
+        "accounting",
+        "hr",
+        "productivity",
+        "ecommerce",
+        "support",
+        "devtools",
+        "social",
+        "other"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

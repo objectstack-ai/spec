@@ -1,7 +1,72 @@
 {
   "$ref": "#/definitions/ProducerConfig",
   "definitions": {
-    "ProducerConfig": {}
+    "ProducerConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable producer"
+        },
+        "acks": {
+          "type": "string",
+          "enum": [
+            "0",
+            "1",
+            "all"
+          ],
+          "default": "all",
+          "description": "Acknowledgment level"
+        },
+        "compressionType": {
+          "type": "string",
+          "enum": [
+            "none",
+            "gzip",
+            "snappy",
+            "lz4",
+            "zstd"
+          ],
+          "default": "none",
+          "description": "Compression type"
+        },
+        "batchSize": {
+          "type": "number",
+          "minimum": 1,
+          "default": 16384,
+          "description": "Batch size in bytes"
+        },
+        "lingerMs": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0,
+          "description": "Linger time in ms"
+        },
+        "maxInFlightRequests": {
+          "type": "number",
+          "minimum": 1,
+          "default": 5,
+          "description": "Max in-flight requests"
+        },
+        "idempotence": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable idempotent producer"
+        },
+        "transactional": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable transactional producer"
+        },
+        "transactionTimeoutMs": {
+          "type": "number",
+          "minimum": 1000,
+          "description": "Transaction timeout in ms"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

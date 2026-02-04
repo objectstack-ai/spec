@@ -1,7 +1,87 @@
 {
   "$ref": "#/definitions/PluginSandboxing",
   "definitions": {
-    "PluginSandboxing": {}
+    "PluginSandboxing": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "isolationLevel": {
+          "type": "string",
+          "enum": [
+            "none",
+            "process",
+            "vm",
+            "iframe",
+            "web-worker"
+          ],
+          "default": "none"
+        },
+        "allowedCapabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of allowed capability IDs"
+        },
+        "resourceQuotas": {
+          "type": "object",
+          "properties": {
+            "maxMemoryMB": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "maxCpuTimeMs": {
+              "type": "integer",
+              "minimum": 100
+            },
+            "maxFileDescriptors": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "maxNetworkKBps": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "permissions": {
+          "type": "object",
+          "properties": {
+            "allowedAPIs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "allowedPaths": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "allowedEndpoints": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "allowedEnvVars": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "description": "Plugin sandboxing configuration"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

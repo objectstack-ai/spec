@@ -1,7 +1,140 @@
 {
   "$ref": "#/definitions/RAGQueryResponse",
   "definitions": {
-    "RAGQueryResponse": {}
+    "RAGQueryResponse": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string"
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "content": {
+                "type": "string"
+              },
+              "score": {
+                "type": "number"
+              },
+              "metadata": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "string",
+                    "description": "Document source (file path, URL, etc.)"
+                  },
+                  "sourceType": {
+                    "type": "string",
+                    "enum": [
+                      "file",
+                      "url",
+                      "api",
+                      "database",
+                      "custom"
+                    ]
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "author": {
+                    "type": "string",
+                    "description": "Document author"
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "ISO timestamp"
+                  },
+                  "updatedAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "ISO timestamp"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "category": {
+                    "type": "string"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "Document language (ISO 639-1 code)"
+                  },
+                  "custom": {
+                    "type": "object",
+                    "additionalProperties": {},
+                    "description": "Custom metadata fields"
+                  }
+                },
+                "required": [
+                  "source"
+                ],
+                "additionalProperties": false
+              },
+              "chunkId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "content",
+              "score"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "context": {
+          "type": "string",
+          "description": "Assembled context for LLM"
+        },
+        "tokens": {
+          "type": "object",
+          "properties": {
+            "prompt": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Input tokens"
+            },
+            "completion": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Output tokens"
+            },
+            "total": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Total tokens"
+            }
+          },
+          "required": [
+            "prompt",
+            "completion",
+            "total"
+          ],
+          "additionalProperties": false,
+          "description": "Token usage for this query"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Cost for this query in USD"
+        },
+        "retrievalTime": {
+          "type": "number",
+          "description": "Retrieval time in milliseconds"
+        }
+      },
+      "required": [
+        "query",
+        "results",
+        "context"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

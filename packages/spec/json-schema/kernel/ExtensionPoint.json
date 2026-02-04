@@ -1,7 +1,67 @@
 {
   "$ref": "#/definitions/ExtensionPoint",
   "definitions": {
-    "ExtensionPoint": {}
+    "ExtensionPoint": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^([a-z][a-z0-9]*\\.)+extension\\.[a-z][a-z0-9._]+$",
+          "description": "Unique extension point identifier"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "action",
+            "hook",
+            "widget",
+            "provider",
+            "transformer",
+            "validator",
+            "decorator"
+          ]
+        },
+        "contract": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "string",
+              "description": "Input type/schema"
+            },
+            "output": {
+              "type": "string",
+              "description": "Output type/schema"
+            },
+            "signature": {
+              "type": "string",
+              "description": "Function signature if applicable"
+            }
+          },
+          "additionalProperties": false
+        },
+        "cardinality": {
+          "type": "string",
+          "enum": [
+            "single",
+            "multiple"
+          ],
+          "default": "multiple",
+          "description": "Whether multiple extensions can register to this point"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "type"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

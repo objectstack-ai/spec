@@ -1,7 +1,151 @@
 {
   "$ref": "#/definitions/GraphQLPersistedQuery",
   "definitions": {
-    "GraphQLPersistedQuery": {}
+    "GraphQLPersistedQuery": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable persisted queries"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "optional",
+            "required"
+          ],
+          "default": "optional",
+          "description": "Persisted query mode (optional: allow both, required: only persisted)"
+        },
+        "store": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "memory",
+                "redis",
+                "database",
+                "file"
+              ],
+              "default": "memory",
+              "description": "Query store type"
+            },
+            "connection": {
+              "type": "string",
+              "description": "Store connection string or path"
+            },
+            "ttl": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "TTL in seconds for stored queries"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Query store configuration"
+        },
+        "apq": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable Automatic Persisted Queries"
+            },
+            "hashAlgorithm": {
+              "type": "string",
+              "enum": [
+                "sha256",
+                "sha1",
+                "md5"
+              ],
+              "default": "sha256",
+              "description": "Hash algorithm for query IDs"
+            },
+            "cache": {
+              "type": "object",
+              "properties": {
+                "ttl": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "default": 3600,
+                  "description": "Cache TTL in seconds"
+                },
+                "maxSize": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Maximum number of cached queries"
+                }
+              },
+              "additionalProperties": false,
+              "description": "APQ cache configuration"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Automatic Persisted Queries configuration"
+        },
+        "allowlist": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false,
+              "description": "Enable query allow list (reject queries not in list)"
+            },
+            "queries": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Query ID or hash"
+                  },
+                  "operation": {
+                    "type": "string",
+                    "description": "Operation name"
+                  },
+                  "query": {
+                    "type": "string",
+                    "description": "Query string"
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Allowed queries"
+            },
+            "source": {
+              "type": "string",
+              "description": "External allow list source (file path or URL)"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Query allow list configuration"
+        },
+        "security": {
+          "type": "object",
+          "properties": {
+            "maxQuerySize": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Maximum query string size in bytes"
+            },
+            "rejectIntrospection": {
+              "type": "boolean",
+              "default": false,
+              "description": "Reject introspection queries"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Security configuration"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

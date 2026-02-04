@@ -1,7 +1,16 @@
 {
   "$ref": "#/definitions/SubscriptionStatus",
   "definitions": {
-    "SubscriptionStatus": {}
+    "SubscriptionStatus": {
+      "type": "string",
+      "enum": [
+        "active",
+        "past_due",
+        "canceled",
+        "trialing",
+        "incomplete"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

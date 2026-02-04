@@ -23,9 +23,30 @@ const result = AggregationFunctionSchema.parse(data);
 
 ## AggregationFunction
 
+### Allowed Values
+
+* `count`
+* `sum`
+* `avg`
+* `min`
+* `max`
+* `count_distinct`
+* `array_agg`
+* `string_agg`
+
 ---
 
 ## AggregationNode
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **function** | `Enum<'count' \| 'sum' \| 'avg' \| 'min' \| 'max' \| 'count_distinct' \| 'array_agg' \| 'string_agg'>` | ✅ | Aggregation function |
+| **field** | `string` | optional | Field to aggregate (optional for COUNT(*)) |
+| **alias** | `string` | ✅ | Result column alias |
+| **distinct** | `boolean` | optional | Apply DISTINCT before aggregation |
+| **filter** | `any` | optional | Filter/Condition to apply to the aggregation (FILTER WHERE clause) |
 
 ---
 
@@ -35,35 +56,132 @@ const result = AggregationFunctionSchema.parse(data);
 
 ## FullTextSearch
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **query** | `string` | ✅ | Search query text |
+| **fields** | `string[]` | optional | Fields to search in (if not specified, searches all text fields) |
+| **fuzzy** | `boolean` | optional | Enable fuzzy matching (tolerates typos) |
+| **operator** | `Enum<'and' \| 'or'>` | optional | Logical operator between terms |
+| **boost** | `Record<string, number>` | optional | Field-specific relevance boosting (field name -> boost factor) |
+| **minScore** | `number` | optional | Minimum relevance score threshold |
+| **language** | `string` | optional | Language for text analysis (e.g., "en", "zh", "es") |
+| **highlight** | `boolean` | optional | Enable search result highlighting |
+
 ---
 
 ## JoinNode
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'inner' \| 'left' \| 'right' \| 'full'>` | ✅ | Join type |
+| **strategy** | `Enum<'auto' \| 'database' \| 'hash' \| 'loop'>` | optional | Execution strategy hint |
+| **object** | `string` | ✅ | Object/table to join |
+| **alias** | `string` | optional | Table alias |
+| **on** | `any` | ✅ | Join condition |
+| **subquery** | `object` | optional | Subquery instead of object |
 
 ---
 
 ## JoinStrategy
 
+### Allowed Values
+
+* `auto`
+* `database`
+* `hash`
+* `loop`
+
 ---
 
 ## JoinType
+
+### Allowed Values
+
+* `inner`
+* `left`
+* `right`
+* `full`
 
 ---
 
 ## Query
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (e.g. account) |
+| **fields** | `string \| object[]` | optional | Fields to retrieve |
+| **where** | `any` | optional | Filtering criteria (WHERE) |
+| **search** | `object` | optional | Full-text search configuration ($search parameter) |
+| **orderBy** | `object[]` | optional | Sorting instructions (ORDER BY) |
+| **limit** | `number` | optional | Max records to return (LIMIT) |
+| **offset** | `number` | optional | Records to skip (OFFSET) |
+| **cursor** | `Record<string, any>` | optional | Cursor for keyset pagination |
+| **joins** | `object[]` | optional | Explicit Table Joins |
+| **aggregations** | `object[]` | optional | Aggregation functions |
+| **groupBy** | `string[]` | optional | GROUP BY fields |
+| **having** | `any` | optional | HAVING clause for aggregation filtering |
+| **windowFunctions** | `object[]` | optional | Window functions with OVER clause |
+| **distinct** | `boolean` | optional | SELECT DISTINCT flag |
+
 ---
 
 ## SortNode
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **field** | `string` | ✅ |  |
+| **order** | `Enum<'asc' \| 'desc'>` | optional |  |
 
 ---
 
 ## WindowFunction
 
+### Allowed Values
+
+* `row_number`
+* `rank`
+* `dense_rank`
+* `percent_rank`
+* `lag`
+* `lead`
+* `first_value`
+* `last_value`
+* `sum`
+* `avg`
+* `count`
+* `min`
+* `max`
+
 ---
 
 ## WindowFunctionNode
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **function** | `Enum<'row_number' \| 'rank' \| 'dense_rank' \| 'percent_rank' \| 'lag' \| 'lead' \| 'first_value' \| 'last_value' \| 'sum' \| 'avg' \| 'count' \| 'min' \| 'max'>` | ✅ | Window function name |
+| **field** | `string` | optional | Field to operate on (for aggregate window functions) |
+| **alias** | `string` | ✅ | Result column alias |
+| **over** | `object` | ✅ | Window specification (OVER clause) |
+
 ---
 
 ## WindowSpec
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **partitionBy** | `string[]` | optional | PARTITION BY fields |
+| **orderBy** | `object[]` | optional | ORDER BY specification |
+| **frame** | `object` | optional | Window frame specification |
 

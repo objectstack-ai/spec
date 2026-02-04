@@ -1,7 +1,53 @@
 {
   "$ref": "#/definitions/AuditEventType",
   "definitions": {
-    "AuditEventType": {}
+    "AuditEventType": {
+      "type": "string",
+      "enum": [
+        "data.create",
+        "data.read",
+        "data.update",
+        "data.delete",
+        "data.export",
+        "data.import",
+        "data.bulk_update",
+        "data.bulk_delete",
+        "auth.login",
+        "auth.login_failed",
+        "auth.logout",
+        "auth.session_created",
+        "auth.session_expired",
+        "auth.password_reset",
+        "auth.password_changed",
+        "auth.email_verified",
+        "auth.mfa_enabled",
+        "auth.mfa_disabled",
+        "auth.account_locked",
+        "auth.account_unlocked",
+        "authz.permission_granted",
+        "authz.permission_revoked",
+        "authz.role_assigned",
+        "authz.role_removed",
+        "authz.role_created",
+        "authz.role_updated",
+        "authz.role_deleted",
+        "authz.policy_created",
+        "authz.policy_updated",
+        "authz.policy_deleted",
+        "system.config_changed",
+        "system.plugin_installed",
+        "system.plugin_uninstalled",
+        "system.backup_created",
+        "system.backup_restored",
+        "system.integration_added",
+        "system.integration_removed",
+        "security.access_denied",
+        "security.suspicious_activity",
+        "security.data_breach",
+        "security.api_key_created",
+        "security.api_key_revoked"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

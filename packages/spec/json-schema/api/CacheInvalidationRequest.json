@@ -1,7 +1,43 @@
 {
   "$ref": "#/definitions/CacheInvalidationRequest",
   "definitions": {
-    "CacheInvalidationRequest": {}
+    "CacheInvalidationRequest": {
+      "type": "object",
+      "properties": {
+        "target": {
+          "type": "string",
+          "enum": [
+            "all",
+            "object",
+            "field",
+            "permission",
+            "layout",
+            "custom"
+          ],
+          "description": "What to invalidate"
+        },
+        "identifiers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Specific resources to invalidate (e.g., object names)"
+        },
+        "cascade": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, invalidate dependent resources"
+        },
+        "pattern": {
+          "type": "string",
+          "description": "Pattern for custom invalidation (supports wildcards)"
+        }
+      },
+      "required": [
+        "target"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

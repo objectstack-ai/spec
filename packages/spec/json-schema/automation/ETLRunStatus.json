@@ -1,7 +1,17 @@
 {
   "$ref": "#/definitions/ETLRunStatus",
   "definitions": {
-    "ETLRunStatus": {}
+    "ETLRunStatus": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "running",
+        "succeeded",
+        "failed",
+        "cancelled",
+        "timeout"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

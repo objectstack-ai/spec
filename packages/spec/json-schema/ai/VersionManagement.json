@@ -1,7 +1,58 @@
 {
   "$ref": "#/definitions/VersionManagement",
   "definitions": {
-    "VersionManagement": {}
+    "VersionManagement": {
+      "type": "object",
+      "properties": {
+        "scheme": {
+          "type": "string",
+          "enum": [
+            "semver",
+            "calver",
+            "custom"
+          ],
+          "default": "semver",
+          "description": "Versioning scheme"
+        },
+        "autoIncrement": {
+          "type": "string",
+          "enum": [
+            "major",
+            "minor",
+            "patch",
+            "none"
+          ],
+          "default": "patch",
+          "description": "Auto-increment strategy"
+        },
+        "prefix": {
+          "type": "string",
+          "default": "v",
+          "description": "Version tag prefix"
+        },
+        "generateChangelog": {
+          "type": "boolean",
+          "default": true,
+          "description": "Generate changelog automatically"
+        },
+        "changelogFormat": {
+          "type": "string",
+          "enum": [
+            "conventional",
+            "keepachangelog",
+            "custom"
+          ],
+          "default": "conventional",
+          "description": "Changelog format"
+        },
+        "tagReleases": {
+          "type": "boolean",
+          "default": true,
+          "description": "Create Git tags for releases"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

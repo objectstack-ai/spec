@@ -1,7 +1,80 @@
 {
   "$ref": "#/definitions/PluginHotReload",
   "definitions": {
-    "PluginHotReload": {}
+    "PluginHotReload": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "strategy": {
+          "type": "string",
+          "enum": [
+            "full",
+            "partial",
+            "state-preserve"
+          ],
+          "default": "full"
+        },
+        "watchPatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Glob patterns for files to watch"
+        },
+        "ignorePatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Glob patterns for files to ignore"
+        },
+        "debounceMs": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 300
+        },
+        "preserveState": {
+          "type": "boolean",
+          "default": false
+        },
+        "stateSerialization": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "handler": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "hooks": {
+          "type": "object",
+          "properties": {
+            "beforeReload": {
+              "type": "string",
+              "description": "Function to call before reload"
+            },
+            "afterReload": {
+              "type": "string",
+              "description": "Function to call after reload"
+            },
+            "onError": {
+              "type": "string",
+              "description": "Function to call on reload error"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "description": "Plugin hot reload configuration"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

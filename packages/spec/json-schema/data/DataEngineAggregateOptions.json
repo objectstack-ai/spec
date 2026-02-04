@@ -1,7 +1,80 @@
 {
   "$ref": "#/definitions/DataEngineAggregateOptions",
   "definitions": {
-    "DataEngineAggregateOptions": {}
+    "DataEngineAggregateOptions": {
+      "type": "object",
+      "properties": {
+        "filter": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {}
+            },
+            {
+              "allOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": {}
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "$and": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "$or": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "$not": {}
+                  }
+                }
+              ]
+            }
+          ],
+          "description": "Data Engine query filter conditions"
+        },
+        "groupBy": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "aggregations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string",
+                "enum": [
+                  "count",
+                  "sum",
+                  "avg",
+                  "min",
+                  "max",
+                  "count_distinct"
+                ]
+              },
+              "alias": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "field",
+              "method"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false,
+      "description": "Options for DataEngine.aggregate operations"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,153 @@
 {
   "$ref": "#/definitions/ComponentAgentAction",
   "definitions": {
-    "ComponentAgentAction": {}
+    "ComponentAgentAction": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique action ID"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "open_modal",
+            "close_modal",
+            "open_sidebar",
+            "close_sidebar",
+            "show_notification",
+            "hide_notification",
+            "open_dropdown",
+            "close_dropdown",
+            "toggle_section"
+          ]
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "componentId": {
+              "type": "string",
+              "description": "Component ID"
+            },
+            "modalConfig": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "content": {},
+                "size": {
+                  "type": "string",
+                  "enum": [
+                    "small",
+                    "medium",
+                    "large",
+                    "fullscreen"
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            "notificationConfig": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "info",
+                    "success",
+                    "warning",
+                    "error"
+                  ]
+                },
+                "message": {
+                  "type": "string"
+                },
+                "duration": {
+                  "type": "number",
+                  "description": "Duration in ms"
+                }
+              },
+              "required": [
+                "message"
+              ],
+              "additionalProperties": false
+            },
+            "sidebarConfig": {
+              "type": "object",
+              "properties": {
+                "position": {
+                  "type": "string",
+                  "enum": [
+                    "left",
+                    "right"
+                  ]
+                },
+                "width": {
+                  "type": "string"
+                },
+                "content": {}
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "requireConfirmation": {
+          "type": "boolean",
+          "default": false,
+          "description": "Require user confirmation before executing"
+        },
+        "confirmationMessage": {
+          "type": "string",
+          "description": "Message to show in confirmation dialog"
+        },
+        "successMessage": {
+          "type": "string",
+          "description": "Message to show on success"
+        },
+        "onError": {
+          "type": "string",
+          "enum": [
+            "retry",
+            "skip",
+            "abort"
+          ],
+          "default": "abort",
+          "description": "Error handling strategy"
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "intent": {
+              "type": "string",
+              "description": "Original user intent/query"
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Confidence score (0-1)"
+            },
+            "agentName": {
+              "type": "string",
+              "description": "Agent that generated this action"
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Generation timestamp (ISO 8601)"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "params"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

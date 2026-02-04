@@ -1,7 +1,48 @@
 {
   "$ref": "#/definitions/ObjectNavItem",
   "definitions": {
-    "ObjectNavItem": {}
+    "ObjectNavItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 2,
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Unique identifier for this navigation item (lowercase snake_case)"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display proper label"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Icon name"
+        },
+        "visible": {
+          "type": "string",
+          "description": "Visibility formula condition"
+        },
+        "type": {
+          "type": "string",
+          "const": "object"
+        },
+        "objectName": {
+          "type": "string",
+          "description": "Target object name"
+        },
+        "viewName": {
+          "type": "string",
+          "description": "Default list view to open. Defaults to \"all\""
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "type",
+        "objectName"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

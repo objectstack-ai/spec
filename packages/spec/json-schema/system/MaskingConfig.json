@@ -1,7 +1,77 @@
 {
   "$ref": "#/definitions/MaskingConfig",
   "definitions": {
-    "MaskingConfig": {}
+    "MaskingConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "strategy": {
+                "type": "string",
+                "enum": [
+                  "redact",
+                  "partial",
+                  "hash",
+                  "tokenize",
+                  "randomize",
+                  "nullify",
+                  "substitute"
+                ]
+              },
+              "pattern": {
+                "type": "string",
+                "description": "Regex pattern for partial masking"
+              },
+              "preserveFormat": {
+                "type": "boolean",
+                "default": true
+              },
+              "preserveLength": {
+                "type": "boolean",
+                "default": true
+              },
+              "roles": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Roles that see masked data"
+              },
+              "exemptRoles": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Roles that see unmasked data"
+              }
+            },
+            "required": [
+              "field",
+              "strategy"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "auditUnmasking": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "required": [
+        "rules"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

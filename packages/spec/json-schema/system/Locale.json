@@ -1,7 +1,10 @@
 {
   "$ref": "#/definitions/Locale",
   "definitions": {
-    "Locale": {}
+    "Locale": {
+      "type": "string",
+      "description": "BCP-47 Language Tag (e.g. en-US, zh-CN)"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

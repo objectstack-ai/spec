@@ -1,7 +1,49 @@
 {
   "$ref": "#/definitions/ApiRoutes",
   "definitions": {
-    "ApiRoutes": {}
+    "ApiRoutes": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "string",
+          "description": "e.g. /api/data"
+        },
+        "metadata": {
+          "type": "string",
+          "description": "e.g. /api/meta"
+        },
+        "auth": {
+          "type": "string",
+          "description": "e.g. /api/auth"
+        },
+        "automation": {
+          "type": "string",
+          "description": "e.g. /api/automation"
+        },
+        "storage": {
+          "type": "string",
+          "description": "e.g. /api/storage"
+        },
+        "analytics": {
+          "type": "string",
+          "description": "e.g. /api/analytics"
+        },
+        "hub": {
+          "type": "string",
+          "description": "e.g. /api/hub"
+        },
+        "graphql": {
+          "type": "string",
+          "description": "e.g. /graphql"
+        }
+      },
+      "required": [
+        "data",
+        "metadata",
+        "auth"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

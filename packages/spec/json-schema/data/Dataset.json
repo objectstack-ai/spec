@@ -1,7 +1,63 @@
 {
   "$ref": "#/definitions/Dataset",
   "definitions": {
-    "Dataset": {}
+    "Dataset": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Target Object Name"
+        },
+        "externalId": {
+          "type": "string",
+          "default": "name",
+          "description": "Field match for uniqueness check"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "insert",
+            "update",
+            "upsert",
+            "replace",
+            "ignore"
+          ],
+          "default": "upsert",
+          "description": "Conflict resolution strategy"
+        },
+        "env": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "prod",
+              "dev",
+              "test"
+            ]
+          },
+          "default": [
+            "prod",
+            "dev",
+            "test"
+          ],
+          "description": "Applicable environments"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "description": "Data records"
+        }
+      },
+      "required": [
+        "object",
+        "records"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

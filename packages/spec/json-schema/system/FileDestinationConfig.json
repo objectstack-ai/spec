@@ -1,7 +1,56 @@
 {
   "$ref": "#/definitions/FileDestinationConfig",
   "definitions": {
-    "FileDestinationConfig": {}
+    "FileDestinationConfig": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Log file path"
+        },
+        "rotation": {
+          "type": "object",
+          "properties": {
+            "maxSize": {
+              "type": "string",
+              "default": "10m"
+            },
+            "maxFiles": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 5
+            },
+            "compress": {
+              "type": "boolean",
+              "default": true
+            },
+            "interval": {
+              "type": "string",
+              "enum": [
+                "hourly",
+                "daily",
+                "weekly",
+                "monthly"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "encoding": {
+          "type": "string",
+          "default": "utf8"
+        },
+        "append": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "additionalProperties": false,
+      "description": "File destination configuration"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

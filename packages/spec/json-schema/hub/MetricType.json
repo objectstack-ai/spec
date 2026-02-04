@@ -1,7 +1,14 @@
 {
   "$ref": "#/definitions/MetricType",
   "definitions": {
-    "MetricType": {}
+    "MetricType": {
+      "type": "string",
+      "enum": [
+        "boolean",
+        "counter",
+        "gauge"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

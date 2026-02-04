@@ -1,7 +1,50 @@
 {
   "$ref": "#/definitions/DocumentVersion",
   "definitions": {
-    "DocumentVersion": {}
+    "DocumentVersion": {
+      "type": "object",
+      "properties": {
+        "versionNumber": {
+          "type": "number",
+          "description": "Version number"
+        },
+        "createdAt": {
+          "type": "number",
+          "description": "Creation timestamp"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "Creator user ID"
+        },
+        "size": {
+          "type": "number",
+          "description": "File size in bytes"
+        },
+        "checksum": {
+          "type": "string",
+          "description": "File checksum"
+        },
+        "downloadUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Download URL"
+        },
+        "isLatest": {
+          "type": "boolean",
+          "default": false,
+          "description": "Is latest version"
+        }
+      },
+      "required": [
+        "versionNumber",
+        "createdAt",
+        "createdBy",
+        "size",
+        "checksum",
+        "downloadUrl"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,98 @@
 {
   "$ref": "#/definitions/SelfHealingAction",
   "definitions": {
-    "SelfHealingAction": {}
+    "SelfHealingAction": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "restart",
+            "scale",
+            "rollback",
+            "clear-cache",
+            "adjust-config",
+            "execute-script",
+            "notify"
+          ]
+        },
+        "trigger": {
+          "type": "object",
+          "properties": {
+            "healthStatus": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "healthy",
+                  "degraded",
+                  "unhealthy",
+                  "failed",
+                  "recovering",
+                  "unknown"
+                ],
+                "description": "Current health status of the plugin"
+              }
+            },
+            "anomalyTypes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "errorPatterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "customCondition": {
+              "type": "string",
+              "description": "Custom trigger condition (e.g., \"errorRate > 0.1\")"
+            }
+          },
+          "additionalProperties": false
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "maxAttempts": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 3
+        },
+        "cooldown": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 60
+        },
+        "timeout": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 300
+        },
+        "requireApproval": {
+          "type": "boolean",
+          "default": false
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 5,
+          "description": "Action priority (lower number = higher priority)"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "trigger"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

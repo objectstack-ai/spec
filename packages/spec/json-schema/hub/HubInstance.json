@@ -1,7 +1,121 @@
 {
   "$ref": "#/definitions/HubInstance",
   "definitions": {
-    "HubInstance": {}
+    "HubInstance": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "regionId": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "primary",
+            "secondary",
+            "edge"
+          ]
+        },
+        "endpoints": {
+          "type": "object",
+          "properties": {
+            "api": {
+              "type": "string",
+              "format": "uri",
+              "description": "Public API endpoint"
+            },
+            "admin": {
+              "type": "string",
+              "format": "uri",
+              "description": "Admin console"
+            },
+            "grpc": {
+              "type": "string",
+              "description": "gRPC endpoint for inter-hub communication"
+            }
+          },
+          "required": [
+            "api"
+          ],
+          "additionalProperties": false
+        },
+        "replication": {
+          "type": "object",
+          "properties": {
+            "primaryHubId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "lagTolerance": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 5
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "sync",
+                "async",
+                "semi-sync"
+              ],
+              "default": "async"
+            }
+          },
+          "additionalProperties": false
+        },
+        "health": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "healthy",
+                "degraded",
+                "unhealthy"
+              ]
+            },
+            "lastCheck": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "uptime": {
+              "type": "number",
+              "description": "Seconds"
+            }
+          },
+          "required": [
+            "status",
+            "lastCheck",
+            "uptime"
+          ],
+          "additionalProperties": false
+        },
+        "version": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "regionId",
+        "role",
+        "endpoints",
+        "version",
+        "createdAt",
+        "updatedAt"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

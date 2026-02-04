@@ -1,7 +1,111 @@
 {
   "$ref": "#/definitions/PageRegion",
   "definitions": {
-    "PageRegion": {}
+    "PageRegion": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Region name (e.g. \"sidebar\", \"main\", \"header\")"
+        },
+        "width": {
+          "type": "string",
+          "enum": [
+            "small",
+            "medium",
+            "large",
+            "full"
+          ]
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "page:header",
+                      "page:footer",
+                      "page:sidebar",
+                      "page:tabs",
+                      "page:accordion",
+                      "page:card",
+                      "page:section",
+                      "record:details",
+                      "record:highlights",
+                      "record:related_list",
+                      "record:activity",
+                      "record:chatter",
+                      "record:path",
+                      "app:launcher",
+                      "nav:menu",
+                      "nav:breadcrumb",
+                      "global:search",
+                      "global:notifications",
+                      "user:profile",
+                      "ai:chat_window",
+                      "ai:suggestion"
+                    ]
+                  },
+                  {
+                    "type": "string"
+                  }
+                ],
+                "description": "Component Type (Standard enum or custom string)"
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique instance ID"
+              },
+              "label": {
+                "type": "string"
+              },
+              "properties": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Component props passed to the widget. See component.zod.ts for schemas."
+              },
+              "events": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "Event handlers map"
+              },
+              "style": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "Inline styles or utility classes"
+              },
+              "className": {
+                "type": "string",
+                "description": "CSS class names"
+              },
+              "visibility": {
+                "type": "string",
+                "description": "Visibility filter/formula"
+              }
+            },
+            "required": [
+              "type",
+              "properties"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Components in this region"
+        }
+      },
+      "required": [
+        "name",
+        "components"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

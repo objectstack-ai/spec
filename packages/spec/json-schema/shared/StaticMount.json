@@ -1,7 +1,28 @@
 {
   "$ref": "#/definitions/StaticMount",
   "definitions": {
-    "StaticMount": {}
+    "StaticMount": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "URL path to serve from"
+        },
+        "directory": {
+          "type": "string",
+          "description": "Physical directory to serve"
+        },
+        "cacheControl": {
+          "type": "string",
+          "description": "Cache-Control header value"
+        }
+      },
+      "required": [
+        "path",
+        "directory"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

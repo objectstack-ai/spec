@@ -1,7 +1,153 @@
 {
   "$ref": "#/definitions/Agent",
   "definitions": {
-    "Agent": {}
+    "Agent": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Agent unique identifier"
+        },
+        "label": {
+          "type": "string",
+          "description": "Agent display name"
+        },
+        "avatar": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "description": "The persona/role (e.g. \"Senior Support Engineer\")"
+        },
+        "instructions": {
+          "type": "string",
+          "description": "System Prompt / Prime Directives"
+        },
+        "model": {
+          "type": "object",
+          "properties": {
+            "provider": {
+              "type": "string",
+              "enum": [
+                "openai",
+                "azure_openai",
+                "anthropic",
+                "local"
+              ],
+              "default": "openai"
+            },
+            "model": {
+              "type": "string",
+              "description": "Model name (e.g. gpt-4, claude-3-opus)"
+            },
+            "temperature": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 2,
+              "default": 0.7
+            },
+            "maxTokens": {
+              "type": "number"
+            },
+            "topP": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "model"
+          ],
+          "additionalProperties": false
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "action",
+                  "flow",
+                  "query",
+                  "vector_search"
+                ]
+              },
+              "name": {
+                "type": "string",
+                "description": "Reference name (Action Name, Flow Name)"
+              },
+              "description": {
+                "type": "string",
+                "description": "Override description for the LLM"
+              }
+            },
+            "required": [
+              "type",
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Available tools"
+        },
+        "knowledge": {
+          "type": "object",
+          "properties": {
+            "topics": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Topics/Tags to recruit knowledge from"
+            },
+            "indexes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Vector Store Indexes"
+            }
+          },
+          "required": [
+            "topics",
+            "indexes"
+          ],
+          "additionalProperties": false,
+          "description": "RAG access"
+        },
+        "active": {
+          "type": "boolean",
+          "default": true
+        },
+        "access": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Who can chat with this agent"
+        },
+        "tenantId": {
+          "type": "string",
+          "description": "Tenant/Organization ID"
+        },
+        "visibility": {
+          "type": "string",
+          "enum": [
+            "global",
+            "organization",
+            "private"
+          ],
+          "default": "organization"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "role",
+        "instructions"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

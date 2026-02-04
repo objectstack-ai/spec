@@ -1,7 +1,80 @@
 {
   "$ref": "#/definitions/Hyperparameters",
   "definitions": {
-    "Hyperparameters": {}
+    "Hyperparameters": {
+      "type": "object",
+      "properties": {
+        "learningRate": {
+          "type": "number",
+          "description": "Learning rate for training"
+        },
+        "epochs": {
+          "type": "integer",
+          "description": "Number of training epochs"
+        },
+        "batchSize": {
+          "type": "integer",
+          "description": "Training batch size"
+        },
+        "maxDepth": {
+          "type": "integer",
+          "description": "Maximum tree depth"
+        },
+        "numTrees": {
+          "type": "integer",
+          "description": "Number of trees in ensemble"
+        },
+        "minSamplesSplit": {
+          "type": "integer",
+          "description": "Minimum samples to split node"
+        },
+        "minSamplesLeaf": {
+          "type": "integer",
+          "description": "Minimum samples in leaf node"
+        },
+        "hiddenLayers": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          },
+          "description": "Hidden layer sizes"
+        },
+        "activation": {
+          "type": "string",
+          "description": "Activation function"
+        },
+        "dropout": {
+          "type": "number",
+          "description": "Dropout rate"
+        },
+        "l1Regularization": {
+          "type": "number",
+          "description": "L1 regularization strength"
+        },
+        "l2Regularization": {
+          "type": "number",
+          "description": "L2 regularization strength"
+        },
+        "numClusters": {
+          "type": "integer",
+          "description": "Number of clusters (k-means, etc.)"
+        },
+        "seasonalPeriod": {
+          "type": "integer",
+          "description": "Seasonal period for time series"
+        },
+        "forecastHorizon": {
+          "type": "integer",
+          "description": "Number of periods to forecast"
+        },
+        "custom": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Algorithm-specific parameters"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

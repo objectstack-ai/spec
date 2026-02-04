@@ -1,7 +1,35 @@
 {
   "$ref": "#/definitions/CurrencyConfig",
   "definitions": {
-    "CurrencyConfig": {}
+    "CurrencyConfig": {
+      "type": "object",
+      "properties": {
+        "precision": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10,
+          "default": 2,
+          "description": "Decimal precision (default: 2)"
+        },
+        "currencyMode": {
+          "type": "string",
+          "enum": [
+            "dynamic",
+            "fixed"
+          ],
+          "default": "dynamic",
+          "description": "Currency mode: dynamic (user selectable) or fixed (single currency)"
+        },
+        "defaultCurrency": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3,
+          "default": "CNY",
+          "description": "Default or fixed currency code (ISO 4217, e.g., USD, CNY, EUR)"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

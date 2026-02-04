@@ -1,7 +1,43 @@
 {
   "$ref": "#/definitions/CacheInvalidation",
   "definitions": {
-    "CacheInvalidation": {}
+    "CacheInvalidation": {
+      "type": "object",
+      "properties": {
+        "trigger": {
+          "type": "string",
+          "enum": [
+            "create",
+            "update",
+            "delete",
+            "manual"
+          ]
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "key",
+            "pattern",
+            "tag",
+            "all"
+          ]
+        },
+        "pattern": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "trigger",
+        "scope"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

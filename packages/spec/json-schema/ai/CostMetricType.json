@@ -1,7 +1,17 @@
 {
   "$ref": "#/definitions/CostMetricType",
   "definitions": {
-    "CostMetricType": {}
+    "CostMetricType": {
+      "type": "string",
+      "enum": [
+        "token",
+        "request",
+        "character",
+        "second",
+        "image",
+        "embedding"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

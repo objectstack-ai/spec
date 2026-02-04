@@ -1,7 +1,15 @@
 {
   "$ref": "#/definitions/UserActivityStatus",
   "definitions": {
-    "UserActivityStatus": {}
+    "UserActivityStatus": {
+      "type": "string",
+      "enum": [
+        "active",
+        "idle",
+        "viewing",
+        "disconnected"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

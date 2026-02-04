@@ -1,7 +1,33 @@
 {
   "$ref": "#/definitions/CreateManyDataResponse",
   "definitions": {
-    "CreateManyDataResponse": {}
+    "CreateManyDataResponse": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "Object name"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "description": "Created records"
+        },
+        "count": {
+          "type": "number",
+          "description": "Number of records created"
+        }
+      },
+      "required": [
+        "object",
+        "records",
+        "count"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,36 @@
 {
   "$ref": "#/definitions/MultipartUploadConfig",
   "definitions": {
-    "MultipartUploadConfig": {}
+    "MultipartUploadConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable multipart uploads"
+        },
+        "partSize": {
+          "type": "number",
+          "minimum": 5242880,
+          "default": 5242880,
+          "description": "Part size in bytes (min 5MB)"
+        },
+        "maxConcurrentParts": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 5,
+          "description": "Maximum concurrent part uploads"
+        },
+        "threshold": {
+          "type": "number",
+          "minimum": 5242880,
+          "default": 104857600,
+          "description": "File size threshold for multipart upload in bytes"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

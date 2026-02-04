@@ -1,7 +1,51 @@
 {
   "$ref": "#/definitions/LWWRegister",
   "definitions": {
-    "LWWRegister": {}
+    "LWWRegister": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "lww-register"
+        },
+        "value": {
+          "description": "Current register value"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 datetime of last write"
+        },
+        "replicaId": {
+          "type": "string",
+          "description": "ID of replica that performed last write"
+        },
+        "vectorClock": {
+          "type": "object",
+          "properties": {
+            "clock": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "description": "Map of replica ID to logical timestamp"
+            }
+          },
+          "required": [
+            "clock"
+          ],
+          "additionalProperties": false,
+          "description": "Optional vector clock for causality tracking"
+        }
+      },
+      "required": [
+        "type",
+        "timestamp",
+        "replicaId"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

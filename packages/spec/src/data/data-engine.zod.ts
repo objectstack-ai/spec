@@ -165,40 +165,33 @@ export const DataEngineCountOptionsSchema = z.object({
 // ==========================================================================
 
 export const DataEngineContractSchema = z.object({
-  find: z.function({
-    input: z.tuple([z.string(), DataEngineQueryOptionsSchema.optional()]),
-    output: z.promise(z.array(z.any()))
-  }),
+  find: z.function()
+    .args(z.string(), DataEngineQueryOptionsSchema.optional())
+    .returns(z.promise(z.array(z.any()))),
     
-  findOne: z.function({
-    input: z.tuple([z.string(), DataEngineQueryOptionsSchema.optional()]),
-    output: z.promise(z.any())
-  }),
+  findOne: z.function()
+    .args(z.string(), DataEngineQueryOptionsSchema.optional())
+    .returns(z.promise(z.any())),
     
-  insert: z.function({
-    input: z.tuple([z.string(), z.union([z.record(z.string(), z.any()), z.array(z.record(z.string(), z.any()))]), DataEngineInsertOptionsSchema.optional()]),
-    output: z.promise(z.any())
-  }),
+  insert: z.function()
+    .args(z.string(), z.union([z.record(z.string(), z.any()), z.array(z.record(z.string(), z.any()))]), DataEngineInsertOptionsSchema.optional())
+    .returns(z.promise(z.any())),
     
-  update: z.function({
-    input: z.tuple([z.string(), z.record(z.string(), z.any()), DataEngineUpdateOptionsSchema.optional()]),
-    output: z.promise(z.any())
-  }),
+  update: z.function()
+    .args(z.string(), z.record(z.string(), z.any()), DataEngineUpdateOptionsSchema.optional())
+    .returns(z.promise(z.any())),
     
-  delete: z.function({
-    input: z.tuple([z.string(), DataEngineDeleteOptionsSchema.optional()]),
-    output: z.promise(z.any())
-  }),
+  delete: z.function()
+    .args(z.string(), DataEngineDeleteOptionsSchema.optional())
+    .returns(z.promise(z.any())),
     
-  count: z.function({
-    input: z.tuple([z.string(), DataEngineCountOptionsSchema.optional()]),
-    output: z.promise(z.number())
-  }),
+  count: z.function()
+    .args(z.string(), DataEngineCountOptionsSchema.optional())
+    .returns(z.promise(z.number())),
     
-  aggregate: z.function({
-    input: z.tuple([z.string(), DataEngineAggregateOptionsSchema]),
-    output: z.promise(z.array(z.any()))
-  })
+  aggregate: z.function()
+    .args(z.string(), DataEngineAggregateOptionsSchema)
+    .returns(z.promise(z.array(z.any())))
 }).describe('Standard Data Engine Contract');
 
 // ==========================================================================

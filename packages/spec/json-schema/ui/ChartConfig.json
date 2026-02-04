@@ -1,7 +1,359 @@
 {
   "$ref": "#/definitions/ChartConfig",
   "definitions": {
-    "ChartConfig": {}
+    "ChartConfig": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "bar",
+            "horizontal-bar",
+            "column",
+            "grouped-bar",
+            "stacked-bar",
+            "bi-polar-bar",
+            "line",
+            "area",
+            "stacked-area",
+            "step-line",
+            "spline",
+            "pie",
+            "donut",
+            "funnel",
+            "pyramid",
+            "scatter",
+            "bubble",
+            "treemap",
+            "sunburst",
+            "sankey",
+            "word-cloud",
+            "gauge",
+            "solid-gauge",
+            "metric",
+            "kpi",
+            "bullet",
+            "choropleth",
+            "bubble-map",
+            "gl-map",
+            "heatmap",
+            "radar",
+            "waterfall",
+            "box-plot",
+            "violin",
+            "candlestick",
+            "stock",
+            "table",
+            "pivot"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "description": "Chart title"
+        },
+        "subtitle": {
+          "type": "string",
+          "description": "Chart subtitle"
+        },
+        "description": {
+          "type": "string",
+          "description": "Accessibility description"
+        },
+        "xAxis": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string",
+              "description": "Data field key"
+            },
+            "title": {
+              "type": "string",
+              "description": "Axis display title"
+            },
+            "format": {
+              "type": "string",
+              "description": "Value format string (e.g., \"$0,0.00\")"
+            },
+            "min": {
+              "type": "number",
+              "description": "Minimum value"
+            },
+            "max": {
+              "type": "number",
+              "description": "Maximum value"
+            },
+            "stepSize": {
+              "type": "number",
+              "description": "Step size for ticks"
+            },
+            "showGridLines": {
+              "type": "boolean",
+              "default": true
+            },
+            "position": {
+              "type": "string",
+              "enum": [
+                "left",
+                "right",
+                "top",
+                "bottom"
+              ],
+              "description": "Axis position"
+            },
+            "logarithmic": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          "required": [
+            "field"
+          ],
+          "additionalProperties": false,
+          "description": "X-Axis configuration"
+        },
+        "yAxis": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string",
+                "description": "Data field key"
+              },
+              "title": {
+                "type": "string",
+                "description": "Axis display title"
+              },
+              "format": {
+                "type": "string",
+                "description": "Value format string (e.g., \"$0,0.00\")"
+              },
+              "min": {
+                "type": "number",
+                "description": "Minimum value"
+              },
+              "max": {
+                "type": "number",
+                "description": "Maximum value"
+              },
+              "stepSize": {
+                "type": "number",
+                "description": "Step size for ticks"
+              },
+              "showGridLines": {
+                "type": "boolean",
+                "default": true
+              },
+              "position": {
+                "type": "string",
+                "enum": [
+                  "left",
+                  "right",
+                  "top",
+                  "bottom"
+                ],
+                "description": "Axis position"
+              },
+              "logarithmic": {
+                "type": "boolean",
+                "default": false
+              }
+            },
+            "required": [
+              "field"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Y-Axis configuration (support dual axis)"
+        },
+        "series": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Field name or series identifier"
+              },
+              "label": {
+                "type": "string",
+                "description": "Series display label"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "bar",
+                  "horizontal-bar",
+                  "column",
+                  "grouped-bar",
+                  "stacked-bar",
+                  "bi-polar-bar",
+                  "line",
+                  "area",
+                  "stacked-area",
+                  "step-line",
+                  "spline",
+                  "pie",
+                  "donut",
+                  "funnel",
+                  "pyramid",
+                  "scatter",
+                  "bubble",
+                  "treemap",
+                  "sunburst",
+                  "sankey",
+                  "word-cloud",
+                  "gauge",
+                  "solid-gauge",
+                  "metric",
+                  "kpi",
+                  "bullet",
+                  "choropleth",
+                  "bubble-map",
+                  "gl-map",
+                  "heatmap",
+                  "radar",
+                  "waterfall",
+                  "box-plot",
+                  "violin",
+                  "candlestick",
+                  "stock",
+                  "table",
+                  "pivot"
+                ],
+                "description": "Override chart type for this series"
+              },
+              "color": {
+                "type": "string",
+                "description": "Series color (hex/rgb/token)"
+              },
+              "stack": {
+                "type": "string",
+                "description": "Stack identifier to group series"
+              },
+              "yAxis": {
+                "type": "string",
+                "enum": [
+                  "left",
+                  "right"
+                ],
+                "default": "left",
+                "description": "Bind to specific Y-Axis"
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Defined series configuration"
+        },
+        "colors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Color palette"
+        },
+        "height": {
+          "type": "number",
+          "description": "Fixed height in pixels"
+        },
+        "showLegend": {
+          "type": "boolean",
+          "default": true,
+          "description": "Display legend"
+        },
+        "showDataLabels": {
+          "type": "boolean",
+          "default": false,
+          "description": "Display data labels"
+        },
+        "annotations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "line",
+                  "region"
+                ],
+                "default": "line"
+              },
+              "axis": {
+                "type": "string",
+                "enum": [
+                  "x",
+                  "y"
+                ],
+                "default": "y"
+              },
+              "value": {
+                "type": [
+                  "number",
+                  "string"
+                ],
+                "description": "Start value"
+              },
+              "endValue": {
+                "type": [
+                  "number",
+                  "string"
+                ],
+                "description": "End value for regions"
+              },
+              "color": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "style": {
+                "type": "string",
+                "enum": [
+                  "solid",
+                  "dashed",
+                  "dotted"
+                ],
+                "default": "dashed"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "interaction": {
+          "type": "object",
+          "properties": {
+            "tooltips": {
+              "type": "boolean",
+              "default": true
+            },
+            "zoom": {
+              "type": "boolean",
+              "default": false
+            },
+            "brush": {
+              "type": "boolean",
+              "default": false
+            },
+            "clickAction": {
+              "type": "string",
+              "description": "Action ID to trigger on click"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

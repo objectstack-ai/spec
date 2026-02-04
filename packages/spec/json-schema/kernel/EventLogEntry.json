@@ -1,7 +1,153 @@
 {
   "$ref": "#/definitions/EventLogEntry",
   "definitions": {
-    "EventLogEntry": {}
+    "EventLogEntry": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique log entry identifier"
+        },
+        "event": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Unique event identifier"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 3,
+              "pattern": "^[a-z][a-z0-9_.]*$",
+              "description": "Event name (lowercase with dots, e.g., user.created, order.paid)"
+            },
+            "payload": {
+              "description": "Event payload schema"
+            },
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "source": {
+                  "type": "string",
+                  "description": "Event source (e.g., plugin name, system component)"
+                },
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "ISO 8601 datetime when event was created"
+                },
+                "userId": {
+                  "type": "string",
+                  "description": "User who triggered the event"
+                },
+                "tenantId": {
+                  "type": "string",
+                  "description": "Tenant identifier for multi-tenant systems"
+                },
+                "correlationId": {
+                  "type": "string",
+                  "description": "Correlation ID for event tracing"
+                },
+                "causationId": {
+                  "type": "string",
+                  "description": "ID of the event that caused this event"
+                },
+                "priority": {
+                  "type": "string",
+                  "enum": [
+                    "critical",
+                    "high",
+                    "normal",
+                    "low",
+                    "background"
+                  ],
+                  "default": "normal",
+                  "description": "Event priority"
+                }
+              },
+              "required": [
+                "source",
+                "timestamp"
+              ],
+              "additionalProperties": false,
+              "description": "Event metadata"
+            }
+          },
+          "required": [
+            "name",
+            "metadata"
+          ],
+          "additionalProperties": false,
+          "description": "The event"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "processing",
+            "completed",
+            "failed"
+          ],
+          "description": "Processing status"
+        },
+        "handlersExecuted": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "handlerId": {
+                "type": "string",
+                "description": "Handler identifier"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "success",
+                  "failed",
+                  "timeout"
+                ],
+                "description": "Handler execution status"
+              },
+              "durationMs": {
+                "type": "integer",
+                "description": "Execution duration"
+              },
+              "error": {
+                "type": "string",
+                "description": "Error message if failed"
+              }
+            },
+            "required": [
+              "handlerId",
+              "status"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Handlers that processed this event"
+        },
+        "receivedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When event was received"
+        },
+        "processedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When event was processed"
+        },
+        "totalDurationMs": {
+          "type": "integer",
+          "description": "Total processing time"
+        }
+      },
+      "required": [
+        "id",
+        "event",
+        "status",
+        "receivedAt"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,20 @@
 {
   "$ref": "#/definitions/MetricType",
   "definitions": {
-    "MetricType": {}
+    "MetricType": {
+      "type": "string",
+      "enum": [
+        "count",
+        "sum",
+        "avg",
+        "min",
+        "max",
+        "count_distinct",
+        "number",
+        "string",
+        "boolean"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

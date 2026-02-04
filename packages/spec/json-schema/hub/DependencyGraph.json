@@ -1,7 +1,167 @@
 {
   "$ref": "#/definitions/DependencyGraph",
   "definitions": {
-    "DependencyGraph": {}
+    "DependencyGraph": {
+      "type": "object",
+      "properties": {
+        "root": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              },
+              "dependencies": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "versionConstraint": {
+                      "type": "string",
+                      "description": "Semver range (e.g., ^1.0.0, >=2.0.0 <3.0.0)"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "required",
+                        "optional",
+                        "peer",
+                        "dev"
+                      ],
+                      "default": "required"
+                    },
+                    "resolvedVersion": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "versionConstraint"
+                  ],
+                  "additionalProperties": false
+                },
+                "default": []
+              },
+              "depth": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "isDirect": {
+                "type": "boolean"
+              },
+              "metadata": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "license": {
+                    "type": "string"
+                  },
+                  "homepage": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "version",
+              "depth",
+              "isDirect"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "from": {
+                "type": "string",
+                "description": "Package ID"
+              },
+              "to": {
+                "type": "string",
+                "description": "Package ID"
+              },
+              "constraint": {
+                "type": "string",
+                "description": "Version constraint"
+              }
+            },
+            "required": [
+              "from",
+              "to",
+              "constraint"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "stats": {
+          "type": "object",
+          "properties": {
+            "totalDependencies": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "directDependencies": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "maxDepth": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "totalDependencies",
+            "directDependencies",
+            "maxDepth"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "root",
+        "nodes",
+        "edges",
+        "stats"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

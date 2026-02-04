@@ -1,7 +1,34 @@
 {
   "$ref": "#/definitions/RerankingConfig",
   "definitions": {
-    "RerankingConfig": {}
+    "RerankingConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "model": {
+          "type": "string",
+          "description": "Reranking model name"
+        },
+        "provider": {
+          "type": "string",
+          "enum": [
+            "cohere",
+            "huggingface",
+            "custom"
+          ]
+        },
+        "topK": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "default": 3,
+          "description": "Final number of results after reranking"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

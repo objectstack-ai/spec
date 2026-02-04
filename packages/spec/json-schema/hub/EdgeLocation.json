@@ -1,7 +1,99 @@
 {
   "$ref": "#/definitions/EdgeLocation",
   "definitions": {
-    "EdgeLocation": {}
+    "EdgeLocation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "regionId": {
+          "type": "string"
+        },
+        "location": {
+          "type": "object",
+          "properties": {
+            "continent": {
+              "type": "string",
+              "enum": [
+                "NA",
+                "SA",
+                "EU",
+                "AF",
+                "AS",
+                "OC",
+                "AN"
+              ]
+            },
+            "country": {
+              "type": "string",
+              "pattern": "^[A-Z]{2}$",
+              "description": "ISO 3166-1 alpha-2 country code"
+            },
+            "city": {
+              "type": "string"
+            },
+            "latitude": {
+              "type": "number",
+              "minimum": -90,
+              "maximum": 90
+            },
+            "longitude": {
+              "type": "number",
+              "minimum": -180,
+              "maximum": 180
+            }
+          },
+          "required": [
+            "continent",
+            "country"
+          ],
+          "additionalProperties": false
+        },
+        "cache": {
+          "type": "object",
+          "properties": {
+            "resources": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "plugins",
+                  "static-assets",
+                  "api-responses"
+                ]
+              },
+              "default": []
+            },
+            "ttl": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 3600
+            },
+            "maxSize": {
+              "type": "integer",
+              "exclusiveMinimum": 0
+            }
+          },
+          "additionalProperties": false
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "inactive"
+          ],
+          "default": "active"
+        }
+      },
+      "required": [
+        "id",
+        "regionId",
+        "location",
+        "cache"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

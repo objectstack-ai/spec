@@ -1,7 +1,36 @@
 {
   "$ref": "#/definitions/SearchConfig",
   "definitions": {
-    "SearchConfig": {}
+    "SearchConfig": {
+      "type": "object",
+      "properties": {
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields to index for full-text search weighting"
+        },
+        "displayFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields to display in search result cards"
+        },
+        "filters": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Default filters for search results"
+        }
+      },
+      "required": [
+        "fields"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

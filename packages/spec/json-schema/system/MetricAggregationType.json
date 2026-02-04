@@ -1,7 +1,25 @@
 {
   "$ref": "#/definitions/MetricAggregationType",
   "definitions": {
-    "MetricAggregationType": {}
+    "MetricAggregationType": {
+      "type": "string",
+      "enum": [
+        "sum",
+        "avg",
+        "min",
+        "max",
+        "count",
+        "p50",
+        "p75",
+        "p90",
+        "p95",
+        "p99",
+        "p999",
+        "rate",
+        "stddev"
+      ],
+      "description": "Metric aggregation type"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

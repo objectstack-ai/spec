@@ -1,7 +1,201 @@
 {
   "$ref": "#/definitions/Cube",
   "definitions": {
-    "Cube": {}
+    "Cube": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Cube name (snake_case)"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "sql": {
+          "type": "string",
+          "description": "Base SQL statement or Table Name"
+        },
+        "measures": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z_][a-z0-9_]*$",
+                "description": "Unique metric ID"
+              },
+              "label": {
+                "type": "string",
+                "description": "Human readable label"
+              },
+              "description": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "count",
+                  "sum",
+                  "avg",
+                  "min",
+                  "max",
+                  "count_distinct",
+                  "number",
+                  "string",
+                  "boolean"
+                ]
+              },
+              "sql": {
+                "type": "string",
+                "description": "SQL expression or field reference"
+              },
+              "filters": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "sql": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "sql"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "format": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "label",
+              "type",
+              "sql"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Quantitative metrics"
+        },
+        "dimensions": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z_][a-z0-9_]*$",
+                "description": "Unique dimension ID"
+              },
+              "label": {
+                "type": "string",
+                "description": "Human readable label"
+              },
+              "description": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "string",
+                  "number",
+                  "boolean",
+                  "time",
+                  "geo"
+                ]
+              },
+              "sql": {
+                "type": "string",
+                "description": "SQL expression or column reference"
+              },
+              "granularities": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "second",
+                    "minute",
+                    "hour",
+                    "day",
+                    "week",
+                    "month",
+                    "quarter",
+                    "year"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "name",
+              "label",
+              "type",
+              "sql"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Qualitative attributes"
+        },
+        "joins": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Target cube name"
+              },
+              "relationship": {
+                "type": "string",
+                "enum": [
+                  "one_to_one",
+                  "one_to_many",
+                  "many_to_one"
+                ],
+                "default": "many_to_one"
+              },
+              "sql": {
+                "type": "string",
+                "description": "Join condition (ON clause)"
+              }
+            },
+            "required": [
+              "name",
+              "sql"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "refreshKey": {
+          "type": "object",
+          "properties": {
+            "every": {
+              "type": "string"
+            },
+            "sql": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "public": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "name",
+        "sql",
+        "measures",
+        "dimensions"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

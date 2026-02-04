@@ -1,7 +1,85 @@
 {
   "$ref": "#/definitions/RealTimeNotificationConfig",
   "definitions": {
-    "RealTimeNotificationConfig": {}
+    "RealTimeNotificationConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable real-time notifications"
+        },
+        "protocol": {
+          "type": "string",
+          "enum": [
+            "websocket",
+            "sse",
+            "long-polling"
+          ],
+          "default": "websocket",
+          "description": "Real-time protocol"
+        },
+        "eventPattern": {
+          "type": "string",
+          "default": "*",
+          "description": "Event pattern to broadcast"
+        },
+        "userFilter": {
+          "type": "boolean",
+          "default": true,
+          "description": "Filter events by user"
+        },
+        "tenantFilter": {
+          "type": "boolean",
+          "default": true,
+          "description": "Filter events by tenant"
+        },
+        "channels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Channel name"
+              },
+              "eventPattern": {
+                "type": "string",
+                "description": "Event pattern for channel"
+              }
+            },
+            "required": [
+              "name",
+              "eventPattern"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Named channels for event broadcasting"
+        },
+        "rateLimit": {
+          "type": "object",
+          "properties": {
+            "maxEventsPerSecond": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "Max events per second per client"
+            },
+            "windowMs": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 1000,
+              "description": "Rate limit window"
+            }
+          },
+          "required": [
+            "maxEventsPerSecond"
+          ],
+          "additionalProperties": false,
+          "description": "Rate limiting configuration"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,15 @@
 {
   "$ref": "#/definitions/LifecycleAction",
   "definitions": {
-    "LifecycleAction": {}
+    "LifecycleAction": {
+      "type": "string",
+      "enum": [
+        "transition",
+        "delete",
+        "abort"
+      ],
+      "description": "Lifecycle policy action type"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

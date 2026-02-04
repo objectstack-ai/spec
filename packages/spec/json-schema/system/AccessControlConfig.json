@@ -1,7 +1,106 @@
 {
   "$ref": "#/definitions/AccessControlConfig",
   "definitions": {
-    "AccessControlConfig": {}
+    "AccessControlConfig": {
+      "type": "object",
+      "properties": {
+        "acl": {
+          "type": "string",
+          "enum": [
+            "private",
+            "public_read",
+            "public_read_write",
+            "authenticated_read",
+            "bucket_owner_read",
+            "bucket_owner_full_control"
+          ],
+          "description": "Default access control level",
+          "default": "private"
+        },
+        "allowedOrigins": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "CORS allowed origins"
+        },
+        "allowedMethods": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "GET",
+              "PUT",
+              "POST",
+              "DELETE",
+              "HEAD"
+            ]
+          },
+          "description": "CORS allowed HTTP methods"
+        },
+        "allowedHeaders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "CORS allowed headers"
+        },
+        "exposeHeaders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "CORS exposed headers"
+        },
+        "maxAge": {
+          "type": "number",
+          "minimum": 0,
+          "description": "CORS preflight cache duration in seconds"
+        },
+        "corsEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable CORS configuration"
+        },
+        "publicAccess": {
+          "type": "object",
+          "properties": {
+            "allowPublicRead": {
+              "type": "boolean",
+              "default": false,
+              "description": "Allow public read access"
+            },
+            "allowPublicWrite": {
+              "type": "boolean",
+              "default": false,
+              "description": "Allow public write access"
+            },
+            "allowPublicList": {
+              "type": "boolean",
+              "default": false,
+              "description": "Allow public bucket listing"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Public access control"
+        },
+        "allowedIps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Allowed IP addresses/CIDR blocks"
+        },
+        "blockedIps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Blocked IP addresses/CIDR blocks"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

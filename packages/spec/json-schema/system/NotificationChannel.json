@@ -1,7 +1,18 @@
 {
   "$ref": "#/definitions/NotificationChannel",
   "definitions": {
-    "NotificationChannel": {}
+    "NotificationChannel": {
+      "type": "string",
+      "enum": [
+        "email",
+        "sms",
+        "push",
+        "in-app",
+        "slack",
+        "teams",
+        "webhook"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

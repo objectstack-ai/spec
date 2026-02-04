@@ -1,7 +1,132 @@
 {
   "$ref": "#/definitions/ODataConfig",
   "definitions": {
-    "ODataConfig": {}
+    "ODataConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable OData API"
+        },
+        "path": {
+          "type": "string",
+          "default": "/odata",
+          "description": "OData endpoint path"
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "namespace": {
+              "type": "string",
+              "description": "Service namespace"
+            },
+            "entityTypes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Entity type name"
+                  },
+                  "key": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Key fields"
+                  },
+                  "properties": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "OData type (Edm.String, Edm.Int32, etc.)"
+                        },
+                        "nullable": {
+                          "type": "boolean",
+                          "default": true
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "type"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "navigationProperties": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "partner": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "type"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "name",
+                  "key",
+                  "properties"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Entity types"
+            },
+            "entitySets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Entity set name"
+                  },
+                  "entityType": {
+                    "type": "string",
+                    "description": "Entity type"
+                  }
+                },
+                "required": [
+                  "name",
+                  "entityType"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Entity sets"
+            }
+          },
+          "required": [
+            "namespace",
+            "entityTypes",
+            "entitySets"
+          ],
+          "additionalProperties": false,
+          "description": "OData metadata configuration"
+        }
+      },
+      "additionalProperties": true
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,13 @@
 {
   "$ref": "#/definitions/SharingRuleType",
   "definitions": {
-    "SharingRuleType": {}
+    "SharingRuleType": {
+      "type": "string",
+      "enum": [
+        "owner",
+        "criteria"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

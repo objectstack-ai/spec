@@ -1,7 +1,110 @@
 {
   "$ref": "#/definitions/Permission",
   "definitions": {
-    "Permission": {}
+    "Permission": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique permission identifier"
+        },
+        "resource": {
+          "type": "string",
+          "enum": [
+            "data.object",
+            "data.record",
+            "data.field",
+            "ui.view",
+            "ui.dashboard",
+            "ui.report",
+            "system.config",
+            "system.plugin",
+            "system.api",
+            "system.service",
+            "storage.file",
+            "storage.database",
+            "network.http",
+            "network.websocket",
+            "process.spawn",
+            "process.env"
+          ],
+          "description": "Type of resource being accessed"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "create",
+              "read",
+              "update",
+              "delete",
+              "execute",
+              "manage",
+              "configure",
+              "share",
+              "export",
+              "import",
+              "admin"
+            ],
+            "description": "Type of action being permitted"
+          }
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "global",
+            "tenant",
+            "user",
+            "resource",
+            "plugin"
+          ],
+          "description": "Scope of permission application",
+          "default": "plugin"
+        },
+        "filter": {
+          "type": "object",
+          "properties": {
+            "resourceIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "condition": {
+              "type": "string",
+              "description": "Filter expression (e.g., owner = currentUser)"
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Allowed fields for data resources"
+            }
+          },
+          "additionalProperties": false
+        },
+        "description": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean",
+          "default": true
+        },
+        "justification": {
+          "type": "string",
+          "description": "Why this permission is needed"
+        }
+      },
+      "required": [
+        "id",
+        "resource",
+        "actions",
+        "description"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

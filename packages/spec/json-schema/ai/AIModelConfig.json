@@ -1,7 +1,41 @@
 {
   "$ref": "#/definitions/AIModelConfig",
   "definitions": {
-    "AIModelConfig": {}
+    "AIModelConfig": {
+      "type": "object",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": [
+            "openai",
+            "azure_openai",
+            "anthropic",
+            "local"
+          ],
+          "default": "openai"
+        },
+        "model": {
+          "type": "string",
+          "description": "Model name (e.g. gpt-4, claude-3-opus)"
+        },
+        "temperature": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2,
+          "default": 0.7
+        },
+        "maxTokens": {
+          "type": "number"
+        },
+        "topP": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "model"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

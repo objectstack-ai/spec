@@ -1,7 +1,73 @@
 {
   "$ref": "#/definitions/PluginStartupResult",
   "definitions": {
-    "PluginStartupResult": {}
+    "PluginStartupResult": {
+      "type": "object",
+      "properties": {
+        "plugin": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": true,
+          "description": "Plugin metadata"
+        },
+        "success": {
+          "type": "boolean",
+          "description": "Whether the plugin started successfully"
+        },
+        "duration": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Time taken to start the plugin in milliseconds"
+        },
+        "error": {
+          "description": "Error object if startup failed"
+        },
+        "health": {
+          "type": "object",
+          "properties": {
+            "healthy": {
+              "type": "boolean",
+              "description": "Whether the plugin is healthy"
+            },
+            "timestamp": {
+              "type": "integer",
+              "description": "Unix timestamp in milliseconds when health check was performed"
+            },
+            "details": {
+              "type": "object",
+              "additionalProperties": {},
+              "description": "Optional plugin-specific health details"
+            },
+            "message": {
+              "type": "string",
+              "description": "Error message if plugin is unhealthy"
+            }
+          },
+          "required": [
+            "healthy",
+            "timestamp"
+          ],
+          "additionalProperties": false,
+          "description": "Health status after startup if health check was enabled"
+        }
+      },
+      "required": [
+        "plugin",
+        "success",
+        "duration"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

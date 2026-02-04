@@ -1,7 +1,37 @@
 {
   "$ref": "#/definitions/DataEngineFilter",
   "definitions": {
-    "DataEngineFilter": {}
+    "DataEngineFilter": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        {
+          "allOf": [
+            {
+              "type": "object",
+              "additionalProperties": {}
+            },
+            {
+              "type": "object",
+              "properties": {
+                "$and": {
+                  "type": "array",
+                  "items": {}
+                },
+                "$or": {
+                  "type": "array",
+                  "items": {}
+                },
+                "$not": {}
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Data Engine query filter conditions"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

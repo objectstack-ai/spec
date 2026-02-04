@@ -4,70 +4,31 @@ import { z } from 'zod';
 // as Zod cannot easily validate function signatures at runtime.
 export const PluginContextSchema = z.object({
   ql: z.object({
-    object: z.function({
-      input: z.tuple([]).rest(z.any()),
-      output: z.any()
-    }), // Return any to allow method chaining
-    query: z.function({
-      input: z.tuple([]).rest(z.any()),
-      output: z.any()
-    }),
+    object: z.function().returns(z.any()), // Return any to allow method chaining
+    query: z.function().returns(z.any()),
   }).passthrough().describe('ObjectQL Engine Interface'),
 
   os: z.object({
-    getCurrentUser: z.function({
-      input: z.tuple([]).rest(z.any()),
-      output: z.any()
-    }),
-    getConfig: z.function({
-      input: z.tuple([]).rest(z.any()),
-      output: z.any()
-    }),
+    getCurrentUser: z.function().returns(z.any()),
+    getConfig: z.function().returns(z.any()),
   }).passthrough().describe('ObjectStack Kernel Interface'),
 
   logger: z.object({
-    debug: z.function({
-      input: z.tuple([]).rest(z.any()),
-      output: z.void()
-    }),
-    info: z.function({
-      input: z.tuple([]).rest(z.any()),
-      output: z.void()
-    }),
-    warn: z.function({
-      input: z.tuple([]).rest(z.any()),
-      output: z.void()
-    }),
-    error: z.function({
-      input: z.tuple([]).rest(z.any()),
-      output: z.void()
-    }),
+    debug: z.function().returns(z.void()),
+    info: z.function().returns(z.void()),
+    warn: z.function().returns(z.void()),
+    error: z.function().returns(z.void()),
   }).passthrough().describe('Logger Interface'),
 
   storage: z.object({
-    get: z.function({
-      input: z.tuple([]).rest(z.any()),
-      output: z.any()
-    }),
-    set: z.function({
-      input: z.tuple([]).rest(z.any()),
-      output: z.promise(z.void())
-    }),
-    delete: z.function({
-      input: z.tuple([]).rest(z.any()),
-      output: z.promise(z.void())
-    }),
+    get: z.function().returns(z.any()),
+    set: z.function().returns(z.promise(z.void())),
+    delete: z.function().returns(z.promise(z.void())),
   }).passthrough().describe('Storage Interface'),
 
   i18n: z.object({
-    t: z.function({
-      input: z.tuple([]).rest(z.any()),
-      output: z.string()
-    }),
-    getLocale: z.function({
-      input: z.tuple([]).rest(z.any()),
-      output: z.string()
-    }),
+    t: z.function().returns(z.string()),
+    getLocale: z.function().returns(z.string()),
   }).passthrough().describe('Internationalization Interface'),
 
   metadata: z.record(z.string(), z.any()),
@@ -75,26 +36,14 @@ export const PluginContextSchema = z.object({
   
   app: z.object({
     router: z.object({
-      get: z.function({
-        input: z.tuple([]).rest(z.any()),
-        output: z.any()
-      }),
-      post: z.function({
-        input: z.tuple([]).rest(z.any()),
-        output: z.any()
-      }),
-      use: z.function({
-        input: z.tuple([]).rest(z.any()),
-        output: z.any()
-      }),
+      get: z.function().returns(z.any()),
+      post: z.function().returns(z.any()),
+      use: z.function().returns(z.any()),
     }).passthrough()
   }).passthrough().describe('App Framework Interface'),
 
   drivers: z.object({
-    register: z.function({
-      input: z.tuple([]).rest(z.any()),
-      output: z.void()
-    }),
+    register: z.function().returns(z.void()),
   }).passthrough().describe('Driver Registry'),
 });
 
@@ -102,30 +51,30 @@ export type PluginContextData = z.infer<typeof PluginContextSchema>;
 export type PluginContext = PluginContextData;
 
 export const PluginLifecycleSchema = z.object({
-  onInstall: z.function({
-    input: z.tuple([PluginContextSchema]),
-    output: z.promise(z.void())
-  }).optional(),
+  onInstall: z.function()
+    .args(PluginContextSchema)
+    .returns(z.promise(z.void()))
+    .optional(),
   
-  onEnable: z.function({
-    input: z.tuple([PluginContextSchema]),
-    output: z.promise(z.void())
-  }).optional(),
+  onEnable: z.function()
+    .args(PluginContextSchema)
+    .returns(z.promise(z.void()))
+    .optional(),
   
-  onDisable: z.function({
-    input: z.tuple([PluginContextSchema]),
-    output: z.promise(z.void())
-  }).optional(),
+  onDisable: z.function()
+    .args(PluginContextSchema)
+    .returns(z.promise(z.void()))
+    .optional(),
   
-  onUninstall: z.function({
-    input: z.tuple([PluginContextSchema]),
-    output: z.promise(z.void())
-  }).optional(),
+  onUninstall: z.function()
+    .args(PluginContextSchema)
+    .returns(z.promise(z.void()))
+    .optional(),
   
-  onUpgrade: z.function({
-    input: z.tuple([PluginContextSchema, z.string(), z.string()]),
-    output: z.promise(z.void())
-  }).optional(),
+  onUpgrade: z.function()
+    .args(PluginContextSchema, z.string(), z.string())
+    .returns(z.promise(z.void()))
+    .optional(),
 });
 
 export type PluginLifecycleHooks = z.infer<typeof PluginLifecycleSchema>;

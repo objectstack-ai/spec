@@ -1,7 +1,201 @@
 {
   "$ref": "#/definitions/GeneratedCode",
   "definitions": {
-    "GeneratedCode": {}
+    "GeneratedCode": {
+      "type": "object",
+      "properties": {
+        "outputFormat": {
+          "type": "string",
+          "enum": [
+            "source-code",
+            "low-code-schema",
+            "dsl"
+          ]
+        },
+        "code": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        },
+        "schemas": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "object",
+                  "view",
+                  "dashboard",
+                  "app",
+                  "workflow",
+                  "api",
+                  "page"
+                ]
+              },
+              "path": {
+                "type": "string",
+                "description": "File path for the schema"
+              },
+              "content": {
+                "type": "string",
+                "description": "Schema content (JSON/YAML/TypeScript)"
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "path",
+              "content"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Generated low-code schema files"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "content"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              },
+              "coverage": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              }
+            },
+            "required": [
+              "path",
+              "content"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "documentation": {
+          "type": "object",
+          "properties": {
+            "readme": {
+              "type": "string"
+            },
+            "api": {
+              "type": "string"
+            },
+            "usage": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "package": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            },
+            "dependencies": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "devDependencies": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "name",
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        "quality": {
+          "type": "object",
+          "properties": {
+            "complexity": {
+              "type": "number",
+              "description": "Cyclomatic complexity"
+            },
+            "maintainability": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "testCoverage": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "lintScore": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            }
+          },
+          "additionalProperties": false
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "AI confidence in generated code"
+        },
+        "suggestions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "outputFormat",
+        "files",
+        "confidence"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

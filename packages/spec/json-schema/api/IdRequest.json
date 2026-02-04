@@ -1,7 +1,19 @@
 {
   "$ref": "#/definitions/IdRequest",
   "definitions": {
-    "IdRequest": {}
+    "IdRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Record ID"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

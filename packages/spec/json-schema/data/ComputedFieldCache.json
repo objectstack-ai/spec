@@ -1,7 +1,33 @@
 {
   "$ref": "#/definitions/ComputedFieldCache",
   "definitions": {
-    "ComputedFieldCache": {}
+    "ComputedFieldCache": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable caching for computed field results"
+        },
+        "ttl": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Cache TTL in seconds (0 = no expiration)"
+        },
+        "invalidateOn": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Field paths that invalidate cache (e.g., [\"inventory.quantity\", \"pricing.base_price\"])"
+        }
+      },
+      "required": [
+        "enabled",
+        "ttl",
+        "invalidateOn"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

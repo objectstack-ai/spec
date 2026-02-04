@@ -1,7 +1,94 @@
 {
   "$ref": "#/definitions/PluginTrustScore",
   "definitions": {
-    "PluginTrustScore": {}
+    "PluginTrustScore": {
+      "type": "object",
+      "properties": {
+        "pluginId": {
+          "type": "string"
+        },
+        "score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "components": {
+          "type": "object",
+          "properties": {
+            "vendorReputation": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "securityScore": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "codeQuality": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "communityScore": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "maintenanceScore": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            }
+          },
+          "required": [
+            "vendorReputation",
+            "securityScore",
+            "codeQuality",
+            "communityScore",
+            "maintenanceScore"
+          ],
+          "additionalProperties": false
+        },
+        "level": {
+          "type": "string",
+          "enum": [
+            "verified",
+            "trusted",
+            "neutral",
+            "untrusted",
+            "blocked"
+          ]
+        },
+        "badges": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "official",
+              "verified-vendor",
+              "security-scanned",
+              "code-signed",
+              "open-source",
+              "popular"
+            ]
+          },
+          "default": []
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "pluginId",
+        "score",
+        "components",
+        "level",
+        "updatedAt"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

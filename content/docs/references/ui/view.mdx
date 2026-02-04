@@ -23,53 +23,190 @@ const result = CalendarConfigSchema.parse(data);
 
 ## CalendarConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **startDateField** | `string` | ✅ |  |
+| **endDateField** | `string` | optional |  |
+| **titleField** | `string` | ✅ |  |
+| **colorField** | `string` | optional |  |
+
 ---
 
 ## FormField
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **field** | `string` | ✅ | Field name (snake_case) |
+| **label** | `string` | optional | Display label override |
+| **placeholder** | `string` | optional | Placeholder text |
+| **helpText** | `string` | optional | Help/hint text |
+| **readonly** | `boolean` | optional | Read-only override |
+| **required** | `boolean` | optional | Required override |
+| **hidden** | `boolean` | optional | Hidden override |
+| **colSpan** | `integer` | optional | Column span in grid layout (1-4) |
+| **widget** | `string` | optional | Custom widget/component name |
+| **dependsOn** | `string` | optional | Parent field name for cascading |
+| **visibleOn** | `string` | optional | Visibility condition expression |
 
 ---
 
 ## FormSection
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **label** | `string` | optional |  |
+| **collapsible** | `boolean` | optional |  |
+| **collapsed** | `boolean` | optional |  |
+| **columns** | `Enum<'1' \| '2' \| '3' \| '4'>` | optional |  |
+| **fields** | `string \| object[]` | ✅ |  |
+
 ---
 
 ## FormView
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'simple' \| 'tabbed' \| 'wizard' \| 'split' \| 'drawer' \| 'modal'>` | optional |  |
+| **data** | `object \| object \| object` | optional | Data source configuration (defaults to "object" provider) |
+| **sections** | `object[]` | optional |  |
+| **groups** | `object[]` | optional |  |
 
 ---
 
 ## GanttConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **startDateField** | `string` | ✅ |  |
+| **endDateField** | `string` | ✅ |  |
+| **titleField** | `string` | ✅ |  |
+| **progressField** | `string` | optional |  |
+| **dependenciesField** | `string` | optional |  |
+
 ---
 
 ## HttpMethod
+
+### Allowed Values
+
+* `GET`
+* `POST`
+* `PUT`
+* `PATCH`
+* `DELETE`
 
 ---
 
 ## HttpRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **url** | `string` | ✅ | API endpoint URL |
+| **method** | `Enum<'GET' \| 'POST' \| 'PUT' \| 'PATCH' \| 'DELETE'>` | optional | HTTP method |
+| **headers** | `Record<string, string>` | optional | Custom HTTP headers |
+| **params** | `Record<string, any>` | optional | Query parameters |
+| **body** | `any` | optional | Request body for POST/PUT/PATCH |
+
 ---
 
 ## KanbanConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **groupByField** | `string` | ✅ | Field to group columns by (usually status/select) |
+| **summarizeField** | `string` | optional | Field to sum at top of column (e.g. amount) |
+| **columns** | `string[]` | ✅ | Fields to show on cards |
 
 ---
 
 ## ListColumn
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **field** | `string` | ✅ | Field name (snake_case) |
+| **label** | `string` | optional | Display label override |
+| **width** | `number` | optional | Column width in pixels |
+| **align** | `Enum<'left' \| 'center' \| 'right'>` | optional | Text alignment |
+| **hidden** | `boolean` | optional | Hide column by default |
+| **sortable** | `boolean` | optional | Allow sorting by this column |
+| **resizable** | `boolean` | optional | Allow resizing this column |
+| **wrap** | `boolean` | optional | Allow text wrapping |
+| **type** | `string` | optional | Renderer type override (e.g., "currency", "date") |
+
 ---
 
 ## ListView
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | optional | Internal view name (lowercase snake_case) |
+| **label** | `string` | optional |  |
+| **type** | `Enum<'grid' \| 'spreadsheet' \| 'kanban' \| 'gallery' \| 'calendar' \| 'timeline' \| 'gantt' \| 'map'>` | optional |  |
+| **data** | `object \| object \| object` | optional | Data source configuration (defaults to "object" provider) |
+| **columns** | `string[] \| object[]` | ✅ | Fields to display as columns |
+| **filter** | `any[]` | optional | Filter criteria (JSON Rules) |
+| **sort** | `string \| object[]` | optional |  |
+| **searchableFields** | `string[]` | optional | Fields enabled for search |
+| **resizable** | `boolean` | optional | Enable column resizing |
+| **striped** | `boolean` | optional | Striped row styling |
+| **bordered** | `boolean` | optional | Show borders |
+| **selection** | `object` | optional | Row selection configuration |
+| **pagination** | `object` | optional | Pagination configuration |
+| **kanban** | `object` | optional |  |
+| **calendar** | `object` | optional |  |
+| **gantt** | `object` | optional |  |
 
 ---
 
 ## PaginationConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **pageSize** | `integer` | optional | Number of records per page |
+| **pageSizeOptions** | `integer[]` | optional | Available page size options |
+
 ---
 
 ## SelectionConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'none' \| 'single' \| 'multiple'>` | optional | Selection mode |
+
 ---
 
 ## View
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **list** | `object` | optional |  |
+| **form** | `object` | optional |  |
+| **listViews** | `Record<string, object>` | optional | Additional named list views |
+| **formViews** | `Record<string, object>` | optional | Additional named form views |
 
 ---
 

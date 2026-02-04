@@ -1,7 +1,100 @@
 {
   "$ref": "#/definitions/AuthConfig",
   "definitions": {
-    "AuthConfig": {}
+    "AuthConfig": {
+      "type": "object",
+      "properties": {
+        "secret": {
+          "type": "string",
+          "description": "Encryption secret"
+        },
+        "baseUrl": {
+          "type": "string",
+          "description": "Base URL for auth routes"
+        },
+        "databaseUrl": {
+          "type": "string",
+          "description": "Database connection string"
+        },
+        "providers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Provider ID (github, google)"
+              },
+              "clientId": {
+                "type": "string",
+                "description": "OAuth Client ID"
+              },
+              "clientSecret": {
+                "type": "string",
+                "description": "OAuth Client Secret"
+              },
+              "scope": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Requested permissions"
+              }
+            },
+            "required": [
+              "id",
+              "clientId",
+              "clientSecret"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "plugins": {
+          "type": "object",
+          "properties": {
+            "organization": {
+              "type": "boolean",
+              "default": false,
+              "description": "Enable Organization/Teams support"
+            },
+            "twoFactor": {
+              "type": "boolean",
+              "default": false,
+              "description": "Enable 2FA"
+            },
+            "passkeys": {
+              "type": "boolean",
+              "default": false,
+              "description": "Enable Passkey support"
+            },
+            "magicLink": {
+              "type": "boolean",
+              "default": false,
+              "description": "Enable Magic Link login"
+            }
+          },
+          "additionalProperties": false
+        },
+        "session": {
+          "type": "object",
+          "properties": {
+            "expiresIn": {
+              "type": "number",
+              "default": 604800,
+              "description": "Session duration in seconds"
+            },
+            "updateAge": {
+              "type": "number",
+              "default": 86400,
+              "description": "Session update frequency"
+            }
+          },
+          "additionalProperties": false
+        },
+        "[object Object]": {}
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

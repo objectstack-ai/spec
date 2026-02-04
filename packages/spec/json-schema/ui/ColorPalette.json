@@ -1,7 +1,83 @@
 {
   "$ref": "#/definitions/ColorPalette",
   "definitions": {
-    "ColorPalette": {}
+    "ColorPalette": {
+      "type": "object",
+      "properties": {
+        "primary": {
+          "type": "string",
+          "description": "Primary brand color (hex, rgb, or hsl)"
+        },
+        "secondary": {
+          "type": "string",
+          "description": "Secondary brand color"
+        },
+        "accent": {
+          "type": "string",
+          "description": "Accent color for highlights"
+        },
+        "success": {
+          "type": "string",
+          "description": "Success state color (default: green)"
+        },
+        "warning": {
+          "type": "string",
+          "description": "Warning state color (default: yellow)"
+        },
+        "error": {
+          "type": "string",
+          "description": "Error state color (default: red)"
+        },
+        "info": {
+          "type": "string",
+          "description": "Info state color (default: blue)"
+        },
+        "background": {
+          "type": "string",
+          "description": "Background color"
+        },
+        "surface": {
+          "type": "string",
+          "description": "Surface/card background color"
+        },
+        "text": {
+          "type": "string",
+          "description": "Primary text color"
+        },
+        "textSecondary": {
+          "type": "string",
+          "description": "Secondary text color"
+        },
+        "border": {
+          "type": "string",
+          "description": "Border color"
+        },
+        "disabled": {
+          "type": "string",
+          "description": "Disabled state color"
+        },
+        "primaryLight": {
+          "type": "string",
+          "description": "Lighter shade of primary"
+        },
+        "primaryDark": {
+          "type": "string",
+          "description": "Darker shade of primary"
+        },
+        "secondaryLight": {
+          "type": "string",
+          "description": "Lighter shade of secondary"
+        },
+        "secondaryDark": {
+          "type": "string",
+          "description": "Darker shade of secondary"
+        }
+      },
+      "required": [
+        "primary"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

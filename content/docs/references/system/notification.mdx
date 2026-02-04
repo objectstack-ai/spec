@@ -23,23 +23,88 @@ const result = EmailTemplateSchema.parse(data);
 
 ## EmailTemplate
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Template identifier |
+| **subject** | `string` | ✅ | Email subject |
+| **body** | `string` | ✅ | Email body content |
+| **bodyType** | `Enum<'text' \| 'html' \| 'markdown'>` | optional | Body content type |
+| **variables** | `string[]` | optional | Template variables |
+| **attachments** | `object[]` | optional | Email attachments |
+
 ---
 
 ## InAppNotification
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **title** | `string` | ✅ | Notification title |
+| **message** | `string` | ✅ | Notification message |
+| **type** | `Enum<'info' \| 'success' \| 'warning' \| 'error'>` | ✅ | Notification type |
+| **actionUrl** | `string` | optional | Action URL |
+| **dismissible** | `boolean` | optional | User dismissible |
+| **expiresAt** | `number` | optional | Expiration timestamp |
 
 ---
 
 ## NotificationChannel
 
+### Allowed Values
+
+* `email`
+* `sms`
+* `push`
+* `in-app`
+* `slack`
+* `teams`
+* `webhook`
+
 ---
 
 ## NotificationConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Notification ID |
+| **name** | `string` | ✅ | Notification name |
+| **channel** | `Enum<'email' \| 'sms' \| 'push' \| 'in-app' \| 'slack' \| 'teams' \| 'webhook'>` | ✅ | Notification channel |
+| **template** | `object \| object \| object \| object` | ✅ | Notification template |
+| **recipients** | `object` | ✅ | Recipients |
+| **schedule** | `object` | optional | Scheduling |
+| **retryPolicy** | `object` | optional | Retry policy |
+| **tracking** | `object` | optional | Tracking configuration |
 
 ---
 
 ## PushNotification
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **title** | `string` | ✅ | Notification title |
+| **body** | `string` | ✅ | Notification body |
+| **icon** | `string` | optional | Notification icon URL |
+| **badge** | `number` | optional | Badge count |
+| **data** | `Record<string, any>` | optional | Custom data |
+| **actions** | `object[]` | optional | Notification actions |
+
 ---
 
 ## SMSTemplate
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Template identifier |
+| **message** | `string` | ✅ | SMS message content |
+| **maxLength** | `number` | optional | Maximum message length |
+| **variables** | `string[]` | optional | Template variables |
 

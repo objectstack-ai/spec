@@ -1,7 +1,71 @@
 {
   "$ref": "#/definitions/GDPRConfig",
   "definitions": {
-    "GDPRConfig": {}
+    "GDPRConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "dataSubjectRights": {
+          "type": "object",
+          "properties": {
+            "rightToAccess": {
+              "type": "boolean",
+              "default": true
+            },
+            "rightToRectification": {
+              "type": "boolean",
+              "default": true
+            },
+            "rightToErasure": {
+              "type": "boolean",
+              "default": true
+            },
+            "rightToRestriction": {
+              "type": "boolean",
+              "default": true
+            },
+            "rightToPortability": {
+              "type": "boolean",
+              "default": true
+            },
+            "rightToObjection": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "legalBasis": {
+          "type": "string",
+          "enum": [
+            "consent",
+            "contract",
+            "legal-obligation",
+            "vital-interests",
+            "public-task",
+            "legitimate-interests"
+          ]
+        },
+        "consentTracking": {
+          "type": "boolean",
+          "default": true
+        },
+        "dataRetentionDays": {
+          "type": "number"
+        },
+        "dataProcessingAgreement": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "enabled",
+        "dataSubjectRights",
+        "legalBasis"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

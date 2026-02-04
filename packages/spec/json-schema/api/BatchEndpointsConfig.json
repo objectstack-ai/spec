@@ -1,7 +1,56 @@
 {
   "$ref": "#/definitions/BatchEndpointsConfig",
   "definitions": {
-    "BatchEndpointsConfig": {}
+    "BatchEndpointsConfig": {
+      "type": "object",
+      "properties": {
+        "maxBatchSize": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "default": 200,
+          "description": "Maximum records per batch operation"
+        },
+        "enableBatchEndpoint": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable POST /data/:object/batch endpoint"
+        },
+        "operations": {
+          "type": "object",
+          "properties": {
+            "createMany": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable POST /data/:object/createMany"
+            },
+            "updateMany": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable POST /data/:object/updateMany"
+            },
+            "deleteMany": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable POST /data/:object/deleteMany"
+            },
+            "upsertMany": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable POST /data/:object/upsertMany"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Enable/disable specific batch operations"
+        },
+        "defaultAtomic": {
+          "type": "boolean",
+          "default": true,
+          "description": "Default atomic/transaction mode for batch operations"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,45 @@
 {
   "$ref": "#/definitions/ListTenantsRequest",
   "definitions": {
-    "ListTenantsRequest": {}
+    "ListTenantsRequest": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        },
+        "perPage": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "sortBy": {
+          "type": "string"
+        },
+        "sortOrder": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc"
+        },
+        "isolationLevel": {
+          "type": "string",
+          "enum": [
+            "shared_schema",
+            "isolated_schema",
+            "isolated_db"
+          ]
+        },
+        "search": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

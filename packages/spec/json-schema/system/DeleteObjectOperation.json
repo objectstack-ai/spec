@@ -1,7 +1,23 @@
 {
   "$ref": "#/definitions/DeleteObjectOperation",
   "definitions": {
-    "DeleteObjectOperation": {}
+    "DeleteObjectOperation": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "delete_object"
+        },
+        "objectName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "objectName"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

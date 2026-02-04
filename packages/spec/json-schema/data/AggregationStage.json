@@ -1,7 +1,25 @@
 {
   "$ref": "#/definitions/AggregationStage",
   "definitions": {
-    "AggregationStage": {}
+    "AggregationStage": {
+      "type": "object",
+      "properties": {
+        "operator": {
+          "type": "string",
+          "description": "Aggregation operator (e.g., $match, $group, $sort)"
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Stage-specific options"
+        }
+      },
+      "required": [
+        "operator",
+        "options"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

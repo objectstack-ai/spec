@@ -1,7 +1,77 @@
 {
   "$ref": "#/definitions/RouteDefinition",
   "definitions": {
-    "RouteDefinition": {}
+    "RouteDefinition": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "GET",
+            "POST",
+            "PUT",
+            "DELETE",
+            "PATCH",
+            "HEAD",
+            "OPTIONS"
+          ]
+        },
+        "path": {
+          "type": "string",
+          "description": "URL Path pattern"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "system",
+            "api",
+            "auth",
+            "static",
+            "webhook",
+            "plugin"
+          ],
+          "default": "api"
+        },
+        "handler": {
+          "type": "string",
+          "description": "Unique handler identifier"
+        },
+        "summary": {
+          "type": "string",
+          "description": "OpenAPI summary"
+        },
+        "description": {
+          "type": "string",
+          "description": "OpenAPI description"
+        },
+        "public": {
+          "type": "boolean",
+          "default": false,
+          "description": "Is publicly accessible"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Required permissions"
+        },
+        "timeout": {
+          "type": "integer",
+          "description": "Execution timeout in ms"
+        },
+        "rateLimit": {
+          "type": "string",
+          "description": "Rate limit policy name"
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "handler"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

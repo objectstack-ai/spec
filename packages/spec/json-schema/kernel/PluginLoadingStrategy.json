@@ -1,7 +1,17 @@
 {
   "$ref": "#/definitions/PluginLoadingStrategy",
   "definitions": {
-    "PluginLoadingStrategy": {}
+    "PluginLoadingStrategy": {
+      "type": "string",
+      "enum": [
+        "eager",
+        "lazy",
+        "parallel",
+        "deferred",
+        "on-demand"
+      ],
+      "description": "Plugin loading strategy"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

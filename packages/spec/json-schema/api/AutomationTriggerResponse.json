@@ -1,0 +1,22 @@
+{
+  "$ref": "#/definitions/AutomationTriggerResponse",
+  "definitions": {
+    "AutomationTriggerResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "jobId": {
+          "type": "string"
+        },
+        "result": {}
+      },
+      "required": [
+        "success"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

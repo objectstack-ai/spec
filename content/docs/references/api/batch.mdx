@@ -23,35 +23,112 @@ const result = BatchConfigSchema.parse(data);
 
 ## BatchConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional | Enable batch operations |
+| **maxRecordsPerBatch** | `integer` | optional | Maximum records per batch |
+| **defaultOptions** | `object` | optional | Default batch options |
+
 ---
 
 ## BatchOperationResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Record ID if operation succeeded |
+| **success** | `boolean` | ✅ | Whether this record was processed successfully |
+| **errors** | `object[]` | optional | Array of errors if operation failed |
+| **data** | `Record<string, any>` | optional | Full record data (if returnRecords=true) |
+| **index** | `number` | optional | Index of the record in the request array |
 
 ---
 
 ## BatchOperationType
 
+### Allowed Values
+
+* `create`
+* `update`
+* `upsert`
+* `delete`
+
 ---
 
 ## BatchOptions
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **atomic** | `boolean` | optional | If true, rollback entire batch on any failure (transaction mode) |
+| **returnRecords** | `boolean` | optional | If true, return full record data in response |
+| **continueOnError** | `boolean` | optional | If true (and atomic=false), continue processing remaining records after errors |
+| **validateOnly** | `boolean` | optional | If true, validate records without persisting changes (dry-run mode) |
 
 ---
 
 ## BatchRecord
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Record ID (required for update/delete) |
+| **data** | `Record<string, any>` | optional | Record data (required for create/update/upsert) |
+| **externalId** | `string` | optional | External ID for upsert matching |
+
 ---
 
 ## BatchUpdateRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **operation** | `Enum<'create' \| 'update' \| 'upsert' \| 'delete'>` | ✅ | Type of batch operation |
+| **records** | `object[]` | ✅ | Array of records to process (max 200 per batch) |
+| **options** | `object` | optional | Batch operation options |
 
 ---
 
 ## BatchUpdateResponse
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `object` | optional | Error details if success is false |
+| **meta** | `object` | optional | Response metadata |
+| **operation** | `Enum<'create' \| 'update' \| 'upsert' \| 'delete'>` | optional | Operation type that was performed |
+| **total** | `number` | ✅ | Total number of records in the batch |
+| **succeeded** | `number` | ✅ | Number of records that succeeded |
+| **failed** | `number` | ✅ | Number of records that failed |
+| **results** | `object[]` | ✅ | Detailed results for each record |
+
 ---
 
 ## DeleteManyRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **ids** | `string[]` | ✅ | Array of record IDs to delete (max 200) |
+| **options** | `object` | optional | Delete options |
+
 ---
 
 ## UpdateManyRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **records** | `object[]` | ✅ | Array of records to update (max 200 per batch) |
+| **options** | `object` | optional | Update options |
 

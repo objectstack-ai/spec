@@ -1,7 +1,133 @@
 {
   "$ref": "#/definitions/DataEngineFindRequest",
   "definitions": {
-    "DataEngineFindRequest": {}
+    "DataEngineFindRequest": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "type": "string",
+          "const": "find"
+        },
+        "object": {
+          "type": "string"
+        },
+        "query": {
+          "type": "object",
+          "properties": {
+            "filter": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": {}
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "$and": {
+                          "type": "array",
+                          "items": {}
+                        },
+                        "$or": {
+                          "type": "array",
+                          "items": {}
+                        },
+                        "$not": {}
+                      }
+                    }
+                  ]
+                }
+              ],
+              "description": "Data Engine query filter conditions"
+            },
+            "select": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "sort": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string",
+                    "enum": [
+                      "asc",
+                      "desc"
+                    ]
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "number",
+                    "enum": [
+                      1,
+                      -1
+                    ]
+                  }
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "field": {
+                        "type": "string"
+                      },
+                      "order": {
+                        "type": "string",
+                        "enum": [
+                          "asc",
+                          "desc"
+                        ],
+                        "default": "asc"
+                      }
+                    },
+                    "required": [
+                      "field"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              ],
+              "description": "Sort order definition"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "skip": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "top": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "populate": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "description": "Query options for IDataEngine.find() operations"
+        }
+      },
+      "required": [
+        "method",
+        "object"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

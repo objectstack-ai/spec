@@ -1,7 +1,78 @@
 {
   "$ref": "#/definitions/DependencyConflict",
   "definitions": {
-    "DependencyConflict": {}
+    "DependencyConflict": {
+      "type": "object",
+      "properties": {
+        "package": {
+          "type": "string"
+        },
+        "conflicts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "string"
+              },
+              "requestedBy": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Packages that require this version"
+              },
+              "constraint": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "version",
+              "requestedBy",
+              "constraint"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "resolution": {
+          "type": "object",
+          "properties": {
+            "strategy": {
+              "type": "string",
+              "enum": [
+                "pick-highest",
+                "pick-lowest",
+                "manual"
+              ]
+            },
+            "version": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "strategy"
+          ],
+          "additionalProperties": false
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "error",
+            "warning",
+            "info"
+          ]
+        }
+      },
+      "required": [
+        "package",
+        "conflicts",
+        "severity"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,64 @@
 {
   "$ref": "#/definitions/Spacing",
   "definitions": {
-    "Spacing": {}
+    "Spacing": {
+      "type": "object",
+      "properties": {
+        "0": {
+          "type": "string",
+          "description": "0 spacing (0)"
+        },
+        "1": {
+          "type": "string",
+          "description": "Spacing unit 1 (e.g., 0.25rem)"
+        },
+        "2": {
+          "type": "string",
+          "description": "Spacing unit 2 (e.g., 0.5rem)"
+        },
+        "3": {
+          "type": "string",
+          "description": "Spacing unit 3 (e.g., 0.75rem)"
+        },
+        "4": {
+          "type": "string",
+          "description": "Spacing unit 4 (e.g., 1rem)"
+        },
+        "5": {
+          "type": "string",
+          "description": "Spacing unit 5 (e.g., 1.25rem)"
+        },
+        "6": {
+          "type": "string",
+          "description": "Spacing unit 6 (e.g., 1.5rem)"
+        },
+        "8": {
+          "type": "string",
+          "description": "Spacing unit 8 (e.g., 2rem)"
+        },
+        "10": {
+          "type": "string",
+          "description": "Spacing unit 10 (e.g., 2.5rem)"
+        },
+        "12": {
+          "type": "string",
+          "description": "Spacing unit 12 (e.g., 3rem)"
+        },
+        "16": {
+          "type": "string",
+          "description": "Spacing unit 16 (e.g., 4rem)"
+        },
+        "20": {
+          "type": "string",
+          "description": "Spacing unit 20 (e.g., 5rem)"
+        },
+        "24": {
+          "type": "string",
+          "description": "Spacing unit 24 (e.g., 6rem)"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

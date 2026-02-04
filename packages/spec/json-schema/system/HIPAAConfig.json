@@ -1,7 +1,45 @@
 {
   "$ref": "#/definitions/HIPAAConfig",
   "definitions": {
-    "HIPAAConfig": {}
+    "HIPAAConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "phi": {
+          "type": "object",
+          "properties": {
+            "encryption": {
+              "type": "boolean",
+              "default": true
+            },
+            "accessControl": {
+              "type": "boolean",
+              "default": true
+            },
+            "auditTrail": {
+              "type": "boolean",
+              "default": true
+            },
+            "backupAndRecovery": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "businessAssociateAgreement": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "enabled",
+        "phi"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

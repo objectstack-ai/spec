@@ -1,7 +1,139 @@
 {
   "$ref": "#/definitions/DatabaseLevelIsolationStrategy",
   "definitions": {
-    "DatabaseLevelIsolationStrategy": {}
+    "DatabaseLevelIsolationStrategy": {
+      "type": "object",
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "const": "isolated_db",
+          "description": "Database-level isolation strategy"
+        },
+        "database": {
+          "type": "object",
+          "properties": {
+            "namingPattern": {
+              "type": "string",
+              "default": "tenant_{tenant_id}",
+              "description": "Database naming pattern"
+            },
+            "serverStrategy": {
+              "type": "string",
+              "enum": [
+                "shared",
+                "sharded",
+                "dedicated"
+              ],
+              "default": "shared",
+              "description": "Server assignment strategy"
+            },
+            "separateCredentials": {
+              "type": "boolean",
+              "default": true,
+              "description": "Separate credentials per tenant"
+            },
+            "autoCreateDatabase": {
+              "type": "boolean",
+              "default": true,
+              "description": "Auto-create database"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Database configuration"
+        },
+        "connectionPool": {
+          "type": "object",
+          "properties": {
+            "poolSize": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 10,
+              "description": "Connection pool size"
+            },
+            "maxActivePools": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 100,
+              "description": "Max active pools"
+            },
+            "idleTimeout": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 300,
+              "description": "Idle pool timeout"
+            },
+            "usePooler": {
+              "type": "boolean",
+              "default": true,
+              "description": "Use connection pooler"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Connection pool configuration"
+        },
+        "backup": {
+          "type": "object",
+          "properties": {
+            "strategy": {
+              "type": "string",
+              "enum": [
+                "individual",
+                "consolidated",
+                "on_demand"
+              ],
+              "default": "individual",
+              "description": "Backup strategy"
+            },
+            "frequencyHours": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 24,
+              "description": "Backup frequency"
+            },
+            "retentionDays": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 30,
+              "description": "Backup retention days"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Backup configuration"
+        },
+        "encryption": {
+          "type": "object",
+          "properties": {
+            "perTenantKeys": {
+              "type": "boolean",
+              "default": false,
+              "description": "Per-tenant encryption keys"
+            },
+            "algorithm": {
+              "type": "string",
+              "default": "AES-256-GCM",
+              "description": "Encryption algorithm"
+            },
+            "keyManagement": {
+              "type": "string",
+              "enum": [
+                "aws_kms",
+                "azure_key_vault",
+                "gcp_kms",
+                "hashicorp_vault",
+                "custom"
+              ],
+              "description": "Key management service"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Encryption configuration"
+        }
+      },
+      "required": [
+        "strategy"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

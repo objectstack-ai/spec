@@ -23,19 +23,68 @@ const result = AuditLogConfigSchema.parse(data);
 
 ## AuditLogConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional |  |
+| **retentionDays** | `number` | optional |  |
+| **immutable** | `boolean` | optional |  |
+| **signLogs** | `boolean` | optional |  |
+| **events** | `Enum<'create' \| 'read' \| 'update' \| 'delete' \| 'export' \| 'permission-change' \| 'login' \| 'logout' \| 'failed-login'>[]` | ✅ |  |
+
 ---
 
 ## ComplianceConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **gdpr** | `object` | optional |  |
+| **hipaa** | `object` | optional |  |
+| **pciDss** | `object` | optional |  |
+| **auditLog** | `object` | ✅ |  |
 
 ---
 
 ## GDPRConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ |  |
+| **dataSubjectRights** | `object` | ✅ |  |
+| **legalBasis** | `Enum<'consent' \| 'contract' \| 'legal-obligation' \| 'vital-interests' \| 'public-task' \| 'legitimate-interests'>` | ✅ |  |
+| **consentTracking** | `boolean` | optional |  |
+| **dataRetentionDays** | `number` | optional |  |
+| **dataProcessingAgreement** | `string` | optional |  |
+
 ---
 
 ## HIPAAConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ |  |
+| **phi** | `object` | ✅ |  |
+| **businessAssociateAgreement** | `boolean` | optional |  |
+
 ---
 
 ## PCIDSSConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ |  |
+| **level** | `Enum<'1' \| '2' \| '3' \| '4'>` | ✅ |  |
+| **cardDataFields** | `string[]` | ✅ |  |
+| **tokenization** | `boolean` | optional |  |
+| **encryptionInTransit** | `boolean` | optional |  |
+| **encryptionAtRest** | `boolean` | optional |  |
 

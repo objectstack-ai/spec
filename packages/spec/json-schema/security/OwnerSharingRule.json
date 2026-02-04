@@ -1,7 +1,102 @@
 {
   "$ref": "#/definitions/OwnerSharingRule",
   "definitions": {
-    "OwnerSharingRule": {}
+    "OwnerSharingRule": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Unique rule name (snake_case)"
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable label"
+        },
+        "description": {
+          "type": "string",
+          "description": "Administrative notes"
+        },
+        "object": {
+          "type": "string",
+          "description": "Target Object Name"
+        },
+        "active": {
+          "type": "boolean",
+          "default": true
+        },
+        "accessLevel": {
+          "type": "string",
+          "enum": [
+            "read",
+            "edit",
+            "full"
+          ],
+          "default": "read"
+        },
+        "sharedWith": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "user",
+                "group",
+                "role",
+                "role_and_subordinates",
+                "guest"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "description": "ID or Code of the User/Group/Role"
+            }
+          },
+          "required": [
+            "type",
+            "value"
+          ],
+          "additionalProperties": false,
+          "description": "The recipient of the shared access"
+        },
+        "type": {
+          "type": "string",
+          "const": "owner"
+        },
+        "ownedBy": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "user",
+                "group",
+                "role",
+                "role_and_subordinates",
+                "guest"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "value"
+          ],
+          "additionalProperties": false,
+          "description": "Source group/role whose records are being shared"
+        }
+      },
+      "required": [
+        "name",
+        "object",
+        "sharedWith",
+        "type",
+        "ownedBy"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

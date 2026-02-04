@@ -1,7 +1,239 @@
 {
   "$ref": "#/definitions/RegistryConfig",
   "definitions": {
-    "RegistryConfig": {}
+    "RegistryConfig": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "public",
+            "private",
+            "hybrid"
+          ],
+          "description": "Registry deployment type"
+        },
+        "upstream": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "description": "Upstream registry endpoint"
+              },
+              "syncPolicy": {
+                "type": "string",
+                "enum": [
+                  "manual",
+                  "auto",
+                  "proxy"
+                ],
+                "description": "Registry synchronization strategy",
+                "default": "auto"
+              },
+              "syncInterval": {
+                "type": "integer",
+                "minimum": 60,
+                "description": "Auto-sync interval in seconds"
+              },
+              "auth": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "basic",
+                      "bearer",
+                      "api-key",
+                      "oauth2"
+                    ],
+                    "default": "none"
+                  },
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "token": {
+                    "type": "string"
+                  },
+                  "apiKey": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "tls": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "verifyCertificate": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "certificate": {
+                    "type": "string"
+                  },
+                  "privateKey": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "timeout": {
+                "type": "integer",
+                "minimum": 1000,
+                "default": 30000,
+                "description": "Request timeout in milliseconds"
+              },
+              "retry": {
+                "type": "object",
+                "properties": {
+                  "maxAttempts": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 3
+                  },
+                  "backoff": {
+                    "type": "string",
+                    "enum": [
+                      "fixed",
+                      "linear",
+                      "exponential"
+                    ],
+                    "default": "exponential"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "url"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Upstream registries to sync from or proxy to"
+        },
+        "scope": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "npm-style scopes managed by this registry (e.g., @my-corp, @enterprise)"
+        },
+        "defaultScope": {
+          "type": "string",
+          "description": "Default scope prefix for new plugins"
+        },
+        "storage": {
+          "type": "object",
+          "properties": {
+            "backend": {
+              "type": "string",
+              "enum": [
+                "local",
+                "s3",
+                "gcs",
+                "azure-blob",
+                "oss"
+              ],
+              "default": "local"
+            },
+            "path": {
+              "type": "string"
+            },
+            "credentials": {
+              "type": "object",
+              "additionalProperties": {}
+            }
+          },
+          "additionalProperties": false
+        },
+        "visibility": {
+          "type": "string",
+          "enum": [
+            "public",
+            "private",
+            "internal"
+          ],
+          "default": "private",
+          "description": "Who can access this registry"
+        },
+        "accessControl": {
+          "type": "object",
+          "properties": {
+            "requireAuthForRead": {
+              "type": "boolean",
+              "default": false
+            },
+            "requireAuthForWrite": {
+              "type": "boolean",
+              "default": true
+            },
+            "allowedPrincipals": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "cache": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "ttl": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 3600,
+              "description": "Cache TTL in seconds"
+            },
+            "maxSize": {
+              "type": "integer",
+              "description": "Maximum cache size in bytes"
+            }
+          },
+          "additionalProperties": false
+        },
+        "mirrors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "priority": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 1
+              }
+            },
+            "required": [
+              "url"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Mirror registries for redundancy"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

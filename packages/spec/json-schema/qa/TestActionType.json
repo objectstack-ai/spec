@@ -1,7 +1,19 @@
 {
   "$ref": "#/definitions/TestActionType",
   "definitions": {
-    "TestActionType": {}
+    "TestActionType": {
+      "type": "string",
+      "enum": [
+        "create_record",
+        "update_record",
+        "delete_record",
+        "read_record",
+        "query_records",
+        "api_call",
+        "run_script",
+        "wait"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

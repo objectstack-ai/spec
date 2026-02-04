@@ -1,7 +1,17 @@
 {
   "$ref": "#/definitions/CompatibilityLevel",
   "definitions": {
-    "CompatibilityLevel": {}
+    "CompatibilityLevel": {
+      "type": "string",
+      "enum": [
+        "fully-compatible",
+        "backward-compatible",
+        "deprecated-compatible",
+        "breaking-changes",
+        "incompatible"
+      ],
+      "description": "Compatibility level between versions"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

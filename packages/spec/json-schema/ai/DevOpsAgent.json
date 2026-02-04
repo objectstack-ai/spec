@@ -1,7 +1,815 @@
 {
   "$ref": "#/definitions/DevOpsAgent",
   "definitions": {
-    "DevOpsAgent": {}
+    "DevOpsAgent": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Agent unique identifier"
+        },
+        "label": {
+          "type": "string",
+          "description": "Agent display name"
+        },
+        "avatar": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "description": "The persona/role (e.g. \"Senior Support Engineer\")"
+        },
+        "instructions": {
+          "type": "string",
+          "description": "System Prompt / Prime Directives"
+        },
+        "model": {
+          "type": "object",
+          "properties": {
+            "provider": {
+              "type": "string",
+              "enum": [
+                "openai",
+                "azure_openai",
+                "anthropic",
+                "local"
+              ],
+              "default": "openai"
+            },
+            "model": {
+              "type": "string",
+              "description": "Model name (e.g. gpt-4, claude-3-opus)"
+            },
+            "temperature": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 2,
+              "default": 0.7
+            },
+            "maxTokens": {
+              "type": "number"
+            },
+            "topP": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "model"
+          ],
+          "additionalProperties": false
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "action",
+                  "flow",
+                  "query",
+                  "vector_search"
+                ]
+              },
+              "name": {
+                "type": "string",
+                "description": "Reference name (Action Name, Flow Name)"
+              },
+              "description": {
+                "type": "string",
+                "description": "Override description for the LLM"
+              }
+            },
+            "required": [
+              "type",
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Available tools"
+        },
+        "knowledge": {
+          "type": "object",
+          "properties": {
+            "topics": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Topics/Tags to recruit knowledge from"
+            },
+            "indexes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Vector Store Indexes"
+            }
+          },
+          "required": [
+            "topics",
+            "indexes"
+          ],
+          "additionalProperties": false,
+          "description": "RAG access"
+        },
+        "active": {
+          "type": "boolean",
+          "default": true
+        },
+        "access": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Who can chat with this agent"
+        },
+        "tenantId": {
+          "type": "string",
+          "description": "Tenant/Organization ID"
+        },
+        "visibility": {
+          "type": "string",
+          "enum": [
+            "global",
+            "organization",
+            "private"
+          ],
+          "default": "organization"
+        },
+        "developmentConfig": {
+          "type": "object",
+          "properties": {
+            "specificationSource": {
+              "type": "string",
+              "description": "Path to ObjectStack specification"
+            },
+            "codeGeneration": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Enable code generation"
+                },
+                "targets": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "frontend",
+                      "backend",
+                      "api",
+                      "database",
+                      "tests",
+                      "documentation",
+                      "infrastructure"
+                    ],
+                    "description": "Code generation target"
+                  },
+                  "description": "Code generation targets"
+                },
+                "templateRepo": {
+                  "type": "string",
+                  "description": "Template repository for scaffolding"
+                },
+                "styleGuide": {
+                  "type": "string",
+                  "description": "Code style guide to follow"
+                },
+                "includeTests": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Generate tests with code"
+                },
+                "includeDocumentation": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Generate documentation"
+                },
+                "validationMode": {
+                  "type": "string",
+                  "enum": [
+                    "strict",
+                    "moderate",
+                    "permissive"
+                  ],
+                  "default": "strict",
+                  "description": "Code validation strictness"
+                }
+              },
+              "required": [
+                "targets"
+              ],
+              "additionalProperties": false,
+              "description": "Code generation settings"
+            },
+            "testing": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Enable automated testing"
+                },
+                "testTypes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "unit",
+                      "integration",
+                      "e2e",
+                      "performance",
+                      "security",
+                      "accessibility"
+                    ]
+                  },
+                  "default": [
+                    "unit",
+                    "integration"
+                  ],
+                  "description": "Types of tests to run"
+                },
+                "coverageThreshold": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100,
+                  "default": 80,
+                  "description": "Minimum test coverage percentage"
+                },
+                "framework": {
+                  "type": "string",
+                  "description": "Testing framework (e.g., vitest, jest, playwright)"
+                },
+                "preCommitTests": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Run tests before committing"
+                },
+                "autoFix": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Attempt to auto-fix failing tests"
+                }
+              },
+              "additionalProperties": false,
+              "description": "Testing configuration"
+            },
+            "linting": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "autoFix": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "rules": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              },
+              "additionalProperties": false,
+              "description": "Code linting configuration"
+            },
+            "formatting": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "autoFormat": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "config": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              },
+              "additionalProperties": false,
+              "description": "Code formatting configuration"
+            }
+          },
+          "required": [
+            "specificationSource",
+            "codeGeneration"
+          ],
+          "additionalProperties": false,
+          "description": "Development configuration"
+        },
+        "pipelines": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Pipeline name"
+              },
+              "trigger": {
+                "type": "string",
+                "enum": [
+                  "push",
+                  "pull_request",
+                  "release",
+                  "schedule",
+                  "manual"
+                ],
+                "description": "Pipeline trigger"
+              },
+              "branches": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Branches to run pipeline on"
+              },
+              "stages": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Pipeline stage name"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "build",
+                        "test",
+                        "lint",
+                        "security_scan",
+                        "deploy",
+                        "smoke_test",
+                        "rollback"
+                      ],
+                      "description": "Stage type"
+                    },
+                    "order": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Execution order"
+                    },
+                    "parallel": {
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Can run in parallel with other stages"
+                    },
+                    "commands": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Commands to execute"
+                    },
+                    "env": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "description": "Stage-specific environment variables"
+                    },
+                    "timeout": {
+                      "type": "integer",
+                      "minimum": 60,
+                      "default": 600,
+                      "description": "Stage timeout in seconds"
+                    },
+                    "retryOnFailure": {
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Retry stage on failure"
+                    },
+                    "maxRetries": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 5,
+                      "default": 0,
+                      "description": "Maximum retry attempts"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "type",
+                    "order",
+                    "commands"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "Pipeline stages"
+              },
+              "notifications": {
+                "type": "object",
+                "properties": {
+                  "onSuccess": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "onFailure": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "channels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Notification channels (e.g., slack, email)"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "Pipeline notifications"
+              }
+            },
+            "required": [
+              "name",
+              "trigger",
+              "stages"
+            ],
+            "additionalProperties": false
+          },
+          "description": "CI/CD pipelines"
+        },
+        "versionManagement": {
+          "type": "object",
+          "properties": {
+            "scheme": {
+              "type": "string",
+              "enum": [
+                "semver",
+                "calver",
+                "custom"
+              ],
+              "default": "semver",
+              "description": "Versioning scheme"
+            },
+            "autoIncrement": {
+              "type": "string",
+              "enum": [
+                "major",
+                "minor",
+                "patch",
+                "none"
+              ],
+              "default": "patch",
+              "description": "Auto-increment strategy"
+            },
+            "prefix": {
+              "type": "string",
+              "default": "v",
+              "description": "Version tag prefix"
+            },
+            "generateChangelog": {
+              "type": "boolean",
+              "default": true,
+              "description": "Generate changelog automatically"
+            },
+            "changelogFormat": {
+              "type": "string",
+              "enum": [
+                "conventional",
+                "keepachangelog",
+                "custom"
+              ],
+              "default": "conventional",
+              "description": "Changelog format"
+            },
+            "tagReleases": {
+              "type": "boolean",
+              "default": true,
+              "description": "Create Git tags for releases"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Version management configuration"
+        },
+        "deploymentStrategy": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "rolling",
+                "blue_green",
+                "canary",
+                "recreate"
+              ],
+              "default": "rolling",
+              "description": "Deployment strategy"
+            },
+            "canaryPercentage": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "default": 10,
+              "description": "Canary deployment percentage"
+            },
+            "healthCheckUrl": {
+              "type": "string",
+              "description": "Health check endpoint"
+            },
+            "healthCheckTimeout": {
+              "type": "integer",
+              "minimum": 10,
+              "default": 60,
+              "description": "Health check timeout in seconds"
+            },
+            "autoRollback": {
+              "type": "boolean",
+              "default": true,
+              "description": "Automatically rollback on failure"
+            },
+            "smokeTests": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Smoke test commands to run post-deployment"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Deployment strategy"
+        },
+        "monitoring": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable monitoring"
+            },
+            "metrics": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "performance",
+                  "errors",
+                  "usage",
+                  "availability",
+                  "latency"
+                ]
+              },
+              "default": [
+                "performance",
+                "errors",
+                "availability"
+              ],
+              "description": "Metrics to monitor"
+            },
+            "alerts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Alert name"
+                  },
+                  "metric": {
+                    "type": "string",
+                    "description": "Metric to monitor"
+                  },
+                  "threshold": {
+                    "type": "number",
+                    "description": "Alert threshold"
+                  },
+                  "severity": {
+                    "type": "string",
+                    "enum": [
+                      "info",
+                      "warning",
+                      "critical"
+                    ],
+                    "description": "Alert severity"
+                  }
+                },
+                "required": [
+                  "name",
+                  "metric",
+                  "threshold",
+                  "severity"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Alert configurations"
+            },
+            "integrations": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Monitoring service integrations"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Monitoring configuration"
+        },
+        "integrations": {
+          "type": "object",
+          "properties": {
+            "github": {
+              "type": "object",
+              "properties": {
+                "connector": {
+                  "type": "string",
+                  "description": "GitHub connector name"
+                },
+                "repository": {
+                  "type": "object",
+                  "properties": {
+                    "owner": {
+                      "type": "string",
+                      "description": "Repository owner"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Repository name"
+                    }
+                  },
+                  "required": [
+                    "owner",
+                    "name"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Repository configuration"
+                },
+                "featureBranch": {
+                  "type": "string",
+                  "default": "develop",
+                  "description": "Default feature branch"
+                },
+                "pullRequest": {
+                  "type": "object",
+                  "properties": {
+                    "autoCreate": {
+                      "type": "boolean",
+                      "default": true,
+                      "description": "Automatically create PRs"
+                    },
+                    "autoMerge": {
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Automatically merge PRs when checks pass"
+                    },
+                    "requireReviews": {
+                      "type": "boolean",
+                      "default": true,
+                      "description": "Require reviews before merge"
+                    },
+                    "deleteBranchOnMerge": {
+                      "type": "boolean",
+                      "default": true,
+                      "description": "Delete feature branch after merge"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "Pull request settings"
+                }
+              },
+              "required": [
+                "connector",
+                "repository"
+              ],
+              "additionalProperties": false,
+              "description": "GitHub integration configuration"
+            },
+            "vercel": {
+              "type": "object",
+              "properties": {
+                "connector": {
+                  "type": "string",
+                  "description": "Vercel connector name"
+                },
+                "project": {
+                  "type": "string",
+                  "description": "Vercel project name"
+                },
+                "environments": {
+                  "type": "object",
+                  "properties": {
+                    "production": {
+                      "type": "string",
+                      "default": "main",
+                      "description": "Production branch"
+                    },
+                    "preview": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "default": [
+                        "develop",
+                        "feature/*"
+                      ],
+                      "description": "Preview branches"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "Environment mapping"
+                },
+                "deployment": {
+                  "type": "object",
+                  "properties": {
+                    "autoDeployProduction": {
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Auto-deploy to production"
+                    },
+                    "autoDeployPreview": {
+                      "type": "boolean",
+                      "default": true,
+                      "description": "Auto-deploy preview environments"
+                    },
+                    "requireApproval": {
+                      "type": "boolean",
+                      "default": true,
+                      "description": "Require approval for production deployments"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "Deployment settings"
+                }
+              },
+              "required": [
+                "connector",
+                "project"
+              ],
+              "additionalProperties": false,
+              "description": "Vercel integration configuration"
+            },
+            "additional": {
+              "type": "object",
+              "additionalProperties": {},
+              "description": "Additional integration configurations"
+            }
+          },
+          "required": [
+            "github",
+            "vercel"
+          ],
+          "additionalProperties": false,
+          "description": "Integration configurations"
+        },
+        "selfIteration": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable self-iteration"
+            },
+            "iterationFrequency": {
+              "type": "string",
+              "description": "Iteration frequency (cron expression)"
+            },
+            "optimizationGoals": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "performance",
+                  "security",
+                  "code_quality",
+                  "test_coverage",
+                  "documentation"
+                ]
+              },
+              "description": "Optimization goals"
+            },
+            "learningMode": {
+              "type": "string",
+              "enum": [
+                "conservative",
+                "balanced",
+                "aggressive"
+              ],
+              "default": "balanced",
+              "description": "Learning mode"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Self-iteration configuration"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "role",
+        "instructions",
+        "developmentConfig",
+        "integrations"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

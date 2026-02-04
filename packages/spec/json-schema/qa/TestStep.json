@@ -1,7 +1,99 @@
 {
   "$ref": "#/definitions/TestStep",
   "definitions": {
-    "TestStep": {}
+    "TestStep": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "action": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "create_record",
+                "update_record",
+                "delete_record",
+                "read_record",
+                "query_records",
+                "api_call",
+                "run_script",
+                "wait"
+              ]
+            },
+            "target": {
+              "type": "string",
+              "description": "Target Object, API Endpoint, or Function Name"
+            },
+            "payload": {
+              "type": "object",
+              "additionalProperties": {},
+              "description": "Data to send or use"
+            },
+            "user": {
+              "type": "string",
+              "description": "Run as specific user/role"
+            }
+          },
+          "required": [
+            "type",
+            "target"
+          ],
+          "additionalProperties": false
+        },
+        "assertions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string",
+                "description": "Field path in the result to check (e.g. \"body.data.0.status\")"
+              },
+              "operator": {
+                "type": "string",
+                "enum": [
+                  "equals",
+                  "not_equals",
+                  "contains",
+                  "not_contains",
+                  "is_null",
+                  "not_null",
+                  "gt",
+                  "gte",
+                  "lt",
+                  "lte",
+                  "error"
+                ]
+              },
+              "expectedValue": {}
+            },
+            "required": [
+              "field",
+              "operator"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "capture": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Map result fields to context variables: { \"newId\": \"body._id\" }"
+        }
+      },
+      "required": [
+        "name",
+        "action"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -23,15 +23,58 @@ const result = FeedbackLoopSchema.parse(data);
 
 ## FeedbackLoop
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **issue** | `object` | ✅ |  |
+| **analysis** | `string` | optional | AI analysis of the root cause |
+| **resolutions** | `object[]` | optional |  |
+| **status** | `Enum<'open' \| 'analyzing' \| 'resolved' \| 'ignored'>` | optional |  |
+
 ---
 
 ## Issue
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ |  |
+| **severity** | `Enum<'critical' \| 'error' \| 'warning' \| 'info'>` | ✅ |  |
+| **message** | `string` | ✅ |  |
+| **stackTrace** | `string` | optional |  |
+| **timestamp** | `string` | ✅ |  |
+| **userId** | `string` | optional |  |
+| **context** | `Record<string, any>` | optional |  |
+| **source** | `object` | optional |  |
 
 ---
 
 ## MetadataSource
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **file** | `string` | optional |  |
+| **line** | `number` | optional |  |
+| **column** | `number` | optional |  |
+| **package** | `string` | optional |  |
+| **object** | `string` | optional |  |
+| **field** | `string` | optional |  |
+| **component** | `string` | optional |  |
+
 ---
 
 ## Resolution
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **issueId** | `string` | ✅ |  |
+| **reasoning** | `string` | ✅ | Explanation of why this fix is needed |
+| **confidence** | `number` | ✅ |  |
+| **fix** | `object \| object` | ✅ |  |
 

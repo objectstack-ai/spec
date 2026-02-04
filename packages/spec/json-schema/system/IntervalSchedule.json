@@ -1,7 +1,25 @@
 {
   "$ref": "#/definitions/IntervalSchedule",
   "definitions": {
-    "IntervalSchedule": {}
+    "IntervalSchedule": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "interval"
+        },
+        "intervalMs": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "description": "Interval in milliseconds"
+        }
+      },
+      "required": [
+        "type",
+        "intervalMs"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

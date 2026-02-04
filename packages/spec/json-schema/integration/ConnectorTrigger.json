@@ -1,7 +1,40 @@
 {
   "$ref": "#/definitions/ConnectorTrigger",
   "definitions": {
-    "ConnectorTrigger": {}
+    "ConnectorTrigger": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "Trigger key"
+        },
+        "label": {
+          "type": "string",
+          "description": "Trigger label"
+        },
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "polling",
+            "webhook"
+          ],
+          "description": "Trigger type"
+        },
+        "interval": {
+          "type": "number",
+          "description": "Polling interval in seconds"
+        }
+      },
+      "required": [
+        "key",
+        "label",
+        "type"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

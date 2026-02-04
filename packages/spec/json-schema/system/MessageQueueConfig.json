@@ -1,7 +1,143 @@
 {
   "$ref": "#/definitions/MessageQueueConfig",
   "definitions": {
-    "MessageQueueConfig": {}
+    "MessageQueueConfig": {
+      "type": "object",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": [
+            "kafka",
+            "rabbitmq",
+            "aws-sqs",
+            "redis-pubsub",
+            "google-pubsub",
+            "azure-service-bus"
+          ]
+        },
+        "topics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "partitions": {
+                "type": "number",
+                "default": 1
+              },
+              "replicationFactor": {
+                "type": "number",
+                "default": 1
+              },
+              "retentionMs": {
+                "type": "number"
+              },
+              "compressionType": {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "gzip",
+                  "snappy",
+                  "lz4"
+                ],
+                "default": "none"
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "consumers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "groupId": {
+                "type": "string"
+              },
+              "autoOffsetReset": {
+                "type": "string",
+                "enum": [
+                  "earliest",
+                  "latest"
+                ],
+                "default": "latest"
+              },
+              "enableAutoCommit": {
+                "type": "boolean",
+                "default": true
+              },
+              "maxPollRecords": {
+                "type": "number",
+                "default": 500
+              }
+            },
+            "required": [
+              "groupId"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "deadLetterQueue": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "maxRetries": {
+              "type": "number",
+              "default": 3
+            },
+            "queueName": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "queueName"
+          ],
+          "additionalProperties": false
+        },
+        "ssl": {
+          "type": "boolean",
+          "default": false
+        },
+        "sasl": {
+          "type": "object",
+          "properties": {
+            "mechanism": {
+              "type": "string",
+              "enum": [
+                "plain",
+                "scram-sha-256",
+                "scram-sha-512"
+              ]
+            },
+            "username": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "mechanism",
+            "username",
+            "password"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "provider",
+        "topics"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

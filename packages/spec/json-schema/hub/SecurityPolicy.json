@@ -1,7 +1,146 @@
 {
   "$ref": "#/definitions/SecurityPolicy",
   "definitions": {
-    "SecurityPolicy": {}
+    "SecurityPolicy": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "autoScan": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "frequency": {
+              "type": "string",
+              "enum": [
+                "on-publish",
+                "daily",
+                "weekly",
+                "monthly"
+              ],
+              "default": "daily"
+            }
+          },
+          "additionalProperties": false
+        },
+        "thresholds": {
+          "type": "object",
+          "properties": {
+            "maxCritical": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "maxHigh": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "maxMedium": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 5
+            }
+          },
+          "additionalProperties": false
+        },
+        "allowedLicenses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "MIT",
+            "Apache-2.0",
+            "BSD-3-Clause",
+            "BSD-2-Clause",
+            "ISC"
+          ]
+        },
+        "prohibitedLicenses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "GPL-3.0",
+            "AGPL-3.0"
+          ]
+        },
+        "codeSigning": {
+          "type": "object",
+          "properties": {
+            "required": {
+              "type": "boolean",
+              "default": false
+            },
+            "allowedSigners": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": []
+            }
+          },
+          "additionalProperties": false
+        },
+        "sandbox": {
+          "type": "object",
+          "properties": {
+            "networkAccess": {
+              "type": "string",
+              "enum": [
+                "none",
+                "localhost",
+                "allowlist",
+                "all"
+              ],
+              "default": "all"
+            },
+            "allowedDestinations": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": []
+            },
+            "filesystemAccess": {
+              "type": "string",
+              "enum": [
+                "none",
+                "read-only",
+                "temp-only",
+                "full"
+              ],
+              "default": "full"
+            },
+            "maxMemoryMB": {
+              "type": "integer",
+              "exclusiveMinimum": 0
+            },
+            "maxCPUSeconds": {
+              "type": "integer",
+              "exclusiveMinimum": 0
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "autoScan",
+        "thresholds"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

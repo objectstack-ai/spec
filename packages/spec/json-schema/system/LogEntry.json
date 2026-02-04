@@ -1,7 +1,64 @@
 {
   "$ref": "#/definitions/LogEntry",
   "definitions": {
-    "LogEntry": {}
+    "LogEntry": {
+      "type": "object",
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp"
+        },
+        "level": {
+          "type": "string",
+          "enum": [
+            "debug",
+            "info",
+            "warn",
+            "error",
+            "fatal",
+            "silent"
+          ],
+          "description": "Log severity level"
+        },
+        "message": {
+          "type": "string",
+          "description": "Log message"
+        },
+        "context": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Structured context data"
+        },
+        "error": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Error object if present"
+        },
+        "traceId": {
+          "type": "string",
+          "description": "Distributed trace ID"
+        },
+        "spanId": {
+          "type": "string",
+          "description": "Span ID"
+        },
+        "service": {
+          "type": "string",
+          "description": "Service name"
+        },
+        "component": {
+          "type": "string",
+          "description": "Component name (e.g. plugin id)"
+        }
+      },
+      "required": [
+        "timestamp",
+        "level",
+        "message"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

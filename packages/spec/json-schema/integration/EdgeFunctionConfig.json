@@ -1,7 +1,45 @@
 {
   "$ref": "#/definitions/EdgeFunctionConfig",
   "definitions": {
-    "EdgeFunctionConfig": {}
+    "EdgeFunctionConfig": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Edge function name"
+        },
+        "path": {
+          "type": "string",
+          "description": "Function path (e.g., /api/*)"
+        },
+        "regions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Specific regions for this function"
+        },
+        "memoryLimit": {
+          "type": "integer",
+          "minimum": 128,
+          "maximum": 3008,
+          "default": 1024,
+          "description": "Memory limit in MB"
+        },
+        "timeout": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 300,
+          "default": 10,
+          "description": "Timeout in seconds"
+        }
+      },
+      "required": [
+        "name",
+        "path"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

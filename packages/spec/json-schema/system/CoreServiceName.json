@@ -1,7 +1,25 @@
 {
   "$ref": "#/definitions/CoreServiceName",
   "definitions": {
-    "CoreServiceName": {}
+    "CoreServiceName": {
+      "type": "string",
+      "enum": [
+        "metadata",
+        "data",
+        "auth",
+        "file-storage",
+        "search",
+        "cache",
+        "queue",
+        "automation",
+        "graphql",
+        "analytics",
+        "hub",
+        "realtime",
+        "job",
+        "notification"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

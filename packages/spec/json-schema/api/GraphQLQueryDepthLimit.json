@@ -1,7 +1,44 @@
 {
   "$ref": "#/definitions/GraphQLQueryDepthLimit",
   "definitions": {
-    "GraphQLQueryDepthLimit": {}
+    "GraphQLQueryDepthLimit": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable query depth limiting"
+        },
+        "maxDepth": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 10,
+          "description": "Maximum query depth"
+        },
+        "ignoreFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields excluded from depth calculation"
+        },
+        "onDepthExceeded": {
+          "type": "string",
+          "enum": [
+            "reject",
+            "log",
+            "warn"
+          ],
+          "default": "reject",
+          "description": "Action when depth exceeded"
+        },
+        "errorMessage": {
+          "type": "string",
+          "description": "Custom error message for depth violations"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

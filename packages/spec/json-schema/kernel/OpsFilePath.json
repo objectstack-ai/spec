@@ -1,7 +1,9 @@
 {
   "$ref": "#/definitions/OpsFilePath",
   "definitions": {
-    "OpsFilePath": {}
+    "OpsFilePath": {
+      "type": "string"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

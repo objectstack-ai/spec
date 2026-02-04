@@ -1,7 +1,126 @@
 {
   "$ref": "#/definitions/GetPluginVersionsResponse",
   "definitions": {
-    "GetPluginVersionsResponse": {}
+    "GetPluginVersionsResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "description": "Operation success status"
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "Error code (e.g. validation_error)"
+            },
+            "message": {
+              "type": "string",
+              "description": "Readable error message"
+            },
+            "category": {
+              "type": "string",
+              "description": "Error category (e.g. validation, authorization)"
+            },
+            "details": {
+              "description": "Additional error context (e.g. field validation errors)"
+            },
+            "requestId": {
+              "type": "string",
+              "description": "Request ID for tracking"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ],
+          "additionalProperties": false,
+          "description": "Error details if success is false"
+        },
+        "meta": {
+          "type": "object",
+          "properties": {
+            "timestamp": {
+              "type": "string"
+            },
+            "duration": {
+              "type": "number"
+            },
+            "requestId": {
+              "type": "string"
+            },
+            "traceId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "timestamp"
+          ],
+          "additionalProperties": false,
+          "description": "Response metadata"
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "pluginId": {
+              "type": "string"
+            },
+            "versions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "type": "string"
+                  },
+                  "publishedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "deprecated": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "yanked": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether this version was removed"
+                  },
+                  "changelog": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "version",
+                  "publishedAt"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "latest": {
+              "type": "string",
+              "description": "Latest stable version"
+            },
+            "latestPrerelease": {
+              "type": "string",
+              "description": "Latest pre-release version"
+            }
+          },
+          "required": [
+            "pluginId",
+            "versions",
+            "latest"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "success",
+        "data"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

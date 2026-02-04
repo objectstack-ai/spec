@@ -1,7 +1,74 @@
 {
   "$ref": "#/definitions/GitHubRepository",
   "definitions": {
-    "GitHubRepository": {}
+    "GitHubRepository": {
+      "type": "object",
+      "properties": {
+        "owner": {
+          "type": "string",
+          "description": "Repository owner (organization or username)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Repository name"
+        },
+        "defaultBranch": {
+          "type": "string",
+          "default": "main",
+          "description": "Default branch name"
+        },
+        "autoMerge": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable auto-merge for pull requests"
+        },
+        "branchProtection": {
+          "type": "object",
+          "properties": {
+            "requiredReviewers": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 1,
+              "description": "Required number of reviewers"
+            },
+            "requireStatusChecks": {
+              "type": "boolean",
+              "default": true,
+              "description": "Require status checks to pass"
+            },
+            "enforceAdmins": {
+              "type": "boolean",
+              "default": false,
+              "description": "Enforce protections for admins"
+            },
+            "allowForcePushes": {
+              "type": "boolean",
+              "default": false,
+              "description": "Allow force pushes"
+            },
+            "allowDeletions": {
+              "type": "boolean",
+              "default": false,
+              "description": "Allow branch deletions"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Branch protection configuration"
+        },
+        "topics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Repository topics"
+        }
+      },
+      "required": [
+        "owner",
+        "name"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

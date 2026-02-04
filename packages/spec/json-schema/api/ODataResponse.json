@@ -1,7 +1,37 @@
 {
   "$ref": "#/definitions/ODataResponse",
   "definitions": {
-    "ODataResponse": {}
+    "ODataResponse": {
+      "type": "object",
+      "properties": {
+        "@odata.context": {
+          "type": "string",
+          "format": "uri",
+          "description": "Metadata context URL"
+        },
+        "@odata.count": {
+          "type": "integer",
+          "description": "Total results count"
+        },
+        "@odata.nextLink": {
+          "type": "string",
+          "format": "uri",
+          "description": "Next page URL"
+        },
+        "value": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "description": "Results array"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

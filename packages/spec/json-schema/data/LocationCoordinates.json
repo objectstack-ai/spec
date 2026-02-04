@@ -1,7 +1,36 @@
 {
   "$ref": "#/definitions/LocationCoordinates",
   "definitions": {
-    "LocationCoordinates": {}
+    "LocationCoordinates": {
+      "type": "object",
+      "properties": {
+        "latitude": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90,
+          "description": "Latitude coordinate"
+        },
+        "longitude": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180,
+          "description": "Longitude coordinate"
+        },
+        "altitude": {
+          "type": "number",
+          "description": "Altitude in meters"
+        },
+        "accuracy": {
+          "type": "number",
+          "description": "Accuracy in meters"
+        }
+      },
+      "required": [
+        "latitude",
+        "longitude"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

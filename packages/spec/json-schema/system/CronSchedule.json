@@ -1,7 +1,29 @@
 {
   "$ref": "#/definitions/CronSchedule",
   "definitions": {
-    "CronSchedule": {}
+    "CronSchedule": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "cron"
+        },
+        "expression": {
+          "type": "string",
+          "description": "Cron expression (e.g., \"0 0 * * *\" for daily at midnight)"
+        },
+        "timezone": {
+          "type": "string",
+          "default": "UTC",
+          "description": "Timezone for cron execution (e.g., \"America/New_York\")"
+        }
+      },
+      "required": [
+        "type",
+        "expression"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

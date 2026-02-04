@@ -1,7 +1,65 @@
 {
   "$ref": "#/definitions/AggregationNode",
   "definitions": {
-    "AggregationNode": {}
+    "AggregationNode": {
+      "type": "object",
+      "properties": {
+        "function": {
+          "type": "string",
+          "enum": [
+            "count",
+            "sum",
+            "avg",
+            "min",
+            "max",
+            "count_distinct",
+            "array_agg",
+            "string_agg"
+          ],
+          "description": "Aggregation function"
+        },
+        "field": {
+          "type": "string",
+          "description": "Field to aggregate (optional for COUNT(*))"
+        },
+        "alias": {
+          "type": "string",
+          "description": "Result column alias"
+        },
+        "distinct": {
+          "type": "boolean",
+          "description": "Apply DISTINCT before aggregation"
+        },
+        "filter": {
+          "allOf": [
+            {
+              "type": "object",
+              "additionalProperties": {}
+            },
+            {
+              "type": "object",
+              "properties": {
+                "$and": {
+                  "type": "array",
+                  "items": {}
+                },
+                "$or": {
+                  "type": "array",
+                  "items": {}
+                },
+                "$not": {}
+              }
+            }
+          ],
+          "description": "Filter/Condition to apply to the aggregation (FILTER WHERE clause)"
+        }
+      },
+      "required": [
+        "function",
+        "alias"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

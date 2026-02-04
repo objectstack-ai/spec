@@ -1,7 +1,55 @@
 {
   "$ref": "#/definitions/EventMessage",
   "definitions": {
-    "EventMessage": {}
+    "EventMessage": {
+      "type": "object",
+      "properties": {
+        "messageId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique message identifier"
+        },
+        "type": {
+          "type": "string",
+          "const": "event"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 datetime when message was sent"
+        },
+        "subscriptionId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Subscription ID this event belongs to"
+        },
+        "eventName": {
+          "type": "string",
+          "minLength": 3,
+          "pattern": "^[a-z][a-z0-9_.]*$",
+          "description": "Event name"
+        },
+        "object": {
+          "type": "string",
+          "description": "Object name the event relates to"
+        },
+        "payload": {
+          "description": "Event payload data"
+        },
+        "userId": {
+          "type": "string",
+          "description": "User who triggered the event"
+        }
+      },
+      "required": [
+        "messageId",
+        "type",
+        "timestamp",
+        "subscriptionId",
+        "eventName"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

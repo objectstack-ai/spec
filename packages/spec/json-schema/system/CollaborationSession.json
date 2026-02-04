@@ -1,7 +1,575 @@
 {
   "$ref": "#/definitions/CollaborationSession",
   "definitions": {
-    "CollaborationSession": {}
+    "CollaborationSession": {
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Session identifier"
+        },
+        "documentId": {
+          "type": "string",
+          "description": "Document identifier"
+        },
+        "config": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "ot",
+                "crdt",
+                "lock",
+                "hybrid"
+              ],
+              "description": "Collaboration mode to use"
+            },
+            "enableCursorSharing": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable cursor sharing"
+            },
+            "enablePresence": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable presence tracking"
+            },
+            "enableAwareness": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable awareness state"
+            },
+            "maxUsers": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "Maximum concurrent users"
+            },
+            "idleTimeout": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 300000,
+              "description": "Idle timeout in milliseconds"
+            },
+            "conflictResolution": {
+              "type": "string",
+              "enum": [
+                "ot",
+                "crdt",
+                "manual"
+              ],
+              "default": "ot",
+              "description": "Conflict resolution strategy"
+            },
+            "persistence": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable operation persistence"
+            },
+            "snapshot": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "description": "Enable periodic snapshots"
+                },
+                "interval": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "description": "Snapshot interval in milliseconds"
+                }
+              },
+              "required": [
+                "enabled",
+                "interval"
+              ],
+              "additionalProperties": false,
+              "description": "Snapshot configuration"
+            }
+          },
+          "required": [
+            "mode"
+          ],
+          "additionalProperties": false,
+          "description": "Session configuration"
+        },
+        "users": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": "string",
+                "description": "User identifier"
+              },
+              "sessionId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Session identifier"
+              },
+              "userName": {
+                "type": "string",
+                "description": "Display name"
+              },
+              "userAvatar": {
+                "type": "string",
+                "description": "User avatar URL"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "active",
+                  "idle",
+                  "viewing",
+                  "disconnected"
+                ],
+                "description": "Current activity status"
+              },
+              "currentDocument": {
+                "type": "string",
+                "description": "Document ID user is currently editing"
+              },
+              "currentView": {
+                "type": "string",
+                "description": "Current view/page user is on"
+              },
+              "lastActivity": {
+                "type": "string",
+                "format": "date-time",
+                "description": "ISO 8601 datetime of last activity"
+              },
+              "joinedAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "ISO 8601 datetime when user joined session"
+              },
+              "permissions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "User permissions in this session"
+              },
+              "metadata": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Additional user state metadata"
+              }
+            },
+            "required": [
+              "userId",
+              "sessionId",
+              "userName",
+              "status",
+              "lastActivity",
+              "joinedAt"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Active users"
+        },
+        "cursors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": "string",
+                "description": "User identifier"
+              },
+              "sessionId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Session identifier"
+              },
+              "documentId": {
+                "type": "string",
+                "description": "Document identifier"
+              },
+              "userName": {
+                "type": "string",
+                "description": "Display name of user"
+              },
+              "position": {
+                "type": "object",
+                "properties": {
+                  "line": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Cursor line number (0-indexed)"
+                  },
+                  "column": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Cursor column number (0-indexed)"
+                  }
+                },
+                "required": [
+                  "line",
+                  "column"
+                ],
+                "additionalProperties": false,
+                "description": "Current cursor position"
+              },
+              "selection": {
+                "type": "object",
+                "properties": {
+                  "anchor": {
+                    "type": "object",
+                    "properties": {
+                      "line": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Anchor line number"
+                      },
+                      "column": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Anchor column number"
+                      }
+                    },
+                    "required": [
+                      "line",
+                      "column"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Selection anchor (start point)"
+                  },
+                  "focus": {
+                    "type": "object",
+                    "properties": {
+                      "line": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Focus line number"
+                      },
+                      "column": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Focus column number"
+                      }
+                    },
+                    "required": [
+                      "line",
+                      "column"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Selection focus (end point)"
+                  },
+                  "direction": {
+                    "type": "string",
+                    "enum": [
+                      "forward",
+                      "backward"
+                    ],
+                    "description": "Selection direction"
+                  }
+                },
+                "required": [
+                  "anchor",
+                  "focus"
+                ],
+                "additionalProperties": false,
+                "description": "Current text selection"
+              },
+              "style": {
+                "type": "object",
+                "properties": {
+                  "color": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "blue",
+                          "green",
+                          "red",
+                          "yellow",
+                          "purple",
+                          "orange",
+                          "pink",
+                          "teal",
+                          "indigo",
+                          "cyan"
+                        ]
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ],
+                    "description": "Cursor color (preset or custom hex)"
+                  },
+                  "opacity": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "default": 1,
+                    "description": "Cursor opacity (0-1)"
+                  },
+                  "label": {
+                    "type": "string",
+                    "description": "Label to display with cursor (usually username)"
+                  },
+                  "showLabel": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether to show label"
+                  },
+                  "pulseOnUpdate": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether to pulse when cursor moves"
+                  }
+                },
+                "required": [
+                  "color"
+                ],
+                "additionalProperties": false,
+                "description": "Visual style for this cursor"
+              },
+              "isTyping": {
+                "type": "boolean",
+                "default": false,
+                "description": "Whether user is currently typing"
+              },
+              "lastUpdate": {
+                "type": "string",
+                "format": "date-time",
+                "description": "ISO 8601 datetime of last cursor update"
+              },
+              "metadata": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Additional cursor metadata"
+              }
+            },
+            "required": [
+              "userId",
+              "sessionId",
+              "documentId",
+              "userName",
+              "position",
+              "style",
+              "lastUpdate"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Active cursors"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Current document version"
+        },
+        "operations": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "operationId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Unique operation identifier"
+                  },
+                  "documentId": {
+                    "type": "string",
+                    "description": "Document identifier"
+                  },
+                  "userId": {
+                    "type": "string",
+                    "description": "User who created the operation"
+                  },
+                  "sessionId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Session identifier"
+                  },
+                  "components": {
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "insert"
+                            },
+                            "text": {
+                              "type": "string",
+                              "description": "Text to insert"
+                            },
+                            "attributes": {
+                              "type": "object",
+                              "additionalProperties": {},
+                              "description": "Text formatting attributes (e.g., bold, italic)"
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "text"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "delete"
+                            },
+                            "count": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "description": "Number of characters to delete"
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "count"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "retain"
+                            },
+                            "count": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "description": "Number of characters to retain"
+                            },
+                            "attributes": {
+                              "type": "object",
+                              "additionalProperties": {},
+                              "description": "Attribute changes to apply"
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "count"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "description": "Operation components"
+                  },
+                  "baseVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Document version this operation is based on"
+                  },
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "ISO 8601 datetime when operation was created"
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "additionalProperties": {},
+                    "description": "Additional operation metadata"
+                  }
+                },
+                "required": [
+                  "operationId",
+                  "documentId",
+                  "userId",
+                  "sessionId",
+                  "components",
+                  "baseVersion",
+                  "timestamp"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "operationId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Unique operation identifier"
+                  },
+                  "replicaId": {
+                    "type": "string",
+                    "description": "Replica identifier"
+                  },
+                  "position": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Position in document"
+                  },
+                  "insert": {
+                    "type": "string",
+                    "description": "Text to insert"
+                  },
+                  "delete": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "description": "Number of characters to delete"
+                  },
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "ISO 8601 datetime of operation"
+                  },
+                  "lamportTimestamp": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Lamport timestamp for ordering"
+                  }
+                },
+                "required": [
+                  "operationId",
+                  "replicaId",
+                  "position",
+                  "timestamp",
+                  "lamportTimestamp"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "description": "Recent operations"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 datetime when session was created"
+        },
+        "lastActivity": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 datetime of last activity"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "idle",
+            "ended"
+          ],
+          "description": "Session status"
+        }
+      },
+      "required": [
+        "sessionId",
+        "documentId",
+        "config",
+        "users",
+        "cursors",
+        "version",
+        "createdAt",
+        "lastActivity",
+        "status"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

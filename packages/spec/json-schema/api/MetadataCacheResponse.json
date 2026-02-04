@@ -1,7 +1,85 @@
 {
   "$ref": "#/definitions/MetadataCacheResponse",
   "definitions": {
-    "MetadataCacheResponse": {}
+    "MetadataCacheResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "description": "Metadata payload (omitted for 304 Not Modified)"
+        },
+        "etag": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "string",
+              "description": "ETag value (hash or version identifier)"
+            },
+            "weak": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether this is a weak ETag"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "additionalProperties": false,
+          "description": "ETag for this resource version"
+        },
+        "lastModified": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last modification timestamp"
+        },
+        "cacheControl": {
+          "type": "object",
+          "properties": {
+            "directives": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "public",
+                  "private",
+                  "no-cache",
+                  "no-store",
+                  "must-revalidate",
+                  "max-age"
+                ]
+              },
+              "description": "Cache control directives"
+            },
+            "maxAge": {
+              "type": "number",
+              "description": "Maximum cache age in seconds"
+            },
+            "staleWhileRevalidate": {
+              "type": "number",
+              "description": "Allow serving stale content while revalidating (seconds)"
+            },
+            "staleIfError": {
+              "type": "number",
+              "description": "Allow serving stale content on error (seconds)"
+            }
+          },
+          "required": [
+            "directives"
+          ],
+          "additionalProperties": false,
+          "description": "Cache control directives"
+        },
+        "notModified": {
+          "type": "boolean",
+          "default": false,
+          "description": "True if resource has not been modified (304 response)"
+        },
+        "version": {
+          "type": "string",
+          "description": "Metadata version identifier"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

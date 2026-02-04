@@ -1,7 +1,58 @@
 {
   "$ref": "#/definitions/MetadataCacheRequest",
   "definitions": {
-    "MetadataCacheRequest": {}
+    "MetadataCacheRequest": {
+      "type": "object",
+      "properties": {
+        "ifNoneMatch": {
+          "type": "string",
+          "description": "ETag value for conditional request (If-None-Match header)"
+        },
+        "ifModifiedSince": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp for conditional request (If-Modified-Since header)"
+        },
+        "cacheControl": {
+          "type": "object",
+          "properties": {
+            "directives": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "public",
+                  "private",
+                  "no-cache",
+                  "no-store",
+                  "must-revalidate",
+                  "max-age"
+                ]
+              },
+              "description": "Cache control directives"
+            },
+            "maxAge": {
+              "type": "number",
+              "description": "Maximum cache age in seconds"
+            },
+            "staleWhileRevalidate": {
+              "type": "number",
+              "description": "Allow serving stale content while revalidating (seconds)"
+            },
+            "staleIfError": {
+              "type": "number",
+              "description": "Allow serving stale content on error (seconds)"
+            }
+          },
+          "required": [
+            "directives"
+          ],
+          "additionalProperties": false,
+          "description": "Client cache control preferences"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

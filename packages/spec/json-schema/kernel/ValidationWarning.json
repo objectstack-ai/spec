@@ -1,7 +1,28 @@
 {
   "$ref": "#/definitions/ValidationWarning",
   "definitions": {
-    "ValidationWarning": {}
+    "ValidationWarning": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "Field name with warning"
+        },
+        "message": {
+          "type": "string",
+          "description": "Human-readable warning message"
+        },
+        "code": {
+          "type": "string",
+          "description": "Machine-readable warning code"
+        }
+      },
+      "required": [
+        "field",
+        "message"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

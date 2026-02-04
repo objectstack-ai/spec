@@ -1,7 +1,93 @@
 {
   "$ref": "#/definitions/ServerStatus",
   "definitions": {
-    "ServerStatus": {}
+    "ServerStatus": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": [
+            "stopped",
+            "starting",
+            "running",
+            "stopping",
+            "error"
+          ],
+          "description": "Current server state"
+        },
+        "uptime": {
+          "type": "integer",
+          "description": "Server uptime in milliseconds"
+        },
+        "server": {
+          "type": "object",
+          "properties": {
+            "port": {
+              "type": "integer",
+              "description": "Listening port"
+            },
+            "host": {
+              "type": "string",
+              "description": "Bound host"
+            },
+            "url": {
+              "type": "string",
+              "description": "Full server URL"
+            }
+          },
+          "required": [
+            "port",
+            "host"
+          ],
+          "additionalProperties": false
+        },
+        "connections": {
+          "type": "object",
+          "properties": {
+            "active": {
+              "type": "integer",
+              "description": "Active connections"
+            },
+            "total": {
+              "type": "integer",
+              "description": "Total connections handled"
+            }
+          },
+          "required": [
+            "active",
+            "total"
+          ],
+          "additionalProperties": false
+        },
+        "requests": {
+          "type": "object",
+          "properties": {
+            "total": {
+              "type": "integer",
+              "description": "Total requests processed"
+            },
+            "success": {
+              "type": "integer",
+              "description": "Successful requests"
+            },
+            "errors": {
+              "type": "integer",
+              "description": "Failed requests"
+            }
+          },
+          "required": [
+            "total",
+            "success",
+            "errors"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "state"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

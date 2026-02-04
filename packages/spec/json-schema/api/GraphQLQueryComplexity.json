@@ -1,7 +1,83 @@
 {
   "$ref": "#/definitions/GraphQLQueryComplexity",
   "definitions": {
-    "GraphQLQueryComplexity": {}
+    "GraphQLQueryComplexity": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable query complexity limiting"
+        },
+        "maxComplexity": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1000,
+          "description": "Maximum query complexity"
+        },
+        "defaultFieldComplexity": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 1,
+          "description": "Default complexity per field"
+        },
+        "fieldComplexity": {
+          "type": "object",
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "base": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Base complexity"
+                  },
+                  "multiplier": {
+                    "type": "string",
+                    "description": "Argument multiplier (e.g., \"limit\")"
+                  },
+                  "calculator": {
+                    "type": "string",
+                    "description": "Custom calculator function"
+                  }
+                },
+                "required": [
+                  "base"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "description": "Per-field complexity configuration"
+        },
+        "listMultiplier": {
+          "type": "number",
+          "minimum": 0,
+          "default": 10,
+          "description": "Multiplier for list fields"
+        },
+        "onComplexityExceeded": {
+          "type": "string",
+          "enum": [
+            "reject",
+            "log",
+            "warn"
+          ],
+          "default": "reject",
+          "description": "Action when complexity exceeded"
+        },
+        "errorMessage": {
+          "type": "string",
+          "description": "Custom error message for complexity violations"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

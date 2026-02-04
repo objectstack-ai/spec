@@ -1,7 +1,42 @@
 {
   "$ref": "#/definitions/ListSpacesRequest",
   "definitions": {
-    "ListSpacesRequest": {}
+    "ListSpacesRequest": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        },
+        "perPage": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "sortBy": {
+          "type": "string"
+        },
+        "sortOrder": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc"
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "Filter by owner"
+        },
+        "search": {
+          "type": "string",
+          "description": "Search in name and slug"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

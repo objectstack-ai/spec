@@ -1,7 +1,40 @@
 {
   "$ref": "#/definitions/ConnectorActionRef",
   "definitions": {
-    "ConnectorActionRef": {}
+    "ConnectorActionRef": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Action name"
+        },
+        "type": {
+          "type": "string",
+          "const": "connector_action"
+        },
+        "connectorId": {
+          "type": "string",
+          "description": "Target Connector ID (e.g. slack, twilio)"
+        },
+        "actionId": {
+          "type": "string",
+          "description": "Target Action ID (e.g. send_message)"
+        },
+        "input": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Input parameters matching the action schema"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "connectorId",
+        "actionId",
+        "input"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,38 @@
 {
   "$ref": "#/definitions/ApiCapabilities",
   "definitions": {
-    "ApiCapabilities": {}
+    "ApiCapabilities": {
+      "type": "object",
+      "properties": {
+        "graphql": {
+          "type": "boolean",
+          "default": false
+        },
+        "search": {
+          "type": "boolean",
+          "default": false
+        },
+        "websockets": {
+          "type": "boolean",
+          "default": false
+        },
+        "files": {
+          "type": "boolean",
+          "default": true
+        },
+        "analytics": {
+          "type": "boolean",
+          "default": false,
+          "description": "Is the Analytics/BI engine enabled?"
+        },
+        "hub": {
+          "type": "boolean",
+          "default": false,
+          "description": "Is Hub management enabled?"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

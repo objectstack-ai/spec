@@ -1,7 +1,53 @@
 {
   "$ref": "#/definitions/ConflictReport",
   "definitions": {
-    "ConflictReport": {}
+    "ConflictReport": {
+      "type": "object",
+      "properties": {
+        "resourceType": {
+          "type": "string",
+          "enum": [
+            "object",
+            "field",
+            "api",
+            "ui"
+          ],
+          "description": "Type of colliding resource"
+        },
+        "resourceId": {
+          "type": "string",
+          "description": "ID of the resource"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of plugin IDs defining this resource"
+        },
+        "resolution": {
+          "type": "string",
+          "description": "How it was resolved (e.g. \"com.example.erp won\")"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "info",
+            "warning",
+            "error"
+          ],
+          "description": "Severity of the conflict"
+        }
+      },
+      "required": [
+        "resourceType",
+        "resourceId",
+        "sources",
+        "resolution",
+        "severity"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

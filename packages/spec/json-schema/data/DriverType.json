@@ -1,7 +1,10 @@
 {
   "$ref": "#/definitions/DriverType",
   "definitions": {
-    "DriverType": {}
+    "DriverType": {
+      "type": "string",
+      "description": "Underlying driver identifier"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

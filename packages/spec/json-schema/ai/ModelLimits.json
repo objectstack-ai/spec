@@ -1,7 +1,45 @@
 {
   "$ref": "#/definitions/ModelLimits",
   "definitions": {
-    "ModelLimits": {}
+    "ModelLimits": {
+      "type": "object",
+      "properties": {
+        "maxTokens": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "description": "Maximum tokens per request"
+        },
+        "contextWindow": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "description": "Context window size"
+        },
+        "maxOutputTokens": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "description": "Maximum output tokens"
+        },
+        "rateLimit": {
+          "type": "object",
+          "properties": {
+            "requestsPerMinute": {
+              "type": "integer",
+              "exclusiveMinimum": 0
+            },
+            "tokensPerMinute": {
+              "type": "integer",
+              "exclusiveMinimum": 0
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "maxTokens",
+        "contextWindow"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

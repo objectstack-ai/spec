@@ -1,7 +1,14 @@
 {
   "$ref": "#/definitions/EditOperationType",
   "definitions": {
-    "EditOperationType": {}
+    "EditOperationType": {
+      "type": "string",
+      "enum": [
+        "insert",
+        "delete",
+        "replace"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

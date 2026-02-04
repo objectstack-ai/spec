@@ -1,7 +1,718 @@
 {
   "$ref": "#/definitions/MetricsConfig",
   "definitions": {
-    "MetricsConfig": {}
+    "MetricsConfig": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "maxLength": 64,
+          "description": "Configuration name (snake_case, max 64 chars)"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "metrics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z_][a-z0-9_]*$",
+                "description": "Metric name (snake_case)"
+              },
+              "label": {
+                "type": "string",
+                "description": "Display label"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "counter",
+                  "gauge",
+                  "histogram",
+                  "summary"
+                ],
+                "description": "Metric type"
+              },
+              "unit": {
+                "type": "string",
+                "enum": [
+                  "nanoseconds",
+                  "microseconds",
+                  "milliseconds",
+                  "seconds",
+                  "minutes",
+                  "hours",
+                  "days",
+                  "bytes",
+                  "kilobytes",
+                  "megabytes",
+                  "gigabytes",
+                  "terabytes",
+                  "requests_per_second",
+                  "events_per_second",
+                  "bytes_per_second",
+                  "percent",
+                  "ratio",
+                  "count",
+                  "operations",
+                  "custom"
+                ],
+                "description": "Metric unit"
+              },
+              "description": {
+                "type": "string",
+                "description": "Metric description"
+              },
+              "labelNames": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": [],
+                "description": "Label names"
+              },
+              "histogram": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "linear",
+                      "exponential",
+                      "explicit"
+                    ],
+                    "description": "Bucket type"
+                  },
+                  "linear": {
+                    "type": "object",
+                    "properties": {
+                      "start": {
+                        "type": "number",
+                        "description": "Start value"
+                      },
+                      "width": {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "description": "Bucket width"
+                      },
+                      "count": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "description": "Number of buckets"
+                      }
+                    },
+                    "required": [
+                      "start",
+                      "width",
+                      "count"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "exponential": {
+                    "type": "object",
+                    "properties": {
+                      "start": {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "description": "Start value"
+                      },
+                      "factor": {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "description": "Growth factor"
+                      },
+                      "count": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "description": "Number of buckets"
+                      }
+                    },
+                    "required": [
+                      "start",
+                      "factor",
+                      "count"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "explicit": {
+                    "type": "object",
+                    "properties": {
+                      "boundaries": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "description": "Bucket boundaries"
+                      }
+                    },
+                    "required": [
+                      "boundaries"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": false,
+                "description": "Histogram bucket configuration"
+              },
+              "summary": {
+                "type": "object",
+                "properties": {
+                  "quantiles": {
+                    "type": "array",
+                    "items": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "default": [
+                      0.5,
+                      0.9,
+                      0.99
+                    ]
+                  },
+                  "maxAge": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "default": 600
+                  },
+                  "ageBuckets": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "default": 5
+                  }
+                },
+                "additionalProperties": false
+              },
+              "enabled": {
+                "type": "boolean",
+                "default": true
+              }
+            },
+            "required": [
+              "name",
+              "type"
+            ],
+            "additionalProperties": false,
+            "description": "Metric definition"
+          },
+          "default": []
+        },
+        "defaultLabels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Metric labels",
+          "default": {}
+        },
+        "aggregations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "sum",
+                  "avg",
+                  "min",
+                  "max",
+                  "count",
+                  "p50",
+                  "p75",
+                  "p90",
+                  "p95",
+                  "p99",
+                  "p999",
+                  "rate",
+                  "stddev"
+                ],
+                "description": "Aggregation type"
+              },
+              "window": {
+                "type": "object",
+                "properties": {
+                  "size": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "description": "Window size in seconds"
+                  },
+                  "sliding": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "slideInterval": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0
+                  }
+                },
+                "required": [
+                  "size"
+                ],
+                "additionalProperties": false
+              },
+              "groupBy": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Group by label names"
+              },
+              "filters": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Filter criteria"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false,
+            "description": "Metric aggregation configuration"
+          },
+          "default": []
+        },
+        "slis": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z_][a-z0-9_]*$",
+                "description": "SLI name (snake_case)"
+              },
+              "label": {
+                "type": "string",
+                "description": "Display label"
+              },
+              "description": {
+                "type": "string",
+                "description": "SLI description"
+              },
+              "metric": {
+                "type": "string",
+                "description": "Base metric name"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "availability",
+                  "latency",
+                  "throughput",
+                  "error_rate",
+                  "saturation",
+                  "custom"
+                ],
+                "description": "SLI type"
+              },
+              "successCriteria": {
+                "type": "object",
+                "properties": {
+                  "threshold": {
+                    "type": "number",
+                    "description": "Threshold value"
+                  },
+                  "operator": {
+                    "type": "string",
+                    "enum": [
+                      "lt",
+                      "lte",
+                      "gt",
+                      "gte",
+                      "eq"
+                    ],
+                    "description": "Comparison operator"
+                  },
+                  "percentile": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Percentile (0-1)"
+                  }
+                },
+                "required": [
+                  "threshold",
+                  "operator"
+                ],
+                "additionalProperties": false,
+                "description": "Success criteria"
+              },
+              "window": {
+                "type": "object",
+                "properties": {
+                  "size": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "description": "Window size in seconds"
+                  },
+                  "rolling": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "size"
+                ],
+                "additionalProperties": false,
+                "description": "Measurement window"
+              },
+              "enabled": {
+                "type": "boolean",
+                "default": true
+              }
+            },
+            "required": [
+              "name",
+              "label",
+              "metric",
+              "type",
+              "successCriteria",
+              "window"
+            ],
+            "additionalProperties": false,
+            "description": "Service Level Indicator"
+          },
+          "default": []
+        },
+        "slos": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z_][a-z0-9_]*$",
+                "description": "SLO name (snake_case)"
+              },
+              "label": {
+                "type": "string",
+                "description": "Display label"
+              },
+              "description": {
+                "type": "string",
+                "description": "SLO description"
+              },
+              "sli": {
+                "type": "string",
+                "description": "SLI name"
+              },
+              "target": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "Target percentage"
+              },
+              "period": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "rolling",
+                      "calendar"
+                    ],
+                    "description": "Period type"
+                  },
+                  "duration": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "description": "Duration in seconds"
+                  },
+                  "calendar": {
+                    "type": "string",
+                    "enum": [
+                      "daily",
+                      "weekly",
+                      "monthly",
+                      "quarterly",
+                      "yearly"
+                    ]
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": false,
+                "description": "Time period"
+              },
+              "errorBudget": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "alertThreshold": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "default": 80
+                  },
+                  "burnRateWindows": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "window": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "description": "Window size"
+                        },
+                        "threshold": {
+                          "type": "number",
+                          "exclusiveMinimum": 0,
+                          "description": "Burn rate threshold"
+                        }
+                      },
+                      "required": [
+                        "window",
+                        "threshold"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "additionalProperties": false
+              },
+              "alerts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Alert name"
+                    },
+                    "severity": {
+                      "type": "string",
+                      "enum": [
+                        "info",
+                        "warning",
+                        "critical"
+                      ],
+                      "description": "Alert severity"
+                    },
+                    "condition": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "slo_breach",
+                            "error_budget",
+                            "burn_rate"
+                          ],
+                          "description": "Condition type"
+                        },
+                        "threshold": {
+                          "type": "number",
+                          "description": "Threshold value"
+                        }
+                      },
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Alert condition"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "severity",
+                    "condition"
+                  ],
+                  "additionalProperties": false
+                },
+                "default": []
+              },
+              "enabled": {
+                "type": "boolean",
+                "default": true
+              }
+            },
+            "required": [
+              "name",
+              "label",
+              "sli",
+              "target",
+              "period"
+            ],
+            "additionalProperties": false,
+            "description": "Service Level Objective"
+          },
+          "default": []
+        },
+        "exports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "prometheus",
+                  "openmetrics",
+                  "graphite",
+                  "statsd",
+                  "influxdb",
+                  "datadog",
+                  "cloudwatch",
+                  "stackdriver",
+                  "azure_monitor",
+                  "http",
+                  "custom"
+                ],
+                "description": "Export type"
+              },
+              "endpoint": {
+                "type": "string",
+                "description": "Export endpoint"
+              },
+              "interval": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "default": 60
+              },
+              "batch": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "size": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "default": 1000
+                  }
+                },
+                "additionalProperties": false
+              },
+              "auth": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "basic",
+                      "bearer",
+                      "api_key"
+                    ],
+                    "description": "Auth type"
+                  },
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "token": {
+                    "type": "string"
+                  },
+                  "apiKey": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": false
+              },
+              "config": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Additional configuration"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false,
+            "description": "Metric export configuration"
+          },
+          "default": []
+        },
+        "collectionInterval": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "default": 15
+        },
+        "retention": {
+          "type": "object",
+          "properties": {
+            "period": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 604800
+            },
+            "downsampling": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "afterSeconds": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "description": "Downsample after seconds"
+                  },
+                  "resolution": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "description": "Downsampled resolution"
+                  }
+                },
+                "required": [
+                  "afterSeconds",
+                  "resolution"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "cardinalityLimits": {
+          "type": "object",
+          "properties": {
+            "maxLabelCombinations": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 10000
+            },
+            "onLimitExceeded": {
+              "type": "string",
+              "enum": [
+                "drop",
+                "sample",
+                "alert"
+              ],
+              "default": "alert"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "name",
+        "label"
+      ],
+      "additionalProperties": false,
+      "description": "Metrics configuration"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

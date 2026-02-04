@@ -1,7 +1,36 @@
 {
   "$ref": "#/definitions/FindDataResponse",
   "definitions": {
-    "FindDataResponse": {}
+    "FindDataResponse": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "The object name for the returned records."
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "description": "The list of matching records."
+        },
+        "total": {
+          "type": "number",
+          "description": "Total number of records matching the filter (if requested)."
+        },
+        "hasMore": {
+          "type": "boolean",
+          "description": "True if there are more records available (pagination)."
+        }
+      },
+      "required": [
+        "object",
+        "records"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

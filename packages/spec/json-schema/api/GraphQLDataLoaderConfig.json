@@ -1,7 +1,101 @@
 {
   "$ref": "#/definitions/GraphQLDataLoaderConfig",
   "definitions": {
-    "GraphQLDataLoaderConfig": {}
+    "GraphQLDataLoaderConfig": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "DataLoader name"
+        },
+        "source": {
+          "type": "string",
+          "description": "Source object or datasource"
+        },
+        "batchFunction": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "findByIds",
+                "query",
+                "script",
+                "custom"
+              ],
+              "description": "Batch function type"
+            },
+            "keyField": {
+              "type": "string",
+              "description": "Field to batch on (e.g., \"id\")"
+            },
+            "query": {
+              "type": "string",
+              "description": "Query template"
+            },
+            "script": {
+              "type": "string",
+              "description": "Script ID"
+            },
+            "maxBatchSize": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 100,
+              "description": "Maximum batch size"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false,
+          "description": "Batch function configuration"
+        },
+        "cache": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable per-request caching"
+            },
+            "keyFn": {
+              "type": "string",
+              "description": "Custom cache key function"
+            }
+          },
+          "additionalProperties": false,
+          "description": "DataLoader caching"
+        },
+        "options": {
+          "type": "object",
+          "properties": {
+            "batch": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable batching"
+            },
+            "cache": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable caching"
+            },
+            "maxCacheSize": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Max cache entries"
+            }
+          },
+          "additionalProperties": false,
+          "description": "DataLoader options"
+        }
+      },
+      "required": [
+        "name",
+        "source",
+        "batchFunction"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

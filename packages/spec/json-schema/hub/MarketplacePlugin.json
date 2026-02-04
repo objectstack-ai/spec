@@ -1,7 +1,228 @@
 {
   "$ref": "#/definitions/MarketplacePlugin",
   "definitions": {
-    "MarketplacePlugin": {}
+    "MarketplacePlugin": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "versions": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "string",
+                "description": "SemVer string (e.g. 1.0.0)"
+              },
+              "publishedAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Publication date"
+              },
+              "downloadUrl": {
+                "type": "string",
+                "format": "uri",
+                "description": "Archive download URL"
+              },
+              "checksum": {
+                "type": "string",
+                "description": "Integrity checksum (shasum)"
+              },
+              "engine": {
+                "type": "object",
+                "properties": {
+                  "node": {
+                    "type": "string"
+                  },
+                  "objectstack": {
+                    "type": "string",
+                    "description": "Required ObjectStack kernel version range"
+                  }
+                },
+                "required": [
+                  "objectstack"
+                ],
+                "additionalProperties": false,
+                "description": "Engine compatibility"
+              },
+              "dependencies": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "Runtime plugin dependencies"
+              },
+              "changeLog": {
+                "type": "string",
+                "description": "Release notes"
+              }
+            },
+            "required": [
+              "version",
+              "publishedAt",
+              "downloadUrl"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Map of versions (1.0.0) -> Details"
+        },
+        "label": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "readme": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "vendor": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$",
+              "description": "Vendor identifier (reverse domain)"
+            },
+            "name": {
+              "type": "string"
+            },
+            "website": {
+              "type": "string",
+              "format": "uri"
+            },
+            "email": {
+              "type": "string",
+              "format": "email"
+            },
+            "verified": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether vendor is verified by ObjectStack"
+            },
+            "trustLevel": {
+              "type": "string",
+              "enum": [
+                "official",
+                "verified",
+                "community",
+                "unverified"
+              ],
+              "default": "unverified"
+            }
+          },
+          "required": [
+            "id",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "app",
+            "integration",
+            "theme",
+            "utility",
+            "driver",
+            "analytics",
+            "security",
+            "automation",
+            "ai",
+            "data"
+          ]
+        },
+        "icon": {
+          "type": "string",
+          "format": "uri"
+        },
+        "screenshots": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "homepage": {
+          "type": "string",
+          "format": "uri"
+        },
+        "repository": {
+          "type": "string",
+          "format": "uri"
+        },
+        "bugs": {
+          "type": "string",
+          "format": "uri"
+        },
+        "downloads": {
+          "type": "integer"
+        },
+        "rating": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "pricing": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "free",
+                "one_time",
+                "recurring"
+              ]
+            },
+            "currency": {
+              "type": "string",
+              "default": "USD"
+            },
+            "amount": {
+              "type": "number",
+              "minimum": 0
+            },
+            "interval": {
+              "type": "string",
+              "enum": [
+                "month",
+                "year"
+              ],
+              "description": "Required if type is recurring"
+            },
+            "trialDays": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "type",
+            "amount"
+          ],
+          "additionalProperties": false
+        },
+        "verified": {
+          "type": "boolean",
+          "default": false,
+          "description": "Is verified maintaned by ObjectStack"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "version"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

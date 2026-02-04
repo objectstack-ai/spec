@@ -1,7 +1,28 @@
 {
   "$ref": "#/definitions/PluginRegisteredEvent",
   "definitions": {
-    "PluginRegisteredEvent": {}
+    "PluginRegisteredEvent": {
+      "type": "object",
+      "properties": {
+        "pluginName": {
+          "type": "string",
+          "description": "Name of the plugin"
+        },
+        "timestamp": {
+          "type": "integer",
+          "description": "Unix timestamp in milliseconds when event occurred"
+        },
+        "version": {
+          "type": "string",
+          "description": "Plugin version"
+        }
+      },
+      "required": [
+        "pluginName",
+        "timestamp"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

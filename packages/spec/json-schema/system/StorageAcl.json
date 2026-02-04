@@ -1,7 +1,18 @@
 {
   "$ref": "#/definitions/StorageAcl",
   "definitions": {
-    "StorageAcl": {}
+    "StorageAcl": {
+      "type": "string",
+      "enum": [
+        "private",
+        "public_read",
+        "public_read_write",
+        "authenticated_read",
+        "bucket_owner_read",
+        "bucket_owner_full_control"
+      ],
+      "description": "Storage access control level"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,15 @@
 {
   "$ref": "#/definitions/DeliveryGuarantee",
   "definitions": {
-    "DeliveryGuarantee": {}
+    "DeliveryGuarantee": {
+      "type": "string",
+      "enum": [
+        "at_most_once",
+        "at_least_once",
+        "exactly_once"
+      ],
+      "description": "Message delivery guarantee"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

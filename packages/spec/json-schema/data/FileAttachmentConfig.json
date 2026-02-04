@@ -1,7 +1,219 @@
 {
   "$ref": "#/definitions/FileAttachmentConfig",
   "definitions": {
-    "FileAttachmentConfig": {}
+    "FileAttachmentConfig": {
+      "type": "object",
+      "properties": {
+        "minSize": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Minimum file size in bytes"
+        },
+        "maxSize": {
+          "type": "number",
+          "minimum": 1,
+          "description": "Maximum file size in bytes (e.g., 10485760 = 10MB)"
+        },
+        "allowedTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Allowed file extensions (e.g., [\".pdf\", \".docx\", \".jpg\"])"
+        },
+        "blockedTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Blocked file extensions (e.g., [\".exe\", \".bat\", \".sh\"])"
+        },
+        "allowedMimeTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Allowed MIME types (e.g., [\"image/jpeg\", \"application/pdf\"])"
+        },
+        "blockedMimeTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Blocked MIME types"
+        },
+        "virusScan": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable virus scanning for uploaded files"
+        },
+        "virusScanProvider": {
+          "type": "string",
+          "enum": [
+            "clamav",
+            "virustotal",
+            "metadefender",
+            "custom"
+          ],
+          "description": "Virus scanning service provider"
+        },
+        "virusScanOnUpload": {
+          "type": "boolean",
+          "default": true,
+          "description": "Scan files immediately on upload"
+        },
+        "quarantineOnThreat": {
+          "type": "boolean",
+          "default": true,
+          "description": "Quarantine files if threat detected"
+        },
+        "storageProvider": {
+          "type": "string",
+          "description": "Object storage provider name (references ObjectStorageConfig)"
+        },
+        "storageBucket": {
+          "type": "string",
+          "description": "Target bucket name"
+        },
+        "storagePrefix": {
+          "type": "string",
+          "description": "Storage path prefix (e.g., \"uploads/documents/\")"
+        },
+        "imageValidation": {
+          "type": "object",
+          "properties": {
+            "minWidth": {
+              "type": "number",
+              "minimum": 1,
+              "description": "Minimum image width in pixels"
+            },
+            "maxWidth": {
+              "type": "number",
+              "minimum": 1,
+              "description": "Maximum image width in pixels"
+            },
+            "minHeight": {
+              "type": "number",
+              "minimum": 1,
+              "description": "Minimum image height in pixels"
+            },
+            "maxHeight": {
+              "type": "number",
+              "minimum": 1,
+              "description": "Maximum image height in pixels"
+            },
+            "aspectRatio": {
+              "type": "string",
+              "description": "Required aspect ratio (e.g., \"16:9\", \"1:1\")"
+            },
+            "generateThumbnails": {
+              "type": "boolean",
+              "default": false,
+              "description": "Auto-generate thumbnails"
+            },
+            "thumbnailSizes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Thumbnail variant name (e.g., \"small\", \"medium\", \"large\")"
+                  },
+                  "width": {
+                    "type": "number",
+                    "minimum": 1,
+                    "description": "Thumbnail width in pixels"
+                  },
+                  "height": {
+                    "type": "number",
+                    "minimum": 1,
+                    "description": "Thumbnail height in pixels"
+                  },
+                  "crop": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Crop to exact dimensions"
+                  }
+                },
+                "required": [
+                  "name",
+                  "width",
+                  "height"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Thumbnail size configurations"
+            },
+            "preserveMetadata": {
+              "type": "boolean",
+              "default": false,
+              "description": "Preserve EXIF metadata"
+            },
+            "autoRotate": {
+              "type": "boolean",
+              "default": true,
+              "description": "Auto-rotate based on EXIF orientation"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Image-specific validation rules"
+        },
+        "allowMultiple": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow multiple file uploads (overrides field.multiple)"
+        },
+        "allowReplace": {
+          "type": "boolean",
+          "default": true,
+          "description": "Allow replacing existing files"
+        },
+        "allowDelete": {
+          "type": "boolean",
+          "default": true,
+          "description": "Allow deleting uploaded files"
+        },
+        "requireUpload": {
+          "type": "boolean",
+          "default": false,
+          "description": "Require at least one file when field is required"
+        },
+        "extractMetadata": {
+          "type": "boolean",
+          "default": true,
+          "description": "Extract file metadata (name, size, type, etc.)"
+        },
+        "extractText": {
+          "type": "boolean",
+          "default": false,
+          "description": "Extract text content from documents (OCR/parsing)"
+        },
+        "versioningEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Keep previous versions of replaced files"
+        },
+        "maxVersions": {
+          "type": "number",
+          "minimum": 1,
+          "description": "Maximum number of versions to retain"
+        },
+        "publicRead": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow public read access to uploaded files"
+        },
+        "presignedUrlExpiry": {
+          "type": "number",
+          "minimum": 60,
+          "maximum": 604800,
+          "default": 3600,
+          "description": "Presigned URL expiration in seconds (default: 1 hour)"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

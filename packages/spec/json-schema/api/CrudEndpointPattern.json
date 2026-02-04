@@ -1,7 +1,41 @@
 {
   "$ref": "#/definitions/CrudEndpointPattern",
   "definitions": {
-    "CrudEndpointPattern": {}
+    "CrudEndpointPattern": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "GET",
+            "POST",
+            "PUT",
+            "DELETE",
+            "PATCH",
+            "HEAD",
+            "OPTIONS"
+          ],
+          "description": "HTTP method"
+        },
+        "path": {
+          "type": "string",
+          "description": "URL path pattern"
+        },
+        "summary": {
+          "type": "string",
+          "description": "Operation summary"
+        },
+        "description": {
+          "type": "string",
+          "description": "Operation description"
+        }
+      },
+      "required": [
+        "method",
+        "path"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

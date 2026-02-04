@@ -1,7 +1,32 @@
 {
   "$ref": "#/definitions/CodeContent",
   "definitions": {
-    "CodeContent": {}
+    "CodeContent": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "code"
+        },
+        "text": {
+          "type": "string",
+          "description": "Code snippet"
+        },
+        "language": {
+          "type": "string",
+          "default": "text"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {}
+        }
+      },
+      "required": [
+        "type",
+        "text"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

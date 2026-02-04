@@ -1,7 +1,46 @@
 {
   "$ref": "#/definitions/FlowEdge",
   "definitions": {
-    "FlowEdge": {}
+    "FlowEdge": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Edge unique ID"
+        },
+        "source": {
+          "type": "string",
+          "description": "Source Node ID"
+        },
+        "target": {
+          "type": "string",
+          "description": "Target Node ID"
+        },
+        "condition": {
+          "type": "string",
+          "description": "Expression returning boolean used for branching"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "default",
+            "fault"
+          ],
+          "default": "default",
+          "description": "Connection type: Standard (Success) or Fault (Error) path"
+        },
+        "label": {
+          "type": "string",
+          "description": "Label on the connector"
+        }
+      },
+      "required": [
+        "id",
+        "source",
+        "target"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

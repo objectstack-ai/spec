@@ -1,7 +1,31 @@
 {
   "$ref": "#/definitions/NetworkPolicy",
   "definitions": {
-    "NetworkPolicy": {}
+    "NetworkPolicy": {
+      "type": "object",
+      "properties": {
+        "trustedRanges": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "CIDR ranges allowed to access (e.g. 10.0.0.0/8)"
+        },
+        "blockUnknown": {
+          "type": "boolean",
+          "default": false,
+          "description": "Block all IPs not in trusted ranges"
+        },
+        "vpnRequired": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "trustedRanges"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

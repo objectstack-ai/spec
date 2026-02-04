@@ -947,3 +947,8 @@ export const InstallPluginRequestSchema = z.object({
 export const InstallPluginResponseSchema = BaseResponseSchema.extend({
   data: z.any() // Returns installation status or installed instance
 });
+
+
+
+export type InstallPluginRequest = z.infer<typeof InstallPluginRequestSchema>;
+export type InstallPluginResponse = z.infer<typeof InstallPluginResponseSchema>;

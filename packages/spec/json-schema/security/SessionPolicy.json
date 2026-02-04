@@ -1,7 +1,27 @@
 {
   "$ref": "#/definitions/SessionPolicy",
   "definitions": {
-    "SessionPolicy": {}
+    "SessionPolicy": {
+      "type": "object",
+      "properties": {
+        "idleTimeout": {
+          "type": "number",
+          "default": 30,
+          "description": "Minutes before idle session logout"
+        },
+        "absoluteTimeout": {
+          "type": "number",
+          "default": 480,
+          "description": "Max session duration (minutes)"
+        },
+        "forceMfa": {
+          "type": "boolean",
+          "default": false,
+          "description": "Require 2FA for all users"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

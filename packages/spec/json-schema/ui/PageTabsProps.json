@@ -1,7 +1,55 @@
 {
   "$ref": "#/definitions/PageTabsProps",
   "definitions": {
-    "PageTabsProps": {}
+    "PageTabsProps": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "line",
+            "card",
+            "pill"
+          ],
+          "default": "line"
+        },
+        "position": {
+          "type": "string",
+          "enum": [
+            "top",
+            "left"
+          ],
+          "default": "top"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "icon": {
+                "type": "string"
+              },
+              "children": {
+                "type": "array",
+                "description": "Child components"
+              }
+            },
+            "required": [
+              "label",
+              "children"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

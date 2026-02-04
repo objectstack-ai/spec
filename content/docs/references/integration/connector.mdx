@@ -27,59 +27,238 @@ const result = AuthenticationSchema.parse(data);
 
 ## ConflictResolution
 
+Conflict resolution strategy
+
+### Allowed Values
+
+* `source_wins`
+* `target_wins`
+* `latest_wins`
+* `manual`
+
 ---
 
 ## Connector
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique connector identifier |
+| **label** | `string` | ✅ | Display label |
+| **type** | `Enum<'saas' \| 'database' \| 'file_storage' \| 'message_queue' \| 'api' \| 'custom'>` | ✅ | Connector type |
+| **description** | `string` | optional | Connector description |
+| **icon** | `string` | optional | Icon identifier |
+| **authentication** | `object \| object \| object \| object \| object` | ✅ | Authentication configuration |
+| **actions** | `object[]` | optional |  |
+| **triggers** | `object[]` | optional |  |
+| **syncConfig** | `object` | optional | Data sync configuration |
+| **fieldMappings** | `object[]` | optional | Field mapping rules |
+| **webhooks** | `object[]` | optional | Webhook configurations |
+| **rateLimitConfig** | `object` | optional | Rate limiting configuration |
+| **retryConfig** | `object` | optional | Retry configuration |
+| **connectionTimeoutMs** | `number` | optional | Connection timeout in ms |
+| **requestTimeoutMs** | `number` | optional | Request timeout in ms |
+| **status** | `Enum<'active' \| 'inactive' \| 'error' \| 'configuring'>` | optional | Connector status |
+| **enabled** | `boolean` | optional | Enable connector |
+| **metadata** | `Record<string, any>` | optional | Custom connector metadata |
 
 ---
 
 ## ConnectorAction
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **key** | `string` | ✅ | Action key (machine name) |
+| **label** | `string` | ✅ | Human readable label |
+| **description** | `string` | optional |  |
+| **inputSchema** | `Record<string, any>` | optional | Input parameters schema (JSON Schema) |
+| **outputSchema** | `Record<string, any>` | optional | Output schema (JSON Schema) |
+
 ---
 
 ## ConnectorStatus
+
+Connector status
+
+### Allowed Values
+
+* `active`
+* `inactive`
+* `error`
+* `configuring`
 
 ---
 
 ## ConnectorTrigger
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **key** | `string` | ✅ | Trigger key |
+| **label** | `string` | ✅ | Trigger label |
+| **description** | `string` | optional |  |
+| **type** | `Enum<'polling' \| 'webhook'>` | ✅ | Trigger type |
+| **interval** | `number` | optional | Polling interval in seconds |
+
 ---
 
 ## ConnectorType
+
+Connector type
+
+### Allowed Values
+
+* `saas`
+* `database`
+* `file_storage`
+* `message_queue`
+* `api`
+* `custom`
 
 ---
 
 ## DataSyncConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **strategy** | `Enum<'full' \| 'incremental' \| 'upsert' \| 'append_only'>` | optional | Synchronization strategy |
+| **direction** | `Enum<'import' \| 'export' \| 'bidirectional'>` | optional | Sync direction |
+| **schedule** | `string` | optional | Cron expression for scheduled sync |
+| **realtimeSync** | `boolean` | optional | Enable real-time sync |
+| **timestampField** | `string` | optional | Field to track last modification time |
+| **conflictResolution** | `Enum<'source_wins' \| 'target_wins' \| 'latest_wins' \| 'manual'>` | optional | Conflict resolution strategy |
+| **batchSize** | `number` | optional | Records per batch |
+| **deleteMode** | `Enum<'hard_delete' \| 'soft_delete' \| 'ignore'>` | optional | Delete handling mode |
+| **filters** | `Record<string, any>` | optional | Filter criteria for selective sync |
+
 ---
 
 ## FieldTransform
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'uppercase' \| 'lowercase' \| 'trim' \| 'date_format' \| 'number_format' \| 'custom'>` | ✅ | Transformation type |
+| **params** | `Record<string, any>` | optional | Transformation parameters |
+| **function** | `string` | optional | Custom JavaScript function for transformation |
 
 ---
 
 ## RateLimitStrategy
 
+Rate limiting strategy
+
+### Allowed Values
+
+* `fixed_window`
+* `sliding_window`
+* `token_bucket`
+* `leaky_bucket`
+
 ---
 
 ## RetryConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **strategy** | `Enum<'exponential_backoff' \| 'linear_backoff' \| 'fixed_delay' \| 'no_retry'>` | optional | Retry strategy |
+| **maxAttempts** | `number` | optional | Maximum retry attempts |
+| **initialDelayMs** | `number` | optional | Initial retry delay in ms |
+| **maxDelayMs** | `number` | optional | Maximum retry delay in ms |
+| **backoffMultiplier** | `number` | optional | Exponential backoff multiplier |
+| **retryableStatusCodes** | `number[]` | optional | HTTP status codes to retry |
+| **retryOnNetworkError** | `boolean` | optional | Retry on network errors |
+| **jitter** | `boolean` | optional | Add jitter to retry delays |
 
 ---
 
 ## RetryStrategy
 
+Retry strategy
+
+### Allowed Values
+
+* `exponential_backoff`
+* `linear_backoff`
+* `fixed_delay`
+* `no_retry`
+
 ---
 
 ## SyncStrategy
+
+Synchronization strategy
+
+### Allowed Values
+
+* `full`
+* `incremental`
+* `upsert`
+* `append_only`
 
 ---
 
 ## WebhookConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Webhook unique name (lowercase snake_case) |
+| **label** | `string` | optional | Human-readable webhook label |
+| **object** | `string` | optional | Object to listen to (optional for manual webhooks) |
+| **triggers** | `Enum<'create' \| 'update' \| 'delete' \| 'undelete' \| 'api'>[]` | optional | Events that trigger execution |
+| **url** | `string` | ✅ | External webhook endpoint URL |
+| **method** | `Enum<'GET' \| 'POST' \| 'PUT' \| 'PATCH' \| 'DELETE'>` | optional | HTTP method |
+| **headers** | `Record<string, string>` | optional | Custom HTTP headers |
+| **body** | `any` | optional | Request body payload (if not using default record data) |
+| **payloadFields** | `string[]` | optional | Fields to include. Empty = All |
+| **includeSession** | `boolean` | optional | Include user session info |
+| **authentication** | `object` | optional | Authentication configuration |
+| **retryPolicy** | `object` | optional | Retry policy configuration |
+| **timeoutMs** | `integer` | optional | Request timeout in milliseconds |
+| **secret** | `string` | optional | Signing secret for HMAC signature verification |
+| **isActive** | `boolean` | optional | Whether webhook is active |
+| **description** | `string` | optional | Webhook description |
+| **tags** | `string[]` | optional | Tags for organization |
+| **events** | `Enum<'record.created' \| 'record.updated' \| 'record.deleted' \| 'sync.started' \| 'sync.completed' \| 'sync.failed' \| 'auth.expired' \| 'rate_limit.exceeded'>[]` | optional | Connector events to subscribe to |
+| **signatureAlgorithm** | `Enum<'hmac_sha256' \| 'hmac_sha512' \| 'none'>` | optional | Webhook signature algorithm |
+
 ---
 
 ## WebhookEvent
 
+Webhook event type
+
+### Allowed Values
+
+* `record.created`
+* `record.updated`
+* `record.deleted`
+* `sync.started`
+* `sync.completed`
+* `sync.failed`
+* `auth.expired`
+* `rate_limit.exceeded`
+
 ---
 
 ## WebhookSignatureAlgorithm
+
+Webhook signature algorithm
+
+### Allowed Values
+
+* `hmac_sha256`
+* `hmac_sha512`
+* `none`
 

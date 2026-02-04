@@ -1,7 +1,28 @@
 {
   "$ref": "#/definitions/FileVersioningConfig",
   "definitions": {
-    "FileVersioningConfig": {}
+    "FileVersioningConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable file versioning"
+        },
+        "maxVersions": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Maximum versions to retain"
+        },
+        "retentionDays": {
+          "type": "number",
+          "minimum": 1,
+          "description": "Version retention period in days"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

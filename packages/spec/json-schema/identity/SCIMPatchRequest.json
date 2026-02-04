@@ -1,7 +1,56 @@
 {
   "$ref": "#/definitions/SCIMPatchRequest",
   "definitions": {
-    "SCIMPatchRequest": {}
+    "SCIMPatchRequest": {
+      "type": "object",
+      "properties": {
+        "schemas": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "default": [
+            "urn:ietf:params:scim:api:messages:2.0:PatchOp"
+          ],
+          "description": "SCIM schema URIs"
+        },
+        "Operations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "enum": [
+                  "add",
+                  "remove",
+                  "replace"
+                ],
+                "description": "Operation type"
+              },
+              "path": {
+                "type": "string",
+                "description": "Attribute path (optional for add)"
+              },
+              "value": {
+                "description": "Value to set"
+              }
+            },
+            "required": [
+              "op"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "description": "Patch operations"
+        }
+      },
+      "required": [
+        "Operations"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

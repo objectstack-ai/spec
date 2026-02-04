@@ -1,7 +1,62 @@
 {
   "$ref": "#/definitions/ServiceStatus",
   "definitions": {
-    "ServiceStatus": {}
+    "ServiceStatus": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": [
+            "metadata",
+            "data",
+            "auth",
+            "file-storage",
+            "search",
+            "cache",
+            "queue",
+            "automation",
+            "graphql",
+            "analytics",
+            "hub",
+            "realtime",
+            "job",
+            "notification"
+          ]
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "running",
+            "stopped",
+            "degraded",
+            "initializing"
+          ]
+        },
+        "version": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string",
+          "description": "Implementation provider (e.g. \"s3\" for storage)"
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of supported sub-features"
+        }
+      },
+      "required": [
+        "name",
+        "enabled",
+        "status"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

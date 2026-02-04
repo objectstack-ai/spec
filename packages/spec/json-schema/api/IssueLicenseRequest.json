@@ -1,7 +1,46 @@
 {
   "$ref": "#/definitions/IssueLicenseRequest",
   "definitions": {
-    "IssueLicenseRequest": {}
+    "IssueLicenseRequest": {
+      "type": "object",
+      "properties": {
+        "spaceId": {
+          "type": "string",
+          "description": "Target space ID"
+        },
+        "planCode": {
+          "type": "string",
+          "description": "Plan code"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "customFeatures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "customLimits": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "plugins": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "spaceId",
+        "planCode"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

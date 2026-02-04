@@ -1,7 +1,33 @@
 {
   "$ref": "#/definitions/HealthStatus",
   "definitions": {
-    "HealthStatus": {}
+    "HealthStatus": {
+      "type": "object",
+      "properties": {
+        "healthy": {
+          "type": "boolean",
+          "description": "Whether the plugin is healthy"
+        },
+        "timestamp": {
+          "type": "integer",
+          "description": "Unix timestamp in milliseconds when health check was performed"
+        },
+        "details": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Optional plugin-specific health details"
+        },
+        "message": {
+          "type": "string",
+          "description": "Error message if plugin is unhealthy"
+        }
+      },
+      "required": [
+        "healthy",
+        "timestamp"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

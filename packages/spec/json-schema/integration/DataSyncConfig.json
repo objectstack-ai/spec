@@ -1,7 +1,79 @@
 {
   "$ref": "#/definitions/DataSyncConfig",
   "definitions": {
-    "DataSyncConfig": {}
+    "DataSyncConfig": {
+      "type": "object",
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "enum": [
+            "full",
+            "incremental",
+            "upsert",
+            "append_only"
+          ],
+          "description": "Synchronization strategy",
+          "default": "incremental"
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "import",
+            "export",
+            "bidirectional"
+          ],
+          "default": "import",
+          "description": "Sync direction"
+        },
+        "schedule": {
+          "type": "string",
+          "description": "Cron expression for scheduled sync"
+        },
+        "realtimeSync": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable real-time sync"
+        },
+        "timestampField": {
+          "type": "string",
+          "description": "Field to track last modification time"
+        },
+        "conflictResolution": {
+          "type": "string",
+          "enum": [
+            "source_wins",
+            "target_wins",
+            "latest_wins",
+            "manual"
+          ],
+          "description": "Conflict resolution strategy",
+          "default": "latest_wins"
+        },
+        "batchSize": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10000,
+          "default": 1000,
+          "description": "Records per batch"
+        },
+        "deleteMode": {
+          "type": "string",
+          "enum": [
+            "hard_delete",
+            "soft_delete",
+            "ignore"
+          ],
+          "default": "soft_delete",
+          "description": "Delete handling mode"
+        },
+        "filters": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Filter criteria for selective sync"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

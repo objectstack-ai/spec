@@ -1,7 +1,59 @@
 {
   "$ref": "#/definitions/RLSConfig",
   "definitions": {
-    "RLSConfig": {}
+    "RLSConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable RLS enforcement globally"
+        },
+        "defaultPolicy": {
+          "type": "string",
+          "enum": [
+            "deny",
+            "allow"
+          ],
+          "default": "deny",
+          "description": "Default action when no policies match"
+        },
+        "allowSuperuserBypass": {
+          "type": "boolean",
+          "default": true,
+          "description": "Allow superusers to bypass RLS"
+        },
+        "bypassRoles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Roles that bypass RLS (see all data)"
+        },
+        "logEvaluations": {
+          "type": "boolean",
+          "default": false,
+          "description": "Log RLS policy evaluations for debugging"
+        },
+        "cacheResults": {
+          "type": "boolean",
+          "default": true,
+          "description": "Cache RLS evaluation results"
+        },
+        "cacheTtlSeconds": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "default": 300,
+          "description": "Cache TTL in seconds"
+        },
+        "prefetchUserContext": {
+          "type": "boolean",
+          "default": true,
+          "description": "Pre-fetch user context for performance"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,61 @@
 {
   "$ref": "#/definitions/EmbeddingModel",
   "definitions": {
-    "EmbeddingModel": {}
+    "EmbeddingModel": {
+      "type": "object",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": [
+            "openai",
+            "cohere",
+            "huggingface",
+            "azure_openai",
+            "local",
+            "custom"
+          ]
+        },
+        "model": {
+          "type": "string",
+          "description": "Model name (e.g., \"text-embedding-3-large\")"
+        },
+        "dimensions": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "description": "Embedding vector dimensions"
+        },
+        "maxTokens": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "description": "Maximum tokens per embedding"
+        },
+        "batchSize": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "default": 100,
+          "description": "Batch size for embedding"
+        },
+        "endpoint": {
+          "type": "string",
+          "format": "uri",
+          "description": "Custom endpoint URL"
+        },
+        "apiKey": {
+          "type": "string",
+          "description": "API key"
+        },
+        "secretRef": {
+          "type": "string",
+          "description": "Reference to stored secret"
+        }
+      },
+      "required": [
+        "provider",
+        "model",
+        "dimensions"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

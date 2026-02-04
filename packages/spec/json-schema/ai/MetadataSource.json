@@ -1,7 +1,33 @@
 {
   "$ref": "#/definitions/MetadataSource",
   "definitions": {
-    "MetadataSource": {}
+    "MetadataSource": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "line": {
+          "type": "number"
+        },
+        "column": {
+          "type": "number"
+        },
+        "package": {
+          "type": "string"
+        },
+        "object": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        },
+        "component": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

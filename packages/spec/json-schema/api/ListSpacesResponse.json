@@ -1,7 +1,385 @@
 {
   "$ref": "#/definitions/ListSpacesResponse",
   "definitions": {
-    "ListSpacesResponse": {}
+    "ListSpacesResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "description": "Operation success status"
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "Error code (e.g. validation_error)"
+            },
+            "message": {
+              "type": "string",
+              "description": "Readable error message"
+            },
+            "category": {
+              "type": "string",
+              "description": "Error category (e.g. validation, authorization)"
+            },
+            "details": {
+              "description": "Additional error context (e.g. field validation errors)"
+            },
+            "requestId": {
+              "type": "string",
+              "description": "Request ID for tracking"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ],
+          "additionalProperties": false,
+          "description": "Error details if success is false"
+        },
+        "meta": {
+          "type": "object",
+          "properties": {
+            "timestamp": {
+              "type": "string"
+            },
+            "duration": {
+              "type": "number"
+            },
+            "requestId": {
+              "type": "string"
+            },
+            "traceId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "timestamp"
+          ],
+          "additionalProperties": false,
+          "description": "Response metadata"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "name": {
+                "type": "string"
+              },
+              "slug": {
+                "type": "string",
+                "description": "URL friendly identifier"
+              },
+              "ownerId": {
+                "type": "string"
+              },
+              "runtime": {
+                "type": "object",
+                "properties": {
+                  "isolation": {
+                    "type": "string",
+                    "enum": [
+                      "shared_schema",
+                      "isolated_schema",
+                      "isolated_db"
+                    ],
+                    "description": "Data isolation strategy"
+                  },
+                  "quotas": {
+                    "type": "object",
+                    "properties": {
+                      "maxUsers": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "description": "Maximum number of users"
+                      },
+                      "maxStorage": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "description": "Maximum storage in bytes"
+                      },
+                      "apiRateLimit": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "description": "API requests per minute"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Resource quotas"
+                  }
+                },
+                "required": [
+                  "isolation"
+                ],
+                "additionalProperties": false,
+                "description": "Runtime instance configuration"
+              },
+              "bom": {
+                "type": "object",
+                "properties": {
+                  "tenantId": {
+                    "type": "string",
+                    "description": "Target Tenant ID"
+                  },
+                  "dependencies": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Plugin ID (e.g. \"com.example.crm\")"
+                        },
+                        "version": {
+                          "type": "string",
+                          "default": "latest",
+                          "description": "SemVer range or \"latest\""
+                        },
+                        "configuration": {
+                          "type": "object",
+                          "additionalProperties": {},
+                          "description": "Configuration overrides"
+                        },
+                        "features": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "boolean"
+                          },
+                          "description": "Feature toggles"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "description": "Installed packages"
+                  },
+                  "environment": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  },
+                  "resolutionStrategy": {
+                    "type": "string",
+                    "enum": [
+                      "strict",
+                      "override",
+                      "merge"
+                    ],
+                    "default": "override",
+                    "description": "Conflict resolution strategy (strict=fail, override=last-wins, merge=deep-merge)"
+                  }
+                },
+                "required": [
+                  "tenantId",
+                  "dependencies"
+                ],
+                "additionalProperties": false
+              },
+              "lastBuild": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "manifestUrl": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "success",
+                      "failed"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "timestamp",
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              "subscription": {
+                "type": "object",
+                "properties": {
+                  "planId": {
+                    "type": "string",
+                    "description": "Reference to Plan Code"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "active",
+                      "past_due",
+                      "canceled",
+                      "trialing",
+                      "incomplete"
+                    ]
+                  },
+                  "currentPeriodEnd": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "stripeCustomerId": {
+                    "type": "string"
+                  },
+                  "stripeSubscriptionId": {
+                    "type": "string"
+                  },
+                  "addons": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "pluginId": {
+                          "type": "string",
+                          "description": "Marketplace Plugin ID (NPM package name)"
+                        },
+                        "quantity": {
+                          "type": "number",
+                          "default": 1
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "active",
+                            "past_due",
+                            "canceled",
+                            "trialing",
+                            "incomplete"
+                          ],
+                          "default": "active"
+                        }
+                      },
+                      "required": [
+                        "pluginId"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "usage": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "required": [
+                  "planId",
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              "deployment": {
+                "type": "object",
+                "properties": {
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "vercel",
+                      "docker",
+                      "kubernetes"
+                    ]
+                  },
+                  "region": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Public Access URL"
+                  },
+                  "env": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "description": "Runtime Environment Variables"
+                  }
+                },
+                "required": [
+                  "provider"
+                ],
+                "additionalProperties": false
+              },
+              "createdAt": {
+                "type": "string"
+              },
+              "updatedAt": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "slug",
+              "ownerId",
+              "bom",
+              "createdAt",
+              "updatedAt"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "pagination": {
+          "type": "object",
+          "properties": {
+            "page": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "perPage": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "total": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "totalPages": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "hasNext": {
+              "type": "boolean"
+            },
+            "hasPrev": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "page",
+            "perPage",
+            "total",
+            "totalPages",
+            "hasNext",
+            "hasPrev"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "success",
+        "data",
+        "pagination"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

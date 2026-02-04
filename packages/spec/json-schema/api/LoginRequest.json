@@ -1,7 +1,45 @@
 {
   "$ref": "#/definitions/LoginRequest",
   "definitions": {
-    "LoginRequest": {}
+    "LoginRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "email",
+            "username",
+            "phone",
+            "magic-link",
+            "social"
+          ],
+          "default": "email",
+          "description": "Login method"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Required for email/magic-link"
+        },
+        "username": {
+          "type": "string",
+          "description": "Required for username login"
+        },
+        "password": {
+          "type": "string",
+          "description": "Required for password login"
+        },
+        "provider": {
+          "type": "string",
+          "description": "Required for social (google, github)"
+        },
+        "redirectTo": {
+          "type": "string",
+          "description": "Redirect URL after successful login"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

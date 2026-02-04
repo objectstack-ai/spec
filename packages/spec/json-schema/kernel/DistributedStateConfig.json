@@ -1,7 +1,78 @@
 {
   "$ref": "#/definitions/DistributedStateConfig",
   "definitions": {
-    "DistributedStateConfig": {}
+    "DistributedStateConfig": {
+      "type": "object",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": [
+            "redis",
+            "etcd",
+            "custom"
+          ],
+          "description": "Distributed state backend provider"
+        },
+        "endpoints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Backend connection endpoints"
+        },
+        "keyPrefix": {
+          "type": "string",
+          "description": "Prefix for all keys (e.g., \"plugin:my-plugin:\")"
+        },
+        "ttl": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "State expiration time in seconds"
+        },
+        "auth": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            },
+            "token": {
+              "type": "string"
+            },
+            "certificate": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "replication": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "minReplicas": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "customConfig": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Provider-specific configuration"
+        }
+      },
+      "required": [
+        "provider"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

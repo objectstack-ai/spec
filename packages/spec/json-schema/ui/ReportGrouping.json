@@ -1,7 +1,38 @@
 {
   "$ref": "#/definitions/ReportGrouping",
   "definitions": {
-    "ReportGrouping": {}
+    "ReportGrouping": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "Field to group by"
+        },
+        "sortOrder": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "asc"
+        },
+        "dateGranularity": {
+          "type": "string",
+          "enum": [
+            "day",
+            "week",
+            "month",
+            "quarter",
+            "year"
+          ],
+          "description": "For date fields"
+        }
+      },
+      "required": [
+        "field"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,1189 @@
 {
   "$ref": "#/definitions/PluginSecurityManifest",
   "definitions": {
-    "PluginSecurityManifest": {}
+    "PluginSecurityManifest": {
+      "type": "object",
+      "properties": {
+        "pluginId": {
+          "type": "string"
+        },
+        "trustLevel": {
+          "type": "string",
+          "enum": [
+            "verified",
+            "trusted",
+            "community",
+            "untrusted",
+            "blocked"
+          ],
+          "description": "Trust level of the plugin"
+        },
+        "permissions": {
+          "type": "object",
+          "properties": {
+            "permissions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Unique permission identifier"
+                  },
+                  "resource": {
+                    "type": "string",
+                    "enum": [
+                      "data.object",
+                      "data.record",
+                      "data.field",
+                      "ui.view",
+                      "ui.dashboard",
+                      "ui.report",
+                      "system.config",
+                      "system.plugin",
+                      "system.api",
+                      "system.service",
+                      "storage.file",
+                      "storage.database",
+                      "network.http",
+                      "network.websocket",
+                      "process.spawn",
+                      "process.env"
+                    ],
+                    "description": "Type of resource being accessed"
+                  },
+                  "actions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "create",
+                        "read",
+                        "update",
+                        "delete",
+                        "execute",
+                        "manage",
+                        "configure",
+                        "share",
+                        "export",
+                        "import",
+                        "admin"
+                      ],
+                      "description": "Type of action being permitted"
+                    }
+                  },
+                  "scope": {
+                    "type": "string",
+                    "enum": [
+                      "global",
+                      "tenant",
+                      "user",
+                      "resource",
+                      "plugin"
+                    ],
+                    "description": "Scope of permission application",
+                    "default": "plugin"
+                  },
+                  "filter": {
+                    "type": "object",
+                    "properties": {
+                      "resourceIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "condition": {
+                        "type": "string",
+                        "description": "Filter expression (e.g., owner = currentUser)"
+                      },
+                      "fields": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Allowed fields for data resources"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "required": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "justification": {
+                    "type": "string",
+                    "description": "Why this permission is needed"
+                  }
+                },
+                "required": [
+                  "id",
+                  "resource",
+                  "actions",
+                  "description"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "groups": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Group name"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "permissions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Permission IDs in this group"
+                  }
+                },
+                "required": [
+                  "name",
+                  "description",
+                  "permissions"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "defaultGrant": {
+              "type": "string",
+              "enum": [
+                "prompt",
+                "allow",
+                "deny",
+                "inherit"
+              ],
+              "default": "prompt"
+            }
+          },
+          "required": [
+            "permissions"
+          ],
+          "additionalProperties": false
+        },
+        "sandbox": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "level": {
+              "type": "string",
+              "enum": [
+                "none",
+                "minimal",
+                "standard",
+                "strict",
+                "paranoid"
+              ],
+              "default": "standard"
+            },
+            "runtime": {
+              "type": "object",
+              "properties": {
+                "engine": {
+                  "type": "string",
+                  "enum": [
+                    "v8-isolate",
+                    "wasm",
+                    "container",
+                    "process"
+                  ],
+                  "default": "v8-isolate",
+                  "description": "Execution environment engine"
+                },
+                "engineConfig": {
+                  "type": "object",
+                  "properties": {
+                    "wasm": {
+                      "type": "object",
+                      "properties": {
+                        "maxMemoryPages": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 65536,
+                          "description": "Maximum WASM memory pages (64KB each)"
+                        },
+                        "instructionLimit": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Maximum instructions before timeout"
+                        },
+                        "enableSimd": {
+                          "type": "boolean",
+                          "default": false,
+                          "description": "Enable WebAssembly SIMD support"
+                        },
+                        "enableThreads": {
+                          "type": "boolean",
+                          "default": false,
+                          "description": "Enable WebAssembly threads"
+                        },
+                        "enableBulkMemory": {
+                          "type": "boolean",
+                          "default": true,
+                          "description": "Enable bulk memory operations"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "container": {
+                      "type": "object",
+                      "properties": {
+                        "image": {
+                          "type": "string",
+                          "description": "Container image to use"
+                        },
+                        "runtime": {
+                          "type": "string",
+                          "enum": [
+                            "docker",
+                            "podman",
+                            "containerd"
+                          ],
+                          "default": "docker"
+                        },
+                        "resources": {
+                          "type": "object",
+                          "properties": {
+                            "cpuLimit": {
+                              "type": "string",
+                              "description": "CPU limit (e.g., \"0.5\", \"2\")"
+                            },
+                            "memoryLimit": {
+                              "type": "string",
+                              "description": "Memory limit (e.g., \"512m\", \"1g\")"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        "networkMode": {
+                          "type": "string",
+                          "enum": [
+                            "none",
+                            "bridge",
+                            "host"
+                          ],
+                          "default": "bridge"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "v8Isolate": {
+                      "type": "object",
+                      "properties": {
+                        "heapSizeMb": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "enableSnapshot": {
+                          "type": "boolean",
+                          "default": true
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "resourceLimits": {
+                  "type": "object",
+                  "properties": {
+                    "maxMemory": {
+                      "type": "integer",
+                      "description": "Maximum memory allocation"
+                    },
+                    "maxCpu": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100,
+                      "description": "Maximum CPU usage percentage"
+                    },
+                    "timeout": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Maximum execution time"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false,
+              "description": "Execution environment and isolation settings"
+            },
+            "filesystem": {
+              "type": "object",
+              "properties": {
+                "mode": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "readonly",
+                    "restricted",
+                    "full"
+                  ],
+                  "default": "restricted"
+                },
+                "allowedPaths": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Whitelisted paths"
+                },
+                "deniedPaths": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Blacklisted paths"
+                },
+                "maxFileSize": {
+                  "type": "integer",
+                  "description": "Maximum file size in bytes"
+                }
+              },
+              "additionalProperties": false
+            },
+            "network": {
+              "type": "object",
+              "properties": {
+                "mode": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "local",
+                    "restricted",
+                    "full"
+                  ],
+                  "default": "restricted"
+                },
+                "allowedHosts": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Whitelisted hosts"
+                },
+                "deniedHosts": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Blacklisted hosts"
+                },
+                "allowedPorts": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "description": "Allowed port numbers"
+                },
+                "maxConnections": {
+                  "type": "integer"
+                }
+              },
+              "additionalProperties": false
+            },
+            "process": {
+              "type": "object",
+              "properties": {
+                "allowSpawn": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Allow spawning child processes"
+                },
+                "allowedCommands": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Whitelisted commands"
+                },
+                "timeout": {
+                  "type": "integer",
+                  "description": "Process timeout in ms"
+                }
+              },
+              "additionalProperties": false
+            },
+            "memory": {
+              "type": "object",
+              "properties": {
+                "maxHeap": {
+                  "type": "integer",
+                  "description": "Maximum heap size in bytes"
+                },
+                "maxStack": {
+                  "type": "integer",
+                  "description": "Maximum stack size in bytes"
+                }
+              },
+              "additionalProperties": false
+            },
+            "cpu": {
+              "type": "object",
+              "properties": {
+                "maxCpuPercent": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "maxThreads": {
+                  "type": "integer"
+                }
+              },
+              "additionalProperties": false
+            },
+            "environment": {
+              "type": "object",
+              "properties": {
+                "mode": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "readonly",
+                    "restricted",
+                    "full"
+                  ],
+                  "default": "readonly"
+                },
+                "allowedVars": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "deniedVars": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "policy": {
+          "type": "object",
+          "properties": {
+            "csp": {
+              "type": "object",
+              "properties": {
+                "directives": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "reportOnly": {
+                  "type": "boolean",
+                  "default": false
+                }
+              },
+              "additionalProperties": false
+            },
+            "cors": {
+              "type": "object",
+              "properties": {
+                "allowedOrigins": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "allowedMethods": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "allowedHeaders": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "allowCredentials": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "maxAge": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "allowedOrigins",
+                "allowedMethods",
+                "allowedHeaders"
+              ],
+              "additionalProperties": false
+            },
+            "rateLimit": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "maxRequests": {
+                  "type": "integer"
+                },
+                "windowMs": {
+                  "type": "integer",
+                  "description": "Time window in milliseconds"
+                },
+                "strategy": {
+                  "type": "string",
+                  "enum": [
+                    "fixed",
+                    "sliding",
+                    "token-bucket"
+                  ],
+                  "default": "sliding"
+                }
+              },
+              "required": [
+                "maxRequests",
+                "windowMs"
+              ],
+              "additionalProperties": false
+            },
+            "authentication": {
+              "type": "object",
+              "properties": {
+                "required": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "methods": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "jwt",
+                      "oauth2",
+                      "api-key",
+                      "session",
+                      "certificate"
+                    ]
+                  }
+                },
+                "tokenExpiration": {
+                  "type": "integer",
+                  "description": "Token expiration in seconds"
+                }
+              },
+              "required": [
+                "methods"
+              ],
+              "additionalProperties": false
+            },
+            "encryption": {
+              "type": "object",
+              "properties": {
+                "dataAtRest": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Encrypt data at rest"
+                },
+                "dataInTransit": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Enforce HTTPS/TLS"
+                },
+                "algorithm": {
+                  "type": "string",
+                  "description": "Encryption algorithm"
+                },
+                "minKeyLength": {
+                  "type": "integer",
+                  "description": "Minimum key length in bits"
+                }
+              },
+              "additionalProperties": false
+            },
+            "auditLog": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "events": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Events to log"
+                },
+                "retention": {
+                  "type": "integer",
+                  "description": "Log retention in days"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "scanResults": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "scanner": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "version"
+                ],
+                "additionalProperties": false
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "passed",
+                  "failed",
+                  "warning"
+                ]
+              },
+              "vulnerabilities": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "cve": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "severity": {
+                      "type": "string",
+                      "enum": [
+                        "critical",
+                        "high",
+                        "medium",
+                        "low",
+                        "info"
+                      ]
+                    },
+                    "category": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "remediation": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "affectedVersions": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "fixedIn": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "cvssScore": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 10
+                    },
+                    "exploitAvailable": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "patchAvailable": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "workaround": {
+                      "type": "string"
+                    },
+                    "references": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "discoveredDate": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "publishedDate": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "severity",
+                    "title",
+                    "description",
+                    "affectedVersions"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "codeIssues": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "severity": {
+                      "type": "string",
+                      "enum": [
+                        "error",
+                        "warning",
+                        "info"
+                      ]
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Issue type (e.g., sql-injection, xss)"
+                    },
+                    "file": {
+                      "type": "string"
+                    },
+                    "line": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "suggestion": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "severity",
+                    "type",
+                    "file",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "dependencyVulnerabilities": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "package": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "string"
+                    },
+                    "vulnerability": {
+                      "type": "object",
+                      "properties": {
+                        "cve": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "severity": {
+                          "type": "string",
+                          "enum": [
+                            "critical",
+                            "high",
+                            "medium",
+                            "low",
+                            "info"
+                          ]
+                        },
+                        "category": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "location": {
+                          "type": "string"
+                        },
+                        "remediation": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "affectedVersions": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "fixedIn": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "cvssScore": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 10
+                        },
+                        "exploitAvailable": {
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "patchAvailable": {
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "workaround": {
+                          "type": "string"
+                        },
+                        "references": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "discoveredDate": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "publishedDate": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "severity",
+                        "title",
+                        "description",
+                        "affectedVersions"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "package",
+                    "version",
+                    "vulnerability"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "licenseCompliance": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "compliant",
+                      "non-compliant",
+                      "unknown"
+                    ]
+                  },
+                  "issues": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "package": {
+                          "type": "string"
+                        },
+                        "license": {
+                          "type": "string"
+                        },
+                        "reason": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "package",
+                        "license",
+                        "reason"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              "summary": {
+                "type": "object",
+                "properties": {
+                  "totalVulnerabilities": {
+                    "type": "integer"
+                  },
+                  "criticalCount": {
+                    "type": "integer"
+                  },
+                  "highCount": {
+                    "type": "integer"
+                  },
+                  "mediumCount": {
+                    "type": "integer"
+                  },
+                  "lowCount": {
+                    "type": "integer"
+                  },
+                  "infoCount": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "totalVulnerabilities",
+                  "criticalCount",
+                  "highCount",
+                  "mediumCount",
+                  "lowCount",
+                  "infoCount"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "timestamp",
+              "scanner",
+              "status",
+              "summary"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "vulnerabilities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "cve": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "severity": {
+                "type": "string",
+                "enum": [
+                  "critical",
+                  "high",
+                  "medium",
+                  "low",
+                  "info"
+                ]
+              },
+              "category": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "location": {
+                "type": "string"
+              },
+              "remediation": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "affectedVersions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "fixedIn": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "cvssScore": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 10
+              },
+              "exploitAvailable": {
+                "type": "boolean",
+                "default": false
+              },
+              "patchAvailable": {
+                "type": "boolean",
+                "default": false
+              },
+              "workaround": {
+                "type": "string"
+              },
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "discoveredDate": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "publishedDate": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "id",
+              "severity",
+              "title",
+              "description",
+              "affectedVersions"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "codeSigning": {
+          "type": "object",
+          "properties": {
+            "signed": {
+              "type": "boolean"
+            },
+            "signature": {
+              "type": "string"
+            },
+            "certificate": {
+              "type": "string"
+            },
+            "algorithm": {
+              "type": "string"
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": [
+            "signed"
+          ],
+          "additionalProperties": false
+        },
+        "certifications": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Certification name (e.g., SOC 2, ISO 27001)"
+              },
+              "issuer": {
+                "type": "string"
+              },
+              "issuedDate": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "expiryDate": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "certificateUrl": {
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": [
+              "name",
+              "issuer",
+              "issuedDate"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "securityContact": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "format": "email"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "pgpKey": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "vulnerabilityDisclosure": {
+          "type": "object",
+          "properties": {
+            "policyUrl": {
+              "type": "string",
+              "format": "uri"
+            },
+            "responseTime": {
+              "type": "integer",
+              "description": "Expected response time in hours"
+            },
+            "bugBounty": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "pluginId",
+        "trustLevel",
+        "permissions",
+        "sandbox"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

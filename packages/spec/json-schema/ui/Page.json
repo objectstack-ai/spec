@@ -1,7 +1,196 @@
 {
   "$ref": "#/definitions/Page",
   "definitions": {
-    "Page": {}
+    "Page": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Page unique name (lowercase snake_case)"
+        },
+        "label": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "record",
+            "home",
+            "app",
+            "utility"
+          ],
+          "default": "record"
+        },
+        "variables": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Variable name"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "string",
+                  "number",
+                  "boolean",
+                  "object",
+                  "array"
+                ],
+                "default": "string"
+              },
+              "defaultValue": {}
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Local page state variables"
+        },
+        "object": {
+          "type": "string",
+          "description": "Bound object (for Record pages)"
+        },
+        "template": {
+          "type": "string",
+          "default": "default",
+          "description": "Layout template name (e.g. \"header-sidebar-main\")"
+        },
+        "regions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Region name (e.g. \"sidebar\", \"main\", \"header\")"
+              },
+              "width": {
+                "type": "string",
+                "enum": [
+                  "small",
+                  "medium",
+                  "large",
+                  "full"
+                ]
+              },
+              "components": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "page:header",
+                            "page:footer",
+                            "page:sidebar",
+                            "page:tabs",
+                            "page:accordion",
+                            "page:card",
+                            "page:section",
+                            "record:details",
+                            "record:highlights",
+                            "record:related_list",
+                            "record:activity",
+                            "record:chatter",
+                            "record:path",
+                            "app:launcher",
+                            "nav:menu",
+                            "nav:breadcrumb",
+                            "global:search",
+                            "global:notifications",
+                            "user:profile",
+                            "ai:chat_window",
+                            "ai:suggestion"
+                          ]
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ],
+                      "description": "Component Type (Standard enum or custom string)"
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "Unique instance ID"
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "properties": {
+                      "type": "object",
+                      "additionalProperties": {},
+                      "description": "Component props passed to the widget. See component.zod.ts for schemas."
+                    },
+                    "events": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "description": "Event handlers map"
+                    },
+                    "style": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "description": "Inline styles or utility classes"
+                    },
+                    "className": {
+                      "type": "string",
+                      "description": "CSS class names"
+                    },
+                    "visibility": {
+                      "type": "string",
+                      "description": "Visibility filter/formula"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "properties"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "Components in this region"
+              }
+            },
+            "required": [
+              "name",
+              "components"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Defined regions with components"
+        },
+        "isDefault": {
+          "type": "boolean",
+          "default": false
+        },
+        "assignedProfiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "regions"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

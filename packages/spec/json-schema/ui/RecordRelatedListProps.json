@@ -1,7 +1,39 @@
 {
   "$ref": "#/definitions/RecordRelatedListProps",
   "definitions": {
-    "RecordRelatedListProps": {}
+    "RecordRelatedListProps": {
+      "type": "object",
+      "properties": {
+        "objectName": {
+          "type": "string",
+          "description": "Related object name"
+        },
+        "relationshipField": {
+          "type": "string",
+          "description": "Field on related object that points to this record"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields to display"
+        },
+        "sort": {
+          "type": "string"
+        },
+        "limit": {
+          "type": "number",
+          "default": 5
+        }
+      },
+      "required": [
+        "objectName",
+        "relationshipField",
+        "columns"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

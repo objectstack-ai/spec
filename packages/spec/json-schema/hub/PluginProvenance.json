@@ -1,7 +1,198 @@
 {
   "$ref": "#/definitions/PluginProvenance",
   "definitions": {
-    "PluginProvenance": {}
+    "PluginProvenance": {
+      "type": "object",
+      "properties": {
+        "pluginId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "build": {
+          "type": "object",
+          "properties": {
+            "timestamp": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "environment": {
+              "type": "object",
+              "properties": {
+                "os": {
+                  "type": "string"
+                },
+                "arch": {
+                  "type": "string"
+                },
+                "nodeVersion": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "os",
+                "arch",
+                "nodeVersion"
+              ],
+              "additionalProperties": false
+            },
+            "source": {
+              "type": "object",
+              "properties": {
+                "repository": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "commit": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{40}$"
+                },
+                "branch": {
+                  "type": "string"
+                },
+                "tag": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "repository",
+                "commit"
+              ],
+              "additionalProperties": false
+            },
+            "builder": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string",
+                  "format": "email"
+                }
+              },
+              "required": [
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "timestamp"
+          ],
+          "additionalProperties": false
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "filename": {
+                "type": "string"
+              },
+              "sha256": {
+                "type": "string"
+              },
+              "size": {
+                "type": "integer",
+                "exclusiveMinimum": 0
+              }
+            },
+            "required": [
+              "filename",
+              "sha256",
+              "size"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "signatures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "algorithm": {
+                "type": "string",
+                "enum": [
+                  "rsa",
+                  "ecdsa",
+                  "ed25519"
+                ]
+              },
+              "publicKey": {
+                "type": "string"
+              },
+              "signature": {
+                "type": "string"
+              },
+              "signedBy": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "algorithm",
+              "publicKey",
+              "signature",
+              "signedBy",
+              "timestamp"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "attestations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "code-review",
+                  "security-scan",
+                  "test-results",
+                  "ci-build"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "passed",
+                  "failed"
+                ]
+              },
+              "url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "type",
+              "status",
+              "timestamp"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "pluginId",
+        "version",
+        "build",
+        "artifacts"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,98 @@
 {
   "$ref": "#/definitions/TenantPlacementPolicy",
   "definitions": {
-    "TenantPlacementPolicy": {}
+    "TenantPlacementPolicy": {
+      "type": "object",
+      "properties": {
+        "tenantId": {
+          "type": "string"
+        },
+        "primaryRegion": {
+          "type": "string"
+        },
+        "replicaRegions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "dataResidency": {
+          "type": "object",
+          "properties": {
+            "allowedRegions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "prohibitedRegions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": []
+            },
+            "continent": {
+              "type": "string",
+              "enum": [
+                "NA",
+                "SA",
+                "EU",
+                "AF",
+                "AS",
+                "OC",
+                "AN"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "failover": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "preferredOrder": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": []
+            },
+            "maxLatency": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 100
+            }
+          },
+          "additionalProperties": false
+        },
+        "latency": {
+          "type": "object",
+          "properties": {
+            "maxPrimaryLatency": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 50
+            },
+            "maxReplicaLatency": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 200
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "tenantId",
+        "primaryRegion"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

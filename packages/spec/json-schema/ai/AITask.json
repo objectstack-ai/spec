@@ -1,7 +1,133 @@
 {
   "$ref": "#/definitions/AITask",
   "definitions": {
-    "AITask": {}
+    "AITask": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Optional task ID for referencing"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable task name"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "classify",
+            "extract",
+            "summarize",
+            "generate",
+            "predict",
+            "translate",
+            "sentiment",
+            "entity_recognition",
+            "anomaly_detection",
+            "recommendation"
+          ]
+        },
+        "model": {
+          "type": "string",
+          "description": "Model ID from registry (uses default if not specified)"
+        },
+        "promptTemplate": {
+          "type": "string",
+          "description": "Prompt template ID for this task"
+        },
+        "inputFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Source fields to process (e.g., [\"description\", \"comments\"])"
+        },
+        "inputSchema": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Validation schema for inputs"
+        },
+        "inputContext": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Additional context for the AI model"
+        },
+        "outputField": {
+          "type": "string",
+          "description": "Target field to store the result"
+        },
+        "outputSchema": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Validation schema for output"
+        },
+        "outputFormat": {
+          "type": "string",
+          "enum": [
+            "text",
+            "json",
+            "number",
+            "boolean",
+            "array"
+          ],
+          "default": "text"
+        },
+        "classes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Valid classes for classification tasks"
+        },
+        "multiClass": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow multiple classes to be selected"
+        },
+        "extractionSchema": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "JSON schema for structured extraction"
+        },
+        "maxLength": {
+          "type": "number",
+          "description": "Maximum length for generated content"
+        },
+        "temperature": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2,
+          "description": "Model temperature override"
+        },
+        "fallbackValue": {
+          "description": "Fallback value if AI task fails"
+        },
+        "retryAttempts": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5,
+          "default": 1
+        },
+        "condition": {
+          "type": "string",
+          "description": "Formula condition - task only runs if TRUE"
+        },
+        "description": {
+          "type": "string"
+        },
+        "active": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "inputFields",
+        "outputField"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

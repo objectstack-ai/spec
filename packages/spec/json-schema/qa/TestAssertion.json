@@ -1,7 +1,37 @@
 {
   "$ref": "#/definitions/TestAssertion",
   "definitions": {
-    "TestAssertion": {}
+    "TestAssertion": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "Field path in the result to check (e.g. \"body.data.0.status\")"
+        },
+        "operator": {
+          "type": "string",
+          "enum": [
+            "equals",
+            "not_equals",
+            "contains",
+            "not_contains",
+            "is_null",
+            "not_null",
+            "gt",
+            "gte",
+            "lt",
+            "lte",
+            "error"
+          ]
+        },
+        "expectedValue": {}
+      },
+      "required": [
+        "field",
+        "operator"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

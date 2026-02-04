@@ -1,7 +1,13 @@
 {
   "$ref": "#/definitions/VercelProvider",
   "definitions": {
-    "VercelProvider": {}
+    "VercelProvider": {
+      "type": "string",
+      "enum": [
+        "vercel"
+      ],
+      "description": "Vercel provider type"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,74 @@
 {
   "$ref": "#/definitions/Issue",
   "definitions": {
-    "Issue": {}
+    "Issue": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "critical",
+            "error",
+            "warning",
+            "info"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "stackTrace": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "context": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "source": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "type": "string"
+            },
+            "line": {
+              "type": "number"
+            },
+            "column": {
+              "type": "number"
+            },
+            "package": {
+              "type": "string"
+            },
+            "object": {
+              "type": "string"
+            },
+            "field": {
+              "type": "string"
+            },
+            "component": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "severity",
+        "message",
+        "timestamp"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

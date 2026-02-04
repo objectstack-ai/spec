@@ -1,7 +1,80 @@
 {
   "$ref": "#/definitions/MonitoringConfig",
   "definitions": {
-    "MonitoringConfig": {}
+    "MonitoringConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable monitoring"
+        },
+        "metrics": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "performance",
+              "errors",
+              "usage",
+              "availability",
+              "latency"
+            ]
+          },
+          "default": [
+            "performance",
+            "errors",
+            "availability"
+          ],
+          "description": "Metrics to monitor"
+        },
+        "alerts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Alert name"
+              },
+              "metric": {
+                "type": "string",
+                "description": "Metric to monitor"
+              },
+              "threshold": {
+                "type": "number",
+                "description": "Alert threshold"
+              },
+              "severity": {
+                "type": "string",
+                "enum": [
+                  "info",
+                  "warning",
+                  "critical"
+                ],
+                "description": "Alert severity"
+              }
+            },
+            "required": [
+              "name",
+              "metric",
+              "threshold",
+              "severity"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Alert configurations"
+        },
+        "integrations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Monitoring service integrations"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

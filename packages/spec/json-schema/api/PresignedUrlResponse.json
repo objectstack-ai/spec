@@ -1,7 +1,115 @@
 {
   "$ref": "#/definitions/PresignedUrlResponse",
   "definitions": {
-    "PresignedUrlResponse": {}
+    "PresignedUrlResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "description": "Operation success status"
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "Error code (e.g. validation_error)"
+            },
+            "message": {
+              "type": "string",
+              "description": "Readable error message"
+            },
+            "category": {
+              "type": "string",
+              "description": "Error category (e.g. validation, authorization)"
+            },
+            "details": {
+              "description": "Additional error context (e.g. field validation errors)"
+            },
+            "requestId": {
+              "type": "string",
+              "description": "Request ID for tracking"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ],
+          "additionalProperties": false,
+          "description": "Error details if success is false"
+        },
+        "meta": {
+          "type": "object",
+          "properties": {
+            "timestamp": {
+              "type": "string"
+            },
+            "duration": {
+              "type": "number"
+            },
+            "requestId": {
+              "type": "string"
+            },
+            "traceId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "timestamp"
+          ],
+          "additionalProperties": false,
+          "description": "Response metadata"
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "uploadUrl": {
+              "type": "string",
+              "description": "PUT/POST URL for direct upload"
+            },
+            "downloadUrl": {
+              "type": "string",
+              "description": "Public/Private preview URL"
+            },
+            "fileId": {
+              "type": "string",
+              "description": "Temporary File ID"
+            },
+            "method": {
+              "type": "string",
+              "enum": [
+                "PUT",
+                "POST"
+              ],
+              "description": "HTTP Method to use"
+            },
+            "headers": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "Required headers for upload"
+            },
+            "expiresIn": {
+              "type": "number",
+              "description": "URL expiry in seconds"
+            }
+          },
+          "required": [
+            "uploadUrl",
+            "fileId",
+            "method",
+            "expiresIn"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "success",
+        "data"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

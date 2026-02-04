@@ -1,7 +1,37 @@
 {
   "$ref": "#/definitions/CDCConfig",
   "definitions": {
-    "CDCConfig": {}
+    "CDCConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable Change Data Capture"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "insert",
+              "update",
+              "delete"
+            ]
+          },
+          "description": "Event types to capture"
+        },
+        "destination": {
+          "type": "string",
+          "description": "Destination endpoint (e.g., \"kafka://topic\", \"webhook://url\")"
+        }
+      },
+      "required": [
+        "enabled",
+        "events",
+        "destination"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

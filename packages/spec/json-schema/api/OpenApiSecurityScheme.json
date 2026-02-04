@@ -1,7 +1,66 @@
 {
   "$ref": "#/definitions/OpenApiSecurityScheme",
   "definitions": {
-    "OpenApiSecurityScheme": {}
+    "OpenApiSecurityScheme": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "apiKey",
+            "http",
+            "oauth2",
+            "openIdConnect"
+          ],
+          "description": "Security type"
+        },
+        "scheme": {
+          "type": "string",
+          "description": "HTTP auth scheme (bearer, basic, etc.)"
+        },
+        "bearerFormat": {
+          "type": "string",
+          "description": "Bearer token format (e.g., JWT)"
+        },
+        "name": {
+          "type": "string",
+          "description": "API key parameter name"
+        },
+        "in": {
+          "type": "string",
+          "enum": [
+            "header",
+            "query",
+            "cookie"
+          ],
+          "description": "API key location"
+        },
+        "flows": {
+          "type": "object",
+          "properties": {
+            "implicit": {},
+            "password": {},
+            "clientCredentials": {},
+            "authorizationCode": {}
+          },
+          "additionalProperties": false,
+          "description": "OAuth2 flows"
+        },
+        "openIdConnectUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "OpenID Connect discovery URL"
+        },
+        "description": {
+          "type": "string",
+          "description": "Security scheme description"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

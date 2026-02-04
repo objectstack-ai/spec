@@ -23,3 +23,15 @@ const result = FieldMappingSchema.parse(data);
 
 ## FieldMapping
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **source** | `string` | ✅ | Source field name |
+| **target** | `string` | ✅ | Target field name |
+| **transform** | `object \| object \| object \| object \| object` | optional | Transformation to apply |
+| **defaultValue** | `any` | optional | Default if source is null/undefined |
+| **dataType** | `Enum<'string' \| 'number' \| 'boolean' \| 'date' \| 'datetime' \| 'json' \| 'array'>` | optional | Target data type |
+| **required** | `boolean` | optional | Field is required |
+| **syncMode** | `Enum<'read_only' \| 'write_only' \| 'bidirectional'>` | optional | Sync mode |
+

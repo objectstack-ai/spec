@@ -1,7 +1,21 @@
 {
   "$ref": "#/definitions/StorageProvider",
   "definitions": {
-    "StorageProvider": {}
+    "StorageProvider": {
+      "type": "string",
+      "enum": [
+        "s3",
+        "azure_blob",
+        "gcs",
+        "minio",
+        "r2",
+        "spaces",
+        "wasabi",
+        "backblaze",
+        "local"
+      ],
+      "description": "Storage provider type"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,128 @@
 {
   "$ref": "#/definitions/PluginHealthReport",
   "definitions": {
-    "PluginHealthReport": {}
+    "PluginHealthReport": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "healthy",
+            "degraded",
+            "unhealthy",
+            "failed",
+            "recovering",
+            "unknown"
+          ],
+          "description": "Current health status of the plugin"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "message": {
+          "type": "string"
+        },
+        "metrics": {
+          "type": "object",
+          "properties": {
+            "uptime": {
+              "type": "number",
+              "description": "Plugin uptime in milliseconds"
+            },
+            "memoryUsage": {
+              "type": "number",
+              "description": "Memory usage in bytes"
+            },
+            "cpuUsage": {
+              "type": "number",
+              "description": "CPU usage percentage"
+            },
+            "activeConnections": {
+              "type": "number",
+              "description": "Number of active connections"
+            },
+            "errorRate": {
+              "type": "number",
+              "description": "Error rate (errors per minute)"
+            },
+            "responseTime": {
+              "type": "number",
+              "description": "Average response time in ms"
+            }
+          },
+          "additionalProperties": false
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Check name"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "passed",
+                  "failed",
+                  "warning"
+                ]
+              },
+              "message": {
+                "type": "string"
+              },
+              "data": {
+                "type": "object",
+                "additionalProperties": {}
+              }
+            },
+            "required": [
+              "name",
+              "status"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pluginId": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "healthy",
+                  "degraded",
+                  "unhealthy",
+                  "failed",
+                  "recovering",
+                  "unknown"
+                ],
+                "description": "Current health status of the plugin"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "pluginId",
+              "status"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "status",
+        "timestamp"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

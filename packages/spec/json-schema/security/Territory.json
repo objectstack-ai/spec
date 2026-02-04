@@ -1,7 +1,79 @@
 {
   "$ref": "#/definitions/Territory",
   "definitions": {
-    "Territory": {}
+    "Territory": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Territory unique name (lowercase snake_case)"
+        },
+        "label": {
+          "type": "string",
+          "description": "Territory Label (e.g. \"West Coast\")"
+        },
+        "modelId": {
+          "type": "string",
+          "description": "Belongs to which Territory Model"
+        },
+        "parent": {
+          "type": "string",
+          "description": "Parent Territory"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "geography",
+            "industry",
+            "named_account",
+            "product_line"
+          ],
+          "default": "geography"
+        },
+        "assignmentRule": {
+          "type": "string",
+          "description": "Criteria based assignment rule"
+        },
+        "assignedUsers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "accountAccess": {
+          "type": "string",
+          "enum": [
+            "read",
+            "edit"
+          ],
+          "default": "read"
+        },
+        "opportunityAccess": {
+          "type": "string",
+          "enum": [
+            "read",
+            "edit"
+          ],
+          "default": "read"
+        },
+        "caseAccess": {
+          "type": "string",
+          "enum": [
+            "read",
+            "edit"
+          ],
+          "default": "read"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "modelId"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

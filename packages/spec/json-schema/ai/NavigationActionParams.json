@@ -1,7 +1,56 @@
 {
   "$ref": "#/definitions/NavigationActionParams",
   "definitions": {
-    "NavigationActionParams": {}
+    "NavigationActionParams": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "Object name (for object-specific navigation)"
+        },
+        "recordId": {
+          "type": "string",
+          "description": "Record ID (for detail page)"
+        },
+        "viewType": {
+          "type": "string",
+          "enum": [
+            "list",
+            "form",
+            "detail",
+            "kanban",
+            "calendar",
+            "gantt"
+          ]
+        },
+        "dashboardId": {
+          "type": "string",
+          "description": "Dashboard ID"
+        },
+        "reportId": {
+          "type": "string",
+          "description": "Report ID"
+        },
+        "appName": {
+          "type": "string",
+          "description": "App name"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "new",
+            "edit",
+            "view"
+          ],
+          "description": "Form mode"
+        },
+        "openInNewTab": {
+          "type": "boolean",
+          "description": "Open in new tab"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

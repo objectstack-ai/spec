@@ -1,7 +1,52 @@
 {
   "$ref": "#/definitions/TextCRDTOperation",
   "definitions": {
-    "TextCRDTOperation": {}
+    "TextCRDTOperation": {
+      "type": "object",
+      "properties": {
+        "operationId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique operation identifier"
+        },
+        "replicaId": {
+          "type": "string",
+          "description": "Replica identifier"
+        },
+        "position": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Position in document"
+        },
+        "insert": {
+          "type": "string",
+          "description": "Text to insert"
+        },
+        "delete": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "description": "Number of characters to delete"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 datetime of operation"
+        },
+        "lamportTimestamp": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Lamport timestamp for ordering"
+        }
+      },
+      "required": [
+        "operationId",
+        "replicaId",
+        "position",
+        "timestamp",
+        "lamportTimestamp"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

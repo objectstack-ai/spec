@@ -1,7 +1,44 @@
 {
   "$ref": "#/definitions/DataEngineCountOptions",
   "definitions": {
-    "DataEngineCountOptions": {}
+    "DataEngineCountOptions": {
+      "type": "object",
+      "properties": {
+        "filter": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {}
+            },
+            {
+              "allOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": {}
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "$and": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "$or": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "$not": {}
+                  }
+                }
+              ]
+            }
+          ],
+          "description": "Data Engine query filter conditions"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Options for DataEngine.count operations"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

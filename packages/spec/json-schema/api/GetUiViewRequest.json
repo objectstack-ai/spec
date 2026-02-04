@@ -1,7 +1,28 @@
 {
   "$ref": "#/definitions/GetUiViewRequest",
   "definitions": {
-    "GetUiViewRequest": {}
+    "GetUiViewRequest": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "Object name (snake_case)"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "list",
+            "form"
+          ],
+          "description": "View type"
+        }
+      },
+      "required": [
+        "object",
+        "type"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

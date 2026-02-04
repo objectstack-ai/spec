@@ -1,7 +1,11 @@
 {
   "$ref": "#/definitions/RecordData",
   "definitions": {
-    "RecordData": {}
+    "RecordData": {
+      "type": "object",
+      "additionalProperties": {},
+      "description": "Key-value map of record data"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

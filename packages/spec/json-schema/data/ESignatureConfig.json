@@ -1,7 +1,74 @@
 {
   "$ref": "#/definitions/ESignatureConfig",
   "definitions": {
-    "ESignatureConfig": {}
+    "ESignatureConfig": {
+      "type": "object",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": [
+            "docusign",
+            "adobe-sign",
+            "hellosign",
+            "custom"
+          ],
+          "description": "E-signature provider"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "E-signature enabled"
+        },
+        "signers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "email": {
+                "type": "string",
+                "format": "email",
+                "description": "Signer email"
+              },
+              "name": {
+                "type": "string",
+                "description": "Signer name"
+              },
+              "role": {
+                "type": "string",
+                "description": "Signer role"
+              },
+              "order": {
+                "type": "number",
+                "description": "Signing order"
+              }
+            },
+            "required": [
+              "email",
+              "name",
+              "role",
+              "order"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Document signers"
+        },
+        "expirationDays": {
+          "type": "number",
+          "default": 30,
+          "description": "Expiration days"
+        },
+        "reminderDays": {
+          "type": "number",
+          "default": 7,
+          "description": "Reminder interval days"
+        }
+      },
+      "required": [
+        "provider",
+        "signers"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,60 @@
 {
   "$ref": "#/definitions/AuditStorageConfig",
   "definitions": {
-    "AuditStorageConfig": {}
+    "AuditStorageConfig": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "database",
+            "elasticsearch",
+            "mongodb",
+            "clickhouse",
+            "s3",
+            "gcs",
+            "azure_blob",
+            "custom"
+          ],
+          "description": "Storage backend type"
+        },
+        "connectionString": {
+          "type": "string",
+          "description": "Connection string"
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Storage-specific configuration"
+        },
+        "bufferEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable buffering"
+        },
+        "bufferSize": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "default": 100,
+          "description": "Buffer size"
+        },
+        "flushIntervalSeconds": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "default": 5,
+          "description": "Flush interval in seconds"
+        },
+        "compression": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable compression"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,42 @@
 {
   "$ref": "#/definitions/TestAction",
   "definitions": {
-    "TestAction": {}
+    "TestAction": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "create_record",
+            "update_record",
+            "delete_record",
+            "read_record",
+            "query_records",
+            "api_call",
+            "run_script",
+            "wait"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "description": "Target Object, API Endpoint, or Function Name"
+        },
+        "payload": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Data to send or use"
+        },
+        "user": {
+          "type": "string",
+          "description": "Run as specific user/role"
+        }
+      },
+      "required": [
+        "type",
+        "target"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

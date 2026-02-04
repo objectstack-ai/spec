@@ -1,7 +1,18 @@
 {
   "$ref": "#/definitions/SpecialOperator",
   "definitions": {
-    "SpecialOperator": {}
+    "SpecialOperator": {
+      "type": "object",
+      "properties": {
+        "$null": {
+          "type": "boolean"
+        },
+        "$exist": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

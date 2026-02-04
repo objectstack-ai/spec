@@ -1,7 +1,288 @@
 {
   "$ref": "#/definitions/ConversationMessage",
   "definitions": {
-    "ConversationMessage": {}
+    "ConversationMessage": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique message ID"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "system",
+            "user",
+            "assistant",
+            "function",
+            "tool"
+          ]
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "text"
+                  },
+                  "text": {
+                    "type": "string",
+                    "description": "Text content"
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "additionalProperties": {}
+                  }
+                },
+                "required": [
+                  "type",
+                  "text"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "image"
+                  },
+                  "imageUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Image URL"
+                  },
+                  "detail": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "high",
+                      "auto"
+                    ],
+                    "default": "auto"
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "additionalProperties": {}
+                  }
+                },
+                "required": [
+                  "type",
+                  "imageUrl"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "file"
+                  },
+                  "fileUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "File attachment URL"
+                  },
+                  "mimeType": {
+                    "type": "string",
+                    "description": "MIME type"
+                  },
+                  "fileName": {
+                    "type": "string"
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "additionalProperties": {}
+                  }
+                },
+                "required": [
+                  "type",
+                  "fileUrl",
+                  "mimeType"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "code"
+                  },
+                  "text": {
+                    "type": "string",
+                    "description": "Code snippet"
+                  },
+                  "language": {
+                    "type": "string",
+                    "default": "text"
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "additionalProperties": {}
+                  }
+                },
+                "required": [
+                  "type",
+                  "text"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "description": "Message content (multimodal array)"
+        },
+        "functionCall": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Function name"
+            },
+            "arguments": {
+              "type": "string",
+              "description": "JSON string of function arguments"
+            },
+            "result": {
+              "type": "string",
+              "description": "Function execution result"
+            }
+          },
+          "required": [
+            "name",
+            "arguments"
+          ],
+          "additionalProperties": false,
+          "description": "Legacy function call"
+        },
+        "toolCalls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Tool call ID"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "function"
+                ],
+                "default": "function"
+              },
+              "function": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Function name"
+                  },
+                  "arguments": {
+                    "type": "string",
+                    "description": "JSON string of function arguments"
+                  },
+                  "result": {
+                    "type": "string",
+                    "description": "Function execution result"
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "function"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Tool calls"
+        },
+        "toolCallId": {
+          "type": "string",
+          "description": "Tool call ID this message responds to"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the function/user"
+        },
+        "tokens": {
+          "type": "object",
+          "properties": {
+            "prompt": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Input tokens"
+            },
+            "completion": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Output tokens"
+            },
+            "total": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Total tokens"
+            }
+          },
+          "required": [
+            "prompt",
+            "completion",
+            "total"
+          ],
+          "additionalProperties": false,
+          "description": "Token usage for this message"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Cost for this message in USD"
+        },
+        "pinned": {
+          "type": "boolean",
+          "default": false,
+          "description": "Prevent removal during pruning"
+        },
+        "importance": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Importance score for pruning"
+        },
+        "embedding": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "description": "Vector embedding for semantic search"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {}
+        }
+      },
+      "required": [
+        "id",
+        "timestamp",
+        "role",
+        "content"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

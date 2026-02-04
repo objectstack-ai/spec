@@ -1,7 +1,14 @@
 {
   "$ref": "#/definitions/ThemeMode",
   "definitions": {
-    "ThemeMode": {}
+    "ThemeMode": {
+      "type": "string",
+      "enum": [
+        "light",
+        "dark",
+        "auto"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

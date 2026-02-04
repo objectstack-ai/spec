@@ -1,7 +1,73 @@
 {
   "$ref": "#/definitions/PluginPreloadConfig",
   "definitions": {
-    "PluginPreloadConfig": {}
+    "PluginPreloadConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 100
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "metadata",
+              "dependencies",
+              "assets",
+              "code",
+              "services"
+            ]
+          }
+        },
+        "conditions": {
+          "type": "object",
+          "properties": {
+            "routes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "roles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "deviceType": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "desktop",
+                  "mobile",
+                  "tablet"
+                ]
+              }
+            },
+            "minNetworkSpeed": {
+              "type": "string",
+              "enum": [
+                "slow-2g",
+                "2g",
+                "3g",
+                "4g"
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "description": "Plugin preloading configuration"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

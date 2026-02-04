@@ -1,7 +1,36 @@
 {
   "$ref": "#/definitions/SMSTemplate",
   "definitions": {
-    "SMSTemplate": {}
+    "SMSTemplate": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Template identifier"
+        },
+        "message": {
+          "type": "string",
+          "description": "SMS message content"
+        },
+        "maxLength": {
+          "type": "number",
+          "default": 160,
+          "description": "Maximum message length"
+        },
+        "variables": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Template variables"
+        }
+      },
+      "required": [
+        "id",
+        "message"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

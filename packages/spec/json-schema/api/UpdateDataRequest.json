@@ -1,7 +1,30 @@
 {
   "$ref": "#/definitions/UpdateDataRequest",
   "definitions": {
-    "UpdateDataRequest": {}
+    "UpdateDataRequest": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "The object name."
+        },
+        "id": {
+          "type": "string",
+          "description": "The ID of the record to update."
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "The fields to update (partial update)."
+        }
+      },
+      "required": [
+        "object",
+        "id",
+        "data"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,302 @@
 {
   "$ref": "#/definitions/OpenApiSpec",
   "definitions": {
-    "OpenApiSpec": {}
+    "OpenApiSpec": {
+      "type": "object",
+      "properties": {
+        "openapi": {
+          "type": "string",
+          "default": "3.0.0",
+          "description": "OpenAPI specification version"
+        },
+        "info": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "description": "API title"
+            },
+            "version": {
+              "type": "string",
+              "description": "API version"
+            },
+            "description": {
+              "type": "string",
+              "description": "API description"
+            },
+            "termsOfService": {
+              "type": "string",
+              "format": "uri",
+              "description": "Terms of service URL"
+            },
+            "contact": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "email": {
+                  "type": "string",
+                  "format": "email"
+                }
+              },
+              "additionalProperties": false
+            },
+            "license": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              },
+              "required": [
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "title",
+            "version"
+          ],
+          "additionalProperties": false,
+          "description": "API metadata"
+        },
+        "servers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "description": "Server base URL"
+              },
+              "description": {
+                "type": "string",
+                "description": "Server description"
+              },
+              "variables": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "default": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "enum": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "default"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "URL template variables"
+              }
+            },
+            "required": [
+              "url"
+            ],
+            "additionalProperties": false
+          },
+          "default": [],
+          "description": "API servers"
+        },
+        "paths": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "API paths and operations"
+        },
+        "components": {
+          "type": "object",
+          "properties": {
+            "schemas": {
+              "type": "object",
+              "additionalProperties": {}
+            },
+            "responses": {
+              "type": "object",
+              "additionalProperties": {}
+            },
+            "parameters": {
+              "type": "object",
+              "additionalProperties": {}
+            },
+            "examples": {
+              "type": "object",
+              "additionalProperties": {}
+            },
+            "requestBodies": {
+              "type": "object",
+              "additionalProperties": {}
+            },
+            "headers": {
+              "type": "object",
+              "additionalProperties": {}
+            },
+            "securitySchemes": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "apiKey",
+                      "http",
+                      "oauth2",
+                      "openIdConnect"
+                    ],
+                    "description": "Security type"
+                  },
+                  "scheme": {
+                    "type": "string",
+                    "description": "HTTP auth scheme (bearer, basic, etc.)"
+                  },
+                  "bearerFormat": {
+                    "type": "string",
+                    "description": "Bearer token format (e.g., JWT)"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "API key parameter name"
+                  },
+                  "in": {
+                    "type": "string",
+                    "enum": [
+                      "header",
+                      "query",
+                      "cookie"
+                    ],
+                    "description": "API key location"
+                  },
+                  "flows": {
+                    "type": "object",
+                    "properties": {
+                      "implicit": {},
+                      "password": {},
+                      "clientCredentials": {},
+                      "authorizationCode": {}
+                    },
+                    "additionalProperties": false,
+                    "description": "OAuth2 flows"
+                  },
+                  "openIdConnectUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "OpenID Connect discovery URL"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Security scheme description"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "links": {
+              "type": "object",
+              "additionalProperties": {}
+            },
+            "callbacks": {
+              "type": "object",
+              "additionalProperties": {}
+            }
+          },
+          "additionalProperties": false,
+          "description": "Reusable components"
+        },
+        "security": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "Global security requirements"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "externalDocs": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                },
+                "required": [
+                  "url"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Tag definitions"
+        },
+        "externalDocs": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "required": [
+            "url"
+          ],
+          "additionalProperties": false,
+          "description": "External documentation"
+        }
+      },
+      "required": [
+        "info",
+        "paths"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

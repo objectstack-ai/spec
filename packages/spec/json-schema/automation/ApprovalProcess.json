@@ -1,7 +1,368 @@
 {
   "$ref": "#/definitions/ApprovalProcess",
   "definitions": {
-    "ApprovalProcess": {}
+    "ApprovalProcess": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Unique process name"
+        },
+        "label": {
+          "type": "string",
+          "description": "Human readable label"
+        },
+        "object": {
+          "type": "string",
+          "description": "Target Object Name"
+        },
+        "active": {
+          "type": "boolean",
+          "default": false
+        },
+        "description": {
+          "type": "string"
+        },
+        "entryCriteria": {
+          "type": "string",
+          "description": "Formula to allow submission"
+        },
+        "lockRecord": {
+          "type": "boolean",
+          "default": true,
+          "description": "Lock record from editing during approval"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 2,
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Step machine name"
+              },
+              "label": {
+                "type": "string",
+                "description": "Step display label"
+              },
+              "description": {
+                "type": "string"
+              },
+              "entryCriteria": {
+                "type": "string",
+                "description": "Formula expression to enter this step"
+              },
+              "approvers": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "user",
+                        "role",
+                        "manager",
+                        "field",
+                        "queue"
+                      ]
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "User ID, Role Name, or Field Name"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "description": "List of allowed approvers"
+              },
+              "behavior": {
+                "type": "string",
+                "enum": [
+                  "first_response",
+                  "unanimous"
+                ],
+                "default": "first_response",
+                "description": "How to handle multiple approvers"
+              },
+              "rejectionBehavior": {
+                "type": "string",
+                "enum": [
+                  "reject_process",
+                  "back_to_previous"
+                ],
+                "default": "reject_process",
+                "description": "What happens if rejected"
+              },
+              "onApprove": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "field_update",
+                        "email_alert",
+                        "webhook",
+                        "script",
+                        "connector_action"
+                      ]
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Action name"
+                    },
+                    "config": {
+                      "type": "object",
+                      "additionalProperties": {},
+                      "description": "Action configuration"
+                    },
+                    "connectorId": {
+                      "type": "string"
+                    },
+                    "actionId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "name",
+                    "config"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "Actions on step approval"
+              },
+              "onReject": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "field_update",
+                        "email_alert",
+                        "webhook",
+                        "script",
+                        "connector_action"
+                      ]
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Action name"
+                    },
+                    "config": {
+                      "type": "object",
+                      "additionalProperties": {},
+                      "description": "Action configuration"
+                    },
+                    "connectorId": {
+                      "type": "string"
+                    },
+                    "actionId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "name",
+                    "config"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "Actions on step rejection"
+              }
+            },
+            "required": [
+              "name",
+              "label",
+              "approvers"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "description": "Sequence of approval steps"
+        },
+        "onSubmit": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "field_update",
+                  "email_alert",
+                  "webhook",
+                  "script",
+                  "connector_action"
+                ]
+              },
+              "name": {
+                "type": "string",
+                "description": "Action name"
+              },
+              "config": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Action configuration"
+              },
+              "connectorId": {
+                "type": "string"
+              },
+              "actionId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "name",
+              "config"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Actions on initial submission"
+        },
+        "onFinalApprove": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "field_update",
+                  "email_alert",
+                  "webhook",
+                  "script",
+                  "connector_action"
+                ]
+              },
+              "name": {
+                "type": "string",
+                "description": "Action name"
+              },
+              "config": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Action configuration"
+              },
+              "connectorId": {
+                "type": "string"
+              },
+              "actionId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "name",
+              "config"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Actions on final approval"
+        },
+        "onFinalReject": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "field_update",
+                  "email_alert",
+                  "webhook",
+                  "script",
+                  "connector_action"
+                ]
+              },
+              "name": {
+                "type": "string",
+                "description": "Action name"
+              },
+              "config": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Action configuration"
+              },
+              "connectorId": {
+                "type": "string"
+              },
+              "actionId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "name",
+              "config"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Actions on final rejection"
+        },
+        "onRecall": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "field_update",
+                  "email_alert",
+                  "webhook",
+                  "script",
+                  "connector_action"
+                ]
+              },
+              "name": {
+                "type": "string",
+                "description": "Action name"
+              },
+              "config": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Action configuration"
+              },
+              "connectorId": {
+                "type": "string"
+              },
+              "actionId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "name",
+              "config"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Actions on recall"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "object",
+        "steps"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,141 @@
 {
   "$ref": "#/definitions/PluginRecommendation",
   "definitions": {
-    "PluginRecommendation": {}
+    "PluginRecommendation": {
+      "type": "object",
+      "properties": {
+        "recommendations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pluginId": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "score": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "Relevance score"
+              },
+              "reasons": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Why this plugin is recommended"
+              },
+              "benefits": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "considerations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "alternatives": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "estimatedValue": {
+                "type": "string",
+                "description": "Expected value/ROI"
+              }
+            },
+            "required": [
+              "pluginId",
+              "name",
+              "description",
+              "score",
+              "reasons",
+              "benefits"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "combinations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "plugins": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "description": {
+                "type": "string"
+              },
+              "synergies": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "How these plugins work well together"
+              },
+              "totalScore": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              }
+            },
+            "required": [
+              "plugins",
+              "description",
+              "synergies",
+              "totalScore"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "learningPath": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "step": {
+                "type": "integer"
+              },
+              "plugin": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              },
+              "resources": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "step",
+              "plugin",
+              "reason"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "recommendations"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

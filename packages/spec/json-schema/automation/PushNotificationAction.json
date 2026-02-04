@@ -1,7 +1,59 @@
 {
   "$ref": "#/definitions/PushNotificationAction",
   "definitions": {
-    "PushNotificationAction": {}
+    "PushNotificationAction": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Action name"
+        },
+        "type": {
+          "type": "string",
+          "const": "push_notification"
+        },
+        "title": {
+          "type": "string",
+          "description": "Notification title"
+        },
+        "body": {
+          "type": "string",
+          "description": "Notification body text"
+        },
+        "recipients": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "User IDs or device tokens"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Additional data payload"
+        },
+        "badge": {
+          "type": "number",
+          "description": "Badge count (iOS)"
+        },
+        "sound": {
+          "type": "string",
+          "description": "Notification sound"
+        },
+        "clickAction": {
+          "type": "string",
+          "description": "Action/URL when notification is clicked"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "title",
+        "body",
+        "recipients"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

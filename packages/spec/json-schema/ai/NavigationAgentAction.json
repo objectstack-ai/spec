@@ -1,7 +1,133 @@
 {
   "$ref": "#/definitions/NavigationAgentAction",
   "definitions": {
-    "NavigationAgentAction": {}
+    "NavigationAgentAction": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique action ID"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "navigate_to_object_list",
+            "navigate_to_object_form",
+            "navigate_to_record_detail",
+            "navigate_to_dashboard",
+            "navigate_to_report",
+            "navigate_to_app",
+            "navigate_back",
+            "navigate_home",
+            "open_tab",
+            "close_tab"
+          ]
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "object": {
+              "type": "string",
+              "description": "Object name (for object-specific navigation)"
+            },
+            "recordId": {
+              "type": "string",
+              "description": "Record ID (for detail page)"
+            },
+            "viewType": {
+              "type": "string",
+              "enum": [
+                "list",
+                "form",
+                "detail",
+                "kanban",
+                "calendar",
+                "gantt"
+              ]
+            },
+            "dashboardId": {
+              "type": "string",
+              "description": "Dashboard ID"
+            },
+            "reportId": {
+              "type": "string",
+              "description": "Report ID"
+            },
+            "appName": {
+              "type": "string",
+              "description": "App name"
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "new",
+                "edit",
+                "view"
+              ],
+              "description": "Form mode"
+            },
+            "openInNewTab": {
+              "type": "boolean",
+              "description": "Open in new tab"
+            }
+          },
+          "additionalProperties": false
+        },
+        "requireConfirmation": {
+          "type": "boolean",
+          "default": false,
+          "description": "Require user confirmation before executing"
+        },
+        "confirmationMessage": {
+          "type": "string",
+          "description": "Message to show in confirmation dialog"
+        },
+        "successMessage": {
+          "type": "string",
+          "description": "Message to show on success"
+        },
+        "onError": {
+          "type": "string",
+          "enum": [
+            "retry",
+            "skip",
+            "abort"
+          ],
+          "default": "abort",
+          "description": "Error handling strategy"
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "intent": {
+              "type": "string",
+              "description": "Original user intent/query"
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Confidence score (0-1)"
+            },
+            "agentName": {
+              "type": "string",
+              "description": "Agent that generated this action"
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Generation timestamp (ISO 8601)"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "params"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

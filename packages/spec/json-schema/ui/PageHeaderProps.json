@@ -1,7 +1,39 @@
 {
   "$ref": "#/definitions/PageHeaderProps",
   "definitions": {
-    "PageHeaderProps": {}
+    "PageHeaderProps": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Page title"
+        },
+        "subtitle": {
+          "type": "string",
+          "description": "Page subtitle"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Icon name"
+        },
+        "breadcrumb": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show breadcrumb"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Action IDs to show in header"
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

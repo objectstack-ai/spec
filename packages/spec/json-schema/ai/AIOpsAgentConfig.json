@@ -1,7 +1,476 @@
 {
   "$ref": "#/definitions/AIOpsAgentConfig",
   "definitions": {
-    "AIOpsAgentConfig": {}
+    "AIOpsAgentConfig": {
+      "type": "object",
+      "properties": {
+        "agentId": {
+          "type": "string"
+        },
+        "pluginId": {
+          "type": "string"
+        },
+        "selfHealing": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "strategy": {
+              "type": "string",
+              "enum": [
+                "conservative",
+                "moderate",
+                "aggressive"
+              ],
+              "default": "moderate"
+            },
+            "actions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "restart",
+                      "scale",
+                      "rollback",
+                      "clear-cache",
+                      "adjust-config",
+                      "execute-script",
+                      "notify"
+                    ]
+                  },
+                  "trigger": {
+                    "type": "object",
+                    "properties": {
+                      "healthStatus": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "healthy",
+                            "degraded",
+                            "unhealthy",
+                            "failed",
+                            "recovering",
+                            "unknown"
+                          ],
+                          "description": "Current health status of the plugin"
+                        }
+                      },
+                      "anomalyTypes": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "errorPatterns": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "customCondition": {
+                        "type": "string",
+                        "description": "Custom trigger condition (e.g., \"errorRate > 0.1\")"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "parameters": {
+                    "type": "object",
+                    "additionalProperties": {}
+                  },
+                  "maxAttempts": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 3
+                  },
+                  "cooldown": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 60
+                  },
+                  "timeout": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 300
+                  },
+                  "requireApproval": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "priority": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 5,
+                    "description": "Action priority (lower number = higher priority)"
+                  }
+                },
+                "required": [
+                  "id",
+                  "type",
+                  "trigger"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "anomalyDetection": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "metrics": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "cpu-usage",
+                      "memory-usage",
+                      "response-time",
+                      "error-rate",
+                      "throughput",
+                      "latency",
+                      "connection-count",
+                      "queue-depth"
+                    ]
+                  }
+                },
+                "algorithm": {
+                  "type": "string",
+                  "enum": [
+                    "statistical",
+                    "machine-learning",
+                    "heuristic",
+                    "hybrid"
+                  ],
+                  "default": "hybrid"
+                },
+                "sensitivity": {
+                  "type": "string",
+                  "enum": [
+                    "low",
+                    "medium",
+                    "high"
+                  ],
+                  "default": "medium",
+                  "description": "How aggressively to detect anomalies"
+                },
+                "timeWindow": {
+                  "type": "integer",
+                  "minimum": 60,
+                  "default": 300,
+                  "description": "Historical data window for anomaly detection"
+                },
+                "confidenceThreshold": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100,
+                  "default": 80,
+                  "description": "Minimum confidence to flag as anomaly"
+                },
+                "alertOnDetection": {
+                  "type": "boolean",
+                  "default": true
+                }
+              },
+              "required": [
+                "metrics"
+              ],
+              "additionalProperties": false
+            },
+            "maxConcurrentHealing": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "description": "Maximum number of simultaneous healing attempts"
+            },
+            "learning": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Learn from successful/failed healing attempts"
+                },
+                "feedbackLoop": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Adjust strategy based on outcomes"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "actions"
+          ],
+          "additionalProperties": false
+        },
+        "autoScaling": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "default": false
+              },
+              "metric": {
+                "type": "string",
+                "enum": [
+                  "cpu-usage",
+                  "memory-usage",
+                  "request-rate",
+                  "response-time",
+                  "queue-depth",
+                  "custom"
+                ]
+              },
+              "customMetric": {
+                "type": "string"
+              },
+              "targetValue": {
+                "type": "number",
+                "description": "Desired metric value (e.g., 70 for 70% CPU)"
+              },
+              "bounds": {
+                "type": "object",
+                "properties": {
+                  "minInstances": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 1
+                  },
+                  "maxInstances": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 10
+                  },
+                  "minResources": {
+                    "type": "object",
+                    "properties": {
+                      "cpu": {
+                        "type": "string",
+                        "description": "CPU limit (e.g., \"0.5\", \"1\")"
+                      },
+                      "memory": {
+                        "type": "string",
+                        "description": "Memory limit (e.g., \"512Mi\", \"1Gi\")"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "maxResources": {
+                    "type": "object",
+                    "properties": {
+                      "cpu": {
+                        "type": "string"
+                      },
+                      "memory": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "additionalProperties": false
+              },
+              "scaleUp": {
+                "type": "object",
+                "properties": {
+                  "threshold": {
+                    "type": "number",
+                    "description": "Metric value that triggers scale up"
+                  },
+                  "stabilizationWindow": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 60,
+                    "description": "How long metric must exceed threshold"
+                  },
+                  "cooldown": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 300,
+                    "description": "Minimum time between scale-up operations"
+                  },
+                  "stepSize": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 1,
+                    "description": "Number of instances to add"
+                  }
+                },
+                "required": [
+                  "threshold"
+                ],
+                "additionalProperties": false
+              },
+              "scaleDown": {
+                "type": "object",
+                "properties": {
+                  "threshold": {
+                    "type": "number",
+                    "description": "Metric value that triggers scale down"
+                  },
+                  "stabilizationWindow": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 300,
+                    "description": "How long metric must be below threshold"
+                  },
+                  "cooldown": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 600,
+                    "description": "Minimum time between scale-down operations"
+                  },
+                  "stepSize": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 1,
+                    "description": "Number of instances to remove"
+                  }
+                },
+                "required": [
+                  "threshold"
+                ],
+                "additionalProperties": false
+              },
+              "predictive": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Use ML to predict future load"
+                  },
+                  "lookAhead": {
+                    "type": "integer",
+                    "minimum": 60,
+                    "default": 300,
+                    "description": "How far ahead to predict (seconds)"
+                  },
+                  "confidence": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "default": 80,
+                    "description": "Minimum confidence for prediction-based scaling"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "metric",
+              "targetValue",
+              "bounds",
+              "scaleUp",
+              "scaleDown"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "monitoring": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "interval": {
+              "type": "integer",
+              "minimum": 1000,
+              "default": 60000,
+              "description": "Monitoring interval in milliseconds"
+            },
+            "metrics": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "optimization": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "scanInterval": {
+              "type": "integer",
+              "minimum": 3600,
+              "default": 86400,
+              "description": "How often to scan for optimization opportunities"
+            },
+            "autoApply": {
+              "type": "boolean",
+              "default": false,
+              "description": "Automatically apply low-risk optimizations"
+            }
+          },
+          "additionalProperties": false
+        },
+        "incidentResponse": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "autoRCA": {
+              "type": "boolean",
+              "default": true
+            },
+            "notifications": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "channel": {
+                    "type": "string",
+                    "enum": [
+                      "email",
+                      "slack",
+                      "webhook",
+                      "sms"
+                    ]
+                  },
+                  "config": {
+                    "type": "object",
+                    "additionalProperties": {}
+                  }
+                },
+                "required": [
+                  "channel",
+                  "config"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "agentId",
+        "pluginId"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

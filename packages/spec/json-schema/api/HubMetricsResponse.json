@@ -1,7 +1,168 @@
 {
   "$ref": "#/definitions/HubMetricsResponse",
   "definitions": {
-    "HubMetricsResponse": {}
+    "HubMetricsResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "description": "Operation success status"
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "Error code (e.g. validation_error)"
+            },
+            "message": {
+              "type": "string",
+              "description": "Readable error message"
+            },
+            "category": {
+              "type": "string",
+              "description": "Error category (e.g. validation, authorization)"
+            },
+            "details": {
+              "description": "Additional error context (e.g. field validation errors)"
+            },
+            "requestId": {
+              "type": "string",
+              "description": "Request ID for tracking"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ],
+          "additionalProperties": false,
+          "description": "Error details if success is false"
+        },
+        "meta": {
+          "type": "object",
+          "properties": {
+            "timestamp": {
+              "type": "string"
+            },
+            "duration": {
+              "type": "number"
+            },
+            "requestId": {
+              "type": "string"
+            },
+            "traceId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "timestamp"
+          ],
+          "additionalProperties": false,
+          "description": "Response metadata"
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "metrics": {
+              "type": "object",
+              "properties": {
+                "spaces": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "integer"
+                    },
+                    "active": {
+                      "type": "integer"
+                    },
+                    "created_last_30d": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "total",
+                    "active"
+                  ],
+                  "additionalProperties": false
+                },
+                "tenants": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "integer"
+                    },
+                    "active": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "total",
+                    "active"
+                  ],
+                  "additionalProperties": false
+                },
+                "plugins": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "integer"
+                    },
+                    "published_last_30d": {
+                      "type": "integer"
+                    },
+                    "total_downloads": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "total"
+                  ],
+                  "additionalProperties": false
+                },
+                "api": {
+                  "type": "object",
+                  "properties": {
+                    "requests_per_minute": {
+                      "type": "number"
+                    },
+                    "avg_response_time": {
+                      "type": "number",
+                      "description": "Milliseconds"
+                    },
+                    "error_rate": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    }
+                  },
+                  "required": [
+                    "requests_per_minute",
+                    "avg_response_time",
+                    "error_rate"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": [
+            "metrics",
+            "timestamp"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "success",
+        "data"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

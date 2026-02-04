@@ -1,7 +1,52 @@
 {
   "$ref": "#/definitions/HttpCallAction",
   "definitions": {
-    "HttpCallAction": {}
+    "HttpCallAction": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Action name"
+        },
+        "type": {
+          "type": "string",
+          "const": "http_call"
+        },
+        "url": {
+          "type": "string",
+          "description": "Target URL"
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "GET",
+            "POST",
+            "PUT",
+            "DELETE",
+            "PATCH"
+          ],
+          "default": "POST",
+          "description": "HTTP Method"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "HTTP Headers"
+        },
+        "body": {
+          "type": "string",
+          "description": "Request body (JSON or text)"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "url"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

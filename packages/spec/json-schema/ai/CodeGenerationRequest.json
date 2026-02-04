@@ -1,7 +1,240 @@
 {
   "$ref": "#/definitions/CodeGenerationRequest",
   "definitions": {
-    "CodeGenerationRequest": {}
+    "CodeGenerationRequest": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "What the plugin should do"
+        },
+        "pluginType": {
+          "type": "string",
+          "enum": [
+            "driver",
+            "app",
+            "widget",
+            "integration",
+            "automation",
+            "analytics",
+            "ai-agent",
+            "custom"
+          ]
+        },
+        "outputFormat": {
+          "type": "string",
+          "enum": [
+            "source-code",
+            "low-code-schema",
+            "dsl"
+          ],
+          "default": "source-code",
+          "description": "Format of the generated output"
+        },
+        "language": {
+          "type": "string",
+          "enum": [
+            "typescript",
+            "javascript",
+            "python"
+          ],
+          "default": "typescript"
+        },
+        "framework": {
+          "type": "object",
+          "properties": {
+            "runtime": {
+              "type": "string",
+              "enum": [
+                "node",
+                "browser",
+                "edge",
+                "universal"
+              ]
+            },
+            "uiFramework": {
+              "type": "string",
+              "enum": [
+                "react",
+                "vue",
+                "svelte",
+                "none"
+              ]
+            },
+            "testing": {
+              "type": "string",
+              "enum": [
+                "vitest",
+                "jest",
+                "mocha",
+                "none"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Protocol IDs to implement"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Required plugin IDs"
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "input": {
+                "type": "string"
+              },
+              "expectedOutput": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "input",
+              "expectedOutput"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "style": {
+          "type": "object",
+          "properties": {
+            "indentation": {
+              "type": "string",
+              "enum": [
+                "tab",
+                "2spaces",
+                "4spaces"
+              ],
+              "default": "2spaces"
+            },
+            "quotes": {
+              "type": "string",
+              "enum": [
+                "single",
+                "double"
+              ],
+              "default": "single"
+            },
+            "semicolons": {
+              "type": "boolean",
+              "default": true
+            },
+            "trailingComma": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "schemaOptions": {
+          "type": "object",
+          "properties": {
+            "format": {
+              "type": "string",
+              "enum": [
+                "json",
+                "yaml",
+                "typescript"
+              ],
+              "default": "typescript",
+              "description": "Output schema format"
+            },
+            "includeExamples": {
+              "type": "boolean",
+              "default": true
+            },
+            "strictValidation": {
+              "type": "boolean",
+              "default": true
+            },
+            "generateUI": {
+              "type": "boolean",
+              "default": true,
+              "description": "Generate view, dashboard, and page definitions"
+            },
+            "generateDataModels": {
+              "type": "boolean",
+              "default": true,
+              "description": "Generate object and field definitions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "context": {
+          "type": "object",
+          "properties": {
+            "existingCode": {
+              "type": "string"
+            },
+            "documentationUrls": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "referencePlugins": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "options": {
+          "type": "object",
+          "properties": {
+            "generateTests": {
+              "type": "boolean",
+              "default": true
+            },
+            "generateDocs": {
+              "type": "boolean",
+              "default": true
+            },
+            "generateExamples": {
+              "type": "boolean",
+              "default": true
+            },
+            "targetCoverage": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "default": 80
+            },
+            "optimizationLevel": {
+              "type": "string",
+              "enum": [
+                "none",
+                "basic",
+                "aggressive"
+              ],
+              "default": "basic"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "description",
+        "pluginType"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

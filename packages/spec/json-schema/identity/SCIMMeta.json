@@ -1,7 +1,35 @@
 {
   "$ref": "#/definitions/SCIMMeta",
   "definitions": {
-    "SCIMMeta": {}
+    "SCIMMeta": {
+      "type": "object",
+      "properties": {
+        "resourceType": {
+          "type": "string",
+          "description": "Resource type"
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp"
+        },
+        "lastModified": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last modification timestamp"
+        },
+        "location": {
+          "type": "string",
+          "format": "uri",
+          "description": "Resource location URI"
+        },
+        "version": {
+          "type": "string",
+          "description": "Entity tag (ETag) for concurrency control"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

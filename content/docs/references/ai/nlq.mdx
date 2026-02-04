@@ -23,51 +23,219 @@ const result = EntitySchema.parse(data);
 
 ## Entity
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'object' \| 'field' \| 'value' \| 'operator' \| 'function' \| 'timeframe'>` | ✅ |  |
+| **text** | `string` | ✅ | Original text from query |
+| **value** | `any` | optional | Normalized value |
+| **confidence** | `number` | ✅ | Confidence score |
+| **span** | `any[]` | optional | Character span in query |
+
 ---
 
 ## FieldSynonymConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name |
+| **field** | `string` | ✅ | Field name |
+| **synonyms** | `string[]` | ✅ | Natural language synonyms |
+| **examples** | `string[]` | optional | Example queries using synonyms |
 
 ---
 
 ## NLQAnalytics
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **totalQueries** | `integer` | ✅ |  |
+| **successfulQueries** | `integer` | ✅ |  |
+| **failedQueries** | `integer` | ✅ |  |
+| **averageConfidence** | `number` | ✅ |  |
+| **intentDistribution** | `Record<string, integer>` | ✅ | Count by intent type |
+| **topQueries** | `object[]` | ✅ |  |
+| **averageParseTime** | `number` | ✅ | Average parse time in milliseconds |
+| **averageExecutionTime** | `number` | optional |  |
+| **lowConfidenceQueries** | `object[]` | ✅ |  |
+| **startDate** | `string` | ✅ | ISO timestamp |
+| **endDate** | `string` | ✅ | ISO timestamp |
+
 ---
 
 ## NLQFieldMapping
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **naturalLanguage** | `string` | ✅ | NL field name (e.g., "customer name") |
+| **objectField** | `string` | ✅ | Actual field name (e.g., "account.name") |
+| **object** | `string` | ✅ | Object name |
+| **field** | `string` | ✅ | Field name |
+| **confidence** | `number` | ✅ |  |
 
 ---
 
 ## NLQModelConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **modelId** | `string` | ✅ | Model from registry |
+| **systemPrompt** | `string` | optional | System prompt override |
+| **includeSchema** | `boolean` | optional | Include object schema in prompt |
+| **includeExamples** | `boolean` | optional | Include examples in prompt |
+| **enableIntentDetection** | `boolean` | optional |  |
+| **intentThreshold** | `number` | optional |  |
+| **enableEntityRecognition** | `boolean` | optional |  |
+| **entityRecognitionModel** | `string` | optional |  |
+| **enableFuzzyMatching** | `boolean` | optional | Fuzzy match field names |
+| **fuzzyMatchThreshold** | `number` | optional |  |
+| **enableTimeframeDetection** | `boolean` | optional |  |
+| **defaultTimeframe** | `string` | optional | Default timeframe if not specified |
+| **enableCaching** | `boolean` | optional |  |
+| **cacheTTL** | `integer` | optional | Cache TTL in seconds |
+
 ---
 
 ## NLQParseResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **originalQuery** | `string` | ✅ |  |
+| **intent** | `Enum<'select' \| 'aggregate' \| 'filter' \| 'sort' \| 'compare' \| 'trend' \| 'insight' \| 'create' \| 'update' \| 'delete'>` | ✅ |  |
+| **intentConfidence** | `number` | ✅ |  |
+| **entities** | `object[]` | ✅ |  |
+| **targetObject** | `string` | optional | Primary object to query |
+| **fields** | `object[]` | optional |  |
+| **timeframe** | `object` | optional |  |
+| **ast** | `Record<string, any>` | ✅ | Generated ObjectQL AST |
+| **confidence** | `number` | ✅ | Overall confidence |
+| **ambiguities** | `object[]` | optional | Detected ambiguities requiring clarification |
+| **alternatives** | `object[]` | optional |  |
 
 ---
 
 ## NLQRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **query** | `string` | ✅ | Natural language query |
+| **context** | `object` | optional |  |
+| **includeAlternatives** | `boolean` | optional | Include alternative interpretations |
+| **maxAlternatives** | `integer` | optional |  |
+| **minConfidence** | `number` | optional | Minimum confidence threshold |
+| **executeQuery** | `boolean` | optional | Execute query and return results |
+| **maxResults** | `integer` | optional | Maximum results to return |
+
 ---
 
 ## NLQResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **parseResult** | `object` | ✅ |  |
+| **results** | `Record<string, any>[]` | optional | Query results |
+| **totalCount** | `integer` | optional |  |
+| **executionTime** | `number` | optional | Execution time in milliseconds |
+| **needsClarification** | `boolean` | ✅ | Whether query needs clarification |
+| **tokens** | `object` | optional | Token usage for this query |
+| **cost** | `number` | optional | Cost for this query in USD |
+| **suggestions** | `string[]` | optional | Query refinement suggestions |
 
 ---
 
 ## NLQTrainingExample
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **query** | `string` | ✅ | Natural language query |
+| **context** | `object` | optional |  |
+| **expectedIntent** | `Enum<'select' \| 'aggregate' \| 'filter' \| 'sort' \| 'compare' \| 'trend' \| 'insight' \| 'create' \| 'update' \| 'delete'>` | ✅ |  |
+| **expectedObject** | `string` | optional |  |
+| **expectedAST** | `Record<string, any>` | ✅ | Expected ObjectQL AST |
+| **category** | `string` | optional | Example category |
+| **tags** | `string[]` | optional |  |
+| **notes** | `string` | optional |  |
+
 ---
 
 ## QueryContext
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **userId** | `string` | optional |  |
+| **userRole** | `string` | optional |  |
+| **currentObject** | `string` | optional | Current object being viewed |
+| **currentRecordId** | `string` | optional | Current record ID |
+| **conversationHistory** | `object[]` | optional |  |
+| **defaultLimit** | `integer` | optional |  |
+| **timezone** | `string` | optional |  |
+| **locale** | `string` | optional |  |
 
 ---
 
 ## QueryIntent
 
+### Allowed Values
+
+* `select`
+* `aggregate`
+* `filter`
+* `sort`
+* `compare`
+* `trend`
+* `insight`
+* `create`
+* `update`
+* `delete`
+
 ---
 
 ## QueryTemplate
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ |  |
+| **name** | `string` | ✅ | Template name (snake_case) |
+| **label** | `string` | ✅ |  |
+| **pattern** | `string` | ✅ | Query pattern with placeholders |
+| **variables** | `object[]` | ✅ |  |
+| **astTemplate** | `Record<string, any>` | ✅ | AST template with variable placeholders |
+| **category** | `string` | optional |  |
+| **examples** | `string[]` | optional |  |
+| **tags** | `string[]` | optional |  |
+
 ---
 
 ## Timeframe
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'absolute' \| 'relative'>` | ✅ |  |
+| **start** | `string` | optional | Start date (ISO format) |
+| **end** | `string` | optional | End date (ISO format) |
+| **relative** | `object` | optional |  |
+| **text** | `string` | ✅ | Original timeframe text |
 

@@ -1,7 +1,609 @@
 {
   "$ref": "#/definitions/CostAnalytics",
   "definitions": {
-    "CostAnalytics": {}
+    "CostAnalytics": {
+      "type": "object",
+      "properties": {
+        "periodStart": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp"
+        },
+        "periodEnd": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp"
+        },
+        "totalCost": {
+          "type": "number",
+          "minimum": 0
+        },
+        "totalRequests": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "totalTokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "currency": {
+          "type": "string",
+          "default": "USD"
+        },
+        "averageCostPerRequest": {
+          "type": "number",
+          "minimum": 0
+        },
+        "averageCostPerToken": {
+          "type": "number",
+          "minimum": 0
+        },
+        "averageRequestsPerDay": {
+          "type": "number",
+          "minimum": 0
+        },
+        "costTrend": {
+          "type": "string",
+          "enum": [
+            "increasing",
+            "decreasing",
+            "stable"
+          ]
+        },
+        "trendPercentage": {
+          "type": "number",
+          "description": "% change vs previous period"
+        },
+        "byModel": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "dimension": {
+                "type": "string",
+                "enum": [
+                  "model",
+                  "provider",
+                  "user",
+                  "agent",
+                  "object",
+                  "operation",
+                  "date",
+                  "hour",
+                  "tag"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "description": "Dimension value (e.g., model ID, user ID)"
+              },
+              "totalCost": {
+                "type": "number",
+                "minimum": 0
+              },
+              "requestCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "totalTokens": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "percentageOfTotal": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "periodStart": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "periodEnd": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "dimension",
+              "value",
+              "totalCost",
+              "requestCount",
+              "percentageOfTotal"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "byProvider": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "dimension": {
+                "type": "string",
+                "enum": [
+                  "model",
+                  "provider",
+                  "user",
+                  "agent",
+                  "object",
+                  "operation",
+                  "date",
+                  "hour",
+                  "tag"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "description": "Dimension value (e.g., model ID, user ID)"
+              },
+              "totalCost": {
+                "type": "number",
+                "minimum": 0
+              },
+              "requestCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "totalTokens": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "percentageOfTotal": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "periodStart": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "periodEnd": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "dimension",
+              "value",
+              "totalCost",
+              "requestCount",
+              "percentageOfTotal"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "byUser": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "dimension": {
+                "type": "string",
+                "enum": [
+                  "model",
+                  "provider",
+                  "user",
+                  "agent",
+                  "object",
+                  "operation",
+                  "date",
+                  "hour",
+                  "tag"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "description": "Dimension value (e.g., model ID, user ID)"
+              },
+              "totalCost": {
+                "type": "number",
+                "minimum": 0
+              },
+              "requestCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "totalTokens": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "percentageOfTotal": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "periodStart": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "periodEnd": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "dimension",
+              "value",
+              "totalCost",
+              "requestCount",
+              "percentageOfTotal"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "byAgent": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "dimension": {
+                "type": "string",
+                "enum": [
+                  "model",
+                  "provider",
+                  "user",
+                  "agent",
+                  "object",
+                  "operation",
+                  "date",
+                  "hour",
+                  "tag"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "description": "Dimension value (e.g., model ID, user ID)"
+              },
+              "totalCost": {
+                "type": "number",
+                "minimum": 0
+              },
+              "requestCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "totalTokens": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "percentageOfTotal": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "periodStart": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "periodEnd": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "dimension",
+              "value",
+              "totalCost",
+              "requestCount",
+              "percentageOfTotal"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "byOperation": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "dimension": {
+                "type": "string",
+                "enum": [
+                  "model",
+                  "provider",
+                  "user",
+                  "agent",
+                  "object",
+                  "operation",
+                  "date",
+                  "hour",
+                  "tag"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "description": "Dimension value (e.g., model ID, user ID)"
+              },
+              "totalCost": {
+                "type": "number",
+                "minimum": 0
+              },
+              "requestCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "totalTokens": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "percentageOfTotal": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "periodStart": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "periodEnd": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "dimension",
+              "value",
+              "totalCost",
+              "requestCount",
+              "percentageOfTotal"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "byDate": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "dimension": {
+                "type": "string",
+                "enum": [
+                  "model",
+                  "provider",
+                  "user",
+                  "agent",
+                  "object",
+                  "operation",
+                  "date",
+                  "hour",
+                  "tag"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "description": "Dimension value (e.g., model ID, user ID)"
+              },
+              "totalCost": {
+                "type": "number",
+                "minimum": 0
+              },
+              "requestCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "totalTokens": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "percentageOfTotal": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "periodStart": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "periodEnd": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "dimension",
+              "value",
+              "totalCost",
+              "requestCount",
+              "percentageOfTotal"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "topModels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "dimension": {
+                "type": "string",
+                "enum": [
+                  "model",
+                  "provider",
+                  "user",
+                  "agent",
+                  "object",
+                  "operation",
+                  "date",
+                  "hour",
+                  "tag"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "description": "Dimension value (e.g., model ID, user ID)"
+              },
+              "totalCost": {
+                "type": "number",
+                "minimum": 0
+              },
+              "requestCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "totalTokens": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "percentageOfTotal": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "periodStart": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "periodEnd": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "dimension",
+              "value",
+              "totalCost",
+              "requestCount",
+              "percentageOfTotal"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "topUsers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "dimension": {
+                "type": "string",
+                "enum": [
+                  "model",
+                  "provider",
+                  "user",
+                  "agent",
+                  "object",
+                  "operation",
+                  "date",
+                  "hour",
+                  "tag"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "description": "Dimension value (e.g., model ID, user ID)"
+              },
+              "totalCost": {
+                "type": "number",
+                "minimum": 0
+              },
+              "requestCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "totalTokens": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "percentageOfTotal": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "periodStart": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "periodEnd": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "dimension",
+              "value",
+              "totalCost",
+              "requestCount",
+              "percentageOfTotal"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "topAgents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "dimension": {
+                "type": "string",
+                "enum": [
+                  "model",
+                  "provider",
+                  "user",
+                  "agent",
+                  "object",
+                  "operation",
+                  "date",
+                  "hour",
+                  "tag"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "description": "Dimension value (e.g., model ID, user ID)"
+              },
+              "totalCost": {
+                "type": "number",
+                "minimum": 0
+              },
+              "requestCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "totalTokens": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "percentageOfTotal": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "periodStart": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "periodEnd": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "dimension",
+              "value",
+              "totalCost",
+              "requestCount",
+              "percentageOfTotal"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "tokensPerDollar": {
+          "type": "number",
+          "minimum": 0
+        },
+        "requestsPerDollar": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "periodStart",
+        "periodEnd",
+        "totalCost",
+        "totalRequests",
+        "averageCostPerRequest",
+        "averageRequestsPerDay"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

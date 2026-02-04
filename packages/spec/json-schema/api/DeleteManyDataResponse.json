@@ -1,7 +1,160 @@
 {
   "$ref": "#/definitions/DeleteManyDataResponse",
   "definitions": {
-    "DeleteManyDataResponse": {}
+    "DeleteManyDataResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "description": "Operation success status"
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "Error code (e.g. validation_error)"
+            },
+            "message": {
+              "type": "string",
+              "description": "Readable error message"
+            },
+            "category": {
+              "type": "string",
+              "description": "Error category (e.g. validation, authorization)"
+            },
+            "details": {
+              "description": "Additional error context (e.g. field validation errors)"
+            },
+            "requestId": {
+              "type": "string",
+              "description": "Request ID for tracking"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ],
+          "additionalProperties": false,
+          "description": "Error details if success is false"
+        },
+        "meta": {
+          "type": "object",
+          "properties": {
+            "timestamp": {
+              "type": "string"
+            },
+            "duration": {
+              "type": "number"
+            },
+            "requestId": {
+              "type": "string"
+            },
+            "traceId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "timestamp"
+          ],
+          "additionalProperties": false,
+          "description": "Response metadata"
+        },
+        "operation": {
+          "type": "string",
+          "enum": [
+            "create",
+            "update",
+            "upsert",
+            "delete"
+          ],
+          "description": "Operation type that was performed"
+        },
+        "total": {
+          "type": "number",
+          "description": "Total number of records in the batch"
+        },
+        "succeeded": {
+          "type": "number",
+          "description": "Number of records that succeeded"
+        },
+        "failed": {
+          "type": "number",
+          "description": "Number of records that failed"
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Record ID if operation succeeded"
+              },
+              "success": {
+                "type": "boolean",
+                "description": "Whether this record was processed successfully"
+              },
+              "errors": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code (e.g. validation_error)"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Readable error message"
+                    },
+                    "category": {
+                      "type": "string",
+                      "description": "Error category (e.g. validation, authorization)"
+                    },
+                    "details": {
+                      "description": "Additional error context (e.g. field validation errors)"
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "Array of errors if operation failed"
+              },
+              "data": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Full record data (if returnRecords=true)"
+              },
+              "index": {
+                "type": "number",
+                "description": "Index of the record in the request array"
+              }
+            },
+            "required": [
+              "success"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Detailed results for each record"
+        }
+      },
+      "required": [
+        "success",
+        "total",
+        "succeeded",
+        "failed",
+        "results"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

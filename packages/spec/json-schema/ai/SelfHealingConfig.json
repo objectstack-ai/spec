@@ -1,7 +1,211 @@
 {
   "$ref": "#/definitions/SelfHealingConfig",
   "definitions": {
-    "SelfHealingConfig": {}
+    "SelfHealingConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "strategy": {
+          "type": "string",
+          "enum": [
+            "conservative",
+            "moderate",
+            "aggressive"
+          ],
+          "default": "moderate"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "restart",
+                  "scale",
+                  "rollback",
+                  "clear-cache",
+                  "adjust-config",
+                  "execute-script",
+                  "notify"
+                ]
+              },
+              "trigger": {
+                "type": "object",
+                "properties": {
+                  "healthStatus": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "healthy",
+                        "degraded",
+                        "unhealthy",
+                        "failed",
+                        "recovering",
+                        "unknown"
+                      ],
+                      "description": "Current health status of the plugin"
+                    }
+                  },
+                  "anomalyTypes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "errorPatterns": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "customCondition": {
+                    "type": "string",
+                    "description": "Custom trigger condition (e.g., \"errorRate > 0.1\")"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "parameters": {
+                "type": "object",
+                "additionalProperties": {}
+              },
+              "maxAttempts": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 3
+              },
+              "cooldown": {
+                "type": "integer",
+                "minimum": 0,
+                "default": 60
+              },
+              "timeout": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 300
+              },
+              "requireApproval": {
+                "type": "boolean",
+                "default": false
+              },
+              "priority": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 5,
+                "description": "Action priority (lower number = higher priority)"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "trigger"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "anomalyDetection": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "metrics": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "cpu-usage",
+                  "memory-usage",
+                  "response-time",
+                  "error-rate",
+                  "throughput",
+                  "latency",
+                  "connection-count",
+                  "queue-depth"
+                ]
+              }
+            },
+            "algorithm": {
+              "type": "string",
+              "enum": [
+                "statistical",
+                "machine-learning",
+                "heuristic",
+                "hybrid"
+              ],
+              "default": "hybrid"
+            },
+            "sensitivity": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ],
+              "default": "medium",
+              "description": "How aggressively to detect anomalies"
+            },
+            "timeWindow": {
+              "type": "integer",
+              "minimum": 60,
+              "default": 300,
+              "description": "Historical data window for anomaly detection"
+            },
+            "confidenceThreshold": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "default": 80,
+              "description": "Minimum confidence to flag as anomaly"
+            },
+            "alertOnDetection": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          "required": [
+            "metrics"
+          ],
+          "additionalProperties": false
+        },
+        "maxConcurrentHealing": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "Maximum number of simultaneous healing attempts"
+        },
+        "learning": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Learn from successful/failed healing attempts"
+            },
+            "feedbackLoop": {
+              "type": "boolean",
+              "default": true,
+              "description": "Adjust strategy based on outcomes"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "actions"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

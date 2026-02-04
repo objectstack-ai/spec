@@ -1,7 +1,32 @@
 {
   "$ref": "#/definitions/MetricUnit",
   "definitions": {
-    "MetricUnit": {}
+    "MetricUnit": {
+      "type": "string",
+      "enum": [
+        "nanoseconds",
+        "microseconds",
+        "milliseconds",
+        "seconds",
+        "minutes",
+        "hours",
+        "days",
+        "bytes",
+        "kilobytes",
+        "megabytes",
+        "gigabytes",
+        "terabytes",
+        "requests_per_second",
+        "events_per_second",
+        "bytes_per_second",
+        "percent",
+        "ratio",
+        "count",
+        "operations",
+        "custom"
+      ],
+      "description": "Metric unit"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

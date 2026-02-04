@@ -1,7 +1,60 @@
 {
   "$ref": "#/definitions/SchemaDefinition",
   "definitions": {
-    "SchemaDefinition": {}
+    "SchemaDefinition": {
+      "anyOf": [
+        {
+          "description": "Static JSON Schema definition"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "$ref": {
+              "type": "object",
+              "properties": {
+                "objectId": {
+                  "type": "string",
+                  "minLength": 2,
+                  "pattern": "^[a-z][a-z0-9_]*$",
+                  "description": "Object name to reference"
+                },
+                "includeFields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Include only these fields in the schema"
+                },
+                "excludeFields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Exclude these fields from the schema"
+                },
+                "includeRelated": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Include related objects via lookup fields"
+                }
+              },
+              "required": [
+                "objectId"
+              ],
+              "additionalProperties": false,
+              "description": "Dynamic reference to ObjectQL object"
+            }
+          },
+          "required": [
+            "$ref"
+          ],
+          "additionalProperties": false,
+          "description": "Dynamic ObjectQL reference"
+        }
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

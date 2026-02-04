@@ -1,7 +1,40 @@
 {
   "$ref": "#/definitions/RLSEvaluationResult",
   "definitions": {
-    "RLSEvaluationResult": {}
+    "RLSEvaluationResult": {
+      "type": "object",
+      "properties": {
+        "policyName": {
+          "type": "string",
+          "description": "Policy name"
+        },
+        "granted": {
+          "type": "boolean",
+          "description": "Whether access was granted"
+        },
+        "durationMs": {
+          "type": "number",
+          "description": "Evaluation duration in milliseconds"
+        },
+        "error": {
+          "type": "string",
+          "description": "Error message if evaluation failed"
+        },
+        "usingResult": {
+          "type": "boolean",
+          "description": "USING clause evaluation result"
+        },
+        "checkResult": {
+          "type": "boolean",
+          "description": "CHECK clause evaluation result"
+        }
+      },
+      "required": [
+        "policyName",
+        "granted"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

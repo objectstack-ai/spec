@@ -1,7 +1,252 @@
 {
   "$ref": "#/definitions/ETLPipeline",
   "definitions": {
-    "ETLPipeline": {}
+    "ETLPipeline": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Pipeline identifier (snake_case)"
+        },
+        "label": {
+          "type": "string",
+          "description": "Pipeline display name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Pipeline description"
+        },
+        "source": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "database",
+                "api",
+                "file",
+                "stream",
+                "object",
+                "warehouse",
+                "storage",
+                "spreadsheet"
+              ],
+              "description": "Source type"
+            },
+            "connector": {
+              "type": "string",
+              "description": "Connector ID"
+            },
+            "config": {
+              "type": "object",
+              "additionalProperties": {},
+              "description": "Source configuration"
+            },
+            "incremental": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "cursorField": {
+                  "type": "string",
+                  "description": "Field to track progress (e.g., updated_at)"
+                },
+                "cursorValue": {
+                  "description": "Last processed value"
+                }
+              },
+              "required": [
+                "cursorField"
+              ],
+              "additionalProperties": false,
+              "description": "Incremental extraction config"
+            }
+          },
+          "required": [
+            "type",
+            "config"
+          ],
+          "additionalProperties": false,
+          "description": "Data source"
+        },
+        "destination": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "database",
+                "api",
+                "file",
+                "stream",
+                "object",
+                "warehouse",
+                "storage",
+                "spreadsheet"
+              ],
+              "description": "Destination type"
+            },
+            "connector": {
+              "type": "string",
+              "description": "Connector ID"
+            },
+            "config": {
+              "type": "object",
+              "additionalProperties": {},
+              "description": "Destination configuration"
+            },
+            "writeMode": {
+              "type": "string",
+              "enum": [
+                "append",
+                "overwrite",
+                "upsert",
+                "merge"
+              ],
+              "default": "append",
+              "description": "How to write data"
+            },
+            "primaryKey": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Primary key fields"
+            }
+          },
+          "required": [
+            "type",
+            "config"
+          ],
+          "additionalProperties": false,
+          "description": "Data destination"
+        },
+        "transformations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Transformation name"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "map",
+                  "filter",
+                  "aggregate",
+                  "join",
+                  "script",
+                  "lookup",
+                  "split",
+                  "merge",
+                  "normalize",
+                  "deduplicate"
+                ],
+                "description": "Transformation type"
+              },
+              "config": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Transformation config"
+              },
+              "continueOnError": {
+                "type": "boolean",
+                "default": false,
+                "description": "Continue on error"
+              }
+            },
+            "required": [
+              "type",
+              "config"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Transformation pipeline"
+        },
+        "syncMode": {
+          "type": "string",
+          "enum": [
+            "full",
+            "incremental",
+            "cdc"
+          ],
+          "default": "full",
+          "description": "Sync mode"
+        },
+        "schedule": {
+          "type": "string",
+          "description": "Cron schedule expression"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Pipeline enabled status"
+        },
+        "retry": {
+          "type": "object",
+          "properties": {
+            "maxAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 3,
+              "description": "Max retry attempts"
+            },
+            "backoffMs": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 60000,
+              "description": "Backoff in milliseconds"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Retry configuration"
+        },
+        "notifications": {
+          "type": "object",
+          "properties": {
+            "onSuccess": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Email addresses for success notifications"
+            },
+            "onFailure": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Email addresses for failure notifications"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Notification settings"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Pipeline tags"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Custom metadata"
+        }
+      },
+      "required": [
+        "name",
+        "source",
+        "destination"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,85 @@
 {
   "$ref": "#/definitions/ApiTestRequest",
   "definitions": {
-    "ApiTestRequest": {}
+    "ApiTestRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Test request name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Request description"
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "HEAD",
+            "OPTIONS"
+          ],
+          "description": "HTTP method"
+        },
+        "url": {
+          "type": "string",
+          "description": "Request URL (can include variables)"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {},
+          "description": "Request headers"
+        },
+        "queryParams": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "boolean"
+            ]
+          },
+          "default": {},
+          "description": "Query parameters"
+        },
+        "body": {
+          "description": "Request body"
+        },
+        "variables": {
+          "type": "object",
+          "additionalProperties": {},
+          "default": {},
+          "description": "Template variables"
+        },
+        "expectedResponse": {
+          "type": "object",
+          "properties": {
+            "statusCode": {
+              "type": "integer"
+            },
+            "body": {}
+          },
+          "required": [
+            "statusCode"
+          ],
+          "additionalProperties": false,
+          "description": "Expected response for validation"
+        }
+      },
+      "required": [
+        "name",
+        "method",
+        "url"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

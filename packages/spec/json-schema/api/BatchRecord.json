@@ -1,7 +1,25 @@
 {
   "$ref": "#/definitions/BatchRecord",
   "definitions": {
-    "BatchRecord": {}
+    "BatchRecord": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Record ID (required for update/delete)"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Record data (required for create/update/upsert)"
+        },
+        "externalId": {
+          "type": "string",
+          "description": "External ID for upsert matching"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

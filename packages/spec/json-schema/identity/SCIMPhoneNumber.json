@@ -1,7 +1,40 @@
 {
   "$ref": "#/definitions/SCIMPhoneNumber",
   "definitions": {
-    "SCIMPhoneNumber": {}
+    "SCIMPhoneNumber": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "Phone number"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "work",
+            "home",
+            "mobile",
+            "fax",
+            "pager",
+            "other"
+          ],
+          "description": "Phone number type"
+        },
+        "display": {
+          "type": "string",
+          "description": "Display label"
+        },
+        "primary": {
+          "type": "boolean",
+          "default": false,
+          "description": "Primary phone indicator"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

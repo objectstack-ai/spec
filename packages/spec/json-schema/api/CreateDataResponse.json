@@ -1,7 +1,30 @@
 {
   "$ref": "#/definitions/CreateDataResponse",
   "definitions": {
-    "CreateDataResponse": {}
+    "CreateDataResponse": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "The object name."
+        },
+        "id": {
+          "type": "string",
+          "description": "The ID of the newly created record."
+        },
+        "record": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "The created record, including server-generated fields (created_at, owner)."
+        }
+      },
+      "required": [
+        "object",
+        "id",
+        "record"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

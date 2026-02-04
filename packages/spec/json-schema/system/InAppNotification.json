@@ -1,7 +1,48 @@
 {
   "$ref": "#/definitions/InAppNotification",
   "definitions": {
-    "InAppNotification": {}
+    "InAppNotification": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Notification title"
+        },
+        "message": {
+          "type": "string",
+          "description": "Notification message"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "info",
+            "success",
+            "warning",
+            "error"
+          ],
+          "description": "Notification type"
+        },
+        "actionUrl": {
+          "type": "string",
+          "description": "Action URL"
+        },
+        "dismissible": {
+          "type": "boolean",
+          "default": true,
+          "description": "User dismissible"
+        },
+        "expiresAt": {
+          "type": "number",
+          "description": "Expiration timestamp"
+        }
+      },
+      "required": [
+        "title",
+        "message",
+        "type"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

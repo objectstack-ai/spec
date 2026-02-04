@@ -1,7 +1,63 @@
 {
   "$ref": "#/definitions/Session",
   "definitions": {
-    "Session": {}
+    "Session": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique session identifier"
+        },
+        "sessionToken": {
+          "type": "string",
+          "description": "Session token"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Associated user ID"
+        },
+        "activeOrganizationId": {
+          "type": "string",
+          "description": "Active organization ID for context switching"
+        },
+        "expires": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Session expiry timestamp"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Session creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update timestamp"
+        },
+        "ipAddress": {
+          "type": "string",
+          "description": "IP address"
+        },
+        "userAgent": {
+          "type": "string",
+          "description": "User agent string"
+        },
+        "fingerprint": {
+          "type": "string",
+          "description": "Device fingerprint"
+        }
+      },
+      "required": [
+        "id",
+        "sessionToken",
+        "userId",
+        "expires",
+        "createdAt",
+        "updatedAt"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

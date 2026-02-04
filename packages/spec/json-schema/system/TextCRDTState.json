@@ -1,7 +1,105 @@
 {
   "$ref": "#/definitions/TextCRDTState",
   "definitions": {
-    "TextCRDTState": {}
+    "TextCRDTState": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "text"
+        },
+        "documentId": {
+          "type": "string",
+          "description": "Document identifier"
+        },
+        "content": {
+          "type": "string",
+          "description": "Current text content"
+        },
+        "operations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "operationId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Unique operation identifier"
+              },
+              "replicaId": {
+                "type": "string",
+                "description": "Replica identifier"
+              },
+              "position": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Position in document"
+              },
+              "insert": {
+                "type": "string",
+                "description": "Text to insert"
+              },
+              "delete": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "description": "Number of characters to delete"
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time",
+                "description": "ISO 8601 datetime of operation"
+              },
+              "lamportTimestamp": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Lamport timestamp for ordering"
+              }
+            },
+            "required": [
+              "operationId",
+              "replicaId",
+              "position",
+              "timestamp",
+              "lamportTimestamp"
+            ],
+            "additionalProperties": false
+          },
+          "description": "History of operations"
+        },
+        "lamportClock": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Current Lamport clock value"
+        },
+        "vectorClock": {
+          "type": "object",
+          "properties": {
+            "clock": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "description": "Map of replica ID to logical timestamp"
+            }
+          },
+          "required": [
+            "clock"
+          ],
+          "additionalProperties": false,
+          "description": "Vector clock for causality"
+        }
+      },
+      "required": [
+        "type",
+        "documentId",
+        "content",
+        "operations",
+        "lamportClock",
+        "vectorClock"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

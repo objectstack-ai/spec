@@ -1,7 +1,175 @@
 {
   "$ref": "#/definitions/SuspiciousActivityRule",
   "definitions": {
-    "SuspiciousActivityRule": {}
+    "SuspiciousActivityRule": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Rule identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Rule name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Rule description"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Rule enabled status"
+        },
+        "eventTypes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "data.create",
+              "data.read",
+              "data.update",
+              "data.delete",
+              "data.export",
+              "data.import",
+              "data.bulk_update",
+              "data.bulk_delete",
+              "auth.login",
+              "auth.login_failed",
+              "auth.logout",
+              "auth.session_created",
+              "auth.session_expired",
+              "auth.password_reset",
+              "auth.password_changed",
+              "auth.email_verified",
+              "auth.mfa_enabled",
+              "auth.mfa_disabled",
+              "auth.account_locked",
+              "auth.account_unlocked",
+              "authz.permission_granted",
+              "authz.permission_revoked",
+              "authz.role_assigned",
+              "authz.role_removed",
+              "authz.role_created",
+              "authz.role_updated",
+              "authz.role_deleted",
+              "authz.policy_created",
+              "authz.policy_updated",
+              "authz.policy_deleted",
+              "system.config_changed",
+              "system.plugin_installed",
+              "system.plugin_uninstalled",
+              "system.backup_created",
+              "system.backup_restored",
+              "system.integration_added",
+              "system.integration_removed",
+              "security.access_denied",
+              "security.suspicious_activity",
+              "security.data_breach",
+              "security.api_key_created",
+              "security.api_key_revoked"
+            ]
+          },
+          "description": "Event types to monitor"
+        },
+        "condition": {
+          "type": "object",
+          "properties": {
+            "threshold": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "Event threshold"
+            },
+            "windowSeconds": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "Time window in seconds"
+            },
+            "groupBy": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Grouping criteria"
+            },
+            "filters": {
+              "type": "object",
+              "additionalProperties": {},
+              "description": "Additional filters"
+            }
+          },
+          "required": [
+            "threshold",
+            "windowSeconds"
+          ],
+          "additionalProperties": false,
+          "description": "Detection condition"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "alert",
+              "lock_account",
+              "block_ip",
+              "require_mfa",
+              "log_critical",
+              "webhook"
+            ]
+          },
+          "description": "Actions to take"
+        },
+        "alertSeverity": {
+          "type": "string",
+          "enum": [
+            "debug",
+            "info",
+            "notice",
+            "warning",
+            "error",
+            "critical",
+            "alert",
+            "emergency"
+          ],
+          "default": "warning",
+          "description": "Alert severity"
+        },
+        "notifications": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "email"
+              },
+              "description": "Email recipients"
+            },
+            "slack": {
+              "type": "string",
+              "format": "uri",
+              "description": "Slack webhook URL"
+            },
+            "webhook": {
+              "type": "string",
+              "format": "uri",
+              "description": "Custom webhook URL"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Notification configuration"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "eventTypes",
+        "condition",
+        "actions"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

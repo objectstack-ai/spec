@@ -23,15 +23,71 @@ const result = MarketplacePluginSchema.parse(data);
 
 ## MarketplacePlugin
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ |  |
+| **versions** | `Record<string, object>` | optional | Map of versions (1.0.0) -> Details |
+| **label** | `string` | ✅ |  |
+| **description** | `string` | optional |  |
+| **readme** | `string` | optional |  |
+| **version** | `string` | ✅ |  |
+| **vendor** | `object` | optional |  |
+| **tags** | `string[]` | optional |  |
+| **category** | `Enum<'app' \| 'integration' \| 'theme' \| 'utility' \| 'driver' \| 'analytics' \| 'security' \| 'automation' \| 'ai' \| 'data'>` | optional |  |
+| **icon** | `string` | optional |  |
+| **screenshots** | `string[]` | optional |  |
+| **homepage** | `string` | optional |  |
+| **repository** | `string` | optional |  |
+| **bugs** | `string` | optional |  |
+| **downloads** | `integer` | optional |  |
+| **rating** | `number` | optional |  |
+| **pricing** | `object` | optional |  |
+| **verified** | `boolean` | optional | Is verified maintaned by ObjectStack |
+
 ---
 
 ## PluginAuthor
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Vendor identifier (reverse domain) |
+| **name** | `string` | ✅ |  |
+| **website** | `string` | optional |  |
+| **email** | `string` | optional |  |
+| **verified** | `boolean` | optional | Whether vendor is verified by ObjectStack |
+| **trustLevel** | `Enum<'official' \| 'verified' \| 'community' \| 'unverified'>` | optional |  |
 
 ---
 
 ## PluginPricing
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'free' \| 'one_time' \| 'recurring'>` | ✅ |  |
+| **currency** | `string` | optional |  |
+| **amount** | `number` | ✅ |  |
+| **interval** | `Enum<'month' \| 'year'>` | optional | Required if type is recurring |
+| **trialDays** | `integer` | optional |  |
+
 ---
 
 ## PluginVersion
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **version** | `string` | ✅ | SemVer string (e.g. 1.0.0) |
+| **publishedAt** | `string` | ✅ | Publication date |
+| **downloadUrl** | `string` | ✅ | Archive download URL |
+| **checksum** | `string` | optional | Integrity checksum (shasum) |
+| **engine** | `object` | optional | Engine compatibility |
+| **dependencies** | `Record<string, string>` | optional | Runtime plugin dependencies |
+| **changeLog** | `string` | optional | Release notes |
 

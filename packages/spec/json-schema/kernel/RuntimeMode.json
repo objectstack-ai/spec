@@ -1,7 +1,16 @@
 {
   "$ref": "#/definitions/RuntimeMode",
   "definitions": {
-    "RuntimeMode": {}
+    "RuntimeMode": {
+      "type": "string",
+      "enum": [
+        "development",
+        "production",
+        "test",
+        "provisioning"
+      ],
+      "description": "Kernel operating mode"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

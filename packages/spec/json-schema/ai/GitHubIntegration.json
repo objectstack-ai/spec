@@ -1,7 +1,71 @@
 {
   "$ref": "#/definitions/GitHubIntegration",
   "definitions": {
-    "GitHubIntegration": {}
+    "GitHubIntegration": {
+      "type": "object",
+      "properties": {
+        "connector": {
+          "type": "string",
+          "description": "GitHub connector name"
+        },
+        "repository": {
+          "type": "object",
+          "properties": {
+            "owner": {
+              "type": "string",
+              "description": "Repository owner"
+            },
+            "name": {
+              "type": "string",
+              "description": "Repository name"
+            }
+          },
+          "required": [
+            "owner",
+            "name"
+          ],
+          "additionalProperties": false,
+          "description": "Repository configuration"
+        },
+        "featureBranch": {
+          "type": "string",
+          "default": "develop",
+          "description": "Default feature branch"
+        },
+        "pullRequest": {
+          "type": "object",
+          "properties": {
+            "autoCreate": {
+              "type": "boolean",
+              "default": true,
+              "description": "Automatically create PRs"
+            },
+            "autoMerge": {
+              "type": "boolean",
+              "default": false,
+              "description": "Automatically merge PRs when checks pass"
+            },
+            "requireReviews": {
+              "type": "boolean",
+              "default": true,
+              "description": "Require reviews before merge"
+            },
+            "deleteBranchOnMerge": {
+              "type": "boolean",
+              "default": true,
+              "description": "Delete feature branch after merge"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Pull request settings"
+        }
+      },
+      "required": [
+        "connector",
+        "repository"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

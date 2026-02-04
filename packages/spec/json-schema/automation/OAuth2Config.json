@@ -1,7 +1,43 @@
 {
   "$ref": "#/definitions/OAuth2Config",
   "definitions": {
-    "OAuth2Config": {}
+    "OAuth2Config": {
+      "type": "object",
+      "properties": {
+        "authorizationUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Authorization endpoint URL"
+        },
+        "tokenUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Token endpoint URL"
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "OAuth scopes"
+        },
+        "clientIdField": {
+          "type": "string",
+          "default": "client_id",
+          "description": "Client ID field name"
+        },
+        "clientSecretField": {
+          "type": "string",
+          "default": "client_secret",
+          "description": "Client secret field name"
+        }
+      },
+      "required": [
+        "authorizationUrl",
+        "tokenUrl"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

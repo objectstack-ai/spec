@@ -390,10 +390,10 @@ export const FieldWidgetPropsSchema = z.object({
    * 
    * @param newValue - The new value to set
    */
-  onChange: z.function({
-    input: z.tuple([z.any()]),
-    output: z.void()
-  }).describe('Callback to update field value'),
+  onChange: z.function()
+    .args(z.any())
+    .returns(z.void())
+    .describe('Callback to update field value'),
 
   /**
    * Whether the field is in read-only mode.

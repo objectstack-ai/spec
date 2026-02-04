@@ -1,7 +1,84 @@
 {
   "$ref": "#/definitions/SBOMEntry",
   "definitions": {
-    "SBOMEntry": {}
+    "SBOMEntry": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "purl": {
+          "type": "string",
+          "description": "Package URL identifier"
+        },
+        "license": {
+          "type": "string"
+        },
+        "hashes": {
+          "type": "object",
+          "properties": {
+            "sha256": {
+              "type": "string"
+            },
+            "sha512": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "supplier": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        "externalRefs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "website",
+                  "repository",
+                  "documentation",
+                  "issue-tracker"
+                ]
+              },
+              "url": {
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": [
+              "type",
+              "url"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,73 @@
 {
   "$ref": "#/definitions/AuthField",
   "definitions": {
-    "AuthField": {}
+    "AuthField": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Field name (snake_case)"
+        },
+        "label": {
+          "type": "string",
+          "description": "Field label"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "text",
+            "password",
+            "url",
+            "select"
+          ],
+          "default": "text",
+          "description": "Field type"
+        },
+        "description": {
+          "type": "string",
+          "description": "Field description"
+        },
+        "required": {
+          "type": "boolean",
+          "default": true,
+          "description": "Required field"
+        },
+        "default": {
+          "type": "string",
+          "description": "Default value"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Select field options"
+        },
+        "placeholder": {
+          "type": "string",
+          "description": "Placeholder text"
+        }
+      },
+      "required": [
+        "name",
+        "label"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

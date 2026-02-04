@@ -1,7 +1,14 @@
 {
   "$ref": "#/definitions/SharingLevel",
   "definitions": {
-    "SharingLevel": {}
+    "SharingLevel": {
+      "type": "string",
+      "enum": [
+        "read",
+        "edit",
+        "full"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

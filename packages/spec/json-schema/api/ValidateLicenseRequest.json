@@ -1,7 +1,23 @@
 {
   "$ref": "#/definitions/ValidateLicenseRequest",
   "definitions": {
-    "ValidateLicenseRequest": {}
+    "ValidateLicenseRequest": {
+      "type": "object",
+      "properties": {
+        "spaceId": {
+          "type": "string"
+        },
+        "signature": {
+          "type": "string",
+          "description": "License signature/token"
+        }
+      },
+      "required": [
+        "spaceId",
+        "signature"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

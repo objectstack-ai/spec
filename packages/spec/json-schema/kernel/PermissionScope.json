@@ -1,7 +1,17 @@
 {
   "$ref": "#/definitions/PermissionScope",
   "definitions": {
-    "PermissionScope": {}
+    "PermissionScope": {
+      "type": "string",
+      "enum": [
+        "global",
+        "tenant",
+        "user",
+        "resource",
+        "plugin"
+      ],
+      "description": "Scope of permission application"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

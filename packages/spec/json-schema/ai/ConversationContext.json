@@ -1,7 +1,48 @@
 {
   "$ref": "#/definitions/ConversationContext",
   "definitions": {
-    "ConversationContext": {}
+    "ConversationContext": {
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "type": "string",
+          "description": "Conversation session ID"
+        },
+        "userId": {
+          "type": "string",
+          "description": "User identifier"
+        },
+        "agentId": {
+          "type": "string",
+          "description": "AI agent identifier"
+        },
+        "object": {
+          "type": "string",
+          "description": "Related object (e.g., \"case\", \"project\")"
+        },
+        "recordId": {
+          "type": "string",
+          "description": "Related record ID"
+        },
+        "scope": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Additional context scope"
+        },
+        "systemMessage": {
+          "type": "string",
+          "description": "System prompt/instructions"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {}
+        }
+      },
+      "required": [
+        "sessionId"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

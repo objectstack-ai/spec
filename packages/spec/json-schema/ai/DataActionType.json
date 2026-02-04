@@ -1,7 +1,18 @@
 {
   "$ref": "#/definitions/DataActionType",
   "definitions": {
-    "DataActionType": {}
+    "DataActionType": {
+      "type": "string",
+      "enum": [
+        "select_record",
+        "deselect_record",
+        "select_all",
+        "deselect_all",
+        "bulk_update",
+        "bulk_delete",
+        "bulk_export"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

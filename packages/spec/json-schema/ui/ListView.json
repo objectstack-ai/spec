@@ -1,7 +1,404 @@
 {
   "$ref": "#/definitions/ListView",
   "definitions": {
-    "ListView": {}
+    "ListView": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Internal view name (lowercase snake_case)"
+        },
+        "label": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "grid",
+            "spreadsheet",
+            "kanban",
+            "gallery",
+            "calendar",
+            "timeline",
+            "gantt",
+            "map"
+          ],
+          "default": "grid"
+        },
+        "data": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "provider": {
+                  "type": "string",
+                  "const": "object"
+                },
+                "object": {
+                  "type": "string",
+                  "description": "Target object name"
+                }
+              },
+              "required": [
+                "provider",
+                "object"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "provider": {
+                  "type": "string",
+                  "const": "api"
+                },
+                "read": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "description": "API endpoint URL"
+                    },
+                    "method": {
+                      "type": "string",
+                      "enum": [
+                        "GET",
+                        "POST",
+                        "PUT",
+                        "PATCH",
+                        "DELETE"
+                      ],
+                      "default": "GET",
+                      "description": "HTTP method"
+                    },
+                    "headers": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "description": "Custom HTTP headers"
+                    },
+                    "params": {
+                      "type": "object",
+                      "additionalProperties": {},
+                      "description": "Query parameters"
+                    },
+                    "body": {
+                      "description": "Request body for POST/PUT/PATCH"
+                    }
+                  },
+                  "required": [
+                    "url"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Configuration for fetching data"
+                },
+                "write": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "description": "API endpoint URL"
+                    },
+                    "method": {
+                      "type": "string",
+                      "enum": [
+                        "GET",
+                        "POST",
+                        "PUT",
+                        "PATCH",
+                        "DELETE"
+                      ],
+                      "default": "GET",
+                      "description": "HTTP method"
+                    },
+                    "headers": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "description": "Custom HTTP headers"
+                    },
+                    "params": {
+                      "type": "object",
+                      "additionalProperties": {},
+                      "description": "Query parameters"
+                    },
+                    "body": {
+                      "description": "Request body for POST/PUT/PATCH"
+                    }
+                  },
+                  "required": [
+                    "url"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Configuration for submitting data (for forms/editable tables)"
+                }
+              },
+              "required": [
+                "provider"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "provider": {
+                  "type": "string",
+                  "const": "value"
+                },
+                "items": {
+                  "type": "array",
+                  "items": {},
+                  "description": "Static data array"
+                }
+              },
+              "required": [
+                "provider",
+                "items"
+              ],
+              "additionalProperties": false
+            }
+          ],
+          "description": "Data source configuration (defaults to \"object\" provider)"
+        },
+        "columns": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "string",
+                    "description": "Field name (snake_case)"
+                  },
+                  "label": {
+                    "type": "string",
+                    "description": "Display label override"
+                  },
+                  "width": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "description": "Column width in pixels"
+                  },
+                  "align": {
+                    "type": "string",
+                    "enum": [
+                      "left",
+                      "center",
+                      "right"
+                    ],
+                    "description": "Text alignment"
+                  },
+                  "hidden": {
+                    "type": "boolean",
+                    "description": "Hide column by default"
+                  },
+                  "sortable": {
+                    "type": "boolean",
+                    "description": "Allow sorting by this column"
+                  },
+                  "resizable": {
+                    "type": "boolean",
+                    "description": "Allow resizing this column"
+                  },
+                  "wrap": {
+                    "type": "boolean",
+                    "description": "Allow text wrapping"
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "Renderer type override (e.g., \"currency\", \"date\")"
+                  }
+                },
+                "required": [
+                  "field"
+                ],
+                "additionalProperties": false
+              }
+            }
+          ],
+          "description": "Fields to display as columns"
+        },
+        "filter": {
+          "type": "array",
+          "description": "Filter criteria (JSON Rules)"
+        },
+        "sort": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "string"
+                  },
+                  "order": {
+                    "type": "string",
+                    "enum": [
+                      "asc",
+                      "desc"
+                    ]
+                  }
+                },
+                "required": [
+                  "field",
+                  "order"
+                ],
+                "additionalProperties": false
+              }
+            }
+          ]
+        },
+        "searchableFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields enabled for search"
+        },
+        "resizable": {
+          "type": "boolean",
+          "description": "Enable column resizing"
+        },
+        "striped": {
+          "type": "boolean",
+          "description": "Striped row styling"
+        },
+        "bordered": {
+          "type": "boolean",
+          "description": "Show borders"
+        },
+        "selection": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "none",
+                "single",
+                "multiple"
+              ],
+              "default": "none",
+              "description": "Selection mode"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Row selection configuration"
+        },
+        "pagination": {
+          "type": "object",
+          "properties": {
+            "pageSize": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 25,
+              "description": "Number of records per page"
+            },
+            "pageSizeOptions": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "exclusiveMinimum": 0
+              },
+              "description": "Available page size options"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Pagination configuration"
+        },
+        "kanban": {
+          "type": "object",
+          "properties": {
+            "groupByField": {
+              "type": "string",
+              "description": "Field to group columns by (usually status/select)"
+            },
+            "summarizeField": {
+              "type": "string",
+              "description": "Field to sum at top of column (e.g. amount)"
+            },
+            "columns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Fields to show on cards"
+            }
+          },
+          "required": [
+            "groupByField",
+            "columns"
+          ],
+          "additionalProperties": false
+        },
+        "calendar": {
+          "type": "object",
+          "properties": {
+            "startDateField": {
+              "type": "string"
+            },
+            "endDateField": {
+              "type": "string"
+            },
+            "titleField": {
+              "type": "string"
+            },
+            "colorField": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "startDateField",
+            "titleField"
+          ],
+          "additionalProperties": false
+        },
+        "gantt": {
+          "type": "object",
+          "properties": {
+            "startDateField": {
+              "type": "string"
+            },
+            "endDateField": {
+              "type": "string"
+            },
+            "titleField": {
+              "type": "string"
+            },
+            "progressField": {
+              "type": "string"
+            },
+            "dependenciesField": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "startDateField",
+            "endDateField",
+            "titleField"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "columns"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

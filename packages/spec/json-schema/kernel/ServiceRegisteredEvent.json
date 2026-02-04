@@ -1,7 +1,28 @@
 {
   "$ref": "#/definitions/ServiceRegisteredEvent",
   "definitions": {
-    "ServiceRegisteredEvent": {}
+    "ServiceRegisteredEvent": {
+      "type": "object",
+      "properties": {
+        "serviceName": {
+          "type": "string",
+          "description": "Name of the registered service"
+        },
+        "timestamp": {
+          "type": "integer",
+          "description": "Unix timestamp in milliseconds"
+        },
+        "serviceType": {
+          "type": "string",
+          "description": "Type or interface name of the service"
+        }
+      },
+      "required": [
+        "serviceName",
+        "timestamp"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

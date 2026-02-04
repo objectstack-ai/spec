@@ -1,7 +1,23 @@
 {
   "$ref": "#/definitions/CompleteUploadRequest",
   "definitions": {
-    "CompleteUploadRequest": {}
+    "CompleteUploadRequest": {
+      "type": "object",
+      "properties": {
+        "fileId": {
+          "type": "string",
+          "description": "File ID returned from presigned request"
+        },
+        "eTag": {
+          "type": "string",
+          "description": "S3 ETag verification"
+        }
+      },
+      "required": [
+        "fileId"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

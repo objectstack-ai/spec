@@ -1,7 +1,53 @@
 {
   "$ref": "#/definitions/UrlNavItem",
   "definitions": {
-    "UrlNavItem": {}
+    "UrlNavItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 2,
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Unique identifier for this navigation item (lowercase snake_case)"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display proper label"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Icon name"
+        },
+        "visible": {
+          "type": "string",
+          "description": "Visibility formula condition"
+        },
+        "type": {
+          "type": "string",
+          "const": "url"
+        },
+        "url": {
+          "type": "string",
+          "description": "Target external URL"
+        },
+        "target": {
+          "type": "string",
+          "enum": [
+            "_self",
+            "_blank"
+          ],
+          "default": "_self",
+          "description": "Link target window"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "type",
+        "url"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

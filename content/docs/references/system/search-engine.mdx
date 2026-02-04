@@ -23,19 +23,66 @@ const result = AnalyzerConfigSchema.parse(data);
 
 ## AnalyzerConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'standard' \| 'simple' \| 'whitespace' \| 'keyword' \| 'pattern' \| 'language'>` | ✅ |  |
+| **language** | `string` | optional |  |
+| **stopwords** | `string[]` | optional |  |
+| **customFilters** | `string[]` | optional |  |
+
 ---
 
 ## FacetConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **field** | `string` | ✅ |  |
+| **maxValues** | `number` | optional |  |
+| **sort** | `Enum<'count' \| 'alpha'>` | optional |  |
 
 ---
 
 ## SearchConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **provider** | `Enum<'elasticsearch' \| 'algolia' \| 'meilisearch' \| 'typesense' \| 'opensearch'>` | ✅ |  |
+| **indexes** | `object[]` | ✅ |  |
+| **analyzers** | `Record<string, object>` | optional |  |
+| **facets** | `object[]` | optional |  |
+| **typoTolerance** | `boolean` | optional |  |
+| **synonyms** | `Record<string, string[]>` | optional |  |
+| **ranking** | `Enum<'typo' \| 'geo' \| 'words' \| 'filters' \| 'proximity' \| 'attribute' \| 'exact' \| 'custom'>[]` | optional |  |
+
 ---
 
 ## SearchIndexConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **indexName** | `string` | ✅ |  |
+| **objectName** | `string` | ✅ | Source ObjectQL object |
+| **fields** | `object[]` | ✅ |  |
+| **replicas** | `number` | optional |  |
+| **shards** | `number` | optional |  |
+
 ---
 
 ## SearchProvider
+
+### Allowed Values
+
+* `elasticsearch`
+* `algolia`
+* `meilisearch`
+* `typesense`
+* `opensearch`
 

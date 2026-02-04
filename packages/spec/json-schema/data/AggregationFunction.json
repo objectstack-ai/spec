@@ -1,7 +1,19 @@
 {
   "$ref": "#/definitions/AggregationFunction",
   "definitions": {
-    "AggregationFunction": {}
+    "AggregationFunction": {
+      "type": "string",
+      "enum": [
+        "count",
+        "sum",
+        "avg",
+        "min",
+        "max",
+        "count_distinct",
+        "array_agg",
+        "string_agg"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

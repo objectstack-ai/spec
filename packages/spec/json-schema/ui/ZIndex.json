@@ -1,7 +1,44 @@
 {
   "$ref": "#/definitions/ZIndex",
   "definitions": {
-    "ZIndex": {}
+    "ZIndex": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "type": "number",
+          "description": "Base z-index (e.g., 0)"
+        },
+        "dropdown": {
+          "type": "number",
+          "description": "Dropdown z-index (e.g., 1000)"
+        },
+        "sticky": {
+          "type": "number",
+          "description": "Sticky z-index (e.g., 1020)"
+        },
+        "fixed": {
+          "type": "number",
+          "description": "Fixed z-index (e.g., 1030)"
+        },
+        "modalBackdrop": {
+          "type": "number",
+          "description": "Modal backdrop z-index (e.g., 1040)"
+        },
+        "modal": {
+          "type": "number",
+          "description": "Modal z-index (e.g., 1050)"
+        },
+        "popover": {
+          "type": "number",
+          "description": "Popover z-index (e.g., 1060)"
+        },
+        "tooltip": {
+          "type": "number",
+          "description": "Tooltip z-index (e.g., 1070)"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,98 @@
 {
   "$ref": "#/definitions/GraphQLResolverConfig",
   "definitions": {
-    "GraphQLResolverConfig": {}
+    "GraphQLResolverConfig": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Resolver path (Type.field)"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "datasource",
+            "computed",
+            "script",
+            "proxy"
+          ],
+          "description": "Resolver implementation type"
+        },
+        "implementation": {
+          "type": "object",
+          "properties": {
+            "datasource": {
+              "type": "string",
+              "description": "Datasource ID"
+            },
+            "query": {
+              "type": "string",
+              "description": "Query/SQL to execute"
+            },
+            "expression": {
+              "type": "string",
+              "description": "Computation expression"
+            },
+            "dependencies": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Dependent fields"
+            },
+            "script": {
+              "type": "string",
+              "description": "Script ID or inline code"
+            },
+            "url": {
+              "type": "string",
+              "description": "Proxy URL"
+            },
+            "method": {
+              "type": "string",
+              "enum": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+              ],
+              "description": "HTTP method"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Implementation configuration"
+        },
+        "cache": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false,
+              "description": "Enable resolver caching"
+            },
+            "ttl": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Cache TTL in seconds"
+            },
+            "keyArgs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Arguments to include in cache key"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Resolver caching"
+        }
+      },
+      "required": [
+        "path",
+        "type"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

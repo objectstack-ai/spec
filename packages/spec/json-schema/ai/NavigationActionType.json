@@ -1,7 +1,21 @@
 {
   "$ref": "#/definitions/NavigationActionType",
   "definitions": {
-    "NavigationActionType": {}
+    "NavigationActionType": {
+      "type": "string",
+      "enum": [
+        "navigate_to_object_list",
+        "navigate_to_object_form",
+        "navigate_to_record_detail",
+        "navigate_to_dashboard",
+        "navigate_to_report",
+        "navigate_to_app",
+        "navigate_back",
+        "navigate_home",
+        "open_tab",
+        "close_tab"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

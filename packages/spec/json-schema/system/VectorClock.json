@@ -1,7 +1,23 @@
 {
   "$ref": "#/definitions/VectorClock",
   "definitions": {
-    "VectorClock": {}
+    "VectorClock": {
+      "type": "object",
+      "properties": {
+        "clock": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": "Map of replica ID to logical timestamp"
+        }
+      },
+      "required": [
+        "clock"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

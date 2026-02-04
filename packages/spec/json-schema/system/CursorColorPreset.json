@@ -1,7 +1,21 @@
 {
   "$ref": "#/definitions/CursorColorPreset",
   "definitions": {
-    "CursorColorPreset": {}
+    "CursorColorPreset": {
+      "type": "string",
+      "enum": [
+        "blue",
+        "green",
+        "red",
+        "yellow",
+        "purple",
+        "orange",
+        "pink",
+        "teal",
+        "indigo",
+        "cyan"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

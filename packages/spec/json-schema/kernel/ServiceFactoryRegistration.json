@@ -1,7 +1,44 @@
 {
   "$ref": "#/definitions/ServiceFactoryRegistration",
   "definitions": {
-    "ServiceFactoryRegistration": {}
+    "ServiceFactoryRegistration": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique service name identifier"
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "singleton",
+            "transient",
+            "scoped"
+          ],
+          "description": "Service scope type",
+          "default": "singleton"
+        },
+        "factoryType": {
+          "type": "string",
+          "enum": [
+            "sync",
+            "async"
+          ],
+          "default": "sync",
+          "description": "Whether factory is synchronous or asynchronous"
+        },
+        "singleton": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to cache the factory result (singleton pattern)"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

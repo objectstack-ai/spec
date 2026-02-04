@@ -1,7 +1,92 @@
 {
   "$ref": "#/definitions/PresenceMessage",
   "definitions": {
-    "PresenceMessage": {}
+    "PresenceMessage": {
+      "type": "object",
+      "properties": {
+        "messageId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique message identifier"
+        },
+        "type": {
+          "type": "string",
+          "const": "presence"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 datetime when message was sent"
+        },
+        "presence": {
+          "type": "object",
+          "properties": {
+            "userId": {
+              "type": "string",
+              "description": "User identifier"
+            },
+            "sessionId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Unique session identifier"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "online",
+                "away",
+                "busy",
+                "offline"
+              ],
+              "description": "Current presence status"
+            },
+            "lastSeen": {
+              "type": "string",
+              "format": "date-time",
+              "description": "ISO 8601 datetime of last activity"
+            },
+            "currentLocation": {
+              "type": "string",
+              "description": "Current page/route user is viewing"
+            },
+            "device": {
+              "type": "string",
+              "enum": [
+                "desktop",
+                "mobile",
+                "tablet",
+                "other"
+              ],
+              "description": "Device type"
+            },
+            "customStatus": {
+              "type": "string",
+              "description": "Custom user status message"
+            },
+            "metadata": {
+              "type": "object",
+              "additionalProperties": {},
+              "description": "Additional custom presence data"
+            }
+          },
+          "required": [
+            "userId",
+            "sessionId",
+            "status",
+            "lastSeen"
+          ],
+          "additionalProperties": false,
+          "description": "Presence state"
+        }
+      },
+      "required": [
+        "messageId",
+        "type",
+        "timestamp",
+        "presence"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

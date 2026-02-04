@@ -1,7 +1,55 @@
 {
   "$ref": "#/definitions/ChangeImpact",
   "definitions": {
-    "ChangeImpact": {}
+    "ChangeImpact": {
+      "type": "object",
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "description": "Impact level"
+        },
+        "affectedSystems": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Affected systems"
+        },
+        "affectedUsers": {
+          "type": "number",
+          "description": "Affected user count"
+        },
+        "downtime": {
+          "type": "object",
+          "properties": {
+            "required": {
+              "type": "boolean",
+              "description": "Downtime required"
+            },
+            "durationMinutes": {
+              "type": "number",
+              "description": "Downtime duration"
+            }
+          },
+          "required": [
+            "required"
+          ],
+          "additionalProperties": false,
+          "description": "Downtime information"
+        }
+      },
+      "required": [
+        "level",
+        "affectedSystems"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

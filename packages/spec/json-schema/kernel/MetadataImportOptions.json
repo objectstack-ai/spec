@@ -1,7 +1,42 @@
 {
   "$ref": "#/definitions/MetadataImportOptions",
   "definitions": {
-    "MetadataImportOptions": {}
+    "MetadataImportOptions": {
+      "type": "object",
+      "properties": {
+        "conflictResolution": {
+          "type": "string",
+          "enum": [
+            "skip",
+            "overwrite",
+            "merge",
+            "fail"
+          ],
+          "default": "merge",
+          "description": "How to handle existing items"
+        },
+        "validate": {
+          "type": "boolean",
+          "default": true,
+          "description": "Validate before import"
+        },
+        "dryRun": {
+          "type": "boolean",
+          "default": false,
+          "description": "Simulate import without saving"
+        },
+        "continueOnError": {
+          "type": "boolean",
+          "default": false,
+          "description": "Continue if validation fails"
+        },
+        "transform": {
+          "type": "string",
+          "description": "Transform items before import"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

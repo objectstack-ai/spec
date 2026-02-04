@@ -1,7 +1,51 @@
 {
   "$ref": "#/definitions/AwarenessEvent",
   "definitions": {
-    "AwarenessEvent": {}
+    "AwarenessEvent": {
+      "type": "object",
+      "properties": {
+        "eventId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Event identifier"
+        },
+        "sessionId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Session identifier"
+        },
+        "eventType": {
+          "type": "string",
+          "enum": [
+            "user.joined",
+            "user.left",
+            "user.updated",
+            "session.created",
+            "session.ended"
+          ],
+          "description": "Type of awareness event"
+        },
+        "userId": {
+          "type": "string",
+          "description": "User involved in event"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 datetime of event"
+        },
+        "payload": {
+          "description": "Event payload"
+        }
+      },
+      "required": [
+        "eventId",
+        "sessionId",
+        "eventType",
+        "timestamp"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

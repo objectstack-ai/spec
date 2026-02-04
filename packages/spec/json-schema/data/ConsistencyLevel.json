@@ -1,7 +1,17 @@
 {
   "$ref": "#/definitions/ConsistencyLevel",
   "definitions": {
-    "ConsistencyLevel": {}
+    "ConsistencyLevel": {
+      "type": "string",
+      "enum": [
+        "all",
+        "quorum",
+        "one",
+        "local_quorum",
+        "each_quorum",
+        "eventual"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

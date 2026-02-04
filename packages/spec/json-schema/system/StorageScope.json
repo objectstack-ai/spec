@@ -1,7 +1,22 @@
 {
   "$ref": "#/definitions/StorageScope",
   "definitions": {
-    "StorageScope": {}
+    "StorageScope": {
+      "type": "string",
+      "enum": [
+        "global",
+        "tenant",
+        "user",
+        "session",
+        "temp",
+        "cache",
+        "data",
+        "logs",
+        "config",
+        "public"
+      ],
+      "description": "Storage scope classification"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

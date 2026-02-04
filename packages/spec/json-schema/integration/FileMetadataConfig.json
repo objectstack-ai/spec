@@ -1,7 +1,41 @@
 {
   "$ref": "#/definitions/FileMetadataConfig",
   "definitions": {
-    "FileMetadataConfig": {}
+    "FileMetadataConfig": {
+      "type": "object",
+      "properties": {
+        "extractMetadata": {
+          "type": "boolean",
+          "default": true,
+          "description": "Extract file metadata"
+        },
+        "metadataFields": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "content_type",
+              "file_size",
+              "last_modified",
+              "etag",
+              "checksum",
+              "creator",
+              "created_at",
+              "custom"
+            ]
+          },
+          "description": "Metadata fields to extract"
+        },
+        "customMetadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom metadata key-value pairs"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

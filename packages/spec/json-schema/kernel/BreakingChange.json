@@ -1,7 +1,63 @@
 {
   "$ref": "#/definitions/BreakingChange",
   "definitions": {
-    "BreakingChange": {}
+    "BreakingChange": {
+      "type": "object",
+      "properties": {
+        "introducedIn": {
+          "type": "string",
+          "description": "Version that introduced this breaking change"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "api-removed",
+            "api-renamed",
+            "api-signature-changed",
+            "behavior-changed",
+            "dependency-changed",
+            "configuration-changed",
+            "protocol-changed"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "migrationGuide": {
+          "type": "string",
+          "description": "How to migrate from old to new"
+        },
+        "deprecatedIn": {
+          "type": "string",
+          "description": "Version where old API was deprecated"
+        },
+        "removedIn": {
+          "type": "string",
+          "description": "Version where old API will be removed"
+        },
+        "automatedMigration": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether automated migration tool is available"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "critical",
+            "major",
+            "minor"
+          ],
+          "description": "Impact severity"
+        }
+      },
+      "required": [
+        "introducedIn",
+        "type",
+        "description",
+        "severity"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

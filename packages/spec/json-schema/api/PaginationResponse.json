@@ -1,7 +1,42 @@
 {
   "$ref": "#/definitions/PaginationResponse",
   "definitions": {
-    "PaginationResponse": {}
+    "PaginationResponse": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "perPage": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "totalPages": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "hasNext": {
+          "type": "boolean"
+        },
+        "hasPrev": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "page",
+        "perPage",
+        "total",
+        "totalPages",
+        "hasNext",
+        "hasPrev"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

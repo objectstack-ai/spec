@@ -1,7 +1,77 @@
 {
   "$ref": "#/definitions/ComponentActionParams",
   "definitions": {
-    "ComponentActionParams": {}
+    "ComponentActionParams": {
+      "type": "object",
+      "properties": {
+        "componentId": {
+          "type": "string",
+          "description": "Component ID"
+        },
+        "modalConfig": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "content": {},
+            "size": {
+              "type": "string",
+              "enum": [
+                "small",
+                "medium",
+                "large",
+                "fullscreen"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "notificationConfig": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "info",
+                "success",
+                "warning",
+                "error"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "duration": {
+              "type": "number",
+              "description": "Duration in ms"
+            }
+          },
+          "required": [
+            "message"
+          ],
+          "additionalProperties": false
+        },
+        "sidebarConfig": {
+          "type": "object",
+          "properties": {
+            "position": {
+              "type": "string",
+              "enum": [
+                "left",
+                "right"
+              ]
+            },
+            "width": {
+              "type": "string"
+            },
+            "content": {}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

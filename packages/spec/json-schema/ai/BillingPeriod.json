@@ -1,7 +1,18 @@
 {
   "$ref": "#/definitions/BillingPeriod",
   "definitions": {
-    "BillingPeriod": {}
+    "BillingPeriod": {
+      "type": "string",
+      "enum": [
+        "hourly",
+        "daily",
+        "weekly",
+        "monthly",
+        "quarterly",
+        "yearly",
+        "custom"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

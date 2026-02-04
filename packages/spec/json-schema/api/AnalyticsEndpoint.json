@@ -1,7 +1,14 @@
 {
   "$ref": "#/definitions/AnalyticsEndpoint",
   "definitions": {
-    "AnalyticsEndpoint": {}
+    "AnalyticsEndpoint": {
+      "type": "string",
+      "enum": [
+        "/api/v1/analytics/query",
+        "/api/v1/analytics/meta",
+        "/api/v1/analytics/sql"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

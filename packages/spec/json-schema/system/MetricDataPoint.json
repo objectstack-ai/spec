@@ -1,7 +1,135 @@
 {
   "$ref": "#/definitions/MetricDataPoint",
   "definitions": {
-    "MetricDataPoint": {}
+    "MetricDataPoint": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Metric name"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "counter",
+            "gauge",
+            "histogram",
+            "summary"
+          ],
+          "description": "Metric type"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Observation timestamp"
+        },
+        "value": {
+          "type": "number",
+          "description": "Metric value"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Metric labels"
+        },
+        "histogram": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Total count"
+            },
+            "sum": {
+              "type": "number",
+              "description": "Sum of all values"
+            },
+            "buckets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "upperBound": {
+                    "type": "number",
+                    "description": "Upper bound of bucket"
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Count in bucket"
+                  }
+                },
+                "required": [
+                  "upperBound",
+                  "count"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Histogram buckets"
+            }
+          },
+          "required": [
+            "count",
+            "sum",
+            "buckets"
+          ],
+          "additionalProperties": false
+        },
+        "summary": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Total count"
+            },
+            "sum": {
+              "type": "number",
+              "description": "Sum of all values"
+            },
+            "quantiles": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "quantile": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Quantile (0-1)"
+                  },
+                  "value": {
+                    "type": "number",
+                    "description": "Quantile value"
+                  }
+                },
+                "required": [
+                  "quantile",
+                  "value"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Summary quantiles"
+            }
+          },
+          "required": [
+            "count",
+            "sum",
+            "quantiles"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "timestamp"
+      ],
+      "additionalProperties": false,
+      "description": "Metric data point"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

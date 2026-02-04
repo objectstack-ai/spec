@@ -1,7 +1,81 @@
 {
   "$ref": "#/definitions/PluginRecommendationRequest",
   "definitions": {
-    "PluginRecommendationRequest": {}
+    "PluginRecommendationRequest": {
+      "type": "object",
+      "properties": {
+        "context": {
+          "type": "object",
+          "properties": {
+            "installedPlugins": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "industry": {
+              "type": "string"
+            },
+            "useCases": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "teamSize": {
+              "type": "integer"
+            },
+            "budget": {
+              "type": "string",
+              "enum": [
+                "free",
+                "low",
+                "medium",
+                "high",
+                "unlimited"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "criteria": {
+          "type": "object",
+          "properties": {
+            "prioritize": {
+              "type": "string",
+              "enum": [
+                "popularity",
+                "rating",
+                "compatibility",
+                "features",
+                "cost",
+                "support"
+              ]
+            },
+            "certifiedOnly": {
+              "type": "boolean",
+              "default": false
+            },
+            "minRating": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 5
+            },
+            "maxResults": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "context"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

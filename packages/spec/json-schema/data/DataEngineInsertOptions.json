@@ -1,7 +1,17 @@
 {
   "$ref": "#/definitions/DataEngineInsertOptions",
   "definitions": {
-    "DataEngineInsertOptions": {}
+    "DataEngineInsertOptions": {
+      "type": "object",
+      "properties": {
+        "returning": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "additionalProperties": false,
+      "description": "Options for DataEngine.insert operations"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

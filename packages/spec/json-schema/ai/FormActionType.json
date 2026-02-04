@@ -1,7 +1,20 @@
 {
   "$ref": "#/definitions/FormActionType",
   "definitions": {
-    "FormActionType": {}
+    "FormActionType": {
+      "type": "string",
+      "enum": [
+        "create_record",
+        "update_record",
+        "delete_record",
+        "fill_field",
+        "clear_field",
+        "submit_form",
+        "cancel_form",
+        "validate_form",
+        "save_draft"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

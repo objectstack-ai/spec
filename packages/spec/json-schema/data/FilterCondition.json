@@ -1,7 +1,28 @@
 {
   "$ref": "#/definitions/FilterCondition",
   "definitions": {
-    "FilterCondition": {}
+    "FilterCondition": {
+      "allOf": [
+        {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        {
+          "type": "object",
+          "properties": {
+            "$and": {
+              "type": "array",
+              "items": {}
+            },
+            "$or": {
+              "type": "array",
+              "items": {}
+            },
+            "$not": {}
+          }
+        }
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

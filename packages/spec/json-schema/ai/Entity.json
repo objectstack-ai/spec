@@ -1,7 +1,55 @@
 {
   "$ref": "#/definitions/Entity",
   "definitions": {
-    "Entity": {}
+    "Entity": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "object",
+            "field",
+            "value",
+            "operator",
+            "function",
+            "timeframe"
+          ]
+        },
+        "text": {
+          "type": "string",
+          "description": "Original text from query"
+        },
+        "value": {
+          "description": "Normalized value"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Confidence score"
+        },
+        "span": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "description": "Character span in query"
+        }
+      },
+      "required": [
+        "type",
+        "text",
+        "confidence"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

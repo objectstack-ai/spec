@@ -1,7 +1,57 @@
 {
   "$ref": "#/definitions/ChartAxis",
   "definitions": {
-    "ChartAxis": {}
+    "ChartAxis": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "Data field key"
+        },
+        "title": {
+          "type": "string",
+          "description": "Axis display title"
+        },
+        "format": {
+          "type": "string",
+          "description": "Value format string (e.g., \"$0,0.00\")"
+        },
+        "min": {
+          "type": "number",
+          "description": "Minimum value"
+        },
+        "max": {
+          "type": "number",
+          "description": "Maximum value"
+        },
+        "stepSize": {
+          "type": "number",
+          "description": "Step size for ticks"
+        },
+        "showGridLines": {
+          "type": "boolean",
+          "default": true
+        },
+        "position": {
+          "type": "string",
+          "enum": [
+            "left",
+            "right",
+            "top",
+            "bottom"
+          ],
+          "description": "Axis position"
+        },
+        "logarithmic": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "field"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

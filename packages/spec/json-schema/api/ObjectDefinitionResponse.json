@@ -1,7 +1,2755 @@
 {
   "$ref": "#/definitions/ObjectDefinitionResponse",
   "definitions": {
-    "ObjectDefinitionResponse": {}
+    "ObjectDefinitionResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "description": "Operation success status"
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "Error code (e.g. validation_error)"
+            },
+            "message": {
+              "type": "string",
+              "description": "Readable error message"
+            },
+            "category": {
+              "type": "string",
+              "description": "Error category (e.g. validation, authorization)"
+            },
+            "details": {
+              "description": "Additional error context (e.g. field validation errors)"
+            },
+            "requestId": {
+              "type": "string",
+              "description": "Request ID for tracking"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ],
+          "additionalProperties": false,
+          "description": "Error details if success is false"
+        },
+        "meta": {
+          "type": "object",
+          "properties": {
+            "timestamp": {
+              "type": "string"
+            },
+            "duration": {
+              "type": "number"
+            },
+            "requestId": {
+              "type": "string"
+            },
+            "traceId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "timestamp"
+          ],
+          "additionalProperties": false,
+          "description": "Response metadata"
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "pattern": "^[a-z_][a-z0-9_]*$",
+              "description": "Machine unique key (snake_case). Immutable."
+            },
+            "label": {
+              "type": "string",
+              "description": "Human readable singular label (e.g. \"Account\")"
+            },
+            "pluralLabel": {
+              "type": "string",
+              "description": "Human readable plural label (e.g. \"Accounts\")"
+            },
+            "description": {
+              "type": "string",
+              "description": "Developer documentation / description"
+            },
+            "icon": {
+              "type": "string",
+              "description": "Icon name (Lucide/Material) for UI representation"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Categorization tags (e.g. \"sales\", \"system\", \"reference\")"
+            },
+            "active": {
+              "type": "boolean",
+              "default": true,
+              "description": "Is the object active and usable"
+            },
+            "isSystem": {
+              "type": "boolean",
+              "default": false,
+              "description": "Is system object (protected from deletion)"
+            },
+            "abstract": {
+              "type": "boolean",
+              "default": false,
+              "description": "Is abstract base object (cannot be instantiated)"
+            },
+            "datasource": {
+              "type": "string",
+              "default": "default",
+              "description": "Target Datasource ID. \"default\" is the primary DB."
+            },
+            "tableName": {
+              "type": "string",
+              "description": "Physical table/collection name in the target datasource"
+            },
+            "fields": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[a-z_][a-z0-9_]*$",
+                    "description": "Machine name (snake_case)"
+                  },
+                  "label": {
+                    "type": "string",
+                    "description": "Human readable label"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "text",
+                      "textarea",
+                      "email",
+                      "url",
+                      "phone",
+                      "password",
+                      "markdown",
+                      "html",
+                      "richtext",
+                      "number",
+                      "currency",
+                      "percent",
+                      "date",
+                      "datetime",
+                      "time",
+                      "boolean",
+                      "toggle",
+                      "select",
+                      "multiselect",
+                      "radio",
+                      "checkboxes",
+                      "lookup",
+                      "master_detail",
+                      "tree",
+                      "image",
+                      "file",
+                      "avatar",
+                      "video",
+                      "audio",
+                      "formula",
+                      "summary",
+                      "autonumber",
+                      "location",
+                      "address",
+                      "code",
+                      "json",
+                      "color",
+                      "rating",
+                      "slider",
+                      "signature",
+                      "qrcode",
+                      "progress",
+                      "tags",
+                      "vector"
+                    ],
+                    "description": "Field Data Type"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Tooltip/Help text"
+                  },
+                  "format": {
+                    "type": "string",
+                    "description": "Format string (e.g. email, phone)"
+                  },
+                  "required": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Is required"
+                  },
+                  "searchable": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Is searchable"
+                  },
+                  "multiple": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Allow multiple values (Stores as Array/JSON). Applicable for select, lookup, file, image."
+                  },
+                  "unique": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Is unique constraint"
+                  },
+                  "defaultValue": {
+                    "description": "Default value"
+                  },
+                  "maxLength": {
+                    "type": "number",
+                    "description": "Max character length"
+                  },
+                  "minLength": {
+                    "type": "number",
+                    "description": "Min character length"
+                  },
+                  "precision": {
+                    "type": "number",
+                    "description": "Total digits"
+                  },
+                  "scale": {
+                    "type": "number",
+                    "description": "Decimal places"
+                  },
+                  "min": {
+                    "type": "number",
+                    "description": "Minimum value"
+                  },
+                  "max": {
+                    "type": "number",
+                    "description": "Maximum value"
+                  },
+                  "options": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string",
+                          "description": "Display label (human-readable, any case allowed)"
+                        },
+                        "value": {
+                          "type": "string",
+                          "minLength": 2,
+                          "pattern": "^[a-z][a-z0-9_.]*$",
+                          "description": "Stored value (lowercase machine identifier)"
+                        },
+                        "color": {
+                          "type": "string",
+                          "description": "Color code for badges/charts"
+                        },
+                        "default": {
+                          "type": "boolean",
+                          "description": "Is default option"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "description": "Static options for select/multiselect"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "description": "Target Object Name"
+                  },
+                  "referenceFilters": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Filters applied to lookup dialogs (e.g. \"active = true\")"
+                  },
+                  "writeRequiresMasterRead": {
+                    "type": "boolean",
+                    "description": "If true, user needs read access to master record to edit this field"
+                  },
+                  "deleteBehavior": {
+                    "type": "string",
+                    "enum": [
+                      "set_null",
+                      "cascade",
+                      "restrict"
+                    ],
+                    "default": "set_null",
+                    "description": "What happens if referenced record is deleted"
+                  },
+                  "expression": {
+                    "type": "string",
+                    "description": "Formula expression"
+                  },
+                  "formula": {
+                    "type": "string",
+                    "description": "Deprecated: Use expression"
+                  },
+                  "summaryOperations": {
+                    "type": "object",
+                    "properties": {
+                      "object": {
+                        "type": "string"
+                      },
+                      "field": {
+                        "type": "string"
+                      },
+                      "function": {
+                        "type": "string",
+                        "enum": [
+                          "count",
+                          "sum",
+                          "min",
+                          "max",
+                          "avg"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "object",
+                      "field",
+                      "function"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Roll-up summary definition"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "Programming language for syntax highlighting (e.g., javascript, python, sql)"
+                  },
+                  "theme": {
+                    "type": "string",
+                    "description": "Code editor theme (e.g., dark, light, monokai)"
+                  },
+                  "lineNumbers": {
+                    "type": "boolean",
+                    "description": "Show line numbers in code editor"
+                  },
+                  "maxRating": {
+                    "type": "number",
+                    "description": "Maximum rating value (default: 5)"
+                  },
+                  "allowHalf": {
+                    "type": "boolean",
+                    "description": "Allow half-star ratings"
+                  },
+                  "displayMap": {
+                    "type": "boolean",
+                    "description": "Display map widget for location field"
+                  },
+                  "allowGeocoding": {
+                    "type": "boolean",
+                    "description": "Allow address-to-coordinate conversion"
+                  },
+                  "addressFormat": {
+                    "type": "string",
+                    "enum": [
+                      "us",
+                      "uk",
+                      "international"
+                    ],
+                    "description": "Address format template"
+                  },
+                  "colorFormat": {
+                    "type": "string",
+                    "enum": [
+                      "hex",
+                      "rgb",
+                      "rgba",
+                      "hsl"
+                    ],
+                    "description": "Color value format"
+                  },
+                  "allowAlpha": {
+                    "type": "boolean",
+                    "description": "Allow transparency/alpha channel"
+                  },
+                  "presetColors": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Preset color options"
+                  },
+                  "step": {
+                    "type": "number",
+                    "description": "Step increment for slider (default: 1)"
+                  },
+                  "showValue": {
+                    "type": "boolean",
+                    "description": "Display current value on slider"
+                  },
+                  "marks": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "description": "Custom marks/labels at specific values (e.g., {0: \"Low\", 50: \"Medium\", 100: \"High\"})"
+                  },
+                  "barcodeFormat": {
+                    "type": "string",
+                    "enum": [
+                      "qr",
+                      "ean13",
+                      "ean8",
+                      "code128",
+                      "code39",
+                      "upca",
+                      "upce"
+                    ],
+                    "description": "Barcode format type"
+                  },
+                  "qrErrorCorrection": {
+                    "type": "string",
+                    "enum": [
+                      "L",
+                      "M",
+                      "Q",
+                      "H"
+                    ],
+                    "description": "QR code error correction level (L=7%, M=15%, Q=25%, H=30%). Only applicable when barcodeFormat is \"qr\""
+                  },
+                  "displayValue": {
+                    "type": "boolean",
+                    "description": "Display human-readable value below barcode/QR code"
+                  },
+                  "allowScanning": {
+                    "type": "boolean",
+                    "description": "Enable camera scanning for barcode/QR code input"
+                  },
+                  "currencyConfig": {
+                    "type": "object",
+                    "properties": {
+                      "precision": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 10,
+                        "default": 2,
+                        "description": "Decimal precision (default: 2)"
+                      },
+                      "currencyMode": {
+                        "type": "string",
+                        "enum": [
+                          "dynamic",
+                          "fixed"
+                        ],
+                        "default": "dynamic",
+                        "description": "Currency mode: dynamic (user selectable) or fixed (single currency)"
+                      },
+                      "defaultCurrency": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 3,
+                        "default": "CNY",
+                        "description": "Default or fixed currency code (ISO 4217, e.g., USD, CNY, EUR)"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Configuration for currency field type"
+                  },
+                  "vectorConfig": {
+                    "type": "object",
+                    "properties": {
+                      "dimensions": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 10000,
+                        "description": "Vector dimensionality (e.g., 1536 for OpenAI embeddings)"
+                      },
+                      "distanceMetric": {
+                        "type": "string",
+                        "enum": [
+                          "cosine",
+                          "euclidean",
+                          "dotProduct",
+                          "manhattan"
+                        ],
+                        "default": "cosine",
+                        "description": "Distance/similarity metric for vector search"
+                      },
+                      "normalized": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Whether vectors are normalized (unit length)"
+                      },
+                      "indexed": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Whether to create a vector index for fast similarity search"
+                      },
+                      "indexType": {
+                        "type": "string",
+                        "enum": [
+                          "hnsw",
+                          "ivfflat",
+                          "flat"
+                        ],
+                        "description": "Vector index algorithm (HNSW for high accuracy, IVFFlat for large datasets)"
+                      }
+                    },
+                    "required": [
+                      "dimensions"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Configuration for vector field type (AI/ML embeddings)"
+                  },
+                  "fileAttachmentConfig": {
+                    "type": "object",
+                    "properties": {
+                      "minSize": {
+                        "type": "number",
+                        "minimum": 0,
+                        "description": "Minimum file size in bytes"
+                      },
+                      "maxSize": {
+                        "type": "number",
+                        "minimum": 1,
+                        "description": "Maximum file size in bytes (e.g., 10485760 = 10MB)"
+                      },
+                      "allowedTypes": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Allowed file extensions (e.g., [\".pdf\", \".docx\", \".jpg\"])"
+                      },
+                      "blockedTypes": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Blocked file extensions (e.g., [\".exe\", \".bat\", \".sh\"])"
+                      },
+                      "allowedMimeTypes": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Allowed MIME types (e.g., [\"image/jpeg\", \"application/pdf\"])"
+                      },
+                      "blockedMimeTypes": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Blocked MIME types"
+                      },
+                      "virusScan": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Enable virus scanning for uploaded files"
+                      },
+                      "virusScanProvider": {
+                        "type": "string",
+                        "enum": [
+                          "clamav",
+                          "virustotal",
+                          "metadefender",
+                          "custom"
+                        ],
+                        "description": "Virus scanning service provider"
+                      },
+                      "virusScanOnUpload": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Scan files immediately on upload"
+                      },
+                      "quarantineOnThreat": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Quarantine files if threat detected"
+                      },
+                      "storageProvider": {
+                        "type": "string",
+                        "description": "Object storage provider name (references ObjectStorageConfig)"
+                      },
+                      "storageBucket": {
+                        "type": "string",
+                        "description": "Target bucket name"
+                      },
+                      "storagePrefix": {
+                        "type": "string",
+                        "description": "Storage path prefix (e.g., \"uploads/documents/\")"
+                      },
+                      "imageValidation": {
+                        "type": "object",
+                        "properties": {
+                          "minWidth": {
+                            "type": "number",
+                            "minimum": 1,
+                            "description": "Minimum image width in pixels"
+                          },
+                          "maxWidth": {
+                            "type": "number",
+                            "minimum": 1,
+                            "description": "Maximum image width in pixels"
+                          },
+                          "minHeight": {
+                            "type": "number",
+                            "minimum": 1,
+                            "description": "Minimum image height in pixels"
+                          },
+                          "maxHeight": {
+                            "type": "number",
+                            "minimum": 1,
+                            "description": "Maximum image height in pixels"
+                          },
+                          "aspectRatio": {
+                            "type": "string",
+                            "description": "Required aspect ratio (e.g., \"16:9\", \"1:1\")"
+                          },
+                          "generateThumbnails": {
+                            "type": "boolean",
+                            "default": false,
+                            "description": "Auto-generate thumbnails"
+                          },
+                          "thumbnailSizes": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "description": "Thumbnail variant name (e.g., \"small\", \"medium\", \"large\")"
+                                },
+                                "width": {
+                                  "type": "number",
+                                  "minimum": 1,
+                                  "description": "Thumbnail width in pixels"
+                                },
+                                "height": {
+                                  "type": "number",
+                                  "minimum": 1,
+                                  "description": "Thumbnail height in pixels"
+                                },
+                                "crop": {
+                                  "type": "boolean",
+                                  "default": false,
+                                  "description": "Crop to exact dimensions"
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "width",
+                                "height"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "description": "Thumbnail size configurations"
+                          },
+                          "preserveMetadata": {
+                            "type": "boolean",
+                            "default": false,
+                            "description": "Preserve EXIF metadata"
+                          },
+                          "autoRotate": {
+                            "type": "boolean",
+                            "default": true,
+                            "description": "Auto-rotate based on EXIF orientation"
+                          }
+                        },
+                        "additionalProperties": false,
+                        "description": "Image-specific validation rules"
+                      },
+                      "allowMultiple": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Allow multiple file uploads (overrides field.multiple)"
+                      },
+                      "allowReplace": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Allow replacing existing files"
+                      },
+                      "allowDelete": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Allow deleting uploaded files"
+                      },
+                      "requireUpload": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Require at least one file when field is required"
+                      },
+                      "extractMetadata": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Extract file metadata (name, size, type, etc.)"
+                      },
+                      "extractText": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Extract text content from documents (OCR/parsing)"
+                      },
+                      "versioningEnabled": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Keep previous versions of replaced files"
+                      },
+                      "maxVersions": {
+                        "type": "number",
+                        "minimum": 1,
+                        "description": "Maximum number of versions to retain"
+                      },
+                      "publicRead": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Allow public read access to uploaded files"
+                      },
+                      "presignedUrlExpiry": {
+                        "type": "number",
+                        "minimum": 60,
+                        "maximum": 604800,
+                        "default": 3600,
+                        "description": "Presigned URL expiration in seconds (default: 1 hour)"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Configuration for file and attachment field types"
+                  },
+                  "encryptionConfig": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "default": false
+                      },
+                      "algorithm": {
+                        "type": "string",
+                        "enum": [
+                          "aes-256-gcm",
+                          "aes-256-cbc",
+                          "chacha20-poly1305"
+                        ],
+                        "default": "aes-256-gcm"
+                      },
+                      "keyManagement": {
+                        "type": "object",
+                        "properties": {
+                          "provider": {
+                            "type": "string",
+                            "enum": [
+                              "local",
+                              "aws-kms",
+                              "azure-key-vault",
+                              "gcp-kms",
+                              "hashicorp-vault"
+                            ]
+                          },
+                          "keyId": {
+                            "type": "string"
+                          },
+                          "rotationPolicy": {
+                            "type": "object",
+                            "properties": {
+                              "enabled": {
+                                "type": "boolean",
+                                "default": false
+                              },
+                              "frequencyDays": {
+                                "type": "number",
+                                "minimum": 1,
+                                "default": 90
+                              },
+                              "retainOldVersions": {
+                                "type": "number",
+                                "default": 3
+                              },
+                              "autoRotate": {
+                                "type": "boolean",
+                                "default": true
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "provider"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "scope": {
+                        "type": "string",
+                        "enum": [
+                          "field",
+                          "record",
+                          "table",
+                          "database"
+                        ]
+                      },
+                      "deterministicEncryption": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Allows equality queries on encrypted data"
+                      },
+                      "searchableEncryption": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Allows search on encrypted data"
+                      }
+                    },
+                    "required": [
+                      "keyManagement",
+                      "scope"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Field-level encryption configuration for sensitive data (GDPR/HIPAA/PCI-DSS)"
+                  },
+                  "maskingRule": {
+                    "type": "object",
+                    "properties": {
+                      "field": {
+                        "type": "string"
+                      },
+                      "strategy": {
+                        "type": "string",
+                        "enum": [
+                          "redact",
+                          "partial",
+                          "hash",
+                          "tokenize",
+                          "randomize",
+                          "nullify",
+                          "substitute"
+                        ]
+                      },
+                      "pattern": {
+                        "type": "string",
+                        "description": "Regex pattern for partial masking"
+                      },
+                      "preserveFormat": {
+                        "type": "boolean",
+                        "default": true
+                      },
+                      "preserveLength": {
+                        "type": "boolean",
+                        "default": true
+                      },
+                      "roles": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Roles that see masked data"
+                      },
+                      "exemptRoles": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Roles that see unmasked data"
+                      }
+                    },
+                    "required": [
+                      "field",
+                      "strategy"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Data masking rules for PII protection"
+                  },
+                  "auditTrail": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable detailed audit trail for this field (tracks all changes with user and timestamp)"
+                  },
+                  "dependencies": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Array of field names that this field depends on (for formulas, visibility rules, etc.)"
+                  },
+                  "cached": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "description": "Enable caching for computed field results"
+                      },
+                      "ttl": {
+                        "type": "number",
+                        "minimum": 0,
+                        "description": "Cache TTL in seconds (0 = no expiration)"
+                      },
+                      "invalidateOn": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Field paths that invalidate cache (e.g., [\"inventory.quantity\", \"pricing.base_price\"])"
+                      }
+                    },
+                    "required": [
+                      "enabled",
+                      "ttl",
+                      "invalidateOn"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Caching configuration for computed/formula fields"
+                  },
+                  "dataQuality": {
+                    "type": "object",
+                    "properties": {
+                      "uniqueness": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Enforce unique values across all records"
+                      },
+                      "completeness": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1,
+                        "default": 0,
+                        "description": "Minimum ratio of non-null values (0-1, default: 0 = no requirement)"
+                      },
+                      "accuracy": {
+                        "type": "object",
+                        "properties": {
+                          "source": {
+                            "type": "string",
+                            "description": "Reference data source for validation (e.g., \"api.verify.com\", \"master_data\")"
+                          },
+                          "threshold": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1,
+                            "description": "Minimum accuracy threshold (0-1, e.g., 0.95 = 95% match required)"
+                          }
+                        },
+                        "required": [
+                          "source",
+                          "threshold"
+                        ],
+                        "additionalProperties": false,
+                        "description": "Accuracy validation configuration"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Data quality validation and monitoring rules"
+                  },
+                  "hidden": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Hidden from default UI"
+                  },
+                  "readonly": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Read-only in UI"
+                  },
+                  "encryption": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Deprecated: Use encryptionConfig for enhanced encryption features. Simple flag for backward compatibility."
+                  },
+                  "index": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Create standard database index"
+                  },
+                  "externalId": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Is external ID for upsert operations"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": false
+              },
+              "propertyNames": {
+                "pattern": "^[a-z_][a-z0-9_]*$"
+              },
+              "description": "Field definitions map. Keys must be snake_case identifiers."
+            },
+            "indexes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Index name (auto-generated if not provided)"
+                  },
+                  "fields": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Fields included in the index"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "btree",
+                      "hash",
+                      "gin",
+                      "gist",
+                      "fulltext"
+                    ],
+                    "default": "btree",
+                    "description": "Index algorithm type"
+                  },
+                  "unique": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether the index enforces uniqueness"
+                  },
+                  "partial": {
+                    "type": "string",
+                    "description": "Partial index condition (SQL WHERE clause for conditional indexes)"
+                  }
+                },
+                "required": [
+                  "fields"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Database performance indexes"
+            },
+            "tenancy": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "description": "Enable multi-tenancy for this object"
+                },
+                "strategy": {
+                  "type": "string",
+                  "enum": [
+                    "shared",
+                    "isolated",
+                    "hybrid"
+                  ],
+                  "description": "Tenant isolation strategy: shared (single DB, row-level), isolated (separate DB per tenant), hybrid (mix)"
+                },
+                "tenantField": {
+                  "type": "string",
+                  "default": "tenant_id",
+                  "description": "Field name for tenant identifier"
+                },
+                "crossTenantAccess": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Allow cross-tenant data access (with explicit permission)"
+                }
+              },
+              "required": [
+                "enabled",
+                "strategy"
+              ],
+              "additionalProperties": false,
+              "description": "Multi-tenancy configuration for SaaS applications"
+            },
+            "softDelete": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "description": "Enable soft delete (trash/recycle bin)"
+                },
+                "field": {
+                  "type": "string",
+                  "default": "deleted_at",
+                  "description": "Field name for soft delete timestamp"
+                },
+                "cascadeDelete": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Cascade soft delete to related records"
+                }
+              },
+              "required": [
+                "enabled"
+              ],
+              "additionalProperties": false,
+              "description": "Soft delete (trash/recycle bin) configuration"
+            },
+            "versioning": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "description": "Enable record versioning"
+                },
+                "strategy": {
+                  "type": "string",
+                  "enum": [
+                    "snapshot",
+                    "delta",
+                    "event-sourcing"
+                  ],
+                  "description": "Versioning strategy: snapshot (full copy), delta (changes only), event-sourcing (event log)"
+                },
+                "retentionDays": {
+                  "type": "number",
+                  "minimum": 1,
+                  "description": "Number of days to retain old versions (undefined = infinite)"
+                },
+                "versionField": {
+                  "type": "string",
+                  "default": "version",
+                  "description": "Field name for version number/timestamp"
+                }
+              },
+              "required": [
+                "enabled",
+                "strategy"
+              ],
+              "additionalProperties": false,
+              "description": "Record versioning and history tracking configuration"
+            },
+            "partitioning": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "description": "Enable table partitioning"
+                },
+                "strategy": {
+                  "type": "string",
+                  "enum": [
+                    "range",
+                    "hash",
+                    "list"
+                  ],
+                  "description": "Partitioning strategy: range (date ranges), hash (consistent hashing), list (predefined values)"
+                },
+                "key": {
+                  "type": "string",
+                  "description": "Field name to partition by"
+                },
+                "interval": {
+                  "type": "string",
+                  "description": "Partition interval for range strategy (e.g., \"1 month\", \"1 year\")"
+                }
+              },
+              "required": [
+                "enabled",
+                "strategy",
+                "key"
+              ],
+              "additionalProperties": false,
+              "description": "Table partitioning configuration for performance"
+            },
+            "cdc": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "description": "Enable Change Data Capture"
+                },
+                "events": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "insert",
+                      "update",
+                      "delete"
+                    ]
+                  },
+                  "description": "Event types to capture"
+                },
+                "destination": {
+                  "type": "string",
+                  "description": "Destination endpoint (e.g., \"kafka://topic\", \"webhook://url\")"
+                }
+              },
+              "required": [
+                "enabled",
+                "events",
+                "destination"
+              ],
+              "additionalProperties": false,
+              "description": "Change Data Capture (CDC) configuration for real-time data streaming"
+            },
+            "validations": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "pattern": "^[a-z_][a-z0-9_]*$",
+                        "description": "Unique rule name (snake_case)"
+                      },
+                      "label": {
+                        "type": "string",
+                        "description": "Human-readable label for the rule listing"
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "Administrative notes explaining the business reason"
+                      },
+                      "active": {
+                        "type": "boolean",
+                        "default": true
+                      },
+                      "events": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "insert",
+                            "update",
+                            "delete"
+                          ]
+                        },
+                        "default": [
+                          "insert",
+                          "update"
+                        ],
+                        "description": "Validation contexts"
+                      },
+                      "tags": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Categorization tags (e.g., \"compliance\", \"billing\")"
+                      },
+                      "severity": {
+                        "type": "string",
+                        "enum": [
+                          "error",
+                          "warning",
+                          "info"
+                        ],
+                        "default": "error"
+                      },
+                      "message": {
+                        "type": "string",
+                        "description": "Error message to display to the user"
+                      },
+                      "type": {
+                        "type": "string",
+                        "const": "script"
+                      },
+                      "condition": {
+                        "type": "string",
+                        "description": "Formula expression. If TRUE, validation fails. (e.g. amount < 0)"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "message",
+                      "type",
+                      "condition"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "pattern": "^[a-z_][a-z0-9_]*$",
+                        "description": "Unique rule name (snake_case)"
+                      },
+                      "label": {
+                        "type": "string",
+                        "description": "Human-readable label for the rule listing"
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "Administrative notes explaining the business reason"
+                      },
+                      "active": {
+                        "type": "boolean",
+                        "default": true
+                      },
+                      "events": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "insert",
+                            "update",
+                            "delete"
+                          ]
+                        },
+                        "default": [
+                          "insert",
+                          "update"
+                        ],
+                        "description": "Validation contexts"
+                      },
+                      "tags": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Categorization tags (e.g., \"compliance\", \"billing\")"
+                      },
+                      "severity": {
+                        "type": "string",
+                        "enum": [
+                          "error",
+                          "warning",
+                          "info"
+                        ],
+                        "default": "error"
+                      },
+                      "message": {
+                        "type": "string",
+                        "description": "Error message to display to the user"
+                      },
+                      "type": {
+                        "type": "string",
+                        "const": "unique"
+                      },
+                      "fields": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Fields that must be combined unique"
+                      },
+                      "scope": {
+                        "type": "string",
+                        "description": "Formula condition for scope (e.g. active = true)"
+                      },
+                      "caseSensitive": {
+                        "type": "boolean",
+                        "default": true
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "message",
+                      "type",
+                      "fields"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "pattern": "^[a-z_][a-z0-9_]*$",
+                        "description": "Unique rule name (snake_case)"
+                      },
+                      "label": {
+                        "type": "string",
+                        "description": "Human-readable label for the rule listing"
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "Administrative notes explaining the business reason"
+                      },
+                      "active": {
+                        "type": "boolean",
+                        "default": true
+                      },
+                      "events": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "insert",
+                            "update",
+                            "delete"
+                          ]
+                        },
+                        "default": [
+                          "insert",
+                          "update"
+                        ],
+                        "description": "Validation contexts"
+                      },
+                      "tags": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Categorization tags (e.g., \"compliance\", \"billing\")"
+                      },
+                      "severity": {
+                        "type": "string",
+                        "enum": [
+                          "error",
+                          "warning",
+                          "info"
+                        ],
+                        "default": "error"
+                      },
+                      "message": {
+                        "type": "string",
+                        "description": "Error message to display to the user"
+                      },
+                      "type": {
+                        "type": "string",
+                        "const": "state_machine"
+                      },
+                      "field": {
+                        "type": "string",
+                        "description": "State field (e.g. status)"
+                      },
+                      "transitions": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "description": "Map of { OldState: [AllowedNewStates] }"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "message",
+                      "type",
+                      "field",
+                      "transitions"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "pattern": "^[a-z_][a-z0-9_]*$",
+                        "description": "Unique rule name (snake_case)"
+                      },
+                      "label": {
+                        "type": "string",
+                        "description": "Human-readable label for the rule listing"
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "Administrative notes explaining the business reason"
+                      },
+                      "active": {
+                        "type": "boolean",
+                        "default": true
+                      },
+                      "events": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "insert",
+                            "update",
+                            "delete"
+                          ]
+                        },
+                        "default": [
+                          "insert",
+                          "update"
+                        ],
+                        "description": "Validation contexts"
+                      },
+                      "tags": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Categorization tags (e.g., \"compliance\", \"billing\")"
+                      },
+                      "severity": {
+                        "type": "string",
+                        "enum": [
+                          "error",
+                          "warning",
+                          "info"
+                        ],
+                        "default": "error"
+                      },
+                      "message": {
+                        "type": "string",
+                        "description": "Error message to display to the user"
+                      },
+                      "type": {
+                        "type": "string",
+                        "const": "format"
+                      },
+                      "field": {
+                        "type": "string"
+                      },
+                      "regex": {
+                        "type": "string"
+                      },
+                      "format": {
+                        "type": "string",
+                        "enum": [
+                          "email",
+                          "url",
+                          "phone",
+                          "json"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "message",
+                      "type",
+                      "field"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "pattern": "^[a-z_][a-z0-9_]*$",
+                        "description": "Unique rule name (snake_case)"
+                      },
+                      "label": {
+                        "type": "string",
+                        "description": "Human-readable label for the rule listing"
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "Administrative notes explaining the business reason"
+                      },
+                      "active": {
+                        "type": "boolean",
+                        "default": true
+                      },
+                      "events": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "insert",
+                            "update",
+                            "delete"
+                          ]
+                        },
+                        "default": [
+                          "insert",
+                          "update"
+                        ],
+                        "description": "Validation contexts"
+                      },
+                      "tags": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Categorization tags (e.g., \"compliance\", \"billing\")"
+                      },
+                      "severity": {
+                        "type": "string",
+                        "enum": [
+                          "error",
+                          "warning",
+                          "info"
+                        ],
+                        "default": "error"
+                      },
+                      "message": {
+                        "type": "string",
+                        "description": "Error message to display to the user"
+                      },
+                      "type": {
+                        "type": "string",
+                        "const": "cross_field"
+                      },
+                      "condition": {
+                        "type": "string",
+                        "description": "Formula expression comparing fields (e.g. \"end_date > start_date\")"
+                      },
+                      "fields": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Fields involved in the validation"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "message",
+                      "type",
+                      "condition",
+                      "fields"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "pattern": "^[a-z_][a-z0-9_]*$",
+                        "description": "Unique rule name (snake_case)"
+                      },
+                      "label": {
+                        "type": "string",
+                        "description": "Human-readable label for the rule listing"
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "Administrative notes explaining the business reason"
+                      },
+                      "active": {
+                        "type": "boolean",
+                        "default": true
+                      },
+                      "events": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "insert",
+                            "update",
+                            "delete"
+                          ]
+                        },
+                        "default": [
+                          "insert",
+                          "update"
+                        ],
+                        "description": "Validation contexts"
+                      },
+                      "tags": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Categorization tags (e.g., \"compliance\", \"billing\")"
+                      },
+                      "severity": {
+                        "type": "string",
+                        "enum": [
+                          "error",
+                          "warning",
+                          "info"
+                        ],
+                        "default": "error"
+                      },
+                      "message": {
+                        "type": "string",
+                        "description": "Error message to display to the user"
+                      },
+                      "type": {
+                        "type": "string",
+                        "const": "json_schema"
+                      },
+                      "field": {
+                        "type": "string",
+                        "description": "JSON field to validate"
+                      },
+                      "schema": {
+                        "type": "object",
+                        "additionalProperties": {},
+                        "description": "JSON Schema object definition"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "message",
+                      "type",
+                      "field",
+                      "schema"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "pattern": "^[a-z_][a-z0-9_]*$",
+                        "description": "Unique rule name (snake_case)"
+                      },
+                      "label": {
+                        "type": "string",
+                        "description": "Human-readable label for the rule listing"
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "Administrative notes explaining the business reason"
+                      },
+                      "active": {
+                        "type": "boolean",
+                        "default": true
+                      },
+                      "events": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "insert",
+                            "update",
+                            "delete"
+                          ]
+                        },
+                        "default": [
+                          "insert",
+                          "update"
+                        ],
+                        "description": "Validation contexts"
+                      },
+                      "tags": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Categorization tags (e.g., \"compliance\", \"billing\")"
+                      },
+                      "severity": {
+                        "type": "string",
+                        "enum": [
+                          "error",
+                          "warning",
+                          "info"
+                        ],
+                        "default": "error"
+                      },
+                      "message": {
+                        "type": "string",
+                        "description": "Error message to display to the user"
+                      },
+                      "type": {
+                        "type": "string",
+                        "const": "async"
+                      },
+                      "field": {
+                        "type": "string",
+                        "description": "Field to validate"
+                      },
+                      "validatorUrl": {
+                        "type": "string",
+                        "description": "External API endpoint for validation"
+                      },
+                      "method": {
+                        "type": "string",
+                        "enum": [
+                          "GET",
+                          "POST"
+                        ],
+                        "default": "GET",
+                        "description": "HTTP method for external call"
+                      },
+                      "headers": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "description": "Custom headers for the request"
+                      },
+                      "validatorFunction": {
+                        "type": "string",
+                        "description": "Reference to custom validator function"
+                      },
+                      "timeout": {
+                        "type": "number",
+                        "default": 5000,
+                        "description": "Timeout in milliseconds"
+                      },
+                      "debounce": {
+                        "type": "number",
+                        "description": "Debounce delay in milliseconds"
+                      },
+                      "params": {
+                        "type": "object",
+                        "additionalProperties": {},
+                        "description": "Additional parameters to pass to validator"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "message",
+                      "type",
+                      "field"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "pattern": "^[a-z_][a-z0-9_]*$",
+                        "description": "Unique rule name (snake_case)"
+                      },
+                      "label": {
+                        "type": "string",
+                        "description": "Human-readable label for the rule listing"
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "Administrative notes explaining the business reason"
+                      },
+                      "active": {
+                        "type": "boolean",
+                        "default": true
+                      },
+                      "events": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "insert",
+                            "update",
+                            "delete"
+                          ]
+                        },
+                        "default": [
+                          "insert",
+                          "update"
+                        ],
+                        "description": "Validation contexts"
+                      },
+                      "tags": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Categorization tags (e.g., \"compliance\", \"billing\")"
+                      },
+                      "severity": {
+                        "type": "string",
+                        "enum": [
+                          "error",
+                          "warning",
+                          "info"
+                        ],
+                        "default": "error"
+                      },
+                      "message": {
+                        "type": "string",
+                        "description": "Error message to display to the user"
+                      },
+                      "type": {
+                        "type": "string",
+                        "const": "custom"
+                      },
+                      "handler": {
+                        "type": "string",
+                        "description": "Name of the custom validation function registered in the system"
+                      },
+                      "params": {
+                        "type": "object",
+                        "additionalProperties": {},
+                        "description": "Parameters passed to the custom handler"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "message",
+                      "type",
+                      "handler"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "pattern": "^[a-z_][a-z0-9_]*$",
+                        "description": "Unique rule name (snake_case)"
+                      },
+                      "label": {
+                        "type": "string",
+                        "description": "Human-readable label for the rule listing"
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "Administrative notes explaining the business reason"
+                      },
+                      "active": {
+                        "type": "boolean",
+                        "default": true
+                      },
+                      "events": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "insert",
+                            "update",
+                            "delete"
+                          ]
+                        },
+                        "default": [
+                          "insert",
+                          "update"
+                        ],
+                        "description": "Validation contexts"
+                      },
+                      "tags": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Categorization tags (e.g., \"compliance\", \"billing\")"
+                      },
+                      "severity": {
+                        "type": "string",
+                        "enum": [
+                          "error",
+                          "warning",
+                          "info"
+                        ],
+                        "default": "error"
+                      },
+                      "message": {
+                        "type": "string",
+                        "description": "Error message to display to the user"
+                      },
+                      "type": {
+                        "type": "string",
+                        "const": "conditional"
+                      },
+                      "when": {
+                        "type": "string",
+                        "description": "Condition formula (e.g. \"type = 'enterprise'\")"
+                      },
+                      "then": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "pattern": "^[a-z_][a-z0-9_]*$",
+                                "description": "Unique rule name (snake_case)"
+                              },
+                              "label": {
+                                "type": "string",
+                                "description": "Human-readable label for the rule listing"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "Administrative notes explaining the business reason"
+                              },
+                              "active": {
+                                "type": "boolean",
+                                "default": true
+                              },
+                              "events": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "insert",
+                                    "update",
+                                    "delete"
+                                  ]
+                                },
+                                "default": [
+                                  "insert",
+                                  "update"
+                                ],
+                                "description": "Validation contexts"
+                              },
+                              "tags": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "Categorization tags (e.g., \"compliance\", \"billing\")"
+                              },
+                              "severity": {
+                                "type": "string",
+                                "enum": [
+                                  "error",
+                                  "warning",
+                                  "info"
+                                ],
+                                "default": "error"
+                              },
+                              "message": {
+                                "type": "string",
+                                "description": "Error message to display to the user"
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "script"
+                              },
+                              "condition": {
+                                "type": "string",
+                                "description": "Formula expression. If TRUE, validation fails. (e.g. amount < 0)"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "message",
+                              "type",
+                              "condition"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "pattern": "^[a-z_][a-z0-9_]*$",
+                                "description": "Unique rule name (snake_case)"
+                              },
+                              "label": {
+                                "type": "string",
+                                "description": "Human-readable label for the rule listing"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "Administrative notes explaining the business reason"
+                              },
+                              "active": {
+                                "type": "boolean",
+                                "default": true
+                              },
+                              "events": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "insert",
+                                    "update",
+                                    "delete"
+                                  ]
+                                },
+                                "default": [
+                                  "insert",
+                                  "update"
+                                ],
+                                "description": "Validation contexts"
+                              },
+                              "tags": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "Categorization tags (e.g., \"compliance\", \"billing\")"
+                              },
+                              "severity": {
+                                "type": "string",
+                                "enum": [
+                                  "error",
+                                  "warning",
+                                  "info"
+                                ],
+                                "default": "error"
+                              },
+                              "message": {
+                                "type": "string",
+                                "description": "Error message to display to the user"
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "unique"
+                              },
+                              "fields": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "Fields that must be combined unique"
+                              },
+                              "scope": {
+                                "type": "string",
+                                "description": "Formula condition for scope (e.g. active = true)"
+                              },
+                              "caseSensitive": {
+                                "type": "boolean",
+                                "default": true
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "message",
+                              "type",
+                              "fields"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "pattern": "^[a-z_][a-z0-9_]*$",
+                                "description": "Unique rule name (snake_case)"
+                              },
+                              "label": {
+                                "type": "string",
+                                "description": "Human-readable label for the rule listing"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "Administrative notes explaining the business reason"
+                              },
+                              "active": {
+                                "type": "boolean",
+                                "default": true
+                              },
+                              "events": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "insert",
+                                    "update",
+                                    "delete"
+                                  ]
+                                },
+                                "default": [
+                                  "insert",
+                                  "update"
+                                ],
+                                "description": "Validation contexts"
+                              },
+                              "tags": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "Categorization tags (e.g., \"compliance\", \"billing\")"
+                              },
+                              "severity": {
+                                "type": "string",
+                                "enum": [
+                                  "error",
+                                  "warning",
+                                  "info"
+                                ],
+                                "default": "error"
+                              },
+                              "message": {
+                                "type": "string",
+                                "description": "Error message to display to the user"
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "state_machine"
+                              },
+                              "field": {
+                                "type": "string",
+                                "description": "State field (e.g. status)"
+                              },
+                              "transitions": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "description": "Map of { OldState: [AllowedNewStates] }"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "message",
+                              "type",
+                              "field",
+                              "transitions"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "pattern": "^[a-z_][a-z0-9_]*$",
+                                "description": "Unique rule name (snake_case)"
+                              },
+                              "label": {
+                                "type": "string",
+                                "description": "Human-readable label for the rule listing"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "Administrative notes explaining the business reason"
+                              },
+                              "active": {
+                                "type": "boolean",
+                                "default": true
+                              },
+                              "events": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "insert",
+                                    "update",
+                                    "delete"
+                                  ]
+                                },
+                                "default": [
+                                  "insert",
+                                  "update"
+                                ],
+                                "description": "Validation contexts"
+                              },
+                              "tags": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "Categorization tags (e.g., \"compliance\", \"billing\")"
+                              },
+                              "severity": {
+                                "type": "string",
+                                "enum": [
+                                  "error",
+                                  "warning",
+                                  "info"
+                                ],
+                                "default": "error"
+                              },
+                              "message": {
+                                "type": "string",
+                                "description": "Error message to display to the user"
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "format"
+                              },
+                              "field": {
+                                "type": "string"
+                              },
+                              "regex": {
+                                "type": "string"
+                              },
+                              "format": {
+                                "type": "string",
+                                "enum": [
+                                  "email",
+                                  "url",
+                                  "phone",
+                                  "json"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "message",
+                              "type",
+                              "field"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "pattern": "^[a-z_][a-z0-9_]*$",
+                                "description": "Unique rule name (snake_case)"
+                              },
+                              "label": {
+                                "type": "string",
+                                "description": "Human-readable label for the rule listing"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "Administrative notes explaining the business reason"
+                              },
+                              "active": {
+                                "type": "boolean",
+                                "default": true
+                              },
+                              "events": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "insert",
+                                    "update",
+                                    "delete"
+                                  ]
+                                },
+                                "default": [
+                                  "insert",
+                                  "update"
+                                ],
+                                "description": "Validation contexts"
+                              },
+                              "tags": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "Categorization tags (e.g., \"compliance\", \"billing\")"
+                              },
+                              "severity": {
+                                "type": "string",
+                                "enum": [
+                                  "error",
+                                  "warning",
+                                  "info"
+                                ],
+                                "default": "error"
+                              },
+                              "message": {
+                                "type": "string",
+                                "description": "Error message to display to the user"
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "cross_field"
+                              },
+                              "condition": {
+                                "type": "string",
+                                "description": "Formula expression comparing fields (e.g. \"end_date > start_date\")"
+                              },
+                              "fields": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "Fields involved in the validation"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "message",
+                              "type",
+                              "condition",
+                              "fields"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "pattern": "^[a-z_][a-z0-9_]*$",
+                                "description": "Unique rule name (snake_case)"
+                              },
+                              "label": {
+                                "type": "string",
+                                "description": "Human-readable label for the rule listing"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "Administrative notes explaining the business reason"
+                              },
+                              "active": {
+                                "type": "boolean",
+                                "default": true
+                              },
+                              "events": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "insert",
+                                    "update",
+                                    "delete"
+                                  ]
+                                },
+                                "default": [
+                                  "insert",
+                                  "update"
+                                ],
+                                "description": "Validation contexts"
+                              },
+                              "tags": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "Categorization tags (e.g., \"compliance\", \"billing\")"
+                              },
+                              "severity": {
+                                "type": "string",
+                                "enum": [
+                                  "error",
+                                  "warning",
+                                  "info"
+                                ],
+                                "default": "error"
+                              },
+                              "message": {
+                                "type": "string",
+                                "description": "Error message to display to the user"
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "json_schema"
+                              },
+                              "field": {
+                                "type": "string",
+                                "description": "JSON field to validate"
+                              },
+                              "schema": {
+                                "type": "object",
+                                "additionalProperties": {},
+                                "description": "JSON Schema object definition"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "message",
+                              "type",
+                              "field",
+                              "schema"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "pattern": "^[a-z_][a-z0-9_]*$",
+                                "description": "Unique rule name (snake_case)"
+                              },
+                              "label": {
+                                "type": "string",
+                                "description": "Human-readable label for the rule listing"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "Administrative notes explaining the business reason"
+                              },
+                              "active": {
+                                "type": "boolean",
+                                "default": true
+                              },
+                              "events": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "insert",
+                                    "update",
+                                    "delete"
+                                  ]
+                                },
+                                "default": [
+                                  "insert",
+                                  "update"
+                                ],
+                                "description": "Validation contexts"
+                              },
+                              "tags": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "Categorization tags (e.g., \"compliance\", \"billing\")"
+                              },
+                              "severity": {
+                                "type": "string",
+                                "enum": [
+                                  "error",
+                                  "warning",
+                                  "info"
+                                ],
+                                "default": "error"
+                              },
+                              "message": {
+                                "type": "string",
+                                "description": "Error message to display to the user"
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "async"
+                              },
+                              "field": {
+                                "type": "string",
+                                "description": "Field to validate"
+                              },
+                              "validatorUrl": {
+                                "type": "string",
+                                "description": "External API endpoint for validation"
+                              },
+                              "method": {
+                                "type": "string",
+                                "enum": [
+                                  "GET",
+                                  "POST"
+                                ],
+                                "default": "GET",
+                                "description": "HTTP method for external call"
+                              },
+                              "headers": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                },
+                                "description": "Custom headers for the request"
+                              },
+                              "validatorFunction": {
+                                "type": "string",
+                                "description": "Reference to custom validator function"
+                              },
+                              "timeout": {
+                                "type": "number",
+                                "default": 5000,
+                                "description": "Timeout in milliseconds"
+                              },
+                              "debounce": {
+                                "type": "number",
+                                "description": "Debounce delay in milliseconds"
+                              },
+                              "params": {
+                                "type": "object",
+                                "additionalProperties": {},
+                                "description": "Additional parameters to pass to validator"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "message",
+                              "type",
+                              "field"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "pattern": "^[a-z_][a-z0-9_]*$",
+                                "description": "Unique rule name (snake_case)"
+                              },
+                              "label": {
+                                "type": "string",
+                                "description": "Human-readable label for the rule listing"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "Administrative notes explaining the business reason"
+                              },
+                              "active": {
+                                "type": "boolean",
+                                "default": true
+                              },
+                              "events": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "insert",
+                                    "update",
+                                    "delete"
+                                  ]
+                                },
+                                "default": [
+                                  "insert",
+                                  "update"
+                                ],
+                                "description": "Validation contexts"
+                              },
+                              "tags": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "Categorization tags (e.g., \"compliance\", \"billing\")"
+                              },
+                              "severity": {
+                                "type": "string",
+                                "enum": [
+                                  "error",
+                                  "warning",
+                                  "info"
+                                ],
+                                "default": "error"
+                              },
+                              "message": {
+                                "type": "string",
+                                "description": "Error message to display to the user"
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "custom"
+                              },
+                              "handler": {
+                                "type": "string",
+                                "description": "Name of the custom validation function registered in the system"
+                              },
+                              "params": {
+                                "type": "object",
+                                "additionalProperties": {},
+                                "description": "Parameters passed to the custom handler"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "message",
+                              "type",
+                              "handler"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {}
+                        ],
+                        "description": "Validation rule to apply when condition is true"
+                      },
+                      "otherwise": {
+                        "description": "Validation rule to apply when condition is false"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "message",
+                      "type",
+                      "when",
+                      "then"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              },
+              "description": "Object-level validation rules"
+            },
+            "titleFormat": {
+              "type": "string",
+              "description": "Title expression (e.g. \"{name} - {code}\"). Overrides nameField."
+            },
+            "compactLayout": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Primary fields for hover/cards/lookups"
+            },
+            "search": {
+              "type": "object",
+              "properties": {
+                "fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Fields to index for full-text search weighting"
+                },
+                "displayFields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Fields to display in search result cards"
+                },
+                "filters": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Default filters for search results"
+                }
+              },
+              "required": [
+                "fields"
+              ],
+              "additionalProperties": false,
+              "description": "Search engine configuration"
+            },
+            "enable": {
+              "type": "object",
+              "properties": {
+                "trackHistory": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Enable field history tracking for audit compliance"
+                },
+                "searchable": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Index records for global search"
+                },
+                "apiEnabled": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Expose object via automatic APIs"
+                },
+                "apiMethods": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "get",
+                      "list",
+                      "create",
+                      "update",
+                      "delete",
+                      "upsert",
+                      "bulk",
+                      "aggregate",
+                      "history",
+                      "search",
+                      "restore",
+                      "purge",
+                      "import",
+                      "export"
+                    ]
+                  },
+                  "description": "Whitelist of allowed API operations"
+                },
+                "files": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Enable file attachments and document management"
+                },
+                "feeds": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Enable social feed, comments, and mentions (Chatter-like)"
+                },
+                "activities": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Enable standard tasks and events tracking"
+                },
+                "trash": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Enable soft-delete with restore capability"
+                },
+                "mru": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Track Most Recently Used (MRU) list for users"
+                },
+                "clone": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Allow record deep cloning"
+                }
+              },
+              "additionalProperties": false,
+              "description": "Enabled system features modules"
+            }
+          },
+          "required": [
+            "name",
+            "fields"
+          ],
+          "additionalProperties": false,
+          "description": "Full Object Schema"
+        }
+      },
+      "required": [
+        "success",
+        "data"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -14,9 +14,13 @@ import {
   ListSpacesRequestSchema,
   SpaceResponseSchema,
   CreateSpaceRequestSchema,
-  UpdateSpaceRequestSchema,
   InstallPluginRequestSchema,
-  InstallPluginResponseSchema
+  InstallPluginResponseSchema,
+  ListSpacesRequest,
+  SpaceResponse,
+  CreateSpaceRequest,
+  InstallPluginRequest,
+  InstallPluginResponse
 } from './hub.zod';
 
 export const AutomationTriggerRequestSchema = z.object({
@@ -365,115 +369,115 @@ export const DeleteManyDataResponseSchema = BatchUpdateResponseSchema;
  */
 export const ObjectStackProtocolSchema = z.object({
   // Discovery & Metadata
-  getDiscovery: z.function({
-    input: z.tuple([GetDiscoveryRequestSchema]),
-    output: z.promise(GetDiscoveryResponseSchema)
-  }).describe('Get API discovery information'),
+  getDiscovery: z.function()
+    .args(GetDiscoveryRequestSchema)
+    .returns(z.promise(GetDiscoveryResponseSchema))
+    .describe('Get API discovery information'),
 
-  getMetaTypes: z.function({
-    input: z.tuple([GetMetaTypesRequestSchema]),
-    output: z.promise(GetMetaTypesResponseSchema)
-  }).describe('Get available metadata types'),
+  getMetaTypes: z.function()
+    .args(GetMetaTypesRequestSchema)
+    .returns(z.promise(GetMetaTypesResponseSchema))
+    .describe('Get available metadata types'),
 
-  getMetaItems: z.function({
-    input: z.tuple([GetMetaItemsRequestSchema]),
-    output: z.promise(GetMetaItemsResponseSchema)
-  }).describe('Get all items of a metadata type'),
+  getMetaItems: z.function()
+    .args(GetMetaItemsRequestSchema)
+    .returns(z.promise(GetMetaItemsResponseSchema))
+    .describe('Get all items of a metadata type'),
 
-  getMetaItem: z.function({
-    input: z.tuple([GetMetaItemRequestSchema]),
-    output: z.promise(GetMetaItemResponseSchema)
-  }).describe('Get a specific metadata item'),
+  getMetaItem: z.function()
+    .args(GetMetaItemRequestSchema)
+    .returns(z.promise(GetMetaItemResponseSchema))
+    .describe('Get a specific metadata item'),
 
-  getMetaItemCached: z.function({
-    input: z.tuple([GetMetaItemCachedRequestSchema]),
-    output: z.promise(GetMetaItemCachedResponseSchema)
-  }).describe('Get a metadata item with cache validation'),
+  getMetaItemCached: z.function()
+    .args(GetMetaItemCachedRequestSchema)
+    .returns(z.promise(GetMetaItemCachedResponseSchema))
+    .describe('Get a metadata item with cache validation'),
 
-  getUiView: z.function({
-    input: z.tuple([GetUiViewRequestSchema]),
-    output: z.promise(GetUiViewResponseSchema)
-  }).describe('Get UI view definition'),
+  getUiView: z.function()
+    .args(GetUiViewRequestSchema)
+    .returns(z.promise(GetUiViewResponseSchema))
+    .describe('Get UI view definition'),
 
   // Analytics Operations
-  analyticsQuery: z.function({
-    input: z.tuple([AnalyticsQueryRequestSchema]),
-    output: z.promise(AnalyticsResultResponseSchema)
-  }).describe('Execute analytics query'),
+  analyticsQuery: z.function()
+    .args(AnalyticsQueryRequestSchema)
+    .returns(z.promise(AnalyticsResultResponseSchema))
+    .describe('Execute analytics query'),
 
-  getAnalyticsMeta: z.function({
-    input: z.tuple([GetAnalyticsMetaRequestSchema]),
-    output: z.promise(AnalyticsMetadataResponseSchema)
-  }).describe('Get analytics metadata (cubes)'),
+  getAnalyticsMeta: z.function()
+    .args(GetAnalyticsMetaRequestSchema)
+    .returns(z.promise(AnalyticsMetadataResponseSchema))
+    .describe('Get analytics metadata (cubes)'),
 
   // Automation Operations
-  triggerAutomation: z.function({
-    input: z.tuple([AutomationTriggerRequestSchema]),
-    output: z.promise(AutomationTriggerResponseSchema)
-  }).describe('Trigger an automation flow or script'),
+  triggerAutomation: z.function()
+    .args(AutomationTriggerRequestSchema)
+    .returns(z.promise(AutomationTriggerResponseSchema))
+    .describe('Trigger an automation flow or script'),
 
   // Hub Operations
-  listSpaces: z.function({
-    input: z.tuple([ListSpacesRequestSchema]),
-    output: z.promise(z.any()) // TODO: Use ListSpacesResponseSchema when available/exported
-  }).describe('List Hub Spaces'),
+  listSpaces: z.function()
+    .args(ListSpacesRequestSchema)
+    .returns(z.promise(z.any())) // TODO: Use ListSpacesResponseSchema when available/exported
+    .describe('List Hub Spaces'),
   
-  createSpace: z.function({
-    input: z.tuple([CreateSpaceRequestSchema]),
-    output: z.promise(SpaceResponseSchema)
-  }).describe('Create Hub Space'),
+  createSpace: z.function()
+    .args(CreateSpaceRequestSchema)
+    .returns(z.promise(SpaceResponseSchema))
+    .describe('Create Hub Space'),
 
-  installPlugin: z.function({
-    input: z.tuple([InstallPluginRequestSchema]),
-    output: z.promise(InstallPluginResponseSchema)
-  }).describe('Install Plugin into Space'),
+  installPlugin: z.function()
+    .args(InstallPluginRequestSchema)
+    .returns(z.promise(InstallPluginResponseSchema))
+    .describe('Install Plugin into Space'),
 
   // Data Operations
-  findData: z.function({
-    input: z.tuple([FindDataRequestSchema]),
-    output: z.promise(FindDataResponseSchema)
-  }).describe('Find data records'),
+  findData: z.function()
+    .args(FindDataRequestSchema)
+    .returns(z.promise(FindDataResponseSchema))
+    .describe('Find data records'),
 
-  getData: z.function({
-    input: z.tuple([GetDataRequestSchema]),
-    output: z.promise(GetDataResponseSchema)
-  }).describe('Get single data record'),
+  getData: z.function()
+    .args(GetDataRequestSchema)
+    .returns(z.promise(GetDataResponseSchema))
+    .describe('Get single data record'),
 
-  createData: z.function({
-    input: z.tuple([CreateDataRequestSchema]),
-    output: z.promise(CreateDataResponseSchema)
-  }).describe('Create a data record'),
+  createData: z.function()
+    .args(CreateDataRequestSchema)
+    .returns(z.promise(CreateDataResponseSchema))
+    .describe('Create a data record'),
 
-  updateData: z.function({
-    input: z.tuple([UpdateDataRequestSchema]),
-    output: z.promise(UpdateDataResponseSchema)
-  }).describe('Update a data record'),
+  updateData: z.function()
+    .args(UpdateDataRequestSchema)
+    .returns(z.promise(UpdateDataResponseSchema))
+    .describe('Update a data record'),
 
-  deleteData: z.function({
-    input: z.tuple([DeleteDataRequestSchema]),
-    output: z.promise(DeleteDataResponseSchema)
-  }).describe('Delete a data record'),
+  deleteData: z.function()
+    .args(DeleteDataRequestSchema)
+    .returns(z.promise(DeleteDataResponseSchema))
+    .describe('Delete a data record'),
 
   // Batch Operations
-  batchData: z.function({
-    input: z.tuple([BatchDataRequestSchema]),
-    output: z.promise(BatchDataResponseSchema)
-  }).describe('Perform batch operations'),
+  batchData: z.function()
+    .args(BatchDataRequestSchema)
+    .returns(z.promise(BatchDataResponseSchema))
+    .describe('Perform batch operations'),
 
-  createManyData: z.function({
-    input: z.tuple([CreateManyDataRequestSchema]),
-    output: z.promise(CreateManyDataResponseSchema)
-  }).describe('Create multiple records'),
+  createManyData: z.function()
+    .args(CreateManyDataRequestSchema)
+    .returns(z.promise(CreateManyDataResponseSchema))
+    .describe('Create multiple records'),
 
-  updateManyData: z.function({
-    input: z.tuple([UpdateManyDataRequestSchema]),
-    output: z.promise(UpdateManyDataResponseSchema)
-  }).describe('Update multiple records'),
+  updateManyData: z.function()
+    .args(UpdateManyDataRequestSchema)
+    .returns(z.promise(UpdateManyDataResponseSchema))
+    .describe('Update multiple records'),
 
-  deleteManyData: z.function({
-    input: z.tuple([DeleteManyDataRequestSchema]),
-    output: z.promise(DeleteManyDataResponseSchema)
-  }).describe('Delete multiple records'),
+  deleteManyData: z.function()
+    .args(DeleteManyDataRequestSchema)
+    .returns(z.promise(DeleteManyDataResponseSchema))
+    .describe('Delete multiple records'),
 });
 
 /**
@@ -500,12 +504,6 @@ export type GetAnalyticsMetaResponse = z.infer<typeof AnalyticsMetadataResponseS
 
 export type AutomationTriggerRequest = z.infer<typeof AutomationTriggerRequestSchema>;
 export type AutomationTriggerResponse = z.infer<typeof AutomationTriggerResponseSchema>;
-
-export type ListSpacesRequest = z.infer<typeof ListSpacesRequestSchema>;
-export type CreateSpaceRequest = z.infer<typeof CreateSpaceRequestSchema>;
-export type SpaceResponse = z.infer<typeof SpaceResponseSchema>;
-export type InstallPluginRequest = z.infer<typeof InstallPluginRequestSchema>;
-export type InstallPluginResponse = z.infer<typeof InstallPluginResponseSchema>;
 
 export type FindDataRequest = z.input<typeof FindDataRequestSchema>;
 export type FindDataResponse = z.infer<typeof FindDataResponseSchema>;

@@ -1,7 +1,16 @@
 {
   "$ref": "#/definitions/CapabilityConformanceLevel",
   "definitions": {
-    "CapabilityConformanceLevel": {}
+    "CapabilityConformanceLevel": {
+      "type": "string",
+      "enum": [
+        "full",
+        "partial",
+        "experimental",
+        "deprecated"
+      ],
+      "description": "Level of protocol conformance"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,86 @@
 {
   "$ref": "#/definitions/MetadataLoadResult",
   "definitions": {
-    "MetadataLoadResult": {}
+    "MetadataLoadResult": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "anyOf": [
+            {},
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Loaded metadata"
+        },
+        "fromCache": {
+          "type": "boolean",
+          "default": false,
+          "description": "Loaded from cache"
+        },
+        "notModified": {
+          "type": "boolean",
+          "default": false,
+          "description": "Not modified since last request"
+        },
+        "etag": {
+          "type": "string",
+          "description": "Entity tag"
+        },
+        "stats": {
+          "type": "object",
+          "properties": {
+            "size": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "File size in bytes"
+            },
+            "modifiedAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Last modified date"
+            },
+            "etag": {
+              "type": "string",
+              "description": "Entity tag for cache validation"
+            },
+            "format": {
+              "type": "string",
+              "enum": [
+                "json",
+                "yaml",
+                "typescript",
+                "javascript"
+              ],
+              "description": "Serialization format"
+            },
+            "path": {
+              "type": "string",
+              "description": "File system path"
+            },
+            "metadata": {
+              "type": "object",
+              "additionalProperties": {},
+              "description": "Provider-specific metadata"
+            }
+          },
+          "required": [
+            "size",
+            "modifiedAt",
+            "etag",
+            "format"
+          ],
+          "additionalProperties": false,
+          "description": "Metadata statistics"
+        },
+        "loadTime": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Load duration in ms"
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

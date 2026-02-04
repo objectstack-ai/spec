@@ -23,15 +23,60 @@ const result = DataTypeMappingSchema.parse(data);
 
 ## DataTypeMapping
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **text** | `string` | ✅ | SQL type for text fields (e.g., VARCHAR, TEXT) |
+| **number** | `string` | ✅ | SQL type for number fields (e.g., NUMERIC, DECIMAL, INT) |
+| **boolean** | `string` | ✅ | SQL type for boolean fields (e.g., BOOLEAN, BIT) |
+| **date** | `string` | ✅ | SQL type for date fields (e.g., DATE) |
+| **datetime** | `string` | ✅ | SQL type for datetime fields (e.g., TIMESTAMP, DATETIME) |
+| **json** | `string` | optional | SQL type for JSON fields (e.g., JSON, JSONB) |
+| **uuid** | `string` | optional | SQL type for UUID fields (e.g., UUID, CHAR(36)) |
+| **binary** | `string` | optional | SQL type for binary fields (e.g., BLOB, BYTEA) |
+
 ---
 
 ## SQLDialect
+
+### Allowed Values
+
+* `postgresql`
+* `mysql`
+* `sqlite`
+* `mssql`
+* `oracle`
+* `mariadb`
 
 ---
 
 ## SQLDriverConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Driver instance name |
+| **type** | `string` | ✅ | Driver type must be "sql" |
+| **capabilities** | `object` | ✅ | Driver capability flags |
+| **connectionString** | `string` | optional | Database connection string (driver-specific format) |
+| **poolConfig** | `object` | optional | Connection pool configuration |
+| **dialect** | `Enum<'postgresql' \| 'mysql' \| 'sqlite' \| 'mssql' \| 'oracle' \| 'mariadb'>` | ✅ | SQL database dialect |
+| **dataTypeMapping** | `object` | ✅ | SQL data type mapping configuration |
+| **ssl** | `boolean` | optional | Enable SSL/TLS connection |
+| **sslConfig** | `object` | optional | SSL/TLS configuration (required when ssl is true) |
+
 ---
 
 ## SSLConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **rejectUnauthorized** | `boolean` | optional | Reject connections with invalid certificates |
+| **ca** | `string` | optional | CA certificate file path or content |
+| **cert** | `string` | optional | Client certificate file path or content |
+| **key** | `string` | optional | Client private key file path or content |
 

@@ -1,7 +1,15 @@
 {
   "$ref": "#/definitions/JoinType",
   "definitions": {
-    "JoinType": {}
+    "JoinType": {
+      "type": "string",
+      "enum": [
+        "inner",
+        "left",
+        "right",
+        "full"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,110 @@
 {
   "$ref": "#/definitions/RegistryUpstream",
   "definitions": {
-    "RegistryUpstream": {}
+    "RegistryUpstream": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Upstream registry endpoint"
+        },
+        "syncPolicy": {
+          "type": "string",
+          "enum": [
+            "manual",
+            "auto",
+            "proxy"
+          ],
+          "description": "Registry synchronization strategy",
+          "default": "auto"
+        },
+        "syncInterval": {
+          "type": "integer",
+          "minimum": 60,
+          "description": "Auto-sync interval in seconds"
+        },
+        "auth": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "none",
+                "basic",
+                "bearer",
+                "api-key",
+                "oauth2"
+              ],
+              "default": "none"
+            },
+            "username": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            },
+            "token": {
+              "type": "string"
+            },
+            "apiKey": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "tls": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "verifyCertificate": {
+              "type": "boolean",
+              "default": true
+            },
+            "certificate": {
+              "type": "string"
+            },
+            "privateKey": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "timeout": {
+          "type": "integer",
+          "minimum": 1000,
+          "default": 30000,
+          "description": "Request timeout in milliseconds"
+        },
+        "retry": {
+          "type": "object",
+          "properties": {
+            "maxAttempts": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 3
+            },
+            "backoff": {
+              "type": "string",
+              "enum": [
+                "fixed",
+                "linear",
+                "exponential"
+              ],
+              "default": "exponential"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,85 @@
 {
   "$ref": "#/definitions/ApiChangelogEntry",
   "definitions": {
-    "ApiChangelogEntry": {}
+    "ApiChangelogEntry": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "API version"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Release date"
+        },
+        "changes": {
+          "type": "object",
+          "properties": {
+            "added": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [],
+              "description": "New features"
+            },
+            "changed": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [],
+              "description": "Changes"
+            },
+            "deprecated": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [],
+              "description": "Deprecations"
+            },
+            "removed": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [],
+              "description": "Removed features"
+            },
+            "fixed": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [],
+              "description": "Bug fixes"
+            },
+            "security": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [],
+              "description": "Security fixes"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Version changes"
+        },
+        "migrationGuide": {
+          "type": "string",
+          "description": "Migration guide URL or text"
+        }
+      },
+      "required": [
+        "version",
+        "date",
+        "changes"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

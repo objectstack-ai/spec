@@ -1,7 +1,16 @@
 {
   "$ref": "#/definitions/HttpMethod",
   "definitions": {
-    "HttpMethod": {}
+    "HttpMethod": {
+      "type": "string",
+      "enum": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

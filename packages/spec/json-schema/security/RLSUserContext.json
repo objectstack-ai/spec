@@ -1,7 +1,51 @@
 {
   "$ref": "#/definitions/RLSUserContext",
   "definitions": {
-    "RLSUserContext": {}
+    "RLSUserContext": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "User ID"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "User email"
+        },
+        "tenantId": {
+          "type": "string",
+          "description": "Tenant/Organization ID"
+        },
+        "role": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "User role(s)"
+        },
+        "department": {
+          "type": "string",
+          "description": "User department"
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Additional custom user attributes"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

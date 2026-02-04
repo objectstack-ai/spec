@@ -87,6 +87,10 @@ function formatType(prop: any): string {
     return `Record<string, ${formatType(prop.additionalProperties)}>`;
   }
 
+  if (Array.isArray(prop.type)) {
+    return prop.type.join(' | ');
+  }
+
   return prop.type || 'any';
 }
 

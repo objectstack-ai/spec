@@ -1,7 +1,165 @@
 {
   "$ref": "#/definitions/ListTenantsResponse",
   "definitions": {
-    "ListTenantsResponse": {}
+    "ListTenantsResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "description": "Operation success status"
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "Error code (e.g. validation_error)"
+            },
+            "message": {
+              "type": "string",
+              "description": "Readable error message"
+            },
+            "category": {
+              "type": "string",
+              "description": "Error category (e.g. validation, authorization)"
+            },
+            "details": {
+              "description": "Additional error context (e.g. field validation errors)"
+            },
+            "requestId": {
+              "type": "string",
+              "description": "Request ID for tracking"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ],
+          "additionalProperties": false,
+          "description": "Error details if success is false"
+        },
+        "meta": {
+          "type": "object",
+          "properties": {
+            "timestamp": {
+              "type": "string"
+            },
+            "duration": {
+              "type": "number"
+            },
+            "requestId": {
+              "type": "string"
+            },
+            "traceId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "timestamp"
+          ],
+          "additionalProperties": false,
+          "description": "Response metadata"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Unique tenant identifier"
+              },
+              "name": {
+                "type": "string",
+                "description": "Tenant display name"
+              },
+              "isolationLevel": {
+                "type": "string",
+                "enum": [
+                  "shared_schema",
+                  "isolated_schema",
+                  "isolated_db"
+                ]
+              },
+              "customizations": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Custom configuration values"
+              },
+              "quotas": {
+                "type": "object",
+                "properties": {
+                  "maxUsers": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "description": "Maximum number of users"
+                  },
+                  "maxStorage": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "description": "Maximum storage in bytes"
+                  },
+                  "apiRateLimit": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "description": "API requests per minute"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "isolationLevel"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "pagination": {
+          "type": "object",
+          "properties": {
+            "page": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "perPage": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "total": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "totalPages": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "hasNext": {
+              "type": "boolean"
+            },
+            "hasPrev": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "page",
+            "perPage",
+            "total",
+            "totalPages",
+            "hasNext",
+            "hasPrev"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "success",
+        "data",
+        "pagination"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

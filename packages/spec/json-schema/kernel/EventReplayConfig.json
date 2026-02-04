@@ -1,7 +1,50 @@
 {
   "$ref": "#/definitions/EventReplayConfig",
   "definitions": {
-    "EventReplayConfig": {}
+    "EventReplayConfig": {
+      "type": "object",
+      "properties": {
+        "fromTimestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Start timestamp for replay (ISO 8601)"
+        },
+        "toTimestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "End timestamp for replay (ISO 8601)"
+        },
+        "eventTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Event types to replay (empty = all)"
+        },
+        "filters": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Additional filters for event selection"
+        },
+        "speed": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 1,
+          "description": "Replay speed multiplier (1 = real-time)"
+        },
+        "targetHandlers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Handler IDs to execute (empty = all)"
+        }
+      },
+      "required": [
+        "fromTimestamp"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

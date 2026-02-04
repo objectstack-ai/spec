@@ -1,0 +1,23 @@
+{
+  "$ref": "#/definitions/AutomationTriggerRequest",
+  "definitions": {
+    "AutomationTriggerRequest": {
+      "type": "object",
+      "properties": {
+        "trigger": {
+          "type": "string"
+        },
+        "payload": {
+          "type": "object",
+          "additionalProperties": {}
+        }
+      },
+      "required": [
+        "trigger",
+        "payload"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

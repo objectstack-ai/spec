@@ -1,7 +1,15 @@
 {
   "$ref": "#/definitions/WebhookSignatureAlgorithm",
   "definitions": {
-    "WebhookSignatureAlgorithm": {}
+    "WebhookSignatureAlgorithm": {
+      "type": "string",
+      "enum": [
+        "hmac_sha256",
+        "hmac_sha512",
+        "none"
+      ],
+      "description": "Webhook signature algorithm"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

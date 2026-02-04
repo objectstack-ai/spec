@@ -1,7 +1,452 @@
 {
   "$ref": "#/definitions/NoSQLDriverConfig",
   "definitions": {
-    "NoSQLDriverConfig": {}
+    "NoSQLDriverConfig": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Driver instance name"
+        },
+        "type": {
+          "type": "string",
+          "const": "nosql",
+          "description": "Driver type must be \"nosql\""
+        },
+        "capabilities": {
+          "type": "object",
+          "properties": {
+            "create": {
+              "type": "boolean",
+              "default": true,
+              "description": "Supports CREATE operations"
+            },
+            "read": {
+              "type": "boolean",
+              "default": true,
+              "description": "Supports READ operations"
+            },
+            "update": {
+              "type": "boolean",
+              "default": true,
+              "description": "Supports UPDATE operations"
+            },
+            "delete": {
+              "type": "boolean",
+              "default": true,
+              "description": "Supports DELETE operations"
+            },
+            "bulkCreate": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports bulk CREATE operations"
+            },
+            "bulkUpdate": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports bulk UPDATE operations"
+            },
+            "bulkDelete": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports bulk DELETE operations"
+            },
+            "transactions": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports ACID transactions"
+            },
+            "savepoints": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports transaction savepoints"
+            },
+            "isolationLevels": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "read-uncommitted",
+                  "read-committed",
+                  "repeatable-read",
+                  "serializable"
+                ]
+              },
+              "description": "Supported transaction isolation levels"
+            },
+            "queryFilters": {
+              "type": "boolean",
+              "default": true,
+              "description": "Supports WHERE clause filtering"
+            },
+            "queryAggregations": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports GROUP BY and aggregation functions"
+            },
+            "querySorting": {
+              "type": "boolean",
+              "default": true,
+              "description": "Supports ORDER BY sorting"
+            },
+            "queryPagination": {
+              "type": "boolean",
+              "default": true,
+              "description": "Supports LIMIT/OFFSET pagination"
+            },
+            "queryWindowFunctions": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports window functions with OVER clause"
+            },
+            "querySubqueries": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports subqueries"
+            },
+            "queryCTE": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports Common Table Expressions (WITH clause)"
+            },
+            "joins": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports SQL joins"
+            },
+            "fullTextSearch": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports full-text search"
+            },
+            "jsonQuery": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports JSON field querying"
+            },
+            "geospatialQuery": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports geospatial queries"
+            },
+            "streaming": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports result streaming (cursors/iterators)"
+            },
+            "jsonFields": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports JSON field types"
+            },
+            "arrayFields": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports array field types"
+            },
+            "vectorSearch": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports vector embeddings and similarity search"
+            },
+            "geoSpatial": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports geospatial queries (deprecated: use geospatialQuery)"
+            },
+            "schemaSync": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports automatic schema synchronization"
+            },
+            "migrations": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports database migrations"
+            },
+            "indexes": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports index creation and management"
+            },
+            "connectionPooling": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports connection pooling"
+            },
+            "preparedStatements": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports prepared statements (SQL injection prevention)"
+            },
+            "queryCache": {
+              "type": "boolean",
+              "default": false,
+              "description": "Supports query result caching"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Driver capability flags"
+        },
+        "connectionString": {
+          "type": "string",
+          "description": "Database connection string (driver-specific format)"
+        },
+        "poolConfig": {
+          "type": "object",
+          "properties": {
+            "min": {
+              "type": "number",
+              "minimum": 0,
+              "default": 2,
+              "description": "Minimum number of connections in pool"
+            },
+            "max": {
+              "type": "number",
+              "minimum": 1,
+              "default": 10,
+              "description": "Maximum number of connections in pool"
+            },
+            "idleTimeoutMillis": {
+              "type": "number",
+              "minimum": 0,
+              "default": 30000,
+              "description": "Time in ms before idle connection is closed"
+            },
+            "connectionTimeoutMillis": {
+              "type": "number",
+              "minimum": 0,
+              "default": 5000,
+              "description": "Time in ms to wait for available connection"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Connection pool configuration"
+        },
+        "databaseType": {
+          "type": "string",
+          "enum": [
+            "mongodb",
+            "couchdb",
+            "dynamodb",
+            "cassandra",
+            "redis",
+            "elasticsearch",
+            "neo4j",
+            "orientdb"
+          ],
+          "description": "Specific NoSQL database type"
+        },
+        "dataTypeMapping": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string",
+              "description": "NoSQL type for text fields"
+            },
+            "number": {
+              "type": "string",
+              "description": "NoSQL type for number fields"
+            },
+            "boolean": {
+              "type": "string",
+              "description": "NoSQL type for boolean fields"
+            },
+            "date": {
+              "type": "string",
+              "description": "NoSQL type for date fields"
+            },
+            "datetime": {
+              "type": "string",
+              "description": "NoSQL type for datetime fields"
+            },
+            "json": {
+              "type": "string",
+              "description": "NoSQL type for JSON/object fields"
+            },
+            "uuid": {
+              "type": "string",
+              "description": "NoSQL type for UUID fields"
+            },
+            "binary": {
+              "type": "string",
+              "description": "NoSQL type for binary fields"
+            },
+            "array": {
+              "type": "string",
+              "description": "NoSQL type for array fields"
+            },
+            "objectId": {
+              "type": "string",
+              "description": "NoSQL type for ObjectID fields (MongoDB)"
+            },
+            "geopoint": {
+              "type": "string",
+              "description": "NoSQL type for geospatial point fields"
+            }
+          },
+          "required": [
+            "text",
+            "number",
+            "boolean",
+            "date",
+            "datetime"
+          ],
+          "additionalProperties": false,
+          "description": "NoSQL data type mapping configuration"
+        },
+        "consistency": {
+          "type": "string",
+          "enum": [
+            "all",
+            "quorum",
+            "one",
+            "local_quorum",
+            "each_quorum",
+            "eventual"
+          ],
+          "description": "Consistency level for operations"
+        },
+        "replication": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false,
+              "description": "Enable replication"
+            },
+            "replicaSetName": {
+              "type": "string",
+              "description": "Replica set name"
+            },
+            "replicas": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "Number of replicas"
+            },
+            "readPreference": {
+              "type": "string",
+              "enum": [
+                "primary",
+                "primaryPreferred",
+                "secondary",
+                "secondaryPreferred",
+                "nearest"
+              ],
+              "description": "Read preference for replica set"
+            },
+            "writeConcern": {
+              "type": "string",
+              "enum": [
+                "majority",
+                "acknowledged",
+                "unacknowledged"
+              ],
+              "description": "Write concern level"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Replication configuration"
+        },
+        "sharding": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false,
+              "description": "Enable sharding"
+            },
+            "shardKey": {
+              "type": "string",
+              "description": "Field to use as shard key"
+            },
+            "shardingStrategy": {
+              "type": "string",
+              "enum": [
+                "hash",
+                "range",
+                "zone"
+              ],
+              "description": "Sharding strategy"
+            },
+            "numShards": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "Number of shards"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Sharding configuration"
+        },
+        "schemaValidation": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false,
+              "description": "Enable schema validation"
+            },
+            "validationLevel": {
+              "type": "string",
+              "enum": [
+                "strict",
+                "moderate",
+                "off"
+              ],
+              "description": "Validation strictness"
+            },
+            "validationAction": {
+              "type": "string",
+              "enum": [
+                "error",
+                "warn"
+              ],
+              "description": "Action on validation failure"
+            },
+            "jsonSchema": {
+              "type": "object",
+              "additionalProperties": {},
+              "description": "JSON Schema for validation"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Document schema validation"
+        },
+        "region": {
+          "type": "string",
+          "description": "AWS region (for managed NoSQL services)"
+        },
+        "accessKeyId": {
+          "type": "string",
+          "description": "AWS access key ID"
+        },
+        "secretAccessKey": {
+          "type": "string",
+          "description": "AWS secret access key"
+        },
+        "ttlField": {
+          "type": "string",
+          "description": "Field name for TTL (auto-deletion)"
+        },
+        "maxDocumentSize": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "description": "Maximum document size in bytes"
+        },
+        "collectionPrefix": {
+          "type": "string",
+          "description": "Prefix for collection/table names"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "capabilities",
+        "databaseType",
+        "dataTypeMapping"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

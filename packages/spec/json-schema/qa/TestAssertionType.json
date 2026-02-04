@@ -1,7 +1,22 @@
 {
   "$ref": "#/definitions/TestAssertionType",
   "definitions": {
-    "TestAssertionType": {}
+    "TestAssertionType": {
+      "type": "string",
+      "enum": [
+        "equals",
+        "not_equals",
+        "contains",
+        "not_contains",
+        "is_null",
+        "not_null",
+        "gt",
+        "gte",
+        "lt",
+        "lte",
+        "error"
+      ]
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,91 @@
 {
   "$ref": "#/definitions/MultiVersionSupport",
   "definitions": {
-    "MultiVersionSupport": {}
+    "MultiVersionSupport": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "maxConcurrentVersions": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 2,
+          "description": "How many versions can run at the same time"
+        },
+        "selectionStrategy": {
+          "type": "string",
+          "enum": [
+            "latest",
+            "stable",
+            "compatible",
+            "pinned",
+            "canary",
+            "custom"
+          ],
+          "default": "latest"
+        },
+        "routing": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "condition": {
+                "type": "string",
+                "description": "Routing condition (e.g., tenant, user, feature flag)"
+              },
+              "version": {
+                "type": "string",
+                "description": "Version to use when condition matches"
+              },
+              "priority": {
+                "type": "integer",
+                "default": 100,
+                "description": "Rule priority"
+              }
+            },
+            "required": [
+              "condition",
+              "version"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "rollout": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "strategy": {
+              "type": "string",
+              "enum": [
+                "percentage",
+                "blue-green",
+                "canary"
+              ]
+            },
+            "percentage": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Percentage of traffic to new version"
+            },
+            "duration": {
+              "type": "integer",
+              "description": "Rollout duration in milliseconds"
+            }
+          },
+          "required": [
+            "strategy"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

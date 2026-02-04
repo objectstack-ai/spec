@@ -1,7 +1,139 @@
 {
   "$ref": "#/definitions/AIOrchestrationExecutionResult",
   "definitions": {
-    "AIOrchestrationExecutionResult": {}
+    "AIOrchestrationExecutionResult": {
+      "type": "object",
+      "properties": {
+        "workflowName": {
+          "type": "string"
+        },
+        "recordId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "success",
+            "partial_success",
+            "failed",
+            "skipped"
+          ]
+        },
+        "executionTime": {
+          "type": "number",
+          "description": "Execution time in milliseconds"
+        },
+        "tasksExecuted": {
+          "type": "integer",
+          "description": "Number of tasks executed"
+        },
+        "tasksSucceeded": {
+          "type": "integer",
+          "description": "Number of tasks succeeded"
+        },
+        "tasksFailed": {
+          "type": "integer",
+          "description": "Number of tasks failed"
+        },
+        "taskResults": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "taskId": {
+                "type": "string"
+              },
+              "taskName": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "success",
+                  "failed",
+                  "skipped"
+                ]
+              },
+              "output": {},
+              "error": {
+                "type": "string"
+              },
+              "executionTime": {
+                "type": "number",
+                "description": "Task execution time in milliseconds"
+              },
+              "modelUsed": {
+                "type": "string"
+              },
+              "tokensUsed": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "taskName",
+              "status"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "tokens": {
+          "type": "object",
+          "properties": {
+            "prompt": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Input tokens"
+            },
+            "completion": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Output tokens"
+            },
+            "total": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Total tokens"
+            }
+          },
+          "required": [
+            "prompt",
+            "completion",
+            "total"
+          ],
+          "additionalProperties": false,
+          "description": "Total token usage for this execution"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Total cost for this execution in USD"
+        },
+        "error": {
+          "type": "string"
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO timestamp"
+        },
+        "completedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO timestamp"
+        }
+      },
+      "required": [
+        "workflowName",
+        "recordId",
+        "status",
+        "executionTime",
+        "tasksExecuted",
+        "tasksSucceeded",
+        "tasksFailed",
+        "startedAt"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,33 @@
 {
   "$ref": "#/definitions/AuditEventTarget",
   "definitions": {
-    "AuditEventTarget": {}
+    "AuditEventTarget": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Target type"
+        },
+        "id": {
+          "type": "string",
+          "description": "Target identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Target display name"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Target metadata"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

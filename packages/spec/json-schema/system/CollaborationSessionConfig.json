@@ -1,7 +1,86 @@
 {
   "$ref": "#/definitions/CollaborationSessionConfig",
   "definitions": {
-    "CollaborationSessionConfig": {}
+    "CollaborationSessionConfig": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "ot",
+            "crdt",
+            "lock",
+            "hybrid"
+          ],
+          "description": "Collaboration mode to use"
+        },
+        "enableCursorSharing": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable cursor sharing"
+        },
+        "enablePresence": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable presence tracking"
+        },
+        "enableAwareness": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable awareness state"
+        },
+        "maxUsers": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "description": "Maximum concurrent users"
+        },
+        "idleTimeout": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "default": 300000,
+          "description": "Idle timeout in milliseconds"
+        },
+        "conflictResolution": {
+          "type": "string",
+          "enum": [
+            "ot",
+            "crdt",
+            "manual"
+          ],
+          "default": "ot",
+          "description": "Conflict resolution strategy"
+        },
+        "persistence": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable operation persistence"
+        },
+        "snapshot": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable periodic snapshots"
+            },
+            "interval": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "Snapshot interval in milliseconds"
+            }
+          },
+          "required": [
+            "enabled",
+            "interval"
+          ],
+          "additionalProperties": false,
+          "description": "Snapshot configuration"
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,67 @@
 {
   "$ref": "#/definitions/PluginLoadingEvent",
   "definitions": {
-    "PluginLoadingEvent": {}
+    "PluginLoadingEvent": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "load-started",
+            "load-completed",
+            "load-failed",
+            "init-started",
+            "init-completed",
+            "init-failed",
+            "preload-started",
+            "preload-completed",
+            "cache-hit",
+            "cache-miss",
+            "hot-reload"
+          ]
+        },
+        "pluginId": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "durationMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "code": {
+              "type": "string"
+            },
+            "stack": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "message"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "pluginId",
+        "timestamp"
+      ],
+      "additionalProperties": false,
+      "description": "Plugin loading lifecycle event"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

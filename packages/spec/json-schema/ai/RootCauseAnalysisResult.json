@@ -1,7 +1,199 @@
 {
   "$ref": "#/definitions/RootCauseAnalysisResult",
   "definitions": {
-    "RootCauseAnalysisResult": {}
+    "RootCauseAnalysisResult": {
+      "type": "object",
+      "properties": {
+        "analysisId": {
+          "type": "string"
+        },
+        "incidentId": {
+          "type": "string"
+        },
+        "rootCauses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "confidence": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "category": {
+                "type": "string",
+                "enum": [
+                  "code-defect",
+                  "configuration",
+                  "resource-exhaustion",
+                  "dependency-failure",
+                  "network-issue",
+                  "data-corruption",
+                  "security-breach",
+                  "other"
+                ]
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "log",
+                        "metric",
+                        "trace",
+                        "event"
+                      ]
+                    },
+                    "content": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "content"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "impact": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high",
+                  "critical"
+                ]
+              },
+              "recommendations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "id",
+              "description",
+              "confidence",
+              "category",
+              "evidence",
+              "impact",
+              "recommendations"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "contributingFactors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": "string"
+              },
+              "confidence": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              }
+            },
+            "required": [
+              "description",
+              "confidence"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "timeline": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "event": {
+                "type": "string"
+              },
+              "significance": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ]
+              }
+            },
+            "required": [
+              "timestamp",
+              "event",
+              "significance"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "remediation": {
+          "type": "object",
+          "properties": {
+            "immediate": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "shortTerm": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "longTerm": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "immediate",
+            "shortTerm",
+            "longTerm"
+          ],
+          "additionalProperties": false
+        },
+        "overallConfidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "analysisId",
+        "incidentId",
+        "rootCauses",
+        "overallConfidence",
+        "timestamp"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,94 @@
 {
   "$ref": "#/definitions/PluginCompositionRequest",
   "definitions": {
-    "PluginCompositionRequest": {}
+    "PluginCompositionRequest": {
+      "type": "object",
+      "properties": {
+        "goal": {
+          "type": "string",
+          "description": "What should the composed plugins achieve"
+        },
+        "availablePlugins": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pluginId": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              },
+              "capabilities": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "pluginId",
+              "version"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "constraints": {
+          "type": "object",
+          "properties": {
+            "maxPlugins": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "requiredPlugins": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "excludedPlugins": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "performance": {
+              "type": "object",
+              "properties": {
+                "maxLatency": {
+                  "type": "number",
+                  "description": "Maximum latency in ms"
+                },
+                "maxMemory": {
+                  "type": "number",
+                  "description": "Maximum memory in bytes"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "optimize": {
+          "type": "string",
+          "enum": [
+            "performance",
+            "reliability",
+            "simplicity",
+            "cost",
+            "security"
+          ]
+        }
+      },
+      "required": [
+        "goal",
+        "availablePlugins"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,7 +1,387 @@
 {
   "$ref": "#/definitions/Span",
   "definitions": {
-    "Span": {}
+    "Span": {
+      "type": "object",
+      "properties": {
+        "context": {
+          "type": "object",
+          "properties": {
+            "traceId": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$",
+              "description": "Trace ID (32 hex chars)"
+            },
+            "spanId": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{16}$",
+              "description": "Span ID (16 hex chars)"
+            },
+            "traceFlags": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255,
+              "description": "Trace flags bitmap",
+              "default": 1
+            },
+            "traceState": {
+              "type": "object",
+              "properties": {
+                "entries": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "description": "Trace state entries"
+                }
+              },
+              "required": [
+                "entries"
+              ],
+              "additionalProperties": false,
+              "description": "Trace state"
+            },
+            "parentSpanId": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{16}$",
+              "description": "Parent span ID (16 hex chars)"
+            },
+            "sampled": {
+              "type": "boolean",
+              "default": true
+            },
+            "remote": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          "required": [
+            "traceId",
+            "spanId"
+          ],
+          "additionalProperties": false,
+          "description": "Trace context"
+        },
+        "name": {
+          "type": "string",
+          "description": "Span name"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "internal",
+            "server",
+            "client",
+            "producer",
+            "consumer"
+          ],
+          "description": "Span kind",
+          "default": "internal"
+        },
+        "startTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Span start time"
+        },
+        "endTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Span end time"
+        },
+        "duration": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Duration in milliseconds"
+        },
+        "status": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "unset",
+                "ok",
+                "error"
+              ],
+              "description": "Status code"
+            },
+            "message": {
+              "type": "string",
+              "description": "Status message"
+            }
+          },
+          "required": [
+            "code"
+          ],
+          "additionalProperties": false
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "boolean"
+                }
+              }
+            ],
+            "description": "Span attribute value"
+          },
+          "description": "Span attributes",
+          "default": {}
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Event name"
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Event timestamp"
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "boolean"
+                      }
+                    }
+                  ],
+                  "description": "Span attribute value"
+                },
+                "description": "Event attributes"
+              }
+            },
+            "required": [
+              "name",
+              "timestamp"
+            ],
+            "additionalProperties": false,
+            "description": "Span event"
+          },
+          "default": []
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "context": {
+                "type": "object",
+                "properties": {
+                  "traceId": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{32}$",
+                    "description": "Trace ID (32 hex chars)"
+                  },
+                  "spanId": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{16}$",
+                    "description": "Span ID (16 hex chars)"
+                  },
+                  "traceFlags": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255,
+                    "description": "Trace flags bitmap",
+                    "default": 1
+                  },
+                  "traceState": {
+                    "type": "object",
+                    "properties": {
+                      "entries": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "description": "Trace state entries"
+                      }
+                    },
+                    "required": [
+                      "entries"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Trace state"
+                  },
+                  "parentSpanId": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{16}$",
+                    "description": "Parent span ID (16 hex chars)"
+                  },
+                  "sampled": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "remote": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                },
+                "required": [
+                  "traceId",
+                  "spanId"
+                ],
+                "additionalProperties": false,
+                "description": "Linked trace context"
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "boolean"
+                      }
+                    }
+                  ],
+                  "description": "Span attribute value"
+                },
+                "description": "Link attributes"
+              }
+            },
+            "required": [
+              "context"
+            ],
+            "additionalProperties": false,
+            "description": "Span link"
+          },
+          "default": []
+        },
+        "resource": {
+          "type": "object",
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "boolean"
+                }
+              }
+            ],
+            "description": "Span attribute value"
+          },
+          "description": "Resource attributes"
+        },
+        "instrumentationLibrary": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Library name"
+            },
+            "version": {
+              "type": "string",
+              "description": "Library version"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "context",
+        "name",
+        "startTime"
+      ],
+      "additionalProperties": false,
+      "description": "OpenTelemetry span"
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

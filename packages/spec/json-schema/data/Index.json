@@ -1,7 +1,47 @@
 {
   "$ref": "#/definitions/Index",
   "definitions": {
-    "Index": {}
+    "Index": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Index name (auto-generated if not provided)"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields included in the index"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "btree",
+            "hash",
+            "gin",
+            "gist",
+            "fulltext"
+          ],
+          "default": "btree",
+          "description": "Index algorithm type"
+        },
+        "unique": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the index enforces uniqueness"
+        },
+        "partial": {
+          "type": "string",
+          "description": "Partial index condition (SQL WHERE clause for conditional indexes)"
+        }
+      },
+      "required": [
+        "fields"
+      ],
+      "additionalProperties": false
+    }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }
