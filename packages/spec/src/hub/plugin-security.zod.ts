@@ -313,7 +313,7 @@ export const PackageDependencySchema = z.object({
   /**
    * Version constraint (semver range)
    */
-  versionConstraint: z.string().describe('Semver range (e.g., ^1.0.0, >=2.0.0 <3.0.0)'),
+  versionConstraint: z.string().describe('Semver range (e.g., `^1.0.0`, `>=2.0.0 <3.0.0`)'),
   
   /**
    * Dependency type
