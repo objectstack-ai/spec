@@ -100,3 +100,59 @@ export default {
 1.  **Define Data First:** Always start by creating `.object.ts` files before Views or Actions.
 2.  **Refer to Spec:** If the user asks for a feature, check if it exists in `@objectstack/spec` first.
 3.  **Validation:** Ensure generated code satisfies the Zod Schema constraints (e.g., regex patterns for names).
+
+## 4. Protocol Reference Snippets
+
+### **A. View Definition (`*.view.ts`)**
+
+**Key Pattern:** Decouple Interaction (Navigation/Actions) from Data Config.
+
+```typescript
+import type { View } from '@objectstack/spec/ui';
+
+export const MyListView: View = {
+  list: {
+    type: 'grid',
+    columns: [
+      { 
+        field: 'name', 
+        link: true, // Primary Navigation Link
+        width: 300 
+      },
+      { 
+        field: 'status',
+        width: 120 
+      },
+      { 
+        field: 'phone_number',
+        action: 'call_customer' // Triggers 'call_customer' action
+      }
+    ],
+    // Explicit Navigation Configuration
+    navigation: {
+      mode: 'drawer',       // Opens details in a side drawer
+      view: 'summary_form', // Uses specific form view
+      width: '600px'
+    },
+    filter: [['status', '=', 'active']]
+  }
+};
+export default MyListView;
+```
+
+### **B. Action Definition (`*.action.ts`)**
+
+```typescript
+import { Action } from '@objectstack/spec/ui';
+
+export default Action.create({
+  name: 'call_customer',
+  label: 'Call',
+  icon: 'phone',
+  type: 'script', // or 'flow', 'api'
+  locations: ['list_item', 'record_header'],
+  params: [
+    { name: 'phone', type: 'text', label: 'Number' } // Context param
+  ]
+});
+```
