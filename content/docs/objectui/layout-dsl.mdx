@@ -48,20 +48,27 @@ Top-level layout structures that define macro organization.
 ### Standard Template
 
 ```yaml
-# page_template: standard
+context: record
+object: account
+template: standard
 regions:
-  header:
-    - type: title
-      value: Customer Details
-    - type: actions
-      buttons: [edit, delete, share]
-  main:
-    - type: section
-      label: Contact Information
-      fields: [name, email, phone]
-  sidebar:
-    - type: widget
-      component: activity_feed
+  - name: header
+    components:
+      - type: page:header
+        properties:
+          title: Customer Details
+          actions: [edit, delete, share]
+  - name: main
+    components:
+      - type: page:section
+        properties:
+          label: Contact Information
+          fields: [name, email, phone]
+  - name: sidebar
+    components:
+      - type: widget
+        properties:
+          component: activity_feed
 ```
 
 **Visual Layout:**
@@ -92,16 +99,22 @@ regions:
 High-density layout for power users (like Salesforce Service Console).
 
 ```yaml
-# page_template: console
-layout:
-  split_view:
-    left:
-      type: list_view
-      object: case
-      width: 30%  # Fixed width
-    right:
-      type: detail_view
-      tabs: [details, related, activity]
+context: app
+template: console
+regions:
+  - name: left
+    width: small
+    components:
+      - type: record:list
+        properties:
+          object: case
+          
+  - name: right
+    width: full
+    components:
+      - type: record:details
+        properties:
+          tabs: [details, related, activity]
 ```
 
 **Visual Layout:**

@@ -72,13 +72,13 @@ Single-line text field.
 company_name:
   type: text
   label: Company Name
-  max_length: 255
+  maxLength: 255
   required: true
-  index: true
+  searchable: true
 ```
 
 **Database mapping:**
-- PostgreSQL: `VARCHAR(max_length)` or `TEXT`
+- PostgreSQL: `VARCHAR(maxLength)` or `TEXT`
 - MongoDB: `String`
 - Redis: `String`
 
@@ -416,7 +416,7 @@ Boolean displayed as checkbox.
 email_opt_in:
   type: checkbox
   label: Subscribe to Newsletter
-  default_value: false
+  defaultValue: false
 ```
 
 **Difference from `boolean`:**
@@ -451,7 +451,7 @@ priority:
       label: Critical
       color: red
       icon: alert
-  default_value: medium
+  defaultValue: medium
   required: true
 ```
 
@@ -476,18 +476,18 @@ country:
 
 ---
 
-#### `multi_select`
+#### `multiselect`
 Multiple selection from options.
 
 ```yaml
 tags:
-  type: multi_select
+  type: multiselect
   label: Tags
   options:
     - { value: customer, label: Customer }
     - { value: partner, label: Partner }
     - { value: vendor, label: Vendor }
-  multiple: true
+  # multiple: true # Implied by type
 ```
 
 **Storage:**
@@ -527,11 +527,11 @@ Foreign key reference to another object.
 account_id:
   type: lookup
   label: Account
-  reference_to: account
+  reference: account
   required: true
-  reference_filters:
-    - ['is_active', '=', true]
-  on_delete: set_null  # or restrict, cascade
+  referenceFilters:
+    - "is_active = true"
+  deleteBehavior: set_null  # or restrict, cascade
 ```
 
 **Storage:** Stores `_id` of referenced record
@@ -554,7 +554,7 @@ const opportunities = await ObjectQL.query({
 ```yaml
 contacts:
   type: lookup
-  reference_to: contact
+  reference: contact
   multiple: true  # Many-to-many
 ```
 
@@ -571,8 +571,8 @@ Strong parent-child relationship.
 project_id:
   type: master_detail
   label: Project
-  reference_to: project
-  cascade_delete: true
+  reference: project
+  deleteBehavior: cascade # Enforced by type usually
 ```
 
 **Characteristics:**
@@ -612,7 +612,7 @@ Reference to multiple object types.
 parent:
   type: polymorphic
   label: Related To
-  reference_to: [account, contact, opportunity]
+  reference: [account, contact, opportunity]
 ```
 
 **Storage:**
@@ -652,9 +652,9 @@ Calculated field based on other fields.
 total_price:
   type: formula
   label: Total Price
-  formula: "quantity * unit_price"
-  data_type: currency
-  virtual: true  # Not stored, calculated on read
+  expression: "quantity * unit_price"
+  # dataType: currency
+  # virtual: true  # Not stored, calculated on read
 ```
 
 **Formula syntax:**
@@ -669,26 +669,26 @@ total_price:
 # Simple calculation
 discount_amount:
   type: formula
-  formula: "price * (discount_rate / 100)"
-  data_type: currency
+  expression: "price * (discount_rate / 100)"
+  # dataType: currency
 
 # Conditional logic
 status_label:
   type: formula
-  formula: "IF(is_active, 'Active', 'Inactive')"
-  data_type: text
+  expression: "IF(is_active, 'Active', 'Inactive')"
+  # dataType: text
 
 # Cross-object formula (via lookup)
 account_revenue_tier:
   type: formula
-  formula: "IF(account.annual_revenue > 1000000, 'Enterprise', 'SMB')"
-  data_type: text
+  expression: "IF(account.annual_revenue > 1000000, 'Enterprise', 'SMB')"
+  # dataType: text
 
 # Date calculation
 days_until_due:
   type: formula
-  formula: "due_date - TODAY()"
-  data_type: number
+  expression: "due_date - TODAY()"
+  # dataType: number
 ```
 
 **Storage options:**
@@ -709,17 +709,18 @@ Aggregate child records in master-detail relationship.
 total_opportunities:
   type: summary
   label: Total Opportunities
-  summary_object: opportunity
-  summary_type: count
+  summaryOperations:
+    object: opportunity
+    function: count
 
 total_opportunity_value:
   type: summary
   label: Pipeline Value
-  summary_object: opportunity
-  summary_field: amount
-  summary_type: sum
-  summary_filters:
-    - ['stage', 'in', ['Prospecting', 'Qualification', 'Proposal']]
+  summaryOperations:
+    object: opportunity
+    field: amount
+    function: sum
+  # filters: [['stage', 'in', ['Prospecting', 'Qualification', 'Proposal']]]
 ```
 
 **Summary Types:**
@@ -746,15 +747,15 @@ total_opportunity_value:
 
 ---
 
-### `auto_number`
+### `autonumber`
 Auto-incrementing unique identifier.
 
 ```yaml
 case_number:
-  type: auto_number
+  type: autonumber
   label: Case Number
   format: "CASE-{0000}"
-  start: 1
+  # start: 1
 ```
 
 **Example values:** `CASE-0001`, `CASE-0002`, ...
@@ -768,7 +769,7 @@ case_number:
 **Complex formats:**
 ```yaml
 invoice_number:
-  type: auto_number
+  type: autonumber
   format: "INV-{YYYY}-{0000}"
   # Generates: INV-2024-0001, INV-2024-0002, ...
 ```
