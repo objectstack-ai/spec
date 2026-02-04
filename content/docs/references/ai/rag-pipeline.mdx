@@ -5,6 +5,12 @@ description: Rag Pipeline protocol schemas
 
 # Rag Pipeline
 
+RAG (Retrieval-Augmented Generation) Pipeline Protocol
+
+Defines schemas for building context-aware AI assistants using RAG techniques.
+
+Enables vector search, document chunking, embeddings, and retrieval configuration.
+
 <Callout type="info">
 **Source:** `packages/spec/src/ai/rag-pipeline.zod.ts`
 </Callout>
@@ -12,16 +18,81 @@ description: Rag Pipeline protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ChunkingStrategySchema, DocumentChunkSchema, DocumentLoaderConfigSchema, DocumentMetadataSchema, EmbeddingModelSchema, FilterExpressionSchema, FilterGroupSchema, MetadataFilterSchema, RAGPipelineConfigSchema, RAGPipelineStatusSchema, RAGQueryRequestSchema, RAGQueryResponseSchema, RerankingConfigSchema, RetrievalStrategySchema, VectorStoreConfigSchema, VectorStoreProviderSchema } from '@objectstack/spec/ai';
+import { ChunkingStrategy, DocumentChunk, DocumentLoaderConfig, DocumentMetadata, EmbeddingModel, FilterExpression, FilterGroup, MetadataFilter, RAGPipelineConfig, RAGPipelineStatus, RAGQueryRequest, RAGQueryResponse, RerankingConfig, RetrievalStrategy, VectorStoreConfig, VectorStoreProvider } from '@objectstack/spec/ai';
 import type { ChunkingStrategy, DocumentChunk, DocumentLoaderConfig, DocumentMetadata, EmbeddingModel, FilterExpression, FilterGroup, MetadataFilter, RAGPipelineConfig, RAGPipelineStatus, RAGQueryRequest, RAGQueryResponse, RerankingConfig, RetrievalStrategy, VectorStoreConfig, VectorStoreProvider } from '@objectstack/spec/ai';
 
 // Validate data
-const result = ChunkingStrategySchema.parse(data);
+const result = ChunkingStrategy.parse(data);
 ```
 
 ---
 
 ## ChunkingStrategy
+
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+**Type:** `fixed`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **chunkSize** | `integer` | ✅ | Fixed chunk size in tokens/chars |
+| **chunkOverlap** | `integer` | optional | Overlap between chunks |
+| **unit** | `Enum<'tokens' \| 'characters'>` | optional |  |
+
+---
+
+#### Option 2
+
+**Type:** `semantic`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **model** | `string` | optional | Model for semantic chunking |
+| **minChunkSize** | `integer` | optional |  |
+| **maxChunkSize** | `integer` | optional |  |
+
+---
+
+#### Option 3
+
+**Type:** `recursive`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **separators** | `string[]` | optional |  |
+| **chunkSize** | `integer` | ✅ |  |
+| **chunkOverlap** | `integer` | optional |  |
+
+---
+
+#### Option 4
+
+**Type:** `markdown`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **maxChunkSize** | `integer` | optional |  |
+| **respectHeaders** | `boolean` | optional | Keep headers with content |
+| **respectCodeBlocks** | `boolean` | optional | Keep code blocks intact |
+
+---
+
 
 ---
 
@@ -34,9 +105,10 @@ const result = ChunkingStrategySchema.parse(data);
 | **id** | `string` | ✅ | Unique chunk identifier |
 | **content** | `string` | ✅ | Chunk text content |
 | **embedding** | `number[]` | optional | Embedding vector |
-| **metadata** | `object` | ✅ |  |
+| **metadata** | `Object` | ✅ |  |
 | **chunkIndex** | `integer` | ✅ | Chunk position in document |
 | **tokens** | `integer` | optional | Token count |
+
 
 ---
 
@@ -55,6 +127,7 @@ const result = ChunkingStrategySchema.parse(data);
 | **extractImages** | `boolean` | optional | Extract text from images (OCR) |
 | **extractTables** | `boolean` | optional | Extract and format tables |
 | **loaderConfig** | `Record<string, any>` | optional | Custom loader-specific config |
+
 
 ---
 
@@ -75,6 +148,7 @@ const result = ChunkingStrategySchema.parse(data);
 | **language** | `string` | optional | Document language (ISO 639-1 code) |
 | **custom** | `Record<string, any>` | optional | Custom metadata fields |
 
+
 ---
 
 ## EmbeddingModel
@@ -92,6 +166,7 @@ const result = ChunkingStrategySchema.parse(data);
 | **apiKey** | `string` | optional | API key |
 | **secretRef** | `string` | optional | Reference to stored secret |
 
+
 ---
 
 ## FilterExpression
@@ -104,6 +179,7 @@ const result = ChunkingStrategySchema.parse(data);
 | **operator** | `Enum<'eq' \| 'neq' \| 'gt' \| 'gte' \| 'lt' \| 'lte' \| 'in' \| 'nin' \| 'contains'>` | optional |  |
 | **value** | `string \| number \| boolean \| string \| number[]` | ✅ | Filter value |
 
+
 ---
 
 ## FilterGroup
@@ -113,11 +189,46 @@ const result = ChunkingStrategySchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **logic** | `Enum<'and' \| 'or'>` | optional |  |
-| **filters** | `object \| any[]` | ✅ |  |
+| **filters** | `Object \| any[]` | ✅ |  |
+
 
 ---
 
 ## MetadataFilter
+
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **field** | `string` | ✅ | Metadata field to filter |
+| **operator** | `Enum<'eq' \| 'neq' \| 'gt' \| 'gte' \| 'lt' \| 'lte' \| 'in' \| 'nin' \| 'contains'>` | optional |  |
+| **value** | `string \| number \| boolean \| string \| number[]` | ✅ | Filter value |
+
+---
+
+#### Option 2
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **logic** | `Enum<'and' \| 'or'>` | optional |  |
+| **filters** | `Object \| any[]` | ✅ |  |
+
+---
+
+#### Option 3
+
+Type: `Record<string, string | number | boolean | string | number[]>`
+
+---
+
 
 ---
 
@@ -130,18 +241,19 @@ const result = ChunkingStrategySchema.parse(data);
 | **name** | `string` | ✅ | Pipeline name (snake_case) |
 | **label** | `string` | ✅ | Display name |
 | **description** | `string` | optional |  |
-| **embedding** | `object` | ✅ |  |
-| **vectorStore** | `object` | ✅ |  |
-| **chunking** | `object \| object \| object \| object` | ✅ |  |
-| **retrieval** | `object \| object \| object \| object` | ✅ |  |
-| **reranking** | `object` | optional |  |
-| **loaders** | `object[]` | optional | Document loaders |
+| **embedding** | `Object` | ✅ |  |
+| **vectorStore** | `Object` | ✅ |  |
+| **chunking** | `Object \| Object \| Object \| Object` | ✅ |  |
+| **retrieval** | `Object \| Object \| Object \| Object` | ✅ |  |
+| **reranking** | `Object` | optional |  |
+| **loaders** | `Object[]` | optional | Document loaders |
 | **maxContextTokens** | `integer` | optional | Maximum tokens in context |
 | **contextWindow** | `integer` | optional | LLM context window size |
-| **metadataFilters** | `object \| object \| Record<string, string \| number \| boolean \| string \| number[]>` | optional | Global filters for retrieval |
+| **metadataFilters** | `Object \| Object \| Record<string, string \| number \| boolean \| string \| number[]>` | optional | Global filters for retrieval |
 | **enableCache** | `boolean` | optional |  |
 | **cacheTTL** | `integer` | optional | Cache TTL in seconds |
 | **cacheInvalidationStrategy** | `Enum<'time_based' \| 'manual' \| 'on_update'>` | optional |  |
+
 
 ---
 
@@ -156,7 +268,8 @@ const result = ChunkingStrategySchema.parse(data);
 | **documentsIndexed** | `integer` | ✅ |  |
 | **lastIndexed** | `string` | optional | ISO timestamp |
 | **errorMessage** | `string` | optional |  |
-| **health** | `object` | optional |  |
+| **health** | `Object` | optional |  |
+
 
 ---
 
@@ -170,9 +283,10 @@ const result = ChunkingStrategySchema.parse(data);
 | **pipelineName** | `string` | ✅ | Pipeline to use |
 | **topK** | `integer` | optional |  |
 | **metadataFilters** | `Record<string, any>` | optional |  |
-| **conversationHistory** | `object[]` | optional |  |
+| **conversationHistory** | `Object[]` | optional |  |
 | **includeMetadata** | `boolean` | optional |  |
 | **includeSources** | `boolean` | optional |  |
+
 
 ---
 
@@ -183,11 +297,12 @@ const result = ChunkingStrategySchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **query** | `string` | ✅ |  |
-| **results** | `object[]` | ✅ |  |
+| **results** | `Object[]` | ✅ |  |
 | **context** | `string` | ✅ | Assembled context for LLM |
-| **tokens** | `object` | optional | Token usage for this query |
+| **tokens** | `Object` | optional | Token usage for this query |
 | **cost** | `number` | optional | Cost for this query in USD |
 | **retrievalTime** | `number` | optional | Retrieval time in milliseconds |
+
 
 ---
 
@@ -202,9 +317,73 @@ const result = ChunkingStrategySchema.parse(data);
 | **provider** | `Enum<'cohere' \| 'huggingface' \| 'custom'>` | optional |  |
 | **topK** | `integer` | optional | Final number of results after reranking |
 
+
 ---
 
 ## RetrievalStrategy
+
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+**Type:** `similarity`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **topK** | `integer` | optional | Number of results to retrieve |
+| **scoreThreshold** | `number` | optional | Minimum similarity score |
+
+---
+
+#### Option 2
+
+**Type:** `mmr`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **topK** | `integer` | optional |  |
+| **fetchK** | `integer` | optional | Initial fetch size |
+| **lambda** | `number` | optional | Diversity vs relevance (0=diverse, 1=relevant) |
+
+---
+
+#### Option 3
+
+**Type:** `hybrid`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **topK** | `integer` | optional |  |
+| **vectorWeight** | `number` | optional | Weight for vector search |
+| **keywordWeight** | `number` | optional | Weight for keyword search |
+
+---
+
+#### Option 4
+
+**Type:** `parent_document`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **topK** | `integer` | optional |  |
+| **retrieveParent** | `boolean` | optional | Retrieve full parent document |
+
+---
+
 
 ---
 
@@ -227,6 +406,7 @@ const result = ChunkingStrategySchema.parse(data);
 | **connectionPoolSize** | `integer` | optional |  |
 | **timeout** | `integer` | optional | Timeout in milliseconds |
 
+
 ---
 
 ## VectorStoreProvider
@@ -243,4 +423,7 @@ const result = ChunkingStrategySchema.parse(data);
 * `opensearch`
 * `elasticsearch`
 * `custom`
+
+
+---
 

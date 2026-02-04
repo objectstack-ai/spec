@@ -5,6 +5,10 @@ description: Endpoint protocol schemas
 
 # Endpoint
 
+Rate Limit Strategy
+
+@deprecated Use RateLimitConfigSchema from shared/http.zod.ts instead
+
 <Callout type="info">
 **Source:** `packages/spec/src/api/endpoint.zod.ts`
 </Callout>
@@ -12,11 +16,11 @@ description: Endpoint protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ApiEndpointSchema, ApiMappingSchema, RateLimitSchema } from '@objectstack/spec/api';
+import { ApiEndpoint, ApiMapping, RateLimit } from '@objectstack/spec/api';
 import type { ApiEndpoint, ApiMapping, RateLimit } from '@objectstack/spec/api';
 
 // Validate data
-const result = ApiEndpointSchema.parse(data);
+const result = ApiEndpoint.parse(data);
 ```
 
 ---
@@ -34,12 +38,13 @@ const result = ApiEndpointSchema.parse(data);
 | **description** | `string` | optional |  |
 | **type** | `Enum<'flow' \| 'script' \| 'object_operation' \| 'proxy'>` | ✅ | Implementation type |
 | **target** | `string` | ✅ | Target Flow ID, Script Name, or Proxy URL |
-| **objectParams** | `object` | optional | For object_operation type |
-| **inputMapping** | `object[]` | optional | Map Request Body to Internal Params |
-| **outputMapping** | `object[]` | optional | Map Internal Result to Response Body |
+| **objectParams** | `Object` | optional | For object_operation type |
+| **inputMapping** | `Object[]` | optional | Map Request Body to Internal Params |
+| **outputMapping** | `Object[]` | optional | Map Internal Result to Response Body |
 | **authRequired** | `boolean` | optional | Require authentication |
-| **rateLimit** | `object` | optional | Rate limiting policy |
+| **rateLimit** | `Object` | optional | Rate limiting policy |
 | **cacheTtl** | `number` | optional | Response cache TTL in seconds |
+
 
 ---
 
@@ -53,6 +58,7 @@ const result = ApiEndpointSchema.parse(data);
 | **target** | `string` | ✅ | Target field/path |
 | **transform** | `string` | optional | Transformation function name |
 
+
 ---
 
 ## RateLimit
@@ -64,4 +70,7 @@ const result = ApiEndpointSchema.parse(data);
 | **enabled** | `boolean` | optional | Enable rate limiting |
 | **windowMs** | `integer` | optional | Time window in milliseconds |
 | **maxRequests** | `integer` | optional | Max requests per window |
+
+
+---
 

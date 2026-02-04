@@ -5,6 +5,28 @@ description: App protocol schemas
 
 # App
 
+Base Navigation Item Schema
+
+Shared properties for all navigation types.
+
+**NAMING CONVENTION:**
+
+Navigation item IDs are used in URLs and configuration and must be lowercase snake_case.
+
+@example Good IDs
+
+- 'menu_accounts'
+
+- 'page_dashboard'
+
+- 'nav_settings'
+
+@example Bad IDs (will be rejected)
+
+- 'MenuAccounts' (PascalCase)
+
+- 'Page Dashboard' (spaces)
+
 <Callout type="info">
 **Source:** `packages/spec/src/ui/app.zod.ts`
 </Callout>
@@ -12,11 +34,11 @@ description: App protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AppSchema, AppBrandingSchema, DashboardNavItemSchema, GroupNavItemSchema, NavigationItemSchema, ObjectNavItemSchema, PageNavItemSchema, UrlNavItemSchema } from '@objectstack/spec/ui';
+import { App, AppBranding, DashboardNavItem, GroupNavItem, NavigationItem, ObjectNavItem, PageNavItem, UrlNavItem } from '@objectstack/spec/ui';
 import type { App, AppBranding, DashboardNavItem, GroupNavItem, NavigationItem, ObjectNavItem, PageNavItem, UrlNavItem } from '@objectstack/spec/ui';
 
 // Validate data
-const result = AppSchema.parse(data);
+const result = App.parse(data);
 ```
 
 ---
@@ -32,14 +54,15 @@ const result = AppSchema.parse(data);
 | **version** | `string` | optional | App version |
 | **description** | `string` | optional | App description |
 | **icon** | `string` | optional | App icon used in the App Launcher |
-| **branding** | `object` | optional | App-specific branding |
+| **branding** | `Object` | optional | App-specific branding |
 | **active** | `boolean` | optional | Whether the app is enabled |
 | **isDefault** | `boolean` | optional | Is default app |
-| **navigation** | `object \| object \| object \| object \| object[]` | optional | Structured navigation menu tree |
+| **navigation** | `Object \| Object \| Object \| Object \| Object[]` | optional | Structured navigation menu tree |
 | **homePageId** | `string` | optional | ID of the navigation item to serve as landing page |
 | **requiredPermissions** | `string[]` | optional | Permissions required to access this app |
 | **objects** | `any[]` | optional | Objects belonging to this app |
 | **apis** | `any[]` | optional | Custom APIs belonging to this app |
+
 
 ---
 
@@ -52,6 +75,7 @@ const result = AppSchema.parse(data);
 | **primaryColor** | `string` | optional | Primary theme color hex code |
 | **logo** | `string` | optional | Custom logo URL for this app |
 | **favicon** | `string` | optional | Custom favicon URL for this app |
+
 
 ---
 
@@ -68,6 +92,7 @@ const result = AppSchema.parse(data);
 | **type** | `string` | ✅ |  |
 | **dashboardName** | `string` | ✅ | Target dashboard name |
 
+
 ---
 
 ## GroupNavItem
@@ -83,9 +108,104 @@ const result = AppSchema.parse(data);
 | **type** | `string` | ✅ |  |
 | **expanded** | `boolean` | optional | Default expansion state in sidebar |
 
+
 ---
 
 ## NavigationItem
+
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+**Type:** `object`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
+| **label** | `string` | ✅ | Display proper label |
+| **icon** | `string` | optional | Icon name |
+| **visible** | `string` | optional | Visibility formula condition |
+| **type** | `string` | ✅ |  |
+| **objectName** | `string` | ✅ | Target object name |
+| **viewName** | `string` | optional | Default list view to open. Defaults to "all" |
+
+---
+
+#### Option 2
+
+**Type:** `dashboard`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
+| **label** | `string` | ✅ | Display proper label |
+| **icon** | `string` | optional | Icon name |
+| **visible** | `string` | optional | Visibility formula condition |
+| **type** | `string` | ✅ |  |
+| **dashboardName** | `string` | ✅ | Target dashboard name |
+
+---
+
+#### Option 3
+
+**Type:** `page`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
+| **label** | `string` | ✅ | Display proper label |
+| **icon** | `string` | optional | Icon name |
+| **visible** | `string` | optional | Visibility formula condition |
+| **type** | `string` | ✅ |  |
+| **pageName** | `string` | ✅ | Target custom page component name |
+| **params** | `Record<string, any>` | optional | Parameters passed to the page context |
+
+---
+
+#### Option 4
+
+**Type:** `url`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
+| **label** | `string` | ✅ | Display proper label |
+| **icon** | `string` | optional | Icon name |
+| **visible** | `string` | optional | Visibility formula condition |
+| **type** | `string` | ✅ |  |
+| **url** | `string` | ✅ | Target external URL |
+| **target** | `Enum<'_self' \| '_blank'>` | optional | Link target window |
+
+---
+
+#### Option 5
+
+**Type:** `group`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
+| **label** | `string` | ✅ | Display proper label |
+| **icon** | `string` | optional | Icon name |
+| **visible** | `string` | optional | Visibility formula condition |
+| **type** | `string` | ✅ |  |
+| **expanded** | `boolean` | optional | Default expansion state in sidebar |
+| **children** | `any[]` | ✅ | Child navigation items |
+
+---
+
 
 ---
 
@@ -103,6 +223,7 @@ const result = AppSchema.parse(data);
 | **objectName** | `string` | ✅ | Target object name |
 | **viewName** | `string` | optional | Default list view to open. Defaults to "all" |
 
+
 ---
 
 ## PageNavItem
@@ -119,6 +240,7 @@ const result = AppSchema.parse(data);
 | **pageName** | `string` | ✅ | Target custom page component name |
 | **params** | `Record<string, any>` | optional | Parameters passed to the page context |
 
+
 ---
 
 ## UrlNavItem
@@ -134,4 +256,7 @@ const result = AppSchema.parse(data);
 | **type** | `string` | ✅ |  |
 | **url** | `string` | ✅ | Target external URL |
 | **target** | `Enum<'_self' \| '_blank'>` | optional | Link target window |
+
+
+---
 

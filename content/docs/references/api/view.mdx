@@ -12,11 +12,11 @@ description: View protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { HttpMethodSchema } from '@objectstack/spec/api';
+import { HttpMethod } from '@objectstack/spec/api';
 import type { HttpMethod } from '@objectstack/spec/api';
 
 // Validate data
-const result = HttpMethodSchema.parse(data);
+const result = HttpMethod.parse(data);
 ```
 
 ---
@@ -32,4 +32,7 @@ const result = HttpMethodSchema.parse(data);
 * `PATCH`
 * `HEAD`
 * `OPTIONS`
+
+
+---
 

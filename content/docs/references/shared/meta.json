@@ -1,9 +1,9 @@
 {
   "title": "Shared Protocol",
   "pages": [
-    "connector-auth",
     "http",
     "identifiers",
-    "mapping"
+    "mapping",
+    "view"
   ]
 }

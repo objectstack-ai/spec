@@ -5,6 +5,30 @@ description: Predictive protocol schemas
 
 # Predictive
 
+Predictive Analytics Protocol
+
+Defines predictive models and machine learning configurations for
+
+data-driven decision making and forecasting in ObjectStack applications.
+
+Use Cases:
+
+- Lead scoring and conversion prediction
+
+- Customer churn prediction
+
+- Sales forecasting
+
+- Demand forecasting
+
+- Anomaly detection in operational data
+
+- Customer segmentation and clustering
+
+- Price optimization
+
+- Recommendation systems
+
 <Callout type="info">
 **Source:** `packages/spec/src/ai/predictive.zod.ts`
 </Callout>
@@ -12,11 +36,11 @@ description: Predictive protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { EvaluationMetricsSchema, HyperparametersSchema, ModelDriftSchema, ModelFeatureSchema, PredictionRequestSchema, PredictionResultSchema, PredictiveModelSchema, PredictiveModelTypeSchema, TrainingConfigSchema } from '@objectstack/spec/ai';
+import { EvaluationMetrics, Hyperparameters, ModelDrift, ModelFeature, PredictionRequest, PredictionResult, PredictiveModel, PredictiveModelType, TrainingConfig } from '@objectstack/spec/ai';
 import type { EvaluationMetrics, Hyperparameters, ModelDrift, ModelFeature, PredictionRequest, PredictionResult, PredictiveModel, PredictiveModelType, TrainingConfig } from '@objectstack/spec/ai';
 
 // Validate data
-const result = EvaluationMetricsSchema.parse(data);
+const result = EvaluationMetrics.parse(data);
 ```
 
 ---
@@ -41,6 +65,7 @@ const result = EvaluationMetricsSchema.parse(data);
 | **mape** | `number` | optional | Mean Absolute Percentage Error |
 | **smape** | `number` | optional | Symmetric MAPE |
 | **custom** | `Record<string, number>` | optional |  |
+
 
 ---
 
@@ -67,6 +92,7 @@ const result = EvaluationMetricsSchema.parse(data);
 | **forecastHorizon** | `integer` | optional | Number of periods to forecast |
 | **custom** | `Record<string, any>` | optional | Algorithm-specific parameters |
 
+
 ---
 
 ## ModelDrift
@@ -79,9 +105,10 @@ const result = EvaluationMetricsSchema.parse(data);
 | **driftType** | `Enum<'feature_drift' \| 'prediction_drift' \| 'performance_drift'>` | ✅ |  |
 | **severity** | `Enum<'low' \| 'medium' \| 'high' \| 'critical'>` | ✅ |  |
 | **detectedAt** | `string` | ✅ | ISO timestamp |
-| **metrics** | `object` | ✅ |  |
+| **metrics** | `Object` | ✅ |  |
 | **recommendation** | `string` | optional |  |
 | **autoRetrainTriggered** | `boolean` | optional |  |
+
 
 ---
 
@@ -102,6 +129,7 @@ const result = EvaluationMetricsSchema.parse(data);
 | **description** | `string` | optional |  |
 | **importance** | `number` | optional | Feature importance score (0-1) |
 
+
 ---
 
 ## PredictionRequest
@@ -115,6 +143,7 @@ const result = EvaluationMetricsSchema.parse(data);
 | **inputData** | `Record<string, any>` | optional | Direct input data (alternative to recordIds) |
 | **returnConfidence** | `boolean` | optional |  |
 | **returnExplanation** | `boolean` | optional |  |
+
 
 ---
 
@@ -130,10 +159,11 @@ const result = EvaluationMetricsSchema.parse(data);
 | **prediction** | `any` | optional | The predicted value |
 | **confidence** | `number` | optional | Confidence score (0-1) |
 | **probabilities** | `Record<string, number>` | optional | Class probabilities (for classification) |
-| **explanation** | `object` | optional |  |
-| **tokens** | `object` | optional | Token usage for this prediction (if AI-powered) |
+| **explanation** | `Object` | optional |  |
+| **tokens** | `Object` | optional | Token usage for this prediction (if AI-powered) |
 | **cost** | `number` | optional | Cost for this prediction in USD |
-| **metadata** | `object` | optional |  |
+| **metadata** | `Object` | optional |  |
+
 
 ---
 
@@ -151,10 +181,10 @@ const result = EvaluationMetricsSchema.parse(data);
 | **objectName** | `string` | ✅ | Target object for predictions |
 | **target** | `string` | ✅ | Target field to predict |
 | **targetType** | `Enum<'numeric' \| 'categorical' \| 'binary'>` | optional | Target field type |
-| **features** | `object[]` | ✅ | Input features for the model |
-| **hyperparameters** | `object` | optional |  |
-| **training** | `object` | optional |  |
-| **metrics** | `object` | optional | Evaluation metrics from last training |
+| **features** | `Object[]` | ✅ | Input features for the model |
+| **hyperparameters** | `Object` | optional |  |
+| **training** | `Object` | optional |  |
+| **metrics** | `Object` | optional | Evaluation metrics from last training |
 | **deploymentStatus** | `Enum<'draft' \| 'training' \| 'trained' \| 'deployed' \| 'deprecated'>` | optional |  |
 | **version** | `string` | optional |  |
 | **predictionField** | `string` | optional | Field to store predictions |
@@ -175,6 +205,7 @@ const result = EvaluationMetricsSchema.parse(data);
 | **createdAt** | `string` | optional | ISO timestamp |
 | **updatedAt** | `string` | optional | ISO timestamp |
 
+
 ---
 
 ## PredictiveModelType
@@ -188,6 +219,7 @@ const result = EvaluationMetricsSchema.parse(data);
 * `anomaly_detection`
 * `recommendation`
 * `ranking`
+
 
 ---
 
@@ -211,4 +243,7 @@ const result = EvaluationMetricsSchema.parse(data);
 | **maxTrainingTime** | `number` | optional | Maximum training time in seconds |
 | **gpuEnabled** | `boolean` | optional |  |
 | **randomSeed** | `integer` | optional | Random seed for reproducibility |
+
+
+---
 

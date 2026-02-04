@@ -5,6 +5,12 @@ description: Cost protocol schemas
 
 # Cost
 
+AI Cost Tracking Protocol
+
+Monitor and control AI API costs with budgets, alerts, and analytics.
+
+Provides cost optimization, budget enforcement, and financial reporting.
+
 <Callout type="info">
 **Source:** `packages/spec/src/ai/cost.zod.ts`
 </Callout>
@@ -12,11 +18,11 @@ description: Cost protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AIOperationCostSchema, BillingPeriodSchema, BudgetLimitSchema, BudgetStatusSchema, BudgetTypeSchema, CostAlertSchema, CostAlertTypeSchema, CostAnalyticsSchema, CostBreakdownDimensionSchema, CostBreakdownEntrySchema, CostEntrySchema, CostMetricTypeSchema, CostOptimizationRecommendationSchema, CostQueryFiltersSchema, CostReportSchema, TokenUsageSchema } from '@objectstack/spec/ai';
+import { AIOperationCost, BillingPeriod, BudgetLimit, BudgetStatus, BudgetType, CostAlert, CostAlertType, CostAnalytics, CostBreakdownDimension, CostBreakdownEntry, CostEntry, CostMetricType, CostOptimizationRecommendation, CostQueryFilters, CostReport, TokenUsage } from '@objectstack/spec/ai';
 import type { AIOperationCost, BillingPeriod, BudgetLimit, BudgetStatus, BudgetType, CostAlert, CostAlertType, CostAnalytics, CostBreakdownDimension, CostBreakdownEntry, CostEntry, CostMetricType, CostOptimizationRecommendation, CostQueryFilters, CostReport, TokenUsage } from '@objectstack/spec/ai';
 
 // Validate data
-const result = AIOperationCostSchema.parse(data);
+const result = AIOperationCost.parse(data);
 ```
 
 ---
@@ -31,10 +37,11 @@ const result = AIOperationCostSchema.parse(data);
 | **operationType** | `Enum<'conversation' \| 'orchestration' \| 'prediction' \| 'rag' \| 'nlq'>` | ✅ |  |
 | **agentName** | `string` | optional | Agent that performed the operation |
 | **modelId** | `string` | ✅ |  |
-| **tokens** | `object` | ✅ |  |
+| **tokens** | `Object` | ✅ |  |
 | **cost** | `number` | ✅ | Cost in USD |
 | **timestamp** | `string` | ✅ |  |
 | **metadata** | `Record<string, any>` | optional |  |
+
 
 ---
 
@@ -49,6 +56,7 @@ const result = AIOperationCostSchema.parse(data);
 * `quarterly`
 * `yearly`
 * `custom`
+
 
 ---
 
@@ -75,6 +83,7 @@ const result = AIOperationCostSchema.parse(data);
 | **active** | `boolean` | optional |  |
 | **tags** | `string[]` | optional |  |
 
+
 ---
 
 ## BudgetStatus
@@ -99,6 +108,7 @@ const result = AIOperationCostSchema.parse(data);
 | **projectedOverage** | `number` | optional | Projected overage |
 | **lastUpdated** | `string` | ✅ | ISO 8601 timestamp |
 
+
 ---
 
 ## BudgetType
@@ -111,6 +121,7 @@ const result = AIOperationCostSchema.parse(data);
 * `object`
 * `project`
 * `department`
+
 
 ---
 
@@ -139,6 +150,7 @@ const result = AIOperationCostSchema.parse(data);
 | **resolved** | `boolean` | optional |  |
 | **metadata** | `Record<string, any>` | optional |  |
 
+
 ---
 
 ## CostAlertType
@@ -150,6 +162,7 @@ const result = AIOperationCostSchema.parse(data);
 * `limit_exceeded`
 * `anomaly_detected`
 * `projection_exceeded`
+
 
 ---
 
@@ -170,17 +183,18 @@ const result = AIOperationCostSchema.parse(data);
 | **averageRequestsPerDay** | `number` | ✅ |  |
 | **costTrend** | `Enum<'increasing' \| 'decreasing' \| 'stable'>` | optional |  |
 | **trendPercentage** | `number` | optional | % change vs previous period |
-| **byModel** | `object[]` | optional |  |
-| **byProvider** | `object[]` | optional |  |
-| **byUser** | `object[]` | optional |  |
-| **byAgent** | `object[]` | optional |  |
-| **byOperation** | `object[]` | optional |  |
-| **byDate** | `object[]` | optional |  |
-| **topModels** | `object[]` | optional |  |
-| **topUsers** | `object[]` | optional |  |
-| **topAgents** | `object[]` | optional |  |
+| **byModel** | `Object[]` | optional |  |
+| **byProvider** | `Object[]` | optional |  |
+| **byUser** | `Object[]` | optional |  |
+| **byAgent** | `Object[]` | optional |  |
+| **byOperation** | `Object[]` | optional |  |
+| **byDate** | `Object[]` | optional |  |
+| **topModels** | `Object[]` | optional |  |
+| **topUsers** | `Object[]` | optional |  |
+| **topAgents** | `Object[]` | optional |  |
 | **tokensPerDollar** | `number` | optional |  |
 | **requestsPerDollar** | `number` | optional |  |
+
 
 ---
 
@@ -197,6 +211,7 @@ const result = AIOperationCostSchema.parse(data);
 * `date`
 * `hour`
 * `tag`
+
 
 ---
 
@@ -215,6 +230,7 @@ const result = AIOperationCostSchema.parse(data);
 | **periodStart** | `string` | optional |  |
 | **periodEnd** | `string` | optional |  |
 
+
 ---
 
 ## CostEntry
@@ -228,7 +244,7 @@ const result = AIOperationCostSchema.parse(data);
 | **modelId** | `string` | ✅ | AI model used |
 | **provider** | `string` | ✅ | AI provider (e.g., "openai", "anthropic") |
 | **operation** | `string` | ✅ | Operation type (e.g., "chat_completion", "embedding") |
-| **tokens** | `object` | optional | Standardized token usage |
+| **tokens** | `Object` | optional | Standardized token usage |
 | **requestCount** | `integer` | optional |  |
 | **promptCost** | `number` | optional | Cost of prompt tokens |
 | **completionCost** | `number` | optional | Cost of completion tokens |
@@ -242,6 +258,7 @@ const result = AIOperationCostSchema.parse(data);
 | **tags** | `string[]` | optional |  |
 | **metadata** | `Record<string, any>` | optional |  |
 
+
 ---
 
 ## CostMetricType
@@ -254,6 +271,7 @@ const result = AIOperationCostSchema.parse(data);
 * `second`
 * `image`
 * `embedding`
+
 
 ---
 
@@ -278,6 +296,7 @@ const result = AIOperationCostSchema.parse(data);
 | **affectedUsers** | `string[]` | optional |  |
 | **status** | `Enum<'pending' \| 'accepted' \| 'rejected' \| 'implemented'>` | optional |  |
 | **implementedAt** | `string` | optional |  |
+
 
 ---
 
@@ -304,6 +323,7 @@ const result = AIOperationCostSchema.parse(data);
 | **limit** | `integer` | optional |  |
 | **offset** | `integer` | optional |  |
 
+
 ---
 
 ## CostReport
@@ -318,11 +338,11 @@ const result = AIOperationCostSchema.parse(data);
 | **periodStart** | `string` | ✅ | ISO 8601 timestamp |
 | **periodEnd** | `string` | ✅ | ISO 8601 timestamp |
 | **period** | `Enum<'hourly' \| 'daily' \| 'weekly' \| 'monthly' \| 'quarterly' \| 'yearly' \| 'custom'>` | ✅ |  |
-| **analytics** | `object` | ✅ |  |
-| **budgets** | `object[]` | optional |  |
-| **alerts** | `object[]` | optional |  |
+| **analytics** | `Object` | ✅ |  |
+| **budgets** | `Object[]` | optional |  |
+| **alerts** | `Object[]` | optional |  |
 | **activeAlertCount** | `integer` | optional |  |
-| **recommendations** | `object[]` | optional |  |
+| **recommendations** | `Object[]` | optional |  |
 | **previousPeriodCost** | `number` | optional |  |
 | **costChange** | `number` | optional | Change vs previous period |
 | **costChangePercentage** | `number` | optional |  |
@@ -330,6 +350,7 @@ const result = AIOperationCostSchema.parse(data);
 | **forecastedBudgetStatus** | `Enum<'under' \| 'at' \| 'over'>` | optional |  |
 | **format** | `Enum<'summary' \| 'detailed' \| 'executive'>` | optional |  |
 | **currency** | `string` | optional |  |
+
 
 ---
 
@@ -342,4 +363,7 @@ const result = AIOperationCostSchema.parse(data);
 | **prompt** | `integer` | ✅ | Input tokens |
 | **completion** | `integer` | ✅ | Output tokens |
 | **total** | `integer` | ✅ | Total tokens |
+
+
+---
 

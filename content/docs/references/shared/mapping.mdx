@@ -5,6 +5,56 @@ description: Mapping protocol schemas
 
 # Mapping
 
+Base Field Mapping Protocol
+
+Shared by: ETL, Sync, Connector, External Lookup
+
+This module provides the canonical field mapping schema used across
+
+ObjectStack for data transformation and synchronization.
+
+**Use Cases:**
+
+- ETL pipelines (data/mapping.zod.ts)
+
+- Data synchronization (automation/sync.zod.ts)
+
+- Integration connectors (integration/connector.zod.ts)
+
+- External lookups (data/external-lookup.zod.ts)
+
+@example Basic field mapping
+
+```typescript
+
+const mapping: FieldMapping = {
+
+source: 'external_user_id',
+
+target: 'user_id',
+
+};
+
+```
+
+@example With transformation
+
+```typescript
+
+const mapping: FieldMapping = {
+
+source: 'user_name',
+
+target: 'name',
+
+transform: { type: 'cast', targetType: 'string' },
+
+defaultValue: 'Unknown'
+
+};
+
+```
+
 <Callout type="info">
 **Source:** `packages/spec/src/shared/mapping.zod.ts`
 </Callout>
@@ -12,11 +62,11 @@ description: Mapping protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { FieldMappingSchema, TransformTypeSchema } from '@objectstack/spec/shared';
+import { FieldMapping, TransformType } from '@objectstack/spec/shared';
 import type { FieldMapping, TransformType } from '@objectstack/spec/shared';
 
 // Validate data
-const result = FieldMappingSchema.parse(data);
+const result = FieldMapping.parse(data);
 ```
 
 ---
@@ -29,10 +79,95 @@ const result = FieldMappingSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **source** | `string` | ✅ | Source field name |
 | **target** | `string` | ✅ | Target field name |
-| **transform** | `object \| object \| object \| object \| object` | optional | Transformation to apply |
+| **transform** | `Object \| Object \| Object \| Object \| Object` | optional | Transformation to apply |
 | **defaultValue** | `any` | optional | Default if source is null/undefined |
+
 
 ---
 
 ## TransformType
+
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+Set a constant value
+
+**Type:** `constant`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **value** | `any` | optional | Constant value to use |
+
+---
+
+#### Option 2
+
+Cast to a specific data type
+
+**Type:** `cast`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **targetType** | `Enum<'string' \| 'number' \| 'boolean' \| 'date'>` | ✅ | Target data type |
+
+---
+
+#### Option 3
+
+Lookup value from another table
+
+**Type:** `lookup`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **table** | `string` | ✅ | Lookup table name |
+| **keyField** | `string` | ✅ | Field to match on |
+| **valueField** | `string` | ✅ | Field to retrieve |
+
+---
+
+#### Option 4
+
+Custom JavaScript transformation
+
+**Type:** `javascript`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **expression** | `string` | ✅ | JavaScript expression (e.g., "value.toUpperCase()") |
+
+---
+
+#### Option 5
+
+Map values using a dictionary
+
+**Type:** `map`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **mappings** | `Record<string, any>` | ✅ | Value mappings (e.g., `{"Active": "active"}`) |
+
+---
+
+
+---
 

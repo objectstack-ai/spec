@@ -5,6 +5,14 @@ description: Space protocol schemas
 
 # Space
 
+# Space Protocol
+
+Defines the SaaS-side representation of a Space (formerly Project).
+
+A Space is a logical container for business apps, data, and logic.
+
+Corresponds to an entry in the Hub's database.
+
 <Callout type="info">
 **Source:** `packages/spec/src/hub/space.zod.ts`
 </Callout>
@@ -12,11 +20,11 @@ description: Space protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { DeploymentTargetSchema, HubSpaceSchema, SpaceSubscriptionSchema, SubscriptionStatusSchema } from '@objectstack/spec/hub';
+import { DeploymentTarget, HubSpace, SpaceSubscription, SubscriptionStatus } from '@objectstack/spec/hub';
 import type { DeploymentTarget, HubSpace, SpaceSubscription, SubscriptionStatus } from '@objectstack/spec/hub';
 
 // Validate data
-const result = DeploymentTargetSchema.parse(data);
+const result = DeploymentTarget.parse(data);
 ```
 
 ---
@@ -32,6 +40,7 @@ const result = DeploymentTargetSchema.parse(data);
 | **url** | `string` | optional | Public Access URL |
 | **env** | `Record<string, string>` | optional | Runtime Environment Variables |
 
+
 ---
 
 ## HubSpace
@@ -44,13 +53,14 @@ const result = DeploymentTargetSchema.parse(data);
 | **name** | `string` | ✅ |  |
 | **slug** | `string` | ✅ | URL friendly identifier |
 | **ownerId** | `string` | ✅ |  |
-| **runtime** | `object` | optional | Runtime instance configuration |
-| **bom** | `object` | ✅ |  |
-| **lastBuild** | `object` | optional |  |
-| **subscription** | `object` | optional |  |
-| **deployment** | `object` | optional |  |
+| **runtime** | `Object` | optional | Runtime instance configuration |
+| **bom** | `Object` | ✅ |  |
+| **lastBuild** | `Object` | optional |  |
+| **subscription** | `Object` | optional |  |
+| **deployment** | `Object` | optional |  |
 | **createdAt** | `string` | ✅ |  |
 | **updatedAt** | `string` | ✅ |  |
+
 
 ---
 
@@ -65,8 +75,9 @@ const result = DeploymentTargetSchema.parse(data);
 | **currentPeriodEnd** | `string` | optional |  |
 | **stripeCustomerId** | `string` | optional |  |
 | **stripeSubscriptionId** | `string` | optional |  |
-| **addons** | `object[]` | optional |  |
+| **addons** | `Object[]` | optional |  |
 | **usage** | `Record<string, number>` | optional |  |
+
 
 ---
 
@@ -79,4 +90,7 @@ const result = DeploymentTargetSchema.parse(data);
 * `canceled`
 * `trialing`
 * `incomplete`
+
+
+---
 

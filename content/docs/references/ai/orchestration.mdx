@@ -5,6 +5,26 @@ description: Orchestration protocol schemas
 
 # Orchestration
 
+AI Agentic Orchestration Protocol
+
+Defines intelligent orchestration flows where AI Agents leverage cognitive skills
+
+to automate business processes with dynamic reasoning, planning, and execution.
+
+Distinction from Standard Workflows:
+
+- Standard Workflow: Deterministic (If X then Y). defined in src/data/workflow.zod.ts
+
+- AI Orchestration: Probabilistic & Agentic (Goal -> Plan -> Execute).
+
+Use Cases:
+
+- Complex Support Triage (Analyze sentiment + intent -> Draft response -> Route)
+
+- Intelligent Document Processing (OCR -> Extract Entities -> Validate -> Entry)
+
+- Research Agent (Search Web -> Summarize -> Generate Report)
+
 <Callout type="info">
 **Source:** `packages/spec/src/ai/orchestration.zod.ts`
 </Callout>
@@ -12,11 +32,11 @@ description: Orchestration protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AIOrchestrationSchema, AIOrchestrationExecutionResultSchema, AIOrchestrationTriggerSchema, AITaskSchema, AITaskTypeSchema, BatchAIOrchestrationExecutionSchema, PostProcessingActionSchema, WorkflowFieldConditionSchema, WorkflowScheduleSchema } from '@objectstack/spec/ai';
+import { AIOrchestration, AIOrchestrationExecutionResult, AIOrchestrationTrigger, AITask, AITaskType, BatchAIOrchestrationExecution, PostProcessingAction, WorkflowFieldCondition, WorkflowSchedule } from '@objectstack/spec/ai';
 import type { AIOrchestration, AIOrchestrationExecutionResult, AIOrchestrationTrigger, AITask, AITaskType, BatchAIOrchestrationExecution, PostProcessingAction, WorkflowFieldCondition, WorkflowSchedule } from '@objectstack/spec/ai';
 
 // Validate data
-const result = AIOrchestrationSchema.parse(data);
+const result = AIOrchestration.parse(data);
 ```
 
 ---
@@ -32,12 +52,12 @@ const result = AIOrchestrationSchema.parse(data);
 | **description** | `string` | optional |  |
 | **objectName** | `string` | ✅ | Target object for this orchestration |
 | **trigger** | `Enum<'record_created' \| 'record_updated' \| 'field_changed' \| 'scheduled' \| 'manual' \| 'webhook' \| 'batch'>` | ✅ |  |
-| **fieldConditions** | `object[]` | optional | Fields to monitor (for field_changed trigger) |
-| **schedule** | `object` | optional | Schedule configuration (for scheduled trigger) |
-| **webhookConfig** | `object` | optional | Webhook configuration (for webhook trigger) |
+| **fieldConditions** | `Object[]` | optional | Fields to monitor (for field_changed trigger) |
+| **schedule** | `Object` | optional | Schedule configuration (for scheduled trigger) |
+| **webhookConfig** | `Object` | optional | Webhook configuration (for webhook trigger) |
 | **entryCriteria** | `string` | optional | Formula condition - workflow only runs if TRUE |
-| **aiTasks** | `object[]` | ✅ | AI tasks to execute in sequence |
-| **postActions** | `object[]` | optional | Actions after AI tasks complete |
+| **aiTasks** | `Object[]` | ✅ | AI tasks to execute in sequence |
+| **postActions** | `Object[]` | optional | Actions after AI tasks complete |
 | **executionMode** | `Enum<'sequential' \| 'parallel'>` | optional | How to execute multiple AI tasks |
 | **stopOnError** | `boolean` | optional | Stop workflow if any task fails |
 | **timeout** | `number` | optional | Maximum execution time in seconds |
@@ -52,6 +72,7 @@ const result = AIOrchestrationSchema.parse(data);
 | **owner** | `string` | optional | User ID of workflow owner |
 | **createdAt** | `string` | optional | ISO timestamp |
 | **updatedAt** | `string` | optional | ISO timestamp |
+
 
 ---
 
@@ -68,12 +89,13 @@ const result = AIOrchestrationSchema.parse(data);
 | **tasksExecuted** | `integer` | ✅ | Number of tasks executed |
 | **tasksSucceeded** | `integer` | ✅ | Number of tasks succeeded |
 | **tasksFailed** | `integer` | ✅ | Number of tasks failed |
-| **taskResults** | `object[]` | optional |  |
-| **tokens** | `object` | optional | Total token usage for this execution |
+| **taskResults** | `Object[]` | optional |  |
+| **tokens** | `Object` | optional | Total token usage for this execution |
 | **cost** | `number` | optional | Total cost for this execution in USD |
 | **error** | `string` | optional |  |
 | **startedAt** | `string` | ✅ | ISO timestamp |
 | **completedAt** | `string` | optional | ISO timestamp |
+
 
 ---
 
@@ -88,6 +110,7 @@ const result = AIOrchestrationSchema.parse(data);
 * `manual`
 * `webhook`
 * `batch`
+
 
 ---
 
@@ -119,6 +142,7 @@ const result = AIOrchestrationSchema.parse(data);
 | **description** | `string` | optional |  |
 | **active** | `boolean` | optional |  |
 
+
 ---
 
 ## AITaskType
@@ -136,6 +160,7 @@ const result = AIOrchestrationSchema.parse(data);
 * `anomaly_detection`
 * `recommendation`
 
+
 ---
 
 ## BatchAIOrchestrationExecution
@@ -150,6 +175,7 @@ const result = AIOrchestrationSchema.parse(data);
 | **parallelism** | `integer` | optional |  |
 | **priority** | `Enum<'low' \| 'normal' \| 'high'>` | optional |  |
 
+
 ---
 
 ## PostProcessingAction
@@ -163,6 +189,7 @@ const result = AIOrchestrationSchema.parse(data);
 | **config** | `Record<string, any>` | ✅ | Action-specific configuration |
 | **condition** | `string` | optional | Execute only if condition is TRUE |
 
+
 ---
 
 ## WorkflowFieldCondition
@@ -174,6 +201,7 @@ const result = AIOrchestrationSchema.parse(data);
 | **field** | `string` | ✅ | Field name to monitor |
 | **operator** | `Enum<'changed' \| 'changed_to' \| 'changed_from' \| 'is' \| 'is_not'>` | optional |  |
 | **value** | `any` | optional | Value to compare against (for changed_to/changed_from/is/is_not) |
+
 
 ---
 
@@ -190,4 +218,7 @@ const result = AIOrchestrationSchema.parse(data);
 | **dayOfWeek** | `integer` | optional | Day of week for weekly (0=Sunday) |
 | **dayOfMonth** | `integer` | optional | Day of month for monthly |
 | **timezone** | `string` | optional |  |
+
+
+---
 

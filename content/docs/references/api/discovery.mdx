@@ -5,6 +5,10 @@ description: Discovery protocol schemas
 
 # Discovery
 
+API Capabilities Schema
+
+Defines what features are enabled on this ObjectOS instance.
+
 <Callout type="info">
 **Source:** `packages/spec/src/api/discovery.zod.ts`
 </Callout>
@@ -12,11 +16,11 @@ description: Discovery protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ApiCapabilitiesSchema, ApiRoutesSchema, DiscoverySchema } from '@objectstack/spec/api';
+import { ApiCapabilities, ApiRoutes, Discovery } from '@objectstack/spec/api';
 import type { ApiCapabilities, ApiRoutes, Discovery } from '@objectstack/spec/api';
 
 // Validate data
-const result = ApiCapabilitiesSchema.parse(data);
+const result = ApiCapabilities.parse(data);
 ```
 
 ---
@@ -33,6 +37,7 @@ const result = ApiCapabilitiesSchema.parse(data);
 | **files** | `boolean` | optional |  |
 | **analytics** | `boolean` | optional | Is the Analytics/BI engine enabled? |
 | **hub** | `boolean` | optional | Is Hub management enabled? |
+
 
 ---
 
@@ -51,6 +56,7 @@ const result = ApiCapabilitiesSchema.parse(data);
 | **hub** | `string` | optional | e.g. /api/hub |
 | **graphql** | `string` | optional | e.g. /graphql |
 
+
 ---
 
 ## Discovery
@@ -62,7 +68,10 @@ const result = ApiCapabilitiesSchema.parse(data);
 | **name** | `string` | ✅ |  |
 | **version** | `string` | ✅ |  |
 | **environment** | `Enum<'production' \| 'sandbox' \| 'development'>` | ✅ |  |
-| **routes** | `object` | ✅ |  |
-| **features** | `object` | ✅ |  |
-| **locale** | `object` | ✅ |  |
+| **routes** | `Object` | ✅ |  |
+| **features** | `Object` | ✅ |  |
+| **locale** | `Object` | ✅ |  |
+
+
+---
 

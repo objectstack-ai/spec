@@ -5,6 +5,10 @@ description: Dataset protocol schemas
 
 # Dataset
 
+Data Import Strategy
+
+Defines how the engine handles existing records.
+
 <Callout type="info">
 **Source:** `packages/spec/src/data/dataset.zod.ts`
 </Callout>
@@ -12,11 +16,11 @@ description: Dataset protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { DatasetSchema, DatasetModeSchema } from '@objectstack/spec/data';
+import { Dataset, DatasetMode } from '@objectstack/spec/data';
 import type { Dataset, DatasetMode } from '@objectstack/spec/data';
 
 // Validate data
-const result = DatasetSchema.parse(data);
+const result = Dataset.parse(data);
 ```
 
 ---
@@ -33,6 +37,7 @@ const result = DatasetSchema.parse(data);
 | **env** | `Enum<'prod' \| 'dev' \| 'test'>[]` | optional | Applicable environments |
 | **records** | `Record<string, any>[]` | ✅ | Data records |
 
+
 ---
 
 ## DatasetMode
@@ -44,4 +49,7 @@ const result = DatasetSchema.parse(data);
 * `upsert`
 * `replace`
 * `ignore`
+
+
+---
 

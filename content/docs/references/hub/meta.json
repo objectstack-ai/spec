@@ -5,8 +5,11 @@
     "hub-federation",
     "license",
     "marketplace",
+    "metrics",
     "plugin-registry",
     "plugin-security",
+    "plugin-security-advanced",
+    "plugin-versioning",
     "registry-config",
     "space",
     "tenant"

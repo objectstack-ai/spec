@@ -5,6 +5,20 @@ description: Tracing protocol schemas
 
 # Tracing
 
+Tracing Protocol - Distributed Tracing & Observability
+
+Comprehensive distributed tracing based on OpenTelemetry standards:
+
+- Trace context propagation
+
+- Span creation and management
+
+- Sampling strategies
+
+- Integration with tracing backends (Jaeger, Zipkin, etc.)
+
+- W3C Trace Context standard compliance
+
 <Callout type="info">
 **Source:** `packages/spec/src/system/tracing.zod.ts`
 </Callout>
@@ -12,11 +26,11 @@ description: Tracing protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { OpenTelemetryCompatibilitySchema, OtelExporterTypeSchema, SamplingDecisionSchema, SamplingStrategyTypeSchema, SpanSchema, SpanAttributeValueSchema, SpanAttributesSchema, SpanEventSchema, SpanKindSchema, SpanLinkSchema, SpanStatusSchema, TraceContextSchema, TraceContextPropagationSchema, TraceFlagsSchema, TracePropagationFormatSchema, TraceSamplingConfigSchema, TraceStateSchema, TracingConfigSchema } from '@objectstack/spec/system';
+import { OpenTelemetryCompatibility, OtelExporterType, SamplingDecision, SamplingStrategyType, Span, SpanAttributeValue, SpanAttributes, SpanEvent, SpanKind, SpanLink, SpanStatus, TraceContext, TraceContextPropagation, TraceFlags, TracePropagationFormat, TraceSamplingConfig, TraceState, TracingConfig } from '@objectstack/spec/system';
 import type { OpenTelemetryCompatibility, OtelExporterType, SamplingDecision, SamplingStrategyType, Span, SpanAttributeValue, SpanAttributes, SpanEvent, SpanKind, SpanLink, SpanStatus, TraceContext, TraceContextPropagation, TraceFlags, TracePropagationFormat, TraceSamplingConfig, TraceState, TracingConfig } from '@objectstack/spec/system';
 
 // Validate data
-const result = OpenTelemetryCompatibilitySchema.parse(data);
+const result = OpenTelemetryCompatibility.parse(data);
 ```
 
 ---
@@ -30,10 +44,11 @@ OpenTelemetry compatibility configuration
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **sdkVersion** | `string` | optional | OTel SDK version |
-| **exporter** | `object` | ✅ | Exporter configuration |
-| **resource** | `object` | ✅ | Resource attributes |
-| **instrumentation** | `object` | optional |  |
+| **exporter** | `Object` | ✅ | Exporter configuration |
+| **resource** | `Object` | ✅ | Resource attributes |
+| **instrumentation** | `Object` | optional |  |
 | **semanticConventionsVersion** | `string` | optional | Semantic conventions version |
+
 
 ---
 
@@ -54,6 +69,7 @@ OpenTelemetry exporter type
 * `newrelic`
 * `custom`
 
+
 ---
 
 ## SamplingDecision
@@ -65,6 +81,7 @@ Sampling decision
 * `drop`
 * `record_only`
 * `record_and_sample`
+
 
 ---
 
@@ -83,6 +100,7 @@ Sampling strategy type
 * `composite`
 * `custom`
 
+
 ---
 
 ## Span
@@ -93,18 +111,19 @@ OpenTelemetry span
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **context** | `object` | ✅ | Trace context |
+| **context** | `Object` | ✅ | Trace context |
 | **name** | `string` | ✅ | Span name |
 | **kind** | `Enum<'internal' \| 'server' \| 'client' \| 'producer' \| 'consumer'>` | optional | Span kind |
 | **startTime** | `string` | ✅ | Span start time |
 | **endTime** | `string` | optional | Span end time |
 | **duration** | `number` | optional | Duration in milliseconds |
-| **status** | `object` | optional |  |
+| **status** | `Object` | optional |  |
 | **attributes** | `Record<string, string \| number \| boolean \| string[] \| number[] \| boolean[]>` | optional | Span attributes |
-| **events** | `object[]` | optional |  |
-| **links** | `object[]` | optional |  |
+| **events** | `Object[]` | optional |  |
+| **links** | `Object[]` | optional |  |
 | **resource** | `Record<string, string \| number \| boolean \| string[] \| number[] \| boolean[]>` | optional | Resource attributes |
-| **instrumentationLibrary** | `object` | optional |  |
+| **instrumentationLibrary** | `Object` | optional |  |
+
 
 ---
 
@@ -112,11 +131,53 @@ OpenTelemetry span
 
 Span attribute value
 
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+Type: `string`
+
+---
+
+#### Option 2
+
+Type: `number`
+
+---
+
+#### Option 3
+
+Type: `boolean`
+
+---
+
+#### Option 4
+
+Type: `string[]`
+
+---
+
+#### Option 5
+
+Type: `number[]`
+
+---
+
+#### Option 6
+
+Type: `boolean[]`
+
+---
+
+
 ---
 
 ## SpanAttributes
 
 Span attributes
+
 
 ---
 
@@ -132,6 +193,7 @@ Span event
 | **timestamp** | `string` | ✅ | Event timestamp |
 | **attributes** | `Record<string, string \| number \| boolean \| string[] \| number[] \| boolean[]>` | optional | Event attributes |
 
+
 ---
 
 ## SpanKind
@@ -146,6 +208,7 @@ Span kind
 * `producer`
 * `consumer`
 
+
 ---
 
 ## SpanLink
@@ -156,8 +219,9 @@ Span link
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **context** | `object` | ✅ | Linked trace context |
+| **context** | `Object` | ✅ | Linked trace context |
 | **attributes** | `Record<string, string \| number \| boolean \| string[] \| number[] \| boolean[]>` | optional | Link attributes |
+
 
 ---
 
@@ -170,6 +234,7 @@ Span status
 * `unset`
 * `ok`
 * `error`
+
 
 ---
 
@@ -184,10 +249,11 @@ Trace context (W3C Trace Context)
 | **traceId** | `string` | ✅ | Trace ID (32 hex chars) |
 | **spanId** | `string` | ✅ | Span ID (16 hex chars) |
 | **traceFlags** | `integer` | optional | Trace flags bitmap |
-| **traceState** | `object` | optional | Trace state |
+| **traceState** | `Object` | optional | Trace state |
 | **parentSpanId** | `string` | optional | Parent span ID (16 hex chars) |
 | **sampled** | `boolean` | optional |  |
 | **remote** | `boolean` | optional |  |
+
 
 ---
 
@@ -202,14 +268,16 @@ Trace context propagation
 | **formats** | `Enum<'w3c' \| 'b3' \| 'b3_multi' \| 'jaeger' \| 'xray' \| 'ottrace' \| 'custom'>[]` | optional |  |
 | **extract** | `boolean` | optional |  |
 | **inject** | `boolean` | optional |  |
-| **headers** | `object` | optional |  |
-| **baggage** | `object` | optional |  |
+| **headers** | `Object` | optional |  |
+| **baggage** | `Object` | optional |  |
+
 
 ---
 
 ## TraceFlags
 
 Trace flags bitmap
+
 
 ---
 
@@ -227,6 +295,7 @@ Trace propagation format
 * `ottrace`
 * `custom`
 
+
 ---
 
 ## TraceSamplingConfig
@@ -240,10 +309,11 @@ Trace sampling configuration
 | **type** | `Enum<'always_on' \| 'always_off' \| 'trace_id_ratio' \| 'rate_limiting' \| 'parent_based' \| 'probability' \| 'composite' \| 'custom'>` | ✅ | Sampling strategy |
 | **ratio** | `number` | optional | Sample ratio (0-1) |
 | **rateLimit** | `number` | optional | Traces per second |
-| **parentBased** | `object` | optional |  |
-| **composite** | `object[]` | optional |  |
-| **rules** | `object[]` | optional |  |
+| **parentBased** | `Object` | optional |  |
+| **composite** | `Object[]` | optional |  |
+| **rules** | `Object[]` | optional |  |
 | **customSamplerId** | `string` | optional | Custom sampler identifier |
+
 
 ---
 
@@ -256,6 +326,7 @@ Trace state
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **entries** | `Record<string, string>` | ✅ | Trace state entries |
+
 
 ---
 
@@ -270,11 +341,14 @@ Tracing configuration
 | **name** | `string` | ✅ | Configuration name (snake_case, max 64 chars) |
 | **label** | `string` | ✅ | Display label |
 | **enabled** | `boolean` | optional |  |
-| **sampling** | `object` | optional | Trace sampling configuration |
-| **propagation** | `object` | optional | Trace context propagation |
-| **openTelemetry** | `object` | optional | OpenTelemetry compatibility configuration |
-| **spanLimits** | `object` | optional |  |
+| **sampling** | `Object` | optional | Trace sampling configuration |
+| **propagation** | `Object` | optional | Trace context propagation |
+| **openTelemetry** | `Object` | optional | OpenTelemetry compatibility configuration |
+| **spanLimits** | `Object` | optional |  |
 | **traceIdGenerator** | `Enum<'random' \| 'uuid' \| 'custom'>` | optional |  |
 | **customTraceIdGeneratorId** | `string` | optional | Custom generator identifier |
-| **performance** | `object` | optional |  |
+| **performance** | `Object` | optional |  |
+
+
+---
 

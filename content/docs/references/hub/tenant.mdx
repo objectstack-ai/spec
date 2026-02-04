@@ -5,6 +5,22 @@ description: Tenant protocol schemas
 
 # Tenant
 
+Tenant Schema (Multi-Tenant Architecture)
+
+Defines the tenant/tenancy model for ObjectStack SaaS deployments.
+
+Supports different levels of data isolation to meet varying security,
+
+performance, and compliance requirements.
+
+Isolation Levels:
+
+- shared_schema: All tenants share the same database and schema (row-level isolation)
+
+- isolated_schema: Tenants have separate schemas within a shared database
+
+- isolated_db: Each tenant has a completely separate database
+
 <Callout type="info">
 **Source:** `packages/spec/src/hub/tenant.zod.ts`
 </Callout>
@@ -12,11 +28,11 @@ description: Tenant protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { DatabaseLevelIsolationStrategySchema, LevelIsolationStrategySchemaSchema, RowLevelIsolationStrategySchema, TenantSchema, TenantIsolationConfigSchema, TenantIsolationLevelSchema, TenantQuotaSchema, TenantSecurityPolicySchema } from '@objectstack/spec/hub';
-import type { DatabaseLevelIsolationStrategy, LevelIsolationStrategySchema, RowLevelIsolationStrategy, Tenant, TenantIsolationConfig, TenantIsolationLevel, TenantQuota, TenantSecurityPolicy } from '@objectstack/spec/hub';
+import { DatabaseLevelIsolationStrategy, LevelIsolationStrategySchema, RowLevelIsolationStrategy, Tenant, TenantIsolationConfig, TenantIsolationLevel, TenantQuota, TenantSecurityPolicy } from '@objectstack/spec/hub';
+import type { DatabaseLevelIsolationStrategy, LevelIsolationStrategy, RowLevelIsolationStrategy, Tenant, TenantIsolationConfig, TenantIsolationLevel, TenantQuota, TenantSecurityPolicy } from '@objectstack/spec/hub';
 
 // Validate data
-const result = DatabaseLevelIsolationStrategySchema.parse(data);
+const result = DatabaseLevelIsolationStrategy.parse(data);
 ```
 
 ---
@@ -28,10 +44,11 @@ const result = DatabaseLevelIsolationStrategySchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **strategy** | `string` | ✅ | Database-level isolation strategy |
-| **database** | `object` | optional | Database configuration |
-| **connectionPool** | `object` | optional | Connection pool configuration |
-| **backup** | `object` | optional | Backup configuration |
-| **encryption** | `object` | optional | Encryption configuration |
+| **database** | `Object` | optional | Database configuration |
+| **connectionPool** | `Object` | optional | Connection pool configuration |
+| **backup** | `Object` | optional | Backup configuration |
+| **encryption** | `Object` | optional | Encryption configuration |
+
 
 ---
 
@@ -42,9 +59,10 @@ const result = DatabaseLevelIsolationStrategySchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **strategy** | `string` | ✅ | Schema-level isolation strategy |
-| **schema** | `object` | optional | Schema configuration |
-| **migrations** | `object` | optional | Migration configuration |
-| **performance** | `object` | optional | Performance settings |
+| **schema** | `Object` | optional | Schema configuration |
+| **migrations** | `Object` | optional | Migration configuration |
+| **performance** | `Object` | optional | Performance settings |
+
 
 ---
 
@@ -55,8 +73,9 @@ const result = DatabaseLevelIsolationStrategySchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **strategy** | `string` | ✅ | Row-level isolation strategy |
-| **database** | `object` | optional | Database configuration |
-| **performance** | `object` | optional | Performance settings |
+| **database** | `Object` | optional | Database configuration |
+| **performance** | `Object` | optional | Performance settings |
+
 
 ---
 
@@ -70,11 +89,56 @@ const result = DatabaseLevelIsolationStrategySchema.parse(data);
 | **name** | `string` | ✅ | Tenant display name |
 | **isolationLevel** | `Enum<'shared_schema' \| 'isolated_schema' \| 'isolated_db'>` | ✅ |  |
 | **customizations** | `Record<string, any>` | optional | Custom configuration values |
-| **quotas** | `object` | optional |  |
+| **quotas** | `Object` | optional |  |
+
 
 ---
 
 ## TenantIsolationConfig
+
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **strategy** | `string` | ✅ | Row-level isolation strategy |
+| **database** | `Object` | optional | Database configuration |
+| **performance** | `Object` | optional | Performance settings |
+
+---
+
+#### Option 2
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **strategy** | `string` | ✅ | Schema-level isolation strategy |
+| **schema** | `Object` | optional | Schema configuration |
+| **migrations** | `Object` | optional | Migration configuration |
+| **performance** | `Object` | optional | Performance settings |
+
+---
+
+#### Option 3
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **strategy** | `string` | ✅ | Database-level isolation strategy |
+| **database** | `Object` | optional | Database configuration |
+| **connectionPool** | `Object` | optional | Connection pool configuration |
+| **backup** | `Object` | optional | Backup configuration |
+| **encryption** | `Object` | optional | Encryption configuration |
+
+---
+
 
 ---
 
@@ -85,6 +149,7 @@ const result = DatabaseLevelIsolationStrategySchema.parse(data);
 * `shared_schema`
 * `isolated_schema`
 * `isolated_db`
+
 
 ---
 
@@ -98,6 +163,7 @@ const result = DatabaseLevelIsolationStrategySchema.parse(data);
 | **maxStorage** | `integer` | optional | Maximum storage in bytes |
 | **apiRateLimit** | `integer` | optional | API requests per minute |
 
+
 ---
 
 ## TenantSecurityPolicy
@@ -106,7 +172,10 @@ const result = DatabaseLevelIsolationStrategySchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **encryption** | `object` | optional | Encryption requirements |
-| **accessControl** | `object` | optional | Access control requirements |
-| **compliance** | `object` | optional | Compliance requirements |
+| **encryption** | `Object` | optional | Encryption requirements |
+| **accessControl** | `Object` | optional | Access control requirements |
+| **compliance** | `Object` | optional | Compliance requirements |
+
+
+---
 

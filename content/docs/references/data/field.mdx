@@ -5,6 +5,8 @@ description: Field protocol schemas
 
 # Field
 
+Field Type Enum
+
 <Callout type="info">
 **Source:** `packages/spec/src/data/field.zod.ts`
 </Callout>
@@ -12,11 +14,11 @@ description: Field protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AddressSchema, ComputedFieldCacheSchema, CurrencyConfigSchema, CurrencyValueSchema, DataQualityRulesSchema, FieldSchema, FieldTypeSchema, FileAttachmentConfigSchema, LocationCoordinatesSchema, SelectOptionSchema, VectorConfigSchema } from '@objectstack/spec/data';
+import { Address, ComputedFieldCache, CurrencyConfig, CurrencyValue, DataQualityRules, Field, FieldType, FileAttachmentConfig, LocationCoordinates, SelectOption, VectorConfig } from '@objectstack/spec/data';
 import type { Address, ComputedFieldCache, CurrencyConfig, CurrencyValue, DataQualityRules, Field, FieldType, FileAttachmentConfig, LocationCoordinates, SelectOption, VectorConfig } from '@objectstack/spec/data';
 
 // Validate data
-const result = AddressSchema.parse(data);
+const result = Address.parse(data);
 ```
 
 ---
@@ -35,6 +37,7 @@ const result = AddressSchema.parse(data);
 | **countryCode** | `string` | optional | ISO country code (e.g., US, GB) |
 | **formatted** | `string` | optional | Formatted address string |
 
+
 ---
 
 ## ComputedFieldCache
@@ -46,6 +49,7 @@ const result = AddressSchema.parse(data);
 | **enabled** | `boolean` | ✅ | Enable caching for computed field results |
 | **ttl** | `number` | ✅ | Cache TTL in seconds (0 = no expiration) |
 | **invalidateOn** | `string[]` | ✅ | Field paths that invalidate cache (e.g., ["inventory.quantity", "pricing.base_price"]) |
+
 
 ---
 
@@ -59,6 +63,7 @@ const result = AddressSchema.parse(data);
 | **currencyMode** | `Enum<'dynamic' \| 'fixed'>` | optional | Currency mode: dynamic (user selectable) or fixed (single currency) |
 | **defaultCurrency** | `string` | optional | Default or fixed currency code (ISO 4217, e.g., USD, CNY, EUR) |
 
+
 ---
 
 ## CurrencyValue
@@ -70,6 +75,7 @@ const result = AddressSchema.parse(data);
 | **value** | `number` | ✅ | Monetary amount |
 | **currency** | `string` | ✅ | Currency code (ISO 4217) |
 
+
 ---
 
 ## DataQualityRules
@@ -80,7 +86,8 @@ const result = AddressSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **uniqueness** | `boolean` | optional | Enforce unique values across all records |
 | **completeness** | `number` | optional | Minimum ratio of non-null values (0-1, default: 0 = no requirement) |
-| **accuracy** | `object` | optional | Accuracy validation configuration |
+| **accuracy** | `Object` | optional | Accuracy validation configuration |
+
 
 ---
 
@@ -106,14 +113,14 @@ const result = AddressSchema.parse(data);
 | **scale** | `number` | optional | Decimal places |
 | **min** | `number` | optional | Minimum value |
 | **max** | `number` | optional | Maximum value |
-| **options** | `object[]` | optional | Static options for select/multiselect |
+| **options** | `Object[]` | optional | Static options for select/multiselect |
 | **reference** | `string` | optional | Target Object Name |
 | **referenceFilters** | `string[]` | optional | Filters applied to lookup dialogs (e.g. "active = true") |
 | **writeRequiresMasterRead** | `boolean` | optional | If true, user needs read access to master record to edit this field |
 | **deleteBehavior** | `Enum<'set_null' \| 'cascade' \| 'restrict'>` | optional | What happens if referenced record is deleted |
 | **expression** | `string` | optional | Formula expression |
 | **formula** | `string` | optional | Deprecated: Use expression |
-| **summaryOperations** | `object` | optional | Roll-up summary definition |
+| **summaryOperations** | `Object` | optional | Roll-up summary definition |
 | **language** | `string` | optional | Programming language for syntax highlighting (e.g., javascript, python, sql) |
 | **theme** | `string` | optional | Code editor theme (e.g., dark, light, monokai) |
 | **lineNumbers** | `boolean` | optional | Show line numbers in code editor |
@@ -132,20 +139,21 @@ const result = AddressSchema.parse(data);
 | **qrErrorCorrection** | `Enum<'L' \| 'M' \| 'Q' \| 'H'>` | optional | QR code error correction level (L=7%, M=15%, Q=25%, H=30%). Only applicable when barcodeFormat is "qr" |
 | **displayValue** | `boolean` | optional | Display human-readable value below barcode/QR code |
 | **allowScanning** | `boolean` | optional | Enable camera scanning for barcode/QR code input |
-| **currencyConfig** | `object` | optional | Configuration for currency field type |
-| **vectorConfig** | `object` | optional | Configuration for vector field type (AI/ML embeddings) |
-| **fileAttachmentConfig** | `object` | optional | Configuration for file and attachment field types |
-| **encryptionConfig** | `object` | optional | Field-level encryption configuration for sensitive data (GDPR/HIPAA/PCI-DSS) |
-| **maskingRule** | `object` | optional | Data masking rules for PII protection |
+| **currencyConfig** | `Object` | optional | Configuration for currency field type |
+| **vectorConfig** | `Object` | optional | Configuration for vector field type (AI/ML embeddings) |
+| **fileAttachmentConfig** | `Object` | optional | Configuration for file and attachment field types |
+| **encryptionConfig** | `Object` | optional | Field-level encryption configuration for sensitive data (GDPR/HIPAA/PCI-DSS) |
+| **maskingRule** | `Object` | optional | Data masking rules for PII protection |
 | **auditTrail** | `boolean` | optional | Enable detailed audit trail for this field (tracks all changes with user and timestamp) |
 | **dependencies** | `string[]` | optional | Array of field names that this field depends on (for formulas, visibility rules, etc.) |
-| **cached** | `object` | optional | Caching configuration for computed/formula fields |
-| **dataQuality** | `object` | optional | Data quality validation and monitoring rules |
+| **cached** | `Object` | optional | Caching configuration for computed/formula fields |
+| **dataQuality** | `Object` | optional | Data quality validation and monitoring rules |
 | **hidden** | `boolean` | optional | Hidden from default UI |
 | **readonly** | `boolean` | optional | Read-only in UI |
 | **encryption** | `boolean` | optional | Deprecated: Use encryptionConfig for enhanced encryption features. Simple flag for backward compatibility. |
 | **index** | `boolean` | optional | Create standard database index |
 | **externalId** | `boolean` | optional | Is external ID for upsert operations |
+
 
 ---
 
@@ -198,6 +206,7 @@ const result = AddressSchema.parse(data);
 * `tags`
 * `vector`
 
+
 ---
 
 ## FileAttachmentConfig
@@ -219,7 +228,7 @@ const result = AddressSchema.parse(data);
 | **storageProvider** | `string` | optional | Object storage provider name (references ObjectStorageConfig) |
 | **storageBucket** | `string` | optional | Target bucket name |
 | **storagePrefix** | `string` | optional | Storage path prefix (e.g., "uploads/documents/") |
-| **imageValidation** | `object` | optional | Image-specific validation rules |
+| **imageValidation** | `Object` | optional | Image-specific validation rules |
 | **allowMultiple** | `boolean` | optional | Allow multiple file uploads (overrides field.multiple) |
 | **allowReplace** | `boolean` | optional | Allow replacing existing files |
 | **allowDelete** | `boolean` | optional | Allow deleting uploaded files |
@@ -230,6 +239,7 @@ const result = AddressSchema.parse(data);
 | **maxVersions** | `number` | optional | Maximum number of versions to retain |
 | **publicRead** | `boolean` | optional | Allow public read access to uploaded files |
 | **presignedUrlExpiry** | `number` | optional | Presigned URL expiration in seconds (default: 1 hour) |
+
 
 ---
 
@@ -244,6 +254,7 @@ const result = AddressSchema.parse(data);
 | **altitude** | `number` | optional | Altitude in meters |
 | **accuracy** | `number` | optional | Accuracy in meters |
 
+
 ---
 
 ## SelectOption
@@ -256,6 +267,7 @@ const result = AddressSchema.parse(data);
 | **value** | `string` | ✅ | Stored value (lowercase machine identifier) |
 | **color** | `string` | optional | Color code for badges/charts |
 | **default** | `boolean` | optional | Is default option |
+
 
 ---
 
@@ -270,4 +282,7 @@ const result = AddressSchema.parse(data);
 | **normalized** | `boolean` | optional | Whether vectors are normalized (unit length) |
 | **indexed** | `boolean` | optional | Whether to create a vector index for fast similarity search |
 | **indexType** | `Enum<'hnsw' \| 'ivfflat' \| 'flat'>` | optional | Vector index algorithm (HNSW for high accuracy, IVFFlat for large datasets) |
+
+
+---
 

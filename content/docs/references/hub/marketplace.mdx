@@ -5,6 +5,12 @@ description: Marketplace protocol schemas
 
 # Marketplace
 
+# Marketplace Protocol
+
+Defines the schema for the ObjectStack Plugin Marketplace.
+
+This is the catalog of available extensions sourced from NPM or private registries.
+
 <Callout type="info">
 **Source:** `packages/spec/src/hub/marketplace.zod.ts`
 </Callout>
@@ -12,11 +18,11 @@ description: Marketplace protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { MarketplacePluginSchema, PluginAuthorSchema, PluginPricingSchema, PluginVersionSchema } from '@objectstack/spec/hub';
+import { MarketplacePlugin, PluginAuthor, PluginPricing, PluginVersion } from '@objectstack/spec/hub';
 import type { MarketplacePlugin, PluginAuthor, PluginPricing, PluginVersion } from '@objectstack/spec/hub';
 
 // Validate data
-const result = MarketplacePluginSchema.parse(data);
+const result = MarketplacePlugin.parse(data);
 ```
 
 ---
@@ -28,12 +34,12 @@ const result = MarketplacePluginSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **id** | `string` | ✅ |  |
-| **versions** | `Record<string, object>` | optional | Map of versions (1.0.0) -> Details |
+| **versions** | `Record<string, Object>` | optional | Map of versions (1.0.0) -> Details |
 | **label** | `string` | ✅ |  |
 | **description** | `string` | optional |  |
 | **readme** | `string` | optional |  |
 | **version** | `string` | ✅ |  |
-| **vendor** | `object` | optional |  |
+| **vendor** | `Object` | optional |  |
 | **tags** | `string[]` | optional |  |
 | **category** | `Enum<'app' \| 'integration' \| 'theme' \| 'utility' \| 'driver' \| 'analytics' \| 'security' \| 'automation' \| 'ai' \| 'data'>` | optional |  |
 | **icon** | `string` | optional |  |
@@ -43,8 +49,9 @@ const result = MarketplacePluginSchema.parse(data);
 | **bugs** | `string` | optional |  |
 | **downloads** | `integer` | optional |  |
 | **rating** | `number` | optional |  |
-| **pricing** | `object` | optional |  |
+| **pricing** | `Object` | optional |  |
 | **verified** | `boolean` | optional | Is verified maintaned by ObjectStack |
+
 
 ---
 
@@ -61,6 +68,7 @@ const result = MarketplacePluginSchema.parse(data);
 | **verified** | `boolean` | optional | Whether vendor is verified by ObjectStack |
 | **trustLevel** | `Enum<'official' \| 'verified' \| 'community' \| 'unverified'>` | optional |  |
 
+
 ---
 
 ## PluginPricing
@@ -75,6 +83,7 @@ const result = MarketplacePluginSchema.parse(data);
 | **interval** | `Enum<'month' \| 'year'>` | optional | Required if type is recurring |
 | **trialDays** | `integer` | optional |  |
 
+
 ---
 
 ## PluginVersion
@@ -87,7 +96,10 @@ const result = MarketplacePluginSchema.parse(data);
 | **publishedAt** | `string` | ✅ | Publication date |
 | **downloadUrl** | `string` | ✅ | Archive download URL |
 | **checksum** | `string` | optional | Integrity checksum (shasum) |
-| **engine** | `object` | optional | Engine compatibility |
+| **engine** | `Object` | optional | Engine compatibility |
 | **dependencies** | `Record<string, string>` | optional | Runtime plugin dependencies |
 | **changeLog** | `string` | optional | Release notes |
+
+
+---
 

@@ -5,6 +5,8 @@ description: Object protocol schemas
 
 # Object
 
+API Operations Enum
+
 <Callout type="info">
 **Source:** `packages/spec/src/data/object.zod.ts`
 </Callout>
@@ -12,11 +14,11 @@ description: Object protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ApiMethodSchema, CDCConfigSchema, IndexSchema, ObjectSchema, ObjectCapabilitiesSchema, PartitioningConfigSchema, SoftDeleteConfigSchema, TenancyConfigSchema, VersioningConfigSchema } from '@objectstack/spec/data';
+import { ApiMethod, CDCConfig, Index, Object, ObjectCapabilities, PartitioningConfig, SoftDeleteConfig, TenancyConfig, VersioningConfig } from '@objectstack/spec/data';
 import type { ApiMethod, CDCConfig, Index, Object, ObjectCapabilities, PartitioningConfig, SoftDeleteConfig, TenancyConfig, VersioningConfig } from '@objectstack/spec/data';
 
 // Validate data
-const result = ApiMethodSchema.parse(data);
+const result = ApiMethod.parse(data);
 ```
 
 ---
@@ -40,6 +42,7 @@ const result = ApiMethodSchema.parse(data);
 * `import`
 * `export`
 
+
 ---
 
 ## CDCConfig
@@ -51,6 +54,7 @@ const result = ApiMethodSchema.parse(data);
 | **enabled** | `boolean` | ✅ | Enable Change Data Capture |
 | **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | ✅ | Event types to capture |
 | **destination** | `string` | ✅ | Destination endpoint (e.g., "kafka://topic", "webhook://url") |
+
 
 ---
 
@@ -65,6 +69,7 @@ const result = ApiMethodSchema.parse(data);
 | **type** | `Enum<'btree' \| 'hash' \| 'gin' \| 'gist' \| 'fulltext'>` | optional | Index algorithm type |
 | **unique** | `boolean` | optional | Whether the index enforces uniqueness |
 | **partial** | `string` | optional | Partial index condition (SQL WHERE clause for conditional indexes) |
+
 
 ---
 
@@ -85,18 +90,19 @@ const result = ApiMethodSchema.parse(data);
 | **abstract** | `boolean` | optional | Is abstract base object (cannot be instantiated) |
 | **datasource** | `string` | optional | Target Datasource ID. "default" is the primary DB. |
 | **tableName** | `string` | optional | Physical table/collection name in the target datasource |
-| **fields** | `Record<string, object>` | ✅ | Field definitions map. Keys must be snake_case identifiers. |
-| **indexes** | `object[]` | optional | Database performance indexes |
-| **tenancy** | `object` | optional | Multi-tenancy configuration for SaaS applications |
-| **softDelete** | `object` | optional | Soft delete (trash/recycle bin) configuration |
-| **versioning** | `object` | optional | Record versioning and history tracking configuration |
-| **partitioning** | `object` | optional | Table partitioning configuration for performance |
-| **cdc** | `object` | optional | Change Data Capture (CDC) configuration for real-time data streaming |
-| **validations** | `object \| object \| object \| object \| object \| object \| object \| object \| object[]` | optional | Object-level validation rules |
+| **fields** | `Record<string, Object>` | ✅ | Field definitions map. Keys must be snake_case identifiers. |
+| **indexes** | `Object[]` | optional | Database performance indexes |
+| **tenancy** | `Object` | optional | Multi-tenancy configuration for SaaS applications |
+| **softDelete** | `Object` | optional | Soft delete (trash/recycle bin) configuration |
+| **versioning** | `Object` | optional | Record versioning and history tracking configuration |
+| **partitioning** | `Object` | optional | Table partitioning configuration for performance |
+| **cdc** | `Object` | optional | Change Data Capture (CDC) configuration for real-time data streaming |
+| **validations** | `Object \| Object \| Object \| Object \| Object \| Object \| Object \| Object \| Object[]` | optional | Object-level validation rules |
 | **titleFormat** | `string` | optional | Title expression (e.g. "`{name}` - `{code}`"). Overrides nameField. |
 | **compactLayout** | `string[]` | optional | Primary fields for hover/cards/lookups |
-| **search** | `object` | optional | Search engine configuration |
-| **enable** | `object` | optional | Enabled system features modules |
+| **search** | `Object` | optional | Search engine configuration |
+| **enable** | `Object` | optional | Enabled system features modules |
+
 
 ---
 
@@ -117,6 +123,7 @@ const result = ApiMethodSchema.parse(data);
 | **mru** | `boolean` | optional | Track Most Recently Used (MRU) list for users |
 | **clone** | `boolean` | optional | Allow record deep cloning |
 
+
 ---
 
 ## PartitioningConfig
@@ -130,6 +137,7 @@ const result = ApiMethodSchema.parse(data);
 | **key** | `string` | ✅ | Field name to partition by |
 | **interval** | `string` | optional | Partition interval for range strategy (e.g., "1 month", "1 year") |
 
+
 ---
 
 ## SoftDeleteConfig
@@ -141,6 +149,7 @@ const result = ApiMethodSchema.parse(data);
 | **enabled** | `boolean` | ✅ | Enable soft delete (trash/recycle bin) |
 | **field** | `string` | optional | Field name for soft delete timestamp |
 | **cascadeDelete** | `boolean` | optional | Cascade soft delete to related records |
+
 
 ---
 
@@ -155,6 +164,7 @@ const result = ApiMethodSchema.parse(data);
 | **tenantField** | `string` | optional | Field name for tenant identifier |
 | **crossTenantAccess** | `boolean` | optional | Allow cross-tenant data access (with explicit permission) |
 
+
 ---
 
 ## VersioningConfig
@@ -167,4 +177,7 @@ const result = ApiMethodSchema.parse(data);
 | **strategy** | `Enum<'snapshot' \| 'delta' \| 'event-sourcing'>` | ✅ | Versioning strategy: snapshot (full copy), delta (changes only), event-sourcing (event log) |
 | **retentionDays** | `number` | optional | Number of days to retain old versions (undefined = infinite) |
 | **versionField** | `string` | optional | Field name for version number/timestamp |
+
+
+---
 

@@ -5,6 +5,10 @@ description: Hook protocol schemas
 
 # Hook
 
+Hook Lifecycle Events
+
+Defines the interception points in the ObjectQL execution pipeline.
+
 <Callout type="info">
 **Source:** `packages/spec/src/data/hook.zod.ts`
 </Callout>
@@ -12,11 +16,11 @@ description: Hook protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { HookSchema, HookContextSchema, HookEventSchema } from '@objectstack/spec/data';
+import { Hook, HookContext, HookEvent } from '@objectstack/spec/data';
 import type { Hook, HookContext, HookEvent } from '@objectstack/spec/data';
 
 // Validate data
-const result = HookSchema.parse(data);
+const result = Hook.parse(data);
 ```
 
 ---
@@ -36,6 +40,7 @@ const result = HookSchema.parse(data);
 | **async** | `boolean` | optional | Run specifically as fire-and-forget |
 | **onError** | `Enum<'abort' \| 'log'>` | optional | Error handling strategy |
 
+
 ---
 
 ## HookContext
@@ -50,9 +55,10 @@ const result = HookSchema.parse(data);
 | **input** | `Record<string, any>` | ✅ | Mutable input parameters |
 | **result** | `any` | optional | Operation result (After hooks only) |
 | **previous** | `Record<string, any>` | optional | Record state before operation |
-| **session** | `object` | optional | Current session context |
+| **session** | `Object` | optional | Current session context |
 | **transaction** | `any` | optional | Database transaction handle |
 | **ql** | `any` | optional | ObjectQL Engine Reference |
+
 
 ---
 
@@ -78,4 +84,7 @@ const result = HookSchema.parse(data);
 * `afterUpdateMany`
 * `beforeDeleteMany`
 * `afterDeleteMany`
+
+
+---
 

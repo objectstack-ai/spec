@@ -5,6 +5,12 @@ description: Nlq protocol schemas
 
 # Nlq
 
+Natural Language Query (NLQ) Protocol
+
+Transforms natural language queries into ObjectQL AST (Abstract Syntax Tree).
+
+Enables business users to query data using natural language instead of writing code.
+
 <Callout type="info">
 **Source:** `packages/spec/src/ai/nlq.zod.ts`
 </Callout>
@@ -12,11 +18,11 @@ description: Nlq protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { EntitySchema, FieldSynonymConfigSchema, NLQAnalyticsSchema, NLQFieldMappingSchema, NLQModelConfigSchema, NLQParseResultSchema, NLQRequestSchema, NLQResponseSchema, NLQTrainingExampleSchema, QueryContextSchema, QueryIntentSchema, QueryTemplateSchema, TimeframeSchema } from '@objectstack/spec/ai';
+import { Entity, FieldSynonymConfig, NLQAnalytics, NLQFieldMapping, NLQModelConfig, NLQParseResult, NLQRequest, NLQResponse, NLQTrainingExample, QueryContext, QueryIntent, QueryTemplate, Timeframe } from '@objectstack/spec/ai';
 import type { Entity, FieldSynonymConfig, NLQAnalytics, NLQFieldMapping, NLQModelConfig, NLQParseResult, NLQRequest, NLQResponse, NLQTrainingExample, QueryContext, QueryIntent, QueryTemplate, Timeframe } from '@objectstack/spec/ai';
 
 // Validate data
-const result = EntitySchema.parse(data);
+const result = Entity.parse(data);
 ```
 
 ---
@@ -33,6 +39,7 @@ const result = EntitySchema.parse(data);
 | **confidence** | `number` | ✅ | Confidence score |
 | **span** | `any[]` | optional | Character span in query |
 
+
 ---
 
 ## FieldSynonymConfig
@@ -45,6 +52,7 @@ const result = EntitySchema.parse(data);
 | **field** | `string` | ✅ | Field name |
 | **synonyms** | `string[]` | ✅ | Natural language synonyms |
 | **examples** | `string[]` | optional | Example queries using synonyms |
+
 
 ---
 
@@ -59,12 +67,13 @@ const result = EntitySchema.parse(data);
 | **failedQueries** | `integer` | ✅ |  |
 | **averageConfidence** | `number` | ✅ |  |
 | **intentDistribution** | `Record<string, integer>` | ✅ | Count by intent type |
-| **topQueries** | `object[]` | ✅ |  |
+| **topQueries** | `Object[]` | ✅ |  |
 | **averageParseTime** | `number` | ✅ | Average parse time in milliseconds |
 | **averageExecutionTime** | `number` | optional |  |
-| **lowConfidenceQueries** | `object[]` | ✅ |  |
+| **lowConfidenceQueries** | `Object[]` | ✅ |  |
 | **startDate** | `string` | ✅ | ISO timestamp |
 | **endDate** | `string` | ✅ | ISO timestamp |
+
 
 ---
 
@@ -79,6 +88,7 @@ const result = EntitySchema.parse(data);
 | **object** | `string` | ✅ | Object name |
 | **field** | `string` | ✅ | Field name |
 | **confidence** | `number` | ✅ |  |
+
 
 ---
 
@@ -103,6 +113,7 @@ const result = EntitySchema.parse(data);
 | **enableCaching** | `boolean` | optional |  |
 | **cacheTTL** | `integer` | optional | Cache TTL in seconds |
 
+
 ---
 
 ## NLQParseResult
@@ -114,14 +125,15 @@ const result = EntitySchema.parse(data);
 | **originalQuery** | `string` | ✅ |  |
 | **intent** | `Enum<'select' \| 'aggregate' \| 'filter' \| 'sort' \| 'compare' \| 'trend' \| 'insight' \| 'create' \| 'update' \| 'delete'>` | ✅ |  |
 | **intentConfidence** | `number` | ✅ |  |
-| **entities** | `object[]` | ✅ |  |
+| **entities** | `Object[]` | ✅ |  |
 | **targetObject** | `string` | optional | Primary object to query |
-| **fields** | `object[]` | optional |  |
-| **timeframe** | `object` | optional |  |
+| **fields** | `Object[]` | optional |  |
+| **timeframe** | `Object` | optional |  |
 | **ast** | `Record<string, any>` | ✅ | Generated ObjectQL AST |
 | **confidence** | `number` | ✅ | Overall confidence |
-| **ambiguities** | `object[]` | optional | Detected ambiguities requiring clarification |
-| **alternatives** | `object[]` | optional |  |
+| **ambiguities** | `Object[]` | optional | Detected ambiguities requiring clarification |
+| **alternatives** | `Object[]` | optional |  |
+
 
 ---
 
@@ -132,12 +144,13 @@ const result = EntitySchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **query** | `string` | ✅ | Natural language query |
-| **context** | `object` | optional |  |
+| **context** | `Object` | optional |  |
 | **includeAlternatives** | `boolean` | optional | Include alternative interpretations |
 | **maxAlternatives** | `integer` | optional |  |
 | **minConfidence** | `number` | optional | Minimum confidence threshold |
 | **executeQuery** | `boolean` | optional | Execute query and return results |
 | **maxResults** | `integer` | optional | Maximum results to return |
+
 
 ---
 
@@ -147,14 +160,15 @@ const result = EntitySchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **parseResult** | `object` | ✅ |  |
+| **parseResult** | `Object` | ✅ |  |
 | **results** | `Record<string, any>[]` | optional | Query results |
 | **totalCount** | `integer` | optional |  |
 | **executionTime** | `number` | optional | Execution time in milliseconds |
 | **needsClarification** | `boolean` | ✅ | Whether query needs clarification |
-| **tokens** | `object` | optional | Token usage for this query |
+| **tokens** | `Object` | optional | Token usage for this query |
 | **cost** | `number` | optional | Cost for this query in USD |
 | **suggestions** | `string[]` | optional | Query refinement suggestions |
+
 
 ---
 
@@ -165,13 +179,14 @@ const result = EntitySchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **query** | `string` | ✅ | Natural language query |
-| **context** | `object` | optional |  |
+| **context** | `Object` | optional |  |
 | **expectedIntent** | `Enum<'select' \| 'aggregate' \| 'filter' \| 'sort' \| 'compare' \| 'trend' \| 'insight' \| 'create' \| 'update' \| 'delete'>` | ✅ |  |
 | **expectedObject** | `string` | optional |  |
 | **expectedAST** | `Record<string, any>` | ✅ | Expected ObjectQL AST |
 | **category** | `string` | optional | Example category |
 | **tags** | `string[]` | optional |  |
 | **notes** | `string` | optional |  |
+
 
 ---
 
@@ -185,10 +200,11 @@ const result = EntitySchema.parse(data);
 | **userRole** | `string` | optional |  |
 | **currentObject** | `string` | optional | Current object being viewed |
 | **currentRecordId** | `string` | optional | Current record ID |
-| **conversationHistory** | `object[]` | optional |  |
+| **conversationHistory** | `Object[]` | optional |  |
 | **defaultLimit** | `integer` | optional |  |
 | **timezone** | `string` | optional |  |
 | **locale** | `string` | optional |  |
+
 
 ---
 
@@ -207,6 +223,7 @@ const result = EntitySchema.parse(data);
 * `update`
 * `delete`
 
+
 ---
 
 ## QueryTemplate
@@ -219,11 +236,12 @@ const result = EntitySchema.parse(data);
 | **name** | `string` | ✅ | Template name (snake_case) |
 | **label** | `string` | ✅ |  |
 | **pattern** | `string` | ✅ | Query pattern with placeholders |
-| **variables** | `object[]` | ✅ |  |
+| **variables** | `Object[]` | ✅ |  |
 | **astTemplate** | `Record<string, any>` | ✅ | AST template with variable placeholders |
 | **category** | `string` | optional |  |
 | **examples** | `string[]` | optional |  |
 | **tags** | `string[]` | optional |  |
+
 
 ---
 
@@ -236,6 +254,9 @@ const result = EntitySchema.parse(data);
 | **type** | `Enum<'absolute' \| 'relative'>` | ✅ |  |
 | **start** | `string` | optional | Start date (ISO format) |
 | **end** | `string` | optional | End date (ISO format) |
-| **relative** | `object` | optional |  |
+| **relative** | `Object` | optional |  |
 | **text** | `string` | ✅ | Original timeframe text |
+
+
+---
 

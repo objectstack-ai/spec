@@ -5,6 +5,10 @@ description: Realtime protocol schemas
 
 # Realtime
 
+Transport Protocol Enum
+
+Defines the communication protocol for realtime data synchronization
+
 <Callout type="info">
 **Source:** `packages/spec/src/api/realtime.zod.ts`
 </Callout>
@@ -12,11 +16,11 @@ description: Realtime protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { PresenceSchema, PresenceStatusSchema, RealtimeActionSchema, RealtimeConfigSchema, RealtimeEventSchema, RealtimeEventTypeSchema, SubscriptionSchema, SubscriptionEventSchema, TransportProtocolSchema } from '@objectstack/spec/api';
+import { Presence, PresenceStatus, RealtimeAction, RealtimeConfig, RealtimeEvent, RealtimeEventType, Subscription, SubscriptionEvent, TransportProtocol } from '@objectstack/spec/api';
 import type { Presence, PresenceStatus, RealtimeAction, RealtimeConfig, RealtimeEvent, RealtimeEventType, Subscription, SubscriptionEvent, TransportProtocol } from '@objectstack/spec/api';
 
 // Validate data
-const result = PresenceSchema.parse(data);
+const result = Presence.parse(data);
 ```
 
 ---
@@ -32,6 +36,7 @@ const result = PresenceSchema.parse(data);
 | **lastSeen** | `string` | ✅ | ISO 8601 datetime of last activity |
 | **metadata** | `Record<string, any>` | optional | Custom presence data (e.g., current page, custom status) |
 
+
 ---
 
 ## PresenceStatus
@@ -41,6 +46,7 @@ const result = PresenceSchema.parse(data);
 * `online`
 * `away`
 * `offline`
+
 
 ---
 
@@ -52,6 +58,7 @@ const result = PresenceSchema.parse(data);
 * `updated`
 * `deleted`
 
+
 ---
 
 ## RealtimeConfig
@@ -62,7 +69,8 @@ const result = PresenceSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **enabled** | `boolean` | optional | Enable realtime synchronization |
 | **transport** | `Enum<'websocket' \| 'sse' \| 'polling'>` | optional | Transport protocol |
-| **subscriptions** | `object[]` | optional | Default subscriptions |
+| **subscriptions** | `Object[]` | optional | Default subscriptions |
+
 
 ---
 
@@ -81,6 +89,7 @@ const result = PresenceSchema.parse(data);
 | **userId** | `string` | optional | User who triggered the event |
 | **sessionId** | `string` | optional | Session identifier |
 
+
 ---
 
 ## RealtimeEventType
@@ -92,6 +101,7 @@ const result = PresenceSchema.parse(data);
 * `record.deleted`
 * `field.changed`
 
+
 ---
 
 ## Subscription
@@ -101,9 +111,10 @@ const result = PresenceSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **id** | `string` | ✅ | Unique subscription identifier |
-| **events** | `object[]` | ✅ | Array of events to subscribe to |
+| **events** | `Object[]` | ✅ | Array of events to subscribe to |
 | **transport** | `Enum<'websocket' \| 'sse' \| 'polling'>` | ✅ | Transport protocol to use |
 | **channel** | `string` | optional | Optional channel name for grouping subscriptions |
+
 
 ---
 
@@ -117,6 +128,7 @@ const result = PresenceSchema.parse(data);
 | **object** | `string` | optional | Object name to subscribe to |
 | **filters** | `any` | optional | Filter conditions |
 
+
 ---
 
 ## TransportProtocol
@@ -126,4 +138,7 @@ const result = PresenceSchema.parse(data);
 * `websocket`
 * `sse`
 * `polling`
+
+
+---
 

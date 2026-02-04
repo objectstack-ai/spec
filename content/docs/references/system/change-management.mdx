@@ -5,6 +5,12 @@ description: Change Management protocol schemas
 
 # Change Management
 
+Change Type Enum
+
+Classification of change requests based on risk and approval requirements.
+
+Follows ITIL change management best practices.
+
 <Callout type="info">
 **Source:** `packages/spec/src/system/change-management.zod.ts`
 </Callout>
@@ -12,11 +18,11 @@ description: Change Management protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ChangeImpactSchema, ChangePrioritySchema, ChangeRequestSchema, ChangeStatusSchema, ChangeTypeSchema, RollbackPlanSchema } from '@objectstack/spec/system';
+import { ChangeImpact, ChangePriority, ChangeRequest, ChangeStatus, ChangeType, RollbackPlan } from '@objectstack/spec/system';
 import type { ChangeImpact, ChangePriority, ChangeRequest, ChangeStatus, ChangeType, RollbackPlan } from '@objectstack/spec/system';
 
 // Validate data
-const result = ChangeImpactSchema.parse(data);
+const result = ChangeImpact.parse(data);
 ```
 
 ---
@@ -30,7 +36,8 @@ const result = ChangeImpactSchema.parse(data);
 | **level** | `Enum<'low' \| 'medium' \| 'high' \| 'critical'>` | ✅ | Impact level |
 | **affectedSystems** | `string[]` | ✅ | Affected systems |
 | **affectedUsers** | `number` | optional | Affected user count |
-| **downtime** | `object` | optional | Downtime information |
+| **downtime** | `Object` | optional | Downtime information |
+
 
 ---
 
@@ -42,6 +49,7 @@ const result = ChangeImpactSchema.parse(data);
 * `high`
 * `medium`
 * `low`
+
 
 ---
 
@@ -59,12 +67,13 @@ const result = ChangeImpactSchema.parse(data);
 | **status** | `Enum<'draft' \| 'submitted' \| 'in-review' \| 'approved' \| 'scheduled' \| 'in-progress' \| 'completed' \| 'failed' \| 'rolled-back' \| 'cancelled'>` | ✅ | Change status |
 | **requestedBy** | `string` | ✅ | Requester user ID |
 | **requestedAt** | `number` | ✅ | Request timestamp |
-| **impact** | `object` | ✅ | Impact assessment |
-| **implementation** | `object` | ✅ | Implementation plan |
-| **rollbackPlan** | `object` | ✅ | Rollback plan |
-| **schedule** | `object` | optional | Schedule |
-| **approval** | `object` | optional | Approval workflow |
-| **attachments** | `object[]` | optional | Attachments |
+| **impact** | `Object` | ✅ | Impact assessment |
+| **implementation** | `Object` | ✅ | Implementation plan |
+| **rollbackPlan** | `Object` | ✅ | Rollback plan |
+| **schedule** | `Object` | optional | Schedule |
+| **approval** | `Object` | optional | Approval workflow |
+| **attachments** | `Object[]` | optional | Attachments |
+
 
 ---
 
@@ -83,6 +92,7 @@ const result = ChangeImpactSchema.parse(data);
 * `rolled-back`
 * `cancelled`
 
+
 ---
 
 ## ChangeType
@@ -94,6 +104,7 @@ const result = ChangeImpactSchema.parse(data);
 * `emergency`
 * `major`
 
+
 ---
 
 ## RollbackPlan
@@ -103,6 +114,9 @@ const result = ChangeImpactSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **description** | `string` | ✅ | Rollback description |
-| **steps** | `object[]` | ✅ | Rollback steps |
+| **steps** | `Object[]` | ✅ | Rollback steps |
 | **testProcedure** | `string` | optional | Test procedure |
+
+
+---
 

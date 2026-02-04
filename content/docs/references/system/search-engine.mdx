@@ -5,6 +5,10 @@ description: Search Engine protocol schemas
 
 # Search Engine
 
+Full-text search protocol
+
+Supports Elasticsearch, Algolia, Meilisearch, Typesense
+
 <Callout type="info">
 **Source:** `packages/spec/src/system/search-engine.zod.ts`
 </Callout>
@@ -12,11 +16,11 @@ description: Search Engine protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AnalyzerConfigSchema, FacetConfigSchema, SearchConfigSchema, SearchIndexConfigSchema, SearchProviderSchema } from '@objectstack/spec/system';
+import { AnalyzerConfig, FacetConfig, SearchConfig, SearchIndexConfig, SearchProvider } from '@objectstack/spec/system';
 import type { AnalyzerConfig, FacetConfig, SearchConfig, SearchIndexConfig, SearchProvider } from '@objectstack/spec/system';
 
 // Validate data
-const result = AnalyzerConfigSchema.parse(data);
+const result = AnalyzerConfig.parse(data);
 ```
 
 ---
@@ -32,6 +36,7 @@ const result = AnalyzerConfigSchema.parse(data);
 | **stopwords** | `string[]` | optional |  |
 | **customFilters** | `string[]` | optional |  |
 
+
 ---
 
 ## FacetConfig
@@ -44,6 +49,7 @@ const result = AnalyzerConfigSchema.parse(data);
 | **maxValues** | `number` | optional |  |
 | **sort** | `Enum<'count' \| 'alpha'>` | optional |  |
 
+
 ---
 
 ## SearchConfig
@@ -53,12 +59,13 @@ const result = AnalyzerConfigSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **provider** | `Enum<'elasticsearch' \| 'algolia' \| 'meilisearch' \| 'typesense' \| 'opensearch'>` | ✅ |  |
-| **indexes** | `object[]` | ✅ |  |
-| **analyzers** | `Record<string, object>` | optional |  |
-| **facets** | `object[]` | optional |  |
+| **indexes** | `Object[]` | ✅ |  |
+| **analyzers** | `Record<string, Object>` | optional |  |
+| **facets** | `Object[]` | optional |  |
 | **typoTolerance** | `boolean` | optional |  |
 | **synonyms** | `Record<string, string[]>` | optional |  |
 | **ranking** | `Enum<'typo' \| 'geo' \| 'words' \| 'filters' \| 'proximity' \| 'attribute' \| 'exact' \| 'custom'>[]` | optional |  |
+
 
 ---
 
@@ -70,9 +77,10 @@ const result = AnalyzerConfigSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **indexName** | `string` | ✅ |  |
 | **objectName** | `string` | ✅ | Source ObjectQL object |
-| **fields** | `object[]` | ✅ |  |
+| **fields** | `Object[]` | ✅ |  |
 | **replicas** | `number` | optional |  |
 | **shards** | `number` | optional |  |
+
 
 ---
 
@@ -85,4 +93,7 @@ const result = AnalyzerConfigSchema.parse(data);
 * `meilisearch`
 * `typesense`
 * `opensearch`
+
+
+---
 

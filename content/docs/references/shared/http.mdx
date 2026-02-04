@@ -5,6 +5,12 @@ description: Http protocol schemas
 
 # Http
 
+Shared HTTP Schemas
+
+Common HTTP-related schemas used across API and System protocols.
+
+These schemas ensure consistency across different parts of the stack.
+
 <Callout type="info">
 **Source:** `packages/spec/src/shared/http.zod.ts`
 </Callout>
@@ -12,11 +18,11 @@ description: Http protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { CorsConfigSchema, RateLimitConfigSchema, StaticMountSchema } from '@objectstack/spec/shared';
+import { CorsConfig, RateLimitConfig, StaticMount } from '@objectstack/spec/shared';
 import type { CorsConfig, RateLimitConfig, StaticMount } from '@objectstack/spec/shared';
 
 // Validate data
-const result = CorsConfigSchema.parse(data);
+const result = CorsConfig.parse(data);
 ```
 
 ---
@@ -33,6 +39,7 @@ const result = CorsConfigSchema.parse(data);
 | **credentials** | `boolean` | optional | Allow credentials (cookies, authorization headers) |
 | **maxAge** | `integer` | optional | Preflight cache duration in seconds |
 
+
 ---
 
 ## RateLimitConfig
@@ -45,6 +52,7 @@ const result = CorsConfigSchema.parse(data);
 | **windowMs** | `integer` | optional | Time window in milliseconds |
 | **maxRequests** | `integer` | optional | Max requests per window |
 
+
 ---
 
 ## StaticMount
@@ -56,4 +64,7 @@ const result = CorsConfigSchema.parse(data);
 | **path** | `string` | ✅ | URL path to serve from |
 | **directory** | `string` | ✅ | Physical directory to serve |
 | **cacheControl** | `string` | optional | Cache-Control header value |
+
+
+---
 

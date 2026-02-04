@@ -5,6 +5,8 @@ description: Flow protocol schemas
 
 # Flow
 
+Flow Node Types
+
 <Callout type="info">
 **Source:** `packages/spec/src/automation/flow.zod.ts`
 </Callout>
@@ -12,11 +14,11 @@ description: Flow protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { FlowSchema, FlowEdgeSchema, FlowNodeSchema, FlowNodeActionSchema, FlowVariableSchema } from '@objectstack/spec/automation';
+import { Flow, FlowEdge, FlowNode, FlowNodeAction, FlowVariable } from '@objectstack/spec/automation';
 import type { Flow, FlowEdge, FlowNode, FlowNodeAction, FlowVariable } from '@objectstack/spec/automation';
 
 // Validate data
-const result = FlowSchema.parse(data);
+const result = Flow.parse(data);
 ```
 
 ---
@@ -34,11 +36,12 @@ const result = FlowSchema.parse(data);
 | **status** | `Enum<'draft' \| 'active' \| 'obsolete' \| 'invalid'>` | optional | Deployment status |
 | **template** | `boolean` | optional | Is logic template (Subflow) |
 | **type** | `Enum<'autolaunched' \| 'record_change' \| 'schedule' \| 'screen' \| 'api'>` | ✅ | Flow type |
-| **variables** | `object[]` | optional | Flow variables |
-| **nodes** | `object[]` | ✅ | Flow nodes |
-| **edges** | `object[]` | ✅ | Flow connections |
+| **variables** | `Object[]` | optional | Flow variables |
+| **nodes** | `Object[]` | ✅ | Flow nodes |
+| **edges** | `Object[]` | ✅ | Flow connections |
 | **active** | `boolean` | optional | Is active (Deprecated: use status) |
 | **runAs** | `Enum<'system' \| 'user'>` | optional | Execution context |
+
 
 ---
 
@@ -55,6 +58,7 @@ const result = FlowSchema.parse(data);
 | **type** | `Enum<'default' \| 'fault'>` | optional | Connection type: Standard (Success) or Fault (Error) path |
 | **label** | `string` | optional | Label on the connector |
 
+
 ---
 
 ## FlowNode
@@ -67,8 +71,9 @@ const result = FlowSchema.parse(data);
 | **type** | `Enum<'start' \| 'end' \| 'decision' \| 'assignment' \| 'loop' \| 'create_record' \| 'update_record' \| 'delete_record' \| 'get_record' \| 'http_request' \| 'script' \| 'wait' \| 'subflow' \| 'connector_action'>` | ✅ | Action type |
 | **label** | `string` | ✅ | Node label |
 | **config** | `Record<string, any>` | optional | Node configuration |
-| **connectorConfig** | `object` | optional |  |
-| **position** | `object` | optional |  |
+| **connectorConfig** | `Object` | optional |  |
+| **position** | `Object` | optional |  |
+
 
 ---
 
@@ -91,6 +96,7 @@ const result = FlowSchema.parse(data);
 * `subflow`
 * `connector_action`
 
+
 ---
 
 ## FlowVariable
@@ -103,4 +109,7 @@ const result = FlowSchema.parse(data);
 | **type** | `string` | ✅ | Data type (text, number, boolean, object, list) |
 | **isInput** | `boolean` | optional | Is input parameter |
 | **isOutput** | `boolean` | optional | Is output parameter |
+
+
+---
 

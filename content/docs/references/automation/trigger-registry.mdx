@@ -5,6 +5,100 @@ description: Trigger Registry protocol schemas
 
 # Trigger Registry
 
+Trigger Registry Protocol
+
+Lightweight automation triggers for simple integrations.
+
+Inspired by Zapier, n8n, and Workato connector architectures.
+
+## When to use Trigger Registry vs. Integration Connector?
+
+**Use `automation/trigger-registry.zod.ts` when:**
+
+- Building simple automation triggers (e.g., "when Slack message received, create task")
+
+- No complex authentication needed (simple API keys, basic auth)
+
+- Lightweight, single-purpose integrations
+
+- Quick setup with minimal configuration
+
+- Webhook-based or polling triggers for automation workflows
+
+**Use `integration/connector.zod.ts` when:**
+
+- Building enterprise-grade connectors (e.g., Salesforce, SAP, Oracle)
+
+- Complex OAuth2/SAML authentication required
+
+- Bidirectional sync with field mapping and transformations
+
+- Webhook management and rate limiting required
+
+- Full CRUD operations and data synchronization
+
+## Use Cases
+
+1. **Simple Automation Triggers**
+
+- Slack notifications on record updates
+
+- Twilio SMS on workflow events
+
+- SendGrid email templates
+
+2. **Lightweight Operations**
+
+- Single-action integrations (send, notify, log)
+
+- No bidirectional sync required
+
+- Webhook receivers for incoming events
+
+3. **Quick Integrations**
+
+- Payment webhooks (Stripe, PayPal)
+
+- Communication triggers (Twilio, SendGrid, Slack)
+
+- Simple API calls to third-party services
+
+@see https://zapier.com/developer/documentation/v2/
+
+@see https://docs.n8n.io/integrations/creating-nodes/
+
+@see ../../integration/connector.zod.ts for enterprise connectors
+
+@example
+
+```typescript
+
+const slackNotifier: Connector = {
+
+id: 'slack_notify',
+
+name: 'Slack Notification',
+
+category: 'communication',
+
+authentication: {
+
+type: 'apiKey',
+
+fields: [{ name: 'webhook_url', label: 'Webhook URL', type: 'url' }]
+
+},
+
+operations: [
+
+{ id: 'send_message', name: 'Send Message', type: 'action' }
+
+]
+
+}
+
+```
+
 <Callout type="info">
 **Source:** `packages/spec/src/automation/trigger-registry.zod.ts`
 </Callout>
@@ -12,11 +106,11 @@ description: Trigger Registry protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AuthFieldSchema, AuthenticationTypeSchema, ConnectorCategorySchema, ConnectorInstanceSchema, ConnectorOperationSchema, OAuth2ConfigSchema, OperationParameterSchema, OperationTypeSchema } from '@objectstack/spec/automation';
+import { AuthField, AuthenticationType, ConnectorCategory, ConnectorInstance, ConnectorOperation, OAuth2Config, OperationParameter, OperationType } from '@objectstack/spec/automation';
 import type { AuthField, AuthenticationType, ConnectorCategory, ConnectorInstance, ConnectorOperation, OAuth2Config, OperationParameter, OperationType } from '@objectstack/spec/automation';
 
 // Validate data
-const result = AuthFieldSchema.parse(data);
+const result = AuthField.parse(data);
 ```
 
 ---
@@ -33,8 +127,9 @@ const result = AuthFieldSchema.parse(data);
 | **description** | `string` | optional | Field description |
 | **required** | `boolean` | optional | Required field |
 | **default** | `string` | optional | Default value |
-| **options** | `object[]` | optional | Select field options |
+| **options** | `Object[]` | optional | Select field options |
 | **placeholder** | `string` | optional | Placeholder text |
+
 
 ---
 
@@ -49,6 +144,7 @@ const result = AuthFieldSchema.parse(data);
 * `oauth1`
 * `oauth2`
 * `custom`
+
 
 ---
 
@@ -72,6 +168,7 @@ const result = AuthFieldSchema.parse(data);
 * `social`
 * `other`
 
+
 ---
 
 ## ConnectorInstance
@@ -91,6 +188,7 @@ const result = AuthFieldSchema.parse(data);
 | **lastTestedAt** | `string` | optional | Last test time |
 | **testStatus** | `Enum<'unknown' \| 'success' \| 'failed'>` | optional | Connection test status |
 
+
 ---
 
 ## ConnectorOperation
@@ -103,11 +201,12 @@ const result = AuthFieldSchema.parse(data);
 | **name** | `string` | ✅ | Operation name |
 | **description** | `string` | optional | Operation description |
 | **type** | `Enum<'read' \| 'write' \| 'delete' \| 'search' \| 'trigger' \| 'action'>` | ✅ | Operation type |
-| **inputSchema** | `object[]` | optional | Input parameters |
+| **inputSchema** | `Object[]` | optional | Input parameters |
 | **outputSchema** | `Record<string, any>` | optional | Output schema |
 | **sampleOutput** | `any` | optional | Sample output |
 | **supportsPagination** | `boolean` | optional | Supports pagination |
 | **supportsFiltering** | `boolean` | optional | Supports filtering |
+
 
 ---
 
@@ -122,6 +221,7 @@ const result = AuthFieldSchema.parse(data);
 | **scopes** | `string[]` | optional | OAuth scopes |
 | **clientIdField** | `string` | optional | Client ID field name |
 | **clientSecretField** | `string` | optional | Client secret field name |
+
 
 ---
 
@@ -140,6 +240,7 @@ const result = AuthFieldSchema.parse(data);
 | **validation** | `Record<string, any>` | optional | Validation rules |
 | **dynamicOptions** | `string` | optional | Function to load dynamic options |
 
+
 ---
 
 ## OperationType
@@ -152,4 +253,7 @@ const result = AuthFieldSchema.parse(data);
 * `search`
 * `trigger`
 * `action`
+
+
+---
 

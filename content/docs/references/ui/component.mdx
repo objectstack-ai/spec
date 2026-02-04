@@ -5,6 +5,8 @@ description: Component protocol schemas
 
 # Component
 
+Empty Properties Schema
+
 <Callout type="info">
 **Source:** `packages/spec/src/ui/component.zod.ts`
 </Callout>
@@ -12,11 +14,11 @@ description: Component protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { PageCardPropsSchema, PageHeaderPropsSchema, PageTabsPropsSchema, RecordDetailsPropsSchema, RecordHighlightsPropsSchema, RecordRelatedListPropsSchema } from '@objectstack/spec/ui';
+import { PageCardProps, PageHeaderProps, PageTabsProps, RecordDetailsProps, RecordHighlightsProps, RecordRelatedListProps } from '@objectstack/spec/ui';
 import type { PageCardProps, PageHeaderProps, PageTabsProps, RecordDetailsProps, RecordHighlightsProps, RecordRelatedListProps } from '@objectstack/spec/ui';
 
 // Validate data
-const result = PageCardPropsSchema.parse(data);
+const result = PageCardProps.parse(data);
 ```
 
 ---
@@ -33,6 +35,7 @@ const result = PageCardPropsSchema.parse(data);
 | **body** | `any[]` | optional | Card content components (slot) |
 | **footer** | `any[]` | optional | Card footer components (slot) |
 
+
 ---
 
 ## PageHeaderProps
@@ -47,6 +50,7 @@ const result = PageCardPropsSchema.parse(data);
 | **breadcrumb** | `boolean` | optional | Show breadcrumb |
 | **actions** | `string[]` | optional | Action IDs to show in header |
 
+
 ---
 
 ## PageTabsProps
@@ -57,7 +61,8 @@ const result = PageCardPropsSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **type** | `Enum<'line' \| 'card' \| 'pill'>` | optional |  |
 | **position** | `Enum<'top' \| 'left'>` | optional |  |
-| **items** | `object[]` | ✅ |  |
+| **items** | `Object[]` | ✅ |  |
+
 
 ---
 
@@ -71,6 +76,7 @@ const result = PageCardPropsSchema.parse(data);
 | **layout** | `Enum<'auto' \| 'custom'>` | optional |  |
 | **sections** | `string[]` | optional | Section IDs to show |
 
+
 ---
 
 ## RecordHighlightsProps
@@ -80,6 +86,7 @@ const result = PageCardPropsSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **fields** | `string[]` | ✅ | Key fields to highlights (max 7) |
+
 
 ---
 
@@ -94,4 +101,7 @@ const result = PageCardPropsSchema.parse(data);
 | **columns** | `string[]` | ✅ | Fields to display |
 | **sort** | `string` | optional |  |
 | **limit** | `number` | optional |  |
+
+
+---
 

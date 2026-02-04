@@ -17,7 +17,6 @@
           "type": "string",
           "enum": [
             "grid",
-            "spreadsheet",
             "kanban",
             "gallery",
             "calendar",

@@ -5,6 +5,8 @@ description: Workflow protocol schemas
 
 # Workflow
 
+Trigger events for workflow automation
+
 <Callout type="info">
 **Source:** `packages/spec/src/automation/workflow.zod.ts`
 </Callout>
@@ -12,11 +14,11 @@ description: Workflow protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ConnectorActionRefSchema, CustomScriptActionSchema, EmailAlertActionSchema, FieldUpdateActionSchema, HttpCallActionSchema, PushNotificationActionSchema, TaskCreationActionSchema, TimeTriggerSchema, WorkflowActionSchema, WorkflowRuleSchema, WorkflowTriggerTypeSchema } from '@objectstack/spec/automation';
+import { ConnectorActionRef, CustomScriptAction, EmailAlertAction, FieldUpdateAction, HttpCallAction, PushNotificationAction, TaskCreationAction, TimeTrigger, WorkflowAction, WorkflowRule, WorkflowTriggerType } from '@objectstack/spec/automation';
 import type { ConnectorActionRef, CustomScriptAction, EmailAlertAction, FieldUpdateAction, HttpCallAction, PushNotificationAction, TaskCreationAction, TimeTrigger, WorkflowAction, WorkflowRule, WorkflowTriggerType } from '@objectstack/spec/automation';
 
 // Validate data
-const result = ConnectorActionRefSchema.parse(data);
+const result = ConnectorActionRef.parse(data);
 ```
 
 ---
@@ -33,6 +35,7 @@ const result = ConnectorActionRefSchema.parse(data);
 | **actionId** | `string` | ✅ | Target Action ID (e.g. send_message) |
 | **input** | `Record<string, any>` | ✅ | Input parameters matching the action schema |
 
+
 ---
 
 ## CustomScriptAction
@@ -48,6 +51,7 @@ const result = ConnectorActionRefSchema.parse(data);
 | **timeout** | `number` | optional | Execution timeout in milliseconds |
 | **context** | `Record<string, any>` | optional | Additional context variables |
 
+
 ---
 
 ## EmailAlertAction
@@ -61,6 +65,7 @@ const result = ConnectorActionRefSchema.parse(data);
 | **template** | `string` | ✅ | Email template ID/DevName |
 | **recipients** | `string[]` | ✅ | List of recipient emails or user IDs |
 
+
 ---
 
 ## FieldUpdateAction
@@ -73,6 +78,7 @@ const result = ConnectorActionRefSchema.parse(data);
 | **type** | `string` | ✅ |  |
 | **field** | `string` | ✅ | Field to update |
 | **value** | `any` | optional | Value or Formula to set |
+
 
 ---
 
@@ -88,6 +94,7 @@ const result = ConnectorActionRefSchema.parse(data);
 | **method** | `Enum<'GET' \| 'POST' \| 'PUT' \| 'DELETE' \| 'PATCH'>` | optional | HTTP Method |
 | **headers** | `Record<string, string>` | optional | HTTP Headers |
 | **body** | `string` | optional | Request body (JSON or text) |
+
 
 ---
 
@@ -106,6 +113,7 @@ const result = ConnectorActionRefSchema.parse(data);
 | **badge** | `number` | optional | Badge count (iOS) |
 | **sound** | `string` | optional | Notification sound |
 | **clickAction** | `string` | optional | Action/URL when notification is clicked |
+
 
 ---
 
@@ -126,6 +134,7 @@ const result = ConnectorActionRefSchema.parse(data);
 | **relatedTo** | `string` | optional | Related record ID or field reference |
 | **additionalFields** | `Record<string, any>` | optional | Additional custom fields |
 
+
 ---
 
 ## TimeTrigger
@@ -140,11 +149,138 @@ const result = ConnectorActionRefSchema.parse(data);
 | **offsetDirection** | `Enum<'before' \| 'after'>` | ✅ | Before or After the reference date |
 | **offsetFrom** | `Enum<'trigger_date' \| 'date_field'>` | ✅ | Basis for calculation |
 | **dateField** | `string` | optional | Date field to calculate from (required if offsetFrom is date_field) |
-| **actions** | `object \| object \| object \| object \| object \| object \| object[]` | ✅ | Actions to execute at the scheduled time |
+| **actions** | `Object \| Object \| Object \| Object \| Object \| Object \| Object[]` | ✅ | Actions to execute at the scheduled time |
+
 
 ---
 
 ## WorkflowAction
+
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+**Type:** `field_update`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **field** | `string` | ✅ | Field to update |
+| **value** | `any` | optional | Value or Formula to set |
+
+---
+
+#### Option 2
+
+**Type:** `email_alert`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **template** | `string` | ✅ | Email template ID/DevName |
+| **recipients** | `string[]` | ✅ | List of recipient emails or user IDs |
+
+---
+
+#### Option 3
+
+**Type:** `http_call`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **url** | `string` | ✅ | Target URL |
+| **method** | `Enum<'GET' \| 'POST' \| 'PUT' \| 'DELETE' \| 'PATCH'>` | optional | HTTP Method |
+| **headers** | `Record<string, string>` | optional | HTTP Headers |
+| **body** | `string` | optional | Request body (JSON or text) |
+
+---
+
+#### Option 4
+
+**Type:** `connector_action`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **connectorId** | `string` | ✅ | Target Connector ID (e.g. slack, twilio) |
+| **actionId** | `string` | ✅ | Target Action ID (e.g. send_message) |
+| **input** | `Record<string, any>` | ✅ | Input parameters matching the action schema |
+
+---
+
+#### Option 5
+
+**Type:** `task_creation`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **taskObject** | `string` | ✅ | Task object name (e.g., "task", "project_task") |
+| **subject** | `string` | ✅ | Task subject/title |
+| **description** | `string` | optional | Task description |
+| **assignedTo** | `string` | optional | User ID or field reference for assignee |
+| **dueDate** | `string` | optional | Due date (ISO string or formula) |
+| **priority** | `string` | optional | Task priority |
+| **relatedTo** | `string` | optional | Related record ID or field reference |
+| **additionalFields** | `Record<string, any>` | optional | Additional custom fields |
+
+---
+
+#### Option 6
+
+**Type:** `push_notification`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **title** | `string` | ✅ | Notification title |
+| **body** | `string` | ✅ | Notification body text |
+| **recipients** | `string[]` | ✅ | User IDs or device tokens |
+| **data** | `Record<string, any>` | optional | Additional data payload |
+| **badge** | `number` | optional | Badge count (iOS) |
+| **sound** | `string` | optional | Notification sound |
+| **clickAction** | `string` | optional | Action/URL when notification is clicked |
+
+---
+
+#### Option 7
+
+**Type:** `custom_script`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **language** | `Enum<'javascript' \| 'typescript' \| 'python'>` | optional | Script language |
+| **code** | `string` | ✅ | Script code to execute |
+| **timeout** | `number` | optional | Execution timeout in milliseconds |
+| **context** | `Record<string, any>` | optional | Additional context variables |
+
+---
+
 
 ---
 
@@ -158,10 +294,11 @@ const result = ConnectorActionRefSchema.parse(data);
 | **objectName** | `string` | ✅ | Target Object |
 | **triggerType** | `Enum<'on_create' \| 'on_update' \| 'on_create_or_update' \| 'on_delete' \| 'schedule'>` | ✅ | When to evaluate |
 | **criteria** | `string` | optional | Formula condition. If TRUE, actions execute. |
-| **actions** | `object \| object \| object \| object \| object \| object \| object[]` | optional | Immediate actions |
-| **timeTriggers** | `object[]` | optional | Scheduled actions relative to trigger or date field |
+| **actions** | `Object \| Object \| Object \| Object \| Object \| Object \| Object[]` | optional | Immediate actions |
+| **timeTriggers** | `Object[]` | optional | Scheduled actions relative to trigger or date field |
 | **active** | `boolean` | optional | Whether this workflow is active |
 | **reevaluateOnChange** | `boolean` | optional | Re-evaluate rule if field updates change the record validity |
+
 
 ---
 
@@ -174,4 +311,7 @@ const result = ConnectorActionRefSchema.parse(data);
 * `on_create_or_update`
 * `on_delete`
 * `schedule`
+
+
+---
 

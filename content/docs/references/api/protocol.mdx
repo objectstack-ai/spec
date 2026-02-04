@@ -5,6 +5,30 @@ description: Protocol protocol schemas
 
 # Protocol
 
+ObjectStack Protocol - Zod Schema Definitions
+
+Defines the runtime-validated contract for interacting with ObjectStack metadata and data.
+
+Used by API adapters (HTTP, WebSocket, gRPC) to fetch data/metadata without knowing engine internals.
+
+This protocol enables:
+
+- Runtime request/response validation at API gateway level
+
+- Automatic API documentation generation
+
+- Type-safe RPC communication between microservices
+
+- Client SDK generation from schemas
+
+Architecture Alignment:
+
+- Salesforce: REST API Request/Response schemas
+
+- Kubernetes: API Resource schemas with runtime validation
+
+- GraphQL: Schema-first API design
+
 <Callout type="info">
 **Source:** `packages/spec/src/api/protocol.zod.ts`
 </Callout>
@@ -12,11 +36,11 @@ description: Protocol protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AutomationTriggerRequestSchema, AutomationTriggerResponseSchema, BatchDataRequestSchema, BatchDataResponseSchema, CreateDataRequestSchema, CreateDataResponseSchema, CreateManyDataRequestSchema, CreateManyDataResponseSchema, DeleteDataRequestSchema, DeleteDataResponseSchema, DeleteManyDataRequestSchema, DeleteManyDataResponseSchema, FindDataRequestSchema, FindDataResponseSchema, GetDataRequestSchema, GetDataResponseSchema, GetDiscoveryRequestSchema, GetDiscoveryResponseSchema, GetMetaItemCachedRequestSchema, GetMetaItemCachedResponseSchema, GetMetaItemRequestSchema, GetMetaItemResponseSchema, GetMetaItemsRequestSchema, GetMetaItemsResponseSchema, GetMetaTypesRequestSchema, GetMetaTypesResponseSchema, GetUiViewRequestSchema, GetUiViewResponseSchema, ObjectStackProtocolSchema, UpdateDataRequestSchema, UpdateDataResponseSchema, UpdateManyDataRequestSchema, UpdateManyDataResponseSchema } from '@objectstack/spec/api';
+import { AutomationTriggerRequest, AutomationTriggerResponse, BatchDataRequest, BatchDataResponse, CreateDataRequest, CreateDataResponse, CreateManyDataRequest, CreateManyDataResponse, DeleteDataRequest, DeleteDataResponse, DeleteManyDataRequest, DeleteManyDataResponse, FindDataRequest, FindDataResponse, GetDataRequest, GetDataResponse, GetDiscoveryRequest, GetDiscoveryResponse, GetMetaItemCachedRequest, GetMetaItemCachedResponse, GetMetaItemRequest, GetMetaItemResponse, GetMetaItemsRequest, GetMetaItemsResponse, GetMetaTypesRequest, GetMetaTypesResponse, GetUiViewRequest, GetUiViewResponse, ObjectStackProtocol, UpdateDataRequest, UpdateDataResponse, UpdateManyDataRequest, UpdateManyDataResponse } from '@objectstack/spec/api';
 import type { AutomationTriggerRequest, AutomationTriggerResponse, BatchDataRequest, BatchDataResponse, CreateDataRequest, CreateDataResponse, CreateManyDataRequest, CreateManyDataResponse, DeleteDataRequest, DeleteDataResponse, DeleteManyDataRequest, DeleteManyDataResponse, FindDataRequest, FindDataResponse, GetDataRequest, GetDataResponse, GetDiscoveryRequest, GetDiscoveryResponse, GetMetaItemCachedRequest, GetMetaItemCachedResponse, GetMetaItemRequest, GetMetaItemResponse, GetMetaItemsRequest, GetMetaItemsResponse, GetMetaTypesRequest, GetMetaTypesResponse, GetUiViewRequest, GetUiViewResponse, ObjectStackProtocol, UpdateDataRequest, UpdateDataResponse, UpdateManyDataRequest, UpdateManyDataResponse } from '@objectstack/spec/api';
 
 // Validate data
-const result = AutomationTriggerRequestSchema.parse(data);
+const result = AutomationTriggerRequest.parse(data);
 ```
 
 ---
@@ -30,6 +54,7 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | **trigger** | `string` | ✅ |  |
 | **payload** | `Record<string, any>` | ✅ |  |
 
+
 ---
 
 ## AutomationTriggerResponse
@@ -42,6 +67,7 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | **jobId** | `string` | optional |  |
 | **result** | `any` | optional |  |
 
+
 ---
 
 ## BatchDataRequest
@@ -51,7 +77,8 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **object** | `string` | ✅ | Object name |
-| **request** | `object` | ✅ | Batch operation request |
+| **request** | `Object` | ✅ | Batch operation request |
+
 
 ---
 
@@ -62,13 +89,14 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **success** | `boolean` | ✅ | Operation success status |
-| **error** | `object` | optional | Error details if success is false |
-| **meta** | `object` | optional | Response metadata |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
 | **operation** | `Enum<'create' \| 'update' \| 'upsert' \| 'delete'>` | optional | Operation type that was performed |
 | **total** | `number` | ✅ | Total number of records in the batch |
 | **succeeded** | `number` | ✅ | Number of records that succeeded |
 | **failed** | `number` | ✅ | Number of records that failed |
-| **results** | `object[]` | ✅ | Detailed results for each record |
+| **results** | `Object[]` | ✅ | Detailed results for each record |
+
 
 ---
 
@@ -80,6 +108,7 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **object** | `string` | ✅ | The object name. |
 | **data** | `Record<string, any>` | ✅ | The dictionary of field values to insert. |
+
 
 ---
 
@@ -93,6 +122,7 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | **id** | `string` | ✅ | The ID of the newly created record. |
 | **record** | `Record<string, any>` | ✅ | The created record, including server-generated fields (created_at, owner). |
 
+
 ---
 
 ## CreateManyDataRequest
@@ -103,6 +133,7 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **object** | `string` | ✅ | Object name |
 | **records** | `Record<string, any>[]` | ✅ | Array of records to create |
+
 
 ---
 
@@ -116,6 +147,7 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | **records** | `Record<string, any>[]` | ✅ | Created records |
 | **count** | `number` | ✅ | Number of records created |
 
+
 ---
 
 ## DeleteDataRequest
@@ -126,6 +158,7 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **object** | `string` | ✅ | Object name |
 | **id** | `string` | ✅ | Record ID to delete |
+
 
 ---
 
@@ -139,6 +172,7 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | **id** | `string` | ✅ | Deleted record ID |
 | **success** | `boolean` | ✅ | Whether deletion succeeded |
 
+
 ---
 
 ## DeleteManyDataRequest
@@ -149,7 +183,8 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **object** | `string` | ✅ | Object name |
 | **ids** | `string[]` | ✅ | Array of record IDs to delete |
-| **options** | `object` | optional | Delete options |
+| **options** | `Object` | optional | Delete options |
+
 
 ---
 
@@ -160,13 +195,14 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **success** | `boolean` | ✅ | Operation success status |
-| **error** | `object` | optional | Error details if success is false |
-| **meta** | `object` | optional | Response metadata |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
 | **operation** | `Enum<'create' \| 'update' \| 'upsert' \| 'delete'>` | optional | Operation type that was performed |
 | **total** | `number` | ✅ | Total number of records in the batch |
 | **succeeded** | `number` | ✅ | Number of records that succeeded |
 | **failed** | `number` | ✅ | Number of records that failed |
-| **results** | `object[]` | ✅ | Detailed results for each record |
+| **results** | `Object[]` | ✅ | Detailed results for each record |
+
 
 ---
 
@@ -177,7 +213,8 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **object** | `string` | ✅ | The unique machine name of the object to query (e.g. "account"). |
-| **query** | `object` | optional | Structured query definition (filter, sort, select, pagination). |
+| **query** | `Object` | optional | Structured query definition (filter, sort, select, pagination). |
+
 
 ---
 
@@ -192,6 +229,7 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | **total** | `number` | optional | Total number of records matching the filter (if requested). |
 | **hasMore** | `boolean` | optional | True if there are more records available (pagination). |
 
+
 ---
 
 ## GetDataRequest
@@ -202,6 +240,7 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **object** | `string` | ✅ | The object name. |
 | **id** | `string` | ✅ | The unique record identifier (primary key). |
+
 
 ---
 
@@ -215,6 +254,7 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | **id** | `string` | ✅ | The record ID. |
 | **record** | `Record<string, any>` | ✅ | The complete record data. |
 
+
 ---
 
 ## GetDiscoveryRequest
@@ -223,6 +263,7 @@ const result = AutomationTriggerRequestSchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
+
 
 ---
 
@@ -234,8 +275,9 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **version** | `string` | ✅ | API version (e.g., "v1", "2024-01") |
 | **apiName** | `string` | ✅ | API name |
-| **capabilities** | `object` | optional | Supported features/capabilities |
-| **endpoints** | `object` | optional | Available endpoint paths |
+| **capabilities** | `Object` | optional | Supported features/capabilities |
+| **endpoints** | `Object` | optional | Available endpoint paths |
+
 
 ---
 
@@ -247,7 +289,8 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **type** | `string` | ✅ | Metadata type name |
 | **name** | `string` | ✅ | Item name |
-| **cacheRequest** | `object` | optional | Cache validation parameters |
+| **cacheRequest** | `Object` | optional | Cache validation parameters |
+
 
 ---
 
@@ -258,11 +301,12 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **data** | `any` | optional | Metadata payload (omitted for 304 Not Modified) |
-| **etag** | `object` | optional | ETag for this resource version |
+| **etag** | `Object` | optional | ETag for this resource version |
 | **lastModified** | `string` | optional | Last modification timestamp |
-| **cacheControl** | `object` | optional | Cache control directives |
+| **cacheControl** | `Object` | optional | Cache control directives |
 | **notModified** | `boolean` | optional | True if resource has not been modified (304 response) |
 | **version** | `string` | optional | Metadata version identifier |
+
 
 ---
 
@@ -274,6 +318,7 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **type** | `string` | ✅ | Metadata type name |
 | **name** | `string` | ✅ | Item name (snake_case identifier) |
+
 
 ---
 
@@ -287,6 +332,7 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | **name** | `string` | ✅ | Item name |
 | **item** | `any` | optional | Metadata item definition |
 
+
 ---
 
 ## GetMetaItemsRequest
@@ -296,6 +342,7 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **type** | `string` | ✅ | Metadata type name (e.g., "object", "plugin") |
+
 
 ---
 
@@ -308,6 +355,7 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | **type** | `string` | ✅ | Metadata type name |
 | **items** | `any[]` | ✅ | Array of metadata items |
 
+
 ---
 
 ## GetMetaTypesRequest
@@ -316,6 +364,7 @@ const result = AutomationTriggerRequestSchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
+
 
 ---
 
@@ -326,6 +375,7 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **types** | `string[]` | ✅ | Available metadata type names (e.g., "object", "plugin", "view") |
+
 
 ---
 
@@ -338,6 +388,7 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | **object** | `string` | ✅ | Object name (snake_case) |
 | **type** | `Enum<'list' \| 'form'>` | ✅ | View type |
 
+
 ---
 
 ## GetUiViewResponse
@@ -346,10 +397,11 @@ const result = AutomationTriggerRequestSchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **list** | `object` | optional |  |
-| **form** | `object` | optional |  |
-| **listViews** | `Record<string, object>` | optional | Additional named list views |
-| **formViews** | `Record<string, object>` | optional | Additional named form views |
+| **list** | `Object` | optional |  |
+| **form** | `Object` | optional |  |
+| **listViews** | `Record<string, Object>` | optional | Additional named list views |
+| **formViews** | `Record<string, Object>` | optional | Additional named form views |
+
 
 ---
 
@@ -359,6 +411,7 @@ const result = AutomationTriggerRequestSchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
+
 
 ---
 
@@ -372,6 +425,7 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | **id** | `string` | ✅ | The ID of the record to update. |
 | **data** | `Record<string, any>` | ✅ | The fields to update (partial update). |
 
+
 ---
 
 ## UpdateDataResponse
@@ -384,6 +438,7 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | **id** | `string` | ✅ | Updated record ID |
 | **record** | `Record<string, any>` | ✅ | Updated record |
 
+
 ---
 
 ## UpdateManyDataRequest
@@ -393,8 +448,9 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **object** | `string` | ✅ | Object name |
-| **records** | `object[]` | ✅ | Array of updates |
-| **options** | `object` | optional | Update options |
+| **records** | `Object[]` | ✅ | Array of updates |
+| **options** | `Object` | optional | Update options |
+
 
 ---
 
@@ -405,11 +461,14 @@ const result = AutomationTriggerRequestSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **success** | `boolean` | ✅ | Operation success status |
-| **error** | `object` | optional | Error details if success is false |
-| **meta** | `object` | optional | Response metadata |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
 | **operation** | `Enum<'create' \| 'update' \| 'upsert' \| 'delete'>` | optional | Operation type that was performed |
 | **total** | `number` | ✅ | Total number of records in the batch |
 | **succeeded** | `number` | ✅ | Number of records that succeeded |
 | **failed** | `number` | ✅ | Number of records that failed |
-| **results** | `object[]` | ✅ | Detailed results for each record |
+| **results** | `Object[]` | ✅ | Detailed results for each record |
+
+
+---
 

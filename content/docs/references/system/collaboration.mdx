@@ -5,6 +5,16 @@ description: Collaboration protocol schemas
 
 # Collaboration
 
+Real-Time Collaboration Protocol
+
+Defines schemas for real-time collaborative editing in ObjectStack.
+
+Supports Operational Transformation (OT), CRDT (Conflict-free Replicated Data Types),
+
+cursor sharing, and awareness state for collaborative applications.
+
+Industry alignment: Google Docs, Figma, VSCode Live Share, Yjs
+
 <Callout type="info">
 **Source:** `packages/spec/src/system/collaboration.zod.ts`
 </Callout>
@@ -12,11 +22,11 @@ description: Collaboration protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AwarenessEventSchema, AwarenessSessionSchema, AwarenessUpdateSchema, AwarenessUserStateSchema, CRDTMergeResultSchema, CRDTStateSchema, CRDTTypeSchema, CollaborationModeSchema, CollaborationSessionSchema, CollaborationSessionConfigSchema, CollaborativeCursorSchema, CounterOperationSchema, CursorColorPresetSchema, CursorSelectionSchema, CursorStyleSchema, CursorUpdateSchema, GCounterSchema, LWWRegisterSchema, ORSetSchema, ORSetElementSchema, OTComponentSchema, OTOperationSchema, OTOperationTypeSchema, OTTransformResultSchema, PNCounterSchema, TextCRDTOperationSchema, TextCRDTStateSchema, UserActivityStatusSchema, VectorClockSchema } from '@objectstack/spec/system';
+import { AwarenessEvent, AwarenessSession, AwarenessUpdate, AwarenessUserState, CRDTMergeResult, CRDTState, CRDTType, CollaborationMode, CollaborationSession, CollaborationSessionConfig, CollaborativeCursor, CounterOperation, CursorColorPreset, CursorSelection, CursorStyle, CursorUpdate, GCounter, LWWRegister, ORSet, ORSetElement, OTComponent, OTOperation, OTOperationType, OTTransformResult, PNCounter, TextCRDTOperation, TextCRDTState, UserActivityStatus, VectorClock } from '@objectstack/spec/system';
 import type { AwarenessEvent, AwarenessSession, AwarenessUpdate, AwarenessUserState, CRDTMergeResult, CRDTState, CRDTType, CollaborationMode, CollaborationSession, CollaborationSessionConfig, CollaborativeCursor, CounterOperation, CursorColorPreset, CursorSelection, CursorStyle, CursorUpdate, GCounter, LWWRegister, ORSet, ORSetElement, OTComponent, OTOperation, OTOperationType, OTTransformResult, PNCounter, TextCRDTOperation, TextCRDTState, UserActivityStatus, VectorClock } from '@objectstack/spec/system';
 
 // Validate data
-const result = AwarenessEventSchema.parse(data);
+const result = AwarenessEvent.parse(data);
 ```
 
 ---
@@ -34,6 +44,7 @@ const result = AwarenessEventSchema.parse(data);
 | **timestamp** | `string` | ✅ | ISO 8601 datetime of event |
 | **payload** | `any` | optional | Event payload |
 
+
 ---
 
 ## AwarenessSession
@@ -44,10 +55,11 @@ const result = AwarenessEventSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **sessionId** | `string` | ✅ | Session identifier |
 | **documentId** | `string` | optional | Document ID this session is for |
-| **users** | `object[]` | ✅ | Active users in session |
+| **users** | `Object[]` | ✅ | Active users in session |
 | **startedAt** | `string` | ✅ | ISO 8601 datetime when session started |
 | **lastUpdate** | `string` | ✅ | ISO 8601 datetime of last update |
 | **metadata** | `Record<string, any>` | optional | Session metadata |
+
 
 ---
 
@@ -61,6 +73,7 @@ const result = AwarenessEventSchema.parse(data);
 | **currentDocument** | `string` | optional | Updated current document |
 | **currentView** | `string` | optional | Updated current view |
 | **metadata** | `Record<string, any>` | optional | Updated metadata |
+
 
 ---
 
@@ -82,6 +95,7 @@ const result = AwarenessEventSchema.parse(data);
 | **permissions** | `string[]` | optional | User permissions in this session |
 | **metadata** | `Record<string, any>` | optional | Additional user state metadata |
 
+
 ---
 
 ## CRDTMergeResult
@@ -90,12 +104,91 @@ const result = AwarenessEventSchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **state** | `object \| object \| object \| object \| object` | ✅ | Merged CRDT state |
-| **conflicts** | `object[]` | optional | Conflicts encountered during merge |
+| **state** | `Object \| Object \| Object \| Object \| Object` | ✅ | Merged CRDT state |
+| **conflicts** | `Object[]` | optional | Conflicts encountered during merge |
+
 
 ---
 
 ## CRDTState
+
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+**Type:** `lww-register`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **value** | `any` | optional | Current register value |
+| **timestamp** | `string` | ✅ | ISO 8601 datetime of last write |
+| **replicaId** | `string` | ✅ | ID of replica that performed last write |
+| **vectorClock** | `Object` | optional | Optional vector clock for causality tracking |
+
+---
+
+#### Option 2
+
+**Type:** `g-counter`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **counts** | `Record<string, integer>` | ✅ | Map of replica ID to count |
+
+---
+
+#### Option 3
+
+**Type:** `pn-counter`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **positive** | `Record<string, integer>` | ✅ | Positive increments per replica |
+| **negative** | `Record<string, integer>` | ✅ | Negative increments per replica |
+
+---
+
+#### Option 4
+
+**Type:** `or-set`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **elements** | `Object[]` | ✅ | Set elements with metadata |
+
+---
+
+#### Option 5
+
+**Type:** `text`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **documentId** | `string` | ✅ | Document identifier |
+| **content** | `string` | ✅ | Current text content |
+| **operations** | `Object[]` | ✅ | History of operations |
+| **lamportClock** | `integer` | ✅ | Current Lamport clock value |
+| **vectorClock** | `Object` | ✅ | Vector clock for causality |
+
+---
+
 
 ---
 
@@ -113,6 +206,7 @@ const result = AwarenessEventSchema.parse(data);
 * `tree`
 * `json`
 
+
 ---
 
 ## CollaborationMode
@@ -124,6 +218,7 @@ const result = AwarenessEventSchema.parse(data);
 * `lock`
 * `hybrid`
 
+
 ---
 
 ## CollaborationSession
@@ -134,14 +229,15 @@ const result = AwarenessEventSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **sessionId** | `string` | ✅ | Session identifier |
 | **documentId** | `string` | ✅ | Document identifier |
-| **config** | `object` | ✅ | Session configuration |
-| **users** | `object[]` | ✅ | Active users |
-| **cursors** | `object[]` | ✅ | Active cursors |
+| **config** | `Object` | ✅ | Session configuration |
+| **users** | `Object[]` | ✅ | Active users |
+| **cursors** | `Object[]` | ✅ | Active cursors |
 | **version** | `integer` | ✅ | Current document version |
-| **operations** | `object \| object[]` | optional | Recent operations |
+| **operations** | `Object \| Object[]` | optional | Recent operations |
 | **createdAt** | `string` | ✅ | ISO 8601 datetime when session was created |
 | **lastActivity** | `string` | ✅ | ISO 8601 datetime of last activity |
 | **status** | `Enum<'active' \| 'idle' \| 'ended'>` | ✅ | Session status |
+
 
 ---
 
@@ -159,7 +255,8 @@ const result = AwarenessEventSchema.parse(data);
 | **idleTimeout** | `integer` | optional | Idle timeout in milliseconds |
 | **conflictResolution** | `Enum<'ot' \| 'crdt' \| 'manual'>` | optional | Conflict resolution strategy |
 | **persistence** | `boolean` | optional | Enable operation persistence |
-| **snapshot** | `object` | optional | Snapshot configuration |
+| **snapshot** | `Object` | optional | Snapshot configuration |
+
 
 ---
 
@@ -173,12 +270,13 @@ const result = AwarenessEventSchema.parse(data);
 | **sessionId** | `string` | ✅ | Session identifier |
 | **documentId** | `string` | ✅ | Document identifier |
 | **userName** | `string` | ✅ | Display name of user |
-| **position** | `object` | ✅ | Current cursor position |
-| **selection** | `object` | optional | Current text selection |
-| **style** | `object` | ✅ | Visual style for this cursor |
+| **position** | `Object` | ✅ | Current cursor position |
+| **selection** | `Object` | optional | Current text selection |
+| **style** | `Object` | ✅ | Visual style for this cursor |
 | **isTyping** | `boolean` | optional | Whether user is currently typing |
 | **lastUpdate** | `string` | ✅ | ISO 8601 datetime of last cursor update |
 | **metadata** | `Record<string, any>` | optional | Additional cursor metadata |
+
 
 ---
 
@@ -191,6 +289,7 @@ const result = AwarenessEventSchema.parse(data);
 | **replicaId** | `string` | ✅ | Replica identifier |
 | **delta** | `integer` | ✅ | Change amount (positive for increment, negative for decrement) |
 | **timestamp** | `string` | ✅ | ISO 8601 datetime of operation |
+
 
 ---
 
@@ -209,6 +308,7 @@ const result = AwarenessEventSchema.parse(data);
 * `indigo`
 * `cyan`
 
+
 ---
 
 ## CursorSelection
@@ -217,9 +317,10 @@ const result = AwarenessEventSchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **anchor** | `object` | ✅ | Selection anchor (start point) |
-| **focus** | `object` | ✅ | Selection focus (end point) |
+| **anchor** | `Object` | ✅ | Selection anchor (start point) |
+| **focus** | `Object` | ✅ | Selection focus (end point) |
 | **direction** | `Enum<'forward' \| 'backward'>` | optional | Selection direction |
+
 
 ---
 
@@ -235,6 +336,7 @@ const result = AwarenessEventSchema.parse(data);
 | **showLabel** | `boolean` | optional | Whether to show label |
 | **pulseOnUpdate** | `boolean` | optional | Whether to pulse when cursor moves |
 
+
 ---
 
 ## CursorUpdate
@@ -243,10 +345,11 @@ const result = AwarenessEventSchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **position** | `object` | optional | Updated cursor position |
-| **selection** | `object` | optional | Updated selection |
+| **position** | `Object` | optional | Updated cursor position |
+| **selection** | `Object` | optional | Updated selection |
 | **isTyping** | `boolean` | optional | Updated typing state |
 | **metadata** | `Record<string, any>` | optional | Updated metadata |
+
 
 ---
 
@@ -258,6 +361,7 @@ const result = AwarenessEventSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **type** | `string` | ✅ |  |
 | **counts** | `Record<string, integer>` | ✅ | Map of replica ID to count |
+
 
 ---
 
@@ -271,7 +375,8 @@ const result = AwarenessEventSchema.parse(data);
 | **value** | `any` | optional | Current register value |
 | **timestamp** | `string` | ✅ | ISO 8601 datetime of last write |
 | **replicaId** | `string` | ✅ | ID of replica that performed last write |
-| **vectorClock** | `object` | optional | Optional vector clock for causality tracking |
+| **vectorClock** | `Object` | optional | Optional vector clock for causality tracking |
+
 
 ---
 
@@ -282,7 +387,8 @@ const result = AwarenessEventSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **type** | `string` | ✅ |  |
-| **elements** | `object[]` | ✅ | Set elements with metadata |
+| **elements** | `Object[]` | ✅ | Set elements with metadata |
+
 
 ---
 
@@ -298,9 +404,56 @@ const result = AwarenessEventSchema.parse(data);
 | **uid** | `string` | ✅ | Unique identifier for this addition |
 | **removed** | `boolean` | optional | Whether element has been removed |
 
+
 ---
 
 ## OTComponent
+
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+**Type:** `insert`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **text** | `string` | ✅ | Text to insert |
+| **attributes** | `Record<string, any>` | optional | Text formatting attributes (e.g., bold, italic) |
+
+---
+
+#### Option 2
+
+**Type:** `delete`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **count** | `integer` | ✅ | Number of characters to delete |
+
+---
+
+#### Option 3
+
+**Type:** `retain`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **count** | `integer` | ✅ | Number of characters to retain |
+| **attributes** | `Record<string, any>` | optional | Attribute changes to apply |
+
+---
+
 
 ---
 
@@ -314,10 +467,11 @@ const result = AwarenessEventSchema.parse(data);
 | **documentId** | `string` | ✅ | Document identifier |
 | **userId** | `string` | ✅ | User who created the operation |
 | **sessionId** | `string` | ✅ | Session identifier |
-| **components** | `object \| object \| object[]` | ✅ | Operation components |
+| **components** | `Object \| Object \| Object[]` | ✅ | Operation components |
 | **baseVersion** | `integer` | ✅ | Document version this operation is based on |
 | **timestamp** | `string` | ✅ | ISO 8601 datetime when operation was created |
 | **metadata** | `Record<string, any>` | optional | Additional operation metadata |
+
 
 ---
 
@@ -329,6 +483,7 @@ const result = AwarenessEventSchema.parse(data);
 * `delete`
 * `retain`
 
+
 ---
 
 ## OTTransformResult
@@ -337,9 +492,10 @@ const result = AwarenessEventSchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **operation** | `object` | ✅ | Transformed operation |
+| **operation** | `Object` | ✅ | Transformed operation |
 | **transformed** | `boolean` | ✅ | Whether transformation was applied |
 | **conflicts** | `string[]` | optional | Conflict descriptions if any |
+
 
 ---
 
@@ -352,6 +508,7 @@ const result = AwarenessEventSchema.parse(data);
 | **type** | `string` | ✅ |  |
 | **positive** | `Record<string, integer>` | ✅ | Positive increments per replica |
 | **negative** | `Record<string, integer>` | ✅ | Negative increments per replica |
+
 
 ---
 
@@ -369,6 +526,7 @@ const result = AwarenessEventSchema.parse(data);
 | **timestamp** | `string` | ✅ | ISO 8601 datetime of operation |
 | **lamportTimestamp** | `integer` | ✅ | Lamport timestamp for ordering |
 
+
 ---
 
 ## TextCRDTState
@@ -380,9 +538,10 @@ const result = AwarenessEventSchema.parse(data);
 | **type** | `string` | ✅ |  |
 | **documentId** | `string` | ✅ | Document identifier |
 | **content** | `string` | ✅ | Current text content |
-| **operations** | `object[]` | ✅ | History of operations |
+| **operations** | `Object[]` | ✅ | History of operations |
 | **lamportClock** | `integer` | ✅ | Current Lamport clock value |
-| **vectorClock** | `object` | ✅ | Vector clock for causality |
+| **vectorClock** | `Object` | ✅ | Vector clock for causality |
+
 
 ---
 
@@ -395,6 +554,7 @@ const result = AwarenessEventSchema.parse(data);
 * `viewing`
 * `disconnected`
 
+
 ---
 
 ## VectorClock
@@ -404,4 +564,7 @@ const result = AwarenessEventSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **clock** | `Record<string, integer>` | ✅ | Map of replica ID to logical timestamp |
+
+
+---
 

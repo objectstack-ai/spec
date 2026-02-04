@@ -5,6 +5,18 @@ description: Data Engine protocol schemas
 
 # Data Engine
 
+Data Engine Protocol
+
+Defines the standard interface for data persistence engines in ObjectStack.
+
+This protocol abstracts the underlying storage mechanism (SQL, NoSQL, API, Memory),
+
+allowing the ObjectQL engine to execute standardized CRUD and Aggregation operations
+
+regardless of where the data resides.
+
+The Data Engine acts as the "Driver" layer in the Hexagonal Architecture.
+
 <Callout type="info">
 **Source:** `packages/spec/src/data/data-engine.zod.ts`
 </Callout>
@@ -12,11 +24,11 @@ description: Data Engine protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { DataEngineAggregateOptionsSchema, DataEngineAggregateRequestSchema, DataEngineBatchRequestSchema, DataEngineContractSchema, DataEngineCountOptionsSchema, DataEngineCountRequestSchema, DataEngineDeleteOptionsSchema, DataEngineDeleteRequestSchema, DataEngineExecuteRequestSchema, DataEngineFilterSchema, DataEngineFindOneRequestSchema, DataEngineFindRequestSchema, DataEngineInsertOptionsSchema, DataEngineInsertRequestSchema, DataEngineQueryOptionsSchema, DataEngineRequestSchema, DataEngineSortSchema, DataEngineUpdateOptionsSchema, DataEngineUpdateRequestSchema, DataEngineVectorFindRequestSchema } from '@objectstack/spec/data';
+import { DataEngineAggregateOptions, DataEngineAggregateRequest, DataEngineBatchRequest, DataEngineContract, DataEngineCountOptions, DataEngineCountRequest, DataEngineDeleteOptions, DataEngineDeleteRequest, DataEngineExecuteRequest, DataEngineFilter, DataEngineFindOneRequest, DataEngineFindRequest, DataEngineInsertOptions, DataEngineInsertRequest, DataEngineQueryOptions, DataEngineRequest, DataEngineSort, DataEngineUpdateOptions, DataEngineUpdateRequest, DataEngineVectorFindRequest } from '@objectstack/spec/data';
 import type { DataEngineAggregateOptions, DataEngineAggregateRequest, DataEngineBatchRequest, DataEngineContract, DataEngineCountOptions, DataEngineCountRequest, DataEngineDeleteOptions, DataEngineDeleteRequest, DataEngineExecuteRequest, DataEngineFilter, DataEngineFindOneRequest, DataEngineFindRequest, DataEngineInsertOptions, DataEngineInsertRequest, DataEngineQueryOptions, DataEngineRequest, DataEngineSort, DataEngineUpdateOptions, DataEngineUpdateRequest, DataEngineVectorFindRequest } from '@objectstack/spec/data';
 
 // Validate data
-const result = DataEngineAggregateOptionsSchema.parse(data);
+const result = DataEngineAggregateOptions.parse(data);
 ```
 
 ---
@@ -31,7 +43,8 @@ Options for DataEngine.aggregate operations
 | :--- | :--- | :--- | :--- |
 | **filter** | `Record<string, any> \| any` | optional | Data Engine query filter conditions |
 | **groupBy** | `string[]` | optional |  |
-| **aggregations** | `object[]` | optional |  |
+| **aggregations** | `Object[]` | optional |  |
+
 
 ---
 
@@ -43,7 +56,8 @@ Options for DataEngine.aggregate operations
 | :--- | :--- | :--- | :--- |
 | **method** | `string` | ✅ |  |
 | **object** | `string` | ✅ |  |
-| **query** | `object` | ✅ | Options for DataEngine.aggregate operations |
+| **query** | `Object` | ✅ | Options for DataEngine.aggregate operations |
+
 
 ---
 
@@ -54,8 +68,9 @@ Options for DataEngine.aggregate operations
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **method** | `string` | ✅ |  |
-| **requests** | `object \| object \| object \| object \| object \| object \| object \| object \| object[]` | ✅ |  |
+| **requests** | `Object \| Object \| Object \| Object \| Object \| Object \| Object \| Object \| Object[]` | ✅ |  |
 | **transaction** | `boolean` | optional |  |
+
 
 ---
 
@@ -67,6 +82,7 @@ Standard Data Engine Contract
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
+
 
 ---
 
@@ -80,6 +96,7 @@ Options for DataEngine.count operations
 | :--- | :--- | :--- | :--- |
 | **filter** | `Record<string, any> \| any` | optional | Data Engine query filter conditions |
 
+
 ---
 
 ## DataEngineCountRequest
@@ -90,7 +107,8 @@ Options for DataEngine.count operations
 | :--- | :--- | :--- | :--- |
 | **method** | `string` | ✅ |  |
 | **object** | `string` | ✅ |  |
-| **query** | `object` | optional | Options for DataEngine.count operations |
+| **query** | `Object` | optional | Options for DataEngine.count operations |
+
 
 ---
 
@@ -105,6 +123,7 @@ Options for DataEngine.delete operations
 | **filter** | `Record<string, any> \| any` | optional | Data Engine query filter conditions |
 | **multi** | `boolean` | optional |  |
 
+
 ---
 
 ## DataEngineDeleteRequest
@@ -116,7 +135,8 @@ Options for DataEngine.delete operations
 | **method** | `string` | ✅ |  |
 | **object** | `string` | ✅ |  |
 | **id** | `any` | optional | ID for single delete, or use filter in options |
-| **options** | `object` | optional | Options for DataEngine.delete operations |
+| **options** | `Object` | optional | Options for DataEngine.delete operations |
+
 
 ---
 
@@ -130,11 +150,29 @@ Options for DataEngine.delete operations
 | **command** | `any` | optional |  |
 | **options** | `Record<string, any>` | optional |  |
 
+
 ---
 
 ## DataEngineFilter
 
 Data Engine query filter conditions
+
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+Type: `Record<string, any>`
+
+---
+
+#### Option 2
+
+Type: `any`
+
+---
+
 
 ---
 
@@ -146,7 +184,8 @@ Data Engine query filter conditions
 | :--- | :--- | :--- | :--- |
 | **method** | `string` | ✅ |  |
 | **object** | `string` | ✅ |  |
-| **query** | `object` | optional | Query options for IDataEngine.find() operations |
+| **query** | `Object` | optional | Query options for IDataEngine.find() operations |
+
 
 ---
 
@@ -158,7 +197,8 @@ Data Engine query filter conditions
 | :--- | :--- | :--- | :--- |
 | **method** | `string` | ✅ |  |
 | **object** | `string` | ✅ |  |
-| **query** | `object` | optional | Query options for IDataEngine.find() operations |
+| **query** | `Object` | optional | Query options for IDataEngine.find() operations |
+
 
 ---
 
@@ -172,6 +212,7 @@ Options for DataEngine.insert operations
 | :--- | :--- | :--- | :--- |
 | **returning** | `boolean` | optional |  |
 
+
 ---
 
 ## DataEngineInsertRequest
@@ -183,7 +224,8 @@ Options for DataEngine.insert operations
 | **method** | `string` | ✅ |  |
 | **object** | `string` | ✅ |  |
 | **data** | `Record<string, any> \| Record<string, any>[]` | ✅ |  |
-| **options** | `object` | optional | Options for DataEngine.insert operations |
+| **options** | `Object` | optional | Options for DataEngine.insert operations |
+
 
 ---
 
@@ -197,11 +239,12 @@ Query options for IDataEngine.find() operations
 | :--- | :--- | :--- | :--- |
 | **filter** | `Record<string, any> \| any` | optional | Data Engine query filter conditions |
 | **select** | `string[]` | optional |  |
-| **sort** | `Record<string, Enum<'asc' \| 'desc'>> \| Record<string, Enum<'1' \| '-1'>> \| object[]` | optional | Sort order definition |
+| **sort** | `Record<string, Enum<'asc' \| 'desc'>> \| Record<string, Enum<'1' \| '-1'>> \| Object[]` | optional | Sort order definition |
 | **limit** | `integer` | optional |  |
 | **skip** | `integer` | optional |  |
 | **top** | `integer` | optional |  |
 | **populate** | `string[]` | optional |  |
+
 
 ---
 
@@ -209,11 +252,167 @@ Query options for IDataEngine.find() operations
 
 Virtual ObjectQL Request Protocol
 
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **method** | `string` | ✅ |  |
+| **object** | `string` | ✅ |  |
+| **query** | `Object` | optional | Query options for IDataEngine.find() operations |
+
+---
+
+#### Option 2
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **method** | `string` | ✅ |  |
+| **object** | `string` | ✅ |  |
+| **query** | `Object` | optional | Query options for IDataEngine.find() operations |
+
+---
+
+#### Option 3
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **method** | `string` | ✅ |  |
+| **object** | `string` | ✅ |  |
+| **data** | `Record<string, any> \| Record<string, any>[]` | ✅ |  |
+| **options** | `Object` | optional | Options for DataEngine.insert operations |
+
+---
+
+#### Option 4
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **method** | `string` | ✅ |  |
+| **object** | `string` | ✅ |  |
+| **data** | `Record<string, any>` | ✅ |  |
+| **id** | `any` | optional | ID for single update, or use filter in options |
+| **options** | `Object` | optional | Options for DataEngine.update operations |
+
+---
+
+#### Option 5
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **method** | `string` | ✅ |  |
+| **object** | `string` | ✅ |  |
+| **id** | `any` | optional | ID for single delete, or use filter in options |
+| **options** | `Object` | optional | Options for DataEngine.delete operations |
+
+---
+
+#### Option 6
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **method** | `string` | ✅ |  |
+| **object** | `string` | ✅ |  |
+| **query** | `Object` | optional | Options for DataEngine.count operations |
+
+---
+
+#### Option 7
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **method** | `string` | ✅ |  |
+| **object** | `string` | ✅ |  |
+| **query** | `Object` | ✅ | Options for DataEngine.aggregate operations |
+
+---
+
+#### Option 8
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **method** | `string` | ✅ |  |
+| **requests** | `Object \| Object \| Object \| Object \| Object \| Object \| Object \| Object \| Object[]` | ✅ |  |
+| **transaction** | `boolean` | optional |  |
+
+---
+
+#### Option 9
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **method** | `string` | ✅ |  |
+| **command** | `any` | optional |  |
+| **options** | `Record<string, any>` | optional |  |
+
+---
+
+#### Option 10
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **method** | `string` | ✅ |  |
+| **object** | `string` | ✅ |  |
+| **vector** | `number[]` | ✅ |  |
+| **filter** | `Record<string, any> \| any` | optional | Data Engine query filter conditions |
+| **select** | `string[]` | optional |  |
+| **limit** | `integer` | optional |  |
+| **threshold** | `number` | optional |  |
+
+---
+
+
 ---
 
 ## DataEngineSort
 
 Sort order definition
+
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+Type: `Record<string, Enum<'asc' | 'desc'>>`
+
+---
+
+#### Option 2
+
+Type: `Record<string, Enum<'1' | '-1'>>`
+
+---
+
+#### Option 3
+
+Type: `Object[]`
+
+---
+
 
 ---
 
@@ -230,6 +429,7 @@ Options for DataEngine.update operations
 | **multi** | `boolean` | optional |  |
 | **returning** | `boolean` | optional |  |
 
+
 ---
 
 ## DataEngineUpdateRequest
@@ -242,7 +442,8 @@ Options for DataEngine.update operations
 | **object** | `string` | ✅ |  |
 | **data** | `Record<string, any>` | ✅ |  |
 | **id** | `any` | optional | ID for single update, or use filter in options |
-| **options** | `object` | optional | Options for DataEngine.update operations |
+| **options** | `Object` | optional | Options for DataEngine.update operations |
+
 
 ---
 
@@ -259,4 +460,7 @@ Options for DataEngine.update operations
 | **select** | `string[]` | optional |  |
 | **limit** | `integer` | optional |  |
 | **threshold** | `number` | optional |  |
+
+
+---
 

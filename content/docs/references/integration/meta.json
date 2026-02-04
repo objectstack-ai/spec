@@ -1,6 +1,11 @@
 {
   "title": "Integration Protocol",
   "pages": [
-    "connector"
+    "connector",
+    "http",
+    "mapping",
+    "message-queue",
+    "misc",
+    "object-storage"
   ]
 }

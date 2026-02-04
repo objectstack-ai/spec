@@ -5,6 +5,10 @@ description: Page protocol schemas
 
 # Page
 
+Page Region Schema
+
+A named region in the template where components are dropped.
+
 <Callout type="info">
 **Source:** `packages/spec/src/ui/page.zod.ts`
 </Callout>
@@ -12,11 +16,11 @@ description: Page protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { PageSchema, PageComponentSchema, PageComponentTypeSchema, PageRegionSchema, PageVariableSchema } from '@objectstack/spec/ui';
+import { Page, PageComponent, PageComponentType, PageRegion, PageVariable } from '@objectstack/spec/ui';
 import type { Page, PageComponent, PageComponentType, PageRegion, PageVariable } from '@objectstack/spec/ui';
 
 // Validate data
-const result = PageSchema.parse(data);
+const result = Page.parse(data);
 ```
 
 ---
@@ -31,12 +35,13 @@ const result = PageSchema.parse(data);
 | **label** | `string` | ✅ |  |
 | **description** | `string` | optional |  |
 | **type** | `Enum<'record' \| 'home' \| 'app' \| 'utility'>` | optional |  |
-| **variables** | `object[]` | optional | Local page state variables |
+| **variables** | `Object[]` | optional | Local page state variables |
 | **object** | `string` | optional | Bound object (for Record pages) |
 | **template** | `string` | optional | Layout template name (e.g. "header-sidebar-main") |
-| **regions** | `object[]` | ✅ | Defined regions with components |
+| **regions** | `Object[]` | ✅ | Defined regions with components |
 | **isDefault** | `boolean` | optional |  |
 | **assignedProfiles** | `string[]` | optional |  |
+
 
 ---
 
@@ -54,6 +59,7 @@ const result = PageSchema.parse(data);
 | **style** | `Record<string, string>` | optional | Inline styles or utility classes |
 | **className** | `string` | optional | CSS class names |
 | **visibility** | `string` | optional | Visibility filter/formula |
+
 
 ---
 
@@ -83,6 +89,7 @@ const result = PageSchema.parse(data);
 * `ai:chat_window`
 * `ai:suggestion`
 
+
 ---
 
 ## PageRegion
@@ -93,7 +100,8 @@ const result = PageSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | ✅ | Region name (e.g. "sidebar", "main", "header") |
 | **width** | `Enum<'small' \| 'medium' \| 'large' \| 'full'>` | optional |  |
-| **components** | `object[]` | ✅ | Components in this region |
+| **components** | `Object[]` | ✅ | Components in this region |
+
 
 ---
 
@@ -106,4 +114,7 @@ const result = PageSchema.parse(data);
 | **name** | `string` | ✅ | Variable name |
 | **type** | `Enum<'string' \| 'number' \| 'boolean' \| 'object' \| 'array'>` | optional |  |
 | **defaultValue** | `any` | optional |  |
+
+
+---
 

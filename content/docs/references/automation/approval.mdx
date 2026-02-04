@@ -5,6 +5,8 @@ description: Approval protocol schemas
 
 # Approval
 
+Approval Step Approver Type
+
 <Callout type="info">
 **Source:** `packages/spec/src/automation/approval.zod.ts`
 </Callout>
@@ -12,11 +14,11 @@ description: Approval protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ApprovalActionSchema, ApprovalActionTypeSchema, ApprovalProcessSchema, ApprovalStepSchema, ApproverTypeSchema } from '@objectstack/spec/automation';
+import { ApprovalAction, ApprovalActionType, ApprovalProcess, ApprovalStep, ApproverType } from '@objectstack/spec/automation';
 import type { ApprovalAction, ApprovalActionType, ApprovalProcess, ApprovalStep, ApproverType } from '@objectstack/spec/automation';
 
 // Validate data
-const result = ApprovalActionSchema.parse(data);
+const result = ApprovalAction.parse(data);
 ```
 
 ---
@@ -33,6 +35,7 @@ const result = ApprovalActionSchema.parse(data);
 | **connectorId** | `string` | optional |  |
 | **actionId** | `string` | optional |  |
 
+
 ---
 
 ## ApprovalActionType
@@ -44,6 +47,7 @@ const result = ApprovalActionSchema.parse(data);
 * `webhook`
 * `script`
 * `connector_action`
+
 
 ---
 
@@ -60,11 +64,12 @@ const result = ApprovalActionSchema.parse(data);
 | **description** | `string` | optional |  |
 | **entryCriteria** | `string` | optional | Formula to allow submission |
 | **lockRecord** | `boolean` | optional | Lock record from editing during approval |
-| **steps** | `object[]` | ✅ | Sequence of approval steps |
-| **onSubmit** | `object[]` | optional | Actions on initial submission |
-| **onFinalApprove** | `object[]` | optional | Actions on final approval |
-| **onFinalReject** | `object[]` | optional | Actions on final rejection |
-| **onRecall** | `object[]` | optional | Actions on recall |
+| **steps** | `Object[]` | ✅ | Sequence of approval steps |
+| **onSubmit** | `Object[]` | optional | Actions on initial submission |
+| **onFinalApprove** | `Object[]` | optional | Actions on final approval |
+| **onFinalReject** | `Object[]` | optional | Actions on final rejection |
+| **onRecall** | `Object[]` | optional | Actions on recall |
+
 
 ---
 
@@ -78,11 +83,12 @@ const result = ApprovalActionSchema.parse(data);
 | **label** | `string` | ✅ | Step display label |
 | **description** | `string` | optional |  |
 | **entryCriteria** | `string` | optional | Formula expression to enter this step |
-| **approvers** | `object[]` | ✅ | List of allowed approvers |
+| **approvers** | `Object[]` | ✅ | List of allowed approvers |
 | **behavior** | `Enum<'first_response' \| 'unanimous'>` | optional | How to handle multiple approvers |
 | **rejectionBehavior** | `Enum<'reject_process' \| 'back_to_previous'>` | optional | What happens if rejected |
-| **onApprove** | `object[]` | optional | Actions on step approval |
-| **onReject** | `object[]` | optional | Actions on step rejection |
+| **onApprove** | `Object[]` | optional | Actions on step approval |
+| **onReject** | `Object[]` | optional | Actions on step rejection |
+
 
 ---
 
@@ -95,4 +101,7 @@ const result = ApprovalActionSchema.parse(data);
 * `manager`
 * `field`
 * `queue`
+
+
+---
 

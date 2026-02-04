@@ -5,6 +5,12 @@ description: Chart protocol schemas
 
 # Chart
 
+Unified Chart Type Taxonomy
+
+Shared by Dashboard and Report widgets.
+
+Provides a comprehensive set of chart types for data visualization.
+
 <Callout type="info">
 **Source:** `packages/spec/src/ui/chart.zod.ts`
 </Callout>
@@ -12,11 +18,11 @@ description: Chart protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ChartAnnotationSchema, ChartAxisSchema, ChartConfigSchema, ChartInteractionSchema, ChartSeriesSchema, ChartTypeSchema } from '@objectstack/spec/ui';
+import { ChartAnnotation, ChartAxis, ChartConfig, ChartInteraction, ChartSeries, ChartType } from '@objectstack/spec/ui';
 import type { ChartAnnotation, ChartAxis, ChartConfig, ChartInteraction, ChartSeries, ChartType } from '@objectstack/spec/ui';
 
 // Validate data
-const result = ChartAnnotationSchema.parse(data);
+const result = ChartAnnotation.parse(data);
 ```
 
 ---
@@ -34,6 +40,7 @@ const result = ChartAnnotationSchema.parse(data);
 | **color** | `string` | optional |  |
 | **label** | `string` | optional |  |
 | **style** | `Enum<'solid' \| 'dashed' \| 'dotted'>` | optional |  |
+
 
 ---
 
@@ -53,6 +60,7 @@ const result = ChartAnnotationSchema.parse(data);
 | **position** | `Enum<'left' \| 'right' \| 'top' \| 'bottom'>` | optional | Axis position |
 | **logarithmic** | `boolean` | optional |  |
 
+
 ---
 
 ## ChartConfig
@@ -65,15 +73,16 @@ const result = ChartAnnotationSchema.parse(data);
 | **title** | `string` | optional | Chart title |
 | **subtitle** | `string` | optional | Chart subtitle |
 | **description** | `string` | optional | Accessibility description |
-| **xAxis** | `object` | optional | X-Axis configuration |
-| **yAxis** | `object[]` | optional | Y-Axis configuration (support dual axis) |
-| **series** | `object[]` | optional | Defined series configuration |
+| **xAxis** | `Object` | optional | X-Axis configuration |
+| **yAxis** | `Object[]` | optional | Y-Axis configuration (support dual axis) |
+| **series** | `Object[]` | optional | Defined series configuration |
 | **colors** | `string[]` | optional | Color palette |
 | **height** | `number` | optional | Fixed height in pixels |
 | **showLegend** | `boolean` | optional | Display legend |
 | **showDataLabels** | `boolean` | optional | Display data labels |
-| **annotations** | `object[]` | optional |  |
-| **interaction** | `object` | optional |  |
+| **annotations** | `Object[]` | optional |  |
+| **interaction** | `Object` | optional |  |
+
 
 ---
 
@@ -87,6 +96,7 @@ const result = ChartAnnotationSchema.parse(data);
 | **zoom** | `boolean` | optional |  |
 | **brush** | `boolean` | optional |  |
 | **clickAction** | `string` | optional | Action ID to trigger on click |
+
 
 ---
 
@@ -102,6 +112,7 @@ const result = ChartAnnotationSchema.parse(data);
 | **color** | `string` | optional | Series color (hex/rgb/token) |
 | **stack** | `string` | optional | Stack identifier to group series |
 | **yAxis** | `Enum<'left' \| 'right'>` | optional | Bind to specific Y-Axis |
+
 
 ---
 
@@ -147,4 +158,7 @@ const result = ChartAnnotationSchema.parse(data);
 * `stock`
 * `table`
 * `pivot`
+
+
+---
 

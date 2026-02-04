@@ -12,11 +12,11 @@ description: Http protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { RateLimitConfigSchema } from '@objectstack/spec/integration';
+import { RateLimitConfig } from '@objectstack/spec/integration';
 import type { RateLimitConfig } from '@objectstack/spec/integration';
 
 // Validate data
-const result = RateLimitConfigSchema.parse(data);
+const result = RateLimitConfig.parse(data);
 ```
 
 ---
@@ -32,5 +32,8 @@ const result = RateLimitConfigSchema.parse(data);
 | **windowSeconds** | `number` | ✅ | Time window in seconds |
 | **burstCapacity** | `number` | optional | Burst capacity |
 | **respectUpstreamLimits** | `boolean` | optional | Respect external rate limit headers |
-| **rateLimitHeaders** | `object` | optional | Custom rate limit headers |
+| **rateLimitHeaders** | `Object` | optional | Custom rate limit headers |
+
+
+---
 

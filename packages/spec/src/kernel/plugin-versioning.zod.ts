@@ -30,14 +30,14 @@ export const SemanticVersionSchema = z.object({
  * Defines version requirements using SemVer ranges
  */
 export const VersionConstraintSchema = z.union([
-  z.string().regex(/^[\d.]+$/).describe('Exact version: 1.2.3'),
-  z.string().regex(/^\^[\d.]+$/).describe('Compatible with: ^1.2.3 (>=1.2.3 <2.0.0)'),
-  z.string().regex(/^~[\d.]+$/).describe('Approximately: ~1.2.3 (>=1.2.3 <1.3.0)'),
-  z.string().regex(/^>=[\d.]+$/).describe('Greater than or equal: >=1.2.3'),
-  z.string().regex(/^>[\d.]+$/).describe('Greater than: >1.2.3'),
-  z.string().regex(/^<=[\d.]+$/).describe('Less than or equal: <=1.2.3'),
-  z.string().regex(/^<[\d.]+$/).describe('Less than: <1.2.3'),
-  z.string().regex(/^[\d.]+ - [\d.]+$/).describe('Range: 1.2.3 - 2.3.4'),
+  z.string().regex(/^[\d.]+$/).describe('Exact version: `1.2.3`'),
+  z.string().regex(/^\^[\d.]+$/).describe('Compatible with: `^1.2.3` (`>=1.2.3 <2.0.0`)'),
+  z.string().regex(/^~[\d.]+$/).describe('Approximately: `~1.2.3` (`>=1.2.3 <1.3.0`)'),
+  z.string().regex(/^>=[\d.]+$/).describe('Greater than or equal: `>=1.2.3`'),
+  z.string().regex(/^>[\d.]+$/).describe('Greater than: `>1.2.3`'),
+  z.string().regex(/^<=[\d.]+$/).describe('Less than or equal: `<=1.2.3`'),
+  z.string().regex(/^<[\d.]+$/).describe('Less than: `<1.2.3`'),
+  z.string().regex(/^[\d.]+ - [\d.]+$/).describe('Range: `1.2.3 - 2.3.4`'),
   z.literal('*').describe('Any version'),
   z.literal('latest').describe('Latest stable version'),
 ]);

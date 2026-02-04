@@ -5,6 +5,132 @@ description: Etl protocol schemas
 
 # Etl
 
+ETL (Extract, Transform, Load) Pipeline Protocol - LEVEL 2: Data Engineering
+
+Inspired by modern data integration platforms like Airbyte, Fivetran, and Apache NiFi.
+
+**Positioning in 3-Layer Architecture:**
+
+- **L1: Simple Sync** (automation/sync.zod.ts) - Business users - Sync Salesforce to Sheets
+
+- **L2: ETL Pipeline** (THIS FILE) - Data engineers - Aggregate 10 sources to warehouse
+
+- **L3: Enterprise Connector** (integration/connector.zod.ts) - System integrators - Full SAP integration
+
+ETL pipelines enable automated data synchronization between systems, transforming
+
+data as it moves from source to destination.
+
+**SCOPE: Advanced multi-source, multi-stage transformations.**
+
+Supports complex operations: joins, aggregations, filtering, custom SQL.
+
+## When to Use This Layer
+
+**Use ETL Pipeline when:**
+
+- Combining data from multiple sources
+
+- Need aggregations, joins, transformations
+
+- Building data warehouses or analytics platforms
+
+- Complex data transformations required
+
+**Examples:**
+
+- Sales data from Salesforce + Marketing from HubSpot → Data Warehouse
+
+- Multi-region databases → Consolidated reporting
+
+- Legacy system migration with transformation
+
+**When to downgrade:**
+
+- Simple 1:1 sync → Use [Simple Sync](./sync.zod.ts)
+
+**When to upgrade:**
+
+- Need full connector lifecycle (auth, webhooks, rate limits) → Use [Enterprise Connector](../integration/connector.zod.ts)
+
+@see [./sync.zod.ts](./sync.zod.ts) for Level 1 (simple sync)
+
+@see [../integration/connector.zod.ts](../integration/connector.zod.ts) for Level 3 (enterprise integration)
+
+## Use Cases
+
+1. **Data Warehouse Population**
+
+- Extract from multiple operational systems
+
+- Transform to analytical schema
+
+- Load into data warehouse
+
+2. **System Integration**
+
+- Sync data between CRM and Marketing Automation
+
+- Keep product catalog synchronized across e-commerce platforms
+
+- Replicate data for backup/disaster recovery
+
+3. **Data Migration**
+
+- Move data from legacy systems to modern platforms
+
+- Consolidate data from multiple sources
+
+- Split monolithic databases into microservices
+
+@see https://airbyte.com/
+
+@see https://docs.fivetran.com/
+
+@see https://nifi.apache.org/
+
+@example
+
+```typescript
+
+const salesforceToDB: ETLPipeline = {
+
+name: 'salesforce_to_postgres',
+
+label: 'Salesforce Accounts to PostgreSQL',
+
+source: {
+
+type: 'api',
+
+connector: 'salesforce',
+
+config: { object: 'Account' }
+
+},
+
+destination: {
+
+type: 'database',
+
+connector: 'postgres',
+
+config: { table: 'accounts' }
+
+},
+
+transformations: [
+
+{ type: 'map', config: { 'Name': 'account_name' } }
+
+],
+
+schedule: '0 2 * * *' // Daily at 2 AM
+
+}
+
+```
+
 <Callout type="info">
 **Source:** `packages/spec/src/automation/etl.zod.ts`
 </Callout>
@@ -12,11 +138,11 @@ description: Etl protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ETLDestinationSchema, ETLEndpointTypeSchema, ETLPipelineSchema, ETLPipelineRunSchema, ETLRunStatusSchema, ETLSourceSchema, ETLSyncModeSchema, ETLTransformationSchema, ETLTransformationTypeSchema } from '@objectstack/spec/automation';
+import { ETLDestination, ETLEndpointType, ETLPipeline, ETLPipelineRun, ETLRunStatus, ETLSource, ETLSyncMode, ETLTransformation, ETLTransformationType } from '@objectstack/spec/automation';
 import type { ETLDestination, ETLEndpointType, ETLPipeline, ETLPipelineRun, ETLRunStatus, ETLSource, ETLSyncMode, ETLTransformation, ETLTransformationType } from '@objectstack/spec/automation';
 
 // Validate data
-const result = ETLDestinationSchema.parse(data);
+const result = ETLDestination.parse(data);
 ```
 
 ---
@@ -33,6 +159,7 @@ const result = ETLDestinationSchema.parse(data);
 | **writeMode** | `Enum<'append' \| 'overwrite' \| 'upsert' \| 'merge'>` | optional | How to write data |
 | **primaryKey** | `string[]` | optional | Primary key fields |
 
+
 ---
 
 ## ETLEndpointType
@@ -48,6 +175,7 @@ const result = ETLDestinationSchema.parse(data);
 * `storage`
 * `spreadsheet`
 
+
 ---
 
 ## ETLPipeline
@@ -59,16 +187,17 @@ const result = ETLDestinationSchema.parse(data);
 | **name** | `string` | ✅ | Pipeline identifier (snake_case) |
 | **label** | `string` | optional | Pipeline display name |
 | **description** | `string` | optional | Pipeline description |
-| **source** | `object` | ✅ | Data source |
-| **destination** | `object` | ✅ | Data destination |
-| **transformations** | `object[]` | optional | Transformation pipeline |
+| **source** | `Object` | ✅ | Data source |
+| **destination** | `Object` | ✅ | Data destination |
+| **transformations** | `Object[]` | optional | Transformation pipeline |
 | **syncMode** | `Enum<'full' \| 'incremental' \| 'cdc'>` | optional | Sync mode |
 | **schedule** | `string` | optional | Cron schedule expression |
 | **enabled** | `boolean` | optional | Pipeline enabled status |
-| **retry** | `object` | optional | Retry configuration |
-| **notifications** | `object` | optional | Notification settings |
+| **retry** | `Object` | optional | Retry configuration |
+| **notifications** | `Object` | optional | Notification settings |
 | **tags** | `string[]` | optional | Pipeline tags |
 | **metadata** | `Record<string, any>` | optional | Custom metadata |
+
 
 ---
 
@@ -84,9 +213,10 @@ const result = ETLDestinationSchema.parse(data);
 | **startedAt** | `string` | ✅ | Start time |
 | **completedAt** | `string` | optional | Completion time |
 | **durationMs** | `number` | optional | Duration in ms |
-| **stats** | `object` | optional | Run statistics |
-| **error** | `object` | optional | Error information |
+| **stats** | `Object` | optional | Run statistics |
+| **error** | `Object` | optional | Error information |
 | **logs** | `string[]` | optional | Execution logs |
+
 
 ---
 
@@ -101,6 +231,7 @@ const result = ETLDestinationSchema.parse(data);
 * `cancelled`
 * `timeout`
 
+
 ---
 
 ## ETLSource
@@ -112,7 +243,8 @@ const result = ETLDestinationSchema.parse(data);
 | **type** | `Enum<'database' \| 'api' \| 'file' \| 'stream' \| 'object' \| 'warehouse' \| 'storage' \| 'spreadsheet'>` | ✅ | Source type |
 | **connector** | `string` | optional | Connector ID |
 | **config** | `Record<string, any>` | ✅ | Source configuration |
-| **incremental** | `object` | optional | Incremental extraction config |
+| **incremental** | `Object` | optional | Incremental extraction config |
+
 
 ---
 
@@ -123,6 +255,7 @@ const result = ETLDestinationSchema.parse(data);
 * `full`
 * `incremental`
 * `cdc`
+
 
 ---
 
@@ -136,6 +269,7 @@ const result = ETLDestinationSchema.parse(data);
 | **type** | `Enum<'map' \| 'filter' \| 'aggregate' \| 'join' \| 'script' \| 'lookup' \| 'split' \| 'merge' \| 'normalize' \| 'deduplicate'>` | ✅ | Transformation type |
 | **config** | `Record<string, any>` | ✅ | Transformation config |
 | **continueOnError** | `boolean` | optional | Continue on error |
+
 
 ---
 
@@ -153,4 +287,7 @@ const result = ETLDestinationSchema.parse(data);
 * `merge`
 * `normalize`
 * `deduplicate`
+
+
+---
 

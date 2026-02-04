@@ -5,6 +5,10 @@ description: Mapping protocol schemas
 
 # Mapping
 
+Transformation Logic
+
+Built-in helpers for converting data during import.
+
 <Callout type="info">
 **Source:** `packages/spec/src/data/mapping.zod.ts`
 </Callout>
@@ -12,11 +16,11 @@ description: Mapping protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { FieldMappingSchema, MappingSchema, TransformTypeSchema } from '@objectstack/spec/data';
+import { FieldMapping, Mapping, TransformType } from '@objectstack/spec/data';
 import type { FieldMapping, Mapping, TransformType } from '@objectstack/spec/data';
 
 // Validate data
-const result = FieldMappingSchema.parse(data);
+const result = FieldMapping.parse(data);
 ```
 
 ---
@@ -30,7 +34,8 @@ const result = FieldMappingSchema.parse(data);
 | **source** | `string \| string[]` | ✅ | Source column header(s) |
 | **target** | `string \| string[]` | ✅ | Target object field(s) |
 | **transform** | `Enum<'none' \| 'constant' \| 'lookup' \| 'split' \| 'join' \| 'javascript' \| 'map'>` | optional |  |
-| **params** | `object` | optional |  |
+| **params** | `Object` | optional |  |
+
 
 ---
 
@@ -44,12 +49,13 @@ const result = FieldMappingSchema.parse(data);
 | **label** | `string` | optional |  |
 | **sourceFormat** | `Enum<'csv' \| 'json' \| 'xml' \| 'sql'>` | optional |  |
 | **targetObject** | `string` | ✅ | Target Object Name |
-| **fieldMapping** | `object[]` | ✅ |  |
+| **fieldMapping** | `Object[]` | ✅ |  |
 | **mode** | `Enum<'insert' \| 'update' \| 'upsert'>` | optional |  |
 | **upsertKey** | `string[]` | optional | Fields to match for upsert (e.g. email) |
-| **extractQuery** | `object` | optional | Query to run for export only |
+| **extractQuery** | `Object` | optional | Query to run for export only |
 | **errorPolicy** | `Enum<'skip' \| 'abort' \| 'retry'>` | optional |  |
 | **batchSize** | `number` | optional |  |
+
 
 ---
 
@@ -64,4 +70,7 @@ const result = FieldMappingSchema.parse(data);
 * `join`
 * `javascript`
 * `map`
+
+
+---
 

@@ -5,6 +5,10 @@ description: Webhook protocol schemas
 
 # Webhook
 
+Webhook Trigger Event
+
+When should this webhook fire?
+
 <Callout type="info">
 **Source:** `packages/spec/src/automation/webhook.zod.ts`
 </Callout>
@@ -12,11 +16,11 @@ description: Webhook protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { WebhookSchema, WebhookReceiverSchema, WebhookTriggerTypeSchema } from '@objectstack/spec/automation';
+import { Webhook, WebhookReceiver, WebhookTriggerType } from '@objectstack/spec/automation';
 import type { Webhook, WebhookReceiver, WebhookTriggerType } from '@objectstack/spec/automation';
 
 // Validate data
-const result = WebhookSchema.parse(data);
+const result = Webhook.parse(data);
 ```
 
 ---
@@ -37,13 +41,14 @@ const result = WebhookSchema.parse(data);
 | **body** | `any` | optional | Request body payload (if not using default record data) |
 | **payloadFields** | `string[]` | optional | Fields to include. Empty = All |
 | **includeSession** | `boolean` | optional | Include user session info |
-| **authentication** | `object` | optional | Authentication configuration |
-| **retryPolicy** | `object` | optional | Retry policy configuration |
+| **authentication** | `Object` | optional | Authentication configuration |
+| **retryPolicy** | `Object` | optional | Retry policy configuration |
 | **timeoutMs** | `integer` | optional | Request timeout in milliseconds |
 | **secret** | `string` | optional | Signing secret for HMAC signature verification |
 | **isActive** | `boolean` | optional | Whether webhook is active |
 | **description** | `string` | optional | Webhook description |
 | **tags** | `string[]` | optional | Tags for organization |
+
 
 ---
 
@@ -56,9 +61,10 @@ const result = WebhookSchema.parse(data);
 | **name** | `string` | ✅ | Webhook receiver unique name (lowercase snake_case) |
 | **path** | `string` | ✅ | URL Path (e.g. /webhooks/stripe) |
 | **verificationType** | `Enum<'none' \| 'header_token' \| 'hmac' \| 'ip_whitelist'>` | optional |  |
-| **verificationParams** | `object` | optional |  |
+| **verificationParams** | `Object` | optional |  |
 | **action** | `Enum<'trigger_flow' \| 'script' \| 'upsert_record'>` | optional |  |
 | **target** | `string` | ✅ | Flow ID or Script name |
+
 
 ---
 
@@ -71,4 +77,7 @@ const result = WebhookSchema.parse(data);
 * `delete`
 * `undelete`
 * `api`
+
+
+---
 

@@ -1,4 +1,4 @@
-import { Database, FileJson, Layers, ShieldCheck, Zap, Globe, Cpu, LayoutTemplate, Bot } from 'lucide-react';
+import { Database, FileJson, Layers, ShieldCheck, Zap, Globe, Cpu, LayoutTemplate, Bot, LucideIcon } from 'lucide-react';
 import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import { baseOptions } from '@/app/layout.config';
 import { getHomepageTranslations } from '@/lib/homepage-i18n';
@@ -14,6 +14,81 @@ export default async function HomePage({
 }) {
   const { lang } = await params;
   const t = getHomepageTranslations(lang);
+
+  const features = [
+    {
+      key: 'objectql',
+      icon: Database,
+      href: '/docs/objectql',
+      title: t.features.objectql.title,
+      description: t.features.objectql.description,
+    },
+    {
+      key: 'objectui',
+      icon: Layers,
+      href: '/docs/objectui',
+      title: t.features.objectui.title,
+      description: t.features.objectui.description,
+    },
+    {
+      key: 'objectos',
+      icon: Zap,
+      href: '/docs/objectos',
+      title: t.features.objectos.title,
+      description: t.features.objectos.description,
+    },
+    {
+      key: 'security',
+      icon: ShieldCheck,
+      href: '/docs/objectql/security',
+      title: t.features.security.title,
+      description: t.features.security.description,
+    },
+    {
+      key: 'zodFirst',
+      icon: FileJson,
+      href: '/docs/objectql/schema',
+      title: t.features.zodFirst.title,
+      description: t.features.zodFirst.description,
+    },
+    {
+      key: 'universal',
+      icon: Globe,
+      href: '/docs/introduction/architecture',
+      title: t.features.universal.title,
+      description: t.features.universal.description,
+    },
+  ];
+
+  const personas = [
+    {
+      key: 'architect',
+      icon: LayoutTemplate,
+      color: 'text-blue-500',
+      href: '/docs/introduction/architecture',
+      title: t.personas.architect.title,
+      description: t.personas.architect.description,
+      action: t.personas.architect.action,
+    },
+    {
+      key: 'aiEngineer',
+      icon: Bot,
+      color: 'text-purple-500',
+      href: '/docs/introduction/metadata-driven',
+      title: t.personas.aiEngineer.title,
+      description: t.personas.aiEngineer.description,
+      action: t.personas.aiEngineer.action,
+    },
+    {
+      key: 'frameworkBuilder',
+      icon: Cpu,
+      color: 'text-green-500',
+      href: '/docs/developers',
+      title: t.personas.frameworkBuilder.title,
+      description: t.personas.frameworkBuilder.description,
+      action: t.personas.frameworkBuilder.action,
+    },
+  ];
 
   return (
     <HomeLayout {...baseOptions} i18n>
@@ -35,42 +110,15 @@ export default async function HomePage({
 
         {/* Feature Grid */}
         <div className="mt-24 grid grid-cols-1 gap-6 text-left sm:grid-cols-2 lg:grid-cols-3 max-w-6xl w-full">
-          <FeatureCard 
-            icon={<Database className="h-6 w-6" />}
-            title={t.features.objectql.title}
-            href="/docs/objectql"
-            description={t.features.objectql.description}
-          />
-          <FeatureCard 
-            icon={<Layers className="h-6 w-6" />}
-            title={t.features.objectui.title}
-            href="/docs/objectui"
-            description={t.features.objectui.description}
-          />
-          <FeatureCard 
-            icon={<Zap className="h-6 w-6" />}
-            title={t.features.objectos.title}
-            href="/docs/objectos"
-            description={t.features.objectos.description}
-          />
-          <FeatureCard 
-            icon={<ShieldCheck className="h-6 w-6" />}
-            title={t.features.security.title}
-            href="/docs/objectql/security"
-            description={t.features.security.description}
-          />
-          <FeatureCard 
-            icon={<FileJson className="h-6 w-6" />}
-            title={t.features.zodFirst.title}
-            href="/docs/objectql/schema"
-            description={t.features.zodFirst.description}
-          />
-          <FeatureCard 
-            icon={<Globe className="h-6 w-6" />}
-            title={t.features.universal.title}
-            href="/docs/introduction/architecture"
-            description={t.features.universal.description}
-          />
+          {features.map((feature) => (
+            <FeatureCard 
+              key={feature.key}
+              icon={<feature.icon className="h-6 w-6" />}
+              title={feature.title}
+              href={feature.href}
+              description={feature.description}
+            />
+          ))}
         </div>
 
         {/* Personas Section */}
@@ -79,27 +127,16 @@ export default async function HomePage({
             {t.personas.heading}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <PersonaCard 
-              icon={<LayoutTemplate className="w-8 h-8 text-blue-500" />}
-              title={t.personas.architect.title}
-              description={t.personas.architect.description}
-              href="/docs/introduction/architecture"
-              action={t.personas.architect.action}
-            />
-            <PersonaCard 
-              icon={<Bot className="w-8 h-8 text-purple-500" />}
-              title={t.personas.aiEngineer.title}
-              description={t.personas.aiEngineer.description}
-              href="/docs/introduction/metadata-driven"
-              action={t.personas.aiEngineer.action}
-            />
-            <PersonaCard 
-              icon={<Cpu className="w-8 h-8 text-green-500" />}
-              title={t.personas.frameworkBuilder.title}
-              description={t.personas.frameworkBuilder.description}
-              href="/docs/developers"
-              action={t.personas.frameworkBuilder.action}
-            />
+            {personas.map((persona) => (
+              <PersonaCard 
+                key={persona.key}
+                icon={<persona.icon className={`w-8 h-8 ${persona.color}`} />}
+                title={persona.title}
+                description={persona.description}
+                href={persona.href}
+                action={persona.action}
+              />
+            ))}
           </div>
         </div>
 

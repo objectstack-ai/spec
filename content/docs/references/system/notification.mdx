@@ -5,6 +5,44 @@ description: Notification protocol schemas
 
 # Notification
 
+Email Template Schema
+
+Defines the structure and content of email notifications.
+
+Supports variables for personalization and file attachments.
+
+@example
+
+```json
+
+{
+
+"id": "welcome-email",
+
+"subject": "Welcome to {{company_name}}",
+
+"body": "<h1>Welcome {{user_name}}!</h1>",
+
+"bodyType": "html",
+
+"variables": ["company_name", "user_name"],
+
+"attachments": [
+
+{
+
+"name": "guide.pdf",
+
+"url": "https://example.com/guide.pdf"
+
+}
+
+]
+
+}
+
+```
+
 <Callout type="info">
 **Source:** `packages/spec/src/system/notification.zod.ts`
 </Callout>
@@ -12,11 +50,11 @@ description: Notification protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { EmailTemplateSchema, InAppNotificationSchema, NotificationChannelSchema, NotificationConfigSchema, PushNotificationSchema, SMSTemplateSchema } from '@objectstack/spec/system';
+import { EmailTemplate, InAppNotification, NotificationChannel, NotificationConfig, PushNotification, SMSTemplate } from '@objectstack/spec/system';
 import type { EmailTemplate, InAppNotification, NotificationChannel, NotificationConfig, PushNotification, SMSTemplate } from '@objectstack/spec/system';
 
 // Validate data
-const result = EmailTemplateSchema.parse(data);
+const result = EmailTemplate.parse(data);
 ```
 
 ---
@@ -32,7 +70,8 @@ const result = EmailTemplateSchema.parse(data);
 | **body** | `string` | ✅ | Email body content |
 | **bodyType** | `Enum<'text' \| 'html' \| 'markdown'>` | optional | Body content type |
 | **variables** | `string[]` | optional | Template variables |
-| **attachments** | `object[]` | optional | Email attachments |
+| **attachments** | `Object[]` | optional | Email attachments |
+
 
 ---
 
@@ -49,6 +88,7 @@ const result = EmailTemplateSchema.parse(data);
 | **dismissible** | `boolean` | optional | User dismissible |
 | **expiresAt** | `number` | optional | Expiration timestamp |
 
+
 ---
 
 ## NotificationChannel
@@ -63,6 +103,7 @@ const result = EmailTemplateSchema.parse(data);
 * `teams`
 * `webhook`
 
+
 ---
 
 ## NotificationConfig
@@ -74,11 +115,12 @@ const result = EmailTemplateSchema.parse(data);
 | **id** | `string` | ✅ | Notification ID |
 | **name** | `string` | ✅ | Notification name |
 | **channel** | `Enum<'email' \| 'sms' \| 'push' \| 'in-app' \| 'slack' \| 'teams' \| 'webhook'>` | ✅ | Notification channel |
-| **template** | `object \| object \| object \| object` | ✅ | Notification template |
-| **recipients** | `object` | ✅ | Recipients |
-| **schedule** | `object` | optional | Scheduling |
-| **retryPolicy** | `object` | optional | Retry policy |
-| **tracking** | `object` | optional | Tracking configuration |
+| **template** | `Object \| Object \| Object \| Object` | ✅ | Notification template |
+| **recipients** | `Object` | ✅ | Recipients |
+| **schedule** | `Object` | optional | Scheduling |
+| **retryPolicy** | `Object` | optional | Retry policy |
+| **tracking** | `Object` | optional | Tracking configuration |
+
 
 ---
 
@@ -93,7 +135,8 @@ const result = EmailTemplateSchema.parse(data);
 | **icon** | `string` | optional | Notification icon URL |
 | **badge** | `number` | optional | Badge count |
 | **data** | `Record<string, any>` | optional | Custom data |
-| **actions** | `object[]` | optional | Notification actions |
+| **actions** | `Object[]` | optional | Notification actions |
+
 
 ---
 
@@ -107,4 +150,7 @@ const result = EmailTemplateSchema.parse(data);
 | **message** | `string` | ✅ | SMS message content |
 | **maxLength** | `number` | optional | Maximum message length |
 | **variables** | `string[]` | optional | Template variables |
+
+
+---
 

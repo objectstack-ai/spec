@@ -5,6 +5,32 @@ description: Agent Action protocol schemas
 
 # Agent Action
 
+AI Agent Action Protocol
+
+Defines how AI agents can interact with the UI by mapping natural language intents
+
+to structured UI actions. This enables agents to not only query data but also
+
+manipulate the interface, navigate between views, and trigger workflows.
+
+Architecture Alignment:
+
+- Salesforce Einstein: Action recommendations and automated UI interactions
+
+- ServiceNow Virtual Agent: UI action automation
+
+- Microsoft Power Virtual Agents: Bot actions and UI integration
+
+Use Cases:
+
+- "Open the new account form" → Navigate to form view
+
+- "Show me all active opportunities" → Navigate to list view with filter
+
+- "Create a new task for John" → Open form with pre-filled data
+
+- "Switch to the kanban view" → Change view mode
+
 <Callout type="info">
 **Source:** `packages/spec/src/ai/agent-action.zod.ts`
 </Callout>
@@ -12,11 +38,11 @@ description: Agent Action protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AgentActionSchema, AgentActionResultSchema, AgentActionSequenceSchema, AgentActionSequenceResultSchema, ComponentActionParamsSchema, ComponentActionTypeSchema, ComponentAgentActionSchema, DataActionParamsSchema, DataActionTypeSchema, DataAgentActionSchema, FormActionParamsSchema, FormActionTypeSchema, FormAgentActionSchema, IntentActionMappingSchema, NavigationActionParamsSchema, NavigationActionTypeSchema, NavigationAgentActionSchema, TypedAgentActionSchema, UIActionTypeSchema, ViewActionParamsSchema, ViewActionTypeSchema, ViewAgentActionSchema, WorkflowActionParamsSchema, WorkflowActionTypeSchema, WorkflowAgentActionSchema } from '@objectstack/spec/ai';
+import { AgentAction, AgentActionResult, AgentActionSequence, AgentActionSequenceResult, ComponentActionParams, ComponentActionType, ComponentAgentAction, DataActionParams, DataActionType, DataAgentAction, FormActionParams, FormActionType, FormAgentAction, IntentActionMapping, NavigationActionParams, NavigationActionType, NavigationAgentAction, TypedAgentAction, UIActionType, ViewActionParams, ViewActionType, ViewAgentAction, WorkflowActionParams, WorkflowActionType, WorkflowAgentAction } from '@objectstack/spec/ai';
 import type { AgentAction, AgentActionResult, AgentActionSequence, AgentActionSequenceResult, ComponentActionParams, ComponentActionType, ComponentAgentAction, DataActionParams, DataActionType, DataAgentAction, FormActionParams, FormActionType, FormAgentAction, IntentActionMapping, NavigationActionParams, NavigationActionType, NavigationAgentAction, TypedAgentAction, UIActionType, ViewActionParams, ViewActionType, ViewAgentAction, WorkflowActionParams, WorkflowActionType, WorkflowAgentAction } from '@objectstack/spec/ai';
 
 // Validate data
-const result = AgentActionSchema.parse(data);
+const result = AgentAction.parse(data);
 ```
 
 ---
@@ -29,12 +55,13 @@ const result = AgentActionSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **id** | `string` | optional | Unique action ID |
 | **type** | `Enum<'navigate_to_object_list' \| 'navigate_to_object_form' \| 'navigate_to_record_detail' \| 'navigate_to_dashboard' \| 'navigate_to_report' \| 'navigate_to_app' \| 'navigate_back' \| 'navigate_home' \| 'open_tab' \| 'close_tab' \| 'change_view_mode' \| 'apply_filter' \| 'clear_filter' \| 'apply_sort' \| 'change_grouping' \| 'show_columns' \| 'expand_record' \| 'collapse_record' \| 'refresh_view' \| 'export_data' \| 'create_record' \| 'update_record' \| 'delete_record' \| 'fill_field' \| 'clear_field' \| 'submit_form' \| 'cancel_form' \| 'validate_form' \| 'save_draft' \| 'select_record' \| 'deselect_record' \| 'select_all' \| 'deselect_all' \| 'bulk_update' \| 'bulk_delete' \| 'bulk_export' \| 'trigger_flow' \| 'trigger_approval' \| 'trigger_webhook' \| 'run_report' \| 'send_email' \| 'send_notification' \| 'schedule_task' \| 'open_modal' \| 'close_modal' \| 'open_sidebar' \| 'close_sidebar' \| 'show_notification' \| 'hide_notification' \| 'open_dropdown' \| 'close_dropdown' \| 'toggle_section'>` | ✅ | Type of UI action to perform |
-| **params** | `object \| object \| object \| object \| object \| object` | ✅ | Action-specific parameters |
+| **params** | `Object \| Object \| Object \| Object \| Object \| Object` | ✅ | Action-specific parameters |
 | **requireConfirmation** | `boolean` | optional | Require user confirmation before executing |
 | **confirmationMessage** | `string` | optional | Message to show in confirmation dialog |
 | **successMessage** | `string` | optional | Message to show on success |
 | **onError** | `Enum<'retry' \| 'skip' \| 'abort'>` | optional | Error handling strategy |
-| **metadata** | `object` | optional |  |
+| **metadata** | `Object` | optional |  |
+
 
 ---
 
@@ -47,8 +74,9 @@ const result = AgentActionSchema.parse(data);
 | **actionId** | `string` | ✅ | ID of the executed action |
 | **status** | `Enum<'success' \| 'error' \| 'cancelled' \| 'pending'>` | ✅ | Execution status |
 | **data** | `any` | optional | Action result data |
-| **error** | `object` | optional | Error details if status is "error" |
-| **metadata** | `object` | optional |  |
+| **error** | `Object` | optional | Error details if status is "error" |
+| **metadata** | `Object` | optional |  |
+
 
 ---
 
@@ -59,13 +87,14 @@ const result = AgentActionSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **id** | `string` | optional | Unique sequence ID |
-| **actions** | `object[]` | ✅ | Ordered list of actions |
+| **actions** | `Object[]` | ✅ | Ordered list of actions |
 | **mode** | `Enum<'sequential' \| 'parallel'>` | optional | Execution mode |
 | **stopOnError** | `boolean` | optional | Stop sequence on first error |
 | **atomic** | `boolean` | optional | Transaction mode (all-or-nothing) |
 | **startTime** | `string` | optional | Execution start time (ISO 8601) |
 | **endTime** | `string` | optional | Execution end time (ISO 8601) |
-| **metadata** | `object` | optional |  |
+| **metadata** | `Object` | optional |  |
+
 
 ---
 
@@ -77,9 +106,10 @@ const result = AgentActionSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **sequenceId** | `string` | ✅ | ID of the executed sequence |
 | **status** | `Enum<'success' \| 'partial_success' \| 'error' \| 'cancelled'>` | ✅ | Overall execution status |
-| **results** | `object[]` | ✅ | Results for each action |
-| **summary** | `object` | ✅ |  |
-| **metadata** | `object` | optional |  |
+| **results** | `Object[]` | ✅ | Results for each action |
+| **summary** | `Object` | ✅ |  |
+| **metadata** | `Object` | optional |  |
+
 
 ---
 
@@ -90,9 +120,10 @@ const result = AgentActionSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **componentId** | `string` | optional | Component ID |
-| **modalConfig** | `object` | optional |  |
-| **notificationConfig** | `object` | optional |  |
-| **sidebarConfig** | `object` | optional |  |
+| **modalConfig** | `Object` | optional |  |
+| **notificationConfig** | `Object` | optional |  |
+| **sidebarConfig** | `Object` | optional |  |
+
 
 ---
 
@@ -110,6 +141,7 @@ const result = AgentActionSchema.parse(data);
 * `close_dropdown`
 * `toggle_section`
 
+
 ---
 
 ## ComponentAgentAction
@@ -120,12 +152,13 @@ const result = AgentActionSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **id** | `string` | optional | Unique action ID |
 | **type** | `Enum<'open_modal' \| 'close_modal' \| 'open_sidebar' \| 'close_sidebar' \| 'show_notification' \| 'hide_notification' \| 'open_dropdown' \| 'close_dropdown' \| 'toggle_section'>` | ✅ |  |
-| **params** | `object` | ✅ |  |
+| **params** | `Object` | ✅ |  |
 | **requireConfirmation** | `boolean` | optional | Require user confirmation before executing |
 | **confirmationMessage** | `string` | optional | Message to show in confirmation dialog |
 | **successMessage** | `string` | optional | Message to show on success |
 | **onError** | `Enum<'retry' \| 'skip' \| 'abort'>` | optional | Error handling strategy |
-| **metadata** | `object` | optional |  |
+| **metadata** | `Object` | optional |  |
+
 
 ---
 
@@ -139,6 +172,7 @@ const result = AgentActionSchema.parse(data);
 | **filters** | `Record<string, any>` | optional | Filter for bulk operations |
 | **updateData** | `Record<string, any>` | optional | Data for bulk update |
 | **exportFormat** | `Enum<'csv' \| 'xlsx' \| 'pdf' \| 'json'>` | optional |  |
+
 
 ---
 
@@ -154,6 +188,7 @@ const result = AgentActionSchema.parse(data);
 * `bulk_delete`
 * `bulk_export`
 
+
 ---
 
 ## DataAgentAction
@@ -164,12 +199,13 @@ const result = AgentActionSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **id** | `string` | optional | Unique action ID |
 | **type** | `Enum<'select_record' \| 'deselect_record' \| 'select_all' \| 'deselect_all' \| 'bulk_update' \| 'bulk_delete' \| 'bulk_export'>` | ✅ |  |
-| **params** | `object` | ✅ |  |
+| **params** | `Object` | ✅ |  |
 | **requireConfirmation** | `boolean` | optional | Require user confirmation before executing |
 | **confirmationMessage** | `string` | optional | Message to show in confirmation dialog |
 | **successMessage** | `string` | optional | Message to show on success |
 | **onError** | `Enum<'retry' \| 'skip' \| 'abort'>` | optional | Error handling strategy |
-| **metadata** | `object` | optional |  |
+| **metadata** | `Object` | optional |  |
+
 
 ---
 
@@ -185,6 +221,7 @@ const result = AgentActionSchema.parse(data);
 | **fieldName** | `string` | optional | Specific field to fill/clear |
 | **fieldValue** | `any` | optional | Value to set |
 | **validateOnly** | `boolean` | optional | Validate without saving |
+
 
 ---
 
@@ -202,6 +239,7 @@ const result = AgentActionSchema.parse(data);
 * `validate_form`
 * `save_draft`
 
+
 ---
 
 ## FormAgentAction
@@ -212,12 +250,13 @@ const result = AgentActionSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **id** | `string` | optional | Unique action ID |
 | **type** | `Enum<'create_record' \| 'update_record' \| 'delete_record' \| 'fill_field' \| 'clear_field' \| 'submit_form' \| 'cancel_form' \| 'validate_form' \| 'save_draft'>` | ✅ |  |
-| **params** | `object` | ✅ |  |
+| **params** | `Object` | ✅ |  |
 | **requireConfirmation** | `boolean` | optional | Require user confirmation before executing |
 | **confirmationMessage** | `string` | optional | Message to show in confirmation dialog |
 | **successMessage** | `string` | optional | Message to show on success |
 | **onError** | `Enum<'retry' \| 'skip' \| 'abort'>` | optional | Error handling strategy |
-| **metadata** | `object` | optional |  |
+| **metadata** | `Object` | optional |  |
+
 
 ---
 
@@ -229,9 +268,10 @@ const result = AgentActionSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **intent** | `string` | ✅ | Intent pattern (e.g., "open_new_record_form") |
 | **examples** | `string[]` | optional | Example user queries |
-| **actionTemplate** | `object` | ✅ | Action to execute |
-| **paramExtraction** | `Record<string, object>` | optional | Rules for extracting parameters from user input |
+| **actionTemplate** | `Object` | ✅ | Action to execute |
+| **paramExtraction** | `Record<string, Object>` | optional | Rules for extracting parameters from user input |
 | **minConfidence** | `number` | optional | Minimum confidence to execute |
+
 
 ---
 
@@ -250,6 +290,7 @@ const result = AgentActionSchema.parse(data);
 | **mode** | `Enum<'new' \| 'edit' \| 'view'>` | optional | Form mode |
 | **openInNewTab** | `boolean` | optional | Open in new tab |
 
+
 ---
 
 ## NavigationActionType
@@ -267,6 +308,7 @@ const result = AgentActionSchema.parse(data);
 * `open_tab`
 * `close_tab`
 
+
 ---
 
 ## NavigationAgentAction
@@ -277,16 +319,124 @@ const result = AgentActionSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **id** | `string` | optional | Unique action ID |
 | **type** | `Enum<'navigate_to_object_list' \| 'navigate_to_object_form' \| 'navigate_to_record_detail' \| 'navigate_to_dashboard' \| 'navigate_to_report' \| 'navigate_to_app' \| 'navigate_back' \| 'navigate_home' \| 'open_tab' \| 'close_tab'>` | ✅ |  |
-| **params** | `object` | ✅ |  |
+| **params** | `Object` | ✅ |  |
 | **requireConfirmation** | `boolean` | optional | Require user confirmation before executing |
 | **confirmationMessage** | `string` | optional | Message to show in confirmation dialog |
 | **successMessage** | `string` | optional | Message to show on success |
 | **onError** | `Enum<'retry' \| 'skip' \| 'abort'>` | optional | Error handling strategy |
-| **metadata** | `object` | optional |  |
+| **metadata** | `Object` | optional |  |
+
 
 ---
 
 ## TypedAgentAction
+
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Unique action ID |
+| **type** | `Enum<'navigate_to_object_list' \| 'navigate_to_object_form' \| 'navigate_to_record_detail' \| 'navigate_to_dashboard' \| 'navigate_to_report' \| 'navigate_to_app' \| 'navigate_back' \| 'navigate_home' \| 'open_tab' \| 'close_tab'>` | ✅ |  |
+| **params** | `Object` | ✅ |  |
+| **requireConfirmation** | `boolean` | optional | Require user confirmation before executing |
+| **confirmationMessage** | `string` | optional | Message to show in confirmation dialog |
+| **successMessage** | `string` | optional | Message to show on success |
+| **onError** | `Enum<'retry' \| 'skip' \| 'abort'>` | optional | Error handling strategy |
+| **metadata** | `Object` | optional |  |
+
+---
+
+#### Option 2
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Unique action ID |
+| **type** | `Enum<'change_view_mode' \| 'apply_filter' \| 'clear_filter' \| 'apply_sort' \| 'change_grouping' \| 'show_columns' \| 'expand_record' \| 'collapse_record' \| 'refresh_view' \| 'export_data'>` | ✅ |  |
+| **params** | `Object` | ✅ |  |
+| **requireConfirmation** | `boolean` | optional | Require user confirmation before executing |
+| **confirmationMessage** | `string` | optional | Message to show in confirmation dialog |
+| **successMessage** | `string` | optional | Message to show on success |
+| **onError** | `Enum<'retry' \| 'skip' \| 'abort'>` | optional | Error handling strategy |
+| **metadata** | `Object` | optional |  |
+
+---
+
+#### Option 3
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Unique action ID |
+| **type** | `Enum<'create_record' \| 'update_record' \| 'delete_record' \| 'fill_field' \| 'clear_field' \| 'submit_form' \| 'cancel_form' \| 'validate_form' \| 'save_draft'>` | ✅ |  |
+| **params** | `Object` | ✅ |  |
+| **requireConfirmation** | `boolean` | optional | Require user confirmation before executing |
+| **confirmationMessage** | `string` | optional | Message to show in confirmation dialog |
+| **successMessage** | `string` | optional | Message to show on success |
+| **onError** | `Enum<'retry' \| 'skip' \| 'abort'>` | optional | Error handling strategy |
+| **metadata** | `Object` | optional |  |
+
+---
+
+#### Option 4
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Unique action ID |
+| **type** | `Enum<'select_record' \| 'deselect_record' \| 'select_all' \| 'deselect_all' \| 'bulk_update' \| 'bulk_delete' \| 'bulk_export'>` | ✅ |  |
+| **params** | `Object` | ✅ |  |
+| **requireConfirmation** | `boolean` | optional | Require user confirmation before executing |
+| **confirmationMessage** | `string` | optional | Message to show in confirmation dialog |
+| **successMessage** | `string` | optional | Message to show on success |
+| **onError** | `Enum<'retry' \| 'skip' \| 'abort'>` | optional | Error handling strategy |
+| **metadata** | `Object` | optional |  |
+
+---
+
+#### Option 5
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Unique action ID |
+| **type** | `Enum<'trigger_flow' \| 'trigger_approval' \| 'trigger_webhook' \| 'run_report' \| 'send_email' \| 'send_notification' \| 'schedule_task'>` | ✅ |  |
+| **params** | `Object` | ✅ |  |
+| **requireConfirmation** | `boolean` | optional | Require user confirmation before executing |
+| **confirmationMessage** | `string` | optional | Message to show in confirmation dialog |
+| **successMessage** | `string` | optional | Message to show on success |
+| **onError** | `Enum<'retry' \| 'skip' \| 'abort'>` | optional | Error handling strategy |
+| **metadata** | `Object` | optional |  |
+
+---
+
+#### Option 6
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Unique action ID |
+| **type** | `Enum<'open_modal' \| 'close_modal' \| 'open_sidebar' \| 'close_sidebar' \| 'show_notification' \| 'hide_notification' \| 'open_dropdown' \| 'close_dropdown' \| 'toggle_section'>` | ✅ |  |
+| **params** | `Object` | ✅ |  |
+| **requireConfirmation** | `boolean` | optional | Require user confirmation before executing |
+| **confirmationMessage** | `string` | optional | Message to show in confirmation dialog |
+| **successMessage** | `string` | optional | Message to show on success |
+| **onError** | `Enum<'retry' \| 'skip' \| 'abort'>` | optional | Error handling strategy |
+| **metadata** | `Object` | optional |  |
+
+---
+
 
 ---
 
@@ -347,6 +497,7 @@ const result = AgentActionSchema.parse(data);
 * `close_dropdown`
 * `toggle_section`
 
+
 ---
 
 ## ViewActionParams
@@ -357,11 +508,12 @@ const result = AgentActionSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **viewMode** | `Enum<'list' \| 'kanban' \| 'calendar' \| 'gantt' \| 'pivot'>` | optional |  |
 | **filters** | `Record<string, any>` | optional | Filter conditions |
-| **sort** | `object[]` | optional |  |
+| **sort** | `Object[]` | optional |  |
 | **groupBy** | `string` | optional | Field to group by |
 | **columns** | `string[]` | optional | Columns to show/hide |
 | **recordId** | `string` | optional | Record to expand/collapse |
 | **exportFormat** | `Enum<'csv' \| 'xlsx' \| 'pdf' \| 'json'>` | optional |  |
+
 
 ---
 
@@ -380,6 +532,7 @@ const result = AgentActionSchema.parse(data);
 * `refresh_view`
 * `export_data`
 
+
 ---
 
 ## ViewAgentAction
@@ -390,12 +543,13 @@ const result = AgentActionSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **id** | `string` | optional | Unique action ID |
 | **type** | `Enum<'change_view_mode' \| 'apply_filter' \| 'clear_filter' \| 'apply_sort' \| 'change_grouping' \| 'show_columns' \| 'expand_record' \| 'collapse_record' \| 'refresh_view' \| 'export_data'>` | ✅ |  |
-| **params** | `object` | ✅ |  |
+| **params** | `Object` | ✅ |  |
 | **requireConfirmation** | `boolean` | optional | Require user confirmation before executing |
 | **confirmationMessage** | `string` | optional | Message to show in confirmation dialog |
 | **successMessage** | `string` | optional | Message to show on success |
 | **onError** | `Enum<'retry' \| 'skip' \| 'abort'>` | optional | Error handling strategy |
-| **metadata** | `object` | optional |  |
+| **metadata** | `Object` | optional |  |
+
 
 ---
 
@@ -417,6 +571,7 @@ const result = AgentActionSchema.parse(data);
 | **scheduleTime** | `string` | optional | Schedule time (ISO 8601) |
 | **contextData** | `Record<string, any>` | optional | Additional context data |
 
+
 ---
 
 ## WorkflowActionType
@@ -431,6 +586,7 @@ const result = AgentActionSchema.parse(data);
 * `send_notification`
 * `schedule_task`
 
+
 ---
 
 ## WorkflowAgentAction
@@ -441,10 +597,13 @@ const result = AgentActionSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **id** | `string` | optional | Unique action ID |
 | **type** | `Enum<'trigger_flow' \| 'trigger_approval' \| 'trigger_webhook' \| 'run_report' \| 'send_email' \| 'send_notification' \| 'schedule_task'>` | ✅ |  |
-| **params** | `object` | ✅ |  |
+| **params** | `Object` | ✅ |  |
 | **requireConfirmation** | `boolean` | optional | Require user confirmation before executing |
 | **confirmationMessage** | `string` | optional | Message to show in confirmation dialog |
 | **successMessage** | `string` | optional | Message to show on success |
 | **onError** | `Enum<'retry' \| 'skip' \| 'abort'>` | optional | Error handling strategy |
-| **metadata** | `object` | optional |  |
+| **metadata** | `Object` | optional |  |
+
+
+---
 

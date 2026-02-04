@@ -5,6 +5,12 @@ description: Conversation protocol schemas
 
 # Conversation
 
+AI Conversation Memory Protocol
+
+Multi-turn AI conversations with token budget management.
+
+Enables context preservation, conversation history, and token optimization.
+
 <Callout type="info">
 **Source:** `packages/spec/src/ai/conversation.zod.ts`
 </Callout>
@@ -12,11 +18,11 @@ description: Conversation protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { CodeContentSchema, ConversationAnalyticsSchema, ConversationContextSchema, ConversationMessageSchema, ConversationSessionSchema, ConversationSummarySchema, FileContentSchema, FunctionCallSchema, ImageContentSchema, MessageContentSchema, MessageContentTypeSchema, MessagePruningEventSchema, MessageRoleSchema, TextContentSchema, TokenBudgetConfigSchema, TokenBudgetStrategySchema, TokenUsageStatsSchema, ToolCallSchema } from '@objectstack/spec/ai';
+import { CodeContent, ConversationAnalytics, ConversationContext, ConversationMessage, ConversationSession, ConversationSummary, FileContent, FunctionCall, ImageContent, MessageContent, MessageContentType, MessagePruningEvent, MessageRole, TextContent, TokenBudgetConfig, TokenBudgetStrategy, TokenUsageStats, ToolCall } from '@objectstack/spec/ai';
 import type { CodeContent, ConversationAnalytics, ConversationContext, ConversationMessage, ConversationSession, ConversationSummary, FileContent, FunctionCall, ImageContent, MessageContent, MessageContentType, MessagePruningEvent, MessageRole, TextContent, TokenBudgetConfig, TokenBudgetStrategy, TokenUsageStats, ToolCall } from '@objectstack/spec/ai';
 
 // Validate data
-const result = CodeContentSchema.parse(data);
+const result = CodeContent.parse(data);
 ```
 
 ---
@@ -31,6 +37,7 @@ const result = CodeContentSchema.parse(data);
 | **text** | `string` | ✅ | Code snippet |
 | **language** | `string` | optional |  |
 | **metadata** | `Record<string, any>` | optional |  |
+
 
 ---
 
@@ -56,6 +63,7 @@ const result = CodeContentSchema.parse(data);
 | **firstMessageAt** | `string` | optional | ISO 8601 timestamp |
 | **lastMessageAt** | `string` | optional | ISO 8601 timestamp |
 
+
 ---
 
 ## ConversationContext
@@ -73,6 +81,7 @@ const result = CodeContentSchema.parse(data);
 | **systemMessage** | `string` | optional | System prompt/instructions |
 | **metadata** | `Record<string, any>` | optional |  |
 
+
 ---
 
 ## ConversationMessage
@@ -84,17 +93,18 @@ const result = CodeContentSchema.parse(data);
 | **id** | `string` | ✅ | Unique message ID |
 | **timestamp** | `string` | ✅ | ISO 8601 timestamp |
 | **role** | `Enum<'system' \| 'user' \| 'assistant' \| 'function' \| 'tool'>` | ✅ |  |
-| **content** | `object \| object \| object \| object[]` | ✅ | Message content (multimodal array) |
-| **functionCall** | `object` | optional | Legacy function call |
-| **toolCalls** | `object[]` | optional | Tool calls |
+| **content** | `Object \| Object \| Object \| Object[]` | ✅ | Message content (multimodal array) |
+| **functionCall** | `Object` | optional | Legacy function call |
+| **toolCalls** | `Object[]` | optional | Tool calls |
 | **toolCallId** | `string` | optional | Tool call ID this message responds to |
 | **name** | `string` | optional | Name of the function/user |
-| **tokens** | `object` | optional | Token usage for this message |
+| **tokens** | `Object` | optional | Token usage for this message |
 | **cost** | `number` | optional | Cost for this message in USD |
 | **pinned** | `boolean` | optional | Prevent removal during pruning |
 | **importance** | `number` | optional | Importance score for pruning |
 | **embedding** | `number[]` | optional | Vector embedding for semantic search |
 | **metadata** | `Record<string, any>` | optional |  |
+
 
 ---
 
@@ -106,18 +116,19 @@ const result = CodeContentSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **id** | `string` | ✅ | Unique session ID |
 | **name** | `string` | optional | Session name/title |
-| **context** | `object` | ✅ |  |
+| **context** | `Object` | ✅ |  |
 | **modelId** | `string` | optional | AI model ID |
-| **tokenBudget** | `object` | ✅ |  |
-| **messages** | `object[]` | optional |  |
-| **tokens** | `object` | optional |  |
-| **totalTokens** | `object` | optional | Total tokens across all messages |
+| **tokenBudget** | `Object` | ✅ |  |
+| **messages** | `Object[]` | optional |  |
+| **tokens** | `Object` | optional |  |
+| **totalTokens** | `Object` | optional | Total tokens across all messages |
 | **totalCost** | `number` | optional | Total cost for this session in USD |
 | **status** | `Enum<'active' \| 'paused' \| 'completed' \| 'archived'>` | optional |  |
 | **createdAt** | `string` | ✅ | ISO 8601 timestamp |
 | **updatedAt** | `string` | ✅ | ISO 8601 timestamp |
 | **expiresAt** | `string` | optional | ISO 8601 timestamp |
 | **metadata** | `Record<string, any>` | optional |  |
+
 
 ---
 
@@ -132,9 +143,10 @@ const result = CodeContentSchema.parse(data);
 | **originalTokens** | `integer` | ✅ | Original token count |
 | **summaryTokens** | `integer` | ✅ | Summary token count |
 | **tokensSaved** | `integer` | ✅ | Tokens saved |
-| **messageRange** | `object` | ✅ | Range of messages summarized |
+| **messageRange** | `Object` | ✅ | Range of messages summarized |
 | **generatedAt** | `string` | ✅ | ISO 8601 timestamp |
 | **modelId** | `string` | optional | Model used for summarization |
+
 
 ---
 
@@ -150,6 +162,7 @@ const result = CodeContentSchema.parse(data);
 | **fileName** | `string` | optional |  |
 | **metadata** | `Record<string, any>` | optional |  |
 
+
 ---
 
 ## FunctionCall
@@ -161,6 +174,7 @@ const result = CodeContentSchema.parse(data);
 | **name** | `string` | ✅ | Function name |
 | **arguments** | `string` | ✅ | JSON string of function arguments |
 | **result** | `string` | optional | Function execution result |
+
 
 ---
 
@@ -175,9 +189,75 @@ const result = CodeContentSchema.parse(data);
 | **detail** | `Enum<'low' \| 'high' \| 'auto'>` | optional |  |
 | **metadata** | `Record<string, any>` | optional |  |
 
+
 ---
 
 ## MessageContent
+
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+**Type:** `text`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **text** | `string` | ✅ | Text content |
+| **metadata** | `Record<string, any>` | optional |  |
+
+---
+
+#### Option 2
+
+**Type:** `image`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **imageUrl** | `string` | ✅ | Image URL |
+| **detail** | `Enum<'low' \| 'high' \| 'auto'>` | optional |  |
+| **metadata** | `Record<string, any>` | optional |  |
+
+---
+
+#### Option 3
+
+**Type:** `file`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **fileUrl** | `string` | ✅ | File attachment URL |
+| **mimeType** | `string` | ✅ | MIME type |
+| **fileName** | `string` | optional |  |
+| **metadata** | `Record<string, any>` | optional |  |
+
+---
+
+#### Option 4
+
+**Type:** `code`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **text** | `string` | ✅ | Code snippet |
+| **language** | `string` | optional |  |
+| **metadata** | `Record<string, any>` | optional |  |
+
+---
+
 
 ---
 
@@ -191,6 +271,7 @@ const result = CodeContentSchema.parse(data);
 * `code`
 * `structured`
 
+
 ---
 
 ## MessagePruningEvent
@@ -200,11 +281,12 @@ const result = CodeContentSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **timestamp** | `string` | ✅ | Event timestamp |
-| **prunedMessages** | `object[]` | ✅ |  |
+| **prunedMessages** | `Object[]` | ✅ |  |
 | **tokensFreed** | `integer` | ✅ |  |
 | **messagesRemoved** | `integer` | ✅ |  |
 | **remainingTokens** | `integer` | ✅ |  |
 | **remainingMessages** | `integer` | ✅ |  |
+
 
 ---
 
@@ -218,6 +300,7 @@ const result = CodeContentSchema.parse(data);
 * `function`
 * `tool`
 
+
 ---
 
 ## TextContent
@@ -229,6 +312,7 @@ const result = CodeContentSchema.parse(data);
 | **type** | `string` | ✅ |  |
 | **text** | `string` | ✅ | Text content |
 | **metadata** | `Record<string, any>` | optional |  |
+
 
 ---
 
@@ -252,6 +336,7 @@ const result = CodeContentSchema.parse(data);
 | **summaryModel** | `string` | optional | Model ID for summarization |
 | **warnThreshold** | `number` | optional | Warn at % of budget (0.8 = 80%) |
 
+
 ---
 
 ## TokenBudgetStrategy
@@ -263,6 +348,7 @@ const result = CodeContentSchema.parse(data);
 * `semantic`
 * `sliding_window`
 * `summary`
+
 
 ---
 
@@ -283,6 +369,7 @@ const result = CodeContentSchema.parse(data);
 | **prunedMessageCount** | `integer` | optional |  |
 | **summarizedMessageCount** | `integer` | optional |  |
 
+
 ---
 
 ## ToolCall
@@ -293,5 +380,8 @@ const result = CodeContentSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **id** | `string` | ✅ | Tool call ID |
 | **type** | `Enum<'function'>` | optional |  |
-| **function** | `object` | ✅ |  |
+| **function** | `Object` | ✅ |  |
+
+
+---
 

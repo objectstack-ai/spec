@@ -12,11 +12,11 @@ description: Mapping protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { FieldMappingSchema } from '@objectstack/spec/integration';
+import { FieldMapping } from '@objectstack/spec/integration';
 import type { FieldMapping } from '@objectstack/spec/integration';
 
 // Validate data
-const result = FieldMappingSchema.parse(data);
+const result = FieldMapping.parse(data);
 ```
 
 ---
@@ -29,9 +29,12 @@ const result = FieldMappingSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **source** | `string` | ✅ | Source field name |
 | **target** | `string` | ✅ | Target field name |
-| **transform** | `object \| object \| object \| object \| object` | optional | Transformation to apply |
+| **transform** | `Object \| Object \| Object \| Object \| Object` | optional | Transformation to apply |
 | **defaultValue** | `any` | optional | Default if source is null/undefined |
 | **dataType** | `Enum<'string' \| 'number' \| 'boolean' \| 'date' \| 'datetime' \| 'json' \| 'array'>` | optional | Target data type |
 | **required** | `boolean` | optional | Field is required |
 | **syncMode** | `Enum<'read_only' \| 'write_only' \| 'bidirectional'>` | optional | Sync mode |
+
+
+---
 

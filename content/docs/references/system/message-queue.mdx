@@ -5,6 +5,10 @@ description: Message Queue protocol schemas
 
 # Message Queue
 
+Message queue protocol for async communication
+
+Supports Kafka, RabbitMQ, AWS SQS, Redis Pub/Sub
+
 <Callout type="info">
 **Source:** `packages/spec/src/system/message-queue.zod.ts`
 </Callout>
@@ -12,11 +16,11 @@ description: Message Queue protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ConsumerConfigSchema, DeadLetterQueueSchema, MessageQueueConfigSchema, MessageQueueProviderSchema, TopicConfigSchema } from '@objectstack/spec/system';
+import { ConsumerConfig, DeadLetterQueue, MessageQueueConfig, MessageQueueProvider, TopicConfig } from '@objectstack/spec/system';
 import type { ConsumerConfig, DeadLetterQueue, MessageQueueConfig, MessageQueueProvider, TopicConfig } from '@objectstack/spec/system';
 
 // Validate data
-const result = ConsumerConfigSchema.parse(data);
+const result = ConsumerConfig.parse(data);
 ```
 
 ---
@@ -32,6 +36,7 @@ const result = ConsumerConfigSchema.parse(data);
 | **enableAutoCommit** | `boolean` | optional |  |
 | **maxPollRecords** | `number` | optional |  |
 
+
 ---
 
 ## DeadLetterQueue
@@ -44,6 +49,7 @@ const result = ConsumerConfigSchema.parse(data);
 | **maxRetries** | `number` | optional |  |
 | **queueName** | `string` | ✅ |  |
 
+
 ---
 
 ## MessageQueueConfig
@@ -53,11 +59,12 @@ const result = ConsumerConfigSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **provider** | `Enum<'kafka' \| 'rabbitmq' \| 'aws-sqs' \| 'redis-pubsub' \| 'google-pubsub' \| 'azure-service-bus'>` | ✅ |  |
-| **topics** | `object[]` | ✅ |  |
-| **consumers** | `object[]` | optional |  |
-| **deadLetterQueue** | `object` | optional |  |
+| **topics** | `Object[]` | ✅ |  |
+| **consumers** | `Object[]` | optional |  |
+| **deadLetterQueue** | `Object` | optional |  |
 | **ssl** | `boolean` | optional |  |
-| **sasl** | `object` | optional |  |
+| **sasl** | `Object` | optional |  |
+
 
 ---
 
@@ -72,6 +79,7 @@ const result = ConsumerConfigSchema.parse(data);
 * `google-pubsub`
 * `azure-service-bus`
 
+
 ---
 
 ## TopicConfig
@@ -85,4 +93,7 @@ const result = ConsumerConfigSchema.parse(data);
 | **replicationFactor** | `number` | optional |  |
 | **retentionMs** | `number` | optional |  |
 | **compressionType** | `Enum<'none' \| 'gzip' \| 'snappy' \| 'lz4'>` | optional |  |
+
+
+---
 

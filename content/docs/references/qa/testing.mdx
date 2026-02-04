@@ -12,11 +12,11 @@ description: Testing protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { TestActionSchema, TestActionTypeSchema, TestAssertionSchema, TestAssertionTypeSchema, TestContextSchema, TestScenarioSchema, TestStepSchema, TestSuiteSchema } from '@objectstack/spec/qa';
+import { TestAction, TestActionType, TestAssertion, TestAssertionType, TestContext, TestScenario, TestStep, TestSuite } from '@objectstack/spec/qa';
 import type { TestAction, TestActionType, TestAssertion, TestAssertionType, TestContext, TestScenario, TestStep, TestSuite } from '@objectstack/spec/qa';
 
 // Validate data
-const result = TestActionSchema.parse(data);
+const result = TestAction.parse(data);
 ```
 
 ---
@@ -31,6 +31,7 @@ const result = TestActionSchema.parse(data);
 | **target** | `string` | ✅ | Target Object, API Endpoint, or Function Name |
 | **payload** | `Record<string, any>` | optional | Data to send or use |
 | **user** | `string` | optional | Run as specific user/role |
+
 
 ---
 
@@ -47,6 +48,7 @@ const result = TestActionSchema.parse(data);
 * `run_script`
 * `wait`
 
+
 ---
 
 ## TestAssertion
@@ -58,6 +60,7 @@ const result = TestActionSchema.parse(data);
 | **field** | `string` | ✅ | Field path in the result to check (e.g. "body.data.0.status") |
 | **operator** | `Enum<'equals' \| 'not_equals' \| 'contains' \| 'not_contains' \| 'is_null' \| 'not_null' \| 'gt' \| 'gte' \| 'lt' \| 'lte' \| 'error'>` | ✅ |  |
 | **expectedValue** | `any` | optional |  |
+
 
 ---
 
@@ -77,11 +80,13 @@ const result = TestActionSchema.parse(data);
 * `lte`
 * `error`
 
+
 ---
 
 ## TestContext
 
 Initial context or variables for the test
+
 
 ---
 
@@ -95,10 +100,11 @@ Initial context or variables for the test
 | **name** | `string` | ✅ |  |
 | **description** | `string` | optional |  |
 | **tags** | `string[]` | optional |  |
-| **setup** | `object[]` | optional | Steps to run before main test |
-| **steps** | `object[]` | ✅ | Main test sequence |
-| **teardown** | `object[]` | optional | Steps to cleanup |
-| **requires** | `object` | optional |  |
+| **setup** | `Object[]` | optional | Steps to run before main test |
+| **steps** | `Object[]` | ✅ | Main test sequence |
+| **teardown** | `Object[]` | optional | Steps to cleanup |
+| **requires** | `Object` | optional |  |
+
 
 ---
 
@@ -110,9 +116,10 @@ Initial context or variables for the test
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | ✅ |  |
 | **description** | `string` | optional |  |
-| **action** | `object` | ✅ |  |
-| **assertions** | `object[]` | optional |  |
+| **action** | `Object` | ✅ |  |
+| **assertions** | `Object[]` | optional |  |
 | **capture** | `Record<string, string>` | optional | Map result fields to context variables: `{ "newId": "body._id" }` |
+
 
 ---
 
@@ -123,5 +130,8 @@ Initial context or variables for the test
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | ✅ |  |
-| **scenarios** | `object[]` | ✅ |  |
+| **scenarios** | `Object[]` | ✅ |  |
+
+
+---
 

@@ -12,11 +12,11 @@ description: Connector protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { RetryStrategySchema } from '@objectstack/spec/api';
+import { RetryStrategy } from '@objectstack/spec/api';
 import type { RetryStrategy } from '@objectstack/spec/api';
 
 // Validate data
-const result = RetryStrategySchema.parse(data);
+const result = RetryStrategy.parse(data);
 ```
 
 ---
@@ -29,4 +29,7 @@ const result = RetryStrategySchema.parse(data);
 * `retry_immediate`
 * `retry_backoff`
 * `retry_after`
+
+
+---
 

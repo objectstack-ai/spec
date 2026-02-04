@@ -5,6 +5,12 @@ description: Model Registry protocol schemas
 
 # Model Registry
 
+AI Model Registry Protocol
+
+Centralized registry for managing AI models, prompt templates, and model versioning.
+
+Enables AI-powered ObjectStack applications to discover and use LLMs consistently.
+
 <Callout type="info">
 **Source:** `packages/spec/src/ai/model-registry.zod.ts`
 </Callout>
@@ -12,11 +18,11 @@ description: Model Registry protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ModelCapabilitySchema, ModelConfigSchema, ModelLimitsSchema, ModelPricingSchema, ModelProviderSchema, ModelRegistrySchema, ModelRegistryEntrySchema, ModelSelectionCriteriaSchema, PromptTemplateSchema, PromptVariableSchema } from '@objectstack/spec/ai';
+import { ModelCapability, ModelConfig, ModelLimits, ModelPricing, ModelProvider, ModelRegistry, ModelRegistryEntry, ModelSelectionCriteria, PromptTemplate, PromptVariable } from '@objectstack/spec/ai';
 import type { ModelCapability, ModelConfig, ModelLimits, ModelPricing, ModelProvider, ModelRegistry, ModelRegistryEntry, ModelSelectionCriteria, PromptTemplate, PromptVariable } from '@objectstack/spec/ai';
 
 // Validate data
-const result = ModelCapabilitySchema.parse(data);
+const result = ModelCapability.parse(data);
 ```
 
 ---
@@ -35,6 +41,7 @@ const result = ModelCapabilitySchema.parse(data);
 | **codeGeneration** | `boolean` | optional | Supports code generation |
 | **reasoning** | `boolean` | optional | Supports advanced reasoning |
 
+
 ---
 
 ## ModelConfig
@@ -47,9 +54,9 @@ const result = ModelCapabilitySchema.parse(data);
 | **name** | `string` | ✅ | Model display name |
 | **version** | `string` | ✅ | Model version (e.g., "gpt-4-turbo-2024-04-09") |
 | **provider** | `Enum<'openai' \| 'azure_openai' \| 'anthropic' \| 'google' \| 'cohere' \| 'huggingface' \| 'local' \| 'custom'>` | ✅ |  |
-| **capabilities** | `object` | ✅ |  |
-| **limits** | `object` | ✅ |  |
-| **pricing** | `object` | optional |  |
+| **capabilities** | `Object` | ✅ |  |
+| **limits** | `Object` | ✅ |  |
+| **pricing** | `Object` | optional |  |
 | **endpoint** | `string` | optional | Custom API endpoint |
 | **apiKey** | `string` | optional | API key (Warning: Prefer secretRef) |
 | **secretRef** | `string` | optional | Reference to stored secret (e.g. system:openai_api_key) |
@@ -58,6 +65,7 @@ const result = ModelCapabilitySchema.parse(data);
 | **tags** | `string[]` | optional | Tags for categorization |
 | **deprecated** | `boolean` | optional |  |
 | **recommendedFor** | `string[]` | optional | Use case recommendations |
+
 
 ---
 
@@ -70,7 +78,8 @@ const result = ModelCapabilitySchema.parse(data);
 | **maxTokens** | `integer` | ✅ | Maximum tokens per request |
 | **contextWindow** | `integer` | ✅ | Context window size |
 | **maxOutputTokens** | `integer` | optional | Maximum output tokens |
-| **rateLimit** | `object` | optional |  |
+| **rateLimit** | `Object` | optional |  |
+
 
 ---
 
@@ -84,6 +93,7 @@ const result = ModelCapabilitySchema.parse(data);
 | **inputCostPer1kTokens** | `number` | optional | Cost per 1K input tokens |
 | **outputCostPer1kTokens** | `number` | optional | Cost per 1K output tokens |
 | **embeddingCostPer1kTokens** | `number` | optional | Cost per 1K embedding tokens |
+
 
 ---
 
@@ -100,6 +110,7 @@ const result = ModelCapabilitySchema.parse(data);
 * `local`
 * `custom`
 
+
 ---
 
 ## ModelRegistry
@@ -109,10 +120,11 @@ const result = ModelCapabilitySchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | ✅ | Registry name |
-| **models** | `Record<string, object>` | ✅ | Model entries by ID |
-| **promptTemplates** | `Record<string, object>` | optional | Prompt templates by name |
+| **models** | `Record<string, Object>` | ✅ | Model entries by ID |
+| **promptTemplates** | `Record<string, Object>` | optional | Prompt templates by name |
 | **defaultModel** | `string` | optional | Default model ID |
 | **enableAutoFallback** | `boolean` | optional | Auto-fallback on errors |
+
 
 ---
 
@@ -122,11 +134,12 @@ const result = ModelCapabilitySchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **model** | `object` | ✅ |  |
+| **model** | `Object` | ✅ |  |
 | **status** | `Enum<'active' \| 'deprecated' \| 'experimental' \| 'disabled'>` | optional |  |
 | **priority** | `integer` | optional | Priority for model selection |
 | **fallbackModels** | `string[]` | optional | Fallback model IDs |
-| **healthCheck** | `object` | optional |  |
+| **healthCheck** | `Object` | optional |  |
+
 
 ---
 
@@ -143,6 +156,7 @@ const result = ModelCapabilitySchema.parse(data);
 | **tags** | `string[]` | optional |  |
 | **excludeDeprecated** | `boolean` | optional |  |
 
+
 ---
 
 ## PromptTemplate
@@ -157,7 +171,7 @@ const result = ModelCapabilitySchema.parse(data);
 | **system** | `string` | optional | System prompt |
 | **user** | `string` | ✅ | User prompt template with variables |
 | **assistant** | `string` | optional | Assistant message prefix |
-| **variables** | `object[]` | optional | Template variables |
+| **variables** | `Object[]` | optional | Template variables |
 | **modelId** | `string` | optional | Recommended model ID |
 | **temperature** | `number` | optional |  |
 | **maxTokens** | `number` | optional |  |
@@ -169,7 +183,8 @@ const result = ModelCapabilitySchema.parse(data);
 | **description** | `string` | optional |  |
 | **category** | `string` | optional | Template category (e.g., "code_generation", "support") |
 | **tags** | `string[]` | optional |  |
-| **examples** | `object[]` | optional |  |
+| **examples** | `Object[]` | optional |  |
+
 
 ---
 
@@ -184,5 +199,8 @@ const result = ModelCapabilitySchema.parse(data);
 | **required** | `boolean` | optional |  |
 | **defaultValue** | `any` | optional |  |
 | **description** | `string` | optional |  |
-| **validation** | `object` | optional |  |
+| **validation** | `Object` | optional |  |
+
+
+---
 

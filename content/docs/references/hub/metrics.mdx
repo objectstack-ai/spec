@@ -12,11 +12,11 @@ description: Metrics protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { MetricTypeSchema } from '@objectstack/spec/hub';
+import { MetricType } from '@objectstack/spec/hub';
 import type { MetricType } from '@objectstack/spec/hub';
 
 // Validate data
-const result = MetricTypeSchema.parse(data);
+const result = MetricType.parse(data);
 ```
 
 ---
@@ -28,4 +28,7 @@ const result = MetricTypeSchema.parse(data);
 * `boolean`
 * `counter`
 * `gauge`
+
+
+---
 

@@ -5,6 +5,52 @@ description: Http Cache protocol schemas
 
 # Http Cache
 
+HTTP Metadata Cache Protocol
+
+Implements efficient HTTP-level metadata caching with ETag support.
+
+Implements P0 requirement for ObjectStack kernel.
+
+## Caching in ObjectStack
+
+**HTTP Cache (`api/http-cache.zod.ts`) - This File**
+
+- **Purpose**: Cache API responses at HTTP protocol level
+
+- **Technologies**: HTTP headers (ETag, Last-Modified, Cache-Control), CDN
+
+- **Configuration**: Cache-Control headers, validation tokens
+
+- **Use case**: Reduce API response time for repeated metadata requests
+
+- **Scope**: HTTP layer, client-server communication
+
+**Application Cache (`system/cache.zod.ts`)**
+
+- **Purpose**: Cache computed data, query results, aggregations
+
+- **Technologies**: Redis, Memcached, in-memory LRU
+
+- **Configuration**: TTL, eviction policies, cache warming
+
+- **Use case**: Cache expensive database queries, computed values
+
+- **Scope**: Application layer, server-side data storage
+
+## Features
+
+- ETag-based conditional requests (HTTP 304 Not Modified)
+
+- Cache-Control directives
+
+- Metadata versioning
+
+- Selective cache invalidation
+
+Industry alignment: HTTP Caching (RFC 7234), Salesforce Metadata API
+
+@see ../../system/cache.zod.ts for application-level caching
+
 <Callout type="info">
 **Source:** `packages/spec/src/api/http-cache.zod.ts`
 </Callout>
@@ -12,11 +58,11 @@ description: Http Cache protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { CacheControlSchema, CacheDirectiveSchema, CacheInvalidationRequestSchema, CacheInvalidationResponseSchema, CacheInvalidationTargetSchema, ETagSchema, MetadataCacheRequestSchema, MetadataCacheResponseSchema } from '@objectstack/spec/api';
+import { CacheControl, CacheDirective, CacheInvalidationRequest, CacheInvalidationResponse, CacheInvalidationTarget, ETag, MetadataCacheRequest, MetadataCacheResponse } from '@objectstack/spec/api';
 import type { CacheControl, CacheDirective, CacheInvalidationRequest, CacheInvalidationResponse, CacheInvalidationTarget, ETag, MetadataCacheRequest, MetadataCacheResponse } from '@objectstack/spec/api';
 
 // Validate data
-const result = CacheControlSchema.parse(data);
+const result = CacheControl.parse(data);
 ```
 
 ---
@@ -32,6 +78,7 @@ const result = CacheControlSchema.parse(data);
 | **staleWhileRevalidate** | `number` | optional | Allow serving stale content while revalidating (seconds) |
 | **staleIfError** | `number` | optional | Allow serving stale content on error (seconds) |
 
+
 ---
 
 ## CacheDirective
@@ -44,6 +91,7 @@ const result = CacheControlSchema.parse(data);
 * `no-store`
 * `must-revalidate`
 * `max-age`
+
 
 ---
 
@@ -58,6 +106,7 @@ const result = CacheControlSchema.parse(data);
 | **cascade** | `boolean` | optional | If true, invalidate dependent resources |
 | **pattern** | `string` | optional | Pattern for custom invalidation (supports wildcards) |
 
+
 ---
 
 ## CacheInvalidationResponse
@@ -69,6 +118,7 @@ const result = CacheControlSchema.parse(data);
 | **success** | `boolean` | ✅ | Whether invalidation succeeded |
 | **invalidated** | `number` | ✅ | Number of cache entries invalidated |
 | **targets** | `string[]` | optional | List of invalidated resources |
+
 
 ---
 
@@ -83,6 +133,7 @@ const result = CacheControlSchema.parse(data);
 * `layout`
 * `custom`
 
+
 ---
 
 ## ETag
@@ -94,6 +145,7 @@ const result = CacheControlSchema.parse(data);
 | **value** | `string` | ✅ | ETag value (hash or version identifier) |
 | **weak** | `boolean` | optional | Whether this is a weak ETag |
 
+
 ---
 
 ## MetadataCacheRequest
@@ -104,7 +156,8 @@ const result = CacheControlSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **ifNoneMatch** | `string` | optional | ETag value for conditional request (If-None-Match header) |
 | **ifModifiedSince** | `string` | optional | Timestamp for conditional request (If-Modified-Since header) |
-| **cacheControl** | `object` | optional | Client cache control preferences |
+| **cacheControl** | `Object` | optional | Client cache control preferences |
+
 
 ---
 
@@ -115,9 +168,12 @@ const result = CacheControlSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **data** | `any` | optional | Metadata payload (omitted for 304 Not Modified) |
-| **etag** | `object` | optional | ETag for this resource version |
+| **etag** | `Object` | optional | ETag for this resource version |
 | **lastModified** | `string` | optional | Last modification timestamp |
-| **cacheControl** | `object` | optional | Cache control directives |
+| **cacheControl** | `Object` | optional | Cache control directives |
 | **notModified** | `boolean` | optional | True if resource has not been modified (304 response) |
 | **version** | `string` | optional | Metadata version identifier |
+
+
+---
 

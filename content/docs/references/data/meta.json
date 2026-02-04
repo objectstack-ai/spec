@@ -14,8 +14,10 @@
     "filter",
     "hook",
     "mapping",
+    "metrics",
     "object",
     "query",
+    "search-engine",
     "validation"
   ]
 }

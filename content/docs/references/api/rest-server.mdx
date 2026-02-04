@@ -5,6 +5,32 @@ description: Rest Server protocol schemas
 
 # Rest Server
 
+REST API Server Protocol
+
+Defines the REST API server configuration for automatically generating
+
+RESTful CRUD endpoints, metadata endpoints, and batch operations.
+
+Features:
+
+- Automatic CRUD endpoint generation from Object definitions
+
+- Standard REST conventions (GET, POST, PUT, PATCH, DELETE)
+
+- Metadata API endpoints
+
+- Batch operation endpoints
+
+- OpenAPI/Swagger documentation generation
+
+Architecture alignment:
+
+- Salesforce: REST API with Object CRUD
+
+- Microsoft Dynamics: Web API with entity operations
+
+- Strapi: Auto-generated REST endpoints
+
 <Callout type="info">
 **Source:** `packages/spec/src/api/rest-server.zod.ts`
 </Callout>
@@ -12,11 +38,11 @@ description: Rest Server protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { BatchEndpointsConfigSchema, CrudEndpointPatternSchema, CrudEndpointsConfigSchema, CrudOperationSchema, EndpointRegistrySchema, GeneratedEndpointSchema, MetadataEndpointsConfigSchema, RestApiConfigSchema, RestServerConfigSchema, RouteGenerationConfigSchema } from '@objectstack/spec/api';
+import { BatchEndpointsConfig, CrudEndpointPattern, CrudEndpointsConfig, CrudOperation, EndpointRegistry, GeneratedEndpoint, MetadataEndpointsConfig, RestApiConfig, RestServerConfig, RouteGenerationConfig } from '@objectstack/spec/api';
 import type { BatchEndpointsConfig, CrudEndpointPattern, CrudEndpointsConfig, CrudOperation, EndpointRegistry, GeneratedEndpoint, MetadataEndpointsConfig, RestApiConfig, RestServerConfig, RouteGenerationConfig } from '@objectstack/spec/api';
 
 // Validate data
-const result = BatchEndpointsConfigSchema.parse(data);
+const result = BatchEndpointsConfig.parse(data);
 ```
 
 ---
@@ -29,8 +55,9 @@ const result = BatchEndpointsConfigSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **maxBatchSize** | `integer` | optional | Maximum records per batch operation |
 | **enableBatchEndpoint** | `boolean` | optional | Enable POST /data/:object/batch endpoint |
-| **operations** | `object` | optional | Enable/disable specific batch operations |
+| **operations** | `Object` | optional | Enable/disable specific batch operations |
 | **defaultAtomic** | `boolean` | optional | Default atomic/transaction mode for batch operations |
+
 
 ---
 
@@ -45,6 +72,7 @@ const result = BatchEndpointsConfigSchema.parse(data);
 | **summary** | `string` | optional | Operation summary |
 | **description** | `string` | optional | Operation description |
 
+
 ---
 
 ## CrudEndpointsConfig
@@ -53,10 +81,11 @@ const result = BatchEndpointsConfigSchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **operations** | `object` | optional | Enable/disable operations |
-| **patterns** | `Record<string, any \| object>` | optional | Custom URL patterns for operations |
+| **operations** | `Object` | optional | Enable/disable operations |
+| **patterns** | `Record<string, any \| Object>` | optional | Custom URL patterns for operations |
 | **dataPrefix** | `string` | optional | URL prefix for data endpoints |
 | **objectParamStyle** | `Enum<'path' \| 'query'>` | optional | How object name is passed (path param or query param) |
+
 
 ---
 
@@ -70,6 +99,7 @@ const result = BatchEndpointsConfigSchema.parse(data);
 * `delete`
 * `list`
 
+
 ---
 
 ## EndpointRegistry
@@ -78,10 +108,11 @@ const result = BatchEndpointsConfigSchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **endpoints** | `object[]` | ✅ | All generated endpoints |
+| **endpoints** | `Object[]` | ✅ | All generated endpoints |
 | **total** | `integer` | ✅ | Total number of endpoints |
-| **byObject** | `Record<string, object[]>` | optional | Endpoints grouped by object |
-| **byOperation** | `Record<string, object[]>` | optional | Endpoints grouped by operation |
+| **byObject** | `Record<string, Object[]>` | optional | Endpoints grouped by object |
+| **byOperation** | `Record<string, Object[]>` | optional | Endpoints grouped by operation |
+
 
 ---
 
@@ -97,7 +128,8 @@ const result = BatchEndpointsConfigSchema.parse(data);
 | **object** | `string` | ✅ | Object name (snake_case) |
 | **operation** | `Enum<'create' \| 'read' \| 'update' \| 'delete' \| 'list'> \| string` | ✅ | Operation type |
 | **handler** | `string` | ✅ | Handler function identifier |
-| **metadata** | `object` | optional |  |
+| **metadata** | `Object` | optional |  |
+
 
 ---
 
@@ -110,7 +142,8 @@ const result = BatchEndpointsConfigSchema.parse(data);
 | **prefix** | `string` | optional | URL prefix for metadata endpoints |
 | **enableCache** | `boolean` | optional | Enable HTTP cache headers (ETag, Last-Modified) |
 | **cacheTtl** | `integer` | optional | Cache TTL in seconds |
-| **endpoints** | `object` | optional | Enable/disable specific endpoints |
+| **endpoints** | `Object` | optional | Enable/disable specific endpoints |
+
 
 ---
 
@@ -127,8 +160,9 @@ const result = BatchEndpointsConfigSchema.parse(data);
 | **enableMetadata** | `boolean` | optional | Enable metadata API endpoints |
 | **enableBatch** | `boolean` | optional | Enable batch operation endpoints |
 | **enableDiscovery** | `boolean` | optional | Enable API discovery endpoint |
-| **documentation** | `object` | optional | OpenAPI/Swagger documentation config |
-| **responseFormat** | `object` | optional | Response format options |
+| **documentation** | `Object` | optional | OpenAPI/Swagger documentation config |
+| **responseFormat** | `Object` | optional | Response format options |
+
 
 ---
 
@@ -138,11 +172,12 @@ const result = BatchEndpointsConfigSchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **api** | `object` | optional | REST API configuration |
-| **crud** | `object` | optional | CRUD endpoints configuration |
-| **metadata** | `object` | optional | Metadata endpoints configuration |
-| **batch** | `object` | optional | Batch endpoints configuration |
-| **routes** | `object` | optional | Route generation configuration |
+| **api** | `Object` | optional | REST API configuration |
+| **crud** | `Object` | optional | CRUD endpoints configuration |
+| **metadata** | `Object` | optional | Metadata endpoints configuration |
+| **batch** | `Object` | optional | Batch endpoints configuration |
+| **routes** | `Object` | optional | Route generation configuration |
+
 
 ---
 
@@ -155,5 +190,8 @@ const result = BatchEndpointsConfigSchema.parse(data);
 | **includeObjects** | `string[]` | optional | Specific objects to generate routes for (empty = all) |
 | **excludeObjects** | `string[]` | optional | Objects to exclude from route generation |
 | **nameTransform** | `Enum<'none' \| 'plural' \| 'kebab-case' \| 'camelCase'>` | optional | Transform object names in URLs |
-| **overrides** | `Record<string, object>` | optional | Per-object route customization |
+| **overrides** | `Record<string, Object>` | optional | Per-object route customization |
+
+
+---
 

@@ -5,6 +5,40 @@ description: Cache protocol schemas
 
 # Cache
 
+Application-Level Cache Protocol
+
+Multi-tier caching strategy for application data.
+
+Supports Memory, Redis, Memcached, and CDN.
+
+## Caching in ObjectStack
+
+**Application Cache (`system/cache.zod.ts`) - This File**
+
+- **Purpose**: Cache computed data, query results, aggregations
+
+- **Technologies**: Redis, Memcached, in-memory LRU
+
+- **Configuration**: TTL, eviction policies, cache warming
+
+- **Use case**: Cache expensive database queries, computed values
+
+- **Scope**: Application layer, server-side data storage
+
+**HTTP Cache (`api/http-cache.zod.ts`)**
+
+- **Purpose**: Cache API responses at HTTP protocol level
+
+- **Technologies**: HTTP headers (ETag, Last-Modified, Cache-Control), CDN
+
+- **Configuration**: Cache-Control headers, validation tokens
+
+- **Use case**: Reduce API response time for repeated metadata requests
+
+- **Scope**: HTTP layer, client-server communication
+
+@see ../../api/http-cache.zod.ts for HTTP-level caching
+
 <Callout type="info">
 **Source:** `packages/spec/src/system/cache.zod.ts`
 </Callout>
@@ -12,11 +46,11 @@ description: Cache protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { CacheConfigSchema, CacheInvalidationSchema, CacheStrategySchema, CacheTierSchema } from '@objectstack/spec/system';
+import { CacheConfig, CacheInvalidation, CacheStrategy, CacheTier } from '@objectstack/spec/system';
 import type { CacheConfig, CacheInvalidation, CacheStrategy, CacheTier } from '@objectstack/spec/system';
 
 // Validate data
-const result = CacheConfigSchema.parse(data);
+const result = CacheConfig.parse(data);
 ```
 
 ---
@@ -28,11 +62,12 @@ const result = CacheConfigSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **enabled** | `boolean` | optional |  |
-| **tiers** | `object[]` | ✅ |  |
-| **invalidation** | `object[]` | ✅ |  |
+| **tiers** | `Object[]` | ✅ |  |
+| **invalidation** | `Object[]` | ✅ |  |
 | **prefetch** | `boolean` | optional |  |
 | **compression** | `boolean` | optional |  |
 | **encryption** | `boolean` | optional |  |
+
 
 ---
 
@@ -47,6 +82,7 @@ const result = CacheConfigSchema.parse(data);
 | **pattern** | `string` | optional |  |
 | **tags** | `string[]` | optional |  |
 
+
 ---
 
 ## CacheStrategy
@@ -58,6 +94,7 @@ const result = CacheConfigSchema.parse(data);
 * `fifo`
 * `ttl`
 * `adaptive`
+
 
 ---
 
@@ -73,4 +110,7 @@ const result = CacheConfigSchema.parse(data);
 | **ttl** | `number` | optional | Default TTL in seconds |
 | **strategy** | `Enum<'lru' \| 'lfu' \| 'fifo' \| 'ttl' \| 'adaptive'>` | optional |  |
 | **warmup** | `boolean` | optional |  |
+
+
+---
 

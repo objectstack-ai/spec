@@ -4,6 +4,7 @@
     "analytics",
     "auth",
     "batch",
+    "connector",
     "contract",
     "discovery",
     "documentation",
@@ -12,6 +13,7 @@
     "graphql",
     "http-cache",
     "hub",
+    "identity",
     "metadata",
     "odata",
     "protocol",
@@ -20,6 +22,7 @@
     "rest-server",
     "router",
     "storage",
+    "view",
     "websocket"
   ]
 }

@@ -5,6 +5,8 @@ description: View protocol schemas
 
 # View
 
+HTTP Method Enum
+
 <Callout type="info">
 **Source:** `packages/spec/src/ui/view.zod.ts`
 </Callout>
@@ -12,11 +14,11 @@ description: View protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { CalendarConfigSchema, FormFieldSchema, FormSectionSchema, FormViewSchema, GanttConfigSchema, HttpMethodSchema, HttpRequestSchema, KanbanConfigSchema, ListColumnSchema, ListViewSchema, PaginationConfigSchema, SelectionConfigSchema, ViewSchema, ViewDataSchema } from '@objectstack/spec/ui';
+import { CalendarConfig, FormField, FormSection, FormView, GanttConfig, HttpMethod, HttpRequest, KanbanConfig, ListColumn, ListView, PaginationConfig, SelectionConfig, View, ViewData } from '@objectstack/spec/ui';
 import type { CalendarConfig, FormField, FormSection, FormView, GanttConfig, HttpMethod, HttpRequest, KanbanConfig, ListColumn, ListView, PaginationConfig, SelectionConfig, View, ViewData } from '@objectstack/spec/ui';
 
 // Validate data
-const result = CalendarConfigSchema.parse(data);
+const result = CalendarConfig.parse(data);
 ```
 
 ---
@@ -31,6 +33,7 @@ const result = CalendarConfigSchema.parse(data);
 | **endDateField** | `string` | optional |  |
 | **titleField** | `string` | ✅ |  |
 | **colorField** | `string` | optional |  |
+
 
 ---
 
@@ -52,6 +55,7 @@ const result = CalendarConfigSchema.parse(data);
 | **dependsOn** | `string` | optional | Parent field name for cascading |
 | **visibleOn** | `string` | optional | Visibility condition expression |
 
+
 ---
 
 ## FormSection
@@ -64,7 +68,8 @@ const result = CalendarConfigSchema.parse(data);
 | **collapsible** | `boolean` | optional |  |
 | **collapsed** | `boolean` | optional |  |
 | **columns** | `Enum<'1' \| '2' \| '3' \| '4'>` | optional |  |
-| **fields** | `string \| object[]` | ✅ |  |
+| **fields** | `string \| Object[]` | ✅ |  |
+
 
 ---
 
@@ -75,9 +80,10 @@ const result = CalendarConfigSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **type** | `Enum<'simple' \| 'tabbed' \| 'wizard' \| 'split' \| 'drawer' \| 'modal'>` | optional |  |
-| **data** | `object \| object \| object` | optional | Data source configuration (defaults to "object" provider) |
-| **sections** | `object[]` | optional |  |
-| **groups** | `object[]` | optional |  |
+| **data** | `Object \| Object \| Object` | optional | Data source configuration (defaults to "object" provider) |
+| **sections** | `Object[]` | optional |  |
+| **groups** | `Object[]` | optional |  |
+
 
 ---
 
@@ -93,6 +99,7 @@ const result = CalendarConfigSchema.parse(data);
 | **progressField** | `string` | optional |  |
 | **dependenciesField** | `string` | optional |  |
 
+
 ---
 
 ## HttpMethod
@@ -104,6 +111,7 @@ const result = CalendarConfigSchema.parse(data);
 * `PUT`
 * `PATCH`
 * `DELETE`
+
 
 ---
 
@@ -119,6 +127,7 @@ const result = CalendarConfigSchema.parse(data);
 | **params** | `Record<string, any>` | optional | Query parameters |
 | **body** | `any` | optional | Request body for POST/PUT/PATCH |
 
+
 ---
 
 ## KanbanConfig
@@ -130,6 +139,7 @@ const result = CalendarConfigSchema.parse(data);
 | **groupByField** | `string` | ✅ | Field to group columns by (usually status/select) |
 | **summarizeField** | `string` | optional | Field to sum at top of column (e.g. amount) |
 | **columns** | `string[]` | ✅ | Fields to show on cards |
+
 
 ---
 
@@ -149,6 +159,7 @@ const result = CalendarConfigSchema.parse(data);
 | **wrap** | `boolean` | optional | Allow text wrapping |
 | **type** | `string` | optional | Renderer type override (e.g., "currency", "date") |
 
+
 ---
 
 ## ListView
@@ -159,20 +170,21 @@ const result = CalendarConfigSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | optional | Internal view name (lowercase snake_case) |
 | **label** | `string` | optional |  |
-| **type** | `Enum<'grid' \| 'spreadsheet' \| 'kanban' \| 'gallery' \| 'calendar' \| 'timeline' \| 'gantt' \| 'map'>` | optional |  |
-| **data** | `object \| object \| object` | optional | Data source configuration (defaults to "object" provider) |
-| **columns** | `string[] \| object[]` | ✅ | Fields to display as columns |
+| **type** | `Enum<'grid' \| 'kanban' \| 'gallery' \| 'calendar' \| 'timeline' \| 'gantt' \| 'map'>` | optional |  |
+| **data** | `Object \| Object \| Object` | optional | Data source configuration (defaults to "object" provider) |
+| **columns** | `string[] \| Object[]` | ✅ | Fields to display as columns |
 | **filter** | `any[]` | optional | Filter criteria (JSON Rules) |
-| **sort** | `string \| object[]` | optional |  |
+| **sort** | `string \| Object[]` | optional |  |
 | **searchableFields** | `string[]` | optional | Fields enabled for search |
 | **resizable** | `boolean` | optional | Enable column resizing |
 | **striped** | `boolean` | optional | Striped row styling |
 | **bordered** | `boolean` | optional | Show borders |
-| **selection** | `object` | optional | Row selection configuration |
-| **pagination** | `object` | optional | Pagination configuration |
-| **kanban** | `object` | optional |  |
-| **calendar** | `object` | optional |  |
-| **gantt** | `object` | optional |  |
+| **selection** | `Object` | optional | Row selection configuration |
+| **pagination** | `Object` | optional | Pagination configuration |
+| **kanban** | `Object` | optional |  |
+| **calendar** | `Object` | optional |  |
+| **gantt** | `Object` | optional |  |
+
 
 ---
 
@@ -185,6 +197,7 @@ const result = CalendarConfigSchema.parse(data);
 | **pageSize** | `integer` | optional | Number of records per page |
 | **pageSizeOptions** | `integer[]` | optional | Available page size options |
 
+
 ---
 
 ## SelectionConfig
@@ -195,6 +208,7 @@ const result = CalendarConfigSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **type** | `Enum<'none' \| 'single' \| 'multiple'>` | optional | Selection mode |
 
+
 ---
 
 ## View
@@ -203,12 +217,54 @@ const result = CalendarConfigSchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **list** | `object` | optional |  |
-| **form** | `object` | optional |  |
-| **listViews** | `Record<string, object>` | optional | Additional named list views |
-| **formViews** | `Record<string, object>` | optional | Additional named form views |
+| **list** | `Object` | optional |  |
+| **form** | `Object` | optional |  |
+| **listViews** | `Record<string, Object>` | optional | Additional named list views |
+| **formViews** | `Record<string, Object>` | optional | Additional named form views |
+
 
 ---
 
 ## ViewData
+
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **provider** | `string` | ✅ |  |
+| **object** | `string` | ✅ | Target object name |
+
+---
+
+#### Option 2
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **provider** | `string` | ✅ |  |
+| **read** | `Object` | optional | Configuration for fetching data |
+| **write** | `Object` | optional | Configuration for submitting data (for forms/editable tables) |
+
+---
+
+#### Option 3
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **provider** | `string` | ✅ |  |
+| **items** | `any[]` | ✅ | Static data array |
+
+---
+
+
+---
 

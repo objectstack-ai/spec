@@ -2,6 +2,7 @@
   "title": "Automation Protocol",
   "pages": [
     "approval",
+    "connector",
     "etl",
     "flow",
     "sync",

@@ -6,6 +6,7 @@
     "feature",
     "manifest",
     "metadata-loader",
+    "permission",
     "plugin",
     "plugin-capability",
     "plugin-lifecycle-advanced",

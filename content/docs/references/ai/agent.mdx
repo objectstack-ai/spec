@@ -5,6 +5,8 @@ description: Agent protocol schemas
 
 # Agent
 
+AI Model Configuration
+
 <Callout type="info">
 **Source:** `packages/spec/src/ai/agent.zod.ts`
 </Callout>
@@ -12,11 +14,11 @@ description: Agent protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AIKnowledgeSchema, AIModelConfigSchema, AIToolSchema, AgentSchema } from '@objectstack/spec/ai';
+import { AIKnowledge, AIModelConfig, AITool, Agent } from '@objectstack/spec/ai';
 import type { AIKnowledge, AIModelConfig, AITool, Agent } from '@objectstack/spec/ai';
 
 // Validate data
-const result = AIKnowledgeSchema.parse(data);
+const result = AIKnowledge.parse(data);
 ```
 
 ---
@@ -29,6 +31,7 @@ const result = AIKnowledgeSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **topics** | `string[]` | ✅ | Topics/Tags to recruit knowledge from |
 | **indexes** | `string[]` | ✅ | Vector Store Indexes |
+
 
 ---
 
@@ -44,6 +47,7 @@ const result = AIKnowledgeSchema.parse(data);
 | **maxTokens** | `number` | optional |  |
 | **topP** | `number` | optional |  |
 
+
 ---
 
 ## AITool
@@ -55,6 +59,7 @@ const result = AIKnowledgeSchema.parse(data);
 | **type** | `Enum<'action' \| 'flow' \| 'query' \| 'vector_search'>` | ✅ |  |
 | **name** | `string` | ✅ | Reference name (Action Name, Flow Name) |
 | **description** | `string` | optional | Override description for the LLM |
+
 
 ---
 
@@ -69,11 +74,14 @@ const result = AIKnowledgeSchema.parse(data);
 | **avatar** | `string` | optional |  |
 | **role** | `string` | ✅ | The persona/role (e.g. "Senior Support Engineer") |
 | **instructions** | `string` | ✅ | System Prompt / Prime Directives |
-| **model** | `object` | optional |  |
-| **tools** | `object[]` | optional | Available tools |
-| **knowledge** | `object` | optional | RAG access |
+| **model** | `Object` | optional |  |
+| **tools** | `Object[]` | optional | Available tools |
+| **knowledge** | `Object` | optional | RAG access |
 | **active** | `boolean` | optional |  |
 | **access** | `string[]` | optional | Who can chat with this agent |
 | **tenantId** | `string` | optional | Tenant/Organization ID |
 | **visibility** | `Enum<'global' \| 'organization' \| 'private'>` | optional |  |
+
+
+---
 

@@ -5,6 +5,8 @@ description: Masking protocol schemas
 
 # Masking
 
+Data masking protocol for PII protection
+
 <Callout type="info">
 **Source:** `packages/spec/src/system/masking.zod.ts`
 </Callout>
@@ -12,11 +14,11 @@ description: Masking protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { MaskingConfigSchema, MaskingRuleSchema, MaskingStrategySchema } from '@objectstack/spec/system';
+import { MaskingConfig, MaskingRule, MaskingStrategy } from '@objectstack/spec/system';
 import type { MaskingConfig, MaskingRule, MaskingStrategy } from '@objectstack/spec/system';
 
 // Validate data
-const result = MaskingConfigSchema.parse(data);
+const result = MaskingConfig.parse(data);
 ```
 
 ---
@@ -28,8 +30,9 @@ const result = MaskingConfigSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **enabled** | `boolean` | optional |  |
-| **rules** | `object[]` | ✅ |  |
+| **rules** | `Object[]` | ✅ |  |
 | **auditUnmasking** | `boolean` | optional |  |
+
 
 ---
 
@@ -47,6 +50,7 @@ const result = MaskingConfigSchema.parse(data);
 | **roles** | `string[]` | optional | Roles that see masked data |
 | **exemptRoles** | `string[]` | optional | Roles that see unmasked data |
 
+
 ---
 
 ## MaskingStrategy
@@ -60,4 +64,7 @@ const result = MaskingConfigSchema.parse(data);
 * `randomize`
 * `nullify`
 * `substitute`
+
+
+---
 

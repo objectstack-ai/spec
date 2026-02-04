@@ -5,6 +5,24 @@ description: Batch protocol schemas
 
 # Batch
 
+Batch Operations API
+
+Provides efficient bulk data operations with transaction support.
+
+Implements P0/P1 requirements for ObjectStack kernel.
+
+Features:
+
+- Batch create/update/delete operations
+
+- Atomic transaction support (all-or-none)
+
+- Partial success handling
+
+- Detailed error reporting per record
+
+Industry alignment: Salesforce Bulk API, Microsoft Dynamics Bulk Operations
+
 <Callout type="info">
 **Source:** `packages/spec/src/api/batch.zod.ts`
 </Callout>
@@ -12,11 +30,11 @@ description: Batch protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { BatchConfigSchema, BatchOperationResultSchema, BatchOperationTypeSchema, BatchOptionsSchema, BatchRecordSchema, BatchUpdateRequestSchema, BatchUpdateResponseSchema, DeleteManyRequestSchema, UpdateManyRequestSchema } from '@objectstack/spec/api';
+import { BatchConfig, BatchOperationResult, BatchOperationType, BatchOptions, BatchRecord, BatchUpdateRequest, BatchUpdateResponse, DeleteManyRequest, UpdateManyRequest } from '@objectstack/spec/api';
 import type { BatchConfig, BatchOperationResult, BatchOperationType, BatchOptions, BatchRecord, BatchUpdateRequest, BatchUpdateResponse, DeleteManyRequest, UpdateManyRequest } from '@objectstack/spec/api';
 
 // Validate data
-const result = BatchConfigSchema.parse(data);
+const result = BatchConfig.parse(data);
 ```
 
 ---
@@ -29,7 +47,8 @@ const result = BatchConfigSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **enabled** | `boolean` | optional | Enable batch operations |
 | **maxRecordsPerBatch** | `integer` | optional | Maximum records per batch |
-| **defaultOptions** | `object` | optional | Default batch options |
+| **defaultOptions** | `Object` | optional | Default batch options |
+
 
 ---
 
@@ -41,9 +60,10 @@ const result = BatchConfigSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **id** | `string` | optional | Record ID if operation succeeded |
 | **success** | `boolean` | ✅ | Whether this record was processed successfully |
-| **errors** | `object[]` | optional | Array of errors if operation failed |
+| **errors** | `Object[]` | optional | Array of errors if operation failed |
 | **data** | `Record<string, any>` | optional | Full record data (if returnRecords=true) |
 | **index** | `number` | optional | Index of the record in the request array |
+
 
 ---
 
@@ -55,6 +75,7 @@ const result = BatchConfigSchema.parse(data);
 * `update`
 * `upsert`
 * `delete`
+
 
 ---
 
@@ -69,6 +90,7 @@ const result = BatchConfigSchema.parse(data);
 | **continueOnError** | `boolean` | optional | If true (and atomic=false), continue processing remaining records after errors |
 | **validateOnly** | `boolean` | optional | If true, validate records without persisting changes (dry-run mode) |
 
+
 ---
 
 ## BatchRecord
@@ -81,6 +103,7 @@ const result = BatchConfigSchema.parse(data);
 | **data** | `Record<string, any>` | optional | Record data (required for create/update/upsert) |
 | **externalId** | `string` | optional | External ID for upsert matching |
 
+
 ---
 
 ## BatchUpdateRequest
@@ -90,8 +113,9 @@ const result = BatchConfigSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **operation** | `Enum<'create' \| 'update' \| 'upsert' \| 'delete'>` | ✅ | Type of batch operation |
-| **records** | `object[]` | ✅ | Array of records to process (max 200 per batch) |
-| **options** | `object` | optional | Batch operation options |
+| **records** | `Object[]` | ✅ | Array of records to process (max 200 per batch) |
+| **options** | `Object` | optional | Batch operation options |
+
 
 ---
 
@@ -102,13 +126,14 @@ const result = BatchConfigSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **success** | `boolean` | ✅ | Operation success status |
-| **error** | `object` | optional | Error details if success is false |
-| **meta** | `object` | optional | Response metadata |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
 | **operation** | `Enum<'create' \| 'update' \| 'upsert' \| 'delete'>` | optional | Operation type that was performed |
 | **total** | `number` | ✅ | Total number of records in the batch |
 | **succeeded** | `number` | ✅ | Number of records that succeeded |
 | **failed** | `number` | ✅ | Number of records that failed |
-| **results** | `object[]` | ✅ | Detailed results for each record |
+| **results** | `Object[]` | ✅ | Detailed results for each record |
+
 
 ---
 
@@ -119,7 +144,8 @@ const result = BatchConfigSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **ids** | `string[]` | ✅ | Array of record IDs to delete (max 200) |
-| **options** | `object` | optional | Delete options |
+| **options** | `Object` | optional | Delete options |
+
 
 ---
 
@@ -129,6 +155,9 @@ const result = BatchConfigSchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **records** | `object[]` | ✅ | Array of records to update (max 200 per batch) |
-| **options** | `object` | optional | Update options |
+| **records** | `Object[]` | ✅ | Array of records to update (max 200 per batch) |
+| **options** | `Object` | optional | Update options |
+
+
+---
 

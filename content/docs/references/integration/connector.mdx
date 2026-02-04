@@ -5,6 +5,96 @@ description: Connector protocol schemas
 
 # Connector
 
+Connector Protocol - LEVEL 3: Enterprise Connector
+
+Defines the standard connector specification for external system integration.
+
+Connectors enable ObjectStack to sync data with SaaS apps, databases, file storage,
+
+and message queues through a unified protocol.
+
+**Positioning in 3-Layer Architecture:**
+
+- **L1: Simple Sync** (automation/sync.zod.ts) - Business users - Sync Salesforce to Sheets
+
+- **L2: ETL Pipeline** (automation/etl.zod.ts) - Data engineers - Aggregate 10 sources to warehouse
+
+- **L3: Enterprise Connector** (THIS FILE) - System integrators - Full SAP integration
+
+**SCOPE: Most comprehensive integration layer.**
+
+Includes authentication, webhooks, rate limiting, field mapping, bidirectional sync,
+
+retry policies, and complete lifecycle management.
+
+This protocol supports multiple authentication strategies, bidirectional sync,
+
+field mapping, webhooks, and comprehensive rate limiting.
+
+Authentication is now imported from the canonical auth/config.zod.ts.
+
+## When to Use This Layer
+
+**Use Enterprise Connector when:**
+
+- Building enterprise-grade connectors (e.g., Salesforce, SAP, Oracle)
+
+- Complex OAuth2/SAML authentication required
+
+- Bidirectional sync with field mapping and transformations
+
+- Webhook management and rate limiting required
+
+- Full CRUD operations and data synchronization
+
+- Need comprehensive retry strategies and error handling
+
+**Examples:**
+
+- Full Salesforce integration with webhooks
+
+- SAP ERP connector with CDC (Change Data Capture)
+
+- Microsoft Dynamics 365 connector
+
+**When to downgrade:**
+
+- Simple field sync → Use [Simple Sync](../automation/sync.zod.ts)
+
+- Data transformation only → Use [ETL Pipeline](../automation/etl.zod.ts)
+
+@see [../automation/sync.zod.ts](../automation/sync.zod.ts) for Level 1 (simple sync)
+
+@see [../automation/etl.zod.ts](../automation/etl.zod.ts) for Level 2 (data engineering)
+
+## When to use Integration Connector vs. Trigger Registry?
+
+**Use `integration/connector.zod.ts` when:**
+
+- Building enterprise-grade connectors (e.g., Salesforce, SAP, Oracle)
+
+- Complex OAuth2/SAML authentication required
+
+- Bidirectional sync with field mapping and transformations
+
+- Webhook management and rate limiting required
+
+- Full CRUD operations and data synchronization
+
+- Need comprehensive retry strategies and error handling
+
+**Use `automation/trigger-registry.zod.ts` when:**
+
+- Building simple automation triggers (e.g., "when Slack message received, create task")
+
+- No complex authentication needed (simple API keys, basic auth)
+
+- Lightweight, single-purpose integrations
+
+- Quick setup with minimal configuration
+
+@see ../../automation/trigger-registry.zod.ts for lightweight automation triggers
+
 <Callout type="info">
 **Source:** `packages/spec/src/integration/connector.zod.ts`
 </Callout>
@@ -12,16 +102,95 @@ description: Connector protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AuthenticationSchema, ConflictResolutionSchema, ConnectorSchema, ConnectorActionSchema, ConnectorStatusSchema, ConnectorTriggerSchema, ConnectorTypeSchema, DataSyncConfigSchema, FieldTransformSchema, RateLimitStrategySchema, RetryConfigSchema, RetryStrategySchema, SyncStrategySchema, WebhookConfigSchema, WebhookEventSchema, WebhookSignatureAlgorithmSchema } from '@objectstack/spec/integration';
+import { Authentication, ConflictResolution, Connector, ConnectorAction, ConnectorStatus, ConnectorTrigger, ConnectorType, DataSyncConfig, FieldTransform, RateLimitStrategy, RetryConfig, RetryStrategy, SyncStrategy, WebhookConfig, WebhookEvent, WebhookSignatureAlgorithm } from '@objectstack/spec/integration';
 import type { Authentication, ConflictResolution, Connector, ConnectorAction, ConnectorStatus, ConnectorTrigger, ConnectorType, DataSyncConfig, FieldTransform, RateLimitStrategy, RetryConfig, RetryStrategy, SyncStrategy, WebhookConfig, WebhookEvent, WebhookSignatureAlgorithm } from '@objectstack/spec/integration';
 
 // Validate data
-const result = AuthenticationSchema.parse(data);
+const result = Authentication.parse(data);
 ```
 
 ---
 
 ## Authentication
+
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+**Type:** `oauth2`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **authorizationUrl** | `string` | ✅ | OAuth2 authorization endpoint |
+| **tokenUrl** | `string` | ✅ | OAuth2 token endpoint |
+| **clientId** | `string` | ✅ | OAuth2 client ID |
+| **clientSecret** | `string` | ✅ | OAuth2 client secret (typically from ENV) |
+| **scopes** | `string[]` | optional | Requested OAuth2 scopes |
+| **redirectUri** | `string` | optional | OAuth2 redirect URI |
+| **refreshToken** | `string` | optional | Refresh token for token renewal |
+| **tokenExpiry** | `number` | optional | Token expiry timestamp |
+
+---
+
+#### Option 2
+
+**Type:** `api-key`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **key** | `string` | ✅ | API key value |
+| **headerName** | `string` | optional | HTTP header name for API key |
+| **paramName** | `string` | optional | Query parameter name (alternative to header) |
+
+---
+
+#### Option 3
+
+**Type:** `basic`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **username** | `string` | ✅ | Username |
+| **password** | `string` | ✅ | Password |
+
+---
+
+#### Option 4
+
+**Type:** `bearer`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **token** | `string` | ✅ | Bearer token |
+
+---
+
+#### Option 5
+
+**Type:** `none`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+
+---
+
 
 ---
 
@@ -36,6 +205,7 @@ Conflict resolution strategy
 * `latest_wins`
 * `manual`
 
+
 ---
 
 ## Connector
@@ -49,19 +219,20 @@ Conflict resolution strategy
 | **type** | `Enum<'saas' \| 'database' \| 'file_storage' \| 'message_queue' \| 'api' \| 'custom'>` | ✅ | Connector type |
 | **description** | `string` | optional | Connector description |
 | **icon** | `string` | optional | Icon identifier |
-| **authentication** | `object \| object \| object \| object \| object` | ✅ | Authentication configuration |
-| **actions** | `object[]` | optional |  |
-| **triggers** | `object[]` | optional |  |
-| **syncConfig** | `object` | optional | Data sync configuration |
-| **fieldMappings** | `object[]` | optional | Field mapping rules |
-| **webhooks** | `object[]` | optional | Webhook configurations |
-| **rateLimitConfig** | `object` | optional | Rate limiting configuration |
-| **retryConfig** | `object` | optional | Retry configuration |
+| **authentication** | `Object \| Object \| Object \| Object \| Object` | ✅ | Authentication configuration |
+| **actions** | `Object[]` | optional |  |
+| **triggers** | `Object[]` | optional |  |
+| **syncConfig** | `Object` | optional | Data sync configuration |
+| **fieldMappings** | `Object[]` | optional | Field mapping rules |
+| **webhooks** | `Object[]` | optional | Webhook configurations |
+| **rateLimitConfig** | `Object` | optional | Rate limiting configuration |
+| **retryConfig** | `Object` | optional | Retry configuration |
 | **connectionTimeoutMs** | `number` | optional | Connection timeout in ms |
 | **requestTimeoutMs** | `number` | optional | Request timeout in ms |
 | **status** | `Enum<'active' \| 'inactive' \| 'error' \| 'configuring'>` | optional | Connector status |
 | **enabled** | `boolean` | optional | Enable connector |
 | **metadata** | `Record<string, any>` | optional | Custom connector metadata |
+
 
 ---
 
@@ -77,6 +248,7 @@ Conflict resolution strategy
 | **inputSchema** | `Record<string, any>` | optional | Input parameters schema (JSON Schema) |
 | **outputSchema** | `Record<string, any>` | optional | Output schema (JSON Schema) |
 
+
 ---
 
 ## ConnectorStatus
@@ -89,6 +261,7 @@ Connector status
 * `inactive`
 * `error`
 * `configuring`
+
 
 ---
 
@@ -104,6 +277,7 @@ Connector status
 | **type** | `Enum<'polling' \| 'webhook'>` | ✅ | Trigger type |
 | **interval** | `number` | optional | Polling interval in seconds |
 
+
 ---
 
 ## ConnectorType
@@ -118,6 +292,7 @@ Connector type
 * `message_queue`
 * `api`
 * `custom`
+
 
 ---
 
@@ -137,6 +312,7 @@ Connector type
 | **deleteMode** | `Enum<'hard_delete' \| 'soft_delete' \| 'ignore'>` | optional | Delete handling mode |
 | **filters** | `Record<string, any>` | optional | Filter criteria for selective sync |
 
+
 ---
 
 ## FieldTransform
@@ -148,6 +324,7 @@ Connector type
 | **type** | `Enum<'uppercase' \| 'lowercase' \| 'trim' \| 'date_format' \| 'number_format' \| 'custom'>` | ✅ | Transformation type |
 | **params** | `Record<string, any>` | optional | Transformation parameters |
 | **function** | `string` | optional | Custom JavaScript function for transformation |
+
 
 ---
 
@@ -161,6 +338,7 @@ Rate limiting strategy
 * `sliding_window`
 * `token_bucket`
 * `leaky_bucket`
+
 
 ---
 
@@ -179,6 +357,7 @@ Rate limiting strategy
 | **retryOnNetworkError** | `boolean` | optional | Retry on network errors |
 | **jitter** | `boolean` | optional | Add jitter to retry delays |
 
+
 ---
 
 ## RetryStrategy
@@ -192,6 +371,7 @@ Retry strategy
 * `fixed_delay`
 * `no_retry`
 
+
 ---
 
 ## SyncStrategy
@@ -204,6 +384,7 @@ Synchronization strategy
 * `incremental`
 * `upsert`
 * `append_only`
+
 
 ---
 
@@ -223,8 +404,8 @@ Synchronization strategy
 | **body** | `any` | optional | Request body payload (if not using default record data) |
 | **payloadFields** | `string[]` | optional | Fields to include. Empty = All |
 | **includeSession** | `boolean` | optional | Include user session info |
-| **authentication** | `object` | optional | Authentication configuration |
-| **retryPolicy** | `object` | optional | Retry policy configuration |
+| **authentication** | `Object` | optional | Authentication configuration |
+| **retryPolicy** | `Object` | optional | Retry policy configuration |
 | **timeoutMs** | `integer` | optional | Request timeout in milliseconds |
 | **secret** | `string` | optional | Signing secret for HMAC signature verification |
 | **isActive** | `boolean` | optional | Whether webhook is active |
@@ -232,6 +413,7 @@ Synchronization strategy
 | **tags** | `string[]` | optional | Tags for organization |
 | **events** | `Enum<'record.created' \| 'record.updated' \| 'record.deleted' \| 'sync.started' \| 'sync.completed' \| 'sync.failed' \| 'auth.expired' \| 'rate_limit.exceeded'>[]` | optional | Connector events to subscribe to |
 | **signatureAlgorithm** | `Enum<'hmac_sha256' \| 'hmac_sha512' \| 'none'>` | optional | Webhook signature algorithm |
+
 
 ---
 
@@ -250,6 +432,7 @@ Webhook event type
 * `auth.expired`
 * `rate_limit.exceeded`
 
+
 ---
 
 ## WebhookSignatureAlgorithm
@@ -261,4 +444,7 @@ Webhook signature algorithm
 * `hmac_sha256`
 * `hmac_sha512`
 * `none`
+
+
+---
 

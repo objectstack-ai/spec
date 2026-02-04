@@ -5,6 +5,10 @@ description: Theme protocol schemas
 
 # Theme
 
+Color Palette Schema
+
+Defines brand colors and their variants.
+
 <Callout type="info">
 **Source:** `packages/spec/src/ui/theme.zod.ts`
 </Callout>
@@ -12,11 +16,11 @@ description: Theme protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AnimationSchema, BorderRadiusSchema, BreakpointsSchema, ColorPaletteSchema, ShadowSchema, SpacingSchema, ThemeSchema, ThemeModeSchema, TypographySchema, ZIndexSchema } from '@objectstack/spec/ui';
+import { Animation, BorderRadius, Breakpoints, ColorPalette, Shadow, Spacing, Theme, ThemeMode, Typography, ZIndex } from '@objectstack/spec/ui';
 import type { Animation, BorderRadius, Breakpoints, ColorPalette, Shadow, Spacing, Theme, ThemeMode, Typography, ZIndex } from '@objectstack/spec/ui';
 
 // Validate data
-const result = AnimationSchema.parse(data);
+const result = Animation.parse(data);
 ```
 
 ---
@@ -27,8 +31,9 @@ const result = AnimationSchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **duration** | `object` | optional |  |
-| **timing** | `object` | optional |  |
+| **duration** | `Object` | optional |  |
+| **timing** | `Object` | optional |  |
+
 
 ---
 
@@ -47,6 +52,7 @@ const result = AnimationSchema.parse(data);
 | **2xl** | `string` | optional | 2X large border radius (e.g., 1rem) |
 | **full** | `string` | optional | Full border radius (50%) |
 
+
 ---
 
 ## Breakpoints
@@ -61,6 +67,7 @@ const result = AnimationSchema.parse(data);
 | **lg** | `string` | optional | Large breakpoint (e.g., 1024px) |
 | **xl** | `string` | optional | Extra large breakpoint (e.g., 1280px) |
 | **2xl** | `string` | optional | 2X large breakpoint (e.g., 1536px) |
+
 
 ---
 
@@ -88,6 +95,7 @@ const result = AnimationSchema.parse(data);
 | **secondaryLight** | `string` | optional | Lighter shade of secondary |
 | **secondaryDark** | `string` | optional | Darker shade of secondary |
 
+
 ---
 
 ## Shadow
@@ -104,6 +112,7 @@ const result = AnimationSchema.parse(data);
 | **xl** | `string` | optional | Extra large shadow |
 | **2xl** | `string` | optional | 2X large shadow |
 | **inner** | `string` | optional | Inner shadow (inset) |
+
 
 ---
 
@@ -127,6 +136,7 @@ const result = AnimationSchema.parse(data);
 | **20** | `string` | optional | Spacing unit 20 (e.g., 5rem) |
 | **24** | `string` | optional | Spacing unit 24 (e.g., 6rem) |
 
+
 ---
 
 ## Theme
@@ -139,17 +149,18 @@ const result = AnimationSchema.parse(data);
 | **label** | `string` | ✅ | Human-readable theme name |
 | **description** | `string` | optional | Theme description |
 | **mode** | `Enum<'light' \| 'dark' \| 'auto'>` | optional | Theme mode (light, dark, or auto) |
-| **colors** | `object` | ✅ | Color palette configuration |
-| **typography** | `object` | optional | Typography settings |
-| **spacing** | `object` | optional | Spacing scale |
-| **borderRadius** | `object` | optional | Border radius scale |
-| **shadows** | `object` | optional | Box shadow effects |
-| **breakpoints** | `object` | optional | Responsive breakpoints |
-| **animation** | `object` | optional | Animation settings |
-| **zIndex** | `object` | optional | Z-index scale for layering |
+| **colors** | `Object` | ✅ | Color palette configuration |
+| **typography** | `Object` | optional | Typography settings |
+| **spacing** | `Object` | optional | Spacing scale |
+| **borderRadius** | `Object` | optional | Border radius scale |
+| **shadows** | `Object` | optional | Box shadow effects |
+| **breakpoints** | `Object` | optional | Responsive breakpoints |
+| **animation** | `Object` | optional | Animation settings |
+| **zIndex** | `Object` | optional | Z-index scale for layering |
 | **customVars** | `Record<string, string>` | optional | Custom CSS variables (key-value pairs) |
-| **logo** | `object` | optional | Logo assets |
+| **logo** | `Object` | optional | Logo assets |
 | **extends** | `string` | optional | Base theme to extend from |
+
 
 ---
 
@@ -161,6 +172,7 @@ const result = AnimationSchema.parse(data);
 * `dark`
 * `auto`
 
+
 ---
 
 ## Typography
@@ -169,11 +181,12 @@ const result = AnimationSchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **fontFamily** | `object` | optional |  |
-| **fontSize** | `object` | optional |  |
-| **fontWeight** | `object` | optional |  |
-| **lineHeight** | `object` | optional |  |
-| **letterSpacing** | `object` | optional |  |
+| **fontFamily** | `Object` | optional |  |
+| **fontSize** | `Object` | optional |  |
+| **fontWeight** | `Object` | optional |  |
+| **lineHeight** | `Object` | optional |  |
+| **letterSpacing** | `Object` | optional |  |
+
 
 ---
 
@@ -191,4 +204,7 @@ const result = AnimationSchema.parse(data);
 | **modal** | `number` | optional | Modal z-index (e.g., 1050) |
 | **popover** | `number` | optional | Popover z-index (e.g., 1060) |
 | **tooltip** | `number` | optional | Tooltip z-index (e.g., 1070) |
+
+
+---
 

@@ -5,6 +5,100 @@ description: Devops Agent protocol schemas
 
 # Devops Agent
 
+DevOps Agent Protocol
+
+Defines autonomous DevOps agents that can self-iterate on enterprise
+
+management software development using the ObjectStack specification.
+
+This agent integrates with GitHub for version control and Vercel for
+
+deployment, enabling fully automated development, testing, and release cycles.
+
+Architecture:
+
+- Self-iterating development based on ObjectStack specifications
+
+- Automated code generation following best practices
+
+- Continuous integration and deployment
+
+- Version management and release automation
+
+- Monitoring and rollback capabilities
+
+Use Cases:
+
+- Automated feature development from specifications
+
+- Self-healing code based on test failures
+
+- Automated dependency updates
+
+- Continuous optimization and refactoring
+
+- Automated documentation generation
+
+@example
+
+```typescript
+
+import { DevOpsAgent } from '@objectstack/spec/ai';
+
+const agent: DevOpsAgent = {
+
+name: 'devops_automation_agent',
+
+label: 'DevOps Automation Agent',
+
+role: 'Senior Full-Stack DevOps Engineer',
+
+instructions: '...',
+
+developmentConfig: {
+
+specificationSource: 'packages/spec',
+
+codeGeneration: {
+
+enabled: true,
+
+targets: ['frontend', 'backend', 'api'],
+
+},
+
+},
+
+integrations: {
+
+github: {
+
+connector: 'github_production',
+
+repository: {
+
+owner: 'objectstack-ai',
+
+name: 'app',
+
+},
+
+},
+
+vercel: {
+
+connector: 'vercel_production',
+
+project: 'objectstack-app',
+
+},
+
+},
+
+};
+
+```
+
 <Callout type="info">
 **Source:** `packages/spec/src/ai/devops-agent.zod.ts`
 </Callout>
@@ -12,11 +106,11 @@ description: Devops Agent protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { CICDPipelineConfigSchema, CodeGenerationConfigSchema, CodeGenerationTargetSchema, DeploymentStrategySchema, DevOpsAgentSchema, DevOpsToolSchema, DevelopmentConfigSchema, GitHubIntegrationSchema, IntegrationConfigSchema, MonitoringConfigSchema, PipelineStageSchema, TestingConfigSchema, VercelIntegrationSchema, VersionManagementSchema } from '@objectstack/spec/ai';
+import { CICDPipelineConfig, CodeGenerationConfig, CodeGenerationTarget, DeploymentStrategy, DevOpsAgent, DevOpsTool, DevelopmentConfig, GitHubIntegration, IntegrationConfig, MonitoringConfig, PipelineStage, TestingConfig, VercelIntegration, VersionManagement } from '@objectstack/spec/ai';
 import type { CICDPipelineConfig, CodeGenerationConfig, CodeGenerationTarget, DeploymentStrategy, DevOpsAgent, DevOpsTool, DevelopmentConfig, GitHubIntegration, IntegrationConfig, MonitoringConfig, PipelineStage, TestingConfig, VercelIntegration, VersionManagement } from '@objectstack/spec/ai';
 
 // Validate data
-const result = CICDPipelineConfigSchema.parse(data);
+const result = CICDPipelineConfig.parse(data);
 ```
 
 ---
@@ -30,8 +124,9 @@ const result = CICDPipelineConfigSchema.parse(data);
 | **name** | `string` | ✅ | Pipeline name |
 | **trigger** | `Enum<'push' \| 'pull_request' \| 'release' \| 'schedule' \| 'manual'>` | ✅ | Pipeline trigger |
 | **branches** | `string[]` | optional | Branches to run pipeline on |
-| **stages** | `object[]` | ✅ | Pipeline stages |
-| **notifications** | `object` | optional | Pipeline notifications |
+| **stages** | `Object[]` | ✅ | Pipeline stages |
+| **notifications** | `Object` | optional | Pipeline notifications |
+
 
 ---
 
@@ -49,6 +144,7 @@ const result = CICDPipelineConfigSchema.parse(data);
 | **includeDocumentation** | `boolean` | optional | Generate documentation |
 | **validationMode** | `Enum<'strict' \| 'moderate' \| 'permissive'>` | optional | Code validation strictness |
 
+
 ---
 
 ## CodeGenerationTarget
@@ -65,6 +161,7 @@ Code generation target
 * `documentation`
 * `infrastructure`
 
+
 ---
 
 ## DeploymentStrategy
@@ -80,6 +177,7 @@ Code generation target
 | **autoRollback** | `boolean` | optional | Automatically rollback on failure |
 | **smokeTests** | `string[]` | optional | Smoke test commands to run post-deployment |
 
+
 ---
 
 ## DevOpsAgent
@@ -93,20 +191,21 @@ Code generation target
 | **avatar** | `string` | optional |  |
 | **role** | `string` | ✅ | The persona/role (e.g. "Senior Support Engineer") |
 | **instructions** | `string` | ✅ | System Prompt / Prime Directives |
-| **model** | `object` | optional |  |
-| **tools** | `object[]` | optional | Available tools |
-| **knowledge** | `object` | optional | RAG access |
+| **model** | `Object` | optional |  |
+| **tools** | `Object[]` | optional | Available tools |
+| **knowledge** | `Object` | optional | RAG access |
 | **active** | `boolean` | optional |  |
 | **access** | `string[]` | optional | Who can chat with this agent |
 | **tenantId** | `string` | optional | Tenant/Organization ID |
 | **visibility** | `Enum<'global' \| 'organization' \| 'private'>` | optional |  |
-| **developmentConfig** | `object` | ✅ | Development configuration |
-| **pipelines** | `object[]` | optional | CI/CD pipelines |
-| **versionManagement** | `object` | optional | Version management configuration |
-| **deploymentStrategy** | `object` | optional | Deployment strategy |
-| **monitoring** | `object` | optional | Monitoring configuration |
-| **integrations** | `object` | ✅ | Integration configurations |
-| **selfIteration** | `object` | optional | Self-iteration configuration |
+| **developmentConfig** | `Object` | ✅ | Development configuration |
+| **pipelines** | `Object[]` | optional | CI/CD pipelines |
+| **versionManagement** | `Object` | optional | Version management configuration |
+| **deploymentStrategy** | `Object` | optional | Deployment strategy |
+| **monitoring** | `Object` | optional | Monitoring configuration |
+| **integrations** | `Object` | ✅ | Integration configurations |
+| **selfIteration** | `Object` | optional | Self-iteration configuration |
+
 
 ---
 
@@ -120,6 +219,7 @@ Code generation target
 | **name** | `string` | ✅ | Reference name (Action Name, Flow Name) |
 | **description** | `string` | optional | Override description for the LLM |
 
+
 ---
 
 ## DevelopmentConfig
@@ -129,10 +229,11 @@ Code generation target
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **specificationSource** | `string` | ✅ | Path to ObjectStack specification |
-| **codeGeneration** | `object` | ✅ | Code generation settings |
-| **testing** | `object` | optional | Testing configuration |
-| **linting** | `object` | optional | Code linting configuration |
-| **formatting** | `object` | optional | Code formatting configuration |
+| **codeGeneration** | `Object` | ✅ | Code generation settings |
+| **testing** | `Object` | optional | Testing configuration |
+| **linting** | `Object` | optional | Code linting configuration |
+| **formatting** | `Object` | optional | Code formatting configuration |
+
 
 ---
 
@@ -143,9 +244,10 @@ Code generation target
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **connector** | `string` | ✅ | GitHub connector name |
-| **repository** | `object` | ✅ | Repository configuration |
+| **repository** | `Object` | ✅ | Repository configuration |
 | **featureBranch** | `string` | optional | Default feature branch |
-| **pullRequest** | `object` | optional | Pull request settings |
+| **pullRequest** | `Object` | optional | Pull request settings |
+
 
 ---
 
@@ -155,9 +257,10 @@ Code generation target
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **github** | `object` | ✅ | GitHub integration configuration |
-| **vercel** | `object` | ✅ | Vercel integration configuration |
+| **github** | `Object` | ✅ | GitHub integration configuration |
+| **vercel** | `Object` | ✅ | Vercel integration configuration |
 | **additional** | `Record<string, any>` | optional | Additional integration configurations |
+
 
 ---
 
@@ -169,8 +272,9 @@ Code generation target
 | :--- | :--- | :--- | :--- |
 | **enabled** | `boolean` | optional | Enable monitoring |
 | **metrics** | `Enum<'performance' \| 'errors' \| 'usage' \| 'availability' \| 'latency'>[]` | optional | Metrics to monitor |
-| **alerts** | `object[]` | optional | Alert configurations |
+| **alerts** | `Object[]` | optional | Alert configurations |
 | **integrations** | `string[]` | optional | Monitoring service integrations |
+
 
 ---
 
@@ -190,6 +294,7 @@ Code generation target
 | **retryOnFailure** | `boolean` | optional | Retry stage on failure |
 | **maxRetries** | `integer` | optional | Maximum retry attempts |
 
+
 ---
 
 ## TestingConfig
@@ -205,6 +310,7 @@ Code generation target
 | **preCommitTests** | `boolean` | optional | Run tests before committing |
 | **autoFix** | `boolean` | optional | Attempt to auto-fix failing tests |
 
+
 ---
 
 ## VercelIntegration
@@ -215,8 +321,9 @@ Code generation target
 | :--- | :--- | :--- | :--- |
 | **connector** | `string` | ✅ | Vercel connector name |
 | **project** | `string` | ✅ | Vercel project name |
-| **environments** | `object` | optional | Environment mapping |
-| **deployment** | `object` | optional | Deployment settings |
+| **environments** | `Object` | optional | Environment mapping |
+| **deployment** | `Object` | optional | Deployment settings |
+
 
 ---
 
@@ -232,4 +339,7 @@ Code generation target
 | **generateChangelog** | `boolean` | optional | Generate changelog automatically |
 | **changelogFormat** | `Enum<'conventional' \| 'keepachangelog' \| 'custom'>` | optional | Changelog format |
 | **tagReleases** | `boolean` | optional | Create Git tags for releases |
+
+
+---
 

@@ -5,6 +5,8 @@ description: License protocol schemas
 
 # License
 
+Metric Type Classification
+
 <Callout type="info">
 **Source:** `packages/spec/src/hub/license.zod.ts`
 </Callout>
@@ -12,11 +14,11 @@ description: License protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { FeatureSchema, LicenseSchema, PlanSchema } from '@objectstack/spec/hub';
+import { Feature, License, Plan } from '@objectstack/spec/hub';
 import type { Feature, License, Plan } from '@objectstack/spec/hub';
 
 // Validate data
-const result = FeatureSchema.parse(data);
+const result = Feature.parse(data);
 ```
 
 ---
@@ -33,6 +35,7 @@ const result = FeatureSchema.parse(data);
 | **type** | `Enum<'boolean' \| 'counter' \| 'gauge'>` | optional |  |
 | **unit** | `Enum<'count' \| 'bytes' \| 'seconds' \| 'percent'>` | optional |  |
 | **requires** | `string[]` | optional |  |
+
 
 ---
 
@@ -52,6 +55,7 @@ const result = FeatureSchema.parse(data);
 | **plugins** | `string[]` | optional | List of enabled plugin package IDs |
 | **signature** | `string` | optional | Cryptographic signature of the license |
 
+
 ---
 
 ## Plan
@@ -68,4 +72,7 @@ const result = FeatureSchema.parse(data);
 | **currency** | `string` | optional |  |
 | **priceMonthly** | `number` | optional |  |
 | **priceYearly** | `number` | optional |  |
+
+
+---
 

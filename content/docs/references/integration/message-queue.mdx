@@ -12,11 +12,11 @@ description: Message Queue protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ConsumerConfigSchema, MessageQueueProviderSchema } from '@objectstack/spec/integration';
+import { ConsumerConfig, MessageQueueProvider } from '@objectstack/spec/integration';
 import type { ConsumerConfig, MessageQueueProvider } from '@objectstack/spec/integration';
 
 // Validate data
-const result = ConsumerConfigSchema.parse(data);
+const result = ConsumerConfig.parse(data);
 ```
 
 ---
@@ -36,6 +36,7 @@ const result = ConsumerConfigSchema.parse(data);
 | **autoCommitIntervalMs** | `number` | optional | Auto-commit interval in ms |
 | **sessionTimeoutMs** | `number` | optional | Session timeout in ms |
 | **rebalanceTimeoutMs** | `number` | optional | Rebalance timeout in ms |
+
 
 ---
 
@@ -58,4 +59,7 @@ Message queue provider type
 * `pulsar`
 * `activemq`
 * `custom`
+
+
+---
 

@@ -5,6 +5,24 @@ description: Errors protocol schemas
 
 # Errors
 
+Standardized Error Codes Protocol
+
+Implements P0 requirement for ObjectStack kernel.
+
+Provides consistent, machine-readable error codes across the platform.
+
+Features:
+
+- Categorized error codes (validation, authentication, authorization, etc.)
+
+- HTTP status code mapping
+
+- Localization support
+
+- Retry guidance
+
+Industry alignment: Google Cloud Errors, AWS Error Codes, Stripe API Errors
+
 <Callout type="info">
 **Source:** `packages/spec/src/api/errors.zod.ts`
 </Callout>
@@ -12,11 +30,11 @@ description: Errors protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { EnhancedApiErrorSchema, ErrorCategorySchema, ErrorResponseSchema, FieldErrorSchema, StandardErrorCodeSchema } from '@objectstack/spec/api';
+import { EnhancedApiError, ErrorCategory, ErrorResponse, FieldError, StandardErrorCode } from '@objectstack/spec/api';
 import type { EnhancedApiError, ErrorCategory, ErrorResponse, FieldError, StandardErrorCode } from '@objectstack/spec/api';
 
 // Validate data
-const result = EnhancedApiErrorSchema.parse(data);
+const result = EnhancedApiError.parse(data);
 ```
 
 ---
@@ -35,12 +53,13 @@ const result = EnhancedApiErrorSchema.parse(data);
 | **retryStrategy** | `Enum<'no_retry' \| 'retry_immediate' \| 'retry_backoff' \| 'retry_after'>` | optional | Recommended retry strategy |
 | **retryAfter** | `number` | optional | Seconds to wait before retrying |
 | **details** | `any` | optional | Additional error context |
-| **fieldErrors** | `object[]` | optional | Field-specific validation errors |
+| **fieldErrors** | `Object[]` | optional | Field-specific validation errors |
 | **timestamp** | `string` | optional | When the error occurred |
 | **requestId** | `string` | optional | Request ID for tracking |
 | **traceId** | `string` | optional | Distributed trace ID |
 | **documentation** | `string` | optional | URL to error documentation |
 | **helpText** | `string` | optional | Suggested actions to resolve the error |
+
 
 ---
 
@@ -58,6 +77,7 @@ const result = EnhancedApiErrorSchema.parse(data);
 * `external`
 * `maintenance`
 
+
 ---
 
 ## ErrorResponse
@@ -67,8 +87,9 @@ const result = EnhancedApiErrorSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **success** | `boolean` | ✅ | Always false for error responses |
-| **error** | `object` | ✅ | Error details |
-| **meta** | `object` | optional | Response metadata |
+| **error** | `Object` | ✅ | Error details |
+| **meta** | `Object` | optional | Response metadata |
+
 
 ---
 
@@ -83,6 +104,7 @@ const result = EnhancedApiErrorSchema.parse(data);
 | **message** | `string` | ✅ | Human-readable error message |
 | **value** | `any` | optional | The invalid value that was provided |
 | **constraint** | `any` | optional | The constraint that was violated (e.g., max length) |
+
 
 ---
 
@@ -141,4 +163,7 @@ const result = EnhancedApiErrorSchema.parse(data);
 * `batch_partial_failure`
 * `batch_complete_failure`
 * `transaction_failed`
+
+
+---
 

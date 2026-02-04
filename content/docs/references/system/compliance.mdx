@@ -5,6 +5,8 @@ description: Compliance protocol schemas
 
 # Compliance
 
+Compliance protocol for GDPR, CCPA, HIPAA, SOX, PCI-DSS
+
 <Callout type="info">
 **Source:** `packages/spec/src/system/compliance.zod.ts`
 </Callout>
@@ -12,11 +14,11 @@ description: Compliance protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AuditLogConfigSchema, ComplianceConfigSchema, GDPRConfigSchema, HIPAAConfigSchema, PCIDSSConfigSchema } from '@objectstack/spec/system';
+import { AuditLogConfig, ComplianceConfig, GDPRConfig, HIPAAConfig, PCIDSSConfig } from '@objectstack/spec/system';
 import type { AuditLogConfig, ComplianceConfig, GDPRConfig, HIPAAConfig, PCIDSSConfig } from '@objectstack/spec/system';
 
 // Validate data
-const result = AuditLogConfigSchema.parse(data);
+const result = AuditLogConfig.parse(data);
 ```
 
 ---
@@ -33,6 +35,7 @@ const result = AuditLogConfigSchema.parse(data);
 | **signLogs** | `boolean` | optional |  |
 | **events** | `Enum<'create' \| 'read' \| 'update' \| 'delete' \| 'export' \| 'permission-change' \| 'login' \| 'logout' \| 'failed-login'>[]` | ✅ |  |
 
+
 ---
 
 ## ComplianceConfig
@@ -41,10 +44,11 @@ const result = AuditLogConfigSchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **gdpr** | `object` | optional |  |
-| **hipaa** | `object` | optional |  |
-| **pciDss** | `object` | optional |  |
-| **auditLog** | `object` | ✅ |  |
+| **gdpr** | `Object` | optional |  |
+| **hipaa** | `Object` | optional |  |
+| **pciDss** | `Object` | optional |  |
+| **auditLog** | `Object` | ✅ |  |
+
 
 ---
 
@@ -55,11 +59,12 @@ const result = AuditLogConfigSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **enabled** | `boolean` | ✅ |  |
-| **dataSubjectRights** | `object` | ✅ |  |
+| **dataSubjectRights** | `Object` | ✅ |  |
 | **legalBasis** | `Enum<'consent' \| 'contract' \| 'legal-obligation' \| 'vital-interests' \| 'public-task' \| 'legitimate-interests'>` | ✅ |  |
 | **consentTracking** | `boolean` | optional |  |
 | **dataRetentionDays** | `number` | optional |  |
 | **dataProcessingAgreement** | `string` | optional |  |
+
 
 ---
 
@@ -70,8 +75,9 @@ const result = AuditLogConfigSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **enabled** | `boolean` | ✅ |  |
-| **phi** | `object` | ✅ |  |
+| **phi** | `Object` | ✅ |  |
 | **businessAssociateAgreement** | `boolean` | optional |  |
+
 
 ---
 
@@ -87,4 +93,7 @@ const result = AuditLogConfigSchema.parse(data);
 | **tokenization** | `boolean` | optional |  |
 | **encryptionInTransit** | `boolean` | optional |  |
 | **encryptionAtRest** | `boolean` | optional |  |
+
+
+---
 

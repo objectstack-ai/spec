@@ -5,6 +5,10 @@ description: Driver protocol schemas
 
 # Driver
 
+Common Driver Options
+
+Passed to most driver methods to control behavior (transactions, timeouts, etc.)
+
 <Callout type="info">
 **Source:** `packages/spec/src/data/driver.zod.ts`
 </Callout>
@@ -12,11 +16,11 @@ description: Driver protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { DriverCapabilitiesSchema, DriverConfigSchema, DriverInterfaceSchema, DriverOptionsSchema, PoolConfigSchema } from '@objectstack/spec/data';
+import { DriverCapabilities, DriverConfig, DriverInterface, DriverOptions, PoolConfig } from '@objectstack/spec/data';
 import type { DriverCapabilities, DriverConfig, DriverInterface, DriverOptions, PoolConfig } from '@objectstack/spec/data';
 
 // Validate data
-const result = DriverCapabilitiesSchema.parse(data);
+const result = DriverCapabilities.parse(data);
 ```
 
 ---
@@ -60,6 +64,7 @@ const result = DriverCapabilitiesSchema.parse(data);
 | **preparedStatements** | `boolean` | optional | Supports prepared statements (SQL injection prevention) |
 | **queryCache** | `boolean` | optional | Supports query result caching |
 
+
 ---
 
 ## DriverConfig
@@ -70,9 +75,10 @@ const result = DriverCapabilitiesSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | ✅ | Driver instance name |
 | **type** | `Enum<'sql' \| 'nosql' \| 'cache' \| 'search' \| 'graph' \| 'timeseries'>` | ✅ | Driver type category |
-| **capabilities** | `object` | ✅ | Driver capability flags |
+| **capabilities** | `Object` | ✅ | Driver capability flags |
 | **connectionString** | `string` | optional | Database connection string (driver-specific format) |
-| **poolConfig** | `object` | optional | Connection pool configuration |
+| **poolConfig** | `Object` | optional | Connection pool configuration |
+
 
 ---
 
@@ -84,7 +90,8 @@ const result = DriverCapabilitiesSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | ✅ | Driver unique name |
 | **version** | `string` | ✅ | Driver version |
-| **supports** | `object` | ✅ |  |
+| **supports** | `Object` | ✅ |  |
+
 
 ---
 
@@ -100,6 +107,7 @@ const result = DriverCapabilitiesSchema.parse(data);
 | **traceContext** | `Record<string, string>` | optional | OpenTelemetry context or request ID |
 | **tenantId** | `string` | optional | Tenant Isolation identifier |
 
+
 ---
 
 ## PoolConfig
@@ -112,4 +120,7 @@ const result = DriverCapabilitiesSchema.parse(data);
 | **max** | `number` | optional | Maximum number of connections in pool |
 | **idleTimeoutMillis** | `number` | optional | Time in ms before idle connection is closed |
 | **connectionTimeoutMillis** | `number` | optional | Time in ms to wait for available connection |
+
+
+---
 

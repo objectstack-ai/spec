@@ -5,6 +5,46 @@ description: External Lookup protocol schemas
 
 # External Lookup
 
+External Data Source Schema
+
+Configuration for connecting to external data systems.
+
+Similar to Salesforce External Objects for real-time data integration.
+
+@example
+
+```json
+
+{
+
+"id": "salesforce-accounts",
+
+"name": "Salesforce Account Data",
+
+"type": "rest-api",
+
+"endpoint": "https://api.salesforce.com/services/data/v58.0",
+
+"authentication": {
+
+"type": "oauth2",
+
+"config": {
+
+"clientId": "...",
+
+"clientSecret": "...",
+
+"tokenUrl": "https://login.salesforce.com/services/oauth2/token"
+
+}
+
+}
+
+}
+
+```
+
 <Callout type="info">
 **Source:** `packages/spec/src/data/external-lookup.zod.ts`
 </Callout>
@@ -12,11 +52,11 @@ description: External Lookup protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ExternalDataSourceSchema, ExternalFieldMappingSchema, ExternalLookupSchema } from '@objectstack/spec/data';
+import { ExternalDataSource, ExternalFieldMapping, ExternalLookup } from '@objectstack/spec/data';
 import type { ExternalDataSource, ExternalFieldMapping, ExternalLookup } from '@objectstack/spec/data';
 
 // Validate data
-const result = ExternalDataSourceSchema.parse(data);
+const result = ExternalDataSource.parse(data);
 ```
 
 ---
@@ -31,7 +71,8 @@ const result = ExternalDataSourceSchema.parse(data);
 | **name** | `string` | ✅ | Data source name |
 | **type** | `Enum<'odata' \| 'rest-api' \| 'graphql' \| 'custom'>` | ✅ | Protocol type |
 | **endpoint** | `string` | ✅ | API endpoint URL |
-| **authentication** | `object` | ✅ | Authentication |
+| **authentication** | `Object` | ✅ | Authentication |
+
 
 ---
 
@@ -43,10 +84,11 @@ const result = ExternalDataSourceSchema.parse(data);
 | :--- | :--- | :--- | :--- |
 | **source** | `string` | ✅ | Source field name |
 | **target** | `string` | ✅ | Target field name |
-| **transform** | `object \| object \| object \| object \| object` | optional | Transformation to apply |
+| **transform** | `Object \| Object \| Object \| Object \| Object` | optional | Transformation to apply |
 | **defaultValue** | `any` | optional | Default if source is null/undefined |
 | **type** | `string` | optional | Field type |
 | **readonly** | `boolean` | optional | Read-only field |
+
 
 ---
 
@@ -57,10 +99,13 @@ const result = ExternalDataSourceSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **fieldName** | `string` | ✅ | Field name |
-| **dataSource** | `object` | ✅ | External data source |
-| **query** | `object` | ✅ | Query configuration |
-| **fieldMappings** | `object[]` | ✅ | Field mappings |
-| **caching** | `object` | optional | Caching configuration |
-| **fallback** | `object` | optional | Fallback configuration |
-| **rateLimit** | `object` | optional | Rate limiting |
+| **dataSource** | `Object` | ✅ | External data source |
+| **query** | `Object` | ✅ | Query configuration |
+| **fieldMappings** | `Object[]` | ✅ | Field mappings |
+| **caching** | `Object` | optional | Caching configuration |
+| **fallback** | `Object` | optional | Fallback configuration |
+| **rateLimit** | `Object` | optional | Rate limiting |
+
+
+---
 

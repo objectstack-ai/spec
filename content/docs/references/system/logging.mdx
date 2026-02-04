@@ -5,6 +5,22 @@ description: Logging protocol schemas
 
 # Logging
 
+Logging Protocol - Comprehensive Observability Logging
+
+Unified logging protocol that combines:
+
+- Basic kernel logging (LoggerConfig)
+
+- Enterprise-grade features (LoggingConfig)
+
+- Multiple log destinations (file, console, external services)
+
+- Structured logging with enrichment
+
+- Log aggregation and forwarding
+
+- Integration with external log management systems
+
 <Callout type="info">
 **Source:** `packages/spec/src/system/logging.zod.ts`
 </Callout>
@@ -12,11 +28,11 @@ description: Logging protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ConsoleDestinationConfigSchema, ExtendedLogLevelSchema, ExternalServiceDestinationConfigSchema, FileDestinationConfigSchema, HttpDestinationConfigSchema, LogDestinationSchema, LogDestinationTypeSchema, LogEnrichmentConfigSchema, LogEntrySchema, LogFormatSchema, LogLevelSchema, LoggerConfigSchema, LoggingConfigSchema, StructuredLogEntrySchema } from '@objectstack/spec/system';
+import { ConsoleDestinationConfig, ExtendedLogLevel, ExternalServiceDestinationConfig, FileDestinationConfig, HttpDestinationConfig, LogDestination, LogDestinationType, LogEnrichmentConfig, LogEntry, LogFormat, LogLevel, LoggerConfig, LoggingConfig, StructuredLogEntry } from '@objectstack/spec/system';
 import type { ConsoleDestinationConfig, ExtendedLogLevel, ExternalServiceDestinationConfig, FileDestinationConfig, HttpDestinationConfig, LogDestination, LogDestinationType, LogEnrichmentConfig, LogEntry, LogFormat, LogLevel, LoggerConfig, LoggingConfig, StructuredLogEntry } from '@objectstack/spec/system';
 
 // Validate data
-const result = ConsoleDestinationConfigSchema.parse(data);
+const result = ConsoleDestinationConfig.parse(data);
 ```
 
 ---
@@ -33,6 +49,7 @@ Console destination configuration
 | **colors** | `boolean` | optional |  |
 | **prettyPrint** | `boolean` | optional |  |
 
+
 ---
 
 ## ExtendedLogLevel
@@ -48,6 +65,7 @@ Extended log severity level
 * `error`
 * `fatal`
 
+
 ---
 
 ## ExternalServiceDestinationConfig
@@ -60,11 +78,12 @@ External service destination configuration
 | :--- | :--- | :--- | :--- |
 | **endpoint** | `string` | optional |  |
 | **region** | `string` | optional |  |
-| **credentials** | `object` | optional |  |
+| **credentials** | `Object` | optional |  |
 | **logGroup** | `string` | optional |  |
 | **logStream** | `string` | optional |  |
 | **index** | `string` | optional |  |
 | **config** | `Record<string, any>` | optional |  |
+
 
 ---
 
@@ -77,9 +96,10 @@ File destination configuration
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **path** | `string` | ✅ | Log file path |
-| **rotation** | `object` | optional |  |
+| **rotation** | `Object` | optional |  |
 | **encoding** | `string` | optional |  |
 | **append** | `boolean` | optional |  |
+
 
 ---
 
@@ -94,10 +114,11 @@ HTTP destination configuration
 | **url** | `string` | ✅ | HTTP endpoint URL |
 | **method** | `Enum<'POST' \| 'PUT'>` | optional |  |
 | **headers** | `Record<string, string>` | optional |  |
-| **auth** | `object` | optional |  |
-| **batch** | `object` | optional |  |
-| **retry** | `object` | optional |  |
+| **auth** | `Object` | optional |  |
+| **batch** | `Object` | optional |  |
+| **retry** | `Object` | optional |  |
 | **timeout** | `integer` | optional |  |
+
 
 ---
 
@@ -113,12 +134,13 @@ Log destination configuration
 | **type** | `Enum<'console' \| 'file' \| 'syslog' \| 'elasticsearch' \| 'cloudwatch' \| 'stackdriver' \| 'azure_monitor' \| 'datadog' \| 'splunk' \| 'loki' \| 'http' \| 'kafka' \| 'redis' \| 'custom'>` | ✅ | Destination type |
 | **level** | `Enum<'trace' \| 'debug' \| 'info' \| 'warn' \| 'error' \| 'fatal'>` | optional | Extended log severity level |
 | **enabled** | `boolean` | optional |  |
-| **console** | `object` | optional | Console destination configuration |
-| **file** | `object` | optional | File destination configuration |
-| **http** | `object` | optional | HTTP destination configuration |
-| **externalService** | `object` | optional | External service destination configuration |
+| **console** | `Object` | optional | Console destination configuration |
+| **file** | `Object` | optional | File destination configuration |
+| **http** | `Object` | optional | HTTP destination configuration |
+| **externalService** | `Object` | optional | External service destination configuration |
 | **format** | `Enum<'json' \| 'text' \| 'pretty'>` | optional |  |
 | **filterId** | `string` | optional | Filter function identifier |
+
 
 ---
 
@@ -143,6 +165,7 @@ Log destination type
 * `redis`
 * `custom`
 
+
 ---
 
 ## LogEnrichmentConfig
@@ -158,9 +181,10 @@ Log enrichment configuration
 | **addHostname** | `boolean` | optional |  |
 | **addProcessId** | `boolean` | optional |  |
 | **addEnvironment** | `boolean` | optional |  |
-| **addTimestampFormats** | `object` | optional |  |
+| **addTimestampFormats** | `Object` | optional |  |
 | **addCaller** | `boolean` | optional |  |
 | **addCorrelationIds** | `boolean` | optional |  |
+
 
 ---
 
@@ -180,6 +204,7 @@ Log enrichment configuration
 | **service** | `string` | optional | Service name |
 | **component** | `string` | optional | Component name (e.g. plugin id) |
 
+
 ---
 
 ## LogFormat
@@ -191,6 +216,7 @@ Log output format
 * `json`
 * `text`
 * `pretty`
+
 
 ---
 
@@ -207,6 +233,7 @@ Log severity level
 * `fatal`
 * `silent`
 
+
 ---
 
 ## LoggerConfig
@@ -221,7 +248,8 @@ Log severity level
 | **redact** | `string[]` | optional | Keys to redact from log context |
 | **sourceLocation** | `boolean` | optional | Include file and line number |
 | **file** | `string` | optional | Path to log file |
-| **rotation** | `object` | optional |  |
+| **rotation** | `Object` | optional |  |
+
 
 ---
 
@@ -237,14 +265,15 @@ Logging configuration
 | **label** | `string` | ✅ | Display label |
 | **enabled** | `boolean` | optional |  |
 | **level** | `Enum<'trace' \| 'debug' \| 'info' \| 'warn' \| 'error' \| 'fatal'>` | optional | Extended log severity level |
-| **default** | `object` | optional | Default logger configuration |
-| **loggers** | `Record<string, object>` | optional | Named logger configurations |
-| **destinations** | `object[]` | ✅ | Log destinations |
-| **enrichment** | `object` | optional | Log enrichment configuration |
+| **default** | `Object` | optional | Default logger configuration |
+| **loggers** | `Record<string, Object>` | optional | Named logger configurations |
+| **destinations** | `Object[]` | ✅ | Log destinations |
+| **enrichment** | `Object` | optional | Log enrichment configuration |
 | **redact** | `string[]` | optional | Fields to redact |
-| **sampling** | `object` | optional |  |
-| **buffer** | `object` | optional |  |
-| **performance** | `object` | optional |  |
+| **sampling** | `Object` | optional |  |
+| **buffer** | `Object` | optional |  |
+| **performance** | `Object` | optional |  |
+
 
 ---
 
@@ -260,13 +289,16 @@ Structured log entry
 | **level** | `Enum<'trace' \| 'debug' \| 'info' \| 'warn' \| 'error' \| 'fatal'>` | ✅ | Log severity level |
 | **message** | `string` | ✅ | Log message |
 | **context** | `Record<string, any>` | optional | Structured context |
-| **error** | `object` | optional | Error details |
-| **trace** | `object` | optional | Distributed tracing context |
-| **source** | `object` | optional | Source information |
-| **host** | `object` | optional | Host information |
+| **error** | `Object` | optional | Error details |
+| **trace** | `Object` | optional | Distributed tracing context |
+| **source** | `Object` | optional | Source information |
+| **host** | `Object` | optional | Host information |
 | **environment** | `string` | optional | Environment (e.g., production, staging) |
-| **user** | `object` | optional | User context |
-| **request** | `object` | optional | Request context |
+| **user** | `Object` | optional | User context |
+| **request** | `Object` | optional | Request context |
 | **labels** | `Record<string, string>` | optional | Custom labels |
 | **metadata** | `Record<string, any>` | optional | Additional metadata |
+
+
+---
 

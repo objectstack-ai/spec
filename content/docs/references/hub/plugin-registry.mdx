@@ -5,6 +5,14 @@ description: Plugin Registry protocol schemas
 
 # Plugin Registry
 
+# Plugin Registry Protocol
+
+Defines the schema for the plugin discovery and registry system.
+
+This enables plugins from different vendors to be discovered, validated,
+
+and composed together in the ObjectStack ecosystem.
+
 <Callout type="info">
 **Source:** `packages/spec/src/hub/plugin-registry.zod.ts`
 </Callout>
@@ -12,11 +20,11 @@ description: Plugin Registry protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { PluginInstallConfigSchema, PluginQualityMetricsSchema, PluginRegistryEntrySchema, PluginSearchFiltersSchema, PluginStatisticsSchema, PluginVendorSchema } from '@objectstack/spec/hub';
+import { PluginInstallConfig, PluginQualityMetrics, PluginRegistryEntry, PluginSearchFilters, PluginStatistics, PluginVendor } from '@objectstack/spec/hub';
 import type { PluginInstallConfig, PluginQualityMetrics, PluginRegistryEntry, PluginSearchFilters, PluginStatistics, PluginVendor } from '@objectstack/spec/hub';
 
 // Validate data
-const result = PluginInstallConfigSchema.parse(data);
+const result = PluginInstallConfig.parse(data);
 ```
 
 ---
@@ -31,7 +39,8 @@ const result = PluginInstallConfigSchema.parse(data);
 | **version** | `string` | optional | Defaults to latest |
 | **config** | `Record<string, any>` | optional |  |
 | **autoUpdate** | `boolean` | optional |  |
-| **options** | `object` | optional |  |
+| **options** | `Object` | optional |  |
+
 
 ---
 
@@ -44,8 +53,9 @@ const result = PluginInstallConfigSchema.parse(data);
 | **testCoverage** | `number` | optional |  |
 | **documentationScore** | `number` | optional |  |
 | **codeQuality** | `number` | optional |  |
-| **securityScan** | `object` | optional |  |
-| **conformanceTests** | `object[]` | optional |  |
+| **securityScan** | `Object` | optional |  |
+| **conformanceTests** | `Object[]` | optional |  |
+
 
 ---
 
@@ -62,21 +72,22 @@ const result = PluginInstallConfigSchema.parse(data);
 | **readme** | `string` | optional |  |
 | **category** | `Enum<'data' \| 'integration' \| 'ui' \| 'analytics' \| 'security' \| 'automation' \| 'ai' \| 'utility' \| 'driver' \| 'gateway' \| 'adapter'>` | optional |  |
 | **tags** | `string[]` | optional |  |
-| **vendor** | `object` | ✅ |  |
-| **capabilities** | `object` | optional |  |
-| **compatibility** | `object` | optional |  |
-| **links** | `object` | optional |  |
-| **media** | `object` | optional |  |
-| **quality** | `object` | optional |  |
-| **statistics** | `object` | optional |  |
+| **vendor** | `Object` | ✅ |  |
+| **capabilities** | `Object` | optional |  |
+| **compatibility** | `Object` | optional |  |
+| **links** | `Object` | optional |  |
+| **media** | `Object` | optional |  |
+| **quality** | `Object` | optional |  |
+| **statistics** | `Object` | optional |  |
 | **license** | `string` | optional | SPDX license identifier |
-| **pricing** | `object` | optional |  |
+| **pricing** | `Object` | optional |  |
 | **publishedAt** | `string` | optional |  |
 | **updatedAt** | `string` | optional |  |
 | **deprecated** | `boolean` | optional |  |
 | **deprecationMessage** | `string` | optional |  |
 | **replacedBy** | `string` | optional | Plugin ID that replaces this one |
-| **flags** | `object` | optional |  |
+| **flags** | `Object` | optional |  |
+
 
 ---
 
@@ -98,6 +109,7 @@ const result = PluginInstallConfigSchema.parse(data);
 | **page** | `integer` | optional |  |
 | **limit** | `integer` | optional |  |
 
+
 ---
 
 ## PluginStatistics
@@ -109,9 +121,10 @@ const result = PluginInstallConfigSchema.parse(data);
 | **downloads** | `integer` | optional |  |
 | **downloadsLastMonth** | `integer` | optional |  |
 | **activeInstallations** | `integer` | optional |  |
-| **ratings** | `object` | optional |  |
+| **ratings** | `Object` | optional |  |
 | **stars** | `integer` | optional |  |
 | **dependents** | `integer` | optional |  |
+
 
 ---
 
@@ -127,4 +140,7 @@ const result = PluginInstallConfigSchema.parse(data);
 | **email** | `string` | optional |  |
 | **verified** | `boolean` | optional | Whether vendor is verified by ObjectStack |
 | **trustLevel** | `Enum<'official' \| 'verified' \| 'community' \| 'unverified'>` | optional |  |
+
+
+---
 

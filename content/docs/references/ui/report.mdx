@@ -5,6 +5,8 @@ description: Report protocol schemas
 
 # Report
 
+Report Type Enum
+
 <Callout type="info">
 **Source:** `packages/spec/src/ui/report.zod.ts`
 </Callout>
@@ -12,11 +14,11 @@ description: Report protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ReportSchema, ReportChartSchema, ReportColumnSchema, ReportGroupingSchema, ReportTypeSchema } from '@objectstack/spec/ui';
+import { Report, ReportChart, ReportColumn, ReportGrouping, ReportType } from '@objectstack/spec/ui';
 import type { Report, ReportChart, ReportColumn, ReportGrouping, ReportType } from '@objectstack/spec/ui';
 
 // Validate data
-const result = ReportSchema.parse(data);
+const result = Report.parse(data);
 ```
 
 ---
@@ -32,11 +34,12 @@ const result = ReportSchema.parse(data);
 | **description** | `string` | optional |  |
 | **objectName** | `string` | ✅ | Primary object |
 | **type** | `Enum<'tabular' \| 'summary' \| 'matrix' \| 'joined'>` | optional | Report format type |
-| **columns** | `object[]` | ✅ | Columns to display |
-| **groupingsDown** | `object[]` | optional | Row groupings |
-| **groupingsAcross** | `object[]` | optional | Column groupings (Matrix only) |
+| **columns** | `Object[]` | ✅ | Columns to display |
+| **groupingsDown** | `Object[]` | optional | Row groupings |
+| **groupingsAcross** | `Object[]` | optional | Column groupings (Matrix only) |
 | **filter** | `any` | optional | Filter criteria |
-| **chart** | `object` | optional | Embedded chart configuration |
+| **chart** | `Object` | optional | Embedded chart configuration |
+
 
 ---
 
@@ -52,14 +55,15 @@ const result = ReportSchema.parse(data);
 | **description** | `string` | optional | Accessibility description |
 | **xAxis** | `string` | ✅ | Grouping field for X-Axis |
 | **yAxis** | `string` | ✅ | Summary field for Y-Axis |
-| **series** | `object[]` | optional | Defined series configuration |
+| **series** | `Object[]` | optional | Defined series configuration |
 | **colors** | `string[]` | optional | Color palette |
 | **height** | `number` | optional | Fixed height in pixels |
 | **showLegend** | `boolean` | optional | Display legend |
 | **showDataLabels** | `boolean` | optional | Display data labels |
-| **annotations** | `object[]` | optional |  |
-| **interaction** | `object` | optional |  |
+| **annotations** | `Object[]` | optional |  |
+| **interaction** | `Object` | optional |  |
 | **groupBy** | `string` | optional | Additional grouping field |
+
 
 ---
 
@@ -73,6 +77,7 @@ const result = ReportSchema.parse(data);
 | **label** | `string` | optional | Override label |
 | **aggregate** | `Enum<'sum' \| 'avg' \| 'max' \| 'min' \| 'count' \| 'unique'>` | optional | Aggregation function |
 
+
 ---
 
 ## ReportGrouping
@@ -85,6 +90,7 @@ const result = ReportSchema.parse(data);
 | **sortOrder** | `Enum<'asc' \| 'desc'>` | optional |  |
 | **dateGranularity** | `Enum<'day' \| 'week' \| 'month' \| 'quarter' \| 'year'>` | optional | For date fields |
 
+
 ---
 
 ## ReportType
@@ -95,4 +101,7 @@ const result = ReportSchema.parse(data);
 * `summary`
 * `matrix`
 * `joined`
+
+
+---
 

@@ -5,6 +5,10 @@ description: Action protocol schemas
 
 # Action
 
+Action Parameter Schema
+
+Defines inputs required before executing an action.
+
 <Callout type="info">
 **Source:** `packages/spec/src/ui/action.zod.ts`
 </Callout>
@@ -12,11 +16,11 @@ description: Action protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ActionSchema, ActionParamSchema } from '@objectstack/spec/ui';
+import { Action, ActionParam } from '@objectstack/spec/ui';
 import type { Action, ActionParam } from '@objectstack/spec/ui';
 
 // Validate data
-const result = ActionSchema.parse(data);
+const result = Action.parse(data);
 ```
 
 ---
@@ -36,11 +40,12 @@ const result = ActionSchema.parse(data);
 | **type** | `Enum<'script' \| 'url' \| 'modal' \| 'flow' \| 'api'>` | optional | Action functionality type |
 | **target** | `string` | optional | URL, Script Name, Flow ID, or API Endpoint |
 | **execute** | `string` | optional | Legacy execution logic |
-| **params** | `object[]` | optional | Input parameters required from user |
+| **params** | `Object[]` | optional | Input parameters required from user |
 | **confirmText** | `string` | optional | Confirmation message before execution |
 | **successMessage** | `string` | optional | Success message to show after execution |
 | **refreshAfter** | `boolean` | optional | Refresh view after execution |
 | **visible** | `string` | optional | Formula returning boolean |
+
 
 ---
 
@@ -54,5 +59,8 @@ const result = ActionSchema.parse(data);
 | **label** | `string` | ✅ |  |
 | **type** | `Enum<'text' \| 'textarea' \| 'email' \| 'url' \| 'phone' \| 'password' \| 'markdown' \| 'html' \| 'richtext' \| 'number' \| 'currency' \| 'percent' \| 'date' \| 'datetime' \| 'time' \| 'boolean' \| 'toggle' \| 'select' \| 'multiselect' \| 'radio' \| 'checkboxes' \| 'lookup' \| 'master_detail' \| 'tree' \| 'image' \| 'file' \| 'avatar' \| 'video' \| 'audio' \| 'formula' \| 'summary' \| 'autonumber' \| 'location' \| 'address' \| 'code' \| 'json' \| 'color' \| 'rating' \| 'slider' \| 'signature' \| 'qrcode' \| 'progress' \| 'tags' \| 'vector'>` | ✅ |  |
 | **required** | `boolean` | optional |  |
-| **options** | `object[]` | optional |  |
+| **options** | `Object[]` | optional |  |
+
+
+---
 

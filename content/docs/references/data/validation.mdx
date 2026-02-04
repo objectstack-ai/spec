@@ -5,6 +5,74 @@ description: Validation protocol schemas
 
 # Validation
 
+# ObjectStack Validation Protocol
+
+This module defines the validation schema protocol for ObjectStack, providing a comprehensive
+
+type-safe validation system similar to Salesforce's validation rules but with enhanced capabilities.
+
+## Overview
+
+Validation rules are applied at the data layer to ensure data integrity and enforce business logic.
+
+The system supports multiple validation types:
+
+1. **Script Validation**: Formula-based validation using expressions
+
+2. **Uniqueness Validation**: Enforce unique constraints across fields
+
+3. **State Machine Validation**: Control allowed state transitions
+
+4. **Format Validation**: Validate field formats (email, URL, regex, etc.)
+
+5. **Cross-Field Validation**: Validate relationships between multiple fields
+
+6. **Async Validation**: Remote validation via API calls
+
+7. **Custom Validation**: User-defined validation functions
+
+8. **Conditional Validation**: Apply validations based on conditions
+
+## Salesforce Comparison
+
+ObjectStack validation rules are inspired by Salesforce validation rules but enhanced:
+
+- Salesforce: Formula-based validation with `Error Condition Formula`
+
+- ObjectStack: Multiple validation types with composable rules
+
+Example Salesforce validation rule:
+
+```
+
+Rule Name: Discount_Cannot_Exceed_40_Percent
+
+Error Condition Formula: Discount_Percent__c > 0.40
+
+Error Message: Discount cannot exceed 40%.
+
+```
+
+Equivalent ObjectStack rule:
+
+```typescript
+
+{
+
+type: 'script',
+
+name: 'discount_cannot_exceed_40_percent',
+
+condition: 'discount_percent > 0.40',
+
+message: 'Discount cannot exceed 40%',
+
+severity: 'error'
+
+}
+
+```
+
 <Callout type="info">
 **Source:** `packages/spec/src/data/validation.zod.ts`
 </Callout>
@@ -12,11 +80,11 @@ description: Validation protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AsyncValidationSchema, ConditionalValidationSchema, CrossFieldValidationSchema, CustomValidatorSchema, FormatValidationSchema, JSONValidationSchema, ScriptValidationSchema, StateMachineValidationSchema, UniquenessValidationSchema, ValidationRuleSchema } from '@objectstack/spec/data';
+import { AsyncValidation, ConditionalValidation, CrossFieldValidation, CustomValidator, FormatValidation, JSONValidation, ScriptValidation, StateMachineValidation, UniquenessValidation, ValidationRule } from '@objectstack/spec/data';
 import type { AsyncValidation, ConditionalValidation, CrossFieldValidation, CustomValidator, FormatValidation, JSONValidation, ScriptValidation, StateMachineValidation, UniquenessValidation, ValidationRule } from '@objectstack/spec/data';
 
 // Validate data
-const result = AsyncValidationSchema.parse(data);
+const result = AsyncValidation.parse(data);
 ```
 
 ---
@@ -45,6 +113,7 @@ const result = AsyncValidationSchema.parse(data);
 | **debounce** | `number` | optional | Debounce delay in milliseconds |
 | **params** | `Record<string, any>` | optional | Additional parameters to pass to validator |
 
+
 ---
 
 ## ConditionalValidation
@@ -63,8 +132,9 @@ const result = AsyncValidationSchema.parse(data);
 | **message** | `string` | ✅ | Error message to display to the user |
 | **type** | `string` | ✅ |  |
 | **when** | `string` | ✅ | Condition formula (e.g. "type = 'enterprise'") |
-| **then** | `object \| object \| object \| object \| object \| object \| object \| object \| any` | ✅ | Validation rule to apply when condition is true |
-| **otherwise** | `object \| object \| object \| object \| object \| object \| object \| object \| any` | optional | Validation rule to apply when condition is false |
+| **then** | `Object \| Object \| Object \| Object \| Object \| Object \| Object \| Object \| any` | ✅ | Validation rule to apply when condition is true |
+| **otherwise** | `Object \| Object \| Object \| Object \| Object \| Object \| Object \| Object \| any` | optional | Validation rule to apply when condition is false |
+
 
 ---
 
@@ -86,6 +156,7 @@ const result = AsyncValidationSchema.parse(data);
 | **condition** | `string` | ✅ | Formula expression comparing fields (e.g. "end_date > start_date") |
 | **fields** | `string[]` | ✅ | Fields involved in the validation |
 
+
 ---
 
 ## CustomValidator
@@ -105,6 +176,7 @@ const result = AsyncValidationSchema.parse(data);
 | **type** | `string` | ✅ |  |
 | **handler** | `string` | ✅ | Name of the custom validation function registered in the system |
 | **params** | `Record<string, any>` | optional | Parameters passed to the custom handler |
+
 
 ---
 
@@ -127,6 +199,7 @@ const result = AsyncValidationSchema.parse(data);
 | **regex** | `string` | optional |  |
 | **format** | `Enum<'email' \| 'url' \| 'phone' \| 'json'>` | optional |  |
 
+
 ---
 
 ## JSONValidation
@@ -147,6 +220,7 @@ const result = AsyncValidationSchema.parse(data);
 | **field** | `string` | ✅ | JSON field to validate |
 | **schema** | `Record<string, any>` | ✅ | JSON Schema object definition |
 
+
 ---
 
 ## ScriptValidation
@@ -165,6 +239,7 @@ const result = AsyncValidationSchema.parse(data);
 | **message** | `string` | ✅ | Error message to display to the user |
 | **type** | `string` | ✅ |  |
 | **condition** | `string` | ✅ | Formula expression. If TRUE, validation fails. (e.g. amount < 0) |
+
 
 ---
 
@@ -185,6 +260,7 @@ const result = AsyncValidationSchema.parse(data);
 | **type** | `string` | ✅ |  |
 | **field** | `string` | ✅ | State field (e.g. status) |
 | **transitions** | `Record<string, string[]>` | ✅ | Map of `{ OldState: [AllowedNewStates] }` |
+
 
 ---
 
@@ -207,7 +283,221 @@ const result = AsyncValidationSchema.parse(data);
 | **scope** | `string` | optional | Formula condition for scope (e.g. active = true) |
 | **caseSensitive** | `boolean` | optional |  |
 
+
 ---
 
 ## ValidationRule
+
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+**Type:** `script`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique rule name (snake_case) |
+| **label** | `string` | optional | Human-readable label for the rule listing |
+| **description** | `string` | optional | Administrative notes explaining the business reason |
+| **active** | `boolean` | optional |  |
+| **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | optional | Validation contexts |
+| **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
+| **severity** | `Enum<'error' \| 'warning' \| 'info'>` | optional |  |
+| **message** | `string` | ✅ | Error message to display to the user |
+| **type** | `string` | ✅ |  |
+| **condition** | `string` | ✅ | Formula expression. If TRUE, validation fails. (e.g. amount < 0) |
+
+---
+
+#### Option 2
+
+**Type:** `unique`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique rule name (snake_case) |
+| **label** | `string` | optional | Human-readable label for the rule listing |
+| **description** | `string` | optional | Administrative notes explaining the business reason |
+| **active** | `boolean` | optional |  |
+| **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | optional | Validation contexts |
+| **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
+| **severity** | `Enum<'error' \| 'warning' \| 'info'>` | optional |  |
+| **message** | `string` | ✅ | Error message to display to the user |
+| **type** | `string` | ✅ |  |
+| **fields** | `string[]` | ✅ | Fields that must be combined unique |
+| **scope** | `string` | optional | Formula condition for scope (e.g. active = true) |
+| **caseSensitive** | `boolean` | optional |  |
+
+---
+
+#### Option 3
+
+**Type:** `state_machine`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique rule name (snake_case) |
+| **label** | `string` | optional | Human-readable label for the rule listing |
+| **description** | `string` | optional | Administrative notes explaining the business reason |
+| **active** | `boolean` | optional |  |
+| **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | optional | Validation contexts |
+| **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
+| **severity** | `Enum<'error' \| 'warning' \| 'info'>` | optional |  |
+| **message** | `string` | ✅ | Error message to display to the user |
+| **type** | `string` | ✅ |  |
+| **field** | `string` | ✅ | State field (e.g. status) |
+| **transitions** | `Record<string, string[]>` | ✅ | Map of `{ OldState: [AllowedNewStates] }` |
+
+---
+
+#### Option 4
+
+**Type:** `format`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique rule name (snake_case) |
+| **label** | `string` | optional | Human-readable label for the rule listing |
+| **description** | `string` | optional | Administrative notes explaining the business reason |
+| **active** | `boolean` | optional |  |
+| **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | optional | Validation contexts |
+| **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
+| **severity** | `Enum<'error' \| 'warning' \| 'info'>` | optional |  |
+| **message** | `string` | ✅ | Error message to display to the user |
+| **type** | `string` | ✅ |  |
+| **field** | `string` | ✅ |  |
+| **regex** | `string` | optional |  |
+| **format** | `Enum<'email' \| 'url' \| 'phone' \| 'json'>` | optional |  |
+
+---
+
+#### Option 5
+
+**Type:** `cross_field`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique rule name (snake_case) |
+| **label** | `string` | optional | Human-readable label for the rule listing |
+| **description** | `string` | optional | Administrative notes explaining the business reason |
+| **active** | `boolean` | optional |  |
+| **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | optional | Validation contexts |
+| **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
+| **severity** | `Enum<'error' \| 'warning' \| 'info'>` | optional |  |
+| **message** | `string` | ✅ | Error message to display to the user |
+| **type** | `string` | ✅ |  |
+| **condition** | `string` | ✅ | Formula expression comparing fields (e.g. "end_date > start_date") |
+| **fields** | `string[]` | ✅ | Fields involved in the validation |
+
+---
+
+#### Option 6
+
+**Type:** `json_schema`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique rule name (snake_case) |
+| **label** | `string` | optional | Human-readable label for the rule listing |
+| **description** | `string` | optional | Administrative notes explaining the business reason |
+| **active** | `boolean` | optional |  |
+| **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | optional | Validation contexts |
+| **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
+| **severity** | `Enum<'error' \| 'warning' \| 'info'>` | optional |  |
+| **message** | `string` | ✅ | Error message to display to the user |
+| **type** | `string` | ✅ |  |
+| **field** | `string` | ✅ | JSON field to validate |
+| **schema** | `Record<string, any>` | ✅ | JSON Schema object definition |
+
+---
+
+#### Option 7
+
+**Type:** `async`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique rule name (snake_case) |
+| **label** | `string` | optional | Human-readable label for the rule listing |
+| **description** | `string` | optional | Administrative notes explaining the business reason |
+| **active** | `boolean` | optional |  |
+| **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | optional | Validation contexts |
+| **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
+| **severity** | `Enum<'error' \| 'warning' \| 'info'>` | optional |  |
+| **message** | `string` | ✅ | Error message to display to the user |
+| **type** | `string` | ✅ |  |
+| **field** | `string` | ✅ | Field to validate |
+| **validatorUrl** | `string` | optional | External API endpoint for validation |
+| **method** | `Enum<'GET' \| 'POST'>` | optional | HTTP method for external call |
+| **headers** | `Record<string, string>` | optional | Custom headers for the request |
+| **validatorFunction** | `string` | optional | Reference to custom validator function |
+| **timeout** | `number` | optional | Timeout in milliseconds |
+| **debounce** | `number` | optional | Debounce delay in milliseconds |
+| **params** | `Record<string, any>` | optional | Additional parameters to pass to validator |
+
+---
+
+#### Option 8
+
+**Type:** `custom`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique rule name (snake_case) |
+| **label** | `string` | optional | Human-readable label for the rule listing |
+| **description** | `string` | optional | Administrative notes explaining the business reason |
+| **active** | `boolean` | optional |  |
+| **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | optional | Validation contexts |
+| **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
+| **severity** | `Enum<'error' \| 'warning' \| 'info'>` | optional |  |
+| **message** | `string` | ✅ | Error message to display to the user |
+| **type** | `string` | ✅ |  |
+| **handler** | `string` | ✅ | Name of the custom validation function registered in the system |
+| **params** | `Record<string, any>` | optional | Parameters passed to the custom handler |
+
+---
+
+#### Option 9
+
+**Type:** `conditional`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique rule name (snake_case) |
+| **label** | `string` | optional | Human-readable label for the rule listing |
+| **description** | `string` | optional | Administrative notes explaining the business reason |
+| **active** | `boolean` | optional |  |
+| **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | optional | Validation contexts |
+| **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
+| **severity** | `Enum<'error' \| 'warning' \| 'info'>` | optional |  |
+| **message** | `string` | ✅ | Error message to display to the user |
+| **type** | `string` | ✅ |  |
+| **when** | `string` | ✅ | Condition formula (e.g. "type = 'enterprise'") |
+| **then** | `Object \| Object \| Object \| Object \| Object \| Object \| Object \| Object \| any` | ✅ | Validation rule to apply when condition is true |
+| **otherwise** | `any` | optional | Validation rule to apply when condition is false |
+
+---
+
+
+---
 

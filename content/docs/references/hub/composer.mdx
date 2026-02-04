@@ -5,6 +5,14 @@ description: Composer protocol schemas
 
 # Composer
 
+# Cloud Composer Protocol
+
+Defines the interface for the ObjectStack Composer Service.
+
+The Composer is responsible for "compiling" a Tenant's configuration (BOM)
+
+into a single executable System Manifest.
+
 <Callout type="info">
 **Source:** `packages/spec/src/hub/composer.zod.ts`
 </Callout>
@@ -12,11 +20,11 @@ description: Composer protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { BillOfMaterialsSchema, ComposerRequestSchema, ComposerResponseSchema, ConflictReportSchema, DependencyRequirementSchema } from '@objectstack/spec/hub';
+import { BillOfMaterials, ComposerRequest, ComposerResponse, ConflictReport, DependencyRequirement } from '@objectstack/spec/hub';
 import type { BillOfMaterials, ComposerRequest, ComposerResponse, ConflictReport, DependencyRequirement } from '@objectstack/spec/hub';
 
 // Validate data
-const result = BillOfMaterialsSchema.parse(data);
+const result = BillOfMaterials.parse(data);
 ```
 
 ---
@@ -28,9 +36,10 @@ const result = BillOfMaterialsSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **tenantId** | `string` | ✅ | Target Tenant ID |
-| **dependencies** | `object[]` | ✅ | Installed packages |
+| **dependencies** | `Object[]` | ✅ | Installed packages |
 | **environment** | `Record<string, string>` | optional |  |
 | **resolutionStrategy** | `Enum<'strict' \| 'override' \| 'merge'>` | optional | Conflict resolution strategy (strict=fail, override=last-wins, merge=deep-merge) |
+
 
 ---
 
@@ -40,9 +49,10 @@ const result = BillOfMaterialsSchema.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **bom** | `object` | ✅ |  |
+| **bom** | `Object` | ✅ |  |
 | **runtimeVersion** | `string` | optional |  |
 | **dryRun** | `boolean` | optional |  |
+
 
 ---
 
@@ -53,13 +63,14 @@ const result = BillOfMaterialsSchema.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **success** | `boolean` | ✅ |  |
-| **manifest** | `object` | optional | The compiled System Manifest |
+| **manifest** | `Object` | optional | The compiled System Manifest |
 | **manifestUrl** | `string` | optional | Presigned download URL |
 | **buildId** | `string` | ✅ |  |
 | **timestamp** | `string` | ✅ |  |
 | **duration** | `number` | ✅ | Compilation time in ms |
-| **conflicts** | `object[]` | optional |  |
+| **conflicts** | `Object[]` | optional |  |
 | **errors** | `string[]` | optional |  |
+
 
 ---
 
@@ -75,6 +86,7 @@ const result = BillOfMaterialsSchema.parse(data);
 | **resolution** | `string` | ✅ | How it was resolved (e.g. "com.example.erp won") |
 | **severity** | `Enum<'info' \| 'warning' \| 'error'>` | ✅ | Severity of the conflict |
 
+
 ---
 
 ## DependencyRequirement
@@ -87,4 +99,7 @@ const result = BillOfMaterialsSchema.parse(data);
 | **version** | `string` | optional | SemVer range or "latest" |
 | **configuration** | `Record<string, any>` | optional | Configuration overrides |
 | **features** | `Record<string, boolean>` | optional | Feature toggles |
+
+
+---
 

@@ -4,10 +4,12 @@ import { z } from 'zod';
  * Translation Schema
  * Supports i18n for labels, messages, and options.
  * Example structure:
+ * ```json
  * {
  *   "en": { "objects": { "account": { "label": "Account" } } },
  *   "zh-CN": { "objects": { "account": { "label": "客户" } } }
  * }
+ * ```
  */
 export const TranslationDataSchema = z.object({
   /** Object translations */
