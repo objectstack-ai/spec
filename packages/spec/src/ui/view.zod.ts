@@ -54,6 +54,10 @@ export const ListColumnSchema = z.object({
   resizable: z.boolean().optional().describe('Allow resizing this column'),
   wrap: z.boolean().optional().describe('Allow text wrapping'),
   type: z.string().optional().describe('Renderer type override (e.g., "currency", "date")'),
+
+  /** Interaction */
+  link: z.boolean().optional().describe('Functions as the primary navigation link (triggers View navigation)'),
+  action: z.string().optional().describe('Registered Action ID to execute when clicked'),
 });
 
 /**
