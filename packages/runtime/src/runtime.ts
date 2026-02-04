@@ -1,4 +1,4 @@
-import { ObjectKernel, Plugin, IHttpServer } from '@objectstack/core';
+import { ObjectKernel, Plugin, IHttpServer, ObjectKernelConfig } from '@objectstack/core';
 import { HttpServer } from './http-server.js';
 import { createApiRegistryPlugin, ApiRegistryConfig } from './api-registry-plugin.js';
 
@@ -14,6 +14,11 @@ export interface RuntimeConfig {
      * API Registry Configuration
      */
     api?: ApiRegistryConfig;
+
+    /**
+     * Kernel Configuration
+     */
+    kernel?: ObjectKernelConfig;
 }
 
 /**
@@ -29,7 +34,7 @@ export class Runtime {
     readonly kernel: ObjectKernel;
     
     constructor(config: RuntimeConfig = {}) {
-        this.kernel = new ObjectKernel();
+        this.kernel = new ObjectKernel(config.kernel);
         
         // If external server provided, register it immediately
         if (config.server) {
