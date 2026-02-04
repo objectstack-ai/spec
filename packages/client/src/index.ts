@@ -11,7 +11,13 @@ import {
   ErrorCategory,
   GetDiscoveryResponse,
   GetMetaTypesResponse,
-  GetMetaItemsResponse
+  GetMetaItemsResponse,
+  LoginRequest,
+  SessionResponse,
+  GetPresignedUrlRequest,
+  PresignedUrlResponse,
+  CompleteUploadRequest,
+  FileUploadResponse
 } from '@objectstack/spec/api';
 import { Logger, createLogger } from '@objectstack/core';
 
@@ -267,6 +273,103 @@ export class ObjectStackClient {
   };
 
   /**
+   * Authentication Services
+   */
+  auth = {
+    login: async (request: LoginRequest): Promise<SessionResponse> => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/login`, {
+            method: 'POST',
+            body: JSON.stringify(request)
+        });
+        const data = await res.json();
+        // Auto-set token if present in response
+        if (data.data?.token) {
+            this.token = data.data.token;
+        }
+        return data;
+    },
+    
+    logout: async () => {
+        const route = this.getRoute('auth');
+        await this.fetch(`${this.baseUrl}${route}/logout`, { method: 'POST' });
+        this.token = undefined;
+    },
+
+    me: async (): Promise<SessionResponse> => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/me`);
+        return res.json();
+    }
+  };
+
+  /**
+   * Storage Services
+   */
+  storage = {
+    upload: async (file: any, scope: string = 'user'): Promise<FileUploadResponse> => {
+        // 1. Get Presigned URL
+        const presignedReq: GetPresignedUrlRequest = {
+            filename: file.name,
+            mimeType: file.type,
+            size: file.size,
+            scope
+        };
+        
+        const route = this.getRoute('storage');
+        const presignedRes = await this.fetch(`${this.baseUrl}${route}/upload/presigned`, {
+            method: 'POST',
+            body: JSON.stringify(presignedReq)
+        });
+        const { data: presigned } = await presignedRes.json() as { data: PresignedUrlResponse['data'] };
+
+        // 2. Upload to Cloud directly (Bypass API Middleware to avoid Auth headers if using S3)
+        // Use fetchImpl directly
+        const uploadRes = await this.fetchImpl(presigned.uploadUrl, {
+            method: presigned.method,
+            headers: presigned.headers,
+            body: file
+        });
+
+        if (!uploadRes.ok) {
+            throw new Error(`Storage Upload Failed: ${uploadRes.statusText}`);
+        }
+
+        // 3. Complete Upload
+        const completeReq: CompleteUploadRequest = {
+            fileId: presigned.fileId
+        };
+        const completeRes = await this.fetch(`${this.baseUrl}${route}/upload/complete`, {
+            method: 'POST',
+            body: JSON.stringify(completeReq)
+        });
+        
+        return completeRes.json();
+    },
+    
+    getDownloadUrl: async (fileId: string): Promise<string> => {
+        const route = this.getRoute('storage');
+        const res = await this.fetch(`${this.baseUrl}${route}/files/${fileId}/url`);
+        const data = await res.json();
+        return data.url;
+    }
+  };
+
+  /**
+   * Automation Services
+   */
+  automation = {
+      trigger: async (triggerName: string, payload: any) => {
+          const route = this.getRoute('automation');
+          const res = await this.fetch(`${this.baseUrl}${route}/trigger/${triggerName}`, {
+              method: 'POST',
+              body: JSON.stringify(payload)
+          });
+          return res.json();
+      }
+  };
+
+  /**
    * Data Operations
    */
   data = {
@@ -503,10 +606,11 @@ export class ObjectStackClient {
    * Get the conventional route path for a given API endpoint type
    * ObjectStack uses standard conventions: /api/v1/data, /api/v1/metadata, /api/v1/ui
    */
-  private getRoute(type: 'data' | 'metadata' | 'ui' | 'auth' | 'analytics' | 'hub' | 'storage'): string {
+  private getRoute(type: 'data' | 'metadata' | 'ui' | 'auth' | 'analytics' | 'hub' | 'storage' | 'automation'): string {
     // 1. Use discovered routes if available
-    if (this.discoveryInfo?.routes && (this.discoveryInfo.routes as any)[type]) {
-        return (this.discoveryInfo.routes as any)[type];
+    // Note: Spec uses 'endpoints', mapped dynamically
+    if (this.discoveryInfo?.endpoints && (this.discoveryInfo.endpoints as any)[type]) {
+        return (this.discoveryInfo.endpoints as any)[type];
     }
 
     // 2. Fallback to conventions
@@ -518,7 +622,8 @@ export class ObjectStackClient {
       auth: '/api/v1/auth',
       analytics: '/api/v1/analytics',
       hub: '/api/v1/hub',
-      storage: '/api/v1/storage'
+      storage: '/api/v1/storage',
+      automation: '/api/v1/automation'
     };
     
     return routeMap[type] || `/api/v1/${type}`;

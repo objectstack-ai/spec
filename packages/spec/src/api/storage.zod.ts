@@ -45,3 +45,8 @@ export const PresignedUrlResponseSchema = BaseResponseSchema.extend({
 export const FileUploadResponseSchema = BaseResponseSchema.extend({
   data: FileMetadataSchema.describe('Uploaded file metadata'),
 });
+
+export type GetPresignedUrlRequest = z.infer<typeof GetPresignedUrlRequestSchema>;
+export type CompleteUploadRequest = z.infer<typeof CompleteUploadRequestSchema>;
+export type PresignedUrlResponse = z.infer<typeof PresignedUrlResponseSchema>;
+export type FileUploadResponse = z.infer<typeof FileUploadResponseSchema>;
