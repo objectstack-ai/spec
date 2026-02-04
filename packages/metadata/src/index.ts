@@ -5,15 +5,12 @@
  */
 
 // Main Manager
-export { MetadataManager, type WatchCallback } from './metadata-manager.js';
-
-// Plugin
-export { MetadataPlugin } from './plugin.js';
+export { MetadataManager, type WatchCallback, type MetadataManagerOptions } from './metadata-manager.js';
 
 // Loaders
 export { type MetadataLoader } from './loaders/loader-interface.js';
-export { FilesystemLoader } from './loaders/filesystem-loader.js';
 export { MemoryLoader } from './loaders/memory-loader.js';
+export { RemoteLoader } from './loaders/remote-loader.js';
 
 // Serializers
 export { type MetadataSerializer, type SerializeOptions } from './serializers/serializer-interface.js';

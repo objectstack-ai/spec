@@ -10,6 +10,7 @@ import { ObjectStackClient } from '@objectstack/client';
 import type { Task } from './types';
 import { TaskForm } from './components/TaskForm';
 import { TaskList } from './components/TaskList';
+import { MetadataDemo } from './components/MetadataDemo';
 import './App.css';
 
 export function App() {
@@ -129,6 +130,10 @@ export function App() {
           />
         </section>
       </main>
+
+      <div className="mt-8">
+        <MetadataDemo />
+      </div>
 
       <footer className="mt-16 pt-8 border-t border-accents-2 text-center text-sm text-accents-4 space-y-2">
         <p>

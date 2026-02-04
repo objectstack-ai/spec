@@ -34,8 +34,8 @@ Architecture Alignment:
 ## TypeScript Usage
 
 ```typescript
-import { AutomationTriggerRequest, AutomationTriggerResponse, BatchDataRequest, BatchDataResponse, CreateDataRequest, CreateDataResponse, CreateManyDataRequest, CreateManyDataResponse, DeleteDataRequest, DeleteDataResponse, DeleteManyDataRequest, DeleteManyDataResponse, FindDataRequest, FindDataResponse, GetDataRequest, GetDataResponse, GetDiscoveryRequest, GetDiscoveryResponse, GetMetaItemCachedRequest, GetMetaItemCachedResponse, GetMetaItemRequest, GetMetaItemResponse, GetMetaItemsRequest, GetMetaItemsResponse, GetMetaTypesRequest, GetMetaTypesResponse, GetUiViewRequest, GetUiViewResponse, ObjectStackProtocol, UpdateDataRequest, UpdateDataResponse, UpdateManyDataRequest, UpdateManyDataResponse } from '@objectstack/spec/api';
-import type { AutomationTriggerRequest, AutomationTriggerResponse, BatchDataRequest, BatchDataResponse, CreateDataRequest, CreateDataResponse, CreateManyDataRequest, CreateManyDataResponse, DeleteDataRequest, DeleteDataResponse, DeleteManyDataRequest, DeleteManyDataResponse, FindDataRequest, FindDataResponse, GetDataRequest, GetDataResponse, GetDiscoveryRequest, GetDiscoveryResponse, GetMetaItemCachedRequest, GetMetaItemCachedResponse, GetMetaItemRequest, GetMetaItemResponse, GetMetaItemsRequest, GetMetaItemsResponse, GetMetaTypesRequest, GetMetaTypesResponse, GetUiViewRequest, GetUiViewResponse, ObjectStackProtocol, UpdateDataRequest, UpdateDataResponse, UpdateManyDataRequest, UpdateManyDataResponse } from '@objectstack/spec/api';
+import { AutomationTriggerRequest, AutomationTriggerResponse, BatchDataRequest, BatchDataResponse, CreateDataRequest, CreateDataResponse, CreateManyDataRequest, CreateManyDataResponse, DeleteDataRequest, DeleteDataResponse, DeleteManyDataRequest, DeleteManyDataResponse, FindDataRequest, FindDataResponse, GetDataRequest, GetDataResponse, GetDiscoveryRequest, GetDiscoveryResponse, GetMetaItemCachedRequest, GetMetaItemCachedResponse, GetMetaItemRequest, GetMetaItemResponse, GetMetaItemsRequest, GetMetaItemsResponse, GetMetaTypesRequest, GetMetaTypesResponse, GetUiViewRequest, GetUiViewResponse, ObjectStackProtocol, SaveMetaItemRequest, SaveMetaItemResponse, UpdateDataRequest, UpdateDataResponse, UpdateManyDataRequest, UpdateManyDataResponse } from '@objectstack/spec/api';
+import type { AutomationTriggerRequest, AutomationTriggerResponse, BatchDataRequest, BatchDataResponse, CreateDataRequest, CreateDataResponse, CreateManyDataRequest, CreateManyDataResponse, DeleteDataRequest, DeleteDataResponse, DeleteManyDataRequest, DeleteManyDataResponse, FindDataRequest, FindDataResponse, GetDataRequest, GetDataResponse, GetDiscoveryRequest, GetDiscoveryResponse, GetMetaItemCachedRequest, GetMetaItemCachedResponse, GetMetaItemRequest, GetMetaItemResponse, GetMetaItemsRequest, GetMetaItemsResponse, GetMetaTypesRequest, GetMetaTypesResponse, GetUiViewRequest, GetUiViewResponse, ObjectStackProtocol, SaveMetaItemRequest, SaveMetaItemResponse, UpdateDataRequest, UpdateDataResponse, UpdateManyDataRequest, UpdateManyDataResponse } from '@objectstack/spec/api';
 
 // Validate data
 const result = AutomationTriggerRequest.parse(data);
@@ -409,6 +409,31 @@ const result = AutomationTriggerRequest.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
+
+
+---
+
+## SaveMetaItemRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Metadata type name |
+| **name** | `string` | ✅ | Item name |
+| **item** | `any` | optional | Metadata item definition |
+
+
+---
+
+## SaveMetaItemResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ |  |
+| **message** | `string` | optional |  |
 
 
 ---

@@ -161,6 +161,21 @@ export class ObjectStackClient {
         const res = await this.fetch(`${this.baseUrl}${route}/${type}/${name}`);
         return res.json();
     },
+
+    /**
+     * Save a metadata item
+     * @param type - Metadata type (e.g., 'object', 'plugin')
+     * @param name - Item name
+     * @param item - The metadata content to save
+     */
+    saveItem: async (type: string, name: string, item: any) => {
+        const route = this.getRoute('metadata');
+        const res = await this.fetch(`${this.baseUrl}${route}/${type}/${name}`, {
+            method: 'PUT',
+            body: JSON.stringify(item)
+        });
+        return res.json();
+    },
     
     /**
      * Get object metadata with cache support

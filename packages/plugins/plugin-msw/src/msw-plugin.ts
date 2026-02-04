@@ -303,6 +303,33 @@ export class ObjectStackServer {
     static async createUser(data: any) {
         return this.createData('user', data);
     }
+    static async saveMetaItem(type: string, name: string, item: any) {
+        if (!this.protocol) {
+            throw new Error('ObjectStackServer not initialized. Call ObjectStackServer.init() first.');
+        }
+
+        this.logger?.debug?.('MSW: Saving metadata', { type, name });
+        try {
+            // Check if protocol supports saveMetaItem (it might be added recently)
+            if (!this.protocol.saveMetaItem) {
+                throw new Error('Protocol does not support saveMetaItem');
+            }
+            
+            const result = await this.protocol.saveMetaItem({ type, name, item });
+            this.logger?.info?.('MSW: Metadata saved', { type, name });
+            return {
+                status: 200,
+                data: result
+            };
+        } catch (error) {
+            this.logger?.error?.('MSW: Save metadata failed', error, { type, name });
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            return {
+                status: 400,
+                data: { error: message }
+            };
+        }
+    }
 }
 
 /**
@@ -468,6 +495,22 @@ export class MSWPlugin implements Plugin {
                 } catch (error) {
                     const message = error instanceof Error ? error.message : 'Unknown error';
                     return HttpResponse.json({ error: message }, { status: 404 });
+                }
+            }),
+
+            // Save Metadata
+            http.put(`${baseUrl}/meta/:type/:name`, async ({ params, request }) => {
+                try {
+                    const body = await request.json();
+                    const result = await ObjectStackServer.saveMetaItem(
+                        params.type as string, 
+                        params.name as string, 
+                        body
+                    );
+                    return HttpResponse.json(result.data, { status: result.status });
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : 'Unknown error';
+                    return HttpResponse.json({ error: message }, { status: 400 });
                 }
             }),
 

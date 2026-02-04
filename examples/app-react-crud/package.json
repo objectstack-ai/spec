@@ -17,6 +17,7 @@
     "@objectstack/client-react": "workspace:*",
     "@objectstack/driver-memory": "workspace:*",
     "@example/app-todo": "workspace:*",
+    "@objectstack/metadata": "workspace:*",
     "@objectstack/plugin-msw": "workspace:*",
     "@objectstack/runtime": "workspace:*",
     "@objectstack/objectql": "workspace:*",

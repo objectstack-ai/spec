@@ -120,6 +120,24 @@ export const GetMetaItemResponseSchema = z.object({
 });
 
 /**
+ * Save Metadata Item Request
+ * Create or update a metadata item
+ */
+export const SaveMetaItemRequestSchema = z.object({
+  type: z.string().describe('Metadata type name'),
+  name: z.string().describe('Item name'),
+  item: z.any().describe('Metadata item definition'),
+});
+
+/**
+ * Save Metadata Item Response
+ */
+export const SaveMetaItemResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string().optional(),
+});
+
+/**
  * Get Metadata Item with Cache Request
  * Get a specific metadata item with HTTP cache validation support
  */
@@ -388,7 +406,10 @@ export const ObjectStackProtocolSchema = z.object({
     .args(GetMetaItemRequestSchema)
     .returns(z.promise(GetMetaItemResponseSchema))
     .describe('Get a specific metadata item'),
-
+  saveMetaItem: z.function()
+    .args(SaveMetaItemRequestSchema)
+    .returns(z.promise(SaveMetaItemResponseSchema))
+    .describe('Save metadata item'),
   getMetaItemCached: z.function()
     .args(GetMetaItemCachedRequestSchema)
     .returns(z.promise(GetMetaItemCachedResponseSchema))
@@ -492,6 +513,8 @@ export type GetMetaItemsRequest = z.infer<typeof GetMetaItemsRequestSchema>;
 export type GetMetaItemsResponse = z.infer<typeof GetMetaItemsResponseSchema>;
 export type GetMetaItemRequest = z.infer<typeof GetMetaItemRequestSchema>;
 export type GetMetaItemResponse = z.infer<typeof GetMetaItemResponseSchema>;
+export type SaveMetaItemRequest = z.infer<typeof SaveMetaItemRequestSchema>;
+export type SaveMetaItemResponse = z.infer<typeof SaveMetaItemResponseSchema>;
 export type GetMetaItemCachedRequest = z.infer<typeof GetMetaItemCachedRequestSchema>;
 export type GetMetaItemCachedResponse = z.infer<typeof GetMetaItemCachedResponseSchema>;
 export type GetUiViewRequest = z.infer<typeof GetUiViewRequestSchema>;
@@ -537,6 +560,7 @@ export interface IObjectStackProtocolLegacy {
   getMetaTypes(): Promise<GetMetaTypesResponse>;
   getMetaItems(request: GetMetaItemsRequest): Promise<GetMetaItemsResponse>;
   getMetaItem(request: GetMetaItemRequest): Promise<GetMetaItemResponse>;
+  saveMetaItem(request: SaveMetaItemRequest): Promise<SaveMetaItemResponse>;
   getMetaItemCached(request: GetMetaItemCachedRequest): Promise<GetMetaItemCachedResponse>;
   getUiView(request: GetUiViewRequest): Promise<GetUiViewResponse>;
   

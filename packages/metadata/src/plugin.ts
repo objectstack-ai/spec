@@ -1,5 +1,5 @@
 import { Plugin, PluginContext } from '@objectstack/core';
-import { MetadataManager } from './metadata-manager.js';
+import { NodeMetadataManager } from './node-metadata-manager.js';
 import { ObjectStackDefinitionSchema } from '@objectstack/spec';
 
 export interface MetadataPluginOptions {
@@ -11,7 +11,7 @@ export class MetadataPlugin implements Plugin {
     name = 'com.objectstack.metadata';
     version = '1.0.0';
     
-    private manager: MetadataManager;
+    private manager: NodeMetadataManager;
     private options: MetadataPluginOptions;
 
     constructor(options: MetadataPluginOptions = {}) {
@@ -22,7 +22,7 @@ export class MetadataPlugin implements Plugin {
 
         const rootDir = this.options.rootDir || process.cwd();
 
-        this.manager = new MetadataManager({ 
+        this.manager = new NodeMetadataManager({ 
             rootDir,
             watch: this.options.watch ?? true,
             formats: ['yaml', 'json', 'typescript', 'javascript'] 

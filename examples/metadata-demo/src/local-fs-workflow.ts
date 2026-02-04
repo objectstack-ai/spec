@@ -1,4 +1,4 @@
-import { MetadataManager } from '@objectstack/metadata';
+import { NodeMetadataManager } from '@objectstack/metadata/node';
 import * as path from 'node:path';
 import * as fs from 'node:fs/promises';
 
@@ -10,8 +10,8 @@ async function main() {
   console.log(`📂 项目目录: ${PROJECT_ROOT}`);
 
   // 1. 初始化管理器，指向项目根目录
-  // MetadataManager 会自动在这个目录下寻找 `objects`, `views`, `apps` 等子目录
-  const manager = new MetadataManager({
+  // NodeMetadataManager 会自动在这个目录下寻找 `objects`, `views`, `apps` 等子目录
+  const manager = new NodeMetadataManager({
     rootDir: path.join(PROJECT_ROOT, 'src'), // 假设元数据在 src 下
     formats: ['yaml', 'json'],               // 优先使用 YAML
     watch: true                              // 开启监听

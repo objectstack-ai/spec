@@ -174,6 +174,9 @@ importers:
       '@objectstack/driver-memory':
         specifier: workspace:*
         version: link:../../packages/plugins/driver-memory
+      '@objectstack/metadata':
+        specifier: workspace:*
+        version: link:../../packages/metadata
       '@objectstack/objectql':
         specifier: workspace:*
         version: link:../../packages/objectql

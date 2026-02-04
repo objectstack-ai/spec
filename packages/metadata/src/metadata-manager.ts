@@ -1,11 +1,10 @@
 /**
  * Metadata Manager
  * 
- * Main orchestrator for metadata loading, saving, and persistence
+ * Main orchestrator for metadata loading, saving, and persistence.
+ * Browser-compatible (Pure).
  */
 
-import * as path from 'node:path';
-import { watch as chokidarWatch, type FSWatcher } from 'chokidar';
 import type {
   MetadataManagerConfig,
   MetadataLoadOptions,
@@ -15,7 +14,6 @@ import type {
   MetadataFormat,
 } from '@objectstack/spec/system';
 import { createLogger, type Logger } from '@objectstack/core';
-import { FilesystemLoader } from './loaders/filesystem-loader.js';
 import { JSONSerializer } from './serializers/json-serializer.js';
 import { YAMLSerializer } from './serializers/yaml-serializer.js';
 import { TypeScriptSerializer } from './serializers/typescript-serializer.js';
@@ -27,17 +25,23 @@ import type { MetadataLoader } from './loaders/loader-interface.js';
  */
 export type WatchCallback = (event: MetadataWatchEvent) => void | Promise<void>;
 
+export interface MetadataManagerOptions extends MetadataManagerConfig {
+  loaders?: MetadataLoader[];
+}
+
 /**
  * Main metadata manager class
  */
 export class MetadataManager {
   private loaders: Map<string, MetadataLoader> = new Map();
-  private serializers: Map<MetadataFormat, MetadataSerializer>;
-  private logger: Logger;
-  private watcher?: FSWatcher;
-  private watchCallbacks = new Map<string, Set<WatchCallback>>();
+  // Protected so subclasses can access serializers if needed
+  protected serializers: Map<MetadataFormat, MetadataSerializer>;
+  protected logger: Logger;
+  protected watchCallbacks = new Map<string, Set<WatchCallback>>();
+  protected config: MetadataManagerOptions;
 
-  constructor(private config: MetadataManagerConfig) {
+  constructor(config: MetadataManagerOptions) {
+    this.config = config;
     this.logger = createLogger({ level: 'info', format: 'pretty' });
 
     // Initialize serializers
@@ -57,15 +61,11 @@ export class MetadataManager {
       this.serializers.set('javascript', new TypeScriptSerializer('javascript'));
     }
 
-    // Initialize Default Filesystem Loader
-    // This is treated as the "Primary" source for now
-    const rootDir = config.rootDir || process.cwd();
-    this.registerLoader(new FilesystemLoader(rootDir, this.serializers, this.logger));
-
-    // Start watching if enabled
-    if (config.watch) {
-      this.startWatching();
+    // Initialize Loaders
+    if (config.loaders && config.loaders.length > 0) {
+      config.loaders.forEach(loader => this.registerLoader(loader));
     }
+    // Note: No default loader in base class. Subclasses (NodeMetadataManager) or caller must provide one.
   }
 
   /**
@@ -147,8 +147,31 @@ export class MetadataManager {
         throw new Error(`Loader not found: ${targetLoader}`);
       }
     } else {
-      // Default to 'filesystem' or first writable
-      loader = this.loaders.get('filesystem');
+      // 1. Try to find existing writable loader containing this item (Update existing)
+      for (const l of this.loaders.values()) {
+          // Skip if loader is strictly read-only
+          if (!l.save) continue;
+          
+          try {
+            if (await l.exists(type, name)) {
+                loader = l;
+                this.logger.info(`Updating existing metadata in loader: ${l.contract.name}`);
+                break;
+            }
+          } catch (e) {
+            // Ignore existence check errors (e.g. network down)
+          }
+      }
+
+      // 2. Default to 'filesystem' if available (Create new)
+      if (!loader) {
+        const fsLoader = this.loaders.get('filesystem');
+        if (fsLoader && fsLoader.save) {
+           loader = fsLoader;
+        }
+      }
+
+      // 3. Fallback to any writable loader
       if (!loader) {
         for (const l of this.loaders.values()) {
           if (l.save) {
@@ -221,98 +244,23 @@ export class MetadataManager {
    * Stop all watching
    */
   async stopWatching(): Promise<void> {
-    if (this.watcher) {
-      await this.watcher.close();
-      this.watcher = undefined;
-      this.watchCallbacks.clear();
-    }
+    // Override in subclass
   }
 
-  /**
-   * Start watching for file changes
-   */
-  private startWatching(): void {
-    const rootDir = this.config.rootDir || process.cwd();
-    const { ignored = ['**/node_modules/**', '**/*.test.*'], persistent = true } =
-      this.config.watchOptions || {};
-
-    this.watcher = chokidarWatch(rootDir, {
-      ignored,
-      persistent,
-      ignoreInitial: true,
-    });
-
-    this.watcher.on('add', async (filePath) => {
-      await this.handleFileEvent('added', filePath);
-    });
-
-    this.watcher.on('change', async (filePath) => {
-      await this.handleFileEvent('changed', filePath);
-    });
-
-    this.watcher.on('unlink', async (filePath) => {
-      await this.handleFileEvent('deleted', filePath);
-    });
-
-    this.logger.info('File watcher started', { rootDir });
-  }
-
-  /**
-   * Handle file change events
-   */
-  private async handleFileEvent(
-    eventType: 'added' | 'changed' | 'deleted',
-    filePath: string
-  ): Promise<void> {
-    const rootDir = this.config.rootDir || process.cwd();
-    const relativePath = path.relative(rootDir, filePath);
-    const parts = relativePath.split(path.sep);
-
-    if (parts.length < 2) {
-      return; // Not a metadata file
-    }
-
-    const type = parts[0];
-    const fileName = parts[parts.length - 1];
-    const name = path.basename(fileName, path.extname(fileName));
-
+  protected notifyWatchers(type: string, event: MetadataWatchEvent) {
     const callbacks = this.watchCallbacks.get(type);
-    if (!callbacks || callbacks.size === 0) {
-      return;
-    }
-
-    let data: any = undefined;
-    if (eventType !== 'deleted') {
-      try {
-        data = await this.load(type, name, { useCache: false });
-      } catch (error) {
-        this.logger.error('Failed to load changed file', undefined, {
-          filePath,
-          error: error instanceof Error ? error.message : String(error),
-        });
-        return;
-      }
-    }
-
-    const event: MetadataWatchEvent = {
-      type: eventType,
-      metadataType: type,
-      name,
-      path: filePath,
-      data,
-      timestamp: new Date(),
-    };
-
+    if (!callbacks) return;
+    
     for (const callback of callbacks) {
       try {
-        await callback(event);
+        void callback(event);
       } catch (error) {
         this.logger.error('Watch callback error', undefined, {
           type,
-          name,
           error: error instanceof Error ? error.message : String(error),
         });
       }
     }
   }
 }
+
