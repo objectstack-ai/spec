@@ -3,54 +3,69 @@ title: Protocol Architecture
 description: How the Data, System, and UI protocols work together as one cohesive system
 ---
 
-import { Database, Layout, Cpu, ArrowRight, CheckCircle, Workflow } from 'lucide-react';
+import { Database, Layout, Cpu, ArrowRight, CheckCircle, Workflow, Bot, Cloud } from 'lucide-react';
 
 # The Protocol Stack
 
-The architecture is built on three foundational protocols that work together as a unified system:
+The architecture is built on foundational protocols that work together as a unified system:
 
 <Cards>
   <Card
     icon={<Database />}
     title="Data Protocol"
-    description="Structure, queries, and constraints."
-  />
-  <Card
-    icon={<Cpu />}
-    title="System Protocol"
-    description="Control, runtime, and governance."
+    description="ObjectQL: Structure, queries, and constraints."
   />
   <Card
     icon={<Layout />}
     title="UI Protocol"
-    description="Presentation, interaction, and routing."
+    description="ObjectUI: Presentation, interaction, and routing."
+  />
+  <Card
+    icon={<Cpu />}
+    title="System Protocol"
+    description="ObjectOS: Control, runtime, and governance."
+  />
+  <Card
+    icon={<Workflow />}
+    title="Automation Protocol"
+    description="Business Logic: Flow, Workflow, Triggers."
+  />
+  <Card
+    icon={<Bot />}
+    title="AI Protocol"
+    description="Intelligence: Agents, RAG, Models."
+  />
+  <Card
+    icon={<Cloud />}
+    title="Hub Protocol"
+    description="Management: Multi-tenancy, Marketplace, Licensing."
   />
 </Cards>
 
-## Why Three Layers?
+## Why Separated Layers?
 
 Traditional applications tightly couple data, business logic, and presentation. This creates **Implementation Coupling** — changing one layer forces changes across the entire stack.
 
 ObjectStack enforces **Separation of Concerns** through protocol boundaries:
 
 ```
-┌─────────────────────────────────────────┐
-│              UI Protocol                │
-│  Apps, Views, Dashboards, Reports       │
-│  "How do users interact?"                │
-└──────────────┬──────────────────────────┘
-               │ View-Data Interface
-┌──────────────┴──────────────────────────┐
-│            System Protocol              │
-│  Auth, Permissions, Workflows, Events   │
-│  "Who can do what, when?"                │
-└──────────────┬──────────────────────────┘
-               │ Control-Data Interface
-┌──────────────┴──────────────────────────┐
-│             Data Protocol               │
-│  Objects, Fields, Queries, Drivers      │
-│  "What is the data structure?"           │
-└─────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────┐
+│              UI Protocol & AI Protocol                    │
+│  Apps, Views, Dashboards, Agents, RAG                     │
+│  "How do users and agents interact?"                       │
+└───────────────────────────┬───────────────────────────────┘
+                            │ Interface
+┌───────────────────────────┴───────────────────────────────┐
+│     System Protocol & Automation Protocol & Hub Protocol  │
+│  Auth, Permissions, Orchestration, Multi-tenancy          │
+│  "Who/What can do what, when, and where?"                  │
+└───────────────────────────┬───────────────────────────────┘
+                            │ Control
+┌───────────────────────────┴───────────────────────────────┐
+│                     Data Protocol                         │
+│  Objects, Fields, Queries, Drivers                        │
+│  "What is the data structure?"                             │
+└───────────────────────────────────────────────────────────┘
 ```
 
 ## Layer 1: ObjectQL (Data Protocol)
