@@ -33,7 +33,10 @@ export const PageCardProps = z.object({
   title: z.string().optional(),
   bordered: z.boolean().default(true),
   actions: z.array(z.string()).optional(),
-  children: z.array(z.any()).describe('Card content')
+  /** Slot for nested content in the Card body */
+  body: z.array(z.any()).optional().describe('Card content components (slot)'),
+  /** Slot for footer content */
+  footer: z.array(z.any()).optional().describe('Card footer components (slot)'),
 });
 
 /**

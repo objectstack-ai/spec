@@ -43,8 +43,30 @@ export const PageComponentSchema = z.object({
   label: z.string().optional(),
   properties: z.record(z.string(), z.any()).describe('Component props passed to the widget. See component.zod.ts for schemas.'),
   
+  /** 
+   * Event Handlers 
+   * Map event names to Action expressions.
+   * "onClick": "set_variable('userId', $event.id)"
+   * "onRowSelect": "navigate_to('page_detail', { id: $event.id })"
+   */
+  events: z.record(z.string(), z.string()).optional().describe('Event handlers map'),
+
+  /** Appearance */
+  style: z.record(z.string(), z.string()).optional().describe('Inline styles or utility classes'),
+  className: z.string().optional().describe('CSS class names'),
+
   /** Visibility Rule */
   visibility: z.string().optional().describe('Visibility filter/formula')
+});
+
+/**
+ * Page Variable Schema
+ * Defines local state for the page.
+ */
+export const PageVariableSchema = z.object({
+  name: z.string().describe('Variable name'),
+  type: z.enum(['string', 'number', 'boolean', 'object', 'array']).default('string'),
+  defaultValue: z.any().optional(),
 });
 
 /**
@@ -74,6 +96,9 @@ export const PageSchema = z.object({
   /** Page Type */
   type: z.enum(['record', 'home', 'app', 'utility']).default('record'),
   
+  /** Page State Definitions */
+  variables: z.array(PageVariableSchema).optional().describe('Local page state variables'),
+
   /** Context */
   object: z.string().optional().describe('Bound object (for Record pages)'),
   

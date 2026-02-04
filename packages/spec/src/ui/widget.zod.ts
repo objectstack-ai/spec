@@ -236,6 +236,32 @@ export type WidgetProperty = z.infer<typeof WidgetPropertySchema>;
  * }
  * ```
  */
+/**
+ * Widget Source Schema
+ * Defines how the widget code is loaded.
+ */
+export const WidgetSourceSchema = z.discriminatedUnion('type', [
+  // NPM Registry (standard)
+  z.object({
+    type: z.literal('npm'),
+    packageName: z.string().describe('NPM package name'),
+    version: z.string().default('latest'),
+    exportName: z.string().optional().describe('Named export (default: default)'),
+  }),
+  // Module Federation (Remote)
+  z.object({
+    type: z.literal('remote'),
+    url: z.string().url().describe('Remote entry URL (.js)'),
+    moduleName: z.string().describe('Exposed module name'),
+    scope: z.string().describe('Remote scope name'),
+  }),
+  // Inline Code (Simple scripts)
+  z.object({
+    type: z.literal('inline'),
+    code: z.string().describe('JavaScript code body'),
+  }),
+]);
+
 export const WidgetManifestSchema = z.object({
   /**
    * Widget identifier (snake_case)
@@ -300,12 +326,9 @@ export const WidgetManifestSchema = z.object({
 
   /**
    * Widget implementation
-   * URL to component or inline code
+   * Defines how to load the widget code
    */
-  implementation: z.object({
-    type: z.enum(['url', 'inline', 'module']).describe('Implementation type'),
-    source: z.string().describe('Source URL, inline code, or module path'),
-  }).optional().describe('Widget implementation'),
+  implementation: WidgetSourceSchema.optional().describe('Widget implementation source'),
 
   /**
    * Widget dependencies
