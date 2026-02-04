@@ -12,8 +12,8 @@ description: Connector protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AuthenticationSchema, ConflictResolutionSchema, ConnectorSchema, ConnectorStatusSchema, ConnectorTypeSchema, DataSyncConfigSchema, FieldTransformSchema, RateLimitStrategySchema, RetryConfigSchema, RetryStrategySchema, SyncStrategySchema, WebhookConfigSchema, WebhookEventSchema, WebhookSignatureAlgorithmSchema } from '@objectstack/spec/integration';
-import type { Authentication, ConflictResolution, Connector, ConnectorStatus, ConnectorType, DataSyncConfig, FieldTransform, RateLimitStrategy, RetryConfig, RetryStrategy, SyncStrategy, WebhookConfig, WebhookEvent, WebhookSignatureAlgorithm } from '@objectstack/spec/integration';
+import { AuthenticationSchema, ConflictResolutionSchema, ConnectorSchema, ConnectorActionSchema, ConnectorStatusSchema, ConnectorTriggerSchema, ConnectorTypeSchema, DataSyncConfigSchema, FieldTransformSchema, RateLimitStrategySchema, RetryConfigSchema, RetryStrategySchema, SyncStrategySchema, WebhookConfigSchema, WebhookEventSchema, WebhookSignatureAlgorithmSchema } from '@objectstack/spec/integration';
+import type { Authentication, ConflictResolution, Connector, ConnectorAction, ConnectorStatus, ConnectorTrigger, ConnectorType, DataSyncConfig, FieldTransform, RateLimitStrategy, RetryConfig, RetryStrategy, SyncStrategy, WebhookConfig, WebhookEvent, WebhookSignatureAlgorithm } from '@objectstack/spec/integration';
 
 // Validate data
 const result = AuthenticationSchema.parse(data);
@@ -33,7 +33,15 @@ const result = AuthenticationSchema.parse(data);
 
 ---
 
+## ConnectorAction
+
+---
+
 ## ConnectorStatus
+
+---
+
+## ConnectorTrigger
 
 ---
 

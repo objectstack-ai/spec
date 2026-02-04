@@ -37,7 +37,7 @@ export const PresignedUrlResponseSchema = BaseResponseSchema.extend({
     downloadUrl: z.string().optional().describe('Public/Private preview URL'),
     fileId: z.string().describe('Temporary File ID'),
     method: z.enum(['PUT', 'POST']).describe('HTTP Method to use'),
-    headers: z.record(z.string()).optional().describe('Required headers for upload'),
+    headers: z.record(z.string(), z.string()).optional().describe('Required headers for upload'),
     expiresIn: z.number().describe('URL expiry in seconds'),
   }),
 });

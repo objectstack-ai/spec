@@ -5,9 +5,9 @@
     "hub-federation",
     "license",
     "marketplace",
-    "marketplace-enhanced",
     "plugin-registry",
     "plugin-security",
+    "registry-config",
     "space",
     "tenant"
   ]

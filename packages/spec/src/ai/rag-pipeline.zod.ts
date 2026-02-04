@@ -75,9 +75,9 @@ export const DocumentMetadataSchema = z.object({
   source: z.string().describe('Document source (file path, URL, etc.)'),
   sourceType: z.enum(['file', 'url', 'api', 'database', 'custom']).optional(),
   title: z.string().optional(),
-  author: z.string().optdatetime().optional().describe('ISO timestamp'),
+  author: z.string().optional().describe('Document author'),
+  createdAt: z.string().datetime().optional().describe('ISO timestamp'),
   updatedAt: z.string().datetime().optional().describe('ISO timestamp'),
-  updatedAt: z.string().optional().describe('ISO timestamp'),
   tags: z.array(z.string()).optional(),
   category: z.string().optional(),
   language: z.string().optional().describe('Document language (ISO 639-1 code)'),
@@ -144,8 +144,8 @@ export const VectorStoreConfigSchema = z.object({
   
   /** Connection */
   host: z.string().optional().describe('Vector store host'),
-  port: z.number().int().optional().describe('Vec'),
-  secretRef: z.string().optional().describe('Reference to stored,
+  port: z.number().int().optional().describe('Vector store port'),
+  secretRef: z.string().optional().describe('Reference to stored secret'),
   apiKey: z.string().optional().describe('API key or reference to secret'),
   
   /** Configuration */
@@ -181,6 +181,7 @@ export const DocumentLoaderConfigSchema = z.object({
   
   /** Custom Loader */
   loaderConfig: z.record(z.string(), z.any()).optional().describe('Custom loader-specific config'),
+});
 
 /**
  * Filter Expression Schema
@@ -191,7 +192,12 @@ export const FilterExpressionSchema = z.object({
   value: z.union([z.string(), z.number(), z.boolean(), z.array(z.union([z.string(), z.number()]))]).describe('Filter value'),
 });
 
-export const FilterGroupSchema = z.object({
+export type FilterGroup = {
+  logic: 'and' | 'or';
+  filters: (z.infer<typeof FilterExpressionSchema> | FilterGroup)[];
+};
+
+export const FilterGroupSchema: z.ZodType<FilterGroup> = z.object({
   logic: z.enum(['and', 'or']).default('and'),
   filters: z.array(z.union([FilterExpressionSchema, z.lazy(() => FilterGroupSchema)])),
 });
@@ -230,9 +236,7 @@ export const RAGPipelineConfigSchema = z.object({
   contextWindow: z.number().int().positive().optional().describe('LLM context window size'),
   
   /** Metadata Filtering */
-  metadataFilters: MetadataFilterSchema.optional().describe('Global filters for retrieval
-    z.array(z.union([z.string(), z.number()])),
-  ])).optional().describe('Filters for retrieval (e.g., {category: "docs", status: "published"})'),
+  metadataFilters: MetadataFilterSchema.optional().describe('Global filters for retrieval'),
   
   /** Caching */
   enableCache: z.boolean().default(true),

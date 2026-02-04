@@ -593,6 +593,7 @@ export type DevOpsTool = z.infer<typeof DevOpsToolSchema>;
 export const fullStackDevOpsAgentExample: DevOpsAgent = {
   name: 'devops_automation_agent',
   label: 'DevOps Automation Agent',
+  visibility: 'organization',
   avatar: '/avatars/devops-bot.png',
   role: 'Senior Full-Stack DevOps Engineer',
   

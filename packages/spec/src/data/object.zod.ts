@@ -221,7 +221,7 @@ export const CDCConfigSchema = z.object({
  * fields:
  *   project:
  *     type: lookup
- *     reference_to: project
+ *     reference: project
  *   status:
  *     type: select
  *     options: [todo, in_progress, done]

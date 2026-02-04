@@ -12,8 +12,8 @@ description: Agent Action protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AgentActionSchema, AgentActionResultSchema, AgentActionSequenceSchema, AgentActionSequenceResultSchema, ComponentActionParamsSchema, ComponentActionTypeSchema, DataActionParamsSchema, DataActionTypeSchema, FormActionParamsSchema, FormActionTypeSchema, IntentActionMappingSchema, NavigationActionParamsSchema, NavigationActionTypeSchema, UIActionTypeSchema, ViewActionParamsSchema, ViewActionTypeSchema, WorkflowActionParamsSchema, WorkflowActionTypeSchema } from '@objectstack/spec/ai';
-import type { AgentAction, AgentActionResult, AgentActionSequence, AgentActionSequenceResult, ComponentActionParams, ComponentActionType, DataActionParams, DataActionType, FormActionParams, FormActionType, IntentActionMapping, NavigationActionParams, NavigationActionType, UIActionType, ViewActionParams, ViewActionType, WorkflowActionParams, WorkflowActionType } from '@objectstack/spec/ai';
+import { AgentActionSchema, AgentActionResultSchema, AgentActionSequenceSchema, AgentActionSequenceResultSchema, ComponentActionParamsSchema, ComponentActionTypeSchema, ComponentAgentActionSchema, DataActionParamsSchema, DataActionTypeSchema, DataAgentActionSchema, FormActionParamsSchema, FormActionTypeSchema, FormAgentActionSchema, IntentActionMappingSchema, NavigationActionParamsSchema, NavigationActionTypeSchema, NavigationAgentActionSchema, TypedAgentActionSchema, UIActionTypeSchema, ViewActionParamsSchema, ViewActionTypeSchema, ViewAgentActionSchema, WorkflowActionParamsSchema, WorkflowActionTypeSchema, WorkflowAgentActionSchema } from '@objectstack/spec/ai';
+import type { AgentAction, AgentActionResult, AgentActionSequence, AgentActionSequenceResult, ComponentActionParams, ComponentActionType, ComponentAgentAction, DataActionParams, DataActionType, DataAgentAction, FormActionParams, FormActionType, FormAgentAction, IntentActionMapping, NavigationActionParams, NavigationActionType, NavigationAgentAction, TypedAgentAction, UIActionType, ViewActionParams, ViewActionType, ViewAgentAction, WorkflowActionParams, WorkflowActionType, WorkflowAgentAction } from '@objectstack/spec/ai';
 
 // Validate data
 const result = AgentActionSchema.parse(data);
@@ -45,6 +45,10 @@ const result = AgentActionSchema.parse(data);
 
 ---
 
+## ComponentAgentAction
+
+---
+
 ## DataActionParams
 
 ---
@@ -53,11 +57,19 @@ const result = AgentActionSchema.parse(data);
 
 ---
 
+## DataAgentAction
+
+---
+
 ## FormActionParams
 
 ---
 
 ## FormActionType
+
+---
+
+## FormAgentAction
 
 ---
 
@@ -73,6 +85,14 @@ const result = AgentActionSchema.parse(data);
 
 ---
 
+## NavigationAgentAction
+
+---
+
+## TypedAgentAction
+
+---
+
 ## UIActionType
 
 ---
@@ -85,9 +105,17 @@ const result = AgentActionSchema.parse(data);
 
 ---
 
+## ViewAgentAction
+
+---
+
 ## WorkflowActionParams
 
 ---
 
 ## WorkflowActionType
+
+---
+
+## WorkflowAgentAction
 

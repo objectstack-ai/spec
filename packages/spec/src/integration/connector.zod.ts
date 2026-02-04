@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { WebhookSchema } from '../automation/webhook.zod';
-import { AuthConfigSchema as ConnectorAuthConfigSchema } from '../auth/config.zod';
+import { AuthConfigSchema as ConnectorAuthConfigSchema } from '../system/auth-config.zod';
 import { FieldMappingSchema as BaseFieldMappingSchema } from '../shared/mapping.zod';
 
 /**
@@ -427,6 +427,28 @@ export const ConnectorStatusSchema = z.enum([
 ]).describe('Connector status');
 
 export type ConnectorStatus = z.infer<typeof ConnectorStatusSchema>;
+
+/**
+ * Connector Action Definition
+ */
+export const ConnectorActionSchema = z.object({
+  key: z.string().describe('Action key (machine name)'),
+  label: z.string().describe('Human readable label'),
+  description: z.string().optional(),
+  inputSchema: z.record(z.string(), z.any()).optional().describe('Input parameters schema (JSON Schema)'),
+  outputSchema: z.record(z.string(), z.any()).optional().describe('Output schema (JSON Schema)'),
+});
+
+/**
+ * Connector Trigger Definition
+ */
+export const ConnectorTriggerSchema = z.object({
+  key: z.string().describe('Trigger key'),
+  label: z.string().describe('Trigger label'),
+  description: z.string().optional(),
+  type: z.enum(['polling', 'webhook']).describe('Trigger type'),
+  interval: z.number().optional().describe('Polling interval in seconds'),
+});
 
 /**
  * Base Connector Schema

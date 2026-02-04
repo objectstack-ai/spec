@@ -12,8 +12,8 @@ description: Widget protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { FieldWidgetPropsSchema, WidgetEventSchema, WidgetLifecycleSchema, WidgetManifestSchema, WidgetPropertySchema } from '@objectstack/spec/ui';
-import type { FieldWidgetProps, WidgetEvent, WidgetLifecycle, WidgetManifest, WidgetProperty } from '@objectstack/spec/ui';
+import { FieldWidgetPropsSchema, WidgetEventSchema, WidgetLifecycleSchema, WidgetManifestSchema, WidgetPropertySchema, WidgetSourceSchema } from '@objectstack/spec/ui';
+import type { FieldWidgetProps, WidgetEvent, WidgetLifecycle, WidgetManifest, WidgetProperty, WidgetSource } from '@objectstack/spec/ui';
 
 // Validate data
 const result = FieldWidgetPropsSchema.parse(data);
@@ -38,4 +38,8 @@ const result = FieldWidgetPropsSchema.parse(data);
 ---
 
 ## WidgetProperty
+
+---
+
+## WidgetSource
 

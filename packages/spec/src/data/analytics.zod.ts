@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { FilterConditionSchema } from './filter.zod';
 
 /**
  * Analytics/Semantic Layer Protocol

@@ -224,12 +224,9 @@ export const ConversationSessionSchema = z.object({
   status: z.enum(['active', 'paused', 'completed', 'archived']).default('active'),
   
   /** Timestamps */
-  createdAt: z.string().describe('ISO 8601 timestamp'),
-  updatedAt: z.string().describe('ISO 8601 timestamp'),
-  expiresAt: z.string().optional().describe('ISO 8601 timestamp'),
-  atetime().describe('ISO 8601 timestamp'),
+  createdAt: z.string().datetime().describe('ISO 8601 timestamp'),
   updatedAt: z.string().datetime().describe('ISO 8601 timestamp'),
-  expiresAt: z.string().datetimeing()).optional(),
+  expiresAt: z.string().datetime().optional().describe('ISO 8601 timestamp'),
   metadata: z.record(z.string(), z.any()).optional(),
 });
 
@@ -253,10 +250,7 @@ export const ConversationSummarySchema = z.object({
   }).describe('Range of messages summarized'),
   
   /** Metadata */
-  generatedAt: z.string().describe('ISO 8601 timestamp'),
-  modelId: z.string().optional().describe('Model used for summarization'),
-});
-atetime().describe('ISO 8601 timestamp'),
+  generatedAt: z.string().datetime().describe('ISO 8601 timestamp'),
   modelId: z.string().optional().describe('Model used for summarization'),
 });
 
@@ -265,7 +259,7 @@ atetime().describe('ISO 8601 timestamp'),
  */
 export const MessagePruningEventSchema = z.object({
   /** Event Details */
-  timestamp: z.string().datetime
+  timestamp: z.string().datetime().describe('Event timestamp'),
   /** Pruned Messages */
   prunedMessages: z.array(z.object({
     messageId: z.string(),
@@ -309,11 +303,10 @@ export const ConversationAnalyticsSchema = z.object({
   
   /** Duration */
   duration: z.number().nonnegative().optional().describe('Session duration in seconds'),
-  firstMessageAt: z.string().optional().describe('ISO 8601 timestamp'),
-  lastMessageAt: z.string().optional().describe('ISO 8601 timestamp'),
+  firstMessageAt: z.string().datetime().optional().describe('ISO 8601 timestamp'),
+  lastMessageAt: z.string().datetime().optional().describe('ISO 8601 timestamp'),
 });
-datetime().optional().describe('ISO 8601 timestamp'),
-  lastMessageAt: z.string().datetime
+
 export type MessageRole = z.infer<typeof MessageRoleSchema>;
 export type MessageContentType = z.infer<typeof MessageContentTypeSchema>;
 export type MessageContent = z.infer<typeof MessageContentSchema>;

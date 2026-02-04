@@ -12,8 +12,8 @@ description: Connector protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AuthenticationSchema, ConflictResolutionSchema, ConnectorSchema, DataSyncConfigSchema } from '@objectstack/spec/automation';
-import type { Authentication, ConflictResolution, Connector, DataSyncConfig } from '@objectstack/spec/automation';
+import { AuthenticationSchema, ConflictResolutionSchema, ConnectorSchema, ConnectorTriggerSchema, DataSyncConfigSchema } from '@objectstack/spec/automation';
+import type { Authentication, ConflictResolution, Connector, ConnectorTrigger, DataSyncConfig } from '@objectstack/spec/automation';
 
 // Validate data
 const result = AuthenticationSchema.parse(data);
@@ -30,6 +30,10 @@ const result = AuthenticationSchema.parse(data);
 ---
 
 ## Connector
+
+---
+
+## ConnectorTrigger
 
 ---
 

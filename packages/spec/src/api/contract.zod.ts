@@ -124,22 +124,18 @@ export const DeleteResponseSchema = BaseResponseSchema.extend({
 /**
  * Standard API Contracts map
  * Used for generating SDKs and Documentation
- */IdRequestSchema,
+ */
+export const StandardApiContracts = {
+  delete: {
+    input: IdRequestSchema,
     output: DeleteResponseSchema
   },
   get: {
     input: IdRequestSchema,
+    output: SingleRecordResponseSchema
   },
   update: {
     input: UpdateRequestSchema,
-    output: SingleRecordResponseSchema
-  },
-  delete: {
-    input: z.object({}), // usually just ID in URL
-    output: DeleteResponseSchema
-  },
-  get: {
-    input: z.object({}), // usually just ID in URL
     output: SingleRecordResponseSchema
   },
   list: {

@@ -444,8 +444,7 @@ const productionEndpoint = ApiEndpointRegistration.create({
   // Standard OpenAPI security (in addition to RBAC)
   security: [
     {
-      type: 'http',
-      scheme: 'bearer',
+      bearerAuth: []
     },
   ],
   

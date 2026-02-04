@@ -12,12 +12,16 @@ description: Workflow protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { CustomScriptActionSchema, EmailAlertActionSchema, FieldUpdateActionSchema, HttpCallActionSchema, PushNotificationActionSchema, SlackMessageActionSchema, SmsNotificationActionSchema, TaskCreationActionSchema, TeamsMessageActionSchema, TimeTriggerSchema, WebhookTriggerActionSchema, WorkflowActionSchema, WorkflowRuleSchema, WorkflowTriggerTypeSchema } from '@objectstack/spec/automation';
-import type { CustomScriptAction, EmailAlertAction, FieldUpdateAction, HttpCallAction, PushNotificationAction, SlackMessageAction, SmsNotificationAction, TaskCreationAction, TeamsMessageAction, TimeTrigger, WebhookTriggerAction, WorkflowAction, WorkflowRule, WorkflowTriggerType } from '@objectstack/spec/automation';
+import { ConnectorActionRefSchema, CustomScriptActionSchema, EmailAlertActionSchema, FieldUpdateActionSchema, HttpCallActionSchema, PushNotificationActionSchema, TaskCreationActionSchema, TimeTriggerSchema, WorkflowActionSchema, WorkflowRuleSchema, WorkflowTriggerTypeSchema } from '@objectstack/spec/automation';
+import type { ConnectorActionRef, CustomScriptAction, EmailAlertAction, FieldUpdateAction, HttpCallAction, PushNotificationAction, TaskCreationAction, TimeTrigger, WorkflowAction, WorkflowRule, WorkflowTriggerType } from '@objectstack/spec/automation';
 
 // Validate data
-const result = CustomScriptActionSchema.parse(data);
+const result = ConnectorActionRefSchema.parse(data);
 ```
+
+---
+
+## ConnectorActionRef
 
 ---
 
@@ -41,27 +45,11 @@ const result = CustomScriptActionSchema.parse(data);
 
 ---
 
-## SlackMessageAction
-
----
-
-## SmsNotificationAction
-
----
-
 ## TaskCreationAction
 
 ---
 
-## TeamsMessageAction
-
----
-
 ## TimeTrigger
-
----
-
-## WebhookTriggerAction
 
 ---
 

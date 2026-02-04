@@ -12,8 +12,8 @@ description: Contract protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ApiErrorSchema, BaseResponseSchema, BulkRequestSchema, BulkResponseSchema, CreateRequestSchema, DeleteResponseSchema, ExportRequestSchema, ListRecordResponseSchema, ModificationResultSchema, RecordDataSchema, SingleRecordResponseSchema, UpdateRequestSchema } from '@objectstack/spec/api';
-import type { ApiError, BaseResponse, BulkRequest, BulkResponse, CreateRequest, DeleteResponse, ExportRequest, ListRecordResponse, ModificationResult, RecordData, SingleRecordResponse, UpdateRequest } from '@objectstack/spec/api';
+import { ApiErrorSchema, BaseResponseSchema, BulkRequestSchema, BulkResponseSchema, CreateRequestSchema, DeleteResponseSchema, ExportRequestSchema, IdRequestSchema, ListRecordResponseSchema, ModificationResultSchema, RecordDataSchema, SingleRecordResponseSchema, UpdateRequestSchema } from '@objectstack/spec/api';
+import type { ApiError, BaseResponse, BulkRequest, BulkResponse, CreateRequest, DeleteResponse, ExportRequest, IdRequest, ListRecordResponse, ModificationResult, RecordData, SingleRecordResponse, UpdateRequest } from '@objectstack/spec/api';
 
 // Validate data
 const result = ApiErrorSchema.parse(data);
@@ -46,6 +46,10 @@ const result = ApiErrorSchema.parse(data);
 ---
 
 ## ExportRequest
+
+---
+
+## IdRequest
 
 ---
 

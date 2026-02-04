@@ -1,6 +1,8 @@
 {
   "title": "API Protocol",
   "pages": [
+    "analytics",
+    "auth",
     "batch",
     "contract",
     "discovery",
@@ -10,12 +12,14 @@
     "graphql",
     "http-cache",
     "hub",
+    "metadata",
     "odata",
     "protocol",
     "realtime",
     "registry",
     "rest-server",
     "router",
+    "storage",
     "websocket"
   ]
 }

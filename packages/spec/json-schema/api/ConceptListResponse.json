@@ -1,0 +1,7 @@
+{
+  "$ref": "#/definitions/ConceptListResponse",
+  "definitions": {
+    "ConceptListResponse": {}
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

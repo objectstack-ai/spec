@@ -1,8 +1,10 @@
 {
   "title": "Data Protocol",
   "pages": [
+    "analytics",
     "data-engine",
     "dataset",
+    "datasource",
     "document",
     "driver",
     "driver-nosql",

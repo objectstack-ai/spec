@@ -12,8 +12,8 @@ description: Rag Pipeline protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ChunkingStrategySchema, DocumentChunkSchema, DocumentLoaderConfigSchema, DocumentMetadataSchema, EmbeddingModelSchema, RAGPipelineConfigSchema, RAGPipelineStatusSchema, RAGQueryRequestSchema, RAGQueryResponseSchema, RerankingConfigSchema, RetrievalStrategySchema, VectorStoreConfigSchema, VectorStoreProviderSchema } from '@objectstack/spec/ai';
-import type { ChunkingStrategy, DocumentChunk, DocumentLoaderConfig, DocumentMetadata, EmbeddingModel, RAGPipelineConfig, RAGPipelineStatus, RAGQueryRequest, RAGQueryResponse, RerankingConfig, RetrievalStrategy, VectorStoreConfig, VectorStoreProvider } from '@objectstack/spec/ai';
+import { ChunkingStrategySchema, DocumentChunkSchema, DocumentLoaderConfigSchema, DocumentMetadataSchema, EmbeddingModelSchema, FilterExpressionSchema, FilterGroupSchema, MetadataFilterSchema, RAGPipelineConfigSchema, RAGPipelineStatusSchema, RAGQueryRequestSchema, RAGQueryResponseSchema, RerankingConfigSchema, RetrievalStrategySchema, VectorStoreConfigSchema, VectorStoreProviderSchema } from '@objectstack/spec/ai';
+import type { ChunkingStrategy, DocumentChunk, DocumentLoaderConfig, DocumentMetadata, EmbeddingModel, FilterExpression, FilterGroup, MetadataFilter, RAGPipelineConfig, RAGPipelineStatus, RAGQueryRequest, RAGQueryResponse, RerankingConfig, RetrievalStrategy, VectorStoreConfig, VectorStoreProvider } from '@objectstack/spec/ai';
 
 // Validate data
 const result = ChunkingStrategySchema.parse(data);
@@ -38,6 +38,18 @@ const result = ChunkingStrategySchema.parse(data);
 ---
 
 ## EmbeddingModel
+
+---
+
+## FilterExpression
+
+---
+
+## FilterGroup
+
+---
+
+## MetadataFilter
 
 ---
 

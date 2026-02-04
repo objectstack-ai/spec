@@ -12,8 +12,8 @@ description: Trigger Registry protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { AuthFieldSchema, AuthenticationTypeSchema, ConnectorCategorySchema, ConnectorInstanceSchema, ConnectorOperationSchema, ConnectorTriggerSchema, OAuth2ConfigSchema, OperationParameterSchema, OperationTypeSchema } from '@objectstack/spec/automation';
-import type { AuthField, AuthenticationType, ConnectorCategory, ConnectorInstance, ConnectorOperation, ConnectorTrigger, OAuth2Config, OperationParameter, OperationType } from '@objectstack/spec/automation';
+import { AuthFieldSchema, AuthenticationTypeSchema, ConnectorCategorySchema, ConnectorInstanceSchema, ConnectorOperationSchema, OAuth2ConfigSchema, OperationParameterSchema, OperationTypeSchema } from '@objectstack/spec/automation';
+import type { AuthField, AuthenticationType, ConnectorCategory, ConnectorInstance, ConnectorOperation, OAuth2Config, OperationParameter, OperationType } from '@objectstack/spec/automation';
 
 // Validate data
 const result = AuthFieldSchema.parse(data);
@@ -38,10 +38,6 @@ const result = AuthFieldSchema.parse(data);
 ---
 
 ## ConnectorOperation
-
----
-
-## ConnectorTrigger
 
 ---
 

@@ -246,7 +246,7 @@ describe('JobSchema', () => {
         type: 'cron',
         expression: '0 0 * * *',
       },
-      handler: async () => {},
+      handler: 'jobs/handler.ts',
     };
 
     expect(() => JobSchema.parse(job)).not.toThrow();
@@ -265,7 +265,7 @@ describe('JobSchema', () => {
         id: 'job-123',
         name,
         schedule: { type: 'cron' as const, expression: '0 0 * * *' },
-        handler: async () => {},
+        handler: 'jobs/handler.ts',
       };
       expect(() => JobSchema.parse(job)).not.toThrow();
     });
@@ -284,7 +284,7 @@ describe('JobSchema', () => {
         id: 'job-123',
         name,
         schedule: { type: 'cron', expression: '0 0 * * *' },
-        handler: async () => {},
+        handler: 'jobs/handler.ts',
       })).toThrow();
     });
   });
@@ -294,7 +294,7 @@ describe('JobSchema', () => {
       id: 'job-123',
       name: 'test_job',
       schedule: { type: 'interval', intervalMs: 60000 },
-      handler: async () => {},
+      handler: 'jobs/handler.ts',
     });
 
     expect(job.enabled).toBe(true);
@@ -309,9 +309,7 @@ describe('JobSchema', () => {
         expression: '0 9 * * MON-FRI',
         timezone: 'America/New_York',
       },
-      handler: async () => {
-        console.log('Job executed');
-      },
+      handler: 'jobs/handler.ts',
       retryPolicy: {
         maxRetries: 5,
         backoffMs: 2000,
@@ -338,7 +336,7 @@ describe('JobSchema', () => {
         id: 'job-789',
         name: 'test_job',
         schedule,
-        handler: async () => {},
+        handler: 'jobs/handler.ts',
       };
       expect(() => JobSchema.parse(job)).not.toThrow();
     });
@@ -349,7 +347,7 @@ describe('JobSchema', () => {
       id: 'job-timeout',
       name: 'long_running_job',
       schedule: { type: 'cron' as const, expression: '0 0 * * *' },
-      handler: async () => {},
+      handler: 'jobs/handler.ts',
       timeout: 600000, // 10 minutes
     };
 
@@ -497,9 +495,7 @@ describe('Job Scheduling Integration', () => {
         expression: '0 2 * * *', // 2 AM daily
         timezone: 'America/New_York',
       },
-      handler: async () => {
-        // Perform backup
-      },
+      handler: 'jobs/backup.ts',
       retryPolicy: {
         maxRetries: 3,
         backoffMs: 5000,
@@ -520,9 +516,7 @@ describe('Job Scheduling Integration', () => {
         type: 'interval',
         intervalMs: 3600000, // 1 hour
       },
-      handler: async () => {
-        // Cleanup temp files
-      },
+      handler: 'jobs/cleanup.ts',
       timeout: 60000, // 1 minute
     };
 
@@ -537,9 +531,7 @@ describe('Job Scheduling Integration', () => {
         type: 'once',
         at: '2024-12-31T00:00:00Z',
       },
-      handler: async () => {
-        // Run migration
-      },
+      handler: 'jobs/migration.ts',
       retryPolicy: {
         maxRetries: 0, // No retries for migrations
       },

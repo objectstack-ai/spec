@@ -12,8 +12,8 @@ description: Page protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { PageSchema, PageComponentSchema, PageComponentTypeSchema, PageRegionSchema } from '@objectstack/spec/ui';
-import type { Page, PageComponent, PageComponentType, PageRegion } from '@objectstack/spec/ui';
+import { PageSchema, PageComponentSchema, PageComponentTypeSchema, PageRegionSchema, PageVariableSchema } from '@objectstack/spec/ui';
+import type { Page, PageComponent, PageComponentType, PageRegion, PageVariable } from '@objectstack/spec/ui';
 
 // Validate data
 const result = PageSchema.parse(data);
@@ -34,4 +34,8 @@ const result = PageSchema.parse(data);
 ---
 
 ## PageRegion
+
+---
+
+## PageVariable
 

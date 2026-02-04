@@ -2,9 +2,20 @@
   "title": "Kernel Protocol",
   "pages": [
     "context",
-    "logger",
+    "events",
+    "feature",
     "manifest",
+    "metadata-loader",
     "plugin",
-    "scoped-storage"
+    "plugin-capability",
+    "plugin-lifecycle-advanced",
+    "plugin-lifecycle-events",
+    "plugin-loading",
+    "plugin-security-advanced",
+    "plugin-structure",
+    "plugin-validator",
+    "plugin-versioning",
+    "service-registry",
+    "startup-orchestrator"
   ]
 }

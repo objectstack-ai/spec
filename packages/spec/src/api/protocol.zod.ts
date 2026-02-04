@@ -4,9 +4,8 @@ import { ApiCapabilitiesSchema, ApiRoutesSchema } from './discovery.zod';
 import { BatchUpdateRequestSchema, BatchUpdateResponseSchema, BatchOptionsSchema } from './batch.zod';
 import { MetadataCacheRequestSchema, MetadataCacheResponseSchema } from './http-cache.zod';
 import { QuerySchema } from '../data/query.zod';
-import { EnhancedApiErrorSchema as ApiErrorSchema } from './errors.zod';
 import { 
-  AnalyticsQueryRequestSchema, 
+  AnalyticsQueryRequestSchema,  
   AnalyticsResultResponseSchema, 
   GetAnalyticsMetaRequestSchema, 
   AnalyticsMetadataResponseSchema 

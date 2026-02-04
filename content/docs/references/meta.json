@@ -3,14 +3,15 @@
   "pages": [
     "ai",
     "api",
-    "auth",
     "automation",
     "contracts",
     "data",
     "hub",
+    "identity",
     "integration",
-    "permission",
+    "kernel",
     "qa",
+    "security",
     "shared",
     "system",
     "ui"

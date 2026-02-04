@@ -389,8 +389,11 @@ export const AgentActionSequenceSchema = z.object({
   /**
    * Transaction mode (all-or-nothing)
    */
-  atomic: z.boolean().defadatetime().optional().describe('Execution start time (ISO 8601)'),
-    endTime: z.string().datetime
+  atomic: z.boolean().default(false).describe('Transaction mode (all-or-nothing)'),
+
+  startTime: z.string().datetime().optional().describe('Execution start time (ISO 8601)'),
+
+  endTime: z.string().datetime().optional().describe('Execution end time (ISO 8601)'),
   /**
    * Metadata
    */

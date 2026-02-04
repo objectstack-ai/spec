@@ -430,14 +430,6 @@ export const ApiEndpointRegistrationSchema = z.object({
   requiredPermissions: z.array(z.string()).optional().default([])
     .describe('Required RBAC permissions (e.g., "customer.read", "manage_users")'),
   
-  /** Security requirements */
-  security: z.array(z.object({
-    type: z.enum(['apiKey', 'http', 'oauth2', 'openIdConnect']),
-    scheme: z.string().optional(), // bearer, basic, etc.
-    name: z.string().optional(),   // for apiKey
-    in: z.enum(['header', 'query', 'cookie']).optional(),
-  })).optional().describe('Security requirements'),
-  
   /**
    * Route Priority
    * 

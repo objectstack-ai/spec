@@ -12,8 +12,8 @@ description: Marketplace protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { MarketplacePluginSchema, PluginAuthorSchema, PluginPricingSchema } from '@objectstack/spec/hub';
-import type { MarketplacePlugin, PluginAuthor, PluginPricing } from '@objectstack/spec/hub';
+import { MarketplacePluginSchema, PluginAuthorSchema, PluginPricingSchema, PluginVersionSchema } from '@objectstack/spec/hub';
+import type { MarketplacePlugin, PluginAuthor, PluginPricing, PluginVersion } from '@objectstack/spec/hub';
 
 // Validate data
 const result = MarketplacePluginSchema.parse(data);
@@ -30,4 +30,8 @@ const result = MarketplacePluginSchema.parse(data);
 ---
 
 ## PluginPricing
+
+---
+
+## PluginVersion
 

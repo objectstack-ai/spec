@@ -22,12 +22,12 @@ import { WorkflowRuleSchema } from './automation/workflow.zod';
 import { FlowSchema } from './automation/flow.zod';
 
 // Security Protocol
-import { RoleSchema } from './auth/role.zod';
-import { PermissionSetSchema } from './permission/permission.zod';
+import { RoleSchema } from './identity/role.zod';
+import { PermissionSetSchema } from './security/permission.zod';
 
 import { ApiEndpointSchema } from './api/endpoint.zod';
 import { ApiCapabilitiesSchema } from './api/discovery.zod';
-import { FeatureFlagSchema } from './system/feature.zod';
+import { FeatureFlagSchema } from './kernel/feature.zod';
 
 // AI Protocol
 import { AgentSchema } from './ai/agent.zod';
