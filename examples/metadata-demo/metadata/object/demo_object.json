@@ -1,0 +1,16 @@
+{
+  "name": "demo_object",
+  "label": "Demo Object",
+  "type": "object",
+  "fields": {
+    "name": {
+      "type": "text",
+      "label": "Name",
+      "required": true
+    },
+    "status": {
+      "type": "select",
+      "options": ["Draft", "Active"]
+    }
+  }
+}

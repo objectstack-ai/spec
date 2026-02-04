@@ -42,6 +42,10 @@
           "items": {
             "type": "string"
           }
+        },
+        "loader": {
+          "type": "string",
+          "description": "Specific loader to use (e.g. filesystem, database)"
         }
       },
       "additionalProperties": false

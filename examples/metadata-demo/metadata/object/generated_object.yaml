@@ -1,0 +1,6 @@
+name: generated_object
+label: Generated Object
+type: object
+fields:
+  auto_field:
+    type: text

@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "dist",
+    "paths": {
+      "@objectstack/metadata": ["../../packages/metadata/src/index.ts"],
+      "@objectstack/spec": ["../../packages/spec/src/index.ts"],
+      "@objectstack/core": ["../../packages/core/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*"]
+}

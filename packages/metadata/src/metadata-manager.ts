@@ -4,9 +4,7 @@
  * Main orchestrator for metadata loading, saving, and persistence
  */
 
-import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { createHash } from 'node:crypto';
 import { watch as chokidarWatch, type FSWatcher } from 'chokidar';
 import type {
   MetadataManagerConfig,
@@ -111,7 +109,6 @@ export class MetadataManager {
     options?: MetadataLoadOptions
   ): Promise<T[]> {
     const results: T[] = [];
-    const seen = new Set<string>(); // De-duplication key needed? For now, simple aggregation
 
     for (const loader of this.loaders.values()) {
         try {
@@ -317,15 +314,5 @@ export class MetadataManager {
         });
       }
     }
-  }
-
-  /**
-   * Generate ETag for content
-   * Uses SHA-256 hash truncated to 32 characters for reasonable collision resistance
-   * while keeping ETag headers compact (full 64-char hash is overkill for this use case)
-   */
-  private generateETag(content: string): string {
-    const hash = createHash('sha256').update(content).digest('hex').substring(0, 32);
-    return `"${hash}"`;
   }
 }

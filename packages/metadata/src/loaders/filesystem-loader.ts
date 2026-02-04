@@ -342,7 +342,7 @@ export class FilesystemLoader implements MetadataLoader {
       return {
         success: true,
         path: filePath,
-        format,
+        // format, // Not in schema
         size: Buffer.byteLength(content, 'utf-8'),
         backupPath,
         saveTime: Date.now() - startTime,
@@ -353,14 +353,7 @@ export class FilesystemLoader implements MetadataLoader {
         name,
         error: error instanceof Error ? error.message : String(error),
       });
-
-      return {
-        success: false,
-        path: '', // TODO: Should this be optional in result?
-        format,
-        error: error instanceof Error ? error : new Error(String(error)),
-        saveTime: Date.now() - startTime,
-      };
+      throw error;
     }
   }
 
