@@ -201,8 +201,6 @@ function generateZodFileMarkdown(zodFile: string, schemas: Array<{name: string, 
   md += `description: ${zodTitle} protocol schemas\n`;
   md += `---\n\n`;
   
-  md += `# ${zodTitle}\n\n`;
-  
   if (fileDesc) {
       md += `${fileDesc}\n\n`;
   }
@@ -314,7 +312,6 @@ Object.entries(CATEGORIES).forEach(([category, title]) => {
   mdx += `description: Complete reference for all ${title.toLowerCase()} schemas\n`;
   mdx += `---\n\n`;
   
-  mdx += `# ${title}\n\n`;
   mdx += `This section contains all protocol schemas for the ${category} layer of ObjectStack.\n\n`;
   
   mdx += `<Cards>\n`;
