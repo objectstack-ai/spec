@@ -14,18 +14,22 @@ export const ConnectReq = createParamDecorator(
 
 @Injectable()
 export class ObjectStackService {
-  constructor(@Inject(OBJECT_KERNEL) private readonly kernel: any) {}
+  public dispatcher: HttpDispatcher;
+
+  constructor(@Inject(OBJECT_KERNEL) private readonly kernel: ObjectKernel) {
+    this.dispatcher = new HttpDispatcher(kernel);
+  }
 
   getKernel() {
     return this.kernel;
   }
 
-  async executeGraphQL(query: string, variables: any, request: any) {
-    return this.kernel.graphql(query, variables, { request });
-  }
-
   async call(action: string, params: any, request: any) {
-    return this.kernel.broker.call(action, params, { request });
+    const k = this.kernel as any;
+    if (k.broker) {
+        return k.broker.call(action, params, { request });
+    }
+    throw new Error('Kernel Broker not available');
   }
 }
 
@@ -42,66 +46,57 @@ export class ObjectStackController {
   // --- Discovery Endpoint ---
   @Get()
   discovery() {
-    const prefix = '/api'; // NestJS controller is mapped to 'api'
-    const kernel = this.service.getKernel() as any;
-    const services = kernel.services || {};
-    const hasGraphQL = !!(services['graphql'] || kernel.graphql);
-    // NestJS adapter doesn't expose services map directly but we have access to kernel
-    // We can try to guess or use safe default
-    
-    return {
-      name: 'ObjectOS',
-      version: '1.0.0',
-      environment: process.env.NODE_ENV || 'development',
-      routes: {
-        data: `${prefix}/data`,
-        metadata: `${prefix}/metadata`,
-        auth: `${prefix}/auth`,
-        graphql: hasGraphQL ? `${prefix}/graphql` : undefined,
-        storage: `${prefix}/storage`, // NestJS implementation below
-      },
-      features: {
-        graphql: hasGraphQL,
-        search: false,
-        websockets: false, // NestJS Gateway is separate usually
-        files: true, // Implemented below
-      },
-    };
+    return this.service.dispatcher.getDiscoveryInfo('/api');
   }
 
   @Post('graphql')
   async graphql(@Body() body: any, @Req() req: any) {
-    const { query, variables } = body;
-    return this.service.executeGraphQL(query, variables, req);
+    return this.service.dispatcher.handleGraphQL(body, { request: req });
   }
 
   // Auth (Generic Auth Handler)
   @All('auth/*')
   async auth(@Req() req: any, @Res() res: any, @Body() body: any) {
-    const kernel = this.service.getKernel() as any;
-    const authService = kernel.getService?.('auth') || kernel.services?.['auth'];
-    
-    if (authService && authService.handler) {
-       const response = await authService.handler(req, res);
-       
-       if (response instanceof Response) {
-           res.status(response.status);
-           response.headers.forEach((v, k) => res.setHeader(k, v));
-           const text = await response.text();
-           res.send(text);
-           return;
-       }
-       
-       return response;
+    try {
+        const path = req.params[0] || req.url.split('/auth/')[1]?.split('?')[0] || '';
+
+        const result = await this.service.dispatcher.handleAuth(path, req.method, body, { request: req, response: res });
+        
+        if (result.handled) {
+            if (result.response) {
+                 res.status(result.response.status);
+                 if (result.response.headers) {
+                     Object.entries(result.response.headers).forEach(([k, v]) => res.setHeader(k, v));
+                 }
+                 return res.json(result.response.body);
+            }
+            if (result.result) {
+               const response = result.result;
+               // If response is a standard Response object
+               if (response && typeof response.status === 'number' && typeof response.text === 'function') {
+                    res.status(response.status);
+                    if (response.headers && typeof response.headers.forEach === 'function') {
+                        response.headers.forEach((v: string, k: string) => res.setHeader(k, v));
+                    }
+                    const text = await response.text();
+                    res.send(text);
+                    return;
+               }
+               return res.status(200).json(response);
+            }
+        }
+        
+        return res.status(404).json({ success: false, error: { message: 'Auth provider not configured', code: 404 } });
+        
+    } catch (err: any) {
+        return res.status(err.statusCode || 500).json({ 
+            success: false, 
+            error: { 
+                message: err.message || 'Internal Server Error', 
+                code: err.statusCode || 500
+            } 
+        });
     }
-    
-    // Fallback: Legacy login
-    if (req.path.endsWith('/login') && req.method === 'POST') {
-       const result = await this.service.call('auth.login', body, req);
-       return res.json(result);
-    }
-    
-    return res.status(404).json({ success: false, error: { message: 'Auth provider not configured', code: 404 } });
   }
 
   // Metadata

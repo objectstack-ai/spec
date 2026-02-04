@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { type ObjectKernel } from '@objectstack/runtime';
+import { type ObjectKernel, HttpDispatcher } from '@objectstack/runtime';
 
 export interface ObjectStackHonoOptions {
   kernel: ObjectKernel;
@@ -15,6 +15,7 @@ export function createHonoApp(options: ObjectStackHonoOptions) {
   const app = new Hono();
   const { prefix = '/api' } = options;
   const kernel = options.kernel as any;
+  const dispatcher = new HttpDispatcher(options.kernel);
 
   app.use('*', cors());
 
@@ -43,60 +44,37 @@ export function createHonoApp(options: ObjectStackHonoOptions) {
 
   // --- 0. Discovery Endpoint ---
   app.get(prefix, (c) => {
-    // Check capabilities based on registered services
-    const services = (kernel as any).services || {};
-    const hasGraphQL = !!(services['graphql'] || (kernel as any).graphql); // Kernel often has direct graphql support
-    const hasSearch = !!services['search'];
-    const hasWebSockets = !!services['realtime'];
-    const hasFiles = !!(services['file-storage'] || services['storage']?.supportsFiles);
-
-    return c.json({
-      name: 'ObjectOS',
-      version: '1.0.0',
-      environment: process.env.NODE_ENV || 'development',
-      routes: {
-        data: `${prefix}/data`,
-        metadata: `${prefix}/metadata`,
-        auth: `${prefix}/auth`,
-        graphql: hasGraphQL ? `${prefix}/graphql` : undefined,
-        storage: hasFiles ? `${prefix}/storage` : undefined,
-      },
-      features: {
-        graphql: hasGraphQL,
-        search: hasSearch,
-        websockets: hasWebSockets,
-        files: hasFiles,
-      },
-    });
+    return c.json(dispatcher.getDiscoveryInfo(prefix));
   });
 
   // --- 1. Auth (Generic Auth Handler) ---
   app.all(`${prefix}/auth/*`, async (c) => {
-    // 1. Try to use generic Auth Service if available
-    const authService = (kernel as any).getService?.('auth') || (kernel as any).services?.['auth'];
-    if (authService && authService.handler) {
-      return authService.handler(c.req.raw);
+    // subpath from /api/auth/login -> login
+    const path = c.req.path.substring(c.req.path.indexOf('/auth/') + 6);
+    
+    try {
+      const result = await dispatcher.handleAuth(path, c.req.method, await c.req.parseBody().catch(() => ({})), { request: c.req.raw });
+      
+      if (result.handled) {
+        if (result.response) {
+             return c.json(result.response.body, result.response.status as any, result.response.headers);
+        }
+        if (result.result) {
+             // If handler returns a response object
+             return result.result;
+        }
+      }
+      return c.json({ success: false, error: { message: 'Auth provider not configured', code: 404 } }, 404);
+    } catch (err: any) {
+      return c.json({ success: false, error: { message: err.message, code: err.statusCode || 500 } }, err.statusCode || 500);
     }
-
-    // 2. Fallback to Legacy Auth Spec (only for login)
-    if (c.req.path.endsWith('/login') && c.req.method === 'POST') {
-      return errorHandler(c, async () => {
-        const body = await c.req.json();
-        const data = await kernel.broker.call('auth.login', body, { request: c.req.raw });
-        return c.json(data);
-      });
-    }
-
-    return c.json({ success: false, error: { message: 'Auth provider not configured', code: 404 } }, 404);
   });
 
   // --- 2. GraphQL ---
   app.post(`${prefix}/graphql`, async (c) => {
     return errorHandler(c, async () => {
-      const { query, variables } = await c.req.json();
-      const result = await kernel.graphql(query, variables, {
-        request: c.req.raw,
-      });
+      const body = await c.req.json();
+      const result = await dispatcher.handleGraphQL(body, { request: c.req.raw });
       return c.json(result);
     });
   });

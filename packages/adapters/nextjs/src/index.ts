@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { type ObjectKernel } from '@objectstack/runtime';
+import { type ObjectKernel, HttpDispatcher } from '@objectstack/runtime';
 
 export interface NextAdapterOptions {
   kernel: ObjectKernel;
@@ -12,85 +12,46 @@ export interface NextAdapterOptions {
  */
 export function createRouteHandler(options: NextAdapterOptions) {
   const kernel = options.kernel as any;
+  const dispatcher = new HttpDispatcher(options.kernel);
 
   const success = (data: any, meta?: any) => NextResponse.json({ success: true, data, meta });
   const error = (msg: string, code: number = 500) => NextResponse.json({ success: false, error: { message: msg, code } }, { status: code });
 
   return async function handler(req: NextRequest, { params }: { params: { objectstack: string[] } }) {
-    const segments = params.objectstack || [];
+    const resolvedParams = await Promise.resolve(params);
+    const segments = resolvedParams.objectstack || [];
     const method = req.method;
     
-    // Parse path: /api/...segments...
-    // e.g., /api/graphql
-    // /api/metadata
-    // /api/data/contacts/query
-
     // --- 0. Discovery Endpoint ---
     if (segments.length === 0 && method === 'GET') {
-      const prefix = options.prefix || '/api';
-      const services = (kernel as any).services || {};
-      const hasGraphQL = !!(services['graphql'] || (kernel as any).graphql);
-      const hasSearch = !!services['search'];
-      const hasWebSockets = !!services['realtime'];
-      const hasFiles = !!(services['file-storage'] || services['storage']?.supportsFiles);
-
-      return NextResponse.json({
-        name: 'ObjectOS',
-        version: '1.0.0',
-        environment: process.env.NODE_ENV || 'development',
-        routes: {
-          data: `${prefix}/data`,
-          metadata: `${prefix}/metadata`,
-          auth: `${prefix}/auth`,
-          graphql: hasGraphQL ? `${prefix}/graphql` : undefined,
-          storage: hasFiles ? `${prefix}/storage` : undefined,
-        },
-        features: {
-          graphql: hasGraphQL,
-          search: hasSearch,
-          websockets: hasWebSockets,
-          files: hasFiles,
-        },
-      });
+      return NextResponse.json(dispatcher.getDiscoveryInfo(options.prefix || '/api'));
     }
 
     // --- 1. Auth (Generic Auth Handler) ---
     if (segments[0] === 'auth') {
-       const authService = (kernel as any).getService?.('auth') || (kernel as any).services?.['auth'];
-       if (authService && authService.handler) {
-          return authService.handler(req);
+       const subPath = segments.slice(1).join('/');
+       try {
+           const body = method === 'POST' ? await req.json().catch(() => ({})) : {};
+           const result = await dispatcher.handleAuth(subPath, method, body, { request: req });
+           if (result.handled) {
+                if (result.response) {
+                    return NextResponse.json(result.response.body, { status: result.response.status });
+                }
+                if (result.result) return result.result;
+           }
+           return error('Auth provider not configured', 404);
+       } catch (e: any) {
+           return error(e.message, e.statusCode || 500);
        }
-       
-       // Fallback for /api/auth/login
-       if (segments[1] === 'login' && method === 'POST') {
-          try {
-             // Clone request body because it might be consumed by handler above? No, we checked availability.
-             const body = await req.json();
-             const data = await kernel.broker.call('auth.login', body, { request: req });
-             return NextResponse.json(data);
-          } catch (e: any) {
-             return error(e.message, e.statusCode || 500);
-          }
-       }
-       return error('Auth provider not configured', 404);
     }
 
     try {
         const rawRequest = req;
 
-        // 0. Auth
-        if (segments[0] === 'auth') {
-            if (segments[1] === 'login' && method === 'POST') {
-                const body = await req.json() as any;
-                const data = await kernel.broker.call('auth.login', body, { request: rawRequest });
-                return NextResponse.json(data);
-            }
-        }
-
         // 1. GraphQL
         if (segments[0] === 'graphql' && method === 'POST') {
-            const body = await req.json() as any;
-            const result = await kernel.graphql(body.query, body.variables, { request: rawRequest });
+            const body = await req.json();
+            const result = await dispatcher.handleGraphQL(body, { request: rawRequest });
             return NextResponse.json(result);
         }
 
@@ -142,7 +103,7 @@ export function createRouteHandler(options: NextAdapterOptions) {
             if (segments.length === 2 && method === 'POST') {
                 const body = await req.json();
                 const data = await kernel.broker.call('data.create', { object: objectName, data: body }, { request: rawRequest });
-                return success(data); // 201 not easy with helper, but ok
+                return success(data);
             }
 
             // GET /data/:objectName/:id
