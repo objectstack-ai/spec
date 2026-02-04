@@ -58,7 +58,7 @@ export class HonoServerPlugin implements Plugin {
     /**
      * Init phase - Setup HTTP server and register as service
      */
-    async init(ctx: PluginContext) {
+    init = async (ctx: PluginContext) => {
         ctx.logger.debug('Initializing Hono server plugin', { 
             port: this.options.port,
             staticRoot: this.options.staticRoot 
@@ -82,7 +82,7 @@ export class HonoServerPlugin implements Plugin {
     /**
      * Start phase - Bind routes and start listening
      */
-    async start(ctx: PluginContext) {
+    start = async (ctx: PluginContext) => {
         ctx.logger.debug('Starting Hono server plugin');
         
         // Get protocol implementation instance

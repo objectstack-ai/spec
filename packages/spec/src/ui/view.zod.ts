@@ -133,7 +133,6 @@ export const ListViewSchema = z.object({
   label: z.string().optional(), // Display label override
   type: z.enum([
     'grid',       // Standard Data Table
-    'spreadsheet',// Excel-like Editable Grid
     'kanban',     // Board / Columns
     'gallery',    // Card Deck / Masonry
     'calendar',   // Monthly/Weekly/Daily

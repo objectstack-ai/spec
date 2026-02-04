@@ -29,7 +29,7 @@ export class MetadataPlugin implements Plugin {
         });
     }
 
-    async init(ctx: PluginContext) {
+    init = async (ctx: PluginContext) => {
         ctx.logger.info('Initializing Metadata Manager', { root: this.options.rootDir || process.cwd() });
         
         // Register Metadata Manager as a service
@@ -37,7 +37,7 @@ export class MetadataPlugin implements Plugin {
         ctx.registerService('metadata', this.manager);
     }
 
-    async start(ctx: PluginContext) {
+    start = async (ctx: PluginContext) => {
         ctx.logger.info('Loading metadata...');
         
         // Define metadata types directly from the Protocol Definition

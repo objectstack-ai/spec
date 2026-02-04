@@ -1,5 +1,5 @@
 import { ServiceObject, ObjectSchema } from '@objectstack/spec/data';
-import { ObjectStackManifest, ManifestSchema } from '@objectstack/spec/system';
+import { ObjectStackManifest, ManifestSchema } from '@objectstack/spec/kernel';
 import { AppSchema } from '@objectstack/spec/ui';
 
 /**

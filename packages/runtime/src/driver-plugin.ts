@@ -26,7 +26,7 @@ export class DriverPlugin implements Plugin {
         this.name = `com.objectstack.driver.${driverName || driver.name || 'unknown'}`;
     }
 
-    async init(ctx: PluginContext) {
+    init = async (ctx: PluginContext) => {
         // Register driver as a service instead of directly to objectql
         const serviceName = `driver.${this.driver.name || 'unknown'}`;
         ctx.registerService(serviceName, this.driver);
@@ -37,7 +37,7 @@ export class DriverPlugin implements Plugin {
         });
     }
 
-    async start(ctx: PluginContext) {
+    start = async (ctx: PluginContext) => {
         // Drivers don't need start phase, initialization happens in init
         ctx.logger.debug('Driver plugin started', { driverName: this.driver.name || 'unknown' });
     }

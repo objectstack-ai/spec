@@ -25,7 +25,7 @@ export class AppPlugin implements Plugin {
         this.version = sys.version;
     }
 
-    async init(ctx: PluginContext) {
+    init = async (ctx: PluginContext) => {
         const sys = this.bundle.manifest || this.bundle;
         const appId = sys.id || sys.name;
 
@@ -48,7 +48,7 @@ export class AppPlugin implements Plugin {
         ctx.registerService(serviceName, servicePayload);
     }
 
-    async start(ctx: PluginContext) {
+    start = async (ctx: PluginContext) => {
         const sys = this.bundle.manifest || this.bundle;
         const appId = sys.id || sys.name;
         

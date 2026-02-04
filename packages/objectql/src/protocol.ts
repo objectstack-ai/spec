@@ -36,8 +36,19 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         return {
             version: '1.0',
             apiName: 'ObjectStack API',
-            capabilities: ['metadata', 'data', 'ui'],
-            endpoints: {}
+            capabilities: {
+                graphql: false,
+                search: false,
+                websockets: false,
+                files: true,
+                analytics: false,
+                hub: false
+            },
+            endpoints: {
+                data: '/api/data',
+                metadata: '/api/meta',
+                auth: '/api/auth'
+            }
         };
     }
 
@@ -226,6 +237,30 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
     async updateManyData(_request: UpdateManyDataRequest): Promise<any> {
         // TODO: Implement proper updateMany in DataEngine
         throw new Error('updateManyData not implemented');
+    }
+
+    async analyticsQuery(_request: any): Promise<any> {
+        throw new Error('analyticsQuery not implemented');
+    }
+
+    async getAnalyticsMeta(_request: any): Promise<any> {
+        throw new Error('getAnalyticsMeta not implemented');
+    }
+
+    async triggerAutomation(_request: any): Promise<any> {
+        throw new Error('triggerAutomation not implemented');
+    }
+
+    async listSpaces(_request: any): Promise<any> {
+        throw new Error('listSpaces not implemented');
+    }
+
+    async createSpace(_request: any): Promise<any> {
+        throw new Error('createSpace not implemented');
+    }
+
+    async installPlugin(_request: any): Promise<any> {
+        throw new Error('installPlugin not implemented');
     }
 
     async deleteManyData(request: DeleteManyDataRequest): Promise<any> {

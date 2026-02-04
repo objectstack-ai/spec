@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { PluginHealthMonitor } from './health-monitor.js';
 import { createLogger } from './logger.js';
-import type { PluginHealthCheck } from '@objectstack/spec/system';
+import type { PluginHealthCheck } from '@objectstack/spec/kernel';
 
 describe('PluginHealthMonitor', () => {
   let monitor: PluginHealthMonitor;

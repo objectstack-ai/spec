@@ -1,7 +1,7 @@
 import type { 
   HotReloadConfig, 
   PluginStateSnapshot 
-} from '@objectstack/spec/system';
+} from '@objectstack/spec/kernel';
 import type { ObjectLogger } from './logger.js';
 import type { Plugin } from './types.js';
 

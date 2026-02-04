@@ -21,7 +21,7 @@ export class ObjectQLPlugin implements Plugin {
     }
   }
 
-  async init(ctx: PluginContext) {
+  init = async (ctx: PluginContext) => {
     if (!this.ql) {
         this.ql = new ObjectQL(this.hostContext);
     }
@@ -39,7 +39,7 @@ export class ObjectQLPlugin implements Plugin {
     ctx.logger.info('Protocol service registered');
   }
 
-  async start(ctx: PluginContext) {
+  start = async (ctx: PluginContext) => {
     ctx.logger.info('ObjectQL engine initialized');
     
     // Discover features from Kernel Services

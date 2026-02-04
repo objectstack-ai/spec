@@ -1,4 +1,4 @@
-import { ObjectKernel, DriverPlugin, AppPlugin } from '@objectstack/runtime';
+import { ObjectKernel, DriverPlugin, AppPlugin, createApiRegistryPlugin } from '@objectstack/runtime';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { ObjectQLPlugin } from '@objectstack/objectql';
 import { HonoServerPlugin } from '@objectstack/plugin-hono-server';
@@ -29,6 +29,9 @@ import BiPluginManifest from '@example/plugin-bi/objectstack.config';
   await kernel.use(new AppPlugin(CrmApp));
   await kernel.use(new AppPlugin(TodoApp));
   await kernel.use(new AppPlugin(BiPluginManifest));
+
+  // Register API Registry (Required for Hono Server)
+  await kernel.use(createApiRegistryPlugin());
 
   // Load the Hono Server Plugin
   await kernel.use(new HonoServerPlugin({ 

@@ -657,8 +657,8 @@ describe('ApiRegistry', () => {
       });
 
       const snapshot = registry.getRegistry();
-      expect(snapshot.byType?.rest.length).toBe(2);
-      expect(snapshot.byType?.graphql.length).toBe(1);
+      expect(snapshot.byType?.rest?.length).toBe(2);
+      expect(snapshot.byType?.graphql?.length).toBe(1);
     });
   });
 

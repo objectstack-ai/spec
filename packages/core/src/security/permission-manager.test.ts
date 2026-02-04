@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { PluginPermissionManager } from './permission-manager.js';
 import { createLogger } from '../logger.js';
-import type { PermissionSet } from '@objectstack/spec/system';
+import type { PermissionSet } from '@objectstack/spec/kernel';
 
 describe('PluginPermissionManager', () => {
   let manager: PluginPermissionManager;

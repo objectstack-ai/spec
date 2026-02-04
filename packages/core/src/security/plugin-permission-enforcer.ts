@@ -1,5 +1,5 @@
 import type { Logger } from '@objectstack/spec/contracts';
-import type { PluginCapability } from '@objectstack/spec/system';
+import type { PluginCapability } from '@objectstack/spec/kernel';
 import type { PluginContext } from '../types.js';
 
 /**

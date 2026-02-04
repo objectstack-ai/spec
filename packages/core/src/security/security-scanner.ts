@@ -1,7 +1,7 @@
 import type { 
   SecurityVulnerability,
   SecurityScanResult
-} from '@objectstack/spec/system';
+} from '@objectstack/spec/kernel';
 import type { ObjectLogger } from '../logger.js';
 
 /**

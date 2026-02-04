@@ -41,7 +41,7 @@
                     },
                     "versionConstraint": {
                       "type": "string",
-                      "description": "Semver range (e.g., ^1.0.0, >=2.0.0 <3.0.0)"
+                      "description": "Semver range (e.g., `^1.0.0`, `>=2.0.0 <3.0.0`)"
                     },
                     "type": {
                       "type": "string",
