@@ -5,7 +5,7 @@
     "events",
     "feature",
     "manifest",
-    "metadata-loader",
+    "metadata-persistence",
     "permission",
     "plugin",
     "plugin-capability",

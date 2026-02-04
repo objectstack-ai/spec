@@ -1,0 +1,40 @@
+{
+  "$ref": "#/definitions/MetadataSaveResult",
+  "definitions": {
+    "MetadataSaveResult": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "path": {
+          "type": "string"
+        },
+        "stats": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "size": {
+              "type": "number"
+            },
+            "mtime": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "hash": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "success"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

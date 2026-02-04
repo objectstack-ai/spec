@@ -1,0 +1,32 @@
+{
+  "$ref": "#/definitions/MetadataImportOptions",
+  "definitions": {
+    "MetadataImportOptions": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "description": "Input directory or file"
+        },
+        "strategy": {
+          "type": "string",
+          "enum": [
+            "merge",
+            "replace",
+            "skip"
+          ],
+          "default": "merge"
+        },
+        "validate": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

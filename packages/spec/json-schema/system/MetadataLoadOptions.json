@@ -1,0 +1,31 @@
+{
+  "$ref": "#/definitions/MetadataLoadOptions",
+  "definitions": {
+    "MetadataLoadOptions": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "type": "string",
+          "enum": [
+            "system",
+            "platform",
+            "user"
+          ]
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "raw": {
+          "type": "boolean",
+          "description": "Return raw file content instead of parsed JSON"
+        },
+        "cache": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

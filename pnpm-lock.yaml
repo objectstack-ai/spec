@@ -286,6 +286,9 @@ importers:
         specifier: ^4.3.6
         version: 4.3.6
     devDependencies:
+      '@objectstack/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
@@ -296,6 +299,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/spec
     devDependencies:
+      '@objectstack/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       typescript:
         specifier: ^5.0.0
         version: 5.9.3

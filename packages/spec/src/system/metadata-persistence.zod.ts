@@ -84,3 +84,132 @@ export const MetadataRecordSchema = z.object({
 
 export type MetadataRecord = z.infer<typeof MetadataRecordSchema>;
 export type MetadataScope = z.infer<typeof MetadataScopeSchema>;
+
+/**
+ * Metadata Format
+ * Supported file formats for metadata serialization.
+ */
+export const MetadataFormatSchema = z.enum(['json', 'yaml', 'yml', 'ts', 'js']);
+
+/**
+ * Metadata Stats
+ * Statistics about a metadata item.
+ */
+export const MetadataStatsSchema = z.object({
+  path: z.string().optional(),
+  size: z.number().optional(),
+  mtime: z.date().optional(),
+  hash: z.string().optional(),
+});
+
+/**
+ * Metadata Loader Contract
+ * Describes the capabilities and identity of a metadata loader.
+ */
+export const MetadataLoaderContractSchema = z.object({
+  name: z.string(),
+  protocol: z.string(), // e.g. 'file:', 'http:', 's3:'
+  description: z.string().optional(),
+  capabilities: z.object({
+    read: z.boolean().default(true),
+    write: z.boolean().default(false),
+    watch: z.boolean().default(false),
+    list: z.boolean().default(true),
+  }),
+});
+
+/**
+ * Metadata Load Options
+ */
+export const MetadataLoadOptionsSchema = z.object({
+  scope: MetadataScopeSchema.optional(),
+  namespace: z.string().optional(),
+  raw: z.boolean().optional().describe('Return raw file content instead of parsed JSON'),
+  cache: z.boolean().default(true),
+});
+
+/**
+ * Metadata Load Result
+ */
+export const MetadataLoadResultSchema = z.object({
+  data: z.any(),
+  stats: MetadataStatsSchema.optional(),
+  format: MetadataFormatSchema.optional(),
+  source: z.string().optional(), // File path or URL
+});
+
+/**
+ * Metadata Save Options
+ */
+export const MetadataSaveOptionsSchema = z.object({
+  format: MetadataFormatSchema.optional(),
+  create: z.boolean().default(true), // Create if not exists
+  overwrite: z.boolean().default(true),
+  path: z.string().optional(), // Specific path hint
+});
+
+/**
+ * Metadata Save Result
+ */
+export const MetadataSaveResultSchema = z.object({
+  success: z.boolean(),
+  path: z.string().optional(),
+  stats: MetadataStatsSchema.optional(),
+});
+
+/**
+ * Metadata Watch Event
+ */
+export const MetadataWatchEventSchema = z.object({
+  type: z.enum(['add', 'change', 'unlink']),
+  path: z.string(),
+  stats: MetadataStatsSchema.optional(),
+});
+
+/**
+ * Metadata Collection Info
+ */
+export const MetadataCollectionInfoSchema = z.object({
+  type: z.string(),
+  count: z.number(),
+  namespaces: z.array(z.string()),
+});
+
+/**
+ * Metadata Export/Import Options
+ */
+export const MetadataExportOptionsSchema = z.object({
+  types: z.array(z.string()).optional(),
+  namespaces: z.array(z.string()).optional(),
+  output: z.string().describe('Output directory or file'),
+  format: MetadataFormatSchema.default('json'),
+});
+
+export const MetadataImportOptionsSchema = z.object({
+  source: z.string().describe('Input directory or file'),
+  strategy: z.enum(['merge', 'replace', 'skip']).default('merge'),
+  validate: z.boolean().default(true),
+});
+
+/**
+ * Metadata Manager Config
+ */
+export const MetadataManagerConfigSchema = z.object({
+  loaders: z.array(z.any()), // Array of Loader instances (can't validate class instance comfortably in Zod)
+  watch: z.boolean().default(false),
+  cache: z.boolean().default(true),
+  basePath: z.string().optional(),
+});
+
+export type MetadataFormat = z.infer<typeof MetadataFormatSchema>;
+export type MetadataStats = z.infer<typeof MetadataStatsSchema>;
+export type MetadataLoaderContract = z.infer<typeof MetadataLoaderContractSchema>;
+export type MetadataLoadOptions = z.infer<typeof MetadataLoadOptionsSchema>;
+export type MetadataLoadResult = z.infer<typeof MetadataLoadResultSchema>;
+export type MetadataSaveOptions = z.infer<typeof MetadataSaveOptionsSchema>;
+export type MetadataSaveResult = z.infer<typeof MetadataSaveResultSchema>;
+export type MetadataWatchEvent = z.infer<typeof MetadataWatchEventSchema>;
+export type MetadataCollectionInfo = z.infer<typeof MetadataCollectionInfoSchema>;
+export type MetadataExportOptions = z.infer<typeof MetadataExportOptionsSchema>;
+export type MetadataImportOptions = z.infer<typeof MetadataImportOptionsSchema>;
+export type MetadataManagerConfig = z.infer<typeof MetadataManagerConfigSchema>;

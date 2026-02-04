@@ -21,6 +21,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@objectstack/cli": "workspace:*",
     "typescript": "^5.0.0"
   }
 }

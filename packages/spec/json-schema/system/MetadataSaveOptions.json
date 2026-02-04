@@ -1,0 +1,33 @@
+{
+  "$ref": "#/definitions/MetadataSaveOptions",
+  "definitions": {
+    "MetadataSaveOptions": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "type": "string",
+          "enum": [
+            "json",
+            "yaml",
+            "yml",
+            "ts",
+            "js"
+          ]
+        },
+        "create": {
+          "type": "boolean",
+          "default": true
+        },
+        "overwrite": {
+          "type": "boolean",
+          "default": true
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

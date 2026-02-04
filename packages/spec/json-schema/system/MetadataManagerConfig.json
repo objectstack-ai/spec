@@ -1,0 +1,29 @@
+{
+  "$ref": "#/definitions/MetadataManagerConfig",
+  "definitions": {
+    "MetadataManagerConfig": {
+      "type": "object",
+      "properties": {
+        "loaders": {
+          "type": "array"
+        },
+        "watch": {
+          "type": "boolean",
+          "default": false
+        },
+        "cache": {
+          "type": "boolean",
+          "default": true
+        },
+        "basePath": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "loaders"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,45 @@
+{
+  "$ref": "#/definitions/MetadataLoadResult",
+  "definitions": {
+    "MetadataLoadResult": {
+      "type": "object",
+      "properties": {
+        "data": {},
+        "stats": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "size": {
+              "type": "number"
+            },
+            "mtime": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "hash": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "json",
+            "yaml",
+            "yml",
+            "ts",
+            "js"
+          ]
+        },
+        "source": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
