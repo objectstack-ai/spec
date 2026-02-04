@@ -134,65 +134,105 @@ export const GetUiViewResponseSchema = ViewSchema;
 
 /**
  * Find Data Request
- * Query records from an object
+ * Defines a query to retrieve records from a specific object.
+ * Supports filtering, sorting, pagination, and field selection.
+ * 
+ * @example
+ * {
+ *   "object": "customers",
+ *   "query": {
+ *     "filters": [["status", "=", "active"], ["revenue", ">", 10000]],
+ *     "sort": "name desc",
+ *     "top": 10
+ *   }
+ * }
  */
 export const FindDataRequestSchema = z.object({
-  object: z.string().describe('Object name (snake_case)'),
-  query: QuerySchema.optional().describe('Query parameters (filter, sort, select, pagination)'),
+  object: z.string().describe('The unique machine name of the object to query (e.g. "account").'),
+  query: QuerySchema.optional().describe('Structured query definition (filter, sort, select, pagination).'),
 });
 
 /**
  * Find Data Response
+ * Returns a list of records matching the query criteria.
  */
 export const FindDataResponseSchema = z.object({
-  object: z.string().describe('Object name'),
-  records: z.array(z.record(z.string(), z.any())).describe('Array of records'),
-  total: z.number().optional().describe('Total count (if requested)'),
-  hasMore: z.boolean().optional().describe('Whether more records exist'),
+  object: z.string().describe('The object name for the returned records.'),
+  records: z.array(z.record(z.string(), z.any())).describe('The list of matching records.'),
+  total: z.number().optional().describe('Total number of records matching the filter (if requested).'),
+  hasMore: z.boolean().optional().describe('True if there are more records available (pagination).'),
 });
 
 /**
  * Get Data Request
- * Get a single record by ID
+ * Retrieval of a single record by its unique identifier.
+ * 
+ * @example
+ * {
+ *   "object": "contracts",
+ *   "id": "cnt_123456"
+ * }
  */
 export const GetDataRequestSchema = z.object({
-  object: z.string().describe('Object name'),
-  id: z.string().describe('Record ID'),
+  object: z.string().describe('The object name.'),
+  id: z.string().describe('The unique record identifier (primary key).'),
 });
 
 /**
  * Get Data Response
  */
 export const GetDataResponseSchema = z.object({
-  object: z.string().describe('Object name'),
-  id: z.string().describe('Record ID'),
-  record: z.record(z.string(), z.any()).describe('Record data'),
+  object: z.string().describe('The object name.'),
+  id: z.string().describe('The record ID.'),
+  record: z.record(z.string(), z.any()).describe('The complete record data.'),
 });
 
 /**
  * Create Data Request
+ * Creation of a new record.
+ * 
+ * @example
+ * {
+ *   "object": "leads",
+ *   "data": {
+ *     "first_name": "John",
+ *     "last_name": "Doe",
+ *     "company": "Acme Inc"
+ *   }
+ * }
  */
 export const CreateDataRequestSchema = z.object({
-  object: z.string().describe('Object name'),
-  data: z.record(z.string(), z.any()).describe('Record data to create'),
+  object: z.string().describe('The object name.'),
+  data: z.record(z.string(), z.any()).describe('The dictionary of field values to insert.'),
 });
 
 /**
  * Create Data Response
  */
 export const CreateDataResponseSchema = z.object({
-  object: z.string().describe('Object name'),
-  id: z.string().describe('Created record ID'),
-  record: z.record(z.string(), z.any()).describe('Created record (with server-generated fields)'),
+  object: z.string().describe('The object name.'),
+  id: z.string().describe('The ID of the newly created record.'),
+  record: z.record(z.string(), z.any()).describe('The created record, including server-generated fields (created_at, owner).'),
 });
 
 /**
  * Update Data Request
+ * Modification of an existing record.
+ * 
+ * @example
+ * {
+ *   "object": "tasks",
+ *   "id": "tsk_001",
+ *   "data": {
+ *     "status": "completed",
+ *     "percent_complete": 100
+ *   }
+ * }
  */
 export const UpdateDataRequestSchema = z.object({
-  object: z.string().describe('Object name'),
-  id: z.string().describe('Record ID to update'),
-  data: z.record(z.string(), z.any()).describe('Fields to update'),
+  object: z.string().describe('The object name.'),
+  id: z.string().describe('The ID of the record to update.'),
+  data: z.record(z.string(), z.any()).describe('The fields to update (partial update).'),
 });
 
 /**

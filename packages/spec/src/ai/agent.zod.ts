@@ -33,6 +33,27 @@ export const AIKnowledgeSchema = z.object({
 /**
  * AI Agent Schema
  * Definition of an autonomous agent specialized for a domain.
+ * 
+ * @example Customer Support Agent
+ * {
+ *   name: "support_tier_1",
+ *   label: "First Line Support",
+ *   role: "Help Desk Assistant",
+ *   instructions: "You are a helpful assistant. Always verify user identity first.",
+ *   model: {
+ *     provider: "openai",
+ *     model: "gpt-4-turbo",
+ *     temperature: 0.3
+ *   },
+ *   tools: [
+ *     { type: "flow", name: "reset_password", description: "Trigger password reset email" },
+ *     { type: "query", name: "get_order_status", description: "Check order shipping status" }
+ *   ],
+ *   knowledge: {
+ *     topics: ["faq", "policies"],
+ *     indexes: ["support_docs"]
+ *   }
+ * }
  */
 export const AgentSchema = z.object({
   /** Identity */

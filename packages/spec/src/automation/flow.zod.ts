@@ -34,6 +34,20 @@ export const FlowVariableSchema = z.object({
 /**
  * Flow Node Schema
  * A single step in the visual logic graph.
+ * 
+ * @example Decision Node
+ * {
+ *   id: "dec_1",
+ *   type: "decision",
+ *   label: "Is High Value?",
+ *   config: {
+ *     conditions: [
+ *       { label: "Yes", expression: "{amount} > 10000" },
+ *       { label: "No", expression: "true" } // default
+ *     ]
+ *   },
+ *   position: { x: 300, y: 200 }
+ * }
  */
 export const FlowNodeSchema = z.object({
   id: z.string().describe('Node unique ID'),
@@ -43,6 +57,7 @@ export const FlowNodeSchema = z.object({
   /** Node Configuration Options (Specific to type) */
   config: z.record(z.string(), z.any()).optional().describe('Node configuration'),
   
+  /** 
    * Connector Action Configuration
    * Used when type is 'connector_action'
    */
@@ -52,7 +67,6 @@ export const FlowNodeSchema = z.object({
     input: z.record(z.string(), z.any()).describe('Mapped inputs for the action'),
   }).optional(),
 
-  /**
   /** UI Position (for the canvas) */
   position: z.object({ x: z.number(), y: z.number() }).optional(),
 });
@@ -76,6 +90,25 @@ export const FlowEdgeSchema = z.object({
 /**
  * Flow Schema
  * Visual Business Logic Orchestration.
+ * 
+ * @example Simple Approval Logic
+ * {
+ *   name: "approve_order_flow",
+ *   label: "Approve Large Orders",
+ *   type: "record_change",
+ *   status: "active",
+ *   nodes: [
+ *     { id: "start", type: "start", label: "Start", position: {x: 0, y: 0} },
+ *     { id: "check_amount", type: "decision", label: "Check Amount", position: {x: 0, y: 100} },
+ *     { id: "auto_approve", type: "update_record", label: "Auto Approve", position: {x: -100, y: 200} },
+ *     { id: "submit_for_approval", type: "connector_action", label: "Submit", position: {x: 100, y: 200} }
+ *   ],
+ *   edges: [
+ *     { id: "e1", source: "start", target: "check_amount" },
+ *     { id: "e2", source: "check_amount", target: "auto_approve", condition: "{amount} < 500" },
+ *     { id: "e3", source: "check_amount", target: "submit_for_approval", condition: "{amount} >= 500" }
+ *   ]
+ * }
  */
 export const FlowSchema = z.object({
   /** Identity */

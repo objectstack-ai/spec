@@ -6,24 +6,43 @@ import { PluginLoadingConfigSchema } from './plugin-loading.zod';
  * Schema for the ObjectStack Manifest.
  * This defines the structure of a package configuration in the ObjectStack ecosystem.
  * All packages (apps, plugins, drivers, modules) must conform to this schema.
+ * 
+ * @example App Package
+ * ```yaml
+ * id: com.acme.crm
+ * version: 1.0.0
+ * type: app
+ * name: Acme CRM
+ * description: Customer Relationship Management system
+ * permissions:
+ *   - system.user.read
+ *   - system.object.create
+ * objects:
+ *   - "./src/objects/*.object.yml"
+ * ```
  */
 export const ManifestSchema = z.object({
   /** 
    * Unique package identifier using reverse domain notation.
-   * Example: "com.example.crm"
+   * Must be unique across the entire ecosystem.
+   * 
+   * @example "com.steedos.crm"
+   * @example "org.apache.superset"
    */
   id: z.string().describe('Unique package identifier (reverse domain style)'),
   
   /** 
    * Package version following semantic versioning (major.minor.patch).
-   * Example: "1.0.0"
+   * 
+   * @example "1.0.0"
+   * @example "2.1.0-beta.1"
    */
   version: z.string().regex(/^\d+\.\d+\.\d+$/).describe('Package version (semantic versioning)'),
   
   /** 
    * Type of the package in the ObjectStack ecosystem.
-   * - app: Business application package
-   * - plugin: General-purpose functionality extension
+   * - app: Business application package (contains objects, UIs)
+   * - plugin: General-purpose functionality extension (adds logic, hooks)
    * - driver: Southbound interface - Database/external service adapter (Postgres, MongoDB, S3)
    * - module: Reusable code library/shared module
    * - objectql: Core engine - Data layer implementation
@@ -34,41 +53,63 @@ export const ManifestSchema = z.object({
   
   /** 
    * Human-readable name of the package.
+   * Displayed in the UI for users.
+   * 
+   * @example "Project Management"
    */
   name: z.string().describe('Human-readable package name'),
   
   /** 
    * Brief description of the package functionality.
+   * Displayed in the marketplace and plugin manager.
    */
   description: z.string().optional().describe('Package description'),
   
   /** 
    * Array of permission strings that the package requires.
-   * Example: ["system.user.read", "system.data.write"]
+   * These form the "Scope" requested by the package at installation.
+   * 
+   * @example ["system.user.read", "system.data.write"]
    */
   permissions: z.array(z.string()).optional().describe('Array of required permission strings'),
   
   /** 
-   * Glob patterns specifying ObjectQL schemas files (typically *.object.yml or *.object.ts).
-   * Example: `["./src/objects/*.object.yml"]`
+   * Glob patterns specifying ObjectQL schemas files.
+   * Matches `*.object.yml` or `*.object.ts` files to load business objects.
+   * 
+   * @example ["./src/objects/*.object.yml"]
    */
   objects: z.array(z.string()).optional().describe('Glob patterns for ObjectQL schemas files'),
 
   /**
    * Defines system level DataSources.
+   * Matches `*.datasource.yml` files.
+   * 
+   * @example ["./src/datasources/*.datasource.mongo.yml"]
    */
   datasources: z.array(z.string()).optional().describe('Glob patterns for Datasource definitions'),
 
   /**
    * Package Dependencies.
    * Map of package IDs to version requirements.
+   * 
+   * @example { "@steedos/plugin-auth": "^2.0.0" }
    */
   dependencies: z.record(z.string(), z.string()).optional().describe('Package dependencies'),
 
   /**
    * Plugin Configuration Schema.
-   * Defines the settings this plugin exposes to the user.
+   * Defines the settings this plugin exposes to the user via UI/ENV.
    * Uses a simplified JSON Schema format.
+   * 
+   * @example
+   * {
+   *   "title": "Stripe Config",
+   *   "properties": {
+   *     "apiKey": { "type": "string", "secret": true },
+   *     "currency": { "type": "string", "default": "USD" }
+   *   }
+   * }
    */
   configuration: z.object({
     title: z.string().optional(),

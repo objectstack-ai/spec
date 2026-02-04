@@ -314,6 +314,31 @@ export const ComputedFieldCacheSchema = z.object({
 /**
  * Field Schema - Best Practice Enterprise Pattern
  */
+/**
+ * Field Definition Schema
+ * Defines the properties, type, and behavior of a single field (column) on an object.
+ * 
+ * @example Lookup Field
+ * {
+ *   name: "account_id",
+ *   label: "Account",
+ *   type: "lookup",
+ *   reference: "accounts",
+ *   required: true
+ * }
+ * 
+ * @example Select Field
+ * {
+ *   name: "status",
+ *   label: "Status",
+ *   type: "select",
+ *   options: [
+ *     { label: "Open", value: "open" },
+ *     { label: "Closed", value: "closed" }
+ *   ],
+ *   defaultValue: "open"
+ * }
+ */
 export const FieldSchema = z.object({
   /** Identity */
   name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Machine name (snake_case)').optional(),

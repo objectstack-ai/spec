@@ -27,6 +27,14 @@ export type ApiMethod = z.infer<typeof ApiMethod>;
  * - Added `mru` (Recent Items)
  * - Added `feeds` (Social/Chatter)
  * - Grouped API permissions
+ * 
+ * @example
+ * {
+ *   trackHistory: true,
+ *   searchable: true,
+ *   apiEnabled: true,
+ *   files: true
+ * }
  */
 export const ObjectCapabilities = z.object({
   /** Enable history tracking (Audit Trail) */
@@ -66,6 +74,14 @@ export const ObjectCapabilities = z.object({
 /**
  * Schema for database indexes.
  * Enhanced with additional index types and configuration options
+ * 
+ * @example
+ * {
+ *   name: "idx_account_name",
+ *   fields: ["name"],
+ *   type: "btree",
+ *   unique: true
+ * }
  */
 export const IndexSchema = z.object({
   name: z.string().optional().describe('Index name (auto-generated if not provided)'),
@@ -78,6 +94,13 @@ export const IndexSchema = z.object({
 /**
  * Search Configuration
  * Defines how this object behaves in search results.
+ * 
+ * @example
+ * {
+ *   fields: ["name", "email", "phone"],
+ *   displayFields: ["name", "title"],
+ *   filters: ["status = 'active'"]
+ * }
  */
 export const SearchConfigSchema = z.object({
   fields: z.array(z.string()).describe('Fields to index for full-text search weighting'),
@@ -189,6 +212,23 @@ export const CDCConfigSchema = z.object({
  * 
  * The Blueprint of a Business Object.
  * Represents a table, a collection, or a virtual entity.
+ * 
+ * @example
+ * ```yaml
+ * name: project_task
+ * label: Project Task
+ * icon: task
+ * fields:
+ *   project:
+ *     type: lookup
+ *     reference_to: project
+ *   status:
+ *     type: select
+ *     options: [todo, in_progress, done]
+ * enable:
+ *   trackHistory: true
+ *   files: true
+ * ```
  */
 const ObjectSchemaBase = z.object({
   /** 

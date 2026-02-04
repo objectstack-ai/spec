@@ -103,18 +103,30 @@ export const GanttConfigSchema = z.object({
 
 /**
  * List View Schema (Expanded)
+ * Defines how a collection of records is displayed to the user.
  * 
  * **NAMING CONVENTION:**
  * View names (when provided) are machine identifiers and must be lowercase snake_case.
  * 
- * @example Good view names
- * - 'all_accounts'
- * - 'my_open_leads'
- * - 'high_priority_cases'
+ * @example Standard Grid
+ * {
+ *   name: "all_active",
+ *   label: "All Active",
+ *   type: "grid",
+ *   columns: ["name", "status", "created_at"],
+ *   filter: [["status", "=", "active"]]
+ * }
  * 
- * @example Bad view names (will be rejected)
- * - 'AllAccounts' (PascalCase)
- * - 'My Open Leads' (spaces)
+ * @example Kanban Board
+ * {
+ *   type: "kanban",
+ *   columns: ["name", "amount"],
+ *   kanban: {
+ *     groupByField: "stage",
+ *     summarizeField: "amount",
+ *     columns: ["name", "close_date"]
+ *   }
+ * }
  */
 export const ListViewSchema = z.object({
   name: SnakeCaseIdentifierSchema.optional().describe('Internal view name (lowercase snake_case)'),
@@ -201,6 +213,23 @@ export const FormSectionSchema = z.object({
 
 /**
  * Form View Schema
+ * Defines the layout for creating or editing a single record.
+ * 
+ * @example Simple Sectioned Form
+ * {
+ *   type: "simple",
+ *   sections: [
+ *     {
+ *       label: "General Info",
+ *       columns: 2,
+ *       fields: ["name", "status"]
+ *     },
+ *     {
+ *       label: "Details",
+ *       fields: ["description", { field: "priority", widget: "rating" }]
+ *     }
+ *   ]
+ * }
  */
 export const FormViewSchema = z.object({
   type: z.enum([
@@ -222,6 +251,20 @@ export const FormViewSchema = z.object({
 /**
  * Master View Schema
  * Can define multiple named views.
+ */
+/**
+ * View Container Schema
+ * Aggregates all view definitions for a specific object or context.
+ * 
+ * @example
+ * {
+ *   list: { type: "grid", columns: ["name"] },
+ *   form: { type: "simple", fields: ["name"] },
+ *   listViews: {
+ *     "all": { label: "All", filter: [] },
+ *     "my": { label: "Mine", filter: [["owner", "=", "{user_id}"]] }
+ *   }
+ * }
  */
 export const ViewSchema = z.object({
     list: ListViewSchema.optional(), // Default list view

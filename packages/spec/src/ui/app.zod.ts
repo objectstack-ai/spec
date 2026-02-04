@@ -130,6 +130,22 @@ export const AppBrandingSchema = z.object({
  * - 'FinanceApp' (mixed case)
  * - 'Sales App' (spaces)
  */
+/**
+ * App Configuration Schema
+ * Defines a business application container, including its navigation, branding, and permissions.
+ * 
+ * @example CRM App
+ * {
+ *   name: "crm",
+ *   label: "Sales CRM",
+ *   icon: "briefcase",
+ *   navigation: [
+ *     { type: "object", id: "nav_leads", label: "Leads", objectName: "leads" },
+ *     { type: "object", id: "nav_deals", label: "Deals", objectName: "deals" }
+ *   ],
+ *   requiredPermissions: ["app.crm.access"]
+ * }
+ */
 export const AppSchema = z.object({
   /** Machine name (id) */
   name: SnakeCaseIdentifierSchema.describe('App unique machine name (lowercase snake_case)'),

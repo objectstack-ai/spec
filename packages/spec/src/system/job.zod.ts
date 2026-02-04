@@ -58,16 +58,29 @@ export type RetryPolicy = z.infer<typeof RetryPolicySchema>;
 
 /**
  * Job Schema
- * Defines a scheduled job
+ * Defines a scheduled job that executes background logic.
+ * 
+ * @example Metadata Sync Job (Cron)
+ * {
+ *   id: "job_sync_meta",
+ *   name: "sync_metadata_nightly",
+ *   schedule: {
+ *     type: "cron",
+ *     expression: "0 0 * * *", // Midnight
+ *     timezone: "UTC"
+ *   },
+ *   handler: "services/syncStatus.ts:syncAll", 
+ *   retryPolicy: {
+ *     maxRetries: 3,
+ *     backoffMs: 5000
+ *   }
+ * }
  */
 export const JobSchema = z.object({
   id: z.string().describe('Unique job identifier'),
   name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Job name (snake_case)'),
   schedule: ScheduleSchema.describe('Job schedule configuration'),
-  handler: z.function({
-    input: z.tuple([]),
-    output: z.promise(z.void())
-  }).describe('Job handler function'),
+  handler: z.string().describe('Handler path (e.g. "path/to/file:functionName") or script ID'),
   retryPolicy: RetryPolicySchema.optional().describe('Retry policy configuration'),
   timeout: z.number().int().positive().optional().describe('Timeout in milliseconds'),
   enabled: z.boolean().default(true).describe('Whether the job is enabled'),

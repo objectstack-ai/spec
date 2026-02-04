@@ -52,6 +52,31 @@ export const DashboardWidgetSchema = z.object({
 /**
  * Dashboard Schema
  * Represents a page containing multiple visualizations.
+ * 
+ * @example Sales Executive Dashboard
+ * {
+ *   name: "sales_overview",
+ *   label: "Sales Executive Overview",
+ *   widgets: [
+ *     {
+ *       title: "Total Pipe",
+ *       type: "metric",
+ *       object: "opportunity",
+ *       valueField: "amount",
+ *       aggregate: "sum",
+ *       layout: { x: 0, y: 0, w: 3, h: 2 }
+ *     },
+ *     {
+ *       title: "Revenue by Region",
+ *       type: "bar",
+ *       object: "order",
+ *       categoryField: "region",
+ *       valueField: "total",
+ *       aggregate: "sum",
+ *       layout: { x: 3, y: 0, w: 6, h: 4 }
+ *     }
+ *   ]
+ * }
  */
 export const DashboardSchema = z.object({
   /** Machine name */

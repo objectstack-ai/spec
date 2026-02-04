@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
-import { WebhookSchema } from './webhook.zod';
 
 /**
  * Trigger events for workflow automation
@@ -15,6 +14,13 @@ export const WorkflowTriggerType = z.enum([
 
 /**
  * Schema for Workflow Field Update Action
+ * @example
+ * {
+ *   name: "update_status",
+ *   type: "field_update",
+ *   field: "status",
+ *   value: "approved"
+ * }
  */
 export const FieldUpdateActionSchema = z.object({
   name: z.string().describe('Action name'),
@@ -25,6 +31,13 @@ export const FieldUpdateActionSchema = z.object({
 
 /**
  * Schema for Workflow Email Alert Action
+ * @example
+ * {
+ *   name: "send_approval_email",
+ *   type: "email_alert",
+ *   template: "approval_request_email",
+ *   recipients: ["user_id_123", "manager_field"]
+ * }
  */
 export const EmailAlertActionSchema = z.object({
   name: z.string().describe('Action name'),
@@ -37,6 +50,18 @@ export const EmailAlertActionSchema = z.object({
  * Schema for Connector Action Reference
  * Executes a capability defined in an integration connector.
  * Replaces hardcoded vendor actions (Slack, Twilio, etc).
+ * 
+ * @example Send Slack Message
+ * {
+ *   name: "notify_slack",
+ *   type: "connector_action",
+ *   connectorId: "slack",
+ *   actionId: "post_message",
+ *   input: {
+ *     channel: "#general",
+ *     text: "New deal closed: {name}"
+ *   }
+ * }
  */
 export const ConnectorActionRefSchema = z.object({
   name: z.string().describe('Action name'),
@@ -47,22 +72,37 @@ export const ConnectorActionRefSchema = z.object({
 });
 
 /**
- * Universal Workflow Action Schema
- * Union of all supported action types.
+ * Schema for HTTP Callout Action
+ * Makes a REST API call to an external service.
+ * @example
+ * {
+ *   name: "sync_to_erp",
+ *   type: "http_call",
+ *   url: "https://erp.api/orders",
+ *   method: "POST",
+ *   headers: { "Authorization": "Bearer {token}" },
+ *   body: "{ ... }"
+ * }
  */
-export const WorkflowActionSchema = z.discriminatedUnion('type', [
-  FieldUpdateActionSchema,
-  EmailAlertActionSchema,
-  HttpCallActionSchema,
-  WebhookTriggerActionSchema,
-  ConnectorActionRefSchema,
-]);
-
-export type WorkflowAction = z.infer<typeof WorkflowActionSchema>;
-
+export const HttpCallActionSchema = z.object({
+  name: z.string().describe('Action name'),
+  type: z.literal('http_call'),
+  url: z.string().describe('Target URL'),
+  method: z.enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH']).default('POST').describe('HTTP Method'),
+  headers: z.record(z.string(), z.string()).optional().describe('HTTP Headers'),
+  body: z.string().optional().describe('Request body (JSON or text)'),
+});
 
 /**
  * Schema for Workflow Task Creation Action
+ * @example
+ * {
+ *   name: "create_followup_task",
+ *   type: "task_creation",
+ *   taskObject: "tasks",
+ *   subject: "Follow up with client",
+ *   dueDate: "TODAY() + 3"
+ * }
  */
 export const TaskCreationActionSchema = z.object({
   name: z.string().describe('Action name'),
@@ -105,21 +145,20 @@ export const CustomScriptActionSchema = z.object({
 });
 
 /**
- * Generic Workflow Action Wrapper
- * Supports 10 action types for comprehensive automation
+ * Universal Workflow Action Schema
+ * Union of all supported action types.
  */
 export const WorkflowActionSchema = z.discriminatedUnion('type', [
-    FieldUpdateActionSchema,
-    EmailAlertActionSchema,
-    SmsNotificationActionSchema,
-    SlackMessageActionSchema,
-    TeamsMessageActionSchema,
-    HttpCallActionSchema,
-    WebhookTriggerActionSchema,
-    TaskCreationActionSchema,
-    PushNotificationActionSchema,
-    CustomScriptActionSchema,
+  FieldUpdateActionSchema,
+  EmailAlertActionSchema,
+  HttpCallActionSchema,
+  ConnectorActionRefSchema,
+  TaskCreationActionSchema,
+  PushNotificationActionSchema,
+  CustomScriptActionSchema,
 ]);
+
+export type WorkflowAction = z.infer<typeof WorkflowActionSchema>;
 
 /**
  * Time Trigger Definition
@@ -157,6 +196,47 @@ export const TimeTriggerSchema = z.object({
  * - 'SendWelcomeEmail' (PascalCase)
  * - 'updateLeadStatus' (camelCase)
  * - 'Send Welcome Email' (spaces)
+ * 
+ * @example Complete Workflow
+ * {
+ *   name: "new_lead_process",
+ *   objectName: "lead",
+ *   triggerType: "on_create",
+ *   criteria: "amount > 1000",
+ *   active: true,
+ *   actions: [
+ *     {
+ *       name: "set_status",
+ *       type: "field_update",
+ *       field: "status",
+ *       value: "new"
+ *     },
+ *     {
+ *       name: "notify_team",
+ *       type: "connector_action",
+ *       connectorId: "slack",
+ *       actionId: "post_message",
+ *       input: { channel: "#sales", text: "New high value lead!" }
+ *     }
+ *   ],
+ *   timeTriggers: [
+ *     {
+ *       timeLength: 2,
+ *       timeUnit: "days",
+ *       offsetDirection: "after",
+ *       offsetFrom: "trigger_date",
+ *       actions: [
+ *         {
+ *           name: "followup_check",
+ *           type: "task_creation",
+ *           taskObject: "task",
+ *           subject: "Follow up lead",
+ *           dueDate: "TODAY()"
+ *         }
+ *       ]
+ *     }
+ *   ]
+ * }
  */
 export const WorkflowRuleSchema = z.object({
   /** Machine name */
