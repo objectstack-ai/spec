@@ -53,6 +53,8 @@ export class HttpDispatcher {
         const hasSearch = !!services['search'];
         const hasWebSockets = !!services['realtime'];
         const hasFiles = !!(services['file-storage'] || services['storage']?.supportsFiles);
+        const hasAnalytics = !!services['analytics'];
+        const hasHub = !!services['hub'];
 
         return {
             name: 'ObjectOS',
@@ -64,13 +66,22 @@ export class HttpDispatcher {
                 auth: `${prefix}/auth`,
                 graphql: hasGraphQL ? `${prefix}/graphql` : undefined,
                 storage: hasFiles ? `${prefix}/storage` : undefined,
+                analytics: hasAnalytics ? `${prefix}/analytics` : undefined,
+                hub: hasHub ? `${prefix}/hub` : undefined,
             },
             features: {
                 graphql: hasGraphQL,
                 search: hasSearch,
                 websockets: hasWebSockets,
                 files: hasFiles,
+                analytics: hasAnalytics,
+                hub: hasHub,
             },
+            locale: {
+                default: 'en',
+                supported: ['en', 'zh-CN'],
+                timezone: 'UTC'
+            }
         };
     }
 
@@ -116,21 +127,66 @@ export class HttpDispatcher {
 
     /**
      * Handles Metadata requests
-     * path: sub-path after /metadata/ (e.g. "contacts" or empty)
+     * Standard: /metadata/:type/:name
+     * Fallback for backward compat: /metadata (all objects), /metadata/:objectName (get object)
      */
     async handleMetadata(path: string, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
         const broker = this.ensureBroker();
-        const cleanPath = path.replace(/^\/+/, '');
+        const parts = path.replace(/^\/+/, '').split('/').filter(Boolean);
         
-        // GET /metadata
-        if (!cleanPath) {
+        // GET /metadata/types
+        if (parts[0] === 'types') {
+            // This would normally come from a registry service
+            // For now we mock the types supported by core
+            return { handled: true, response: this.success({ types: ['objects', 'apps', 'plugins'] }) };
+        }
+
+        // GET /metadata/:type/:name
+        if (parts.length === 2) {
+            const [type, name] = parts;
+            try {
+                // Try specific calls based on type
+                if (type === 'objects') {
+                    const data = await broker.call('metadata.getObject', { objectName: name }, { request: context.request });
+                    return { handled: true, response: this.success(data) };
+                }
+                // Generic call for other types if supported
+                const data = await broker.call(`metadata.get${this.capitalize(type.slice(0, -1))}`, { name }, { request: context.request });
+                return { handled: true, response: this.success(data) };
+            } catch (e: any) {
+                // Fallback: treat first part as object name if only 1 part (handled below)
+                // But here we are deep in 2 parts. Must be an error.
+                return { handled: true, response: this.error(e.message, 404) };
+            }
+        }
+        
+        // GET /metadata/:type (List items of type) OR /metadata/:objectName (Legacy)
+        if (parts.length === 1) {
+            const typeOrName = parts[0];
+            
+            // Heuristic: if it maps to a known type, list it. Else treat as object name.
+            if (['objects', 'apps', 'plugins'].includes(typeOrName)) {
+                 if (typeOrName === 'objects') {
+                     const data = await broker.call('metadata.objects', {}, { request: context.request });
+                     return { handled: true, response: this.success(data) };
+                 }
+                 // Try generic list
+                 const data = await broker.call(`metadata.${typeOrName}`, {}, { request: context.request });
+                 return { handled: true, response: this.success(data) };
+            }
+
+            // Legacy: /metadata/:objectName
+            const data = await broker.call('metadata.getObject', { objectName: typeOrName }, { request: context.request });
+            return { handled: true, response: this.success(data) };
+        }
+
+        // GET /metadata (List Objects - Default)
+        if (parts.length === 0) {
             const data = await broker.call('metadata.objects', {}, { request: context.request });
             return { handled: true, response: this.success(data) };
         }
         
-        // GET /metadata/:objectName
-        const data = await broker.call('metadata.getObject', { objectName: cleanPath }, { request: context.request });
-        return { handled: true, response: this.success(data) };
+        return { handled: false };
     }
 
     /**
@@ -160,7 +216,9 @@ export class HttpDispatcher {
 
             // POST /data/:object/batch
             if (action === 'batch' && m === 'POST') {
-                const result = await broker.call('data.batch', { object: objectName, operations: body.operations }, { request: context.request });
+                // Spec complaint: forward the whole body { operation, records, options }
+                // Implementation in Kernel should handle the 'operation' field
+                const result = await broker.call('data.batch', { object: objectName, ...body }, { request: context.request });
                 return { handled: true, response: this.success(result) };
             }
 
@@ -200,6 +258,47 @@ export class HttpDispatcher {
                 return { handled: true, response: res };
             }
         }
+        
+        return { handled: false };
+    }
+
+    /**
+     * Handles Analytics requests
+     * path: sub-path after /analytics/
+     */
+    async handleAnalytics(path: string, method: string, body: any, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
+        const analyticsService = this.getService('analytics');
+        if (!analyticsService) return { handled: false }; // 404 handled by caller if unhandled
+
+        const m = method.toUpperCase();
+        const subPath = path.replace(/^\/+/, '');
+
+        // POST /analytics/query
+        if (subPath === 'query' && m === 'POST') {
+            const result = await analyticsService.query(body, { request: context.request });
+            return { handled: true, response: this.success(result) };
+        }
+
+        // GET /analytics/meta
+        if (subPath === 'meta' && m === 'GET') {
+            const result = await analyticsService.getMetadata({ request: context.request });
+             return { handled: true, response: this.success(result) };
+        }
+
+        return { handled: false };
+    }
+
+    /**
+     * Handles Hub requests
+     * path: sub-path after /hub/
+     */
+    async handleHub(path: string, method: string, body: any, query: any, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
+        const hubService = this.getService('hub');
+        if (!hubService) return { handled: false };
+
+        const m = method.toUpperCase();
+        // Dispatch to hub service methods based on convention or explicit mapping
+        // This is a placeholder for Hub Protocol implementation
         
         return { handled: false };
     }
@@ -271,5 +370,9 @@ export class HttpDispatcher {
         }
         const services = this.getServicesMap();
         return services[name];
+    }
+
+    private capitalize(s: string) {
+        return s.charAt(0).toUpperCase() + s.slice(1);
     }
 }
