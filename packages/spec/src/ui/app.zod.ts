@@ -91,7 +91,10 @@ export const GroupNavItemSchema = BaseNavItemSchema.extend({
  */
 export const NavigationItemSchema: z.ZodType<any> = z.lazy(() => 
   z.union([
-    ObjectNavItemSchema,
+    // Object Item can now have children (Airtable style: Object -> Views)
+    ObjectNavItemSchema.extend({
+      children: z.array(NavigationItemSchema).optional().describe('Child navigation items (e.g. specific views)'),
+    }),
     DashboardNavItemSchema,
     PageNavItemSchema,
     UrlNavItemSchema,
