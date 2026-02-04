@@ -52,6 +52,10 @@ export const AgentSchema = z.object({
   /** Interface */
   active: z.boolean().default(true),
   access: z.array(z.string()).optional().describe('Who can chat with this agent'),
+
+  /** Multi-tenancy & Visibility */
+  tenantId: z.string().optional().describe('Tenant/Organization ID'),
+  visibility: z.enum(['global', 'organization', 'private']).default('organization'),
 });
 
 export type Agent = z.infer<typeof AgentSchema>;

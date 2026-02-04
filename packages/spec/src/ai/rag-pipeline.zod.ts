@@ -34,7 +34,8 @@ export const EmbeddingModelSchema = z.object({
   maxTokens: z.number().int().positive().optional().describe('Maximum tokens per embedding'),
   batchSize: z.number().int().positive().optional().default(100).describe('Batch size for embedding'),
   endpoint: z.string().url().optional().describe('Custom endpoint URL'),
-  apiKey: z.string().optional().describe('API key or reference to secret'),
+  apiKey: z.string().optional().describe('API key'),
+  secretRef: z.string().optional().describe('Reference to stored secret'),
 });
 
 /**
@@ -74,8 +75,8 @@ export const DocumentMetadataSchema = z.object({
   source: z.string().describe('Document source (file path, URL, etc.)'),
   sourceType: z.enum(['file', 'url', 'api', 'database', 'custom']).optional(),
   title: z.string().optional(),
-  author: z.string().optional(),
-  createdAt: z.string().optional().describe('ISO timestamp'),
+  author: z.string().optdatetime().optional().describe('ISO timestamp'),
+  updatedAt: z.string().datetime().optional().describe('ISO timestamp'),
   updatedAt: z.string().optional().describe('ISO timestamp'),
   tags: z.array(z.string()).optional(),
   category: z.string().optional(),
@@ -143,7 +144,8 @@ export const VectorStoreConfigSchema = z.object({
   
   /** Connection */
   host: z.string().optional().describe('Vector store host'),
-  port: z.number().int().optional().describe('Vector store port'),
+  port: z.number().int().optional().describe('Vec'),
+  secretRef: z.string().optional().describe('Reference to stored,
   apiKey: z.string().optional().describe('API key or reference to secret'),
   
   /** Configuration */
@@ -179,7 +181,30 @@ export const DocumentLoaderConfigSchema = z.object({
   
   /** Custom Loader */
   loaderConfig: z.record(z.string(), z.any()).optional().describe('Custom loader-specific config'),
+
+/**
+ * Filter Expression Schema
+ */
+export const FilterExpressionSchema = z.object({
+  field: z.string().describe('Metadata field to filter'),
+  operator: z.enum(['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'in', 'nin', 'contains']).default('eq'),
+  value: z.union([z.string(), z.number(), z.boolean(), z.array(z.union([z.string(), z.number()]))]).describe('Filter value'),
 });
+
+export const FilterGroupSchema = z.object({
+  logic: z.enum(['and', 'or']).default('and'),
+  filters: z.array(z.union([FilterExpressionSchema, z.lazy(() => FilterGroupSchema)])),
+});
+
+/**
+ * Standardized Metadata Filter
+ */
+export const MetadataFilterSchema = z.union([
+  FilterExpressionSchema,
+  FilterGroupSchema,
+  // Legacy support for simple key-value map
+  z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.array(z.union([z.string(), z.number()]))]))
+]);
 
 /**
  * RAG Pipeline Configuration
@@ -205,10 +230,7 @@ export const RAGPipelineConfigSchema = z.object({
   contextWindow: z.number().int().positive().optional().describe('LLM context window size'),
   
   /** Metadata Filtering */
-  metadataFilters: z.record(z.string(), z.union([
-    z.string(),
-    z.number(),
-    z.boolean(),
+  metadataFilters: MetadataFilterSchema.optional().describe('Global filters for retrieval
     z.array(z.union([z.string(), z.number()])),
   ])).optional().describe('Filters for retrieval (e.g., {category: "docs", status: "published"})'),
   
@@ -254,7 +276,6 @@ export const RAGQueryResponseSchema = z.object({
   context: z.string().describe('Assembled context for LLM'),
   tokens: TokenUsageSchema.optional().describe('Token usage for this query'),
   cost: z.number().nonnegative().optional().describe('Cost for this query in USD'),
-  tokensUsed: z.number().int().optional().describe('Deprecated: use tokens.total instead'),
   retrievalTime: z.number().optional().describe('Retrieval time in milliseconds'),
 });
 
@@ -265,7 +286,7 @@ export const RAGPipelineStatusSchema = z.object({
   name: z.string(),
   status: z.enum(['active', 'indexing', 'error', 'disabled']),
   documentsIndexed: z.number().int().min(0),
-  lastIndexed: z.string().optional().describe('ISO timestamp'),
+  lastIndexed: z.string().datetime().optional().describe('ISO timestamp'),
   errorMessage: z.string().optional(),
   health: z.object({
     vectorStore: z.enum(['healthy', 'unhealthy', 'unknown']),

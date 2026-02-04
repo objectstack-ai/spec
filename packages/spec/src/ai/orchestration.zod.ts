@@ -64,10 +64,12 @@ export const AITaskSchema = z.object({
   
   /** Input Configuration */
   inputFields: z.array(z.string()).describe('Source fields to process (e.g., ["description", "comments"])'),
+  inputSchema: z.record(z.string(), z.any()).optional().describe('Validation schema for inputs'),
   inputContext: z.record(z.string(), z.any()).optional().describe('Additional context for the AI model'),
   
   /** Output Configuration */
   outputField: z.string().describe('Target field to store the result'),
+  outputSchema: z.record(z.string(), z.any()).optional().describe('Validation schema for output'),
   outputFormat: z.enum(['text', 'json', 'number', 'boolean', 'array']).optional().default('text'),
   
   /** Classification-specific options */
@@ -182,8 +184,8 @@ export const AIOrchestrationSchema = z.object({
   tags: z.array(z.string()).optional(),
   category: z.string().optional().describe('Workflow category (e.g., "support", "sales", "hr")'),
   owner: z.string().optional().describe('User ID of workflow owner'),
-  createdAt: z.string().optional().describe('ISO timestamp'),
-  updatedAt: z.string().optional().describe('ISO timestamp'),
+  createdAt: z.string().datetime().optional().describe('ISO timestamp'),
+  updatedAt: z.string().datetime().optional().describe('ISO timestamp'),
 });
 
 /**
@@ -223,8 +225,8 @@ export const AIOrchestrationExecutionResultSchema = z.object({
   tokens: TokenUsageSchema.optional().describe('Total token usage for this execution'),
   cost: z.number().nonnegative().optional().describe('Total cost for this execution in USD'),
   error: z.string().optional(),
-  startedAt: z.string().describe('ISO timestamp'),
-  completedAt: z.string().optional().describe('ISO timestamp'),
+  startedAt: z.string().datetime().describe('ISO timestamp'),
+  completedAt: z.string().datetime().optional().describe('ISO timestamp'),
 });
 
 // Type exports

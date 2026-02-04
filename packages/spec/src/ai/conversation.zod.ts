@@ -31,16 +31,42 @@ export const MessageContentTypeSchema = z.enum([
 ]);
 
 /**
- * Message Content
+ * Message Content - Discriminated Union
  */
-export const MessageContentSchema = z.object({
-  type: MessageContentTypeSchema.default('text'),
-  text: z.string().optional().describe('Text content'),
-  imageUrl: z.string().url().optional().describe('Image URL for vision models'),
-  fileUrl: z.string().url().optional().describe('File attachment URL'),
-  mimeType: z.string().optional().describe('MIME type for files'),
-  metadata: z.record(z.string(), z.any()).optional().describe('Additional metadata'),
+export const TextContentSchema = z.object({
+  type: z.literal('text'),
+  text: z.string().describe('Text content'),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
+
+export const ImageContentSchema = z.object({
+  type: z.literal('image'),
+  imageUrl: z.string().url().describe('Image URL'),
+  detail: z.enum(['low', 'high', 'auto']).optional().default('auto'),
+  metadata: z.record(z.string(), z.any()).optional(),
+});
+
+export const FileContentSchema = z.object({
+  type: z.literal('file'),
+  fileUrl: z.string().url().describe('File attachment URL'),
+  mimeType: z.string().describe('MIME type'),
+  fileName: z.string().optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
+});
+
+export const CodeContentSchema = z.object({
+  type: z.literal('code'),
+  text: z.string().describe('Code snippet'),
+  language: z.string().optional().default('text'),
+  metadata: z.record(z.string(), z.any()).optional(),
+});
+
+export const MessageContentSchema = z.union([
+  TextContentSchema,
+  ImageContentSchema,
+  FileContentSchema,
+  CodeContentSchema
+]);
 
 /**
  * Function Call
@@ -66,14 +92,11 @@ export const ToolCallSchema = z.object({
 export const ConversationMessageSchema = z.object({
   /** Identity */
   id: z.string().describe('Unique message ID'),
-  timestamp: z.string().describe('ISO 8601 timestamp'),
+  timestamp: z.string().datetime().describe('ISO 8601 timestamp'),
   
   /** Content */
   role: MessageRoleSchema,
-  content: z.union([
-    z.string(),
-    z.array(MessageContentSchema),
-  ]).describe('Message content (text or multimodal)'),
+  content: z.array(MessageContentSchema).describe('Message content (multimodal array)'),
   
   /** Function/Tool Calls */
   functionCall: FunctionCallSchema.optional().describe('Legacy function call'),
@@ -204,9 +227,9 @@ export const ConversationSessionSchema = z.object({
   createdAt: z.string().describe('ISO 8601 timestamp'),
   updatedAt: z.string().describe('ISO 8601 timestamp'),
   expiresAt: z.string().optional().describe('ISO 8601 timestamp'),
-  
-  /** Metadata */
-  tags: z.array(z.string()).optional(),
+  atetime().describe('ISO 8601 timestamp'),
+  updatedAt: z.string().datetime().describe('ISO 8601 timestamp'),
+  expiresAt: z.string().datetimeing()).optional(),
   metadata: z.record(z.string(), z.any()).optional(),
 });
 
@@ -233,16 +256,16 @@ export const ConversationSummarySchema = z.object({
   generatedAt: z.string().describe('ISO 8601 timestamp'),
   modelId: z.string().optional().describe('Model used for summarization'),
 });
+atetime().describe('ISO 8601 timestamp'),
+  modelId: z.string().optional().describe('Model used for summarization'),
+});
 
 /**
  * Message Pruning Event
  */
 export const MessagePruningEventSchema = z.object({
   /** Event Details */
-  timestamp: z.string().describe('ISO 8601 timestamp'),
-  strategy: TokenBudgetStrategySchema,
-  reason: z.string().describe('Reason for pruning'),
-  
+  timestamp: z.string().datetime
   /** Pruned Messages */
   prunedMessages: z.array(z.object({
     messageId: z.string(),
@@ -289,8 +312,8 @@ export const ConversationAnalyticsSchema = z.object({
   firstMessageAt: z.string().optional().describe('ISO 8601 timestamp'),
   lastMessageAt: z.string().optional().describe('ISO 8601 timestamp'),
 });
-
-// Type exports
+datetime().optional().describe('ISO 8601 timestamp'),
+  lastMessageAt: z.string().datetime
 export type MessageRole = z.infer<typeof MessageRoleSchema>;
 export type MessageContentType = z.infer<typeof MessageContentTypeSchema>;
 export type MessageContent = z.infer<typeof MessageContentSchema>;

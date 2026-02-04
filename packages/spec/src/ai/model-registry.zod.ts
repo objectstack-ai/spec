@@ -76,7 +76,8 @@ export const ModelConfigSchema = z.object({
   
   /** Configuration */
   endpoint: z.string().url().optional().describe('Custom API endpoint'),
-  apiKey: z.string().optional().describe('API key or reference to secret'),
+  apiKey: z.string().optional().describe('API key (Warning: Prefer secretRef)'),
+  secretRef: z.string().optional().describe('Reference to stored secret (e.g. system:openai_api_key)'),
   region: z.string().optional().describe('Deployment region (e.g., "us-east-1")'),
   
   /** Metadata */

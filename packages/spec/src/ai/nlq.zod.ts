@@ -109,7 +109,7 @@ export const NLQParseResultSchema = z.object({
   timeframe: TimeframeSchema.optional(),
   
   /** Query AST */
-  ast: z.any().describe('Generated ObjectQL AST'),
+  ast: z.record(z.string(), z.any()).describe('Generated ObjectQL AST'),
   
   /** Metadata */
   confidence: z.number().min(0).max(1).describe('Overall confidence'),
@@ -181,7 +181,7 @@ export const NLQTrainingExampleSchema = z.object({
   /** Expected Output */
   expectedIntent: QueryIntentSchema,
   expectedObject: z.string().optional(),
-  expectedAST: z.any().describe('Expected ObjectQL AST'),
+  expectedAST: z.record(z.string(), z.any()).describe('Expected ObjectQL AST'),
   
   /** Metadata */
   category: z.string().optional().describe('Example category'),
@@ -250,12 +250,12 @@ export const NLQAnalyticsSchema = z.object({
   lowConfidenceQueries: z.array(z.object({
     query: z.string(),
     confidence: z.number(),
-    timestamp: z.string(),
+    timestamp: z.string().datetime(),
   })),
   
   /** Timeframe */
-  startDate: z.string().describe('ISO timestamp'),
-  endDate: z.string().describe('ISO timestamp'),
+  startDate: z.string().datetime().describe('ISO timestamp'),
+  endDate: z.string().datetime().describe('ISO timestamp'),
 });
 
 /**
@@ -285,7 +285,7 @@ export const QueryTemplateSchema = z.object({
   })),
   
   /** Generated AST */
-  astTemplate: z.any().describe('AST template with variable placeholders'),
+  astTemplate: z.record(z.string(), z.any()).describe('AST template with variable placeholders'),
   
   /** Metadata */
   category: z.string().optional(),

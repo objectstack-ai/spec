@@ -308,11 +308,58 @@ export const AgentActionSchema = z.object({
     intent: z.string().optional().describe('Original user intent/query'),
     confidence: z.number().min(0).max(1).optional().describe('Confidence score (0-1)'),
     agentName: z.string().optional().describe('Agent that generated this action'),
-    timestamp: z.string().optional().describe('Generation timestamp (ISO 8601)'),
+    timestamp: z.string().datetime().optional().describe('Generation timestamp (ISO 8601)'),
   }).optional(),
 });
 
-export type AgentAction = z.infer<typeof AgentActionSchema>;
+/**
+ * Agent Action Typed Schemas
+ * Bind params to specific action types for type safety
+ */
+export const NavigationAgentActionSchema = AgentActionSchema.extend({
+  type: NavigationActionTypeSchema,
+  params: NavigationActionParamsSchema,
+});
+
+export const ViewAgentActionSchema = AgentActionSchema.extend({
+  type: ViewActionTypeSchema,
+  params: ViewActionParamsSchema,
+});
+
+export const FormAgentActionSchema = AgentActionSchema.extend({
+  type: FormActionTypeSchema,
+  params: FormActionParamsSchema,
+});
+
+export const DataAgentActionSchema = AgentActionSchema.extend({
+  type: DataActionTypeSchema,
+  params: DataActionParamsSchema,
+});
+
+export const WorkflowAgentActionSchema = AgentActionSchema.extend({
+  type: WorkflowActionTypeSchema,
+  params: WorkflowActionParamsSchema,
+});
+
+export const ComponentAgentActionSchema = AgentActionSchema.extend({
+  type: ComponentActionTypeSchema,
+  params: ComponentActionParamsSchema,
+});
+
+/**
+ * Typed Agent Action Union
+ * Replaces the generic AgentActionSchema for stricter typing where possible
+ */
+export const TypedAgentActionSchema = z.union([
+  NavigationAgentActionSchema,
+  ViewAgentActionSchema,
+  FormAgentActionSchema,
+  DataAgentActionSchema,
+  WorkflowAgentActionSchema,
+  ComponentAgentActionSchema,
+]);
+
+export type AgentAction = z.infer<typeof TypedAgentActionSchema>;
 
 /**
  * Agent Action Sequence Schema
@@ -342,8 +389,8 @@ export const AgentActionSequenceSchema = z.object({
   /**
    * Transaction mode (all-or-nothing)
    */
-  atomic: z.boolean().default(false).describe('Rollback all changes if any action fails'),
-  
+  atomic: z.boolean().defadatetime().optional().describe('Execution start time (ISO 8601)'),
+    endTime: z.string().datetime
   /**
    * Metadata
    */

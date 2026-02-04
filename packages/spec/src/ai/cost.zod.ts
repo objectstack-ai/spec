@@ -68,17 +68,15 @@ export const BillingPeriodSchema = z.enum([
 export const CostEntrySchema = z.object({
   /** Identity */
   id: z.string().describe('Unique cost entry ID'),
-  timestamp: z.string().describe('ISO 8601 timestamp'),
+  timestamp: z.string().datetime().describe('ISO 8601 timestamp'),
   
   /** Request Details */
   modelId: z.string().describe('AI model used'),
   provider: z.string().describe('AI provider (e.g., "openai", "anthropic")'),
   operation: z.string().describe('Operation type (e.g., "chat_completion", "embedding")'),
   
-  /** Usage Metrics */
-  promptTokens: z.number().int().nonnegative().optional(),
-  completionTokens: z.number().int().nonnegative().optional(),
-  totalTokens: z.number().int().nonnegative().optional(),
+  /** Usage Metrics - Standardized */
+  tokens: TokenUsageSchema.optional().describe('Standardized token usage'),
   requestCount: z.number().int().positive().default(1),
   
   /** Cost Calculation */
@@ -156,8 +154,8 @@ export const BudgetStatusSchema = z.object({
   scope: z.string().optional(),
   
   /** Current Period */
-  periodStart: z.string().describe('ISO 8601 timestamp'),
-  periodEnd: z.string().describe('ISO 8601 timestamp'),
+  periodStart: z.string().datetime().describe('ISO 8601 timestamp'),
+  periodEnd: z.string().datetime().describe('ISO 8601 timestamp'),
   
   /** Usage */
   currentCost: z.number().nonnegative().default(0),
@@ -175,7 +173,7 @@ export const BudgetStatusSchema = z.object({
   projectedOverage: z.number().nonnegative().optional().describe('Projected overage'),
   
   /** Last Update */
-  lastUpdated: z.string().describe('ISO 8601 timestamp'),
+  lastUpdated: z.string().datetime().describe('ISO 8601 timestamp'),
 });
 
 /**
@@ -195,7 +193,7 @@ export const CostAlertTypeSchema = z.enum([
 export const CostAlertSchema = z.object({
   /** Alert Details */
   id: z.string(),
-  timestamp: z.string().describe('ISO 8601 timestamp'),
+  timestamp: z.string().datetime().describe('ISO 8601 timestamp'),
   type: CostAlertTypeSchema,
   severity: z.enum(['info', 'warning', 'critical']),
   
@@ -217,7 +215,7 @@ export const CostAlertSchema = z.object({
   /** Status */
   acknowledged: z.boolean().default(false),
   acknowledgedBy: z.string().optional(),
-  acknowledgedAt: z.string().optional(),
+  acknowledgedAt: z.string().datetime().optional(),
   resolved: z.boolean().default(false),
   
   /** Metadata */
@@ -255,8 +253,8 @@ export const CostBreakdownEntrySchema = z.object({
   percentageOfTotal: z.number().min(0).max(1),
   
   /** Time Range */
-  periodStart: z.string().optional(),
-  periodEnd: z.string().optional(),
+  periodStart: z.string().datetime().optional(),
+  periodEnd: z.string().datetime().optional(),
 });
 
 /**
@@ -264,8 +262,8 @@ export const CostBreakdownEntrySchema = z.object({
  */
 export const CostAnalyticsSchema = z.object({
   /** Time Range */
-  periodStart: z.string().describe('ISO 8601 timestamp'),
-  periodEnd: z.string().describe('ISO 8601 timestamp'),
+  periodStart: z.string().datetime().describe('ISO 8601 timestamp'),
+  periodEnd: z.string().datetime().describe('ISO 8601 timestamp'),
   
   /** Summary Metrics */
   totalCost: z.number().nonnegative(),
@@ -334,7 +332,7 @@ export const CostOptimizationRecommendationSchema = z.object({
   
   /** Status */
   status: z.enum(['pending', 'accepted', 'rejected', 'implemented']).default('pending'),
-  implementedAt: z.string().optional(),
+  implementedAt: z.string().datetime().optional(),
 });
 
 /**
@@ -344,11 +342,11 @@ export const CostReportSchema = z.object({
   /** Report Metadata */
   id: z.string(),
   name: z.string(),
-  generatedAt: z.string().describe('ISO 8601 timestamp'),
+  generatedAt: z.string().datetime().describe('ISO 8601 timestamp'),
   
   /** Time Range */
-  periodStart: z.string().describe('ISO 8601 timestamp'),
-  periodEnd: z.string().describe('ISO 8601 timestamp'),
+  periodStart: z.string().datetime().describe('ISO 8601 timestamp'),
+  periodEnd: z.string().datetime().describe('ISO 8601 timestamp'),
   period: BillingPeriodSchema,
   
   /** Analytics */
@@ -383,8 +381,8 @@ export const CostReportSchema = z.object({
  */
 export const CostQueryFiltersSchema = z.object({
   /** Time Range */
-  startDate: z.string().optional().describe('ISO 8601 timestamp'),
-  endDate: z.string().optional().describe('ISO 8601 timestamp'),
+  startDate: z.string().datetime().optional().describe('ISO 8601 timestamp'),
+  endDate: z.string().datetime().optional().describe('ISO 8601 timestamp'),
   
   /** Dimensions */
   modelIds: z.array(z.string()).optional(),

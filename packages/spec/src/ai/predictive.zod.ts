@@ -133,6 +133,17 @@ export const TrainingConfigSchema = z.object({
   
   /** Reproducibility */
   randomSeed: z.number().int().optional().describe('Random seed for reproducibility'),
+}).superRefine((data, ctx) => {
+  if (data.trainingDataRatio && data.validationDataRatio && data.testDataRatio) {
+    const sum = data.trainingDataRatio + data.validationDataRatio + data.testDataRatio;
+    if (Math.abs(sum - 1) > 0.01) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Data split ratios must sum to 1. Current sum: ${sum}`,
+        path: ['trainingDataRatio'],
+      });
+    }
+  }
 });
 
 /**
@@ -224,9 +235,9 @@ export const PredictiveModelSchema = z.object({
   /** Metadata */
   tags: z.array(z.string()).optional(),
   category: z.string().optional().describe('Model category (e.g., "sales", "marketing", "operations")'),
-  lastTrainedAt: z.string().optional().describe('ISO timestamp'),
-  createdAt: z.string().optional().describe('ISO timestamp'),
-  updatedAt: z.string().optional().describe('ISO timestamp'),
+  lastTrainedAt: z.string().datetime().optional().describe('ISO timestamp'),
+  createdAt: z.string().datetime().optional().describe('ISO timestamp'),
+  updatedAt: z.string().datetime().optional().describe('ISO timestamp'),
 });
 
 /**
@@ -264,7 +275,7 @@ export const PredictionResultSchema = z.object({
   cost: z.number().nonnegative().optional().describe('Cost for this prediction in USD'),
   metadata: z.object({
     executionTime: z.number().optional().describe('Execution time in milliseconds'),
-    timestamp: z.string().optional().describe('ISO timestamp'),
+    timestamp: z.string().datetime().optional().describe('ISO timestamp'),
   }).optional(),
 });
 
@@ -276,7 +287,7 @@ export const ModelDriftSchema = z.object({
   modelName: z.string(),
   driftType: z.enum(['feature_drift', 'prediction_drift', 'performance_drift']),
   severity: z.enum(['low', 'medium', 'high', 'critical']),
-  detectedAt: z.string().describe('ISO timestamp'),
+  detectedAt: z.string().datetime().describe('ISO timestamp'),
   metrics: z.object({
     driftScore: z.number().describe('Drift magnitude (0-1)'),
     affectedFeatures: z.array(z.string()).optional(),
