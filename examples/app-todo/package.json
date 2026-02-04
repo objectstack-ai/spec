@@ -11,7 +11,8 @@
   },
   "scripts": {
     "dev": "objectstack dev",
-    "build": "objectstack compile objectstack.config.ts dist/objectstack.json",
+    "start": "objectstack serve",
+    "build": "objectstack compile",
     "typecheck": "tsc --noEmit",
     "test": "objectstack test:run"
   },

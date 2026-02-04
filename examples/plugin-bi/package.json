@@ -10,7 +10,11 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "build": "tsc"
+    "dev": "objectstack dev",
+    "start": "objectstack serve",
+    "build": "objectstack compile",
+    "typecheck": "tsc --noEmit",
+    "test": "objectstack test:run"
   },
   "dependencies": {
     "@objectstack/spec": "workspace:*",

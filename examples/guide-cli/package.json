@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "objectstack dev",
-    "serve": "objectstack serve",
+    "start": "objectstack serve",
     "build": "objectstack compile",
     "doctor": "objectstack doctor",
-    "debug": "node --inspect-brk node_modules/.bin/objectstack serve"
+    "debug": "node --inspect-brk node_modules/.bin/objectstack serve",
+    "test": "objectstack test:run"
   },
   "dependencies": {
     "@objectstack/cli": "workspace:*",

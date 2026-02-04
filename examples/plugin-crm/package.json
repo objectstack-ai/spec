@@ -4,7 +4,11 @@
   "main": "objectstack.config.ts",
   "private": true,
   "scripts": {
-    "dev": "objectstack dev"
+    "dev": "objectstack dev",
+    "start": "objectstack serve",
+    "build": "objectstack compile",
+    "typecheck": "tsc --noEmit",
+    "test": "objectstack test:run"
   },
   "dependencies": {
     "@objectstack/spec": "workspace:*"

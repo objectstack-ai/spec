@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "objectstack serve --dev",
-    "start": "tsx src/index.ts",
-    "build": "tsc --noEmit",
+    "start": "objectstack serve",
+    "build": "tsc && objectstack compile",
     "typecheck": "tsc --noEmit",
     "test": "objectstack test:run",
     "clean": "rm -rf dist node_modules"
