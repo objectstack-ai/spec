@@ -10,6 +10,77 @@ import {
 import { ObjectStackProtocol } from '@objectstack/spec/api';
 // import { IDataEngine } from '@objectstack/core';
 
+// Helper for parsing query parameters
+function parseQueryParams(url: URL): Record<string, any> {
+    const params: Record<string, any> = {};
+    const keys = Array.from(new Set(url.searchParams.keys()));
+
+    for (const key of keys) {
+        const values = url.searchParams.getAll(key);
+        // If single value, use it directly. If multiple, keep as array.
+        const rawValue = values.length === 1 ? values[0] : values;
+        
+        // Helper to parse individual value
+        const parseValue = (val: string) => {
+            if (val === 'true') return true;
+            if (val === 'false') return false;
+            if (val === 'null') return null;
+            if (val === 'undefined') return undefined;
+            
+            // Try number (integers only or floats)
+            // Safety check: Don't convert if it loses information (like leading zeros)
+            const num = Number(val);
+            if (!isNaN(num) && val.trim() !== '' && String(num) === val) {
+                return num;
+            }
+            
+            // Try JSON
+            if ((val.startsWith('{') && val.endsWith('}')) || (val.startsWith('[') && val.endsWith(']'))) {
+                try {
+                    return JSON.parse(val);
+                } catch {}
+            }
+            
+            return val;
+        };
+
+        if (Array.isArray(rawValue)) {
+            params[key] = rawValue.map(parseValue);
+        } else {
+            params[key] = parseValue(rawValue as string);
+        }
+    }
+    
+    return params;
+}
+
+// Helper to normalize flat parameters into 'where' clause
+function normalizeQuery(params: Record<string, any>): Record<string, any> {
+    // If 'where' is already present, trust it
+    if (params.where) return params;
+
+    const reserved = ['select', 'order', 'orderBy', 'sort', 'limit', 'skip', 'offset', 'top', 'page', 'pageSize', 'count'];
+    const where: Record<string, any> = {};
+    let hasWhere = false;
+
+    for (const key in params) {
+        if (!reserved.includes(key)) {
+            where[key] = params[key];
+            hasWhere = true;
+        }
+    }
+
+    if (hasWhere) {
+        // Keep original params but add where. 
+        // This allows protocols that look at root properties to still work, 
+        // while providing 'where' for strict drivers.
+        return { ...params, where };
+    }
+    
+    return params;
+}
+
+
 export interface MSWPluginOptions {
     /**
      * Enable MSW in the browser environment
@@ -147,6 +218,52 @@ export class ObjectStackServer {
             };
         } catch (error) {
             this.logger?.error?.('MSW: Delete failed', error, { object, id });
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            return {
+                status: 400,
+                data: { error: message }
+            };
+        }
+    }
+
+    static async analyticsQuery(request: any) {
+        if (!this.protocol) {
+            throw new Error('ObjectStackServer not initialized. Call ObjectStackServer.init() first.');
+        }
+
+        this.logger?.debug?.('MSW: Executing analytics query', { request });
+        try {
+            const result = await this.protocol.analyticsQuery(request);
+            this.logger?.debug?.('MSW: Analytics query completed', { result });
+            return {
+                status: 200,
+                data: result
+            };
+        } catch (error) {
+            this.logger?.error?.('MSW: Analytics query failed', error);
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            return {
+                status: 400,
+                data: { error: message }
+            };
+        }
+    }
+
+    static async getAnalyticsMeta(request: any) {
+        if (!this.protocol) {
+            throw new Error('ObjectStackServer not initialized. Call ObjectStackServer.init() first.');
+        }
+
+        this.logger?.debug?.('MSW: Getting analytics metadata', { request });
+        try {
+            const result = await this.protocol.getAnalyticsMeta(request);
+            this.logger?.debug?.('MSW: Analytics metadata retrieved', { result });
+            return {
+                status: 200,
+                data: result
+            };
+        } catch (error) {
+            this.logger?.error?.('MSW: Analytics metadata failed', error);
             const message = error instanceof Error ? error.message : 'Unknown error';
             return {
                 status: 400,
@@ -293,10 +410,6 @@ export class MSWPlugin implements Plugin {
 
         // Define standard ObjectStack API handlers
         this.handlers = [
-            // Passthrough for external resources
-            http.get('https://fonts.googleapis.com/*', () => passthrough()),
-            http.get('https://fonts.gstatic.com/*', () => passthrough()),
-            
             // Discovery endpoint
             http.get(`${baseUrl}`, async () => {
                 const discovery = await protocol.getDiscovery({});
@@ -312,12 +425,16 @@ export class MSWPlugin implements Plugin {
             }),
 
             // Meta endpoints
-            http.get(`${baseUrl}/meta`, async () => {
-                return HttpResponse.json(await protocol.getMetaTypes({}));
+            http.get(`${baseUrl}/meta`, async ({ request }) => {
+                const url = new URL(request.url);
+                const query = parseQueryParams(url);
+                return HttpResponse.json(await protocol.getMetaTypes({ query }));
             }),
 
-            http.get(`${baseUrl}/meta/:type`, async ({ params }) => {
-                return HttpResponse.json(await protocol.getMetaItems({ type: params.type as string }));
+            http.get(`${baseUrl}/meta/:type`, async ({ params, request }) => {
+                const url = new URL(request.url);
+                const query = parseQueryParams(url);
+                return HttpResponse.json(await protocol.getMetaItems({ type: params.type as string, query }));
             }),
 
             http.get(`${baseUrl}/meta/:type/:name`, async ({ params }) => {
@@ -335,10 +452,12 @@ export class MSWPlugin implements Plugin {
             http.get(`${baseUrl}/data/:object`, async ({ params, request }) => {
                 try {
                     const url = new URL(request.url);
-                    const queryParams: Record<string, any> = {};
-                    url.searchParams.forEach((value, key) => {
-                        queryParams[key] = value;
-                    });
+                    
+                    // Use helper to parse properly (handle multiple values, JSON strings, numbers)
+                    const rawParams = parseQueryParams(url);
+                    
+                    // Normalize to standard query object (move flats to 'where')
+                    const queryParams = normalizeQuery(rawParams);
                     
                     const result = await ObjectStackServer.findData(
                         params.object as string,
@@ -516,6 +635,30 @@ export class MSWPlugin implements Plugin {
                 } catch (error) {
                     const message = error instanceof Error ? error.message : 'Unknown error';
                     return HttpResponse.json({ error: message }, { status: 404 });
+                }
+            }),
+
+            // Analytics Operations
+            http.post(`${baseUrl}/analytics/query`, async ({ request }) => {
+                try {
+                    const body = await request.json();
+                    const result = await ObjectStackServer.analyticsQuery(body);
+                    return HttpResponse.json(result.data, { status: result.status });
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : 'Unknown error';
+                    return HttpResponse.json({ error: message }, { status: 400 });
+                }
+            }),
+
+            http.get(`${baseUrl}/analytics/meta`, async ({ request }) => {
+                try {
+                    const url = new URL(request.url);
+                    const query = parseQueryParams(url);
+                    const result = await ObjectStackServer.getAnalyticsMeta(query);
+                    return HttpResponse.json(result.data, { status: result.status });
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : 'Unknown error';
+                    return HttpResponse.json({ error: message }, { status: 400 });
                 }
             }),
 
