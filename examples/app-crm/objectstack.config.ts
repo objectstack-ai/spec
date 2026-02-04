@@ -22,6 +22,9 @@ export default defineStack({
   },
   
   // All objects in the app
+  // 
+  // Method 1: Code-First (Explicit Import)
+  // Directly import TypeScript object definitions. This provides strict type checking.
   objects: [
     Account,
     Contact,
@@ -30,6 +33,14 @@ export default defineStack({
     Case,
     Task
   ],
+
+  // Method 2: Schema-First (Glob Patterns)
+  // Alternatively, you can use glob patterns to load objects from the file system.
+  // This is common for metadata-driven development or when using YAML/JSON files.
+  // objects: [
+  //   './src/domains/**/*.object.ts',
+  //   './src/domains/**/*.object.yml'
+  // ],
   
   // Custom APIs
   apis: [
