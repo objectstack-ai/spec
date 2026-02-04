@@ -20,7 +20,8 @@ export const ApprovalActionType = z.enum([
   'field_update',
   'email_alert',
   'webhook',
-  'script'
+  'script',
+  'connector_action' // Added for Zapier-style integrations
 ]);
 
 /**
@@ -29,7 +30,11 @@ export const ApprovalActionType = z.enum([
 export const ApprovalActionSchema = z.object({
   type: ApprovalActionType,
   name: z.string().describe('Action name'),
-  config: z.record(z.string(), z.any()).describe('Action configuration')
+  config: z.record(z.string(), z.any()).describe('Action configuration'),
+  
+  /** For connector actions */
+  connectorId: z.string().optional(),
+  actionId: z.string().optional(),
 });
 
 /**

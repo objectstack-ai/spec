@@ -34,69 +34,32 @@ export const EmailAlertActionSchema = z.object({
 });
 
 /**
- * Schema for Workflow SMS Notification Action
- * Supports providers like Twilio, Vonage
+ * Schema for Connector Action Reference
+ * Executes a capability defined in an integration connector.
+ * Replaces hardcoded vendor actions (Slack, Twilio, etc).
  */
-export const SmsNotificationActionSchema = z.object({
+export const ConnectorActionRefSchema = z.object({
   name: z.string().describe('Action name'),
-  type: z.literal('sms_notification'),
-  provider: z.enum(['twilio', 'vonage']).describe('SMS provider'),
-  recipients: z.array(z.string()).describe('List of phone numbers or user field references'),
-  message: z.string().describe('SMS message text or template'),
-  fromNumber: z.string().optional().describe('Sender phone number (provider-specific)'),
+  type: z.literal('connector_action'),
+  connectorId: z.string().describe('Target Connector ID (e.g. slack, twilio)'),
+  actionId: z.string().describe('Target Action ID (e.g. send_message)'),
+  input: z.record(z.string(), z.any()).describe('Input parameters matching the action schema'),
 });
 
 /**
- * Schema for Workflow Slack Message Action
+ * Universal Workflow Action Schema
+ * Union of all supported action types.
  */
-export const SlackMessageActionSchema = z.object({
-  name: z.string().describe('Action name'),
-  type: z.literal('slack_message'),
-  channel: z.string().describe('Slack channel ID or name (#channel)'),
-  message: z.string().describe('Message text with optional markdown'),
-  mentions: z.array(z.string()).optional().describe('User IDs or @username to mention'),
-  threadId: z.string().optional().describe('Thread ID for replies'),
-});
+export const WorkflowActionSchema = z.discriminatedUnion('type', [
+  FieldUpdateActionSchema,
+  EmailAlertActionSchema,
+  HttpCallActionSchema,
+  WebhookTriggerActionSchema,
+  ConnectorActionRefSchema,
+]);
 
-/**
- * Schema for Workflow Teams Message Action
- */
-export const TeamsMessageActionSchema = z.object({
-  name: z.string().describe('Action name'),
-  type: z.literal('teams_message'),
-  channel: z.string().describe('Teams channel ID'),
-  message: z.string().describe('Message text with optional markdown'),
-  mentions: z.array(z.string()).optional().describe('User IDs to mention'),
-  teamId: z.string().optional().describe('Team ID (if not in default team)'),
-});
+export type WorkflowAction = z.infer<typeof WorkflowActionSchema>;
 
-/**
- * Schema for Workflow HTTP Call Action
- * REST API integration support
- */
-export const HttpCallActionSchema = z.object({
-  name: z.string().describe('Action name'),
-  type: z.literal('http_call'),
-  url: z.string().describe('Target URL'),
-  method: z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']).describe('HTTP method'),
-  headers: z.record(z.string(), z.string()).optional().describe('Request headers'),
-  body: z.any().optional().describe('Request body (object/string)'),
-  authentication: z.object({
-    type: z.enum(['none', 'basic', 'bearer', 'api_key', 'oauth2']),
-    credentials: z.record(z.string(), z.string()).optional(),
-  }).optional().describe('Authentication configuration'),
-  timeout: z.number().optional().describe('Request timeout in milliseconds'),
-});
-
-/**
- * Schema for Workflow Webhook Trigger Action
- * References the canonical WebhookSchema from automation/webhook.zod.ts
- */
-export const WebhookTriggerActionSchema = z.object({
-  name: z.string().describe('Action name'),
-  type: z.literal('webhook_trigger'),
-  config: WebhookSchema.describe('Webhook configuration (references canonical schema)'),
-});
 
 /**
  * Schema for Workflow Task Creation Action
