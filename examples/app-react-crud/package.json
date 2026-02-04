@@ -9,7 +9,7 @@
     "dev": "pnpm msw:init && vite",
     "build": "pnpm msw:init && tsc && vite build",
     "typecheck": "tsc --noEmit",
-    "test": "echo \"No test specified\" && exit 0",
+    "test": "objectstack test:run",
     "preview": "vite preview"
   },
   "dependencies": {

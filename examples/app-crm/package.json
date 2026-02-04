@@ -13,7 +13,7 @@
     "dev": "objectstack dev",
     "build": "objectstack compile objectstack.config.ts dist/crm.json",
     "typecheck": "tsc --noEmit",
-    "test": "echo \"No test specified\" && exit 0"
+    "test": "objectstack test:run"
   },
   "dependencies": {
     "@objectstack/spec": "workspace:*"
