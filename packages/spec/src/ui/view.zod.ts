@@ -102,6 +102,37 @@ export const GanttConfigSchema = z.object({
 });
 
 /**
+ * Navigation Mode Enum
+ * Defines how to navigate to the detail view from a list item.
+ */
+export const NavigationModeSchema = z.enum([
+  'page',       // Navigate to a new route (default)
+  'drawer',     // Open details in a side drawer/panel
+  'modal',      // Open details in a modal dialog
+  'split',      // Show details side-by-side with the list (master-detail)
+  'popover',    // Show details in a popover (lightweight)
+  'new_window', // Open in new browser tab/window
+  'none'        // No navigation (read-only list)
+]);
+
+/**
+ * Navigation Configuration Schema
+ */
+export const NavigationConfigSchema = z.object({
+  mode: NavigationModeSchema.default('page'),
+  
+  /** Target View Config */
+  view: z.string().optional().describe('Name of the form view to use for details (e.g. "summary_view", "edit_form")'),
+  
+  /** Interaction Triggers */
+  preventNavigation: z.boolean().default(false).describe('Disable standard navigation entirely'),
+  openNewTab: z.boolean().default(false).describe('Force open in new tab (applies to page mode)'),
+  
+  /** Dimensions (for modal/drawer) */
+  width: z.union([z.string(), z.number()]).optional().describe('Width of the drawer/modal (e.g. "600px", "50%")'),
+});
+
+/**
  * List View Schema (Expanded)
  * Defines how a collection of records is displayed to the user.
  * 
@@ -168,6 +199,9 @@ export const ListViewSchema = z.object({
 
   /** Selection */
   selection: SelectionConfigSchema.optional().describe('Row selection configuration'),
+
+  /** Navigation / Interaction */
+  navigation: NavigationConfigSchema.optional().describe('Configuration for item click navigation (page, drawer, modal, etc.)'),
 
   /** Pagination */
   pagination: PaginationConfigSchema.optional().describe('Pagination configuration'),
@@ -279,6 +313,7 @@ export type FormSection = z.infer<typeof FormSectionSchema>;
 export type ListColumn = z.infer<typeof ListColumnSchema>;
 export type FormField = z.infer<typeof FormFieldSchema>;
 export type SelectionConfig = z.infer<typeof SelectionConfigSchema>;
+export type NavigationConfig = z.infer<typeof NavigationConfigSchema>;
 export type PaginationConfig = z.infer<typeof PaginationConfigSchema>;
 export type ViewData = z.infer<typeof ViewDataSchema>;
 export type HttpRequest = z.infer<typeof HttpRequestSchema>;
