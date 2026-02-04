@@ -23,24 +23,48 @@ export const AuthProvider = z.enum([
 
 export const SessionUserSchema = z.object({
   id: z.string().describe('User ID'),
-  username: z.string().describe('Username'),
   email: z.string().email().describe('Email address'),
+  emailVerified: z.boolean().default(false).describe('Is email verified?'),
   name: z.string().describe('Display name'),
-  roles: z.array(z.string()).describe('Assigned role IDs'),
-  tenantId: z.string().describe('Current tenant ID'),
-  avatar: z.string().optional().describe('Avatar URL'),
+  image: z.string().optional().describe('Avatar URL'),
+  username: z.string().optional().describe('Username (optional)'),
+  roles: z.array(z.string()).optional().default([]).describe('Assigned role IDs'),
+  tenantId: z.string().optional().describe('Current tenant ID'),
   language: z.string().default('en').describe('Preferred language'),
   timezone: z.string().optional().describe('Preferred timezone'),
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
+});
+
+export const SessionSchema = z.object({
+  id: z.string(),
+  expiresAt: z.date(),
+  token: z.string().optional(),
+  ipAddress: z.string().optional(),
+  userAgent: z.string().optional(),
+  userId: z.string(),
 });
 
 // ==========================================
 // Requests
 // ==========================================
 
+export const LoginType = z.enum(['email', 'username', 'phone', 'magic-link', 'social']);
+
 export const LoginRequestSchema = z.object({
-  username: z.string().describe('Username or Email'),
-  password: z.string().describe('Password credential'),
-  type: z.literal('password').default('password'),
+  type: LoginType.default('email').describe('Login method'),
+  email: z.string().email().optional().describe('Required for email/magic-link'),
+  username: z.string().optional().describe('Required for username login'),
+  password: z.string().optional().describe('Required for password login'),
+  provider: z.string().optional().describe('Required for social (google, github)'),
+  redirectTo: z.string().optional().describe('Redirect URL after successful login'),
+});
+
+export const RegisterRequestSchema = z.object({
+  email: z.string().email(),
+  password: z.string(),
+  name: z.string(),
+  image: z.string().optional(),
 });
 
 export const RefreshTokenRequestSchema = z.object({
@@ -53,10 +77,9 @@ export const RefreshTokenRequestSchema = z.object({
 
 export const SessionResponseSchema = BaseResponseSchema.extend({
   data: z.object({
-    accessToken: z.string().describe('JWT Access Token'),
-    refreshToken: z.string().optional().describe('Refresh Token (if enabled)'),
-    expiresIn: z.number().describe('Token expiry in seconds'),
-    user: SessionUserSchema.describe('Current user details'),
+    session: SessionSchema.describe('Active Session Info'),
+    user: SessionUserSchema.describe('Current User Details'),
+    token: z.string().optional().describe('Bearer token if not using cookies'),
   }),
 });
 
