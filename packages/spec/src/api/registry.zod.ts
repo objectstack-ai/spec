@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { HttpMethod } from '../shared/http.zod';
+import { HttpMethod, RateLimitConfigSchema } from '../shared/http.zod';
 import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
 
 /**
@@ -373,6 +373,12 @@ export const ApiEndpointRegistrationSchema = z.object({
   
   /** Response definitions */
   responses: z.array(ApiResponseSchema).optional().default([]).describe('Possible responses'),
+  
+  /** Rate Limiting */
+  rateLimit: RateLimitConfigSchema.optional().describe('Endpoint specific rate limiting'),
+
+  /** Security Requirements */
+  security: z.array(z.record(z.string(), z.array(z.string()))).optional().describe('Security requirements (e.g. [{"bearerAuth": []}])'),
   
   /**
    * Required Permissions (RBAC Integration)

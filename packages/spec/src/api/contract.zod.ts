@@ -8,7 +8,9 @@ import { QuerySchema } from '../data/query.zod';
 export const ApiErrorSchema = z.object({
   code: z.string().describe('Error code (e.g. validation_error)'),
   message: z.string().describe('Readable error message'),
+  category: z.string().optional().describe('Error category (e.g. validation, authorization)'),
   details: z.any().optional().describe('Additional error context (e.g. field validation errors)'),
+  requestId: z.string().optional().describe('Request ID for tracking'),
 });
 
 export const BaseResponseSchema = z.object({
@@ -74,11 +76,20 @@ export const SingleRecordResponseSchema = BaseResponseSchema.extend({
 export const ListRecordResponseSchema = BaseResponseSchema.extend({
   data: z.array(RecordDataSchema).describe('Array of matching records'),
   pagination: z.object({
-    total: z.number().describe('Total matching records count'),
-    limit: z.number().describe('Page size'),
-    offset: z.number().describe('Page offset'),
+    total: z.number().optional().describe('Total matching records count'),
+    limit: z.number().optional().describe('Page size'),
+    offset: z.number().optional().describe('Page offset'),
+    cursor: z.string().optional().describe('Cursor for next page'),
+    nextCursor: z.string().optional().describe('Next cursor for pagination'),
     hasMore: z.boolean().describe('Are there more pages?'),
   }).describe('Pagination info'),
+});
+
+/**
+ * ID Request (Get/Delete)
+ */
+export const IdRequestSchema = z.object({
+  id: z.string().describe('Record ID'),
 });
 
 /**
@@ -88,6 +99,8 @@ export const ModificationResultSchema = z.object({
   id: z.string().optional().describe('Record ID if processed'),
   success: z.boolean(),
   errors: z.array(ApiErrorSchema).optional(),
+  index: z.number().optional().describe('Index in original request'),
+  data: z.any().optional().describe('Result data (e.g. created record)'),
 });
 
 /**
@@ -111,11 +124,11 @@ export const DeleteResponseSchema = BaseResponseSchema.extend({
 /**
  * Standard API Contracts map
  * Used for generating SDKs and Documentation
- */
-export const ApiContracts = {
-  create: {
-    input: CreateRequestSchema,
-    output: SingleRecordResponseSchema
+ */IdRequestSchema,
+    output: DeleteResponseSchema
+  },
+  get: {
+    input: IdRequestSchema,
   },
   update: {
     input: UpdateRequestSchema,

@@ -94,9 +94,10 @@ export const RealtimeEventSchema = z.object({
   type: z.string().describe('Event type (e.g., record.created, record.updated)'),
   object: z.string().optional().describe('Object name the event relates to'),
   action: RealtimeAction.optional().describe('Action performed'),
-  payload: z.any().describe('Event payload data'),
+  payload: z.record(z.string(), z.any()).describe('Event payload data'),
   timestamp: z.string().datetime().describe('ISO 8601 datetime when event occurred'),
   userId: z.string().optional().describe('User who triggered the event'),
+  sessionId: z.string().optional().describe('Session identifier'),
 });
 
 export type RealtimeEvent = z.infer<typeof RealtimeEventSchema>;

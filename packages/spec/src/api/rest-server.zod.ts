@@ -45,7 +45,7 @@ export const RestApiConfigSchema = z.object({
   /**
    * API version identifier
    */
-  version: z.string().default('v1').describe('API version (e.g., v1, v2, 2024-01)'),
+  version: z.string().regex(/^[a-zA-Z0-9_\-\.]+$/).default('v1').describe('API version (e.g., v1, v2, 2024-01)'),
   
   /**
    * Base path for all API routes

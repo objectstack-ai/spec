@@ -213,6 +213,9 @@ export const GraphQLQueryConfigSchema = z.object({
     type: z.enum(['offset', 'cursor', 'relay']).default('offset').describe('Pagination style'),
     defaultLimit: z.number().int().min(1).default(20).describe('Default page size'),
     maxLimit: z.number().int().min(1).default(100).describe('Maximum page size'),
+    cursors: z.object({
+      field: z.string().default('id').describe('Field to use for cursor pagination'),
+    }).optional(),
   }).optional().describe('Pagination configuration'),
   
   /** Field selection */
