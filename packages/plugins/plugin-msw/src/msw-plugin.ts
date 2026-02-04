@@ -272,6 +272,29 @@ export class ObjectStackServer {
         }
     }
 
+    static async triggerAutomation(request: any) {
+        if (!this.protocol) {
+            throw new Error('ObjectStackServer not initialized. Call ObjectStackServer.init() first.');
+        }
+
+        this.logger?.debug?.('MSW: Triggering automation', { request });
+        try {
+            const result = await this.protocol.triggerAutomation(request);
+            this.logger?.info?.('MSW: Automation triggered', { result });
+            return {
+                status: 200,
+                data: result
+            };
+        } catch (error) {
+            this.logger?.error?.('MSW: Automation trigger failed', error);
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            return {
+                status: 400,
+                data: { error: message }
+            };
+        }
+    }
+
     // Legacy method names for compatibility
     static async getUser(id: string) {
         return this.getData('user', id);
@@ -655,6 +678,18 @@ export class MSWPlugin implements Plugin {
                     const url = new URL(request.url);
                     const query = parseQueryParams(url);
                     const result = await ObjectStackServer.getAnalyticsMeta(query);
+                    return HttpResponse.json(result.data, { status: result.status });
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : 'Unknown error';
+                    return HttpResponse.json({ error: message }, { status: 400 });
+                }
+            }),
+
+            // Automation Operations
+            http.post(`${baseUrl}/automation/trigger`, async ({ request }) => {
+                try {
+                    const body = await request.json();
+                    const result = await ObjectStackServer.triggerAutomation(body);
                     return HttpResponse.json(result.data, { status: result.status });
                 } catch (error) {
                     const message = error instanceof Error ? error.message : 'Unknown error';
