@@ -285,6 +285,13 @@ export class HttpDispatcher {
              return { handled: true, response: this.success(result) };
         }
 
+        // POST /analytics/sql (Dry-run or debug)
+        if (subPath === 'sql' && m === 'POST') {
+             // Assuming service has generateSql method
+             const result = await analyticsService.generateSql(body, { request: context.request });
+             return { handled: true, response: this.success(result) };
+        }
+
         return { handled: false };
     }
 
@@ -297,8 +304,68 @@ export class HttpDispatcher {
         if (!hubService) return { handled: false };
 
         const m = method.toUpperCase();
-        // Dispatch to hub service methods based on convention or explicit mapping
-        // This is a placeholder for Hub Protocol implementation
+        const parts = path.replace(/^\/+/, '').split('/');
+        
+        // Resource-based routing: /hub/:resource/:id
+        if (parts.length > 0) {
+            const resource = parts[0]; // spaces, plugins, etc.
+            
+            // Allow mapping "spaces" -> "createSpace", "listSpaces" etc.
+            // Convention: 
+            // GET /spaces -> listSpaces
+            // POST /spaces -> createSpace
+            // GET /spaces/:id -> getSpace
+            // PATCH /spaces/:id -> updateSpace
+            // DELETE /spaces/:id -> deleteSpace
+            
+            const actionBase = resource.endsWith('s') ? resource.slice(0, -1) : resource; // space
+            const id = parts[1];
+
+            try {
+                if (parts.length === 1) {
+                    // Collection Operations
+                    if (m === 'GET') {
+                        const capitalizedAction = 'list' + this.capitalize(resource); // listSpaces
+                        if (typeof hubService[capitalizedAction] === 'function') {
+                            const result = await hubService[capitalizedAction](query, { request: context.request });
+                            return { handled: true, response: this.success(result) };
+                        }
+                    }
+                    if (m === 'POST') {
+                        const capitalizedAction = 'create' + this.capitalize(actionBase); // createSpace
+                        if (typeof hubService[capitalizedAction] === 'function') {
+                             const result = await hubService[capitalizedAction](body, { request: context.request });
+                             return { handled: true, response: this.success(result) };
+                        }
+                    }
+                } else if (parts.length === 2) {
+                    // Item Operations
+                     if (m === 'GET') {
+                        const capitalizedAction = 'get' + this.capitalize(actionBase); // getSpace
+                        if (typeof hubService[capitalizedAction] === 'function') {
+                             const result = await hubService[capitalizedAction](id, { request: context.request });
+                             return { handled: true, response: this.success(result) };
+                        }
+                    }
+                     if (m === 'PATCH' || m === 'PUT') {
+                        const capitalizedAction = 'update' + this.capitalize(actionBase); // updateSpace
+                        if (typeof hubService[capitalizedAction] === 'function') {
+                             const result = await hubService[capitalizedAction](id, body, { request: context.request });
+                             return { handled: true, response: this.success(result) };
+                        }
+                    }
+                    if (m === 'DELETE') {
+                        const capitalizedAction = 'delete' + this.capitalize(actionBase); // deleteSpace
+                        if (typeof hubService[capitalizedAction] === 'function') {
+                             const result = await hubService[capitalizedAction](id, { request: context.request });
+                             return { handled: true, response: this.success(result) };
+                        }
+                    }
+                }
+            } catch(e: any) {
+                return { handled: true, response: this.error(e.message, 500) };
+            }
+        }
         
         return { handled: false };
     }
@@ -374,5 +441,132 @@ export class HttpDispatcher {
 
     private capitalize(s: string) {
         return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
+    /**
+     * Main Dispatcher Entry Point
+     * Routes the request to the appropriate handler based on path and precedence
+     */
+    async dispatch(method: string, path: string, body: any, query: any, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
+        const cleanPath = path.replace(/\/$/, ''); // Remove trailing slash if present, but strict on clean paths
+
+        // 1. System Protocols (Prefix-based)
+        if (cleanPath.startsWith('/auth')) {
+            return this.handleAuth(cleanPath.substring(5), method, body, context);
+        }
+        
+        if (cleanPath.startsWith('/metadata')) {
+             return this.handleMetadata(cleanPath.substring(9), context);
+        }
+
+        if (cleanPath.startsWith('/data')) {
+            return this.handleData(cleanPath.substring(5), method, body, query, context);
+        }
+        
+        if (cleanPath.startsWith('/graphql')) {
+             if (method === 'POST') return this.handleGraphQL(body, context);
+             // GraphQL usually GET for Playground is handled by middleware but we can return 405 or handle it
+        }
+
+        if (cleanPath.startsWith('/storage')) {
+             return this.handleStorage(cleanPath.substring(8), method, body, context); // body here is file/stream for upload
+        }
+        
+        if (cleanPath.startsWith('/analytics')) {
+             return this.handleAnalytics(cleanPath.substring(10), method, body, context);
+        }
+
+        if (cleanPath.startsWith('/hub')) {
+             return this.handleHub(cleanPath.substring(4), method, body, query, context);
+        }
+
+        // OpenAPI Specification
+        if (cleanPath === '/openapi.json' && method === 'GET') {
+             const broker = this.ensureBroker();
+             try {
+                const result = await broker.call('metadata.generateOpenApi', {}, { request: context.request });
+                return { handled: true, response: this.success(result) };
+             } catch (e) {
+                // If not implemented, fall through or return 404
+             }
+        }
+
+        // 2. Custom API Endpoints (Registry lookup)
+        // Check if there is a custom endpoint defined for this path
+        const result = await this.handleApiEndpoint(cleanPath, method, body, query, context);
+        if (result.handled) return result;
+
+        // 3. Fallback (404)
+        return { handled: false };
+    }
+
+    /**
+     * Handles Custom API Endpoints defined in metadata
+     */
+    async handleApiEndpoint(path: string, method: string, body: any, query: any, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
+        const broker = this.ensureBroker();
+        try {
+            // Attempt to find a matching endpoint in the registry
+            // This assumes a 'metadata.matchEndpoint' action exists in the kernel/registry
+            // path should include initial slash e.g. /api/v1/customers
+            const endpoint = await broker.call('metadata.matchEndpoint', { path, method });
+            
+            if (endpoint) {
+                // Execute the endpoint target logic
+                if (endpoint.type === 'flow') {
+                    const result = await broker.call('automation.runFlow', { 
+                        flowId: endpoint.target, 
+                        inputs: { ...query, ...body, _request: context.request } 
+                    });
+                     return { handled: true, response: this.success(result) };
+                }
+                
+                if (endpoint.type === 'script') {
+                     const result = await broker.call('automation.runScript', { 
+                        scriptName: endpoint.target, 
+                        context: { ...query, ...body, request: context.request } 
+                    }, { request: context.request });
+                     return { handled: true, response: this.success(result) };
+                }
+
+                if (endpoint.type === 'object_operation') {
+                    // e.g. Proxy to an object action
+                    if (endpoint.objectParams) {
+                        const { object, operation } = endpoint.objectParams;
+                        // Map standard CRUD operations
+                        if (operation === 'find') {
+                             const result = await broker.call('data.query', { object, filters: query }, { request: context.request });
+                             return { handled: true, response: this.success(result.data, { count: result.count }) };
+                        }
+                        if (operation === 'get' && query.id) {
+                             const result = await broker.call('data.get', { object, id: query.id }, { request: context.request });
+                             return { handled: true, response: this.success(result) };
+                        }
+                         if (operation === 'create') {
+                             const result = await broker.call('data.create', { object, data: body }, { request: context.request });
+                             return { handled: true, response: this.success(result) };
+                        }
+                    }
+                }
+
+                if (endpoint.type === 'proxy') {
+                     // Simple proxy implementation (requires a network call, which usually is done by a service but here we can stub return)
+                     // In real implementation this might fetch(endpoint.target)
+                     // For now, return target info
+                     return { 
+                         handled: true, 
+                         response: { 
+                             status: 200, 
+                             body: { proxy: true, target: endpoint.target, note: 'Proxy execution requires http-client service' } 
+                         } 
+                     };
+                }
+            }
+        } catch (e) {
+            // If matchEndpoint fails (e.g. not found), we just return not handled
+            // so we can fallback to 404 or other handlers
+        }
+
+        return { handled: false };
     }
 }
