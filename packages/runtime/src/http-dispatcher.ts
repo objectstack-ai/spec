@@ -1,4 +1,5 @@
 import { ObjectKernel } from '@objectstack/core';
+import { CoreServiceName } from '@objectstack/spec/src/system/service-registry.zod';
 
 export interface HttpProtocolContext {
     request: any;
@@ -49,12 +50,12 @@ export class HttpDispatcher {
     getDiscoveryInfo(prefix: string) {
         const services = this.getServicesMap();
         
-        const hasGraphQL = !!(services['graphql'] || this.kernel.graphql);
-        const hasSearch = !!services['search'];
-        const hasWebSockets = !!services['realtime'];
-        const hasFiles = !!(services['file-storage'] || services['storage']?.supportsFiles);
-        const hasAnalytics = !!services['analytics'];
-        const hasHub = !!services['hub'];
+        const hasGraphQL = !!(services[CoreServiceName.enum.graphql] || this.kernel.graphql);
+        const hasSearch = !!services[CoreServiceName.enum.search];
+        const hasWebSockets = !!services[CoreServiceName.enum.realtime];
+        const hasFiles = !!(services[CoreServiceName.enum['file-storage']] || services['storage']?.supportsFiles);
+        const hasAnalytics = !!services[CoreServiceName.enum.analytics];
+        const hasHub = !!services[CoreServiceName.enum.hub];
 
         return {
             name: 'ObjectOS',
@@ -108,7 +109,7 @@ export class HttpDispatcher {
      */
     async handleAuth(path: string, method: string, body: any, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
         // 1. Try generic Auth Service
-        const authService = this.getService('auth');
+        const authService = this.getService(CoreServiceName.enum.auth);
         if (authService && typeof authService.handler === 'function') {
             const response = await authService.handler(context.request, context.response);
             return { handled: true, result: response };
@@ -267,7 +268,7 @@ export class HttpDispatcher {
      * path: sub-path after /analytics/
      */
     async handleAnalytics(path: string, method: string, body: any, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
-        const analyticsService = this.getService('analytics');
+        const analyticsService = this.getService(CoreServiceName.enum.analytics);
         if (!analyticsService) return { handled: false }; // 404 handled by caller if unhandled
 
         const m = method.toUpperCase();
@@ -300,7 +301,7 @@ export class HttpDispatcher {
      * path: sub-path after /hub/
      */
     async handleHub(path: string, method: string, body: any, query: any, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
-        const hubService = this.getService('hub');
+        const hubService = this.getService(CoreServiceName.enum.hub);
         if (!hubService) return { handled: false };
 
         const m = method.toUpperCase();
@@ -375,7 +376,7 @@ export class HttpDispatcher {
      * path: sub-path after /storage/
      */
     async handleStorage(path: string, method: string, file: any, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
-        const storageService = this.getService('file-storage') || this.kernel.services?.['file-storage'];
+        const storageService = this.getService(CoreServiceName.enum['file-storage']) || this.kernel.services?.['file-storage'];
         if (!storageService) {
              return { handled: true, response: this.error('File storage not configured', 501) };
         }
@@ -431,7 +432,7 @@ export class HttpDispatcher {
         return this.kernel.services || {};
     }
 
-    private getService(name: string) {
+    private getService(name: CoreServiceName) {
         if (typeof this.kernel.getService === 'function') {
             return this.kernel.getService(name);
         }
