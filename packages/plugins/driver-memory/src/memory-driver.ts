@@ -1,6 +1,7 @@
 import { QueryAST, QueryInput } from '@objectstack/spec/data';
 import { DriverOptions } from '@objectstack/spec/data';
 import { DriverInterface, Logger, createLogger } from '@objectstack/core';
+import { match, getValueByPath } from './memory-matcher.js';
 
 /**
  * Example: In-Memory Driver
@@ -36,10 +37,10 @@ export class InMemoryDriver implements DriverInterface {
     transactions: false, 
     
     // Query Operations
-    queryFilters: false,         // TODO: Not implemented - basic find() doesn't handle filters
+    queryFilters: true,          // Implemented via memory-matcher
     queryAggregations: false,    // TODO: Not implemented - count() only returns total
-    querySorting: false,         // TODO: Not implemented - find() doesn't handle sorting
-    queryPagination: true,       // Basic pagination via 'limit' is implemented
+    querySorting: true,          // Implemented via JS sort
+    queryPagination: true,       // Implemented
     queryWindowFunctions: false, // TODO: Not implemented
     querySubqueries: false,      // TODO: Not implemented
     joins: false,                // TODO: Not implemented
@@ -101,13 +102,46 @@ export class InMemoryDriver implements DriverInterface {
     this.logger.debug('Find operation', { object, query });
     
     const table = this.getTable(object);
-    
-    // 💡 Naive Implementation
-    let results = [...table];
+    let results = table;
 
-    // Simple limiting for demonstration
+    // 1. Filter
+    if (query.where) {
+        results = results.filter(record => match(record, query.where));
+    }
+
+    // 2. Sort
+    if (query.orderBy) {
+        // Normalize sort to array
+        const sortFields = Array.isArray(query.orderBy) ? query.orderBy : [query.orderBy];
+        
+        results.sort((a, b) => {
+            for (const { field, order } of sortFields) {
+                const valA = getValueByPath(a, field);
+                const valB = getValueByPath(b, field);
+                
+                if (valA === valB) continue;
+                
+                const comparison = valA > valB ? 1 : -1;
+                return order === 'desc' ? -comparison : comparison;
+            }
+            return 0;
+        });
+    }
+
+    // 3. Pagination (Offset/Skip)
+    if (query.offset) {
+        results = results.slice(query.offset);
+    } else if (query.skip) {
+        // Alias for offset
+        results = results.slice(query.skip);
+    }
+
+    // 4. Pagination (Limit/Top)
     if (query.limit) {
       results = results.slice(0, query.limit);
+    } else if (query.top) {
+        // Alias for limit
+        results = results.slice(0, query.top);
     }
 
     this.logger.debug('Find completed', { object, resultCount: results.length });
@@ -211,7 +245,11 @@ export class InMemoryDriver implements DriverInterface {
   }
 
   async count(object: string, query?: QueryInput, options?: DriverOptions) {
-    const count = this.getTable(object).length;
+    let results = this.getTable(object);
+    if (query?.where) {
+        results = results.filter(record => match(record, query.where));
+    }
+    const count = results.length;
     this.logger.debug('Count operation', { object, count });
     return count;
   }
@@ -226,7 +264,62 @@ export class InMemoryDriver implements DriverInterface {
     this.logger.debug('BulkCreate completed', { object, count: results.length });
     return results;
   }
+  
+  async updateMany(object: string, query: QueryInput, data: Record<string, any>, options?: DriverOptions) {
+      this.logger.debug('UpdateMany operation', { object, query });
+      
+      const table = this.getTable(object);
+      let targetRecords = table;
+      
+      if (query && query.where) {
+          targetRecords = targetRecords.filter(r => match(r, query.where));
+      }
+      
+      const count = targetRecords.length;
+      
+      // Update each record
+      for (const record of targetRecords) {
+          // Find index in original table
+          const index = table.findIndex(r => r.id === record.id);
+          if (index !== -1) {
+              const updated = {
+                  ...table[index],
+                  ...data,
+                  updated_at: new Date()
+              };
+              table[index] = updated;
+          }
+      }
+      
+      this.logger.debug('UpdateMany completed', { object, count });
+      return { count };
+  }
 
+  async deleteMany(object: string, query: QueryInput, options?: DriverOptions) {
+      this.logger.debug('DeleteMany operation', { object, query });
+      
+      const table = this.getTable(object);
+      const initialLength = table.length;
+      
+      // Filter IN PLACE or create new array?
+      // Creating new array is safer for now.
+      
+      const remaining = table.filter(r => {
+          if (!query || !query.where) return false; // Delete all? No, standard safety implies explicit empty filter for delete all.
+          // Wait, normally deleteMany({}) deletes all.
+          // Let's assume if query passed, use it.
+          const matches = match(r, query.where);
+          return !matches; // Keep if it DOES NOT match
+      });
+      
+      this.db[object] = remaining;
+      const count = initialLength - remaining.length;
+      
+      this.logger.debug('DeleteMany completed', { object, count });
+      return { count };
+  }
+
+  // Compatibility aliases
   async bulkUpdate(object: string, updates: { id: string | number, data: Record<string, any> }[], options?: DriverOptions) {
     this.logger.debug('BulkUpdate operation', { object, count: updates.length });
     const results = await Promise.all(updates.map(u => this.update(object, u.id, u.data, options)));
