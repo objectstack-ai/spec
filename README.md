@@ -34,6 +34,8 @@ ObjectStack is a metadata-driven platform built on three foundational protocols:
 
 > **📋 实施文档 (Implementation Guides)**  
 > 详细的技术实施方案和开发路线图
+>
+> **🎯 [文档使用指南](./IMPLEMENTATION_DOCS_GUIDE.md)** - 了解如何使用这些文档
 
 - **[🚀 Quick Start Implementation](./QUICK_START_IMPLEMENTATION.md)** - **快速启动指南** - 3天内完成基础环境搭建 (Recommended start here!)
 - **[📋 Implementation Plan](./CLOUD_IMPLEMENTATION_PLAN.md)** - **完整实施方案** - GitHub/Vercel集成、CI/CD配置、数据库架构
