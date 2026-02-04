@@ -1,6 +1,7 @@
 import { Plugin, PluginContext } from './types.js';
 import { createLogger, ObjectLogger } from './logger.js';
 import type { LoggerConfig } from '@objectstack/spec/system';
+import { ServiceRequirementDef } from '@objectstack/spec/system';
 import { PluginLoader, PluginMetadata, ServiceLifecycle, ServiceFactory, PluginStartupResult } from './plugin-loader.js';
 
 /**
@@ -186,6 +187,44 @@ export class ObjectKernel {
     }
 
     /**
+     * Validate Critical System Requirements
+     */
+    private validateSystemRequirements() {
+        this.logger.debug('Validating system service requirements...');
+        const missingServices: string[] = [];
+        const missingCoreServices: string[] = [];
+        
+        // Iterate through all defined requirements
+        for (const [serviceName, criticality] of Object.entries(ServiceRequirementDef)) {
+            const hasService = this.services.has(serviceName) || this.pluginLoader.hasService(serviceName);
+            
+            if (!hasService) {
+                if (criticality === 'required') {
+                    this.logger.error(`CRITICAL: Required service missing: ${serviceName}`);
+                    missingServices.push(serviceName);
+                } else if (criticality === 'core') {
+                    this.logger.warn(`CORE: Core service missing, functionality may be degraded: ${serviceName}`);
+                    missingCoreServices.push(serviceName);
+                } else {
+                    this.logger.info(`Info: Optional service not present: ${serviceName}`);
+                }
+            }
+        }
+
+        if (missingServices.length > 0) {
+            const errorMsg = `System failed to start. Missing critical services: ${missingServices.join(', ')}`;
+            this.logger.error(errorMsg);
+            throw new Error(errorMsg);
+        }
+
+        if (missingCoreServices.length > 0) {
+            this.logger.warn(`System started with degraded capabilities. Missing core services: ${missingCoreServices.join(', ')}`);
+        }
+        
+        this.logger.info('System requirement check passed');
+    }
+
+    /**
      * Bootstrap the kernel with enhanced features
      */
     async bootstrap(): Promise<void> {
@@ -231,6 +270,7 @@ export class ObjectKernel {
             }
 
             // Phase 3: Trigger kernel:ready hook
+            this.validateSystemRequirements(); // Final check before ready
             this.logger.debug('Triggering kernel:ready hook');
             await this.context.trigger('kernel:ready');
 

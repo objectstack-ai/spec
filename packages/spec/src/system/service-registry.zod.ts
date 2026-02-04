@@ -38,6 +38,41 @@ export const CoreServiceName = z.enum([
 
 export type CoreServiceName = z.infer<typeof CoreServiceName>;
 
+/**
+ * Service Criticality Level
+ * Defines the startup behavior when a service is missing.
+ */
+export const ServiceCriticalitySchema = z.enum([
+  'required', // System fails to start if missing (Exit Code 1)
+  'core',     // System warns if missing, functionality degraded (Warn)
+  'optional', // System ignores if missing, feature disabled (Info)
+]);
+
+/**
+ * Service Requirement Definition
+ */
+export const ServiceRequirementDef = {
+  // Required: The kernel cannot function without these
+  metadata: 'required',
+  data: 'required',
+  auth: 'required',
+
+  // Core: Highly recommended, defaults to in-memory if missing
+  cache: 'core',
+  queue: 'core',
+  job: 'core',
+
+  // Optional: Add-on capabilities
+  'file-storage': 'optional',
+  search: 'optional',
+  automation: 'optional',
+  graphql: 'optional',
+  analytics: 'optional',
+  hub: 'optional',
+  realtime: 'optional',
+  notification: 'optional',
+} as const;
+
 // ==========================================
 // Service Capabilities
 // ==========================================

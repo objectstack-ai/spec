@@ -247,6 +247,13 @@ export class PluginLoader {
     }
 
     /**
+     * Check if a service is registered (either as instance or factory)
+     */
+    hasService(name: string): boolean {
+        return this.serviceInstances.has(name) || this.serviceFactories.has(name);
+    }
+
+    /**
      * Detect circular dependencies in service factories
      * Note: This only detects cycles in service dependencies, not plugin dependencies.
      * Plugin dependency cycles are detected in the kernel's resolveDependencies method.
