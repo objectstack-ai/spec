@@ -1,7 +1,16 @@
 import { z } from 'zod';
+import { ViewSchema } from '../ui/view.zod';
+import { ApiCapabilitiesSchema, ApiRoutesSchema } from './discovery.zod';
 import { BatchUpdateRequestSchema, BatchUpdateResponseSchema, BatchOptionsSchema } from './batch.zod';
 import { MetadataCacheRequestSchema, MetadataCacheResponseSchema } from './http-cache.zod';
 import { QuerySchema } from '../data/query.zod';
+import { EnhancedApiErrorSchema as ApiErrorSchema } from './errors.zod';
+import { 
+  AnalyticsQueryRequestSchema, 
+  AnalyticsResultResponseSchema, 
+  GetAnalyticsMetaRequestSchema, 
+  AnalyticsMetadataResponseSchema 
+} from './analytics.zod';
 
 /**
  * ObjectStack Protocol - Zod Schema Definitions
@@ -38,8 +47,8 @@ export const GetDiscoveryRequestSchema = z.object({});
 export const GetDiscoveryResponseSchema = z.object({
   version: z.string().describe('API version (e.g., "v1", "2024-01")'),
   apiName: z.string().describe('API name'),
-  capabilities: z.array(z.string()).optional().describe('Supported features/capabilities'),
-  endpoints: z.record(z.string(), z.string()).optional().describe('Available endpoint paths'),
+  capabilities: ApiCapabilitiesSchema.optional().describe('Supported features/capabilities'),
+  endpoints: ApiRoutesSchema.optional().describe('Available endpoint paths'),
 });
 
 /**
@@ -116,7 +125,7 @@ export const GetUiViewRequestSchema = z.object({
 /**
  * Get UI View Response
  */
-export const GetUiViewResponseSchema = z.any();
+export const GetUiViewResponseSchema = ViewSchema;
 
 // ==========================================
 // Data Operations
@@ -327,6 +336,17 @@ export const ObjectStackProtocolSchema = z.object({
     output: z.promise(GetUiViewResponseSchema)
   }).describe('Get UI view definition'),
 
+  // Analytics Operations
+  analyticsQuery: z.function({
+    input: z.tuple([AnalyticsQueryRequestSchema]),
+    output: z.promise(AnalyticsResultResponseSchema)
+  }).describe('Execute analytics query'),
+
+  getAnalyticsMeta: z.function({
+    input: z.tuple([GetAnalyticsMetaRequestSchema]),
+    output: z.promise(AnalyticsMetadataResponseSchema)
+  }).describe('Get analytics metadata (cubes)'),
+
   // Data Operations
   findData: z.function({
     input: z.tuple([FindDataRequestSchema]),
@@ -392,6 +412,11 @@ export type GetMetaItemCachedResponse = z.infer<typeof GetMetaItemCachedResponse
 export type GetUiViewRequest = z.infer<typeof GetUiViewRequestSchema>;
 export type GetUiViewResponse = z.infer<typeof GetUiViewResponseSchema>;
 
+export type AnalyticsQueryRequest = z.infer<typeof AnalyticsQueryRequestSchema>;
+export type AnalyticsResultResponse = z.infer<typeof AnalyticsResultResponseSchema>;
+export type GetAnalyticsMetaRequest = z.infer<typeof GetAnalyticsMetaRequestSchema>;
+export type GetAnalyticsMetaResponse = z.infer<typeof AnalyticsMetadataResponseSchema>;
+
 export type FindDataRequest = z.input<typeof FindDataRequestSchema>;
 export type FindDataResponse = z.infer<typeof FindDataResponseSchema>;
 export type GetDataRequest = z.input<typeof GetDataRequestSchema>;
@@ -427,6 +452,9 @@ export interface IObjectStackProtocolLegacy {
   getMetaItemCached(request: GetMetaItemCachedRequest): Promise<GetMetaItemCachedResponse>;
   getUiView(request: GetUiViewRequest): Promise<GetUiViewResponse>;
   
+  analyticsQuery(request: AnalyticsQueryRequest): Promise<AnalyticsResultResponse>;
+  getAnalyticsMeta(request: GetAnalyticsMetaRequest): Promise<GetAnalyticsMetaResponse>;
+
   findData(request: FindDataRequest): Promise<FindDataResponse>;
   getData(request: GetDataRequest): Promise<GetDataResponse>;
   createData(request: CreateDataRequest): Promise<CreateDataResponse>;

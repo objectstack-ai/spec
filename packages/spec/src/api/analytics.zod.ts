@@ -51,6 +51,13 @@ export const AnalyticsResultResponseSchema = BaseResponseSchema.extend({
 // ==========================================
 
 /**
+ * Meta Request
+ */
+export const GetAnalyticsMetaRequestSchema = z.object({
+  cube: z.string().optional().describe('Optional cube name to filter'),
+});
+
+/**
  * Meta Response
  * Returns available cubes, metrics, and dimensions.
  */
