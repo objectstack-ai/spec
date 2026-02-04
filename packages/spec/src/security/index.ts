@@ -12,3 +12,4 @@ export * from './permission.zod';
 export * from './sharing.zod';
 export * from './territory.zod';
 export * from './rls.zod';
+export * from './policy.zod';

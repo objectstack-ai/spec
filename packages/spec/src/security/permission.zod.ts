@@ -103,7 +103,7 @@ export const PermissionSetSchema = z.object({
    * row-level security features including PostgreSQL-style USING and CHECK clauses.
    * 
    * @see {@link RowLevelSecurityPolicySchema} for full RLS specification
-   * @see {@link file://../permission/rls.zod.ts} for comprehensive RLS documentation
+   * @see {@link file://./rls.zod.ts} for comprehensive RLS documentation
    * 
    * @example Multi-tenant isolation
    * ```typescript
