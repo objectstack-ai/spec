@@ -457,7 +457,7 @@ export class MSWPlugin implements Plugin {
             http.get(`${baseUrl}/meta/:type`, async ({ params, request }) => {
                 const url = new URL(request.url);
                 const query = parseQueryParams(url);
-                return HttpResponse.json(await protocol.getMetaItems({ type: params.type as string, query }));
+                return HttpResponse.json(await protocol.getMetaItems({ type: params.type as string, query } as any));
             }),
 
             http.get(`${baseUrl}/meta/:type/:name`, async ({ params }) => {
@@ -620,7 +620,7 @@ export class MSWPlugin implements Plugin {
                         type: params.type as string, 
                         name: params.name as string, 
                         cacheRequest 
-                    });
+                    } as any);
                     
                     if (result.notModified) {
                         return new HttpResponse(null, { status: 304 });

@@ -143,6 +143,9 @@ importers:
       '@objectstack/runtime':
         specifier: workspace:*
         version: link:../../packages/runtime
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../../packages/spec
     devDependencies:
       '@objectstack/cli':
         specifier: workspace:*

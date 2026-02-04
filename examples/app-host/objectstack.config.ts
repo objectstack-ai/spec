@@ -1,8 +1,8 @@
 import { defineStack } from '@objectstack/spec';
 import { AppPlugin } from '@objectstack/runtime';
-import CrmApp from '@example/app-crm/objectstack.config';
-import TodoApp from '@example/app-todo/objectstack.config';
-import BiPluginManifest from '@example/plugin-bi/objectstack.config';
+import CrmApp from '../app-crm/objectstack.config';
+import TodoApp from '../app-todo/objectstack.config';
+import BiPluginManifest from '../plugin-bi/objectstack.config';
 
 // App Host Example
 // This project acts as a "Platform Server" that loads multiple apps and plugins.

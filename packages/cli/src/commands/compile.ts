@@ -43,7 +43,7 @@ export const compileCommand = new Command('compile')
       if (!result.success) {
         console.error(chalk.red(`\n❌ Validation Failed!`));
         
-        const error = result.error as ZodError;
+        const error = result.error as unknown as ZodError;
         error.issues.forEach((e: any) => {
           console.error(chalk.red(`   - [${e.path.join('.')}] ${e.message}`));
         });
