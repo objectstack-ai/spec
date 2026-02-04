@@ -1,6 +1,6 @@
 {
   "name": "@example/features",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "description": "Feature examples demonstrating ObjectStack core protocols",
   "private": true,
   "type": "module",

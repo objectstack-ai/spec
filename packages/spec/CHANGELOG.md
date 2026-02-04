@@ -1,5 +1,14 @@
 # @objectstack/spec
 
+## 1.0.0
+
+### Major Changes
+
+- Major version release for ObjectStack Protocol v1.0.
+  - Stabilized Protocol Definitions
+  - Enhanced Runtime Plugin Support
+  - Fixed Type Compliance across Monorepo
+
 ## 0.9.2
 
 ### Patch Changes

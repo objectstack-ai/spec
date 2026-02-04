@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/core",
-  "version": "0.9.2",
+  "version": "1.0.0",
   "license": "Apache-2.0",
   "description": "Microkernel Core for ObjectStack",
   "type": "module",
