@@ -150,6 +150,11 @@
                       "viewName": {
                         "type": "string",
                         "description": "Default list view to open. Defaults to \"all\""
+                      },
+                      "children": {
+                        "type": "array",
+                        "items": {},
+                        "description": "Child navigation items (e.g. specific views)"
                       }
                     },
                     "required": [

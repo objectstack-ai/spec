@@ -1,0 +1,14 @@
+{
+  "$ref": "#/definitions/MetadataScope",
+  "definitions": {
+    "MetadataScope": {
+      "type": "string",
+      "enum": [
+        "system",
+        "platform",
+        "user"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

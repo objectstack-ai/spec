@@ -13,6 +13,7 @@
     "logging",
     "masking",
     "message-queue",
+    "metadata-persistence",
     "metrics",
     "migration",
     "notification",

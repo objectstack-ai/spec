@@ -217,6 +217,14 @@
                   "type": {
                     "type": "string",
                     "description": "Renderer type override (e.g., \"currency\", \"date\")"
+                  },
+                  "link": {
+                    "type": "boolean",
+                    "description": "Functions as the primary navigation link (triggers View navigation)"
+                  },
+                  "action": {
+                    "type": "string",
+                    "description": "Registered Action ID to execute when clicked"
                   }
                 },
                 "required": [
@@ -297,6 +305,47 @@
           },
           "additionalProperties": false,
           "description": "Row selection configuration"
+        },
+        "navigation": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "page",
+                "drawer",
+                "modal",
+                "split",
+                "popover",
+                "new_window",
+                "none"
+              ],
+              "default": "page"
+            },
+            "view": {
+              "type": "string",
+              "description": "Name of the form view to use for details (e.g. \"summary_view\", \"edit_form\")"
+            },
+            "preventNavigation": {
+              "type": "boolean",
+              "default": false,
+              "description": "Disable standard navigation entirely"
+            },
+            "openNewTab": {
+              "type": "boolean",
+              "default": false,
+              "description": "Force open in new tab (applies to page mode)"
+            },
+            "width": {
+              "type": [
+                "string",
+                "number"
+              ],
+              "description": "Width of the drawer/modal (e.g. \"600px\", \"50%\")"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Configuration for item click navigation (page, drawer, modal, etc.)"
         },
         "pagination": {
           "type": "object",

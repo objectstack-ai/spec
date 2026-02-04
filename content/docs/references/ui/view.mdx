@@ -12,8 +12,8 @@ HTTP Method Enum
 ## TypeScript Usage
 
 ```typescript
-import { CalendarConfig, FormField, FormSection, FormView, GanttConfig, HttpMethod, HttpRequest, KanbanConfig, ListColumn, ListView, PaginationConfig, SelectionConfig, View, ViewData } from '@objectstack/spec/ui';
-import type { CalendarConfig, FormField, FormSection, FormView, GanttConfig, HttpMethod, HttpRequest, KanbanConfig, ListColumn, ListView, PaginationConfig, SelectionConfig, View, ViewData } from '@objectstack/spec/ui';
+import { CalendarConfig, FormField, FormSection, FormView, GanttConfig, HttpMethod, HttpRequest, KanbanConfig, ListColumn, ListView, NavigationConfig, NavigationMode, PaginationConfig, SelectionConfig, View, ViewData } from '@objectstack/spec/ui';
+import type { CalendarConfig, FormField, FormSection, FormView, GanttConfig, HttpMethod, HttpRequest, KanbanConfig, ListColumn, ListView, NavigationConfig, NavigationMode, PaginationConfig, SelectionConfig, View, ViewData } from '@objectstack/spec/ui';
 
 // Validate data
 const result = CalendarConfig.parse(data);
@@ -156,6 +156,8 @@ const result = CalendarConfig.parse(data);
 | **resizable** | `boolean` | optional | Allow resizing this column |
 | **wrap** | `boolean` | optional | Allow text wrapping |
 | **type** | `string` | optional | Renderer type override (e.g., "currency", "date") |
+| **link** | `boolean` | optional | Functions as the primary navigation link (triggers View navigation) |
+| **action** | `string` | optional | Registered Action ID to execute when clicked |
 
 
 ---
@@ -178,10 +180,41 @@ const result = CalendarConfig.parse(data);
 | **striped** | `boolean` | optional | Striped row styling |
 | **bordered** | `boolean` | optional | Show borders |
 | **selection** | `Object` | optional | Row selection configuration |
+| **navigation** | `Object` | optional | Configuration for item click navigation (page, drawer, modal, etc.) |
 | **pagination** | `Object` | optional | Pagination configuration |
 | **kanban** | `Object` | optional |  |
 | **calendar** | `Object` | optional |  |
 | **gantt** | `Object` | optional |  |
+
+
+---
+
+## NavigationConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **mode** | `Enum<'page' \| 'drawer' \| 'modal' \| 'split' \| 'popover' \| 'new_window' \| 'none'>` | optional |  |
+| **view** | `string` | optional | Name of the form view to use for details (e.g. "summary_view", "edit_form") |
+| **preventNavigation** | `boolean` | optional | Disable standard navigation entirely |
+| **openNewTab** | `boolean` | optional | Force open in new tab (applies to page mode) |
+| **width** | `string \| number` | optional | Width of the drawer/modal (e.g. "600px", "50%") |
+
+
+---
+
+## NavigationMode
+
+### Allowed Values
+
+* `page`
+* `drawer`
+* `modal`
+* `split`
+* `popover`
+* `new_window`
+* `none`
 
 
 ---

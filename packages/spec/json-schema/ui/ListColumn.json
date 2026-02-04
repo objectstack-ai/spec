@@ -45,6 +45,14 @@
         "type": {
           "type": "string",
           "description": "Renderer type override (e.g., \"currency\", \"date\")"
+        },
+        "link": {
+          "type": "boolean",
+          "description": "Functions as the primary navigation link (triggers View navigation)"
+        },
+        "action": {
+          "type": "string",
+          "description": "Registered Action ID to execute when clicked"
         }
       },
       "required": [
