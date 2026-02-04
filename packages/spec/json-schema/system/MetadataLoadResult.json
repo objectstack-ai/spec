@@ -27,6 +27,18 @@
             "modifiedAt": {
               "type": "string",
               "format": "date-time"
+            },
+            "format": {
+              "type": "string",
+              "enum": [
+                "json",
+                "yaml",
+                "yml",
+                "ts",
+                "js",
+                "typescript",
+                "javascript"
+              ]
             }
           },
           "additionalProperties": false
@@ -51,6 +63,9 @@
         },
         "etag": {
           "type": "string"
+        },
+        "notModified": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false

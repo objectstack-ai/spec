@@ -105,6 +105,7 @@ export const MetadataStatsSchema = z.object({
   hash: z.string().optional(),
   etag: z.string().optional(),
   modifiedAt: z.date().optional(), // Alias for mtime
+  format: MetadataFormatSchema.optional(),
 });
 
 /**
@@ -116,6 +117,7 @@ export const MetadataLoaderContractSchema = z.object({
   protocol: z.string(), // e.g. 'file:', 'http:', 's3:'
   description: z.string().optional(),
   supportedFormats: z.array(z.string()).optional(),
+  supportsWatch: z.boolean().optional(),
   capabilities: z.object({
     read: z.boolean().default(true),
     write: z.boolean().default(false),
@@ -131,7 +133,7 @@ export const MetadataLoadOptionsSchema = z.object({
   scope: MetadataScopeSchema.optional(),
   namespace: z.string().optional(),
   raw: z.boolean().optional().describe('Return raw file content instead of parsed JSON'),
-  cache: z.boolean().default(true),
+  cache: z.boolean().optional(),
   useCache: z.boolean().optional(), // Alias for cache
   validate: z.boolean().optional(),
   ifNoneMatch: z.string().optional(), // For caching
@@ -150,6 +152,7 @@ export const MetadataLoadResultSchema = z.object({
   source: z.string().optional(), // File path or URL
   fromCache: z.boolean().optional(),
   etag: z.string().optional(),
+  notModified: z.boolean().optional(),
 });
 
 /**
@@ -175,6 +178,7 @@ export const MetadataSaveResultSchema = z.object({
   path: z.string().optional(),
   stats: MetadataStatsSchema.optional(),
   etag: z.string().optional(),
+  size: z.number().optional(),
 });
 
 /**
@@ -184,6 +188,7 @@ export const MetadataWatchEventSchema = z.object({
   type: z.enum(['add', 'change', 'unlink', 'added', 'changed', 'deleted']),
   path: z.string(),
   stats: MetadataStatsSchema.optional(),
+  metadataType: z.string().optional(),
 });
 
 /**

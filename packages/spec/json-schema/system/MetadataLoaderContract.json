@@ -19,6 +19,9 @@
             "type": "string"
           }
         },
+        "supportsWatch": {
+          "type": "boolean"
+        },
         "capabilities": {
           "type": "object",
           "properties": {
