@@ -9,6 +9,8 @@ import type {
   MetadataLoadResult,
   MetadataStats,
   MetadataLoaderContract,
+  MetadataSaveOptions,
+  MetadataSaveResult,
 } from '@objectstack/spec/system';
 
 /**
@@ -67,4 +69,19 @@ export interface MetadataLoader {
    * @returns Array of item names
    */
   list(type: string): Promise<string[]>;
+
+  /**
+   * Save metadata item
+   * @param type The metadata type
+   * @param name The item name
+   * @param data The data to save
+   * @param options Save options
+   */
+  save?(
+    type: string,
+    name: string,
+    data: any,
+    options?: MetadataSaveOptions
+  ): Promise<MetadataSaveResult>;
 }
+

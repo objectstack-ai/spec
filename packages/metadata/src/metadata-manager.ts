@@ -33,7 +33,7 @@ export type WatchCallback = (event: MetadataWatchEvent) => void | Promise<void>;
  * Main metadata manager class
  */
 export class MetadataManager {
-  private loader: MetadataLoader;
+  private loaders: Map<string, MetadataLoader> = new Map();
   private serializers: Map<MetadataFormat, MetadataSerializer>;
   private logger: Logger;
   private watcher?: FSWatcher;
@@ -59,9 +59,10 @@ export class MetadataManager {
       this.serializers.set('javascript', new TypeScriptSerializer('javascript'));
     }
 
-    // Initialize loader
+    // Initialize Default Filesystem Loader
+    // This is treated as the "Primary" source for now
     const rootDir = config.rootDir || process.cwd();
-    this.loader = new FilesystemLoader(rootDir, this.serializers, this.logger);
+    this.registerLoader(new FilesystemLoader(rootDir, this.serializers, this.logger));
 
     // Start watching if enabled
     if (config.watch) {
@@ -70,29 +71,67 @@ export class MetadataManager {
   }
 
   /**
+   * Register a new metadata loader (data source)
+   */
+  registerLoader(loader: MetadataLoader) {
+    this.loaders.set(loader.contract.name, loader);
+    this.logger.info(`Registered metadata loader: ${loader.contract.name} (${loader.contract.protocol})`);
+  }
+
+  /**
    * Load a single metadata item
+   * Iterates through registered loaders until found
    */
   async load<T = any>(
     type: string,
     name: string,
     options?: MetadataLoadOptions
   ): Promise<T | null> {
-    const result = await this.loader.load(type, name, options);
-    return result.data;
+    // Priority: Database > Filesystem (Implementation-dependent)
+    // For now, we just iterate.
+    for (const loader of this.loaders.values()) {
+        try {
+            const result = await loader.load(type, name, options);
+            if (result.data) {
+                return result.data;
+            }
+        } catch (e) {
+            this.logger.warn(`Loader ${loader.contract.name} failed to load ${type}:${name}`, { error: e });
+        }
+    }
+    return null;
   }
 
   /**
    * Load multiple metadata items
+   * Aggregates results from all loaders
    */
   async loadMany<T = any>(
     type: string,
     options?: MetadataLoadOptions
   ): Promise<T[]> {
-    return this.loader.loadMany<T>(type, options);
+    const results: T[] = [];
+    const seen = new Set<string>(); // De-duplication key needed? For now, simple aggregation
+
+    for (const loader of this.loaders.values()) {
+        try {
+            const items = await loader.loadMany<T>(type, options);
+            for (const item of items) {
+                // TODO: Deduplicate based on 'name' if property exists
+                results.push(item);
+            }
+        } catch (e) {
+           this.logger.warn(`Loader ${loader.contract.name} failed to loadMany ${type}`, { error: e });
+        }
+    }
+    return results;
   }
 
   /**
    * Save metadata to disk
+   */
+  /**
+   * Save metadata item
    */
   async save<T = any>(
     type: string,
@@ -100,108 +139,62 @@ export class MetadataManager {
     data: T,
     options?: MetadataSaveOptions
   ): Promise<MetadataSaveResult> {
-    const startTime = Date.now();
-    const {
-      format = 'typescript',
-      prettify = true,
-      indent = 2,
-      sortKeys = false,
-      backup = false,
-      overwrite = true,
-      atomic = true,
-      path: customPath,
-    } = options || {};
+    const targetLoader = (options as any)?.loader;
 
-    try {
-      // Get serializer
-      const serializer = this.serializers.get(format);
-      if (!serializer) {
-        throw new Error(`No serializer found for format: ${format}`);
+    // Find suitable loader
+    let loader: MetadataLoader | undefined;
+    
+    if (targetLoader) {
+      loader = this.loaders.get(targetLoader);
+      if (!loader) {
+        throw new Error(`Loader not found: ${targetLoader}`);
       }
-
-      // Determine file path
-      const typeDir = path.join(this.config.rootDir || process.cwd(), type);
-      const fileName = `${name}${serializer.getExtension()}`;
-      const filePath = customPath || path.join(typeDir, fileName);
-
-      // Check if file exists
-      if (!overwrite) {
-        try {
-          await fs.access(filePath);
-          throw new Error(`File already exists: ${filePath}`);
-        } catch (error) {
-          // File doesn't exist, continue
-          if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-            throw error;
+    } else {
+      // Default to 'filesystem' or first writable
+      loader = this.loaders.get('filesystem');
+      if (!loader) {
+        for (const l of this.loaders.values()) {
+          if (l.save) {
+            loader = l;
+            break;
           }
         }
       }
-
-      // Create directory if it doesn't exist
-      await fs.mkdir(path.dirname(filePath), { recursive: true });
-
-      // Create backup if requested
-      let backupPath: string | undefined;
-      if (backup) {
-        try {
-          await fs.access(filePath);
-          backupPath = `${filePath}.bak`;
-          await fs.copyFile(filePath, backupPath);
-        } catch {
-          // File doesn't exist, no backup needed
-        }
-      }
-
-      // Serialize data
-      const content = serializer.serialize(data, {
-        prettify,
-        indent,
-        sortKeys,
-      });
-
-      // Write to disk (atomic or direct)
-      if (atomic) {
-        const tempPath = `${filePath}.tmp`;
-        await fs.writeFile(tempPath, content, 'utf-8');
-        await fs.rename(tempPath, filePath);
-      } else {
-        await fs.writeFile(filePath, content, 'utf-8');
-      }
-
-      // Get stats
-      const stats = await fs.stat(filePath);
-      const etag = this.generateETag(content);
-
-      return {
-        success: true,
-        path: filePath,
-        etag,
-        size: stats.size,
-        saveTime: Date.now() - startTime,
-        backupPath,
-      };
-    } catch (error) {
-      this.logger.error('Failed to save metadata', undefined, {
-        type,
-        name,
-        error: error instanceof Error ? error.message : String(error),
-      });
-      throw error;
     }
+
+    if (!loader) {
+      throw new Error(`No loader available for saving type: ${type}`);
+    }
+
+    if (!loader.save) {
+      throw new Error(`Loader '${loader.contract?.name}' does not support saving`);
+    }
+
+    return loader.save(type, name, data, options);
   }
 
   /**
    * Check if metadata item exists
    */
   async exists(type: string, name: string): Promise<boolean> {
-    return this.loader.exists(type, name);
+    for (const loader of this.loaders.values()) {
+      if (await loader.exists(type, name)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
    * List all items of a type
    */
   async list(type: string): Promise<string[]> {
-    return this.loader.list(type);
+    const items = new Set<string>();
+    for (const loader of this.loaders.values()) {
+      const result = await loader.list(type);
+      result.forEach(item => items.add(item));
+    }
+    return Array.from(items);
   }
 
   /**

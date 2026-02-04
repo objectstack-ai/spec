@@ -8,6 +8,33 @@
           "type": "string",
           "description": "Loader identifier"
         },
+        "protocol": {
+          "type": "string",
+          "description": "Protocol identifier"
+        },
+        "capabilities": {
+          "type": "object",
+          "properties": {
+            "read": {
+              "type": "boolean",
+              "default": true
+            },
+            "write": {
+              "type": "boolean",
+              "default": false
+            },
+            "watch": {
+              "type": "boolean",
+              "default": false
+            },
+            "list": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          "additionalProperties": false,
+          "description": "Loader capabilities"
+        },
         "supportedFormats": {
           "type": "array",
           "items": {
@@ -39,6 +66,8 @@
       },
       "required": [
         "name",
+        "protocol",
+        "capabilities",
         "supportedFormats"
       ],
       "additionalProperties": false

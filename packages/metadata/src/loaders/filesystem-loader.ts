@@ -14,6 +14,8 @@ import type {
   MetadataStats,
   MetadataLoaderContract,
   MetadataFormat,
+  MetadataSaveOptions,
+  MetadataSaveResult,
 } from '@objectstack/spec/system';
 import type { Logger } from '@objectstack/core';
 import type { MetadataLoader } from './loader-interface.js';
@@ -257,6 +259,108 @@ export class FilesystemLoader implements MetadataLoader {
         error: error instanceof Error ? error.message : String(error),
       });
       return [];
+    }
+  }
+
+  async save(
+    type: string,
+    name: string,
+    data: any,
+    options?: MetadataSaveOptions
+  ): Promise<MetadataSaveResult> {
+    const startTime = Date.now();
+    const {
+      format = 'typescript',
+      prettify = true,
+      indent = 2,
+      sortKeys = false,
+      backup = false,
+      overwrite = true,
+      atomic = true,
+      path: customPath,
+    } = options || {};
+
+    try {
+      // Get serializer
+      const serializer = this.getSerializer(format);
+      if (!serializer) {
+        throw new Error(`No serializer found for format: ${format}`);
+      }
+
+      // Determine file path
+      const typeDir = path.join(this.rootDir, type);
+      const fileName = `${name}${serializer.getExtension()}`;
+      const filePath = customPath || path.join(typeDir, fileName);
+
+      // Check if file exists
+      if (!overwrite) {
+        try {
+          await fs.access(filePath);
+          throw new Error(`File already exists: ${filePath}`);
+        } catch (error) {
+          // File doesn't exist, continue
+          if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+            throw error;
+          }
+        }
+      }
+
+      // Create directory if it doesn't exist
+      await fs.mkdir(path.dirname(filePath), { recursive: true });
+
+      // Create backup if requested
+      let backupPath: string | undefined;
+      if (backup) {
+        try {
+          await fs.access(filePath);
+          backupPath = `${filePath}.bak`;
+          await fs.copyFile(filePath, backupPath);
+        } catch {
+          // File doesn't exist, no backup needed
+        }
+      }
+
+      // Serialize data
+      const content = serializer.serialize(data, {
+        prettify,
+        indent,
+        sortKeys,
+      });
+
+      // Write to disk (atomic or direct)
+      if (atomic) {
+        const tempPath = `${filePath}.tmp`;
+        await fs.writeFile(tempPath, content, 'utf-8');
+        await fs.rename(tempPath, filePath);
+      } else {
+        await fs.writeFile(filePath, content, 'utf-8');
+      }
+
+      // Update cache logic if needed (e.g., invalidate or update)
+      // For now, we rely on the watcher to pick up changes
+
+      return {
+        success: true,
+        path: filePath,
+        format,
+        size: Buffer.byteLength(content, 'utf-8'),
+        backupPath,
+        saveTime: Date.now() - startTime,
+      };
+    } catch (error) {
+      this.logger?.error('Failed to save metadata', undefined, {
+        type,
+        name,
+        error: error instanceof Error ? error.message : String(error),
+      });
+
+      return {
+        success: false,
+        path: '', // TODO: Should this be optional in result?
+        format,
+        error: error instanceof Error ? error : new Error(String(error)),
+        saveTime: Date.now() - startTime,
+      };
     }
   }
 

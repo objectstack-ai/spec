@@ -142,6 +142,7 @@ export const MetadataLoadOptionsSchema = z.object({
   recursive: z.boolean().optional(),
   limit: z.number().optional(),
   patterns: z.array(z.string()).optional(),
+  loader: z.string().optional().describe('Specific loader to use (e.g. filesystem, database)'),
 });
 
 /**
@@ -171,6 +172,7 @@ export const MetadataSaveOptionsSchema = z.object({
   sortKeys: z.boolean().optional(),
   backup: z.boolean().optional(),
   atomic: z.boolean().optional(),
+  loader: z.string().optional().describe('Specific loader to use (e.g. filesystem, database)'),
 });
 
 /**

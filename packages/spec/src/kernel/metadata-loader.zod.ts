@@ -368,6 +368,21 @@ export const MetadataLoaderContractSchema = z.object({
    * Loader name/identifier
    */
   name: z.string().describe('Loader identifier'),
+
+  /**
+   * Protocol handled by this loader (e.g. 'file', 'http', 's3')
+   */
+  protocol: z.string().describe('Protocol identifier'),
+
+  /**
+   * Detailed capabilities
+   */
+  capabilities: z.object({
+    read: z.boolean().default(true),
+    write: z.boolean().default(false),
+    watch: z.boolean().default(false),
+    list: z.boolean().default(true),
+  }).describe('Loader capabilities'),
   
   /**
    * Supported formats
