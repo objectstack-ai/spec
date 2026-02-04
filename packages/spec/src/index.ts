@@ -47,6 +47,7 @@ export * as Data from './data';
 export * as Security from './security';
 export * as UI from './ui';
 export * as System from './system';
+export * as Kernel from './kernel';
 export * as QA from './qa';
 export * as Identity from './identity';
 export * as Hub from './hub';
