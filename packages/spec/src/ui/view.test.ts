@@ -253,6 +253,16 @@ describe('ListViewSchema', () => {
     expect(() => ListViewSchema.parse(listView)).not.toThrow();
   });
 
+  it('should accept list view with top filter fields', () => {
+    const listView: ListView = {
+      type: 'grid',
+      columns: ['name', 'status'],
+      filterableFields: ['status', 'category', 'owner'],
+    };
+
+    expect(() => ListViewSchema.parse(listView)).not.toThrow();
+  });
+
   it('should accept kanban view with config', () => {
     const kanbanView: ListView = {
       type: 'kanban',

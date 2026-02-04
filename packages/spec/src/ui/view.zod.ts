@@ -193,8 +193,9 @@ export const ListViewSchema = z.object({
     }))
   ]).optional(),
   
-  /** Search */
+  /** Search & Filter */
   searchableFields: z.array(z.string()).optional().describe('Fields enabled for search'),
+  filterableFields: z.array(z.string()).optional().describe('Fields enabled for end-user filtering in the top bar'),
 
   /** Grid Features */
   resizable: z.boolean().optional().describe('Enable column resizing'),
