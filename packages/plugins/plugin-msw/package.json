@@ -9,6 +9,9 @@
     "build": "tsc",
     "test": "vitest run"
   },
+  "peerDependencies": {
+    "@objectstack/runtime": "workspace:*"
+  },
   "dependencies": {
     "@objectstack/spec": "workspace:*",
     "@objectstack/types": "workspace:*",
