@@ -47,6 +47,12 @@ async function main() {
   // 3. Metadata Access
   const todoSchema = await client.meta.getObject('todo_task');
   console.log('Fields:', todoSchema.fields);
+  
+  // Save Metadata (New!)
+  await client.meta.saveItem('object', 'my_custom_object', {
+    label: 'My Object',
+    fields: { name: { type: 'text' } }
+  });
 
   // 4. Advanced Query
   const tasks = await client.data.find<{ subject: string; priority: number }>('todo_task', {
