@@ -18,7 +18,17 @@ This package defines the **DNA** of ObjectStack. It contains:
 
 > **🤖 For AI Agents:** Start here!
 > *   [PROTOCOL_MAP.md](./PROTOCOL_MAP.md): Comprehensive index of all Zod schemas (the "What").
-> *   [PLUGIN_STANDARDS.md](./PLUGIN_STANDARDS.md): Recommended directory structure and naming conventions (the "Where" & "How").
+> *   [PLUGIN_STANDARDS.md](./PLUGIN_STANDARDS.md): REQUIRED directory structure and naming conventions (the "Where" & "How").
+
+## 📏 Plugin Architecture Standards
+
+To ensure AI-native development and strict type safety, all plugins must adhere to the **ObjectStack Plugin Standard (OPS)**.
+
+*   **Structure**: Domain-First (`src/<domain>/*.ts`)
+*   **Naming**: Snake Case Filenames (`my_object.object.ts`)
+*   **Validation**: Enforced by [`src/kernel/plugin-structure.zod.ts`](./src/kernel/plugin-structure.zod.ts)
+
+See [PLUGIN_STANDARDS.md](./PLUGIN_STANDARDS.md) for the complete specification.
 
 ## 🤖 AI Development Context
 
