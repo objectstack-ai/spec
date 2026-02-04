@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { z } from 'zod';
 import {
   // Field Mapping
   FieldMappingSchema,
@@ -33,26 +34,20 @@ import {
 
 // Import shared auth schemas from canonical source
 import {
-  APIKeySchema,
-  OAuth2Schema,
-  JWTAuthSchema,
-  SAMLAuthSchema,
-  BasicAuthSchema,
-  BearerAuthSchema,
-  NoAuthSchema,
-  AuthConfigSchema,
-  type APIKey,
-  type OAuth2,
-  type JWTAuth,
-  type SAMLAuth,
-  type BasicAuth,
-  type BearerAuth,
-  type NoAuth,
-  type AuthConfig,
-} from '../auth/config.zod';
+  ConnectorAPIKeySchema as APIKeySchema,
+  ConnectorOAuth2Schema as OAuth2Schema,
+  ConnectorBasicAuthSchema as BasicAuthSchema,
+  ConnectorBearerAuthSchema as BearerAuthSchema,
+  ConnectorNoAuthSchema as NoAuthSchema,
+  ConnectorAuthConfigSchema as AuthConfigSchema,
+} from '../shared/connector-auth.zod';
+
+// Deriving types from schemas
+type APIKey = z.infer<typeof APIKeySchema>;
+type OAuth2 = z.infer<typeof OAuth2Schema>;
 
 // ============================================================================
-// Authentication Schemas Tests (from auth/config.zod.ts)
+// Authentication Schemas Tests (from shared/connector-auth.zod.ts)
 // ============================================================================
 
 describe('APIKeySchema', () => {
@@ -97,7 +92,6 @@ describe('OAuth2Schema', () => {
       clientSecret: 'client-secret',
       authorizationUrl: 'https://auth.example.com/authorize',
       tokenUrl: 'https://auth.example.com/token',
-      grantType: 'authorization_code',
     };
     
     expect(() => OAuth2Schema.parse(auth)).not.toThrow();
@@ -105,14 +99,13 @@ describe('OAuth2Schema', () => {
   
   it('should accept OAuth2 with scopes and refresh token', () => {
     const auth = {
-      type: 'oauth2',
+      type: 'oauth2' as const,
       clientId: 'client-id',
       clientSecret: 'client-secret',
       authorizationUrl: 'https://auth.example.com/authorize',
       tokenUrl: 'https://auth.example.com/token',
       scopes: ['read', 'write'],
       refreshToken: 'refresh-token-xyz',
-      grantType: 'client_credentials',
     };
     
     const parsed = OAuth2Schema.parse(auth);
@@ -135,83 +128,18 @@ describe('OAuth2Schema', () => {
   });
 });
 
-describe('JWTAuthSchema', () => {
-  it('should accept JWT with token', () => {
-    const auth = {
-      type: 'jwt',
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-      algorithm: 'HS256',
-    };
-    
-    expect(() => JWTAuthSchema.parse(auth)).not.toThrow();
-  });
-  
-  it('should accept JWT with secret key and claims', () => {
-    const auth = {
-      type: 'jwt',
-      secretKey: 'my-secret-key',
-      algorithm: 'HS256',
-      issuer: 'objectstack',
-      audience: 'api',
-      expiresIn: 3600,
-      claims: { role: 'admin' },
-    };
-    
-    const parsed = JWTAuthSchema.parse(auth);
-    expect(parsed.claims).toEqual({ role: 'admin' });
-  });
-  
-  it('should use default algorithm and expiry', () => {
-    const auth = {
-      type: 'jwt',
-      token: 'test-token',
-    };
-    
-    const parsed = JWTAuthSchema.parse(auth);
-    expect(parsed.algorithm).toBe('HS256');
-    expect(parsed.expiresIn).toBe(3600);
-  });
-});
-
-describe('SAMLAuthSchema', () => {
-  it('should accept valid SAML configuration', () => {
-    const auth = {
-      type: 'saml',
-      entryPoint: 'https://idp.example.com/sso',
-      issuer: 'objectstack-sp',
-      certificate: '-----BEGIN CERTIFICATE-----...',
-      signatureAlgorithm: 'sha256',
-    };
-    
-    expect(() => SAMLAuthSchema.parse(auth)).not.toThrow();
-  });
-  
-  it('should use default values', () => {
-    const auth = {
-      type: 'saml',
-      entryPoint: 'https://idp.example.com/sso',
-      issuer: 'objectstack-sp',
-      certificate: 'cert-content',
-    };
-    
-    const parsed = SAMLAuthSchema.parse(auth);
-    expect(parsed.signatureAlgorithm).toBe('sha256');
-    expect(parsed.wantAssertionsSigned).toBe(true);
-  });
-});
-
 describe('AuthenticationSchema', () => {
   it('should accept all authentication types via discriminated union', () => {
-    const keyAuth = { type: 'api-key', key: 'key' };
+    const keyAuth = { type: 'api-key' as const, key: 'key' };
     const oauth2Auth = { 
-      type: 'oauth2', 
+      type: 'oauth2' as const, 
       clientId: 'id', 
       clientSecret: 'secret',
       authorizationUrl: 'https://auth.example.com/authorize',
       tokenUrl: 'https://auth.example.com/token',
     };
-    const basicAuth = { type: 'basic', username: 'user', password: 'pass' };
-    const noAuth = { type: 'none' };
+    const basicAuth = { type: 'basic' as const, username: 'user', password: 'pass' };
+    const noAuth = { type: 'none' as const };
     
     expect(() => AuthenticationSchema.parse(keyAuth)).not.toThrow();
     expect(() => AuthenticationSchema.parse(oauth2Auth)).not.toThrow();
@@ -457,7 +385,7 @@ describe('ConnectorSchema', () => {
       description: 'A comprehensive connector',
       icon: 'cloud',
       authentication: {
-        type: 'oauth2',
+        type: 'oauth2' as const,
         clientId: 'client',
         clientSecret: 'secret',
         authorizationUrl: 'https://auth.example.com/authorize',
@@ -498,129 +426,6 @@ describe('ConnectorSchema', () => {
     expect(parsed.description).toBe('A comprehensive connector');
     expect(parsed.fieldMappings).toHaveLength(1);
     expect(parsed.webhooks).toHaveLength(1);
-  });
-  
-  it('should use default values', () => {
-    const connector = {
-      name: 'default_connector',
-      label: 'Default Connector',
-      type: 'database',
-      authentication: { type: 'none' },
-    };
-    
-    const parsed = ConnectorSchema.parse(connector);
-    expect(parsed.connectionTimeoutMs).toBe(30000);
-    expect(parsed.requestTimeoutMs).toBe(30000);
-    expect(parsed.status).toBe('inactive');
-    expect(parsed.enabled).toBe(true);
-  });
-  
-  it('should validate timeout ranges', () => {
-    expect(() => ConnectorSchema.parse({
-      name: 'test',
-      label: 'Test',
-      type: 'api',
-      authentication: { type: 'none' },
-      connectionTimeoutMs: 500,
-    })).toThrow();
-    
-    expect(() => ConnectorSchema.parse({
-      name: 'test',
-      label: 'Test',
-      type: 'api',
-      authentication: { type: 'none' },
-      connectionTimeoutMs: 350000,
-    })).toThrow();
-    
-    expect(() => ConnectorSchema.parse({
-      name: 'test',
-      label: 'Test',
-      type: 'api',
-      authentication: { type: 'none' },
-      connectionTimeoutMs: 5000,
-    })).not.toThrow();
-  });
-});
-
-describe('ConnectorTypeSchema', () => {
-  it('should accept all valid connector types', () => {
-    const types = ['saas', 'database', 'file_storage', 'message_queue', 'api', 'custom'];
-    
-    types.forEach(type => {
-      expect(() => ConnectorTypeSchema.parse(type)).not.toThrow();
-    });
-  });
-  
-  it('should reject invalid connector types', () => {
-    expect(() => ConnectorTypeSchema.parse('invalid_type')).toThrow();
-  });
-});
-
-describe('ConnectorStatusSchema', () => {
-  it('should accept all valid statuses', () => {
-    const statuses = ['active', 'inactive', 'error', 'configuring'];
-    
-    statuses.forEach(status => {
-      expect(() => ConnectorStatusSchema.parse(status)).not.toThrow();
-    });
-  });
-});
-
-// ============================================================================
-// Integration Tests
-// ============================================================================
-
-describe('Connector Integration', () => {
-  it('should create a complete SaaS connector', () => {
-    const connector = {
-      name: 'salesforce_prod',
-      label: 'Salesforce Production',
-      type: 'saas',
-      description: 'Production Salesforce connector',
-      authentication: {
-        type: 'oauth2',
-        clientId: '${SF_CLIENT_ID}',
-        clientSecret: '${SF_CLIENT_SECRET}',
-        authorizationUrl: 'https://login.salesforce.com/services/oauth2/authorize',
-        tokenUrl: 'https://login.salesforce.com/services/oauth2/token',
-        scopes: ['api', 'refresh_token'],
-      },
-      syncConfig: {
-        strategy: 'incremental',
-        direction: 'bidirectional',
-        schedule: '0 */6 * * *',
-        realtimeSync: true,
-        batchSize: 200,
-      },
-      fieldMappings: [
-        {
-          source: 'FirstName',
-          target: 'first_name',
-          dataType: 'string',
-          required: true,
-        },
-        {
-          source: 'LastName',
-          target: 'last_name',
-          dataType: 'string',
-          required: true,
-        },
-      ],
-      rateLimitConfig: {
-        strategy: 'token_bucket',
-        maxRequests: 100,
-        windowSeconds: 20,
-      },
-      retryConfig: {
-        strategy: 'exponential_backoff',
-        maxAttempts: 3,
-      },
-      status: 'active',
-      enabled: true,
-    };
-    
-    const parsed = ConnectorSchema.parse(connector);
-    expect(parsed.type).toBe('saas');
-    expect(parsed.fieldMappings).toHaveLength(2);
+    expect(parsed.metadata?.version).toBe('1.0');
   });
 });

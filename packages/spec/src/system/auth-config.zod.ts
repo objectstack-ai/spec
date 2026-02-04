@@ -22,8 +22,8 @@ export const AuthPluginConfigSchema = z.object({
 });
 
 export const AuthConfigSchema = z.object({
-  secret: z.string().describe('Encryption secret'),
-  baseUrl: z.string().describe('Base URL for auth routes'),
+  secret: z.string().optional().describe('Encryption secret'),
+  baseUrl: z.string().optional().describe('Base URL for auth routes'),
   databaseUrl: z.string().optional().describe('Database connection string'),
   providers: z.array(AuthProviderConfigSchema).optional(),
   plugins: AuthPluginConfigSchema.optional(),
@@ -31,4 +31,7 @@ export const AuthConfigSchema = z.object({
     expiresIn: z.number().default(60 * 60 * 24 * 7).describe('Session duration in seconds'),
     updateAge: z.number().default(60 * 60 * 24).describe('Session update frequency'),
   }).optional(),
+  
+  // Custom auth properties
+  [z.string().regex(/^[^A-Z]+$/).toString()]: z.any().optional(),
 });

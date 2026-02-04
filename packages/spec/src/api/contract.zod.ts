@@ -126,6 +126,10 @@ export const DeleteResponseSchema = BaseResponseSchema.extend({
  * Used for generating SDKs and Documentation
  */
 export const StandardApiContracts = {
+  create: {
+    input: CreateRequestSchema,
+    output: SingleRecordResponseSchema
+  },
   delete: {
     input: IdRequestSchema,
     output: DeleteResponseSchema

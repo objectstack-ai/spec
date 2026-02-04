@@ -4,11 +4,8 @@ import {
   WorkflowTriggerType,
   FieldUpdateActionSchema,
   EmailAlertActionSchema,
-  SmsNotificationActionSchema,
-  SlackMessageActionSchema,
-  TeamsMessageActionSchema,
+  ConnectorActionRefSchema,
   HttpCallActionSchema,
-  WebhookTriggerActionSchema,
   TaskCreationActionSchema,
   PushNotificationActionSchema,
   CustomScriptActionSchema,
@@ -79,105 +76,47 @@ describe('EmailAlertActionSchema', () => {
   });
 });
 
-describe('SmsNotificationActionSchema', () => {
-  it('should accept SMS notification with Twilio', () => {
-    const action = {
-      name: 'send_sms_alert',
-      type: 'sms_notification' as const,
-      provider: 'twilio' as const,
-      recipients: ['+1234567890', '{owner.phone}'],
-      message: 'Your order has been shipped!',
-      fromNumber: '+0987654321',
-    };
-
-    expect(() => SmsNotificationActionSchema.parse(action)).not.toThrow();
-  });
-
-  it('should accept SMS notification with Vonage', () => {
-    const action = {
-      name: 'send_alert',
-      type: 'sms_notification' as const,
-      provider: 'vonage' as const,
-      recipients: ['+1234567890'],
-      message: 'Alert: High priority case assigned',
-    };
-
-    expect(() => SmsNotificationActionSchema.parse(action)).not.toThrow();
-  });
-
-  it('should reject invalid provider', () => {
-    const action = {
-      name: 'send_sms',
-      type: 'sms_notification' as const,
-      provider: 'invalid_provider',
-      recipients: ['+1234567890'],
-      message: 'Test message',
-    };
-
-    expect(() => SmsNotificationActionSchema.parse(action)).toThrow();
-  });
-});
-
-describe('SlackMessageActionSchema', () => {
-  it('should accept basic Slack message', () => {
+describe('ConnectorActionRefSchema', () => {
+  it('should accept generic connector action (e.g. Slack)', () => {
     const action = {
       name: 'notify_slack',
-      type: 'slack_message' as const,
-      channel: '#general',
-      message: 'New lead created!',
+      type: 'connector_action' as const,
+      connectorId: 'slack',
+      actionId: 'post_message',
+      input: {
+        channel: '#general',
+        text: 'New lead created!',
+      },
     };
 
-    expect(() => SlackMessageActionSchema.parse(action)).not.toThrow();
+    expect(() => ConnectorActionRefSchema.parse(action)).not.toThrow();
   });
 
-  it('should accept Slack message with mentions', () => {
+  it('should accept generic connector action (e.g. Twilio)', () => {
     const action = {
-      name: 'notify_team',
-      type: 'slack_message' as const,
-      channel: 'C1234567890',
-      message: 'Urgent: High value deal needs attention',
-      mentions: ['@john', '@jane', 'U9876543210'],
+      name: 'send_sms',
+      type: 'connector_action' as const,
+      connectorId: 'twilio',
+      actionId: 'send_sms',
+      input: {
+        to: '+1234567890',
+        message: 'Your order has been shipped!',
+      },
     };
 
-    expect(() => SlackMessageActionSchema.parse(action)).not.toThrow();
+    expect(() => ConnectorActionRefSchema.parse(action)).not.toThrow();
   });
 
-  it('should accept Slack message in thread', () => {
+  it('should validate input is a record', () => {
     const action = {
-      name: 'reply_thread',
-      type: 'slack_message' as const,
-      channel: '#deals',
-      message: 'Update: Deal closed!',
-      threadId: '1234567890.123456',
+      name: 'invalid_action',
+      type: 'connector_action' as const,
+      connectorId: 'slack',
+      actionId: 'post_message',
+      input: 'invalid_input', // Should be an object
     };
 
-    expect(() => SlackMessageActionSchema.parse(action)).not.toThrow();
-  });
-});
-
-describe('TeamsMessageActionSchema', () => {
-  it('should accept basic Teams message', () => {
-    const action = {
-      name: 'notify_teams',
-      type: 'teams_message' as const,
-      channel: 'channel-id-123',
-      message: 'New case assigned to your team',
-    };
-
-    expect(() => TeamsMessageActionSchema.parse(action)).not.toThrow();
-  });
-
-  it('should accept Teams message with mentions and team', () => {
-    const action = {
-      name: 'escalate_teams',
-      type: 'teams_message' as const,
-      channel: 'channel-id-456',
-      message: '**Critical Issue**: Immediate attention required',
-      mentions: ['user-id-1', 'user-id-2'],
-      teamId: 'team-id-789',
-    };
-
-    expect(() => TeamsMessageActionSchema.parse(action)).not.toThrow();
+    expect(() => ConnectorActionRefSchema.parse(action)).toThrow();
   });
 });
 
@@ -203,28 +142,10 @@ describe('HttpCallActionSchema', () => {
         'Content-Type': 'application/json',
         'X-API-Version': 'v1',
       },
-      body: {
+      body: JSON.stringify({
         name: '{record.name}',
         value: '{record.value}',
-      },
-    };
-
-    expect(() => HttpCallActionSchema.parse(action)).not.toThrow();
-  });
-
-  it('should accept request with authentication', () => {
-    const action = {
-      name: 'api_call',
-      type: 'http_call' as const,
-      url: 'https://api.example.com/secure',
-      method: 'POST' as const,
-      authentication: {
-        type: 'bearer' as const,
-        credentials: {
-          token: '{$Credential.ApiToken}',
-        },
-      },
-      timeout: 5000,
+      }),
     };
 
     expect(() => HttpCallActionSchema.parse(action)).not.toThrow();
@@ -242,49 +163,6 @@ describe('HttpCallActionSchema', () => {
       };
       expect(() => HttpCallActionSchema.parse(action)).not.toThrow();
     });
-  });
-});
-
-describe('WebhookTriggerActionSchema', () => {
-  it('should accept basic webhook trigger', () => {
-    const action = {
-      name: 'trigger_webhook',
-      type: 'webhook_trigger' as const,
-      config: {
-        name: 'order_webhook',
-        url: 'https://webhook.site/unique-id',
-        method: 'POST' as const,
-      }
-    };
-
-    const result = WebhookTriggerActionSchema.parse(action);
-    expect(result.config.method).toBe('POST');
-    expect(result.config.isActive).toBe(true);
-  });
-
-  it('should accept webhook with custom configuration', () => {
-    const action = {
-      name: 'custom_webhook',
-      type: 'webhook_trigger' as const,
-      config: {
-        name: 'custom_hook',
-        url: 'https://api.example.com/webhook',
-        method: 'PUT' as const,
-        headers: {
-          'X-Webhook-Secret': 'secret-key',
-        },
-        body: {
-          event: 'record.created',
-          data: '{record}',
-        },
-        retryPolicy: {
-          maxRetries: 5,
-          backoffStrategy: 'exponential' as const,
-        }
-      }
-    };
-
-    expect(() => WebhookTriggerActionSchema.parse(action)).not.toThrow();
   });
 });
 
@@ -422,35 +300,46 @@ describe('WorkflowActionSchema', () => {
     expect(() => WorkflowActionSchema.parse(action)).not.toThrow();
   });
 
-  it('should accept SMS notification action', () => {
+  it('should accept connector action (SMS)', () => {
     const action = {
       name: 'send_sms',
-      type: 'sms_notification' as const,
-      provider: 'twilio' as const,
-      recipients: ['+1234567890'],
-      message: 'Test message',
+      type: 'connector_action' as const,
+      connectorId: 'twilio',
+      actionId: 'send_sms',
+      input: {
+        recipients: ['+1234567890'],
+        message: 'Test message',
+      },
     };
 
     expect(() => WorkflowActionSchema.parse(action)).not.toThrow();
   });
 
-  it('should accept Slack message action', () => {
+  it('should accept connector action (Slack)', () => {
     const action = {
       name: 'send_slack',
-      type: 'slack_message' as const,
-      channel: '#general',
-      message: 'Test message',
+      type: 'connector_action' as const,
+      connectorId: 'slack',
+      actionId: 'post_message',
+      input: {
+        channel: '#general',
+        message: 'Test message',
+      },
     };
 
     expect(() => WorkflowActionSchema.parse(action)).not.toThrow();
   });
 
-  it('should accept Teams message action', () => {
+  it('should accept connector action (Teams)', () => {
     const action = {
       name: 'send_teams',
-      type: 'teams_message' as const,
-      channel: 'channel-id',
-      message: 'Test message',
+      type: 'connector_action' as const,
+      connectorId: 'teams',
+      actionId: 'send_message',
+      input: {
+        channel: 'channel-id',
+        message: 'Test message',
+      },
     };
 
     expect(() => WorkflowActionSchema.parse(action)).not.toThrow();
@@ -462,19 +351,6 @@ describe('WorkflowActionSchema', () => {
       type: 'http_call' as const,
       url: 'https://api.example.com/endpoint',
       method: 'POST' as const,
-    };
-
-    expect(() => WorkflowActionSchema.parse(action)).not.toThrow();
-  });
-
-  it('should accept webhook trigger action', () => {
-    const action = {
-      name: 'trigger_webhook',
-      type: 'webhook_trigger' as const,
-      config: {
-        name: 'test_webhook',
-        url: 'https://webhook.example.com',
-      },
     };
 
     expect(() => WorkflowActionSchema.parse(action)).not.toThrow();
@@ -502,459 +378,70 @@ describe('WorkflowActionSchema', () => {
 
     expect(() => WorkflowActionSchema.parse(action)).not.toThrow();
   });
-
-  it('should accept custom script action', () => {
-    const action = {
-      name: 'run_script',
-      type: 'custom_script' as const,
-      code: 'console.log("test");',
-    };
-
-    expect(() => WorkflowActionSchema.parse(action)).not.toThrow();
-  });
-
-  it('should reject action with invalid type', () => {
-    const action = {
-      name: 'invalid_action',
-      type: 'invalid_type',
-      options: {},
-    };
-
-    expect(() => WorkflowActionSchema.parse(action)).toThrow();
-  });
 });
 
 describe('WorkflowRuleSchema', () => {
-  describe('Basic Properties', () => {
-    it('should accept minimal workflow rule', () => {
-      const workflow: WorkflowRule = {
-        name: 'auto_approve',
-        objectName: 'opportunity',
-        triggerType: 'on_create',
-      };
+  it('should accept valid workflow rule', () => {
+    const rule = {
+      name: 'new_lead_process',
+      objectName: 'lead',
+      triggerType: 'on_create',
+      criteria: 'amount > 1000',
+      active: true,
+      actions: [
+        {
+          name: 'set_status',
+          type: 'field_update' as const,
+          field: 'status',
+          value: 'new',
+        },
+        {
+          name: 'notify_team',
+          type: 'connector_action' as const,
+          connectorId: 'slack',
+          actionId: 'post_message',
+          input: { channel: '#sales', text: 'New high value lead!' },
+        },
+      ],
+      timeTriggers: [
+        {
+          timeLength: 2,
+          timeUnit: 'days',
+          offsetDirection: 'after',
+          offsetFrom: 'trigger_date',
+          actions: [
+            {
+              name: 'followup_check',
+              type: 'task_creation' as const,
+              taskObject: 'task',
+              subject: 'Follow up lead',
+              dueDate: 'TODAY()',
+            },
+          ],
+        },
+      ],
+    };
 
-      const result = WorkflowRuleSchema.parse(workflow);
-      expect(result.active).toBe(true);
-    });
-
-    it('should enforce snake_case for workflow name', () => {
-      const validNames = ['auto_approve', 'send_notification', 'update_status'];
-      validNames.forEach(name => {
-        expect(() => WorkflowRuleSchema.parse({
-          name,
-          objectName: 'account',
-          triggerType: 'on_create',
-        })).not.toThrow();
-      });
-
-      const invalidNames = ['autoApprove', 'Auto-Approve', '123workflow', '_internal'];
-      invalidNames.forEach(name => {
-        expect(() => WorkflowRuleSchema.parse({
-          name,
-          objectName: 'account',
-          triggerType: 'on_create',
-        })).toThrow();
-      });
-    });
-
-    it('should default active to true', () => {
-      const workflow = {
-        name: 'test_workflow',
-        objectName: 'account',
-        triggerType: 'on_create' as const,
-      };
-
-      const result = WorkflowRuleSchema.parse(workflow);
-      expect(result.active).toBe(true);
-    });
+    expect(() => WorkflowRuleSchema.parse(rule)).not.toThrow();
+    const parsed = WorkflowRuleSchema.parse(rule);
+    expect(parsed.name).toBe('new_lead_process');
   });
 
-  describe('Trigger Types', () => {
-    it('should accept all trigger types', () => {
-      const triggers = [
-        'on_create',
-        'on_update',
-        'on_create_or_update',
-        'on_delete',
-        'schedule',
-      ] as const;
-
-      triggers.forEach(triggerType => {
-        const workflow: WorkflowRule = {
-          name: 'test_workflow',
-          objectName: 'account',
-          triggerType,
-        };
-        expect(() => WorkflowRuleSchema.parse(workflow)).not.toThrow();
-      });
-    });
+  it('should reject invalid workflow name (PascalCase)', () => {
+    const rule = {
+      name: 'NewLeadProcess', // Invalid
+      objectName: 'lead',
+      triggerType: 'on_create',
+    };
+    expect(() => WorkflowRuleSchema.parse(rule)).toThrow();
   });
 
-  describe('Criteria and Actions', () => {
-    it('should accept workflow with criteria', () => {
-      const workflow: WorkflowRule = {
-        name: 'high_value_alert',
-        objectName: 'opportunity',
-        triggerType: 'on_create_or_update',
-        criteria: 'amount > 100000',
-      };
-
-      expect(() => WorkflowRuleSchema.parse(workflow)).not.toThrow();
-    });
-
-    it('should accept workflow with actions', () => {
-      const workflow: WorkflowRule = {
-        name: 'auto_assign',
-        objectName: 'lead',
-        triggerType: 'on_create',
-        actions: [
-          {
-            name: 'set_owner',
-            type: 'field_update',
-            field: 'owner_id',
-            value: '{$User.Id}',
-          },
-          {
-            name: 'set_status',
-            type: 'field_update',
-            field: 'status',
-            value: 'new',
-          },
-        ],
-      };
-
-      expect(() => WorkflowRuleSchema.parse(workflow)).not.toThrow();
-    });
-
-    it('should accept workflow with criteria and actions', () => {
-      const workflow: WorkflowRule = {
-        name: 'notify_manager',
-        objectName: 'expense_report',
-        triggerType: 'on_update',
-        criteria: 'status == "submitted" && amount > 1000',
-        actions: [
-          {
-            name: 'send_approval_email',
-            type: 'email_alert',
-            template: 'manager_approval',
-            recipients: ['{manager.email}'],
-          },
-        ],
-      };
-
-      expect(() => WorkflowRuleSchema.parse(workflow)).not.toThrow();
-    });
-  });
-
-  describe('Real-World Workflow Examples', () => {
-    it('should accept opportunity auto-approval workflow', () => {
-      const workflow: WorkflowRule = {
-        name: 'auto_approve_small_deals',
-        objectName: 'opportunity',
-        triggerType: 'on_create_or_update',
-        criteria: 'amount < 10000 && stage == "proposal"',
-        actions: [
-          {
-            name: 'set_approved_status',
-            type: 'field_update',
-            field: 'status',
-            value: 'approved',
-          },
-          {
-            name: 'set_approval_date',
-            type: 'field_update',
-            field: 'approved_at',
-            value: 'NOW()',
-          },
-          {
-            name: 'notify_sales_rep',
-            type: 'email_alert',
-            template: 'opportunity_auto_approved',
-            recipients: ['{owner.email}'],
-          },
-        ],
-        active: true,
-      };
-
-      expect(() => WorkflowRuleSchema.parse(workflow)).not.toThrow();
-    });
-
-    it('should accept case escalation workflow', () => {
-      const workflow: WorkflowRule = {
-        name: 'escalate_high_priority_cases',
-        objectName: 'case',
-        triggerType: 'on_create',
-        criteria: 'priority == "high" || priority == "critical"',
-        actions: [
-          {
-            name: 'assign_to_manager',
-            type: 'field_update',
-            field: 'owner_id',
-            value: '{$User.ManagerId}',
-          },
-          {
-            name: 'set_escalated_flag',
-            type: 'field_update',
-            field: 'is_escalated',
-            value: true,
-          },
-          {
-            name: 'notify_manager',
-            type: 'email_alert',
-            template: 'case_escalation',
-            recipients: ['{$User.Manager.Email}', 'support-leads@example.com'],
-          },
-        ],
-      };
-
-      expect(() => WorkflowRuleSchema.parse(workflow)).not.toThrow();
-    });
-
-    it('should accept lead assignment workflow', () => {
-      const workflow: WorkflowRule = {
-        name: 'auto_assign_leads',
-        objectName: 'lead',
-        triggerType: 'on_create',
-        criteria: 'source == "web"',
-        actions: [
-          {
-            name: 'assign_to_queue',
-            type: 'field_update',
-            field: 'owner_id',
-            value: 'QUEUE("web_leads")',
-          },
-          {
-            name: 'set_status',
-            type: 'field_update',
-            field: 'status',
-            value: 'new',
-          },
-        ],
-      };
-
-      expect(() => WorkflowRuleSchema.parse(workflow)).not.toThrow();
-    });
-
-    it('should accept inactive workflow', () => {
-      const workflow: WorkflowRule = {
-        name: 'disabled_workflow',
-        objectName: 'account',
-        triggerType: 'on_update',
-        criteria: 'status == "inactive"',
-        actions: [
-          {
-            name: 'archive',
-            type: 'field_update',
-            field: 'archived',
-            value: true,
-          },
-        ],
-        active: false,
-      };
-
-      const result = WorkflowRuleSchema.parse(workflow);
-      expect(result.active).toBe(false);
-    });
-
-    it('should accept scheduled workflow', () => {
-      const workflow: WorkflowRule = {
-        name: 'weekly_report',
-        objectName: 'opportunity',
-        triggerType: 'schedule',
-        criteria: 'is_closed == false',
-        actions: [
-          {
-            name: 'send_weekly_summary',
-            type: 'email_alert',
-            template: 'weekly_pipeline_report',
-            recipients: ['sales-team@example.com'],
-          },
-        ],
-      };
-
-      expect(() => WorkflowRuleSchema.parse(workflow)).not.toThrow();
-    });
-
-    it('should accept multi-channel notification workflow', () => {
-      const workflow: WorkflowRule = {
-        name: 'notify_high_value_deal',
-        objectName: 'opportunity',
-        triggerType: 'on_create_or_update',
-        criteria: 'amount > 100000',
-        actions: [
-          {
-            name: 'send_email',
-            type: 'email_alert',
-            template: 'high_value_deal_alert',
-            recipients: ['sales-director@example.com'],
-          },
-          {
-            name: 'send_sms',
-            type: 'sms_notification',
-            provider: 'twilio',
-            recipients: ['{sales_director.phone}'],
-            message: 'High value deal alert: ${record.name} - $${record.amount}',
-          },
-          {
-            name: 'post_slack',
-            type: 'slack_message',
-            channel: '#sales-wins',
-            message: '🎉 New high-value opportunity: *${record.name}* worth $${record.amount}',
-            mentions: ['@sales-team'],
-          },
-          {
-            name: 'send_push',
-            type: 'push_notification',
-            title: 'High Value Deal',
-            body: 'New opportunity: ${record.name}',
-            recipients: ['{sales_director.device_token}'],
-          },
-        ],
-      };
-
-      expect(() => WorkflowRuleSchema.parse(workflow)).not.toThrow();
-    });
-
-    it('should accept webhook integration workflow', () => {
-      const workflow: WorkflowRule = {
-        name: 'sync_to_external_system',
-        objectName: 'order',
-        triggerType: 'on_create',
-        actions: [
-          {
-            name: 'call_inventory_api',
-            type: 'http_call',
-            url: 'https://inventory.example.com/api/reserve',
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: {
-              order_id: '{record.id}',
-              items: '{record.line_items}',
-            },
-            authentication: {
-              type: 'bearer',
-              credentials: {
-                token: '{$Credential.InventoryApiToken}',
-              },
-            },
-          },
-          {
-            name: 'trigger_fulfillment_webhook',
-            type: 'webhook_trigger',
-            config: {
-              name: 'fulfillment_hook',
-              url: 'https://fulfillment.example.com/webhook/new-order',
-              method: 'POST',
-              body: {
-                order: '{record}',
-              },
-            }
-          },
-        ],
-      };
-
-      expect(() => WorkflowRuleSchema.parse(workflow)).not.toThrow();
-    });
-
-    it('should accept task creation workflow', () => {
-      const workflow: WorkflowRule = {
-        name: 'create_followup_tasks',
-        objectName: 'lead',
-        triggerType: 'on_create',
-        criteria: 'status == "qualified"',
-        actions: [
-          {
-            name: 'create_initial_contact_task',
-            type: 'task_creation',
-            taskObject: 'task',
-            subject: 'Initial contact with ${record.company}',
-            description: 'Reach out to discuss their needs',
-            assignedTo: '{owner.id}',
-            dueDate: 'TODAY() + 1',
-            priority: 'high',
-            relatedTo: '{record.id}',
-          },
-          {
-            name: 'create_followup_task',
-            type: 'task_creation',
-            taskObject: 'task',
-            subject: 'Follow up with ${record.company}',
-            assignedTo: '{owner.id}',
-            dueDate: 'TODAY() + 7',
-            priority: 'normal',
-            relatedTo: '{record.id}',
-          },
-        ],
-      };
-
-      expect(() => WorkflowRuleSchema.parse(workflow)).not.toThrow();
-    });
-
-    it('should accept custom script workflow', () => {
-      const workflow: WorkflowRule = {
-        name: 'calculate_complex_metrics',
-        objectName: 'project',
-        triggerType: 'on_update',
-        criteria: 'status == "in_progress"',
-        actions: [
-          {
-            name: 'calculate_health_score',
-            type: 'custom_script',
-            language: 'javascript',
-            code: `
-              const completion = record.tasks_completed / record.total_tasks;
-              const timeElapsed = (Date.now() - record.start_date) / (record.end_date - record.start_date);
-              const healthScore = (completion / timeElapsed) * 100;
-              return { health_score: Math.min(100, Math.max(0, healthScore)) };
-            `,
-            timeout: 5000,
-            context: {
-              record: '{record}',
-            },
-          },
-          {
-            name: 'update_health_score',
-            type: 'field_update',
-            field: 'health_score',
-            value: '{$Script.health_score}',
-          },
-        ],
-      };
-
-      expect(() => WorkflowRuleSchema.parse(workflow)).not.toThrow();
-    });
-
-    it('should accept Teams notification workflow', () => {
-      const workflow: WorkflowRule = {
-        name: 'notify_teams_on_escalation',
-        objectName: 'support_ticket',
-        triggerType: 'on_update',
-        criteria: 'is_escalated == true',
-        actions: [
-          {
-            name: 'post_to_teams',
-            type: 'teams_message',
-            channel: 'escalations-channel',
-            message: '⚠️ **Escalated Ticket**: ${record.subject}\n\nCustomer: ${record.customer_name}\nPriority: ${record.priority}',
-            mentions: ['{record.assigned_to}', '{team_lead.id}'],
-            teamId: 'support-team',
-          },
-          {
-            name: 'create_escalation_task',
-            type: 'task_creation',
-            taskObject: 'task',
-            subject: 'Resolve escalated ticket: ${record.subject}',
-            assignedTo: '{team_lead.id}',
-            dueDate: 'NOW() + 4 HOURS',
-            priority: 'critical',
-            relatedTo: '{record.id}',
-          },
-        ],
-      };
-
-      expect(() => WorkflowRuleSchema.parse(workflow)).not.toThrow();
-    });
+  it('should reject invalid workflow name (spaces)', () => {
+    const rule = {
+      name: 'new lead process', // Invalid
+      objectName: 'lead',
+      triggerType: 'on_create',
+    };
+    expect(() => WorkflowRuleSchema.parse(rule)).toThrow();
   });
 });

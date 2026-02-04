@@ -360,7 +360,7 @@ describe('JobSchema', () => {
       id: 'job-disabled',
       name: 'disabled_job',
       schedule: { type: 'interval' as const, intervalMs: 30000 },
-      handler: async () => {},
+      handler: 'jobs/handler.ts',
       enabled: false,
     };
 

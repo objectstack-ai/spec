@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { WebhookSchema } from '../automation/webhook.zod';
-import { AuthConfigSchema as ConnectorAuthConfigSchema } from '../system/auth-config.zod';
+import { ConnectorAuthConfigSchema } from '../shared/connector-auth.zod';
 import { FieldMappingSchema as BaseFieldMappingSchema } from '../shared/mapping.zod';
 
 /**

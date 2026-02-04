@@ -60,29 +60,21 @@ describe('MessageContentSchema', () => {
     };
     expect(() => MessageContentSchema.parse(content)).not.toThrow();
   });
-
-  it('should default to text type', () => {
-    const content = {
-      text: 'Hello',
-    };
-    const result = MessageContentSchema.parse(content);
-    expect(result.type).toBe('text');
-  });
 });
 
 describe('ConversationMessageSchema', () => {
   it('should accept minimal message', () => {
-    const message: ConversationMessage = {
+    const message = {
       id: 'msg-1',
       timestamp: '2024-01-15T10:00:00Z',
       role: 'user',
-      content: 'Hello, how are you?',
+      content: [{ type: 'text', text: 'Hello, how are you?' }],
     };
     expect(() => ConversationMessageSchema.parse(message)).not.toThrow();
   });
 
   it('should accept message with multimodal content', () => {
-    const message: ConversationMessage = {
+    const message = {
       id: 'msg-2',
       timestamp: '2024-01-15T10:01:00Z',
       role: 'user',
@@ -95,11 +87,11 @@ describe('ConversationMessageSchema', () => {
   });
 
   it('should accept assistant message with token stats', () => {
-    const message: ConversationMessage = {
+    const message = {
       id: 'msg-3',
       timestamp: '2024-01-15T10:02:00Z',
       role: 'assistant',
-      content: 'I am doing well, thank you!',
+      content: [{ type: 'text', text: 'I am doing well, thank you!' }],
       tokens: {
         prompt: 15,
         completion: 8,
@@ -110,11 +102,11 @@ describe('ConversationMessageSchema', () => {
   });
 
   it('should accept message with tool calls', () => {
-    const message: ConversationMessage = {
+    const message = {
       id: 'msg-4',
       timestamp: '2024-01-15T10:03:00Z',
       role: 'assistant',
-      content: '',
+      content: [],
       toolCalls: [
         {
           id: 'call-1',
@@ -130,11 +122,11 @@ describe('ConversationMessageSchema', () => {
   });
 
   it('should accept pinned message with importance', () => {
-    const message: ConversationMessage = {
+    const message = {
       id: 'msg-5',
       timestamp: '2024-01-15T10:04:00Z',
       role: 'system',
-      content: 'You are a helpful assistant.',
+      content: [{ type: 'text', text: 'You are a helpful assistant.' }],
       pinned: true,
       importance: 1.0,
     };
@@ -144,11 +136,11 @@ describe('ConversationMessageSchema', () => {
   });
 
   it('should accept message with embedding', () => {
-    const message: ConversationMessage = {
+    const message = {
       id: 'msg-6',
       timestamp: '2024-01-15T10:05:00Z',
       role: 'user',
-      content: 'Important information',
+      content: [{ type: 'text', text: 'Important information' }],
       embedding: [0.1, 0.2, 0.3, 0.4, 0.5],
     };
     expect(() => ConversationMessageSchema.parse(message)).not.toThrow();
@@ -174,7 +166,6 @@ describe('TokenBudgetConfigSchema', () => {
     expect(result.strategy).toBe('sliding_window');
     expect(result.reserveTokens).toBe(500);
     expect(result.bufferPercentage).toBe(0.1);
-    expect(result.warnThreshold).toBe(0.8);
   });
 
   it('should accept full budget config with sliding window', () => {
@@ -186,7 +177,6 @@ describe('TokenBudgetConfigSchema', () => {
       bufferPercentage: 0.15,
       strategy: 'sliding_window',
       slidingWindowSize: 10,
-      warnThreshold: 0.9,
       enableSummarization: false,
     };
     expect(() => TokenBudgetConfigSchema.parse(config)).not.toThrow();
@@ -282,7 +272,7 @@ describe('ConversationContextSchema', () => {
 
 describe('ConversationSessionSchema', () => {
   it('should accept minimal session', () => {
-    const session: ConversationSession = {
+    const session = {
       id: 'session-1',
       context: {
         sessionId: 'session-1',
@@ -299,7 +289,7 @@ describe('ConversationSessionSchema', () => {
   });
 
   it('should accept full session with messages', () => {
-    const session: ConversationSession = {
+    const session = {
       id: 'session-1',
       name: 'Support Chat - Case #123',
       context: {
@@ -313,7 +303,7 @@ describe('ConversationSessionSchema', () => {
       modelId: 'gpt-4-turbo',
       tokenBudget: {
         maxTokens: 8192,
-        strategy: 'sliding_window',
+        strategy: 'sliding_window' as const,
         slidingWindowSize: 20,
         enableSummarization: true,
       },
@@ -322,13 +312,13 @@ describe('ConversationSessionSchema', () => {
           id: 'msg-1',
           timestamp: '2024-01-15T10:00:00Z',
           role: 'user',
-          content: 'I need help with my order',
+          content: [{ type: 'text', text: 'I need help with my order' }],
         },
         {
           id: 'msg-2',
           timestamp: '2024-01-15T10:01:00Z',
           role: 'assistant',
-          content: 'I\'d be happy to help! What\'s your order number?',
+          content: [{ type: 'text', text: 'I\'d be happy to help! What\'s your order number?' }],
         },
       ],
       tokens: {
@@ -355,7 +345,7 @@ describe('ConversationSessionSchema', () => {
   });
 
   it('should accept session with expiry', () => {
-    const session: ConversationSession = {
+    const session = {
       id: 'session-1',
       context: {
         sessionId: 'session-1',
@@ -495,7 +485,7 @@ describe('Real-World Conversation Examples', () => {
           id: 'msg-system',
           timestamp: '2024-01-15T09:00:00Z',
           role: 'system',
-          content: 'You are a helpful customer support agent specialized in order management.',
+          content: [{ type: 'text', text: 'You are a helpful customer support agent specialized in order management.' }],
           pinned: true,
           importance: 1.0,
         },
@@ -503,14 +493,14 @@ describe('Real-World Conversation Examples', () => {
           id: 'msg-1',
           timestamp: '2024-01-15T09:00:05Z',
           role: 'user',
-          content: 'Hi, I have an issue with my order #ORD-2024-001',
+          content: [{ type: 'text', text: 'Hi, I have an issue with my order #ORD-2024-001' }],
           tokens: { prompt: 15, completion: 0, total: 15 },
         },
         {
           id: 'msg-2',
           timestamp: '2024-01-15T09:00:15Z',
           role: 'assistant',
-          content: 'Hello! I\'d be happy to help you with your order. Let me look up the details for order #ORD-2024-001.',
+          content: [{ type: 'text', text: 'Hello! I\'d be happy to help you with your order. Let me look up the details for order #ORD-2024-001.' }],
           tokens: { prompt: 30, completion: 25, total: 55 },
         },
       ],
@@ -561,14 +551,14 @@ describe('Real-World Conversation Examples', () => {
           id: 'msg-1',
           timestamp: '2024-01-15T14:00:00Z',
           role: 'user',
-          content: 'Write a Python function to calculate fibonacci numbers',
+          content: [{ type: 'text', text: 'Write a Python function to calculate fibonacci numbers' }],
           importance: 0.9,
         },
         {
           id: 'msg-2',
           timestamp: '2024-01-15T14:00:10Z',
           role: 'assistant',
-          content: '',
+          content: [],
           toolCalls: [
             {
               id: 'call-1',

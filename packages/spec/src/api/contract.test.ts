@@ -12,7 +12,7 @@ import {
   BulkResponseSchema,
   DeleteResponseSchema,
   RecordDataSchema,
-  ApiContracts,
+  StandardApiContracts as ApiContracts,
 } from './contract.zod';
 
 describe('ApiErrorSchema', () => {
