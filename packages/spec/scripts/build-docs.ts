@@ -321,7 +321,7 @@ Object.entries(CATEGORIES).forEach(([category, title]) => {
   Array.from(zodFiles).sort().forEach(zodFile => {
       const fileTitle = zodFile.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
       // Link relative to the category folder (where index.mdx lives)
-      mdx += `  <Card href="./${zodFile}" title="${fileTitle}" description="Source: packages/spec/src/${category}/${zodFile}.zod.ts" />\n`;
+      mdx += `  <Card href="/docs/references/${category}/${zodFile}" title="${fileTitle}" description="Source: packages/spec/src/${category}/${zodFile}.zod.ts" />\n`;
   });
   mdx += `</Cards>\n`;
 
