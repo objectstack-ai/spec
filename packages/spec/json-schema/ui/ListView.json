@@ -277,6 +277,13 @@
           },
           "description": "Fields enabled for search"
         },
+        "filterableFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields enabled for end-user filtering in the top bar"
+        },
         "resizable": {
           "type": "boolean",
           "description": "Enable column resizing"
