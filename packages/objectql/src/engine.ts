@@ -8,6 +8,7 @@ import {
   DataEngineCountOptions 
 } from '@objectstack/spec/data';
 import { DriverInterface, IDataEngine, Logger, createLogger } from '@objectstack/core';
+import { CoreServiceName } from '@objectstack/spec/system';
 import { SchemaRegistry } from './registry.js';
 
 export type HookHandler = (context: HookContext) => Promise<void> | void;
@@ -26,6 +27,9 @@ export interface ObjectQLHostContext {
  * ObjectQL Engine
  * 
  * Implements the IDataEngine interface for data persistence.
+ * Acts as the reference implementation for:
+ * - CoreServiceName.data (CRUD)
+ * - CoreServiceName.metadata (Schema Registry)
  */
 export class ObjectQL implements IDataEngine {
   private drivers = new Map<string, DriverInterface>();
@@ -48,6 +52,19 @@ export class ObjectQL implements IDataEngine {
     // Use provided logger or create a new one
     this.logger = hostContext.logger || createLogger({ level: 'info', format: 'pretty' });
     this.logger.info('ObjectQL Engine Instance Created');
+  }
+
+  /**
+   * Service Status Report
+   * Used by Kernel to verify health and capabilities.
+   */
+  getStatus() {
+      return {
+          name: CoreServiceName.enum.data,
+          status: 'running',
+          version: '0.9.0',
+          features: ['crud', 'query', 'aggregate', 'transactions', 'metadata']
+      };
   }
 
   /**

@@ -1,5 +1,6 @@
-import { ServiceObject } from '@objectstack/spec/data';
-import { ObjectStackManifest } from '@objectstack/spec/system';
+import { ServiceObject, ObjectSchema } from '@objectstack/spec/data';
+import { ObjectStackManifest, ManifestSchema } from '@objectstack/spec/system';
+import { AppSchema } from '@objectstack/spec/ui';
 
 /**
  * Global Schema Registry
@@ -22,11 +23,38 @@ export class SchemaRegistry {
     const collection = this.metadata.get(type)!;
     const key = String(item[keyField]);
 
+    // Validation Hook
+    try {
+        this.validate(type, item);
+    } catch (e: any) {
+        console.error(`[Registry] Validation failed for ${type} ${key}: ${e.message}`);
+        // For now, warn but don't crash, allowing partial/legacy loads
+        // throw e; 
+    }
+
     if (collection.has(key)) {
       console.warn(`[Registry] Overwriting ${type}: ${key}`);
     }
     collection.set(key, item);
     console.log(`[Registry] Registered ${type}: ${key}`);
+  }
+
+  /**
+   * Validate Metadata against Spec Zod Schemas
+   */
+  static validate(type: string, item: any) {
+      if (type === 'object') {
+          return ObjectSchema.parse(item);
+      }
+      if (type === 'app') {
+          // AppSchema might rely on Zod, imported via UI protocol
+          return AppSchema.parse(item);
+      }
+      if (type === 'plugin') {
+          return ManifestSchema.parse(item);
+      }
+      // Add more validations as needed
+      return true;
   }
 
   /**
