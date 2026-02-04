@@ -114,14 +114,18 @@ export class ObjectStackController {
 
   // Metadata
   @All('metadata*')
-  async metadata(@Req() req: any, @Res() res: any) {
+  async metadata(@Req() req: any, @Res() res: any, @Body() body?: any) {
       try {
           // /api/metadata/objects -> objects
           let path = req.params[0] || ''; 
           if (req.url.includes('/metadata')) {
              path = req.url.split('/metadata')[1].split('?')[0];
           }
-          const result = await this.service.dispatcher.handleMetadata(path, { request: req });
+          
+          // Use injected body or fallback to req.body
+          const payload = body || req.body;
+          
+          const result = await this.service.dispatcher.handleMetadata(path, { request: req }, req.method, payload);
           return this.normalizeResponse(result, res);
       } catch (err) {
           return this.handleError(err, res);

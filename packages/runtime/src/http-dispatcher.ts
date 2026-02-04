@@ -131,7 +131,7 @@ export class HttpDispatcher {
      * Standard: /metadata/:type/:name
      * Fallback for backward compat: /metadata (all objects), /metadata/:objectName (get object)
      */
-    async handleMetadata(path: string, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
+    async handleMetadata(path: string, context: HttpProtocolContext, method?: string, body?: any): Promise<HttpDispatcherResult> {
         const broker = this.ensureBroker();
         const parts = path.replace(/^\/+/, '').split('/').filter(Boolean);
         
@@ -142,9 +142,34 @@ export class HttpDispatcher {
             return { handled: true, response: this.success({ types: ['objects', 'apps', 'plugins'] }) };
         }
 
-        // GET /metadata/:type/:name
+        // /metadata/:type/:name
         if (parts.length === 2) {
             const [type, name] = parts;
+
+            // PUT /metadata/:type/:name (Save)
+            if (method === 'PUT' && body) {
+                // Try to get the protocol service directly
+                const protocol = this.kernel?.context?.getService ? this.kernel.context.getService('protocol') : null;
+                
+                if (protocol && typeof protocol.saveMetaItem === 'function') {
+                    try {
+                        const result = await protocol.saveMetaItem({ type, name, item: body });
+                        return { handled: true, response: this.success(result) };
+                    } catch (e: any) {
+                        return { handled: true, response: this.error(e.message, 400) };
+                    }
+                }
+                
+                // Fallback to broker if protocol not available (legacy)
+                try {
+                     const data = await broker.call('metadata.saveItem', { type, name, item: body }, { request: context.request });
+                     return { handled: true, response: this.success(data) };
+                } catch (e: any) {
+                     // If broker doesn't support it either
+                     return { handled: true, response: this.error(e.message || 'Save not supported', 501) };
+                }
+            }
+
             try {
                 // Try specific calls based on type
                 if (type === 'objects') {

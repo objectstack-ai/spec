@@ -75,7 +75,13 @@ export function createRouteHandler(options: NextAdapterOptions) {
         // --- 3. Metadata ---
         if (segments[0] === 'metadata') {
             const subPath = segments.slice(1).join('/');
-            const result = await dispatcher.handleMetadata(subPath, { request: rawRequest });
+            
+            let body: any = undefined;
+            if (method === 'PUT' || method === 'POST') {
+                body = await req.json().catch(() => ({}));
+            }
+
+            const result = await dispatcher.handleMetadata(subPath, { request: rawRequest }, method, body);
             return toResponse(result);
         }
 

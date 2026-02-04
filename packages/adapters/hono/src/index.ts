@@ -76,7 +76,20 @@ export function createHonoApp(options: ObjectStackHonoOptions) {
   app.all(`${prefix}/metadata*`, async (c) => {
     try {
       const path = c.req.path.substring(c.req.path.indexOf('/metadata') + 9);
-      const result = await dispatcher.handleMetadata(path, { request: c.req.raw });
+      const method = c.req.method;
+      let body = undefined;
+      
+      if (method === 'PUT' || method === 'POST') {
+          // Attempt to parse JSON body
+          try {
+            body = await c.req.json();
+          } catch (e) {
+            // Ignore parse errors, body remains undefined or empty
+            body = {};
+          }
+      }
+
+      const result = await dispatcher.handleMetadata(path, { request: c.req.raw }, method, body);
       return normalizeResponse(c, result);
     } catch (err: any) {
       return c.json({ success: false, error: { message: err.message, code: err.statusCode || 500 } }, err.statusCode || 500);
