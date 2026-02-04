@@ -38,7 +38,7 @@ export class InMemoryDriver implements DriverInterface {
     
     // Query Operations
     queryFilters: true,          // Implemented via memory-matcher
-    queryAggregations: false,    // TODO: Not implemented - count() only returns total
+    queryAggregations: true,    // Implemented
     querySorting: true,          // Implemented via JS sort
     queryPagination: true,       // Implemented
     queryWindowFunctions: false, // TODO: Not implemented
@@ -107,6 +107,11 @@ export class InMemoryDriver implements DriverInterface {
     // 1. Filter
     if (query.where) {
         results = results.filter(record => match(record, query.where));
+    }
+
+    // 1.5 Aggregation & Grouping
+    if (query.groupBy || (query.aggregations && query.aggregations.length > 0)) {
+        results = this.performAggregation(results, query);
     }
 
     // 2. Sort
@@ -358,6 +363,118 @@ export class InMemoryDriver implements DriverInterface {
 
   async commit() { /* No-op */ }
   async rollback() { /* No-op */ }
+
+  // ===================================
+  // Aggregation Logic
+  // ===================================
+
+  private performAggregation(records: any[], query: QueryInput): any[] {
+    const { groupBy, aggregations } = query;
+    const groups: Map<string, any[]> = new Map();
+
+    // 1. Group records
+    if (groupBy && groupBy.length > 0) {
+        for (const record of records) {
+            // Create a composite key from group values
+            const keyParts = groupBy.map(field => {
+                const val = getValueByPath(record, field);
+                return val === undefined || val === null ? 'null' : String(val);
+            });
+            const key = JSON.stringify(keyParts);
+            
+            if (!groups.has(key)) {
+                groups.set(key, []);
+            }
+            groups.get(key)!.push(record);
+        }
+    } else {
+        // No grouping -> Single group containing all records
+        // If aggregation is requested without group by, it runs on whole set (even if empty)
+        if (aggregations && aggregations.length > 0) {
+             groups.set('all', records);
+        } else {
+             // Should not be here if performAggregation called correctly
+             groups.set('all', records);
+        }
+    }
+
+    // 2. Compute aggregates for each group
+    const resultRows: any[] = [];
+    
+    for (const [key, groupRecords] of groups.entries()) {
+        const row: any = {};
+        
+        // A. Add Group fields to row (if groupBy exists)
+        if (groupBy && groupBy.length > 0) {
+             if (groupRecords.length > 0) {
+                const firstRecord = groupRecords[0];
+                for (const field of groupBy) {
+                     this.setValueByPath(row, field, getValueByPath(firstRecord, field));
+                }
+             }
+        }
+        
+        // B. Compute Aggregations
+        if (aggregations) {
+            for (const agg of aggregations) {
+                 const value = this.computeAggregate(groupRecords, agg);
+                 row[agg.alias] = value;
+            }
+        }
+        
+        resultRows.push(row);
+    }
+    
+    return resultRows;
+  }
+  
+  private computeAggregate(records: any[], agg: any): any {
+      const { function: func, field } = agg;
+      
+      const values = field ? records.map(r => getValueByPath(r, field)) : [];
+      
+      switch (func) {
+          case 'count':
+              if (!field || field === '*') return records.length;
+              return values.filter(v => v !== null && v !== undefined).length;
+              
+          case 'sum':
+          case 'avg': {
+              const nums = values.filter(v => typeof v === 'number');
+              const sum = nums.reduce((a, b) => a + b, 0);
+              if (func === 'sum') return sum;
+              return nums.length > 0 ? sum / nums.length : null;
+          }
+              
+          case 'min': {
+              // Handle comparable values
+              const valid = values.filter(v => v !== null && v !== undefined);
+              if (valid.length === 0) return null;
+              // Works for numbers and strings
+              return valid.reduce((min, v) => (v < min ? v : min), valid[0]);
+          }
+
+          case 'max': {
+              const valid = values.filter(v => v !== null && v !== undefined);
+              if (valid.length === 0) return null;
+              return valid.reduce((max, v) => (v > max ? v : max), valid[0]);
+          }
+
+          default:
+              return null;
+      }
+  }
+
+  private setValueByPath(obj: any, path: string, value: any) {
+      const parts = path.split('.');
+      let current = obj;
+      for (let i = 0; i < parts.length - 1; i++) {
+          const part = parts[i];
+          if (!current[part]) current[part] = {};
+          current = current[part];
+      }
+      current[parts[parts.length - 1]] = value;
+  }
 
   // ===================================
   // Helpers
