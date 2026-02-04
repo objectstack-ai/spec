@@ -930,3 +930,20 @@ export const HubAPIContract = {
     },
   },
 } as const;
+
+/**
+ * Install Plugin Request
+ */
+export const InstallPluginRequestSchema = z.object({
+  spaceId: z.string().describe('Target Space ID'),
+  pluginId: z.string().describe('Plugin Package ID'),
+  version: z.string().optional().describe('Version requirement'),
+  config: z.record(z.any()).optional().describe('Plugin configuration'),
+});
+
+/**
+ * Install Plugin Response
+ */
+export const InstallPluginResponseSchema = BaseResponseSchema.extend({
+  data: z.any() // Returns installation status or installed instance
+});

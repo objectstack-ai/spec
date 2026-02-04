@@ -10,6 +10,25 @@ import {
   GetAnalyticsMetaRequestSchema, 
   AnalyticsMetadataResponseSchema 
 } from './analytics.zod';
+import {
+  ListSpacesRequestSchema,
+  SpaceResponseSchema,
+  CreateSpaceRequestSchema,
+  UpdateSpaceRequestSchema,
+  InstallPluginRequestSchema,
+  InstallPluginResponseSchema
+} from './hub.zod';
+
+export const AutomationTriggerRequestSchema = z.object({
+  trigger: z.string(),
+  payload: z.record(z.any())
+});
+
+export const AutomationTriggerResponseSchema = z.object({
+  success: z.boolean(),
+  jobId: z.string().optional(),
+  result: z.any().optional()
+});
 
 /**
  * ObjectStack Protocol - Zod Schema Definitions
@@ -387,6 +406,28 @@ export const ObjectStackProtocolSchema = z.object({
     output: z.promise(AnalyticsMetadataResponseSchema)
   }).describe('Get analytics metadata (cubes)'),
 
+  // Automation Operations
+  triggerAutomation: z.function({
+    input: z.tuple([AutomationTriggerRequestSchema]),
+    output: z.promise(AutomationTriggerResponseSchema)
+  }).describe('Trigger an automation flow or script'),
+
+  // Hub Operations
+  listSpaces: z.function({
+    input: z.tuple([ListSpacesRequestSchema]),
+    output: z.promise(z.any()) // TODO: Use ListSpacesResponseSchema when available/exported
+  }).describe('List Hub Spaces'),
+  
+  createSpace: z.function({
+    input: z.tuple([CreateSpaceRequestSchema]),
+    output: z.promise(SpaceResponseSchema)
+  }).describe('Create Hub Space'),
+
+  installPlugin: z.function({
+    input: z.tuple([InstallPluginRequestSchema]),
+    output: z.promise(InstallPluginResponseSchema)
+  }).describe('Install Plugin into Space'),
+
   // Data Operations
   findData: z.function({
     input: z.tuple([FindDataRequestSchema]),
@@ -457,6 +498,15 @@ export type AnalyticsResultResponse = z.infer<typeof AnalyticsResultResponseSche
 export type GetAnalyticsMetaRequest = z.infer<typeof GetAnalyticsMetaRequestSchema>;
 export type GetAnalyticsMetaResponse = z.infer<typeof AnalyticsMetadataResponseSchema>;
 
+export type AutomationTriggerRequest = z.infer<typeof AutomationTriggerRequestSchema>;
+export type AutomationTriggerResponse = z.infer<typeof AutomationTriggerResponseSchema>;
+
+export type ListSpacesRequest = z.infer<typeof ListSpacesRequestSchema>;
+export type CreateSpaceRequest = z.infer<typeof CreateSpaceRequestSchema>;
+export type SpaceResponse = z.infer<typeof SpaceResponseSchema>;
+export type InstallPluginRequest = z.infer<typeof InstallPluginRequestSchema>;
+export type InstallPluginResponse = z.infer<typeof InstallPluginResponseSchema>;
+
 export type FindDataRequest = z.input<typeof FindDataRequestSchema>;
 export type FindDataResponse = z.infer<typeof FindDataResponseSchema>;
 export type GetDataRequest = z.input<typeof GetDataRequestSchema>;
@@ -494,6 +544,12 @@ export interface IObjectStackProtocolLegacy {
   
   analyticsQuery(request: AnalyticsQueryRequest): Promise<AnalyticsResultResponse>;
   getAnalyticsMeta(request: GetAnalyticsMetaRequest): Promise<GetAnalyticsMetaResponse>;
+
+  triggerAutomation(request: AutomationTriggerRequest): Promise<AutomationTriggerResponse>;
+
+  listSpaces(request: ListSpacesRequest): Promise<any>;
+  createSpace(request: CreateSpaceRequest): Promise<SpaceResponse>;
+  installPlugin(request: InstallPluginRequest): Promise<InstallPluginResponse>;
 
   findData(request: FindDataRequest): Promise<FindDataResponse>;
   getData(request: GetDataRequest): Promise<GetDataResponse>;

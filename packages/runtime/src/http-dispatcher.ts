@@ -425,6 +425,29 @@ export class HttpDispatcher {
         return { handled: false };
     }
 
+    /**
+     * Handles Automation requests
+     * path: sub-path after /automation/
+     */
+    async handleAutomation(path: string, method: string, body: any, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
+        const automationService = this.getService(CoreServiceName.enum.automation);
+        if (!automationService) return { handled: false };
+
+        const m = method.toUpperCase();
+        const parts = path.replace(/^\/+/, '').split('/');
+        
+        // POST /automation/trigger/:name
+        if (parts[0] === 'trigger' && parts[1] && m === 'POST') {
+             const triggerName = parts[1];
+             if (typeof automationService.trigger === 'function') {
+                 const result = await automationService.trigger(triggerName, body, { request: context.request });
+                 return { handled: true, response: this.success(result) };
+             }
+        }
+        
+        return { handled: false };
+    }
+
     private getServicesMap(): Record<string, any> {
         if (this.kernel.services instanceof Map) {
             return Object.fromEntries(this.kernel.services);
@@ -471,6 +494,10 @@ export class HttpDispatcher {
 
         if (cleanPath.startsWith('/storage')) {
              return this.handleStorage(cleanPath.substring(8), method, body, context); // body here is file/stream for upload
+        }
+        
+        if (cleanPath.startsWith('/automation')) {
+             return this.handleAutomation(cleanPath.substring(11), method, body, context);
         }
         
         if (cleanPath.startsWith('/analytics')) {

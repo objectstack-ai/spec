@@ -507,6 +507,72 @@ export class HonoServerPlugin implements Plugin {
             priority: HonoServerPlugin.DISCOVERY_ENDPOINT_PRIORITY
         });
 
+        // Analytics Endpoints
+        endpoints.push(
+            {
+                id: 'analytics_query',
+                method: 'POST',
+                path: `${apiPath}/analytics/query`,
+                summary: 'Analytics Query',
+                description: 'Execute analytics query',
+                priority: HonoServerPlugin.DISCOVERY_ENDPOINT_PRIORITY
+            },
+            {
+                id: 'get_analytics_meta',
+                method: 'GET',
+                path: `${apiPath}/analytics/meta`,
+                summary: 'Analytics Metadata',
+                description: 'Get analytics cubes definitions',
+                priority: HonoServerPlugin.DISCOVERY_ENDPOINT_PRIORITY
+            }
+        );
+
+        // Automation Endpoints
+        endpoints.push(
+            {
+                id: 'automation_trigger',
+                method: 'POST',
+                path: `${apiPath}/automation/trigger/:trigger`,
+                summary: 'Trigger Automation',
+                description: 'Trigger a named automation',
+                parameters: [{
+                    name: 'trigger',
+                    in: 'path',
+                    required: true,
+                    schema: { type: 'string' }
+                }],
+                priority: HonoServerPlugin.DISCOVERY_ENDPOINT_PRIORITY
+            }
+        );
+
+        // Hub Endpoints
+        endpoints.push(
+            {
+                id: 'hub_list_spaces',
+                method: 'GET',
+                path: `${apiPath}/hub/spaces`,
+                summary: 'List Spaces',
+                description: 'List all Hub spaces',
+                priority: HonoServerPlugin.DISCOVERY_ENDPOINT_PRIORITY
+            },
+            {
+                id: 'hub_create_space',
+                method: 'POST',
+                path: `${apiPath}/hub/spaces`,
+                summary: 'Create Space',
+                description: 'Create a new Hub space',
+                priority: HonoServerPlugin.DISCOVERY_ENDPOINT_PRIORITY
+            },
+             {
+                id: 'hub_install_plugin',
+                method: 'POST',
+                path: `${apiPath}/hub/plugins/install`,
+                summary: 'Install Plugin',
+                description: 'Install a plugin from marketplace',
+                priority: HonoServerPlugin.DISCOVERY_ENDPOINT_PRIORITY
+            }
+        );
+
         // Register the API in the registry
         const apiEntry: ApiRegistryEntryInput = {
             id: 'objectstack_core_api',
@@ -797,6 +863,65 @@ export class HonoServerPlugin implements Plugin {
                 } catch (e: any) {
                     ctx.logger.warn('UI view not found', { object: req.params.object });
                     res.status(404).json({ error: e.message });
+                }
+            },
+            // Analytics
+            'analytics_query': async (req: any, res: any) => {
+                ctx.logger.info('Analytics query request');
+                try {
+                    const result = await p.analyticsQuery(req.body);
+                    res.json(result);
+                } catch (e: any) {
+                    ctx.logger.error('Analytics query failed', e);
+                    res.status(400).json({ error: e.message });
+                }
+            },
+            'get_analytics_meta': async (req: any, res: any) => {
+                 ctx.logger.info('Analytics meta request');
+                 try {
+                     const result = await p.getAnalyticsMeta({});
+                     res.json(result);
+                 } catch (e: any) {
+                     ctx.logger.error('Analytics meta failed', e);
+                     res.status(500).json({ error: e.message });
+                 }
+            },
+            // Automation
+            'automation_trigger': async (req: any, res: any) => {
+                const trigger = req.params.trigger;
+                ctx.logger.info('Automation trigger request', { trigger });
+                try {
+                    const result = await p.triggerAutomation({ trigger, payload: req.body });
+                    res.json(result);
+                } catch (e: any) {
+                     ctx.logger.error('Automation trigger failed', e, { trigger });
+                     res.status(500).json({ error: e.message });
+                }
+            },
+            // Hub
+            'hub_list_spaces': async (req: any, res: any) => {
+                 try {
+                     const result = await p.listSpaces({ ...req.query });
+                     res.json(result);
+                 } catch (e: any) {
+                     res.status(500).json({ error: e.message });
+                 }
+            },
+            'hub_create_space': async (req: any, res: any) => {
+                 try {
+                     const result = await p.createSpace(req.body);
+                     res.status(201).json(result);
+                 } catch (e: any) {
+                     res.status(500).json({ error: e.message });
+                 }
+            },
+            'hub_install_plugin': async (req: any, res: any) => {
+                const spaceId = req.params.space_id;
+                try {
+                    const result = await p.installPlugin({ spaceId, ...req.body });
+                    res.json(result);
+                } catch (e: any) {
+                    res.status(500).json({ error: e.message });
                 }
             }
         };

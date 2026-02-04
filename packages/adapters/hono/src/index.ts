@@ -102,7 +102,62 @@ export function createHonoApp(options: ObjectStackHonoOptions) {
     }
   });
 
-  // --- 5. Storage Endpoints ---
+  // --- 5. Analytics Endpoints ---
+  app.all(`${prefix}/analytics*`, async (c) => {
+    try {
+      const path = c.req.path.substring(c.req.path.indexOf('/analytics') + 10);
+      const method = c.req.method;
+      
+      let body = {};
+      if (method === 'POST') {
+          body = await c.req.json().catch(() => ({}));
+      }
+
+      const result = await dispatcher.handleAnalytics(path, method, body, { request: c.req.raw });
+      return normalizeResponse(c, result);
+    } catch (err: any) {
+      return c.json({ success: false, error: { message: err.message, code: err.statusCode || 500 } }, err.statusCode || 500);
+    }
+  });
+
+  // --- 6. Hub Endpoints ---
+  app.all(`${prefix}/hub*`, async (c) => {
+    try {
+      const path = c.req.path.substring(c.req.path.indexOf('/hub') + 4);
+      const method = c.req.method;
+      
+      let body = {};
+      if (method === 'POST' || method === 'PATCH' || method === 'PUT') {
+          body = await c.req.json().catch(() => ({}));
+      }
+      const query = c.req.query();
+
+      const result = await dispatcher.handleHub(path, method, body, query, { request: c.req.raw });
+      return normalizeResponse(c, result);
+    } catch (err: any) {
+      return c.json({ success: false, error: { message: err.message, code: err.statusCode || 500 } }, err.statusCode || 500);
+    }
+  });
+
+  // --- 7. Automation Endpoints ---
+  app.all(`${prefix}/automation*`, async (c) => {
+      try {
+        const path = c.req.path.substring(c.req.path.indexOf('/automation') + 11);
+        const method = c.req.method;
+        
+        let body = {};
+        if (method === 'POST') {
+            body = await c.req.json().catch(() => ({}));
+        }
+
+        const result = await dispatcher.handleAutomation(path, method, body, { request: c.req.raw });
+        return normalizeResponse(c, result);
+      } catch (err: any) {
+        return c.json({ success: false, error: { message: err.message, code: err.statusCode || 500 } }, err.statusCode || 500);
+      }
+  });
+
+  // --- 8. Storage Endpoints ---
   app.all(`${prefix}/storage*`, async (c) => {
     try {
       const path = c.req.path.substring(c.req.path.indexOf('/storage') + 8);
