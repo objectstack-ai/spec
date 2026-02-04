@@ -217,13 +217,10 @@ describe('API Registry Protocol', () => {
         path: '/api/v1/protected',
         security: [
           {
-            type: 'http' as const,
-            scheme: 'bearer',
+            'bearerAuth': [],
           },
           {
-            type: 'apiKey' as const,
-            name: 'X-API-Key',
-            in: 'header' as const,
+            'apiKey': [],
           },
         ],
         responses: [],
@@ -231,7 +228,7 @@ describe('API Registry Protocol', () => {
 
       const result = ApiEndpointRegistrationSchema.parse(endpoint);
       expect(result.security).toHaveLength(2);
-      expect(result.security?.[0].type).toBe('http');
+      expect(result.security?.[0]).toHaveProperty('bearerAuth');
     });
 
     it('should use helper create function', () => {

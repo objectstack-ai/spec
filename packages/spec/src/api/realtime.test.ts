@@ -371,14 +371,12 @@ describe('RealtimeEventSchema', () => {
     })).not.toThrow();
   });
 
-  it('should accept various payload types', () => {
+  it('should accept object payload', () => {
     const payloads = [
       { id: '123', name: 'Account' },
-      [1, 2, 3],
-      'string payload',
-      123,
-      true,
-      null,
+      { list: [1, 2, 3] },
+      { value: 'string payload' },
+      { count: 123 },
     ];
 
     payloads.forEach(payload => {
