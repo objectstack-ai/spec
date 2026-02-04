@@ -39,6 +39,8 @@ export const fullDiscoveryResponse: API.DiscoveryResponse = {
     search: true,
     websockets: true,
     files: true,
+    analytics: false,
+    hub: false,
   },
 
   // Localization Info
@@ -70,6 +72,8 @@ export const devDiscoveryResponse: API.DiscoveryResponse = {
     search: true,
     websockets: false,
     files: true,
+    analytics: false,
+    hub: false,
   },
 
   locale: {

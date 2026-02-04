@@ -80,8 +80,7 @@ const customerRestApi = ApiRegistryEntry.create({
       // Security requirements
       security: [
         {
-          type: 'http',
-          scheme: 'bearer',
+          bearerAuth: [],
         },
       ],
     }),
@@ -127,7 +126,7 @@ const customerRestApi = ApiRegistryEntry.create({
         },
       ],
       
-      security: [{ type: 'http', scheme: 'bearer' }],
+      security: [{ bearerAuth: [] }],
     }),
   ],
   
@@ -191,7 +190,7 @@ const graphqlApi = ApiRegistryEntry.create({
         },
       ],
       
-      security: [{ type: 'http', scheme: 'bearer' }],
+      security: [{ bearerAuth: [] }],
     }),
   ],
   
@@ -243,9 +242,7 @@ const pluginApi = ApiRegistryEntry.create({
       
       security: [
         {
-          type: 'apiKey',
-          name: 'X-Webhook-Secret',
-          in: 'header',
+          webhookAuth: [],
         },
       ],
     }),

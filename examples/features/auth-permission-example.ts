@@ -10,7 +10,7 @@
  * - Sharing and territory management
  */
 
-import type { Auth, Permission } from '@objectstack/spec';
+import { Identity as Auth, Security as Permission } from '@objectstack/spec';
 
 /**
  * Example 1: User Identity

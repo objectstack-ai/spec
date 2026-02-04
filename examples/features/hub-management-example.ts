@@ -90,7 +90,7 @@ export const createSpaceExample: CreateSpaceRequest = {
 /**
  * Space creation response
  */
-export const spaceCreatedResponse: SpaceResponse = {
+export const spaceCreatedResponse = {
   id: '550e8400-e29b-41d4-a716-446655440000',
   name: 'Sales Team Workspace',
   slug: 'sales-team',
@@ -223,6 +223,7 @@ export const publishPluginExample: PublishPluginRequest = {
  * Searching plugins in the marketplace
  */
 export const searchPluginsExample: SearchPluginsResponse = {
+  success: true,
   data: [
     {
       ...publishPluginExample,
@@ -310,28 +311,34 @@ export const issueLicenseExample: IssueLicenseRequest = {
  * License issued response
  */
 export const licenseIssuedExample: LicenseResponse = {
-  spaceId: '550e8400-e29b-41d4-a716-446655440000',
-  planCode: 'enterprise_v1',
-  status: 'active',
-  issuedAt: '2024-01-01T00:00:00Z',
-  expiresAt: '2025-12-31T23:59:59Z',
-  customFeatures: ['advanced_analytics', 'ai_insights'],
-  customLimits: {
-    storage_gb: 500,
-    api_calls_monthly: 10000000,
-  },
-  plugins: ['com.acme.advanced-crm'],
-  signature: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+  success: true,
+  data: {
+    spaceId: '550e8400-e29b-41d4-a716-446655440000',
+    planCode: 'enterprise_v1',
+    status: 'active',
+    issuedAt: '2024-01-01T00:00:00Z',
+    expiresAt: '2025-12-31T23:59:59Z',
+    customFeatures: ['advanced_analytics', 'ai_insights'],
+    customLimits: {
+      storage_gb: 500,
+      api_calls_monthly: 10000000,
+    },
+    plugins: ['com.acme.advanced-crm'],
+    signature: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+  }
 };
 
 /**
  * Validating a license
  */
 export const validateLicenseExample: ValidateLicenseResponse = {
-  valid: true,
-  license: licenseIssuedExample,
-  errors: [],
-  warnings: [],
+  success: true,
+  data: {
+    valid: true,
+    license: (licenseIssuedExample as any).data,
+    errors: [],
+    warnings: [],
+  }
 };
 
 // ============================================================================
@@ -760,14 +767,16 @@ export const compileManifestExample: CompileManifestRequest = {
  */
 export const compileManifestResultExample: CompileManifestResponse = {
   success: true,
-  buildId: 'build_abc123',
-  timestamp: '2024-01-15T12:00:00Z',
-  duration: 5420,  // 5.4 seconds
-  
-  manifestUrl: 'https://cdn.objectstack.com/manifests/build_abc123.json',
-  
-  conflicts: [],
-  errors: [],
+  data: {
+    buildId: 'build_abc123',
+    timestamp: '2024-01-15T12:00:00Z',
+    duration: 5420,  // 5.4 seconds
+    
+    manifestUrl: 'https://cdn.objectstack.com/manifests/build_abc123.json',
+    
+    conflicts: [],
+    errors: [],
+  }
 };
 
 // ============================================================================
@@ -778,56 +787,62 @@ export const compileManifestResultExample: CompileManifestResponse = {
  * Hub health check
  */
 export const hubHealthExample: HubHealthResponse = {
-  status: 'healthy',
-  version: '1.0.0',
-  uptime: 2592000,  // 30 days
-  services: {
-    database: {
-      status: 'healthy',
-      latency: 3,
+  success: true,
+  data: {
+    status: 'healthy',
+    version: '1.0.0',
+    uptime: 2592000,  // 30 days
+    services: {
+      database: {
+        status: 'healthy',
+        latency: 3,
+      },
+      cache: {
+        status: 'healthy',
+        latency: 1,
+      },
+      composer: {
+        status: 'healthy',
+        latency: 12,
+      },
+      'plugin-registry': {
+        status: 'healthy',
+        latency: 8,
+      },
     },
-    cache: {
-      status: 'healthy',
-      latency: 1,
-    },
-    composer: {
-      status: 'healthy',
-      latency: 12,
-    },
-    'plugin-registry': {
-      status: 'healthy',
-      latency: 8,
-    },
-  },
-  timestamp: '2024-01-15T12:00:00Z',
+    timestamp: '2024-01-15T12:00:00Z',
+  }
 };
 
 /**
  * Hub metrics
  */
 export const hubMetricsExample: HubMetricsResponse = {
-  metrics: {
-    spaces: {
-      total: 2450,
-      active: 1980,
-      created_last_30d: 125,
+  success: true,
+  data: {
+    metrics: {
+      spaces: {
+        total: 2450,
+        active: 1980,
+        created_last_30d: 125,
+      },
+      tenants: {
+        total: 580,
+        active: 485,
+      },
+      plugins: {
+        total: 342,
+        published_last_30d: 18,
+        total_downloads: 1245678,
+      },
+      api: {
+        requests_per_minute: 1250,
+        avg_response_time: 85,
+        error_rate: 0.0012,
+      },
     },
-    tenants: {
-      total: 580,
-      active: 485,
-    },
-    plugins: {
-      total: 342,
-      published_last_30d: 18,
-      total_downloads: 1245678,
-    },
-    api: {
-      requests_per_minute: 1250,
-      avg_response_time: 85,
-      error_rate: 0.0012,
-    },
-  },
-  timestamp: '2024-01-15T12:00:00Z',
+    timestamp: '2024-01-15T12:00:00Z',
+  }
 };
 
 // Uncomment to see the examples

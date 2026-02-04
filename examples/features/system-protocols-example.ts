@@ -50,10 +50,7 @@ export const dailyReportJob: Job = {
   },
   
   // Job handler
-  handler: async () => {
-    // Implementation: Generate and send daily sales report
-    console.log('Generating daily sales report...');
-  },
+  handler: 'jobs.daily_sales_report',
   
   // Retry policy
   retryPolicy: {
@@ -79,10 +76,7 @@ export const onAccountCreatedJob: Job = {
     at: new Date(Date.now() + 1000).toISOString(),
   },
   
-  handler: async () => {
-    // Implementation: Send welcome email to new user
-    console.log('Sending welcome email...');
-  },
+  handler: 'jobs.send_welcome_email',
   
   timeout: 30000,
   
@@ -107,10 +101,7 @@ export const dataCleanupJob: Job = {
     timezone: 'UTC',
   },
   
-  handler: async () => {
-    // Implementation: Archive closed cases
-    console.log('Archiving closed cases...');
-  },
+  handler: 'jobs.archive_closed_cases',
   
   timeout: 3600000, // 1 hour
   
