@@ -462,11 +462,16 @@ export const ConnectorSchema = z.object({
    * Authentication configuration
    */
   authentication: AuthenticationSchema.describe('Authentication configuration'),
+
+  /** Zapier-style Capabilities */
+  actions: z.array(ConnectorActionSchema).optional(),
+  triggers: z.array(ConnectorTriggerSchema).optional(),
   
   /**
    * Data synchronization configuration
    */
   syncConfig: DataSyncConfigSchema.optional().describe('Data sync configuration'),
+  
   
   /**
    * Field mappings

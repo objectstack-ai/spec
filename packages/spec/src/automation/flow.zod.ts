@@ -16,7 +16,8 @@ export const FlowNodeAction = z.enum([
   'http_request',   // Webhook/API Call
   'script',         // Custom Script (JS/TS)
   'wait',           // Delay/Sleep
-  'subflow'         // Call another flow
+  'subflow',        // Call another flow
+  'connector_action' // Zapier-style integration action
 ]);
 
 /**
@@ -42,6 +43,16 @@ export const FlowNodeSchema = z.object({
   /** Node Configuration Options (Specific to type) */
   config: z.record(z.string(), z.any()).optional().describe('Node configuration'),
   
+   * Connector Action Configuration
+   * Used when type is 'connector_action'
+   */
+  connectorConfig: z.object({
+    connectorId: z.string(),
+    actionId: z.string(),
+    input: z.record(z.string(), z.any()).describe('Mapped inputs for the action'),
+  }).optional(),
+
+  /**
   /** UI Position (for the canvas) */
   position: z.object({ x: z.number(), y: z.number() }).optional(),
 });
