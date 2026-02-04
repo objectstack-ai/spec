@@ -103,9 +103,9 @@ export const ObjectStackDefinitionSchema = z.object({
 
   /**
    * Plugins: External Capabilities
-   * List of plugins to load. Can be a Manifest object or a package name string.
+   * List of plugins to load. Can be a Manifest object, a package name string, or a Runtime Plugin instance.
    */
-  plugins: z.array(z.union([ManifestSchema, z.string()])).optional().describe('Plugins to load'),
+  plugins: z.array(z.any()).optional().describe('Plugins to load'),
 
   /**
    * DevPlugins: Development Capabilities
