@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PluginVendorSchema } from './plugin-registry.zod';
 
 /**
  * # Marketplace Protocol
@@ -7,14 +8,7 @@ import { z } from 'zod';
  * This is the catalog of available extensions sourced from NPM or private registries.
  */
 
-/**
- * Plugin Author Schema
- */
-export const PluginAuthorSchema = z.object({
-  name: z.string(),
-  email: z.string().email().optional(),
-  url: z.string().url().optional(),
-});
+export const PluginAuthorSchema = PluginVendorSchema;
 
 /**
  * Plugin Pricing Model Schema
@@ -82,15 +76,26 @@ export const MarketplacePluginSchema = z.object({
   version: z.string(),
   
   /**
-   * Author / Publisher
+   * Vendor / Publisher
    */
-  author: PluginAuthorSchema.optional(),
+  vendor: PluginVendorSchema.optional(),
   
   /**
    * Categorization
    */
   tags: z.array(z.string()).optional(),
-  category: z.enum(['app', 'integration', 'theme', 'utility', 'driver']).optional(),
+  category: z.enum([
+    'app', 
+    'integration', 
+    'theme', 
+    'utility', 
+    'driver',
+    'analytics',
+    'security',
+    'automation',
+    'ai',
+    'data'
+  ]).optional(),
   
   /**
    * Assets
