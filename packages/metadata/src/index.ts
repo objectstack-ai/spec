@@ -13,6 +13,7 @@ export { MetadataPlugin } from './plugin.js';
 // Loaders
 export { type MetadataLoader } from './loaders/loader-interface.js';
 export { FilesystemLoader } from './loaders/filesystem-loader.js';
+export { MemoryLoader } from './loaders/memory-loader.js';
 
 // Serializers
 export { type MetadataSerializer, type SerializeOptions } from './serializers/serializer-interface.js';

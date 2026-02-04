@@ -4,6 +4,7 @@
     "index",
     "lifecycle",
     "runtime-capabilities",
+    "metadata-service",
     "plugin-spec",
     "config-resolution",
     "i18n-standard",

@@ -1,0 +1,13 @@
+name: all_customers
+label: All Customers
+type: view
+object: customer
+filter:
+  - - status
+    - '='
+    - active
+columns:
+  - name
+  - company
+  - email
+  - phone
