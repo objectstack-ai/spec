@@ -53,6 +53,12 @@
         },
         "size": {
           "type": "number"
+        },
+        "saveTime": {
+          "type": "number"
+        },
+        "backupPath": {
+          "type": "string"
         }
       },
       "required": [

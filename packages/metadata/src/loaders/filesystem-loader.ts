@@ -22,6 +22,13 @@ import type { MetadataSerializer } from '../serializers/serializer-interface.js'
 export class FilesystemLoader implements MetadataLoader {
   readonly contract: MetadataLoaderContract = {
     name: 'filesystem',
+    protocol: 'file',
+    capabilities: {
+      read: true,
+      write: true,
+      watch: true,
+      list: true,
+    },
     supportedFormats: ['json', 'yaml', 'typescript', 'javascript'],
     supportsWatch: true,
     supportsWrite: true,
@@ -99,7 +106,7 @@ export class FilesystemLoader implements MetadataLoader {
 
       // Load and deserialize
       const content = await fs.readFile(filePath, 'utf-8');
-      const serializer = this.getSerializer(stats.format);
+      const serializer = this.getSerializer(stats.format!);
 
       if (!serializer) {
         throw new Error(`No serializer found for format: ${stats.format}`);
@@ -111,7 +118,7 @@ export class FilesystemLoader implements MetadataLoader {
       if (useCache) {
         this.cache.set(cacheKey, {
           data,
-          etag: stats.etag,
+          etag: stats.etag || '',
           timestamp: Date.now(),
         });
       }

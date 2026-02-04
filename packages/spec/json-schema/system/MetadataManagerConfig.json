@@ -8,12 +8,10 @@
           "type": "array"
         },
         "watch": {
-          "type": "boolean",
-          "default": false
+          "type": "boolean"
         },
         "cache": {
-          "type": "boolean",
-          "default": true
+          "type": "boolean"
         },
         "basePath": {
           "type": "string"
@@ -38,9 +36,6 @@
         },
         "watchOptions": {}
       },
-      "required": [
-        "loaders"
-      ],
       "additionalProperties": false
     }
   },

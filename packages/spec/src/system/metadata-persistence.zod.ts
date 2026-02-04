@@ -103,9 +103,9 @@ export const MetadataStatsSchema = z.object({
   size: z.number().optional(),
   mtime: z.date().optional(),
   hash: z.string().optional(),
-  etag: z.string().optional(),
+  etag: z.string().optional(), // Required by local cache
   modifiedAt: z.date().optional(), // Alias for mtime
-  format: MetadataFormatSchema.optional(),
+  format: MetadataFormatSchema.optional(), // Required for serialization
 });
 
 /**
@@ -118,6 +118,8 @@ export const MetadataLoaderContractSchema = z.object({
   description: z.string().optional(),
   supportedFormats: z.array(z.string()).optional(),
   supportsWatch: z.boolean().optional(),
+  supportsWrite: z.boolean().optional(),
+  supportsCache: z.boolean().optional(),
   capabilities: z.object({
     read: z.boolean().default(true),
     write: z.boolean().default(false),
@@ -153,6 +155,7 @@ export const MetadataLoadResultSchema = z.object({
   fromCache: z.boolean().optional(),
   etag: z.string().optional(),
   notModified: z.boolean().optional(),
+  loadTime: z.number().optional(),
 });
 
 /**
@@ -179,6 +182,8 @@ export const MetadataSaveResultSchema = z.object({
   stats: MetadataStatsSchema.optional(),
   etag: z.string().optional(),
   size: z.number().optional(),
+  saveTime: z.number().optional(),
+  backupPath: z.string().optional(),
 });
 
 /**
@@ -187,8 +192,11 @@ export const MetadataSaveResultSchema = z.object({
 export const MetadataWatchEventSchema = z.object({
   type: z.enum(['add', 'change', 'unlink', 'added', 'changed', 'deleted']),
   path: z.string(),
+  name: z.string().optional(),
   stats: MetadataStatsSchema.optional(),
   metadataType: z.string().optional(),
+  data: z.any().optional(),
+  timestamp: z.date().optional(),
 });
 
 /**
@@ -220,9 +228,9 @@ export const MetadataImportOptionsSchema = z.object({
  * Metadata Manager Config
  */
 export const MetadataManagerConfigSchema = z.object({
-  loaders: z.array(z.any()),
-  watch: z.boolean().default(false),
-  cache: z.boolean().default(true),
+  loaders: z.array(z.any()).optional(),
+  watch: z.boolean().optional(),
+  cache: z.boolean().optional(),
   basePath: z.string().optional(),
   rootDir: z.string().optional(),
   formats: z.array(MetadataFormatSchema).optional(),

@@ -66,6 +66,9 @@
         },
         "notModified": {
           "type": "boolean"
+        },
+        "loadTime": {
+          "type": "number"
         }
       },
       "additionalProperties": false

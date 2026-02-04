@@ -18,6 +18,9 @@
         "path": {
           "type": "string"
         },
+        "name": {
+          "type": "string"
+        },
         "stats": {
           "type": "object",
           "properties": {
@@ -58,6 +61,11 @@
         },
         "metadataType": {
           "type": "string"
+        },
+        "data": {},
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
         }
       },
       "required": [

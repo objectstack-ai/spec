@@ -22,6 +22,12 @@
         "supportsWatch": {
           "type": "boolean"
         },
+        "supportsWrite": {
+          "type": "boolean"
+        },
+        "supportsCache": {
+          "type": "boolean"
+        },
         "capabilities": {
           "type": "object",
           "properties": {
