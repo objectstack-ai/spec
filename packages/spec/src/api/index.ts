@@ -30,3 +30,6 @@ export * from './documentation.zod';
 // Legacy interface export (deprecated)
 // export type { IObjectStackProtocol } from './protocol';
 
+export * from './auth.zod';
+export * from './storage.zod';
+export * from './metadata.zod';
