@@ -1,9 +1,15 @@
 // Export Kernels
 export { ObjectKernel } from '@objectstack/core';
 
+// Export Runtime
+export { Runtime } from './runtime.js';
+export type { RuntimeConfig } from './runtime.js';
+
 // Export Plugins
 export { DriverPlugin } from './driver-plugin.js';
 export { AppPlugin } from './app-plugin.js';
+export { createApiRegistryPlugin } from './api-registry-plugin.js';
+export type { ApiRegistryConfig } from './api-registry-plugin.js';
 
 // Export HTTP Server Components
 export { HttpServer } from './http-server.js';
