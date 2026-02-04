@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ManifestSchema } from '../system/manifest.zod';
+import { ManifestSchema } from '../kernel/manifest.zod';
 
 /**
  * # Cloud Composer Protocol

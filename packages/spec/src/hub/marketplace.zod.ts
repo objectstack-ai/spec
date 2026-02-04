@@ -28,6 +28,23 @@ export const PluginPricingSchema = z.object({
 });
 
 /**
+ * Plugin Version Schema
+ * Specific release version details
+ */
+export const PluginVersionSchema = z.object({
+  version: z.string().describe('SemVer string (e.g. 1.0.0)'),
+  publishedAt: z.string().datetime().describe('Publication date'),
+  downloadUrl: z.string().url().describe('Archive download URL'),
+  checksum: z.string().optional().describe('Integrity checksum (shasum)'),
+  engine: z.object({
+    node: z.string().optional(),
+    objectstack: z.string().describe('Required ObjectStack kernel version range'),
+  }).optional().describe('Engine compatibility'),
+  dependencies: z.record(z.string(), z.string()).optional().describe('Runtime plugin dependencies'),
+  changeLog: z.string().optional().describe('Release notes'),
+});
+
+/**
  * Plugin Registry Entry Schema
  * Represents a listing in the Marketplace.
  */
@@ -38,6 +55,12 @@ export const MarketplacePluginSchema = z.object({
    */
   id: z.string(),
   
+  /**
+   * Version History
+   * Registry of all available versions
+   */
+  versions: z.record(z.string(), PluginVersionSchema).optional().describe('Map of versions (1.0.0) -> Details'),
+
   /**
    * Display Name
    */
