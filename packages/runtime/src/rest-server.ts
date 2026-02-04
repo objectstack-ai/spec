@@ -333,6 +333,35 @@ export class RestServer {
                 },
             });
         }
+
+        // PUT /meta/:type/:name - Save metadata item
+        // We always register this route, but return 501 if protocol doesn't support it
+        // This makes it discoverable even if not implemented
+        this.routeManager.register({
+            method: 'PUT',
+            path: `${metaPath}/:type/:name`,
+            handler: async (req: any, res: any) => {
+                try {
+                    if (!this.protocol.saveMetaItem) {
+                        res.status(501).json({ error: 'Save operation not supported by protocol implementation' });
+                        return;
+                    }
+
+                    const result = await this.protocol.saveMetaItem({
+                        type: req.params.type,
+                        name: req.params.name,
+                        item: req.body
+                    });
+                    res.json(result);
+                } catch (error: any) {
+                    res.status(400).json({ error: error.message });
+                }
+            },
+            metadata: {
+                summary: 'Save specific metadata item',
+                tags: ['metadata'],
+            },
+        });
     }
     
     /**

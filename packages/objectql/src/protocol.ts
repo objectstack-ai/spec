@@ -271,4 +271,15 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         });
     }
 
+    async saveMetaItem(request: { type: string, name: string, item?: any }) {
+        if (!request.item) {
+            throw new Error('Item data is required');
+        }
+        // Default implementation saves to Memory Registry
+        SchemaRegistry.registerItem(request.type, request.item, 'name');
+        return {
+            success: true,
+            message: 'Saved to memory registry'
+        };
+    }
 }
