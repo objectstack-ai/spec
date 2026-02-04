@@ -81,20 +81,21 @@ export const serveCommand = new Command('serve')
       console.log(chalk.green(`✓ Configuration loaded`));
 
       // Import ObjectStack runtime
-      const { ObjectKernel } = await import('@objectstack/core');
+      const { Runtime } = await import('@objectstack/runtime');
       
-      // Create kernel instance
-      console.log(chalk.yellow(`🔧 Initializing ObjectStack kernel...`));
+      // Create runtime instance
+      console.log(chalk.yellow(`🔧 Initializing ObjectStack runtime...`));
       
       // Auto-configure pretty logging in development mode
       const isDev = options.dev || process.env.NODE_ENV === 'development';
       const loggerConfig = isDev ? { format: 'pretty' } : undefined;
 
-      const kernel = new ObjectKernel({
-        metadata: config.metadata || {},
-        objects: config.objects || {},
-        logger: loggerConfig
+      const runtime = new Runtime({
+        kernel: {
+            logger: loggerConfig
+        }
       });
+      const kernel = runtime.getKernel();
 
       // Load plugins from configuration
       let plugins = config.plugins || [];
@@ -186,9 +187,9 @@ export const serveCommand = new Command('serve')
         }
       }
 
-      // Boot the kernel
+      // Boot the runtime
       console.log(chalk.yellow(`\n🚀 Starting ObjectStack...`));
-      await kernel.bootstrap();
+      await runtime.start();
 
       console.log(chalk.green(`\n✅ ObjectStack server is running!`));
       console.log(chalk.dim(`   Press Ctrl+C to stop\n`));
@@ -196,7 +197,7 @@ export const serveCommand = new Command('serve')
       // Keep process alive
       process.on('SIGINT', async () => {
         console.log(chalk.yellow(`\n\n⏹  Stopping server...`));
-        await kernel.shutdown();
+        await runtime.getKernel().shutdown();
         console.log(chalk.green(`✅ Server stopped`));
         process.exit(0);
       });
