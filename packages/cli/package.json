@@ -21,7 +21,7 @@
   ],
   "type": "module",
   "author": "Steedos",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "@objectstack/core": "workspace:*",
     "@objectstack/driver-memory": "workspace:^",
