@@ -209,6 +209,7 @@ This document serves as the **Grand Map** of the ObjectStack specification. It l
 | [`plugin-loading.zod.ts`](src/kernel/plugin-loading.zod.ts) | | **Plugin Loading**. Phases of plugin initialization. |
 | [`plugin-versioning.zod.ts`](src/kernel/plugin-versioning.zod.ts) | | **Versioning**. Semantic versioning rules for plugins. |
 | [`plugin-validator.zod.ts`](src/kernel/plugin-validator.zod.ts) | | **Validation**. Integrity checks for plugins. |
+| [`plugin-structure.zod.ts`](src/kernel/plugin-structure.zod.ts) | | **Structure**. Zod rules for folder layout and file naming. |
 | [`plugin-capability.zod.ts`](src/kernel/plugin-capability.zod.ts) | | **Capabilities**. What a plugin can do. |
 | [`plugin-lifecycle-events.zod.ts`](src/kernel/plugin-lifecycle-events.zod.ts) | | **Lifecycle Events**. Hooks for plugin state changes. |
 | [`plugin-lifecycle-advanced.zod.ts`](src/kernel/plugin-lifecycle-advanced.zod.ts) | | **Advanced Lifecycle**. Deep lifecycle hooks. |
