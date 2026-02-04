@@ -39,3 +39,4 @@ export * from './collaboration.zod';
 // Types
 export * from './types';
 export * from './service-registry.zod';
+export * from './service-registry.zod';

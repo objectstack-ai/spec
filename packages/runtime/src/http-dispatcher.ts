@@ -1,5 +1,5 @@
 import { ObjectKernel } from '@objectstack/core';
-import { CoreServiceName } from '@objectstack/spec/src/system/service-registry.zod';
+import { CoreServiceName } from '@objectstack/spec/system';
 
 export interface HttpProtocolContext {
     request: any;

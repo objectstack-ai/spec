@@ -209,6 +209,64 @@ export class ObjectStackClient {
   };
 
   /**
+   * Analytics Services
+   */
+  analytics = {
+    query: async (payload: any) => {
+      const route = this.getRoute('analytics');
+      const res = await this.fetch(`${this.baseUrl}${route}/query`, {
+         method: 'POST',
+         body: JSON.stringify(payload)
+      });
+      return res.json();
+    },
+    meta: async (cube: string) => {
+        const route = this.getRoute('analytics');
+        const res = await this.fetch(`${this.baseUrl}${route}/meta/${cube}`);
+        return res.json();
+    },
+    explain: async (payload: any) => {
+        const route = this.getRoute('analytics');
+        const res = await this.fetch(`${this.baseUrl}${route}/explain`, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+         });
+         return res.json();
+    }
+  };
+
+  /**
+   * Hub Management Services
+   */
+  hub = {
+    spaces: {
+        list: async () => {
+            const route = this.getRoute('hub');
+            const res = await this.fetch(`${this.baseUrl}${route}/spaces`);
+            return res.json();
+        },
+        create: async (payload: any) => {
+            const route = this.getRoute('hub');
+            const res = await this.fetch(`${this.baseUrl}${route}/spaces`, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+            return res.json();
+        }
+    },
+    plugins: {
+        install: async (pkg: string, version?: string) => {
+            const route = this.getRoute('hub');
+            const res = await this.fetch(`${this.baseUrl}${route}/plugins/install`, {
+                method: 'POST',
+                body: JSON.stringify({ pkg, version })
+            });
+            return res.json();
+        }
+    }
+  };
+
+  /**
    * Data Operations
    */
   data = {
@@ -443,15 +501,24 @@ export class ObjectStackClient {
 
   /**
    * Get the conventional route path for a given API endpoint type
-   * ObjectStack uses standard conventions: /api/v1/data, /api/v1/meta, /api/v1/ui
+   * ObjectStack uses standard conventions: /api/v1/data, /api/v1/metadata, /api/v1/ui
    */
-  private getRoute(type: 'data' | 'metadata' | 'ui' | 'auth'): string {
-    // Use conventional ObjectStack API paths
+  private getRoute(type: 'data' | 'metadata' | 'ui' | 'auth' | 'analytics' | 'hub' | 'storage'): string {
+    // 1. Use discovered routes if available
+    if (this.discoveryInfo?.routes && (this.discoveryInfo.routes as any)[type]) {
+        return (this.discoveryInfo.routes as any)[type];
+    }
+
+    // 2. Fallback to conventions
+    // Note: HttpDispatcher expects /metadata, not /meta
     const routeMap: Record<string, string> = {
       data: '/api/v1/data',
-      metadata: '/api/v1/meta',
+      metadata: '/api/v1/metadata',
       ui: '/api/v1/ui',
-      auth: '/api/v1/auth'
+      auth: '/api/v1/auth',
+      analytics: '/api/v1/analytics',
+      hub: '/api/v1/hub',
+      storage: '/api/v1/storage'
     };
     
     return routeMap[type] || `/api/v1/${type}`;

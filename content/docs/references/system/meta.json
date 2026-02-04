@@ -18,6 +18,7 @@
     "notification",
     "object-storage",
     "search-engine",
+    "service-registry",
     "tracing",
     "translation",
     "worker"
