@@ -115,7 +115,8 @@ export const GetMetaItemCachedResponseSchema = MetadataCacheResponseSchema;
 
 /**
  * Get UI View Request
- * Get UI view definition for an object
+ * Resolves the appropriate UI view for an object based on context.
+ * Unlike getMetaItem, this does not require a specific View ID.
  */
 export const GetUiViewRequestSchema = z.object({
   object: z.string().describe('Object name (snake_case)'),
