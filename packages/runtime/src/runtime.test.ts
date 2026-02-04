@@ -1,0 +1,60 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { Runtime } from './runtime';
+import { IHttpServer, PluginContext } from '@objectstack/core';
+
+// Mock ObjectKernel to isolate Runtime logic
+vi.mock('@objectstack/core', async () => {
+    const actual = await vi.importActual<any>('@objectstack/core');
+    return {
+        ...actual,
+        ObjectKernel: class {
+            use = vi.fn();
+            registerService = vi.fn();
+            bootstrap = vi.fn().mockResolvedValue(undefined);
+            getServices = vi.fn().mockReturnValue(new Map());
+        }
+    };
+});
+
+describe('Runtime', () => {
+    it('should initialize successfully', () => {
+        const runtime = new Runtime();
+        expect(runtime).toBeDefined();
+        // Should create a kernel
+        expect(runtime.getKernel()).toBeDefined();
+    });
+
+    it('should register api registry plugin by default', () => {
+        const runtime = new Runtime();
+        const kernel = runtime.getKernel();
+        // Check if use was called (at least once for api registry)
+        expect(kernel.use).toHaveBeenCalled();
+    });
+
+    it('should register external http server if provided', () => {
+        const mockServer: IHttpServer = {
+            start: vi.fn(),
+            stop: vi.fn(),
+            registerRoute: vi.fn()
+        };
+        
+        const runtime = new Runtime({ server: mockServer });
+        const kernel = runtime.getKernel();
+        
+        expect(kernel.registerService).toHaveBeenCalledWith('http.server', mockServer);
+    });
+
+    it('should delegate use() to kernel', () => {
+        const runtime = new Runtime();
+        const mockPlugin = { name: 'test', init: vi.fn() };
+        
+        runtime.use(mockPlugin);
+        expect(runtime.getKernel().use).toHaveBeenCalledWith(mockPlugin);
+    });
+
+    it('should delegate start() to kernel.bootstrap()', async () => {
+        const runtime = new Runtime();
+        await runtime.start();
+        expect(runtime.getKernel().bootstrap).toHaveBeenCalled();
+    });
+});

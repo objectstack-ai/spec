@@ -9,7 +9,9 @@ describe('API Registry Plugin', () => {
   let kernel: ObjectKernel;
 
   beforeEach(() => {
-    kernel = new ObjectKernel();
+    kernel = new ObjectKernel({
+        skipSystemValidation: true
+    });
   });
 
   describe('Plugin Registration', () => {

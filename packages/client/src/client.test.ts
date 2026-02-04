@@ -46,7 +46,7 @@ describe('ObjectStackClient', () => {
         });
 
         const result = await client.meta.getTypes();
-        expect(fetchMock).toHaveBeenCalledWith('http://localhost:3000/api/v1/meta', expect.any(Object));
+        expect(fetchMock).toHaveBeenCalledWith('http://localhost:3000/api/v1/metadata', expect.any(Object));
         expect(result.types).toEqual(['object', 'plugin', 'view']);
     });
 
@@ -65,7 +65,7 @@ describe('ObjectStackClient', () => {
         });
 
         const result = await client.meta.getItems('object');
-        expect(fetchMock).toHaveBeenCalledWith('http://localhost:3000/api/v1/meta/object', expect.any(Object));
+        expect(fetchMock).toHaveBeenCalledWith('http://localhost:3000/api/v1/metadata/object', expect.any(Object));
         expect(result.type).toBe('object');
         expect(result.items).toHaveLength(2);
     });
@@ -85,7 +85,7 @@ describe('ObjectStackClient', () => {
         });
 
         const result = await client.meta.getItem('object', 'customer');
-        expect(fetchMock).toHaveBeenCalledWith('http://localhost:3000/api/v1/meta/object/customer', expect.any(Object));
+        expect(fetchMock).toHaveBeenCalledWith('http://localhost:3000/api/v1/metadata/object/customer', expect.any(Object));
         expect(result.name).toBe('customer');
     });
 });

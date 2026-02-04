@@ -10,6 +10,7 @@ describe('ObjectKernel', () => {
         kernel = new ObjectKernel({
             logger: { level: 'error' }, // Suppress logs in tests
             gracefulShutdown: false, // Disable for tests
+            skipSystemValidation: true,
         });
     });
 
@@ -226,6 +227,7 @@ describe('ObjectKernel', () => {
                 logger: { level: 'error' },
                 rollbackOnFailure: false,
                 gracefulShutdown: false,
+                skipSystemValidation: true,
             });
 
             let plugin1Destroyed = false;

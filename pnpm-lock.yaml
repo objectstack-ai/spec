@@ -528,9 +528,15 @@ importers:
         specifier: workspace:*
         version: link:../../spec
     devDependencies:
+      '@types/node':
+        specifier: ^25.1.0
+        version: 25.1.0
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
+      vitest:
+        specifier: ^4.0.18
+        version: 4.0.18(@types/node@25.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(msw@2.12.7(@types/node@25.1.0)(typescript@5.9.3))(tsx@4.21.0)
 
   packages/plugins/plugin-hono-server:
     dependencies:
@@ -603,6 +609,9 @@ importers:
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
+      vitest:
+        specifier: ^4.0.18
+        version: 4.0.18(@types/node@25.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(msw@2.12.7(@types/node@25.1.0)(typescript@5.9.3))(tsx@4.21.0)
 
   packages/spec:
     dependencies:

@@ -7,13 +7,16 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc -w"
+    "dev": "tsc -w",
+    "test": "vitest run"
   },
   "dependencies": {
     "@objectstack/core": "workspace:*",
     "@objectstack/spec": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vitest": "^4.0.18",
+    "@types/node": "^25.1.0"
   }
 }

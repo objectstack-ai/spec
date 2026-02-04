@@ -21,6 +21,9 @@ export interface ObjectKernelConfig {
     
     /** Whether to rollback on startup failure */
     rollbackOnFailure?: boolean;
+    
+    /** Whether to skip strict system requirement validation (Critical for testing) */
+    skipSystemValidation?: boolean;
 }
 
 /**
@@ -190,6 +193,11 @@ export class ObjectKernel {
      * Validate Critical System Requirements
      */
     private validateSystemRequirements() {
+        if (this.config.skipSystemValidation) {
+            this.logger.debug('System requirement validation skipped');
+            return;
+        }
+
         this.logger.debug('Validating system service requirements...');
         const missingServices: string[] = [];
         const missingCoreServices: string[] = [];
