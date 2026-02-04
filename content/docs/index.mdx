@@ -1,39 +1,14 @@
 ---
-title: Welcome to ObjectStack
+title: ObjectStack Protocol
 description: The Metadata-Driven Protocol for the Post-SaaS Era.
 ---
 
-import { Book, Compass, FileText, Layers, Database, Layout, Cpu, Code2 } from 'lucide-react';
+import { Book, Compass, FileText, Layers, Database, Layout, Cpu, Code2, Bot, Workflow, Shield, Globe } from 'lucide-react';
 
-**ObjectStack** is not just a framework; it is a **Protocol** for building enterprise software. 
-It decouples the *Business Intent* (defined in JSON/YAML) from the *Technical Execution* (handled by the Kernel).
+**ObjectStack** is a **Metadata-Driven Protocol** for building enterprise architecture.
+It standardizes how we define Data, UI, Automation, and AI Agents as structured JSON/YAML, decoupling *Business Intent* from *Technical Execution*.
 
-This documentation is the authoritative reference for the ObjectStack Protocol.
-
-## The Three Pillars
-
-ObjectStack is built on three foundational protocols that work together as a unified system:
-
-<Cards>
-  <Card
-    icon={<Database />}
-    title="ObjectQL"
-    href="/docs/objectql"
-    description="The Data Protocol. Define your Data Model (Objects, Fields) and query it abstractly."
-  />
-  <Card
-    icon={<Layout />}
-    title="ObjectUI"
-    href="/docs/objectui"
-    description="The UI Protocol. Define your User Interfaces (Views, Actions) as pure data."
-  />
-  <Card
-    icon={<Cpu />}
-    title="ObjectOS"
-    href="/docs/objectos"
-    description="The System Protocol. The Kernel that handles Identity, Transport, and Plugins."
-  />
-</Cards>
+This documentation is the authoritative specification for the ObjectStack ecosystem.
 
 ## Getting Started
 
@@ -46,19 +21,83 @@ ObjectStack is built on three foundational protocols that work together as a uni
   />
   <Card
     icon={<Code2 />}
-    title="Developers"
-    href="/docs/developers"
-    description="Guides for writing plugins, creating custom widgets, and using the CLI tools."
+    title="Framework Guide"
+    href="/docs/framework"
+    description="Guides for writing plugins, CLI tools, and extending the platform."
+  />
+</Cards>
+
+## Protocol Reference
+
+The specification is divided into core domains. Each domain defines a set of Zod schemas that validate the metadata.
+
+### Core Pillars
+
+<Cards>
+  <Card
+    icon={<Database />}
+    title="Data Protocol"
+    href="/docs/references/data"
+    description="The schema for Objects, Fields, Queries, and Drivers."
+  />
+  <Card
+    icon={<Layout />}
+    title="UI Protocol"
+    href="/docs/references/ui"
+    description="The schema for Views, Forms, Dashboards, and Layouts."
+  />
+  <Card
+    icon={<Workflow />}
+    title="Automation Protocol"
+    href="/docs/references/automation"
+    description="Flows, Workflows, Triggers, and Events."
+  />
+  <Card
+    icon={<Bot />}
+    title="AI Protocol"
+    href="/docs/references/ai"
+    description="Agents, RAG Pipelines, Models, and Prompts."
+  />
+</Cards>
+
+### System & Infrastructure
+
+<Cards>
+  <Card
+    icon={<Cpu />}
+    title="Kernel"
+    href="/docs/references/kernel"
+    description="Plugin Lifecycle, Manifests, Capabilities, and Loading."
+  />
+  <Card
+    icon={<Shield />}
+    title="System"
+    href="/docs/references/system"
+    description="Configuration, Logging, Jobs, and Caching."
+  />
+  <Card
+    icon={<Globe />}
+    title="API & Identity"
+    href="/docs/references/api"
+    description="REST/GraphQL Contracts, Auth, and Identity Management."
+  />
+  <Card
+    icon={<Layers />}
+    title="Integration"
+    href="/docs/references/integration"
+    description="Connectors, Webhooks, and External Data Sources."
   />
 </Cards>
 
 ## Why ObjectStack?
 
-| Module | Protocol | Responsibility |
-| :--- | :--- | :--- |
-| **Data Layer** | **[ObjectQL](/docs/objectql)** | Defines the shape of data (`Object`, `Field`) and how to access it. Agnostic to SQL/NoSQL. |
-| **UI Layer** | **[ObjectUI](/docs/objectui)** | The Projection. Defines User Interfaces as abstract JSON layouts (Views, Forms). |
-| **System Layer** | **[ObjectOS](/docs/objectos)** | The Kernel. Handles Identity, Security, Sync, and Lifecycle. |
+| Module | Responsibility |
+| :--- | :--- |
+| **[Data](/docs/references/data)** | Defines the shape of data (`Object`, `Field`) and how to access it. Agnostic to SQL/NoSQL. |
+| **[UI](/docs/references/ui)** | The Projection. Defines User Interfaces as abstract JSON layouts (Views, Forms). |
+| **[Automation](/docs/references/automation)** | The Logic. Orchestrates processes across the system. |
+| **[AI](/docs/references/ai)** | The Intelligence. Defines Agents and knowledge retrieval strategies. |
+| **[Kernel](/docs/references/kernel)** | The Runtime. Manages the lifecycle of all other protocols. |
 
 ## For whom is this?
 

@@ -109,15 +109,15 @@ export const en: HomepageTranslations = {
   },
   features: {
     objectql: {
-      title: 'ObjectQL Data Layer',
+      title: 'Data Protocol',
       description: 'Strict JSON schemas for entities, fields, and relationships. It is the SQL you can send over the wire.',
     },
     objectui: {
-      title: 'ObjectUI View Layer',
+      title: 'UI Protocol',
       description: 'Server-Driven UI protocol defining forms, grids, and dashboards. Decouples logic from the frontend implementation.',
     },
     objectos: {
-      title: 'ObjectOS Kernel',
+      title: 'System Protocol',
       description: 'The runtime contract for permissions, workflows, and automation. Stateless business logic execution.',
     },
     security: {
