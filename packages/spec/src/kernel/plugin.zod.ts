@@ -99,6 +99,7 @@ export const PluginContextSchema = z.object({
 });
 
 export type PluginContextData = z.infer<typeof PluginContextSchema>;
+export type PluginContext = PluginContextData;
 
 export const PluginLifecycleSchema = z.object({
   onInstall: z.function({
@@ -138,3 +139,11 @@ export const PluginSchema = PluginLifecycleSchema.extend({
 });
 
 export type PluginDefinition = z.infer<typeof PluginSchema>;
+
+/**
+ * Define an ObjectStack Plugin
+ * Helper function for creating type-safe plugin definitions
+ */
+export function definePlugin(config: PluginDefinition): PluginDefinition {
+  return config;
+}

@@ -70,3 +70,5 @@ export {
 
 export * from './stack.zod';
 
+export { definePlugin, type PluginContext } from './kernel/plugin.zod';
+

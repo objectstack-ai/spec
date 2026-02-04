@@ -319,3 +319,6 @@ export type ObjectQLCapabilities = z.infer<typeof ObjectQLCapabilitiesSchema>;
 export type ObjectUICapabilities = z.infer<typeof ObjectUICapabilitiesSchema>;
 export type ObjectOSCapabilities = z.infer<typeof ObjectOSCapabilitiesSchema>;
 export type ObjectStackCapabilities = z.infer<typeof ObjectStackCapabilitiesSchema>;
+
+
+

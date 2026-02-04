@@ -81,7 +81,7 @@ export function createRouteHandler(options: NextAdapterOptions) {
         // 0. Auth
         if (segments[0] === 'auth') {
             if (segments[1] === 'login' && method === 'POST') {
-                const body = await req.json();
+                const body = await req.json() as any;
                 const data = await kernel.broker.call('auth.login', body, { request: rawRequest });
                 return NextResponse.json(data);
             }
@@ -89,7 +89,7 @@ export function createRouteHandler(options: NextAdapterOptions) {
 
         // 1. GraphQL
         if (segments[0] === 'graphql' && method === 'POST') {
-            const body = await req.json();
+            const body = await req.json() as any;
             const result = await kernel.graphql(body.query, body.variables, { request: rawRequest });
             return NextResponse.json(result);
         }
@@ -116,14 +116,14 @@ export function createRouteHandler(options: NextAdapterOptions) {
 
             // POST /data/:objectName/query
             if (segments[2] === 'query' && method === 'POST') {
-                const body = await req.json();
+                const body = await req.json() as any;
                 const result = await kernel.broker.call('data.query', { object: objectName, ...body }, { request: rawRequest });
                 return success(result.data, { count: result.count, limit: body.limit, skip: body.skip });
             }
 
             // POST /data/:objectName/batch
             if (segments[2] === 'batch' && method === 'POST') {
-                const body = await req.json();
+                const body = await req.json() as any;
                 const result = await kernel.broker.call('data.batch', { object: objectName, operations: body.operations }, { request: rawRequest });
                 return success(result);
             }

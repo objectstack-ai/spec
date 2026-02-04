@@ -1,4 +1,4 @@
-import { PluginDefinition } from '@objectstack/spec/system';
+import { definePlugin } from '@objectstack/spec';
 
 export class BiEngine {
   constructor() {
@@ -15,7 +15,7 @@ export class BiEngine {
   }
 }
 
-const plugin: PluginDefinition = {
+const plugin = definePlugin({
   id: 'com.objectstack.bi',
   version: '1.0.0',
 
@@ -58,6 +58,6 @@ const plugin: PluginDefinition = {
 
     logger.info('[BI Plugin] Services registered.');
   }
-};
+});
 
 export default plugin;

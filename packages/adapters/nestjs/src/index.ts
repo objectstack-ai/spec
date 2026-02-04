@@ -1,11 +1,11 @@
-import { DynamicModule, Module, Global, Inject, Provider, Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Res, All, UseGuards, createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { DynamicModule, Module, Global, Inject, Provider, Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Res, All, createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
 import { ObjectKernel } from '@objectstack/runtime';
 
 export const OBJECT_KERNEL = 'OBJECT_KERNEL';
 
 export const ConnectReq = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext) => {
+  (_data: unknown, ctx: ExecutionContext) => {
     return ctx.switchToHttp().getRequest();
   },
 );
