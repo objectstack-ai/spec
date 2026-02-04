@@ -89,7 +89,10 @@ export type MetadataScope = z.infer<typeof MetadataScopeSchema>;
  * Metadata Format
  * Supported file formats for metadata serialization.
  */
-export const MetadataFormatSchema = z.enum(['json', 'yaml', 'yml', 'ts', 'js']);
+export const MetadataFormatSchema = z.enum([
+  'json', 'yaml', 'yml', 'ts', 'js',
+  'typescript', 'javascript' // Aliases
+]);
 
 /**
  * Metadata Stats
@@ -100,6 +103,8 @@ export const MetadataStatsSchema = z.object({
   size: z.number().optional(),
   mtime: z.date().optional(),
   hash: z.string().optional(),
+  etag: z.string().optional(),
+  modifiedAt: z.date().optional(), // Alias for mtime
 });
 
 /**
@@ -110,6 +115,7 @@ export const MetadataLoaderContractSchema = z.object({
   name: z.string(),
   protocol: z.string(), // e.g. 'file:', 'http:', 's3:'
   description: z.string().optional(),
+  supportedFormats: z.array(z.string()).optional(),
   capabilities: z.object({
     read: z.boolean().default(true),
     write: z.boolean().default(false),
@@ -126,6 +132,12 @@ export const MetadataLoadOptionsSchema = z.object({
   namespace: z.string().optional(),
   raw: z.boolean().optional().describe('Return raw file content instead of parsed JSON'),
   cache: z.boolean().default(true),
+  useCache: z.boolean().optional(), // Alias for cache
+  validate: z.boolean().optional(),
+  ifNoneMatch: z.string().optional(), // For caching
+  recursive: z.boolean().optional(),
+  limit: z.number().optional(),
+  patterns: z.array(z.string()).optional(),
 });
 
 /**
@@ -136,6 +148,8 @@ export const MetadataLoadResultSchema = z.object({
   stats: MetadataStatsSchema.optional(),
   format: MetadataFormatSchema.optional(),
   source: z.string().optional(), // File path or URL
+  fromCache: z.boolean().optional(),
+  etag: z.string().optional(),
 });
 
 /**
@@ -143,9 +157,14 @@ export const MetadataLoadResultSchema = z.object({
  */
 export const MetadataSaveOptionsSchema = z.object({
   format: MetadataFormatSchema.optional(),
-  create: z.boolean().default(true), // Create if not exists
+  create: z.boolean().default(true),
   overwrite: z.boolean().default(true),
-  path: z.string().optional(), // Specific path hint
+  path: z.string().optional(),
+  prettify: z.boolean().optional(),
+  indent: z.number().optional(),
+  sortKeys: z.boolean().optional(),
+  backup: z.boolean().optional(),
+  atomic: z.boolean().optional(),
 });
 
 /**
@@ -155,13 +174,14 @@ export const MetadataSaveResultSchema = z.object({
   success: z.boolean(),
   path: z.string().optional(),
   stats: MetadataStatsSchema.optional(),
+  etag: z.string().optional(),
 });
 
 /**
  * Metadata Watch Event
  */
 export const MetadataWatchEventSchema = z.object({
-  type: z.enum(['add', 'change', 'unlink']),
+  type: z.enum(['add', 'change', 'unlink', 'added', 'changed', 'deleted']),
   path: z.string(),
   stats: MetadataStatsSchema.optional(),
 });
@@ -195,10 +215,13 @@ export const MetadataImportOptionsSchema = z.object({
  * Metadata Manager Config
  */
 export const MetadataManagerConfigSchema = z.object({
-  loaders: z.array(z.any()), // Array of Loader instances (can't validate class instance comfortably in Zod)
+  loaders: z.array(z.any()),
   watch: z.boolean().default(false),
   cache: z.boolean().default(true),
   basePath: z.string().optional(),
+  rootDir: z.string().optional(),
+  formats: z.array(MetadataFormatSchema).optional(),
+  watchOptions: z.any().optional(), // Chokidar options
 });
 
 export type MetadataFormat = z.infer<typeof MetadataFormatSchema>;

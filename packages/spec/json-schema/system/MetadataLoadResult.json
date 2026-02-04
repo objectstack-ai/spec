@@ -20,6 +20,13 @@
             },
             "hash": {
               "type": "string"
+            },
+            "etag": {
+              "type": "string"
+            },
+            "modifiedAt": {
+              "type": "string",
+              "format": "date-time"
             }
           },
           "additionalProperties": false
@@ -31,10 +38,18 @@
             "yaml",
             "yml",
             "ts",
-            "js"
+            "js",
+            "typescript",
+            "javascript"
           ]
         },
         "source": {
+          "type": "string"
+        },
+        "fromCache": {
+          "type": "boolean"
+        },
+        "etag": {
           "type": "string"
         }
       },

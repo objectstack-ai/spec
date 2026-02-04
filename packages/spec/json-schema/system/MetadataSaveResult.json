@@ -25,9 +25,19 @@
             },
             "hash": {
               "type": "string"
+            },
+            "etag": {
+              "type": "string"
+            },
+            "modifiedAt": {
+              "type": "string",
+              "format": "date-time"
             }
           },
           "additionalProperties": false
+        },
+        "etag": {
+          "type": "string"
         }
       },
       "required": [

@@ -22,6 +22,27 @@
         "cache": {
           "type": "boolean",
           "default": true
+        },
+        "useCache": {
+          "type": "boolean"
+        },
+        "validate": {
+          "type": "boolean"
+        },
+        "ifNoneMatch": {
+          "type": "string"
+        },
+        "recursive": {
+          "type": "boolean"
+        },
+        "limit": {
+          "type": "number"
+        },
+        "patterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "additionalProperties": false

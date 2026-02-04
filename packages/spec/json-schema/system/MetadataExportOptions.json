@@ -27,7 +27,9 @@
             "yaml",
             "yml",
             "ts",
-            "js"
+            "js",
+            "typescript",
+            "javascript"
           ],
           "default": "json"
         }

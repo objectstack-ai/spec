@@ -11,7 +11,9 @@
             "yaml",
             "yml",
             "ts",
-            "js"
+            "js",
+            "typescript",
+            "javascript"
           ]
         },
         "create": {
@@ -24,6 +26,21 @@
         },
         "path": {
           "type": "string"
+        },
+        "prettify": {
+          "type": "boolean"
+        },
+        "indent": {
+          "type": "number"
+        },
+        "sortKeys": {
+          "type": "boolean"
+        },
+        "backup": {
+          "type": "boolean"
+        },
+        "atomic": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false

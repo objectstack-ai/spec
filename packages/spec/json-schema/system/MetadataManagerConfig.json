@@ -17,7 +17,26 @@
         },
         "basePath": {
           "type": "string"
-        }
+        },
+        "rootDir": {
+          "type": "string"
+        },
+        "formats": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "json",
+              "yaml",
+              "yml",
+              "ts",
+              "js",
+              "typescript",
+              "javascript"
+            ]
+          }
+        },
+        "watchOptions": {}
       },
       "required": [
         "loaders"

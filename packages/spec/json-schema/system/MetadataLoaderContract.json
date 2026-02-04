@@ -13,6 +13,12 @@
         "description": {
           "type": "string"
         },
+        "supportedFormats": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "capabilities": {
           "type": "object",
           "properties": {
