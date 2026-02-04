@@ -85,6 +85,8 @@ export const RouterConfigSchema = z.object({
     auth: z.string().default('/auth').describe('Auth Protocol'),
     automation: z.string().default('/automation').describe('Automation Protocol'),
     storage: z.string().default('/storage').describe('Storage Protocol'),
+    analytics: z.string().default('/analytics').describe('Analytics Protocol'),
+    hub: z.string().default('/hub').describe('Hub Management Protocol'),
     graphql: z.string().default('/graphql').describe('GraphQL Endpoint'),
   }).default({
     data: '/data',
@@ -92,6 +94,8 @@ export const RouterConfigSchema = z.object({
     auth: '/auth',
     automation: '/automation',
     storage: '/storage',
+    analytics: '/analytics',
+    hub: '/hub',
     graphql: '/graphql'
   }), // Defaults match standardized spec
 

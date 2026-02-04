@@ -10,6 +10,7 @@ export const ApiCapabilitiesSchema = z.object({
   websockets: z.boolean().default(false),
   files: z.boolean().default(true),
   analytics: z.boolean().default(false).describe('Is the Analytics/BI engine enabled?'),
+  hub: z.boolean().default(false).describe('Is Hub management enabled?'),
 });
 
 /**
@@ -35,6 +36,9 @@ export const ApiRoutesSchema = z.object({
   
   /** Base URL for Analytics/BI operations */
   analytics: z.string().optional().describe('e.g. /api/analytics'),
+  
+  /** Base URL for Hub Management (Multi-tenant/Marketplace) */
+  hub: z.string().optional().describe('e.g. /api/hub'),
 
   /** GraphQL Endpoint (if enabled) */
   graphql: z.string().optional().describe('e.g. /graphql'),

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { BaseResponseSchema } from './contract.zod';
 import {
   HubSpaceSchema,
   TenantSchema,
@@ -172,7 +173,9 @@ export const UpdateSpaceRequestSchema = CreateSpaceRequestSchema.partial();
  * }
  * ```
  */
-export const SpaceResponseSchema = HubSpaceSchema;
+export const SpaceResponseSchema = BaseResponseSchema.extend({
+  data: HubSpaceSchema
+});
 
 /**
  * List Spaces Request
@@ -188,13 +191,14 @@ export const ListSpacesRequestSchema = PaginationRequestSchema.extend({
  * @example
  * ```json
  * {
+ *   "success": true,
  *   "data": [
  *     {
  *       "id": "550e8400-e29b-41d4-a716-446655440000",
  *       "name": "Sales Team",
  *       "slug": "sales-team",
  *       "ownerId": "user_123",
- *       "createdAt": "2024-01-01T00:00:00Z",
+  *       "createdAt": "2024-01-01T00:00:00Z",
  *       "updatedAt": "2024-01-02T00:00:00Z"
  *     }
  *   ],
@@ -209,8 +213,8 @@ export const ListSpacesRequestSchema = PaginationRequestSchema.extend({
  * }
  * ```
  */
-export const ListSpacesResponseSchema = z.object({
-  data: z.array(SpaceResponseSchema),
+export const ListSpacesResponseSchema = BaseResponseSchema.extend({
+  data: z.array(HubSpaceSchema),
   pagination: PaginationResponseSchema,
 });
 
@@ -249,7 +253,9 @@ export const UpdateTenantRequestSchema = CreateTenantRequestSchema.partial();
 /**
  * Tenant Response
  */
-export const TenantResponseSchema = TenantSchema;
+export const TenantResponseSchema = BaseResponseSchema.extend({
+  data: TenantSchema
+});
 
 /**
  * List Tenants Request
@@ -262,8 +268,8 @@ export const ListTenantsRequestSchema = PaginationRequestSchema.extend({
 /**
  * List Tenants Response
  */
-export const ListTenantsResponseSchema = z.object({
-  data: z.array(TenantResponseSchema),
+export const ListTenantsResponseSchema = BaseResponseSchema.extend({
+  data: z.array(TenantSchema),
   pagination: PaginationResponseSchema,
 });
 
@@ -306,7 +312,9 @@ export const UpdatePluginRequestSchema = PublishPluginRequestSchema.partial();
 /**
  * Plugin Response
  */
-export const PluginResponseSchema = PluginRegistryEntrySchema;
+export const PluginResponseSchema = BaseResponseSchema.extend({
+  data: PluginRegistryEntrySchema
+});
 
 /**
  * Search Plugins Request
@@ -332,26 +340,13 @@ export const SearchPluginsRequestSchema = PluginSearchFiltersSchema;
  * @example
  * ```json
  * {
+ *   "success": true,
  *   "data": [
  *     {
  *       "id": "com.acme.crm",
  *       "version": "1.0.0",
  *       "name": "Advanced CRM",
- *       "description": "Enterprise CRM",
- *       "category": "data",
- *       "vendor": {
- *         "id": "com.acme",
- *         "name": "Acme Corp",
- *         "verified": true,
- *         "trustLevel": "verified"
- *       },
- *       "statistics": {
- *         "downloads": 15000,
- *         "activeInstallations": 850,
- *         "ratings": {
- *           "average": 4.7,
- *           "count": 120
- *         }
+ ...
  *       }
  *     }
  *   ],
@@ -366,8 +361,8 @@ export const SearchPluginsRequestSchema = PluginSearchFiltersSchema;
  * }
  * ```
  */
-export const SearchPluginsResponseSchema = z.object({
-  data: z.array(PluginResponseSchema),
+export const SearchPluginsResponseSchema = BaseResponseSchema.extend({
+  data: z.array(PluginRegistryEntrySchema),
   pagination: PaginationResponseSchema,
 });
 
@@ -392,11 +387,13 @@ export const PluginVersionInfoSchema = z.object({
 /**
  * Get Plugin Versions Response
  */
-export const GetPluginVersionsResponseSchema = z.object({
-  pluginId: z.string(),
-  versions: z.array(PluginVersionInfoSchema),
-  latest: z.string().describe('Latest stable version'),
-  latestPrerelease: z.string().optional().describe('Latest pre-release version'),
+export const GetPluginVersionsResponseSchema = BaseResponseSchema.extend({
+  data: z.object({
+    pluginId: z.string(),
+    versions: z.array(PluginVersionInfoSchema),
+    latest: z.string().describe('Latest stable version'),
+    latestPrerelease: z.string().optional().describe('Latest pre-release version'),
+  })
 });
 
 // ============================================================================
@@ -416,7 +413,7 @@ export const ListMarketplaceRequestSchema = PaginationRequestSchema.extend({
 /**
  * List Marketplace Response
  */
-export const ListMarketplaceResponseSchema = z.object({
+export const ListMarketplaceResponseSchema = BaseResponseSchema.extend({
   data: z.array(MarketplacePluginSchema),
   pagination: PaginationResponseSchema,
   categories: z.array(z.object({
@@ -436,7 +433,9 @@ export const GetMarketplacePluginRequestSchema = z.object({
 /**
  * Marketplace Plugin Details Response
  */
-export const MarketplacePluginResponseSchema = MarketplacePluginSchema;
+export const MarketplacePluginResponseSchema = BaseResponseSchema.extend({
+  data: MarketplacePluginSchema
+});
 
 // ============================================================================
 // License Management API
@@ -472,7 +471,9 @@ export const IssueLicenseRequestSchema = z.object({
 /**
  * License Response
  */
-export const LicenseResponseSchema = LicenseSchema;
+export const LicenseResponseSchema = BaseResponseSchema.extend({
+  data: LicenseSchema
+});
 
 /**
  * Validate License Request
@@ -496,23 +497,28 @@ export const ValidateLicenseRequestSchema = z.object({
  * @example
  * ```json
  * {
- *   "valid": true,
- *   "license": {
- *     "spaceId": "550e8400-e29b-41d4-a716-446655440000",
- *     "planCode": "enterprise_v1",
- *     "status": "active",
- *     "issuedAt": "2024-01-01T00:00:00Z",
- *     "expiresAt": "2025-12-31T23:59:59Z"
- *   },
- *   "errors": []
+ *   "success": true,
+ *   "data": {
+ *     "valid": true,
+ *     "license": {
+ *       "spaceId": "550e8400-e29b-41d4-a716-446655440000",
+ *       "planCode": "enterprise_v1",
+ *       "status": "active",
+ *       "issuedAt": "2024-01-01T00:00:00Z",
+ *       "expiresAt": "2025-12-31T23:59:59Z"
+ *     },
+ *     "errors": []
+ *   }
  * }
  * ```
  */
-export const ValidateLicenseResponseSchema = z.object({
-  valid: z.boolean(),
-  license: LicenseResponseSchema.optional(),
-  errors: z.array(z.string()).default([]),
-  warnings: z.array(z.string()).default([]),
+export const ValidateLicenseResponseSchema = BaseResponseSchema.extend({
+  data: z.object({
+    valid: z.boolean(),
+    license: LicenseSchema.optional(),
+    errors: z.array(z.string()).default([]),
+    warnings: z.array(z.string()).default([]),
+  })
 });
 
 /**
@@ -535,8 +541,8 @@ export const ListLicensesRequestSchema = PaginationRequestSchema.extend({
 /**
  * List Licenses Response
  */
-export const ListLicensesResponseSchema = z.object({
-  data: z.array(LicenseResponseSchema),
+export const ListLicensesResponseSchema = BaseResponseSchema.extend({
+  data: z.array(LicenseSchema),
   pagination: PaginationResponseSchema,
 });
 
@@ -574,7 +580,9 @@ export const CompileManifestRequestSchema = ComposerRequestSchema;
 /**
  * Compile Manifest Response
  */
-export const CompileManifestResponseSchema = ComposerResponseSchema;
+export const CompileManifestResponseSchema = BaseResponseSchema.extend({
+  data: ComposerResponseSchema
+});
 
 /**
  * Get Build Status Request
@@ -589,32 +597,37 @@ export const GetBuildStatusRequestSchema = z.object({
  * @example
  * ```json
  * {
- *   "buildId": "build_abc123",
- *   "status": "success",
- *   "progress": 100,
- *   "startedAt": "2024-01-01T10:00:00Z",
- *   "completedAt": "2024-01-01T10:02:30Z",
- *   "duration": 150000,
- *   "logs": [
- *     { "timestamp": "2024-01-01T10:00:00Z", "level": "info", "message": "Starting compilation" },
- *     { "timestamp": "2024-01-01T10:02:30Z", "level": "info", "message": "Compilation complete" }
- *   ]
+ *   "success": true,
+ *   "data": {
+ *     "buildId": "build_abc123",
+ *     "status": "success",
+ *     "progress": 100,
+ *     "startedAt": "2024-01-01T10:00:00Z",
+ *     "completedAt": "2024-01-01T10:02:30Z",
+ *     "duration": 150000,
+ *     "logs": [
+ *       { "timestamp": "2024-01-01T10:00:00Z", "level": "info", "message": "Starting compilation" },
+ *       { "timestamp": "2024-01-01T10:02:30Z", "level": "info", "message": "Compilation complete" }
+ *     ]
+ *   }
  * }
  * ```
  */
-export const BuildStatusResponseSchema = z.object({
-  buildId: z.string(),
-  status: z.enum(['pending', 'in_progress', 'success', 'failed']),
-  progress: z.number().min(0).max(100).describe('Completion percentage'),
-  startedAt: z.string().datetime().optional(),
-  completedAt: z.string().datetime().optional(),
-  duration: z.number().optional().describe('Duration in milliseconds'),
-  logs: z.array(z.object({
-    timestamp: z.string().datetime(),
-    level: z.enum(['debug', 'info', 'warn', 'error']),
-    message: z.string(),
-  })).optional(),
-  error: z.string().optional(),
+export const BuildStatusResponseSchema = BaseResponseSchema.extend({
+  data: z.object({
+    buildId: z.string(),
+    status: z.enum(['pending', 'in_progress', 'success', 'failed']),
+    progress: z.number().min(0).max(100).describe('Completion percentage'),
+    startedAt: z.string().datetime().optional(),
+    completedAt: z.string().datetime().optional(),
+    duration: z.number().optional().describe('Duration in milliseconds'),
+    logs: z.array(z.object({
+      timestamp: z.string().datetime(),
+      level: z.enum(['debug', 'info', 'warn', 'error']),
+      message: z.string(),
+    })).optional(),
+    error: z.string().optional(),
+  })
 });
 
 // ============================================================================
@@ -627,37 +640,42 @@ export const BuildStatusResponseSchema = z.object({
  * @example
  * ```json
  * {
- *   "status": "healthy",
- *   "version": "1.0.0",
- *   "uptime": 86400,
- *   "services": {
- *     "database": {
- *       "status": "healthy",
- *       "latency": 5
+ *   "success": true,
+ *   "data": {
+ *     "status": "healthy",
+ *     "version": "1.0.0",
+ *     "uptime": 86400,
+ *     "services": {
+ *       "database": {
+ *         "status": "healthy",
+ *         "latency": 5
+ *       },
+ *       "cache": {
+ *         "status": "healthy",
+ *         "latency": 2
+ *       },
+ *       "composer": {
+ *         "status": "healthy",
+ *         "latency": 15
+ *       }
  *     },
- *     "cache": {
- *       "status": "healthy",
- *       "latency": 2
- *     },
- *     "composer": {
- *       "status": "healthy",
- *       "latency": 15
- *     }
- *   },
- *   "timestamp": "2024-01-01T12:00:00Z"
+ *     "timestamp": "2024-01-01T12:00:00Z"
+ *   }
  * }
  * ```
  */
-export const HubHealthResponseSchema = z.object({
-  status: z.enum(['healthy', 'degraded', 'unhealthy']),
-  version: z.string(),
-  uptime: z.number().describe('Uptime in seconds'),
-  services: z.record(z.string(), z.object({
+export const HubHealthResponseSchema = BaseResponseSchema.extend({
+  data: z.object({
     status: z.enum(['healthy', 'degraded', 'unhealthy']),
-    latency: z.number().optional().describe('Latency in milliseconds'),
-    message: z.string().optional(),
-  })),
-  timestamp: z.string().datetime(),
+    version: z.string(),
+    uptime: z.number().describe('Uptime in seconds'),
+    services: z.record(z.string(), z.object({
+      status: z.enum(['healthy', 'degraded', 'unhealthy']),
+      latency: z.number().optional().describe('Latency in milliseconds'),
+      message: z.string().optional(),
+    })),
+    timestamp: z.string().datetime(),
+  })
 });
 
 /**
@@ -666,54 +684,59 @@ export const HubHealthResponseSchema = z.object({
  * @example
  * ```json
  * {
- *   "metrics": {
- *     "spaces": {
- *       "total": 1250,
- *       "active": 980,
- *       "created_last_30d": 45
+ *   "success": true,
+ *   "data": {
+ *     "metrics": {
+ *       "spaces": {
+ *         "total": 1250,
+ *         "active": 980,
+ *         "created_last_30d": 45
+ *       },
+ *       "tenants": {
+ *         "total": 320,
+ *         "active": 285
+ *       },
+ *       "plugins": {
+ *         "total": 156,
+ *         "published_last_30d": 8,
+ *         "total_downloads": 456789
+ *       },
+ *       "api": {
+ *         "requests_per_minute": 850,
+ *         "avg_response_time": 125,
+ *         "error_rate": 0.002
+ *       }
  *     },
- *     "tenants": {
- *       "total": 320,
- *       "active": 285
- *     },
- *     "plugins": {
- *       "total": 156,
- *       "published_last_30d": 8,
- *       "total_downloads": 456789
- *     },
- *     "api": {
- *       "requests_per_minute": 850,
- *       "avg_response_time": 125,
- *       "error_rate": 0.002
- *     }
- *   },
- *   "timestamp": "2024-01-01T12:00:00Z"
+ *     "timestamp": "2024-01-01T12:00:00Z"
+ *   }
  * }
  * ```
  */
-export const HubMetricsResponseSchema = z.object({
-  metrics: z.object({
-    spaces: z.object({
-      total: z.number().int(),
-      active: z.number().int(),
-      created_last_30d: z.number().int().optional(),
-    }).optional(),
-    tenants: z.object({
-      total: z.number().int(),
-      active: z.number().int(),
-    }).optional(),
-    plugins: z.object({
-      total: z.number().int(),
-      published_last_30d: z.number().int().optional(),
-      total_downloads: z.number().int().optional(),
-    }).optional(),
-    api: z.object({
-      requests_per_minute: z.number(),
-      avg_response_time: z.number().describe('Milliseconds'),
-      error_rate: z.number().min(0).max(1),
-    }).optional(),
-  }),
-  timestamp: z.string().datetime(),
+export const HubMetricsResponseSchema = BaseResponseSchema.extend({
+  data: z.object({
+    metrics: z.object({
+      spaces: z.object({
+        total: z.number().int(),
+        active: z.number().int(),
+        created_last_30d: z.number().int().optional(),
+      }).optional(),
+      tenants: z.object({
+        total: z.number().int(),
+        active: z.number().int(),
+      }).optional(),
+      plugins: z.object({
+        total: z.number().int(),
+        published_last_30d: z.number().int().optional(),
+        total_downloads: z.number().int().optional(),
+      }).optional(),
+      api: z.object({
+        requests_per_minute: z.number(),
+        avg_response_time: z.number().describe('Milliseconds'),
+        error_rate: z.number().min(0).max(1),
+      }).optional(),
+    }),
+    timestamp: z.string().datetime(),
+  })
 });
 
 // ============================================================================
@@ -827,8 +850,8 @@ export const HubAPIContract = {
     },
   },
   
-  // Plugin Registry
-  plugins: {
+  // Plugin Registry (Publisher Operations)
+  registry: {
     publish: {
       request: PublishPluginRequestSchema,
       response: PluginResponseSchema,
@@ -853,7 +876,7 @@ export const HubAPIContract = {
     },
   },
   
-  // Marketplace
+  // Marketplace (Consumer Operations)
   marketplace: {
     list: {
       request: ListMarketplaceRequestSchema,
@@ -897,9 +920,9 @@ export const HubAPIContract = {
     },
   },
   
-  // Health & Monitoring
-  health: {
-    check: {
+  // System & Observability
+  system: {
+    health: {
       response: HubHealthResponseSchema,
     },
     metrics: {
