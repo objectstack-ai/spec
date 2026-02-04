@@ -17,7 +17,8 @@ This package defines the **DNA** of ObjectStack. It contains:
 ## 🗺️ Protocol Map for AI
 
 > **🤖 For AI Agents:** Start here!
-> The [PROTOCOL_MAP.md](./PROTOCOL_MAP.md) provides a comprehensive index of all Zod schemas organized by domain. Use it to efficiently locate the definitions you need to modify or implement.
+> *   [PROTOCOL_MAP.md](./PROTOCOL_MAP.md): Comprehensive index of all Zod schemas (the "What").
+> *   [PLUGIN_STANDARDS.md](./PLUGIN_STANDARDS.md): Recommended directory structure and naming conventions (the "Where" & "How").
 
 ## 🤖 AI Development Context
 
