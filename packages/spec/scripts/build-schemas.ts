@@ -77,6 +77,10 @@ function writeFileWithRetry(filePath: string, content: string, retries = MAX_RET
 /**
  * Recursively remove directory with retry logic
  * More robust than fs.rmSync for handling ENOTEMPTY errors in CI
+ * 
+ * @param dirPath - The path to the directory to remove
+ * @param retries - Maximum number of retry attempts (default: MAX_RETRIES)
+ * @throws {Error} When directory cannot be removed after all retries are exhausted
  */
 function removeDirRecursive(dirPath: string, retries = MAX_RETRIES): void {
   for (let attempt = 0; attempt < retries; attempt++) {
@@ -94,7 +98,11 @@ function removeDirRecursive(dirPath: string, retries = MAX_RETRIES): void {
         
         if (entry.isDirectory()) {
           // Recursively remove subdirectory
-          removeDirRecursive(fullPath, retries);
+          try {
+            removeDirRecursive(fullPath, retries);
+          } catch (error) {
+            throw new Error(`Failed to remove subdirectory ${fullPath}: ${error}`);
+          }
         } else {
           // Remove file with retry
           for (let fileRetry = 0; fileRetry < retries; fileRetry++) {
@@ -112,6 +120,7 @@ function removeDirRecursive(dirPath: string, retries = MAX_RETRIES): void {
       }
       
       // Now remove the empty directory
+      // Using rmdirSync for removing empty directories (works reliably across Node versions)
       fs.rmdirSync(dirPath);
       return; // Success
       
