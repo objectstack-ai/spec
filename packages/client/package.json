@@ -10,10 +10,18 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@objectstack/spec": "workspace:*",
-    "@objectstack/core": "workspace:*"
+    "@objectstack/core": "workspace:*",
+    "@objectstack/spec": "workspace:*"
   },
   "devDependencies": {
+    "@hono/node-server": "^1.2.0",
+    "@objectstack/driver-memory": "workspace:*",
+    "@objectstack/hono": "workspace:*",
+    "@objectstack/objectql": "workspace:*",
+    "@objectstack/plugin-hono-server": "workspace:*",
+    "@objectstack/plugin-msw": "workspace:*",
+    "@objectstack/runtime": "workspace:*",
+    "msw": "^2.0.0",
     "typescript": "^5.0.0",
     "vitest": "^4.0.18"
   }

@@ -1,0 +1,144 @@
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { LiteKernel } from '@objectstack/core';
+import { ObjectQL, ObjectQLPlugin, SchemaRegistry } from '@objectstack/objectql';
+import { InMemoryDriver } from '@objectstack/driver-memory';
+import { HonoServerPlugin } from '@objectstack/plugin-hono-server';
+import { ObjectStackClient } from './index';
+
+describe('ObjectStackClient (with Hono Server)', () => {
+    let baseUrl: string;
+    let kernel: LiteKernel;
+
+    beforeAll(async () => {
+        // 1. Setup Kernel
+        kernel = new LiteKernel();
+        kernel.use(new ObjectQLPlugin());
+        
+        // 2. Setup Hono Plugin
+        const honoPlugin = new HonoServerPlugin({ 
+            port: 0,
+            registerStandardEndpoints: true
+        });
+        kernel.use(honoPlugin);
+        
+        // --- BROKER SHIM START ---
+        // HttpDispatcher requires a broker to function. We inject a simple shim.
+        (kernel as any).broker = {
+            call: async (action: string, params: any, opts: any) => {
+                const parts = action.split('.');
+                const service = parts[0];
+                const method = parts[1];
+                
+                if (service === 'data') {
+                    const ql = kernel.getService<any>('objectql'); // Use 'objectql' service name for clarity
+                    if (method === 'create') {
+                        const res = await ql.insert(params.object, params.data);
+                        // Ensure we return the full object including input data + ID
+                        return { ...params.data, ...res };
+                    }
+                    // Params from HttpDispatcher: { object, id, ...query }
+                    if (method === 'get') {
+                        // Ensure we search by 'id' explicitly for InMemoryDriver
+                        return ql.findOne(params.object, { where: { id: params.id } });
+                    }
+                    // Params from HttpDispatcher: { object, filters }
+                    if (method === 'query') {
+                        // HttpDispatcher passes filters as simple object (map)
+                        // ObjectQL expects { filter, select, sort, ... }
+                        const data = await ql.find(params.object, { filter: params.filters });
+                        // HttpDispatcher expects { data, count }
+                        return { data, count: data.length };
+                    }
+                    if (method === 'find') return ql.find(params.object, { filter: params.filters });
+                }
+                
+                if (service === 'metadata') {
+                    // ObjectQLPlugin registers itself as 'metadata' but doesn't implement all broker methods directly
+                    // We use SchemaRegistry for lookups
+                    if (method === 'getObject') {
+                         return SchemaRegistry.getObject(params.objectName);
+                    }
+                    if (method === 'objects') {
+                         return SchemaRegistry.getAllObjects();
+                    }
+                }
+                
+                if (service === 'auth' && method === 'login') {
+                     return { token: 'mock-token', user: { id: 'admin', name: 'Admin' } };
+                }
+
+                console.warn(`[BrokerShim] Action not implemented: ${action}`);
+                throw new Error(`Action ${action} not implemented in shim`);
+            }
+        };
+        // --- BROKER SHIM END ---
+
+        await kernel.bootstrap();
+
+        // 3. Setup Driver
+        const ql = kernel.getService<ObjectQL>('objectql');
+        ql.registerDriver(new InMemoryDriver(), true);
+
+        // 4. Load Metadata (Schema)
+        SchemaRegistry.registerObject({
+            name: 'customer',
+            label: 'Customer',
+            fields: {
+                name: { type: 'text', label: 'Name' },
+                email: { type: 'text', label: 'Email' }
+            }
+        });
+
+        // 5. Get Port from Service
+        const httpServer = kernel.getService<any>('http.server');
+        const port = httpServer.getPort();
+        baseUrl = `http://localhost:${port}`;
+
+        console.log(`Test server running at ${baseUrl}`);
+    });
+
+    afterAll(async () => {
+        if (kernel) await kernel.shutdown();
+    });
+
+    it('should connect to hono server', async () => {
+        const client = new ObjectStackClient({ baseUrl });
+        await client.connect();
+        
+        // Client creates URL like ${baseUrl}/api/v1
+        expect(client).toBeDefined();
+    });
+
+    it('should create and retrieve data via hono', async () => {
+        const client = new ObjectStackClient({ baseUrl });
+        await client.connect();
+
+        // Create
+        const createdResponse = await client.data.create('customer', {
+            name: 'Hono User',
+            email: 'hono@example.com'
+        });
+        
+        expect(createdResponse.success).toBe(true);
+        expect(createdResponse.data.name).toBe('Hono User');
+        expect(createdResponse.data.id).toBeDefined();
+
+        // Retrieve
+        const retrievedResponse = await client.data.get('customer', createdResponse.data.id);
+        expect(retrievedResponse.success).toBe(true);
+        expect(retrievedResponse.data.name).toBe('Hono User');
+    });
+
+    it('should find data via hono', async () => {
+        const client = new ObjectStackClient({ baseUrl });
+        await client.connect();
+
+        const resultsResponse = await client.data.find('customer', {
+            where: { name: 'Hono User' }
+        });
+
+        expect(resultsResponse.success).toBe(true);
+        expect(resultsResponse.data.length).toBeGreaterThan(0);
+        expect(resultsResponse.data[0].name).toBe('Hono User');
+    });
+});

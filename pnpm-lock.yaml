@@ -449,6 +449,30 @@ importers:
         specifier: workspace:*
         version: link:../spec
     devDependencies:
+      '@hono/node-server':
+        specifier: ^1.2.0
+        version: 1.19.9(hono@4.11.4)
+      '@objectstack/driver-memory':
+        specifier: workspace:*
+        version: link:../plugins/driver-memory
+      '@objectstack/hono':
+        specifier: workspace:*
+        version: link:../adapters/hono
+      '@objectstack/objectql':
+        specifier: workspace:*
+        version: link:../objectql
+      '@objectstack/plugin-hono-server':
+        specifier: workspace:*
+        version: link:../plugins/plugin-hono-server
+      '@objectstack/plugin-msw':
+        specifier: workspace:*
+        version: link:../plugins/plugin-msw
+      '@objectstack/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+      msw:
+        specifier: ^2.0.0
+        version: 2.12.7(@types/node@25.2.0)(typescript@5.9.3)
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
