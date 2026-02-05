@@ -74,10 +74,62 @@ function writeFileWithRetry(filePath: string, content: string, retries = MAX_RET
   }
 }
 
+/**
+ * Recursively remove directory with retry logic
+ * More robust than fs.rmSync for handling ENOTEMPTY errors in CI
+ */
+function removeDirRecursive(dirPath: string, retries = MAX_RETRIES): void {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      if (!fs.existsSync(dirPath)) {
+        return; // Already removed
+      }
+
+      // Read all entries in the directory
+      const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+      
+      // Process each entry
+      for (const entry of entries) {
+        const fullPath = path.join(dirPath, entry.name);
+        
+        if (entry.isDirectory()) {
+          // Recursively remove subdirectory
+          removeDirRecursive(fullPath, retries);
+        } else {
+          // Remove file with retry
+          for (let fileRetry = 0; fileRetry < retries; fileRetry++) {
+            try {
+              fs.unlinkSync(fullPath);
+              break;
+            } catch (error) {
+              if (fileRetry === retries - 1) {
+                throw error;
+              }
+              sleepSync(RETRY_DELAY_BASE_MS * (fileRetry + 1));
+            }
+          }
+        }
+      }
+      
+      // Now remove the empty directory
+      fs.rmdirSync(dirPath);
+      return; // Success
+      
+    } catch (error) {
+      if (attempt === retries - 1) {
+        throw new Error(`Failed to remove directory ${dirPath} after ${retries} attempts: ${error}`);
+      }
+      // Wait before retrying with exponential backoff
+      const delay = RETRY_DELAY_BASE_MS * (attempt + 1);
+      sleepSync(delay);
+    }
+  }
+}
+
 // Clean output directory ensures no stale files remain
 if (fs.existsSync(OUT_DIR)) {
   console.log(`Cleaning output directory: ${OUT_DIR}`);
-  fs.rmSync(OUT_DIR, { recursive: true, force: true, maxRetries: MAX_RETRIES, retryDelay: RETRY_DELAY_BASE_MS });
+  removeDirRecursive(OUT_DIR);
   
   // Wait a bit to ensure file system has synced
   // This prevents ENOENT errors on some file systems, particularly in CI environments
