@@ -3,15 +3,7 @@ import type { PluginMetadata } from '../plugin-loader.js';
 
 // Conditionally import crypto for Node.js environments
 let cryptoModule: typeof import('crypto') | null = null;
-if (typeof (globalThis as any).window === 'undefined') {
-  try {
-    // Dynamic import for Node.js crypto module (using eval to avoid bundling issues)
-    // @ts-ignore - dynamic require for Node.js
-    cryptoModule = eval('require("crypto")');
-  } catch {
-    // Crypto module not available (e.g., browser environment)
-  }
-}
+
 
 /**
  * Plugin Signature Configuration
@@ -295,11 +287,20 @@ export class PluginSignatureVerifier {
     return this.verifyCryptoSignatureNode(data, signature, publicKey);
   }
   
-  private verifyCryptoSignatureNode(
+  private async verifyCryptoSignatureNode(
     data: string,
     signature: string,
     publicKey: string
-  ): boolean {
+  ): Promise<boolean> {
+    if (!cryptoModule) {
+      try {
+        // @ts-ignore
+        cryptoModule = await import('crypto');
+      } catch (e) {
+        // ignore
+      }
+    }
+
     if (!cryptoModule) {
       this.logger.error('Crypto module not available for signature verification');
       return false;

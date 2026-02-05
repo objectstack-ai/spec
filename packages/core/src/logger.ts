@@ -51,13 +51,13 @@ export class ObjectLogger implements Logger {
     /**
      * Initialize Pino logger for Node.js
      */
-    private initPinoLogger() {
+    private async initPinoLogger() {
         if (!this.isNode) return;
 
         try {
             // Create require function dynamically for Node.js (avoids bundling issues in browser)
             // @ts-ignore - dynamic import of Node.js module
-            const { createRequire } = eval('require("module")');
+            const { createRequire } = await import('module');
             this.require = createRequire(import.meta.url);
             
             // Synchronous import for Pino using createRequire (works in ESM)
