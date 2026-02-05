@@ -112,7 +112,7 @@ export const serveCommand = new Command('serve')
          try {
            console.log(chalk.dim(`  Auto-injecting ObjectQL Engine...`));
            const { ObjectQLPlugin } = await import('@objectstack/objectql');
-           kernel.use(new ObjectQLPlugin());
+           await kernel.use(new ObjectQLPlugin());
            console.log(chalk.green(`  ✓ Registered ObjectQL Plugin (auto-detected)`));
          } catch (e: any) {
            console.warn(chalk.yellow(`  ⚠ Could not auto-load ObjectQL: ${e.message}`));
@@ -126,7 +126,7 @@ export const serveCommand = new Command('serve')
            console.log(chalk.dim(`  Auto-injecting Memory Driver (Dev Mode)...`));
            const { DriverPlugin } = await import('@objectstack/runtime');
            const { InMemoryDriver } = await import('@objectstack/driver-memory');
-           kernel.use(new DriverPlugin(new InMemoryDriver()));
+           await kernel.use(new DriverPlugin(new InMemoryDriver()));
            console.log(chalk.green(`  ✓ Registered Memory Driver (auto-detected)`));
          } catch (e: any) {
            // Silent fail - maybe they don't want a driver or don't have the package
@@ -138,7 +138,7 @@ export const serveCommand = new Command('serve')
       if (config.objects || config.manifest || config.apps) {
         try {
            const { AppPlugin } = await import('@objectstack/runtime');
-           kernel.use(new AppPlugin(config));
+           await kernel.use(new AppPlugin(config));
            console.log(chalk.green(`  ✓ Registered App Plugin (auto-detected)`));
         } catch (e: any) {
            console.warn(chalk.yellow(`  ⚠ Could not auto-load AppPlugin: ${e.message}`));
@@ -166,7 +166,7 @@ export const serveCommand = new Command('serve')
               }
             }
 
-            kernel.use(pluginToLoad);
+            await kernel.use(pluginToLoad);
             const pluginName = plugin.name || plugin.constructor?.name || 'unnamed';
             console.log(chalk.green(`  ✓ Registered plugin: ${pluginName}`));
           } catch (e: any) {
@@ -180,7 +180,7 @@ export const serveCommand = new Command('serve')
         try {
           const { HonoServerPlugin } = await import('@objectstack/plugin-hono-server');
           const serverPlugin = new HonoServerPlugin({ port });
-          kernel.use(serverPlugin);
+          await kernel.use(serverPlugin);
           console.log(chalk.green(`  ✓ Registered HTTP server plugin (port: ${port})`));
         } catch (e: any) {
           console.warn(chalk.yellow(`  ⚠ HTTP server plugin not available: ${e.message}`));
