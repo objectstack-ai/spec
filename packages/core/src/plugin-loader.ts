@@ -349,10 +349,15 @@ export class PluginLoader {
     // Private helper methods
 
     private toPluginMetadata(plugin: Plugin): PluginMetadata {
-        return {
-            ...plugin,
-            version: plugin.version || '0.0.0',
-        } as PluginMetadata;
+        // Fix: Do not use object spread {...plugin} as it destroys the prototype chain for Class-based plugins.
+        // Instead, cast the original object and inject default values if missing.
+        const metadata = plugin as PluginMetadata;
+        
+        if (!metadata.version) {
+            metadata.version = '0.0.0';
+        }
+        
+        return metadata;
     }
 
     private validatePluginStructure(plugin: PluginMetadata): void {
