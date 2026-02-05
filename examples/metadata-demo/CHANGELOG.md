@@ -1,5 +1,14 @@
 # @example/metadata-demo
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [fb2eabd]
+  - @objectstack/core@1.0.3
+  - @objectstack/metadata@1.0.3
+  - @objectstack/spec@1.0.3
+
 ## 0.1.2
 
 ### Patch Changes

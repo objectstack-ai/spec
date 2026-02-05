@@ -1,5 +1,12 @@
 # @objectstack/hono
 
+## 1.0.3
+
+### Patch Changes
+
+- Updated dependencies [fb2eabd]
+  - @objectstack/runtime@1.0.3
+
 ## 1.0.2
 
 ### Patch Changes

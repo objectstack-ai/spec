@@ -1,5 +1,18 @@
 # @objectstack/cli
 
+## 1.0.3
+
+### Patch Changes
+
+- Updated dependencies [fb2eabd]
+- Updated dependencies [22a48f0]
+  - @objectstack/core@1.0.3
+  - @objectstack/runtime@1.0.3
+  - @objectstack/plugin-hono-server@1.0.3
+  - @objectstack/objectql@1.0.3
+  - @objectstack/driver-memory@1.0.3
+  - @objectstack/spec@1.0.3
+
 ## 1.0.2
 
 ### Patch Changes
