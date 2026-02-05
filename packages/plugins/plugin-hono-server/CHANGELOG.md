@@ -1,5 +1,17 @@
 # @objectstack/plugin-hono-server
 
+## 1.0.8
+
+### Patch Changes
+
+- 8f2a3a2: fix: standardize discovery endpoint response to include 'data' wrapper
+- Updated dependencies [8f2a3a2]
+  - @objectstack/hono@1.0.8
+  - @objectstack/spec@1.0.8
+  - @objectstack/core@1.0.8
+  - @objectstack/types@1.0.8
+  - @objectstack/runtime@1.0.8
+
 ## 1.0.7
 
 ### Patch Changes

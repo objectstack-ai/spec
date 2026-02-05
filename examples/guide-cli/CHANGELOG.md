@@ -1,5 +1,13 @@
 # @example/guide-cli
 
+## 0.0.12
+
+### Patch Changes
+
+- @objectstack/cli@1.0.8
+- @example/plugin-bi@0.9.11
+- @objectstack/spec@1.0.8
+
 ## 0.0.11
 
 ### Patch Changes

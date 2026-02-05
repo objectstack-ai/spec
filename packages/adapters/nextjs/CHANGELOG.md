@@ -1,5 +1,12 @@
 # @objectstack/nextjs
 
+## 1.0.8
+
+### Patch Changes
+
+- 8f2a3a2: fix: standardize discovery endpoint response to include 'data' wrapper
+  - @objectstack/runtime@1.0.8
+
 ## 1.0.7
 
 ### Patch Changes
