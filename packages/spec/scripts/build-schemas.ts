@@ -9,7 +9,7 @@ const OUT_DIR = path.resolve(__dirname, '../json-schema');
 // Clean output directory ensures no stale files remain
 if (fs.existsSync(OUT_DIR)) {
   console.log(`Cleaning output directory: ${OUT_DIR}`);
-  fs.rmSync(OUT_DIR, { recursive: true, force: true });
+  fs.rmSync(OUT_DIR, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
 }
 
 // Ensure output directory exists
