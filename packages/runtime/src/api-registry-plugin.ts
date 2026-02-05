@@ -21,7 +21,7 @@ export function createApiRegistryPlugin(config: ApiRegistryConfig = {}): Plugin 
         name: 'com.objectstack.runtime.api-registry',
         version: '1.0.0',
         
-        init: async (ctx: PluginContext) => {
+        init: async (_ctx: PluginContext) => {
             // No service registration, this is a consumer plugin
         },
         

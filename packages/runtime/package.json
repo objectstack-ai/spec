@@ -14,7 +14,8 @@
   "dependencies": {
     "@objectstack/core": "workspace:*",
     "@objectstack/spec": "workspace:*",
-    "@objectstack/types": "workspace:*"
+    "@objectstack/types": "workspace:*",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "typescript": "^5.0.0",

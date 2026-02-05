@@ -1,6 +1,6 @@
 import { IHttpServer } from '@objectstack/core';
 import { RouteManager } from './route-manager.js';
-import { RestServerConfig, CrudOperation, RestApiConfig, CrudEndpointsConfig, MetadataEndpointsConfig, BatchEndpointsConfig, RouteGenerationConfig } from '@objectstack/spec/api';
+import { RestServerConfig, RestApiConfig, CrudEndpointsConfig, MetadataEndpointsConfig, BatchEndpointsConfig, RouteGenerationConfig } from '@objectstack/spec/api';
 import { ObjectStackProtocol } from '@objectstack/spec/api';
 
 /**
@@ -89,7 +89,6 @@ type NormalizedRestServerConfig = {
  * restServer.registerRoutes();
  */
 export class RestServer {
-    private server: IHttpServer;
     private protocol: ObjectStackProtocol;
     private config: NormalizedRestServerConfig;
     private routeManager: RouteManager;
@@ -99,7 +98,6 @@ export class RestServer {
         protocol: ObjectStackProtocol, 
         config: RestServerConfig = {}
     ) {
-        this.server = server;
         this.protocol = protocol;
         this.config = this.normalizeConfig(config);
         this.routeManager = new RouteManager(server);
@@ -212,7 +210,7 @@ export class RestServer {
         this.routeManager.register({
             method: 'GET',
             path: basePath,
-            handler: async (req: any, res: any) => {
+            handler: async (_req: any, res: any) => {
                 try {
                     const discovery = await this.protocol.getDiscovery({});
                     res.json(discovery);
@@ -239,7 +237,7 @@ export class RestServer {
             this.routeManager.register({
                 method: 'GET',
                 path: metaPath,
-                handler: async (req: any, res: any) => {
+                handler: async (_req: any, res: any) => {
                     try {
                         const types = await this.protocol.getMetaTypes({});
                         res.json(types);

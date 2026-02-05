@@ -1,5 +1,4 @@
 import { ObjectKernel, Plugin, IHttpServer, ObjectKernelConfig } from '@objectstack/core';
-import { HttpServer } from './http-server.js';
 import { createApiRegistryPlugin, ApiRegistryConfig } from './api-registry-plugin.js';
 
 export interface RuntimeConfig {

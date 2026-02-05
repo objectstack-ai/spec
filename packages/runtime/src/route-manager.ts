@@ -1,8 +1,9 @@
 import { RouteHandler, IHttpServer } from '@objectstack/core';
 import { System, Shared } from '@objectstack/spec';
+import { z } from 'zod';
 
 type RouteHandlerMetadata = System.RouteHandlerMetadata;
-type HttpMethod = Shared.HttpMethod;
+type HttpMethod = z.infer<typeof Shared.HttpMethod>;
 
 /**
  * Route Entry
