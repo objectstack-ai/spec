@@ -7,6 +7,7 @@ import {
 } from '@objectstack/spec/api';
 import { HonoHttpServer } from './adapter';
 import { createHonoApp } from '@objectstack/hono';
+import { HttpDispatcher } from '@objectstack/runtime';
 import { serveStatic } from '@hono/node-server/serve-static';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -123,8 +124,9 @@ export class HonoServerPlugin implements Plugin {
 
             // Register Standard Discovery Endpoint
             const rawApp = this.server.getRawApp();
+            const dispatcher = new HttpDispatcher(kernel);
             rawApp.get('/.well-known/objectstack', (c) => {
-                return c.redirect(apiPath);
+                return c.json({ data: dispatcher.getDiscoveryInfo(apiPath) });
             });
             ctx.logger.debug('Registered standard discovery endpoint', { path: '/.well-known/objectstack', target: apiPath });
 

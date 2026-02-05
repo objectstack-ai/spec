@@ -87,7 +87,7 @@ export class ObjectStackController {
   // --- Discovery Endpoint ---
   @Get()
   discovery() {
-    return this.service.dispatcher.getDiscoveryInfo('/api');
+    return { data: this.service.dispatcher.getDiscoveryInfo('/api') };
   }
 
   @Post('graphql')

@@ -203,12 +203,26 @@ export class MSWPlugin implements Plugin {
         // Discovery Endpoint
         this.handlers.push(
             http.get('*/.well-known/objectstack', () => {
-                return new HttpResponse(null, {
-                    status: 302,
-                    headers: {
-                        Location: baseUrl
+                if (this.dispatcher) {
+                    return HttpResponse.json({
+                        data: this.dispatcher.getDiscoveryInfo(baseUrl)
+                    });
+                }
+                return HttpResponse.json({
+                    data: {
+                        version: 'v1',
+                        apiName: 'ObjectStack API',
+                        url: baseUrl,
+                        capabilities: {
+                            graphql: false,
+                            search: false,
+                            websockets: false,
+                            files: false,
+                            analytics: false,
+                            hub: false
+                        }
                     }
-                })
+                });
             })
         );
 

@@ -51,7 +51,7 @@ export function createRouteHandler(options: NextAdapterOptions) {
     
     // --- 0. Discovery Endpoint ---
     if (segments.length === 0 && method === 'GET') {
-      return NextResponse.json(dispatcher.getDiscoveryInfo(options.prefix || '/api'));
+      return NextResponse.json({ data: dispatcher.getDiscoveryInfo(options.prefix || '/api') });
     }
 
     try {

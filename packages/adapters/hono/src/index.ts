@@ -44,7 +44,7 @@ export function createHonoApp(options: ObjectStackHonoOptions) {
 
   // --- 0. Discovery Endpoint ---
   app.get(prefix, (c) => {
-    return c.json(dispatcher.getDiscoveryInfo(prefix));
+    return c.json({ data: dispatcher.getDiscoveryInfo(prefix) });
   });
 
   // --- 1. Auth ---
