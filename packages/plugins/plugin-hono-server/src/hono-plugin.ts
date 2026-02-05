@@ -7,6 +7,7 @@ import {
 } from '@objectstack/spec/api';
 import { HonoHttpServer } from './adapter';
 import { createHonoApp } from '@objectstack/hono';
+import { serveStatic } from '@hono/node-server/serve-static';
 
 export interface HonoPluginOptions {
     port?: number;
@@ -26,6 +27,13 @@ export interface HonoPluginOptions {
      * @default true
      */
     useApiRegistry?: boolean;
+
+    /**
+     * Whether to enable SPA fallback
+     * If true, returns index.html for non-API 404s
+     * @default false
+     */
+    spaFallback?: boolean;
 }
 
 /**
@@ -51,9 +59,11 @@ export class HonoServerPlugin implements Plugin {
             port: 3000,
             registerStandardEndpoints: true,
             useApiRegistry: true,
+            spaFallback: false,
             ...options
         };
-        this.server = new HonoHttpServer(this.options.port, this.options.staticRoot);
+        // We handle static root manually in start() to support SPA fallback
+        this.server = new HonoHttpServer(this.options.port);
     }
 
     /**
@@ -99,6 +109,36 @@ export class HonoServerPlugin implements Plugin {
 
         } catch (e: any) {
              ctx.logger.error('Failed to create standard Hono app', e);
+        }
+
+        // Configure Static Files & SPA Fallback
+        if (this.options.staticRoot) {
+            const rawApp = this.server.getRawApp();
+            const staticRoot = this.options.staticRoot;
+            
+            ctx.logger.debug('Configuring static files', { root: staticRoot, spa: this.options.spaFallback });
+            
+            // 1. Static Files
+            rawApp.get('/*', serveStatic({ root: staticRoot }));
+            
+            // 2. SPA Fallback
+            if (this.options.spaFallback) {
+                rawApp.get('*', async (c, next) => {
+                    // Skip API paths
+                    const config = this.options.restConfig || {};
+                    const basePath = config.api?.basePath || '/api';
+                    
+                    if (c.req.path.startsWith(basePath)) {
+                        return next();
+                    }
+                    
+                    // Fallback to index.html
+                    return serveStatic({ 
+                        root: staticRoot,
+                        rewriteRequestPath: () => 'index.html'
+                    })(c, next);
+                });
+            }
         }
 
         // Start server on kernel:ready hook

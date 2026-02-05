@@ -29,8 +29,20 @@ export function createApiRegistryPlugin(config: ApiRegistryConfig = {}): Plugin 
             const serverService = config.serverServiceName || 'http.server';
             const protocolService = config.protocolServiceName || 'protocol';
             
-            const server = ctx.getService<IHttpServer>(serverService);
-            const protocol = ctx.getService<ObjectStackProtocol>(protocolService);
+            let server: IHttpServer | undefined;
+            let protocol: ObjectStackProtocol | undefined;
+
+            try {
+                server = ctx.getService<IHttpServer>(serverService);
+            } catch (e) {
+                // Ignore missing service
+            }
+
+            try {
+                protocol = ctx.getService<ObjectStackProtocol>(protocolService);
+            } catch (e) {
+                // Ignore missing service
+            }
             
             if (!server) {
                 ctx.logger.warn(`ApiRegistryPlugin: HTTP Server service '${serverService}' not found. REST routes skipped.`);

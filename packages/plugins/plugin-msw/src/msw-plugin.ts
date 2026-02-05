@@ -118,7 +118,7 @@ export class MSWPlugin implements Plugin {
     /**
      * Init phase
      */
-    async init(ctx: PluginContext) {
+    init = async (ctx: PluginContext) => {
         ctx.logger.debug('Initializing MSW plugin', { 
             enableBrowser: this.options.enableBrowser,
             baseUrl: this.options.baseUrl,
