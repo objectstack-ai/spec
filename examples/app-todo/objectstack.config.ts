@@ -43,6 +43,8 @@ export default defineStack({
         object: 'todo_task',
         mode: 'upsert',
         records: [
+          { subject: 'Learn ObjectStack', is_completed: true, priority: 3 },
+          { subject: 'Build a cool app', is_completed: false, priority: 2 },
           { subject: 'Review PR #102', is_completed: true, priority: 3, due_date: new Date() },
           { subject: 'Write Documentation', is_completed: false, priority: 2, due_date: new Date(Date.now() + 86400000) },
           { subject: 'Fix specific Server bug', is_completed: false, priority: 1 }
