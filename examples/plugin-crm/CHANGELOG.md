@@ -1,5 +1,11 @@
 # @example/plugin-crm
 
+## 0.1.10
+
+### Patch Changes
+
+- @objectstack/spec@1.0.7
+
 ## 0.1.9
 
 ### Patch Changes

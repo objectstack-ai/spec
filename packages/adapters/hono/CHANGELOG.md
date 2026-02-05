@@ -1,5 +1,12 @@
 # @objectstack/hono
 
+## 1.0.7
+
+### Patch Changes
+
+- Updated dependencies [ebdf787]
+  - @objectstack/runtime@1.0.7
+
 ## 1.0.6
 
 ### Patch Changes

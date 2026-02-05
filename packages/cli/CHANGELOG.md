@@ -1,5 +1,17 @@
 # @objectstack/cli
 
+## 1.0.7
+
+### Patch Changes
+
+- Updated dependencies [ebdf787]
+  - @objectstack/runtime@1.0.7
+  - @objectstack/plugin-hono-server@1.0.7
+  - @objectstack/spec@1.0.7
+  - @objectstack/core@1.0.7
+  - @objectstack/objectql@1.0.7
+  - @objectstack/driver-memory@1.0.7
+
 ## 1.0.6
 
 ### Patch Changes

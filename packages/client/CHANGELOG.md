@@ -1,5 +1,13 @@
 # @objectstack/client
 
+## 1.0.7
+
+### Patch Changes
+
+- ebdf787: feat: implement standard service discovery via `/.well-known/objectstack`
+  - @objectstack/spec@1.0.7
+  - @objectstack/core@1.0.7
+
 ## 1.0.6
 
 ### Patch Changes
