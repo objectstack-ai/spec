@@ -1,6 +1,6 @@
 {
   "name": "@example/plugin-crm",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "main": "objectstack.config.ts",
   "private": true,
   "scripts": {
