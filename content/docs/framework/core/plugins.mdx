@@ -47,6 +47,52 @@ export class MyPlugin implements Plugin {
 }
 ```
 
+## Plugin Types
+
+ObjectStack uses `type` discrimination to optimize runtime behavior, allowing the kernel to intelligently handle different kinds of extensions.
+
+### 1. Standard Plugin (`standard`)
+*   **Role:** General purpose backend logic (default).
+*   **Use Cases:** Registering Services, Hooks, Utilities, or non-UI middleware.
+*   **Behavior:** Executed in the Node.js runtime with full access to the Kernel.
+
+### 2. UI Plugin (`ui`)
+*   **Role:** Frontend application host.
+*   **Use Cases:** Admin Console, Low-code Studio, SPA Dashboard.
+*   **Behavior:**
+    *   **Passive:** Driven by `plugin-hono-server` (or other HTTP adapters).
+    *   **Static Assets:** Must verify `staticPath` pointing to a build output (e.g., `dist/`).
+    *   **Routing:** Automatically mounted to `/{slug}` with SPA fallback support.
+    *   **Assets:** Files are served locally under `/{slug}/assets`.
+
+### 3. App Plugin (`app`)
+*   **Role:** Vertical Business Solution.
+*   **Use Cases:** CRM, Project Management, ERP modules.
+*   **Behavior:**
+    *   Contains rich metadata (Objects, Flows, Reports).
+    *   May bundle `ui-plugin` references for custom widgets.
+    *   Focuses on business logic rather than infrastructure.
+
+### 4. Driver Plugin (`driver`)
+*   **Role:** Infrastructure Connectivity.
+*   **Use Cases:** SQL Adaptors (`driver-postgres`), Storage (`driver-s3`).
+*   **Behavior:** Loaded early in the lifecycle to ensure data availability.
+
+### 5. Server Plugin (`server`)
+*   **Role:** Protocol Gateway.
+*   **Use Cases:** REST API (`plugin-hono-server`), GraphQL, WebSocket.
+*   **Behavior:** Responsible for binding ports and mapping incoming traffic.
+
+### 6. Theme Plugin (`theme`)
+*   **Role:** UI Appearance.
+*   **Use Cases:** Dark Mode, Enterprise Branding.
+*   **Behavior:** Provides CSS tokens and asset overrides to `ui-plugin`s.
+
+### 7. Agent Plugin (`agent`)
+*   **Role:** AI Capability.
+*   **Use Cases:** RAG Pipelines, Autonomous Agents.
+*   **Behavior:** Extensions for the AI Gateway.
+
 ## RuntimePlugin Interface Reference
 
 The `RuntimePlugin` interface defines the contract that all functionality modules must implement.

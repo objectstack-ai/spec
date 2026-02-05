@@ -137,7 +137,8 @@ export class HonoServerPlugin implements Plugin {
 
                 for (const plugin of (loadedPlugins as any[])) {
                     // Check for UI Plugin signature
-                    if (plugin.type === 'ui-plugin' && plugin.staticPath) {
+                    // Support legacy 'ui-plugin' and new 'ui' type
+                    if ((plugin.type === 'ui' || plugin.type === 'ui-plugin') && plugin.staticPath) {
                         // Derive base route from name: @org/console -> console
                         const slug = plugin.slug || plugin.name.split('/').pop();
                         const baseRoute = `/${slug}`;

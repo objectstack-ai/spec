@@ -83,7 +83,7 @@ export const PluginSchema = PluginLifecycleSchema.extend({
   id: z.string().min(1).optional().describe('Unique Plugin ID (e.g. com.example.crm)'),
   type: z.enum([
     'standard',   // Default: General purpose backend logic (Service, Hook, etc.)
-    'ui-plugin',  // Frontend: Serves static assets/SPA (e.g. Console, Studio)
+    'ui',         // Frontend: Serves static assets/SPA (e.g. Console, Studio)
     'driver',     // Connectivity: Database or Storage adapters (e.g. SQL, S3)
     'server',     // Protocol: HTTP/RPC Servers (e.g. Hono, GraphQL)
     'app',        // Business: Vertical Solution Bundle (Metadata + Logic)
