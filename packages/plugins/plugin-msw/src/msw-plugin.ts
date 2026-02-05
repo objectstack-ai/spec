@@ -200,6 +200,18 @@ export class MSWPlugin implements Plugin {
             ...(this.options.customHandlers || [])
         ];
 
+        // Discovery Endpoint
+        this.handlers.push(
+            http.get('*/.well-known/objectstack', () => {
+                return new HttpResponse(null, {
+                    status: 302,
+                    headers: {
+                        Location: baseUrl
+                    }
+                })
+            })
+        );
+
         if (this.dispatcher) {
             const dispatcher = this.dispatcher;
             

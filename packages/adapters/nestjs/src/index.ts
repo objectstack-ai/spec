@@ -168,6 +168,16 @@ export class ObjectStackController {
   }
 }
 
+// --- Discovery Controller ---
+
+@Controller('.well-known')
+export class DiscoveryController {
+  @Get('objectstack')
+  discover(@Res() res: any) {
+    return res.redirect('/api');
+  }
+}
+
 // --- Module ---
 
 @Global()
@@ -181,7 +191,7 @@ export class ObjectStackModule {
 
     return {
       module: ObjectStackModule,
-      controllers: [ObjectStackController],
+      controllers: [ObjectStackController, DiscoveryController],
       providers: [kernelProvider, ObjectStackService],
       exports: [kernelProvider, ObjectStackService],
     };

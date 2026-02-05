@@ -123,3 +123,16 @@ export function createRouteHandler(options: NextAdapterOptions) {
     }
   }
 }
+
+/**
+ * Creates a discovery handler for Next.js App Router
+ * Handles /.well-known/objectstack
+ */
+export function createDiscoveryHandler(options: NextAdapterOptions) {
+  return async function discoveryHandler(req: NextRequest) {
+      const apiPath = options.prefix || '/api';
+      const url = new URL(req.url);
+      const targetUrl = new URL(apiPath, url.origin);
+      return NextResponse.redirect(targetUrl);
+  }
+}
