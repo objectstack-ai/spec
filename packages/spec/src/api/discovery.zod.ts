@@ -24,6 +24,9 @@ export const ApiRoutesSchema = z.object({
   
   /** Base URL for Schema Definitions (Metadata Protocol) */
   metadata: z.string().describe('e.g. /api/meta'),
+
+  /** Base URL for UI Configurations (Views, Menus) */
+  ui: z.string().optional().describe('e.g. /api/ui'),
   
   /** Base URL for Authentication */
   auth: z.string().describe('e.g. /api/auth'),

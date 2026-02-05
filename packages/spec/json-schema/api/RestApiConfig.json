@@ -29,6 +29,11 @@
           "default": true,
           "description": "Enable metadata API endpoints"
         },
+        "enableUi": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable UI API endpoints (Views, Menus, Layouts)"
+        },
         "enableBatch": {
           "type": "boolean",
           "default": true,

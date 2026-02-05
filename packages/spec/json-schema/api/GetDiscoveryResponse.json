@@ -56,6 +56,10 @@
               "type": "string",
               "description": "e.g. /api/meta"
             },
+            "ui": {
+              "type": "string",
+              "description": "e.g. /api/ui"
+            },
             "auth": {
               "type": "string",
               "description": "e.g. /api/auth"

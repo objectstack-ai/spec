@@ -68,6 +68,11 @@ export const RestApiConfigSchema = z.object({
   enableMetadata: z.boolean().default(true).describe('Enable metadata API endpoints'),
   
   /**
+   * Enable UI API endpoints
+   */
+  enableUi: z.boolean().default(true).describe('Enable UI API endpoints (Views, Menus, Layouts)'),
+  
+  /**
    * Enable batch operation endpoints
    */
   enableBatch: z.boolean().default(true).describe('Enable batch operation endpoints'),

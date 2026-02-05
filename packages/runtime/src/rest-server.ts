@@ -14,6 +14,7 @@ type NormalizedRestServerConfig = {
         apiPath: string | undefined;
         enableCrud: boolean;
         enableMetadata: boolean;
+        enableUi: boolean;
         enableBatch: boolean;
         enableDiscovery: boolean;
         documentation: RestApiConfig['documentation'];
@@ -120,6 +121,7 @@ export class RestServer {
                 apiPath: api.apiPath,
                 enableCrud: api.enableCrud ?? true,
                 enableMetadata: api.enableMetadata ?? true,
+                enableUi: api.enableUi ?? true,
                 enableBatch: api.enableBatch ?? true,
                 enableDiscovery: api.enableDiscovery ?? true,
                 documentation: api.documentation,
@@ -191,6 +193,11 @@ export class RestServer {
         if (this.config.api.enableMetadata) {
             this.registerMetadataEndpoints(basePath);
         }
+
+        // UI endpoints
+        if (this.config.api.enableUi) {
+            this.registerUiEndpoints(basePath);
+        }
         
         // CRUD endpoints
         if (this.config.api.enableCrud) {
@@ -225,6 +232,10 @@ export class RestServer {
                         
                         if (this.config.api.enableMetadata) {
                             discovery.endpoints.metadata = `${basePath}${this.config.metadata.prefix}`;
+                        }
+
+                        if (this.config.api.enableUi) {
+                            discovery.endpoints.ui = `${basePath}/ui`;
                         }
 
                         // Align auth endpoint with the versioned base path if present
@@ -378,6 +389,38 @@ export class RestServer {
             metadata: {
                 summary: 'Save specific metadata item',
                 tags: ['metadata'],
+            },
+        });
+    }
+
+    /**
+     * Register UI endpoints
+     */
+    private registerUiEndpoints(basePath: string): void {
+        const uiPath = `${basePath}/ui`;
+        
+        // GET /ui/view/:object/:type - Resolve view for object
+        this.routeManager.register({
+            method: 'GET',
+            path: `${uiPath}/view/:object/:type`,
+            handler: async (req: any, res: any) => {
+                try {
+                    if (this.protocol.getUiView) {
+                        const view = await this.protocol.getUiView({ 
+                            object: req.params.object, 
+                            type: req.params.type as any 
+                        });
+                        res.json(view);
+                    } else {
+                        res.status(501).json({ error: 'UI View resolution not supported by protocol implementation' });
+                    }
+                } catch (error: any) {
+                    res.status(404).json({ error: error.message });
+                }
+            },
+            metadata: {
+                summary: 'Resolve UI View for object',
+                tags: ['ui'],
             },
         });
     }
