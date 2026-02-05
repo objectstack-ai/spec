@@ -97,10 +97,45 @@ export class ObjectStackClient {
     this.logger.debug('Connecting to ObjectStack server', { baseUrl: this.baseUrl });
     
     try {
-      // Connect to the discovery endpoint at /api/v1
-      const res = await this.fetch(`${this.baseUrl}/api/v1`);
-      
-      const data = await res.json();
+      let data: DiscoveryResult | undefined;
+
+      // 1. Try Standard Discovery (.well-known)
+      try {
+        let wellKnownUrl: string;
+        try {
+          // If baseUrl is absolute, get origin
+          const url = new URL(this.baseUrl);
+          wellKnownUrl = `${url.origin}/.well-known/objectstack`;
+        } catch {
+          // If baseUrl is relative, use absolute path from root
+          wellKnownUrl = '/.well-known/objectstack';
+        }
+
+        this.logger.debug('Probing .well-known discovery', { url: wellKnownUrl });
+        const res = await this.fetchImpl(wellKnownUrl);
+        if (res.ok) {
+          data = await res.json();
+          this.logger.debug('Discovered via .well-known');
+        }
+      } catch (e) {
+        this.logger.debug('Standard discovery probe failed', { error: (e as Error).message });
+      }
+
+      // 2. Fallback to Legacy/Direct Path /api/v1
+      if (!data) {
+        const fallbackUrl = `${this.baseUrl}/api/v1`;
+        this.logger.debug('Falling back to legacy discovery', { url: fallbackUrl });
+        const res = await this.fetchImpl(fallbackUrl);
+        if (!res.ok) {
+           throw new Error(`Failed to connect to ${fallbackUrl}: ${res.statusText}`);
+        }
+        data = await res.json();
+      }
+
+      if (!data) {
+         throw new Error('Connection failed: No discovery data returned');
+      }
+
       this.discoveryInfo = data;
       
       this.logger.info('Connected to ObjectStack server', { 

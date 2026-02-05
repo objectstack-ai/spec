@@ -121,6 +121,13 @@ export class HonoServerPlugin implements Plugin {
             // Use the mount method we added to HonoHttpServer
             this.server.mount('/', app as any);
 
+            // Register Standard Discovery Endpoint
+            const rawApp = this.server.getRawApp();
+            rawApp.get('/.well-known/objectstack', (c) => {
+                return c.redirect(apiPath);
+            });
+            ctx.logger.debug('Registered standard discovery endpoint', { path: '/.well-known/objectstack', target: apiPath });
+
         } catch (e: any) {
              ctx.logger.error('Failed to create standard Hono app', e);
         }
@@ -165,8 +172,8 @@ export class HonoServerPlugin implements Plugin {
                     }
                 }
             }
-        } catch (err) {
-            ctx.logger.warn('Failed to auto-discover UI plugins', err);
+        } catch (err: any) {
+            ctx.logger.warn('Failed to auto-discover UI plugins', { error: err.message || err });
         }
 
         // Backward compatibility for staticRoot

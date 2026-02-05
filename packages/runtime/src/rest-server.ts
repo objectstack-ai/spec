@@ -213,6 +213,26 @@ export class RestServer {
             handler: async (_req: any, res: any) => {
                 try {
                     const discovery = await this.protocol.getDiscovery({});
+                    
+                    // Override discovery information with actual server configuration
+                    discovery.version = this.config.api.version;
+                    
+                    if (discovery.endpoints) {
+                        // Ensure endpoints match the actual mounted paths
+                        if (this.config.api.enableCrud) {
+                            discovery.endpoints.data = `${basePath}${this.config.crud.dataPrefix}`;
+                        }
+                        
+                        if (this.config.api.enableMetadata) {
+                            discovery.endpoints.metadata = `${basePath}${this.config.metadata.prefix}`;
+                        }
+
+                        // Align auth endpoint with the versioned base path if present
+                        if (discovery.endpoints.auth) {
+                            discovery.endpoints.auth = `${basePath}/auth`;
+                        }
+                    }
+
                     res.json(discovery);
                 } catch (error: any) {
                     res.status(500).json({ error: error.message });
