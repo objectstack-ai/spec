@@ -7,6 +7,17 @@ import * as Protocol from '../src/index';
 const OUT_DIR = path.resolve(__dirname, '../json-schema');
 
 /**
+ * Synchronous sleep utility using a busy-wait loop
+ * Only use for short delays in build scripts where blocking is acceptable
+ */
+function sleepSync(ms: number): void {
+  const end = Date.now() + ms;
+  while (Date.now() < end) {
+    // Busy wait
+  }
+}
+
+/**
  * Safely ensure directory exists with retry logic
  */
 function ensureDir(dirPath: string, retries = 3): void {
@@ -25,7 +36,7 @@ function ensureDir(dirPath: string, retries = 3): void {
       }
       // Wait a bit before retrying
       const delay = 100 * (i + 1);
-      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, delay);
+      sleepSync(delay);
     }
   }
 }
@@ -48,7 +59,7 @@ function writeFileWithRetry(filePath: string, content: string, retries = 3): voi
       }
       // Wait a bit before retrying
       const delay = 100 * (i + 1);
-      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, delay);
+      sleepSync(delay);
     }
   }
 }
@@ -60,8 +71,7 @@ if (fs.existsSync(OUT_DIR)) {
   
   // Wait a bit to ensure file system has synced
   // This prevents ENOENT errors on some file systems
-  const syncDelay = 50;
-  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, syncDelay);
+  sleepSync(50);
 }
 
 // Ensure output directory exists
