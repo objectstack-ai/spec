@@ -40,6 +40,35 @@ export class DriverPlugin implements Plugin {
 
     start = async (ctx: PluginContext) => {
         // Drivers don't need start phase, initialization happens in init
+        // Auto-configure alias for shorter access if it follows reverse domain standard
+        if (this.name.startsWith('com.objectstack.driver.')) {
+            // const shortName = this.name.split('.').pop();
+            // Optional: ctx.registerService(`driver.${shortName}`, this.driver);
+        }
+
+        // Auto-configure 'default' datasource if none exists
+        // We do this in 'start' phase to ensure metadata service is likely available
+        try {
+            const metadata = ctx.getService<any>('metadata');
+            if (metadata && metadata.addDatasource) {
+                // Check if default datasource exists
+                const datasources = metadata.getDatasources ? metadata.getDatasources() : [];
+                const hasDefault = datasources.some((ds: any) => ds.name === 'default');
+
+                if (!hasDefault) {
+                    ctx.logger.info(`[DriverPlugin] No 'default' datasource found. Auto-configuring '${this.driver.name}' as default.`);
+                    await metadata.addDatasource({
+                        name: 'default',
+                        driver: this.driver.name, // The driver's internal name (e.g. com.objectstack.driver.memory)
+                    });
+                }
+            }
+        } catch (e) {
+            // Metadata service might not be ready or available, which is fine
+            // We just skip auto-configuration
+            ctx.logger.debug('[DriverPlugin] Failed to auto-configure default datasource (Metadata service missing?)', { error: e });
+        }
+
         ctx.logger.debug('Driver plugin started', { driverName: this.driver.name || 'unknown' });
     }
 }
