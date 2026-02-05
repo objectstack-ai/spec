@@ -66,8 +66,11 @@ export class HonoServerPlugin implements Plugin {
         });
         
         // Register HTTP server service as IHttpServer
+        // Register as 'http.server' to match core requirements
+        ctx.registerService('http.server', this.server);
+        // Alias 'http-server' for backward compatibility
         ctx.registerService('http-server', this.server);
-        ctx.logger.info('HTTP server service registered', { serviceName: 'http-server' });
+        ctx.logger.info('HTTP server service registered', { serviceName: 'http.server' });
     }
 
     /**

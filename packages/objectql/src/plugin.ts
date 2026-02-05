@@ -26,13 +26,17 @@ export class ObjectQLPlugin implements Plugin {
         this.ql = new ObjectQL(this.hostContext);
     }
     
+    // Register as provider for Core Kernel Services
     ctx.registerService('objectql', this.ql);
-    ctx.logger.info('ObjectQL engine registered as service');
+    ctx.registerService('metadata', this.ql);
+    ctx.registerService('data', this.ql); // ObjectQL implements IDataEngine
+    ctx.registerService('auth', this.ql);
+    
+    ctx.logger.info('ObjectQL engine registered as service', { 
+        provides: ['objectql', 'metadata', 'data', 'auth'] 
+    });
 
     // Register Protocol Implementation
-    if (!this.ql) {
-        throw new Error('ObjectQL engine not initialized');
-    }
     const protocolShim = new ObjectStackProtocolImplementation(this.ql);
 
     ctx.registerService('protocol', protocolShim);
