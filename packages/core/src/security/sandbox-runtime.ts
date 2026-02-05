@@ -2,6 +2,7 @@ import type {
   SandboxConfig
 } from '@objectstack/spec/kernel';
 import type { ObjectLogger } from '../logger.js';
+import { getMemoryUsage } from '../utils/env.js';
 
 /**
  * Resource Usage Statistics
@@ -387,7 +388,7 @@ export class PluginSandboxRuntime {
     
     // Update memory usage (global process memory - not per-plugin)
     // TODO: Implement per-plugin memory tracking
-    const memoryUsage = process.memoryUsage();
+    const memoryUsage = getMemoryUsage();
     context.resourceUsage.memory.current = memoryUsage.heapUsed;
     context.resourceUsage.memory.peak = Math.max(
       context.resourceUsage.memory.peak,

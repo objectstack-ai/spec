@@ -18,6 +18,9 @@ export * as QA from './qa/index.js';
 // Export security utilities
 export * from './security/index.js';
 
+// Export environment utilities
+export * from './utils/env.js';
+
 // Export Phase 2 components - Advanced lifecycle management
 export * from './health-monitor.js';
 export * from './hot-reload.js';

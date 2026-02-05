@@ -1,4 +1,4 @@
-import { ObjectKernel } from '@objectstack/core';
+import { ObjectKernel, getEnv } from '@objectstack/core';
 import { CoreServiceName } from '@objectstack/spec/system';
 
 export interface HttpProtocolContext {
@@ -60,7 +60,7 @@ export class HttpDispatcher {
         return {
             name: 'ObjectOS',
             version: '1.0.0',
-            environment: process.env.NODE_ENV || 'development',
+            environment: getEnv('NODE_ENV', 'development'),
             routes: {
                 data: `${prefix}/data`,
                 metadata: `${prefix}/metadata`,

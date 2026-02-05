@@ -9,6 +9,7 @@ import type {
 } from '@objectstack/spec/api';
 import { ApiRegistryEntrySchema } from '@objectstack/spec/api';
 import type { Logger } from '@objectstack/spec/contracts';
+import { getEnv } from './utils/env.js';
 
 /**
  * API Registry Service
@@ -731,6 +732,6 @@ export class ApiRegistry {
    * @internal
    */
   private isProductionEnvironment(): boolean {
-    return process.env.NODE_ENV === 'production';
+    return getEnv('NODE_ENV') === 'production';
   }
 }

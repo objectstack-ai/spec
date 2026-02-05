@@ -3,6 +3,7 @@ import { createLogger, ObjectLogger } from './logger.js';
 import type { LoggerConfig } from '@objectstack/spec/system';
 import { ServiceRequirementDef } from '@objectstack/spec/system';
 import { PluginLoader, PluginMetadata, ServiceLifecycle, ServiceFactory, PluginStartupResult } from './plugin-loader.js';
+import { isNode, safeExit } from './utils/env.js';
 
 /**
  * Enhanced Kernel Configuration
@@ -556,15 +557,17 @@ export class ObjectKernel {
             
             try {
                 await this.shutdown();
-                process.exit(0);
+                safeExit(0);
             } catch (error) {
                 this.logger.error('Shutdown failed', error as Error);
-                process.exit(1);
+                safeExit(1);
             }
         };
         
-        for (const signal of signals) {
-            process.on(signal, () => handleShutdown(signal));
+        if (isNode) {
+            for (const signal of signals) {
+                process.on(signal, () => handleShutdown(signal));
+            }
         }
     }
 
