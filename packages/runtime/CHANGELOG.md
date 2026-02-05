@@ -1,5 +1,14 @@
 # @objectstack/runtime
 
+## 1.0.10
+
+### Patch Changes
+
+- Updated dependencies [10f52e1]
+  - @objectstack/core@1.0.10
+  - @objectstack/spec@1.0.10
+  - @objectstack/types@1.0.10
+
 ## 1.0.9
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@example/plugin-bi",
-  "version": "0.9.12",
+  "version": "0.9.13",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "exports": {

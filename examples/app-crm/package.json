@@ -1,6 +1,6 @@
 {
   "name": "@example/app-crm",
-  "version": "0.9.12",
+  "version": "0.9.13",
   "description": "Example CRM implementation using ObjectStack Protocol",
   "private": true,
   "main": "./objectstack.config.ts",
