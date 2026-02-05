@@ -1,6 +1,7 @@
 import { defineStack } from '@objectstack/spec';
-import { AppPlugin } from '@objectstack/runtime';
+import { AppPlugin, DriverPlugin } from '@objectstack/runtime';
 import { ObjectQLPlugin } from '@objectstack/objectql';
+import { InMemoryDriver } from '@objectstack/driver-memory';
 import CrmApp from '../app-crm/objectstack.config';
 import TodoApp from '../app-todo/objectstack.config';
 import BiPluginManifest from '../plugin-bi/objectstack.config';
@@ -22,6 +23,8 @@ export default defineStack({
   // The Runtime CLI will iterate this list and call kernel.use()
   plugins: [
     new ObjectQLPlugin(),
+    // Register Default Driver (Memory)
+    new DriverPlugin(new InMemoryDriver()),
     // Wrap Manifests/Stacks in AppPlugin adapter
     new AppPlugin(CrmApp),
     new AppPlugin(TodoApp),
