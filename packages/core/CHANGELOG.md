@@ -1,5 +1,12 @@
 # @objectstack/core
 
+## 1.0.10
+
+### Patch Changes
+
+- 10f52e1: fix: silence unhandled promise rejections when checking for async services in kernel
+  - @objectstack/spec@1.0.10
+
 ## 1.0.9
 
 ### Patch Changes

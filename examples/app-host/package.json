@@ -1,6 +1,6 @@
 {
   "name": "@example/app-host",
-  "version": "0.9.12",
+  "version": "0.9.13",
   "private": true,
   "scripts": {
     "dev": "objectstack serve --dev",
