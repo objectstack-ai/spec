@@ -29,6 +29,16 @@ export const promises = {
   rm: async () => {},
 };
 
+// os polyfills
+export const type = () => 'Browser';
+export const platform = () => 'browser';
+export const release = () => '1.0.0';
+export const tmpdir = () => '/tmp';
+export const homedir = () => '/';
+export const endianness = () => 'LE';
+export const arch = () => 'javascript';
+export const EOL = '\n';
+
 export const readFileSync = () => '';
 export const writeFileSync = () => {};
 export const statSync = () => ({ isDirectory: () => false, isFile: () => false, isSymbolicLink: () => false });
@@ -45,6 +55,11 @@ export const relative = () => '';
 export const posix = {};
 export const win32 = {};
 
+// fs/promises and other missing exports
+export const open = async () => ({ close: async () => {} });
+export const watchFile = () => {};
+export const unwatchFile = () => {};
+
 export const fileURLToPath = () => '';
 export const pathToFileURL = () => '';
 
@@ -52,13 +67,13 @@ export const readdir = () => {};
 export const readdirSync = () => [];
 export const readlink = () => {};
 export const readlinkSync = () => '';
-export const realpath = () => {};
+export const realpath = async () => '';
 export const realpathSync = () => '';
 realpathSync.native = () => '';
 
 export const constants = {};
-export const lstat = () => {};
-export const stat = () => {};
+export const lstat = async () => ({ isDirectory: () => false, isFile: () => false, isSymbolicLink: () => false });
+export const stat = async () => ({ isDirectory: () => false, isFile: () => false, isSymbolicLink: () => false });
 export const access = () => {};
 export const accessSync = () => {};
 export const mkdir = () => {};
