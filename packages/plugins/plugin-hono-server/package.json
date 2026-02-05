@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/plugin-hono-server",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "license": "Apache-2.0",
   "description": "Standard Hono Server Adapter for ObjectStack Runtime",
   "main": "dist/index.js",

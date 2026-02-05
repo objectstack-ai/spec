@@ -1,5 +1,11 @@
 # @objectstack/spec
 
+## 1.0.6
+
+### Patch Changes
+
+- a7f7b9d: fix(data): add missing expand, top, having, distinct fields to QuerySchema for OData/ObjectQL compatibility
+
 ## 1.0.5
 
 ### Patch Changes
