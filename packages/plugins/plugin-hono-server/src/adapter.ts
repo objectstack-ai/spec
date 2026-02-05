@@ -101,6 +101,14 @@ export class HonoHttpServer implements IHttpServer {
         }
     }
 
+    /**
+     * Mount a sub-application or router
+     */
+    mount(path: string, subApp: Hono) {
+        this.app.route(path, subApp);
+    }
+
+
     async listen(port: number) {
         return new Promise<void>((resolve) => {
             if (this.staticRoot) {

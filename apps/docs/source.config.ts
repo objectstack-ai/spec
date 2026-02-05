@@ -1,12 +1,9 @@
 import { defineDocs, defineConfig, frontmatterSchema } from 'fumadocs-mdx/config';
 import { z } from 'zod';
-import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
-const currentDir = path.dirname(fileURLToPath(import.meta.url));
-
 export const docs = defineDocs({
-  dir: path.resolve(currentDir, '../../content/docs'),
+  dir: path.resolve(process.cwd(), '../../content/docs'),
 });
 
 const blogSchema = frontmatterSchema.extend({
@@ -16,7 +13,7 @@ const blogSchema = frontmatterSchema.extend({
 });
 
 export const blog = defineDocs({
-  dir: path.resolve(currentDir, '../../content/blog'),
+  dir: path.resolve(process.cwd(), '../../content/blog'),
   docs: {
     schema: blogSchema,
   },
