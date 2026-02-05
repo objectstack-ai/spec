@@ -48,7 +48,7 @@ async function main() {
   const todoSchema = await client.meta.getObject('todo_task');
   console.log('Fields:', todoSchema.fields);
   
-  // Save Metadata (New!)
+  // Save Metadata (New Feature)
   await client.meta.saveItem('object', 'my_custom_object', {
     label: 'My Object',
     fields: { name: { type: 'text' } }
