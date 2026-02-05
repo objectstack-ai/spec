@@ -1,5 +1,4 @@
 ---
-"@objectstack/spec-monorepo": patch
 "@objectstack/core": patch
 "@objectstack/objectql": patch
 "@objectstack/runtime": patch
