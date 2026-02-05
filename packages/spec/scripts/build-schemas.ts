@@ -6,9 +6,19 @@ import * as Protocol from '../src/index';
 
 const OUT_DIR = path.resolve(__dirname, '../json-schema');
 
+// Retry and delay configuration
+const RETRY_DELAY_BASE_MS = 100; // Base delay in ms, multiplied by retry attempt number
+const FS_SYNC_DELAY_MS = 50;     // Delay after rmSync to ensure filesystem consistency
+const MAX_RETRIES = 3;            // Maximum number of retry attempts
+
 /**
  * Synchronous sleep utility using a busy-wait loop
  * Only use for short delays in build scripts where blocking is acceptable
+ * 
+ * Note: This blocks the event loop and consumes CPU. For production code,
+ * use async/await with setTimeout. For build scripts, this simple synchronous
+ * approach is acceptable as we need to ensure filesystem operations complete
+ * before proceeding.
  */
 function sleepSync(ms: number): void {
   const end = Date.now() + ms;
@@ -20,7 +30,7 @@ function sleepSync(ms: number): void {
 /**
  * Safely ensure directory exists with retry logic
  */
-function ensureDir(dirPath: string, retries = 3): void {
+function ensureDir(dirPath: string, retries = MAX_RETRIES): void {
   for (let i = 0; i < retries; i++) {
     try {
       if (!fs.existsSync(dirPath)) {
@@ -34,8 +44,8 @@ function ensureDir(dirPath: string, retries = 3): void {
       if (i === retries - 1) {
         throw new Error(`Failed to create directory ${dirPath}: ${error}`);
       }
-      // Wait a bit before retrying
-      const delay = 100 * (i + 1);
+      // Wait a bit before retrying with exponential backoff
+      const delay = RETRY_DELAY_BASE_MS * (i + 1);
       sleepSync(delay);
     }
   }
@@ -44,7 +54,7 @@ function ensureDir(dirPath: string, retries = 3): void {
 /**
  * Safely write file with retry logic
  */
-function writeFileWithRetry(filePath: string, content: string, retries = 3): void {
+function writeFileWithRetry(filePath: string, content: string, retries = MAX_RETRIES): void {
   for (let i = 0; i < retries; i++) {
     try {
       // Ensure the parent directory exists
@@ -57,8 +67,8 @@ function writeFileWithRetry(filePath: string, content: string, retries = 3): voi
       if (i === retries - 1) {
         throw new Error(`Failed to write file ${filePath}: ${error}`);
       }
-      // Wait a bit before retrying
-      const delay = 100 * (i + 1);
+      // Wait a bit before retrying with exponential backoff
+      const delay = RETRY_DELAY_BASE_MS * (i + 1);
       sleepSync(delay);
     }
   }
@@ -67,11 +77,11 @@ function writeFileWithRetry(filePath: string, content: string, retries = 3): voi
 // Clean output directory ensures no stale files remain
 if (fs.existsSync(OUT_DIR)) {
   console.log(`Cleaning output directory: ${OUT_DIR}`);
-  fs.rmSync(OUT_DIR, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
+  fs.rmSync(OUT_DIR, { recursive: true, force: true, maxRetries: MAX_RETRIES, retryDelay: RETRY_DELAY_BASE_MS });
   
   // Wait a bit to ensure file system has synced
-  // This prevents ENOENT errors on some file systems
-  sleepSync(50);
+  // This prevents ENOENT errors on some file systems, particularly in CI environments
+  sleepSync(FS_SYNC_DELAY_MS);
 }
 
 // Ensure output directory exists
@@ -129,6 +139,8 @@ for (const [namespaceName, namespaceExports] of Object.entries(Protocol)) {
 
 if (errorCount > 0) {
   console.error(`\n❌ Completed with ${errorCount} error(s). ${count} schemas generated successfully.`);
+  console.error(`\nNote: Partial schema generation occurred. Some schemas may be missing.`);
+  console.error(`This typically indicates a Zod schema definition error or file system issue.`);
   process.exit(1);
 }
 
