@@ -1,6 +1,6 @@
 {
   "name": "@example/app-react-crud",
-  "version": "0.9.8",
+  "version": "0.9.9",
   "description": "Complete MSW integration example with React CRUD components using ObjectStack Client",
   "private": true,
   "type": "module",
@@ -26,7 +26,7 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@objectstack/cli": "^1.0.5",
+    "@objectstack/cli": "^1.0.6",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/react": "^19.2.13",
     "@types/react-dom": "^18.3.1",
