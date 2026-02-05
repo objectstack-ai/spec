@@ -1,5 +1,14 @@
 # @objectstack/nestjs
 
+## 1.0.2
+
+### Patch Changes
+
+- 109fc5b: Unified patch release to align all package versions.
+- Updated dependencies [a0a6c85]
+- Updated dependencies [109fc5b]
+  - @objectstack/runtime@1.0.2
+
 ## 1.0.1
 
 ### Patch Changes

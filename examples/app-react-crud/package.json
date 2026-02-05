@@ -1,6 +1,6 @@
 {
   "name": "@example/app-react-crud",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "description": "Complete MSW integration example with React CRUD components using ObjectStack Client",
   "private": true,
   "type": "module",
