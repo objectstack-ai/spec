@@ -30,8 +30,24 @@ export class ObjectQLPlugin implements Plugin {
     ctx.registerService('objectql', this.ql);
     
     // Respect existing metadata service (e.g. from MetadataPlugin)
-    if (!ctx.getService('metadata')) {
-        ctx.registerService('metadata', this.ql);
+    let hasMetadata = false;
+    try {
+        if (ctx.getService('metadata')) {
+            hasMetadata = true;
+        }
+    } catch (e: any) {
+        // Ignore errors during check (e.g. "Service is async")
+    }
+
+    if (!hasMetadata) {
+        try {
+            ctx.registerService('metadata', this.ql);
+        } catch (e: any) {
+             // Ignore if already registered (race condition or async mis-detection)
+             if (!e.message?.includes('already registered')) {
+                 throw e;
+             }
+        }
     }
     
     ctx.registerService('data', this.ql); // ObjectQL implements IDataEngine
