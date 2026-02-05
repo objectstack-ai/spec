@@ -111,6 +111,21 @@ export class SchemaRegistry {
   }
 
   /**
+   * App Helpers
+   */
+  static registerApp(app: any) {
+    this.registerItem('app', app, 'name');
+  }
+
+  static getApp(name: string): any {
+    return this.getItem('app', name);
+  }
+
+  static getAllApps(): any[] {
+    return this.listItems('app');
+  }
+
+  /**
    * Plugin Helpers
    */
   static registerPlugin(manifest: ObjectStackManifest) {

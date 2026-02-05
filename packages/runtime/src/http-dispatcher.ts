@@ -191,6 +191,16 @@ export class HttpDispatcher {
         if (parts.length === 1) {
             const typeOrName = parts[0];
             
+            // Special handling for common pluralized types mapping to protocol
+            if (['apps', 'plugins'].includes(typeOrName)) {
+                const singularType = typeOrName.slice(0, -1);
+                const protocol = this.kernel?.context?.getService ? this.kernel.context.getService('protocol') : null;
+                if (protocol && typeof protocol.getMetaItems === 'function') {
+                     const data = await protocol.getMetaItems({ type: singularType });
+                     return { handled: true, response: this.success(data) };
+                }
+            }
+
             // Heuristic: if it maps to a known type, list it. Else treat as object name.
             if (['objects', 'apps', 'plugins'].includes(typeOrName)) {
                  if (typeOrName === 'objects') {

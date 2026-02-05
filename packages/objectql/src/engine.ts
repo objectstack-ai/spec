@@ -142,8 +142,14 @@ export class ObjectQL implements IDataEngine {
    * Register contribution (Manifest)
    */
   registerApp(manifest: any) {
-      const id = manifest.id;
+      const id = manifest.id || manifest.name;
       this.logger.debug('Registering app manifest', { id });
+
+      // Register the App Definition itself
+      if (manifest.name) {
+          SchemaRegistry.registerApp(manifest);
+          this.logger.debug('Registered App Definition', { app: manifest.name });
+      }
 
       // Register objects
       if (manifest.objects) {
