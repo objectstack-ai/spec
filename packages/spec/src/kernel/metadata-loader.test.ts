@@ -332,11 +332,19 @@ describe('MetadataLoaderProtocol', () => {
     it('should validate loader contract', () => {
       const contract = {
         name: 'filesystem',
+        protocol: 'file',
+        capabilities: {
+          read: true,
+          write: true,
+          watch: false,
+          list: true,
+        },
         supportedFormats: ['json', 'yaml', 'typescript'] as const,
       };
       
       const validated = MetadataLoaderContractSchema.parse(contract);
       expect(validated.name).toBe('filesystem');
+      expect(validated.protocol).toBe('file');
       expect(validated.supportsWatch).toBe(false); // default
       expect(validated.supportsWrite).toBe(true); // default
       expect(validated.supportsCache).toBe(true); // default
@@ -345,6 +353,13 @@ describe('MetadataLoaderProtocol', () => {
     it('should allow custom capabilities', () => {
       const contract = {
         name: 'http',
+        protocol: 'http',
+        capabilities: {
+          read: true,
+          write: false,
+          watch: false,
+          list: false,
+        },
         supportedFormats: ['json'] as const,
         supportsWatch: false,
         supportsWrite: false,
@@ -352,6 +367,7 @@ describe('MetadataLoaderProtocol', () => {
       };
       
       const validated = MetadataLoaderContractSchema.parse(contract);
+      expect(validated.protocol).toBe('http');
       expect(validated.supportsWrite).toBe(false);
       expect(validated.supportsCache).toBe(true);
     });
