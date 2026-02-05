@@ -9,8 +9,40 @@ on:
       - main
 
 jobs:
+  filter:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      docs: ${{ steps.changes.outputs.docs }}
+      core: ${{ steps.changes.outputs.core }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            docs:
+              - 'apps/docs/**'
+              - 'content/**'
+              - 'pnpm-lock.yaml'
+              - '.github/workflows/ci.yml'
+            core:
+              - 'packages/**'
+              - 'examples/**'
+              - 'apps/!(docs)/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'tsconfig.json'
+              - '.github/workflows/ci.yml'
+
   test:
-    name: Test
+    name: Test Core
+    needs: filter
+    if: needs.filter.outputs.core == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -52,14 +84,16 @@ jobs:
         run: pnpm --filter @objectstack/spec test:coverage
 
       - name: Upload coverage reports
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: packages/spec/coverage/
           retention-days: 30
 
-  build:
-    name: Build
+  build-core:
+    name: Build Core
+    needs: filter
+    if: needs.filter.outputs.core == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -94,8 +128,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build packages
-        run: pnpm run build
+      - name: Build packages (excluding docs)
+        run: pnpm --filter !@objectstack/docs -r build
 
       - name: Verify build outputs
         run: |
@@ -110,10 +144,59 @@ jobs:
           echo "Build outputs verified successfully"
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: build-output
           path: |
             packages/spec/dist/
             packages/spec/json-schema/
           retention-days: 30
+
+  build-docs:
+    name: Build Docs
+    needs: filter
+    if: needs.filter.outputs.docs == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.1
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      
+      - name: Setup Next.js cache
+        uses: actions/cache@v4
+        with:
+          path: apps/docs/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('apps/docs/**.[jt]s', 'apps/docs/**.[jt]sx', 'content/**/*.mdx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Docs
+        run: pnpm --filter @objectstack/docs build
