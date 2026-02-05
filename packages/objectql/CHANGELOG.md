@@ -1,5 +1,19 @@
 # @objectstack/objectql
 
+## 1.0.4
+
+### Patch Changes
+
+- 5d13533: refactor: fix service registration compatibility and improve logging
+  - plugin-hono-server: register 'http.server' service alias to match core requirements
+  - plugin-hono-server: fix console log to show the actual bound port instead of configured port
+  - plugin-hono-server: reduce log verbosity (moved non-essential logs to debug level)
+  - objectql: automatically register 'metadata', 'data', 'and 'auth' services during initialization to satisfy kernel contracts
+  - cli: fix race condition in `serve` command by awaiting plugin registration calls (`kernel.use`)
+  - @objectstack/spec@1.0.4
+  - @objectstack/core@1.0.4
+  - @objectstack/types@1.0.4
+
 ## 1.0.3
 
 ### Patch Changes
