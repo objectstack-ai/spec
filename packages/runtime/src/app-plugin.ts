@@ -97,5 +97,29 @@ export class AppPlugin implements Plugin {
         } else {
              ctx.logger.debug('No runtime.onEnable function found', { appId });
         }
+
+        // Data Seeding
+        // Check for 'data' in manifest (Legacy or Stack Definition)
+        const manifest = this.bundle.manifest || this.bundle;
+        if (manifest && Array.isArray(manifest.data)) {
+             ctx.logger.info(`[AppPlugin] Found initial data for ${appId}`, { count: manifest.data.length });
+             for (const dataset of manifest.data) {
+                 if (dataset.object && Array.isArray(dataset.records)) {
+                     ctx.logger.info(`[Seeder] Seeding ${dataset.records.length} records for ${dataset.object}`);
+                     for (const record of dataset.records) {
+                          try {
+                              // Use ObjectQL engine to insert data
+                              // This ensures driver resolution and hook execution
+                              // Use 'insert' which corresponds to 'create' in driver
+                              await ql.insert(dataset.object, record);
+                          } catch (err: any) {
+                              // Ignore duplicate errors if needed, or log/warn
+                              ctx.logger.warn(`[Seeder] Failed to insert ${dataset.object} record:`, { error: err.message });
+                          }
+                     }
+                 }
+             }
+             ctx.logger.info('[Seeder] Data seeding complete.');
+        }
     }
 }
