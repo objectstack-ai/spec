@@ -10,7 +10,7 @@
     "test": "vitest run"
   },
   "peerDependencies": {
-    "@objectstack/runtime": "^1.0.6"
+    "@objectstack/runtime": "workspace:*"
   },
   "dependencies": {
     "@objectstack/core": "workspace:*",
