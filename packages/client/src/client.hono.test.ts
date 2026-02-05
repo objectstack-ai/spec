@@ -101,12 +101,19 @@ describe('ObjectStackClient (with Hono Server)', () => {
         if (kernel) await kernel.shutdown();
     });
 
-    it('should connect to hono server', async () => {
+    it('should connect to hono server and discover endpoints', async () => {
         const client = new ObjectStackClient({ baseUrl });
         await client.connect();
         
-        // Client creates URL like ${baseUrl}/api/v1
-        expect(client).toBeDefined();
+        // Client should have populated discovery info
+        expect(client['discoveryInfo']).toBeDefined();
+        
+        // Verify endpoints from valid discovery response
+        // Standard: /api/v1/data, /api/v1/meta, etc.
+        const endpoints = client['discoveryInfo']!.routes;
+        expect(endpoints.data).toContain('/api/v1/data');
+        expect(endpoints.metadata).toContain('/api/v1/meta');
+        expect(endpoints.auth).toContain('/api/v1/auth');
     });
 
     it('should create and retrieve data via hono', async () => {

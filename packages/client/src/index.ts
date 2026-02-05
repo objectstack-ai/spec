@@ -114,7 +114,8 @@ export class ObjectStackClient {
         this.logger.debug('Probing .well-known discovery', { url: wellKnownUrl });
         const res = await this.fetchImpl(wellKnownUrl);
         if (res.ok) {
-          data = await res.json();
+          const body = await res.json();
+          data = body.data || body;
           this.logger.debug('Discovered via .well-known');
         }
       } catch (e) {
@@ -129,7 +130,8 @@ export class ObjectStackClient {
         if (!res.ok) {
            throw new Error(`Failed to connect to ${fallbackUrl}: ${res.statusText}`);
         }
-        data = await res.json();
+        const body = await res.json();
+        data = body.data || body;
       }
 
       if (!data) {
