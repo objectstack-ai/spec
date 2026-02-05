@@ -107,9 +107,11 @@ export class HonoServerPlugin implements Plugin {
             ctx.logger.info('Starting HTTP server', { port });
             
             await this.server.listen(port);
+            
+            const actualPort = this.server.getPort();
             ctx.logger.info('HTTP server started successfully', { 
-                port, 
-                url: `http://localhost:${port}` 
+                port: actualPort, 
+                url: `http://localhost:${actualPort}` 
             });
         });
     }

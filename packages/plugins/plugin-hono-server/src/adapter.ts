@@ -16,6 +16,7 @@ import { serveStatic } from '@hono/node-server/serve-static';
 export class HonoHttpServer implements IHttpServer {
     private app: Hono;
     private server: any;
+    private listeningPort: number | undefined;
 
     constructor(
         private port: number = 3000,
@@ -115,13 +116,19 @@ export class HonoHttpServer implements IHttpServer {
                 this.app.get('/*', serveStatic({ root: this.staticRoot }));
             }
             
+            const targetPort = port || this.port;
             this.server = serve({
                 fetch: this.app.fetch,
-                port: port || this.port
+                port: targetPort
             }, (info) => {
+                this.listeningPort = info.port;
                 resolve();
             });
         });
+    }
+
+    getPort() {
+        return this.listeningPort || this.port;
     }
 
     // Expose raw app for scenarios where standard interface is not enough
