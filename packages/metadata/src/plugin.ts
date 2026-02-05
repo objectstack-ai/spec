@@ -9,6 +9,7 @@ export interface MetadataPluginOptions {
 
 export class MetadataPlugin implements Plugin {
     name = 'com.objectstack.metadata';
+    type = 'standard';
     version = '1.0.0';
     
     private manager: NodeMetadataManager;

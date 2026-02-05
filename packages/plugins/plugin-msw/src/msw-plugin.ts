@@ -98,6 +98,7 @@ export interface MSWPluginOptions {
  */
 export class MSWPlugin implements Plugin {
     name = 'com.objectstack.plugin.msw';
+    type = 'server';
     version = '0.9.0';
     
     private options: MSWPluginOptions;

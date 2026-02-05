@@ -17,6 +17,7 @@ export class BiEngine {
 
 const plugin = definePlugin({
   id: 'com.objectstack.bi',
+  type: 'app',
   version: '1.0.0',
 
   onEnable: async (context) => {

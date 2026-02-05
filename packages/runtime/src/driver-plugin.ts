@@ -16,6 +16,7 @@ import { Plugin, PluginContext } from '@objectstack/core';
  */
 export class DriverPlugin implements Plugin {
     name: string;
+    type = 'driver';
     version = '1.0.0';
     // dependencies = ['com.objectstack.engine.objectql']; // Removed: Driver is a producer, not strictly a consumer during init
 

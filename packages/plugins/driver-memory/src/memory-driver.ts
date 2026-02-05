@@ -11,6 +11,7 @@ import { match, getValueByPath } from './memory-matcher.js';
  */
 export class InMemoryDriver implements DriverInterface {
   name = 'in-memory-driver';
+  type = 'driver';
   version = '0.0.1';
   private config: any;
   private logger: Logger;

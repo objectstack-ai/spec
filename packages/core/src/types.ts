@@ -74,6 +74,12 @@ export interface Plugin {
     version?: string;
 
     /**
+     * Plugin type (standard, ui, driver, server, app, theme, agent)
+     * @default 'standard'
+     */
+    type?: string;
+
+    /**
      * List of other plugin names that this plugin depends on.
      * The kernel ensures these plugins are initialized before this one.
      */

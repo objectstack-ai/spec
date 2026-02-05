@@ -64,6 +64,7 @@ export function createApiRegistryPlugin(
 
   return {
     name: 'com.objectstack.core.api-registry',
+    type: 'standard',
     version: '1.0.0',
 
     init: async (ctx: PluginContext) => {

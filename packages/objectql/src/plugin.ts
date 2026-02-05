@@ -6,7 +6,7 @@ export type { Plugin, PluginContext };
 
 export class ObjectQLPlugin implements Plugin {
   name = 'com.objectstack.engine.objectql';
-  type = 'objectql' as const;
+  type = 'standard';
   version = '1.0.0';
   
   private ql: ObjectQL | undefined;

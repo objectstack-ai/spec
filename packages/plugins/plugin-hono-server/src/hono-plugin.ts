@@ -57,6 +57,7 @@ export interface HonoPluginOptions {
  */
 export class HonoServerPlugin implements Plugin {
     name = 'com.objectstack.server.hono';
+    type = 'server';
     version = '0.9.0';
     
     // Constants

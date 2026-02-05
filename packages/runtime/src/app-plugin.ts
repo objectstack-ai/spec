@@ -11,6 +11,7 @@ import { Plugin, PluginContext } from '@objectstack/core';
  */
 export class AppPlugin implements Plugin {
     name: string;
+    type = 'app';
     version?: string;
     
     private bundle: any;
