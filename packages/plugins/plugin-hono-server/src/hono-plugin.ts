@@ -70,7 +70,7 @@ export class HonoServerPlugin implements Plugin {
         ctx.registerService('http.server', this.server);
         // Alias 'http-server' for backward compatibility
         ctx.registerService('http-server', this.server);
-        ctx.logger.info('HTTP server service registered', { serviceName: 'http.server' });
+        ctx.logger.debug('HTTP server service registered', { serviceName: 'http.server' });
     }
 
     /**
@@ -93,7 +93,7 @@ export class HonoServerPlugin implements Plugin {
                 prefix: apiPath // Use the calculated path
             });
             
-            ctx.logger.info('Mounting ObjectStack Runtime App', { prefix: apiPath });
+            ctx.logger.debug('Mounting ObjectStack Runtime App', { prefix: apiPath });
             // Use the mount method we added to HonoHttpServer
             this.server.mount('/', app as any);
 
@@ -104,7 +104,7 @@ export class HonoServerPlugin implements Plugin {
         // Start server on kernel:ready hook
         ctx.hook('kernel:ready', async () => {
             const port = this.options.port || 3000;
-            ctx.logger.info('Starting HTTP server', { port });
+            ctx.logger.debug('Starting HTTP server', { port });
             
             await this.server.listen(port);
             
