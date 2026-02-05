@@ -1,5 +1,16 @@
 # @objectstack/plugin-msw
 
+## 1.0.11
+
+### Patch Changes
+
+- 3a9b0f6: Fix metadata path compatibility by rebuilding with latest runtime changes.
+  - @objectstack/spec@1.0.11
+  - @objectstack/core@1.0.11
+  - @objectstack/types@1.0.11
+  - @objectstack/objectql@1.0.11
+  - @objectstack/runtime@1.0.11
+
 ## 1.0.10
 
 ### Patch Changes
