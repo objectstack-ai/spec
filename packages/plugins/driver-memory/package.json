@@ -5,6 +5,13 @@
   "description": "In-Memory Driver for ObjectStack (Reference Implementation)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
   "scripts": {
     "build": "tsup --config ../../../tsup.config.ts",
     "dev": "tsc -w",

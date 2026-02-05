@@ -5,6 +5,13 @@
   "description": "Official Client SDK for ObjectStack Protocol",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
   "scripts": {
     "build": "tsup --config ../../tsup.config.ts",
     "test": "vitest run"

@@ -5,6 +5,13 @@
   "description": "React hooks for ObjectStack Client SDK",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
   "scripts": {
     "build": "tsup src/index.tsx --config ../../tsup.config.ts"
   },
