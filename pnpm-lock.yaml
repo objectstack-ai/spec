@@ -574,6 +574,12 @@ importers:
       '@objectstack/core':
         specifier: workspace:*
         version: link:../../core
+      '@objectstack/hono':
+        specifier: workspace:*
+        version: link:../../adapters/hono
+      '@objectstack/runtime':
+        specifier: workspace:*
+        version: link:../../runtime
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../spec
@@ -596,6 +602,9 @@ importers:
 
   packages/plugins/plugin-msw:
     dependencies:
+      '@objectstack/core':
+        specifier: ^1.0.1
+        version: 1.0.1(pino@8.21.0)
       '@objectstack/objectql':
         specifier: workspace:*
         version: link:../../objectql
@@ -1413,6 +1422,18 @@ packages:
     resolution: {integrity: sha512-um0xL3fO7Mf4fDxcqx9KryrB7zgRM5JSlvGN5AGkP6JLM5XEKyjeAiPbNxdXVXQ16isuAhYpvP88NgL2BGd6aA==}
     engines: {node: '>=8.0.0', npm: '>=5.0.0'}
     hasBin: true
+
+  '@objectstack/core@1.0.1':
+    resolution: {integrity: sha512-T9kvVvbRg6fj9lree4TStrKdfSOduDBsmc1TyH/bPfo1Kxm9DvpFh3w4NcEmrbAEIbuRgtEShZtl4qnoVkYDAQ==}
+    peerDependencies:
+      pino: ^8.0.0
+    peerDependenciesMeta:
+      pino:
+        optional: true
+
+  '@objectstack/spec@1.0.1':
+    resolution: {integrity: sha512-1DSBQnoxjWpZw4noa+lci5ydSx2eg6Z609eB8HAlSWbNcwfJ5vJ77R/iHUYlwgQrCFHlfjT645vM+ztJMh+2bA==}
+    engines: {node: '>=18.0.0'}
 
   '@open-draft/deferred-promise@2.2.0':
     resolution: {integrity: sha512-CecwLWx3rhxVQF6V4bAgPS5t+So2sTbPgAzafKkVizyi7tlwpcFpdFqq+wqF2OwNBmqFuu6tOyouTuxgpMfzmA==}
@@ -5069,6 +5090,18 @@ snapshots:
       node-fetch: 2.7.0
     transitivePeerDependencies:
       - encoding
+
+  '@objectstack/core@1.0.1(pino@8.21.0)':
+    dependencies:
+      '@objectstack/spec': 1.0.1
+      pino-pretty: 10.3.1
+      zod: 4.3.6
+    optionalDependencies:
+      pino: 8.21.0
+
+  '@objectstack/spec@1.0.1':
+    dependencies:
+      zod: 3.25.76
 
   '@open-draft/deferred-promise@2.2.0': {}
 

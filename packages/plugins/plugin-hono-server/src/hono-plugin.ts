@@ -120,14 +120,3 @@ export class HonoServerPlugin implements Plugin {
         console.log('[HonoServerPlugin] Server stopped');
     }
 }
-
-
-    /**
-     * Destroy phase - Stop server
-     */
-    async destroy() {
-        this.server.close();
-        // Note: Can't use ctx.logger here since we're in destroy
-        console.log('[HonoServerPlugin] Server stopped');
-    }
-}

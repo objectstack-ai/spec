@@ -13,9 +13,10 @@
     "@objectstack/runtime": "^1.0.1"
   },
   "dependencies": {
+    "@objectstack/core": "^1.0.1",
+    "@objectstack/objectql": "workspace:*",
     "@objectstack/spec": "workspace:*",
     "@objectstack/types": "workspace:*",
-    "@objectstack/objectql": "workspace:*",
     "msw": "^2.0.0"
   },
   "devDependencies": {

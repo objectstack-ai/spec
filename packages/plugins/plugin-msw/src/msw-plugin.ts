@@ -9,7 +9,7 @@ import {
 } from '@objectstack/runtime';
 // import { ObjectStackProtocolImplementation } from '@objectstack/objectql';
 import { ObjectStackProtocol } from '@objectstack/spec/api';
-// import { IDataEngine } from '@objectstack/core';
+import { IDataEngine } from '@objectstack/core';
 
 // Helper for parsing query parameters
 function parseQueryParams(url: URL): Record<string, any> {
@@ -312,5 +312,48 @@ export class MSWPlugin implements Plugin {
      */
     getHandlers() {
         return this.handlers;
+    }
+}
+
+/**
+ * Static helper for interacting with ObjectStack protocol in MSW handlers
+ */
+export class ObjectStackServer {
+    private static protocol: ObjectStackProtocol;
+
+    static init(protocol: ObjectStackProtocol) {
+        this.protocol = protocol;
+    }
+
+    private static getProtocol(): ObjectStackProtocol {
+        if (!this.protocol) {
+            throw new Error('ObjectStackServer not initialized. Call ObjectStackServer.init(protocol) first.');
+        }
+        return this.protocol;
+    }
+
+    static async findData(objectName: string, query?: any) {
+        const body = await this.getProtocol().findData({ object: objectName, query });
+        return { data: body, status: 200 };
+    }
+
+    static async getData(objectName: string, id: string) {
+        const body = await this.getProtocol().getData({ object: objectName, id });
+        return { data: body, status: 200 };
+    }
+
+    static async createData(objectName: string, data: any) {
+        const body = await this.getProtocol().createData({ object: objectName, data });
+        return { data: body, status: 201 };
+    }
+
+    static async updateData(objectName: string, id: string, data: any) {
+        const body = await this.getProtocol().updateData({ object: objectName, id, data });
+        return { data: body, status: 200 };
+    }
+
+    static async deleteData(objectName: string, id: string) {
+        const body = await this.getProtocol().deleteData({ object: objectName, id });
+        return { data: body, status: 200 };
     }
 }
