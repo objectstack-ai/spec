@@ -127,6 +127,46 @@ export class HonoServerPlugin implements Plugin {
         // Configure Static Files & SPA Fallback
         const mounts: StaticMount[] = this.options.staticMounts || [];
 
+        // Auto-discover UI Plugins
+        try {
+            const rawKernel = ctx.getKernel() as any;
+            if (rawKernel.plugins) {
+                const loadedPlugins = rawKernel.plugins instanceof Map 
+                    ? Array.from(rawKernel.plugins.values()) 
+                    : Array.isArray(rawKernel.plugins) ? rawKernel.plugins : Object.values(rawKernel.plugins);
+
+                for (const plugin of (loadedPlugins as any[])) {
+                    // Check for UI Plugin signature
+                    if (plugin.type === 'ui-plugin' && plugin.staticPath) {
+                        // Derive base route from name: @org/console -> console
+                        const slug = plugin.slug || plugin.name.split('/').pop();
+                        const baseRoute = `/${slug}`;
+                        
+                        ctx.logger.debug(`Auto-mounting UI Plugin: ${plugin.name}`, { 
+                            path: baseRoute, 
+                            root: plugin.staticPath 
+                        });
+
+                        mounts.push({
+                            root: plugin.staticPath,
+                            path: baseRoute,
+                            rewrite: true, // Strip prefix: /console/assets/x -> /assets/x
+                            spa: true
+                        });
+
+                        // Handle Default Plugin Redirect
+                        if (plugin.default || plugin.isDefault) {
+                             const rawApp = this.server.getRawApp();
+                             rawApp.get('/', (c) => c.redirect(baseRoute));
+                             ctx.logger.debug(`Set default UI redirect: / -> ${baseRoute}`);
+                        }
+                    }
+                }
+            }
+        } catch (err) {
+            ctx.logger.warn('Failed to auto-discover UI plugins', err);
+        }
+
         // Backward compatibility for staticRoot
         if (this.options.staticRoot) {
             mounts.push({

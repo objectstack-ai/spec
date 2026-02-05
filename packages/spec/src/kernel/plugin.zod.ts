@@ -81,6 +81,20 @@ export type PluginLifecycleHooks = z.infer<typeof PluginLifecycleSchema>;
 
 export const PluginSchema = PluginLifecycleSchema.extend({
   id: z.string().min(1).optional().describe('Unique Plugin ID (e.g. com.example.crm)'),
+  type: z.enum([
+    'standard',   // Default: General purpose backend logic (Service, Hook, etc.)
+    'ui-plugin',  // Frontend: Serves static assets/SPA (e.g. Console, Studio)
+    'driver',     // Connectivity: Database or Storage adapters (e.g. SQL, S3)
+    'server',     // Protocol: HTTP/RPC Servers (e.g. Hono, GraphQL)
+    'app',        // Business: Vertical Solution Bundle (Metadata + Logic)
+    'theme',      // Appearance: UI Overrides & CSS Variables
+    'agent'       // AI: Autonomous Agent & Tool Definitions
+  ]).default('standard').optional().describe('Plugin Type categorization for runtime behavior'),
+  
+  staticPath: z.string().optional().describe('Absolute path to static assets (Required for type="ui-plugin")'),
+  slug: z.string().regex(/^[a-z0-9-_]+$/).optional().describe('URL path segment (Required for type="ui-plugin")'),
+  default: z.boolean().optional().describe('Serve at root path (Only one "ui-plugin" can be default)'),
+  
   version: z.string().regex(/^\d+\.\d+\.\d+$/).optional().describe('Semantic Version'),
   description: z.string().optional(),
   author: z.string().optional(),
