@@ -94,6 +94,9 @@ export class ObjectKernel {
                     const service = this.pluginLoader.getService(name);
                     if (service instanceof Promise) {
                         // If we found it in the loader but not in the sync map, it's likely a factory-based service or still loading
+                        // We must silence any potential rejection from this promise since we are about to throw our own error
+                        // and abandon the promise. Without this, Node.js will crash with "Unhandled Promise Rejection".
+                        service.catch(() => {});
                         throw new Error(`Service '${name}' is async - use await`);
                     }
                     return service as T;
