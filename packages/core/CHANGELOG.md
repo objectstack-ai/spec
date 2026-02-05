@@ -1,5 +1,17 @@
 # @objectstack/core
 
+## 1.0.5
+
+### Patch Changes
+
+- b1d24bd: refactor: migrate build system from tsc to tsup for faster builds
+  - Replaced `tsc` with `tsup` (using esbuild) across all packages
+  - Added shared `tsup.config.ts` in workspace root
+  - Added `tsup` as workspace dev dependency
+  - significantly improved build performance
+- Updated dependencies [b1d24bd]
+  - @objectstack/spec@1.0.5
+
 ## 1.0.4
 
 ### Patch Changes

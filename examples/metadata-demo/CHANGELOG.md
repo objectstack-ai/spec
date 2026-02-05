@@ -1,5 +1,14 @@
 # @example/metadata-demo
 
+## 0.1.5
+
+### Patch Changes
+
+- Updated dependencies [b1d24bd]
+  - @objectstack/core@1.0.5
+  - @objectstack/metadata@1.0.5
+  - @objectstack/spec@1.0.5
+
 ## 0.1.4
 
 ### Patch Changes

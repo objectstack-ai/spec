@@ -1,6 +1,6 @@
 {
   "name": "@example/app-todo",
-  "version": "0.9.7",
+  "version": "0.9.8",
   "description": "Example Todo App using ObjectStack Protocol",
   "private": true,
   "main": "./objectstack.config.ts",

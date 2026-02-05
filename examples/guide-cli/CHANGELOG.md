@@ -1,5 +1,14 @@
 # @example/guide-cli
 
+## 0.0.9
+
+### Patch Changes
+
+- Updated dependencies [b1d24bd]
+  - @objectstack/spec@1.0.5
+  - @objectstack/cli@1.0.5
+  - @example/plugin-bi@0.9.8
+
 ## 0.0.8
 
 ### Patch Changes
