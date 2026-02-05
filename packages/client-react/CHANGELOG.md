@@ -1,5 +1,14 @@
 # @objectstack/client-react
 
+## 1.0.7
+
+### Patch Changes
+
+- Updated dependencies [ebdf787]
+  - @objectstack/client@1.0.7
+  - @objectstack/spec@1.0.7
+  - @objectstack/core@1.0.7
+
 ## 1.0.6
 
 ### Patch Changes
