@@ -2,11 +2,10 @@
   "title": "Introduction",
   "pages": [
     "index",
-    "manifesto",
     "metadata-driven",
+    "design-principles",
     "architecture",
     "protocol-map",
-    "design-principles",
     "terminology",
     "quick-reference",
     "implementation-status",

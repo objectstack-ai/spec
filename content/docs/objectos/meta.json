@@ -4,11 +4,13 @@
     "index",
     "lifecycle",
     "runtime-capabilities",
+    "http-protocol",
+    "realtime-protocol",
+    "error-handling",
     "metadata-service",
     "plugin-spec",
     "config-resolution",
     "i18n-standard",
-    "permission-model",
-    "transport"
+    "permission-model"
   ]
 }
