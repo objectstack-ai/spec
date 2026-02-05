@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/cli",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Command Line Interface for ObjectStack Protocol",
   "main": "dist/index.js",
   "bin": {
@@ -36,7 +36,7 @@
     "zod": "^4.3.6"
   },
   "peerDependencies": {
-    "@objectstack/core": "^1.0.8"
+    "@objectstack/core": "^1.0.9"
   },
   "devDependencies": {
     "@types/node": "^25.1.0",
