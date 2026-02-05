@@ -131,7 +131,7 @@ export class MSWPlugin implements Plugin {
     /**
      * Start phase
      */
-    async start(ctx: PluginContext) {
+    start = async (ctx: PluginContext) => {
         ctx.logger.debug('Starting MSW plugin');
         
         try {

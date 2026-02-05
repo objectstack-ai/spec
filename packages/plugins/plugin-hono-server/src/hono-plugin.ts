@@ -8,10 +8,23 @@ import {
 import { HonoHttpServer } from './adapter';
 import { createHonoApp } from '@objectstack/hono';
 import { serveStatic } from '@hono/node-server/serve-static';
+import * as fs from 'fs';
+import * as path from 'path';
+
+export interface StaticMount {
+    root: string;
+    path?: string;
+    rewrite?: boolean;
+    spa?: boolean;
+}
 
 export interface HonoPluginOptions {
     port?: number;
     staticRoot?: string;
+    /**
+     * Multiple static resource mounts
+     */
+    staticMounts?: StaticMount[];
     /**
      * REST server configuration
      * Controls automatic endpoint generation and API behavior
@@ -112,31 +125,78 @@ export class HonoServerPlugin implements Plugin {
         }
 
         // Configure Static Files & SPA Fallback
+        const mounts: StaticMount[] = this.options.staticMounts || [];
+
+        // Backward compatibility for staticRoot
         if (this.options.staticRoot) {
+            mounts.push({
+                root: this.options.staticRoot,
+                path: '/',
+                rewrite: false,
+                spa: this.options.spaFallback
+            });
+        }
+
+        if (mounts.length > 0) {
             const rawApp = this.server.getRawApp();
-            const staticRoot = this.options.staticRoot;
             
-            ctx.logger.debug('Configuring static files', { root: staticRoot, spa: this.options.spaFallback });
-            
-            // 1. Static Files
-            rawApp.get('/*', serveStatic({ root: staticRoot }));
-            
-            // 2. SPA Fallback
-            if (this.options.spaFallback) {
-                rawApp.get('*', async (c, next) => {
-                    // Skip API paths
-                    const config = this.options.restConfig || {};
-                    const basePath = config.api?.basePath || '/api';
-                    
-                    if (c.req.path.startsWith(basePath)) {
-                        return next();
+            for (const mount of mounts) {
+                const mountRoot = path.resolve(process.cwd(), mount.root);
+
+                if (!fs.existsSync(mountRoot)) {
+                    ctx.logger.warn(`Static mount root not found: ${mountRoot}. Skipping.`);
+                    continue;
+                }
+
+                const mountPath = mount.path || '/';
+                const normalizedPath = mountPath.startsWith('/') ? mountPath : `/${mountPath}`;
+                const routePattern = normalizedPath === '/' ? '/*' : `${normalizedPath.replace(/\/$/, '')}/*`;
+                
+                // Routes to register: both /mount and /mount/*
+                const routes = normalizedPath === '/' ? [routePattern] : [normalizedPath, routePattern];
+
+                ctx.logger.debug('Mounting static files', { 
+                    to: routes, 
+                    from: mountRoot, 
+                    rewrite: mount.rewrite, 
+                    spa: mount.spa 
+                });
+
+                routes.forEach(route => {
+                    // 1. Serve Static Files
+                    rawApp.get(
+                        route, 
+                        serveStatic({ 
+                            root: mount.root,
+                            rewriteRequestPath: (reqPath) => {
+                                if (mount.rewrite && normalizedPath !== '/') {
+                                    // /console/assets/style.css -> /assets/style.css
+                                    if (reqPath.startsWith(normalizedPath)) {
+                                        return reqPath.substring(normalizedPath.length) || '/';
+                                    }
+                                }
+                                return reqPath;
+                            }
+                        })
+                    );
+
+                    // 2. SPA Fallback (Scoped)
+                    if (mount.spa) {
+                        rawApp.get(route, async (c, next) => {
+                            // Skip if API path check
+                            const config = this.options.restConfig || {};
+                            const basePath = config.api?.basePath || '/api';
+                            
+                            if (c.req.path.startsWith(basePath)) {
+                                return next();
+                            }
+
+                            return serveStatic({ 
+                                root: mount.root,
+                                rewriteRequestPath: () => 'index.html'
+                            })(c, next);
+                        });
                     }
-                    
-                    // Fallback to index.html
-                    return serveStatic({ 
-                        root: staticRoot,
-                        rewriteRequestPath: () => 'index.html'
-                    })(c, next);
                 });
             }
         }
