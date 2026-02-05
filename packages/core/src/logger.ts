@@ -1,5 +1,6 @@
 import type { LoggerConfig, LogLevel } from '@objectstack/spec/system';
 import type { Logger } from '@objectstack/spec/contracts';
+import { isNode } from './utils/env.js';
 
 /**
  * Universal Logger Implementation
@@ -25,7 +26,7 @@ export class ObjectLogger implements Logger {
 
     constructor(config: Partial<LoggerConfig> = {}) {
         // Detect runtime environment
-        this.isNode = typeof process !== 'undefined' && process.versions?.node !== undefined;
+        this.isNode = isNode;
 
         // Set defaults
         this.config = {
