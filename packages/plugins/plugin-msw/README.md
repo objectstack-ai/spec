@@ -21,12 +21,17 @@ See [objectstack.config.ts](./objectstack.config.ts) for the complete capability
 
 ## Features
 
-- 🎯 **Automatic API Mocking**: Automatically generates MSW handlers for all ObjectStack API endpoints
-- 🔄 **Runtime Integration**: Seamlessly integrates with ObjectStack Runtime Protocol
-- 🧪 **Testing Ready**: Perfect for unit tests, integration tests, and development
-- 🌐 **Browser & Node Support**: Works in both browser and Node.js environments
-- 🎨 **Custom Handlers**: Easily add custom MSW handlers alongside standard ones
-- 📝 **TypeScript First**: Fully typed with TypeScript
+- 🎯 **Unified Dispatcher**: Uses `@objectstack/runtime`'s `HttpDispatcher` to ensure mocks behave exactly like the real server.
+- 🔄 **Full Protocol Support**: Mocks **all** Runtime endpoints:
+  - Auth (`/auth`)
+  - Metadata (`/metadata`)
+  - Data (`/data` - with filtering, batching, relations)
+  - Storage (`/storage`)
+  - Analytics (`/analytics`)
+  - Automation (`/automation`)
+- 🌐 **Universal Support**: Works in Browser (Service Worker) and Node.js (Interceptor).
+- 🎨 **Custom Handlers**: Easily inject custom MSW handlers that take precedence.
+- 📝 **TypeScript First**: Fully typed configuration.
 
 ## Installation
 
@@ -44,10 +49,19 @@ import { ObjectKernel } from '@objectstack/runtime';
 
 const kernel = new ObjectKernel();
 
+// The MSW Plugin will initialize the HttpDispatcher and intercept requests
 kernel.use(new MSWPlugin({
   enableBrowser: true,
   baseUrl: '/api/v1',
   logRequests: true
+}));
+
+await kernel.start();
+```
+
+### Architecture
+
+The plugin uses the `HttpDispatcher` from the Runtime to process requests intercepted by MSW. This means your mock server runs the **actual** ObjectStack business logic (permissions, validation, flow execution) in-memory, providing a high-fidelity simulation of the backend.
 }));
 
 await kernel.bootstrap();
