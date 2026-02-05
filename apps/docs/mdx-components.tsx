@@ -5,5 +5,5 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
     ...defaultComponents,
     ...components,
-  };
+  } as MDXComponents;
 }
