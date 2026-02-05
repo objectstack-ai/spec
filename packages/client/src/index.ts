@@ -1,4 +1,4 @@
-import { QueryAST, SortNode, AggregationNode, WindowFunctionNode } from '@objectstack/spec/data';
+import { QueryAST, SortNode, AggregationNode } from '@objectstack/spec/data';
 import { 
   BatchUpdateRequest, 
   BatchUpdateResponse, 
