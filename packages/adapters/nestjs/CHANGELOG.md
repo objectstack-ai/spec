@@ -1,5 +1,13 @@
 # @objectstack/nestjs
 
+## 1.0.7
+
+### Patch Changes
+
+- ebdf787: feat: implement standard service discovery via `/.well-known/objectstack`
+- Updated dependencies [ebdf787]
+  - @objectstack/runtime@1.0.7
+
 ## 1.0.6
 
 ### Patch Changes
