@@ -79,16 +79,24 @@ export const PluginLifecycleSchema = z.object({
 
 export type PluginLifecycleHooks = z.infer<typeof PluginLifecycleSchema>;
 
+/**
+ * Shared Plugin Types
+ * These are the specialized plugin types common between Manifest (Package) and Plugin (Runtime).
+ */
+export const CORE_PLUGIN_TYPES = [
+  'ui',         // Frontend: Serves static assets/SPA (e.g. Console, Studio)
+  'driver',     // Connectivity: Database or Storage adapters (e.g. SQL, S3)
+  'server',     // Protocol: HTTP/RPC Servers (e.g. Hono, GraphQL)
+  'app',        // Business: Vertical Solution Bundle (Metadata + Logic)
+  'theme',      // Appearance: UI Overrides & CSS Variables
+  'agent'       // AI: Autonomous Agent & Tool Definitions
+] as const;
+
 export const PluginSchema = PluginLifecycleSchema.extend({
   id: z.string().min(1).optional().describe('Unique Plugin ID (e.g. com.example.crm)'),
   type: z.enum([
     'standard',   // Default: General purpose backend logic (Service, Hook, etc.)
-    'ui',         // Frontend: Serves static assets/SPA (e.g. Console, Studio)
-    'driver',     // Connectivity: Database or Storage adapters (e.g. SQL, S3)
-    'server',     // Protocol: HTTP/RPC Servers (e.g. Hono, GraphQL)
-    'app',        // Business: Vertical Solution Bundle (Metadata + Logic)
-    'theme',      // Appearance: UI Overrides & CSS Variables
-    'agent'       // AI: Autonomous Agent & Tool Definitions
+    ...CORE_PLUGIN_TYPES
   ]).default('standard').optional().describe('Plugin Type categorization for runtime behavior'),
   
   staticPath: z.string().optional().describe('Absolute path to static assets (Required for type="ui-plugin")'),
