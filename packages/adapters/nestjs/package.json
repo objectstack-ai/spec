@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsup --config ../../../tsup.config.ts"
   },
   "peerDependencies": {
     "@nestjs/common": "^10.0.0",

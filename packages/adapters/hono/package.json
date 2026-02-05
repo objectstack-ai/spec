@@ -12,7 +12,7 @@
     }
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsup --config ../../../tsup.config.ts"
   },
   "peerDependencies": {
     "@objectstack/runtime": "workspace:*",

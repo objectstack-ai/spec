@@ -29,6 +29,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
     "@types/node": "^25.1.0",
+    "tsup": "^8.0.2",
     "tsx": "^4.21.0",
     "typescript": "^5.3.0"
   },

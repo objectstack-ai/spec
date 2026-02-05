@@ -18,7 +18,7 @@
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsup --config ../../tsup.config.ts",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "test": "vitest run",
