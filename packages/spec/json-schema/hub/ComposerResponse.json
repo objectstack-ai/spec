@@ -22,11 +22,15 @@
             "type": {
               "type": "string",
               "enum": [
-                "app",
                 "plugin",
+                "ui",
                 "driver",
-                "module",
+                "server",
+                "app",
+                "theme",
+                "agent",
                 "objectql",
+                "module",
                 "gateway",
                 "adapter"
               ],
