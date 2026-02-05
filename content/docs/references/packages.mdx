@@ -301,11 +301,11 @@ ObjectStack is distributed as a monorepo containing **10 packages** organized in
 **Purpose:** Production HTTP server adapter using the Hono framework.
 
 **Key Features:**
+- **Standard Runtime**: Uses the unified `HttpDispatcher` and standard Hono adapter via `@objectstack/hono`
+- **Full Protocol Support**: Automatically provides all ObjectStack Runtime endpoints (Auth, Data, Metadata, Storage)
 - **Fast HTTP Server**: Uses Hono framework for high performance
 - **Port Configuration**: Configurable port with conflict detection
 - **Static File Serving**: Built-in static file support
-- **REST Endpoint Auto-registration**: Configurable via restConfig
-- **CRUD Endpoint Generation**: Automatic standard endpoint creation
 - **API Registry Integration**: Centralized endpoint management
 - **Metadata Caching**: ETag-based caching for metadata endpoints
 - **Edge Runtime Compatible**: Can run on edge environments
@@ -324,13 +324,14 @@ ObjectStack is distributed as a monorepo containing **10 packages** organized in
 
 **Description:** Mock Service Worker (MSW) Plugin for ObjectStack Testing
 
-**Purpose:** Testing plugin for mocking ObjectStack APIs in browser environments.
+**Purpose:** Testing plugin that mocks the entire ObjectStack backend in browser/node using the unified Runtime logic.
 
 **Key Features:**
-- **Browser Testing**: HTTP request mocking in browser environment
+- **Unified Dispatcher**: Uses `@objectstack/runtime`'s `HttpDispatcher` to behave exactly like the real server
+- **Full Protocol Mocking**: Mocks Auth, Metadata, Data, Storage, Analytics, and Automation endpoints
+- **Browser Testing**: High-fidelity backend simulation in browser environments
 - **Custom Handlers**: Support for custom request handlers
 - **Request Logging**: Built-in request/response logging
-- **ObjectStackServer Mock**: Integrates with ObjectStackServer for testing
 - **Service Worker Based**: Uses MSW's service worker approach
 
 **Use Cases:**
