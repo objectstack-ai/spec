@@ -55,9 +55,12 @@ export const BulkRequestSchema = z.object({
 /**
  * Export Request
  */
-export const ExportRequestSchema = QuerySchema.extend({
-  format: z.enum(['csv', 'json', 'xlsx']).default('csv'),
-});
+export const ExportRequestSchema = z.intersection(
+  QuerySchema,
+  z.object({
+    format: z.enum(['csv', 'json', 'xlsx']).default('csv'),
+  })
+);
 
 // ==========================================
 // 3. Response Payloads (Outputs)

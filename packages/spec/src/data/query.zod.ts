@@ -473,7 +473,7 @@ export type FullTextSearch = z.infer<typeof FullTextSearchSchema>;
  *   limit: 10
  * }
  */
-export const QuerySchema = z.object({
+const BaseQuerySchema = z.object({
   /** Target Entity */
   object: z.string().describe('Object name (e.g. account)'),
   
@@ -492,6 +492,7 @@ export const QuerySchema = z.object({
   /** Pagination */
   limit: z.number().optional().describe('Max records to return (LIMIT)'),
   offset: z.number().optional().describe('Records to skip (OFFSET)'),
+  top: z.number().optional().describe('Alias for limit (OData compatibility)'),
   cursor: z.record(z.string(), z.any()).optional().describe('Cursor for keyset pagination'),
   
   /** Joins */
@@ -513,8 +514,18 @@ export const QuerySchema = z.object({
   distinct: z.boolean().optional().describe('SELECT DISTINCT flag'),
 });
 
-export type QueryAST = z.infer<typeof QuerySchema>;
-export type QueryInput = z.input<typeof QuerySchema>;
+export type QueryAST = z.infer<typeof BaseQuerySchema> & {
+  expand?: Record<string, QueryAST>;
+};
+
+export type QueryInput = z.input<typeof BaseQuerySchema> & {
+  expand?: Record<string, QueryInput>;
+};
+
+export const QuerySchema: z.ZodType<QueryAST, z.ZodTypeDef, QueryInput> = BaseQuerySchema.extend({
+  expand: z.lazy(() => z.record(z.string(), QuerySchema)).optional().describe('Recursive relation loading (nested queries)'),
+});
+
 export type SortNode = z.infer<typeof SortNodeSchema>;
 export type AggregationNode = z.infer<typeof AggregationNodeSchema>;
 export type JoinNode = z.infer<typeof JoinNodeSchema>;

@@ -270,6 +270,10 @@
               "type": "number",
               "description": "Records to skip (OFFSET)"
             },
+            "top": {
+              "type": "number",
+              "description": "Alias for limit (OData compatibility)"
+            },
             "cursor": {
               "type": "object",
               "additionalProperties": {},
@@ -605,6 +609,11 @@
             "distinct": {
               "type": "boolean",
               "description": "SELECT DISTINCT flag"
+            },
+            "expand": {
+              "type": "object",
+              "additionalProperties": {},
+              "description": "Recursive relation loading (nested queries)"
             }
           },
           "required": [
