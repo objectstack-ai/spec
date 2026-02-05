@@ -1,0 +1,178 @@
+---
+title: "Metadata Service"
+description: The unified engine for loading, saving, and managing configuration metadata across the platform
+---
+
+import { Database, FileCode, Layers, RefreshCw, Save } from 'lucide-react';
+
+The **Metadata Service** is the backbone of ObjectOS configuration management. It decouples the *definition* of metadata (Objects, Views, Flows) from their *storage* (Filesystem, Database, Git), allowing the platform to run seamlessly in local dev environments, serverless functions, or distributed clusters.
+
+## Architecture
+
+The Metadata Service uses a **Provider/Loader** architecture. The core `MetadataManager` acts as a registry and orchestrator, delegating actual I/O operations to registered **Loaders**.
+
+<Cards>
+  <Card
+    icon={<Layers />}
+    title="Registry Pattern"
+    description="The Manager accepts any number of Loaders. You can mix System files with Database records seamlessly."
+  />
+  <Card
+    icon={<FileCode />}
+    title="Format Agnostic"
+    description="Automatically handles JSON, YAML, and TypeScript formats. Developers write TS, Machines write JSON."
+  />
+  <Card
+    icon={<RefreshCw />}
+    title="Hot Reload"
+    description="Built-in file watching. Edit a file in VS Code, and the runtime updates immediately."
+  />
+  <Card
+    icon={<Save />}
+    title="Atomic Persistence"
+    description="Safe save API with backup generation and atomic writes to prevent data corruption."
+  />
+</Cards>
+
+## Core Concepts
+
+### 1. The Manager
+
+The `MetadataManager` is the single entry point for all metadata operations. It handles caching, serialization, and correct routing of requests to loaders.
+
+```typescript
+import { MetadataManager } from '@objectstack/metadata';
+
+const manager = new MetadataManager({
+  rootDir: './src',
+  watch: true // Enable hot reload
+});
+
+// Load an Object Definition
+const accountObj = await manager.load('object', 'account');
+```
+
+### 2. Loaders (Data Sources)
+
+Loaders adapt different storage backends to a common interface.
+
+| Loader | Type | Description |
+| :--- | :--- | :--- |
+| **FilesystemLoader** | `filesystem` | Reads/Writes `.json`, `.yaml`, `.ts` files from disk. Primary for development. |
+| **DatabaseLoader** | `database` | Stores metadata in `_framework_metadata` tables. Primary for user customization. |
+| **RemoteLoader** | `http` | Fetches metadata from a remote API or git repository. |
+
+### 3. Granular Capabilities
+
+Each Loader declares its capabilities via a **Contract**:
+
+```typescript
+export interface MetadataLoaderContract {
+  name: string;
+  protocol: 'file' | 'http' | 'database';
+  capabilities: {
+    read: boolean;  // Can read items?
+    write: boolean; // Can save modifications?
+    watch: boolean; // Can push real-time updates?
+    list: boolean;  // Can enumerate items?
+  };
+}
+```
+
+## Internal Persistence API
+
+The Metadata Service supports full CRUD operations. The `save` API is intelligent and can be directed to specific loaders.
+
+### Saving Metadata (Node.js)
+
+```typescript
+// 1. Simple Save (Auto-detects loader)
+await manager.save('object', 'customer_profile', data);
+
+// 2. Targeted Save (Specific Source)
+await manager.save('object', 'customer_profile', data, {
+  loader: 'filesystem',
+  format: 'yaml', // Convert to YAML on save
+  atomic: true    // Use write-rename strategy for safety
+});
+
+// 3. Create Backup
+await manager.save('object', 'workflow_config', data, {
+  backup: true // Creates 'workflow_config.json.bak' before writing
+});
+```
+
+### Loading Strategy
+
+When `load()` is called, the Manager iterates through registered loaders. This allows for clear precedence rules (e.g., Database overrides Filesystem).
+
+```mermaid
+graph LR
+    A[Request: load('object', 'user')] --> B{Metadata Manager}
+    B --> C[Check Database Loader]
+    C -- Not Found --> D[Check Filesystem Loader]
+    D -- Found --> E[Return & Cache]
+    C -- Found --> E
+```
+
+## Watching & Hot Reload
+
+The Service emits events when metadata changes, allowing the runtime to reconfigure itself without restarting.
+
+```typescript
+manager.watch('object', (event) => {
+  console.log(`Object ${event.name} changed!`);
+  console.log(`New Schema:`, event.data);
+  
+  // Trigger system update
+  SchemaEngine.refresh(event.name);
+});
+```
+
+## Remote API Access
+
+<Callout type="info">
+  **New in v1.0:** The Metadata Service now supports full read/write operations via the REST API and Client SDK.
+</Callout>
+
+The system provides standard REST and TypeScript APIs for interacting with metadata, including **full read/write support**.
+
+### REST API
+
+- `GET /api/metadata`: List all metadata types.
+- `GET /api/metadata/:type`: List items of a type.
+- `GET /api/metadata/:type/:name`: Get simplified definition of an item.
+- `PUT /api/metadata/:type/:name`: Save or update a metadata item.
+
+### Client SDK
+
+```typescript
+// Save metadata from the browser
+const result = await client.meta.saveItem('object', 'customer', {
+  label: 'Customer',
+  fields: {
+    name: { type: 'text', required: true }
+  }
+});
+```
+
+### Server-Side Protocol
+
+```typescript
+// Access from Protocol Service (Server-side)
+const protocol = kernel.getService('protocol');
+await protocol.saveMetaItem({ 
+  type: 'object', 
+  name: 'lead', 
+  item: { ... } 
+});
+```
+
+
+## CLI & Tooling Integration
+
+The Metadata Service is designed to power the CLI.
+
+- **`objectstack pull`**: Uses the `save` API to write database metadata to local files.
+- **`objectstack push`**: Uses the `load` API to read local files and push to the database.
+

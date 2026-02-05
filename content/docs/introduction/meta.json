@@ -5,8 +5,11 @@
     "manifesto",
     "metadata-driven",
     "architecture",
+    "protocol-map",
     "design-principles",
     "terminology",
+    "quick-reference",
+    "implementation-status",
     "releases"
   ]
 }

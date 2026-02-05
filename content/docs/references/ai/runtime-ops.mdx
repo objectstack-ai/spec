@@ -1,0 +1,178 @@
+---
+title: Runtime Ops
+description: Runtime Ops protocol schemas
+---
+
+# Runtime AI Operations (AIOps) Protocol
+
+Defines protocols for AI-powered runtime operations including:
+
+- Self-healing and automatic recovery
+
+- Intelligent auto-scaling
+
+- Anomaly detection and prediction
+
+- Performance optimization
+
+- Root cause analysis
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/runtime-ops.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AIOpsAgentConfig, AnomalyDetectionConfig, AutoScalingPolicy, PerformanceOptimization, RootCauseAnalysisRequest, RootCauseAnalysisResult, SelfHealingAction, SelfHealingConfig } from '@objectstack/spec/ai';
+import type { AIOpsAgentConfig, AnomalyDetectionConfig, AutoScalingPolicy, PerformanceOptimization, RootCauseAnalysisRequest, RootCauseAnalysisResult, SelfHealingAction, SelfHealingConfig } from '@objectstack/spec/ai';
+
+// Validate data
+const result = AIOpsAgentConfig.parse(data);
+```
+
+---
+
+## AIOpsAgentConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **agentId** | `string` | ✅ |  |
+| **pluginId** | `string` | ✅ |  |
+| **selfHealing** | `Object` | optional |  |
+| **autoScaling** | `Object[]` | optional |  |
+| **monitoring** | `Object` | optional |  |
+| **optimization** | `Object` | optional |  |
+| **incidentResponse** | `Object` | optional |  |
+
+
+---
+
+## AnomalyDetectionConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional |  |
+| **metrics** | `Enum<'cpu-usage' \| 'memory-usage' \| 'response-time' \| 'error-rate' \| 'throughput' \| 'latency' \| 'connection-count' \| 'queue-depth'>[]` | ✅ |  |
+| **algorithm** | `Enum<'statistical' \| 'machine-learning' \| 'heuristic' \| 'hybrid'>` | optional |  |
+| **sensitivity** | `Enum<'low' \| 'medium' \| 'high'>` | optional | How aggressively to detect anomalies |
+| **timeWindow** | `integer` | optional | Historical data window for anomaly detection |
+| **confidenceThreshold** | `number` | optional | Minimum confidence to flag as anomaly |
+| **alertOnDetection** | `boolean` | optional |  |
+
+
+---
+
+## AutoScalingPolicy
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional |  |
+| **metric** | `Enum<'cpu-usage' \| 'memory-usage' \| 'request-rate' \| 'response-time' \| 'queue-depth' \| 'custom'>` | ✅ |  |
+| **customMetric** | `string` | optional |  |
+| **targetValue** | `number` | ✅ | Desired metric value (e.g., 70 for 70% CPU) |
+| **bounds** | `Object` | ✅ |  |
+| **scaleUp** | `Object` | ✅ |  |
+| **scaleDown** | `Object` | ✅ |  |
+| **predictive** | `Object` | optional |  |
+
+
+---
+
+## PerformanceOptimization
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ |  |
+| **pluginId** | `string` | ✅ |  |
+| **type** | `Enum<'caching' \| 'query-optimization' \| 'resource-allocation' \| 'code-refactoring' \| 'architecture-change' \| 'configuration-tuning'>` | ✅ |  |
+| **description** | `string` | ✅ |  |
+| **expectedImpact** | `Object` | ✅ |  |
+| **difficulty** | `Enum<'trivial' \| 'easy' \| 'moderate' \| 'complex' \| 'very-complex'>` | ✅ |  |
+| **steps** | `string[]` | ✅ |  |
+| **risks** | `string[]` | optional |  |
+| **confidence** | `number` | ✅ |  |
+| **priority** | `Enum<'low' \| 'medium' \| 'high' \| 'critical'>` | ✅ |  |
+
+
+---
+
+## RootCauseAnalysisRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **incidentId** | `string` | ✅ |  |
+| **pluginId** | `string` | ✅ |  |
+| **symptoms** | `Object[]` | ✅ |  |
+| **timeRange** | `Object` | ✅ |  |
+| **analyzeLogs** | `boolean` | optional |  |
+| **analyzeMetrics** | `boolean` | optional |  |
+| **analyzeDependencies** | `boolean` | optional |  |
+| **context** | `Record<string, any>` | optional |  |
+
+
+---
+
+## RootCauseAnalysisResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **analysisId** | `string` | ✅ |  |
+| **incidentId** | `string` | ✅ |  |
+| **rootCauses** | `Object[]` | ✅ |  |
+| **contributingFactors** | `Object[]` | optional |  |
+| **timeline** | `Object[]` | optional |  |
+| **remediation** | `Object` | optional |  |
+| **overallConfidence** | `number` | ✅ |  |
+| **timestamp** | `string` | ✅ |  |
+
+
+---
+
+## SelfHealingAction
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ |  |
+| **type** | `Enum<'restart' \| 'scale' \| 'rollback' \| 'clear-cache' \| 'adjust-config' \| 'execute-script' \| 'notify'>` | ✅ |  |
+| **trigger** | `Object` | ✅ |  |
+| **parameters** | `Record<string, any>` | optional |  |
+| **maxAttempts** | `integer` | optional |  |
+| **cooldown** | `integer` | optional |  |
+| **timeout** | `integer` | optional |  |
+| **requireApproval** | `boolean` | optional |  |
+| **priority** | `integer` | optional | Action priority (lower number = higher priority) |
+
+
+---
+
+## SelfHealingConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional |  |
+| **strategy** | `Enum<'conservative' \| 'moderate' \| 'aggressive'>` | optional |  |
+| **actions** | `Object[]` | ✅ |  |
+| **anomalyDetection** | `Object` | optional |  |
+| **maxConcurrentHealing** | `integer` | optional | Maximum number of simultaneous healing attempts |
+| **learning** | `Object` | optional |  |
+
+
+---
+

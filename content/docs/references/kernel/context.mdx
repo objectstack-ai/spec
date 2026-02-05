@@ -1,0 +1,57 @@
+---
+title: Context
+description: Context protocol schemas
+---
+
+Runtime Mode Enum
+
+Defines the operating mode of the kernel
+
+<Callout type="info">
+**Source:** `packages/spec/src/kernel/context.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { KernelContext, RuntimeMode } from '@objectstack/spec/kernel';
+import type { KernelContext, RuntimeMode } from '@objectstack/spec/kernel';
+
+// Validate data
+const result = KernelContext.parse(data);
+```
+
+---
+
+## KernelContext
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **instanceId** | `string` | ✅ | Unique UUID for this running kernel process |
+| **mode** | `Enum<'development' \| 'production' \| 'test' \| 'provisioning'>` | optional | Kernel operating mode |
+| **version** | `string` | ✅ | Kernel version |
+| **appName** | `string` | optional | Host application name |
+| **cwd** | `string` | ✅ | Current working directory |
+| **workspaceRoot** | `string` | optional | Workspace root if different from cwd |
+| **startTime** | `integer` | ✅ | Boot timestamp (ms) |
+| **features** | `Record<string, boolean>` | optional | Global feature toggles |
+
+
+---
+
+## RuntimeMode
+
+Kernel operating mode
+
+### Allowed Values
+
+* `development`
+* `production`
+* `test`
+* `provisioning`
+
+
+---
+

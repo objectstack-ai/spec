@@ -71,4 +71,3 @@ next-env.d.ts
 .source/
 apps/*/. source/
 apps/*/.next/docs/
-docs/

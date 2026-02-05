@@ -1,0 +1,47 @@
+---
+title: Service Registry
+description: Dependency Injection mechanism in ObjectStack
+---
+
+# Service Registry
+
+ObjectStack uses a lightweight **Service Locator pattern** for Dependency Injection. Services are the primary way plugins interact.
+
+## Concepts
+
+- **Service Name**: A unique string identifier (e.g., `http-server`, `database`, `auth-provider`).
+- **Service Implementation**: Any JavaScript object, class instance, or function.
+
+## Registering Services
+
+Services should be registered during the `init` phase.
+
+```typescript
+// factory pattern (Lazy)
+// If you pass a Promise or Factory, usage needs await
+```
+
+*Note: The current specific implementation details of factory/async/scoped services should be referenced from the `service-lifecycle` protocol.*
+
+## Consuming Services
+
+```typescript
+// Synchronous retrieval (if already initialized)
+const http = ctx.getService<IHttpServer>('http-server');
+
+// Using the service
+http.get('/hello', (c) => c.text('Hello'));
+```
+
+## Standard Services
+
+The core ecosystem defines several standard service contracts that you can implement or consume:
+
+| Service Name | Interface | Description |
+| :--- | :--- | :--- |
+| `http-server` | `IHttpServer` | Validated by `plugin-hono-server` or `adapter-nextjs`. |
+| `database` | `IDatabaseDriver` | Implemented by `driver-postgres`, `driver-sqlite`. |
+| `protocol` | `IProtocolEngine` | The ObjectQL engine interface. |
+| `api-registry` | `ApiRegistry` | Central registry for REST/GraphQL endpoints. |
+
+Replacing a core component (like the HTTP server) is as simple as removing the default plugin and registering your own that provides the same service name.

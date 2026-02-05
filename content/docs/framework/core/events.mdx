@@ -1,0 +1,52 @@
+---
+title: Events & Hooks
+description: System-wide event bus
+---
+
+# Events & Hooks
+
+The Kernel provides a high-performance, typed Event Bus for loose coupling.
+
+## Lifecycle Events
+
+These events are emitted by the Kernel itself during the bootstrap process.
+
+| Event | Description |
+| :--- | :--- |
+| `kernel:init` | The kernel has started initialization. |
+| `kernel:ready` | All plugins have successfully started. System is live. |
+| `kernel:shutdown` | Shutdown signal received. |
+
+## Data Events
+
+The Data Engine emits events for record mutations.
+
+| Event | Payload |
+| :--- | :--- |
+| `data:beforeCreate` | `{ object, record }` - Can modify record or throw error to cancel. |
+| `data:afterCreate` | `{ object, record, id }` - Post-processing. |
+| `data:beforeUpdate` | `{ object, id, record }` |
+| `data:afterUpdate` | ... |
+
+## Usage
+
+### Listening to Events
+
+```typescript
+ctx.hook('kernel:ready', async () => {
+    ctx.logger.info("System is ready! Sending startup notification...");
+});
+
+ctx.hook('data:beforeCreate', async ({ object, record }) => {
+    if (object === 'order' && record.amount > 10000) {
+        ctx.logger.warn('Large order detected!');
+    }
+});
+```
+
+### Emitting Events
+
+```typescript
+// Custom business event
+ctx.emit('order:shipped', { orderId: '123' });
+```

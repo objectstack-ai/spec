@@ -1,0 +1,51 @@
+---
+title: Plugin Versioning
+description: Plugin Versioning protocol schemas
+---
+
+<Callout type="info">
+**Source:** `packages/spec/src/hub/plugin-versioning.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { DependencyConflict, DependencyResolutionResult } from '@objectstack/spec/hub';
+import type { DependencyConflict, DependencyResolutionResult } from '@objectstack/spec/hub';
+
+// Validate data
+const result = DependencyConflict.parse(data);
+```
+
+---
+
+## DependencyConflict
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **package** | `string` | ✅ |  |
+| **conflicts** | `Object[]` | ✅ |  |
+| **resolution** | `Object` | optional |  |
+| **severity** | `Enum<'error' \| 'warning' \| 'info'>` | ✅ |  |
+
+
+---
+
+## DependencyResolutionResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **status** | `Enum<'success' \| 'conflict' \| 'error'>` | ✅ |  |
+| **graph** | `Object` | optional |  |
+| **conflicts** | `Object[]` | optional |  |
+| **errors** | `Object[]` | optional |  |
+| **installOrder** | `string[]` | optional |  |
+| **resolvedIn** | `integer` | optional |  |
+
+
+---
+

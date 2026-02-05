@@ -1,0 +1,82 @@
+---
+title: Permission
+description: Permission protocol schemas
+---
+
+Entity (Object) Level Permissions
+
+Defines CRUD + VAMA (View All / Modify All) + Lifecycle access.
+
+Refined with enterprise data lifecycle controls:
+
+- Transfer (Ownership change)
+
+- Restore (Soft delete recovery)
+
+- Purge (Hard delete / Compliance)
+
+<Callout type="info">
+**Source:** `packages/spec/src/security/permission.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { FieldPermission, ObjectPermission, PermissionSet } from '@objectstack/spec/security';
+import type { FieldPermission, ObjectPermission, PermissionSet } from '@objectstack/spec/security';
+
+// Validate data
+const result = FieldPermission.parse(data);
+```
+
+---
+
+## FieldPermission
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **readable** | `boolean` | optional | Field read access |
+| **editable** | `boolean` | optional | Field edit access |
+
+
+---
+
+## ObjectPermission
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **allowCreate** | `boolean` | optional | Create permission |
+| **allowRead** | `boolean` | optional | Read permission |
+| **allowEdit** | `boolean` | optional | Edit permission |
+| **allowDelete** | `boolean` | optional | Delete permission |
+| **allowTransfer** | `boolean` | optional | Change record ownership |
+| **allowRestore** | `boolean` | optional | Restore from trash (Undelete) |
+| **allowPurge** | `boolean` | optional | Permanently delete (Hard Delete/GDPR) |
+| **viewAllRecords** | `boolean` | optional | View All Data (Bypass Sharing) |
+| **modifyAllRecords** | `boolean` | optional | Modify All Data (Bypass Sharing) |
+
+
+---
+
+## PermissionSet
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Permission set unique name (lowercase snake_case) |
+| **label** | `string` | optional | Display label |
+| **isProfile** | `boolean` | optional | Whether this is a user profile |
+| **objects** | `Record<string, Object>` | ✅ | Entity permissions |
+| **fields** | `Record<string, Object>` | optional | Field level security |
+| **systemPermissions** | `string[]` | optional | System level capabilities |
+| **rowLevelSecurity** | `Object[]` | optional | Row-level security policies (see rls.zod.ts for full spec) |
+| **contextVariables** | `Record<string, any>` | optional | Context variables for RLS evaluation |
+
+
+---
+

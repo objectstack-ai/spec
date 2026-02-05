@@ -1,0 +1,34 @@
+---
+title: Permission
+description: Permission protocol schemas
+---
+
+<Callout type="info">
+**Source:** `packages/spec/src/kernel/permission.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { PermissionSet } from '@objectstack/spec/kernel';
+import type { PermissionSet } from '@objectstack/spec/kernel';
+
+// Validate data
+const result = PermissionSet.parse(data);
+```
+
+---
+
+## PermissionSet
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **permissions** | `Object[]` | ✅ |  |
+| **groups** | `Object[]` | optional |  |
+| **defaultGrant** | `Enum<'prompt' \| 'allow' \| 'deny' \| 'inherit'>` | optional |  |
+
+
+---
+

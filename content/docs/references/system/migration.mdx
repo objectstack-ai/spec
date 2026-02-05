@@ -1,0 +1,249 @@
+---
+title: Migration
+description: Migration protocol schemas
+---
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/migration.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AddFieldOperation, ChangeSet, CreateObjectOperation, DeleteObjectOperation, ExecuteSqlOperation, MigrationDependency, MigrationOperation, ModifyFieldOperation, RemoveFieldOperation, RenameObjectOperation } from '@objectstack/spec/system';
+import type { AddFieldOperation, ChangeSet, CreateObjectOperation, DeleteObjectOperation, ExecuteSqlOperation, MigrationDependency, MigrationOperation, ModifyFieldOperation, RemoveFieldOperation, RenameObjectOperation } from '@objectstack/spec/system';
+
+// Validate data
+const result = AddFieldOperation.parse(data);
+```
+
+---
+
+## AddFieldOperation
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **objectName** | `string` | ✅ |  |
+| **fieldName** | `string` | ✅ |  |
+| **field** | `Object` | ✅ |  |
+
+
+---
+
+## ChangeSet
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique identifier for this change set |
+| **name** | `string` | ✅ | Human readable name for the migration |
+| **description** | `string` | optional |  |
+| **author** | `string` | optional |  |
+| **createdAt** | `string` | optional |  |
+| **dependencies** | `Object[]` | optional |  |
+| **operations** | `Object \| Object \| Object \| Object \| Object \| Object \| Object[]` | ✅ |  |
+| **rollback** | `Object \| Object \| Object \| Object \| Object \| Object \| Object[]` | optional |  |
+
+
+---
+
+## CreateObjectOperation
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **object** | `Object` | ✅ |  |
+
+
+---
+
+## DeleteObjectOperation
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **objectName** | `string` | ✅ |  |
+
+
+---
+
+## ExecuteSqlOperation
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **sql** | `string` | ✅ |  |
+| **description** | `string` | optional |  |
+
+
+---
+
+## MigrationDependency
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **migrationId** | `string` | ✅ |  |
+| **package** | `string` | optional |  |
+
+
+---
+
+## MigrationOperation
+
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+**Type:** `add_field`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **objectName** | `string` | ✅ |  |
+| **fieldName** | `string` | ✅ |  |
+| **field** | `Object` | ✅ |  |
+
+---
+
+#### Option 2
+
+**Type:** `modify_field`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **objectName** | `string` | ✅ |  |
+| **fieldName** | `string` | ✅ |  |
+| **changes** | `Record<string, any>` | ✅ |  |
+
+---
+
+#### Option 3
+
+**Type:** `remove_field`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **objectName** | `string` | ✅ |  |
+| **fieldName** | `string` | ✅ |  |
+
+---
+
+#### Option 4
+
+**Type:** `create_object`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **object** | `Object` | ✅ |  |
+
+---
+
+#### Option 5
+
+**Type:** `rename_object`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **oldName** | `string` | ✅ |  |
+| **newName** | `string` | ✅ |  |
+
+---
+
+#### Option 6
+
+**Type:** `delete_object`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **objectName** | `string` | ✅ |  |
+
+---
+
+#### Option 7
+
+**Type:** `execute_sql`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **sql** | `string` | ✅ |  |
+| **description** | `string` | optional |  |
+
+---
+
+
+---
+
+## ModifyFieldOperation
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **objectName** | `string` | ✅ |  |
+| **fieldName** | `string` | ✅ |  |
+| **changes** | `Record<string, any>` | ✅ |  |
+
+
+---
+
+## RemoveFieldOperation
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **objectName** | `string` | ✅ |  |
+| **fieldName** | `string` | ✅ |  |
+
+
+---
+
+## RenameObjectOperation
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **oldName** | `string` | ✅ |  |
+| **newName** | `string` | ✅ |  |
+
+
+---
+

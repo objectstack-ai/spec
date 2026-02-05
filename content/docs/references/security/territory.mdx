@@ -1,0 +1,89 @@
+---
+title: Territory
+description: Territory protocol schemas
+---
+
+Territory Management Protocol
+
+Defines a matrix reporting structure that exists parallel to the Role Hierarchy.
+
+USE CASE:
+
+- Enterprise Sales Teams (Geo-based: "EMEA", "APAC")
+
+- Industry Verticals (Industry-based: "Healthcare", "Financial")
+
+- Strategic Accounts (Account-based: "Strategic Accounts")
+
+DIFFERENCE FROM ROLE:
+
+- Role: Hierarchy of PEOPLE (Who reports to whom). Stable. HR-driven.
+
+- Territory: Hierarchy of ACCOUNTS/REVENUE (Who owns which market). Flexible. Sales-driven.
+
+- One User can be assigned to MANY Territories (Matrix).
+
+- One User has only ONE Role (Tree).
+
+<Callout type="info">
+**Source:** `packages/spec/src/security/territory.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { Territory, TerritoryModel, TerritoryType } from '@objectstack/spec/security';
+import type { Territory, TerritoryModel, TerritoryType } from '@objectstack/spec/security';
+
+// Validate data
+const result = Territory.parse(data);
+```
+
+---
+
+## Territory
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Territory unique name (lowercase snake_case) |
+| **label** | `string` | ✅ | Territory Label (e.g. "West Coast") |
+| **modelId** | `string` | ✅ | Belongs to which Territory Model |
+| **parent** | `string` | optional | Parent Territory |
+| **type** | `Enum<'geography' \| 'industry' \| 'named_account' \| 'product_line'>` | optional |  |
+| **assignmentRule** | `string` | optional | Criteria based assignment rule |
+| **assignedUsers** | `string[]` | optional |  |
+| **accountAccess** | `Enum<'read' \| 'edit'>` | optional |  |
+| **opportunityAccess** | `Enum<'read' \| 'edit'>` | optional |  |
+| **caseAccess** | `Enum<'read' \| 'edit'>` | optional |  |
+
+
+---
+
+## TerritoryModel
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Model Name (e.g. FY24 Planning) |
+| **state** | `Enum<'planning' \| 'active' \| 'archived'>` | optional |  |
+| **startDate** | `string` | optional |  |
+| **endDate** | `string` | optional |  |
+
+
+---
+
+## TerritoryType
+
+### Allowed Values
+
+* `geography`
+* `industry`
+* `named_account`
+* `product_line`
+
+
+---
+

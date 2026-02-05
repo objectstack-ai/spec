@@ -1,0 +1,145 @@
+---
+title: Auth
+description: Auth protocol schemas
+---
+
+Authentication Service Protocol
+
+Defines the standard API contracts for Identity, Session Management,
+
+and Access Control.
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/auth.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AuthProvider, LoginRequest, LoginType, RefreshTokenRequest, RegisterRequest, SessionResponse, SessionUser, UserProfileResponse } from '@objectstack/spec/api';
+import type { AuthProvider, LoginRequest, LoginType, RefreshTokenRequest, RegisterRequest, SessionResponse, SessionUser, UserProfileResponse } from '@objectstack/spec/api';
+
+// Validate data
+const result = AuthProvider.parse(data);
+```
+
+---
+
+## AuthProvider
+
+### Allowed Values
+
+* `local`
+* `google`
+* `github`
+* `microsoft`
+* `ldap`
+* `saml`
+
+
+---
+
+## LoginRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'email' \| 'username' \| 'phone' \| 'magic-link' \| 'social'>` | optional | Login method |
+| **email** | `string` | optional | Required for email/magic-link |
+| **username** | `string` | optional | Required for username login |
+| **password** | `string` | optional | Required for password login |
+| **provider** | `string` | optional | Required for social (google, github) |
+| **redirectTo** | `string` | optional | Redirect URL after successful login |
+
+
+---
+
+## LoginType
+
+### Allowed Values
+
+* `email`
+* `username`
+* `phone`
+* `magic-link`
+* `social`
+
+
+---
+
+## RefreshTokenRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **refreshToken** | `string` | ✅ | Refresh token |
+
+
+---
+
+## RegisterRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **email** | `string` | ✅ |  |
+| **password** | `string` | ✅ |  |
+| **name** | `string` | ✅ |  |
+| **image** | `string` | optional |  |
+
+
+---
+
+## SessionResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## SessionUser
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | User ID |
+| **email** | `string` | ✅ | Email address |
+| **emailVerified** | `boolean` | optional | Is email verified? |
+| **name** | `string` | ✅ | Display name |
+| **image** | `string` | optional | Avatar URL |
+| **username** | `string` | optional | Username (optional) |
+| **roles** | `string[]` | optional | Assigned role IDs |
+| **tenantId** | `string` | optional | Current tenant ID |
+| **language** | `string` | optional | Preferred language |
+| **timezone** | `string` | optional | Preferred timezone |
+| **createdAt** | `string` | optional |  |
+| **updatedAt** | `string` | optional |  |
+
+
+---
+
+## UserProfileResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+

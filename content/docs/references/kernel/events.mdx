@@ -1,0 +1,283 @@
+---
+title: Events
+description: Events protocol schemas
+---
+
+Event Priority Enum
+
+Priority levels for event processing
+
+Lower numbers = higher priority
+
+<Callout type="info">
+**Source:** `packages/spec/src/kernel/events.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { DeadLetterQueueEntry, Event, EventBusConfig, EventHandler, EventLogEntry, EventMessageQueueConfig, EventMetadata, EventPersistence, EventPriority, EventQueueConfig, EventReplayConfig, EventRoute, EventSourcingConfig, EventTypeDefinition, EventWebhookConfig, RealTimeNotificationConfig } from '@objectstack/spec/kernel';
+import type { DeadLetterQueueEntry, Event, EventBusConfig, EventHandler, EventLogEntry, EventMessageQueueConfig, EventMetadata, EventPersistence, EventPriority, EventQueueConfig, EventReplayConfig, EventRoute, EventSourcingConfig, EventTypeDefinition, EventWebhookConfig, RealTimeNotificationConfig } from '@objectstack/spec/kernel';
+
+// Validate data
+const result = DeadLetterQueueEntry.parse(data);
+```
+
+---
+
+## DeadLetterQueueEntry
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique entry identifier |
+| **event** | `Object` | ✅ | Original event |
+| **error** | `Object` | ✅ | Failure details |
+| **retries** | `integer` | ✅ | Number of retry attempts |
+| **firstFailedAt** | `string` | ✅ | When event first failed |
+| **lastFailedAt** | `string` | ✅ | When event last failed |
+| **failedHandler** | `string` | optional | Handler ID that failed |
+
+
+---
+
+## Event
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Unique event identifier |
+| **name** | `string` | ✅ | Event name (lowercase with dots, e.g., user.created, order.paid) |
+| **payload** | `any` | optional | Event payload schema |
+| **metadata** | `Object` | ✅ | Event metadata |
+
+
+---
+
+## EventBusConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **persistence** | `Object` | optional | Event persistence configuration |
+| **queue** | `Object` | optional | Event queue configuration |
+| **eventSourcing** | `Object` | optional | Event sourcing configuration |
+| **replay** | `Object` | optional | Event replay configuration |
+| **webhooks** | `Object[]` | optional | Webhook configurations |
+| **messageQueue** | `Object` | optional | Message queue integration |
+| **realtime** | `Object` | optional | Real-time notification configuration |
+| **eventTypes** | `Object[]` | optional | Event type definitions |
+| **handlers** | `Object[]` | optional | Global event handlers |
+
+
+---
+
+## EventHandler
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Unique handler identifier |
+| **eventName** | `string` | ✅ | Name of event to handle (supports wildcards like user.*) |
+| **priority** | `integer` | optional | Execution priority (lower numbers execute first) |
+| **async** | `boolean` | optional | Execute in background (true) or block (false) |
+| **retry** | `Object` | optional | Retry policy for failed handlers |
+| **timeoutMs** | `integer` | optional | Handler timeout in milliseconds |
+
+
+---
+
+## EventLogEntry
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique log entry identifier |
+| **event** | `Object` | ✅ | The event |
+| **status** | `Enum<'pending' \| 'processing' \| 'completed' \| 'failed'>` | ✅ | Processing status |
+| **handlersExecuted** | `Object[]` | optional | Handlers that processed this event |
+| **receivedAt** | `string` | ✅ | When event was received |
+| **processedAt** | `string` | optional | When event was processed |
+| **totalDurationMs** | `integer` | optional | Total processing time |
+
+
+---
+
+## EventMessageQueueConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **provider** | `Enum<'kafka' \| 'rabbitmq' \| 'aws-sqs' \| 'redis-pubsub' \| 'google-pubsub' \| 'azure-service-bus'>` | ✅ | Message queue provider |
+| **topic** | `string` | ✅ | Topic or queue name |
+| **eventPattern** | `string` | optional | Event name pattern to publish (supports wildcards) |
+| **partitionKey** | `string` | optional | JSON path for partition key (e.g., "metadata.tenantId") |
+| **format** | `Enum<'json' \| 'avro' \| 'protobuf'>` | optional | Message serialization format |
+| **includeMetadata** | `boolean` | optional | Include event metadata in message |
+| **compression** | `Enum<'none' \| 'gzip' \| 'snappy' \| 'lz4'>` | optional | Message compression |
+| **batchSize** | `integer` | optional | Batch size for publishing |
+| **flushIntervalMs** | `integer` | optional | Flush interval for batching |
+
+
+---
+
+## EventMetadata
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **source** | `string` | ✅ | Event source (e.g., plugin name, system component) |
+| **timestamp** | `string` | ✅ | ISO 8601 datetime when event was created |
+| **userId** | `string` | optional | User who triggered the event |
+| **tenantId** | `string` | optional | Tenant identifier for multi-tenant systems |
+| **correlationId** | `string` | optional | Correlation ID for event tracing |
+| **causationId** | `string` | optional | ID of the event that caused this event |
+| **priority** | `Enum<'critical' \| 'high' \| 'normal' \| 'low' \| 'background'>` | optional | Event priority |
+
+
+---
+
+## EventPersistence
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional | Enable event persistence |
+| **retention** | `integer` | ✅ | Days to retain persisted events |
+| **storage** | `Enum<'database' \| 'file' \| 's3' \| 'custom'>` | optional | Storage backend for persisted events |
+
+
+---
+
+## EventPriority
+
+### Allowed Values
+
+* `critical`
+* `high`
+* `normal`
+* `low`
+* `background`
+
+
+---
+
+## EventQueueConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | optional | Event queue name |
+| **concurrency** | `integer` | optional | Max concurrent event handlers |
+| **retryPolicy** | `Object` | optional | Default retry policy for events |
+| **deadLetterQueue** | `string` | optional | Dead letter queue name for failed events |
+| **priorityEnabled** | `boolean` | optional | Process events based on priority |
+
+
+---
+
+## EventReplayConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **fromTimestamp** | `string` | ✅ | Start timestamp for replay (ISO 8601) |
+| **toTimestamp** | `string` | optional | End timestamp for replay (ISO 8601) |
+| **eventTypes** | `string[]` | optional | Event types to replay (empty = all) |
+| **filters** | `Record<string, any>` | optional | Additional filters for event selection |
+| **speed** | `number` | optional | Replay speed multiplier (1 = real-time) |
+| **targetHandlers** | `string[]` | optional | Handler IDs to execute (empty = all) |
+
+
+---
+
+## EventRoute
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **from** | `string` | ✅ | Source event pattern (supports wildcards, e.g., user.* or *.created) |
+| **to** | `string[]` | ✅ | Target event names to route to |
+
+
+---
+
+## EventSourcingConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional | Enable event sourcing |
+| **snapshotInterval** | `integer` | optional | Create snapshot every N events |
+| **snapshotRetention** | `integer` | optional | Number of snapshots to retain |
+| **retention** | `integer` | optional | Days to retain events |
+| **aggregateTypes** | `string[]` | optional | Aggregate types to enable event sourcing for |
+| **storage** | `Object` | optional | Event store configuration |
+
+
+---
+
+## EventTypeDefinition
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Event type name (lowercase with dots) |
+| **version** | `string` | optional | Event schema version |
+| **schema** | `any` | optional | JSON Schema for event payload validation |
+| **description** | `string` | optional | Event type description |
+| **deprecated** | `boolean` | optional | Whether this event type is deprecated |
+| **tags** | `string[]` | optional | Event type tags |
+
+
+---
+
+## EventWebhookConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Unique webhook identifier |
+| **eventPattern** | `string` | ✅ | Event name pattern (supports wildcards) |
+| **url** | `string` | ✅ | Webhook endpoint URL |
+| **method** | `Enum<'GET' \| 'POST' \| 'PUT' \| 'PATCH'>` | optional | HTTP method |
+| **headers** | `Record<string, string>` | optional | HTTP headers |
+| **authentication** | `Object` | optional | Authentication configuration |
+| **retryPolicy** | `Object` | optional | Retry policy |
+| **timeoutMs** | `integer` | optional | Request timeout in milliseconds |
+| **enabled** | `boolean` | optional | Whether webhook is enabled |
+
+
+---
+
+## RealTimeNotificationConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | optional | Enable real-time notifications |
+| **protocol** | `Enum<'websocket' \| 'sse' \| 'long-polling'>` | optional | Real-time protocol |
+| **eventPattern** | `string` | optional | Event pattern to broadcast |
+| **userFilter** | `boolean` | optional | Filter events by user |
+| **tenantFilter** | `boolean` | optional | Filter events by tenant |
+| **channels** | `Object[]` | optional | Named channels for event broadcasting |
+| **rateLimit** | `Object` | optional | Rate limiting configuration |
+
+
+---
+

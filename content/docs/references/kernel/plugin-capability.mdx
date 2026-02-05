@@ -1,0 +1,174 @@
+---
+title: Plugin Capability
+description: Plugin Capability protocol schemas
+---
+
+# Plugin Capability Protocol
+
+Defines the standard way plugins declare their capabilities, implementations,
+
+and conformance levels to ensure interoperability across vendors.
+
+Based on the Protocol-Oriented Architecture pattern similar to:
+
+- Kubernetes CRDs (Custom Resource Definitions)
+
+- OSGi Service Registry
+
+- Eclipse Extension Points
+
+<Callout type="info">
+**Source:** `packages/spec/src/kernel/plugin-capability.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { CapabilityConformanceLevel, ExtensionPoint, PluginCapability, PluginCapabilityManifest, PluginDependency, PluginInterface, ProtocolFeature, ProtocolReference, ProtocolVersion } from '@objectstack/spec/kernel';
+import type { CapabilityConformanceLevel, ExtensionPoint, PluginCapability, PluginCapabilityManifest, PluginDependency, PluginInterface, ProtocolFeature, ProtocolReference, ProtocolVersion } from '@objectstack/spec/kernel';
+
+// Validate data
+const result = CapabilityConformanceLevel.parse(data);
+```
+
+---
+
+## CapabilityConformanceLevel
+
+Level of protocol conformance
+
+### Allowed Values
+
+* `full`
+* `partial`
+* `experimental`
+* `deprecated`
+
+
+---
+
+## ExtensionPoint
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique extension point identifier |
+| **name** | `string` | ✅ |  |
+| **description** | `string` | optional |  |
+| **type** | `Enum<'action' \| 'hook' \| 'widget' \| 'provider' \| 'transformer' \| 'validator' \| 'decorator'>` | ✅ |  |
+| **contract** | `Object` | optional |  |
+| **cardinality** | `Enum<'single' \| 'multiple'>` | optional | Whether multiple extensions can register to this point |
+
+
+---
+
+## PluginCapability
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **protocol** | `Object` | ✅ |  |
+| **conformance** | `Enum<'full' \| 'partial' \| 'experimental' \| 'deprecated'>` | optional | Level of protocol conformance |
+| **implementedFeatures** | `string[]` | optional | List of implemented feature names |
+| **features** | `Object[]` | optional |  |
+| **metadata** | `Record<string, any>` | optional |  |
+| **certified** | `boolean` | optional | Has passed official conformance tests |
+| **certificationDate** | `string` | optional |  |
+
+
+---
+
+## PluginCapabilityManifest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **implements** | `Object[]` | optional | List of protocols this plugin conforms to |
+| **provides** | `Object[]` | optional | Services/APIs this plugin offers to others |
+| **requires** | `Object[]` | optional | Required plugins and their capabilities |
+| **extensionPoints** | `Object[]` | optional | Points where other plugins can extend this plugin |
+| **extensions** | `Object[]` | optional | Extensions contributed to other plugins |
+
+
+---
+
+## PluginDependency
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **pluginId** | `string` | ✅ | Required plugin identifier |
+| **version** | `string` | ✅ | Semantic version constraint |
+| **optional** | `boolean` | optional |  |
+| **reason** | `string` | optional |  |
+| **requiredCapabilities** | `string[]` | optional | Protocol IDs the dependency must support |
+
+
+---
+
+## PluginInterface
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique interface identifier |
+| **name** | `string` | ✅ |  |
+| **description** | `string` | optional |  |
+| **version** | `Object` | ✅ | Semantic version of the protocol |
+| **methods** | `Object[]` | ✅ |  |
+| **events** | `Object[]` | optional |  |
+| **stability** | `Enum<'stable' \| 'beta' \| 'alpha' \| 'experimental'>` | optional |  |
+
+
+---
+
+## ProtocolFeature
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Feature identifier within the protocol |
+| **enabled** | `boolean` | optional |  |
+| **description** | `string` | optional |  |
+| **sinceVersion** | `string` | optional | Version when this feature was added |
+| **deprecatedSince** | `string` | optional | Version when deprecated |
+
+
+---
+
+## ProtocolReference
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique protocol identifier (e.g., com.objectstack.protocol.storage.v1) |
+| **label** | `string` | ✅ |  |
+| **version** | `Object` | ✅ | Semantic version of the protocol |
+| **specification** | `string` | optional | URL or path to protocol specification |
+| **description** | `string` | optional |  |
+
+
+---
+
+## ProtocolVersion
+
+Semantic version of the protocol
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **major** | `integer` | ✅ |  |
+| **minor** | `integer` | ✅ |  |
+| **patch** | `integer` | ✅ |  |
+
+
+---
+

@@ -1,0 +1,38 @@
+---
+title: Metrics
+description: Metrics protocol schemas
+---
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/metrics.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { MetricType } from '@objectstack/spec/data';
+import type { MetricType } from '@objectstack/spec/data';
+
+// Validate data
+const result = MetricType.parse(data);
+```
+
+---
+
+## MetricType
+
+### Allowed Values
+
+* `count`
+* `sum`
+* `avg`
+* `min`
+* `max`
+* `count_distinct`
+* `number`
+* `string`
+* `boolean`
+
+
+---
+

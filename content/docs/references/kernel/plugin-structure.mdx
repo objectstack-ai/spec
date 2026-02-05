@@ -1,0 +1,58 @@
+---
+title: Plugin Structure
+description: Plugin Structure protocol schemas
+---
+
+ObjectStack Plugin Structure Standards (OPS)
+
+Formal Zod definitions for the Plugin Directory Structure and File Naming conventions.
+
+This can be used by the CLI or IDE extensions to lint project structure.
+
+@see PLUGIN_STANDARDS.md
+
+<Callout type="info">
+**Source:** `packages/spec/src/kernel/plugin-structure.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { OpsDomainModule, OpsFilePath, OpsPluginStructure } from '@objectstack/spec/kernel';
+import type { OpsDomainModule, OpsFilePath, OpsPluginStructure } from '@objectstack/spec/kernel';
+
+// Validate data
+const result = OpsDomainModule.parse(data);
+```
+
+---
+
+## OpsDomainModule
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ |  |
+| **files** | `string[]` | ✅ |  |
+
+
+---
+
+## OpsFilePath
+
+
+---
+
+## OpsPluginStructure
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **root** | `string` | ✅ |  |
+| **files** | `string[]` | ✅ | List of all file paths relative to root |
+
+
+---
+

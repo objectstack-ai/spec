@@ -4,7 +4,6 @@
     "ai",
     "api",
     "automation",
-    "contracts",
     "data",
     "hub",
     "identity",
@@ -14,10 +13,6 @@
     "security",
     "shared",
     "system",
-    "ui",
-    "implementation-status",
-    "packages",
-    "protocol-map",
-    "quick-reference"
+    "ui"
   ]
 }

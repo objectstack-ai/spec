@@ -1,0 +1,33 @@
+---
+title: ObjectStack Framework
+description: The reference implementation of the ObjectStack Protocol
+---
+
+# ObjectStack Framework
+
+While the **Protocol** (`@objectstack/spec`) defines the "DNA" of the system, the **Framework** is the actual software implementation that executes these protocols.
+
+The Framework provides the kernels, runtimes, engines, and drivers necessary to build a running application from your metadata definitions.
+
+## Key Components
+
+### 1. The Core Kernel
+The `@objectstack/core` package is the microkernel that provides:
+- **Plugin System**: Dynamic loading and lifecycle management.
+- **Dependency Injection**: Service registration and resolution.
+- **Event Bus**: System-wide event emission and handling.
+
+### 2. The Runtime Support
+The `@objectstack/runtime` package implements the universal `HttpDispatcher` and server logic:
+- **Unified Dispatcher**: Handles Data, UI, and Auth requests via a standard interface.
+- **Protocol Adapter**: Adapts HTTP requests (Hono, Next.js) to internal protocol calls.
+
+### 3. The Client Ecosystem
+- **Local Development**: `@objectstack/cli` for scaffolding and running apps.
+- **Frontend Integration**: `@objectstack/client` and `@objectstack/client-react` for building UIs.
+
+## Documentation Structure
+
+- **[Packages](./packages)**: Detailed reference of all npm packages in the monorepo.
+- **[CLI](./cli)**: Command-line interface usage guide.
+- **[Client SDK](./client-sdk)**: TypeScript client and React hooks documentation.

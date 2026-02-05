@@ -1,0 +1,82 @@
+---
+title: Plugin Security Advanced
+description: Plugin Security Advanced protocol schemas
+---
+
+<Callout type="info">
+**Source:** `packages/spec/src/hub/plugin-security-advanced.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { SecurityPolicy, SecurityScanResult, SecurityVulnerability } from '@objectstack/spec/hub';
+import type { SecurityPolicy, SecurityScanResult, SecurityVulnerability } from '@objectstack/spec/hub';
+
+// Validate data
+const result = SecurityPolicy.parse(data);
+```
+
+---
+
+## SecurityPolicy
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ |  |
+| **name** | `string` | ✅ |  |
+| **autoScan** | `Object` | ✅ |  |
+| **thresholds** | `Object` | ✅ |  |
+| **allowedLicenses** | `string[]` | optional |  |
+| **prohibitedLicenses** | `string[]` | optional |  |
+| **codeSigning** | `Object` | optional |  |
+| **sandbox** | `Object` | optional |  |
+
+
+---
+
+## SecurityScanResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **scanId** | `string` | ✅ |  |
+| **plugin** | `Object` | ✅ |  |
+| **scannedAt** | `string` | ✅ |  |
+| **scanner** | `Object` | ✅ |  |
+| **status** | `Enum<'passed' \| 'failed' \| 'warning'>` | ✅ |  |
+| **vulnerabilities** | `Object[]` | ✅ |  |
+| **summary** | `Object` | ✅ |  |
+| **licenseIssues** | `Object[]` | optional |  |
+| **codeQuality** | `Object` | optional |  |
+| **nextScanAt** | `string` | optional |  |
+
+
+---
+
+## SecurityVulnerability
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **cve** | `string` | optional | CVE identifier |
+| **id** | `string` | ✅ | Vulnerability ID |
+| **title** | `string` | ✅ |  |
+| **description** | `string` | ✅ |  |
+| **severity** | `Enum<'critical' \| 'high' \| 'medium' \| 'low' \| 'info'>` | ✅ |  |
+| **cvss** | `number` | optional |  |
+| **package** | `Object` | ✅ |  |
+| **vulnerableVersions** | `string` | ✅ | Semver range of vulnerable versions |
+| **patchedVersions** | `string` | optional | Semver range of patched versions |
+| **references** | `Object[]` | optional |  |
+| **cwe** | `string[]` | optional |  |
+| **publishedAt** | `string` | optional |  |
+| **mitigation** | `string` | optional |  |
+
+
+---
+

@@ -1,0 +1,12 @@
+{
+  "title": "Framework",
+  "pages": [
+    "index",
+    "core",
+    "driver",
+    "misc",
+    "packages",
+    "cli",
+    "client-sdk"
+  ]
+}
