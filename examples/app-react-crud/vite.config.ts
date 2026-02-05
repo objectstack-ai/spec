@@ -1,8 +1,33 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  resolve: {
+    alias: {
+      'node:fs/promises': path.resolve(__dirname, './mocks/node-polyfills.ts'),
+      'node:fs': path.resolve(__dirname, './mocks/node-polyfills.ts'),
+      'node:events': path.resolve(__dirname, './mocks/node-polyfills.ts'),
+      'node:stream': path.resolve(__dirname, './mocks/node-polyfills.ts'),
+      'node:string_decoder': path.resolve(__dirname, './mocks/node-polyfills.ts'),
+      'node:path': path.resolve(__dirname, './mocks/node-polyfills.ts'),
+      'node:url': path.resolve(__dirname, './mocks/node-polyfills.ts'),
+      'node:util': path.resolve(__dirname, './mocks/node-polyfills.ts'),
+      'node:os': path.resolve(__dirname, './mocks/node-polyfills.ts'),
+      'node:crypto': path.resolve(__dirname, './mocks/node-polyfills.ts'),
+      'events': path.resolve(__dirname, './mocks/node-polyfills.ts'),
+      'stream': path.resolve(__dirname, './mocks/node-polyfills.ts'),
+      'string_decoder': path.resolve(__dirname, './mocks/node-polyfills.ts'),
+      'path': path.resolve(__dirname, './mocks/node-polyfills.ts'),
+      'fs/promises': path.resolve(__dirname, './mocks/node-polyfills.ts'),
+      'fs': path.resolve(__dirname, './mocks/node-polyfills.ts'),
+      'util': path.resolve(__dirname, './mocks/node-polyfills.ts'),
+      'os': path.resolve(__dirname, './mocks/node-polyfills.ts'),
+      'crypto': path.resolve(__dirname, './mocks/node-polyfills.ts'),
+      'url': path.resolve(__dirname, './mocks/node-polyfills.ts'),
+    }
+  },
   plugins: [react()],
   server: {
     port: 3000,
@@ -21,6 +46,7 @@ export default defineConfig({
   build: {
     commonjsOptions: {
       include: [/node_modules/, /packages/],
+      exclude: [/\.node$/, /rollup/, /fsevents/],
       transformMixedEsModules: true
     },
     rollupOptions: {

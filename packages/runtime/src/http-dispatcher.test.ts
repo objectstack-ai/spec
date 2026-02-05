@@ -57,7 +57,7 @@ describe('HttpDispatcher', () => {
 
         it('should fallback to broker call if protocol is missing saveMetaItem', async () => {
              // Mock protocol without saveMetaItem
-            kernel.context.getService = () => ({}); 
+            (kernel as any).context.getService = () => ({}); 
             // Mock broker success
             mockBroker.call.mockResolvedValue({ success: true, fromBroker: true });
 
