@@ -1,5 +1,14 @@
 # @objectstack/example-basic
 
+## 0.9.4
+
+### Patch Changes
+
+- Updated dependencies
+  - @objectstack/runtime@1.0.1
+  - @objectstack/spec@1.0.1
+  - @objectstack/core@1.0.1
+
 ## 0.9.3
 
 ### Patch Changes

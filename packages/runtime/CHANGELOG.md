@@ -1,5 +1,14 @@
 # @objectstack/runtime
 
+## 1.0.1
+
+### Patch Changes
+
+- Fix TypeScript error in http-dispatcher tests to resolve CI build failures.
+  - @objectstack/spec@1.0.1
+  - @objectstack/core@1.0.1
+  - @objectstack/types@1.0.1
+
 ## 1.0.0
 
 ### Major Changes
