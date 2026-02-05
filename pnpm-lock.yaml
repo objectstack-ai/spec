@@ -264,6 +264,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/spec
     devDependencies:
+      '@objectstack/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
