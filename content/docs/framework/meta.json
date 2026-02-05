@@ -3,10 +3,9 @@
   "pages": [
     "index",
     "core",
-    "driver",
-    "misc",
     "packages",
     "cli",
-    "client-sdk"
+    "client-sdk",
+    "driver-configuration"
   ]
 }

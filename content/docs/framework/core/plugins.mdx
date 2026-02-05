@@ -28,41 +28,71 @@ export class MyPlugin implements Plugin {
         apiKey: z.string()
     });
 
-    // 1. Initialization
-    async init(ctx: PluginContext) {
-        // Register services here
-        const myService = new MyService();
-        ctx.registerService('my-service', myService);
+    /**
+     * Initialization Phase
+     * Use this to register services, listeners, or other early setup.
+     */
+    async onInit(ctx: PluginContext) {
+        // Register a service
+        ctx.services.register('myService', new MyService());
     }
 
-    // 2. Startup
-    async start(ctx: PluginContext) {
-        // Resolve other services
-        const db = ctx.getService('database');
-        await db.connect();
-    }
-
-    // 3. Shutdown
-    async stop(ctx: PluginContext) {
-        // Cleanup
+    /**
+     * Start Phase
+     * The system is fully initialized. Use this to start servers or background jobs.
+     */
+    async onStart(ctx: PluginContext) {
+        console.log('MyPlugin started!');
     }
 }
 ```
 
-## The Plugin Context
+## RuntimePlugin Interface Reference
 
-The `PluginContext` is passed to every lifecycle hook. It is the plugin's gateway to the Kernel.
+The `RuntimePlugin` interface defines the contract that all functionality modules must implement.
 
-| Method | Description |
-| :--- | :--- |
-| `ctx.logger` | A structured logger scoped to this plugin (e.g., labeled `[com.example.plugin]`). |
-| `ctx.registerService(name, impl)` | Expose a capability to other plugins. |
-| `ctx.getService(name)` | Retrieve a capability from another plugin. |
-| `ctx.hook(event, callback)` | Listen for system events. |
-| `ctx.emit(event, payload)` | Broadcast an event. |
+```typescript
+export interface RuntimePlugin {
+    /**
+     * Plugin Unique Identifier
+     * Recommended format: com.organization.plugin-name
+     */
+    name: string;
 
-## Best Practices
+    /**
+     * Plugin Version
+     * Must follow Semantic Versioning (SemVer)
+     */
+    version?: string;
 
-1.  **Prefix Names**: Use reverse domain notation (e.g., `com.mycompany.plugin`) to avoid collisions.
-2.  **Define Contracts**: If your plugin exposes a service, export a TypeScript interface for it so consumers can type-check.
-3.  **Config Validation**: Use `configSchema` (Zod) to validate user input. The Kernel automatically validates this before `init` is called.
+    /**
+     * Description
+     * Brief explanation of the plugin's purpose.
+     */
+    description?: string;
+
+    /**
+     * Initialization Hook
+     * Called during Kernel bootstrap. Use this to:
+     * - Register Services
+     * - Register Event Listeners
+     * - Extend Metadata
+     */
+    onInit?: (context: PluginContext) => Promise<void>;
+
+    /**
+     * Start Hook
+     * Called after all plugins are initialized. Use this to:
+     * - Start HTTP servers
+     * - Connect to databases
+     * - Start background workers
+     */
+    onStart?: (context: PluginContext) => Promise<void>;
+
+    /**
+     * Stop Hook
+     * Called during Kernel shutdown. cleanup resources here.
+     */
+    onStop?: (context: PluginContext) => Promise<void>;
+}
+```

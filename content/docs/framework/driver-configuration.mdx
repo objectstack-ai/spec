@@ -1,0 +1,45 @@
+---
+title: Database Drivers
+description: Configuration reference for supported database drivers
+---
+
+# Database Drivers
+
+ObjectStack supports multiple database backends through a unified driver configurations.
+
+## MongoDB
+
+Configuration properties for the MongoDB driver.
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **url** | `string` | optional | Connection URI |
+| **database** | `string` | ✅ | Database Name |
+| **host** | `string` | optional | Host address |
+| **port** | `number` | optional | Port number |
+| **username** | `string` | optional | Auth User |
+| **password** | `string` | optional | Auth Password |
+| **authSource** | `string` | optional | Authentication Database |
+| **ssl** | `boolean` | optional | Enable SSL |
+| **replicaSet** | `string` | optional | Replica Set Name |
+| **readPreference** | `Enum` | optional | Read Preference ('primary', 'secondary', etc.) |
+| **maxPoolSize** | `number` | optional | Max Connection Pool Size |
+| **minPoolSize** | `number` | optional | Min Connection Pool Size |
+
+## PostgreSQL
+
+Configuration properties for the PostgreSQL driver (node-postgres / pg).
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **url** | `string` | optional | Connection URI |
+| **database** | `string` | ✅ | Database Name |
+| **host** | `string` | optional | Host address |
+| **port** | `number` | optional | Port number |
+| **username** | `string` | optional | Auth User |
+| **password** | `string` | optional | Auth Password |
+| **schema** | `string` | optional | Default Schema (defaults to 'public') |
+| **ssl** | `boolean \| object` | optional | Enable SSL |
+| **applicationName** | `string` | optional | Application Name |
+| **max** | `number` | optional | Max Pool Size |
+| **min** | `number` | optional | Min Pool Size |

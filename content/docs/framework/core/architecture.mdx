@@ -28,29 +28,55 @@ The kernel scans for registered plugins. In a typical app, plugins are explicitl
 Each plugin's manifest is validated against the **Plugin Protocol** specific in `@objectstack/spec`.
 - **Name**: Must be unique.
 - **Version**: SemVer compatible.
-- **Dependencies**: Declared dependencies must be present.
 
-### 3. Resolution Phase (Topological Sort)
-The kernel builds a dependency graph of all plugins. If Plugin A depends on Plugin B, Plugin B is guaranteed to be initialized first. Circular dependencies will throw a fatal error.
+### 3. Resolution Phase
+The kernel resolves the dependency graph. If Plugin A depends on Plugin B, the kernel ensures Plugin B is loaded first. Circular dependencies are detected and will throw an error.
 
-### 4. Init Phase (Synchronous Setup)
-The `init(ctx)` hook is called for every plugin in order.
-- **Purpose**: Register Services, Validate Configuration.
-- **Restriction**: NO side effects (e.g., do not connect to DB, do not start HTTP server).
-- **Outcome**: The Service Registry is fully populated.
+### 4. Init Phase (`onInit`)
+The `onInit` hook is called for all plugins in dependency order. This is where plugins should:
+- Register Services involved in Dependency Injection.
+- Register Event Listeners.
+- **NOT** perform async IO (like database connections) if possible.
 
-### 5. Start Phase (Async Execution)
-The `start(ctx)` hook is called.
-- **Purpose**: Connect to databases, bind network ports, start background jobs.
-- **Outcome**: The system is live.
+### 5. Start Phase (`onStart`)
+After all plugins have successfully initialized, the `onStart` hook is called in dependency order. This is where the application "comes alive":
+- Database connections are established.
+- HTTP servers start listening.
+- Background jobs are scheduled.
 
-## Error Handling
+## IKernel Interface Reference
 
-The Kernel implements a **Rollback Mechanism**. If any plugin fails during the `start` phase, the kernel attempts to stop all previously started plugins in reverse order to ensure a clean exit.
+The `IKernel` is the central orchestrator exposed to the host application.
 
 ```typescript
-const kernel = new ObjectKernel({
-    rollbackOnFailure: true, // Default: true
-    defaultStartupTimeout: 30000 // 30s timeout per plugin
-});
+export interface IKernel {
+    /**
+     * Start the Kernel
+     * Initializes and starts all registered plugins and drivers.
+     */
+    start(): Promise<void>;
+
+    /**
+     * Stop the Kernel
+     * Gracefully shuts down all plugins.
+     */
+    stop(): Promise<void>;
+
+    /**
+     * Get a Service
+     * Retrieves a registered service by ID.
+     */
+    getService<T>(id: string): T;
+
+    /**
+     * Register a Service
+     * Manually register a service instance (dynamic registration).
+     */
+    registerService(id: string, instance: any): void;
+
+    /**
+     * Check Service Availability
+     */
+    hasService(id: string): boolean;
+}
 ```

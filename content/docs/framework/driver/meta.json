@@ -1,9 +1,0 @@
-{
-  "title": "Driver Protocol",
-  "pages": [
-    "datasource",
-    "driver",
-    "mongo",
-    "postgres"
-  ]
-}
