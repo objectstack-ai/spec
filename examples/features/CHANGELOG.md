@@ -1,5 +1,14 @@
 # @objectstack/example-basic
 
+## 0.9.6
+
+### Patch Changes
+
+- Updated dependencies [fb2eabd]
+  - @objectstack/core@1.0.3
+  - @objectstack/runtime@1.0.3
+  - @objectstack/spec@1.0.3
+
 ## 0.9.5
 
 ### Patch Changes

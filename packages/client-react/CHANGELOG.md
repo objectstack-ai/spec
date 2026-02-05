@@ -1,5 +1,14 @@
 # @objectstack/client-react
 
+## 1.0.3
+
+### Patch Changes
+
+- Updated dependencies [fb2eabd]
+  - @objectstack/core@1.0.3
+  - @objectstack/client@1.0.3
+  - @objectstack/spec@1.0.3
+
 ## 1.0.2
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @objectstack/runtime
 
+## 1.0.3
+
+### Patch Changes
+
+- fb2eabd: fix: resolve "process is not defined" runtime error in browser environments by adding safe environment detection and polyfills
+- Updated dependencies [fb2eabd]
+  - @objectstack/core@1.0.3
+  - @objectstack/spec@1.0.3
+  - @objectstack/types@1.0.3
+
 ## 1.0.2
 
 ### Patch Changes

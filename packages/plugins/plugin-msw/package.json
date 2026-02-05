@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/plugin-msw",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "MSW (Mock Service Worker) Plugin for ObjectStack Runtime",
   "license": "Apache-2.0",
   "main": "dist/index.js",
@@ -10,7 +10,7 @@
     "test": "vitest run"
   },
   "peerDependencies": {
-    "@objectstack/runtime": "^1.0.2"
+    "@objectstack/runtime": "^1.0.3"
   },
   "dependencies": {
     "@objectstack/core": "workspace:*",
