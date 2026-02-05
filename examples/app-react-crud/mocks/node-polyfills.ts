@@ -51,12 +51,19 @@ export const basename = (path) => path;
 export const extname = (path) => '';
 export const sep = '/';
 export const relative = () => '';
+export const isAbsolute = () => false;
+export const normalize = (p: string) => p;
 
 export const posix = {};
 export const win32 = {};
 
 // fs/promises and other missing exports
 export const open = async () => ({ close: async () => {} });
+export class Stats {
+  isDirectory() { return false; }
+  isFile() { return false; }
+  isSymbolicLink() { return false; }
+}
 export const watchFile = () => {};
 export const unwatchFile = () => {};
 
