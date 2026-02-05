@@ -73,9 +73,9 @@ export function createHonoApp(options: ObjectStackHonoOptions) {
   });
 
   // --- 3. Metadata Endpoints ---
-  app.all(`${prefix}/metadata*`, async (c) => {
+  app.all(`${prefix}/meta*`, async (c) => {
     try {
-      const path = c.req.path.substring(c.req.path.indexOf('/metadata') + 9);
+      const path = c.req.path.substring(c.req.path.indexOf('/meta') + 5);
       const method = c.req.method;
       let body = undefined;
       

@@ -63,7 +63,7 @@ export class HttpDispatcher {
             environment: getEnv('NODE_ENV', 'development'),
             routes: {
                 data: `${prefix}/data`,
-                metadata: `${prefix}/metadata`,
+                metadata: `${prefix}/meta`,
                 auth: `${prefix}/auth`,
                 graphql: hasGraphQL ? `${prefix}/graphql` : undefined,
                 storage: hasFiles ? `${prefix}/storage` : undefined,
@@ -504,8 +504,8 @@ export class HttpDispatcher {
             return this.handleAuth(cleanPath.substring(5), method, body, context);
         }
         
-        if (cleanPath.startsWith('/metadata')) {
-             return this.handleMetadata(cleanPath.substring(9), context);
+        if (cleanPath.startsWith('/meta')) {
+             return this.handleMetadata(cleanPath.substring(5), context);
         }
 
         if (cleanPath.startsWith('/data')) {

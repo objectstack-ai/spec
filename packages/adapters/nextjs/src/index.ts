@@ -73,7 +73,7 @@ export function createRouteHandler(options: NextAdapterOptions) {
         }
 
         // --- 3. Metadata ---
-        if (segments[0] === 'metadata') {
+        if (segments[0] === 'meta') {
             const subPath = segments.slice(1).join('/');
             
             let body: any = undefined;

@@ -113,13 +113,13 @@ export class ObjectStackController {
   }
 
   // Metadata
-  @All('metadata*')
+  @All('meta*')
   async metadata(@Req() req: any, @Res() res: any, @Body() body?: any) {
       try {
-          // /api/metadata/objects -> objects
+          // /api/meta/objects -> objects
           let path = req.params[0] || ''; 
-          if (req.url.includes('/metadata')) {
-             path = req.url.split('/metadata')[1].split('?')[0];
+          if (req.url.includes('/meta')) {
+             path = req.url.split('/meta')[1].split('?')[0];
           }
           
           // Use injected body or fallback to req.body

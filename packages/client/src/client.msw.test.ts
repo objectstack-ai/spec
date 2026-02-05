@@ -91,7 +91,7 @@ describe('ObjectStackClient (with MSW Plugin)', () => {
                     version: '1.0.0',
                     routes: {
                         data: '/api/v1/data',
-                        metadata: '/api/v1/metadata',
+                        metadata: '/api/v1/meta',
                         auth: '/api/v1/auth'
                     },
                     capabilities: ['data', 'metadata'],
@@ -99,7 +99,7 @@ describe('ObjectStackClient (with MSW Plugin)', () => {
                 });
             }),
             
-            http.get('http://127.0.0.1/api/v1/metadata/object/:name', async ({ params }) => {
+            http.get('http://127.0.0.1/api/v1/meta/object/:name', async ({ params }) => {
                  try {
                      const res = await (kernel as any).broker.call('metadata.getObject', { objectName: params.name });
                      return HttpResponse.json({ success: true, data: res });

@@ -654,7 +654,7 @@ export class ObjectStackClient {
 
   /**
    * Get the conventional route path for a given API endpoint type
-   * ObjectStack uses standard conventions: /api/v1/data, /api/v1/metadata, /api/v1/ui
+   * ObjectStack uses standard conventions: /api/v1/data, /api/v1/meta, /api/v1/ui
    */
   private getRoute(type: 'data' | 'metadata' | 'ui' | 'auth' | 'analytics' | 'hub' | 'storage' | 'automation'): string {
     // 1. Use discovered routes if available
@@ -664,10 +664,9 @@ export class ObjectStackClient {
     }
 
     // 2. Fallback to conventions
-    // Note: HttpDispatcher expects /metadata, not /meta
     const routeMap: Record<string, string> = {
       data: '/api/v1/data',
-      metadata: '/api/v1/metadata',
+      metadata: '/api/v1/meta',
       ui: '/api/v1/ui',
       auth: '/api/v1/auth',
       analytics: '/api/v1/analytics',
