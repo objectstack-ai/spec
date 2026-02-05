@@ -5,7 +5,7 @@
   "description": "ObjectStack Protocol Documentation Site",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "pnpm --filter @objectstack/spec gen:docs && next build",
     "site:start": "next start",
     "site:lint": "next lint"
   },

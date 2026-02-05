@@ -71,7 +71,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "pnpm gen:schema && pnpm gen:docs && tsup",
+    "build": "pnpm gen:schema && tsup",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "gen:schema": "tsx scripts/build-schemas.ts",
