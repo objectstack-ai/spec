@@ -13,19 +13,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@example/app-todo": "workspace:*",
     "@objectstack/client": "workspace:*",
     "@objectstack/client-react": "workspace:*",
     "@objectstack/driver-memory": "workspace:*",
-    "@example/app-todo": "workspace:*",
     "@objectstack/metadata": "workspace:*",
+    "@objectstack/objectql": "workspace:*",
     "@objectstack/plugin-msw": "workspace:*",
     "@objectstack/runtime": "workspace:*",
-    "@objectstack/objectql": "workspace:*",
     "@objectstack/spec": "workspace:*",
     "react": "^19.2.4",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@objectstack/cli": "^1.0.5",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/react": "^19.2.13",
     "@types/react-dom": "^18.3.1",
