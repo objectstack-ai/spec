@@ -10,7 +10,7 @@ import { match, getValueByPath } from './memory-matcher.js';
  * This driver stores data in a simple JavaScript object (Heap).
  */
 export class InMemoryDriver implements DriverInterface {
-  name = 'in-memory-driver';
+  name = 'com.objectstack.driver.memory';
   type = 'driver';
   version = '0.0.1';
   private config: any;
