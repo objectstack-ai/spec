@@ -16,6 +16,9 @@
       "@objectstack/driver-memory",
       "@objectstack/plugin-hono-server",
       "@objectstack/plugin-msw",
+      "@objectstack/hono",
+      "@objectstack/nestjs",
+      "@objectstack/nextjs",
       "@objectstack/docs"
     ]
   ],
