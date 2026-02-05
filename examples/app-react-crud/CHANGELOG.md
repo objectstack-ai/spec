@@ -1,5 +1,20 @@
 # @objectstack/example-msw-react-crud
 
+## 0.9.12
+
+### Patch Changes
+
+- Updated dependencies [b9f8c68]
+  - @objectstack/objectql@1.0.9
+  - @objectstack/client@1.0.9
+  - @objectstack/plugin-msw@1.0.9
+  - @objectstack/spec@1.0.9
+  - @objectstack/client-react@1.0.9
+  - @objectstack/metadata@1.0.9
+  - @objectstack/runtime@1.0.9
+  - @objectstack/driver-memory@1.0.9
+  - @example/app-todo@0.9.12
+
 ## 0.9.11
 
 ### Patch Changes

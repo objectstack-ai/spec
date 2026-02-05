@@ -1,6 +1,6 @@
 {
   "name": "@example/metadata-demo",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Demonstration of Metadata Manager capabilities (Load/Save/Watch)",
   "private": true,
   "scripts": {

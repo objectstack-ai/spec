@@ -1,6 +1,6 @@
 {
   "name": "@example/guide-cli",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "private": true,
   "scripts": {
     "dev": "objectstack dev",

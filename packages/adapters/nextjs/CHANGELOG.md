@@ -1,5 +1,11 @@
 # @objectstack/nextjs
 
+## 1.0.9
+
+### Patch Changes
+
+- @objectstack/runtime@1.0.9
+
 ## 1.0.8
 
 ### Patch Changes
