@@ -57,7 +57,6 @@ export const ManifestSchema = z.object({
     'plugin', 
     ...CORE_PLUGIN_TYPES,
     'module', 
-    'objectql', 
     'gateway',  // Deprecated: use 'server'
     'adapter'
   ]).describe('Type of package'),

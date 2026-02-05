@@ -89,7 +89,8 @@ export const CORE_PLUGIN_TYPES = [
   'server',     // Protocol: HTTP/RPC Servers (e.g. Hono, GraphQL)
   'app',        // Business: Vertical Solution Bundle (Metadata + Logic)
   'theme',      // Appearance: UI Overrides & CSS Variables
-  'agent'       // AI: Autonomous Agent & Tool Definitions
+  'agent',      // AI: Autonomous Agent & Tool Definitions
+  'objectql'    // Core: ObjectQL Engine Data Provider
 ] as const;
 
 export const PluginSchema = PluginLifecycleSchema.extend({
