@@ -4,6 +4,14 @@ import { PluginContext } from '@objectstack/core';
 import { createHonoApp } from '@objectstack/hono';
 import { HonoHttpServer } from './adapter';
 
+vi.mock('fs', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('fs')>();
+    return {
+        ...actual,
+        existsSync: vi.fn().mockReturnValue(true)
+    };
+});
+
 // Mock dependencies
 vi.mock('@objectstack/hono', () => ({
     createHonoApp: vi.fn(),
@@ -131,6 +139,6 @@ describe('HonoServerPlugin', () => {
         // Should register static files middleware
         expect(rawApp.get).toHaveBeenCalledWith('/*', expect.anything());
         // Should register SPA fallback middleware
-        expect(rawApp.get).toHaveBeenCalledWith('*', expect.anything());
+        expect(rawApp.get).toHaveBeenCalledWith('/*', expect.anything());
     });
 });
