@@ -28,7 +28,12 @@ export class ObjectQLPlugin implements Plugin {
     
     // Register as provider for Core Kernel Services
     ctx.registerService('objectql', this.ql);
-    ctx.registerService('metadata', this.ql);
+    
+    // Respect existing metadata service (e.g. from MetadataPlugin)
+    if (!ctx.getService('metadata')) {
+        ctx.registerService('metadata', this.ql);
+    }
+    
     ctx.registerService('data', this.ql); // ObjectQL implements IDataEngine
     ctx.registerService('auth', this.ql);
     

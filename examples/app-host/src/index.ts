@@ -35,7 +35,7 @@ import BiPluginManifest from '@example/plugin-bi/objectstack.config';
 
   // Load the Hono Server Plugin
   await kernel.use(new HonoServerPlugin({ 
-    port: 3004, 
+    port: process.env.PORT ? parseInt(process.env.PORT) : 3004, 
     staticRoot: './public' 
   }));
 
