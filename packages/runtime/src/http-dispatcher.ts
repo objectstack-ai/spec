@@ -65,6 +65,7 @@ export class HttpDispatcher {
                 data: `${prefix}/data`,
                 metadata: `${prefix}/meta`,
                 auth: `${prefix}/auth`,
+                ui: `${prefix}/ui`,
                 graphql: hasGraphQL ? `${prefix}/graphql` : undefined,
                 storage: hasFiles ? `${prefix}/storage` : undefined,
                 analytics: hasAnalytics ? `${prefix}/analytics` : undefined,
@@ -451,6 +452,33 @@ export class HttpDispatcher {
     }
 
     /**
+     * Handles UI requests
+     * path: sub-path after /ui/
+     */
+    async handleUi(path: string, _context: HttpProtocolContext): Promise<HttpDispatcherResult> {
+        const parts = path.replace(/^\/+/, '').split('/').filter(Boolean);
+        
+        // GET /ui/view/:object/:type
+        if (parts[0] === 'view' && parts.length === 3) {
+            const [_, objectName, type] = parts;
+            const protocol = this.kernel?.context?.getService ? this.kernel.context.getService('protocol') : null;
+            
+            if (protocol && typeof protocol.getUiView === 'function') {
+                try {
+                    const result = await protocol.getUiView({ object: objectName, type });
+                    return { handled: true, response: this.success(result) };
+                } catch (e: any) {
+                    return { handled: true, response: this.error(e.message, 500) };
+                }
+            } else {
+                 return { handled: true, response: this.error('Protocol service not available', 503) };
+            }
+        }
+
+        return { handled: false };
+    }
+
+    /**
      * Handles Automation requests
      * path: sub-path after /automation/
      */
@@ -521,6 +549,10 @@ export class HttpDispatcher {
              return this.handleStorage(cleanPath.substring(8), method, body, context); // body here is file/stream for upload
         }
         
+        if (cleanPath.startsWith('/ui')) {
+             return this.handleUi(cleanPath.substring(3), context);
+        }
+
         if (cleanPath.startsWith('/automation')) {
              return this.handleAutomation(cleanPath.substring(11), method, body, context);
         }
