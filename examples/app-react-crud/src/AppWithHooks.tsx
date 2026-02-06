@@ -10,7 +10,6 @@ import { ObjectStackClient } from '@objectstack/client';
 import type { Task } from './types';
 import { TaskFormWithHooks } from './components/TaskFormWithHooks';
 import { TaskListWithHooks } from './components/TaskListWithHooks';
-import './App.css';
 
 export function AppWithHooks() {
   const [client, setClient] = useState<ObjectStackClient | null>(null);
