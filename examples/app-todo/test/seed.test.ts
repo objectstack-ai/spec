@@ -24,7 +24,7 @@ import TodoApp from '../objectstack.config';
   if (!ql) throw new Error('ObjectQL Missing');
 
   try {
-    const tasks = await ql.find('todo_task', {});
+    const tasks = await ql.find('task', {});
     console.log('✅ Found Tasks:', tasks.length);
     console.log(JSON.stringify(tasks, null, 2));
 

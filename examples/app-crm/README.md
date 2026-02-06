@@ -45,27 +45,21 @@
 
 ### 📁 Architecture
 
+Follows the **by-type** directory layout — the ObjectStack standard aligned with Salesforce DX:
+
 ```
 src/
-├── domains/              # Domain-Driven Design
-│   ├── sales/           # Account, Contact, Lead, Opportunity, Quote, Contract
-│   ├── service/         # Case, Task
-│   ├── marketing/       # Campaign
-│   └── products/        # Product
-├── ui/                  # User Interface
-│   ├── dashboards.ts    # 3 dashboards
-│   ├── reports.ts       # 8 reports
-│   └── actions.ts       # Custom actions
-├── security/            # Security Model
-│   ├── profiles.ts      # 5 profiles
-│   └── sharing-rules.ts # Sharing and OWD
-├── automation/          # Business Logic
-│   └── flows.ts         # 5 flows
-├── ai/                  # AI & Machine Learning
-│   ├── agents.ts        # 5 AI agents
-│   └── rag-pipelines.ts # 4 RAG pipelines
-└── server/              # Custom APIs
-    └── apis.ts          # REST endpoints
+├── objects/          # 📦 10 Core Objects (account, contact, lead, opportunity, ...)
+├── actions/          # ⚡ Custom Actions (lead, contact, opportunity, case, global)
+├── apis/             # 🌐 REST Endpoints (pipeline-stats, lead-convert)
+├── apps/             # 🚀 App Configuration (crm.app.ts)
+├── dashboards/       # 📊 3 Dashboards (sales, service, executive)
+├── reports/          # 📈 8 Reports (opportunity, account, case, lead, contact, task)
+├── flows/            # 🔄 5 Flows (lead-conversion, opportunity-approval, ...)
+├── agents/           # 🤖 5 AI Agents (sales, service, lead-enrichment, ...)
+├── rag/              # 🧠 4 RAG Pipelines (sales-knowledge, support, product, ...)
+├── profiles/         # 🔒 5 Profiles (admin, sales-manager, sales-rep, ...)
+└── sharing/          # 🛡️ Sharing Rules & Role Hierarchy
 ```
 
 ### 📚 Documentation
