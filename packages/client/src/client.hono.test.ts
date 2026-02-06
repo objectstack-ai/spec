@@ -33,23 +33,23 @@ describe('ObjectStackClient (with Hono Server)', () => {
                     const ql = kernel.getService<any>('objectql'); // Use 'objectql' service name for clarity
                     if (method === 'create') {
                         const res = await ql.insert(params.object, params.data);
-                        // Ensure we return the full object including input data + ID
-                        return { ...params.data, ...res };
+                        const record = { ...params.data, ...res };
+                        return { object: params.object, id: record.id || record._id, record };
                     }
                     // Params from HttpDispatcher: { object, id, ...query }
                     if (method === 'get') {
-                        // Ensure we search by 'id' explicitly for InMemoryDriver
-                        return ql.findOne(params.object, { where: { id: params.id } });
+                        const record = await ql.findOne(params.object, { where: { id: params.id } });
+                        return record ? { object: params.object, id: params.id, record } : null;
                     }
                     // Params from HttpDispatcher: { object, filters }
                     if (method === 'query') {
-                        // HttpDispatcher passes filters as simple object (map)
-                        // ObjectQL expects { filter, select, sort, ... }
-                        const data = await ql.find(params.object, { filter: params.filters });
-                        // HttpDispatcher expects { data, count }
-                        return { data, count: data.length };
+                        const records = await ql.find(params.object, { filter: params.filters });
+                        return { object: params.object, records, total: records.length };
                     }
-                    if (method === 'find') return ql.find(params.object, { filter: params.filters });
+                    if (method === 'find') {
+                        const records = await ql.find(params.object, { filter: params.filters });
+                        return { object: params.object, records, total: records.length };
+                    }
                 }
                 
                 if (service === 'metadata') {
@@ -120,32 +120,30 @@ describe('ObjectStackClient (with Hono Server)', () => {
         const client = new ObjectStackClient({ baseUrl });
         await client.connect();
 
-        // Create
+        // Create — Spec: CreateDataResponse = { object, id, record }
         const createdResponse = await client.data.create('customer', {
             name: 'Hono User',
             email: 'hono@example.com'
         });
         
-        expect(createdResponse.success).toBe(true);
-        expect(createdResponse.data.name).toBe('Hono User');
-        expect(createdResponse.data.id).toBeDefined();
+        expect(createdResponse.record.name).toBe('Hono User');
+        expect(createdResponse.id).toBeDefined();
 
-        // Retrieve
-        const retrievedResponse = await client.data.get('customer', createdResponse.data.id);
-        expect(retrievedResponse.success).toBe(true);
-        expect(retrievedResponse.data.name).toBe('Hono User');
+        // Retrieve — Spec: GetDataResponse = { object, id, record }
+        const retrievedResponse = await client.data.get('customer', createdResponse.id);
+        expect(retrievedResponse.record.name).toBe('Hono User');
     });
 
     it('should find data via hono', async () => {
         const client = new ObjectStackClient({ baseUrl });
         await client.connect();
 
+        // Spec: FindDataResponse = { object, records, total? }
         const resultsResponse = await client.data.find('customer', {
             where: { name: 'Hono User' }
         });
 
-        expect(resultsResponse.success).toBe(true);
-        expect(resultsResponse.data.length).toBeGreaterThan(0);
-        expect(resultsResponse.data[0].name).toBe('Hono User');
+        expect(resultsResponse.records.length).toBeGreaterThan(0);
+        expect(resultsResponse.records[0].name).toBe('Hono User');
     });
 });

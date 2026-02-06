@@ -60,6 +60,7 @@ export class HttpDispatcher {
         const routes = {
                 data: `${prefix}/data`,
                 metadata: `${prefix}/meta`,
+                packages: `${prefix}/packages`,
                 auth: `${prefix}/auth`,
                 ui: `${prefix}/ui`,
                 graphql: hasGraphQL ? `${prefix}/graphql` : undefined,
@@ -260,10 +261,21 @@ export class HttpDispatcher {
             }
         }
 
-        // GET /metadata (List Objects - Default)
+        // GET /metadata — return available metadata types
         if (parts.length === 0) {
-            const data = await broker.call('metadata.objects', {}, { request: context.request });
-            return { handled: true, response: this.success(data) };
+            // Try protocol service for dynamic types
+            const protocol = this.kernel?.context?.getService ? this.kernel.context.getService('protocol') : null;
+            if (protocol && typeof protocol.getMetaTypes === 'function') {
+                const result = await protocol.getMetaTypes({});
+                return { handled: true, response: this.success(result) };
+            }
+            // Fallback: ask broker for registered types
+            try {
+                const data = await broker.call('metadata.types', {}, { request: context.request });
+                return { handled: true, response: this.success(data) };
+            } catch {
+                return { handled: true, response: this.success({ types: ['object', 'app', 'plugin'] }) };
+            }
         }
         
         return { handled: false };
@@ -290,14 +302,13 @@ export class HttpDispatcher {
             
             // POST /data/:object/query
             if (action === 'query' && m === 'POST') {
+                // Spec: broker returns FindDataResponse = { object, records, total?, hasMore? }
                 const result = await broker.call('data.query', { object: objectName, ...body }, { request: context.request });
-                return { handled: true, response: this.success(result.data, { count: result.count, limit: body.limit, skip: body.skip }) };
+                return { handled: true, response: this.success(result) };
             }
 
             // POST /data/:object/batch
             if (action === 'batch' && m === 'POST') {
-                // Spec complaint: forward the whole body { operation, records, options }
-                // Implementation in Kernel should handle the 'operation' field
                 const result = await broker.call('data.batch', { object: objectName, ...body }, { request: context.request });
                 return { handled: true, response: this.success(result) };
             }
@@ -305,35 +316,39 @@ export class HttpDispatcher {
             // GET /data/:object/:id
             if (parts.length === 2 && m === 'GET') {
                 const id = parts[1];
-                const data = await broker.call('data.get', { object: objectName, id, ...query }, { request: context.request });
-                return { handled: true, response: this.success(data) };
+                // Spec: broker returns GetDataResponse = { object, id, record }
+                const result = await broker.call('data.get', { object: objectName, id, ...query }, { request: context.request });
+                return { handled: true, response: this.success(result) };
             }
 
             // PATCH /data/:object/:id
             if (parts.length === 2 && m === 'PATCH') {
                 const id = parts[1];
-                const data = await broker.call('data.update', { object: objectName, id, data: body }, { request: context.request });
-                return { handled: true, response: this.success(data) };
+                // Spec: broker returns UpdateDataResponse = { object, id, record }
+                const result = await broker.call('data.update', { object: objectName, id, data: body }, { request: context.request });
+                return { handled: true, response: this.success(result) };
             }
 
             // DELETE /data/:object/:id
             if (parts.length === 2 && m === 'DELETE') {
                 const id = parts[1];
-                await broker.call('data.delete', { object: objectName, id }, { request: context.request });
-                return { handled: true, response: this.success({ id, deleted: true }) };
+                // Spec: broker returns DeleteDataResponse = { object, id, deleted }
+                const result = await broker.call('data.delete', { object: objectName, id }, { request: context.request });
+                return { handled: true, response: this.success(result) };
             }
         } else {
             // GET /data/:object (List)
             if (m === 'GET') {
+                // Spec: broker returns FindDataResponse = { object, records, total?, hasMore? }
                 const result = await broker.call('data.query', { object: objectName, filters: query }, { request: context.request });
-                return { handled: true, response: this.success(result.data, { count: result.count }) };
+                return { handled: true, response: this.success(result) };
             }
 
             // POST /data/:object (Create)
             if (m === 'POST') {
-                const data = await broker.call('data.create', { object: objectName, data: body }, { request: context.request });
-                // Note: ideally 201
-                const res = this.success(data);
+                // Spec: broker returns CreateDataResponse = { object, id, record }
+                const result = await broker.call('data.create', { object: objectName, data: body }, { request: context.request });
+                const res = this.success(result);
                 res.status = 201;
                 return { handled: true, response: res };
             }
@@ -370,6 +385,74 @@ export class HttpDispatcher {
              // Assuming service has generateSql method
              const result = await analyticsService.generateSql(body, { request: context.request });
              return { handled: true, response: this.success(result) };
+        }
+
+        return { handled: false };
+    }
+
+    /**
+     * Handles Package Management requests
+     * 
+     * REST Endpoints:
+     * - GET    /packages          → list all installed packages
+     * - GET    /packages/:id      → get a specific package
+     * - POST   /packages          → install a new package
+     * - DELETE  /packages/:id      → uninstall a package
+     * - PATCH  /packages/:id/enable  → enable a package
+     * - PATCH  /packages/:id/disable → disable a package
+     * 
+     * Protocol: Uses broker actions package.list, package.get, package.install,
+     *           package.uninstall, package.enable, package.disable
+     */
+    async handlePackages(path: string, method: string, body: any, query: any, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
+        const broker = this.ensureBroker();
+        const m = method.toUpperCase();
+        const parts = path.replace(/^\/+/, '').split('/').filter(Boolean);
+
+        try {
+            // GET /packages → list packages
+            if (parts.length === 0 && m === 'GET') {
+                const result = await broker.call('package.list', query || {}, { request: context.request });
+                return { handled: true, response: this.success(result) };
+            }
+
+            // POST /packages → install package
+            if (parts.length === 0 && m === 'POST') {
+                const result = await broker.call('package.install', body, { request: context.request });
+                const res = this.success(result);
+                res.status = 201;
+                return { handled: true, response: res };
+            }
+
+            // PATCH /packages/:id/enable
+            if (parts.length === 2 && parts[1] === 'enable' && m === 'PATCH') {
+                const id = decodeURIComponent(parts[0]);
+                const result = await broker.call('package.enable', { id }, { request: context.request });
+                return { handled: true, response: this.success(result) };
+            }
+
+            // PATCH /packages/:id/disable
+            if (parts.length === 2 && parts[1] === 'disable' && m === 'PATCH') {
+                const id = decodeURIComponent(parts[0]);
+                const result = await broker.call('package.disable', { id }, { request: context.request });
+                return { handled: true, response: this.success(result) };
+            }
+
+            // GET /packages/:id → get package
+            if (parts.length === 1 && m === 'GET') {
+                const id = decodeURIComponent(parts[0]);
+                const result = await broker.call('package.get', { id }, { request: context.request });
+                return { handled: true, response: this.success(result) };
+            }
+
+            // DELETE /packages/:id → uninstall package
+            if (parts.length === 1 && m === 'DELETE') {
+                const id = decodeURIComponent(parts[0]);
+                const result = await broker.call('package.uninstall', { id }, { request: context.request });
+                return { handled: true, response: this.success(result) };
+            }
+        } catch (e: any) {
+            return { handled: true, response: this.error(e.message, e.statusCode || 500) };
         }
 
         return { handled: false };
@@ -630,6 +713,10 @@ export class HttpDispatcher {
 
         if (cleanPath.startsWith('/hub')) {
              return this.handleHub(cleanPath.substring(4), method, body, query, context);
+        }
+
+        if (cleanPath.startsWith('/packages')) {
+             return this.handlePackages(cleanPath.substring(9), method, body, query, context);
         }
 
         // OpenAPI Specification

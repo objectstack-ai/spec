@@ -39,17 +39,22 @@ describe('ObjectStackClient (with MSW Plugin)', () => {
                     const ql = kernel.getService<any>('objectql');
                     if (method === 'create') {
                          const res = await ql.insert(params.object, params.data);
-                         return { ...params.data, ...res };
+                         const record = { ...params.data, ...res };
+                         return { object: params.object, id: record.id || record._id, record };
                     }
                     if (method === 'get') {
                         // Ensure we search by 'id' explicitly for InMemoryDriver
-                        return ql.findOne(params.object, { where: { id: params.id } });
+                        const record = await ql.findOne(params.object, { where: { id: params.id } });
+                        return record ? { object: params.object, id: params.id, record } : null;
                     }
                     if (method === 'query') {
-                        const data = await ql.find(params.object, { filter: params.filters });
-                        return { data, count: data.length };
+                        const records = await ql.find(params.object, { filter: params.filters });
+                        return { object: params.object, records, total: records.length };
                     }
-                    if (method === 'find') return ql.find(params.object, { filter: params.filters });
+                    if (method === 'find') {
+                        const records = await ql.find(params.object, { filter: params.filters });
+                        return { object: params.object, records, total: records.length };
+                    }
                 }
                 
                 if (service === 'metadata') {
@@ -162,37 +167,44 @@ describe('ObjectStackClient (with MSW Plugin)', () => {
         const client = new ObjectStackClient({ baseUrl: BASE_URL });
         await client.connect();
 
-        const customerRes = await client.meta.getItem('object', 'customer');
-        expect(customerRes.success).toBe(true);
-        expect(customerRes.data.name).toBe('customer');
+        // Spec: GetMetaItemResponse = { type, name, item }
+        const customerRes: any = await client.meta.getItem('object', 'customer');
+        expect(customerRes).toBeDefined();
+        // After unwrapResponse, we get the protocol-level response
+        // The manual handler wraps as { success, data: schema }, so unwrap yields the schema
+        const schema = customerRes.item || customerRes;
+        expect(schema.name).toBe('customer');
     });
 
     it('should find data records', async () => {
         const client = new ObjectStackClient({ baseUrl: BASE_URL });
         await client.connect();
 
+        // Spec: FindDataResponse = { object, records, total? }
         const resultsRes = await client.data.find('customer');
-        expect(resultsRes.success).toBe(true);
-        expect(resultsRes.data.length).toBe(2);
-        expect(resultsRes.data[0].name).toBe('Alice');
+        expect(resultsRes.records).toBeDefined();
+        expect(resultsRes.records.length).toBe(2);
+        expect(resultsRes.records[0].name).toBe('Alice');
     });
 
     it('should get single record', async () => {
         const client = new ObjectStackClient({ baseUrl: BASE_URL });
         await client.connect();
 
+        // Spec: GetDataResponse = { object, id, record }
         const recordRes = await client.data.get('customer', '101');
-        expect(recordRes.success).toBe(true);
-        expect(recordRes.data.name).toBe('Alice');
+        expect(recordRes.record).toBeDefined();
+        expect(recordRes.record.name).toBe('Alice');
     });
 
     it('should create record', async () => {
         const client = new ObjectStackClient({ baseUrl: BASE_URL });
         await client.connect();
 
+        // Spec: CreateDataResponse = { object, id, record }
         const newRecordRes = await client.data.create('customer', { name: 'Charlie' });
-        expect(newRecordRes.success).toBe(true);
-        expect(newRecordRes.data.name).toBe('Charlie');
-        expect(newRecordRes.data.id).toBeDefined();
+        expect(newRecordRes.record).toBeDefined();
+        expect(newRecordRes.record.name).toBe('Charlie');
+        expect(newRecordRes.id).toBeDefined();
     });
 });

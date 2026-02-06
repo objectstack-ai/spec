@@ -5,11 +5,12 @@ import { SiteHeader } from "@/components/site-header"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { ObjectDataTable } from './components/ObjectDataTable';
 import { ObjectDataForm } from './components/ObjectDataForm';
+import { PackageManager } from './components/PackageManager';
 import { Toaster } from "@/components/ui/toaster"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Database, Layers, Sparkles, Zap } from 'lucide-react';
 import { getApiBaseUrl, config } from './lib/config';
-import { appPackages, type AppPackage } from './mocks/browser';
+import type { AppPackage } from './mocks/browser';
 
 function DashboardWelcome() {
   return (
@@ -119,13 +120,15 @@ function DashboardWelcome() {
 
 export default function App() {
   const [client, setClient] = useState<ObjectStackClient | null>(null);
+  const [apps, setApps] = useState<AppPackage[]>([]);
+  const [selectedApp, setSelectedApp] = useState<AppPackage | null>(null);
   const [selectedObject, setSelectedObject] = useState<string | null>(null);
+  const [selectedView, setSelectedView] = useState<'dashboard' | 'packages' | 'object'>('dashboard');
   const [editingRecord, setEditingRecord] = useState<any>(null);
   const [showForm, setShowForm] = useState(false);
-  const [selectedApp, setSelectedApp] = useState<AppPackage>(appPackages[0]);
 
+  // 1. Create client
   useEffect(() => {
-    // Use the configured API base URL based on runtime mode (MSW or Server)
     const baseUrl = getApiBaseUrl();
     console.log(`[App] Connecting to API: ${baseUrl} (mode: ${config.mode})`);
     
@@ -134,6 +137,32 @@ export default function App() {
     });
     setClient(newClient);
   }, []);
+
+  // 2. Fetch app list from the server API (not hardcoded)
+  useEffect(() => {
+    if (!client) return;
+    let mounted = true;
+
+    async function loadApps() {
+      try {
+        // Spec: GET /api/v1/meta/apps → GetMetaItemsResponse = { type: 'apps', items: AppSchema[] }
+        const result: any = await client!.meta.getItems('apps');
+        const items: AppPackage[] = result?.items || result?.value || (Array.isArray(result) ? result : []);
+        
+        console.log('[App] Fetched apps from API:', items.map((a: any) => a.label || a.name));
+        
+        if (mounted && items.length > 0) {
+          setApps(items);
+          setSelectedApp(items[0]);
+        }
+      } catch (err) {
+        console.error('[App] Failed to fetch apps from API:', err);
+      }
+    }
+
+    loadApps();
+    return () => { mounted = false; };
+  }, [client]);
 
   function handleEdit(record: any) {
     setEditingRecord(record);
@@ -157,6 +186,24 @@ export default function App() {
   function handleSelectApp(app: AppPackage) {
     setSelectedApp(app);
     setSelectedObject(null);
+    setSelectedView('dashboard');
+    setShowForm(false);
+    setEditingRecord(null);
+  }
+
+  function handleSelectObject(name: string) {
+    if (name) {
+      setSelectedObject(name);
+      setSelectedView('object');
+    } else {
+      setSelectedObject(null);
+      setSelectedView('dashboard');
+    }
+  }
+
+  function handleSelectView(view: 'dashboard' | 'packages') {
+    setSelectedView(view);
+    setSelectedObject(null);
     setShowForm(false);
     setEditingRecord(null);
   }
@@ -166,15 +213,17 @@ export default function App() {
       <AppSidebar 
         client={client} 
         selectedObject={selectedObject} 
-        onSelectObject={(name) => setSelectedObject(name || null)}
-        apps={appPackages}
+        onSelectObject={handleSelectObject}
+        apps={apps}
         selectedApp={selectedApp}
         onSelectApp={handleSelectApp}
+        onSelectView={handleSelectView}
+        selectedView={selectedView}
       />
       <main className="flex min-w-0 flex-1 flex-col bg-background">
-        <SiteHeader selectedObject={selectedObject} appLabel={selectedApp?.label} />
+        <SiteHeader selectedObject={selectedObject} appLabel={selectedApp?.label || selectedApp?.name} />
         <div className="flex flex-1 flex-col overflow-hidden">
-          {selectedObject ? (
+          {selectedView === 'object' && selectedObject ? (
             <div className="flex flex-1 flex-col gap-4 p-4">
               {client && (
                 <ObjectDataTable 
@@ -184,6 +233,8 @@ export default function App() {
                 />
               )}
             </div>
+          ) : selectedView === 'packages' ? (
+            client && <PackageManager client={client} />
           ) : (
             <DashboardWelcome />
           )}

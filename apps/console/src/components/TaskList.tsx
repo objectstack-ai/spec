@@ -36,9 +36,8 @@ export function TaskList({ client, onEdit, refreshTrigger }: TaskListProps) {
         sort: ['priority', '-created_at']
       });
 
-      // Handle { value: [] } (PaginatedResult), { data: [] } (Standard Envelope) and [] (Raw) formats
-      // The ObjectStack Client returns the raw JSON body, so we need to handle the envelope
-      const rawValues = Array.isArray(result) ? result : (result.value || (result as any).data || []);
+      // Spec: FindDataResponse = { object, records, total?, hasMore? }
+      const rawValues = result?.records || result?.value || (Array.isArray(result) ? result : []);
       const fetchedTasks = [...rawValues] as Task[];
       
       // Client-side sort fallback (since InMemoryDriver has limited sort support)

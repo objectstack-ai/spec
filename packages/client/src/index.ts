@@ -56,8 +56,46 @@ export interface QueryOptions {
 }
 
 export interface PaginatedResult<T = any> {
-  value: T[];
-  count: number;
+  /** @deprecated Use `records` — aligned with FindDataResponseSchema */
+  value?: T[];
+  /** Spec-compliant: array of matching records */
+  records: T[];
+  /** @deprecated Use `total` — aligned with FindDataResponseSchema */
+  count?: number;
+  /** Total number of matching records (if requested) */
+  total?: number;
+  /** The object name */
+  object?: string;
+  /** Whether more records are available */
+  hasMore?: boolean;
+}
+
+/** Spec: GetDataResponseSchema */
+export interface GetDataResult<T = any> {
+  object: string;
+  id: string;
+  record: T;
+}
+
+/** Spec: CreateDataResponseSchema */
+export interface CreateDataResult<T = any> {
+  object: string;
+  id: string;
+  record: T;
+}
+
+/** Spec: UpdateDataResponseSchema */
+export interface UpdateDataResult<T = any> {
+  object: string;
+  id: string;
+  record: T;
+}
+
+/** Spec: DeleteDataResponseSchema */
+export interface DeleteDataResult {
+  object: string;
+  id: string;
+  deleted: boolean;
 }
 
 export interface StandardError {
@@ -164,7 +202,7 @@ export class ObjectStackClient {
     getTypes: async (): Promise<GetMetaTypesResponse> => {
         const route = this.getRoute('metadata');
         const res = await this.fetch(`${this.baseUrl}${route}`);
-        return res.json();
+        return this.unwrapResponse<GetMetaTypesResponse>(res);
     },
 
     /**
@@ -174,7 +212,7 @@ export class ObjectStackClient {
     getItems: async (type: string): Promise<GetMetaItemsResponse> => {
         const route = this.getRoute('metadata');
         const res = await this.fetch(`${this.baseUrl}${route}/${type}`);
-        return res.json();
+        return this.unwrapResponse<GetMetaItemsResponse>(res);
     },
 
     /**
@@ -185,7 +223,7 @@ export class ObjectStackClient {
     getObject: async (name: string) => {
         const route = this.getRoute('metadata');
         const res = await this.fetch(`${this.baseUrl}${route}/object/${name}`);
-        return res.json();
+        return this.unwrapResponse(res);
     },
 
     /**
@@ -196,7 +234,7 @@ export class ObjectStackClient {
     getItem: async (type: string, name: string) => {
         const route = this.getRoute('metadata');
         const res = await this.fetch(`${this.baseUrl}${route}/${type}/${name}`);
-        return res.json();
+        return this.unwrapResponse(res);
     },
 
     /**
@@ -211,7 +249,7 @@ export class ObjectStackClient {
             method: 'PUT',
             body: JSON.stringify(item)
         });
-        return res.json();
+        return this.unwrapResponse(res);
     },
     
     /**
@@ -262,7 +300,7 @@ export class ObjectStackClient {
     getView: async (object: string, type: 'list' | 'form' = 'list') => {
         const route = this.getRoute('ui');
         const res = await this.fetch(`${this.baseUrl}${route}/view/${object}?type=${type}`);
-        return res.json();
+        return this.unwrapResponse(res);
     }
   };
 
@@ -322,6 +360,97 @@ export class ObjectStackClient {
             return res.json();
         }
     }
+  };
+
+  /**
+   * Package Management Services
+   * 
+   * Manages the lifecycle of installed packages.
+   * A package (ManifestSchema) is the unit of installation.
+   * An app (AppSchema) is a UI navigation definition within a package.
+   * A package may contain 0, 1, or many apps, or be a pure functionality plugin.
+   * 
+   * Endpoints:
+   * - GET    /packages               → list installed packages
+   * - GET    /packages/:id           → get package details  
+   * - POST   /packages               → install a package
+   * - DELETE  /packages/:id           → uninstall a package
+   * - PATCH  /packages/:id/enable    → enable a package
+   * - PATCH  /packages/:id/disable   → disable a package
+   */
+  packages = {
+    /**
+     * List all installed packages with optional filters.
+     */
+    list: async (filters?: { status?: string; type?: string; enabled?: boolean }) => {
+        const route = this.getRoute('packages');
+        const params = new URLSearchParams();
+        if (filters?.status) params.set('status', filters.status);
+        if (filters?.type) params.set('type', filters.type);
+        if (filters?.enabled !== undefined) params.set('enabled', String(filters.enabled));
+        const qs = params.toString();
+        const url = `${this.baseUrl}${route}${qs ? '?' + qs : ''}`;
+        const res = await this.fetch(url);
+        return this.unwrapResponse<{ packages: any[]; total: number }>(res);
+    },
+
+    /**
+     * Get a specific installed package by its ID (reverse domain identifier).
+     */
+    get: async (id: string) => {
+        const route = this.getRoute('packages');
+        const res = await this.fetch(`${this.baseUrl}${route}/${encodeURIComponent(id)}`);
+        return this.unwrapResponse<{ package: any }>(res);
+    },
+
+    /**
+     * Install a new package from its manifest.
+     */
+    install: async (manifest: any, options?: { settings?: Record<string, any>; enableOnInstall?: boolean }) => {
+        const route = this.getRoute('packages');
+        const res = await this.fetch(`${this.baseUrl}${route}`, {
+            method: 'POST',
+            body: JSON.stringify({
+                manifest,
+                settings: options?.settings,
+                enableOnInstall: options?.enableOnInstall,
+            }),
+        });
+        return this.unwrapResponse<{ package: any; message?: string }>(res);
+    },
+
+    /**
+     * Uninstall a package by its ID.
+     */
+    uninstall: async (id: string) => {
+        const route = this.getRoute('packages');
+        const res = await this.fetch(`${this.baseUrl}${route}/${encodeURIComponent(id)}`, {
+            method: 'DELETE',
+        });
+        return this.unwrapResponse<{ id: string; success: boolean; message?: string }>(res);
+    },
+
+    /**
+     * Enable a disabled package.
+     */
+    enable: async (id: string) => {
+        const route = this.getRoute('packages');
+        const res = await this.fetch(`${this.baseUrl}${route}/${encodeURIComponent(id)}/enable`, {
+            method: 'PATCH',
+        });
+        return this.unwrapResponse<{ package: any; message?: string }>(res);
+    },
+
+    /**
+     * Disable an installed package.
+     */
+    disable: async (id: string) => {
+        const route = this.getRoute('packages');
+        const res = await this.fetch(`${this.baseUrl}${route}/${encodeURIComponent(id)}/disable`, {
+            method: 'PATCH',
+        });
+        return this.unwrapResponse<{ package: any; message?: string }>(res);
+    },
   };
 
   /**
@@ -437,7 +566,7 @@ export class ObjectStackClient {
         method: 'POST',
         body: JSON.stringify(query)
       });
-      return res.json();
+      return this.unwrapResponse<PaginatedResult<T>>(res);
     },
 
     find: async <T = any>(object: string, options: QueryOptions = {}): Promise<PaginatedResult<T>> => {
@@ -488,22 +617,22 @@ export class ObjectStackClient {
         }
 
         const res = await this.fetch(`${this.baseUrl}${route}/${object}?${queryParams.toString()}`);
-        return res.json();
+        return this.unwrapResponse<PaginatedResult<T>>(res);
     },
 
-    get: async <T = any>(object: string, id: string): Promise<T> => {
+    get: async <T = any>(object: string, id: string): Promise<GetDataResult<T>> => {
         const route = this.getRoute('data');
         const res = await this.fetch(`${this.baseUrl}${route}/${object}/${id}`);
-        return res.json();
+        return this.unwrapResponse<GetDataResult<T>>(res);
     },
 
-    create: async <T = any>(object: string, data: Partial<T>): Promise<T> => {
+    create: async <T = any>(object: string, data: Partial<T>): Promise<CreateDataResult<T>> => {
         const route = this.getRoute('data');
         const res = await this.fetch(`${this.baseUrl}${route}/${object}`, {
             method: 'POST',
             body: JSON.stringify(data)
         });
-        return res.json();
+        return this.unwrapResponse<CreateDataResult<T>>(res);
     },
 
     createMany: async <T = any>(object: string, data: Partial<T>[]): Promise<T[]> => {
@@ -512,16 +641,16 @@ export class ObjectStackClient {
             method: 'POST',
             body: JSON.stringify(data)
         });
-        return res.json();
+        return this.unwrapResponse<T[]>(res);
     },
 
-    update: async <T = any>(object: string, id: string, data: Partial<T>): Promise<T> => {
+    update: async <T = any>(object: string, id: string, data: Partial<T>): Promise<UpdateDataResult<T>> => {
         const route = this.getRoute('data');
         const res = await this.fetch(`${this.baseUrl}${route}/${object}/${id}`, {
             method: 'PATCH',
             body: JSON.stringify(data)
         });
-        return res.json();
+        return this.unwrapResponse<UpdateDataResult<T>>(res);
     },
 
     /**
@@ -534,7 +663,7 @@ export class ObjectStackClient {
             method: 'POST',
             body: JSON.stringify(request)
         });
-        return res.json();
+        return this.unwrapResponse<BatchUpdateResponse>(res);
     },
 
     /**
@@ -555,15 +684,15 @@ export class ObjectStackClient {
             method: 'POST',
             body: JSON.stringify(request)
         });
-        return res.json();
+        return this.unwrapResponse<BatchUpdateResponse>(res);
     },
 
-    delete: async (object: string, id: string): Promise<{ success: boolean }> => {
+    delete: async (object: string, id: string): Promise<DeleteDataResult> => {
         const route = this.getRoute('data');
         const res = await this.fetch(`${this.baseUrl}${route}/${object}/${id}`, {
             method: 'DELETE'
         });
-        return res.json();
+        return this.unwrapResponse<DeleteDataResult>(res);
     },
 
     /**
@@ -579,7 +708,7 @@ export class ObjectStackClient {
              method: 'POST',
              body: JSON.stringify(request)
         });
-        return res.json();
+        return this.unwrapResponse<BatchUpdateResponse>(res);
     }
   };
 
@@ -594,6 +723,23 @@ export class ObjectStackClient {
     // If object but not basic KV map... harder to tell without schema
     // For now, assume if it passes Array.isArray it's an AST root
     return Array.isArray(filter);
+  }
+
+  /**
+   * Unwrap the standard REST API response envelope.
+   * The HTTP layer wraps responses as `{ success: boolean, data: T, meta? }`
+   * (see BaseResponseSchema in contract.zod.ts).
+   * This method strips the envelope and returns the inner `data` payload
+   * so callers receive the spec-level type (e.g. GetMetaTypesResponse).
+   */
+  private async unwrapResponse<T>(res: Response): Promise<T> {
+    const body = await res.json();
+    // If the body has a `success` flag it's a BaseResponse envelope
+    if (body && typeof body.success === 'boolean' && 'data' in body) {
+      return body.data as T;
+    }
+    // Already unwrapped or non-standard
+    return body as T;
   }
 
   private async fetch(url: string, options: RequestInit = {}): Promise<Response> {
@@ -658,7 +804,7 @@ export class ObjectStackClient {
    * Get the conventional route path for a given API endpoint type
    * ObjectStack uses standard conventions: /api/v1/data, /api/v1/meta, /api/v1/ui
    */
-  private getRoute(type: 'data' | 'metadata' | 'ui' | 'auth' | 'analytics' | 'hub' | 'storage' | 'automation'): string {
+  private getRoute(type: 'data' | 'metadata' | 'ui' | 'auth' | 'analytics' | 'hub' | 'storage' | 'automation' | 'packages'): string {
     // 1. Use discovered routes if available
     // Note: Spec uses 'endpoints', mapped dynamically
     if (this.discoveryInfo?.endpoints && (this.discoveryInfo.endpoints as any)[type]) {
@@ -674,7 +820,8 @@ export class ObjectStackClient {
       analytics: '/api/v1/analytics',
       hub: '/api/v1/hub',
       storage: '/api/v1/storage',
-      automation: '/api/v1/automation'
+      automation: '/api/v1/automation',
+      packages: '/api/v1/packages',
     };
     
     return routeMap[type] || `/api/v1/${type}`;

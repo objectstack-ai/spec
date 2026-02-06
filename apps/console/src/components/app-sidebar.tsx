@@ -87,7 +87,7 @@ function getTypeIcon(type: string): LucideIcon {
 }
 
 /** Types that are internal / should be hidden from the sidebar */
-const HIDDEN_TYPES = new Set(['plugin', 'plugins', 'kind', 'app']);
+const HIDDEN_TYPES = new Set(['plugin', 'plugins', 'kind', 'app', 'apps', 'package']);
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   client: ObjectStackClient | null;
@@ -96,9 +96,11 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   apps: AppPackage[];
   selectedApp: AppPackage | null;
   onSelectApp: (app: AppPackage) => void;
+  onSelectView?: (view: 'dashboard' | 'packages') => void;
+  selectedView?: 'dashboard' | 'packages' | 'object';
 }
 
-export function AppSidebar({ client, selectedObject, onSelectObject, apps, selectedApp, onSelectApp, ...props }: AppSidebarProps) {
+export function AppSidebar({ client, selectedObject, onSelectObject, apps, selectedApp, onSelectApp, onSelectView, selectedView, ...props }: AppSidebarProps) {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   // Dynamic metadata: type -> items[]
@@ -110,13 +112,13 @@ export function AppSidebar({ client, selectedObject, onSelectObject, apps, selec
     if (!client) return;
     setLoading(true);
     try {
-      // 1. Discover all registered metadata types
-      const typesResult: any = await client.meta.getTypes();
+      // 1. Discover all registered metadata types (spec: GetMetaTypesResponse)
+      const typesResult = await client.meta.getTypes();
       let types: string[] = [];
       if (typesResult && Array.isArray(typesResult.types)) {
         types = typesResult.types;
       } else if (Array.isArray(typesResult)) {
-        types = typesResult;
+        types = typesResult as any;
       }
       setMetaTypes(types);
 
@@ -126,16 +128,15 @@ export function AppSidebar({ client, selectedObject, onSelectObject, apps, selec
           .filter(t => !HIDDEN_TYPES.has(t))
           .map(async (type) => {
             try {
-              const result: any = await client.meta.getItems(type);
+              // Spec: GetMetaItemsResponse = { type, items: any[] }
+              const result = await client.meta.getItems(type);
               let items: any[] = [];
               if (Array.isArray(result)) {
-                items = result;
+                items = result as any;
               } else if (result && Array.isArray(result.items)) {
                 items = result.items;
-              } else if (result && Array.isArray(result.data)) {
-                items = result.data;
-              } else if (result && Array.isArray(result.value)) {
-                items = result.value;
+              } else if (result && Array.isArray((result as any).value)) {
+                items = (result as any).value;
               }
               return [type, items] as const;
             } catch {
@@ -178,10 +179,10 @@ export function AppSidebar({ client, selectedObject, onSelectObject, apps, selec
               </div>
               <div className="flex flex-1 flex-col gap-0.5 leading-none overflow-hidden">
                 <span className="truncate font-semibold text-sm">
-                  {selectedApp ? selectedApp.label : 'ObjectStack'}
+                  {selectedApp ? (selectedApp.label || selectedApp.name) : 'ObjectStack'}
                 </span>
                 <span className="truncate text-xs text-muted-foreground">
-                  {selectedApp ? selectedApp.description : 'Select an app'}
+                  {selectedApp ? (selectedApp.description || 'No description') : 'Loading apps...'}
                 </span>
               </div>
               <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 text-muted-foreground" />
@@ -194,7 +195,7 @@ export function AppSidebar({ client, selectedObject, onSelectObject, apps, selec
               const Icon = app.icon ? (APP_ICONS[app.icon] || Package) : Package;
               return (
                 <DropdownMenuItem
-                  key={app.id}
+                  key={app.name}
                   onClick={() => onSelectApp(app)}
                   className="gap-2 py-2"
                 >
@@ -202,12 +203,12 @@ export function AppSidebar({ client, selectedObject, onSelectObject, apps, selec
                     <Icon className="h-3.5 w-3.5" />
                   </div>
                   <div className="flex flex-1 flex-col leading-tight">
-                    <span className="text-sm font-medium">{app.label}</span>
+                    <span className="text-sm font-medium">{app.label || app.name}</span>
                     {app.description && (
                       <span className="text-xs text-muted-foreground">{app.description}</span>
                     )}
                   </div>
-                  {selectedApp?.id === app.id && (
+                  {selectedApp?.name === app.name && (
                     <Check className="h-4 w-4 text-primary" />
                   )}
                 </DropdownMenuItem>
@@ -323,6 +324,16 @@ export function AppSidebar({ client, selectedObject, onSelectObject, apps, selec
            <SidebarGroupLabel>System</SidebarGroupLabel>
            <SidebarGroupContent>
              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton 
+                    tooltip="Packages"
+                    isActive={selectedView === 'packages'}
+                    onClick={() => onSelectView?.('packages')}
+                  >
+                    <Package className="h-4 w-4" />
+                    <span>Packages</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton tooltip="Settings">
                     <Settings className="h-4 w-4" />

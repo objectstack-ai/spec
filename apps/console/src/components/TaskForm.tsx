@@ -27,11 +27,10 @@ export function TaskForm({ client, editingTask, onSuccess, onCancel }: TaskFormP
     async function fetchMetadata() {
         try {
             // 'todo_task' should match the object name in Schema
-            const res = await client.meta.getObject('todo_task');
+            const res: any = await client.meta.getObject('todo_task');
             
-            // In Protocol v1 (protocol.ts), getMetaItem returns { type: 'object', name: 'todo_task', item: { ...fields... } }
-            // So we need res.item (the schema definition) or res (if it's direct)
-            const schemaDef = res.data || res.item || res;
+            // Protocol: getMetaItem returns { type, name, item }
+            const schemaDef = res.item || res;
             
             setSchema(schemaDef);
         } catch (err) {

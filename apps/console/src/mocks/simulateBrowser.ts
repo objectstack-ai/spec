@@ -64,11 +64,11 @@ export async function simulateBrowser() {
                     filters: filters
                 });
                 
-                // Return Standard Envelope to match packages/runtime/src/http-dispatcher.ts
+                // Broker now returns spec-compliant FindDataResponse = { object, records, total? }
+                // Wrap in standard envelope: { success, data: <protocol_response> }
                 return HttpResponse.json({ 
                     success: true, 
-                    data: result.data, 
-                    meta: { count: result.count } 
+                    data: result
                 });
             } catch (err: any) {
                 return HttpResponse.json({ error: err.message }, { status: 500 });
@@ -85,7 +85,7 @@ export async function simulateBrowser() {
                     object: params.object,
                     data: body
                 });
-                return HttpResponse.json(result);
+                return HttpResponse.json({ success: true, data: result }, { status: 201 });
             } catch (err: any) {
                 return HttpResponse.json({ error: err.message }, { status: 500 });
             }
@@ -103,7 +103,7 @@ export async function simulateBrowser() {
                     id: params.id,
                     data: body
                 });
-                return HttpResponse.json(result || { success: true });
+                return HttpResponse.json({ success: true, data: result });
             } catch (err: any) {
                  return HttpResponse.json({ error: err.message }, { status: 500 });
             }
@@ -115,13 +115,12 @@ export async function simulateBrowser() {
             console.log(`[VirtualNetwork] PATCH /data/${params.object}/${params.id}`);
             
             try {
-                // Ensure broker receives { object, id, data } explicitly
                 const result = await (kernel as any).broker.call('data.update', {
                     object: params.object,
                     id: params.id,
                     data: body
                 });
-                return HttpResponse.json(result || { success: true });
+                return HttpResponse.json({ success: true, data: result });
             } catch (err: any) {
                  return HttpResponse.json({ error: err.message }, { status: 500 });
             }
@@ -135,7 +134,7 @@ export async function simulateBrowser() {
                     object: params.object,
                     id: params.id
                 });
-                return HttpResponse.json(result);
+                return HttpResponse.json({ success: true, data: result });
             } catch (err: any) {
                  return HttpResponse.json({ error: err.message }, { status: 500 });
             }

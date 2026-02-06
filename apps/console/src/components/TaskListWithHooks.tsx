@@ -85,7 +85,8 @@ function TaskListContent({ onEdit }: { onEdit: (task: Task) => void }) {
     );
   }
 
-  const tasks = data?.value || [];
+  // Spec: FindDataResponse = { object, records, total? }
+  const tasks = data?.records || data?.value || [];
 
   return (
     <div className="space-y-6">
