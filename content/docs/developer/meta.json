@@ -1,0 +1,11 @@
+{
+  "title": "Developer Guide",
+  "pages": [
+    "index",
+    "data-modeling",
+    "business-logic",
+    "security",
+    "ai-capabilities",
+    "standards"
+  ]
+}
