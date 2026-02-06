@@ -331,3 +331,64 @@ export type SoftDeleteConfig = z.infer<typeof SoftDeleteConfigSchema>;
 export type VersioningConfig = z.infer<typeof VersioningConfigSchema>;
 export type PartitioningConfig = z.infer<typeof PartitioningConfigSchema>;
 export type CDCConfig = z.infer<typeof CDCConfigSchema>;
+
+// =================================================================
+// Object Ownership Model
+// =================================================================
+
+/**
+ * How a package relates to an object it references.
+ * 
+ * - `own`: This package is the original author/owner of the object.
+ *   Only one package may own a given object name. The owner defines
+ *   the base schema (table name, primary key, core fields).
+ * 
+ * - `extend`: This package adds fields, views, or actions to an
+ *   existing object owned by another package. Multiple packages
+ *   may extend the same object. Extensions are merged at boot time.
+ * 
+ * Follows Salesforce/ServiceNow patterns:
+ *   object name = database table name, globally unique, no namespace prefix.
+ */
+export const ObjectOwnershipEnum = z.enum(['own', 'extend']);
+export type ObjectOwnership = z.infer<typeof ObjectOwnershipEnum>;
+
+/**
+ * Object Extension Entry — used in `objectExtensions` array.
+ * Declares fields/config to merge into an existing object owned by another package.
+ * 
+ * @example
+ * ```ts
+ * objectExtensions: [{
+ *   extend: 'contact',               // target object FQN
+ *   fields: { sales_stage: Field.select([...]) },
+ * }]
+ * ```
+ */
+export const ObjectExtensionSchema = z.object({
+  /** The target object name (FQN) to extend */
+  extend: z.string().describe('Target object name (FQN) to extend'),
+  
+  /** Fields to merge into the target object (additive) */
+  fields: z.record(z.string(), FieldSchema).optional().describe('Fields to add/override'),
+  
+  /** Override label */
+  label: z.string().optional(),
+  
+  /** Override plural label */
+  pluralLabel: z.string().optional(),
+  
+  /** Override description */
+  description: z.string().optional(),
+  
+  /** Additional validation rules to add */
+  validations: z.array(ValidationRuleSchema).optional(),
+  
+  /** Additional indexes to add */
+  indexes: z.array(IndexSchema).optional(),
+  
+  /** Merge priority. Higher number applied later (wins on conflict). Default: 200 */
+  priority: z.number().int().min(0).max(999).default(200).describe('Merge priority (higher = applied later)'),
+});
+
+export type ObjectExtension = z.infer<typeof ObjectExtensionSchema>;

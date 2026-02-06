@@ -5,7 +5,7 @@ import { DatasourceSchema } from './data/datasource.zod';
 import { TranslationBundleSchema } from './system/translation.zod';
 
 // Data Protocol
-import { ObjectSchema } from './data/object.zod';
+import { ObjectSchema, ObjectExtensionSchema } from './data/object.zod';
 
 // UI Protocol
 import { AppSchema } from './ui/app.zod';
@@ -63,7 +63,22 @@ export const ObjectStackDefinitionSchema = z.object({
    * ObjectQL: Data Layer 
    * All business objects and entities.
    */
-  objects: z.array(ObjectSchema).optional().describe('Business Objects definition'),
+  objects: z.array(ObjectSchema).optional().describe('Business Objects definition (owned by this package)'),
+
+  /**
+   * Object Extensions: fields/config to merge into objects owned by other packages.
+   * Use this instead of redefining an object when you want to add fields to
+   * an existing object from another package.
+   * 
+   * @example
+   * ```ts
+   * objectExtensions: [{
+   *   extend: 'contact',
+   *   fields: { sales_stage: Field.select([...]) },
+   * }]
+   * ```
+   */
+  objectExtensions: z.array(ObjectExtensionSchema).optional().describe('Extensions to objects owned by other packages'),
 
   /** 
    * ObjectUI: User Interface Layer 

@@ -32,6 +32,26 @@ export const ManifestSchema = z.object({
    */
   id: z.string().describe('Unique package identifier (reverse domain style)'),
   
+  /**
+   * Short namespace identifier for metadata scoping.
+   * Used as a prefix for objects and other metadata to prevent naming collisions
+   * across packages from different vendors.
+   * 
+   * Rules:
+   * - 2-20 characters, lowercase letters, digits, and underscores only.
+   * - Must be unique within a running instance.
+   * - Platform-reserved namespaces (no prefix applied): "base", "system".
+   * - FQN (Fully Qualified Name) = `{namespace}__{short_name}` (double underscore separator).
+   * 
+   * @example "crm"       → objects become crm__account, crm__deal
+   * @example "todo"      → objects become todo__task
+   * @example "base"      → objects keep short name (platform reserved)
+   */
+  namespace: z.string()
+    .regex(/^[a-z][a-z0-9_]{1,19}$/, 'Namespace must be 2-20 chars, lowercase alphanumeric + underscore')
+    .optional()
+    .describe('Short namespace identifier for metadata scoping (e.g. "crm", "todo")'),
+  
   /** 
    * Package version following semantic versioning (major.minor.patch).
    * 
