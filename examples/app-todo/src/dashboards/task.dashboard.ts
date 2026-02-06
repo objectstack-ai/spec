@@ -74,7 +74,6 @@ export const TaskDashboard: Dashboard = {
       filter: { is_completed: true, completed_date: { $gte: '{last_4_weeks}' } },
       categoryField: 'completed_date',
       aggregate: 'count',
-      dateGranularity: 'week',
       layout: { x: 0, y: 6, w: 8, h: 4 },
       options: { showDataLabels: true }
     },
@@ -89,27 +88,21 @@ export const TaskDashboard: Dashboard = {
       options: { showLegend: true }
     },
     
-    // Row 4: Lists
+    // Row 4: Tables
     {
       title: 'Overdue Tasks',
-      type: 'list',
+      type: 'table',
       object: 'task',
       filter: { is_overdue: true, is_completed: false },
-      columns: ['subject', 'due_date', 'priority'],
-      sortBy: 'due_date',
-      sortOrder: 'asc',
-      limit: 10,
+      aggregate: 'count',
       layout: { x: 0, y: 10, w: 6, h: 4 },
     },
     {
       title: 'Due Today',
-      type: 'list',
+      type: 'table',
       object: 'task',
       filter: { due_date: '{today}', is_completed: false },
-      columns: ['subject', 'priority', 'status'],
-      sortBy: 'priority',
-      sortOrder: 'desc',
-      limit: 10,
+      aggregate: 'count',
       layout: { x: 6, y: 10, w: 6, h: 4 },
     },
   ],

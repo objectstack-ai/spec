@@ -8,10 +8,8 @@ export const CompleteTaskAction: Action = {
   type: 'script',
   execute: 'completeTask',
   locations: ['record_header', 'list_item'],
-  confirmMessage: 'Are you sure you want to mark this task as complete?',
   successMessage: 'Task marked as complete!',
   refreshAfter: true,
-  visibleWhen: 'is_completed = false',
 };
 
 /** Mark Task as In Progress */
@@ -24,7 +22,6 @@ export const StartTaskAction: Action = {
   locations: ['record_header', 'list_item'],
   successMessage: 'Task started!',
   refreshAfter: true,
-  visibleWhen: 'status = "not_started"',
 };
 
 /** Defer Task */
@@ -93,7 +90,6 @@ export const MassCompleteTasksAction: Action = {
   type: 'script',
   execute: 'massCompleteTasks',
   locations: ['list_toolbar'],
-  confirmMessage: 'Are you sure you want to complete all selected tasks?',
   successMessage: 'Selected tasks marked as complete!',
   refreshAfter: true,
 };
@@ -106,7 +102,6 @@ export const DeleteCompletedAction: Action = {
   type: 'script',
   execute: 'deleteCompletedTasks',
   locations: ['list_toolbar'],
-  confirmMessage: 'Are you sure you want to delete all completed tasks? This action cannot be undone.',
   successMessage: 'Completed tasks deleted!',
   refreshAfter: true,
 };

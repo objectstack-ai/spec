@@ -67,7 +67,6 @@ export const OverdueTasksReport: ReportInput = {
     { field: 'category', label: 'Category' },
   ],
   filter: { is_overdue: true, is_completed: false },
-  sortBy: [{ field: 'due_date', order: 'asc' }],
 };
 
 /** Completed Tasks Report */

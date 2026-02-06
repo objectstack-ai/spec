@@ -71,9 +71,18 @@ export const Task = ObjectSchema.create({
     }),
     
     // Tags
-    tags: Field.multiSelect(['important', 'quick_win', 'blocked', 'follow_up', 'review'], {
+    tags: {
+      type: 'select',
       label: 'Tags',
-    }),
+      multiple: true,
+      options: [
+        { label: 'Important', value: 'important', color: '#EF4444' },
+        { label: 'Quick Win', value: 'quick_win', color: '#10B981' },
+        { label: 'Blocked', value: 'blocked', color: '#F59E0B' },
+        { label: 'Follow Up', value: 'follow_up', color: '#3B82F6' },
+        { label: 'Review', value: 'review', color: '#8B5CF6' },
+      ]
+    },
     
     // Recurrence
     is_recurring: Field.boolean({
