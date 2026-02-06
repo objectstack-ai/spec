@@ -15,7 +15,8 @@ describe('Metadata Service Integration', () => {
 
     it('should fetch list of objects via client.meta.getItems("object")', async () => {
         const { client } = env;
-        const objects = await client.meta.getItems('object');
+        const response: any = await client.meta.getItems('object');
+        const objects = response.data || response;
         
         console.log('Fetched Objects:', objects.map((o: any) => o.name));
         
@@ -29,7 +30,8 @@ describe('Metadata Service Integration', () => {
 
     it('should fetch object details via client.meta.getItem("object", ...)', async () => {
         const { client } = env;
-        const def = await client.meta.getItem('object', 'todo_task');
+        const response: any = await client.meta.getItem('object', 'todo_task');
+        const def = response.data || response;
         
         expect(def).toBeDefined();
         expect(def.name).toBe('todo_task');

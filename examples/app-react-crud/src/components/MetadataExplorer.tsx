@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react';
 import { ObjectStackClient } from '@objectstack/client';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { Database, Package } from 'lucide-react';
 
 interface MetadataExplorerProps {
     client: ObjectStackClient;
@@ -40,40 +44,52 @@ export function MetadataExplorer({ client, selectedObject, onSelectObject }: Met
     }, [client]);
 
     return (
-        <div className="bg-white rounded-lg border border-accents-2 shadow-sm h-full flex flex-col">
-            <div className="p-4 border-b border-accents-2 bg-gray-50">
-                <h3 className="font-bold text-gray-900">Registered Objects</h3>
-            </div>
-            <div className="flex-1 overflow-y-auto p-2 space-y-1">
-                {loading && <div className="p-4 text-center text-gray-500">Loading objects...</div>}
-                
-                {objects.map(obj => (
-                    <button
-                        key={obj.name}
-                        onClick={() => onSelectObject(obj.name)}
-                        className={`w-full text-left px-3 py-2 rounded-md transition-colors flex items-center justify-between group
-                            ${selectedObject === obj.name 
-                                ? 'bg-primary/5 text-primary font-medium' 
-                                : 'text-gray-700 hover:bg-gray-100'
-                            }`}
-                    >
-                        <div className="flex items-center space-x-2">
-                            {/* Icon placeholder could go here */}
-                            <span>{obj.label}</span>
-                        </div>
-                        <span className="text-xs text-gray-400 group-hover:text-gray-600 font-mono">
-                            {obj.name}
-                        </span>
-                    </button>
-                ))}
+        <Card className="h-full flex flex-col border-border/60">
+            <CardHeader className="p-4 border-b bg-muted/20">
+                <CardTitle className="text-sm font-bold flex items-center gap-2">
+                    <Database className="h-4 w-4" />
+                    Registered Objects
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="flex-1 p-0 overflow-hidden">
+                <ScrollArea className="h-full">
+                    <div className="p-2 space-y-1">
+                        {loading && (
+                            <div className="p-4 text-center text-sm text-muted-foreground animate-pulse">
+                                Loading objects...
+                            </div>
+                        )}
+                        
+                        {objects.map(obj => (
+                            <Button
+                                key={obj.name}
+                                variant={selectedObject === obj.name ? "secondary" : "ghost"}
+                                size="sm"
+                                onClick={() => onSelectObject(obj.name)}
+                                className="w-full justify-between font-normal h-9"
+                            >
+                                <div className="flex items-center gap-2 truncate">
+                                    <Package className="h-3.5 w-3.5 text-muted-foreground" />
+                                    <span>{obj.label}</span>
+                                </div>
+                                <span className="text-xs text-muted-foreground font-mono opacity-50 ml-2 shrink-0">
+                                    {obj.name}
+                                </span>
+                            </Button>
+                        ))}
 
-                {!loading && objects.length === 0 && (
-                     <div className="p-4 text-center text-gray-500 text-sm">No objects found in Metadata Service.</div>
-                )}
-            </div>
-             <div className="p-3 border-t border-accents-2 bg-gray-50 text-xs text-center text-gray-500">
+                        {!loading && objects.length === 0 && (
+                             <div className="p-8 text-center text-muted-foreground text-sm flex flex-col items-center gap-2">
+                                <Database className="h-8 w-8 opacity-20" />
+                                <p>No objects found</p>
+                             </div>
+                        )}
+                    </div>
+                </ScrollArea>
+            </CardContent>
+            <CardFooter className="p-2 border-t bg-muted/20 text-xs text-muted-foreground justify-center">
                 Total: {objects.length} Objects
-            </div>
-        </div>
+            </CardFooter>
+        </Card>
     );
 }

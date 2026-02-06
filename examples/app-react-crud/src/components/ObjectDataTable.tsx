@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { ObjectStackClient } from '@objectstack/client';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, ArrowRight, Edit, Trash2, Plus } from 'lucide-react';
 
 interface ObjectDataTableProps {
     client: ObjectStackClient;
@@ -42,7 +45,7 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
             if (!client) return;
             setLoading(true);
             try {
-                const result = await client.data.find(objectApiName, {
+                const result: any = await client.data.find(objectApiName, {
                     filters: {
                         top: pageSize,
                         skip: (page - 1) * pageSize,
@@ -95,18 +98,9 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
         }
     }
 
-    // Helper to allow debugging and simple formatting
-    function formatRecords(recs: any[], cols: any[]) {
-        if (!recs || recs.length === 0) return [];
-        // Optional: Ensure fields that match columns exist or default to ''
-        return recs;
-    }
-
-    if (!def) return <div className="p-4 text-accents-5">Loading metadata for {objectApiName}...</div>;
+    if (!def) return <div className="p-4 text-muted-foreground animate-pulse">Loading metadata for {objectApiName}...</div>;
 
     // Determine columns from fields
-    // fields is usually a map or array depending on the internal structure. 
-    // Based on previous logs: objects: [{ fields: { ... } }]
     const fields = def.fields || {};
     const columns = Object.keys(fields).map(key => {
         const f = fields[key];
@@ -115,78 +109,107 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
             label: f.label || key,
             type: f.type || 'text'
         };
-    }).filter(c => !['formatted_summary'].includes(c.name)); // hide system fields if any
+    }).filter(c => !['formatted_summary'].includes(c.name)); 
 
     return (
-        <div className="bg-background rounded-lg border border-accents-2 overflow-hidden shadow-sm">
-            <div className="p-4 border-b border-accents-2 flex justify-between items-center bg-gray-50">
-                <h3 className="font-bold text-lg">{def.label} ({def.name})</h3>
-                <span className="text-sm text-accents-5">
-                    Records: {total > 0 ? total : records.length}
-                </span>
-            </div>
+        <Card className="flex flex-col h-full border-border/60 shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between p-4 border-b space-y-0 bg-muted/20">
+                <div className="space-y-1">
+                    <CardTitle className="text-xl font-semibold tracking-tight">
+                        {def.label}
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                        {def.name} • {total > 0 ? total : records.length} records
+                    </p>
+                </div>
+                <Button onClick={() => onEdit({})} size="sm" className="gap-1">
+                    <Plus className="h-4 w-4" />
+                    New
+                </Button>
+            </CardHeader>
             
-            <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left">
-                    <thead className="bg-gray-100 text-accents-6 uppercase font-medium">
-                        <tr>
+            <CardContent className="flex-1 p-0 overflow-auto">
+                <table className="w-full caption-bottom text-sm text-left">
+                    <thead className="[&_tr]:border-b">
+                        <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                             {columns.map(col => (
-                                <th key={col.name} className="px-4 py-3 whitespace-nowrap">{col.label}</th>
+                                <th key={col.name} className="h-10 px-4 align-middle font-medium text-muted-foreground">
+                                    {col.label}
+                                </th>
                             ))}
-                            <th className="px-4 py-3 text-right">Actions</th>
+                            <th className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-accents-2">
+                    <tbody className="[&_tr:last-child]:border-0">
                         {loading && records.length === 0 ? (
-                            <tr><td colSpan={columns.length + 1} className="p-4 text-center">Loading...</td></tr>
-                        ) : formatRecords(records, columns).map(record => (
-                            <tr key={record.id || record._id} className="hover:bg-gray-50 transition-colors">
+                            <tr><td colSpan={columns.length + 1} className="p-4 text-center text-muted-foreground">Loading...</td></tr>
+                        ) : records.map(record => (
+                            <tr key={record.id || record._id} className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                                 {columns.map(col => (
-                                    <td key={col.name} className="px-4 py-3 whitespace-nowrap">
+                                    <td key={col.name} className="p-4 align-middle">
                                         {String(record[col.name] !== undefined ? record[col.name] : '')}
                                     </td>
                                 ))}
-                                <td className="px-4 py-3 text-right space-x-2">
-                                    <button 
-                                        onClick={() => onEdit(record)}
-                                        className="text-primary hover:text-primary-dark font-medium"
-                                    >
-                                        Edit
-                                    </button>
-                                    <button 
-                                        onClick={() => handleDelete(record.id || record._id)}
-                                        className="text-error hover:text-red-700 font-medium"
-                                    >
-                                        Delete
-                                    </button>
+                                <td className="p-4 align-middle text-right">
+                                    <div className="flex justify-end gap-2">
+                                        <Button 
+                                            variant="ghost" 
+                                            size="sm"
+                                            className="h-8 w-8 p-0"
+                                            onClick={() => onEdit(record)}
+                                        >
+                                            <Edit className="h-4 w-4 text-muted-foreground" />
+                                            <span className="sr-only">Edit</span>
+                                        </Button>
+                                        <Button 
+                                            variant="ghost" 
+                                            size="sm"
+                                            className="h-8 w-8 p-0"
+                                            onClick={() => handleDelete(record.id || record._id)}
+                                        >
+                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                            <span className="sr-only">Delete</span>
+                                        </Button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
                         {!loading && records.length === 0 && (
-                            <tr><td colSpan={columns.length + 1} className="p-8 text-center text-accents-5">No records found</td></tr>
+                            <tr>
+                                <td colSpan={columns.length + 1} className="p-8 text-center text-muted-foreground">
+                                    No records found
+                                </td>
+                            </tr>
                         )}
                     </tbody>
                 </table>
-            </div>
+            </CardContent>
 
-            {/* Pagination Controls */}
-            <div className="p-3 border-t border-accents-2 flex justify-end items-center gap-2 bg-gray-50">
-                <button 
+            <CardFooter className="p-2 border-t bg-muted/20 flex justify-end items-center gap-2">
+                <Button 
+                    variant="outline" 
+                    size="sm"
                     disabled={page === 1}
                     onClick={() => setPage(p => Math.max(1, p - 1))}
-                    className="px-3 py-1 border border-accents-3 rounded text-sm disabled:opacity-50 bg-white"
+                    className="h-8 gap-1"
                 >
+                    <ArrowLeft className="h-3.5 w-3.5" />
                     Previous
-                </button>
-                <span className="text-sm font-medium px-2">Page {page}</span>
-                <button 
-                    disabled={records.length < pageSize} // Simple check
+                </Button>
+                <div className="text-sm font-medium text-muted-foreground min-w-[3rem] text-center">
+                    Page {page}
+                </div>
+                <Button 
+                    variant="outline" 
+                    size="sm"
+                    disabled={records.length < pageSize}
                     onClick={() => setPage(p => p + 1)}
-                    className="px-3 py-1 border border-accents-3 rounded text-sm disabled:opacity-50 bg-white"
+                    className="h-8 gap-1"
                 >
                     Next
-                </button>
-            </div>
-        </div>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                </Button>
+            </CardFooter>
+        </Card>
     );
 }

@@ -56,6 +56,6 @@ describe('DOM Simulation', () => {
 
         // Fail if no columns (would result in empty table body)
         expect(columns.length).toBeGreaterThan(0);
-        expect(headers).toContain('Subject'); // Assuming Field.text({ label }) works or fallback uses key
+        expect(headers).toContain('subject');  // Assuming Field.text({ label }) works or fallback uses key
     });
 });

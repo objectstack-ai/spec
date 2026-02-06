@@ -37,7 +37,7 @@ export default defineStack({
     version: '1.0.0',
     type: 'app',
     name: 'todo_example_app',
-    label: 'Todo Example App',
+    // label: 'Todo Example App',
     description: 'A simple Todo example demonstrating ObjectStack Protocol',
     data: [
       {

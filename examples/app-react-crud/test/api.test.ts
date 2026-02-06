@@ -30,7 +30,9 @@ describe('App React CRUD Integration Tests (Virtual Browser)', () => {
         console.log('[Test] Response received:', response);
 
         // Expect items (array or paginated value)
-        let items = Array.isArray(response) ? response : (response as any).value;
+        // Handle Standard Envelope ({ success: true, data: [...] }) 
+        const result: any = response;
+        let items = result.data ? result.data : (Array.isArray(response) ? response : (response as any).value);
         
         expect(items).toBeDefined();
         // Since we force seeded in createKernel, we expect 5 items
@@ -60,7 +62,8 @@ describe('App React CRUD Integration Tests (Virtual Browser)', () => {
             filters: { id: newTask.id }
         });
         // find returns array/paginated list
-        const list = Array.isArray(fetched) ? fetched : (fetched as any).value;
+        const r_fetched: any = fetched;
+        const list = r_fetched.data || (Array.isArray(fetched) ? fetched : (fetched as any).value);
         expect(list).toHaveLength(1);
         expect(list[0].id).toBe(newTask.id);
 
@@ -73,7 +76,8 @@ describe('App React CRUD Integration Tests (Virtual Browser)', () => {
         // DELETE
         await client.data.delete('todo_task', newTask.id);
         const afterDelete = await client.data.find('todo_task', { filters: { id: newTask.id } });
-        const missingList = Array.isArray(afterDelete) ? afterDelete : (afterDelete as any).value;
+        const r_afterDelete: any = afterDelete;
+        const missingList = r_afterDelete.data || (Array.isArray(afterDelete) ? afterDelete : (afterDelete as any).value);
         expect(missingList).toHaveLength(0);
     });
 
@@ -85,14 +89,16 @@ describe('App React CRUD Integration Tests (Virtual Browser)', () => {
         const sorted = await client.data.find('todo_task', {
             sort: ['priority'] // Ascending
         });
-        const sortedItems = Array.isArray(sorted) ? sorted : (sorted as any).value;
+        const r_sorted: any = sorted;
+        const sortedItems = r_sorted.data || (Array.isArray(sorted) ? sorted : (sorted as any).value);
         expect(sortedItems[0].priority).toBeLessThanOrEqual(sortedItems[1].priority);
 
         // 2. Test Pagination (Top)
         const top2 = await client.data.find('todo_task', {
             top: 2
         });
-        const top2Items = Array.isArray(top2) ? top2 : (top2 as any).value;
+        const r_top2: any = top2;
+        const top2Items = r_top2.data || (Array.isArray(top2) ? top2 : (top2 as any).value);
         expect(top2Items).toHaveLength(2);
 
         // 3. Test Select
@@ -100,7 +106,8 @@ describe('App React CRUD Integration Tests (Virtual Browser)', () => {
             top: 1,
             select: ['subject']
         });
-        const selectedItems = Array.isArray(selected) ? selected : (selected as any).value;
+        const r_selected: any = selected;
+        const selectedItems = r_selected.data || (Array.isArray(selected) ? selected : (selected as any).value);
         expect(selectedItems[0]).toHaveProperty('subject');
         expect(selectedItems[0]).not.toHaveProperty('priority'); // Should be excluded
         expect(selectedItems[0]).toHaveProperty('id'); // ID is always returned

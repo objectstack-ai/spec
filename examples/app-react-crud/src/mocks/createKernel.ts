@@ -36,13 +36,13 @@ export async function createKernel(options: KernelOptions) {
     // --- BROKER SHIM START ---
     // HttpDispatcher requires a broker to function. We inject a shim.
     (kernel as any).broker = {
-        call: async (action: string, params: any, opts: any) => {
+        call: async (action: string, params: any, _opts: any) => {
             const parts = action.split('.');
             const service = parts[0];
             const method = parts[1];
             
             // Get Engines
-            const ql = kernel!.context?.getService<any>('objectql');
+            const ql = (kernel as any).context?.getService('objectql');
             
             if (service === 'data') {
                 if (method === 'create') {
@@ -220,7 +220,7 @@ export async function createKernel(options: KernelOptions) {
     await kernel.bootstrap();
 
     // FORCE SYNC SEED: Guarantees data availability for both Browser and Tests
-    const ql = kernel.context?.getService<any>('objectql');
+    const ql = (kernel as any).context?.getService('objectql');
     if (ql) {
         // Initial check
         let tasks = await ql.find('todo_task');
@@ -249,8 +249,8 @@ export async function createKernel(options: KernelOptions) {
     }
 
     // --- PROTOCOL SERVICE MOCK ---
-    if (kernel.services instanceof Map) {
-         kernel.services.set('protocol', {
+    if ((kernel as any).services instanceof Map) {
+         (kernel as any).services.set('protocol', {
              getUiView: async ({ object, type }: any) => {
                  return {
                      type: type || 'list',

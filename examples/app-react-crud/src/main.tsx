@@ -4,6 +4,7 @@
  * Initializes MSW and renders the React application.
  */
 
+import './mocks/process-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { App } from './App';

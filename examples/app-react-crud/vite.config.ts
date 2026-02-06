@@ -6,6 +6,7 @@ import path from 'path';
 export default defineConfig({
   resolve: {
     alias: {
+      '@': path.resolve(__dirname, './src'),
       'node:fs/promises': path.resolve(__dirname, './mocks/node-polyfills.ts'),
       'node:fs': path.resolve(__dirname, './mocks/node-polyfills.ts'),
       'node:events': path.resolve(__dirname, './mocks/node-polyfills.ts'),
@@ -32,8 +33,8 @@ export default defineConfig({
   },
   define: {
     'process.env': {},
-    'process.cwd': '() => "/"',
-    'process.platform': '"browser"'
+    // 'process.cwd': '() => "/"', 
+    // 'process.platform': '"browser"'
   },
   plugins: [react()],
   server: {
