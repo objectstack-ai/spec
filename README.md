@@ -27,6 +27,8 @@ ObjectStack is a metadata-driven platform built on three foundational protocols:
 ### Architecture Documentation
 
 - **[Architecture Guide](./ARCHITECTURE.md)** - Complete microkernel architecture overview
+- **[Cloud Management Design](./CLOUD_MANAGEMENT_DESIGN.md)** - 云端管理工具深度设计报告 (Chinese)
+- **[Cloud Management Design (EN)](./CLOUD_MANAGEMENT_DESIGN_EN.md)** - Cloud management architecture (Executive summary)
 - **[Quick Reference](./QUICK-REFERENCE.md)** - Fast lookup for developers
 - **[Package Dependencies](./PACKAGE-DEPENDENCIES.md)** - Dependency graph and build order
 
