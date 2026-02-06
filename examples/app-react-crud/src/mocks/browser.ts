@@ -19,6 +19,9 @@ export async function startMockServer() {
 
   console.log('[MSW] Starting ObjectStack Runtime (Browser Mode)...');
 
+  // Handle CommonJS/ESM interop for config loading
+  const appConfig = (todoConfig as any).default || todoConfig;
+
   const driver = new InMemoryDriver();
 
   // Create kernel with MiniKernel architecture
@@ -31,7 +34,7 @@ export async function startMockServer() {
   await kernel.use(new DriverPlugin(driver, 'memory'));
   
   // Load todo app config as a plugin
-  await kernel.use(new AppPlugin(todoConfig));
+  await kernel.use(new AppPlugin(appConfig));
   
   // MSW Plugin (intercepts network requests)
   await kernel.use(new MSWPlugin({
@@ -132,7 +135,7 @@ export async function startMockServer() {
   }
 
   // Initialize default data from manifest if available
-  const manifest = (todoConfig as any).manifest;
+  const manifest = appConfig.manifest;
   if (manifest && Array.isArray(manifest.data)) {
     console.log('[MSW] Loading initial data...');
     for (const dataset of manifest.data) {
