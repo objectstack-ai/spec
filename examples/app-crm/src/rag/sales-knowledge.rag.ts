@@ -1,41 +1,46 @@
-import type { RagPipeline } from '@objectstack/spec/ai';
-
-export const SalesKnowledgeRAG: RagPipeline = {
+export const SalesKnowledgeRAG = {
   name: 'sales_knowledge',
   label: 'Sales Knowledge Pipeline',
   description: 'RAG pipeline for sales team knowledge and best practices',
-  
-  indexes: [{
-    name: 'sales_playbook_index',
-    type: 'vector',
-    sources: [
-      { type: 'document', path: '/knowledge/sales/**/*.md', watch: true },
-      { type: 'document', path: '/knowledge/products/**/*.pdf', watch: true },
-      { type: 'object', objectName: 'opportunity', fields: ['name', 'description', 'stage', 'amount'], filter: { stage: 'closed_won', close_date: { $gte: '{last_12_months}' } } },
-    ],
-    embedding: { provider: 'openai', model: 'text-embedding-3-large', dimensions: 1536 },
-    chunking: { strategy: 'semantic', chunkSize: 1000, chunkOverlap: 200 },
-    metadata: { extractors: [{ type: 'title', source: 'filename' }, { type: 'date', source: 'modified_date' }, { type: 'category', source: 'directory' }] },
-  }],
-  
+
+  embedding: {
+    provider: 'openai',
+    model: 'text-embedding-3-large',
+    dimensions: 1536,
+  },
+
+  vectorStore: {
+    provider: 'pgvector',
+    indexName: 'sales_playbook_index',
+    dimensions: 1536,
+    metric: 'cosine',
+  },
+
+  chunking: {
+    type: 'semantic',
+    maxChunkSize: 1000,
+  },
+
   retrieval: {
-    strategy: 'hybrid',
-    vectorSearch: { topK: 10, scoreThreshold: 0.7, algorithm: 'cosine' },
-    keywordSearch: { enabled: true, weight: 0.3 },
-    reranking: { enabled: true, model: 'cohere-rerank', topK: 5 },
+    type: 'hybrid',
+    topK: 10,
+    vectorWeight: 0.7,
+    keywordWeight: 0.3,
   },
-  
-  generation: {
-    model: { provider: 'openai', model: 'gpt-4', temperature: 0.7, maxTokens: 2000 },
-    promptTemplate: `You are a sales expert assistant. Use the following context to answer the question.
 
-Context:
-{context}
-
-Question: {question}
-
-Answer the question based on the context. If you cannot find the answer in the context, say so.`,
+  reranking: {
+    enabled: true,
+    provider: 'cohere',
+    model: 'cohere-rerank',
+    topK: 5,
   },
-  
-  caching: { enabled: true, ttl: 3600 },
+
+  loaders: [
+    { type: 'directory', source: '/knowledge/sales', fileTypes: ['.md'], recursive: true },
+    { type: 'directory', source: '/knowledge/products', fileTypes: ['.pdf'], recursive: true },
+  ],
+
+  maxContextTokens: 4000,
+  enableCache: true,
+  cacheTTL: 3600,
 };

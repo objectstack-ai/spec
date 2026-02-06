@@ -1,20 +1,19 @@
-import type { Flow } from '@objectstack/spec/automation';
-
-export const QuoteGenerationFlow: Flow = {
+/** Quote Generation — screen flow to create a quote from an opportunity */
+export const QuoteGenerationFlow = {
   name: 'quote_generation',
   label: 'Generate Quote from Opportunity',
   description: 'Create a quote based on opportunity details',
   type: 'screen',
   triggerType: 'manual',
   objectName: 'opportunity',
-  
+
   variables: [
-    { name: 'opportunityId', type: 'text', required: true },
-    { name: 'quoteName', type: 'text' },
-    { name: 'expirationDays', type: 'number', defaultValue: 30 },
-    { name: 'discount', type: 'percent', defaultValue: 0 },
+    { name: 'opportunityId', type: 'text', isInput: true, isOutput: false },
+    { name: 'quoteName', type: 'text', isInput: true, isOutput: false },
+    { name: 'expirationDays', type: 'number', isInput: true, isOutput: false },
+    { name: 'discount', type: 'number', isInput: true, isOutput: false },
   ],
-  
+
   steps: [
     {
       id: 'screen_1',

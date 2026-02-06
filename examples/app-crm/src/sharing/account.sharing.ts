@@ -1,38 +1,32 @@
-import type { SharingRule } from '@objectstack/spec/security';
-
-/** Share accounts with sales managers/directors */
-export const AccountTeamSharingRule: SharingRule = {
+/** Share accounts with sales managers/directors based on customer status */
+export const AccountTeamSharingRule = {
   name: 'account_team_sharing',
   label: 'Account Team Sharing',
-  objectName: 'account',
-  type: 'criteria_based',
-  criteria: { type: { $eq: 'customer' }, is_active: { $eq: true } },
-  sharedWith: { type: 'role', roles: ['sales_manager', 'sales_director'] },
-  accessLevel: 'read_write',
-  includeRelatedObjects: [
-    { objectName: 'contact', accessLevel: 'read_only' },
-    { objectName: 'opportunity', accessLevel: 'read_only' },
-  ],
+  object: 'account',
+  type: 'criteria' as const,
+  condition: 'type = "customer" AND is_active = true',
+  accessLevel: 'edit',
+  sharedWith: { type: 'role', value: 'sales_manager' },
 };
 
-/** Territory-Based Sharing */
+/** Territory-Based Sharing (criteria-based, by billing country) */
 export const TerritorySharingRules = [
   {
     name: 'north_america_territory',
     label: 'North America Territory',
-    objectName: 'account',
-    type: 'territory_based',
-    criteria: { billing_address: { country: { $in: ['US', 'CA', 'MX'] } } },
-    sharedWith: { type: 'territory', territory: 'north_america' },
-    accessLevel: 'read_write',
+    object: 'account',
+    type: 'criteria' as const,
+    condition: 'billing_country IN ("US", "CA", "MX")',
+    accessLevel: 'edit',
+    sharedWith: { type: 'role', value: 'na_sales_team' },
   },
   {
     name: 'europe_territory',
     label: 'Europe Territory',
-    objectName: 'account',
-    type: 'territory_based',
-    criteria: { billing_address: { country: { $in: ['UK', 'DE', 'FR', 'IT', 'ES'] } } },
-    sharedWith: { type: 'territory', territory: 'europe' },
-    accessLevel: 'read_write',
+    object: 'account',
+    type: 'criteria' as const,
+    condition: 'billing_country IN ("UK", "DE", "FR", "IT", "ES")',
+    accessLevel: 'edit',
+    sharedWith: { type: 'role', value: 'eu_sales_team' },
   },
 ];

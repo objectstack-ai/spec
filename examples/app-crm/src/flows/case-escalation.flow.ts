@@ -1,6 +1,5 @@
-import type { Flow } from '@objectstack/spec/automation';
-
-export const CaseEscalationFlow: Flow = {
+/** Case Escalation — auto-escalate high-priority cases */
+export const CaseEscalationFlow = {
   name: 'case_escalation',
   label: 'Case Escalation Process',
   description: 'Automatically escalate high-priority cases',
@@ -8,11 +7,11 @@ export const CaseEscalationFlow: Flow = {
   triggerType: 'on_create',
   objectName: 'case',
   criteria: 'priority = "critical" OR (priority = "high" AND account.type = "customer")',
-  
+
   variables: [
-    { name: 'caseId', type: 'text', required: true },
+    { name: 'caseId', type: 'text', isInput: true, isOutput: false },
   ],
-  
+
   steps: [
     {
       id: 'get_case',

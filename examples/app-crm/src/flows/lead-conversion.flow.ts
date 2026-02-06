@@ -1,20 +1,19 @@
-import type { Flow } from '@objectstack/spec/automation';
-
-export const LeadConversionFlow: Flow = {
+/** Lead Conversion — multi-step screen flow to convert qualified leads */
+export const LeadConversionFlow = {
   name: 'lead_conversion',
   label: 'Lead Conversion Process',
   description: 'Automated flow to convert qualified leads to accounts, contacts, and opportunities',
   type: 'screen',
   triggerType: 'manual',
   objectName: 'lead',
-  
+
   variables: [
-    { name: 'leadId', type: 'text', required: true },
-    { name: 'createOpportunity', type: 'boolean', defaultValue: true },
-    { name: 'opportunityName', type: 'text' },
-    { name: 'opportunityAmount', type: 'currency' },
+    { name: 'leadId', type: 'text', isInput: true, isOutput: false },
+    { name: 'createOpportunity', type: 'boolean', isInput: true, isOutput: false },
+    { name: 'opportunityName', type: 'text', isInput: true, isOutput: false },
+    { name: 'opportunityAmount', type: 'text', isInput: true, isOutput: false },
   ],
-  
+
   steps: [
     {
       id: 'screen_1',

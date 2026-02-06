@@ -1,11 +1,9 @@
-import type { Agent } from '@objectstack/spec/ai';
-
-export const ServiceAgent: Agent = {
+/** Customer Service Agent — assists with case triage and resolution */
+export const ServiceAgent = {
   name: 'service_agent',
   label: 'Customer Service Agent',
-  description: 'AI agent to assist with customer support cases',
   role: 'assistant',
-  
+
   instructions: `You are a customer service AI agent helping support representatives resolve customer issues.
 
 Your responsibilities:
@@ -19,22 +17,18 @@ Your responsibilities:
 Always be empathetic, solution-focused, and customer-centric.`,
 
   model: { provider: 'openai', model: 'gpt-4', temperature: 0.5, maxTokens: 1500 },
-  
+
   tools: [
-    { name: 'triage_case', description: 'Analyze case and assign priority', parameters: { case_id: 'string' } },
-    { name: 'search_knowledge', description: 'Search knowledge base for solutions', parameters: { query: 'string' } },
-    { name: 'generate_response', description: 'Generate customer response', parameters: { case_id: 'string', tone: 'string' } },
+    { type: 'action' as const, name: 'triage_case', description: 'Analyze case and assign priority' },
+    { type: 'vector_search' as const, name: 'search_knowledge', description: 'Search knowledge base for solutions' },
+    { type: 'action' as const, name: 'generate_response', description: 'Generate customer response' },
   ],
-  
+
   knowledge: {
-    sources: [
-      { type: 'object', objectName: 'case', fields: ['*'] },
-      { type: 'object', objectName: 'account', fields: ['*'] },
-      { type: 'document', path: '/knowledge/support-kb/**/*.md' },
-      { type: 'document', path: '/knowledge/sla-policies.md' },
-    ],
+    topics: ['support_kb', 'sla_policies', 'case_resolution'],
+    indexes: ['support_knowledge'],
   },
-  
+
   triggers: [
     { type: 'object_create', objectName: 'case' },
     { type: 'object_update', objectName: 'case', condition: 'priority = "critical"' },
