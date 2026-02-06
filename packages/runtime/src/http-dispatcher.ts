@@ -57,11 +57,7 @@ export class HttpDispatcher {
         const hasAnalytics = !!services[CoreServiceName.enum.analytics];
         const hasHub = !!services[CoreServiceName.enum.hub];
 
-        return {
-            name: 'ObjectOS',
-            version: '1.0.0',
-            environment: getEnv('NODE_ENV', 'development'),
-            routes: {
+        const routes = {
                 data: `${prefix}/data`,
                 metadata: `${prefix}/meta`,
                 auth: `${prefix}/auth`,
@@ -70,7 +66,15 @@ export class HttpDispatcher {
                 storage: hasFiles ? `${prefix}/storage` : undefined,
                 analytics: hasAnalytics ? `${prefix}/analytics` : undefined,
                 hub: hasHub ? `${prefix}/hub` : undefined,
-            },
+                automation: `${prefix}/automation`, 
+        };
+
+        return {
+            name: 'ObjectOS',
+            version: '1.0.0',
+            environment: getEnv('NODE_ENV', 'development'),
+            routes,
+            endpoints: routes, // Alias for backward compatibility with some clients
             features: {
                 graphql: hasGraphQL,
                 search: hasSearch,
@@ -483,12 +487,15 @@ export class HttpDispatcher {
      * Handles UI requests
      * path: sub-path after /ui/
      */
-    async handleUi(path: string, _context: HttpProtocolContext): Promise<HttpDispatcherResult> {
+    async handleUi(path: string, query: any, _context: HttpProtocolContext): Promise<HttpDispatcherResult> {
         const parts = path.replace(/^\/+/, '').split('/').filter(Boolean);
         
-        // GET /ui/view/:object/:type
-        if (parts[0] === 'view' && parts.length === 3) {
-            const [_, objectName, type] = parts;
+        // GET /ui/view/:object (with optional type param)
+        if (parts[0] === 'view' && parts[1]) {
+            const objectName = parts[1];
+            // Support both path param /view/obj/list AND query param /view/obj?type=list
+            const type = parts[2] || query?.type || 'list';
+
             const protocol = this.kernel?.context?.getService ? this.kernel.context.getService('protocol') : null;
             
             if (protocol && typeof protocol.getUiView === 'function') {
@@ -589,7 +596,7 @@ export class HttpDispatcher {
         }
         
         if (cleanPath.startsWith('/ui')) {
-             return this.handleUi(cleanPath.substring(3), context);
+             return this.handleUi(cleanPath.substring(3), query, context);
         }
 
         if (cleanPath.startsWith('/automation')) {

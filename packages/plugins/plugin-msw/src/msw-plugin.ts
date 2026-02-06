@@ -294,8 +294,8 @@ export class MSWPlugin implements Plugin {
             };
 
             this.handlers.push(
-                http.all(`${baseUrl}/*`, catchAll),
-                http.all(`${baseUrl}`, catchAll) // Handle root if needed
+                http.all(`*${baseUrl}/*`, catchAll),
+                http.all(`*${baseUrl}`, catchAll) // Handle root if needed
             );
             
             ctx.logger.info('MSW handlers set up using HttpDispatcher', { baseUrl });
