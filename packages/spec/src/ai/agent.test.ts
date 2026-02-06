@@ -417,5 +417,26 @@ Be precise, data-driven, and clear in your explanations.`,
 
       expect(() => AgentSchema.parse(agent)).not.toThrow();
     });
+
+    it('should valid agent with lifecycle state machine', () => {
+      const agentWithLifecycle = {
+        name: 'approval_bot',
+        label: 'Approval Bot',
+        role: 'Approver',
+        instructions: 'Approve if valid',
+        lifecycle: {
+          id: 'bot_lifecycle',
+          initial: 'idle',
+          states: {
+            idle: { on: { TASK: 'working' } },
+            working: { on: { DONE: 'idle' } }
+          }
+        }
+      };
+
+      const result = AgentSchema.parse(agentWithLifecycle);
+      expect(result.lifecycle).toBeDefined();
+      expect(result.lifecycle?.initial).toBe('idle');
+    });
   });
 });

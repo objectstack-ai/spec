@@ -2,6 +2,7 @@
   "title": "Data Protocol",
   "pages": [
     "schema",
+    "state-machine",
     "types",
     "query-syntax",
     "security"

@@ -486,5 +486,27 @@ describe('ObjectSchema', () => {
 
       expect(() => ObjectSchema.parse(taskObject)).not.toThrow();
     });
+
+    it('should valid object with state machine', () => {
+      const objectWithState = {
+        name: 'leave_request',
+        fields: {
+          status: { type: 'text' }
+        },
+        stateMachine: {
+          id: 'leave_flow',
+          initial: 'draft',
+          states: {
+            draft: { on: { SUBMIT: 'pending' } },
+            pending: { on: { APPROVE: 'approved' } },
+            approved: { type: 'final' }
+          }
+        }
+      };
+      
+      const result = ObjectSchema.parse(objectWithState);
+      expect(result.stateMachine).toBeDefined();
+      expect(result.stateMachine?.initial).toBe('draft');
+    });
   });
 });
