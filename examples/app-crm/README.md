@@ -1,229 +1,170 @@
-# ObjectStack CRM Example
+# ObjectStack Enterprise CRM Application
 
-这是一个全面的 CRM (客户关系管理) 示例，展示了 ObjectStack 协议的所有核心功能。
-This is a comprehensive CRM (Customer Relationship Management) example that demonstrates all core features of the ObjectStack Protocol.
+[English](#english) | [中文](#中文)
 
-## 🎯 Features Demonstrated
+---
 
-### Data Protocol (数据协议)
+## English
 
-#### Objects (对象)
-- **Account** - 客户账户 (Companies and organizations)
-- **Contact** - 联系人 (People associated with accounts)
-- **Opportunity** - 销售机会 (Sales opportunities and deals)
-- **Lead** - 潜在客户 (Potential customers)
-- **Case** - 客户支持案例 (Customer support cases)
-- **Task** - 任务活动 (Activities and to-do items)
+### 🎯 Overview
 
-#### Field Types (字段类型)
-- ✅ **Text/String**: text, textarea, email, url, phone, password
-- ✅ **Rich Content**: markdown, html
-- ✅ **Numbers**: number, currency, percent
-- ✅ **Date/Time**: date, datetime, time
-- ✅ **Logic**: boolean
-- ✅ **Selection**: select, multiselect
-- ✅ **Relational**: lookup, master_detail
-- ✅ **Media**: avatar, image, file
-- ✅ **Calculated**: formula, summary, autonumber
+**Enterprise CRM** is a comprehensive, production-ready Customer Relationship Management system built on the ObjectStack Protocol. It demonstrates all 128+ protocol modules across 15 categories, showcasing enterprise-grade architecture following Salesforce and ServiceNow best practices.
 
-#### Advanced Features (高级功能)
-- ✅ **Validation Rules** - Script, uniqueness, state machine, format validation
-- ✅ **Workflow Rules** - Field updates, email alerts, automated actions
-- ✅ **Permissions** - Object-level and field-level security
-- ✅ **History Tracking** - Audit trail for field changes
-- ✅ **Relationships** - Lookup and master-detail relationships
-- ✅ **Indexes** - Database performance optimization
+### ✨ Key Features
 
-### UI Protocol (用户界面协议)
+#### 📊 **Complete Data Model**
+- **10 Core Objects** organized by domain (Sales, Service, Marketing, Products)
+- **50+ Field Types** including advanced types (Location, Color, Address)
+- **Comprehensive Relationships** with lookups and master-detail
+- **Smart Validations** with script-based rules and formulas
 
-#### List Views (列表视图)
-- ✅ **Grid View** - Traditional table view
-- ✅ **Kanban View** - Card-based workflow view
-- ✅ **Calendar View** - Date-based visualization
-- ✅ **Gantt View** - Timeline/project view
+#### 🔒 **Enterprise Security**
+- **5 User Profiles** (Admin, Sales Manager, Sales Rep, Service Agent, Marketing User)
+- **Role Hierarchy** with 10 roles
+- **Sharing Rules** (criteria-based, owner-based, territory-based)
+- **Field-Level Security** for sensitive data
+- **Organization-Wide Defaults** for baseline access control
 
-#### Form Views (表单视图)
-- ✅ **Simple Forms** - Single page layout
-- ✅ **Tabbed Forms** - Multi-section layout
-- ✅ **Dynamic Sections** - Collapsible sections
+#### 🤖 **AI-Powered Automation**
+- **5 AI Agents** (Sales Assistant, Service Agent, Lead Enrichment, Revenue Intelligence, Email Campaign)
+- **4 RAG Pipelines** for knowledge retrieval
+- **Natural Language Queries** for intuitive data access
+- **Predictive Analytics** (lead scoring, revenue forecasting)
 
-#### Actions (操作)
-- ✅ **Script Actions** - JavaScript execution
-- ✅ **URL Actions** - Navigation
-- ✅ **Modal Actions** - Popup forms
-- ✅ **Flow Actions** - Visual process automation
+#### ⚡ **Business Process Automation**
+- **5 Automated Flows** (Lead Conversion, Opportunity Approval, Case Escalation, Quote Generation, Campaign Enrollment)
+- **Workflow Rules** for field updates and notifications
+- **Approval Processes** for large deals and contracts
+- **Scheduled Jobs** for batch processing
 
-#### Dashboards (仪表盘)
-- ✅ **Sales Dashboard** - Pipeline and revenue metrics
-- ✅ **Service Dashboard** - Support case analytics
-- ✅ **Executive Dashboard** - High-level overview
+#### 📈 **Analytics & Reporting**
+- **3 Interactive Dashboards** (Sales, Service, Executive)
+- **8 Pre-built Reports** (opportunities, accounts, cases, leads, tasks)
+- **Real-time Metrics** with KPIs and trends
+- **Custom Charts** (funnel, bar, line, pie, table)
 
-#### Reports (报表)
-- ✅ **Tabular Reports** - Simple lists
-- ✅ **Summary Reports** - Grouped data
-- ✅ **Matrix Reports** - Cross-tabulation
-- ✅ **Charts** - Bar, line, pie, donut, funnel
-
-## 📂 Structure
+### 📁 Architecture
 
 ```
-examples/crm/
-├── src/
-│   ├── domains/
-│   │   └── crm/
-│   │       ├── account.object.ts      # Account object with all field types
-│   │       ├── contact.object.ts      # Contact with master-detail
-│   │       ├── opportunity.object.ts  # Opportunity with workflow
-│   │       ├── lead.object.ts         # Lead with conversion logic
-│   │       ├── case.object.ts         # Case with SLA tracking
-│   │       └── task.object.ts         # Task with polymorphic relations
-│   └── ui/
-│       ├── actions.ts                 # Custom actions
-│       ├── dashboards.ts              # Dashboard definitions
-│       └── reports.ts                 # Report definitions
-├── objectstack.config.ts              # App configuration
-└── README.md                          # This file
+src/
+├── domains/              # Domain-Driven Design
+│   ├── sales/           # Account, Contact, Lead, Opportunity, Quote, Contract
+│   ├── service/         # Case, Task
+│   ├── marketing/       # Campaign
+│   └── products/        # Product
+├── ui/                  # User Interface
+│   ├── dashboards.ts    # 3 dashboards
+│   ├── reports.ts       # 8 reports
+│   └── actions.ts       # Custom actions
+├── security/            # Security Model
+│   ├── profiles.ts      # 5 profiles
+│   └── sharing-rules.ts # Sharing and OWD
+├── automation/          # Business Logic
+│   └── flows.ts         # 5 flows
+├── ai/                  # AI & Machine Learning
+│   ├── agents.ts        # 5 AI agents
+│   └── rag-pipelines.ts # 4 RAG pipelines
+└── server/              # Custom APIs
+    └── apis.ts          # REST endpoints
 ```
 
-## 🚀 Key Highlights
+### 📚 Documentation
 
-### 1. Account Object
-Demonstrates:
-- Autonumber fields (`account_number`)
-- Formula fields (`full_address`)
-- Select with custom colors
-- Kanban view by type
-- Validation rules (positive revenue, unique name)
-- Workflow automation (update last activity)
+Comprehensive guides covering all aspects:
 
-### 2. Contact Object
-Demonstrates:
-- Master-detail relationship to Account
-- Formula field (`full_name`)
-- Email and phone field formats
-- Avatar field
-- Multiple list views (grid, kanban, calendar)
-- Tabbed form layout
+1. **[Data Modeling](./docs/01-data-modeling.md)** - Objects, fields, relationships, validations
+2. **[Business Logic](./docs/02-business-logic.md)** - Workflows, triggers, formulas
+3. **[Security](./docs/05-security.md)** - Profiles, roles, sharing, permissions
+4. **[AI Capabilities](./docs/08-ai-capabilities.md)** - Agents, RAG, NLQ, ML
 
-### 3. Opportunity Object
-Demonstrates:
-- Complex workflow with stage-based automation
-- State machine validation for stage progression
-- Multiple visualizations (grid, kanban, gantt)
-- Probability and forecast calculations
-- History tracking for audit trail
-- Reference filters (contact filtered by account)
-
-### 4. Lead Object
-Demonstrates:
-- Lead conversion process
-- Boolean flags (is_converted)
-- Readonly fields for conversion tracking
-- Kanban view by status
-- Lead source tracking
-
-### 5. Case Object
-Demonstrates:
-- SLA tracking and violations
-- Customer satisfaction ratings
-- Escalation workflow
-- Priority-based automation
-- Resolution time calculation
-- Multiple status transitions
-
-### 6. Task Object
-Demonstrates:
-- Polymorphic relationships (related_to multiple objects)
-- Recurring task support
-- Time tracking (estimated vs actual)
-- Progress percentage
-- Calendar visualization
-- Overdue detection
-
-### 7. UI Components
-
-**Actions:**
-- Convert Lead (Flow action)
-- Clone Opportunity (Script action)
-- Send Email (Modal action)
-- Mass Update (Bulk action with parameters)
-
-**Dashboards:**
-- Metric widgets (KPIs)
-- Chart widgets (bar, line, pie, funnel)
-- Table widgets (top lists)
-- Grid layout system
-
-**Reports:**
-- Summary reports with grouping
-- Matrix reports (2D grouping)
-- Embedded charts
-- Filter criteria
-- Aggregations (sum, avg, count)
-
-## 💡 Usage
-
-This package is part of the `examples` workspace. To build it and verify types:
+### 🚀 Quick Start
 
 ```bash
-# From monorepo root
+# Install dependencies
 pnpm install
 
-# Build the spec package first
-pnpm --filter @objectstack/spec build
-
-# Build this example
+# Build the application
 pnpm --filter @example/app-crm build
 
-# Run type checking
-pnpm --filter @example/app-crm typecheck
+# Run development server
+pnpm --filter @example/app-crm dev
 ```
 
-## 📖 Learning Resources
+### 📦 What's Included
 
-**For Beginners:**
-1. Start with [Todo Example](../todo/) for basics
-2. Review [Basic Protocol Examples](../basic/) to understand individual protocols
-3. Then explore this CRM example for comprehensive implementation
+| Category | Count | Examples |
+|----------|-------|----------|
+| **Objects** | 10 | Account, Opportunity, Case, Product |
+| **Fields** | 100+ | AutoNumber, Formula, Lookup, Address |
+| **Profiles** | 5 | Admin, Sales Manager, Sales Rep |
+| **Sharing Rules** | 5+ | Criteria-based, Territory-based |
+| **AI Agents** | 5 | Sales Assistant, Service Agent |
+| **RAG Pipelines** | 4 | Sales Knowledge, Support KB |
+| **Flows** | 5 | Lead Conversion, Approval |
+| **Dashboards** | 3 | Sales, Service, Executive |
+| **Reports** | 8 | Opportunities, Cases, Leads |
 
-**Protocol References in Basic Examples:**
-- [Stack Definition](../basic/stack-definition-example.ts) - How to use `defineStack()`
-- [Capabilities](../basic/capabilities-example.ts) - Runtime capabilities configuration
-- [Auth & Permissions](../basic/auth-permission-example.ts) - RBAC and RLS patterns
-- [Automation](../basic/automation-example.ts) - Workflows and approvals
-- [AI & RAG](../basic/ai-rag-example.ts) - AI integration patterns
+---
 
-**In This Example:**
-Each object file contains detailed comments explaining:
-- Field configuration options
-- View setup patterns
-- Validation rule syntax
-- Workflow automation examples
+## 中文
 
-Study the code to understand:
-1. How to define object schemas with Zod
-2. How to create relationships between objects
-3. How to set up validation and workflow rules
-4. How to configure different view types
-5. How to create actions, dashboards, and reports
+### 🎯 概述
 
-## 🎓 Protocol Coverage
+**企业级CRM** 是基于 ObjectStack 协议构建的综合性、生产就绪的客户关系管理系统。它展示了15个类别中的128+协议模块,遵循 Salesforce 和 ServiceNow 的企业级架构最佳实践。
 
-This example demonstrates:
+### ✨ 核心特性
 
-| Protocol Area | Coverage | Examples |
-|--------------|----------|----------|
-| **Data Protocol** | 100% | All field types, validations, workflows |
-| **UI Protocol** | 100% | All view types, actions, dashboards, reports |
-| **System Protocol** | 80% | App manifest, menus, settings |
+#### 📊 **完整数据模型**
+- **10个核心对象** 按领域组织（销售、服务、营销、产品）
+- **50+字段类型** 包括高级类型（位置、颜色、地址）
+- **全面的关系** 查找和主从关系
+- **智能验证** 基于脚本的规则和公式
 
-## 🔗 References
+#### 🔒 **企业级安全**
+- **5种用户配置文件** （管理员、销售经理、销售代表、服务代表、营销用户）
+- **角色层次结构** 包含10个角色
+- **共享规则** （基于条件、基于所有者、基于区域）
+- **字段级安全** 保护敏感数据
+- **组织范围默认值** 基线访问控制
 
-- [ObjectStack Documentation](https://objectstack.dev)
-- [Protocol Specification](../../packages/spec/README.md)
-- [Field Types Reference](../../packages/spec/src/data/field.zod.ts)
-- [Object Schema Reference](../../packages/spec/src/data/object.zod.ts)
+#### 🤖 **AI驱动自动化**
+- **5个AI代理** （销售助手、服务代理、线索丰富、收入智能、邮件营销）
+- **4个RAG管道** 用于知识检索
+- **自然语言查询** 直观的数据访问
+- **预测分析** （线索评分、收入预测）
 
-## 📝 License
+#### ⚡ **业务流程自动化**
+- **5个自动化流程** （线索转换、商机审批、案例升级、报价生成、营销注册）
+- **工作流规则** 字段更新和通知
+- **审批流程** 大型交易和合同
+- **定时任务** 批处理
 
-MIT
+#### 📈 **分析与报表**
+- **3个交互式仪表板** （销售、服务、高管）
+- **8个预制报表** （商机、客户、案例、线索、任务）
+- **实时指标** KPI和趋势
+- **自定义图表** （漏斗、柱状、折线、饼图、表格）
+
+### 📚 文档
+
+1. **[数据建模](./docs/01-data-modeling.md)** - 对象、字段、关系、验证
+2. **[业务逻辑](./docs/02-business-logic.md)** - 工作流、触发器、公式
+3. **[安全模型](./docs/05-security.md)** - 配置文件、角色、共享、权限
+4. **[AI能力](./docs/08-ai-capabilities.md)** - 代理、RAG、NLQ、机器学习
+
+### 🚀 快速开始
+
+```bash
+# 安装依赖
+pnpm install
+
+# 构建应用
+pnpm --filter @example/app-crm build
+
+# 运行开发服务器
+pnpm --filter @example/app-crm dev
+```
+
+---
+
+**构建全球最顶级的企业管理软件平台** 🚀

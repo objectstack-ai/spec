@@ -1,24 +1,28 @@
 /**
- * App Component
+ * App Component - Admin Console
  * 
- * Main application component that demonstrates complete CRUD operations
- * using ObjectStack Client with MSW for API mocking.
+ * Demonstrates the "Platform Capabilities" of ObjectStack:
+ * 1. Metadata Discovery (MetadataExplorer)
+ * 2. Generic Data Table (ObjectDataTable)
+ * 3. Generic Form (ObjectDataForm)
  */
 
 import { useState, useEffect } from 'react';
 import { ObjectStackClient } from '@objectstack/client';
-import type { Task } from './types';
-import { TaskForm } from './components/TaskForm';
-import { TaskList } from './components/TaskList';
-import { MetadataDemo } from './components/MetadataDemo';
+import { MetadataExplorer } from './components/MetadataExplorer';
+import { ObjectDataTable } from './components/ObjectDataTable';
+import { ObjectDataForm } from './components/ObjectDataForm';
 import './App.css';
 
 export function App() {
   const [client, setClient] = useState<ObjectStackClient | null>(null);
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Selection State
+  const [selectedObject, setSelectedObject] = useState<string | null>('todo_task');
+  const [view, setView] = useState<'list' | 'form'>('list');
+  const [editingRecord, setEditingRecord] = useState<any>(null); // null = create new
 
   useEffect(() => {
     initializeClient();
@@ -26,124 +30,138 @@ export function App() {
 
   async function initializeClient() {
     try {
-      // Initialize ObjectStack Client pointing to our mocked API
-      // Note: We use an empty baseUrl because the Discovery Endpoint is at /api/v1
-      // and the server routes (returned by connect) already include the /api/v1 prefix.
       const stackClient = new ObjectStackClient({
-        baseUrl: ''
+        baseUrl: '' // Mocked by MSW to /api/v1
       });
-
-      // Connect to the server (will be intercepted by MSW)
-      // Wait a bit to ensure MSW is fully ready and to simulate network delay
+      
+      // Wait for MSW
       await new Promise(resolve => setTimeout(resolve, 500));
       await stackClient.connect();
-      
       setClient(stackClient);
       setConnected(true);
-      console.log('✅ ObjectStack Client connected (via MSW)');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to initialize client');
-      console.error('Failed to initialize client:', err);
+      console.log('✅ ObjectStack Client connected');
+    } catch (err: any) {
+      setError(err.message || 'Failed to connect');
     }
   }
 
-  function handleFormSuccess() {
-    setEditingTask(null);
-    // Trigger refresh of task list
-    setRefreshTrigger(prev => prev + 1);
-  }
+  // --- Actions ---
 
-  function handleEditTask(task: Task) {
-    setEditingTask(task);
-    // Check if on mobile to scroll
-    if (window.innerWidth < 1024) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }
+  const handleCreate = () => {
+    setEditingRecord(null); // New record
+    setView('form');
+  };
 
-  function handleCancelEdit() {
-    setEditingTask(null);
-  }
+  const handleEdit = (record: any) => {
+    setEditingRecord(record);
+    setView('form');
+  };
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="max-w-md w-full p-8 border border-error-light bg-background rounded-lg shadow-sm text-center">
-          <h1 className="text-xl font-bold text-error mb-2">Connection Error</h1>
-          <p className="text-accents-5 mb-6">{error}</p>
-          <button 
-            onClick={initializeClient}
-            className="px-4 py-2 bg-foreground text-background rounded-md hover:bg-accents-7 transition-colors"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const handleFormSuccess = () => {
+    setView('list');
+    setEditingRecord(null);
+    // Table will reload when switching back to list implicitly if we force refresh?
+    // Actually ObjectDataTable mounts again or we can trigger refresh.
+    // For simplicity, remounting works or we can add a refresh trigger key.
+  };
 
   if (!connected || !client) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-6 space-y-4">
-        <div className="w-8 h-8 rounded-full border-4 border-accents-2 border-t-foreground animate-spin"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="text-center">
-          <h1 className="text-lg font-semibold mb-1">Connecting to ObjectStack...</h1>
-          <p className="text-accents-5 text-sm">Initializing MSW and ObjectStack Client...</p>
+            <h2 className="text-xl font-bold text-gray-700">Connecting to Platform...</h2>
+            {error && <p className="text-red-500 mt-2">{error}</p>}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-12 min-h-screen font-sans">
-      <header className="text-center mb-16">
-        <h1 className="text-4xl font-extrabold tracking-tight mb-4 text-foreground">
-          ObjectStack Action
-        </h1>
-        <p className="text-accents-5 text-lg mb-6">
-          Complete CRUD operations using <code className="text-sm bg-accents-1 px-1.5 py-0.5 rounded font-mono text-accents-6">@objectstack/client</code> with Mock Service Worker
-        </p>
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-success-lighter border border-success-lighter text-success-dark text-sm font-medium">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
-          </span>
-          MSW Active - All API calls are mocked
+    <div className="min-h-screen bg-gray-100 font-sans flex flex-col">
+      {/* Top Header */}
+      <header className="bg-foreground text-background shadow-md z-10">
+        <div className="mx-auto px-6 h-16 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+                <div className="font-extrabold text-2xl tracking-tighter">
+                   Object<span className="text-gray-400">Stack</span>
+                </div>
+                <span className="px-2 py-0.5 rounded text-xs bg-gray-700 text-gray-300 border border-gray-600">
+                    Console
+                </span>
+            </div>
+            <div className="text-sm opacity-80 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                v1.0.0 (Memory Kernel)
+            </div>
         </div>
       </header>
 
-      <main className="grid grid-cols-1 lg:grid-cols-12 gap-12 text-sm">
-        <section className="lg:col-span-4 lg:sticky lg:top-6 lg:self-start">
-          <TaskForm
-            client={client}
-            editingTask={editingTask}
-            onSuccess={handleFormSuccess}
-            onCancel={handleCancelEdit}
-          />
-        </section>
+      {/* Main Layout */}
+      <div className="flex flex-1 overflow-hidden">
+          {/* Sidebar: Metadata Explorer */}
+          <aside className="w-64 bg-white border-r border-gray-200 overflow-y-auto hidden md:block">
+              <div className="p-4">
+                  <MetadataExplorer 
+                      client={client} 
+                      selectedObject={selectedObject}
+                      onSelectObject={(obj) => {
+                          setSelectedObject(obj);
+                          setView('list'); // Reset to list when changing objects
+                      }}
+                  />
+              </div>
+          </aside>
 
-        <section className="lg:col-span-8">
-          <TaskList
-            client={client}
-            onEdit={handleEditTask}
-            refreshTrigger={refreshTrigger}
-          />
-        </section>
-      </main>
+          {/* Main Content Area */}
+          <main className="flex-1 overflow-y-auto p-6 relative">
+              {selectedObject ? (
+                  <div className="space-y-6 max-w-7xl mx-auto">
+                      {/* Toolbar */}
+                      <div className="flex justify-between items-end pb-4 border-b border-gray-200">
+                           <div>
+                                <h1 className="text-2xl font-bold text-gray-900">
+                                    {selectedObject}
+                                </h1>
+                                <p className="text-sm text-gray-500 mt-1">
+                                    Manage records and view schema definition.
+                                </p>
+                           </div>
+                           <button 
+                                onClick={handleCreate}
+                                className="px-4 py-2 bg-foreground text-white rounded hover:bg-black transition-colors shadow-sm font-medium flex items-center gap-2"
+                           >
+                               <span>+</span> New Record
+                           </button>
+                      </div>
 
-      <div className="mt-8">
-        <MetadataDemo />
+                      {/* Data Table */}
+                      <ObjectDataTable 
+                           key={selectedObject + view} // Force refresh when switching back
+                           client={client}
+                           objectApiName={selectedObject}
+                           onEdit={handleEdit}
+                      />
+                      
+                  </div>
+              ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                      <div className="text-6xl mb-4">Select an Object</div>
+                      <p>Choose an object from the sidebar to manage data.</p>
+                  </div>
+              )}
+          </main>
       </div>
 
-      <footer className="mt-16 pt-8 border-t border-accents-2 text-center text-sm text-accents-4 space-y-2">
-        <p>
-          This example demonstrates MSW integration with React components.
-          All API calls are intercepted and mocked in the browser.
-        </p>
-        <p className="font-mono text-xs text-accents-3">
-          React + TypeScript + Vite + MSW + @objectstack/client
-        </p>
-      </footer>
+      {/* Modal Form */}
+      {view === 'form' && selectedObject && (
+          <ObjectDataForm 
+              client={client}
+              objectApiName={selectedObject}
+              record={editingRecord}
+              onSuccess={handleFormSuccess}
+              onCancel={() => setView('list')}
+          />
+      )}
     </div>
   );
 }
