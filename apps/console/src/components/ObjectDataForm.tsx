@@ -4,15 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { SelectNative } from "@/components/ui/select-native";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Save, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Save, Loader2, AlertCircle } from "lucide-react";
 
 interface ObjectDataFormProps {
     client: ObjectStackClient;
     objectApiName: string;
-    record?: any; // If present, edit mode
+    record?: any;
     onSuccess: () => void;
     onCancel: () => void;
 }
@@ -23,7 +25,6 @@ export function ObjectDataForm({ client, objectApiName, record, onSuccess, onCan
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Load Definition
     useEffect(() => {
         let mounted = true;
         async function loadDef() {
@@ -33,10 +34,8 @@ export function ObjectDataForm({ client, objectApiName, record, onSuccess, onCan
                 if (mounted && found) {
                     setDef(found);
                     if (record) {
-                        // Initialize form data with record values
                         setFormData({ ...record });
                     } else {
-                        // Initialize defaults (optional)
                         setFormData({});
                     }
                 }
@@ -55,13 +54,11 @@ export function ObjectDataForm({ client, objectApiName, record, onSuccess, onCan
         
         try {
             const dataToSubmit = { ...formData };
-            // Cleanup: remove system fields that shouldn't be sent back often
             delete dataToSubmit._id;
             delete dataToSubmit.id;
             delete dataToSubmit.created_at;
             delete dataToSubmit.updated_at;
             
-            // Format conversions
             if (def && def.fields) {
                 Object.keys(def.fields).forEach(key => {
                     const f = def.fields[key];
@@ -72,10 +69,8 @@ export function ObjectDataForm({ client, objectApiName, record, onSuccess, onCan
             }
 
             if (record && (record.id || record._id)) {
-                // UPDATE
                 await client.data.update(objectApiName, record.id || record._id, dataToSubmit);
             } else {
-                // CREATE
                 await client.data.create(objectApiName, dataToSubmit);
             }
             onSuccess();
@@ -96,29 +91,38 @@ export function ObjectDataForm({ client, objectApiName, record, onSuccess, onCan
     if (!def) return <div>Loading form...</div>;
 
     const fields = def.fields || {};
-    // Sort fields? Or just use object keys order
     const fieldKeys = Object.keys(fields).filter(k => {
-        // Filter out system read-only fields for UI
         return !['created_at', 'updated_at', 'created_by', 'modified_by'].includes(k);
     });
 
+    const isEdit = !!(record && (record.id || record._id));
+
     return (
         <Sheet open={true} onOpenChange={(open) => !open && onCancel()}>
-            <SheetContent className="w-full sm:max-w-xl flex flex-col p-0 gap-0">
-                <SheetHeader className="p-6 border-b bg-muted/10">
-                    <SheetTitle>
-                        {record ? `Edit ${def.label}` : `New ${def.label}`}
-                    </SheetTitle>
+            <SheetContent className="w-full sm:max-w-lg flex flex-col p-0 gap-0">
+                <SheetHeader className="px-6 py-4 border-b">
+                    <div className="flex items-center gap-2">
+                        <SheetTitle className="text-lg">
+                            {isEdit ? 'Edit' : 'New'} {def.label}
+                        </SheetTitle>
+                        <Badge variant={isEdit ? "secondary" : "default"} className="text-xs">
+                            {isEdit ? 'Editing' : 'Creating'}
+                        </Badge>
+                    </div>
                     <SheetDescription>
-                         {record ? `Make changes to your ${def.label.toLowerCase()} here.` : `Add a new ${def.label.toLowerCase()} to your database.`}
+                        {isEdit 
+                            ? `Update the fields below to modify this ${def.label.toLowerCase()}.` 
+                            : `Fill in the fields below to create a new ${def.label.toLowerCase()}.`
+                        }
                     </SheetDescription>
                 </SheetHeader>
                 
                 <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden">
                     <ScrollArea className="flex-1">
-                        <div className="p-6 space-y-6">
+                        <div className="p-6 space-y-5">
                             {error && (
-                                <div className="bg-destructive/15 text-destructive p-3 rounded text-sm mb-4">
+                                <div className="flex items-center gap-2 bg-destructive/10 text-destructive p-3 rounded-lg text-sm border border-destructive/20">
+                                    <AlertCircle className="h-4 w-4 shrink-0" />
                                     {error}
                                 </div>
                             )}
@@ -130,44 +134,63 @@ export function ObjectDataForm({ client, objectApiName, record, onSuccess, onCan
 
                                 return (
                                     <div key={key} className="space-y-2">
-                                        <Label>
-                                            {label} {required && <span className="text-destructive">*</span>}
-                                        </Label>
+                                        <div className="flex items-center gap-2">
+                                            <Label htmlFor={key} className="text-sm font-medium">
+                                                {label}
+                                            </Label>
+                                            {required && (
+                                                <span className="text-xs text-destructive">*</span>
+                                            )}
+                                            <Badge variant="outline" className="text-[10px] px-1 py-0 font-normal opacity-40 ml-auto">
+                                                {field.type}
+                                            </Badge>
+                                        </div>
                                         
                                         {field.type === 'boolean' ? (
-                                            <div className="flex items-center space-x-2">
-                                                <input 
-                                                    type="checkbox"
+                                            <div className="flex items-center gap-3 rounded-lg border p-3">
+                                                <Switch
+                                                    id={key}
                                                     checked={!!formData[key]}
-                                                    onChange={e => handleChange(key, e.target.checked)}
-                                                    className="h-4 w-4 rounded border-primary text-primary focus:ring-ring"
+                                                    onCheckedChange={(checked) => handleChange(key, checked)}
                                                 />
-                                                <span className="text-sm text-muted-foreground">Enabled</span>
+                                                <Label htmlFor={key} className="text-sm text-muted-foreground cursor-pointer">
+                                                    {formData[key] ? 'Enabled' : 'Disabled'}
+                                                </Label>
                                             </div>
                                         ) : field.type === 'select' ? (
-                                            <SelectNative
+                                            <Select
                                                 value={formData[key] || ''}
-                                                onChange={e => handleChange(key, e.target.value)}
-                                                required={required}
+                                                onValueChange={(value) => handleChange(key, value)}
                                             >
-                                                <option value="">-- Select --</option>
-                                                {field.options?.map((opt: any) => (
-                                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                                ))}
-                                            </SelectNative>
+                                                <SelectTrigger id={key}>
+                                                    <SelectValue placeholder="Select an option..." />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {field.options?.map((opt: any) => (
+                                                        <SelectItem key={opt.value} value={opt.value}>
+                                                            {opt.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
                                         ) : field.type === 'textarea' ? (
                                             <Textarea
+                                                id={key}
                                                 value={formData[key] || ''}
                                                 onChange={e => handleChange(key, e.target.value)}
                                                 rows={3}
                                                 required={required}
+                                                placeholder={`Enter ${label.toLowerCase()}...`}
+                                                className="resize-none"
                                             />
                                         ) : (
                                             <Input
+                                                id={key}
                                                 type={field.type === 'number' ? 'number' : 'text'}
                                                 value={formData[key] || ''}
                                                 onChange={e => handleChange(key, e.target.value)}
                                                 required={required}
+                                                placeholder={`Enter ${label.toLowerCase()}...`}
                                             />
                                         )}
                                         {field.description && (
@@ -179,18 +202,18 @@ export function ObjectDataForm({ client, objectApiName, record, onSuccess, onCan
                         </div>
                     </ScrollArea>
 
-                    <SheetFooter className="p-6 border-t bg-muted/10 items-center gap-2 sm:justify-end">
-                        <Button variant="outline" onClick={onCancel} type="button">
+                    <SheetFooter className="px-6 py-4 border-t bg-muted/30 flex items-center gap-2 sm:justify-end">
+                        <Button variant="outline" onClick={onCancel} type="button" className="gap-1.5">
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={loading}>
+                        <Button type="submit" disabled={loading} className="gap-1.5">
                             {loading ? (
                                 <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+                                    <Loader2 className="h-4 w-4 animate-spin" /> Saving...
                                 </>
                             ) : (
                                 <>
-                                    <Save className="mr-2 h-4 w-4" /> Save
+                                    <Save className="h-4 w-4" /> {isEdit ? 'Update' : 'Create'}
                                 </>
                             )}
                         </Button>
