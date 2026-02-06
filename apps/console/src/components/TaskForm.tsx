@@ -27,7 +27,7 @@ export function TaskForm({ client, editingTask, onSuccess, onCancel }: TaskFormP
     async function fetchMetadata() {
         try {
             // 'todo_task' should match the object name in Schema
-            const res = await client.meta.getObject('todo_task');
+            const res: any = await client.meta.getObject('todo_task');
             
             // Protocol: getMetaItem returns { type, name, item }
             const schemaDef = res.item || res;
