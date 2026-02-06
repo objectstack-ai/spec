@@ -22,8 +22,11 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
             if (!client) return;
             try {
                 // Get definition via proper API
-                const found = await client.meta.getItem('object', objectApiName);
-                if (mounted && found) setDef(found);
+                const found: any = await client.meta.getItem('object', objectApiName);
+                if (mounted && found) {
+                    const def = found.data || found;
+                    setDef(def);
+                }
             } catch (err) {
                 console.error('Failed to load definition', err);
             }
