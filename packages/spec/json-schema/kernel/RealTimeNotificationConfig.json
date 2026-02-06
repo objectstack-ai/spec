@@ -46,6 +46,9 @@
               "eventPattern": {
                 "type": "string",
                 "description": "Event pattern for channel"
+              },
+              "filter": {
+                "description": "Additional filter function"
               }
             },
             "required": [

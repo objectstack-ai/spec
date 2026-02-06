@@ -102,6 +102,9 @@
           "default": 30000,
           "description": "Request timeout in milliseconds"
         },
+        "transform": {
+          "description": "Transform event before sending"
+        },
         "enabled": {
           "type": "boolean",
           "default": true,

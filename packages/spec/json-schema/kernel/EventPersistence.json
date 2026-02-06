@@ -14,6 +14,9 @@
           "exclusiveMinimum": 0,
           "description": "Days to retain persisted events"
         },
+        "filter": {
+          "description": "Optional filter function to select which events to persist"
+        },
         "storage": {
           "type": "string",
           "enum": [
