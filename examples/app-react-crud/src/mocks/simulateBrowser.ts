@@ -146,7 +146,8 @@ export async function simulateBrowser() {
              console.log('[VirtualNetwork] GET /meta/object');
              try {
                  const result = await (kernel as any).broker.call('metadata.objects', {});
-                 return HttpResponse.json(result);
+                 // Return Standard Envelope to match packages/runtime/src/http-dispatcher.ts
+                 return HttpResponse.json({ success: true, data: result });
              } catch (err: any) {
                   return HttpResponse.json({ error: err.message }, { status: 500 });
              }
@@ -155,7 +156,8 @@ export async function simulateBrowser() {
              console.log('[VirtualNetwork] GET /meta/objects');
              try {
                  const result = await (kernel as any).broker.call('metadata.objects', {});
-                 return HttpResponse.json(result);
+                 // Return Standard Envelope to match packages/runtime/src/http-dispatcher.ts
+                 return HttpResponse.json({ success: true, data: result });
              } catch (err: any) {
                   return HttpResponse.json({ error: err.message }, { status: 500 });
              }
@@ -171,7 +173,8 @@ export async function simulateBrowser() {
                  if (!result) {
                      return HttpResponse.json({ error: 'Not Found' }, { status: 404 });
                  }
-                 return HttpResponse.json(result);
+                 // Return Standard Envelope to match packages/runtime/src/http-dispatcher.ts
+                 return HttpResponse.json({ success: true, data: result });
              } catch (err: any) {
                   return HttpResponse.json({ error: err.message }, { status: 500 });
              }
@@ -185,7 +188,8 @@ export async function simulateBrowser() {
                  if (!result) {
                      return HttpResponse.json({ error: 'Not Found' }, { status: 404 });
                  }
-                 return HttpResponse.json(result);
+                 // Return Standard Envelope to match packages/runtime/src/http-dispatcher.ts
+                 return HttpResponse.json({ success: true, data: result });
              } catch (err: any) {
                   return HttpResponse.json({ error: err.message }, { status: 500 });
              }

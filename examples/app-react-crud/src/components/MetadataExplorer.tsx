@@ -16,7 +16,9 @@ export function MetadataExplorer({ client, selectedObject, onSelectObject }: Met
             if (!client) return;
             setLoading(true);
             try {
-                const result: any = await client.meta.getItems('object');
+                // Use plural 'objects' to ensure HttpDispatcher treats it as a list request
+                // Singular 'object' is interpreted as getObject('object')
+                const result: any = await client.meta.getItems('objects');
                 // Support Standard Envelope { success, data } or direct array
                 let items = [];
                 if (Array.isArray(result)) {
