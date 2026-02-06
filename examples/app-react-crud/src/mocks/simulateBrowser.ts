@@ -64,8 +64,12 @@ export async function simulateBrowser() {
                     filters: filters
                 });
                 
-                // Return Buffer/JSON
-                return HttpResponse.json({ value: result.data, count: result.count });
+                // Return Standard Envelope to match packages/runtime/src/http-dispatcher.ts
+                return HttpResponse.json({ 
+                    success: true, 
+                    data: result.data, 
+                    meta: { count: result.count } 
+                });
             } catch (err: any) {
                 return HttpResponse.json({ error: err.message }, { status: 500 });
             }

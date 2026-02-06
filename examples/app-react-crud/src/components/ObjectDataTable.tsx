@@ -52,8 +52,15 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
                         setRecords(result.value);
                         // If count is supported
                         if (typeof result.count === 'number') setTotal(result.count);
+                    } else if (result && result.success && Array.isArray(result.data)) {
+                        // Handle Standard Envelope { success: true, data: [], meta: { count } }
+                        setRecords(result.data);
+                        if (result.meta && typeof result.meta.count === 'number') setTotal(result.meta.count);
                     } else if (Array.isArray(result)) {
                         setRecords(result); // Fallback for simulation that might just return array
+                    } else if (result && typeof result === 'object' && result?.data && Array.isArray(result.data)) {
+                        /* Fallback for partial envelope */
+                        setRecords(result.data);
                     }
                 }
             } catch (err) {
