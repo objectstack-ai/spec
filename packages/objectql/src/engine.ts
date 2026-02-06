@@ -170,6 +170,24 @@ export class ObjectQL implements IDataEngine {
           }
       }
 
+      // Register all other metadata types generically
+      const metadataArrayKeys = [
+        'actions', 'dashboards', 'reports', 'flows', 'agents',
+        'apis', 'ragPipelines', 'profiles', 'sharingRules', 'apps'
+      ];
+      for (const key of metadataArrayKeys) {
+          const items = (manifest as any)[key];
+          if (Array.isArray(items) && items.length > 0) {
+              this.logger.debug(`Registering ${key} from manifest`, { id, count: items.length });
+              for (const item of items) {
+                  const itemName = item.name || item.id;
+                  if (itemName) {
+                      SchemaRegistry.registerItem(key, item, 'name' as any);
+                  }
+              }
+          }
+      }
+
       // Register contributions
        if (manifest.contributes?.kinds) {
           this.logger.debug('Registering kinds from manifest', { id, kindCount: manifest.contributes.kinds.length });

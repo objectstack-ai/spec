@@ -142,9 +142,20 @@ export class HttpDispatcher {
         
         // GET /metadata/types
         if (parts[0] === 'types') {
-            // This would normally come from a registry service
-            // For now we mock the types supported by core
-            return { handled: true, response: this.success({ types: ['objects', 'apps', 'plugins'] }) };
+            // Try protocol service for dynamic types
+            const protocol = this.kernel?.context?.getService ? this.kernel.context.getService('protocol') : null;
+            if (protocol && typeof protocol.getMetaTypes === 'function') {
+                const result = await protocol.getMetaTypes({});
+                return { handled: true, response: this.success(result) };
+            }
+            // Fallback: ask broker for registered types
+            try {
+                const data = await broker.call('metadata.types', {}, { request: context.request });
+                return { handled: true, response: this.success(data) };
+            } catch {
+                // Last resort: hardcoded defaults
+                return { handled: true, response: this.success({ types: ['object', 'app', 'plugin'] }) };
+            }
         }
 
         // /metadata/:type/:name
@@ -213,30 +224,40 @@ export class HttpDispatcher {
         if (parts.length === 1) {
             const typeOrName = parts[0];
             
-            // Special handling for common pluralized types mapping to protocol
-            if (['apps', 'plugins'].includes(typeOrName)) {
-                const singularType = typeOrName.slice(0, -1);
-                const protocol = this.kernel?.context?.getService ? this.kernel.context.getService('protocol') : null;
-                if (protocol && typeof protocol.getMetaItems === 'function') {
-                     const data = await protocol.getMetaItems({ type: singularType });
-                     return { handled: true, response: this.success(data) };
+            // Try protocol service first for any type
+            const protocol = this.kernel?.context?.getService ? this.kernel.context.getService('protocol') : null;
+            if (protocol && typeof protocol.getMetaItems === 'function') {
+                try {
+                    const data = await protocol.getMetaItems({ type: typeOrName });
+                    if (data && ((data.items && data.items.length > 0) || (Array.isArray(data) && data.length > 0))) {
+                        return { handled: true, response: this.success(data) };
+                    }
+                } catch {
+                    // Protocol doesn't know this type, fall through
                 }
             }
 
-            // Heuristic: if it maps to a known type, list it. Else treat as object name.
-            if (['objects', 'apps', 'plugins'].includes(typeOrName)) {
-                 if (typeOrName === 'objects') {
-                     const data = await broker.call('metadata.objects', {}, { request: context.request });
-                     return { handled: true, response: this.success(data) };
-                 }
-                 // Try generic list
-                 const data = await broker.call(`metadata.${typeOrName}`, {}, { request: context.request });
-                 return { handled: true, response: this.success(data) };
+            // Try broker for the type
+            try {
+                if (typeOrName === 'objects') {
+                    const data = await broker.call('metadata.objects', {}, { request: context.request });
+                    return { handled: true, response: this.success(data) };
+                }
+                const data = await broker.call(`metadata.${typeOrName}`, {}, { request: context.request });
+                if (data !== null && data !== undefined) {
+                    return { handled: true, response: this.success(data) };
+                }
+            } catch {
+                // Broker doesn't support this action, fall through
             }
 
-            // Legacy: /metadata/:objectName
-            const data = await broker.call('metadata.getObject', { objectName: typeOrName }, { request: context.request });
-            return { handled: true, response: this.success(data) };
+            // Legacy: /metadata/:objectName (treat as single object lookup)
+            try {
+                const data = await broker.call('metadata.getObject', { objectName: typeOrName }, { request: context.request });
+                return { handled: true, response: this.success(data) };
+            } catch (e: any) {
+                return { handled: true, response: this.error(e.message, 404) };
+            }
         }
 
         // GET /metadata (List Objects - Default)

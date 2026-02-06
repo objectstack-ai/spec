@@ -19,8 +19,10 @@ import {
   BookOpen,
   Shield,
   AppWindow,
+  Layers,
+  type LucideIcon,
 } from "lucide-react"
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { ObjectStackClient } from '@objectstack/client';
 import type { AppPackage } from "@/mocks/browser";
 
@@ -56,26 +58,36 @@ const APP_ICONS: Record<string, React.ElementType> = {
   'briefcase': Briefcase,
 };
 
-/** Metadata category definition for sidebar display */
-interface MetadataCategory {
-  key: string;
-  label: string;
-  icon: React.ElementType;
-  configKey: string;
+/** Icon & label hints for well-known metadata types */
+const META_TYPE_HINTS: Record<string, { label: string; icon: LucideIcon }> = {
+  object:       { label: 'Objects',       icon: Package },
+  objects:      { label: 'Objects',       icon: Package },
+  app:          { label: 'Apps',          icon: AppWindow },
+  apps:         { label: 'Apps',          icon: AppWindow },
+  actions:      { label: 'Actions',       icon: Zap },
+  dashboards:   { label: 'Dashboards',    icon: BarChart3 },
+  reports:      { label: 'Reports',       icon: FileText },
+  flows:        { label: 'Flows',         icon: Workflow },
+  agents:       { label: 'Agents',        icon: Bot },
+  apis:         { label: 'APIs',          icon: Globe },
+  ragPipelines: { label: 'RAG Pipelines', icon: BookOpen },
+  profiles:     { label: 'Profiles',      icon: Shield },
+  sharingRules: { label: 'Sharing Rules', icon: Shield },
+  plugin:       { label: 'Plugins',       icon: Layers },
+  plugins:      { label: 'Plugins',       icon: Layers },
+  kind:         { label: 'Kinds',         icon: Database },
+};
+
+function getTypeLabel(type: string): string {
+  return META_TYPE_HINTS[type]?.label || type.charAt(0).toUpperCase() + type.slice(1);
 }
 
-const METADATA_CATEGORIES: MetadataCategory[] = [
-  { key: 'objects',       label: 'Objects',       icon: Package,     configKey: 'objects' },
-  { key: 'apps',          label: 'Apps',          icon: AppWindow,   configKey: 'apps' },
-  { key: 'actions',       label: 'Actions',       icon: Zap,         configKey: 'actions' },
-  { key: 'dashboards',    label: 'Dashboards',    icon: BarChart3,   configKey: 'dashboards' },
-  { key: 'reports',       label: 'Reports',       icon: FileText,    configKey: 'reports' },
-  { key: 'flows',         label: 'Flows',         icon: Workflow,    configKey: 'flows' },
-  { key: 'agents',        label: 'Agents',        icon: Bot,         configKey: 'agents' },
-  { key: 'apis',          label: 'APIs',          icon: Globe,       configKey: 'apis' },
-  { key: 'ragPipelines',  label: 'RAG Pipelines', icon: BookOpen,    configKey: 'ragPipelines' },
-  { key: 'profiles',      label: 'Profiles',      icon: Shield,      configKey: 'profiles' },
-];
+function getTypeIcon(type: string): LucideIcon {
+  return META_TYPE_HINTS[type]?.icon || Layers;
+}
+
+/** Types that are internal / should be hidden from the sidebar */
+const HIDDEN_TYPES = new Set(['plugin', 'plugins', 'kind', 'app']);
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   client: ObjectStackClient | null;
@@ -87,62 +99,66 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 }
 
 export function AppSidebar({ client, selectedObject, onSelectObject, apps, selectedApp, onSelectApp, ...props }: AppSidebarProps) {
-  const [objects, setObjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  // Dynamic metadata: type -> items[]
+  const [metaTypes, setMetaTypes] = useState<string[]>([]);
+  const [metaItems, setMetaItems] = useState<Record<string, any[]>>({});
 
-  useEffect(() => {
-    async function loadObjects() {
-      if (!client) return;
-      setLoading(true);
-      try {
-        const result: any = await client.meta.getItems('objects');
-        let items = [];
-        if (Array.isArray(result)) {
-            items = result;
-        } else if (result && result.success && Array.isArray(result.data)) {
-            items = result.data;
-        } else if (result && Array.isArray(result.value)) {
-            items = result.value;
-        }
-        setObjects(items);
-      } catch (err) {
-        console.error("Failed to load objects", err);
-      } finally {
-        setLoading(false);
+  /** Load all metadata types and their items from the server */
+  const loadMetadata = useCallback(async () => {
+    if (!client) return;
+    setLoading(true);
+    try {
+      // 1. Discover all registered metadata types
+      const typesResult: any = await client.meta.getTypes();
+      let types: string[] = [];
+      if (typesResult && Array.isArray(typesResult.types)) {
+        types = typesResult.types;
+      } else if (Array.isArray(typesResult)) {
+        types = typesResult;
       }
+      setMetaTypes(types);
+
+      // 2. Load items for each type in parallel
+      const entries = await Promise.all(
+        types
+          .filter(t => !HIDDEN_TYPES.has(t))
+          .map(async (type) => {
+            try {
+              const result: any = await client.meta.getItems(type);
+              let items: any[] = [];
+              if (Array.isArray(result)) {
+                items = result;
+              } else if (result && Array.isArray(result.items)) {
+                items = result.items;
+              } else if (result && Array.isArray(result.data)) {
+                items = result.data;
+              } else if (result && Array.isArray(result.value)) {
+                items = result.value;
+              }
+              return [type, items] as const;
+            } catch {
+              return [type, []] as const;
+            }
+          })
+      );
+      setMetaItems(Object.fromEntries(entries));
+    } catch (err) {
+      console.error("Failed to load metadata types", err);
+    } finally {
+      setLoading(false);
     }
-    loadObjects();
   }, [client]);
 
-  // Build metadata sections from selected app config
-  const metadataSections = useMemo(() => {
-    if (!selectedApp) return [];
-    const cfg = selectedApp.config;
-    return METADATA_CATEGORIES
-      .map(cat => {
-        const items: any[] = cfg[cat.configKey] || [];
-        if (items.length === 0) return null;
-        return {
-          ...cat,
-          items: items.map((item: any) => ({
-            name: item.name || 'unknown',
-            label: item.label || item.name || 'Untitled',
-          })),
-        };
-      })
-      .filter(Boolean) as (MetadataCategory & { items: { name: string; label: string }[] })[];
-  }, [selectedApp]);
+  useEffect(() => { loadMetadata(); }, [loadMetadata]);
 
-  // For objects, merge runtime definitions from the registry with the config list
-  const appObjectNames = selectedApp
-    ? (selectedApp.config.objects || []).map((o: any) => o.name)
-    : [];
-  const runtimeObjects = selectedApp
-    ? objects.filter(obj => appObjectNames.includes(obj.name))
-    : objects;
+  // Filter visible types: only those with items, excluding hidden types
+  const visibleTypes = metaTypes
+    .filter(t => !HIDDEN_TYPES.has(t))
+    .filter(t => (metaItems[t]?.length ?? 0) > 0);
 
-  // Apply search filter across all sections
+  // Apply search filter
   const matchesSearch = (label: string, name: string) =>
     !searchQuery ||
     label.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -235,85 +251,69 @@ export function AppSidebar({ client, selectedObject, onSelectObject, apps, selec
           </div>
         </div>
 
-        {/* Metadata Categories */}
-        {metadataSections.map((section) => {
-          const CatIcon = section.icon;
+        {/* Dynamic Metadata Types */}
+        {loading ? (
+          <SidebarGroup>
+            <SidebarGroupLabel>Loading...</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem><SidebarMenuSkeleton showIcon /></SidebarMenuItem>
+                <SidebarMenuItem><SidebarMenuSkeleton showIcon /></SidebarMenuItem>
+                <SidebarMenuItem><SidebarMenuSkeleton showIcon /></SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ) : visibleTypes.map((type) => {
+          const items = metaItems[type] || [];
+          const TypeIcon = getTypeIcon(type);
+          const typeLabel = getTypeLabel(type);
+          const isObjectType = type === 'object' || type === 'objects';
 
-          // For objects, use runtime definitions (with field counts from registry)
-          if (section.key === 'objects') {
-            const filtered = runtimeObjects.filter(obj =>
-              matchesSearch(obj.label || obj.name, obj.name)
-            );
-            if (filtered.length === 0 && searchQuery) return null;
-            return (
-              <SidebarGroup key={section.key}>
-                <SidebarGroupLabel>
-                  <CatIcon className="mr-1.5 h-3.5 w-3.5" />
-                  {section.label}
-                  <SidebarMenuBadge>{runtimeObjects.length}</SidebarMenuBadge>
-                </SidebarGroupLabel>
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    {loading ? (
-                      <>
-                        <SidebarMenuItem><SidebarMenuSkeleton showIcon /></SidebarMenuItem>
-                        <SidebarMenuItem><SidebarMenuSkeleton showIcon /></SidebarMenuItem>
-                      </>
-                    ) : filtered.map((obj) => (
-                      <SidebarMenuItem key={obj.name}>
-                        <SidebarMenuButton
-                          isActive={selectedObject === obj.name}
-                          onClick={() => onSelectObject(obj.name)}
-                          tooltip={obj.label}
-                        >
-                          <Package className="h-4 w-4" />
-                          <span>{obj.label || obj.name}</span>
-                        </SidebarMenuButton>
-                        {obj.fields && (
-                          <SidebarMenuBadge>
-                            {Object.keys(obj.fields).length}
-                          </SidebarMenuBadge>
-                        )}
-                      </SidebarMenuItem>
-                    ))}
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              </SidebarGroup>
-            );
-          }
-
-          // Other metadata categories (read-only display)
-          const filtered = section.items.filter(item =>
-            matchesSearch(item.label, item.name)
+          const filtered = items.filter((item: any) =>
+            matchesSearch(item.label || item.name || '', item.name || '')
           );
           if (filtered.length === 0 && searchQuery) return null;
+
           return (
-            <SidebarGroup key={section.key}>
+            <SidebarGroup key={type}>
               <SidebarGroupLabel>
-                <CatIcon className="mr-1.5 h-3.5 w-3.5" />
-                {section.label}
-                <SidebarMenuBadge>{section.items.length}</SidebarMenuBadge>
+                <TypeIcon className="mr-1.5 h-3.5 w-3.5" />
+                {typeLabel}
+                <SidebarMenuBadge>{items.length}</SidebarMenuBadge>
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {filtered.map((item) => (
-                    <SidebarMenuItem key={item.name}>
-                      <SidebarMenuButton tooltip={item.name}>
-                        <CatIcon className="h-4 w-4" />
-                        <span>{item.label}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
+                  {filtered.map((item: any) => {
+                    const itemName = item.name || item.id || 'unknown';
+                    const itemLabel = item.label || item.name || 'Untitled';
+                    return (
+                      <SidebarMenuItem key={itemName}>
+                        <SidebarMenuButton
+                          isActive={isObjectType && selectedObject === itemName}
+                          onClick={isObjectType ? () => onSelectObject(itemName) : undefined}
+                          tooltip={itemName}
+                        >
+                          <TypeIcon className="h-4 w-4" />
+                          <span>{itemLabel}</span>
+                        </SidebarMenuButton>
+                        {isObjectType && item.fields && (
+                          <SidebarMenuBadge>
+                            {Object.keys(item.fields).length}
+                          </SidebarMenuBadge>
+                        )}
+                      </SidebarMenuItem>
+                    );
+                  })}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
           );
         })}
 
-        {!loading && metadataSections.length === 0 && (
+        {!loading && visibleTypes.length === 0 && (
           <div className="px-4 py-8 text-xs text-muted-foreground flex flex-col items-center gap-2">
             <Database className="h-5 w-5 opacity-40" />
-            <span>No metadata in this app</span>
+            <span>No metadata registered</span>
           </div>
         )}
 

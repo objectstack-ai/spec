@@ -189,6 +189,10 @@ export async function createKernel(options: KernelOptions) {
             }
             
             if (service === 'metadata') {
+                if (method === 'types') {
+                    // Return all registered metadata types
+                    return { types: SchemaRegistry.getRegisteredTypes() };
+                }
                 if (method === 'objects') {
                     // Try engine first if implemented
                     let objs = (ql && typeof ql.getObjects === 'function') ? ql.getObjects() : [];
@@ -217,6 +221,12 @@ export async function createKernel(options: KernelOptions) {
                      }
                      return def || null;
                 }
+                // Generic metadata type: metadata.<type> → SchemaRegistry.listItems(type)
+                const items = SchemaRegistry.listItems(method);
+                if (items && items.length > 0) {
+                    return { type: method, items };
+                }
+                return { type: method, items: [] };
             }
             
             console.warn(`[BrokerShim] Action not implemented: ${action}`);
