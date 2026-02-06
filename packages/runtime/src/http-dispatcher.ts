@@ -173,12 +173,30 @@ export class HttpDispatcher {
 
             try {
                 // Try specific calls based on type
-                if (type === 'objects') {
+                if (type === 'objects' || type === 'object') {
                     const data = await broker.call('metadata.getObject', { objectName: name }, { request: context.request });
                     return { handled: true, response: this.success(data) };
                 }
-                // Generic call for other types if supported
-                const data = await broker.call(`metadata.get${this.capitalize(type.slice(0, -1))}`, { name }, { request: context.request });
+
+                // If type is singular (e.g. 'app'), use it directly
+                // If plural (e.g. 'apps'), slice it
+                const singularType = type.endsWith('s') ? type.slice(0, -1) : type;
+                
+                // Try Protocol Service First (Preferred)
+                const protocol = this.kernel?.context?.getService ? this.kernel.context.getService('protocol') : null;
+                if (protocol && typeof protocol.getMetaItem === 'function') {
+                     try {
+                        const data = await protocol.getMetaItem({ type: singularType, name });
+                        return { handled: true, response: this.success(data) };
+                     } catch (e: any) {
+                        // Protocol might throw if not found or not supported
+                        // Fallback to broker?
+                     }
+                }
+
+                // Generic call for other types if supported via Broker (Legacy)
+                const method = `metadata.get${this.capitalize(singularType)}`;
+                const data = await broker.call(method, { name }, { request: context.request });
                 return { handled: true, response: this.success(data) };
             } catch (e: any) {
                 // Fallback: treat first part as object name if only 1 part (handled below)
@@ -536,6 +554,17 @@ export class HttpDispatcher {
      */
     async dispatch(method: string, path: string, body: any, query: any, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
         const cleanPath = path.replace(/\/$/, ''); // Remove trailing slash if present, but strict on clean paths
+
+        // 0. Root Discovery Endpoint (GET /)
+        // Handles request to base URL (e.g. /api/v1) which MSW strips to empty string
+        if (cleanPath === '' && method === 'GET') {
+             // We use '' as prefix since we are internal dispatcher
+             const info = this.getDiscoveryInfo('');
+             return { 
+                 handled: true, 
+                 response: this.success(info) 
+             };
+        }
 
         // 1. System Protocols (Prefix-based)
         if (cleanPath.startsWith('/auth')) {

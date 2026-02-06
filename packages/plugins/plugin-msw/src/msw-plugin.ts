@@ -240,6 +240,11 @@ export class MSWPlugin implements Plugin {
                     path = path.slice(baseUrl.length);
                 }
                 
+                if (this.options.logRequests) {
+                    // eslint-disable-next-line no-console
+                    console.log(`[MSW] Intercepted: ${request.method} ${url.pathname}`, { path });
+                }
+                
                 // Parse Body if present
                 let body: any = undefined;
                 if (request.method !== 'GET' && request.method !== 'HEAD') {
