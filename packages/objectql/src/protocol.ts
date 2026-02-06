@@ -77,31 +77,72 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         const schema = SchemaRegistry.getObject(request.object);
         if (!schema) throw new Error(`Object ${request.object} not found`);
 
-        let view: any;
+        const fields = schema.fields || {};
+        const fieldKeys = Object.keys(fields);
+
         if (request.type === 'list') {
-            view = {
-                type: 'list',
-                object: request.object,
-                columns: Object.keys(schema.fields || {}).slice(0, 5).map(f => ({
-                    field: f,
-                    label: schema.fields[f].label || f
-                }))
+            // Intelligent Column Selection
+            // 1. Always include 'name' or name-like fields
+            // 2. Limit to 6 columns by default
+            const priorityFields = ['name', 'title', 'label', 'subject', 'email', 'status', 'type', 'category', 'created_at'];
+            
+            let columns = fieldKeys.filter(k => priorityFields.includes(k));
+            
+            // If few priority fields, add others until 5
+            if (columns.length < 5) {
+                const remaining = fieldKeys.filter(k => !columns.includes(k) && k !== 'id' && !fields[k].hidden);
+                columns = [...columns, ...remaining.slice(0, 5 - columns.length)];
+            }
+            
+            // Sort columns by priority then alphabet or schema order
+            // For now, just keep them roughly in order they appear in schema or priority list
+            
+            return {
+                list: {
+                    type: 'grid' as const,
+                    object: request.object,
+                    label: schema.label || schema.name,
+                    columns: columns.map(f => ({
+                        field: f,
+                        label: fields[f]?.label || f,
+                        sortable: true
+                    })),
+                    sort: fields['created_at'] ? ([{ field: 'created_at', order: 'desc' }] as any) : undefined,
+                    searchableFields: columns.slice(0, 3) // Make first few textual columns searchable
+                }
             };
         } else {
-             view = {
-                type: 'form',
-                object: request.object,
-                sections: [
-                    {
-                        label: 'General',
-                        fields: Object.keys(schema.fields || {}).map(f => ({
-                            field: f
-                        }))
-                    }
-                ]
+             // Form View Generation
+             // Simple single-section layout for now
+             const formFields = fieldKeys
+                .filter(k => k !== 'id' && k !== 'created_at' && k !== 'modified_at' && !fields[k].hidden)
+                .map(f => ({
+                    field: f,
+                    label: fields[f]?.label,
+                    required: fields[f]?.required,
+                    readonly: fields[f]?.readonly,
+                    type: fields[f]?.type,
+                    // Default to 2 columns for most, 1 for textareas
+                    colSpan: (fields[f]?.type === 'textarea' || fields[f]?.type === 'html') ? 2 : 1
+                }));
+
+             return {
+                form: {
+                    type: 'simple' as const,
+                    object: request.object,
+                    label: `Edit ${schema.label || schema.name}`,
+                    sections: [
+                        {
+                            label: 'General Information',
+                            columns: 2 as const,
+                            collapsible: false,
+                            collapsed: false,
+                            fields: formFields
+                        }
+                    ]
+                }
             };
         }
-        return view;
     }
 
     async findData(request: { object: string, query?: any }) {
