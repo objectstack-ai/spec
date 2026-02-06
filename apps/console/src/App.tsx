@@ -178,7 +178,7 @@ export default function App() {
         </div>
       </main>
 
-      {/* Form Sheet */}
+      {/* Form Dialog */}
       {showForm && client && selectedObject && (
         <ObjectDataForm
           client={client}

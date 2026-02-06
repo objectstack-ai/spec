@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Save, Loader2, AlertCircle } from "lucide-react";
@@ -30,9 +30,10 @@ export function ObjectDataForm({ client, objectApiName, record, onSuccess, onCan
         async function loadDef() {
             if (!client) return;
             try {
-                const found = await client.meta.getItem('object', objectApiName);
+                const found: any = await client.meta.getItem('object', objectApiName);
                 if (mounted && found) {
-                    setDef(found);
+                    const resolved = found.data || found;
+                    setDef(resolved);
                     if (record) {
                         setFormData({ ...record });
                     } else {
@@ -98,25 +99,25 @@ export function ObjectDataForm({ client, objectApiName, record, onSuccess, onCan
     const isEdit = !!(record && (record.id || record._id));
 
     return (
-        <Sheet open={true} onOpenChange={(open) => !open && onCancel()}>
-            <SheetContent className="w-full sm:max-w-lg flex flex-col p-0 gap-0">
-                <SheetHeader className="px-6 py-4 border-b">
+        <Dialog open={true} onOpenChange={(open) => !open && onCancel()}>
+            <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col p-0 gap-0">
+                <DialogHeader className="px-6 pt-6 pb-4 border-b">
                     <div className="flex items-center gap-2">
-                        <SheetTitle className="text-lg">
+                        <DialogTitle className="text-lg">
                             {isEdit ? 'Edit' : 'New'} {def.label}
-                        </SheetTitle>
+                        </DialogTitle>
                         <Badge variant={isEdit ? "secondary" : "default"} className="text-xs">
                             {isEdit ? 'Editing' : 'Creating'}
                         </Badge>
                     </div>
-                    <SheetDescription>
-                        {isEdit 
-                            ? `Update the fields below to modify this ${def.label.toLowerCase()}.` 
+                    <DialogDescription>
+                        {isEdit
+                            ? `Update the fields below to modify this ${def.label.toLowerCase()}.`
                             : `Fill in the fields below to create a new ${def.label.toLowerCase()}.`
                         }
-                    </SheetDescription>
-                </SheetHeader>
-                
+                    </DialogDescription>
+                </DialogHeader>
+
                 <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden">
                     <ScrollArea className="flex-1">
                         <div className="p-6 space-y-5">
@@ -126,7 +127,7 @@ export function ObjectDataForm({ client, objectApiName, record, onSuccess, onCan
                                     {error}
                                 </div>
                             )}
-                            
+
                             {fieldKeys.map(key => {
                                 const field = fields[key];
                                 const label = field.label || key;
@@ -145,7 +146,7 @@ export function ObjectDataForm({ client, objectApiName, record, onSuccess, onCan
                                                 {field.type}
                                             </Badge>
                                         </div>
-                                        
+
                                         {field.type === 'boolean' ? (
                                             <div className="flex items-center gap-3 rounded-lg border p-3">
                                                 <Switch
@@ -202,7 +203,7 @@ export function ObjectDataForm({ client, objectApiName, record, onSuccess, onCan
                         </div>
                     </ScrollArea>
 
-                    <SheetFooter className="px-6 py-4 border-t bg-muted/30 flex items-center gap-2 sm:justify-end">
+                    <DialogFooter className="px-6 py-4 border-t bg-muted/30">
                         <Button variant="outline" onClick={onCancel} type="button" className="gap-1.5">
                             Cancel
                         </Button>
@@ -217,9 +218,9 @@ export function ObjectDataForm({ client, objectApiName, record, onSuccess, onCan
                                 </>
                             )}
                         </Button>
-                    </SheetFooter>
+                    </DialogFooter>
                 </form>
-            </SheetContent>
-        </Sheet>
+            </DialogContent>
+        </Dialog>
     );
 }
