@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ObjectStackClient } from '@objectstack/client';
+import { Button } from "@/components/ui/button";
+import { X, Save } from "lucide-react";
 
 interface ObjectDataFormProps {
     client: ObjectStackClient;
@@ -95,91 +97,94 @@ export function ObjectDataForm({ client, objectApiName, record, onSuccess, onCan
     });
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-lg overflow-hidden">
-                <div className="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-                    <h3 className="font-bold text-lg">
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="bg-background rounded-lg border border-border shadow-lg w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+                <div className="p-4 border-b border-border bg-muted/40 flex justify-between items-center">
+                    <h3 className="font-semibold text-lg">
                         {record ? `Edit ${def.label}` : `New ${def.label}`}
                     </h3>
-                    <button onClick={onCancel} className="text-gray-500 hover:text-gray-700">✕</button>
+                    <Button variant="ghost" size="icon" onClick={onCancel}>
+                        <X className="h-4 w-4" />
+                    </Button>
                 </div>
                 
-                <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
-                    {error && (
-                        <div className="bg-red-50 text-error p-3 rounded text-sm mb-4">
-                            {error}
-                        </div>
-                    )}
-                    
-                    {fieldKeys.map(key => {
-                        const field = fields[key];
-                        const label = field.label || key;
-                        const required = field.required;
-
-                        return (
-                            <div key={key} className="space-y-1">
-                                <label className="block text-sm font-medium text-gray-700">
-                                    {label} {required && <span className="text-red-500">*</span>}
-                                </label>
-                                
-                                {field.type === 'boolean' ? (
-                                    <input 
-                                        type="checkbox"
-                                        checked={!!formData[key]}
-                                        onChange={e => handleChange(key, e.target.checked)}
-                                        className="h-4 w-4 text-primary rounded border-gray-300 focus:ring-primary"
-                                    />
-                                ) : field.type === 'select' ? (
-                                    <select
-                                        value={formData[key] || ''}
-                                        onChange={e => handleChange(key, e.target.value)}
-                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border"
-                                        required={required}
-                                    >
-                                        <option value="">-- Select --</option>
-                                        {field.options?.map((opt: any) => (
-                                            <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                        ))}
-                                    </select>
-                                ) : field.type === 'textarea' ? (
-                                    <textarea
-                                        value={formData[key] || ''}
-                                        onChange={e => handleChange(key, e.target.value)}
-                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border"
-                                        rows={3}
-                                        required={required}
-                                    />
-                                ) : (
-                                    <input
-                                        type={field.type === 'number' ? 'number' : 'text'}
-                                        value={formData[key] || ''}
-                                        onChange={e => handleChange(key, e.target.value)}
-                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border"
-                                        required={required}
-                                    />
-                                )}
-                                {field.description && (
-                                    <p className="text-xs text-gray-500">{field.description}</p>
-                                )}
+                <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden">
+                    <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                        {error && (
+                            <div className="bg-destructive/15 text-destructive p-3 rounded text-sm mb-4">
+                                {error}
                             </div>
-                        );
-                    })}
+                        )}
+                        
+                        {fieldKeys.map(key => {
+                            const field = fields[key];
+                            const label = field.label || key;
+                            const required = field.required;
 
-                    <div className="pt-4 flex items-center justify-end space-x-3">
-                        <button
-                            type="button"
-                            onClick={onCancel}
-                            className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                        >
+                            return (
+                                <div key={key} className="space-y-2">
+                                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                        {label} {required && <span className="text-destructive">*</span>}
+                                    </label>
+                                    
+                                    {field.type === 'boolean' ? (
+                                        <div className="flex items-center space-x-2">
+                                            <input 
+                                                type="checkbox"
+                                                checked={!!formData[key]}
+                                                onChange={e => handleChange(key, e.target.checked)}
+                                                className="h-4 w-4 rounded border-primary text-primary focus:ring-ring"
+                                            />
+                                            <span className="text-sm text-muted-foreground">Enabled</span>
+                                        </div>
+                                    ) : field.type === 'select' ? (
+                                        <select
+                                            value={formData[key] || ''}
+                                            onChange={e => handleChange(key, e.target.value)}
+                                            className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                            required={required}
+                                        >
+                                            <option value="">-- Select --</option>
+                                            {field.options?.map((opt: any) => (
+                                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                            ))}
+                                        </select>
+                                    ) : field.type === 'textarea' ? (
+                                        <textarea
+                                            value={formData[key] || ''}
+                                            onChange={e => handleChange(key, e.target.value)}
+                                            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                            rows={3}
+                                            required={required}
+                                        />
+                                    ) : (
+                                        <input
+                                            type={field.type === 'number' ? 'number' : 'text'}
+                                            value={formData[key] || ''}
+                                            onChange={e => handleChange(key, e.target.value)}
+                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                            required={required}
+                                        />
+                                    )}
+                                    {field.description && (
+                                        <p className="text-xs text-muted-foreground">{field.description}</p>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    <div className="p-4 border-t border-border bg-muted/40 flex items-center justify-end space-x-3">
+                        <Button variant="outline" onClick={onCancel} type="button">
                             Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-foreground hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50"
-                        >
-                            {loading ? 'Saving...' : 'Save'}
-                        </button>
+                        </Button>
+                        <Button type="submit" disabled={loading}>
+                            {loading ? 'Saving...' : (
+                                <>
+                                    <Save className="mr-2 h-4 w-4" /> Save
+                                </>
+                            )}
+                        </Button>
                     </div>
                 </form>
             </div>
