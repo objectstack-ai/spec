@@ -21,9 +21,12 @@ describe('App React CRUD Integration Tests', () => {
         kernel = new ObjectKernel();
         const driver = new InMemoryDriver();
         
+        // Handle CommonJS/ESM interop for config loading
+        const appConfig = (todoConfig as any).default || todoConfig;
+        
         await kernel.use(new ObjectQLPlugin());
         await kernel.use(new DriverPlugin(driver, 'memory'));
-        await kernel.use(new AppPlugin(todoConfig));
+        await kernel.use(new AppPlugin(appConfig));
         
         // 2. Initialize MSW Plugin to generate handlers
         const mswPlugin = new MSWPlugin({
@@ -83,6 +86,7 @@ describe('App React CRUD Integration Tests', () => {
                         }
                         
                         // HttpDispatcher expects { data, count } for query/list
+                        console.log(`[BrokerShim-Test] find/query(${params.object}) -> count: ${all.length}`);
                         return { data: all, count: all.length };
                     }
                 }
@@ -96,9 +100,13 @@ describe('App React CRUD Integration Tests', () => {
                              objs = SchemaRegistry.getAllObjects();
                         }
                         
-                        console.log('DEBUG: metadata.objects returned count:', objs.length, 'names:', objs.map((o: any) => o.name));
+                        // console.log('DEBUG: metadata.objects returned count:', objs.length, 'names:', objs.map((o: any) => o.name));
                         return objs;
                     }
+                    if (method === 'getObject') {
+                        // Try Registry first for speed/correctness
+                        return SchemaRegistry.getObject(params.objectName) || (ql ? ql.getObject(params.objectName) : null);
+                   }
                     if (method === 'getObject') {
                          // Try Registry first for speed/correctness
                          return SchemaRegistry.getObject(params.objectName) || ql.getObject(params.objectName);
@@ -128,6 +136,8 @@ describe('App React CRUD Integration Tests', () => {
                  }
              });
         }
+
+
 
 
         // 3. Set up MSW Node Server with handlers from the plugin
@@ -176,6 +186,18 @@ describe('App React CRUD Integration Tests', () => {
         const taskObject = objects.find((o: any) => o.name === 'todo_task');
         expect(taskObject).toBeDefined();
         expect(taskObject?.label).toBe('Todo Task');
+    });
+
+    it('should have initial seeded data', async () => {
+        // Find tasks without filter
+        const response = await client.data.find('todo_task', {});
+        // Response format: { success: true, data: [...], meta: { count: N } }
+        const list = response.data;
+        expect(list).toBeDefined();
+        expect(Array.isArray(list)).toBe(true);
+        // Expect at least 5 seeded records
+        expect(list.length).toBeGreaterThanOrEqual(1);
+        console.log(`[Test] Initial data check: Found ${list.length} records.`);
     });
 
     it('should check if ui protocol getUiView is available', async () => {

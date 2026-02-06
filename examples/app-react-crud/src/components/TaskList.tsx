@@ -43,6 +43,8 @@ export function TaskList({ client, onEdit, refreshTrigger }: TaskListProps) {
       
       // Client-side sort fallback (since InMemoryDriver has limited sort support)
       // Sort by Priority (Ascending) -> Created At (Descending)
+      console.log('[TaskList] Received tasks:', fetchedTasks);
+
       fetchedTasks.sort((a, b) => {
         if (a.priority !== b.priority) {
           return a.priority - b.priority;

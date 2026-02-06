@@ -22,6 +22,15 @@ export async function startMockServer() {
   // Handle CommonJS/ESM interop for config loading
   const appConfig = (todoConfig as any).default || todoConfig;
   console.log('[MSW] Loaded Config:', appConfig);
+  
+  // DEBUG: Verify Data Existence
+  const manifestData = appConfig.data || (appConfig.manifest && appConfig.manifest.data);
+  if (manifestData && Array.isArray(manifestData)) {
+       console.log(`[MSW] DATA DETECTED: Found ${manifestData.length} datasets in config.`);
+       manifestData.forEach((d: any) => console.log(`[MSW] Dataset: object=${d.object}, records=${d.records?.length}`));
+  } else {
+       console.error('[MSW] CRITICAL: No initial data found in loaded config!', appConfig);
+  }
 
   const driver = new InMemoryDriver();
 
@@ -120,6 +129,19 @@ export async function startMockServer() {
   
   await kernel.bootstrap();
 
+  // DEBUG: Verify Seeding Result
+  const ql = kernel.context?.getService<any>('objectql');
+  if (ql) {
+      setTimeout(async () => {
+          try {
+              const tasks = await ql.find('todo_task');
+              console.log(`[MSW] POST-BOOTSTRAP VERIFICATION: Found ${tasks?.length} tasks in DB.`, tasks);
+          } catch(e) {
+              console.error('[MSW] Verification failed', e);
+          }
+      }, 500); // Small delay to ensure async seeding is definitely done (though bootstrap should cover it)
+  }
+
   // --- PROTOCOL SERVICE MOCK ---
   // Overwrite protocol service because the default one might be empty/broken in this env
   if (kernel.services instanceof Map) {
@@ -137,26 +159,9 @@ export async function startMockServer() {
   }
 
   // Initialize default data from manifest if available
+  // Data seeding is handled by AppPlugin automatically
   const manifest = appConfig.manifest;
   console.log('[MSW] Checking manifest for data...', manifest);
-  
-  if (manifest && Array.isArray(manifest.data)) {
-    console.log(`[MSW] Found ${manifest.data.length} datasets.`);
-    for (const dataset of manifest.data) {
-      if (dataset.object && Array.isArray(dataset.records)) {
-        for (const record of dataset.records) {
-          // Check if record already exists to avoid duplicates on hot reload?
-          // Since it's in-memory and we create new kernel/driver on refresh...
-          // But 'kernel' variable is module-scoped singleton.
-          // On HMR replacement, this module might re-execute.
-          // If 'kernel' is not null, we return early (line 18).
-          // So data loading happens only once per session. Good.
-          await driver.create(dataset.object, record);
-        }
-        console.log(`[MSW] Loaded ${dataset.records.length} records for ${dataset.object}`);
-      }
-    }
-  }
   
   return kernel;
 }
