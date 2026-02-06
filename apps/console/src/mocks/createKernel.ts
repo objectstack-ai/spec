@@ -237,6 +237,48 @@ export async function createKernel(options: KernelOptions) {
                 }
                 return { type: method, items: [] };
             }
+
+            // Package Management Actions
+            // Protocol: ListPackagesResponse, GetPackageResponse, InstallPackageResponse, etc.
+            if (service === 'package') {
+                if (method === 'list') {
+                    let packages = SchemaRegistry.getAllPackages();
+                    // Apply optional filters
+                    if (params.status) {
+                        packages = packages.filter((p: any) => p.status === params.status);
+                    }
+                    if (params.type) {
+                        packages = packages.filter((p: any) => p.manifest?.type === params.type);
+                    }
+                    if (params.enabled !== undefined) {
+                        packages = packages.filter((p: any) => p.enabled === params.enabled);
+                    }
+                    return { packages, total: packages.length };
+                }
+                if (method === 'get') {
+                    const pkg = SchemaRegistry.getPackage(params.id);
+                    if (!pkg) throw new Error(`Package not found: ${params.id}`);
+                    return { package: pkg };
+                }
+                if (method === 'install') {
+                    const pkg = SchemaRegistry.installPackage(params.manifest, params.settings);
+                    return { package: pkg, message: `Package ${params.manifest.id} installed successfully` };
+                }
+                if (method === 'uninstall') {
+                    const success = SchemaRegistry.uninstallPackage(params.id);
+                    return { id: params.id, success, message: success ? 'Uninstalled' : 'Not found' };
+                }
+                if (method === 'enable') {
+                    const pkg = SchemaRegistry.enablePackage(params.id);
+                    if (!pkg) throw new Error(`Package not found: ${params.id}`);
+                    return { package: pkg, message: `Package ${params.id} enabled` };
+                }
+                if (method === 'disable') {
+                    const pkg = SchemaRegistry.disablePackage(params.id);
+                    if (!pkg) throw new Error(`Package not found: ${params.id}`);
+                    return { package: pkg, message: `Package ${params.id} disabled` };
+                }
+            }
             
             console.warn(`[BrokerShim] Action not implemented: ${action}`);
             return null;

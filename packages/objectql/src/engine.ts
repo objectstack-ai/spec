@@ -140,18 +140,23 @@ export class ObjectQL implements IDataEngine {
 
   /**
    * Register contribution (Manifest)
+   * 
+   * Installs the manifest as a Package (the unit of installation),
+   * then decomposes it into individual metadata items (objects, apps, actions, etc.)
+   * and registers each into the SchemaRegistry.
+   * 
+   * Key: Package ≠ App. The manifest is the package. The apps[] array inside
+   * the manifest contains UI navigation definitions (AppSchema).
    */
   registerApp(manifest: any) {
       const id = manifest.id || manifest.name;
-      this.logger.debug('Registering app manifest', { id });
+      this.logger.debug('Registering package manifest', { id });
 
-      // Register the App Definition itself
-      if (manifest.name) {
-          SchemaRegistry.registerApp(manifest);
-          this.logger.debug('Registered App Definition', { app: manifest.name });
-      }
+      // 1. Register the Package (manifest + lifecycle state)
+      SchemaRegistry.installPackage(manifest);
+      this.logger.debug('Installed Package', { id: manifest.id, name: manifest.name });
 
-      // Register objects
+      // 2. Register objects
       if (manifest.objects) {
           if (Array.isArray(manifest.objects)) {
              this.logger.debug('Registering objects from manifest (Array)', { id, objectCount: manifest.objects.length });
@@ -170,10 +175,29 @@ export class ObjectQL implements IDataEngine {
           }
       }
 
-      // Register all other metadata types generically
+      // 3. Register apps (UI navigation definitions) as their own metadata type
+      if (Array.isArray(manifest.apps) && manifest.apps.length > 0) {
+          this.logger.debug('Registering apps from manifest', { id, count: manifest.apps.length });
+          for (const app of manifest.apps) {
+              const appName = app.name || app.id;
+              if (appName) {
+                  SchemaRegistry.registerApp(app);
+                  this.logger.debug('Registered App', { app: appName, from: id });
+              }
+          }
+      }
+
+      // 4. If manifest itself looks like an App (has navigation), also register as app
+      //    This handles the case where the manifest IS the app definition (legacy/simple packages)
+      if (manifest.name && manifest.navigation && !manifest.apps?.length) {
+          SchemaRegistry.registerApp(manifest);
+          this.logger.debug('Registered manifest-as-app', { app: manifest.name, from: id });
+      }
+
+      // 5. Register all other metadata types generically
       const metadataArrayKeys = [
         'actions', 'dashboards', 'reports', 'flows', 'agents',
-        'apis', 'ragPipelines', 'profiles', 'sharingRules', 'apps'
+        'apis', 'ragPipelines', 'profiles', 'sharingRules'
       ];
       for (const key of metadataArrayKeys) {
           const items = (manifest as any)[key];
@@ -188,7 +212,7 @@ export class ObjectQL implements IDataEngine {
           }
       }
 
-      // Register contributions
+      // 6. Register contributions
        if (manifest.contributes?.kinds) {
           this.logger.debug('Registering kinds from manifest', { id, kindCount: manifest.contributes.kinds.length });
           for (const kind of manifest.contributes.kinds) {

@@ -363,6 +363,97 @@ export class ObjectStackClient {
   };
 
   /**
+   * Package Management Services
+   * 
+   * Manages the lifecycle of installed packages.
+   * A package (ManifestSchema) is the unit of installation.
+   * An app (AppSchema) is a UI navigation definition within a package.
+   * A package may contain 0, 1, or many apps, or be a pure functionality plugin.
+   * 
+   * Endpoints:
+   * - GET    /packages               → list installed packages
+   * - GET    /packages/:id           → get package details  
+   * - POST   /packages               → install a package
+   * - DELETE  /packages/:id           → uninstall a package
+   * - PATCH  /packages/:id/enable    → enable a package
+   * - PATCH  /packages/:id/disable   → disable a package
+   */
+  packages = {
+    /**
+     * List all installed packages with optional filters.
+     */
+    list: async (filters?: { status?: string; type?: string; enabled?: boolean }) => {
+        const route = this.getRoute('packages');
+        const params = new URLSearchParams();
+        if (filters?.status) params.set('status', filters.status);
+        if (filters?.type) params.set('type', filters.type);
+        if (filters?.enabled !== undefined) params.set('enabled', String(filters.enabled));
+        const qs = params.toString();
+        const url = `${this.baseUrl}${route}${qs ? '?' + qs : ''}`;
+        const res = await this.fetch(url);
+        return this.unwrapResponse<{ packages: any[]; total: number }>(res);
+    },
+
+    /**
+     * Get a specific installed package by its ID (reverse domain identifier).
+     */
+    get: async (id: string) => {
+        const route = this.getRoute('packages');
+        const res = await this.fetch(`${this.baseUrl}${route}/${encodeURIComponent(id)}`);
+        return this.unwrapResponse<{ package: any }>(res);
+    },
+
+    /**
+     * Install a new package from its manifest.
+     */
+    install: async (manifest: any, options?: { settings?: Record<string, any>; enableOnInstall?: boolean }) => {
+        const route = this.getRoute('packages');
+        const res = await this.fetch(`${this.baseUrl}${route}`, {
+            method: 'POST',
+            body: JSON.stringify({
+                manifest,
+                settings: options?.settings,
+                enableOnInstall: options?.enableOnInstall,
+            }),
+        });
+        return this.unwrapResponse<{ package: any; message?: string }>(res);
+    },
+
+    /**
+     * Uninstall a package by its ID.
+     */
+    uninstall: async (id: string) => {
+        const route = this.getRoute('packages');
+        const res = await this.fetch(`${this.baseUrl}${route}/${encodeURIComponent(id)}`, {
+            method: 'DELETE',
+        });
+        return this.unwrapResponse<{ id: string; success: boolean; message?: string }>(res);
+    },
+
+    /**
+     * Enable a disabled package.
+     */
+    enable: async (id: string) => {
+        const route = this.getRoute('packages');
+        const res = await this.fetch(`${this.baseUrl}${route}/${encodeURIComponent(id)}/enable`, {
+            method: 'PATCH',
+        });
+        return this.unwrapResponse<{ package: any; message?: string }>(res);
+    },
+
+    /**
+     * Disable an installed package.
+     */
+    disable: async (id: string) => {
+        const route = this.getRoute('packages');
+        const res = await this.fetch(`${this.baseUrl}${route}/${encodeURIComponent(id)}/disable`, {
+            method: 'PATCH',
+        });
+        return this.unwrapResponse<{ package: any; message?: string }>(res);
+    },
+  };
+
+  /**
    * Authentication Services
    */
   auth = {
@@ -713,7 +804,7 @@ export class ObjectStackClient {
    * Get the conventional route path for a given API endpoint type
    * ObjectStack uses standard conventions: /api/v1/data, /api/v1/meta, /api/v1/ui
    */
-  private getRoute(type: 'data' | 'metadata' | 'ui' | 'auth' | 'analytics' | 'hub' | 'storage' | 'automation'): string {
+  private getRoute(type: 'data' | 'metadata' | 'ui' | 'auth' | 'analytics' | 'hub' | 'storage' | 'automation' | 'packages'): string {
     // 1. Use discovered routes if available
     // Note: Spec uses 'endpoints', mapped dynamically
     if (this.discoveryInfo?.endpoints && (this.discoveryInfo.endpoints as any)[type]) {
@@ -729,7 +820,8 @@ export class ObjectStackClient {
       analytics: '/api/v1/analytics',
       hub: '/api/v1/hub',
       storage: '/api/v1/storage',
-      automation: '/api/v1/automation'
+      automation: '/api/v1/automation',
+      packages: '/api/v1/packages',
     };
     
     return routeMap[type] || `/api/v1/${type}`;

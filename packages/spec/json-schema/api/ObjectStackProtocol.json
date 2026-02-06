@@ -43,6 +43,24 @@
         "installPlugin": {
           "description": "Install Plugin into Space"
         },
+        "listPackages": {
+          "description": "List installed packages with optional filters"
+        },
+        "getPackage": {
+          "description": "Get a specific installed package by ID"
+        },
+        "installPackage": {
+          "description": "Install a new package from manifest"
+        },
+        "uninstallPackage": {
+          "description": "Uninstall a package by ID"
+        },
+        "enablePackage": {
+          "description": "Enable a disabled package"
+        },
+        "disablePackage": {
+          "description": "Disable an installed package"
+        },
         "findData": {
           "description": "Find data records"
         },

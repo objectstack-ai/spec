@@ -1,0 +1,42 @@
+{
+  "$ref": "#/definitions/ListPackagesRequest",
+  "definitions": {
+    "ListPackagesRequest": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "installed",
+            "disabled",
+            "installing",
+            "uninstalling",
+            "error"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "plugin",
+            "ui",
+            "driver",
+            "server",
+            "app",
+            "theme",
+            "agent",
+            "objectql",
+            "module",
+            "gateway",
+            "adapter"
+          ],
+          "description": "Type of package"
+        },
+        "enabled": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

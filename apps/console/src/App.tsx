@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { ObjectDataTable } from './components/ObjectDataTable';
 import { ObjectDataForm } from './components/ObjectDataForm';
+import { PackageManager } from './components/PackageManager';
 import { Toaster } from "@/components/ui/toaster"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Database, Layers, Sparkles, Zap } from 'lucide-react';
@@ -122,6 +123,7 @@ export default function App() {
   const [apps, setApps] = useState<AppPackage[]>([]);
   const [selectedApp, setSelectedApp] = useState<AppPackage | null>(null);
   const [selectedObject, setSelectedObject] = useState<string | null>(null);
+  const [selectedView, setSelectedView] = useState<'dashboard' | 'packages' | 'object'>('dashboard');
   const [editingRecord, setEditingRecord] = useState<any>(null);
   const [showForm, setShowForm] = useState(false);
 
@@ -184,6 +186,24 @@ export default function App() {
   function handleSelectApp(app: AppPackage) {
     setSelectedApp(app);
     setSelectedObject(null);
+    setSelectedView('dashboard');
+    setShowForm(false);
+    setEditingRecord(null);
+  }
+
+  function handleSelectObject(name: string) {
+    if (name) {
+      setSelectedObject(name);
+      setSelectedView('object');
+    } else {
+      setSelectedObject(null);
+      setSelectedView('dashboard');
+    }
+  }
+
+  function handleSelectView(view: 'dashboard' | 'packages') {
+    setSelectedView(view);
+    setSelectedObject(null);
     setShowForm(false);
     setEditingRecord(null);
   }
@@ -193,15 +213,17 @@ export default function App() {
       <AppSidebar 
         client={client} 
         selectedObject={selectedObject} 
-        onSelectObject={(name) => setSelectedObject(name || null)}
+        onSelectObject={handleSelectObject}
         apps={apps}
         selectedApp={selectedApp}
         onSelectApp={handleSelectApp}
+        onSelectView={handleSelectView}
+        selectedView={selectedView}
       />
       <main className="flex min-w-0 flex-1 flex-col bg-background">
         <SiteHeader selectedObject={selectedObject} appLabel={selectedApp?.label || selectedApp?.name} />
         <div className="flex flex-1 flex-col overflow-hidden">
-          {selectedObject ? (
+          {selectedView === 'object' && selectedObject ? (
             <div className="flex flex-1 flex-col gap-4 p-4">
               {client && (
                 <ObjectDataTable 
@@ -211,6 +233,8 @@ export default function App() {
                 />
               )}
             </div>
+          ) : selectedView === 'packages' ? (
+            client && <PackageManager client={client} />
           ) : (
             <DashboardWelcome />
           )}

@@ -87,7 +87,7 @@ function getTypeIcon(type: string): LucideIcon {
 }
 
 /** Types that are internal / should be hidden from the sidebar */
-const HIDDEN_TYPES = new Set(['plugin', 'plugins', 'kind', 'app', 'apps']);
+const HIDDEN_TYPES = new Set(['plugin', 'plugins', 'kind', 'app', 'apps', 'package']);
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   client: ObjectStackClient | null;
@@ -96,9 +96,11 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   apps: AppPackage[];
   selectedApp: AppPackage | null;
   onSelectApp: (app: AppPackage) => void;
+  onSelectView?: (view: 'dashboard' | 'packages') => void;
+  selectedView?: 'dashboard' | 'packages' | 'object';
 }
 
-export function AppSidebar({ client, selectedObject, onSelectObject, apps, selectedApp, onSelectApp, ...props }: AppSidebarProps) {
+export function AppSidebar({ client, selectedObject, onSelectObject, apps, selectedApp, onSelectApp, onSelectView, selectedView, ...props }: AppSidebarProps) {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   // Dynamic metadata: type -> items[]
@@ -322,6 +324,16 @@ export function AppSidebar({ client, selectedObject, onSelectObject, apps, selec
            <SidebarGroupLabel>System</SidebarGroupLabel>
            <SidebarGroupContent>
              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton 
+                    tooltip="Packages"
+                    isActive={selectedView === 'packages'}
+                    onClick={() => onSelectView?.('packages')}
+                  >
+                    <Package className="h-4 w-4" />
+                    <span>Packages</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton tooltip="Settings">
                     <Settings className="h-4 w-4" />

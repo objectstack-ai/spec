@@ -17,6 +17,36 @@ import {
   InstallPluginRequest,
   InstallPluginResponse
 } from './hub.zod';
+import {
+  ListPackagesRequestSchema,
+  ListPackagesResponseSchema,
+  GetPackageRequestSchema,
+  GetPackageResponseSchema,
+  InstallPackageRequestSchema,
+  InstallPackageResponseSchema,
+  UninstallPackageRequestSchema,
+  UninstallPackageResponseSchema,
+  EnablePackageRequestSchema,
+  EnablePackageResponseSchema,
+  DisablePackageRequestSchema,
+  DisablePackageResponseSchema,
+} from '../kernel/package-registry.zod';
+import type {
+  ListPackagesRequest,
+  ListPackagesResponse,
+  GetPackageRequest,
+  GetPackageResponse,
+  InstallPackageRequest,
+  InstallPackageResponse,
+  UninstallPackageRequest,
+  UninstallPackageResponse,
+  EnablePackageRequest,
+  EnablePackageResponse,
+  DisablePackageRequest,
+  DisablePackageResponse,
+  InstalledPackage,
+  PackageStatus,
+} from '../kernel/package-registry.zod';
 
 export const AutomationTriggerRequestSchema = z.object({
   trigger: z.string(),
@@ -364,6 +394,38 @@ export const DeleteManyDataRequestSchema = z.object({
 export const DeleteManyDataResponseSchema = BatchUpdateResponseSchema;
 
 // ==========================================
+// Package Management Operations
+// ==========================================
+
+/**
+ * Re-export Package Management Request/Response schemas from kernel.
+ * These define the contract for package lifecycle management:
+ * - List installed packages (with filters)
+ * - Get a specific package by ID
+ * - Install a new package (from manifest)
+ * - Uninstall a package
+ * - Enable/Disable a package
+ * 
+ * Key distinction: Package (ManifestSchema) is the unit of installation.
+ * An App (AppSchema) is a UI navigation entity within a package.
+ * A package may contain 0, 1, or many apps.
+ */
+export {
+  ListPackagesRequestSchema,
+  ListPackagesResponseSchema,
+  GetPackageRequestSchema,
+  GetPackageResponseSchema,
+  InstallPackageRequestSchema,
+  InstallPackageResponseSchema,
+  UninstallPackageRequestSchema,
+  UninstallPackageResponseSchema,
+  EnablePackageRequestSchema,
+  EnablePackageResponseSchema,
+  DisablePackageRequestSchema,
+  DisablePackageResponseSchema,
+};
+
+// ==========================================
 // Protocol Interface Schema
 // ==========================================
 
@@ -421,6 +483,25 @@ export const ObjectStackProtocolSchema = z.object({
 
   installPlugin: z.any()
     .describe('Install Plugin into Space'),
+
+  // Package Management Operations
+  listPackages: z.any()
+    .describe('List installed packages with optional filters'),
+
+  getPackage: z.any()
+    .describe('Get a specific installed package by ID'),
+
+  installPackage: z.any()
+    .describe('Install a new package from manifest'),
+
+  uninstallPackage: z.any()
+    .describe('Uninstall a package by ID'),
+
+  enablePackage: z.any()
+    .describe('Enable a disabled package'),
+
+  disablePackage: z.any()
+    .describe('Disable an installed package'),
 
   // Data Operations
   findData: z.any()
@@ -499,6 +580,24 @@ export type UpdateManyDataResponse = z.infer<typeof UpdateManyDataResponseSchema
 export type DeleteManyDataRequest = z.input<typeof DeleteManyDataRequestSchema>;
 export type DeleteManyDataResponse = z.infer<typeof DeleteManyDataResponseSchema>;
 
+// Package Management Types (re-exported from kernel for convenience)
+export type { 
+  ListPackagesRequest,
+  ListPackagesResponse,
+  GetPackageRequest,
+  GetPackageResponse,
+  InstallPackageRequest,
+  InstallPackageResponse,
+  UninstallPackageRequest,
+  UninstallPackageResponse,
+  EnablePackageRequest,
+  EnablePackageResponse,
+  DisablePackageRequest,
+  DisablePackageResponse,
+  InstalledPackage,
+  PackageStatus,
+};
+
 export type ObjectStackProtocol = z.infer<typeof ObjectStackProtocolSchema>;
 
 /**
@@ -523,6 +622,14 @@ export interface IObjectStackProtocolLegacy {
   listSpaces(request: ListSpacesRequest): Promise<any>;
   createSpace(request: CreateSpaceRequest): Promise<SpaceResponse>;
   installPlugin(request: InstallPluginRequest): Promise<InstallPluginResponse>;
+
+  // Package Management
+  listPackages(request: ListPackagesRequest): Promise<ListPackagesResponse>;
+  getPackage(request: GetPackageRequest): Promise<GetPackageResponse>;
+  installPackage(request: InstallPackageRequest): Promise<InstallPackageResponse>;
+  uninstallPackage(request: UninstallPackageRequest): Promise<UninstallPackageResponse>;
+  enablePackage(request: EnablePackageRequest): Promise<EnablePackageResponse>;
+  disablePackage(request: DisablePackageRequest): Promise<DisablePackageResponse>;
 
   findData(request: FindDataRequest): Promise<FindDataResponse>;
   getData(request: GetDataRequest): Promise<GetDataResponse>;

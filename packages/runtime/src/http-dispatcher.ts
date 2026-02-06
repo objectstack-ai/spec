@@ -60,6 +60,7 @@ export class HttpDispatcher {
         const routes = {
                 data: `${prefix}/data`,
                 metadata: `${prefix}/meta`,
+                packages: `${prefix}/packages`,
                 auth: `${prefix}/auth`,
                 ui: `${prefix}/ui`,
                 graphql: hasGraphQL ? `${prefix}/graphql` : undefined,
@@ -390,6 +391,74 @@ export class HttpDispatcher {
     }
 
     /**
+     * Handles Package Management requests
+     * 
+     * REST Endpoints:
+     * - GET    /packages          → list all installed packages
+     * - GET    /packages/:id      → get a specific package
+     * - POST   /packages          → install a new package
+     * - DELETE  /packages/:id      → uninstall a package
+     * - PATCH  /packages/:id/enable  → enable a package
+     * - PATCH  /packages/:id/disable → disable a package
+     * 
+     * Protocol: Uses broker actions package.list, package.get, package.install,
+     *           package.uninstall, package.enable, package.disable
+     */
+    async handlePackages(path: string, method: string, body: any, query: any, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
+        const broker = this.ensureBroker();
+        const m = method.toUpperCase();
+        const parts = path.replace(/^\/+/, '').split('/').filter(Boolean);
+
+        try {
+            // GET /packages → list packages
+            if (parts.length === 0 && m === 'GET') {
+                const result = await broker.call('package.list', query || {}, { request: context.request });
+                return { handled: true, response: this.success(result) };
+            }
+
+            // POST /packages → install package
+            if (parts.length === 0 && m === 'POST') {
+                const result = await broker.call('package.install', body, { request: context.request });
+                const res = this.success(result);
+                res.status = 201;
+                return { handled: true, response: res };
+            }
+
+            // PATCH /packages/:id/enable
+            if (parts.length === 2 && parts[1] === 'enable' && m === 'PATCH') {
+                const id = decodeURIComponent(parts[0]);
+                const result = await broker.call('package.enable', { id }, { request: context.request });
+                return { handled: true, response: this.success(result) };
+            }
+
+            // PATCH /packages/:id/disable
+            if (parts.length === 2 && parts[1] === 'disable' && m === 'PATCH') {
+                const id = decodeURIComponent(parts[0]);
+                const result = await broker.call('package.disable', { id }, { request: context.request });
+                return { handled: true, response: this.success(result) };
+            }
+
+            // GET /packages/:id → get package
+            if (parts.length === 1 && m === 'GET') {
+                const id = decodeURIComponent(parts[0]);
+                const result = await broker.call('package.get', { id }, { request: context.request });
+                return { handled: true, response: this.success(result) };
+            }
+
+            // DELETE /packages/:id → uninstall package
+            if (parts.length === 1 && m === 'DELETE') {
+                const id = decodeURIComponent(parts[0]);
+                const result = await broker.call('package.uninstall', { id }, { request: context.request });
+                return { handled: true, response: this.success(result) };
+            }
+        } catch (e: any) {
+            return { handled: true, response: this.error(e.message, e.statusCode || 500) };
+        }
+
+        return { handled: false };
+    }
+
+    /**
      * Handles Hub requests
      * path: sub-path after /hub/
      */
@@ -644,6 +713,10 @@ export class HttpDispatcher {
 
         if (cleanPath.startsWith('/hub')) {
              return this.handleHub(cleanPath.substring(4), method, body, query, context);
+        }
+
+        if (cleanPath.startsWith('/packages')) {
+             return this.handlePackages(cleanPath.substring(9), method, body, query, context);
         }
 
         // OpenAPI Specification

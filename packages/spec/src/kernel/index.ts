@@ -3,6 +3,7 @@ export * from './events.zod';
 export * from './feature.zod';
 export * from './manifest.zod';
 export * from './metadata-loader.zod';
+export * from './package-registry.zod';
 export * from './plugin-capability.zod';
 export * from './plugin-lifecycle-advanced.zod';
 export * from './plugin-lifecycle-events.zod';
