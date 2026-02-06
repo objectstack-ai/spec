@@ -111,7 +111,9 @@ export function AppSidebar({ client, selectedObject, onSelectObject, apps, selec
     setLoading(true);
     try {
       // 1. Discover all registered metadata types
-      const typesResult: any = await client.meta.getTypes();
+      const typesRaw: any = await client.meta.getTypes();
+      // Unwrap { success, data } envelope if present
+      const typesResult = typesRaw?.data ?? typesRaw;
       let types: string[] = [];
       if (typesResult && Array.isArray(typesResult.types)) {
         types = typesResult.types;
@@ -126,7 +128,9 @@ export function AppSidebar({ client, selectedObject, onSelectObject, apps, selec
           .filter(t => !HIDDEN_TYPES.has(t))
           .map(async (type) => {
             try {
-              const result: any = await client.meta.getItems(type);
+              const raw: any = await client.meta.getItems(type);
+              // Unwrap { success, data } envelope if present
+              const result = raw?.data ?? raw;
               let items: any[] = [];
               if (Array.isArray(result)) {
                 items = result;

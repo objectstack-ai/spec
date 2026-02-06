@@ -260,10 +260,21 @@ export class HttpDispatcher {
             }
         }
 
-        // GET /metadata (List Objects - Default)
+        // GET /metadata — return available metadata types
         if (parts.length === 0) {
-            const data = await broker.call('metadata.objects', {}, { request: context.request });
-            return { handled: true, response: this.success(data) };
+            // Try protocol service for dynamic types
+            const protocol = this.kernel?.context?.getService ? this.kernel.context.getService('protocol') : null;
+            if (protocol && typeof protocol.getMetaTypes === 'function') {
+                const result = await protocol.getMetaTypes({});
+                return { handled: true, response: this.success(result) };
+            }
+            // Fallback: ask broker for registered types
+            try {
+                const data = await broker.call('metadata.types', {}, { request: context.request });
+                return { handled: true, response: this.success(data) };
+            } catch {
+                return { handled: true, response: this.success({ types: ['object', 'app', 'plugin'] }) };
+            }
         }
         
         return { handled: false };
