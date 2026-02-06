@@ -70,6 +70,34 @@ export interface PaginatedResult<T = any> {
   hasMore?: boolean;
 }
 
+/** Spec: GetDataResponseSchema */
+export interface GetDataResult<T = any> {
+  object: string;
+  id: string;
+  record: T;
+}
+
+/** Spec: CreateDataResponseSchema */
+export interface CreateDataResult<T = any> {
+  object: string;
+  id: string;
+  record: T;
+}
+
+/** Spec: UpdateDataResponseSchema */
+export interface UpdateDataResult<T = any> {
+  object: string;
+  id: string;
+  record: T;
+}
+
+/** Spec: DeleteDataResponseSchema */
+export interface DeleteDataResult {
+  object: string;
+  id: string;
+  deleted: boolean;
+}
+
 export interface StandardError {
   code: StandardErrorCode;
   message: string;
@@ -447,7 +475,7 @@ export class ObjectStackClient {
         method: 'POST',
         body: JSON.stringify(query)
       });
-      return res.json();
+      return this.unwrapResponse<PaginatedResult<T>>(res);
     },
 
     find: async <T = any>(object: string, options: QueryOptions = {}): Promise<PaginatedResult<T>> => {
@@ -498,22 +526,22 @@ export class ObjectStackClient {
         }
 
         const res = await this.fetch(`${this.baseUrl}${route}/${object}?${queryParams.toString()}`);
-        return res.json();
+        return this.unwrapResponse<PaginatedResult<T>>(res);
     },
 
-    get: async <T = any>(object: string, id: string): Promise<T> => {
+    get: async <T = any>(object: string, id: string): Promise<GetDataResult<T>> => {
         const route = this.getRoute('data');
         const res = await this.fetch(`${this.baseUrl}${route}/${object}/${id}`);
-        return res.json();
+        return this.unwrapResponse<GetDataResult<T>>(res);
     },
 
-    create: async <T = any>(object: string, data: Partial<T>): Promise<T> => {
+    create: async <T = any>(object: string, data: Partial<T>): Promise<CreateDataResult<T>> => {
         const route = this.getRoute('data');
         const res = await this.fetch(`${this.baseUrl}${route}/${object}`, {
             method: 'POST',
             body: JSON.stringify(data)
         });
-        return res.json();
+        return this.unwrapResponse<CreateDataResult<T>>(res);
     },
 
     createMany: async <T = any>(object: string, data: Partial<T>[]): Promise<T[]> => {
@@ -522,16 +550,16 @@ export class ObjectStackClient {
             method: 'POST',
             body: JSON.stringify(data)
         });
-        return res.json();
+        return this.unwrapResponse<T[]>(res);
     },
 
-    update: async <T = any>(object: string, id: string, data: Partial<T>): Promise<T> => {
+    update: async <T = any>(object: string, id: string, data: Partial<T>): Promise<UpdateDataResult<T>> => {
         const route = this.getRoute('data');
         const res = await this.fetch(`${this.baseUrl}${route}/${object}/${id}`, {
             method: 'PATCH',
             body: JSON.stringify(data)
         });
-        return res.json();
+        return this.unwrapResponse<UpdateDataResult<T>>(res);
     },
 
     /**
@@ -544,7 +572,7 @@ export class ObjectStackClient {
             method: 'POST',
             body: JSON.stringify(request)
         });
-        return res.json();
+        return this.unwrapResponse<BatchUpdateResponse>(res);
     },
 
     /**
@@ -565,15 +593,15 @@ export class ObjectStackClient {
             method: 'POST',
             body: JSON.stringify(request)
         });
-        return res.json();
+        return this.unwrapResponse<BatchUpdateResponse>(res);
     },
 
-    delete: async (object: string, id: string): Promise<{ success: boolean }> => {
+    delete: async (object: string, id: string): Promise<DeleteDataResult> => {
         const route = this.getRoute('data');
         const res = await this.fetch(`${this.baseUrl}${route}/${object}/${id}`, {
             method: 'DELETE'
         });
-        return res.json();
+        return this.unwrapResponse<DeleteDataResult>(res);
     },
 
     /**
@@ -589,7 +617,7 @@ export class ObjectStackClient {
              method: 'POST',
              body: JSON.stringify(request)
         });
-        return res.json();
+        return this.unwrapResponse<BatchUpdateResponse>(res);
     }
   };
 

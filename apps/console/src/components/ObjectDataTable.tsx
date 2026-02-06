@@ -122,17 +122,11 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
                 });
                 
                 if (mounted) {
-                    if (result && Array.isArray(result.value)) {
-                        setRecords(result.value);
-                        if (typeof result.count === 'number') setTotal(result.count);
-                    } else if (result && result.success && Array.isArray(result.data)) {
-                        setRecords(result.data);
-                        if (result.meta && typeof result.meta.count === 'number') setTotal(result.meta.count);
-                    } else if (Array.isArray(result)) {
-                        setRecords(result);
-                    } else if (result && typeof result === 'object' && result?.data && Array.isArray(result.data)) {
-                        setRecords(result.data);
-                    }
+                    // Spec: FindDataResponse = { object, records, total?, hasMore? }
+                    const records = result?.records || result?.value || (Array.isArray(result) ? result : []);
+                    setRecords(records);
+                    if (typeof result?.total === 'number') setTotal(result.total);
+                    else if (typeof result?.count === 'number') setTotal(result.count);
                 }
             } catch (err) {
                 console.error('Failed to load data', err);
@@ -154,9 +148,9 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
                     skip: (page - 1) * pageSize
                 }
             });
-            if (result && (result.value || Array.isArray(result))) {
-                setRecords(result.value || result);
-            }
+            // Spec: FindDataResponse = { object, records, total? }
+            const records = result?.records || result?.value || (Array.isArray(result) ? result : []);
+            setRecords(records);
         } catch (err) {
             alert('Failed to delete: ' + err);
         }
@@ -172,14 +166,11 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
                     count: true
                 }
             });
-            if (result && Array.isArray(result.value)) {
-                setRecords(result.value);
-                if (typeof result.count === 'number') setTotal(result.count);
-            } else if (result && result.success && Array.isArray(result.data)) {
-                setRecords(result.data);
-            } else if (Array.isArray(result)) {
-                setRecords(result);
-            }
+            // Spec: FindDataResponse = { object, records, total? }
+            const records = result?.records || result?.value || (Array.isArray(result) ? result : []);
+            setRecords(records);
+            if (typeof result?.total === 'number') setTotal(result.total);
+            else if (typeof result?.count === 'number') setTotal(result.count);
         } catch (err) {
             console.error('Failed to refresh', err);
         } finally {
