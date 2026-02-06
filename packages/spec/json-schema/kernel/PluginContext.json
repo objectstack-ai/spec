@@ -6,31 +6,49 @@
       "properties": {
         "ql": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "object": {},
+            "query": {}
+          },
           "additionalProperties": true,
           "description": "ObjectQL Engine Interface"
         },
         "os": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "getCurrentUser": {},
+            "getConfig": {}
+          },
           "additionalProperties": true,
           "description": "ObjectStack Kernel Interface"
         },
         "logger": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "debug": {},
+            "info": {},
+            "warn": {},
+            "error": {}
+          },
           "additionalProperties": true,
           "description": "Logger Interface"
         },
         "storage": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "get": {},
+            "set": {},
+            "delete": {}
+          },
           "additionalProperties": true,
           "description": "Storage Interface"
         },
         "i18n": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "t": {},
+            "getLocale": {}
+          },
           "additionalProperties": true,
           "description": "Internationalization Interface"
         },
@@ -47,7 +65,11 @@
           "properties": {
             "router": {
               "type": "object",
-              "properties": {},
+              "properties": {
+                "get": {},
+                "post": {},
+                "use": {}
+              },
               "additionalProperties": true
             }
           },
@@ -59,7 +81,9 @@
         },
         "drivers": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "register": {}
+          },
           "additionalProperties": true,
           "description": "Driver Registry"
         }
