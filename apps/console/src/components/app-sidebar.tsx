@@ -103,8 +103,8 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   packages: InstalledPackage[];
   selectedPackage: InstalledPackage | null;
   onSelectPackage: (pkg: InstalledPackage) => void;
-  onSelectView?: (view: 'dashboard' | 'packages') => void;
-  selectedView?: 'dashboard' | 'packages' | 'object';
+  onSelectView?: (view: 'overview' | 'packages') => void;
+  selectedView?: 'overview' | 'packages' | 'object';
 }
 
 export function AppSidebar({ client, selectedObject, onSelectObject, packages, selectedPackage, onSelectPackage, onSelectView, selectedView, ...props }: AppSidebarProps) {
@@ -231,18 +231,18 @@ export function AppSidebar({ client, selectedObject, onSelectObject, packages, s
       </SidebarHeader>
 
       <SidebarContent>
-        {/* Navigation */}
+        {/* Explorer */}
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel>Explorer</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  isActive={!selectedObject}
-                  onClick={() => onSelectObject('')}
+                  isActive={selectedView === 'overview' && !selectedObject}
+                  onClick={() => { onSelectObject(''); onSelectView?.('overview'); }}
                 >
                   <LayoutDashboard className="h-4 w-4" />
-                  <span>Dashboard</span>
+                  <span>Overview</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
