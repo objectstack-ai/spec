@@ -171,9 +171,9 @@ export default function App() {
         selectedApp={selectedApp}
         onSelectApp={handleSelectApp}
       />
-      <main className="flex flex-1 flex-col bg-background">
+      <main className="flex min-w-0 flex-1 flex-col bg-background">
         <SiteHeader selectedObject={selectedObject} appLabel={selectedApp?.label} />
-        <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col overflow-hidden">
           {selectedObject ? (
             <div className="flex flex-1 flex-col gap-4 p-4">
               {client && (
