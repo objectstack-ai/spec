@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { StateMachineSchema } from '../automation/state-machine.zod';
 
 /**
  * AI Model Configuration
@@ -65,6 +66,7 @@ export const AgentSchema = z.object({
   /** Cognition */
   instructions: z.string().describe('System Prompt / Prime Directives'),
   model: AIModelConfigSchema.optional(),
+  lifecycle: StateMachineSchema.optional().describe('State machine defining the agent conversation follow and constraints'),
   
   /** Capabilities */
   tools: z.array(AIToolSchema).optional().describe('Available tools'),

@@ -1,0 +1,668 @@
+---
+title: Data Modeling Guide
+description: Complete guide to designing robust data models in ObjectStack following enterprise best practices
+---
+
+# Data Modeling Guide
+
+Complete guide to designing robust data models in ObjectStack following enterprise best practices.
+
+## Table of Contents
+
+1. [Object Schema Design](#object-schema-design)
+2. [Field Types & Configuration](#field-types--configuration)
+3. [Relationships & Lookups](#relationships--lookups)
+4. [Validation Rules](#validation-rules)
+5. [Formula Fields](#formula-fields)
+6. [Database Indexing](#database-indexing)
+7. [Best Practices](#best-practices)
+
+---
+
+## Object Schema Design
+
+### Basic Object Structure
+
+Every object definition follows this pattern:
+
+```typescript
+import { ObjectSchema, Field } from '@objectstack/spec/data';
+
+export const MyObject = ObjectSchema.create({
+  // Metadata
+  name: 'my_object',              // Machine name (snake_case)
+  label: 'My Object',             // Display name
+  pluralLabel: 'My Objects',      // Plural form
+  icon: 'briefcase',              // Icon identifier
+  description: 'Description...',   // Help text
+  
+  // Display configuration
+  titleFormat: '{field1} - {field2}',
+  compactLayout: ['field1', 'field2', 'field3'],
+  
+  // Fields definition
+  fields: {
+    // ... field definitions
+  },
+  
+  // Performance
+  indexes: [...],
+  
+  // Capabilities
+  enable: {...},
+  
+  // Business rules
+  validations: [...],
+  workflows: [...],
+});
+```
+
+### Object Metadata
+
+| Property | Type | Description | Example |
+|----------|------|-------------|---------|
+| `name` | string | Machine name (snake_case) | `'account'` |
+| `label` | string | Display name | `'Account'` |
+| `pluralLabel` | string | Plural display name | `'Accounts'` |
+| `icon` | string | Icon identifier | `'building'` |
+| `description` | string | Help text | `'Companies...'` |
+| `titleFormat` | string | Record title template | `'{name} - {id}'` |
+| `compactLayout` | string[] | Quick view fields | `['name', 'status']` |
+
+### Enable Features
+
+Control which features are available for an object:
+
+```typescript
+enable: {
+  trackHistory: true,        // Track field changes over time
+  searchable: true,          // Include in global search
+  apiEnabled: true,          // Expose via REST/GraphQL
+  apiMethods: [              // Whitelist API operations
+    'get',
+    'list',
+    'create',
+    'update',
+    'delete',
+    'search',
+    'export'
+  ],
+  files: true,               // Allow file attachments
+  feeds: true,               // Enable activity feed (Chatter-like)
+  activities: true,          // Track tasks and events
+  trash: true,               // Soft delete with recycle bin
+  mru: true,                 // Track Most Recently Used
+}
+```
+
+---
+
+## Field Types & Configuration
+
+### Text Fields
+
+```typescript
+// Simple text field
+Field.text({
+  label: 'Account Name',
+  required: true,
+  maxLength: 255,
+  searchable: true,
+})
+
+// Text area (multi-line)
+Field.textarea({
+  label: 'Description',
+  maxLength: 5000,
+  rows: 5,
+})
+
+// Rich text / Markdown
+Field.markdown({
+  label: 'Notes',
+})
+```
+
+### Numeric Fields
+
+```typescript
+// Number
+Field.number({
+  label: 'Employees',
+  min: 0,
+  max: 1000000,
+  step: 1,
+})
+
+// Currency
+Field.currency({
+  label: 'Annual Revenue',
+  scale: 2,           // Decimal places
+  min: 0,
+})
+
+// Percent
+Field.percent({
+  label: 'Discount',
+  scale: 2,
+  min: 0,
+  max: 100,
+})
+```
+
+### Date & Time Fields
+
+```typescript
+// Date only
+Field.date({
+  label: 'Close Date',
+  required: true,
+  defaultValue: 'TODAY()',
+})
+
+// Date and time
+Field.datetime({
+  label: 'Last Modified',
+  readonly: true,
+  defaultValue: 'NOW()',
+})
+
+// Time only
+Field.time({
+  label: 'Business Hours Start',
+})
+```
+
+### Boolean Field
+
+```typescript
+Field.boolean({
+  label: 'Active',
+  defaultValue: true,
+})
+```
+
+### Select Fields
+
+```typescript
+// Single select (picklist)
+Field.select({
+  label: 'Status',
+  options: [
+    { label: 'New', value: 'new', color: '#999999', default: true },
+    { label: 'In Progress', value: 'in_progress', color: '#FFA500' },
+    { label: 'Completed', value: 'completed', color: '#00AA00' },
+  ],
+  required: true,
+})
+
+// Multi-select
+Field.select({
+  label: 'Skills',
+  multiple: true,
+  options: [
+    { label: 'JavaScript', value: 'js' },
+    { label: 'Python', value: 'python' },
+    { label: 'Go', value: 'go' },
+  ],
+})
+```
+
+### AutoNumber Field
+
+Generates sequential numbers automatically:
+
+```typescript
+Field.autonumber({
+  label: 'Account Number',
+  format: 'ACC-{0000}',      // ACC-0001, ACC-0002, ...
+})
+
+// Other formats:
+// 'INV-{YYYY}-{0000}'       // INV-2024-0001
+// '{YYYY}{MM}{DD}-{000}'    // 20240115-001
+```
+
+### Lookup Fields
+
+Reference other objects:
+
+```typescript
+// Simple lookup
+Field.lookup('account', {
+  label: 'Account',
+  required: true,
+})
+
+// Lookup with filters
+Field.lookup('contact', {
+  label: 'Primary Contact',
+  referenceFilters: {
+    account: '{account}',         // Same account only
+    is_active: true,
+  }
+})
+```
+
+### Address Field
+
+Structured address data:
+
+```typescript
+Field.address({
+  label: 'Billing Address',
+  addressFormat: 'international',  // or 'us', 'uk', etc.
+})
+
+// Stores:
+// - street
+// - city
+// - state/province
+// - postal_code
+// - country
+```
+
+### Location Field
+
+Geographic coordinates:
+
+```typescript
+Field.location({
+  label: 'Office Location',
+  displayMap: true,
+  allowGeocoding: true,
+})
+
+// Stores:
+// - latitude
+// - longitude
+```
+
+### URL Field
+
+```typescript
+Field.url({
+  label: 'Website',
+})
+```
+
+### Email Field
+
+```typescript
+Field.email({
+  label: 'Email Address',
+  unique: true,
+})
+```
+
+### Phone Field
+
+```typescript
+Field.text({
+  label: 'Phone',
+  format: 'phone',
+})
+```
+
+### Color Field
+
+```typescript
+Field.color({
+  label: 'Brand Color',
+  colorFormat: 'hex',         // 'hex', 'rgb', 'hsl'
+  presetColors: [
+    '#FF0000',
+    '#00FF00',
+    '#0000FF',
+  ],
+})
+```
+
+---
+
+## Relationships & Lookups
+
+### Lookup (Many-to-One)
+
+Creates a reference to another object:
+
+```typescript
+fields: {
+  account: Field.lookup('account', {
+    label: 'Account',
+    required: true,
+  }),
+}
+```
+
+**Naming Convention:** Use the object name directly (e.g., `account`, not `account_id`)
+
+### Filtered Lookups
+
+Reference records that meet criteria:
+
+```typescript
+contact: Field.lookup('contact', {
+  label: 'Contact',
+  referenceFilters: {
+    account: '{account}',       // Filter by parent account
+    is_active: true,
+  }
+})
+```
+
+### Self-Referencing Lookups
+
+Create hierarchies:
+
+```typescript
+parent_account: Field.lookup('account', {
+  label: 'Parent Account',
+  description: 'Parent company in hierarchy',
+})
+```
+
+### Related Lists
+
+Child records automatically appear in related lists when a lookup points to the parent.
+
+**Example:**
+- Account has many Contacts (Contact.account → Account)
+- Account detail page shows "Contacts" related list
+
+---
+
+## Validation Rules
+
+### Script Validations
+
+Custom JavaScript-like expressions:
+
+```typescript
+validations: [
+  {
+    name: 'revenue_positive',
+    type: 'script',
+    severity: 'error',
+    message: 'Annual Revenue must be positive',
+    condition: 'annual_revenue < 0',
+  },
+  {
+    name: 'close_date_future',
+    type: 'script',
+    severity: 'warning',
+    message: 'Close Date should be in the future',
+    condition: 'close_date < TODAY()',
+  },
+]
+```
+
+### Unique Validations
+
+Ensure field values are unique:
+
+```typescript
+{
+  name: 'email_unique',
+  type: 'unique',
+  severity: 'error',
+  message: 'Email must be unique',
+  fields: ['email'],
+  caseSensitive: false,
+}
+```
+
+### Required Field Validations
+
+Mark fields as required:
+
+```typescript
+Field.text({
+  label: 'Name',
+  required: true,
+})
+```
+
+### Validation Severity
+
+- **`error`**: Prevents save
+- **`warning`**: Shows warning but allows save
+- **`info`**: Informational message
+
+---
+
+## Formula Fields
+
+Calculate values automatically:
+
+```typescript
+// Simple calculation
+Field.formula({
+  label: 'Total Price',
+  type: 'currency',
+  formula: 'subtotal - discount + tax',
+  scale: 2,
+})
+
+// Conditional logic
+Field.formula({
+  label: 'Priority Level',
+  type: 'text',
+  formula: 'IF(amount > 100000, "High", IF(amount > 50000, "Medium", "Low"))',
+})
+
+// Date calculation
+Field.formula({
+  label: 'Days to Close',
+  type: 'number',
+  formula: 'DAYS_DIFF(close_date, TODAY())',
+})
+
+// Percentage calculation
+Field.formula({
+  label: 'Response Rate',
+  type: 'percent',
+  formula: 'IF(num_sent > 0, (num_responses / num_sent) * 100, 0)',
+  scale: 2,
+})
+```
+
+### Common Formula Functions
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `IF(condition, true_value, false_value)` | Conditional | `IF(amount > 1000, "High", "Low")` |
+| `AND(expr1, expr2, ...)` | Logical AND | `AND(is_active, amount > 0)` |
+| `OR(expr1, expr2, ...)` | Logical OR | `OR(status = "new", status = "pending")` |
+| `NOT(expr)` | Logical NOT | `NOT(is_deleted)` |
+| `ISBLANK(field)` | Check if blank | `ISBLANK(phone)` |
+| `TODAY()` | Current date | `TODAY()` |
+| `NOW()` | Current datetime | `NOW()` |
+| `DAYS_DIFF(date1, date2)` | Days between dates | `DAYS_DIFF(end_date, start_date)` |
+
+---
+
+## Database Indexing
+
+Optimize query performance with indexes:
+
+```typescript
+indexes: [
+  // Single field index
+  { fields: ['name'], unique: false },
+  
+  // Unique index
+  { fields: ['email'], unique: true },
+  
+  // Compound index
+  { fields: ['type', 'is_active'], unique: false },
+  
+  // Lookup field index
+  { fields: ['owner'], unique: false },
+]
+```
+
+### When to Add Indexes
+
+✅ **Add indexes for:**
+- Lookup/reference fields
+- Fields used in filters
+- Fields used for sorting
+- Fields in WHERE clauses
+- High-cardinality fields
+
+❌ **Avoid indexes for:**
+- Low-cardinality fields (e.g., boolean)
+- Fields rarely queried
+- Frequently updated fields
+
+---
+
+## Best Practices
+
+### 1. Naming Conventions
+
+✅ **DO:**
+- Use `snake_case` for field names: `first_name`, `account_number`
+- Use descriptive names: `annual_revenue` not `rev`
+- Use boolean prefixes: `is_active`, `has_children`
+
+❌ **DON'T:**
+- Use camelCase for field names
+- Use abbreviations: `acc_num`
+- Add suffixes to lookups: `account_id` (use `account`)
+
+### 2. Field Design
+
+✅ **DO:**
+- Use appropriate field types
+- Set reasonable max lengths
+- Add help text for complex fields
+- Use picklists instead of text when values are fixed
+- Mark required fields
+
+❌ **DON'T:**
+- Store multiple values in one field
+- Use text fields for dates/numbers
+- Create too many fields (split into related objects)
+
+### 3. Relationships
+
+✅ **DO:**
+- Use lookup fields for relationships
+- Set up proper cascade delete rules
+- Use filtered lookups to improve UX
+- Document relationship cardinality
+
+❌ **DON'T:**
+- Store IDs as text fields
+- Create circular references
+- Over-normalize (balance normalization vs. performance)
+
+### 4. Performance
+
+✅ **DO:**
+- Add indexes on frequently queried fields
+- Use formula fields for calculations
+- Limit related list queries
+- Use compound indexes for multi-field filters
+
+❌ **DON'T:**
+- Create too many indexes (slows writes)
+- Put indexes on low-cardinality fields
+- Use SOQL in loops
+
+### 5. Validation
+
+✅ **DO:**
+- Validate at the field level when possible
+- Use validation rules for complex logic
+- Provide clear error messages
+- Test validation rules thoroughly
+
+❌ **DON'T:**
+- Duplicate validations
+- Create overly complex rules
+- Block legitimate data entry
+
+---
+
+## Real-World Examples
+
+### Account Object
+
+```typescript
+export const Account = ObjectSchema.create({
+  name: 'account',
+  label: 'Account',
+  pluralLabel: 'Accounts',
+  icon: 'building',
+  
+  fields: {
+    account_number: Field.autonumber({
+      label: 'Account Number',
+      format: 'ACC-{0000}',
+    }),
+    
+    name: Field.text({
+      label: 'Account Name',
+      required: true,
+      searchable: true,
+      maxLength: 255,
+    }),
+    
+    type: Field.select({
+      label: 'Type',
+      options: [
+        { label: 'Prospect', value: 'prospect', default: true },
+        { label: 'Customer', value: 'customer' },
+        { label: 'Partner', value: 'partner' },
+      ]
+    }),
+    
+    annual_revenue: Field.currency({
+      label: 'Annual Revenue',
+      scale: 2,
+      min: 0,
+    }),
+    
+    billing_address: Field.address({
+      label: 'Billing Address',
+      addressFormat: 'international',
+    }),
+    
+    owner: Field.lookup('user', {
+      label: 'Account Owner',
+      required: true,
+    }),
+  },
+  
+  indexes: [
+    { fields: ['name'], unique: false },
+    { fields: ['owner'], unique: false },
+    { fields: ['type', 'is_active'], unique: false },
+  ],
+  
+  enable: {
+    trackHistory: true,
+    searchable: true,
+    apiEnabled: true,
+    files: true,
+    feeds: true,
+  },
+  
+  validations: [
+    {
+      name: 'revenue_positive',
+      type: 'script',
+      severity: 'error',
+      message: 'Revenue must be positive',
+      condition: 'annual_revenue < 0',
+    },
+  ],
+});
+```
+
+---
+
+**Next:** [Business Logic →](./business-logic)
