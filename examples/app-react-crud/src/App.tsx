@@ -13,7 +13,6 @@ import { Database } from 'lucide-react';
 import { MetadataExplorer } from './components/MetadataExplorer';
 import { ObjectDataTable } from './components/ObjectDataTable';
 import { ObjectDataForm } from './components/ObjectDataForm';
-import './App.css';
 
 export function App() {
   const [client, setClient] = useState<ObjectStackClient | null>(null);

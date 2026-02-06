@@ -7,6 +7,7 @@
 import './mocks/process-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import './index.css';
 import { App } from './App';
 import { AppWithHooks } from './AppWithHooks';
 import { startMockServer } from './mocks/browser';
