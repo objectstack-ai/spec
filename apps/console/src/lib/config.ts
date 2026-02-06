@@ -18,13 +18,15 @@ export interface ConsoleConfig {
   
   /**
    * Server base URL (used in 'server' mode)
-   * @default 'http://localhost:5000/api/v1'
+   * This should be the server root, not including /api/v1
+   * @default 'http://localhost:5000'
    */
   serverUrl: string;
   
   /**
    * MSW API base path (used in 'msw' mode)
-   * @default '/api/v1'
+   * This should be empty string since client adds /api/v1/... internally
+   * @default ''
    */
   mswBasePath: string;
 }
@@ -48,8 +50,8 @@ function getRuntimeMode(): RuntimeMode {
  */
 const defaultConfig: ConsoleConfig = {
   mode: getRuntimeMode(),
-  serverUrl: import.meta.env.VITE_SERVER_URL || 'http://localhost:5000/api/v1',
-  mswBasePath: '/api/v1',
+  serverUrl: import.meta.env.VITE_SERVER_URL || 'http://localhost:5000',
+  mswBasePath: '',  // Empty - client adds /api/v1/... internally
 };
 
 /**
