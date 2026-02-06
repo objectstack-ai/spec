@@ -83,7 +83,7 @@ export async function createKernel(options: KernelOptions) {
                          const keys = Object.keys(filters).filter(k => !reserved.includes(k));
 
                          if (keys.length > 0) {
-                              console.log('[BrokerShim debug] Applying filters:', keys);
+                              // console.log('[BrokerShim debug] Applying filters:', keys);
                               all = all.filter((item: any) => {
                                   return keys.every(k => {
                                       // Loose equality check
