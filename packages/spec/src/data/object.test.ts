@@ -508,5 +508,87 @@ describe('ObjectSchema', () => {
       expect(result.stateMachine).toBeDefined();
       expect(result.stateMachine?.initial).toBe('draft');
     });
+
+    it('should support multiple parallel state machines via stateMachines', () => {
+      const order = {
+        name: 'order',
+        fields: {
+          status: { type: 'text' },
+          payment_status: { type: 'text' },
+          approval_status: { type: 'text' },
+        },
+        stateMachines: {
+          lifecycle: {
+            id: 'order_lifecycle',
+            initial: 'draft',
+            states: {
+              draft: { on: { SUBMIT: 'submitted' } },
+              submitted: { on: { CONFIRM: 'confirmed' } },
+              confirmed: { on: { SHIP: 'shipped' } },
+              shipped: { on: { DELIVER: 'delivered' } },
+              delivered: { type: 'final' },
+            }
+          },
+          payment: {
+            id: 'order_payment',
+            initial: 'unpaid',
+            states: {
+              unpaid: { on: { PAY: 'partial', PAY_FULL: 'paid' } },
+              partial: { on: { PAY_FULL: 'paid' } },
+              paid: { on: { REFUND: 'refunded' } },
+              refunded: { type: 'final' },
+            }
+          },
+          approval: {
+            id: 'order_approval',
+            initial: 'pending',
+            states: {
+              pending: { on: { APPROVE: 'approved', REJECT: 'rejected' } },
+              approved: { type: 'final' },
+              rejected: { on: { RESUBMIT: 'pending' } },
+            }
+          }
+        }
+      };
+
+      const result = ObjectSchema.parse(order);
+      expect(result.stateMachines).toBeDefined();
+      expect(Object.keys(result.stateMachines!)).toEqual(['lifecycle', 'payment', 'approval']);
+      expect(result.stateMachines!.lifecycle.initial).toBe('draft');
+      expect(result.stateMachines!.payment.initial).toBe('unpaid');
+      expect(result.stateMachines!.approval.initial).toBe('pending');
+    });
+
+    it('should allow both stateMachine and stateMachines to coexist', () => {
+      const obj = {
+        name: 'contract',
+        fields: { status: { type: 'text' } },
+        // Legacy single shorthand
+        stateMachine: {
+          id: 'contract_lifecycle',
+          initial: 'draft',
+          states: {
+            draft: { on: { ACTIVATE: 'active' } },
+            active: { type: 'final' },
+          }
+        },
+        // Additional parallel machines
+        stateMachines: {
+          billing: {
+            id: 'contract_billing',
+            initial: 'unbilled',
+            states: {
+              unbilled: { on: { INVOICE: 'invoiced' } },
+              invoiced: { on: { PAY: 'paid' } },
+              paid: { type: 'final' },
+            }
+          }
+        }
+      };
+
+      const result = ObjectSchema.parse(obj);
+      expect(result.stateMachine?.initial).toBe('draft');
+      expect(result.stateMachines?.billing.initial).toBe('unbilled');
+    });
   });
 });

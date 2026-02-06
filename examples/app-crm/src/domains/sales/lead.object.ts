@@ -161,9 +161,13 @@ export const Lead = ObjectSchema.create({
     }),
   },
 
-  // Lifecycle State Machine
+  // Lifecycle State Machine(s)
   // Enforces valid status transitions to prevent AI hallucinations
-  stateMachine: LeadStateMachine,
+  // Using `stateMachines` (plural) for future extensibility.
+  // For simple objects with one lifecycle, `stateMachine` (singular) is also supported.
+  stateMachines: {
+    lifecycle: LeadStateMachine,
+  },
   
   // Database indexes for performance
   indexes: [

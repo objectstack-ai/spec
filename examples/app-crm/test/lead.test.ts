@@ -9,19 +9,24 @@ describe('CRM Domain - Lead', () => {
     expect(() => ObjectSchema.parse(Lead)).not.toThrow();
   });
 
-  it('should have a configured state machine', () => {
-    expect(Lead.stateMachine).toBeDefined();
-    expect(Lead.stateMachine?.id).toBe('lead_process');
-    expect(Lead.stateMachine?.initial).toBe('new');
-    expect(Lead.stateMachine?.states['new']).toBeDefined();
-    expect(Lead.stateMachine?.states['converted'].type).toBe('final');
+  it('should have a configured state machine via stateMachines (plural)', () => {
+    expect(Lead.stateMachines).toBeDefined();
+    
+    const lifecycle = Lead.stateMachines!.lifecycle;
+    expect(lifecycle).toBeDefined();
+    expect(lifecycle.id).toBe('lead_process');
+    expect(lifecycle.initial).toBe('new');
+    expect(lifecycle.states['new']).toBeDefined();
+    expect(lifecycle.states['converted'].type).toBe('final');
   });
 
   it('should have strict AI instructions in states', () => {
-    const newMeta = Lead.stateMachine?.states['new'].meta;
+    const lifecycle = Lead.stateMachines!.lifecycle;
+    
+    const newMeta = lifecycle.states['new'].meta;
     expect(newMeta?.aiInstructions).toContain('Verify email');
 
-    const qualifiedMeta = Lead.stateMachine?.states['qualified'].meta;
+    const qualifiedMeta = lifecycle.states['qualified'].meta;
     expect(qualifiedMeta?.aiInstructions).toContain('Prepare for conversion');
   });
 });

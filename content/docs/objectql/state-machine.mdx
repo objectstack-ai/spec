@@ -145,6 +145,49 @@ import { LeadStateMachine } from './lead.state';
 export const Lead = ObjectSchema.create({
   name: 'lead',
   // ... fields ...
-  stateMachine: LeadStateMachine // Imported config
+  stateMachines: {
+    lifecycle: LeadStateMachine, // Named key for the primary lifecycle
+  }
 });
 ```
+
+## Multiple State Machines (Parallel Lifecycles)
+
+In real enterprise systems, a single object often has **multiple independent state lines**. For example, an `Order` has:
+
+- **`lifecycle`** — `draft → submitted → confirmed → shipped → delivered`
+- **`payment`** — `unpaid → partial → paid → refunded`
+- **`approval`** — `pending → approved → rejected`
+
+Use the `stateMachines` (plural) property to define them:
+
+```typescript
+// src/domains/sales/order.object.ts
+import { ObjectSchema } from '@objectstack/spec/data';
+import { OrderLifecycle } from './order-lifecycle.state';
+import { OrderPayment } from './order-payment.state';
+import { OrderApproval } from './order-approval.state';
+
+export const Order = ObjectSchema.create({
+  name: 'order',
+  fields: {
+    status: Field.select({ options: ['draft', 'submitted', 'confirmed', 'shipped', 'delivered'] }),
+    payment_status: Field.select({ options: ['unpaid', 'partial', 'paid', 'refunded'] }),
+    approval_status: Field.select({ options: ['pending', 'approved', 'rejected'] }),
+  },
+  stateMachines: {
+    lifecycle: OrderLifecycle,
+    payment: OrderPayment,
+    approval: OrderApproval,
+  }
+});
+```
+
+### `stateMachine` vs `stateMachines`
+
+| Property | Type | Use Case |
+|:---|:---|:---|
+| `stateMachine` | `StateMachineConfig` | Simple objects with a single lifecycle (shorthand) |
+| `stateMachines` | `Record<string, StateMachineConfig>` | Complex objects with parallel state lines |
+
+Both can coexist on the same object. The kernel merges them at runtime.
