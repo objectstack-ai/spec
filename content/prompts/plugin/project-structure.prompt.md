@@ -18,11 +18,17 @@ my-plugin/
 │   └── copilot-instructions.md  # (Copy from content/prompts/plugin/copilot-instructions.md)
 ├── src/
 │   ├── objects/                 # 📦 Data Models (*.object.ts, *.hook.ts)
+│   │   └── index.ts            #    ↳ Barrel: re-exports all *.object.ts
 │   ├── actions/                 # ⚡ Buttons & Actions (*.actions.ts)
+│   │   └── index.ts            #    ↳ Barrel: re-exports all actions
 │   ├── flows/                   # 🔄 Automation Flows (*.flow.ts)
+│   │   └── index.ts
 │   ├── dashboards/              # 📊 BI Dashboards (*.dashboard.ts)
+│   │   └── index.ts
 │   ├── reports/                 # 📈 Analytics Reports (*.report.ts)
+│   │   └── index.ts
 │   ├── apps/                    # 🚀 App Configuration (*.app.ts)
+│   │   └── index.ts
 │   ├── apis/                    # 🌐 API Endpoints (*.api.ts)
 │   ├── agents/                  # 🤖 AI Agents (*.agent.ts)
 │   ├── rag/                     # 🧠 RAG Pipelines (*.rag.ts)
@@ -77,20 +83,17 @@ src/
 ## 2. Essential Configuration Files
 
 ### A. The Manifest (`objectstack.config.ts`)
-This is the heart of your plugin. It registers all metadata so the runtime can load it. Organize imports by type with section comments to match the directory structure.
+This is the heart of your plugin. It registers all metadata so the runtime can load it.
+
+**Barrel Pattern (Recommended):** Each type folder has an `index.ts` barrel that re-exports all definitions. The config collects them via `Object.values()` — adding a new file only requires updating the barrel, not the config.
 
 ```typescript
 import { defineStack } from '@objectstack/spec';
 
-// ─── Objects ────────────────────────────────────────────────────────
-import { Project } from './src/objects/project.object';
-import { Task } from './src/objects/task.object';
-
-// ─── Actions ────────────────────────────────────────────────────────
-import { CompleteTaskAction } from './src/actions/task.actions';
-
-// ─── App ────────────────────────────────────────────────────────────
-import { ProjectApp } from './src/apps/project.app';
+// ─── Barrel Imports (one per metadata type) ─────────────────────────
+import * as objects from './src/objects';
+import * as actions from './src/actions';
+import * as apps from './src/apps';
 
 export default defineStack({
   manifest: {
@@ -101,11 +104,26 @@ export default defineStack({
     description: 'Project management capabilities for ObjectStack',
   },
 
-  objects: [Project, Task],
-  actions: [CompleteTaskAction],
-  apps: [ProjectApp],
+  // Auto-collected from barrel index files
+  objects: Object.values(objects),
+  actions: Object.values(actions),
+  apps: Object.values(apps),
 });
 ```
+
+**Barrel File Example** (`src/objects/index.ts`):
+```typescript
+// Only re-export *.object.ts definitions
+// Hooks (*.hook.ts) and state machines (*.state.ts) are auto-associated by convention
+export { Project } from './project.object';
+export { Task } from './task.object';
+```
+
+> **Workflow:** Adding a new object only requires 2 steps:
+> 1. Create `src/objects/invoice.object.ts`
+> 2. Add `export { Invoice } from './invoice.object'` to `src/objects/index.ts`
+> 
+> The `objectstack.config.ts` stays unchanged.
 
 ### B. Package Definition (`package.json`)
 You must depend on `@objectstack/spec` to get the types.
@@ -159,5 +177,6 @@ Enable `strict` mode and path mapping.
 1.  **Create Folders:** Run `mkdir -p src/objects src/actions src/apps`.
 2.  **Install Instructions:** Copy `content/prompts/plugin/copilot-instructions.md` to `.github/`.
 3.  **Init Git:** `git init && echo "node_modules\ndist" > .gitignore`.
-4.  **First Object:** Create `src/objects/example.object.ts` to test type resolution.
-5.  **Register:** Import the object in `objectstack.config.ts`.
+4.  **First Object:** Create `src/objects/example.object.ts`.
+5.  **Create Barrel:** Create `src/objects/index.ts` with `export { Example } from './example.object'`.
+6.  **Register:** Import the barrel in `objectstack.config.ts` via `import * as objects from './src/objects'`.

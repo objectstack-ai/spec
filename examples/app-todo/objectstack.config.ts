@@ -1,43 +1,12 @@
 import { defineStack } from '@objectstack/spec';
 
-// ─── Objects ────────────────────────────────────────────────────────
-import { Task } from './src/objects/task.object';
-
-// ─── Actions ────────────────────────────────────────────────────────
-import { 
-  CompleteTaskAction, 
-  StartTaskAction, 
-  DeferTaskAction, 
-  SetReminderAction,
-  CloneTaskAction,
-  MassCompleteTasksAction,
-  DeleteCompletedAction,
-  ExportToCsvAction 
-} from './src/actions/task.actions';
-
-// ─── Dashboards ─────────────────────────────────────────────────────
-import { TaskDashboard } from './src/dashboards/task.dashboard';
-
-// ─── Reports ────────────────────────────────────────────────────────
-import { 
-  TasksByStatusReport, 
-  TasksByPriorityReport, 
-  TasksByOwnerReport, 
-  OverdueTasksReport,
-  CompletedTasksReport,
-  TimeTrackingReport 
-} from './src/reports/task.report';
-
-// ─── Flows ──────────────────────────────────────────────────────────
-import { 
-  TaskReminderFlow, 
-  OverdueEscalationFlow, 
-  TaskCompletionFlow,
-  QuickAddTaskFlow 
-} from './src/flows/task.flow';
-
-// ─── App ────────────────────────────────────────────────────────────
-import { TodoApp } from './src/apps/todo.app';
+// ─── Barrel Imports (one per metadata type) ─────────────────────────
+import * as objects from './src/objects';
+import * as actions from './src/actions';
+import * as dashboards from './src/dashboards';
+import * as reports from './src/reports';
+import * as flows from './src/flows';
+import * as apps from './src/apps';
 
 export default defineStack({
   manifest: {
@@ -46,9 +15,6 @@ export default defineStack({
     type: 'app',
     name: 'Todo Manager',
     description: 'A comprehensive Todo app demonstrating ObjectStack Protocol features including automation, dashboards, and reports',
-    author: 'ObjectStack Team',
-    repository: 'https://github.com/objectstack-ai/spec',
-    license: 'MIT',
     data: [
       {
         object: 'task',
@@ -67,41 +33,12 @@ export default defineStack({
     ]
   },
 
-  objects: [
-    Task,
-  ],
-
-  actions: [
-    CompleteTaskAction,
-    StartTaskAction,
-    DeferTaskAction,
-    SetReminderAction,
-    CloneTaskAction,
-    MassCompleteTasksAction,
-    DeleteCompletedAction,
-    ExportToCsvAction,
-  ],
-
-  dashboards: [
-    TaskDashboard,
-  ],
-
-  reports: [
-    TasksByStatusReport,
-    TasksByPriorityReport,
-    TasksByOwnerReport,
-    OverdueTasksReport,
-    CompletedTasksReport,
-    TimeTrackingReport,
-  ],
-
-  flows: [
-    TaskReminderFlow,
-    OverdueEscalationFlow,
-    TaskCompletionFlow,
-    QuickAddTaskFlow,
-  ],
-
-  apps: [TodoApp],
+  // Auto-collected from barrel index files via Object.values()
+  objects: Object.values(objects),
+  actions: Object.values(actions),
+  dashboards: Object.values(dashboards),
+  reports: Object.values(reports),
+  flows: Object.values(flows) as any,
+  apps: Object.values(apps),
 });
 
