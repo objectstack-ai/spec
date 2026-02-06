@@ -1,0 +1,579 @@
+---
+title: Development Standards
+description: Best practices and coding standards for developing enterprise management software applications using the ObjectStack Protocol
+---
+
+# CRM Application Development Standards & Specifications
+
+本文档定义了基于ObjectStack协议开发企业管理软件应用市场的最佳方案和编写规范。
+This document defines best practices and coding standards for developing enterprise management software applications using the ObjectStack Protocol.
+
+---
+
+## 📁 1. Folder Structure Standards
+
+### Recommended Structure
+
+```
+app-name/
+├── docs/                           # 📚 Documentation
+│   ├── README.md                   # Master guide
+│   ├── 01-data-modeling.md         # Data design standards
+│   ├── 02-business-logic.md        # Business rules
+│   ├── 03-ui-design.md             # Interface design
+│   ├── 04-analytics.md             # Reports & dashboards
+│   ├── 05-security.md              # Security model
+│   ├── 06-automation.md            # Workflows & flows
+│   ├── 07-integration.md           # External systems
+│   └── 08-ai-capabilities.md       # AI & ML features
+├── src/
+│   ├── domains/                    # 📊 Domain Objects (DDD)
+│   │   ├── sales/                  # Sales domain
+│   │   │   ├── *.object.ts         # Object definitions
+│   │   │   └── *.hook.ts           # Event hooks
+│   │   ├── service/                # Service domain
+│   │   ├── marketing/              # Marketing domain
+│   │   ├── products/               # Product catalog
+│   │   └── analytics/              # Analytics & BI
+│   ├── ui/                         # 🎨 User Interface
+│   │   ├── apps.ts                 # Application definitions
+│   │   ├── views.ts                # List & form views
+│   │   ├── actions.ts              # Custom actions
+│   │   ├── dashboards.ts           # Dashboard configs
+│   │   └── reports.ts              # Report definitions
+│   ├── security/                   # 🔒 Security
+│   │   ├── profiles.ts             # User profiles
+│   │   ├── permission-sets.ts      # Permission sets
+│   │   └── sharing-rules.ts        # Sharing model
+│   ├── automation/                 # ⚡ Automation
+│   │   ├── flows.ts                # Visual flows
+│   │   ├── workflows.ts            # Workflow rules
+│   │   └── triggers.ts             # Database triggers
+│   ├── ai/                         # 🤖 AI & Machine Learning
+│   │   ├── agents.ts               # AI agents
+│   │   ├── rag-pipelines.ts        # RAG configs
+│   │   └── models.ts               # ML models
+│   ├── integration/                # 🔗 Integration
+│   │   ├── connectors.ts           # External connectors
+│   │   ├── webhooks.ts             # Webhook handlers
+│   │   └── apis.ts                 # Custom APIs
+│   └── server/                     # 🖥️ Backend
+│       ├── apis.ts                 # REST/GraphQL APIs
+│       └── index.ts                # Server entry
+├── tests/                          # 🧪 Tests
+│   ├── unit/                       # Unit tests
+│   ├── integration/                # Integration tests
+│   └── e2e/                        # End-to-end tests
+├── objectstack.config.ts           # ⚙️ Main configuration
+├── package.json
+└── README.md                       # Project overview
+```
+
+### Key Principles
+
+1. **Domain-Driven Design**: Organize objects by business domain, not by type
+2. **Separation of Concerns**: Keep data, UI, security, and automation separate
+3. **Clear Naming**: Use descriptive folder and file names
+4. **Documentation-First**: Comprehensive docs for every module
+
+---
+
+## 📊 2. Data Modeling Standards
+
+### Object Definition Pattern
+
+```typescript
+import { ObjectSchema, Field } from '@objectstack/spec/data';
+
+export const MyObject = ObjectSchema.create({
+  // ✅ Metadata (Required)
+  name: 'my_object',              // Machine name (snake_case)
+  label: 'My Object',             // Display name
+  pluralLabel: 'My Objects',      // Plural form
+  icon: 'icon-name',              // Icon identifier
+  description: '...',             // Help text
+  
+  // ✅ Display Configuration
+  titleFormat: '{field1} - {field2}',
+  compactLayout: ['field1', 'field2', 'field3'],
+  
+  // ✅ Fields Definition
+  fields: {
+    // Use Field.* helpers
+    field_name: Field.text({
+      label: 'Field Label',
+      required: true,
+    }),
+  },
+  
+  // ✅ Performance
+  indexes: [
+    { fields: ['field_name'], unique: false },
+  ],
+  
+  // ✅ Capabilities
+  enable: {
+    trackHistory: true,
+    searchable: true,
+    apiEnabled: true,
+    files: true,
+    feeds: true,
+  },
+  
+  // ✅ Business Rules
+  validations: [...],
+  workflows: [...],
+});
+```
+
+### Field Type Selection Guide
+
+| Data Type | Field Type | Use Case |
+|-----------|-----------|----------|
+| Short text | `Field.text()` | Names, codes, short strings |
+| Long text | `Field.textarea()` | Descriptions, notes |
+| Rich content | `Field.markdown()` | Formatted text with links |
+| Number | `Field.number()` | Quantities, counts |
+| Money | `Field.currency()` | Prices, revenues |
+| Percentage | `Field.percent()` | Rates, ratios |
+| Date | `Field.date()` | Birthdays, deadlines |
+| Date+Time | `Field.datetime()` | Timestamps, appointments |
+| Yes/No | `Field.boolean()` | Flags, toggles |
+| Choice | `Field.select()` | Status, category, type |
+| Multiple choice | `Field.select({ multiple: true })` | Tags, skills |
+| Reference | `Field.lookup()` | Relationships |
+| Location | `Field.location()` | GPS coordinates |
+| Address | `Field.address()` | Mailing addresses |
+| Color | `Field.color()` | Brand colors, themes |
+| Auto-number | `Field.autonumber()` | Sequential IDs |
+| Calculated | `Field.formula()` | Computed values |
+
+### Relationship Patterns
+
+```typescript
+// ✅ Simple Lookup (Many-to-One)
+account: Field.lookup('account', {
+  label: 'Account',
+  required: true,
+})
+
+// ✅ Filtered Lookup
+contact: Field.lookup('contact', {
+  label: 'Contact',
+  referenceFilters: {
+    account: '{account}',     // Same account
+    is_active: true,
+  }
+})
+
+// ✅ Self-Referencing (Hierarchy)
+parent_account: Field.lookup('account', {
+  label: 'Parent Account',
+})
+```
+
+---
+
+## 🎨 3. UI Design Standards
+
+### Application Structure
+
+```typescript
+import { App } from '@objectstack/spec/ui';
+
+App.create({
+  name: 'app_name',
+  label: 'App Name',
+  icon: 'icon-name',
+  branding: {
+    primaryColor: '#4169E1',
+    secondaryColor: '#00AA00',
+    logo: '/assets/logo.png',
+  },
+  
+  navigation: [
+    {
+      id: 'group_sales',
+      type: 'group',
+      label: 'Sales',
+      children: [
+        { id: 'nav_account', type: 'object', objectName: 'account', label: 'Accounts' },
+        { id: 'nav_dashboard', type: 'dashboard', dashboardName: 'sales_dashboard' },
+      ]
+    }
+  ]
+});
+```
+
+### Dashboard Best Practices
+
+```typescript
+// ✅ Use meaningful names
+name: 'sales_dashboard',
+
+// ✅ Group related metrics
+widgets: [
+  // Row 1: KPIs
+  { type: 'metric', ... },
+  
+  // Row 2: Charts
+  { type: 'bar', ... },
+  
+  // Row 3: Lists
+  { type: 'table', ... },
+]
+
+// ✅ Use grid layout
+layout: { x: 0, y: 0, w: 3, h: 2 }
+```
+
+---
+
+## 🔒 4. Security Standards
+
+### Profile Structure
+
+```typescript
+export const MyProfile: Profile = {
+  name: 'profile_name',
+  label: 'Profile Label',
+  
+  // Object permissions (CRUD)
+  objectPermissions: {
+    account: {
+      create: true,
+      read: true,
+      update: true,
+      delete: false,
+      viewAll: false,
+      modifyAll: false,
+    },
+  },
+  
+  // Field permissions
+  fieldPermissions: {
+    account: {
+      sensitive_field: { read: false, update: false },
+    },
+  },
+  
+  // Tab visibility
+  tabVisibility: {
+    account: 'default',     // Default tab
+    lead: 'available',      // Available but not default
+    admin: 'hidden',        // Hidden
+  },
+};
+```
+
+### Sharing Rule Pattern
+
+```typescript
+export const MySharingRule: SharingRule = {
+  name: 'rule_name',
+  objectName: 'object_name',
+  type: 'criteria_based',
+  
+  criteria: {
+    field: { $eq: 'value' },
+  },
+  
+  sharedWith: {
+    type: 'role',
+    roles: ['role_name'],
+  },
+  
+  accessLevel: 'read_write',
+};
+```
+
+---
+
+## ⚡ 5. Automation Standards
+
+### Flow Definition
+
+```typescript
+export const MyFlow: Flow = {
+  name: 'flow_name',
+  label: 'Flow Label',
+  description: 'What this flow does',
+  type: 'autolaunched',  // or 'screen', 'scheduled'
+  
+  triggerType: 'on_create',
+  objectName: 'object_name',
+  criteria: 'condition',
+  
+  variables: [...],
+  
+  steps: [
+    {
+      id: 'step_1',
+      type: 'record_lookup',
+      ...
+    },
+  ],
+};
+```
+
+### Workflow Rule Pattern
+
+```typescript
+workflows: [
+  {
+    name: 'workflow_name',
+    objectName: 'object_name',
+    triggerType: 'on_update',
+    criteria: 'ISCHANGED(field)',
+    actions: [
+      {
+        name: 'action_name',
+        type: 'field_update',
+        field: 'field_name',
+        value: 'value',
+      }
+    ],
+    active: true,
+  }
+]
+```
+
+---
+
+## 🤖 6. AI Configuration Standards
+
+### AI Agent Pattern
+
+```typescript
+export const MyAgent: Agent = {
+  name: 'agent_name',
+  label: 'Agent Label',
+  description: 'What this agent does',
+  
+  role: 'assistant',  // or 'worker', 'analyst', 'creator'
+  
+  instructions: `Clear instructions for the AI...`,
+  
+  model: {
+    provider: 'openai',
+    model: 'gpt-4',
+    temperature: 0.7,
+    maxTokens: 2000,
+  },
+  
+  tools: [...],
+  knowledge: {...},
+  triggers: [...],
+};
+```
+
+### RAG Pipeline Pattern
+
+```typescript
+export const MyRAG: RagPipeline = {
+  name: 'rag_name',
+  label: 'RAG Label',
+  
+  indexes: [
+    {
+      name: 'index_name',
+      type: 'vector',
+      sources: [...],
+      embedding: {...},
+      chunking: {...},
+    }
+  ],
+  
+  retrieval: {
+    strategy: 'hybrid',
+    vectorSearch: {...},
+  },
+  
+  generation: {
+    model: {...},
+    promptTemplate: `...`,
+  },
+};
+```
+
+---
+
+## 📝 7. Naming Conventions
+
+### Configuration Keys (TypeScript)
+✅ Use **camelCase** for all TypeScript property names:
+```typescript
+maxLength: 255
+referenceFilters: {...}
+defaultValue: true
+primaryColor: '#4169E1'
+```
+
+### Data Values (Machine Names)
+✅ Use **snake_case** for all data identifiers:
+```typescript
+name: 'account_number'
+objectName: 'opportunity'
+field: 'close_date'
+status: 'in_progress'
+```
+
+### Object Names
+✅ Use **snake_case**, singular, descriptive:
+```typescript
+'account'           // ✅ Good
+'contact'           // ✅ Good
+'opportunity'       // ✅ Good
+
+'Account'           // ❌ Bad (PascalCase)
+'accounts'          // ❌ Bad (plural)
+'opp'              // ❌ Bad (abbreviation)
+```
+
+### Field Names
+✅ Use **snake_case**, descriptive, no suffixes:
+```typescript
+'first_name'        // ✅ Good
+'annual_revenue'    // ✅ Good
+'is_active'         // ✅ Good (boolean prefix)
+'account'           // ✅ Good (lookup without _id)
+
+'firstName'         // ❌ Bad (camelCase)
+'revenue'           // ❌ Bad (not descriptive)
+'active'            // ❌ Bad (boolean without prefix)
+'account_id'        // ❌ Bad (lookup with _id suffix)
+```
+
+---
+
+## 📚 8. Documentation Standards
+
+### Required Documentation
+
+Every application must include:
+
+1. **README.md** - Project overview, quick start, features
+2. **docs/data-modeling** - Object and field design
+3. **docs/business-logic** - Validations, workflows
+4. **docs/security** - Security model
+5. **docs/ai-capabilities** - AI features (if applicable)
+
+### Documentation Template
+
+```markdown
+# [Module Name]
+
+Brief description of what this module does.
+
+## Table of Contents
+
+1. [Section 1](#section-1)
+2. [Section 2](#section-2)
+
+---
+
+## Section 1
+
+Content with examples...
+
+### Subsection
+
+```typescript
+// Code example
+```
+
+### Best Practices
+
+✅ **DO:**
+- Item 1
+- Item 2
+
+❌ **DON'T:**
+- Item 1
+- Item 2
+```
+
+---
+
+## 🧪 9. Testing Standards
+
+### Test Structure
+
+```
+tests/
+├── unit/
+│   ├── objects/
+│   │   └── account.test.ts
+│   ├── validations/
+│   └── workflows/
+├── integration/
+│   ├── flows/
+│   └── apis/
+└── e2e/
+    └── scenarios/
+```
+
+### Test Pattern
+
+```typescript
+import { describe, test, expect } from 'vitest';
+
+describe('Account Object', () => {
+  test('should create account with valid data', async () => {
+    const account = await createRecord('account', {
+      name: 'Test Company',
+      type: 'prospect',
+    });
+    
+    expect(account.name).toBe('Test Company');
+  });
+  
+  test('should validate required fields', async () => {
+    await expect(
+      createRecord('account', {})
+    ).rejects.toThrow('Name is required');
+  });
+});
+```
+
+---
+
+## ✅ 10. Review Checklist
+
+### Before Committing
+
+- [ ] All objects use `ObjectSchema.create()`
+- [ ] Field names are `snake_case`
+- [ ] Config keys are `camelCase`
+- [ ] Lookups don't have `_id` suffix
+- [ ] All validations have clear messages
+- [ ] Documentation is up to date
+- [ ] Tests pass
+- [ ] No security vulnerabilities
+- [ ] Code follows conventions
+
+### Before Deployment
+
+- [ ] All objects have proper indexes
+- [ ] Security profiles configured
+- [ ] Sharing rules tested
+- [ ] AI agents tested
+- [ ] Flows tested end-to-end
+- [ ] Performance benchmarks met
+- [ ] Documentation complete
+- [ ] User training materials ready
+
+---
+
+## 🎯 Summary
+
+Follow these standards to build:
+- **Maintainable** code that's easy to understand
+- **Scalable** applications that grow with your business
+- **Secure** systems with enterprise-grade protection
+- **Intelligent** solutions powered by AI
+- **Well-documented** projects that teams can collaborate on
+
+---
+
+**For more details, refer to individual documentation files in the `docs/` folder.**
