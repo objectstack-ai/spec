@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { ObjectStackClient } from '@objectstack/client';
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { SelectNative } from "@/components/ui/select-native";
 import { X, Save } from "lucide-react";
 
 interface ObjectDataFormProps {
@@ -123,9 +127,9 @@ export function ObjectDataForm({ client, objectApiName, record, onSuccess, onCan
 
                             return (
                                 <div key={key} className="space-y-2">
-                                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                    <Label>
                                         {label} {required && <span className="text-destructive">*</span>}
-                                    </label>
+                                    </Label>
                                     
                                     {field.type === 'boolean' ? (
                                         <div className="flex items-center space-x-2">
@@ -138,31 +142,28 @@ export function ObjectDataForm({ client, objectApiName, record, onSuccess, onCan
                                             <span className="text-sm text-muted-foreground">Enabled</span>
                                         </div>
                                     ) : field.type === 'select' ? (
-                                        <select
+                                        <SelectNative
                                             value={formData[key] || ''}
                                             onChange={e => handleChange(key, e.target.value)}
-                                            className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                             required={required}
                                         >
                                             <option value="">-- Select --</option>
                                             {field.options?.map((opt: any) => (
                                                 <option key={opt.value} value={opt.value}>{opt.label}</option>
                                             ))}
-                                        </select>
+                                        </SelectNative>
                                     ) : field.type === 'textarea' ? (
-                                        <textarea
+                                        <Textarea
                                             value={formData[key] || ''}
                                             onChange={e => handleChange(key, e.target.value)}
-                                            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                             rows={3}
                                             required={required}
                                         />
                                     ) : (
-                                        <input
+                                        <Input
                                             type={field.type === 'number' ? 'number' : 'text'}
                                             value={formData[key] || ''}
                                             onChange={e => handleChange(key, e.target.value)}
-                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                             required={required}
                                         />
                                     )}

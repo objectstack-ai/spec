@@ -13,6 +13,7 @@ import { Database } from 'lucide-react';
 import { MetadataExplorer } from './components/MetadataExplorer';
 import { ObjectDataTable } from './components/ObjectDataTable';
 import { ObjectDataForm } from './components/ObjectDataForm';
+import { Badge } from "@/components/ui/badge";
 
 export function App() {
   const [client, setClient] = useState<ObjectStackClient | null>(null);
@@ -84,9 +85,7 @@ export function App() {
                 <div className="font-bold text-xl tracking-tight">
                    Object<span className="text-muted-foreground">Stack</span>
                 </div>
-                <div className="hidden sm:inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
-                    Console
-                </div>
+                <Badge variant="secondary">Console</Badge>
             </div>
             <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
                  <div className="text-sm text-muted-foreground flex items-center gap-2">
@@ -121,7 +120,7 @@ export function App() {
         </aside>
 
         {/* Content Area */}
-        <main className="flex-1 overflow-hidden p-4 md:p-6 flex flex-col bg-muted/5 relative">
+        <main className="flex-1 overflow-hidden p-4 md:p-6 flex flex-col bg-muted/20 relative">
             {selectedObject ? (
                 <>
                     <ObjectDataTable 

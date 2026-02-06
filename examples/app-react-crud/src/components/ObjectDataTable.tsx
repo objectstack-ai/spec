@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ObjectStackClient } from '@objectstack/client';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ArrowLeft, ArrowRight, Edit, Trash2, Plus } from 'lucide-react';
 
 interface ObjectDataTableProps {
@@ -113,7 +114,7 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
 
     return (
         <Card className="flex flex-col h-full border-border/60 shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between p-4 border-b space-y-0 bg-muted/20">
+            <CardHeader className="flex flex-row items-center justify-between p-4 border-b space-y-0 bg-muted/30">
                 <div className="space-y-1">
                     <CardTitle className="text-xl font-semibold tracking-tight">
                         {def.label}
@@ -129,28 +130,28 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
             </CardHeader>
             
             <CardContent className="flex-1 p-0 overflow-auto">
-                <table className="w-full caption-bottom text-sm text-left">
-                    <thead className="[&_tr]:border-b">
-                        <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
                             {columns.map(col => (
-                                <th key={col.name} className="h-10 px-4 align-middle font-medium text-muted-foreground">
+                                <TableHead key={col.name}>
                                     {col.label}
-                                </th>
+                                </TableHead>
                             ))}
-                            <th className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="[&_tr:last-child]:border-0">
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {loading && records.length === 0 ? (
-                            <tr><td colSpan={columns.length + 1} className="p-4 text-center text-muted-foreground">Loading...</td></tr>
+                            <TableRow><TableCell colSpan={columns.length + 1} className="h-24 text-center">Loading...</TableCell></TableRow>
                         ) : records.map(record => (
-                            <tr key={record.id || record._id} className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                            <TableRow key={record.id || record._id}>
                                 {columns.map(col => (
-                                    <td key={col.name} className="p-4 align-middle">
+                                    <TableCell key={col.name}>
                                         {String(record[col.name] !== undefined ? record[col.name] : '')}
-                                    </td>
+                                    </TableCell>
                                 ))}
-                                <td className="p-4 align-middle text-right">
+                                <TableCell className="text-right">
                                     <div className="flex justify-end gap-2">
                                         <Button 
                                             variant="ghost" 
@@ -171,22 +172,22 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
                                             <span className="sr-only">Delete</span>
                                         </Button>
                                     </div>
-                                </td>
-                            </tr>
+                                </TableCell>
+                            </TableRow>
                         ))}
                         {!loading && records.length === 0 && (
-                            <tr>
-                                <td colSpan={columns.length + 1} className="p-8 text-center text-muted-foreground">
+                            <TableRow>
+                                <TableCell colSpan={columns.length + 1} className="h-24 text-center">
                                     No records found
-                                </td>
-                            </tr>
+                                </TableCell>
+                            </TableRow>
                         )}
-                    </tbody>
-                </table>
+                    </TableBody>
+                </Table>
             </CardContent>
 
-            <CardFooter className="p-2 border-t bg-muted/20 flex justify-end items-center gap-2">
-                <Button 
+            <CardFooter className="p-2 border-t bg-muted/30 flex justify-end items-center gap-2">
+                <Button  
                     variant="outline" 
                     size="sm"
                     disabled={page === 1}

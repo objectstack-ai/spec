@@ -3,6 +3,7 @@ import { ObjectStackClient } from '@objectstack/client';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Database, Package } from 'lucide-react';
 
 interface MetadataExplorerProps {
@@ -45,7 +46,7 @@ export function MetadataExplorer({ client, selectedObject, onSelectObject }: Met
 
     return (
         <Card className="h-full flex flex-col border-border/60">
-            <CardHeader className="p-4 border-b bg-muted/20">
+            <CardHeader className="p-4 border-b bg-muted/30">
                 <CardTitle className="text-sm font-bold flex items-center gap-2">
                     <Database className="h-4 w-4" />
                     Registered Objects
@@ -72,9 +73,9 @@ export function MetadataExplorer({ client, selectedObject, onSelectObject }: Met
                                     <Package className="h-3.5 w-3.5 text-muted-foreground" />
                                     <span>{obj.label}</span>
                                 </div>
-                                <span className="text-xs text-muted-foreground font-mono opacity-50 ml-2 shrink-0">
+                                <Badge variant="outline" className="text-[10px] h-5 py-0 px-1.5 font-normal opacity-70">
                                     {obj.name}
-                                </span>
+                                </Badge>
                             </Button>
                         ))}
 
@@ -87,7 +88,7 @@ export function MetadataExplorer({ client, selectedObject, onSelectObject }: Met
                     </div>
                 </ScrollArea>
             </CardContent>
-            <CardFooter className="p-2 border-t bg-muted/20 text-xs text-muted-foreground justify-center">
+            <CardFooter className="p-2 border-t bg-muted/30 text-xs text-muted-foreground justify-center">
                 Total: {objects.length} Objects
             </CardFooter>
         </Card>
