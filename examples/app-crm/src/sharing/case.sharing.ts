@@ -1,12 +1,9 @@
-import type { Security } from '@objectstack/spec';
-type CriteriaSharingRule = Security.CriteriaSharingRule;
-
 /** Share escalated/critical cases with service managers */
-export const CaseEscalationSharingRule: CriteriaSharingRule = {
+export const CaseEscalationSharingRule = {
   name: 'case_escalation_sharing',
   label: 'Escalated Cases Sharing',
   object: 'case',
-  type: 'criteria',
+  type: 'criteria' as const,
   condition: 'priority = "critical" AND is_closed = false',
   accessLevel: 'edit',
   sharedWith: { type: 'role_and_subordinates', value: 'service_manager' },

@@ -1,6 +1,4 @@
-import type { RAGPipelineConfig } from '@objectstack/spec/ai';
-
-export const ProductInfoRAG: RAGPipelineConfig = {
+export const ProductInfoRAG = {
   name: 'product_info',
   label: 'Product Information Pipeline',
   description: 'RAG pipeline for product catalog and specifications',

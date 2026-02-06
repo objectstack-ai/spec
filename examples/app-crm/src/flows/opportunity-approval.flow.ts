@@ -1,6 +1,5 @@
-import type { Flow } from '@objectstack/spec/automation';
-
-export const OpportunityApprovalFlow: Flow = {
+/** Opportunity Approval — multi-level approval for deals over $100K */
+export const OpportunityApprovalFlow = {
   name: 'opportunity_approval',
   label: 'Large Deal Approval',
   description: 'Approval process for opportunities over $100K',
@@ -8,11 +7,11 @@ export const OpportunityApprovalFlow: Flow = {
   triggerType: 'on_update',
   objectName: 'opportunity',
   criteria: 'amount > 100000 AND stage = "proposal"',
-  
+
   variables: [
     { name: 'opportunityId', type: 'text', isInput: true, isOutput: false },
   ],
-  
+
   steps: [
     {
       id: 'get_opportunity',

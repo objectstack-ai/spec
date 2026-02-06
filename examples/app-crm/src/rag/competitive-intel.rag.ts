@@ -1,6 +1,4 @@
-import type { RAGPipelineConfig } from '@objectstack/spec/ai';
-
-export const CompetitiveIntelRAG: RAGPipelineConfig = {
+export const CompetitiveIntelRAG = {
   name: 'competitive_intel',
   label: 'Competitive Intelligence Pipeline',
   description: 'RAG pipeline for competitive analysis and market insights',

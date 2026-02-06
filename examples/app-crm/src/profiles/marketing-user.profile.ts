@@ -1,6 +1,4 @@
-import type { Security } from '@objectstack/spec';
-
-export const MarketingUserProfile: Security.PermissionSet = {
+export const MarketingUserProfile = {
   name: 'marketing_user',
   label: 'Marketing User',
   isProfile: true,

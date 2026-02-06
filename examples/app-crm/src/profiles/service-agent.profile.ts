@@ -1,6 +1,4 @@
-import type { Security } from '@objectstack/spec';
-
-export const ServiceAgentProfile: Security.PermissionSet = {
+export const ServiceAgentProfile = {
   name: 'service_agent',
   label: 'Service Agent',
   isProfile: true,

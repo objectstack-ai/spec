@@ -1,6 +1,4 @@
-import type { RAGPipelineConfig } from '@objectstack/spec/ai';
-
-export const SupportKnowledgeRAG: RAGPipelineConfig = {
+export const SupportKnowledgeRAG = {
   name: 'support_knowledge',
   label: 'Support Knowledge Pipeline',
   description: 'RAG pipeline for customer support knowledge base',

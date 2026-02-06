@@ -1,18 +1,17 @@
-import type { Flow } from '@objectstack/spec/automation';
-
-export const CampaignEnrollmentFlow: Flow = {
+/** Campaign Enrollment — scheduled flow to bulk enroll leads */
+export const CampaignEnrollmentFlow = {
   name: 'campaign_enrollment',
   label: 'Enroll Leads in Campaign',
   description: 'Bulk enroll leads into marketing campaigns',
   type: 'autolaunched',
   triggerType: 'scheduled',
   schedule: '0 9 * * 1', // Monday at 9am
-  
+
   variables: [
     { name: 'campaignId', type: 'text', isInput: true, isOutput: false },
     { name: 'leadStatus', type: 'text', isInput: true, isOutput: false },
   ],
-  
+
   steps: [
     {
       id: 'get_campaign',

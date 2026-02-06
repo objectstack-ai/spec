@@ -1,6 +1,4 @@
-import type { RAGPipelineConfig } from '@objectstack/spec/ai';
-
-export const SalesKnowledgeRAG: RAGPipelineConfig = {
+export const SalesKnowledgeRAG = {
   name: 'sales_knowledge',
   label: 'Sales Knowledge Pipeline',
   description: 'RAG pipeline for sales team knowledge and best practices',

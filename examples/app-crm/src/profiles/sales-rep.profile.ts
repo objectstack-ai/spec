@@ -1,6 +1,4 @@
-import type { Security } from '@objectstack/spec';
-
-export const SalesRepProfile: Security.PermissionSet = {
+export const SalesRepProfile = {
   name: 'sales_rep',
   label: 'Sales Representative',
   isProfile: true,

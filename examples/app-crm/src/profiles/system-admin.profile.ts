@@ -1,6 +1,4 @@
-import type { Security } from '@objectstack/spec';
-
-export const SystemAdminProfile: Security.PermissionSet = {
+export const SystemAdminProfile = {
   name: 'system_admin',
   label: 'System Administrator',
   isProfile: true,
