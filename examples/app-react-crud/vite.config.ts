@@ -26,7 +26,14 @@ export default defineConfig({
       'os': path.resolve(__dirname, './mocks/node-polyfills.ts'),
       'crypto': path.resolve(__dirname, './mocks/node-polyfills.ts'),
       'url': path.resolve(__dirname, './mocks/node-polyfills.ts'),
+      // Fix for chokidar in browser
+      'chokidar': path.resolve(__dirname, './src/mocks/noop.ts'),
     }
+  },
+  define: {
+    'process.env': {},
+    'process.cwd': '() => "/"',
+    'process.platform': '"browser"'
   },
   plugins: [react()],
   server: {
