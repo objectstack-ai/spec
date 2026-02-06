@@ -8,6 +8,7 @@ import { ObjectDataForm } from './components/ObjectDataForm';
 import { Toaster } from "@/components/ui/toaster"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Database, Layers, Sparkles, Zap } from 'lucide-react';
+import { getApiBaseUrl, config } from './lib/config';
 
 function DashboardWelcome() {
   return (
@@ -122,7 +123,10 @@ export default function App() {
   const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
-    const baseUrl = '/api/v1'; 
+    // Use the configured API base URL based on runtime mode (MSW or Server)
+    const baseUrl = getApiBaseUrl();
+    console.log(`[App] Connecting to API: ${baseUrl} (mode: ${config.mode})`);
+    
     const newClient = new ObjectStackClient({
       baseUrl,
     });

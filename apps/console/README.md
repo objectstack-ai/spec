@@ -14,7 +14,11 @@ ObjectStack Console provides a modern, responsive admin interface that:
 
 ## 🏗️ Architecture
 
-The console runs the ObjectStack Runtime directly in the browser using MSW (Mock Service Worker), enabling full offline development.
+The console supports two runtime modes:
+
+### MSW Mode (Default)
+
+Runs the ObjectStack Runtime directly in the browser using MSW (Mock Service Worker), enabling full offline development.
 
 ```mermaid
 graph TD
@@ -25,17 +29,40 @@ graph TD
     Kernel -.->|Reads| Config["objectstack.config.ts"]
 ```
 
+### Server Mode
+
+Connects to a real ObjectStack server for production use or integration testing.
+
+```mermaid
+graph TD
+    Console["Console App"] -->|REST API| Server["ObjectStack Server"]
+    Server -->|Processes| Kernel["ObjectStack Kernel"]
+    Kernel -->|Uses| Driver["Database Driver"]
+```
+
 ## 🚀 Quick Start
 
 ```bash
 # Install dependencies
 pnpm install
 
-# Start development server
+# Start development server (MSW mode)
 pnpm dev
+
+# Start in server mode (connects to real backend)
+VITE_RUNTIME_MODE=server VITE_SERVER_URL=http://localhost:5000/api/v1 pnpm dev
 ```
 
 The console will be available at `http://localhost:3000`.
+
+## ⚙️ Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `VITE_RUNTIME_MODE` | `msw` | Runtime mode: `msw` or `server` |
+| `VITE_SERVER_URL` | `http://localhost:5000/api/v1` | Server URL (server mode only) |
+
+Copy `.env.example` to `.env.local` to customize:
 
 ## 📁 Project Structure
 
