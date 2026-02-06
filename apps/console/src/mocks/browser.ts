@@ -3,7 +3,10 @@
  * 
  * This creates a complete ObjectStack environment in the browser using the In-Memory Driver
  * and the MSW Plugin which automatically exposes the API.
- * Supports multiple app packages (app-todo, app-crm, etc.)
+ * 
+ * NOTE: The console does NOT hardcode a list of app packages. The app list is
+ * fetched dynamically from the server API via `GET /api/v1/meta/apps`.
+ * The imports here are only used to boot the in-browser kernel (MSW mode).
  */
 import { ObjectKernel } from '@objectstack/runtime';
 import todoConfig from '@example/app-todo/objectstack.config';
@@ -12,50 +15,48 @@ import { createKernel } from './createKernel';
 
 let kernel: ObjectKernel | null = null;
 
-/** All available app packages */
+/**
+ * AppPackage — derived from the `apps` metadata type (AppSchema in spec).
+ * All fields come from the server API, NOT from frontend config.
+ */
 export interface AppPackage {
-  id: string;
+  /** Machine name (snake_case), e.g. 'crm_enterprise' */
   name: string;
+  /** Display label, e.g. 'Enterprise CRM' */
   label: string;
+  /** Description */
   description?: string;
+  /** Icon name (Lucide) */
   icon?: string;
-  config: any;
+  /** Navigation tree */
+  navigation?: any[];
+  /** Branding */
+  branding?: any;
+  /** Whether app is active */
+  active?: boolean;
 }
 
 function resolveConfig(raw: any) {
   return (raw as any).default || raw;
 }
 
-export const appPackages: AppPackage[] = [
-  {
-    id: 'com.example.todo',
-    name: 'todo_app',
-    label: 'Todo App',
-    description: 'A simple Todo example',
-    icon: 'check-square',
-    config: resolveConfig(todoConfig),
-  },
-  {
-    id: 'com.example.crm',
-    name: 'crm_app',
-    label: 'Enterprise CRM',
-    description: 'Comprehensive enterprise CRM',
-    icon: 'briefcase',
-    config: resolveConfig(crmConfig),
-  },
+/**
+ * App configs used ONLY for kernel bootstrapping in MSW (browser) mode.
+ * The UI never reads this directly — it discovers apps via the meta API.
+ */
+const bootConfigs = [
+  resolveConfig(todoConfig),
+  resolveConfig(crmConfig),
 ];
 
 export async function startMockServer() {
   if (kernel) return;
 
   console.log('[MSW] Starting ObjectStack Runtime (Browser Mode)...');
-  console.log('[MSW] Loading apps:', appPackages.map(a => a.label));
-
-  const appConfigs = appPackages.map(a => a.config);
 
   // Use shared factory with multi-app support
   kernel = await createKernel({
-    appConfigs,
+    appConfigs: bootConfigs,
     enableBrowser: true
   });
 

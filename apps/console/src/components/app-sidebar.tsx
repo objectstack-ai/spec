@@ -87,7 +87,7 @@ function getTypeIcon(type: string): LucideIcon {
 }
 
 /** Types that are internal / should be hidden from the sidebar */
-const HIDDEN_TYPES = new Set(['plugin', 'plugins', 'kind', 'app']);
+const HIDDEN_TYPES = new Set(['plugin', 'plugins', 'kind', 'app', 'apps']);
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   client: ObjectStackClient | null;
@@ -177,10 +177,10 @@ export function AppSidebar({ client, selectedObject, onSelectObject, apps, selec
               </div>
               <div className="flex flex-1 flex-col gap-0.5 leading-none overflow-hidden">
                 <span className="truncate font-semibold text-sm">
-                  {selectedApp ? selectedApp.label : 'ObjectStack'}
+                  {selectedApp ? (selectedApp.label || selectedApp.name) : 'ObjectStack'}
                 </span>
                 <span className="truncate text-xs text-muted-foreground">
-                  {selectedApp ? selectedApp.description : 'Select an app'}
+                  {selectedApp ? (selectedApp.description || 'No description') : 'Loading apps...'}
                 </span>
               </div>
               <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 text-muted-foreground" />
@@ -193,7 +193,7 @@ export function AppSidebar({ client, selectedObject, onSelectObject, apps, selec
               const Icon = app.icon ? (APP_ICONS[app.icon] || Package) : Package;
               return (
                 <DropdownMenuItem
-                  key={app.id}
+                  key={app.name}
                   onClick={() => onSelectApp(app)}
                   className="gap-2 py-2"
                 >
@@ -201,12 +201,12 @@ export function AppSidebar({ client, selectedObject, onSelectObject, apps, selec
                     <Icon className="h-3.5 w-3.5" />
                   </div>
                   <div className="flex flex-1 flex-col leading-tight">
-                    <span className="text-sm font-medium">{app.label}</span>
+                    <span className="text-sm font-medium">{app.label || app.name}</span>
                     {app.description && (
                       <span className="text-xs text-muted-foreground">{app.description}</span>
                     )}
                   </div>
-                  {selectedApp?.id === app.id && (
+                  {selectedApp?.name === app.name && (
                     <Check className="h-4 w-4 text-primary" />
                   )}
                 </DropdownMenuItem>

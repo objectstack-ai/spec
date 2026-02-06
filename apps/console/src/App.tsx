@@ -9,7 +9,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Database, Layers, Sparkles, Zap } from 'lucide-react';
 import { getApiBaseUrl, config } from './lib/config';
-import { appPackages, type AppPackage } from './mocks/browser';
+import type { AppPackage } from './mocks/browser';
 
 function DashboardWelcome() {
   return (
@@ -119,13 +119,14 @@ function DashboardWelcome() {
 
 export default function App() {
   const [client, setClient] = useState<ObjectStackClient | null>(null);
+  const [apps, setApps] = useState<AppPackage[]>([]);
+  const [selectedApp, setSelectedApp] = useState<AppPackage | null>(null);
   const [selectedObject, setSelectedObject] = useState<string | null>(null);
   const [editingRecord, setEditingRecord] = useState<any>(null);
   const [showForm, setShowForm] = useState(false);
-  const [selectedApp, setSelectedApp] = useState<AppPackage>(appPackages[0]);
 
+  // 1. Create client
   useEffect(() => {
-    // Use the configured API base URL based on runtime mode (MSW or Server)
     const baseUrl = getApiBaseUrl();
     console.log(`[App] Connecting to API: ${baseUrl} (mode: ${config.mode})`);
     
@@ -134,6 +135,32 @@ export default function App() {
     });
     setClient(newClient);
   }, []);
+
+  // 2. Fetch app list from the server API (not hardcoded)
+  useEffect(() => {
+    if (!client) return;
+    let mounted = true;
+
+    async function loadApps() {
+      try {
+        // Spec: GET /api/v1/meta/apps → GetMetaItemsResponse = { type: 'apps', items: AppSchema[] }
+        const result: any = await client!.meta.getItems('apps');
+        const items: AppPackage[] = result?.items || result?.value || (Array.isArray(result) ? result : []);
+        
+        console.log('[App] Fetched apps from API:', items.map((a: any) => a.label || a.name));
+        
+        if (mounted && items.length > 0) {
+          setApps(items);
+          setSelectedApp(items[0]);
+        }
+      } catch (err) {
+        console.error('[App] Failed to fetch apps from API:', err);
+      }
+    }
+
+    loadApps();
+    return () => { mounted = false; };
+  }, [client]);
 
   function handleEdit(record: any) {
     setEditingRecord(record);
@@ -167,12 +194,12 @@ export default function App() {
         client={client} 
         selectedObject={selectedObject} 
         onSelectObject={(name) => setSelectedObject(name || null)}
-        apps={appPackages}
+        apps={apps}
         selectedApp={selectedApp}
         onSelectApp={handleSelectApp}
       />
       <main className="flex min-w-0 flex-1 flex-col bg-background">
-        <SiteHeader selectedObject={selectedObject} appLabel={selectedApp?.label} />
+        <SiteHeader selectedObject={selectedObject} appLabel={selectedApp?.label || selectedApp?.name} />
         <div className="flex flex-1 flex-col overflow-hidden">
           {selectedObject ? (
             <div className="flex flex-1 flex-col gap-4 p-4">
