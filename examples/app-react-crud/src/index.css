@@ -82,10 +82,10 @@
   }
 
   body {
-    background-color: var(--background);
-    color: var(--foreground);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    font-family: 'Inter', sans-serif;
+    @apply bg-background text-foreground;
+  }
+  
+  * {
+    @apply border-border;
   }
 }

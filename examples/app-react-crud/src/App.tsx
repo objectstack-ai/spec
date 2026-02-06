@@ -16,7 +16,6 @@ import { ObjectDataForm } from './components/ObjectDataForm';
 import { Badge } from "@/components/ui/badge";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 
 export function App() {
   const [client, setClient] = useState<ObjectStackClient | null>(null);
@@ -52,11 +51,6 @@ export function App() {
 
   // --- Actions ---
 
-  const handleCreate = () => {
-    setEditingRecord(null); // New record
-    setView('form');
-  };
-
   const handleEdit = (record: any) => {
     setEditingRecord(record);
     setView('form');
@@ -80,7 +74,7 @@ export function App() {
   }
 
   return (
-    <div className="min-h-screen bg-background font-sans flex flex-col text-foreground">
+    <div className="h-screen bg-background font-sans flex flex-col text-foreground overflow-hidden">
       {/* Top Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center px-4 md:px-6">
@@ -103,54 +97,58 @@ export function App() {
       </header>
 
       {/* Main Layout */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <aside className="hidden w-64 flex-col border-r bg-muted/10 md:flex">
-             <div className="p-4 font-medium text-sm text-muted-foreground uppercase tracking-wider">
-                Explorer
+      <ResizablePanelGroup orientation="horizontal" className="flex-1 w-full border-t">
+        <ResizablePanel defaultSize={20} minSize={15} maxSize={30} className="hidden md:flex flex-col bg-muted/10">
+             <div className="flex h-[52px] items-center px-4 border-b">
+                 <h2 className="font-semibold tracking-tight text-sm">Explorer</h2>
              </div>
-             <div className="flex-1 overflow-hidden px-2 pb-4">
-                <MetadataExplorer 
-                    client={client} 
-                    selectedObject={selectedObject}
-                    onSelectObject={(obj) => {
-                       setSelectedObject(obj);
-                       setView('list'); 
-                       setEditingRecord(null);
-                    }}
-                />
-             </div>
-        </aside>
-
-        {/* Content Area */}
-        <main className="flex-1 overflow-hidden p-4 md:p-6 flex flex-col bg-muted/20 relative">
-            {selectedObject ? (
-                <>
-                    <ObjectDataTable 
-                        key={`${selectedObject}-${refreshKey}`}
-                        client={client}
-                        objectApiName={selectedObject}
-                        onEdit={handleEdit}
+             <ScrollArea className="flex-1">
+                 <div className="p-4">
+                    <MetadataExplorer 
+                        client={client} 
+                        selectedObject={selectedObject}
+                        onSelectObject={(obj) => {
+                        setSelectedObject(obj);
+                        setView('list'); 
+                        setEditingRecord(null);
+                        }}
                     />
-                    {view === 'form' && (
-                        <ObjectDataForm 
+                 </div>
+             </ScrollArea>
+        </ResizablePanel>
+
+        <ResizableHandle withHandle />
+
+        <ResizablePanel defaultSize={80}>
+             <main className="h-full overflow-hidden p-4 md:p-6 flex flex-col bg-muted/20 relative">
+                {selectedObject ? (
+                    <>
+                        <ObjectDataTable 
+                            key={`${selectedObject}-${refreshKey}`}
                             client={client}
                             objectApiName={selectedObject}
-                            record={editingRecord}
-                            onSuccess={handleFormSuccess}
-                            onCancel={() => setView('list')}
+                            onEdit={handleEdit}
                         />
-                    )}
-                </>
-            ) : (
-                <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                    <Database className="h-12 w-12 mb-4 opacity-20" />
-                    <div className="text-xl font-medium">Select an Object</div>
-                    <p className="opacity-60">Choose an object from the sidebar to manage data.</p>
-                </div>
-            )}
-        </main>
-      </div>
+                        {view === 'form' && (
+                            <ObjectDataForm 
+                                client={client}
+                                objectApiName={selectedObject}
+                                record={editingRecord}
+                                onSuccess={handleFormSuccess}
+                                onCancel={() => setView('list')}
+                            />
+                        )}
+                    </>
+                ) : (
+                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                        <Database className="h-12 w-12 mb-4 opacity-20" />
+                        <div className="text-xl font-medium">Select an Object</div>
+                        <p className="opacity-60">Choose an object from the sidebar to manage data.</p>
+                    </div>
+                )}
+            </main>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 }
