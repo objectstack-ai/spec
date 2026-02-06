@@ -66,8 +66,13 @@ ObjectStack centralizes the "Intent" into a **single Protocol Definition**. The 
 
 ```typescript
 // ONE definition (in objectstack.config.ts)
-export const User = Object({
+import { ObjectSchema, Field } from '@objectstack/spec/data';
+
+export const User = ObjectSchema.create({
   name: 'user',
+  label: 'User',
+  icon: 'user',
+  
   fields: {
     phone: Field.phone({
       label: 'Phone Number',
@@ -76,6 +81,8 @@ export const User = Object({
   },
 });
 ```
+
+> **📘 Syntax Rules**: Always use `ObjectSchema.create()` with `Field.*` helpers for strict TypeScript validation and runtime checking. See [Object Definition Rules](#object-definition-rules) below.
 
 From this single definition, ObjectStack automatically:
 
@@ -188,14 +195,31 @@ React           Flutter
 
 ```typescript
 // All you need:
-export const Task = Object({
+import { ObjectSchema, Field } from '@objectstack/spec/data';
+
+export const Task = ObjectSchema.create({
   name: 'task',
+  label: 'Task',
+  icon: 'check-square',
+  
   fields: {
-    title: Field.text({ required: true }),
-    status: Field.select({
-      options: ['todo', 'in_progress', 'done'],
+    title: Field.text({ 
+      label: 'Title',
+      required: true,
     }),
-    assignee: Field.lookup({ object: 'user' }),
+    
+    status: Field.select({
+      label: 'Status',
+      options: [
+        { label: 'To Do', value: 'todo', default: true },
+        { label: 'In Progress', value: 'in_progress' },
+        { label: 'Done', value: 'done' },
+      ],
+    }),
+    
+    assignee: Field.lookup('user', {
+      label: 'Assignee',
+    }),
   },
 });
 
@@ -245,6 +269,223 @@ You specify **exactly how** to draw each pixel.
 | **Type Safety** | Manual synchronization | Automatic from Zod |
 | **Flexibility** | Locked to tech stack | Technology agnostic |
 | **Boilerplate** | High (300+ lines) | Low (30 lines) |
+
+## Object Definition Rules
+
+When defining objects and metadata in ObjectStack, follow these strict rules and principles:
+
+### 1. Always Use `ObjectSchema.create()` with `Field.*` Helpers
+
+**✅ Correct:**
+```typescript
+import { ObjectSchema, Field } from '@objectstack/spec/data';
+
+export const Account = ObjectSchema.create({
+  name: 'account',
+  label: 'Account',
+  fields: {
+    name: Field.text({ required: true }),
+    industry: Field.select({
+      options: [
+        { label: 'Technology', value: 'technology' },
+        { label: 'Finance', value: 'finance' },
+      ],
+    }),
+  },
+});
+```
+
+**❌ Deprecated:**
+```typescript
+// Old pattern - no runtime validation
+const Account: ServiceObject = {
+  name: 'account',
+  fields: {
+    name: { type: 'text', required: true }
+  }
+};
+```
+
+**Why?**
+- ✅ **Type Safety**: Compile-time type checking via `z.input<typeof ObjectSchemaBase>`
+- ✅ **Runtime Validation**: Zod validates structure at runtime
+- ✅ **IDE Autocomplete**: Field helpers provide intelligent code completion
+- ✅ **Error Prevention**: Catches typos and invalid configurations immediately
+
+### 2. Naming Conventions
+
+Follow these strict naming conventions for consistency:
+
+| Element | Convention | Examples |
+|---------|-----------|----------|
+| **Object Names** (machine names) | `snake_case` | `todo_task`, `project_milestone`, `user_profile` |
+| **Field Names** (machine names) | `snake_case` | `first_name`, `annual_revenue`, `is_active` |
+| **Constant Names** (exports) | `PascalCase` | `TodoTask`, `ProjectMilestone`, `UserProfile` |
+| **Configuration Keys** (props) | `camelCase` | `maxLength`, `defaultValue`, `referenceFilters` |
+
+**Example:**
+```typescript
+// ✅ Correct naming
+export const TodoTask = ObjectSchema.create({
+  name: 'todo_task',                    // snake_case machine name
+  label: 'Todo Task',
+  
+  fields: {
+    due_date: Field.date({              // snake_case field name
+      label: 'Due Date',
+      defaultValue: null,               // camelCase config key
+    }),
+  },
+});
+```
+
+### 3. Select Field Options Must Use Label/Value Objects
+
+**✅ Correct:**
+```typescript
+status: Field.select({
+  label: 'Status',
+  options: [
+    { label: 'Open', value: 'open', default: true },
+    { label: 'In Progress', value: 'in_progress' },
+    { label: 'Closed', value: 'closed' },
+  ],
+}),
+```
+
+**❌ Incorrect:**
+```typescript
+status: Field.select({
+  options: ['open', 'in_progress', 'closed'], // Wrong!
+}),
+```
+
+**Why?** Option values are machine identifiers stored in the database and must be lowercase to avoid case-sensitivity issues in queries.
+
+### 4. Lookup Fields Must Specify Target Object
+
+**✅ Correct:**
+```typescript
+owner: Field.lookup('user', {
+  label: 'Owner',
+  required: true,
+}),
+```
+
+**❌ Incorrect:**
+```typescript
+owner: Field.lookup({
+  object: 'user',  // Wrong property name
+}),
+```
+
+### 5. Always Include Descriptive Labels
+
+**✅ Correct:**
+```typescript
+annual_revenue: Field.currency({
+  label: 'Annual Revenue',
+  scale: 2,
+  min: 0,
+}),
+```
+
+**❌ Avoid:**
+```typescript
+annual_revenue: Field.currency({
+  // Missing label - field name will be used as fallback
+}),
+```
+
+### 6. Use Enable Flags for Object Capabilities
+
+```typescript
+export const Account = ObjectSchema.create({
+  name: 'account',
+  label: 'Account',
+  
+  fields: { /* ... */ },
+  
+  enable: {
+    trackHistory: true,     // Enable field history tracking
+    searchable: true,       // Include in global search
+    apiEnabled: true,       // Expose via REST/GraphQL
+    files: true,            // Enable file attachments
+    feeds: true,            // Enable activity feed
+    activities: true,       // Enable tasks and events
+    trash: true,            // Enable soft delete
+    mru: true,              // Track Most Recently Used
+  },
+});
+```
+
+### Quick Reference
+
+```typescript
+import { ObjectSchema, Field } from '@objectstack/spec/data';
+
+export const ExampleObject = ObjectSchema.create({
+  name: 'example_object',           // Required: snake_case
+  label: 'Example Object',          // Required: Human-readable
+  pluralLabel: 'Example Objects',   // Optional
+  icon: 'box',                      // Optional: Lucide icon name
+  description: 'Description text',  // Optional
+  
+  fields: {
+    // Text field
+    text_field: Field.text({
+      label: 'Text Field',
+      required: true,
+      maxLength: 255,
+    }),
+    
+    // Number field
+    number_field: Field.number({
+      label: 'Number',
+      min: 0,
+      max: 100,
+    }),
+    
+    // Currency field
+    price: Field.currency({
+      label: 'Price',
+      scale: 2,
+      min: 0,
+    }),
+    
+    // Select field
+    status: Field.select({
+      label: 'Status',
+      options: [
+        { label: 'Active', value: 'active', default: true },
+        { label: 'Inactive', value: 'inactive' },
+      ],
+    }),
+    
+    // Lookup field
+    owner: Field.lookup('user', {
+      label: 'Owner',
+      required: true,
+    }),
+    
+    // Boolean field
+    is_active: Field.boolean({
+      label: 'Active',
+      defaultValue: true,
+    }),
+    
+    // Date field
+    due_date: Field.date({
+      label: 'Due Date',
+    }),
+  },
+  
+  enable: {
+    trackHistory: true,
+    apiEnabled: true,
+  },
+});
+```
 
 ## Next Steps
 
