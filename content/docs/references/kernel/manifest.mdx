@@ -59,7 +59,7 @@ const result = Manifest.parse(data);
 | :--- | :--- | :--- | :--- |
 | **id** | `string` | ✅ | Unique package identifier (reverse domain style) |
 | **version** | `string` | ✅ | Package version (semantic versioning) |
-| **type** | `Enum<'app' \| 'plugin' \| 'driver' \| 'module' \| 'objectql' \| 'gateway' \| 'adapter'>` | ✅ | Type of package |
+| **type** | `Enum<'plugin' \| 'ui' \| 'driver' \| 'server' \| 'app' \| 'theme' \| 'agent' \| 'objectql' \| 'module' \| 'gateway' \| 'adapter'>` | ✅ | Type of package |
 | **name** | `string` | ✅ | Human-readable package name |
 | **description** | `string` | optional | Package description |
 | **permissions** | `string[]` | optional | Array of required permission strings |

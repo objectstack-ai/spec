@@ -3,9 +3,9 @@ title: Plugin
 description: Plugin protocol schemas
 ---
 
-Define an ObjectStack Plugin
+Shared Plugin Types
 
-Helper function for creating type-safe plugin definitions
+These are the specialized plugin types common between Manifest (Package) and Plugin (Runtime).
 
 <Callout type="info">
 **Source:** `packages/spec/src/kernel/plugin.zod.ts`
@@ -30,6 +30,10 @@ const result = Plugin.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **id** | `string` | optional | Unique Plugin ID (e.g. com.example.crm) |
+| **type** | `Enum<'standard' \| 'ui' \| 'driver' \| 'server' \| 'app' \| 'theme' \| 'agent' \| 'objectql'>` | optional | Plugin Type categorization for runtime behavior |
+| **staticPath** | `string` | optional | Absolute path to static assets (Required for type="ui-plugin") |
+| **slug** | `string` | optional | URL path segment (Required for type="ui-plugin") |
+| **default** | `boolean` | optional | Serve at root path (Only one "ui-plugin" can be default) |
 | **version** | `string` | optional | Semantic Version |
 | **description** | `string` | optional |  |
 | **author** | `string` | optional |  |
