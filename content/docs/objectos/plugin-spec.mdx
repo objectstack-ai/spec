@@ -231,54 +231,43 @@ Define database objects using ObjectQL schema syntax:
 
 ```typescript
 // src/objects/account.object.ts
-import { defineObject } from '@objectstack/core';
+import { ObjectSchema, Field } from '@objectstack/spec/data';
 
-export default defineObject({
+export const Account = ObjectSchema.create({
   name: 'account',
   label: 'Account',
   pluralLabel: 'Accounts',
+  icon: 'building',
   
   fields: {
-    name: {
-      type: 'text',
+    name: Field.text({
       label: 'Account Name',
       required: true,
       maxLength: 255,
-    },
+    }),
     
-    industry: {
-      type: 'select',
+    industry: Field.select({
       label: 'Industry',
       options: [
-        { value: 'technology', label: 'Technology' },
-        { value: 'finance', label: 'Finance' },
-        { value: 'healthcare', label: 'Healthcare' },
+        { label: 'Technology', value: 'technology' },
+        { label: 'Finance', value: 'finance' },
+        { label: 'Healthcare', value: 'healthcare' },
       ],
-    },
+    }),
     
-    annual_revenue: {
-      type: 'currency',
+    annual_revenue: Field.currency({
       label: 'Annual Revenue',
-      precision: 2,
-    },
+      scale: 2,
+    }),
     
-    primary_contact: {
-      type: 'lookup',
+    primary_contact: Field.lookup('contact', {
       label: 'Primary Contact',
-      reference: 'contact',
-    },
-    
-    opportunities: {
-      type: 'reverse_lookup',
-      label: 'Opportunities',
-      reference: 'opportunity',
-      referenceField: 'account',
-    },
+    }),
   },
   
   enable: {
     trackHistory: true,
-    search: true,
+    searchable: true,
     apiEnabled: true,
   },
 });

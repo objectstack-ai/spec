@@ -52,27 +52,68 @@ When the user asks for a configuration, simulate this internal validation proces
 **Internal Zod Check:**
 *   `ObjectSchema`: keys `name`, `fields` are required. `name` must be snake_case regex.
 *   `FieldSchema`:
-    *   `status`: type `select`, requires `options` array.
+    *   `status`: type `select`, requires `options` array with value/label pairs.
     *   `budget`: type `currency`, `scale` defaults to 2.
 
 **Generated Code:**
 ```typescript
-import { ObjectSchema } from '@objectstack/spec/data';
+import { ObjectSchema, Field } from '@objectstack/spec/data';
 
-export const ProjectObject: ObjectSchema = {
-  name: 'project',              // ✅ Validates regex /^[a-z_]+$/
+export const Project = ObjectSchema.create({
+  name: 'project',              // ✅ Validates regex /^[a-z_][a-z0-9_]*$/ (snake_case with numbers allowed after first char)
   label: 'Project',
+  icon: 'folder',
+  
+  fields: {
+    title: Field.text({
+      label: 'Project Title',
+      required: true,
+      maxLength: 255,
+    }),
+    
+    status: Field.select({
+      label: 'Status',
+      options: [                // ✅ Required for select fields
+        { label: 'New', value: 'new', default: true },
+        { label: 'Active', value: 'active' },
+        { label: 'Done', value: 'done' },
+      ],
+    }),
+    
+    budget: Field.currency({
+      label: 'Total Budget',
+      scale: 2,                 // ✅ Valid prop for currency
+      min: 0,
+    }),
+    
+    owner: Field.lookup('user', {
+      label: 'Project Owner',
+      required: true,
+    }),
+  },
+  
+  enable: {
+    trackHistory: true,
+    apiEnabled: true,
+    files: true,
+  },
+});
+```
+
+**❌ DEPRECATED Pattern (Type Annotation Only):**
+```typescript
+// This pattern is deprecated - use ObjectSchema.create() instead
+import type { ServiceObject } from '@objectstack/spec/data';
+
+export const ProjectObject: ServiceObject = {
+  name: 'project',
   fields: {
     status: {
-      type: 'select',           // ✅ Validates Enum
-      options: ['New', 'Active', 'Done'], // ✅ Required for type='select'
-      label: 'Status'
+      type: 'select',
+      options: ['New', 'Active', 'Done'], // Wrong: should use {label, value} format
     },
     budget: {
       type: 'currency',
-      scale: 2,                 // ✅ Valid prop for currency
-      precision: 18,
-      label: 'Total Budget'
     }
   }
 };

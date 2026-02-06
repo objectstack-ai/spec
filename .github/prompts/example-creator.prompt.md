@@ -54,64 +54,51 @@ Create minimal examples for getting started.
 **Todo App Example:**
 ```typescript
 // examples/todo/src/objects/task.ts
-import { ObjectSchema } from '@objectstack/spec';
+import { ObjectSchema, Field } from '@objectstack/spec/data';
 
-export const Task = ObjectSchema.parse({
+export const Task = ObjectSchema.create({
   name: 'task',
   label: 'Task',
   icon: 'check-square',
   
   fields: {
-    title: {
-      name: 'title',
+    title: Field.text({
       label: 'Title',
-      type: 'text',
       required: true,
       maxLength: 200,
-    },
+    }),
     
-    description: {
-      name: 'description',
+    description: Field.textarea({
       label: 'Description',
-      type: 'textarea',
-    },
+    }),
     
-    status: {
-      name: 'status',
+    status: Field.select({
       label: 'Status',
-      type: 'select',
       required: true,
-      defaultValue: 'todo',
       options: [
-        { label: 'To Do', value: 'todo' },
+        { label: 'To Do', value: 'todo', default: true },
         { label: 'In Progress', value: 'in_progress' },
         { label: 'Done', value: 'done' },
       ],
-    },
+    }),
     
-    priority: {
-      name: 'priority',
+    priority: Field.select({
       label: 'Priority',
-      type: 'select',
       options: [
         { label: 'Low', value: 'low' },
-        { label: 'Medium', value: 'medium' },
+        { label: 'Medium', value: 'medium', default: true },
         { label: 'High', value: 'high' },
       ],
-    },
+    }),
     
-    due_date: {
-      name: 'due_date',
+    due_date: Field.date({
       label: 'Due Date',
-      type: 'date',
-    },
+    }),
     
-    completed_at: {
-      name: 'completed_at',
+    completed_at: Field.datetime({
       label: 'Completed At',
-      type: 'datetime',
       readonly: true,
-    },
+    }),
   },
   
   enable: {
@@ -127,62 +114,49 @@ Create examples demonstrating specific features.
 **Lookup Relationship Example:**
 ```typescript
 // examples/features/lookup-fields/src/objects/order.ts
-export const Order = ObjectSchema.parse({
+import { ObjectSchema, Field } from '@objectstack/spec/data';
+
+export const Order = ObjectSchema.create({
   name: 'order',
   label: 'Order',
   
   fields: {
-    order_number: {
-      name: 'order_number',
-      type: 'autonumber',
+    order_number: Field.autonumber({
       label: 'Order Number',
-    },
+      format: 'ORD-{0000}',
+    }),
     
     // Lookup to customer
-    customer_id: {
-      name: 'customer_id',
+    customer: Field.lookup('customer', {
       label: 'Customer',
-      type: 'lookup',
-      reference: 'customer',
-      referenceField: 'name',
       required: true,
-    },
+    }),
     
     // Lookup to product
-    product_id: {
-      name: 'product_id',
+    product: Field.lookup('product', {
       label: 'Product',
-      type: 'lookup',
-      reference: 'product',
-      referenceField: 'name',
       required: true,
-    },
+    }),
     
     // Formula field using lookup
-    unit_price: {
-      name: 'unit_price',
+    unit_price: Field.formula({
       label: 'Unit Price',
-      type: 'formula',
-      expression: 'LOOKUP(product_id, "price")',
+      expression: 'LOOKUP(product, "price")',
       returnType: 'currency',
-    },
+    }),
     
-    quantity: {
-      name: 'quantity',
+    quantity: Field.number({
       label: 'Quantity',
-      type: 'number',
       required: true,
       min: 1,
-    },
+    }),
     
     // Formula field calculating total
-    total: {
-      name: 'total',
+    total: Field.formula({
       label: 'Total',
-      type: 'formula',
       expression: 'unit_price * quantity',
       returnType: 'currency',
-    },
+    }),
   },
 });
 ```
@@ -190,35 +164,30 @@ export const Order = ObjectSchema.parse({
 **Master-Detail Relationship Example:**
 ```typescript
 // examples/features/master-detail/src/objects/order-item.ts
-export const OrderItem = ObjectSchema.parse({
+import { ObjectSchema, Field } from '@objectstack/spec/data';
+
+export const OrderItem = ObjectSchema.create({
   name: 'order_item',
   label: 'Order Item',
   
   fields: {
     // Master-detail relationship (cascade delete)
-    order_id: {
-      name: 'order_id',
+    order: Field.masterDetail('order', {
       label: 'Order',
-      type: 'master_detail',
-      reference: 'order',
       cascade: 'delete', // Delete items when order is deleted
       required: true,
-    },
+    }),
     
-    product_id: {
-      name: 'product_id',
+    product: Field.lookup('product', {
       label: 'Product',
-      type: 'lookup',
-      reference: 'product',
       required: true,
-    },
+    }),
     
-    quantity: {
-      name: 'quantity',
+    quantity: Field.number({
       label: 'Quantity',
-      type: 'number',
       required: true,
-    },
+      min: 1,
+    }),
   },
 });
 ```
@@ -229,64 +198,62 @@ Create examples based on common use cases.
 **E-commerce Example:**
 ```typescript
 // examples/ecommerce/src/objects/product.ts
-export const Product = ObjectSchema.parse({
+import { ObjectSchema, Field } from '@objectstack/spec/data';
+
+export const Product = ObjectSchema.create({
   name: 'product',
   label: 'Product',
+  icon: 'package',
   
   fields: {
-    name: {
-      name: 'name',
+    name: Field.text({
       label: 'Product Name',
-      type: 'text',
       required: true,
-    },
+      maxLength: 255,
+    }),
     
-    sku: {
-      name: 'sku',
+    sku: Field.text({
       label: 'SKU',
-      type: 'text',
       required: true,
       unique: true,
-    },
+    }),
     
-    price: {
-      name: 'price',
+    price: Field.currency({
       label: 'Price',
-      type: 'currency',
       required: true,
-    },
+      scale: 2,
+      min: 0,
+    }),
     
-    stock_quantity: {
-      name: 'stock_quantity',
+    stock_quantity: Field.number({
       label: 'Stock Quantity',
-      type: 'number',
       required: true,
       min: 0,
-    },
+    }),
     
-    category: {
-      name: 'category',
+    category: Field.select({
       label: 'Category',
-      type: 'select',
       options: [
         { label: 'Electronics', value: 'electronics' },
         { label: 'Clothing', value: 'clothing' },
         { label: 'Books', value: 'books' },
       ],
-    },
+    }),
     
-    images: {
-      name: 'images',
+    images: Field.image({
       label: 'Images',
-      type: 'image',
       multiple: true,
-    },
+    }),
     
-    description: {
-      name: 'description',
+    description: Field.html({
       label: 'Description',
-      type: 'html',
-    },
+    }),
+  },
+  
+  enable: {
+    apiEnabled: true,
+    searchable: true,
+    files: true,
   },
 });
 ```
@@ -294,79 +261,70 @@ export const Product = ObjectSchema.parse({
 **HR Management Example:**
 ```typescript
 // examples/hr/src/objects/employee.ts
-export const Employee = ObjectSchema.parse({
+import { ObjectSchema, Field } from '@objectstack/spec/data';
+
+export const Employee = ObjectSchema.create({
   name: 'employee',
   label: 'Employee',
+  pluralLabel: 'Employees',
+  icon: 'user',
   
   fields: {
-    employee_id: {
-      name: 'employee_id',
+    employee_id: Field.autonumber({
       label: 'Employee ID',
-      type: 'autonumber',
-    },
+      format: 'EMP-{0000}',
+    }),
     
-    first_name: {
-      name: 'first_name',
+    first_name: Field.text({
       label: 'First Name',
-      type: 'text',
       required: true,
-    },
+    }),
     
-    last_name: {
-      name: 'last_name',
+    last_name: Field.text({
       label: 'Last Name',
-      type: 'text',
       required: true,
-    },
+    }),
     
-    email: {
-      name: 'email',
+    email: Field.email({
       label: 'Work Email',
-      type: 'email',
       required: true,
       unique: true,
-    },
+    }),
     
-    department_id: {
-      name: 'department_id',
+    department: Field.lookup('department', {
       label: 'Department',
-      type: 'lookup',
-      reference: 'department',
-    },
+    }),
     
-    manager_id: {
-      name: 'manager_id',
+    manager: Field.lookup('employee', {
       label: 'Manager',
-      type: 'lookup',
-      reference: 'employee',
-      referenceField: 'full_name',
-    },
+      description: 'Reports to',
+    }),
     
-    hire_date: {
-      name: 'hire_date',
+    hire_date: Field.date({
       label: 'Hire Date',
-      type: 'date',
       required: true,
-    },
+    }),
     
-    salary: {
-      name: 'salary',
+    salary: Field.currency({
       label: 'Salary',
-      type: 'currency',
-    },
+      scale: 2,
+    }),
     
-    status: {
-      name: 'status',
+    status: Field.select({
       label: 'Status',
-      type: 'select',
       required: true,
-      defaultValue: 'active',
       options: [
-        { label: 'Active', value: 'active' },
+        { label: 'Active', value: 'active', default: true },
         { label: 'On Leave', value: 'on_leave' },
         { label: 'Terminated', value: 'terminated' },
       ],
-    },
+    }),
+  },
+  
+  enable: {
+    trackHistory: true,
+    apiEnabled: true,
+    files: true,
   },
 });
 ```
@@ -377,48 +335,63 @@ Create examples showing advanced features.
 **Formula Field Example:**
 ```typescript
 // examples/advanced/formulas/src/objects/opportunity.ts
-export const Opportunity = ObjectSchema.parse({
+import { ObjectSchema, Field } from '@objectstack/spec/data';
+
+export const Opportunity = ObjectSchema.create({
   name: 'opportunity',
   label: 'Opportunity',
+  icon: 'dollar-sign',
   
   fields: {
-    // ... other fields
+    first_name: Field.text({
+      label: 'First Name',
+    }),
+    
+    last_name: Field.text({
+      label: 'Last Name',
+    }),
+    
+    account: Field.lookup('account', {
+      label: 'Account',
+      required: true,
+    }),
+    
+    amount: Field.currency({
+      label: 'Amount',
+      scale: 2,
+    }),
+    
+    close_date: Field.date({
+      label: 'Close Date',
+    }),
     
     // Simple formula
-    full_name: {
-      name: 'full_name',
+    full_name: Field.formula({
       label: 'Full Name',
-      type: 'formula',
       expression: 'first_name + " " + last_name',
       returnType: 'text',
-    },
+    }),
     
     // Formula with LOOKUP
-    account_industry: {
-      name: 'account_industry',
+    account_industry: Field.formula({
       label: 'Account Industry',
-      type: 'formula',
-      expression: 'LOOKUP(account_id, "industry")',
+      expression: 'LOOKUP(account, "industry")',
       returnType: 'text',
-    },
+    }),
     
     // Formula with conditional
-    risk_level: {
-      name: 'risk_level',
+    risk_level: Field.formula({
       label: 'Risk Level',
-      type: 'formula',
       expression: 'IF(amount > 100000, "High", IF(amount > 50000, "Medium", "Low"))',
       returnType: 'text',
-    },
+    }),
     
     // Formula with date calculation
-    days_to_close: {
-      name: 'days_to_close',
+    days_to_close: Field.formula({
       label: 'Days to Close',
-      type: 'formula',
       expression: 'DATEDIFF(close_date, TODAY(), "days")',
       returnType: 'number',
-    },
+    }),
   },
 });
 ```
@@ -426,36 +399,40 @@ export const Opportunity = ObjectSchema.parse({
 **Rollup Summary Example:**
 ```typescript
 // examples/advanced/rollups/src/objects/account.ts
-export const Account = ObjectSchema.parse({
+import { ObjectSchema, Field } from '@objectstack/spec/data';
+
+export const Account = ObjectSchema.create({
   name: 'account',
   label: 'Account',
+  pluralLabel: 'Accounts',
+  icon: 'building',
   
   fields: {
-    // ... other fields
+    name: Field.text({
+      label: 'Account Name',
+      required: true,
+    }),
     
     // Count related opportunities
-    opportunity_count: {
-      name: 'opportunity_count',
+    opportunity_count: Field.summary({
       label: 'Number of Opportunities',
-      type: 'rollup_summary',
-      relatedObject: 'opportunity',
-      relatedField: 'account_id',
-      aggregateFunction: 'count',
-    },
+      reference: 'opportunity',
+      summaryType: 'count',
+    }),
     
     // Sum related opportunities
-    total_opportunity_value: {
-      name: 'total_opportunity_value',
+    total_opportunity_value: Field.summary({
       label: 'Total Opportunity Value',
-      type: 'rollup_summary',
-      relatedObject: 'opportunity',
-      relatedField: 'account_id',
-      fieldToAggregate: 'amount',
-      aggregateFunction: 'sum',
-      filters: {
-        stage: { $ne: 'lost' }, // Exclude lost opportunities
-      },
-    },
+      reference: 'opportunity',
+      summaryType: 'sum',
+      summaryField: 'amount',
+      referenceFilters: [['stage', '!=', 'lost']], // Exclude lost opportunities
+    }),
+  },
+  
+  enable: {
+    trackHistory: true,
+    apiEnabled: true,
   },
 });
 ```

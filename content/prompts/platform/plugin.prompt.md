@@ -64,20 +64,48 @@ export default config;
 
 ### A. Define Objects (The Data Contract)
 **Reference:** `@objectstack/spec` -> `dist/data/object.zod.d.ts`
-Use Zod schemas to define business entities.
+Use `ObjectSchema.create()` with `Field.*` helpers for strict type checking and runtime validation.
 
 ```typescript
 // src/objects/todo.object.ts
-import { ObjectSchema } from '@objectstack/spec/data';
+import { ObjectSchema, Field } from '@objectstack/spec/data';
 
-export const TodoObject = {
+export const TodoTask = ObjectSchema.create({
   name: 'todo_item',
   label: 'Todo Item',
+  icon: 'check-square',
+  
   fields: {
-    title: { type: 'text', required: true },
-    is_completed: { type: 'boolean', defaultValue: false }
-  }
-};
+    title: Field.text({ 
+      label: 'Title',
+      required: true,
+      maxLength: 255,
+    }),
+    
+    is_completed: Field.boolean({ 
+      label: 'Completed',
+      defaultValue: false,
+    }),
+    
+    due_date: Field.date({
+      label: 'Due Date',
+    }),
+    
+    priority: Field.select({
+      label: 'Priority',
+      options: [
+        { label: 'Low', value: 'low' },
+        { label: 'Medium', value: 'medium', default: true },
+        { label: 'High', value: 'high' },
+      ],
+    }),
+  },
+  
+  enable: {
+    apiEnabled: true,
+    trackHistory: true,
+  },
+});
 ```
 
 ### B. Implement Logic (The Runtime)

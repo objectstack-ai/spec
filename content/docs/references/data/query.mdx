@@ -152,6 +152,7 @@ Type: `string`
 | **orderBy** | `Object[]` | optional | Sorting instructions (ORDER BY) |
 | **limit** | `number` | optional | Max records to return (LIMIT) |
 | **offset** | `number` | optional | Records to skip (OFFSET) |
+| **top** | `number` | optional | Alias for limit (OData compatibility) |
 | **cursor** | `Record<string, any>` | optional | Cursor for keyset pagination |
 | **joins** | `Object[]` | optional | Explicit Table Joins |
 | **aggregations** | `Object[]` | optional | Aggregation functions |
@@ -159,6 +160,7 @@ Type: `string`
 | **having** | `any` | optional | HAVING clause for aggregation filtering |
 | **windowFunctions** | `Object[]` | optional | Window functions with OVER clause |
 | **distinct** | `boolean` | optional | SELECT DISTINCT flag |
+| **expand** | `Record<string, any>` | optional | Recursive relation loading (nested queries) |
 
 
 ---

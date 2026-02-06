@@ -84,27 +84,37 @@ ObjectStack enforces **Separation of Concerns** through protocol boundaries:
 
 ```typescript
 // packages/crm/src/objects/customer.object.ts
-import { Object, Field } from '@objectstack/spec';
+import { ObjectSchema, Field } from '@objectstack/spec/data';
 
-export const Customer = Object({
+export const Customer = ObjectSchema.create({
   name: 'customer',
   label: 'Customer',
+  icon: 'building',
+  
   fields: {
     name: Field.text({
       label: 'Company Name',
       required: true,
       maxLength: 120,
     }),
+    
     industry: Field.select({
       label: 'Industry',
-      options: ['technology', 'finance', 'healthcare', 'retail'],
+      options: [
+        { label: 'Technology', value: 'technology' },
+        { label: 'Finance', value: 'finance' },
+        { label: 'Healthcare', value: 'healthcare' },
+        { label: 'Retail', value: 'retail' },
+      ],
     }),
+    
     annual_revenue: Field.currency({
       label: 'Annual Revenue',
+      scale: 2,
     }),
-    primary_contact: Field.lookup({
+    
+    primary_contact: Field.lookup('contact', {
       label: 'Primary Contact',
-      object: 'contact',
     }),
   },
 });
@@ -383,15 +393,37 @@ Here's how all three protocols collaborate for a **Kanban Board** feature:
 ### 1. ObjectQL: Define the Data
 
 ```typescript
-export const Opportunity = Object({
+import { ObjectSchema, Field } from '@objectstack/spec/data';
+
+export const Opportunity = ObjectSchema.create({
   name: 'opportunity',
+  label: 'Opportunity',
+  icon: 'target',
+  
   fields: {
-    title: Field.text({ required: true }),
-    stage: Field.select({
-      options: ['prospecting', 'qualification', 'proposal', 'closed_won'],
+    title: Field.text({ 
+      label: 'Title',
+      required: true,
     }),
-    amount: Field.currency(),
-    customer: Field.lookup({ object: 'customer' }),
+    
+    stage: Field.select({
+      label: 'Stage',
+      options: [
+        { label: 'Prospecting', value: 'prospecting', default: true },
+        { label: 'Qualification', value: 'qualification' },
+        { label: 'Proposal', value: 'proposal' },
+        { label: 'Closed Won', value: 'closed_won' },
+      ],
+    }),
+    
+    amount: Field.currency({
+      label: 'Amount',
+      scale: 2,
+    }),
+    
+    customer: Field.lookup('customer', {
+      label: 'Customer',
+    }),
   },
 });
 ```

@@ -76,48 +76,69 @@ A "Complete" application must define metadata across these 5 layers:
 ## 3. Implementation Patterns
 
 ### A. Defining a Complex Object (Account)
-// Definitions: dist/data/object.zod.d.ts
+
+Use `ObjectSchema.create()` with `Field.*` helpers for strict type checking and runtime validation.
 
 ```typescript
-import { ObjectSchema } from '@objectstack/spec/data';
+import { ObjectSchema, Field } from '@objectstack/spec/data';
 
-export const AccountObject: ObjectSchema = {
+export const Account = ObjectSchema.create({
   name: 'account',
   label: 'Account',
-  enable: {
-    audit: true,       // Track Field History
-    workflow: true,    // Allow Process Builder
-    files: true        // Attachments
-  },
+  pluralLabel: 'Accounts',
+  icon: 'building',
+  
   fields: {
-    name: { type: 'text', required: true, searchable: true },
+    // Text field with validation
+    name: Field.text({ 
+      label: 'Account Name',
+      required: true, 
+      searchable: true,
+      maxLength: 255,
+    }),
     
-    // Relationship
-    parent_id: { 
-      type: 'lookup', 
-      reference: 'account',
-      label: 'Parent Account' 
-    },
+    // Lookup relationship (Hierarchical)
+    parent_account: Field.lookup('account', {
+      label: 'Parent Account',
+      description: 'Parent company in hierarchy',
+    }),
     
-    // Status Logic
-    rating: { 
-      type: 'select', 
-      options: ['Hot', 'Warm', 'Cold'],
-      defaultValue: 'Warm' 
-    },
+    // Select field with options
+    rating: Field.select({
+      label: 'Rating',
+      options: [
+        { label: 'Hot', value: 'hot', color: '#FF0000' },
+        { label: 'Warm', value: 'warm', color: '#FFA500', default: true },
+        { label: 'Cold', value: 'cold', color: '#0000FF' },
+      ],
+    }),
     
-    // Calculated
-    pipeline_value: {
-      type: 'rollup_summary',
-      reference: 'opportunity',
-      summaryType: 'sum',
-      summaryField: 'amount'
-    }
-  }
-};
+    // Currency field
+    annual_revenue: Field.currency({
+      label: 'Annual Revenue',
+      scale: 2,
+      min: 0,
+    }),
+    
+    // Lookup to owner
+    owner: Field.lookup('user', {
+      label: 'Account Owner',
+      required: true,
+    }),
+  },
+  
+  // Enable advanced features
+  enable: {
+    trackHistory: true,     // Track field changes (audit)
+    apiEnabled: true,       // Expose via REST/GraphQL
+    files: true,            // Allow file attachments
+    feeds: true,            // Enable activity feed
+    activities: true,       // Enable tasks and events
+    trash: true,            // Recycle bin support
+  },
+});
 ```
 
-// Definitions: dist/ui/app.zod.d.ts
 ### B. Configuring the App & Navigation
 
 ```typescript

@@ -43,13 +43,27 @@ label: Customer
 
 # JSON (Machine-generated)
 { "name": "customer", "label": "Customer" }
+```
 
-# TypeScript (Programmatic)
-export default defineObject({
+**TypeScript (Recommended for strict validation):**
+```typescript
+import { ObjectSchema, Field } from '@objectstack/spec/data';
+
+export const Customer = ObjectSchema.create({
   name: 'customer',
-  label: 'Customer'
+  label: 'Customer',
+  icon: 'building',
+  
+  fields: {
+    name: Field.text({
+      label: 'Company Name',
+      required: true,
+    }),
+  },
 });
 ```
+
+> **📘 Best Practice**: Use `ObjectSchema.create()` with `Field.*` helpers in TypeScript for compile-time type checking and runtime validation.
 
 ## Object Definition
 
@@ -111,6 +125,66 @@ validations:
   - name: budget_positive
     condition: "budget < 0"
     message: "Budget must be positive"
+```
+
+**TypeScript Complete Example:**
+
+```typescript
+import { ObjectSchema, Field } from '@objectstack/spec/data';
+
+export const Project = ObjectSchema.create({
+  name: 'project',
+  label: 'Project',
+  pluralLabel: 'Projects',
+  description: 'A business project or initiative',
+  icon: 'folder',
+  
+  fields: {
+    name: Field.text({
+      label: 'Project Name',
+      required: true,
+      maxLength: 255,
+      searchable: true,
+    }),
+    
+    status: Field.select({
+      label: 'Status',
+      options: [
+        { label: 'Draft', value: 'draft', default: true },
+        { label: 'Active', value: 'active' },
+        { label: 'Completed', value: 'completed' },
+      ],
+    }),
+    
+    budget: Field.currency({
+      label: 'Budget',
+      scale: 2,
+      min: 0,
+    }),
+    
+    account: Field.lookup('account', {
+      label: 'Account',
+      required: true,
+    }),
+  },
+  
+  enable: {
+    trackHistory: true,
+    searchable: true,
+    apiEnabled: true,
+    activities: true,
+  },
+  
+  validations: [
+    {
+      name: 'budget_positive',
+      type: 'script',
+      severity: 'error',
+      message: 'Budget must be positive',
+      condition: 'budget < 0',
+    },
+  ],
+});
 ```
 
 ### Object Properties Reference

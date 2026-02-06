@@ -102,26 +102,6 @@ const result = ApiError.parse(data);
 
 ## ExportRequest
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **object** | `string` | ✅ | Object name (e.g. account) |
-| **fields** | `string \| Object[]` | optional | Fields to retrieve |
-| **where** | `any` | optional | Filtering criteria (WHERE) |
-| **search** | `Object` | optional | Full-text search configuration ($search parameter) |
-| **orderBy** | `Object[]` | optional | Sorting instructions (ORDER BY) |
-| **limit** | `number` | optional | Max records to return (LIMIT) |
-| **offset** | `number` | optional | Records to skip (OFFSET) |
-| **cursor** | `Record<string, any>` | optional | Cursor for keyset pagination |
-| **joins** | `Object[]` | optional | Explicit Table Joins |
-| **aggregations** | `Object[]` | optional | Aggregation functions |
-| **groupBy** | `string[]` | optional | GROUP BY fields |
-| **having** | `any` | optional | HAVING clause for aggregation filtering |
-| **windowFunctions** | `Object[]` | optional | Window functions with OVER clause |
-| **distinct** | `boolean` | optional | SELECT DISTINCT flag |
-| **format** | `Enum<'csv' \| 'json' \| 'xlsx'>` | optional |  |
-
 
 ---
 
