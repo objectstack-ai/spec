@@ -1,57 +1,107 @@
 import { defineStack } from '@objectstack/spec';
-import { App } from '@objectstack/spec/ui';
-import { TodoTask } from './src/domains/todo/task.object';
+
+// ─── Objects ────────────────────────────────────────────────────────
+import { Task } from './src/objects/task.object';
+
+// ─── Actions ────────────────────────────────────────────────────────
+import { 
+  CompleteTaskAction, 
+  StartTaskAction, 
+  DeferTaskAction, 
+  SetReminderAction,
+  CloneTaskAction,
+  MassCompleteTasksAction,
+  DeleteCompletedAction,
+  ExportToCsvAction 
+} from './src/actions/task.actions';
+
+// ─── Dashboards ─────────────────────────────────────────────────────
+import { TaskDashboard } from './src/dashboards/task.dashboard';
+
+// ─── Reports ────────────────────────────────────────────────────────
+import { 
+  TasksByStatusReport, 
+  TasksByPriorityReport, 
+  TasksByOwnerReport, 
+  OverdueTasksReport,
+  CompletedTasksReport,
+  TimeTrackingReport 
+} from './src/reports/task.report';
+
+// ─── Flows ──────────────────────────────────────────────────────────
+import { 
+  TaskReminderFlow, 
+  OverdueEscalationFlow, 
+  TaskCompletionFlow,
+  QuickAddTaskFlow 
+} from './src/flows/task.flow';
+
+// ─── App ────────────────────────────────────────────────────────────
+import { TodoApp } from './src/apps/todo.app';
 
 export default defineStack({
-  objects: [
-    TodoTask
-  ],
-  apps: [
-    App.create({
-      name: 'todo_app',
-      label: 'Todo App',
-      icon: 'check-square',
-      branding: {
-        primaryColor: '#10B981',
-        logo: '/assets/todo-logo.png',
-      },
-      navigation: [
-        {
-          id: 'group_tasks',
-          type: 'group',
-          label: 'Tasks',
-          children: [
-            { 
-              id: 'nav_todo_task',
-              type: 'object', 
-              objectName: 'todo_task',
-              label: 'My Tasks'
-            }
-          ]
-        }
-      ]
-    })
-  ],
   manifest: {
     id: 'com.example.todo',
-    version: '1.0.0',
+    version: '2.0.0',
     type: 'app',
-    name: 'todo_example_app',
-    // label: 'Todo Example App',
-    description: 'A simple Todo example demonstrating ObjectStack Protocol',
+    name: 'Todo Manager',
+    description: 'A comprehensive Todo app demonstrating ObjectStack Protocol features including automation, dashboards, and reports',
+    author: 'ObjectStack Team',
+    repository: 'https://github.com/objectstack-ai/spec',
+    license: 'MIT',
     data: [
       {
-        object: 'todo_task',
+        object: 'task',
         mode: 'upsert',
         records: [
-          { subject: 'Learn ObjectStack', is_completed: true, priority: 3 },
-          { subject: 'Build a cool app', is_completed: false, priority: 2 },
-          { subject: 'Review PR #102', is_completed: true, priority: 3, due_date: new Date() },
-          { subject: 'Write Documentation', is_completed: false, priority: 2, due_date: new Date(Date.now() + 86400000) },
-          { subject: 'Fix specific Server bug', is_completed: false, priority: 1 }
+          { subject: 'Learn ObjectStack', status: 'completed', priority: 'high', category: 'Work' },
+          { subject: 'Build a cool app', status: 'in_progress', priority: 'normal', category: 'Work', due_date: new Date(Date.now() + 86400000 * 3) },
+          { subject: 'Review PR #102', status: 'completed', priority: 'high', category: 'Work' },
+          { subject: 'Write Documentation', status: 'not_started', priority: 'normal', category: 'Work', due_date: new Date(Date.now() + 86400000) },
+          { subject: 'Fix Server bug', status: 'waiting', priority: 'urgent', category: 'Work' },
+          { subject: 'Buy groceries', status: 'not_started', priority: 'low', category: 'Shopping', due_date: new Date() },
+          { subject: 'Schedule dentist appointment', status: 'not_started', priority: 'normal', category: 'Health', due_date: new Date(Date.now() + 86400000 * 7) },
+          { subject: 'Pay utility bills', status: 'not_started', priority: 'high', category: 'Finance', due_date: new Date(Date.now() + 86400000 * 2) },
         ]
       }
     ]
-  }
+  },
+
+  objects: [
+    Task,
+  ],
+
+  actions: [
+    CompleteTaskAction,
+    StartTaskAction,
+    DeferTaskAction,
+    SetReminderAction,
+    CloneTaskAction,
+    MassCompleteTasksAction,
+    DeleteCompletedAction,
+    ExportToCsvAction,
+  ],
+
+  dashboards: [
+    TaskDashboard,
+  ],
+
+  reports: [
+    TasksByStatusReport,
+    TasksByPriorityReport,
+    TasksByOwnerReport,
+    OverdueTasksReport,
+    CompletedTasksReport,
+    TimeTrackingReport,
+  ],
+
+  flows: [
+    TaskReminderFlow,
+    OverdueEscalationFlow,
+    TaskCompletionFlow,
+    QuickAddTaskFlow,
+  ],
+
+  apps: [TodoApp],
 });
 
