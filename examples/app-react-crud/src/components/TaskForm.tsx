@@ -31,7 +31,7 @@ export function TaskForm({ client, editingTask, onSuccess, onCancel }: TaskFormP
             
             // In Protocol v1 (protocol.ts), getMetaItem returns { type: 'object', name: 'todo_task', item: { ...fields... } }
             // So we need res.item (the schema definition) or res (if it's direct)
-            const schemaDef = res.item || res;
+            const schemaDef = res.data || res.item || res;
             
             setSchema(schemaDef);
         } catch (err) {

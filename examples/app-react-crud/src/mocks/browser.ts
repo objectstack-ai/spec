@@ -21,6 +21,7 @@ export async function startMockServer() {
 
   // Handle CommonJS/ESM interop for config loading
   const appConfig = (todoConfig as any).default || todoConfig;
+  console.log('[MSW] Loaded Config:', appConfig);
 
   const driver = new InMemoryDriver();
 
@@ -90,6 +91,7 @@ export async function startMockServer() {
                   }
                   
                   // HttpDispatcher expects { data, count } for query/list
+                  console.log(`[BrokerShim] find/query(${params.object}) -> count: ${all.length}`, all);
                   return { data: all, count: all.length };
               }
           }
@@ -136,8 +138,10 @@ export async function startMockServer() {
 
   // Initialize default data from manifest if available
   const manifest = appConfig.manifest;
+  console.log('[MSW] Checking manifest for data...', manifest);
+  
   if (manifest && Array.isArray(manifest.data)) {
-    console.log('[MSW] Loading initial data...');
+    console.log(`[MSW] Found ${manifest.data.length} datasets.`);
     for (const dataset of manifest.data) {
       if (dataset.object && Array.isArray(dataset.records)) {
         for (const record of dataset.records) {
