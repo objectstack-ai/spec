@@ -215,7 +215,7 @@ const Sidebar = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          "bg-sidebar text-sidebar-foreground flex h-svh w-[--sidebar-width] shrink-0 flex-col border-r transition-[width] duration-200 ease-linear",
+          "bg-sidebar text-sidebar-foreground hidden md:flex h-svh w-[--sidebar-width] shrink-0 flex-col border-r transition-[width] duration-200 ease-linear",
           state === "collapsed" && collapsible === "offcanvas" && "w-0 overflow-hidden border-0",
           state === "collapsed" && collapsible === "icon" && "w-[--sidebar-width-icon]",
           className
