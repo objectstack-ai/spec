@@ -70,13 +70,13 @@ my-app/
     ```typescript
     // objectstack.config.ts
     import { App } from '@objectstack/spec/ui';
-    import { AccountObject } from './src/domains/sales/account.object';
+    import { AccountObject } from './src/objects/account.object';
 
-    export default App.create({
+    export default defineStack({
       name: 'my_erp_app',
       version: '1.0.0',
       objects: [AccountObject],
-      menus: [ ... ]
+      apps: [ ... ]
     });
     ```
 
