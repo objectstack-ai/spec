@@ -65,35 +65,74 @@ You must strictly adhere to the File Suffix Protocol. Every file type maps to a 
 
 ## 2. Coding Standards
 
-### **A. No "Magic Strings"**
-*   **Bad:** `type: 'text'`
-*   **Good:** Use strict literal types defined by the schema. If you are unsure, ask to check `@objectstack/spec` definitions.
-
-### **B. Constant Exports**
-All metadata files must `export default` a strictly typed constant.
+### **A. Strict TypeScript Validation**
+Always use `ObjectSchema.create()` and `Field.*` helpers for strict type checking and runtime validation.
 
 ```typescript
-// ✅ CORRECT
-import type { ObjectSchema } from '@objectstack/spec/data';
+// ✅ CORRECT - Strict TypeScript validation with ObjectSchema.create()
+import { ObjectSchema, Field } from '@objectstack/spec/data';
 
-const Issue: ObjectSchema = {
+export const Issue = ObjectSchema.create({
   name: 'issue',
-  // ...
+  label: 'Issue',
+  icon: 'alert-circle',
+  fields: {
+    title: Field.text({ 
+      label: 'Title', 
+      required: true,
+      maxLength: 255,
+    }),
+    description: Field.textarea({
+      label: 'Description',
+    }),
+    status: Field.select({
+      label: 'Status',
+      options: [
+        { label: 'Open', value: 'open', default: true },
+        { label: 'In Progress', value: 'in_progress' },
+        { label: 'Closed', value: 'closed' },
+      ],
+    }),
+    priority: Field.rating(5, {
+      label: 'Priority',
+    }),
+    assignee: Field.lookup('user', {
+      label: 'Assigned To',
+    }),
+  },
+  enable: {
+    trackHistory: true,
+    apiEnabled: true,
+  },
+});
+```
+
+```typescript
+// ❌ WRONG - No type checking
+export default {
+  name: 'issue',
+  fields: {
+    title: { type: 'text' } // No validation!
+  }
+};
+```
+
+```typescript
+// ⚠️ DEPRECATED - Old pattern (type annotation only)
+import type { ServiceObject } from '@objectstack/spec/data';
+
+const Issue: ServiceObject = {
+  name: 'issue',
+  // No runtime validation, only compile-time checking
 };
 export default Issue;
 ```
 
-```typescript
-// ❌ WRONG
-export default {
-  name: 'issue'
-} // Type is 'any', no validation!
-```
-
-### **C. Naming Conventions**
+### **B. Naming Conventions**
 *   **Filenames:** `snake_case` + `suffix.ts`. (e.g., `project_task.object.ts`)
 *   **Metadata Keys:** `camelCase`. (e.g., `trackHistory`, `apiEnabled`)
 *   **Machine Names:** `snake_case`. (e.g., `name: 'project_task'`)
+*   **Constant Names:** `PascalCase`. (e.g., `export const TodoTask = ObjectSchema.create({...})`)
 
 ## 3. Workflow Priorities
 
@@ -103,7 +142,120 @@ export default {
 
 ## 4. Protocol Reference Snippets
 
-### **A. View Definition (`*.view.ts`)**
+### **A. Object Definition (`*.object.ts`)**
+
+**Best Practice:** Use `ObjectSchema.create()` with `Field.*` helpers for strict type checking and runtime validation.
+
+```typescript
+import { ObjectSchema, Field } from '@objectstack/spec/data';
+
+export const Account = ObjectSchema.create({
+  name: 'account',
+  label: 'Account',
+  pluralLabel: 'Accounts',
+  icon: 'building',
+  description: 'Companies and organizations doing business with us',
+  titleFormat: '{account_number} - {name}',
+  compactLayout: ['account_number', 'name', 'type', 'owner'],
+  
+  fields: {
+    // AutoNumber field - Unique account identifier
+    account_number: Field.autonumber({
+      label: 'Account Number',
+      format: 'ACC-{0000}',
+    }),
+    
+    // Text fields with validation
+    name: Field.text({ 
+      label: 'Account Name', 
+      required: true, 
+      searchable: true,
+      maxLength: 255,
+    }),
+    
+    // Select field with options
+    type: Field.select({
+      label: 'Account Type',
+      options: [
+        { label: 'Prospect', value: 'prospect', color: '#FFA500', default: true },
+        { label: 'Customer', value: 'customer', color: '#00AA00' },
+        { label: 'Partner', value: 'partner', color: '#0000FF' },
+      ]
+    }),
+    
+    // Number and currency fields
+    annual_revenue: Field.currency({ 
+      label: 'Annual Revenue',
+      scale: 2,
+      min: 0,
+    }),
+    
+    number_of_employees: Field.number({
+      label: 'Employees',
+      min: 0,
+    }),
+    
+    // Contact fields
+    phone: Field.text({ 
+      label: 'Phone',
+      format: 'phone',
+    }),
+    
+    website: Field.url({
+      label: 'Website',
+    }),
+    
+    // Relationship fields (Lookup)
+    owner: Field.lookup('user', {
+      label: 'Account Owner',
+      required: true,
+    }),
+    
+    parent_account: Field.lookup('account', {
+      label: 'Parent Account',
+      description: 'Parent company in hierarchy',
+    }),
+    
+    // Rich text
+    description: Field.markdown({
+      label: 'Description',
+    }),
+    
+    // Boolean
+    is_active: Field.boolean({
+      label: 'Active',
+      defaultValue: true,
+    }),
+    
+    // Date
+    last_activity_date: Field.date({
+      label: 'Last Activity Date',
+      readonly: true,
+    }),
+  },
+  
+  // Database indexes for performance
+  indexes: [
+    { fields: ['name'], unique: false },
+    { fields: ['owner'], unique: false },
+    { fields: ['type', 'is_active'], unique: false },
+  ],
+  
+  // Enable advanced features
+  enable: {
+    trackHistory: true,     // Track field changes
+    searchable: true,       // Include in global search
+    apiEnabled: true,       // Expose via REST/GraphQL
+    files: true,            // Allow file attachments
+    feeds: true,            // Enable activity feed
+    activities: true,       // Enable tasks and events
+    trash: true,            // Recycle bin support
+    mru: true,              // Track Most Recently Used
+  },
+});
+```
+
+### **B. View Definition (`*.view.ts`)**
 
 **Key Pattern:** Decouple Interaction (Navigation/Actions) from Data Config.
 
@@ -140,7 +292,7 @@ export const MyListView: View = {
 export default MyListView;
 ```
 
-### **B. Action Definition (`*.action.ts`)**
+### **C. Action Definition (`*.action.ts`)**
 
 ```typescript
 import { Action } from '@objectstack/spec/ui';
