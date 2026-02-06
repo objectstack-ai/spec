@@ -517,21 +517,23 @@ ObjectQL objects and fields can be **automatically translated**:
 
 ```typescript
 // Object definition
-export default defineObject({
+import { ObjectSchema, Field } from '@objectstack/spec/data';
+
+export const Account = ObjectSchema.create({
   name: 'account',
   label: 'account.label',           // Translation key
   pluralLabel: 'account.pluralLabel',
+  icon: 'building',
   
   fields: {
-    name: {
-      type: 'text',
+    name: Field.text({
       label: 'account.fields.name', // Translation key
-    },
-    industry: {
-      type: 'select',
+    }),
+    
+    industry: Field.select({
       label: 'account.fields.industry',
-      options: 'account.industries',  // Translation key for array
-    },
+      options: 'account.industries',  // Translation key for options array
+    }),
   },
 });
 ```
