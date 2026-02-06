@@ -17,6 +17,9 @@
               "exclusiveMinimum": 0,
               "description": "Days to retain persisted events"
             },
+            "filter": {
+              "description": "Optional filter function to select which events to persist"
+            },
             "storage": {
               "type": "string",
               "enum": [
@@ -272,6 +275,9 @@
                 "default": 30000,
                 "description": "Request timeout in milliseconds"
               },
+              "transform": {
+                "description": "Transform event before sending"
+              },
               "enabled": {
                 "type": "boolean",
                 "default": true,
@@ -405,6 +411,9 @@
                   "eventPattern": {
                     "type": "string",
                     "description": "Event pattern for channel"
+                  },
+                  "filter": {
+                    "description": "Additional filter function"
                   }
                 },
                 "required": [
@@ -496,6 +505,9 @@
                 "type": "string",
                 "description": "Name of event to handle (supports wildcards like user.*)"
               },
+              "handler": {
+                "description": "Handler function"
+              },
               "priority": {
                 "type": "integer",
                 "default": 0,
@@ -535,6 +547,9 @@
                 "type": "integer",
                 "exclusiveMinimum": 0,
                 "description": "Handler timeout in milliseconds"
+              },
+              "filter": {
+                "description": "Optional filter to determine if handler should execute"
               }
             },
             "required": [

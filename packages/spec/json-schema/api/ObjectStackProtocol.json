@@ -3,7 +3,74 @@
   "definitions": {
     "ObjectStackProtocol": {
       "type": "object",
-      "properties": {},
+      "properties": {
+        "getDiscovery": {
+          "description": "Get API discovery information"
+        },
+        "getMetaTypes": {
+          "description": "Get available metadata types"
+        },
+        "getMetaItems": {
+          "description": "Get all items of a metadata type"
+        },
+        "getMetaItem": {
+          "description": "Get a specific metadata item"
+        },
+        "saveMetaItem": {
+          "description": "Save metadata item"
+        },
+        "getMetaItemCached": {
+          "description": "Get a metadata item with cache validation"
+        },
+        "getUiView": {
+          "description": "Get UI view definition"
+        },
+        "analyticsQuery": {
+          "description": "Execute analytics query"
+        },
+        "getAnalyticsMeta": {
+          "description": "Get analytics metadata (cubes)"
+        },
+        "triggerAutomation": {
+          "description": "Trigger an automation flow or script"
+        },
+        "listSpaces": {
+          "description": "List Hub Spaces"
+        },
+        "createSpace": {
+          "description": "Create Hub Space"
+        },
+        "installPlugin": {
+          "description": "Install Plugin into Space"
+        },
+        "findData": {
+          "description": "Find data records"
+        },
+        "getData": {
+          "description": "Get single data record"
+        },
+        "createData": {
+          "description": "Create a data record"
+        },
+        "updateData": {
+          "description": "Update a data record"
+        },
+        "deleteData": {
+          "description": "Delete a data record"
+        },
+        "batchData": {
+          "description": "Perform batch operations"
+        },
+        "createManyData": {
+          "description": "Create multiple records"
+        },
+        "updateManyData": {
+          "description": "Update multiple records"
+        },
+        "deleteManyData": {
+          "description": "Delete multiple records"
+        }
+      },
       "additionalProperties": false
     }
   },

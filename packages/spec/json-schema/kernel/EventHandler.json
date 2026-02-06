@@ -12,6 +12,9 @@
           "type": "string",
           "description": "Name of event to handle (supports wildcards like user.*)"
         },
+        "handler": {
+          "description": "Handler function"
+        },
         "priority": {
           "type": "integer",
           "default": 0,
@@ -51,6 +54,9 @@
           "type": "integer",
           "exclusiveMinimum": 0,
           "description": "Handler timeout in milliseconds"
+        },
+        "filter": {
+          "description": "Optional filter to determine if handler should execute"
         }
       },
       "required": [

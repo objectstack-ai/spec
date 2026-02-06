@@ -14,6 +14,9 @@
             "type": "string"
           },
           "description": "Target event names to route to"
+        },
+        "transform": {
+          "description": "Optional function to transform payload"
         }
       },
       "required": [

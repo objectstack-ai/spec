@@ -11,11 +11,6 @@ import {
   AnalyticsMetadataResponseSchema 
 } from './analytics.zod';
 import {
-  ListSpacesRequestSchema,
-  SpaceResponseSchema,
-  CreateSpaceRequestSchema,
-  InstallPluginRequestSchema,
-  InstallPluginResponseSchema,
   ListSpacesRequest,
   SpaceResponse,
   CreateSpaceRequest,
@@ -387,117 +382,73 @@ export const DeleteManyDataResponseSchema = BatchUpdateResponseSchema;
  */
 export const ObjectStackProtocolSchema = z.object({
   // Discovery & Metadata
-  getDiscovery: z.function()
-    .args(GetDiscoveryRequestSchema)
-    .returns(z.promise(GetDiscoveryResponseSchema))
+  getDiscovery: z.any()
     .describe('Get API discovery information'),
 
-  getMetaTypes: z.function()
-    .args(GetMetaTypesRequestSchema)
-    .returns(z.promise(GetMetaTypesResponseSchema))
+  getMetaTypes: z.any()
     .describe('Get available metadata types'),
 
-  getMetaItems: z.function()
-    .args(GetMetaItemsRequestSchema)
-    .returns(z.promise(GetMetaItemsResponseSchema))
+  getMetaItems: z.any()
     .describe('Get all items of a metadata type'),
 
-  getMetaItem: z.function()
-    .args(GetMetaItemRequestSchema)
-    .returns(z.promise(GetMetaItemResponseSchema))
+  getMetaItem: z.any()
     .describe('Get a specific metadata item'),
-  saveMetaItem: z.function()
-    .args(SaveMetaItemRequestSchema)
-    .returns(z.promise(SaveMetaItemResponseSchema))
+  saveMetaItem: z.any()
     .describe('Save metadata item'),
-  getMetaItemCached: z.function()
-    .args(GetMetaItemCachedRequestSchema)
-    .returns(z.promise(GetMetaItemCachedResponseSchema))
+  getMetaItemCached: z.any()
     .describe('Get a metadata item with cache validation'),
 
-  getUiView: z.function()
-    .args(GetUiViewRequestSchema)
-    .returns(z.promise(GetUiViewResponseSchema))
+  getUiView: z.any()
     .describe('Get UI view definition'),
 
   // Analytics Operations
-  analyticsQuery: z.function()
-    .args(AnalyticsQueryRequestSchema)
-    .returns(z.promise(AnalyticsResultResponseSchema))
+  analyticsQuery: z.any()
     .describe('Execute analytics query'),
 
-  getAnalyticsMeta: z.function()
-    .args(GetAnalyticsMetaRequestSchema)
-    .returns(z.promise(AnalyticsMetadataResponseSchema))
+  getAnalyticsMeta: z.any()
     .describe('Get analytics metadata (cubes)'),
 
   // Automation Operations
-  triggerAutomation: z.function()
-    .args(AutomationTriggerRequestSchema)
-    .returns(z.promise(AutomationTriggerResponseSchema))
+  triggerAutomation: z.any()
     .describe('Trigger an automation flow or script'),
 
   // Hub Operations
-  listSpaces: z.function()
-    .args(ListSpacesRequestSchema)
-    .returns(z.promise(z.any())) // TODO: Use ListSpacesResponseSchema when available/exported
+  listSpaces: z.any()
     .describe('List Hub Spaces'),
   
-  createSpace: z.function()
-    .args(CreateSpaceRequestSchema)
-    .returns(z.promise(SpaceResponseSchema))
+  createSpace: z.any()
     .describe('Create Hub Space'),
 
-  installPlugin: z.function()
-    .args(InstallPluginRequestSchema)
-    .returns(z.promise(InstallPluginResponseSchema))
+  installPlugin: z.any()
     .describe('Install Plugin into Space'),
 
   // Data Operations
-  findData: z.function()
-    .args(FindDataRequestSchema)
-    .returns(z.promise(FindDataResponseSchema))
+  findData: z.any()
     .describe('Find data records'),
 
-  getData: z.function()
-    .args(GetDataRequestSchema)
-    .returns(z.promise(GetDataResponseSchema))
+  getData: z.any()
     .describe('Get single data record'),
 
-  createData: z.function()
-    .args(CreateDataRequestSchema)
-    .returns(z.promise(CreateDataResponseSchema))
+  createData: z.any()
     .describe('Create a data record'),
 
-  updateData: z.function()
-    .args(UpdateDataRequestSchema)
-    .returns(z.promise(UpdateDataResponseSchema))
+  updateData: z.any()
     .describe('Update a data record'),
 
-  deleteData: z.function()
-    .args(DeleteDataRequestSchema)
-    .returns(z.promise(DeleteDataResponseSchema))
+  deleteData: z.any()
     .describe('Delete a data record'),
 
   // Batch Operations
-  batchData: z.function()
-    .args(BatchDataRequestSchema)
-    .returns(z.promise(BatchDataResponseSchema))
+  batchData: z.any()
     .describe('Perform batch operations'),
 
-  createManyData: z.function()
-    .args(CreateManyDataRequestSchema)
-    .returns(z.promise(CreateManyDataResponseSchema))
+  createManyData: z.any()
     .describe('Create multiple records'),
 
-  updateManyData: z.function()
-    .args(UpdateManyDataRequestSchema)
-    .returns(z.promise(UpdateManyDataResponseSchema))
+  updateManyData: z.any()
     .describe('Update multiple records'),
 
-  deleteManyData: z.function()
-    .args(DeleteManyDataRequestSchema)
-    .returns(z.promise(DeleteManyDataResponseSchema))
+  deleteManyData: z.any()
     .describe('Delete multiple records'),
 });
 

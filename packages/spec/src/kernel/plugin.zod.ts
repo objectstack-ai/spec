@@ -4,31 +4,31 @@ import { z } from 'zod';
 // as Zod cannot easily validate function signatures at runtime.
 export const PluginContextSchema = z.object({
   ql: z.object({
-    object: z.function().returns(z.any()), // Return any to allow method chaining
-    query: z.function().returns(z.any()),
+    object: z.any(), // Return any to allow method chaining
+    query: z.any(),
   }).passthrough().describe('ObjectQL Engine Interface'),
 
   os: z.object({
-    getCurrentUser: z.function().returns(z.any()),
-    getConfig: z.function().returns(z.any()),
+    getCurrentUser: z.any(),
+    getConfig: z.any(),
   }).passthrough().describe('ObjectStack Kernel Interface'),
 
   logger: z.object({
-    debug: z.function().returns(z.void()),
-    info: z.function().returns(z.void()),
-    warn: z.function().returns(z.void()),
-    error: z.function().returns(z.void()),
+    debug: z.any(),
+    info: z.any(),
+    warn: z.any(),
+    error: z.any(),
   }).passthrough().describe('Logger Interface'),
 
   storage: z.object({
-    get: z.function().returns(z.any()),
-    set: z.function().returns(z.promise(z.void())),
-    delete: z.function().returns(z.promise(z.void())),
+    get: z.any(),
+    set: z.any(),
+    delete: z.any(),
   }).passthrough().describe('Storage Interface'),
 
   i18n: z.object({
-    t: z.function().returns(z.string()),
-    getLocale: z.function().returns(z.string()),
+    t: z.any(),
+    getLocale: z.any(),
   }).passthrough().describe('Internationalization Interface'),
 
   metadata: z.record(z.string(), z.any()),
@@ -36,14 +36,14 @@ export const PluginContextSchema = z.object({
   
   app: z.object({
     router: z.object({
-      get: z.function().returns(z.any()),
-      post: z.function().returns(z.any()),
-      use: z.function().returns(z.any()),
+      get: z.any(),
+      post: z.any(),
+      use: z.any(),
     }).passthrough()
   }).passthrough().describe('App Framework Interface'),
 
   drivers: z.object({
-    register: z.function().returns(z.void()),
+    register: z.any(),
   }).passthrough().describe('Driver Registry'),
 });
 
@@ -51,30 +51,15 @@ export type PluginContextData = z.infer<typeof PluginContextSchema>;
 export type PluginContext = PluginContextData;
 
 export const PluginLifecycleSchema = z.object({
-  onInstall: z.function()
-    .args(PluginContextSchema)
-    .returns(z.promise(z.void()))
-    .optional(),
+  onInstall: z.any().optional(),
   
-  onEnable: z.function()
-    .args(PluginContextSchema)
-    .returns(z.promise(z.void()))
-    .optional(),
+  onEnable: z.any().optional(),
   
-  onDisable: z.function()
-    .args(PluginContextSchema)
-    .returns(z.promise(z.void()))
-    .optional(),
+  onDisable: z.any().optional(),
   
-  onUninstall: z.function()
-    .args(PluginContextSchema)
-    .returns(z.promise(z.void()))
-    .optional(),
+  onUninstall: z.any().optional(),
   
-  onUpgrade: z.function()
-    .args(PluginContextSchema, z.string(), z.string())
-    .returns(z.promise(z.void()))
-    .optional(),
+  onUpgrade: z.any().optional(),
 });
 
 export type PluginLifecycleHooks = z.infer<typeof PluginLifecycleSchema>;

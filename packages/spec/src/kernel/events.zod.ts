@@ -136,9 +136,7 @@ export const EventHandlerSchema = z.object({
   /**
    * Handler function
    */
-  handler: z.function()
-    .args(EventSchema)
-    .returns(z.promise(z.void()))
+  handler: z.any()
     .describe('Handler function'),
   
   /**
@@ -168,9 +166,7 @@ export const EventHandlerSchema = z.object({
   /**
    * Filter function
    */
-  filter: z.function()
-    .args(EventSchema)
-    .returns(z.boolean())
+  filter: z.any()
     .optional()
     .describe('Optional filter to determine if handler should execute'),
 });
@@ -184,7 +180,7 @@ export type EventHandler = z.infer<typeof EventHandlerSchema>;
 export const EventRouteSchema = z.object({
   from: z.string().describe('Source event pattern (supports wildcards, e.g., user.* or *.created)'),
   to: z.array(z.string()).describe('Target event names to route to'),
-  transform: z.function().optional().describe('Optional function to transform payload'),
+  transform: z.any().optional().describe('Optional function to transform payload'),
 });
 
 export type EventRoute = z.infer<typeof EventRouteSchema>;
@@ -196,7 +192,7 @@ export type EventRoute = z.infer<typeof EventRouteSchema>;
 export const EventPersistenceSchema = z.object({
   enabled: z.boolean().default(false).describe('Enable event persistence'),
   retention: z.number().int().positive().describe('Days to retain persisted events'),
-  filter: z.function().optional().describe('Optional filter function to select which events to persist'),
+  filter: z.any().optional().describe('Optional filter function to select which events to persist'),
   storage: z.enum(['database', 'file', 's3', 'custom']).default('database')
     .describe('Storage backend for persisted events'),
 });
@@ -529,9 +525,7 @@ export const EventWebhookConfigSchema = z.object({
   /**
    * Event transformation
    */
-  transform: z.function()
-    .args(EventSchema)
-    .returns(z.any())
+  transform: z.any()
     .optional()
     .describe('Transform event before sending'),
   
@@ -658,9 +652,7 @@ export const RealTimeNotificationConfigSchema = z.object({
   channels: z.array(z.object({
     name: z.string().describe('Channel name'),
     eventPattern: z.string().describe('Event pattern for channel'),
-    filter: z.function()
-      .args(EventSchema)
-      .returns(z.boolean())
+    filter: z.any()
       .optional()
       .describe('Additional filter function'),
   })).optional().describe('Named channels for event broadcasting'),
