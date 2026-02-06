@@ -159,6 +159,7 @@ export const Account = ObjectSchema.create({
   compactLayout: ['account_number', 'name', 'type', 'owner'],
   
   fields: {
+    // Field names must be snake_case (e.g., account_number, annual_revenue)
     // AutoNumber field - Unique account identifier
     account_number: Field.autonumber({
       label: 'Account Number',

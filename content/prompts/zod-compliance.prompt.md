@@ -60,7 +60,7 @@ When the user asks for a configuration, simulate this internal validation proces
 import { ObjectSchema, Field } from '@objectstack/spec/data';
 
 export const Project = ObjectSchema.create({
-  name: 'project',              // ✅ Validates regex /^[a-z_][a-z0-9_]*$/
+  name: 'project',              // ✅ Validates regex /^[a-z_][a-z0-9_]*$/ (snake_case with numbers allowed after first char)
   label: 'Project',
   icon: 'folder',
   
