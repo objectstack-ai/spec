@@ -13,24 +13,27 @@ The core philosophy is **"Data as Code"** — all business logic (Objects, Field
 - **Configuration:** `objectstack.config.ts` (Application Entry)
 
 # Project Structure (Best Practice)
-Organize the code by **Domains** (Functional Modules) rather than technical layers.
+Organize the code by **metadata type** — the industry-standard pattern (Salesforce DX, ServiceNow).
+Each folder has a barrel `index.ts` for auto-collection.
 
 ```text
 my-app/
-├── objectstack.config.ts       # App Entry (App.create({...}))
+├── objectstack.config.ts       # App Entry (defineStack({...}))
 ├── package.json
 ├── tsconfig.json
 └── src/
-    ├── domains/
-    │   ├── sales/              # Domain: Sales
-    │   │   ├── account.object.ts
-    │   │   ├── account.trigger.ts
-    │   │   └── opportunity.object.ts
-    │   └── support/            # Domain: Support
-    │       └── case.object.ts
-    └── ui/                     # Global UI Assets
-        ├── dashboards/
-        └── layouts/
+    ├── objects/                 # *.object.ts, *.hook.ts
+    │   └── index.ts            # Barrel re-exports
+    ├── actions/                 # *.actions.ts
+    │   └── index.ts
+    ├── flows/                   # *.flow.ts
+    │   └── index.ts
+    ├── dashboards/              # *.dashboard.ts
+    │   └── index.ts
+    ├── reports/                 # *.report.ts
+    │   └── index.ts
+    └── apps/                    # *.app.ts
+        └── index.ts
 ```
 
 # Implementation Rules
@@ -69,15 +72,30 @@ my-app/
 4.  **Code Pattern (App Config):**
     ```typescript
     // objectstack.config.ts
-    import { App } from '@objectstack/spec/ui';
-    import { AccountObject } from './src/objects/account.object';
+    import { defineStack } from '@objectstack/spec';
+    import * as objects from './src/objects';
+    import * as actions from './src/actions';
+    import * as apps from './src/apps';
 
     export default defineStack({
-      name: 'my_erp_app',
-      version: '1.0.0',
-      objects: [AccountObject],
-      apps: [ ... ]
+      manifest: {
+        id: 'com.example.my_erp',
+        version: '1.0.0',
+        type: 'app',
+        name: 'My ERP App',
+      },
+      objects: Object.values(objects),
+      actions: Object.values(actions),
+      apps: Object.values(apps),
     });
+    ```
+
+5.  **Code Pattern (Barrel File):**
+    ```typescript
+    // src/objects/index.ts
+    export { Account } from './account.object';
+    export { Contact } from './contact.object';
+    // Hooks are auto-associated by convention, no need to export
     ```
 
 # Your Task

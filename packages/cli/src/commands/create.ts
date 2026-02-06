@@ -119,6 +119,11 @@ MIT
       }),
       'objectstack.config.ts': (name: string) => `import { defineStack } from '@objectstack/spec';
 
+// Barrel imports — add more as you create new type folders
+// import * as objects from './src/objects';
+// import * as actions from './src/actions';
+// import * as apps from './src/apps';
+
 export default defineStack({
   manifest: {
     name: '${name}',
@@ -127,12 +132,11 @@ export default defineStack({
   },
   
   objects: [
-    // Define your data objects here
-    // { name: 'my_object', fields: { ... } }
+    // Object.values(objects),  // Uncomment after creating src/objects/index.ts
   ],
   
   apps: [
-    // Define your apps here
+    // Object.values(apps),     // Uncomment after creating src/apps/index.ts
   ],
 });
 `,
