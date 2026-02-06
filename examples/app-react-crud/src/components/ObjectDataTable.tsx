@@ -113,8 +113,8 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
     }).filter(c => !['formatted_summary'].includes(c.name)); 
 
     return (
-        <Card className="flex flex-col h-full border-border/60 shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between p-4 border-b space-y-0 bg-muted/30">
+        <Card className="flex flex-col h-full shadow-none border rounded-lg">
+            <CardHeader className="flex flex-row items-center justify-between p-4 border-b space-y-0">
                 <div className="space-y-1">
                     <CardTitle className="text-xl font-semibold tracking-tight">
                         {def.label}
@@ -186,7 +186,7 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
                 </Table>
             </CardContent>
 
-            <CardFooter className="p-2 border-t bg-muted/30 flex justify-end items-center gap-2">
+            <CardFooter className="p-2 border-t flex justify-end items-center gap-2">
                 <Button  
                     variant="outline" 
                     size="sm"
@@ -197,7 +197,7 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
                     <ArrowLeft className="h-3.5 w-3.5" />
                     Previous
                 </Button>
-                <div className="text-sm font-medium text-muted-foreground min-w-[3rem] text-center">
+                <div className="text-sm font-medium text-muted-foreground w-16 text-center">
                     Page {page}
                 </div>
                 <Button 
