@@ -10,7 +10,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Database, Layers, Sparkles, Zap } from 'lucide-react';
 import { getApiBaseUrl, config } from './lib/config';
-import type { AppPackage } from './mocks/browser';
+import type { InstalledPackage } from '@objectstack/spec/kernel';
 
 function DashboardWelcome() {
   return (
@@ -120,8 +120,8 @@ function DashboardWelcome() {
 
 export default function App() {
   const [client, setClient] = useState<ObjectStackClient | null>(null);
-  const [apps, setApps] = useState<AppPackage[]>([]);
-  const [selectedApp, setSelectedApp] = useState<AppPackage | null>(null);
+  const [packages, setPackages] = useState<InstalledPackage[]>([]);
+  const [selectedPackage, setSelectedPackage] = useState<InstalledPackage | null>(null);
   const [selectedObject, setSelectedObject] = useState<string | null>(null);
   const [selectedView, setSelectedView] = useState<'dashboard' | 'packages' | 'object'>('dashboard');
   const [editingRecord, setEditingRecord] = useState<any>(null);
@@ -138,29 +138,29 @@ export default function App() {
     setClient(newClient);
   }, []);
 
-  // 2. Fetch app list from the server API (not hardcoded)
+  // 2. Fetch installed packages from the server API
   useEffect(() => {
     if (!client) return;
     let mounted = true;
 
-    async function loadApps() {
+    async function loadPackages() {
       try {
-        // Spec: GET /api/v1/meta/apps → GetMetaItemsResponse = { type: 'apps', items: AppSchema[] }
-        const result: any = await client!.meta.getItems('apps');
-        const items: AppPackage[] = result?.items || result?.value || (Array.isArray(result) ? result : []);
+        // Spec: GET /api/v1/packages → ListPackagesResponse = { packages: InstalledPackage[], total }
+        const result = await client!.packages.list();
+        const items: InstalledPackage[] = result?.packages || [];
         
-        console.log('[App] Fetched apps from API:', items.map((a: any) => a.label || a.name));
+        console.log('[App] Fetched packages from API:', items.map((p) => p.manifest?.name || p.manifest?.id));
         
         if (mounted && items.length > 0) {
-          setApps(items);
-          setSelectedApp(items[0]);
+          setPackages(items);
+          setSelectedPackage(items[0]);
         }
       } catch (err) {
-        console.error('[App] Failed to fetch apps from API:', err);
+        console.error('[App] Failed to fetch packages from API:', err);
       }
     }
 
-    loadApps();
+    loadPackages();
     return () => { mounted = false; };
   }, [client]);
 
@@ -183,8 +183,8 @@ export default function App() {
     setEditingRecord(null);
   }
 
-  function handleSelectApp(app: AppPackage) {
-    setSelectedApp(app);
+  function handleSelectPackage(pkg: InstalledPackage) {
+    setSelectedPackage(pkg);
     setSelectedObject(null);
     setSelectedView('dashboard');
     setShowForm(false);
@@ -214,14 +214,14 @@ export default function App() {
         client={client} 
         selectedObject={selectedObject} 
         onSelectObject={handleSelectObject}
-        apps={apps}
-        selectedApp={selectedApp}
-        onSelectApp={handleSelectApp}
+        packages={packages}
+        selectedPackage={selectedPackage}
+        onSelectPackage={handleSelectPackage}
         onSelectView={handleSelectView}
         selectedView={selectedView}
       />
       <main className="flex min-w-0 flex-1 flex-col bg-background">
-        <SiteHeader selectedObject={selectedObject} appLabel={selectedApp?.label || selectedApp?.name} />
+        <SiteHeader selectedObject={selectedObject} appLabel={selectedPackage?.manifest?.name || selectedPackage?.manifest?.id} />
         <div className="flex flex-1 flex-col overflow-hidden">
           {selectedView === 'object' && selectedObject ? (
             <div className="flex flex-1 flex-col gap-4 p-4">

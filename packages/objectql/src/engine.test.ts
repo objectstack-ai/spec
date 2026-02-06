@@ -11,6 +11,14 @@ vi.mock('./registry', () => {
       getObject: vi.fn((name) => mockObjects.get(name)),
       registerObject: vi.fn((obj) => mockObjects.set(obj.name, obj)),
       registerKind: vi.fn(),
+      registerItem: vi.fn(),
+      registerApp: vi.fn(),
+      installPackage: vi.fn((manifest) => ({
+        manifest,
+        status: 'installed',
+        enabled: true,
+        installedAt: new Date().toISOString(),
+      })),
       metadata: {
         get: vi.fn(() => mockObjects) // Expose for verification if needed
       }
