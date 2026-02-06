@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Database, Layers, Sparkles, Zap } from 'lucide-react';
 import { getApiBaseUrl, config } from './lib/config';
+import { appPackages, type AppPackage } from './mocks/browser';
 
 function DashboardWelcome() {
   return (
@@ -121,6 +122,7 @@ export default function App() {
   const [selectedObject, setSelectedObject] = useState<string | null>(null);
   const [editingRecord, setEditingRecord] = useState<any>(null);
   const [showForm, setShowForm] = useState(false);
+  const [selectedApp, setSelectedApp] = useState<AppPackage>(appPackages[0]);
 
   useEffect(() => {
     // Use the configured API base URL based on runtime mode (MSW or Server)
@@ -152,16 +154,26 @@ export default function App() {
     setEditingRecord(null);
   }
 
+  function handleSelectApp(app: AppPackage) {
+    setSelectedApp(app);
+    setSelectedObject(null);
+    setShowForm(false);
+    setEditingRecord(null);
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar 
         client={client} 
         selectedObject={selectedObject} 
-        onSelectObject={(name) => setSelectedObject(name || null)} 
+        onSelectObject={(name) => setSelectedObject(name || null)}
+        apps={appPackages}
+        selectedApp={selectedApp}
+        onSelectApp={handleSelectApp}
       />
-      <main className="flex flex-1 flex-col bg-background">
-        <SiteHeader selectedObject={selectedObject} />
-        <div className="flex flex-1 flex-col">
+      <main className="flex min-w-0 flex-1 flex-col bg-background">
+        <SiteHeader selectedObject={selectedObject} appLabel={selectedApp?.label} />
+        <div className="flex flex-1 flex-col overflow-hidden">
           {selectedObject ? (
             <div className="flex flex-1 flex-col gap-4 p-4">
               {client && (

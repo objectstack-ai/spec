@@ -4,15 +4,20 @@ import { InMemoryDriver } from '@objectstack/driver-memory';
 import { MSWPlugin } from '@objectstack/plugin-msw';
 
 export interface KernelOptions {
-    appConfig: any;
+    appConfigs?: any[];      // Multiple app configs
+    appConfig?: any;         // Legacy single app config (backward compat)
     enableBrowser?: boolean; // Default true (for browser usage), set false for tests
 }
 
 export async function createKernel(options: KernelOptions) {
-    const { appConfig, enableBrowser = true } = options;
+    const { enableBrowser = true } = options;
+    
+    // Support both single and multi-app modes
+    const allConfigs = options.appConfigs 
+        || (options.appConfig ? [options.appConfig] : []);
 
     console.log('[KernelFactory] Creating ObjectStack Kernel...');
-    console.log('[KernelFactory] App Config:', appConfig);
+    console.log('[KernelFactory] App Configs:', allConfigs.length);
 
     const driver = new InMemoryDriver();
     const kernel = new ObjectKernel();
@@ -23,8 +28,11 @@ export async function createKernel(options: KernelOptions) {
     // Register the driver
     await kernel.use(new DriverPlugin(driver, 'memory'));
     
-    // Load app config as a plugin (which handles Seeding)
-    await kernel.use(new AppPlugin(appConfig));
+    // Load all app configs as plugins (handles object registration & seeding)
+    for (const appConfig of allConfigs) {
+        console.log('[KernelFactory] Loading app:', appConfig.manifest?.id || appConfig.name || 'unknown');
+        await kernel.use(new AppPlugin(appConfig));
+    }
     
     // MSW Plugin
     await kernel.use(new MSWPlugin({
@@ -222,29 +230,27 @@ export async function createKernel(options: KernelOptions) {
     // FORCE SYNC SEED: Guarantees data availability for both Browser and Tests
     const ql = (kernel as any).context?.getService('objectql');
     if (ql) {
-        // Initial check
-        let tasks = await ql.find('todo_task');
-        
-        // If AppPlugin's async seeding hasn't finished or failed, do it manually now.
-        if (!tasks || tasks.length === 0) {
-            console.warn('[KernelFactory] Seeding check failed. Executing IMMEDIATE Manual Seeding...');
-            
+        // Seed data for all app configs
+        for (const appConfig of allConfigs) {
             const manifestData = appConfig.data || (appConfig.manifest && appConfig.manifest.data);
             if (manifestData && Array.isArray(manifestData)) {
                 for (const dataset of manifestData) {
-                    if (dataset.records) {
+                    if (!dataset.records || !dataset.object) continue;
+                    
+                    // Check if data already seeded
+                    let existing = await ql.find(dataset.object);
+                    if (existing && (existing as any).value) existing = (existing as any).value;
+                    
+                    if (!existing || existing.length === 0) {
                         console.log(`[KernelFactory] Manual Seeding ${dataset.records.length} records for ${dataset.object}`);
                         for (const record of dataset.records) {
                             await ql.insert(dataset.object, record);
                         }
+                    } else {
+                        console.log(`[KernelFactory] Data verified present for ${dataset.object}: ${existing.length} records.`);
                     }
                 }
             }
-            // Verify
-            tasks = await ql.find('todo_task');
-            console.log(`[KernelFactory] Manual Seeding Complete. Count in DB: ${tasks?.length}`);
-        } else {
-             console.log(`[KernelFactory] Data verified present: ${tasks?.length} records.`);
         }
     }
 

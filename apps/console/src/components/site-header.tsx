@@ -12,9 +12,10 @@ import { ThemeToggle } from "@/components/theme-toggle"
 
 interface SiteHeaderProps {
   selectedObject: string | null;
+  appLabel?: string;
 }
 
-export function SiteHeader({ selectedObject }: SiteHeaderProps) {
+export function SiteHeader({ selectedObject, appLabel }: SiteHeaderProps) {
   return (
     <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4">
       <div className="flex items-center gap-2">
@@ -24,7 +25,7 @@ export function SiteHeader({ selectedObject }: SiteHeaderProps) {
           <BreadcrumbList>
             <BreadcrumbItem className="hidden md:block">
               <BreadcrumbLink href="#">
-                ObjectStack
+                {appLabel || 'ObjectStack'}
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator className="hidden md:block" />

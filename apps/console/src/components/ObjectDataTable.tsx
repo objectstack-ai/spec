@@ -261,12 +261,12 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
             </CardHeader>
             
             <CardContent className="p-0">
-                <div className="overflow-auto">
+                <div className="overflow-x-auto">
                     <Table>
                         <TableHeader>
                             <TableRow className="hover:bg-transparent">
                                 {columns.map(col => (
-                                    <TableHead key={col.name} className="font-medium">
+                                    <TableHead key={col.name} className="font-medium whitespace-nowrap">
                                         <div className="flex items-center gap-1.5">
                                             {col.label}
                                             <Badge variant="outline" className="text-[10px] px-1 py-0 font-normal opacity-50 hidden lg:inline-flex">
@@ -275,7 +275,7 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
                                         </div>
                                     </TableHead>
                                 ))}
-                                <TableHead className="w-[60px]"></TableHead>
+                                <TableHead className="w-15 sticky right-0 bg-background"></TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -288,7 +288,7 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
                                             <CellValue value={record[col.name]} type={col.type} />
                                         </TableCell>
                                     ))}
-                                    <TableCell className="py-2.5">
+                                    <TableCell className="py-2.5 sticky right-0 bg-background">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button 
