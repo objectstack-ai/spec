@@ -1,6 +1,5 @@
 // @vitest-environment happy-dom
 import { describe, it, expect } from 'vitest';
-import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 

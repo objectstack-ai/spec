@@ -15,7 +15,7 @@ describe('App React CRUD Integration Tests (Virtual Browser)', () => {
     });
 
     it('should boot kernel and have seeded data available immediately', async () => {
-        const { client, kernel } = env;
+        const { client } = env;
 
         console.log('[Test] Verifying network-to-kernel bridge...');
 
