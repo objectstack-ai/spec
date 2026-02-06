@@ -137,7 +137,7 @@ export class HttpDispatcher {
      * Standard: /metadata/:type/:name
      * Fallback for backward compat: /metadata (all objects), /metadata/:objectName (get object)
      */
-    async handleMetadata(path: string, context: HttpProtocolContext, method?: string, body?: any): Promise<HttpDispatcherResult> {
+    async handleMetadata(path: string, context: HttpProtocolContext, method?: string, body?: any, query?: any): Promise<HttpDispatcherResult> {
         const broker = this.ensureBroker();
         const parts = path.replace(/^\/+/, '').split('/').filter(Boolean);
         
@@ -224,12 +224,14 @@ export class HttpDispatcher {
         // GET /metadata/:type (List items of type) OR /metadata/:objectName (Legacy)
         if (parts.length === 1) {
             const typeOrName = parts[0];
+            // Extract optional package filter from query string
+            const packageId = query?.package || undefined;
             
             // Try protocol service first for any type
             const protocol = this.kernel?.context?.getService ? this.kernel.context.getService('protocol') : null;
             if (protocol && typeof protocol.getMetaItems === 'function') {
                 try {
-                    const data = await protocol.getMetaItems({ type: typeOrName });
+                    const data = await protocol.getMetaItems({ type: typeOrName, packageId });
                     if (data && ((data.items && data.items.length > 0) || (Array.isArray(data) && data.length > 0))) {
                         return { handled: true, response: this.success(data) };
                     }
@@ -241,10 +243,10 @@ export class HttpDispatcher {
             // Try broker for the type
             try {
                 if (typeOrName === 'objects') {
-                    const data = await broker.call('metadata.objects', {}, { request: context.request });
+                    const data = await broker.call('metadata.objects', { packageId }, { request: context.request });
                     return { handled: true, response: this.success(data) };
                 }
-                const data = await broker.call(`metadata.${typeOrName}`, {}, { request: context.request });
+                const data = await broker.call(`metadata.${typeOrName}`, { packageId }, { request: context.request });
                 if (data !== null && data !== undefined) {
                     return { handled: true, response: this.success(data) };
                 }
@@ -683,7 +685,7 @@ export class HttpDispatcher {
         }
         
         if (cleanPath.startsWith('/meta')) {
-             return this.handleMetadata(cleanPath.substring(5), context);
+             return this.handleMetadata(cleanPath.substring(5), context, method, body, query);
         }
 
         if (cleanPath.startsWith('/data')) {

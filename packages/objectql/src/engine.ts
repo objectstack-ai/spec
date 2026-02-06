@@ -161,7 +161,7 @@ export class ObjectQL implements IDataEngine {
           if (Array.isArray(manifest.objects)) {
              this.logger.debug('Registering objects from manifest (Array)', { id, objectCount: manifest.objects.length });
              for (const objDef of manifest.objects) {
-                SchemaRegistry.registerObject(objDef);
+                SchemaRegistry.registerObject(objDef, id);
                 this.logger.debug('Registered Object', { object: objDef.name, from: id });
              }
           } else {
@@ -169,7 +169,7 @@ export class ObjectQL implements IDataEngine {
              for (const [name, objDef] of Object.entries(manifest.objects)) {
                 // Ensure name in definition matches key
                 (objDef as any).name = name;
-                SchemaRegistry.registerObject(objDef as any);
+                SchemaRegistry.registerObject(objDef as any, id);
                 this.logger.debug('Registered Object', { object: name, from: id });
              }
           }
@@ -181,7 +181,7 @@ export class ObjectQL implements IDataEngine {
           for (const app of manifest.apps) {
               const appName = app.name || app.id;
               if (appName) {
-                  SchemaRegistry.registerApp(app);
+                  SchemaRegistry.registerApp(app, id);
                   this.logger.debug('Registered App', { app: appName, from: id });
               }
           }
@@ -190,7 +190,7 @@ export class ObjectQL implements IDataEngine {
       // 4. If manifest itself looks like an App (has navigation), also register as app
       //    This handles the case where the manifest IS the app definition (legacy/simple packages)
       if (manifest.name && manifest.navigation && !manifest.apps?.length) {
-          SchemaRegistry.registerApp(manifest);
+          SchemaRegistry.registerApp(manifest, id);
           this.logger.debug('Registered manifest-as-app', { app: manifest.name, from: id });
       }
 
@@ -206,7 +206,7 @@ export class ObjectQL implements IDataEngine {
               for (const item of items) {
                   const itemName = item.name || item.id;
                   if (itemName) {
-                      SchemaRegistry.registerItem(key, item, 'name' as any);
+                      SchemaRegistry.registerItem(key, item, 'name' as any, id);
                   }
               }
           }

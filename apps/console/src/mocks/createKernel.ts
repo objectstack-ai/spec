@@ -204,10 +204,14 @@ export async function createKernel(options: KernelOptions) {
                 }
                 if (method === 'objects') {
                     // Return spec-compliant GetMetaItemsResponse
+                    // Support optional packageId filter
+                    const packageId = params.packageId;
                     let objs = (ql && typeof ql.getObjects === 'function') ? ql.getObjects() : [];
                     
                     if (!objs || objs.length === 0) {
-                         objs = SchemaRegistry.getAllObjects();
+                         objs = SchemaRegistry.getAllObjects(packageId);
+                    } else if (packageId) {
+                         objs = objs.filter((o: any) => o._packageId === packageId);
                     }
                     return { type: 'object', items: objs };
                 }
@@ -230,8 +234,9 @@ export async function createKernel(options: KernelOptions) {
                      }
                      return def || null;
                 }
-                // Generic metadata type: metadata.<type> → SchemaRegistry.listItems(type)
-                const items = SchemaRegistry.listItems(method);
+                // Generic metadata type: metadata.<type> → SchemaRegistry.listItems(type, packageId?)
+                const packageId = params.packageId;
+                const items = SchemaRegistry.listItems(method, packageId);
                 if (items && items.length > 0) {
                     return { type: method, items };
                 }

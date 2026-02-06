@@ -208,10 +208,15 @@ export class ObjectStackClient {
     /**
      * Get all items of a specific metadata type
      * @param type - Metadata type name (e.g., 'object', 'plugin')
+     * @param options - Optional filters (e.g., packageId to scope by package)
      */
-    getItems: async (type: string): Promise<GetMetaItemsResponse> => {
+    getItems: async (type: string, options?: { packageId?: string }): Promise<GetMetaItemsResponse> => {
         const route = this.getRoute('metadata');
-        const res = await this.fetch(`${this.baseUrl}${route}/${type}`);
+        const params = new URLSearchParams();
+        if (options?.packageId) params.set('package', options.packageId);
+        const qs = params.toString();
+        const url = `${this.baseUrl}${route}/${type}${qs ? `?${qs}` : ''}`;
+        const res = await this.fetch(url);
         return this.unwrapResponse<GetMetaItemsResponse>(res);
     },
 

@@ -129,6 +129,9 @@ export function AppSidebar({ client, selectedObject, onSelectObject, packages, s
       }
       setMetaTypes(types);
 
+      // Package scope: filter metadata by selected package
+      const packageId = selectedPackage?.manifest?.id;
+
       // 2. Load items for each type in parallel
       const entries = await Promise.all(
         types
@@ -136,7 +139,7 @@ export function AppSidebar({ client, selectedObject, onSelectObject, packages, s
           .map(async (type) => {
             try {
               // Spec: GetMetaItemsResponse = { type, items: any[] }
-              const result = await client.meta.getItems(type);
+              const result = await client.meta.getItems(type, packageId ? { packageId } : undefined);
               let items: any[] = [];
               if (Array.isArray(result)) {
                 items = result as any;
@@ -157,7 +160,7 @@ export function AppSidebar({ client, selectedObject, onSelectObject, packages, s
     } finally {
       setLoading(false);
     }
-  }, [client]);
+  }, [client, selectedPackage]);
 
   useEffect(() => { loadMetadata(); }, [loadMetadata]);
 

@@ -22,13 +22,18 @@ export class SchemaRegistry {
    * @param type The category of metadata (e.g., 'object', 'package', 'apps')
    * @param item The metadata item itself
    * @param keyField The property to use as the unique key (default: 'name')
+   * @param packageId Optional: the owning package ID for scoped queries
    */
-  static registerItem<T>(type: string, item: T, keyField: keyof T = 'name' as keyof T) {
+  static registerItem<T>(type: string, item: T, keyField: keyof T = 'name' as keyof T, packageId?: string) {
     if (!this.metadata.has(type)) {
       this.metadata.set(type, new Map());
     }
     const collection = this.metadata.get(type)!;
     const key = String(item[keyField]);
+    // Tag item with owning package for scoped queries
+    if (packageId) {
+      (item as any)._packageId = packageId;
+    }
 
     // Validation Hook
     try {
@@ -88,9 +93,15 @@ export class SchemaRegistry {
 
   /**
    * Universal List Method
+   * @param type The metadata type to list
+   * @param packageId Optional: filter items belonging to a specific package
    */
-  static listItems<T>(type: string): T[] {
-    return Array.from(this.metadata.get(type)?.values() || []) as T[];
+  static listItems<T>(type: string, packageId?: string): T[] {
+    const items = Array.from(this.metadata.get(type)?.values() || []) as T[];
+    if (packageId) {
+      return items.filter((item: any) => item._packageId === packageId);
+    }
+    return items;
   }
 
   /**
@@ -107,16 +118,16 @@ export class SchemaRegistry {
   /**
    * Object Helpers
    */
-  static registerObject(schema: ServiceObject) {
-    this.registerItem('object', schema, 'name');
+  static registerObject(schema: ServiceObject, packageId?: string) {
+    this.registerItem('object', schema, 'name', packageId);
   }
 
   static getObject(name: string): ServiceObject | undefined {
     return this.getItem<ServiceObject>('object', name);
   }
 
-  static getAllObjects(): ServiceObject[] {
-    return this.listItems<ServiceObject>('object');
+  static getAllObjects(packageId?: string): ServiceObject[] {
+    return this.listItems<ServiceObject>('object', packageId);
   }
 
   /**
@@ -198,8 +209,8 @@ export class SchemaRegistry {
    * App Helpers — UI navigation shells extracted from packages
    * @deprecated Use registerItem('apps', app, 'name') instead of registerApp for clarity
    */
-  static registerApp(app: any) {
-    this.registerItem('apps', app, 'name');
+  static registerApp(app: any, packageId?: string) {
+    this.registerItem('apps', app, 'name', packageId);
   }
 
   static getApp(name: string): any {

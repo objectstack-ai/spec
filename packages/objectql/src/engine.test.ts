@@ -88,7 +88,7 @@ describe('ObjectQL Engine', () => {
             };
             
             engine.registerApp(manifest);
-            expect(SchemaRegistry.registerObject).toHaveBeenCalledWith(expect.objectContaining({ name: 'task' }));
+            expect(SchemaRegistry.registerObject).toHaveBeenCalledWith(expect.objectContaining({ name: 'task' }), 'com.example.app');
         });
 
         it('should register kinds from app manifest', () => {
