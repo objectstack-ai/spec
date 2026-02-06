@@ -22,12 +22,12 @@ export function MetadataExplorer({ client, selectedObject, onSelectObject }: Met
                 // Use plural 'objects' to ensure HttpDispatcher treats it as a list request
                 // Singular 'object' is interpreted as getObject('object')
                 const result: any = await client.meta.getItems('objects');
-                // Support Standard Envelope { success, data } or direct array
+                // Spec: GetMetaItemsResponse = { type, items: any[] }
                 let items = [];
-                if (Array.isArray(result)) {
+                if (result && Array.isArray(result.items)) {
+                    items = result.items;
+                } else if (Array.isArray(result)) {
                     items = result;
-                } else if (result && result.success && Array.isArray(result.data)) {
-                    items = result.data;
                 } else if (result && Array.isArray(result.value)) {
                     items = result.value;
                 }

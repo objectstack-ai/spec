@@ -110,15 +110,13 @@ export function AppSidebar({ client, selectedObject, onSelectObject, apps, selec
     if (!client) return;
     setLoading(true);
     try {
-      // 1. Discover all registered metadata types
-      const typesRaw: any = await client.meta.getTypes();
-      // Unwrap { success, data } envelope if present
-      const typesResult = typesRaw?.data ?? typesRaw;
+      // 1. Discover all registered metadata types (spec: GetMetaTypesResponse)
+      const typesResult = await client.meta.getTypes();
       let types: string[] = [];
       if (typesResult && Array.isArray(typesResult.types)) {
         types = typesResult.types;
       } else if (Array.isArray(typesResult)) {
-        types = typesResult;
+        types = typesResult as any;
       }
       setMetaTypes(types);
 
@@ -128,18 +126,15 @@ export function AppSidebar({ client, selectedObject, onSelectObject, apps, selec
           .filter(t => !HIDDEN_TYPES.has(t))
           .map(async (type) => {
             try {
-              const raw: any = await client.meta.getItems(type);
-              // Unwrap { success, data } envelope if present
-              const result = raw?.data ?? raw;
+              // Spec: GetMetaItemsResponse = { type, items: any[] }
+              const result = await client.meta.getItems(type);
               let items: any[] = [];
               if (Array.isArray(result)) {
-                items = result;
+                items = result as any;
               } else if (result && Array.isArray(result.items)) {
                 items = result.items;
-              } else if (result && Array.isArray(result.data)) {
-                items = result.data;
-              } else if (result && Array.isArray(result.value)) {
-                items = result.value;
+              } else if (result && Array.isArray((result as any).value)) {
+                items = (result as any).value;
               }
               return [type, items] as const;
             } catch {

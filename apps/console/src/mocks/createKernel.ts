@@ -53,15 +53,22 @@ export async function createKernel(options: KernelOptions) {
             const ql = (kernel as any).context?.getService('objectql');
             
             if (service === 'data') {
+                // All data responses conform to protocol.zod.ts schemas:
+                // CreateDataResponse = { object, id, record }
+                // GetDataResponse = { object, id, record }
+                // FindDataResponse = { object, records, total?, hasMore? }
+                // UpdateDataResponse = { object, id, record }
+                // DeleteDataResponse = { object, id, deleted }
                 if (method === 'create') {
                      const res = await ql.insert(params.object, params.data);
-                     return { ...params.data, ...res };
+                     const record = { ...params.data, ...res };
+                     return { object: params.object, id: record.id || record._id, record };
                 }
                 if (method === 'get') {
                      let all = await ql.find(params.object);
                      if (!all) all = [];
                      const match = all.find((i: any) => i.id === params.id || i._id === params.id);
-                     return match || null;
+                     return match ? { object: params.object, id: params.id, record: match } : null;
                 }
                 if (method === 'update') {
                      if (params.id) {
@@ -87,14 +94,15 @@ export async function createKernel(options: KernelOptions) {
                               throw err;
                          }
                          
-                         return { ...existing, ...params.data }; 
+                         return { object: params.object, id: params.id, record: { ...existing, ...params.data } }; 
                      }
                      return null;
                 }
                 if (method === 'delete') {
                     try {
                         // ql.delete(object, options) where options.filter is ID
-                        return await ql.delete(params.object, { filter: params.id });
+                        await ql.delete(params.object, { filter: params.id });
+                        return { object: params.object, id: params.id, deleted: true };
                     } catch (err: any) {
                         console.warn(`[BrokerShim] delete failed: ${err.message}`);
                         throw err;
@@ -184,7 +192,8 @@ export async function createKernel(options: KernelOptions) {
                     }
                     
                     console.log(`[BrokerShim] find/query(${params.object}) -> count: ${all.length}`);
-                    return { data: all, count: all.length };
+                    // Spec: FindDataResponse = { object, records, total?, hasMore? }
+                    return { object: params.object, records: all, total: all.length };
                 }
             }
             
@@ -194,13 +203,13 @@ export async function createKernel(options: KernelOptions) {
                     return { types: SchemaRegistry.getRegisteredTypes() };
                 }
                 if (method === 'objects') {
-                    // Try engine first if implemented
+                    // Return spec-compliant GetMetaItemsResponse
                     let objs = (ql && typeof ql.getObjects === 'function') ? ql.getObjects() : [];
                     
                     if (!objs || objs.length === 0) {
                          objs = SchemaRegistry.getAllObjects();
                     }
-                    return objs;
+                    return { type: 'object', items: objs };
                 }
                 if (method === 'getObject' || method === 'getItem') {
                      // Hack: If no objectName provided, it might be a list request mapped incorrectly

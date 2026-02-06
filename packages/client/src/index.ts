@@ -56,8 +56,18 @@ export interface QueryOptions {
 }
 
 export interface PaginatedResult<T = any> {
-  value: T[];
-  count: number;
+  /** @deprecated Use `records` — aligned with FindDataResponseSchema */
+  value?: T[];
+  /** Spec-compliant: array of matching records */
+  records: T[];
+  /** @deprecated Use `total` — aligned with FindDataResponseSchema */
+  count?: number;
+  /** Total number of matching records (if requested) */
+  total?: number;
+  /** The object name */
+  object?: string;
+  /** Whether more records are available */
+  hasMore?: boolean;
 }
 
 export interface StandardError {
@@ -164,7 +174,7 @@ export class ObjectStackClient {
     getTypes: async (): Promise<GetMetaTypesResponse> => {
         const route = this.getRoute('metadata');
         const res = await this.fetch(`${this.baseUrl}${route}`);
-        return res.json();
+        return this.unwrapResponse<GetMetaTypesResponse>(res);
     },
 
     /**
@@ -174,7 +184,7 @@ export class ObjectStackClient {
     getItems: async (type: string): Promise<GetMetaItemsResponse> => {
         const route = this.getRoute('metadata');
         const res = await this.fetch(`${this.baseUrl}${route}/${type}`);
-        return res.json();
+        return this.unwrapResponse<GetMetaItemsResponse>(res);
     },
 
     /**
@@ -185,7 +195,7 @@ export class ObjectStackClient {
     getObject: async (name: string) => {
         const route = this.getRoute('metadata');
         const res = await this.fetch(`${this.baseUrl}${route}/object/${name}`);
-        return res.json();
+        return this.unwrapResponse(res);
     },
 
     /**
@@ -196,7 +206,7 @@ export class ObjectStackClient {
     getItem: async (type: string, name: string) => {
         const route = this.getRoute('metadata');
         const res = await this.fetch(`${this.baseUrl}${route}/${type}/${name}`);
-        return res.json();
+        return this.unwrapResponse(res);
     },
 
     /**
@@ -211,7 +221,7 @@ export class ObjectStackClient {
             method: 'PUT',
             body: JSON.stringify(item)
         });
-        return res.json();
+        return this.unwrapResponse(res);
     },
     
     /**
@@ -262,7 +272,7 @@ export class ObjectStackClient {
     getView: async (object: string, type: 'list' | 'form' = 'list') => {
         const route = this.getRoute('ui');
         const res = await this.fetch(`${this.baseUrl}${route}/view/${object}?type=${type}`);
-        return res.json();
+        return this.unwrapResponse(res);
     }
   };
 
@@ -594,6 +604,23 @@ export class ObjectStackClient {
     // If object but not basic KV map... harder to tell without schema
     // For now, assume if it passes Array.isArray it's an AST root
     return Array.isArray(filter);
+  }
+
+  /**
+   * Unwrap the standard REST API response envelope.
+   * The HTTP layer wraps responses as `{ success: boolean, data: T, meta? }`
+   * (see BaseResponseSchema in contract.zod.ts).
+   * This method strips the envelope and returns the inner `data` payload
+   * so callers receive the spec-level type (e.g. GetMetaTypesResponse).
+   */
+  private async unwrapResponse<T>(res: Response): Promise<T> {
+    const body = await res.json();
+    // If the body has a `success` flag it's a BaseResponse envelope
+    if (body && typeof body.success === 'boolean' && 'data' in body) {
+      return body.data as T;
+    }
+    // Already unwrapped or non-standard
+    return body as T;
   }
 
   private async fetch(url: string, options: RequestInit = {}): Promise<Response> {

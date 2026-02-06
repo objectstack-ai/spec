@@ -94,7 +94,8 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
             try {
                 const found: any = await client.meta.getItem('object', objectApiName);
                 if (mounted && found) {
-                    const def = found.data || found;
+                    // Spec: GetMetaItemResponse = { type, name, item }
+                    const def = found.item || found;
                     setDef(def);
                 }
             } catch (err) {

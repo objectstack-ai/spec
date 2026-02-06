@@ -301,14 +301,13 @@ export class HttpDispatcher {
             
             // POST /data/:object/query
             if (action === 'query' && m === 'POST') {
+                // Spec: broker returns FindDataResponse = { object, records, total?, hasMore? }
                 const result = await broker.call('data.query', { object: objectName, ...body }, { request: context.request });
-                return { handled: true, response: this.success(result.data, { count: result.count, limit: body.limit, skip: body.skip }) };
+                return { handled: true, response: this.success(result) };
             }
 
             // POST /data/:object/batch
             if (action === 'batch' && m === 'POST') {
-                // Spec complaint: forward the whole body { operation, records, options }
-                // Implementation in Kernel should handle the 'operation' field
                 const result = await broker.call('data.batch', { object: objectName, ...body }, { request: context.request });
                 return { handled: true, response: this.success(result) };
             }
@@ -316,35 +315,39 @@ export class HttpDispatcher {
             // GET /data/:object/:id
             if (parts.length === 2 && m === 'GET') {
                 const id = parts[1];
-                const data = await broker.call('data.get', { object: objectName, id, ...query }, { request: context.request });
-                return { handled: true, response: this.success(data) };
+                // Spec: broker returns GetDataResponse = { object, id, record }
+                const result = await broker.call('data.get', { object: objectName, id, ...query }, { request: context.request });
+                return { handled: true, response: this.success(result) };
             }
 
             // PATCH /data/:object/:id
             if (parts.length === 2 && m === 'PATCH') {
                 const id = parts[1];
-                const data = await broker.call('data.update', { object: objectName, id, data: body }, { request: context.request });
-                return { handled: true, response: this.success(data) };
+                // Spec: broker returns UpdateDataResponse = { object, id, record }
+                const result = await broker.call('data.update', { object: objectName, id, data: body }, { request: context.request });
+                return { handled: true, response: this.success(result) };
             }
 
             // DELETE /data/:object/:id
             if (parts.length === 2 && m === 'DELETE') {
                 const id = parts[1];
-                await broker.call('data.delete', { object: objectName, id }, { request: context.request });
-                return { handled: true, response: this.success({ id, deleted: true }) };
+                // Spec: broker returns DeleteDataResponse = { object, id, deleted }
+                const result = await broker.call('data.delete', { object: objectName, id }, { request: context.request });
+                return { handled: true, response: this.success(result) };
             }
         } else {
             // GET /data/:object (List)
             if (m === 'GET') {
+                // Spec: broker returns FindDataResponse = { object, records, total?, hasMore? }
                 const result = await broker.call('data.query', { object: objectName, filters: query }, { request: context.request });
-                return { handled: true, response: this.success(result.data, { count: result.count }) };
+                return { handled: true, response: this.success(result) };
             }
 
             // POST /data/:object (Create)
             if (m === 'POST') {
-                const data = await broker.call('data.create', { object: objectName, data: body }, { request: context.request });
-                // Note: ideally 201
-                const res = this.success(data);
+                // Spec: broker returns CreateDataResponse = { object, id, record }
+                const result = await broker.call('data.create', { object: objectName, data: body }, { request: context.request });
+                const res = this.success(result);
                 res.status = 201;
                 return { handled: true, response: res };
             }

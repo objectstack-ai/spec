@@ -32,7 +32,8 @@ export function ObjectDataForm({ client, objectApiName, record, onSuccess, onCan
             try {
                 const found: any = await client.meta.getItem('object', objectApiName);
                 if (mounted && found) {
-                    const resolved = found.data || found;
+                    // Spec: GetMetaItemResponse = { type, name, item }
+                    const resolved = found.item || found;
                     setDef(resolved);
                     if (record) {
                         setFormData({ ...record });
