@@ -21,17 +21,14 @@ Use statistical analysis and machine learning to provide data-driven insights.`,
   model: { provider: 'openai', model: 'gpt-4', temperature: 0.2, maxTokens: 3000 },
   
   tools: [
-    { name: 'analyze_pipeline', description: 'Analyze sales pipeline health', parameters: { user_id: 'string', time_period: 'string' } },
-    { name: 'identify_at_risk', description: 'Identify at-risk opportunities', parameters: { threshold: 'number' } },
-    { name: 'forecast_revenue', description: 'Generate revenue forecast', parameters: { time_period: 'string', method: 'string' } },
+    { type: 'query', name: 'analyze_pipeline', description: 'Analyze sales pipeline health' },
+    { type: 'query', name: 'identify_at_risk', description: 'Identify at-risk opportunities' },
+    { type: 'query', name: 'forecast_revenue', description: 'Generate revenue forecast' },
   ],
   
   knowledge: {
-    sources: [
-      { type: 'object', objectName: 'opportunity', fields: ['*'] },
-      { type: 'object', objectName: 'account', fields: ['*'] },
-      { type: 'analytics', dashboardName: 'sales_dashboard' },
-    ],
+    topics: ['pipeline_analytics', 'revenue_forecasting', 'deal_risk'],
+    indexes: ['sales_knowledge'],
   },
   
   schedule: { type: 'cron', expression: '0 8 * * 1', timezone: 'America/Los_Angeles' },

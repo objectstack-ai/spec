@@ -1,12 +1,13 @@
-import type { SharingRule } from '@objectstack/spec/security';
+import type { Security } from '@objectstack/spec';
+type CriteriaSharingRule = Security.CriteriaSharingRule;
 
 /** Share high-value open opportunities with management */
-export const OpportunitySalesSharingRule: SharingRule = {
+export const OpportunitySalesSharingRule: CriteriaSharingRule = {
   name: 'opportunity_sales_sharing',
   label: 'Opportunity Sales Team Sharing',
-  objectName: 'opportunity',
-  type: 'criteria_based',
-  criteria: { stage: { $nin: ['closed_won', 'closed_lost'] }, amount: { $gte: 100000 } },
-  sharedWith: { type: 'role', roles: ['sales_manager', 'sales_director', 'executive'] },
-  accessLevel: 'read_only',
+  object: 'opportunity',
+  type: 'criteria',
+  condition: 'stage NOT IN ("closed_won", "closed_lost") AND amount >= 100000',
+  accessLevel: 'read',
+  sharedWith: { type: 'role_and_subordinates', value: 'sales_director' },
 };

@@ -153,15 +153,13 @@ export const Campaign = ObjectSchema.create({
     // Calculated Metrics (Formula Fields)
     response_rate: Field.formula({
       label: 'Response Rate %',
-      type: 'percent',
-      formula: 'IF(num_sent > 0, (num_responses / num_sent) * 100, 0)',
+      expression: 'IF(num_sent > 0, (num_responses / num_sent) * 100, 0)',
       scale: 2,
     }),
     
     roi: Field.formula({
       label: 'ROI %',
-      type: 'percent',
-      formula: 'IF(actual_cost > 0, ((actual_revenue - actual_cost) / actual_cost) * 100, 0)',
+      expression: 'IF(actual_cost > 0, ((actual_revenue - actual_cost) / actual_cost) * 100, 0)',
       scale: 2,
     }),
     

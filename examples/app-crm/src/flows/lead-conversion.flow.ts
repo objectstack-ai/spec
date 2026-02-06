@@ -9,10 +9,10 @@ export const LeadConversionFlow: Flow = {
   objectName: 'lead',
   
   variables: [
-    { name: 'leadId', type: 'text', required: true },
-    { name: 'createOpportunity', type: 'boolean', defaultValue: true },
-    { name: 'opportunityName', type: 'text' },
-    { name: 'opportunityAmount', type: 'currency' },
+    { name: 'leadId', type: 'text', isInput: true, isOutput: false },
+    { name: 'createOpportunity', type: 'boolean', isInput: true, isOutput: false },
+    { name: 'opportunityName', type: 'text', isInput: true, isOutput: false },
+    { name: 'opportunityAmount', type: 'text', isInput: true, isOutput: false },
   ],
   
   steps: [

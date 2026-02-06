@@ -1,24 +1,24 @@
-import type { Profile } from '@objectstack/spec/security';
+import type { Security } from '@objectstack/spec';
 
-export const SystemAdminProfile: Profile = {
+export const SystemAdminProfile: Security.PermissionSet = {
   name: 'system_admin',
   label: 'System Administrator',
-  description: 'Full system administrator with all permissions',
-  objectPermissions: {
-    '*': { create: true, read: true, update: true, delete: true, viewAll: true, modifyAll: true },
+  isProfile: true,
+  objects: {
+    lead:        { allowCreate: true, allowRead: true, allowEdit: true, allowDelete: true, viewAllRecords: true, modifyAllRecords: true },
+    account:     { allowCreate: true, allowRead: true, allowEdit: true, allowDelete: true, viewAllRecords: true, modifyAllRecords: true },
+    contact:     { allowCreate: true, allowRead: true, allowEdit: true, allowDelete: true, viewAllRecords: true, modifyAllRecords: true },
+    opportunity: { allowCreate: true, allowRead: true, allowEdit: true, allowDelete: true, viewAllRecords: true, modifyAllRecords: true },
+    quote:       { allowCreate: true, allowRead: true, allowEdit: true, allowDelete: true, viewAllRecords: true, modifyAllRecords: true },
+    contract:    { allowCreate: true, allowRead: true, allowEdit: true, allowDelete: true, viewAllRecords: true, modifyAllRecords: true },
+    product:     { allowCreate: true, allowRead: true, allowEdit: true, allowDelete: true, viewAllRecords: true, modifyAllRecords: true },
+    campaign:    { allowCreate: true, allowRead: true, allowEdit: true, allowDelete: true, viewAllRecords: true, modifyAllRecords: true },
+    case:        { allowCreate: true, allowRead: true, allowEdit: true, allowDelete: true, viewAllRecords: true, modifyAllRecords: true },
+    task:        { allowCreate: true, allowRead: true, allowEdit: true, allowDelete: true, viewAllRecords: true, modifyAllRecords: true },
   },
-  fieldPermissions: {},
-  tabVisibility: { '*': 'default' },
-  recordTypeVisibility: {},
-  applicationVisibility: { '*': true },
-  systemPermissions: {
-    viewSetup: true,
-    manageUsers: true,
-    customizeApplication: true,
-    viewAllData: true,
-    modifyAllData: true,
-    manageProfiles: true,
-    manageRoles: true,
-    manageSharing: true,
-  },
+  systemPermissions: [
+    'view_setup', 'manage_users', 'customize_application',
+    'view_all_data', 'modify_all_data', 'manage_profiles',
+    'manage_roles', 'manage_sharing',
+  ],
 };

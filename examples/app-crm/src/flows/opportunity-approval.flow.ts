@@ -10,7 +10,7 @@ export const OpportunityApprovalFlow: Flow = {
   criteria: 'amount > 100000 AND stage = "proposal"',
   
   variables: [
-    { name: 'opportunityId', type: 'text', required: true },
+    { name: 'opportunityId', type: 'text', isInput: true, isOutput: false },
   ],
   
   steps: [

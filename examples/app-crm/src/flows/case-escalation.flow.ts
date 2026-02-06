@@ -10,7 +10,7 @@ export const CaseEscalationFlow: Flow = {
   criteria: 'priority = "critical" OR (priority = "high" AND account.type = "customer")',
   
   variables: [
-    { name: 'caseId', type: 'text', required: true },
+    { name: 'caseId', type: 'text', isInput: true, isOutput: false },
   ],
   
   steps: [

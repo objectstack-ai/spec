@@ -37,16 +37,16 @@ export const Quote = ObjectSchema.create({
     contact: Field.lookup('contact', {
       label: 'Contact',
       required: true,
-      referenceFilters: {
-        account: '{account}',
-      }
+      referenceFilters: [
+        'account = {account}',
+      ]
     }),
     
     opportunity: Field.lookup('opportunity', {
       label: 'Opportunity',
-      referenceFilters: {
-        account: '{account}',
-      }
+      referenceFilters: [
+        'account = {account}',
+      ]
     }),
     
     owner: Field.lookup('user', {

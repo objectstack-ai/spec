@@ -9,8 +9,8 @@ export const CampaignEnrollmentFlow: Flow = {
   schedule: '0 9 * * 1', // Monday at 9am
   
   variables: [
-    { name: 'campaignId', type: 'text', required: true },
-    { name: 'leadStatus', type: 'text', defaultValue: 'new' },
+    { name: 'campaignId', type: 'text', isInput: true, isOutput: false },
+    { name: 'leadStatus', type: 'text', isInput: true, isOutput: false },
   ],
   
   steps: [

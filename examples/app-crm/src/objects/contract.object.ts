@@ -29,16 +29,16 @@ export const Contract = ObjectSchema.create({
     contact: Field.lookup('contact', {
       label: 'Primary Contact',
       required: true,
-      referenceFilters: {
-        account: '{account}',
-      }
+      referenceFilters: [
+        'account = {account}',
+      ]
     }),
     
     opportunity: Field.lookup('opportunity', {
       label: 'Related Opportunity',
-      referenceFilters: {
-        account: '{account}',
-      }
+      referenceFilters: [
+        'account = {account}',
+      ]
     }),
     
     owner: Field.lookup('user', {

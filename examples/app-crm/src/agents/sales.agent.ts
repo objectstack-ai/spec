@@ -21,19 +21,14 @@ Always be professional, data-driven, and focused on helping close deals.`,
   model: { provider: 'openai', model: 'gpt-4', temperature: 0.7, maxTokens: 2000 },
   
   tools: [
-    { name: 'analyze_lead', description: 'Analyze a lead and provide qualification score', parameters: { lead_id: 'string' } },
-    { name: 'suggest_next_action', description: 'Suggest next best action for an opportunity', parameters: { opportunity_id: 'string' } },
-    { name: 'generate_email', description: 'Generate a personalized email template', parameters: { recipient_id: 'string', context: 'string', tone: 'string' } },
+    { type: 'action', name: 'analyze_lead', description: 'Analyze a lead and provide qualification score' },
+    { type: 'action', name: 'suggest_next_action', description: 'Suggest next best action for an opportunity' },
+    { type: 'action', name: 'generate_email', description: 'Generate a personalized email template' },
   ],
   
   knowledge: {
-    sources: [
-      { type: 'object', objectName: 'lead', fields: ['*'] },
-      { type: 'object', objectName: 'opportunity', fields: ['*'] },
-      { type: 'object', objectName: 'account', fields: ['*'] },
-      { type: 'document', path: '/knowledge/sales-playbook.md' },
-      { type: 'document', path: '/knowledge/product-catalog.md' },
-    ],
+    topics: ['sales_playbook', 'product_catalog', 'lead_qualification'],
+    indexes: ['sales_knowledge'],
   },
   
   triggers: [

@@ -1,29 +1,25 @@
-import type { Profile } from '@objectstack/spec/security';
+import type { Security } from '@objectstack/spec';
 
-export const SalesRepProfile: Profile = {
+export const SalesRepProfile: Security.PermissionSet = {
   name: 'sales_rep',
   label: 'Sales Representative',
-  description: 'Standard sales rep with access to sales objects',
-  objectPermissions: {
-    lead:        { create: true,  read: true,  update: true,  delete: false, viewAll: false, modifyAll: false },
-    account:     { create: true,  read: true,  update: true,  delete: false, viewAll: false, modifyAll: false },
-    contact:     { create: true,  read: true,  update: true,  delete: false, viewAll: false, modifyAll: false },
-    opportunity: { create: true,  read: true,  update: true,  delete: false, viewAll: false, modifyAll: false },
-    quote:       { create: true,  read: true,  update: true,  delete: false, viewAll: false, modifyAll: false },
-    contract:    { create: false, read: true,  update: false, delete: false, viewAll: false, modifyAll: false },
-    product:     { create: false, read: true,  update: false, delete: false, viewAll: true,  modifyAll: false },
-    campaign:    { create: false, read: true,  update: false, delete: false, viewAll: true,  modifyAll: false },
-    case:        { create: false, read: true,  update: false, delete: false, viewAll: false, modifyAll: false },
-    task:        { create: true,  read: true,  update: true,  delete: true,  viewAll: false, modifyAll: false },
+  isProfile: true,
+  objects: {
+    lead:        { allowCreate: true,  allowRead: true,  allowEdit: true,  allowDelete: false, viewAllRecords: false, modifyAllRecords: false },
+    account:     { allowCreate: true,  allowRead: true,  allowEdit: true,  allowDelete: false, viewAllRecords: false, modifyAllRecords: false },
+    contact:     { allowCreate: true,  allowRead: true,  allowEdit: true,  allowDelete: false, viewAllRecords: false, modifyAllRecords: false },
+    opportunity: { allowCreate: true,  allowRead: true,  allowEdit: true,  allowDelete: false, viewAllRecords: false, modifyAllRecords: false },
+    quote:       { allowCreate: true,  allowRead: true,  allowEdit: true,  allowDelete: false, viewAllRecords: false, modifyAllRecords: false },
+    contract:    { allowCreate: false, allowRead: true,  allowEdit: false, allowDelete: false, viewAllRecords: false, modifyAllRecords: false },
+    product:     { allowCreate: false, allowRead: true,  allowEdit: false, allowDelete: false, viewAllRecords: true,  modifyAllRecords: false },
+    campaign:    { allowCreate: false, allowRead: true,  allowEdit: false, allowDelete: false, viewAllRecords: true,  modifyAllRecords: false },
+    case:        { allowCreate: false, allowRead: true,  allowEdit: false, allowDelete: false, viewAllRecords: false, modifyAllRecords: false },
+    task:        { allowCreate: true,  allowRead: true,  allowEdit: true,  allowDelete: true,  viewAllRecords: false, modifyAllRecords: false },
   },
-  fieldPermissions: {
-    account:     { annual_revenue: { read: true, update: false }, description: { read: true, update: true } },
-    opportunity: { amount: { read: true, update: true }, probability: { read: true, update: true } },
+  fields: {
+    'account.annual_revenue': { readable: true, editable: false },
+    'account.description':    { readable: true, editable: true },
+    'opportunity.amount':     { readable: true, editable: true },
+    'opportunity.probability': { readable: true, editable: true },
   },
-  tabVisibility: {
-    lead: 'default', account: 'default', contact: 'default', opportunity: 'default',
-    quote: 'default', product: 'available', campaign: 'available', case: 'hidden',
-  },
-  recordTypeVisibility: {},
-  applicationVisibility: { crm_example: true },
 };

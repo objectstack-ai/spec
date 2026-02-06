@@ -21,15 +21,14 @@ Always use reputable data sources and maintain data quality.`,
   model: { provider: 'openai', model: 'gpt-3.5-turbo', temperature: 0.3, maxTokens: 1000 },
   
   tools: [
-    { name: 'lookup_company', description: 'Look up company information', parameters: { company_name: 'string', domain: 'string' } },
-    { name: 'enrich_contact', description: 'Enrich contact information', parameters: { email: 'string', linkedin_url: 'string' } },
-    { name: 'validate_email', description: 'Validate email address', parameters: { email: 'string' } },
+    { type: 'action', name: 'lookup_company', description: 'Look up company information' },
+    { type: 'action', name: 'enrich_contact', description: 'Enrich contact information' },
+    { type: 'action', name: 'validate_email', description: 'Validate email address' },
   ],
   
   knowledge: {
-    sources: [
-      { type: 'object', objectName: 'lead', fields: ['company', 'email', 'phone', 'website'] },
-    ],
+    topics: ['lead_enrichment', 'company_data'],
+    indexes: ['sales_knowledge'],
   },
   
   triggers: [

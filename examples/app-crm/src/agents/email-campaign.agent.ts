@@ -21,16 +21,13 @@ Follow email marketing best practices and maintain brand voice.`,
   model: { provider: 'anthropic', model: 'claude-3-opus', temperature: 0.8, maxTokens: 2000 },
   
   tools: [
-    { name: 'generate_email_copy', description: 'Generate email campaign copy', parameters: { campaign_id: 'string', audience: 'string', goal: 'string' } },
-    { name: 'optimize_subject_line', description: 'Optimize email subject line', parameters: { subject: 'string' } },
-    { name: 'personalize_content', description: 'Personalize email content', parameters: { template: 'string', recipient_data: 'object' } },
+    { type: 'action', name: 'generate_email_copy', description: 'Generate email campaign copy' },
+    { type: 'action', name: 'optimize_subject_line', description: 'Optimize email subject line' },
+    { type: 'action', name: 'personalize_content', description: 'Personalize email content' },
   ],
   
   knowledge: {
-    sources: [
-      { type: 'object', objectName: 'campaign', fields: ['*'] },
-      { type: 'document', path: '/knowledge/brand-guidelines.md' },
-      { type: 'document', path: '/knowledge/email-templates/**/*.html' },
-    ],
+    topics: ['email_marketing', 'brand_guidelines', 'campaign_templates'],
+    indexes: ['sales_knowledge'],
   },
 };

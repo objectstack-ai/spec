@@ -1,21 +1,14 @@
-import type { Profile } from '@objectstack/spec/security';
+import type { Security } from '@objectstack/spec';
 
-export const MarketingUserProfile: Profile = {
+export const MarketingUserProfile: Security.PermissionSet = {
   name: 'marketing_user',
   label: 'Marketing User',
-  description: 'Marketing user with access to campaigns and leads',
-  objectPermissions: {
-    lead:        { create: true,  read: true,  update: true,  delete: false, viewAll: true,  modifyAll: false },
-    account:     { create: false, read: true,  update: false, delete: false, viewAll: true,  modifyAll: false },
-    contact:     { create: true,  read: true,  update: true,  delete: false, viewAll: true,  modifyAll: false },
-    campaign:    { create: true,  read: true,  update: true,  delete: false, viewAll: true,  modifyAll: false },
-    opportunity: { create: false, read: true,  update: false, delete: false, viewAll: false, modifyAll: false },
+  isProfile: true,
+  objects: {
+    lead:        { allowCreate: true,  allowRead: true,  allowEdit: true,  allowDelete: false, viewAllRecords: true,  modifyAllRecords: false },
+    account:     { allowCreate: false, allowRead: true,  allowEdit: false, allowDelete: false, viewAllRecords: true,  modifyAllRecords: false },
+    contact:     { allowCreate: true,  allowRead: true,  allowEdit: true,  allowDelete: false, viewAllRecords: true,  modifyAllRecords: false },
+    campaign:    { allowCreate: true,  allowRead: true,  allowEdit: true,  allowDelete: false, viewAllRecords: true,  modifyAllRecords: false },
+    opportunity: { allowCreate: false, allowRead: true,  allowEdit: false, allowDelete: false, viewAllRecords: false, modifyAllRecords: false },
   },
-  fieldPermissions: {},
-  tabVisibility: {
-    campaign: 'default', lead: 'default', contact: 'default',
-    account: 'available', opportunity: 'available',
-  },
-  recordTypeVisibility: {},
-  applicationVisibility: { crm_example: true },
 };

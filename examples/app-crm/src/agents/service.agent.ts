@@ -21,18 +21,14 @@ Always be empathetic, solution-focused, and customer-centric.`,
   model: { provider: 'openai', model: 'gpt-4', temperature: 0.5, maxTokens: 1500 },
   
   tools: [
-    { name: 'triage_case', description: 'Analyze case and assign priority', parameters: { case_id: 'string' } },
-    { name: 'search_knowledge', description: 'Search knowledge base for solutions', parameters: { query: 'string' } },
-    { name: 'generate_response', description: 'Generate customer response', parameters: { case_id: 'string', tone: 'string' } },
+    { type: 'action', name: 'triage_case', description: 'Analyze case and assign priority' },
+    { type: 'vector_search', name: 'search_knowledge', description: 'Search knowledge base for solutions' },
+    { type: 'action', name: 'generate_response', description: 'Generate customer response' },
   ],
   
   knowledge: {
-    sources: [
-      { type: 'object', objectName: 'case', fields: ['*'] },
-      { type: 'object', objectName: 'account', fields: ['*'] },
-      { type: 'document', path: '/knowledge/support-kb/**/*.md' },
-      { type: 'document', path: '/knowledge/sla-policies.md' },
-    ],
+    topics: ['support_kb', 'sla_policies', 'case_resolution'],
+    indexes: ['support_knowledge'],
   },
   
   triggers: [
