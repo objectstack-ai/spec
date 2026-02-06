@@ -92,6 +92,13 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
         }
     }
 
+    // Helper to allow debugging and simple formatting
+    function formatRecords(recs: any[], cols: any[]) {
+        if (!recs || recs.length === 0) return [];
+        // Optional: Ensure fields that match columns exist or default to ''
+        return recs;
+    }
+
     if (!def) return <div className="p-4 text-accents-5">Loading metadata for {objectApiName}...</div>;
 
     // Determine columns from fields
@@ -103,7 +110,7 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
         return {
             name: f.name || key,
             label: f.label || key,
-            type: f.type
+            type: f.type || 'text'
         };
     }).filter(c => !['formatted_summary'].includes(c.name)); // hide system fields if any
 
@@ -129,7 +136,7 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
                     <tbody className="divide-y divide-accents-2">
                         {loading && records.length === 0 ? (
                             <tr><td colSpan={columns.length + 1} className="p-4 text-center">Loading...</td></tr>
-                        ) : records.map(record => (
+                        ) : formatRecords(records, columns).map(record => (
                             <tr key={record.id || record._id} className="hover:bg-gray-50 transition-colors">
                                 {columns.map(col => (
                                     <td key={col.name} className="px-4 py-3 whitespace-nowrap">

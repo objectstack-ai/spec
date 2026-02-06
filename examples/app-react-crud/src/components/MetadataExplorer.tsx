@@ -16,14 +16,18 @@ export function MetadataExplorer({ client, selectedObject, onSelectObject }: Met
             if (!client) return;
             setLoading(true);
             try {
-                const result = await client.meta.getItems('object');
-                if (result && Array.isArray(result)) {
-                    setObjects(result);
-                    // Select first if none selected
-                    // if (!selectedObject && result.length > 0) {
-                    //     onSelectObject(result[0].name);
-                    // }
+                const result: any = await client.meta.getItems('object');
+                // Support Standard Envelope { success, data } or direct array
+                let items = [];
+                if (Array.isArray(result)) {
+                    items = result;
+                } else if (result && result.success && Array.isArray(result.data)) {
+                    items = result.data;
+                } else if (result && Array.isArray(result.value)) {
+                    items = result.value;
                 }
+                
+                setObjects(items);
             } catch (err) {
                 console.error("Failed to load objects", err);
             } finally {
