@@ -1,7 +1,7 @@
 {
-  "name": "@example/app-react-crud",
+  "name": "@objectstack/console",
   "version": "0.9.14",
-  "description": "Complete MSW integration example with React CRUD components using ObjectStack Client",
+  "description": "ObjectStack Platform Console - A metadata-driven admin interface for managing data and configuration",
   "private": true,
   "type": "module",
   "scripts": {
