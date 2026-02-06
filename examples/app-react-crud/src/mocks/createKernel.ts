@@ -182,14 +182,32 @@ export async function createKernel(options: KernelOptions) {
             
             if (service === 'metadata') {
                 if (method === 'objects') {
-                    let objs = ql && ql.getObjects ? ql.getObjects() : [];
-                    if (objs.length === 0) {
+                    // Try engine first if implemented
+                    let objs = (ql && typeof ql.getObjects === 'function') ? ql.getObjects() : [];
+                    
+                    if (!objs || objs.length === 0) {
                          objs = SchemaRegistry.getAllObjects();
                     }
                     return objs;
                 }
-                if (method === 'getObject') {
-                     return SchemaRegistry.getObject(params.objectName) || (ql ? ql.getObject(params.objectName) : null);
+                if (method === 'getObject' || method === 'getItem') {
+                     // Hack: If no objectName provided, it might be a list request mapped incorrectly
+                     // or a request for the "object" type definition itself?
+                     // For 'object', we usually want the list if no name.
+                     if (!params.objectName && !params.name) {
+                         return SchemaRegistry.getAllObjects();
+                     }
+
+                     const name = params.objectName || params.name;
+
+                     // Check registry first (synchronous cache)
+                     let def = SchemaRegistry.getObject(name);
+                     
+                     // If not found, try engine (might be dynamic)
+                     if (!def && ql && typeof (ql as any).getObject === 'function') {
+                         def = (ql as any).getObject(name);
+                     }
+                     return def || null;
                 }
             }
             
