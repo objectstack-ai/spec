@@ -27,6 +27,8 @@ ObjectStack is a metadata-driven platform built on three foundational protocols:
 ### Architecture Documentation
 
 - **[Architecture Guide](./ARCHITECTURE.md)** - Complete microkernel architecture overview
+- **[Protocol Improvement Report](./PROTOCOL_IMPROVEMENT_REPORT.md)** - 🆕 Comprehensive analysis of 128 Zod protocols with AI enhancement recommendations
+- **[Protocol Improvement Summary (中文)](./PROTOCOL_IMPROVEMENT_SUMMARY_ZH.md)** - 🆕 Executive summary in Chinese
 - **[Quick Reference](./QUICK-REFERENCE.md)** - Fast lookup for developers
 - **[Package Dependencies](./PACKAGE-DEPENDENCIES.md)** - Dependency graph and build order
 
