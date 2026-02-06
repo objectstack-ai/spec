@@ -115,7 +115,7 @@ For complex business objects (like `Lead`, `Opportunity`, or `Order`), the state
 Define the state machine using `StateMachineConfig` type for full type safety.
 
 ```typescript
-// src/domains/sales/lead.state.ts
+// src/objects/lead.state.ts
 import type { StateMachineConfig } from '@objectstack/spec/automation';
 
 export const LeadStateMachine: StateMachineConfig = {
@@ -138,7 +138,7 @@ export const LeadStateMachine: StateMachineConfig = {
 Keep your object definition focused on schema and metadata.
 
 ```typescript
-// src/domains/sales/lead.object.ts
+// src/objects/lead.object.ts
 import { ObjectSchema } from '@objectstack/spec/data';
 import { LeadStateMachine } from './lead.state';
 
@@ -162,7 +162,7 @@ In real enterprise systems, a single object often has **multiple independent sta
 Use the `stateMachines` (plural) property to define them:
 
 ```typescript
-// src/domains/sales/order.object.ts
+// src/objects/order.object.ts
 import { ObjectSchema } from '@objectstack/spec/data';
 import { OrderLifecycle } from './order-lifecycle.state';
 import { OrderPayment } from './order-payment.state';
