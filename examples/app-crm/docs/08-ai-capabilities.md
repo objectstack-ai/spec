@@ -1,0 +1,818 @@
+# AI Capabilities Guide
+
+Complete guide to leveraging AI agents, RAG pipelines, and intelligent automation in ObjectStack.
+
+## Table of Contents
+
+1. [AI Architecture](#ai-architecture)
+2. [AI Agents](#ai-agents)
+3. [RAG Pipelines](#rag-pipelines)
+4. [Natural Language Queries](#natural-language-queries)
+5. [Predictive Analytics](#predictive-analytics)
+6. [Best Practices](#best-practices)
+
+---
+
+## AI Architecture
+
+ObjectStack provides a comprehensive AI platform:
+
+```
+┌─────────────────────────────────────┐
+│        AI Orchestration             │ ← Coordinate AI workflows
+├─────────────────────────────────────┤
+│        AI Agents                    │ ← Autonomous actors
+│  - Assistants                       │
+│  - Workers                          │
+│  - Analysts                         │
+├─────────────────────────────────────┤
+│        RAG Pipelines                │ ← Knowledge retrieval
+│  - Vector Search                    │
+│  - Semantic Chunking                │
+│  - Reranking                        │
+├─────────────────────────────────────┤
+│        Model Registry               │ ← LLM management
+│  - OpenAI, Anthropic, etc.         │
+│  - Model routing                    │
+│  - Cost tracking                    │
+└─────────────────────────────────────┘
+```
+
+---
+
+## AI Agents
+
+AI agents are autonomous actors that perform tasks on behalf of users.
+
+### Agent Types
+
+| Type | Description | Use Cases |
+|------|-------------|-----------|
+| **Assistant** | Interactive helpers | Chatbots, Q&A, recommendations |
+| **Worker** | Background processors | Data enrichment, automation |
+| **Analyst** | Data analysts | Insights, forecasting, reporting |
+| **Creator** | Content generators | Emails, documents, designs |
+
+### Sales Assistant Agent
+
+```typescript
+import type { Agent } from '@objectstack/spec/ai';
+
+export const SalesAssistantAgent: Agent = {
+  name: 'sales_assistant',
+  label: 'Sales Assistant',
+  description: 'AI agent to help sales reps with lead qualification',
+  
+  role: 'assistant',
+  
+  instructions: `You are a sales assistant AI.
+  
+Your responsibilities:
+1. Qualify incoming leads (BANT criteria)
+2. Suggest next best actions
+3. Draft personalized emails
+4. Analyze win/loss patterns
+
+Always be professional and data-driven.`,
+
+  model: {
+    provider: 'openai',
+    model: 'gpt-4',
+    temperature: 0.7,
+    maxTokens: 2000,
+  },
+  
+  // Tools the agent can use
+  tools: [
+    {
+      name: 'analyze_lead',
+      description: 'Analyze a lead and provide qualification score',
+      parameters: {
+        lead_id: 'string',
+      },
+    },
+    {
+      name: 'suggest_next_action',
+      description: 'Suggest next best action for an opportunity',
+      parameters: {
+        opportunity_id: 'string',
+      },
+    },
+    {
+      name: 'generate_email',
+      description: 'Generate a personalized email template',
+      parameters: {
+        recipient_id: 'string',
+        context: 'string',
+        tone: 'string',
+      },
+    },
+  ],
+  
+  // Knowledge sources
+  knowledge: {
+    sources: [
+      {
+        type: 'object',
+        objectName: 'lead',
+        fields: ['*'],
+      },
+      {
+        type: 'object',
+        objectName: 'opportunity',
+        fields: ['*'],
+      },
+      {
+        type: 'document',
+        path: '/knowledge/sales-playbook.md',
+      },
+    ],
+  },
+  
+  // When to trigger the agent
+  triggers: [
+    {
+      type: 'object_create',
+      objectName: 'lead',
+      condition: 'rating = "hot"',
+    },
+    {
+      type: 'object_update',
+      objectName: 'opportunity',
+      condition: 'ISCHANGED(stage)',
+    },
+  ],
+};
+```
+
+### Customer Service Agent
+
+```typescript
+export const ServiceAgent: Agent = {
+  name: 'service_agent',
+  label: 'Customer Service Agent',
+  description: 'AI agent to assist with support cases',
+  
+  role: 'assistant',
+  
+  instructions: `You are a customer service AI agent.
+  
+Your responsibilities:
+1. Triage incoming cases
+2. Suggest relevant knowledge articles
+3. Draft response templates
+4. Escalate critical issues
+
+Always be empathetic and solution-focused.`,
+
+  model: {
+    provider: 'openai',
+    model: 'gpt-4',
+    temperature: 0.5,
+    maxTokens: 1500,
+  },
+  
+  tools: [
+    {
+      name: 'triage_case',
+      description: 'Analyze case and assign priority',
+      parameters: {
+        case_id: 'string',
+      },
+    },
+    {
+      name: 'search_knowledge',
+      description: 'Search knowledge base for solutions',
+      parameters: {
+        query: 'string',
+      },
+    },
+    {
+      name: 'generate_response',
+      description: 'Generate customer response',
+      parameters: {
+        case_id: 'string',
+        tone: 'string',
+      },
+    },
+  ],
+  
+  knowledge: {
+    sources: [
+      {
+        type: 'object',
+        objectName: 'case',
+        fields: ['*'],
+      },
+      {
+        type: 'document',
+        path: '/knowledge/support-kb/**/*.md',
+      },
+    ],
+  },
+  
+  triggers: [
+    {
+      type: 'object_create',
+      objectName: 'case',
+    },
+  ],
+};
+```
+
+### Lead Enrichment Agent (Worker)
+
+```typescript
+export const LeadEnrichmentAgent: Agent = {
+  name: 'lead_enrichment',
+  label: 'Lead Enrichment Agent',
+  description: 'Automatically enrich lead data',
+  
+  role: 'worker',
+  
+  instructions: `You enrich lead records with additional data.
+  
+Tasks:
+1. Look up company information
+2. Enrich contact details
+3. Add firmographic data
+4. Research technology stack
+
+Use reputable data sources.`,
+
+  model: {
+    provider: 'openai',
+    model: 'gpt-3.5-turbo',
+    temperature: 0.3,
+    maxTokens: 1000,
+  },
+  
+  tools: [
+    {
+      name: 'lookup_company',
+      description: 'Look up company information',
+      parameters: {
+        company_name: 'string',
+        domain: 'string',
+      },
+    },
+    {
+      name: 'enrich_contact',
+      description: 'Enrich contact information',
+      parameters: {
+        email: 'string',
+      },
+    },
+  ],
+  
+  triggers: [
+    {
+      type: 'object_create',
+      objectName: 'lead',
+    },
+  ],
+  
+  schedule: {
+    type: 'cron',
+    expression: '0 */4 * * *', // Every 4 hours
+    timezone: 'UTC',
+  },
+};
+```
+
+### Revenue Intelligence Agent (Analyst)
+
+```typescript
+export const RevenueIntelligenceAgent: Agent = {
+  name: 'revenue_intelligence',
+  label: 'Revenue Intelligence Agent',
+  description: 'Analyze pipeline and provide insights',
+  
+  role: 'analyst',
+  
+  instructions: `You analyze sales data and provide insights.
+  
+Responsibilities:
+1. Analyze pipeline health
+2. Identify at-risk deals
+3. Forecast revenue
+4. Detect anomalies
+5. Generate executive summaries
+
+Use statistical analysis and ML.`,
+
+  model: {
+    provider: 'openai',
+    model: 'gpt-4',
+    temperature: 0.2,
+    maxTokens: 3000,
+  },
+  
+  tools: [
+    {
+      name: 'analyze_pipeline',
+      description: 'Analyze sales pipeline health',
+      parameters: {
+        user_id: 'string',
+        time_period: 'string',
+      },
+    },
+    {
+      name: 'forecast_revenue',
+      description: 'Generate revenue forecast',
+      parameters: {
+        time_period: 'string',
+        method: 'string',
+      },
+    },
+  ],
+  
+  knowledge: {
+    sources: [
+      {
+        type: 'object',
+        objectName: 'opportunity',
+        fields: ['*'],
+      },
+      {
+        type: 'analytics',
+        dashboardName: 'sales_dashboard',
+      },
+    ],
+  },
+  
+  schedule: {
+    type: 'cron',
+    expression: '0 8 * * 1', // Monday at 8am
+    timezone: 'America/Los_Angeles',
+  },
+};
+```
+
+---
+
+## RAG Pipelines
+
+Retrieval-Augmented Generation (RAG) provides AI with access to your knowledge base.
+
+### Sales Knowledge RAG
+
+```typescript
+import type { RagPipeline } from '@objectstack/spec/ai';
+
+export const SalesKnowledgeRAG: RagPipeline = {
+  name: 'sales_knowledge',
+  label: 'Sales Knowledge Pipeline',
+  description: 'Sales playbook and best practices',
+  
+  // Define indexes
+  indexes: [
+    {
+      name: 'sales_playbook_index',
+      type: 'vector',
+      
+      // Data sources
+      sources: [
+        {
+          type: 'document',
+          path: '/knowledge/sales/**/*.md',
+          watch: true, // Auto-update on changes
+        },
+        {
+          type: 'document',
+          path: '/knowledge/products/**/*.pdf',
+          watch: true,
+        },
+        {
+          type: 'object',
+          objectName: 'opportunity',
+          fields: ['name', 'description', 'stage', 'amount'],
+          filter: {
+            stage: 'closed_won',
+            close_date: { $gte: '{last_12_months}' },
+          },
+        },
+      ],
+      
+      // Embedding model
+      embedding: {
+        provider: 'openai',
+        model: 'text-embedding-3-large',
+        dimensions: 1536,
+      },
+      
+      // Chunking strategy
+      chunking: {
+        strategy: 'semantic',
+        chunkSize: 1000,
+        chunkOverlap: 200,
+      },
+      
+      // Metadata extraction
+      metadata: {
+        extractors: [
+          {
+            type: 'title',
+            source: 'filename',
+          },
+          {
+            type: 'date',
+            source: 'modified_date',
+          },
+        ],
+      },
+    },
+  ],
+  
+  // Retrieval strategy
+  retrieval: {
+    strategy: 'hybrid',
+    
+    vectorSearch: {
+      topK: 10,
+      scoreThreshold: 0.7,
+      algorithm: 'cosine',
+    },
+    
+    keywordSearch: {
+      enabled: true,
+      weight: 0.3,
+    },
+    
+    reranking: {
+      enabled: true,
+      model: 'cohere-rerank',
+      topK: 5,
+    },
+  },
+  
+  // Generation
+  generation: {
+    model: {
+      provider: 'openai',
+      model: 'gpt-4',
+      temperature: 0.7,
+      maxTokens: 2000,
+    },
+    
+    promptTemplate: `You are a sales expert. Use the context to answer.
+
+Context:
+{context}
+
+Question: {question}
+
+Answer based on the context. If uncertain, say so.`,
+  },
+  
+  // Caching
+  caching: {
+    enabled: true,
+    ttl: 3600, // 1 hour
+  },
+};
+```
+
+### Support Knowledge RAG
+
+```typescript
+export const SupportKnowledgeRAG: RagPipeline = {
+  name: 'support_knowledge',
+  label: 'Support Knowledge Pipeline',
+  description: 'Customer support knowledge base',
+  
+  indexes: [
+    {
+      name: 'support_kb_index',
+      type: 'vector',
+      
+      sources: [
+        {
+          type: 'document',
+          path: '/knowledge/support/**/*.md',
+          watch: true,
+        },
+        {
+          type: 'object',
+          objectName: 'case',
+          fields: ['subject', 'description', 'resolution'],
+          filter: {
+            is_closed: true,
+            resolution: { $ne: null },
+          },
+        },
+      ],
+      
+      embedding: {
+        provider: 'openai',
+        model: 'text-embedding-3-small',
+        dimensions: 768,
+      },
+      
+      chunking: {
+        strategy: 'fixed',
+        chunkSize: 512,
+        chunkOverlap: 100,
+      },
+    },
+  ],
+  
+  retrieval: {
+    strategy: 'vector_only',
+    
+    vectorSearch: {
+      topK: 5,
+      scoreThreshold: 0.75,
+      algorithm: 'cosine',
+    },
+  },
+  
+  generation: {
+    model: {
+      provider: 'openai',
+      model: 'gpt-4',
+      temperature: 0.3,
+      maxTokens: 1500,
+    },
+    
+    promptTemplate: `You are a support specialist. Help resolve customer issues.
+
+Knowledge Base:
+{context}
+
+Issue: {question}
+
+Provide a clear, step-by-step solution.`,
+  },
+};
+```
+
+---
+
+## Natural Language Queries
+
+Allow users to query data using natural language.
+
+### NLQ Configuration
+
+```typescript
+import type { NLQConfig } from '@objectstack/spec/ai';
+
+export const CrmNLQConfig: NLQConfig = {
+  name: 'crm_nlq',
+  label: 'CRM Natural Language Queries',
+  
+  // Objects available for querying
+  objects: [
+    'account',
+    'contact',
+    'lead',
+    'opportunity',
+    'case',
+  ],
+  
+  // LLM for query translation
+  model: {
+    provider: 'openai',
+    model: 'gpt-4',
+    temperature: 0,
+  },
+  
+  // Example queries for training
+  examples: [
+    {
+      query: 'Show me all high-value opportunities closing this quarter',
+      soql: 'SELECT Name, Amount, CloseDate FROM Opportunity WHERE Amount > 100000 AND CloseDate >= THIS_QUARTER',
+    },
+    {
+      query: 'Which accounts have the most open cases?',
+      soql: 'SELECT Account.Name, COUNT(Id) FROM Case WHERE IsClosed = false GROUP BY Account.Name ORDER BY COUNT(Id) DESC',
+    },
+  ],
+};
+```
+
+### Using NLQ
+
+```typescript
+// User asks in natural language
+const query = "Show me my top 10 opportunities by amount";
+
+// AI translates to SOQL
+const soql = await nlq.translate(query);
+// Result: SELECT Name, Amount FROM Opportunity WHERE OwnerId = '{userId}' ORDER BY Amount DESC LIMIT 10
+
+// Execute query
+const results = await execute(soql);
+```
+
+---
+
+## Predictive Analytics
+
+Use machine learning for predictions and recommendations.
+
+### Lead Scoring
+
+```typescript
+import type { PredictiveModel } from '@objectstack/spec/ai';
+
+export const LeadScoringModel: PredictiveModel = {
+  name: 'lead_scoring',
+  label: 'Lead Scoring Model',
+  description: 'Predict lead conversion probability',
+  
+  type: 'classification',
+  
+  trainingData: {
+    objectName: 'lead',
+    features: [
+      'annual_revenue',
+      'number_of_employees',
+      'industry',
+      'lead_source',
+      'rating',
+    ],
+    label: 'is_converted',
+    filter: {
+      created_date: { $gte: '{last_12_months}' },
+    },
+  },
+  
+  model: {
+    algorithm: 'gradient_boosting',
+    hyperparameters: {
+      n_estimators: 100,
+      learning_rate: 0.1,
+      max_depth: 5,
+    },
+  },
+  
+  deployment: {
+    mode: 'realtime',
+    trigger: 'on_create',
+    outputField: 'conversion_score',
+  },
+};
+```
+
+### Revenue Forecasting
+
+```typescript
+export const RevenueForecastModel: PredictiveModel = {
+  name: 'revenue_forecast',
+  label: 'Revenue Forecasting Model',
+  description: 'Forecast monthly revenue',
+  
+  type: 'regression',
+  
+  trainingData: {
+    objectName: 'opportunity',
+    features: [
+      'amount',
+      'probability',
+      'stage',
+      'age_days',
+      'account.annual_revenue',
+    ],
+    label: 'close_date',
+    filter: {
+      stage: { $in: ['closed_won', 'closed_lost'] },
+    },
+  },
+  
+  model: {
+    algorithm: 'time_series',
+    method: 'prophet',
+  },
+  
+  deployment: {
+    mode: 'batch',
+    schedule: '0 0 1 * *', // Monthly
+  },
+};
+```
+
+---
+
+## Best Practices
+
+### 1. AI Agent Design
+
+✅ **DO:**
+- Define clear agent roles and responsibilities
+- Provide detailed instructions
+- Use appropriate temperature settings
+- Test with real-world scenarios
+- Monitor agent performance
+
+❌ **DON'T:**
+- Give agents conflicting instructions
+- Use high temperatures for factual tasks
+- Deploy without testing
+- Ignore cost implications
+
+### 2. RAG Pipeline Design
+
+✅ **DO:**
+- Use semantic chunking for better context
+- Implement hybrid search (vector + keyword)
+- Enable reranking for accuracy
+- Cache frequently accessed content
+- Monitor retrieval quality
+
+❌ **DON'T:**
+- Chunk too large or too small
+- Rely solely on vector search
+- Skip metadata extraction
+- Forget to update indexes
+
+### 3. Prompt Engineering
+
+✅ **DO:**
+- Be specific and clear
+- Provide examples
+- Use role-playing ("You are a...")
+- Include constraints
+- Test variations
+
+❌ **DON'T:**
+- Be vague or ambiguous
+- Assume context
+- Use complex jargon
+- Write overly long prompts
+
+### 4. Cost Management
+
+✅ **DO:**
+- Choose appropriate models (GPT-3.5 vs GPT-4)
+- Implement caching
+- Set token limits
+- Monitor usage
+- Use cheaper models for simple tasks
+
+❌ **DON'T:**
+- Always use the most expensive model
+- Skip caching
+- Allow unlimited tokens
+- Ignore cost metrics
+
+### 5. Security & Privacy
+
+✅ **DO:**
+- Implement access controls
+- Mask sensitive data
+- Log AI interactions
+- Review outputs
+- Follow data privacy regulations
+
+❌ **DON'T:**
+- Expose PII to external APIs
+- Skip output validation
+- Ignore audit trails
+- Trust AI blindly
+
+---
+
+## Real-World Integration
+
+### Complete Sales AI Workflow
+
+```typescript
+// 1. Lead comes in
+LeadEnrichmentAgent.enrich(lead);
+
+// 2. AI scores the lead
+score = LeadScoringModel.predict(lead);
+lead.conversion_score = score;
+
+// 3. If hot, sales assistant qualifies
+if (score > 80) {
+  analysis = SalesAssistantAgent.analyze(lead);
+  task = createTask({
+    subject: `Follow up on hot lead: ${lead.name}`,
+    priority: 'high',
+    assignedTo: lead.owner,
+  });
+}
+
+// 4. Sales rep asks for help
+response = SalesKnowledgeRAG.query({
+  question: "What's our pitch for fintech companies?",
+  context: { industry: 'finance' },
+});
+
+// 5. Generate personalized email
+email = SalesAssistantAgent.generateEmail({
+  recipient: lead,
+  context: analysis,
+  tone: 'professional',
+});
+
+// 6. Track in pipeline
+RevenueIntelligenceAgent.analyzePipeline();
+```
+
+---
+
+**Next:** [Integration →](./07-integration.md)
