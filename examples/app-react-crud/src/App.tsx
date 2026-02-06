@@ -14,6 +14,9 @@ import { MetadataExplorer } from './components/MetadataExplorer';
 import { ObjectDataTable } from './components/ObjectDataTable';
 import { ObjectDataForm } from './components/ObjectDataForm';
 import { Badge } from "@/components/ui/badge";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 
 export function App() {
   const [client, setClient] = useState<ObjectStackClient | null>(null);

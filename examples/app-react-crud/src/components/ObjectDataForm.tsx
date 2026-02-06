@@ -5,7 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { SelectNative } from "@/components/ui/select-native";
-import { X, Save } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Save, Loader2 } from "lucide-react";
 
 interface ObjectDataFormProps {
     client: ObjectStackClient;
@@ -101,94 +103,100 @@ export function ObjectDataForm({ client, objectApiName, record, onSuccess, onCan
     });
 
     return (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className="bg-background rounded-lg border border-border shadow-lg w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
-                <div className="p-4 border-b border-border bg-muted/40 flex justify-between items-center">
-                    <h3 className="font-semibold text-lg">
+        <Sheet open={true} onOpenChange={(open) => !open && onCancel()}>
+            <SheetContent className="w-full sm:max-w-xl flex flex-col p-0 gap-0">
+                <SheetHeader className="p-6 border-b bg-muted/10">
+                    <SheetTitle>
                         {record ? `Edit ${def.label}` : `New ${def.label}`}
-                    </h3>
-                    <Button variant="ghost" size="icon" onClick={onCancel}>
-                        <X className="h-4 w-4" />
-                    </Button>
-                </div>
+                    </SheetTitle>
+                    <SheetDescription>
+                         {record ? `Make changes to your ${def.label.toLowerCase()} here.` : `Add a new ${def.label.toLowerCase()} to your database.`}
+                    </SheetDescription>
+                </SheetHeader>
                 
                 <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden">
-                    <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                        {error && (
-                            <div className="bg-destructive/15 text-destructive p-3 rounded text-sm mb-4">
-                                {error}
-                            </div>
-                        )}
-                        
-                        {fieldKeys.map(key => {
-                            const field = fields[key];
-                            const label = field.label || key;
-                            const required = field.required;
-
-                            return (
-                                <div key={key} className="space-y-2">
-                                    <Label>
-                                        {label} {required && <span className="text-destructive">*</span>}
-                                    </Label>
-                                    
-                                    {field.type === 'boolean' ? (
-                                        <div className="flex items-center space-x-2">
-                                            <input 
-                                                type="checkbox"
-                                                checked={!!formData[key]}
-                                                onChange={e => handleChange(key, e.target.checked)}
-                                                className="h-4 w-4 rounded border-primary text-primary focus:ring-ring"
-                                            />
-                                            <span className="text-sm text-muted-foreground">Enabled</span>
-                                        </div>
-                                    ) : field.type === 'select' ? (
-                                        <SelectNative
-                                            value={formData[key] || ''}
-                                            onChange={e => handleChange(key, e.target.value)}
-                                            required={required}
-                                        >
-                                            <option value="">-- Select --</option>
-                                            {field.options?.map((opt: any) => (
-                                                <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                            ))}
-                                        </SelectNative>
-                                    ) : field.type === 'textarea' ? (
-                                        <Textarea
-                                            value={formData[key] || ''}
-                                            onChange={e => handleChange(key, e.target.value)}
-                                            rows={3}
-                                            required={required}
-                                        />
-                                    ) : (
-                                        <Input
-                                            type={field.type === 'number' ? 'number' : 'text'}
-                                            value={formData[key] || ''}
-                                            onChange={e => handleChange(key, e.target.value)}
-                                            required={required}
-                                        />
-                                    )}
-                                    {field.description && (
-                                        <p className="text-xs text-muted-foreground">{field.description}</p>
-                                    )}
+                    <ScrollArea className="flex-1">
+                        <div className="p-6 space-y-6">
+                            {error && (
+                                <div className="bg-destructive/15 text-destructive p-3 rounded text-sm mb-4">
+                                    {error}
                                 </div>
-                            );
-                        })}
-                    </div>
+                            )}
+                            
+                            {fieldKeys.map(key => {
+                                const field = fields[key];
+                                const label = field.label || key;
+                                const required = field.required;
 
-                    <div className="p-4 border-t border-border bg-muted/40 flex items-center justify-end space-x-3">
+                                return (
+                                    <div key={key} className="space-y-2">
+                                        <Label>
+                                            {label} {required && <span className="text-destructive">*</span>}
+                                        </Label>
+                                        
+                                        {field.type === 'boolean' ? (
+                                            <div className="flex items-center space-x-2">
+                                                <input 
+                                                    type="checkbox"
+                                                    checked={!!formData[key]}
+                                                    onChange={e => handleChange(key, e.target.checked)}
+                                                    className="h-4 w-4 rounded border-primary text-primary focus:ring-ring"
+                                                />
+                                                <span className="text-sm text-muted-foreground">Enabled</span>
+                                            </div>
+                                        ) : field.type === 'select' ? (
+                                            <SelectNative
+                                                value={formData[key] || ''}
+                                                onChange={e => handleChange(key, e.target.value)}
+                                                required={required}
+                                            >
+                                                <option value="">-- Select --</option>
+                                                {field.options?.map((opt: any) => (
+                                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                                ))}
+                                            </SelectNative>
+                                        ) : field.type === 'textarea' ? (
+                                            <Textarea
+                                                value={formData[key] || ''}
+                                                onChange={e => handleChange(key, e.target.value)}
+                                                rows={3}
+                                                required={required}
+                                            />
+                                        ) : (
+                                            <Input
+                                                type={field.type === 'number' ? 'number' : 'text'}
+                                                value={formData[key] || ''}
+                                                onChange={e => handleChange(key, e.target.value)}
+                                                required={required}
+                                            />
+                                        )}
+                                        {field.description && (
+                                            <p className="text-xs text-muted-foreground">{field.description}</p>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </ScrollArea>
+
+                    <SheetFooter className="p-6 border-t bg-muted/10 items-center gap-2 sm:justify-end">
                         <Button variant="outline" onClick={onCancel} type="button">
                             Cancel
                         </Button>
                         <Button type="submit" disabled={loading}>
-                            {loading ? 'Saving...' : (
+                            {loading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+                                </>
+                            ) : (
                                 <>
                                     <Save className="mr-2 h-4 w-4" /> Save
                                 </>
                             )}
                         </Button>
-                    </div>
+                    </SheetFooter>
                 </form>
-            </div>
-        </div>
+            </SheetContent>
+        </Sheet>
     );
 }
