@@ -103,3 +103,48 @@ This protocol is designed specifically to constrain AI behavior:
 1.  **Transition Locking**: If an AI Agent tries to update `status` to `approved` while in `draft`, the kernel throws `InvalidTransitionError`.
 2.  **Context Injection**: The `aiInstructions` are automatically prepended to the Agent's system prompt based on the current record state.
 3.  **Action Whitelisting**: The Agent can only trigger "Events" (like `SUBMIT`), not raw database updates on protected fields.
+
+## Best Practices: File Structure
+
+For complex business objects (like `Lead`, `Opportunity`, or `Order`), the state machine configuration can grow quite large. To keep your object definitions clean and readable, we **strongly recommend** extracting the state logic into a separate `*.state.ts` file.
+
+### Recommended Pattern
+
+**1. Create `lead.state.ts`**
+
+Define the state machine using `StateMachineConfig` type for full type safety.
+
+```typescript
+// src/domains/sales/lead.state.ts
+import type { StateMachineConfig } from '@objectstack/spec/automation';
+
+export const LeadStateMachine: StateMachineConfig = {
+  id: 'lead_lifecycle',
+  initial: 'new',
+  states: {
+    new: {
+      on: {
+        QUALIFY: { target: 'qualified' },
+        DISQUALIFY: { target: 'unqualified' }
+      }
+    },
+    // ... complex logic ...
+  }
+};
+```
+
+**2. Import in `lead.object.ts`**
+
+Keep your object definition focused on schema and metadata.
+
+```typescript
+// src/domains/sales/lead.object.ts
+import { ObjectSchema } from '@objectstack/spec/data';
+import { LeadStateMachine } from './lead.state';
+
+export const Lead = ObjectSchema.create({
+  name: 'lead',
+  // ... fields ...
+  stateMachine: LeadStateMachine // Imported config
+});
+```
