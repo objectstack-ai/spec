@@ -2,10 +2,7 @@ import { useState, useEffect } from 'react';
 import { ObjectStackClient } from '@objectstack/client';
 import { AppSidebar } from "./components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar"
+import { SidebarProvider } from "@/components/ui/sidebar"
 import { ObjectDataTable } from './components/ObjectDataTable';
 import { ObjectDataForm } from './components/ObjectDataForm';
 import { Toaster } from "@/components/ui/toaster"
@@ -154,12 +151,11 @@ export default function App() {
   return (
     <SidebarProvider>
       <AppSidebar 
-        variant="inset"
         client={client} 
         selectedObject={selectedObject} 
         onSelectObject={(name) => setSelectedObject(name || null)} 
       />
-      <SidebarInset>
+      <main className="flex flex-1 flex-col bg-background">
         <SiteHeader selectedObject={selectedObject} />
         <div className="flex flex-1 flex-col">
           {selectedObject ? (
@@ -176,7 +172,7 @@ export default function App() {
             <DashboardWelcome />
           )}
         </div>
-      </SidebarInset>
+      </main>
 
       {/* Form Sheet */}
       {showForm && client && selectedObject && (
