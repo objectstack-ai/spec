@@ -56,10 +56,41 @@ export async function createKernel(options: KernelOptions) {
                      return match || null;
                 }
                 if (method === 'update') {
-                    return ql.update(params.object, { ...params.data, id: params.id });
+                     if (params.id) {
+                         // Robust check: Manually find the record in memory since ql.find(obj, id) might not be supported by this specific mock driver setup
+                         let all = await ql.find(params.object);
+                         
+                         if (all && (all as any).value) all = (all as any).value;
+                         if (!all) all = [];
+                         
+                         const existing = all.find((i: any) => i.id === params.id || i._id === params.id);
+                         
+                         if (!existing) {
+                             console.warn(`[BrokerShim] Update failed: Record ${params.id} not found.`);
+                             throw new Error('[ObjectStack] Not Found'); 
+                         }
+                         
+                         // Perform update using the ObjectQL Engine signature: update(object, data, options)
+                         // where options.filter can be the ID string
+                         try {
+                              await ql.update(params.object, params.data, { filter: params.id });
+                         } catch (err: any) {
+                              console.warn(`[BrokerShim] update failed: ${err.message}`);
+                              throw err;
+                         }
+                         
+                         return { ...existing, ...params.data }; 
+                     }
+                     return null;
                 }
                 if (method === 'delete') {
-                    return ql.delete(params.object, { filter: params.id });
+                    try {
+                        // ql.delete(object, options) where options.filter is ID
+                        return await ql.delete(params.object, { filter: params.id });
+                    } catch (err: any) {
+                        console.warn(`[BrokerShim] delete failed: ${err.message}`);
+                        throw err;
+                    }
                 }
                 if (method === 'find' || method === 'query') {
                     let all = await ql.find(params.object);
@@ -77,6 +108,17 @@ export async function createKernel(options: KernelOptions) {
                     if (!all) all = [];
 
                     const filters = params.filters;
+                    // Extract standard query options possibly passed via filters (due to MSW plugin mapping)
+                    let queryOptions: any = {};
+                    if (filters && typeof filters === 'object') {
+                         const reserved = ['top', 'skip', 'sort', 'select', 'expand', 'count', 'search'];
+                         reserved.forEach(opt => {
+                             if (filters[opt] !== undefined) {
+                                 queryOptions[opt] = filters[opt];
+                             }
+                         });
+                    }
+
                     if (filters && typeof filters === 'object' && !Array.isArray(filters)) {
                          // Filter out reserved query parameters that are NOT field names
                          const reserved = ['top', 'skip', 'sort', 'select', 'expand', 'count', 'search'];
@@ -92,6 +134,47 @@ export async function createKernel(options: KernelOptions) {
                               });
                          }
                     }
+
+                    // --- Sort ---
+                    if (queryOptions.sort) {
+                        const sortFields = String(queryOptions.sort).split(',').map(s => s.trim());
+                        all.sort((a: any, b: any) => {
+                            for (const field of sortFields) {
+                                const desc = field.startsWith('-');
+                                const key = desc ? field.substring(1) : field;
+                                if (a[key] < b[key]) return desc ? 1 : -1;
+                                if (a[key] > b[key]) return desc ? -1 : 1;
+                            }
+                            return 0;
+                        });
+                    }
+
+                    // --- Select ---
+                    if (queryOptions.select) {
+                        const selectFields = Array.isArray(queryOptions.select) 
+                             ? queryOptions.select 
+                             : String(queryOptions.select).split(',').map((s: string) => s.trim());
+                        
+                        all = all.map((item: any) => {
+                            const projected: any = { id: item.id, _id: item._id }; // Always include ID
+                            selectFields.forEach((f: string) => {
+                                if (item[f] !== undefined) projected[f] = item[f];
+                            });
+                            return projected;
+                        });
+                    }
+
+                    // --- Skip/Top ---
+                    const skip = parseInt(queryOptions.skip) || 0;
+                    const top = parseInt(queryOptions.top); // undefined is fine
+
+                    if (skip > 0) {
+                        all = all.slice(skip);
+                    }
+                    if (!isNaN(top)) {
+                        all = all.slice(0, top);
+                    }
+                    
                     console.log(`[BrokerShim] find/query(${params.object}) -> count: ${all.length}`);
                     return { data: all, count: all.length };
                 }

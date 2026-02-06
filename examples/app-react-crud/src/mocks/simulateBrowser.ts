@@ -29,16 +29,15 @@ export async function simulateBrowser() {
         // Query / Find
         http.get('http://localhost:3000/api/v1/data/:object', async ({ params, request }) => {
             const url = new URL(request.url);
-            const filters = {}; // Todo: parse query params if needed
+            const filters = {}; 
             
-            // Extract query params for simple filtering
+            // Extract query params 
+            // Simulate MSW Plugin behavior: Put ALL Query Params into `filters`
             url.searchParams.forEach((val, key) => {
-                if (key !== 'select' && key !== 'sort' && key !== 'top') {
-                    (filters as any)[key] = val;
-                }
+                 (filters as any)[key] = val;
             });
 
-            console.log(`[VirtualNetwork] GET /data/${params.object}`);
+            console.log(`[VirtualNetwork] GET /data/${params.object}`, filters);
             
             try {
                 // Call Kernel
@@ -70,18 +69,37 @@ export async function simulateBrowser() {
             }
         }),
 
-        // Update
+        // Update (PUT)
         http.put('http://localhost:3000/api/v1/data/:object/:id', async ({ params, request }) => {
             const body = await request.json();
             console.log(`[VirtualNetwork] PUT /data/${params.object}/${params.id}`);
             
             try {
+                // Ensure broker receives { object, id, data } explicitly
                 const result = await (kernel as any).broker.call('data.update', {
                     object: params.object,
                     id: params.id,
                     data: body
                 });
-                return HttpResponse.json(result);
+                return HttpResponse.json(result || { success: true });
+            } catch (err: any) {
+                 return HttpResponse.json({ error: err.message }, { status: 500 });
+            }
+        }),
+        
+        // Update (PATCH) - Support both verbs
+        http.patch('http://localhost:3000/api/v1/data/:object/:id', async ({ params, request }) => {
+            const body = await request.json();
+            console.log(`[VirtualNetwork] PATCH /data/${params.object}/${params.id}`);
+            
+            try {
+                // Ensure broker receives { object, id, data } explicitly
+                const result = await (kernel as any).broker.call('data.update', {
+                    object: params.object,
+                    id: params.id,
+                    data: body
+                });
+                return HttpResponse.json(result || { success: true });
             } catch (err: any) {
                  return HttpResponse.json({ error: err.message }, { status: 500 });
             }

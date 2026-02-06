@@ -63,5 +63,46 @@ describe('App React CRUD Integration Tests (Virtual Browser)', () => {
         const list = Array.isArray(fetched) ? fetched : (fetched as any).value;
         expect(list).toHaveLength(1);
         expect(list[0].id).toBe(newTask.id);
+
+        // UPDATE
+        const updated = await client.data.update('todo_task', newTask.id, {
+            subject: 'Updated Task Title'
+        });
+        expect(updated.subject).toBe('Updated Task Title');
+
+        // DELETE
+        await client.data.delete('todo_task', newTask.id);
+        const afterDelete = await client.data.find('todo_task', { filters: { id: newTask.id } });
+        const missingList = Array.isArray(afterDelete) ? afterDelete : (afterDelete as any).value;
+        expect(missingList).toHaveLength(0);
+    });
+
+    it('should support pagination, sorting and field selection', async () => {
+        const { client } = env;
+        
+        // 1. Test Sorting
+        // default data has priorities 1, 2, 3
+        const sorted = await client.data.find('todo_task', {
+            sort: ['priority'] // Ascending
+        });
+        const sortedItems = Array.isArray(sorted) ? sorted : (sorted as any).value;
+        expect(sortedItems[0].priority).toBeLessThanOrEqual(sortedItems[1].priority);
+
+        // 2. Test Pagination (Top)
+        const top2 = await client.data.find('todo_task', {
+            top: 2
+        });
+        const top2Items = Array.isArray(top2) ? top2 : (top2 as any).value;
+        expect(top2Items).toHaveLength(2);
+
+        // 3. Test Select
+        const selected = await client.data.find('todo_task', {
+            top: 1,
+            select: ['subject']
+        });
+        const selectedItems = Array.isArray(selected) ? selected : (selected as any).value;
+        expect(selectedItems[0]).toHaveProperty('subject');
+        expect(selectedItems[0]).not.toHaveProperty('priority'); // Should be excluded
+        expect(selectedItems[0]).toHaveProperty('id'); // ID is always returned
     });
 });
