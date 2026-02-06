@@ -29,7 +29,7 @@ export class SchemaRegistry {
       this.metadata.set(type, new Map());
     }
     const collection = this.metadata.get(type)!;
-    const key = String(item[keyField]);
+    const baseName = String(item[keyField]);
     // Tag item with owning package for scoped queries
     if (packageId) {
       (item as any)._packageId = packageId;
@@ -39,16 +39,20 @@ export class SchemaRegistry {
     try {
         this.validate(type, item);
     } catch (e: any) {
-        console.error(`[Registry] Validation failed for ${type} ${key}: ${e.message}`);
+        console.error(`[Registry] Validation failed for ${type} ${baseName}: ${e.message}`);
         // For now, warn but don't crash, allowing partial/legacy loads
         // throw e; 
     }
 
-    if (collection.has(key)) {
-      console.warn(`[Registry] Overwriting ${type}: ${key}`);
+    // Use composite key (packageId:name) when packageId is provided,
+    // so same-named items from different packages can coexist.
+    const storageKey = packageId ? `${packageId}:${baseName}` : baseName;
+
+    if (collection.has(storageKey)) {
+      console.warn(`[Registry] Overwriting ${type}: ${storageKey}`);
     }
-    collection.set(key, item);
-    console.log(`[Registry] Registered ${type}: ${key}`);
+    collection.set(storageKey, item);
+    console.log(`[Registry] Registered ${type}: ${storageKey}`);
   }
 
   /**
@@ -73,22 +77,47 @@ export class SchemaRegistry {
 
   /**
    * Universal Unregister Method
+   * Supports both simple and composite keys.
    */
   static unregisterItem(type: string, name: string) {
     const collection = this.metadata.get(type);
-    if (collection && collection.has(name)) {
+    if (!collection) {
+      console.warn(`[Registry] Attempted to unregister non-existent ${type}: ${name}`);
+      return;
+    }
+    // Direct key
+    if (collection.has(name)) {
       collection.delete(name);
       console.log(`[Registry] Unregistered ${type}: ${name}`);
-    } else {
-      console.warn(`[Registry] Attempted to unregister non-existent ${type}: ${name}`);
+      return;
     }
+    // Scan composite keys
+    for (const key of collection.keys()) {
+      if (key.endsWith(`:${name}`)) {
+        collection.delete(key);
+        console.log(`[Registry] Unregistered ${type}: ${key}`);
+        return;
+      }
+    }
+    console.warn(`[Registry] Attempted to unregister non-existent ${type}: ${name}`);
   }
 
   /**
    * Universal Get Method
+   * Looks up by exact key first, then falls back to scanning by item name
+   * to handle composite keys (packageId:name).
    */
   static getItem<T>(type: string, name: string): T | undefined {
-    return this.metadata.get(type)?.get(name) as T;
+    const collection = this.metadata.get(type);
+    if (!collection) return undefined;
+    // Direct lookup (works for items registered without packageId)
+    const direct = collection.get(name);
+    if (direct) return direct as T;
+    // Scan for composite keys ending with :name
+    for (const [key, item] of collection) {
+      if (key.endsWith(`:${name}`)) return item as T;
+    }
+    return undefined;
   }
 
   /**
