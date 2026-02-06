@@ -1,42 +1,77 @@
 import { defineStack } from '@objectstack/spec';
-import { App } from '@objectstack/spec/ui';
 
-// Sales Domain Objects
-import { Account } from './src/domains/sales/account.object';
-import { Contact } from './src/domains/sales/contact.object';
-import { Opportunity } from './src/domains/sales/opportunity.object';
-import { Lead } from './src/domains/sales/lead.object';
-import { Quote } from './src/domains/sales/quote.object';
-import { Contract } from './src/domains/sales/contract.object';
+// ─── Objects ────────────────────────────────────────────────────────
+import { Account } from './src/objects/account.object';
+import { Contact } from './src/objects/contact.object';
+import { Opportunity } from './src/objects/opportunity.object';
+import { Lead } from './src/objects/lead.object';
+import { Quote } from './src/objects/quote.object';
+import { Contract } from './src/objects/contract.object';
+import { Case } from './src/objects/case.object';
+import { Task } from './src/objects/task.object';
+import { Campaign } from './src/objects/campaign.object';
+import { Product } from './src/objects/product.object';
 
-// Service Domain Objects
-import { Case } from './src/domains/service/case.object';
-import { Task } from './src/domains/service/task.object';
+// ─── APIs ───────────────────────────────────────────────────────────
+import { PipelineStatsApi } from './src/apis/pipeline-stats.api';
+import { LeadConvertApi } from './src/apis/lead-convert.api';
 
-// Marketing Domain Objects
-import { Campaign } from './src/domains/marketing/campaign.object';
+// ─── Actions ────────────────────────────────────────────────────────
+import { ConvertLeadAction, CreateCampaignAction } from './src/actions/lead.actions';
+import { MarkPrimaryContactAction, SendEmailAction } from './src/actions/contact.actions';
+import { CloneOpportunityAction, MassUpdateStageAction } from './src/actions/opportunity.actions';
+import { EscalateCaseAction, CloseCaseAction } from './src/actions/case.actions';
+import { LogCallAction, ExportToCsvAction } from './src/actions/global.actions';
 
-// Product Domain Objects
-import { Product } from './src/domains/products/product.object';
+// ─── Dashboards ─────────────────────────────────────────────────────
+import { SalesDashboard } from './src/dashboards/sales.dashboard';
+import { ServiceDashboard } from './src/dashboards/service.dashboard';
+import { ExecutiveDashboard } from './src/dashboards/executive.dashboard';
 
-// APIs
-import { PipelineStatsApi, LeadConvertApi } from './src/server';
+// ─── Reports ────────────────────────────────────────────────────────
+import { OpportunitiesByStageReport, WonOpportunitiesByOwnerReport } from './src/reports/opportunity.report';
+import { AccountsByIndustryTypeReport } from './src/reports/account.report';
+import { CasesByStatusPriorityReport, SlaPerformanceReport } from './src/reports/case.report';
+import { LeadsBySourceReport } from './src/reports/lead.report';
+import { ContactsByAccountReport } from './src/reports/contact.report';
+import { TasksByOwnerReport } from './src/reports/task.report';
 
-// UI Configuration
-import { CrmActions } from './src/ui/actions';
-import { CrmDashboards } from './src/ui/dashboards';
-import { CrmReports } from './src/ui/reports';
+// ─── Flows ──────────────────────────────────────────────────────────
+import { LeadConversionFlow } from './src/flows/lead-conversion.flow';
+import { OpportunityApprovalFlow } from './src/flows/opportunity-approval.flow';
+import { CaseEscalationFlow } from './src/flows/case-escalation.flow';
+import { QuoteGenerationFlow } from './src/flows/quote-generation.flow';
+import { CampaignEnrollmentFlow } from './src/flows/campaign-enrollment.flow';
 
-// Security Configuration
-import { CrmProfiles } from './src/security/profiles';
-import { CrmSharingRules } from './src/security/sharing-rules';
+// ─── Agents ─────────────────────────────────────────────────────────
+import { SalesAssistantAgent } from './src/agents/sales.agent';
+import { ServiceAgent } from './src/agents/service.agent';
+import { LeadEnrichmentAgent } from './src/agents/lead-enrichment.agent';
+import { RevenueIntelligenceAgent } from './src/agents/revenue-intelligence.agent';
+import { EmailCampaignAgent } from './src/agents/email-campaign.agent';
 
-// AI Configuration
-import { CrmAgents } from './src/ai/agents';
-import { CrmRagPipelines } from './src/ai/rag-pipelines';
+// ─── RAG Pipelines ─────────────────────────────────────────────────
+import { SalesKnowledgeRAG } from './src/rag/sales-knowledge.rag';
+import { SupportKnowledgeRAG } from './src/rag/support-knowledge.rag';
+import { ProductInfoRAG } from './src/rag/product-info.rag';
+import { CompetitiveIntelRAG } from './src/rag/competitive-intel.rag';
 
-// Automation
-import { CrmFlows } from './src/automation/flows';
+// ─── Profiles ───────────────────────────────────────────────────────
+import { SalesRepProfile } from './src/profiles/sales-rep.profile';
+import { SalesManagerProfile } from './src/profiles/sales-manager.profile';
+import { ServiceAgentProfile } from './src/profiles/service-agent.profile';
+import { MarketingUserProfile } from './src/profiles/marketing-user.profile';
+import { SystemAdminProfile } from './src/profiles/system-admin.profile';
+
+// ─── Sharing & Security ────────────────────────────────────────────
+import { OrganizationDefaults } from './src/sharing/defaults.sharing';
+import { AccountTeamSharingRule, TerritorySharingRules } from './src/sharing/account.sharing';
+import { OpportunitySalesSharingRule } from './src/sharing/opportunity.sharing';
+import { CaseEscalationSharingRule } from './src/sharing/case.sharing';
+import { RoleHierarchy } from './src/sharing/role-hierarchy';
+
+// ─── App ────────────────────────────────────────────────────────────
+import { CrmApp } from './src/apps/crm.app';
 
 export default defineStack({
   manifest: {
@@ -49,127 +84,81 @@ export default defineStack({
     repository: 'https://github.com/objectstack-ai/spec',
     license: 'MIT',
   },
-  
-  // Data Model - Organized by Domain
+
   objects: [
-    // Sales Domain (6 objects)
-    Account,
-    Contact,
-    Lead,
-    Opportunity,
-    Quote,
-    Contract,
-    
-    // Service Domain (2 objects)
-    Case,
-    Task,
-    
-    // Marketing Domain (1 object)
+    Account, Contact, Lead, Opportunity, Quote, Contract,
+    Case, Task,
     Campaign,
-    
-    // Product Domain (1 object)
     Product,
   ],
-  
-  // Custom APIs
+
   apis: [
     PipelineStatsApi,
     LeadConvertApi,
   ],
-  
-  // User Interface
-  actions: Object.values(CrmActions),
-  dashboards: Object.values(CrmDashboards),
-  reports: Object.values(CrmReports),
-  
-  // Security Configuration
-  profiles: Object.values(CrmProfiles),
-  sharingRules: [
-    CrmSharingRules.AccountTeamSharingRule,
-    CrmSharingRules.OpportunitySalesSharingRule,
-    CrmSharingRules.CaseEscalationSharingRule,
-    ...CrmSharingRules.TerritorySharingRules,
+
+  actions: [
+    ConvertLeadAction, CreateCampaignAction,
+    MarkPrimaryContactAction, SendEmailAction,
+    CloneOpportunityAction, MassUpdateStageAction,
+    EscalateCaseAction, CloseCaseAction,
+    LogCallAction, ExportToCsvAction,
   ],
-  roleHierarchy: CrmSharingRules.RoleHierarchy,
-  organizationDefaults: CrmSharingRules.OrganizationDefaults,
-  
-  // AI & Automation
-  agents: Object.values(CrmAgents),
-  ragPipelines: Object.values(CrmRagPipelines),
-  flows: Object.values(CrmFlows),
-  
-  // Application Definition
-  apps: [
-    App.create({
-      name: 'crm_enterprise',
-      label: 'Enterprise CRM',
-      icon: 'briefcase',
-      branding: {
-        primaryColor: '#4169E1',
-        secondaryColor: '#00AA00',
-        logo: '/assets/crm-logo.png',
-        favicon: '/assets/crm-favicon.ico',
-      },
-      
-      // Enhanced Navigation Menu Structure
-      navigation: [
-        {
-          id: 'group_sales',
-          type: 'group',
-          label: 'Sales',
-          icon: 'chart-line',
-          children: [
-            { id: 'nav_lead', type: 'object', objectName: 'lead', label: 'Leads', icon: 'user-plus' },
-            { id: 'nav_account', type: 'object', objectName: 'account', label: 'Accounts', icon: 'building' },
-            { id: 'nav_contact', type: 'object', objectName: 'contact', label: 'Contacts', icon: 'user' },
-            { id: 'nav_opportunity', type: 'object', objectName: 'opportunity', label: 'Opportunities', icon: 'bullseye' },
-            { id: 'nav_quote', type: 'object', objectName: 'quote', label: 'Quotes', icon: 'file-invoice' },
-            { id: 'nav_contract', type: 'object', objectName: 'contract', label: 'Contracts', icon: 'file-signature' },
-            { id: 'nav_sales_dashboard', type: 'dashboard', dashboardName: 'sales_dashboard', label: 'Sales Dashboard', icon: 'chart-bar' },
-          ]
-        },
-        {
-          id: 'group_service',
-          type: 'group',
-          label: 'Service',
-          icon: 'headset',
-          children: [
-            { id: 'nav_case', type: 'object', objectName: 'case', label: 'Cases', icon: 'life-ring' },
-            { id: 'nav_task', type: 'object', objectName: 'task', label: 'Tasks', icon: 'tasks' },
-            { id: 'nav_service_dashboard', type: 'dashboard', dashboardName: 'service_dashboard', label: 'Service Dashboard', icon: 'chart-pie' },
-          ]
-        },
-        {
-          id: 'group_marketing',
-          type: 'group',
-          label: 'Marketing',
-          icon: 'megaphone',
-          children: [
-            { id: 'nav_campaign', type: 'object', objectName: 'campaign', label: 'Campaigns', icon: 'bullhorn' },
-            { id: 'nav_lead_marketing', type: 'object', objectName: 'lead', label: 'Leads', icon: 'user-plus' },
-          ]
-        },
-        {
-          id: 'group_products',
-          type: 'group',
-          label: 'Products',
-          icon: 'box',
-          children: [
-            { id: 'nav_product', type: 'object', objectName: 'product', label: 'Products', icon: 'box-open' },
-          ]
-        },
-        {
-          id: 'group_analytics',
-          type: 'group',
-          label: 'Analytics',
-          icon: 'chart-area',
-          children: [
-            { id: 'nav_exec_dashboard', type: 'dashboard', dashboardName: 'executive_dashboard', label: 'Executive Dashboard', icon: 'tachometer-alt' },
-            { id: 'nav_analytics_sales_db', type: 'dashboard', dashboardName: 'sales_dashboard', label: 'Sales Analytics', icon: 'chart-line' },
-            { id: 'nav_analytics_service_db', type: 'dashboard', dashboardName: 'service_dashboard', label: 'Service Analytics', icon: 'chart-pie' },
-          ]
-        }
-      ]
-    })
-  ]
+
+  dashboards: [
+    SalesDashboard,
+    ServiceDashboard,
+    ExecutiveDashboard,
+  ],
+
+  reports: [
+    OpportunitiesByStageReport, WonOpportunitiesByOwnerReport,
+    AccountsByIndustryTypeReport,
+    CasesByStatusPriorityReport, SlaPerformanceReport,
+    LeadsBySourceReport,
+    ContactsByAccountReport,
+    TasksByOwnerReport,
+  ],
+
+  flows: [
+    LeadConversionFlow,
+    OpportunityApprovalFlow,
+    CaseEscalationFlow,
+    QuoteGenerationFlow,
+    CampaignEnrollmentFlow,
+  ],
+
+  agents: [
+    SalesAssistantAgent,
+    ServiceAgent,
+    LeadEnrichmentAgent,
+    RevenueIntelligenceAgent,
+    EmailCampaignAgent,
+  ],
+
+  ragPipelines: [
+    SalesKnowledgeRAG,
+    SupportKnowledgeRAG,
+    ProductInfoRAG,
+    CompetitiveIntelRAG,
+  ],
+
+  profiles: [
+    SalesRepProfile,
+    SalesManagerProfile,
+    ServiceAgentProfile,
+    MarketingUserProfile,
+    SystemAdminProfile,
+  ],
+
+  sharingRules: [
+    AccountTeamSharingRule,
+    OpportunitySalesSharingRule,
+    CaseEscalationSharingRule,
+    ...TerritorySharingRules,
+  ],
+  roleHierarchy: RoleHierarchy,
+  organizationDefaults: OrganizationDefaults,
+
+  apps: [CrmApp],
 });

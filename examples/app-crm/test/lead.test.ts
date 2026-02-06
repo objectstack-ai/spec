@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Lead } from '../src/domains/sales/lead.object';
+import { Lead } from '../src/objects/lead.object';
 import { ObjectSchema } from '@objectstack/spec/data';
 
 describe('CRM Domain - Lead', () => {
