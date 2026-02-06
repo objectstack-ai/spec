@@ -26,6 +26,24 @@ export async function simulateBrowser() {
     // 2. Define Network Handlers (The "Virtual Router")
     // These maps HTTP requests -> Kernel Broker Actions
     const handlers = [
+        // Discovery
+        http.get('http://localhost:3000/.well-known/objectstack', () => {
+             console.log('[VirtualNetwork] GET /.well-known/objectstack');
+             return HttpResponse.json({
+                 version: 'v1',
+                 apiName: 'ObjectStack API',
+                 url: '/api/v1',
+                 capabilities: {
+                     graphql: false,
+                     search: false,
+                     websockets: false,
+                     files: false,
+                     analytics: false,
+                     hub: false
+                 }
+             });
+        }),
+
         // Query / Find
         http.get('http://localhost:3000/api/v1/data/:object', async ({ params, request }) => {
             const url = new URL(request.url);
@@ -117,6 +135,56 @@ export async function simulateBrowser() {
             } catch (err: any) {
                  return HttpResponse.json({ error: err.message }, { status: 500 });
             }
+        }),
+
+        // Metadata - Objects List (Singular & Plural support)
+        http.get('http://localhost:3000/api/v1/meta/object', async () => {
+             console.log('[VirtualNetwork] GET /meta/object');
+             try {
+                 const result = await (kernel as any).broker.call('metadata.objects', {});
+                 return HttpResponse.json(result);
+             } catch (err: any) {
+                  return HttpResponse.json({ error: err.message }, { status: 500 });
+             }
+        }),
+        http.get('http://localhost:3000/api/v1/meta/objects', async () => {
+             console.log('[VirtualNetwork] GET /meta/objects');
+             try {
+                 const result = await (kernel as any).broker.call('metadata.objects', {});
+                 return HttpResponse.json(result);
+             } catch (err: any) {
+                  return HttpResponse.json({ error: err.message }, { status: 500 });
+             }
+        }),
+
+        // Metadata - Object Detail (Singular & Plural support)
+        http.get('http://localhost:3000/api/v1/meta/object/:name', async ({ params }) => {
+             console.log(`[VirtualNetwork] GET /meta/object/${params.name}`);
+             try {
+                 const result = await (kernel as any).broker.call('metadata.getObject', {
+                     objectName: params.name
+                 });
+                 if (!result) {
+                     return HttpResponse.json({ error: 'Not Found' }, { status: 404 });
+                 }
+                 return HttpResponse.json(result);
+             } catch (err: any) {
+                  return HttpResponse.json({ error: err.message }, { status: 500 });
+             }
+        }),
+        http.get('http://localhost:3000/api/v1/meta/objects/:name', async ({ params }) => {
+             console.log(`[VirtualNetwork] GET /meta/objects/${params.name}`);
+             try {
+                 const result = await (kernel as any).broker.call('metadata.getObject', {
+                     objectName: params.name
+                 });
+                 if (!result) {
+                     return HttpResponse.json({ error: 'Not Found' }, { status: 404 });
+                 }
+                 return HttpResponse.json(result);
+             } catch (err: any) {
+                  return HttpResponse.json({ error: err.message }, { status: 500 });
+             }
         })
     ];
 
