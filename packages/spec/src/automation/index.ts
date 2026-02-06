@@ -6,3 +6,4 @@ export * from './approval.zod';
 export * from './etl.zod';
 export * from './trigger-registry.zod';
 export * from './sync.zod';
+export * from './state-machine.zod';

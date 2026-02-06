@@ -1,0 +1,193 @@
+---
+title: State Machine (Lifecycle)
+description: Define strict business logic constraints prevents AI hallucinations by enforcing valid transitions.
+---
+
+import { Activity } from 'lucide-react';
+
+# State Machine Protocol
+
+The **State Machine Protocol** (`stateMachine`) allows you to define the "Constitution" of a record's lifecycle. It introduces **XState-inspired** state management directly into your ObjectQL definitions.
+
+## Why State Machines?
+
+In the era of **AI Agents**, traditional validation rules are not enough. Large Language Models (LLMs) can "hallucinate" and attempt illogical data updates (e.g., moving a contract from `Draft` directly to `Paid` without `Approval`).
+
+**State Machines provide a hard constraint layer:**
+- **Deterministic**: The system rejects any transition not explicitly defined.
+- **Self-Documenting**: The workflow is code, not hidden in triggers.
+- **AI-Guarded**: Agents must "ask" the state machine for available actions.
+
+## Definition
+
+Add the `stateMachine` property to your `ObjectSchema`.
+
+```typescript
+import { ObjectSchema } from '@objectstack/spec/data';
+
+export const PurchaseRequest = ObjectSchema.create({
+  name: 'purchase_request',
+  label: 'Purchase Request',
+  
+  fields: {
+    status: Field.select({ 
+      options: ['draft', 'pending', 'approved', 'rejected'] 
+    }),
+    amount: Field.number(),
+  },
+
+  stateMachine: {
+    id: 'purchase_lifecycle',
+    initial: 'draft',
+    states: {
+      draft: {
+        on: {
+          SUBMIT: { 
+            target: 'pending', 
+            cond: 'amount_valid' 
+          }
+        },
+        meta: {
+          aiInstructions: "Help the user fill out the form. Do verify amount limits."
+        }
+      },
+      pending: {
+        on: {
+          APPROVE: 'approved',
+          REJECT: 'rejected'
+        },
+        meta: {
+          aiInstructions: "Read-only mode. Only analyze risk. Do NOT modify fields."
+        }
+      },
+      approved: {
+        type: 'final'
+      },
+      rejected: {
+        type: 'final'
+      }
+    }
+  }
+});
+```
+
+## Structure
+
+### 1. States (`states`)
+Each key represents a valid status value for the record.
+
+- **`on`**: Event listeners (Transitions).
+- **`meta.aiInstructions`**: Instructions injected into the AI context when the record is in this state.
+
+### 2. Transitions (`on`)
+Defines how to move from one state to another.
+
+```typescript
+SUBMIT: { 
+  target: 'pending',    // Next State
+  cond: 'amount_valid', // Guard/Condition name
+  actions: ['notify']   // Side effects
+}
+```
+
+### 3. Guards (`cond`)
+Conditions that must be true for the transition to happen.
+
+### 4. Actions (`actions`)
+Side effects (emails, webhooks, field updates) that execute during transition.
+
+## AI Safety Features
+
+This protocol is designed specifically to constrain AI behavior:
+
+1.  **Transition Locking**: If an AI Agent tries to update `status` to `approved` while in `draft`, the kernel throws `InvalidTransitionError`.
+2.  **Context Injection**: The `aiInstructions` are automatically prepended to the Agent's system prompt based on the current record state.
+3.  **Action Whitelisting**: The Agent can only trigger "Events" (like `SUBMIT`), not raw database updates on protected fields.
+
+## Best Practices: File Structure
+
+For complex business objects (like `Lead`, `Opportunity`, or `Order`), the state machine configuration can grow quite large. To keep your object definitions clean and readable, we **strongly recommend** extracting the state logic into a separate `*.state.ts` file.
+
+### Recommended Pattern
+
+**1. Create `lead.state.ts`**
+
+Define the state machine using `StateMachineConfig` type for full type safety.
+
+```typescript
+// src/domains/sales/lead.state.ts
+import type { StateMachineConfig } from '@objectstack/spec/automation';
+
+export const LeadStateMachine: StateMachineConfig = {
+  id: 'lead_lifecycle',
+  initial: 'new',
+  states: {
+    new: {
+      on: {
+        QUALIFY: { target: 'qualified' },
+        DISQUALIFY: { target: 'unqualified' }
+      }
+    },
+    // ... complex logic ...
+  }
+};
+```
+
+**2. Import in `lead.object.ts`**
+
+Keep your object definition focused on schema and metadata.
+
+```typescript
+// src/domains/sales/lead.object.ts
+import { ObjectSchema } from '@objectstack/spec/data';
+import { LeadStateMachine } from './lead.state';
+
+export const Lead = ObjectSchema.create({
+  name: 'lead',
+  // ... fields ...
+  stateMachines: {
+    lifecycle: LeadStateMachine, // Named key for the primary lifecycle
+  }
+});
+```
+
+## Multiple State Machines (Parallel Lifecycles)
+
+In real enterprise systems, a single object often has **multiple independent state lines**. For example, an `Order` has:
+
+- **`lifecycle`** — `draft → submitted → confirmed → shipped → delivered`
+- **`payment`** — `unpaid → partial → paid → refunded`
+- **`approval`** — `pending → approved → rejected`
+
+Use the `stateMachines` (plural) property to define them:
+
+```typescript
+// src/domains/sales/order.object.ts
+import { ObjectSchema } from '@objectstack/spec/data';
+import { OrderLifecycle } from './order-lifecycle.state';
+import { OrderPayment } from './order-payment.state';
+import { OrderApproval } from './order-approval.state';
+
+export const Order = ObjectSchema.create({
+  name: 'order',
+  fields: {
+    status: Field.select({ options: ['draft', 'submitted', 'confirmed', 'shipped', 'delivered'] }),
+    payment_status: Field.select({ options: ['unpaid', 'partial', 'paid', 'refunded'] }),
+    approval_status: Field.select({ options: ['pending', 'approved', 'rejected'] }),
+  },
+  stateMachines: {
+    lifecycle: OrderLifecycle,
+    payment: OrderPayment,
+    approval: OrderApproval,
+  }
+});
+```
+
+### `stateMachine` vs `stateMachines`
+
+| Property | Type | Use Case |
+|:---|:---|:---|
+| `stateMachine` | `StateMachineConfig` | Simple objects with a single lifecycle (shorthand) |
+| `stateMachines` | `Record<string, StateMachineConfig>` | Complex objects with parallel state lines |
+
+Both can coexist on the same object. The kernel merges them at runtime.

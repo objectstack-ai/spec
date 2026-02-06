@@ -1,4 +1,5 @@
 import { ObjectSchema, Field } from '@objectstack/spec/data';
+import { LeadStateMachine } from './lead.state';
 
 export const Lead = ObjectSchema.create({
   name: 'lead',
@@ -158,6 +159,14 @@ export const Lead = ObjectSchema.create({
       label: 'Email Opt Out',
       defaultValue: false,
     }),
+  },
+
+  // Lifecycle State Machine(s)
+  // Enforces valid status transitions to prevent AI hallucinations
+  // Using `stateMachines` (plural) for future extensibility.
+  // For simple objects with one lifecycle, `stateMachine` (singular) is also supported.
+  stateMachines: {
+    lifecycle: LeadStateMachine,
   },
   
   // Database indexes for performance

@@ -287,7 +287,17 @@ const ObjectSchemaBase = z.object({
    * Best Practice: Define rules close to data.
    */
   validations: z.array(ValidationRuleSchema).optional().describe('Object-level validation rules'),
-  stateMachine: StateMachineSchema.optional().describe('State machine definition for record lifecycle management'),
+  
+  /**
+   * State Machine(s)
+   * Supports a single machine (legacy) or a named record of machines.
+   * Multiple machines allow parallel lifecycles (e.g., status + payment_status + approval_status).
+   * 
+   * @example Single: stateMachine: { id: 'lifecycle', initial: 'draft', states: {...} }
+   * @example Multiple: stateMachines: { lifecycle: {...}, payment: {...}, approval: {...} }
+   */
+  stateMachine: StateMachineSchema.optional().describe('Single state machine for record lifecycle (shorthand)'),
+  stateMachines: z.record(z.string(), StateMachineSchema).optional().describe('Named state machines for parallel lifecycles (e.g., status, payment, approval)'),
 
   /** 
    * Display & UI Hints (Data-Layer)

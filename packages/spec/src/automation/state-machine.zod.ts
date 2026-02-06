@@ -55,10 +55,29 @@ export const EventSchema = z.object({
   schema: z.record(z.string(), z.any()).optional().describe('Expected event payload structure'),
 });
 
+export type ActionRef = z.infer<typeof ActionRefSchema>;
+export type Transition = z.infer<typeof TransitionSchema>;
+
+export type StateNodeConfig = {
+  type?: 'atomic' | 'compound' | 'parallel' | 'final' | 'history';
+  entry?: ActionRef[];
+  exit?: ActionRef[];
+  on?: Record<string, string | Transition | Transition[]>;
+  always?: Transition[];
+  initial?: string;
+  states?: Record<string, StateNodeConfig>;
+  meta?: {
+    label?: string;
+    description?: string;
+    color?: string;
+    aiInstructions?: string;
+  };
+};
+
 /**
  * State Node Definition
  */
-export const StateNodeSchema = z.object({
+export const StateNodeSchema: z.ZodType<StateNodeConfig> = z.lazy(() => z.object({
   /** Type of state */
   type: z.enum(['atomic', 'compound', 'parallel', 'final', 'history']).default('atomic'),
   
@@ -78,7 +97,7 @@ export const StateNodeSchema = z.object({
 
   /** Nesting (Hierarchical States) */
   initial: z.string().optional().describe('Initial child state (if compound)'),
-  states: z.lazy(() => z.record(z.string(), StateNodeSchema)).optional(),
+  states: z.record(z.string(), StateNodeSchema).optional(),
   
   /** Metadata for UI/AI */
   meta: z.object({
@@ -88,7 +107,7 @@ export const StateNodeSchema = z.object({
     // Instructions for AI Agent when in this state
     aiInstructions: z.string().optional().describe('Specific instructions for AI when in this state'),
   }).optional(),
-});
+}));
 
 /**
  * Top-Level State Machine Definition
@@ -111,4 +130,3 @@ export const StateMachineSchema = z.object({
 });
 
 export type StateMachineConfig = z.infer<typeof StateMachineSchema>;
-export type StateNodeConfig = z.infer<typeof StateNodeSchema>;

@@ -3492,6 +3492,1007 @@
                   },
                   "description": "Object-level validation rules"
                 },
+                "stateMachine": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 2,
+                      "pattern": "^[a-z][a-z0-9_]*$",
+                      "description": "Unique Machine ID"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "contextSchema": {
+                      "type": "object",
+                      "additionalProperties": {},
+                      "description": "Zod Schema for the machine context/memory"
+                    },
+                    "initial": {
+                      "type": "string",
+                      "description": "Initial State ID"
+                    },
+                    "states": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "atomic",
+                              "compound",
+                              "parallel",
+                              "final",
+                              "history"
+                            ],
+                            "default": "atomic"
+                          },
+                          "entry": {
+                            "type": "array",
+                            "items": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "description": "Action Name"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string"
+                                    },
+                                    "params": {
+                                      "type": "object",
+                                      "additionalProperties": {}
+                                    }
+                                  },
+                                  "required": [
+                                    "type"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            },
+                            "description": "Actions to run when entering this state"
+                          },
+                          "exit": {
+                            "type": "array",
+                            "items": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "description": "Action Name"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string"
+                                    },
+                                    "params": {
+                                      "type": "object",
+                                      "additionalProperties": {}
+                                    }
+                                  },
+                                  "required": [
+                                    "type"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            },
+                            "description": "Actions to run when leaving this state"
+                          },
+                          "on": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "target": {
+                                      "type": "string",
+                                      "description": "Target State ID"
+                                    },
+                                    "cond": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "description": "Guard Name (e.g., \"isManager\", \"amountGT1000\")"
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "type": {
+                                              "type": "string"
+                                            },
+                                            "params": {
+                                              "type": "object",
+                                              "additionalProperties": {}
+                                            }
+                                          },
+                                          "required": [
+                                            "type"
+                                          ],
+                                          "additionalProperties": false
+                                        }
+                                      ],
+                                      "description": "Condition (Guard) required to take this path"
+                                    },
+                                    "actions": {
+                                      "type": "array",
+                                      "items": {
+                                        "anyOf": [
+                                          {
+                                            "type": "string",
+                                            "description": "Action Name"
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "type": {
+                                                "type": "string"
+                                              },
+                                              "params": {
+                                                "type": "object",
+                                                "additionalProperties": {}
+                                              }
+                                            },
+                                            "required": [
+                                              "type"
+                                            ],
+                                            "additionalProperties": false
+                                          }
+                                        ]
+                                      },
+                                      "description": "Actions to execute during transition"
+                                    },
+                                    "description": {
+                                      "type": "string",
+                                      "description": "Human readable description of this rule"
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "target": {
+                                        "type": "string",
+                                        "description": "Target State ID"
+                                      },
+                                      "cond": {
+                                        "anyOf": [
+                                          {
+                                            "type": "string",
+                                            "description": "Guard Name (e.g., \"isManager\", \"amountGT1000\")"
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "type": {
+                                                "type": "string"
+                                              },
+                                              "params": {
+                                                "type": "object",
+                                                "additionalProperties": {}
+                                              }
+                                            },
+                                            "required": [
+                                              "type"
+                                            ],
+                                            "additionalProperties": false
+                                          }
+                                        ],
+                                        "description": "Condition (Guard) required to take this path"
+                                      },
+                                      "actions": {
+                                        "type": "array",
+                                        "items": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string",
+                                              "description": "Action Name"
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "type": {
+                                                  "type": "string"
+                                                },
+                                                "params": {
+                                                  "type": "object",
+                                                  "additionalProperties": {}
+                                                }
+                                              },
+                                              "required": [
+                                                "type"
+                                              ],
+                                              "additionalProperties": false
+                                            }
+                                          ]
+                                        },
+                                        "description": "Actions to execute during transition"
+                                      },
+                                      "description": {
+                                        "type": "string",
+                                        "description": "Human readable description of this rule"
+                                      }
+                                    },
+                                    "additionalProperties": false
+                                  }
+                                }
+                              ]
+                            },
+                            "description": "Map of Event Type -> Transition Definition"
+                          },
+                          "always": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "target": {
+                                  "type": "string",
+                                  "description": "Target State ID"
+                                },
+                                "cond": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "description": "Guard Name (e.g., \"isManager\", \"amountGT1000\")"
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "type": {
+                                          "type": "string"
+                                        },
+                                        "params": {
+                                          "type": "object",
+                                          "additionalProperties": {}
+                                        }
+                                      },
+                                      "required": [
+                                        "type"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  ],
+                                  "description": "Condition (Guard) required to take this path"
+                                },
+                                "actions": {
+                                  "type": "array",
+                                  "items": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "description": "Action Name"
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "type": {
+                                            "type": "string"
+                                          },
+                                          "params": {
+                                            "type": "object",
+                                            "additionalProperties": {}
+                                          }
+                                        },
+                                        "required": [
+                                          "type"
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    ]
+                                  },
+                                  "description": "Actions to execute during transition"
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "Human readable description of this rule"
+                                }
+                              },
+                              "additionalProperties": false
+                            }
+                          },
+                          "initial": {
+                            "type": "string",
+                            "description": "Initial child state (if compound)"
+                          },
+                          "states": {
+                            "type": "object",
+                            "additionalProperties": {}
+                          },
+                          "meta": {
+                            "type": "object",
+                            "properties": {
+                              "label": {
+                                "type": "string"
+                              },
+                              "description": {
+                                "type": "string"
+                              },
+                              "color": {
+                                "type": "string"
+                              },
+                              "aiInstructions": {
+                                "type": "string",
+                                "description": "Specific instructions for AI when in this state"
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "description": "State Nodes"
+                    },
+                    "on": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target State ID"
+                              },
+                              "cond": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "description": "Guard Name (e.g., \"isManager\", \"amountGT1000\")"
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string"
+                                      },
+                                      "params": {
+                                        "type": "object",
+                                        "additionalProperties": {}
+                                      }
+                                    },
+                                    "required": [
+                                      "type"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                ],
+                                "description": "Condition (Guard) required to take this path"
+                              },
+                              "actions": {
+                                "type": "array",
+                                "items": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "description": "Action Name"
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "type": {
+                                          "type": "string"
+                                        },
+                                        "params": {
+                                          "type": "object",
+                                          "additionalProperties": {}
+                                        }
+                                      },
+                                      "required": [
+                                        "type"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  ]
+                                },
+                                "description": "Actions to execute during transition"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "Human readable description of this rule"
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "target": {
+                                  "type": "string",
+                                  "description": "Target State ID"
+                                },
+                                "cond": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "description": "Guard Name (e.g., \"isManager\", \"amountGT1000\")"
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "type": {
+                                          "type": "string"
+                                        },
+                                        "params": {
+                                          "type": "object",
+                                          "additionalProperties": {}
+                                        }
+                                      },
+                                      "required": [
+                                        "type"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  ],
+                                  "description": "Condition (Guard) required to take this path"
+                                },
+                                "actions": {
+                                  "type": "array",
+                                  "items": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "description": "Action Name"
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "type": {
+                                            "type": "string"
+                                          },
+                                          "params": {
+                                            "type": "object",
+                                            "additionalProperties": {}
+                                          }
+                                        },
+                                        "required": [
+                                          "type"
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    ]
+                                  },
+                                  "description": "Actions to execute during transition"
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "Human readable description of this rule"
+                                }
+                              },
+                              "additionalProperties": false
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "initial",
+                    "states"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Single state machine for record lifecycle (shorthand)"
+                },
+                "stateMachines": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 2,
+                        "pattern": "^[a-z][a-z0-9_]*$",
+                        "description": "Unique Machine ID"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "contextSchema": {
+                        "type": "object",
+                        "additionalProperties": {},
+                        "description": "Zod Schema for the machine context/memory"
+                      },
+                      "initial": {
+                        "type": "string",
+                        "description": "Initial State ID"
+                      },
+                      "states": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "atomic",
+                                "compound",
+                                "parallel",
+                                "final",
+                                "history"
+                              ],
+                              "default": "atomic"
+                            },
+                            "entry": {
+                              "type": "array",
+                              "items": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "description": "Action Name"
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string"
+                                      },
+                                      "params": {
+                                        "type": "object",
+                                        "additionalProperties": {}
+                                      }
+                                    },
+                                    "required": [
+                                      "type"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                ]
+                              },
+                              "description": "Actions to run when entering this state"
+                            },
+                            "exit": {
+                              "type": "array",
+                              "items": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "description": "Action Name"
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string"
+                                      },
+                                      "params": {
+                                        "type": "object",
+                                        "additionalProperties": {}
+                                      }
+                                    },
+                                    "required": [
+                                      "type"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                ]
+                              },
+                              "description": "Actions to run when leaving this state"
+                            },
+                            "on": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "target": {
+                                        "type": "string",
+                                        "description": "Target State ID"
+                                      },
+                                      "cond": {
+                                        "anyOf": [
+                                          {
+                                            "type": "string",
+                                            "description": "Guard Name (e.g., \"isManager\", \"amountGT1000\")"
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "type": {
+                                                "type": "string"
+                                              },
+                                              "params": {
+                                                "type": "object",
+                                                "additionalProperties": {}
+                                              }
+                                            },
+                                            "required": [
+                                              "type"
+                                            ],
+                                            "additionalProperties": false
+                                          }
+                                        ],
+                                        "description": "Condition (Guard) required to take this path"
+                                      },
+                                      "actions": {
+                                        "type": "array",
+                                        "items": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string",
+                                              "description": "Action Name"
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "type": {
+                                                  "type": "string"
+                                                },
+                                                "params": {
+                                                  "type": "object",
+                                                  "additionalProperties": {}
+                                                }
+                                              },
+                                              "required": [
+                                                "type"
+                                              ],
+                                              "additionalProperties": false
+                                            }
+                                          ]
+                                        },
+                                        "description": "Actions to execute during transition"
+                                      },
+                                      "description": {
+                                        "type": "string",
+                                        "description": "Human readable description of this rule"
+                                      }
+                                    },
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "target": {
+                                          "type": "string",
+                                          "description": "Target State ID"
+                                        },
+                                        "cond": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string",
+                                              "description": "Guard Name (e.g., \"isManager\", \"amountGT1000\")"
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "type": {
+                                                  "type": "string"
+                                                },
+                                                "params": {
+                                                  "type": "object",
+                                                  "additionalProperties": {}
+                                                }
+                                              },
+                                              "required": [
+                                                "type"
+                                              ],
+                                              "additionalProperties": false
+                                            }
+                                          ],
+                                          "description": "Condition (Guard) required to take this path"
+                                        },
+                                        "actions": {
+                                          "type": "array",
+                                          "items": {
+                                            "anyOf": [
+                                              {
+                                                "type": "string",
+                                                "description": "Action Name"
+                                              },
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "type": {
+                                                    "type": "string"
+                                                  },
+                                                  "params": {
+                                                    "type": "object",
+                                                    "additionalProperties": {}
+                                                  }
+                                                },
+                                                "required": [
+                                                  "type"
+                                                ],
+                                                "additionalProperties": false
+                                              }
+                                            ]
+                                          },
+                                          "description": "Actions to execute during transition"
+                                        },
+                                        "description": {
+                                          "type": "string",
+                                          "description": "Human readable description of this rule"
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    }
+                                  }
+                                ]
+                              },
+                              "description": "Map of Event Type -> Transition Definition"
+                            },
+                            "always": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "target": {
+                                    "type": "string",
+                                    "description": "Target State ID"
+                                  },
+                                  "cond": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "description": "Guard Name (e.g., \"isManager\", \"amountGT1000\")"
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "type": {
+                                            "type": "string"
+                                          },
+                                          "params": {
+                                            "type": "object",
+                                            "additionalProperties": {}
+                                          }
+                                        },
+                                        "required": [
+                                          "type"
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    ],
+                                    "description": "Condition (Guard) required to take this path"
+                                  },
+                                  "actions": {
+                                    "type": "array",
+                                    "items": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "description": "Action Name"
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "type": {
+                                              "type": "string"
+                                            },
+                                            "params": {
+                                              "type": "object",
+                                              "additionalProperties": {}
+                                            }
+                                          },
+                                          "required": [
+                                            "type"
+                                          ],
+                                          "additionalProperties": false
+                                        }
+                                      ]
+                                    },
+                                    "description": "Actions to execute during transition"
+                                  },
+                                  "description": {
+                                    "type": "string",
+                                    "description": "Human readable description of this rule"
+                                  }
+                                },
+                                "additionalProperties": false
+                              }
+                            },
+                            "initial": {
+                              "type": "string",
+                              "description": "Initial child state (if compound)"
+                            },
+                            "states": {
+                              "type": "object",
+                              "additionalProperties": {}
+                            },
+                            "meta": {
+                              "type": "object",
+                              "properties": {
+                                "label": {
+                                  "type": "string"
+                                },
+                                "description": {
+                                  "type": "string"
+                                },
+                                "color": {
+                                  "type": "string"
+                                },
+                                "aiInstructions": {
+                                  "type": "string",
+                                  "description": "Specific instructions for AI when in this state"
+                                }
+                              },
+                              "additionalProperties": false
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        "description": "State Nodes"
+                      },
+                      "on": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "target": {
+                                  "type": "string",
+                                  "description": "Target State ID"
+                                },
+                                "cond": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "description": "Guard Name (e.g., \"isManager\", \"amountGT1000\")"
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "type": {
+                                          "type": "string"
+                                        },
+                                        "params": {
+                                          "type": "object",
+                                          "additionalProperties": {}
+                                        }
+                                      },
+                                      "required": [
+                                        "type"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  ],
+                                  "description": "Condition (Guard) required to take this path"
+                                },
+                                "actions": {
+                                  "type": "array",
+                                  "items": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "description": "Action Name"
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "type": {
+                                            "type": "string"
+                                          },
+                                          "params": {
+                                            "type": "object",
+                                            "additionalProperties": {}
+                                          }
+                                        },
+                                        "required": [
+                                          "type"
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    ]
+                                  },
+                                  "description": "Actions to execute during transition"
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "Human readable description of this rule"
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "target": {
+                                    "type": "string",
+                                    "description": "Target State ID"
+                                  },
+                                  "cond": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "description": "Guard Name (e.g., \"isManager\", \"amountGT1000\")"
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "type": {
+                                            "type": "string"
+                                          },
+                                          "params": {
+                                            "type": "object",
+                                            "additionalProperties": {}
+                                          }
+                                        },
+                                        "required": [
+                                          "type"
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    ],
+                                    "description": "Condition (Guard) required to take this path"
+                                  },
+                                  "actions": {
+                                    "type": "array",
+                                    "items": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "description": "Action Name"
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "type": {
+                                              "type": "string"
+                                            },
+                                            "params": {
+                                              "type": "object",
+                                              "additionalProperties": {}
+                                            }
+                                          },
+                                          "required": [
+                                            "type"
+                                          ],
+                                          "additionalProperties": false
+                                        }
+                                      ]
+                                    },
+                                    "description": "Actions to execute during transition"
+                                  },
+                                  "description": {
+                                    "type": "string",
+                                    "description": "Human readable description of this rule"
+                                  }
+                                },
+                                "additionalProperties": false
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "initial",
+                      "states"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "description": "Named state machines for parallel lifecycles (e.g., status, payment, approval)"
+                },
                 "titleFormat": {
                   "type": "string",
                   "description": "Title expression (e.g. \"{name} - {code}\"). Overrides nameField."
