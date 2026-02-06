@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { FieldSchema } from './field.zod';
 import { ValidationRuleSchema } from './validation.zod';
+import { StateMachineSchema } from '../automation/state-machine.zod';
 
 /**
  * API Operations Enum
@@ -286,6 +287,7 @@ const ObjectSchemaBase = z.object({
    * Best Practice: Define rules close to data.
    */
   validations: z.array(ValidationRuleSchema).optional().describe('Object-level validation rules'),
+  stateMachine: StateMachineSchema.optional().describe('State machine definition for record lifecycle management'),
 
   /** 
    * Display & UI Hints (Data-Layer)
