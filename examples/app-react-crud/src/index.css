@@ -31,6 +31,15 @@
     --input: #e4e4e7;
     --ring: #18181b;
 
+    --sidebar-background: #ffffff;
+    --sidebar-foreground: #09090b;
+    --sidebar-primary: #18181b;
+    --sidebar-primary-foreground: #fafafa;
+    --sidebar-accent: #f4f4f5;
+    --sidebar-accent-foreground: #18181b;
+    --sidebar-border: #e4e4e7;
+    --sidebar-ring: #18181b;
+
     --radius: 0.5rem;
 
     --accents-1: #fafafa;
