@@ -103,6 +103,7 @@
                   "get_record",
                   "http_request",
                   "script",
+                  "screen",
                   "wait",
                   "subflow",
                   "connector_action"

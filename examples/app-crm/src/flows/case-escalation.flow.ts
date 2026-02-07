@@ -1,63 +1,65 @@
+import type { Automation } from '@objectstack/spec';
+type Flow = Automation.Flow;
+
 /** Case Escalation — auto-escalate high-priority cases */
-export const CaseEscalationFlow = {
+export const CaseEscalationFlow: Flow = {
   name: 'case_escalation',
   label: 'Case Escalation Process',
   description: 'Automatically escalate high-priority cases',
-  type: 'autolaunched',
-  triggerType: 'on_create',
-  objectName: 'case',
-  criteria: 'priority = "critical" OR (priority = "high" AND account.type = "customer")',
+  type: 'record_change',
 
   variables: [
     { name: 'caseId', type: 'text', isInput: true, isOutput: false },
   ],
 
-  steps: [
+  nodes: [
     {
-      id: 'get_case',
-      type: 'record_lookup',
-      label: 'Get Case Record',
-      objectName: 'case',
-      filter: { id: '{caseId}' },
-      outputVariable: 'caseRecord',
+      id: 'start', type: 'start', label: 'Start',
+      config: { objectName: 'case', criteria: 'priority = "critical" OR (priority = "high" AND account.type = "customer")' },
     },
     {
-      id: 'assign_senior_agent',
-      type: 'record_update',
-      label: 'Assign to Senior Agent',
-      recordId: '{caseId}',
-      objectName: 'case',
-      fields: {
-        owner: '{caseRecord.owner.manager}',
-        is_escalated: true,
-        escalated_date: '{NOW()}',
+      id: 'get_case', type: 'get_record', label: 'Get Case Record',
+      config: { objectName: 'case', filter: { id: '{caseId}' }, outputVariable: 'caseRecord' },
+    },
+    {
+      id: 'assign_senior_agent', type: 'update_record', label: 'Assign to Senior Agent',
+      config: {
+        objectName: 'case', filter: { id: '{caseId}' },
+        fields: { owner: '{caseRecord.owner.manager}', is_escalated: true, escalated_date: '{NOW()}' },
       },
     },
     {
-      id: 'create_task',
-      type: 'record_create',
-      label: 'Create Follow-up Task',
-      objectName: 'task',
-      fields: {
-        subject: 'Follow up on escalated case: {caseRecord.case_number}',
-        related_to: '{caseId}',
-        owner: '{caseRecord.owner}',
-        priority: 'high',
-        status: 'not_started',
-        due_date: '{TODAY() + 1}',
+      id: 'create_task', type: 'create_record', label: 'Create Follow-up Task',
+      config: {
+        objectName: 'task',
+        fields: {
+          subject: 'Follow up on escalated case: {caseRecord.case_number}',
+          related_to: '{caseId}', owner: '{caseRecord.owner}',
+          priority: 'high', status: 'not_started', due_date: '{TODAY() + 1}',
+        },
       },
     },
     {
-      id: 'notify_team',
-      type: 'email_alert',
-      label: 'Notify Support Team',
-      template: 'case_escalated',
-      recipients: ['{caseRecord.owner}', '{caseRecord.owner.manager}', 'support-team@example.com'],
-      variables: {
-        caseNumber: '{caseRecord.case_number}',
-        priority: '{caseRecord.priority}',
-        accountName: '{caseRecord.account.name}',
+      id: 'notify_team', type: 'script', label: 'Notify Support Team',
+      config: {
+        actionType: 'email',
+        template: 'case_escalated',
+        recipients: ['{caseRecord.owner}', '{caseRecord.owner.manager}', 'support-team@example.com'],
+        variables: {
+          caseNumber: '{caseRecord.case_number}',
+          priority: '{caseRecord.priority}',
+          accountName: '{caseRecord.account.name}',
+        },
       },
     },
+    { id: 'end', type: 'end', label: 'End' },
+  ],
+
+  edges: [
+    { id: 'e1', source: 'start', target: 'get_case', type: 'default' },
+    { id: 'e2', source: 'get_case', target: 'assign_senior_agent', type: 'default' },
+    { id: 'e3', source: 'assign_senior_agent', target: 'create_task', type: 'default' },
+    { id: 'e4', source: 'create_task', target: 'notify_team', type: 'default' },
+    { id: 'e5', source: 'notify_team', target: 'end', type: 'default' },
   ],
 };

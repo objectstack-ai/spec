@@ -4,20 +4,21 @@ import { z } from 'zod';
  * Flow Node Types
  */
 export const FlowNodeAction = z.enum([
-  'start',          // Trigger
-  'end',            // Return/Stop
-  'decision',       // If/Else logic
-  'assignment',     // Set Variable
-  'loop',           // For Each
-  'create_record',  // CRUD: Create
-  'update_record',  // CRUD: Update
-  'delete_record',  // CRUD: Delete
-  'get_record',     // CRUD: Get/Query
-  'http_request',   // Webhook/API Call
-  'script',         // Custom Script (JS/TS)
-  'wait',           // Delay/Sleep
-  'subflow',        // Call another flow
-  'connector_action' // Zapier-style integration action
+  'start',            // Trigger
+  'end',              // Return/Stop
+  'decision',         // If/Else logic
+  'assignment',       // Set Variable
+  'loop',             // For Each
+  'create_record',    // CRUD: Create
+  'update_record',    // CRUD: Update
+  'delete_record',    // CRUD: Delete
+  'get_record',       // CRUD: Get/Query
+  'http_request',     // Webhook/API Call
+  'script',           // Custom Script (JS/TS)
+  'screen',           // Screen / User-Input Element
+  'wait',             // Delay/Sleep
+  'subflow',          // Call another flow
+  'connector_action', // Zapier-style integration action
 ]);
 
 /**
@@ -136,6 +137,9 @@ export const FlowSchema = z.object({
   runAs: z.enum(['system', 'user']).default('user').describe('Execution context'),
 });
 
-export type Flow = z.infer<typeof FlowSchema>;
-export type FlowNode = z.infer<typeof FlowNodeSchema>;
-export type FlowEdge = z.infer<typeof FlowEdgeSchema>;
+export type Flow = z.input<typeof FlowSchema>;
+export type FlowParsed = z.infer<typeof FlowSchema>;
+export type FlowNode = z.input<typeof FlowNodeSchema>;
+export type FlowNodeParsed = z.infer<typeof FlowNodeSchema>;
+export type FlowEdge = z.input<typeof FlowEdgeSchema>;
+export type FlowEdgeParsed = z.infer<typeof FlowEdgeSchema>;
