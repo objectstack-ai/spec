@@ -15,7 +15,8 @@ export default defineConfig({
     'src/ai/index.ts',
     'src/permission/index.ts',
     'src/contracts/index.ts',
-    'src/integration/index.ts'
+    'src/integration/index.ts',
+    'src/studio/index.ts'
   ],
   splitting: false,
   sourcemap: true,

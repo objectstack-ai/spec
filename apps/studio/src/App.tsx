@@ -6,11 +6,11 @@ import { AppSidebar } from "./components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { DeveloperOverview } from './components/DeveloperOverview';
-import { ObjectExplorer } from './components/ObjectExplorer';
-import { MetadataInspector } from './components/MetadataInspector';
 import { PackageManager } from './components/PackageManager';
 import { Toaster } from "@/components/ui/toaster"
 import { getApiBaseUrl, config } from './lib/config';
+import { PluginRegistryProvider, PluginHost } from './plugins';
+import { builtInPlugins } from './plugins/built-in';
 import type { InstalledPackage } from '@objectstack/spec/kernel';
 
 type ViewType = 'overview' | 'packages' | 'object' | 'metadata';
@@ -99,6 +99,7 @@ export default function App() {
 
   return (
     <ObjectStackProvider client={client}>
+      <PluginRegistryProvider plugins={builtInPlugins}>
       <ErrorBoundary>
       <SidebarProvider>
         <AppSidebar 
@@ -121,11 +122,9 @@ export default function App() {
           />
           <div className="flex flex-1 flex-col overflow-hidden">
             {selectedView === 'object' && selectedObject ? (
-              <ObjectExplorer objectApiName={selectedObject} />
+              <PluginHost metadataType="object" metadataName={selectedObject} />
             ) : selectedView === 'metadata' && selectedMeta ? (
-              <div className="flex-1 overflow-auto p-4">
-                <MetadataInspector metaType={selectedMeta.type} metaName={selectedMeta.name} />
-              </div>
+              <PluginHost metadataType={selectedMeta.type} metadataName={selectedMeta.name} />
             ) : selectedView === 'packages' ? (
               <PackageManager />
             ) : (
@@ -140,6 +139,7 @@ export default function App() {
         <Toaster />
       </SidebarProvider>
       </ErrorBoundary>
+      </PluginRegistryProvider>
     </ObjectStackProvider>
   );
 }

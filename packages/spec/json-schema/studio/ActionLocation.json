@@ -1,0 +1,14 @@
+{
+  "$ref": "#/definitions/ActionLocation",
+  "definitions": {
+    "ActionLocation": {
+      "type": "string",
+      "enum": [
+        "toolbar",
+        "contextMenu",
+        "commandPalette"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

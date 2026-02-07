@@ -75,6 +75,11 @@
       "types": "./dist/permission/index.d.ts",
       "import": "./dist/permission/index.mjs",
       "require": "./dist/permission/index.js"
+    },
+    "./studio": {
+      "types": "./dist/studio/index.d.ts",
+      "import": "./dist/studio/index.mjs",
+      "require": "./dist/studio/index.js"
     }
   },
   "files": [

@@ -1,0 +1,29 @@
+{
+  "$ref": "#/definitions/MetadataIconContribution",
+  "definitions": {
+    "MetadataIconContribution": {
+      "type": "object",
+      "properties": {
+        "metadataType": {
+          "type": "string",
+          "description": "Metadata type"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Lucide icon name"
+        }
+      },
+      "required": [
+        "metadataType",
+        "label",
+        "icon"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

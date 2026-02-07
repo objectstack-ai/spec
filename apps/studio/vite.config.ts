@@ -58,6 +58,7 @@ export default defineConfig({
       '@objectstack/spec/data', // Force pre-bundling for CJS compatibility
       '@objectstack/spec/system',
       '@objectstack/spec/ui',
+      '@objectstack/spec/studio',
       '@objectstack/client-react'
     ]
   },

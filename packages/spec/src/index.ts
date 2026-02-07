@@ -57,6 +57,7 @@ export * as API from './api';
 export * as Automation from './automation';
 export * as Integration from './integration';
 export * as Contracts from './contracts';
+export * as Studio from './studio';
 
 export {
   defineStack,

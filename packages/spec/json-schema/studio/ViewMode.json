@@ -1,0 +1,15 @@
+{
+  "$ref": "#/definitions/ViewMode",
+  "definitions": {
+    "ViewMode": {
+      "type": "string",
+      "enum": [
+        "preview",
+        "design",
+        "code",
+        "data"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

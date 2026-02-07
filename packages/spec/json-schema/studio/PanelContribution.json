@@ -1,0 +1,38 @@
+{
+  "$ref": "#/definitions/PanelContribution",
+  "definitions": {
+    "PanelContribution": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique panel identifier"
+        },
+        "label": {
+          "type": "string",
+          "description": "Panel display label"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Lucide icon name"
+        },
+        "location": {
+          "type": "string",
+          "enum": [
+            "bottom",
+            "right",
+            "modal"
+          ],
+          "default": "bottom",
+          "description": "Panel location"
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
