@@ -18,6 +18,11 @@ import { securityProtocolPlugin } from './security-plugin';
 import { aiProtocolPlugin } from './ai-plugin';
 import { apiProtocolPlugin } from './api-plugin';
 
+// Example plugins (demonstrating custom viewers)
+import { flowDesignerPlugin } from './examples/flow-designer-plugin.example';
+import { dashboardDesignerPlugin } from './examples/dashboard-designer.example';
+import { agentViewerPlugin } from './examples/agent-viewer.example';
+
 /** All built-in plugins, in activation order */
 export const builtInPlugins: StudioPlugin[] = [
   // The default inspector MUST be first — it provides the wildcard fallback
@@ -32,6 +37,11 @@ export const builtInPlugins: StudioPlugin[] = [
   securityProtocolPlugin,
   aiProtocolPlugin,
   apiProtocolPlugin,
+
+  // Example viewer plugins
+  flowDesignerPlugin,
+  dashboardDesignerPlugin,
+  agentViewerPlugin,
 ];
 
 // Re-export individual plugins for selective use / testing
