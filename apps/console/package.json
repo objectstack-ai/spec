@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/console",
-  "version": "0.9.14",
+  "version": "0.9.15",
   "description": "ObjectStack Platform Console - A metadata-driven admin interface for managing data and configuration",
   "private": true,
   "type": "module",
