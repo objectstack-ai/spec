@@ -11,7 +11,7 @@ export const baseOptions: BaseLayoutProps = {
           width={30} 
           height={30} 
         />
-        ObjectStack Protocol
+        ObjectStack
       </div>
     ),
     transparentMode: 'top',
