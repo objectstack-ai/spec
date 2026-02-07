@@ -1,0 +1,8 @@
+{
+  "title": "Studio",
+  "pages": [
+    "plugin-manifest",
+    "contribution-points",
+    "runtime-api"
+  ]
+}

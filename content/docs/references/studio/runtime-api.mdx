@@ -1,0 +1,338 @@
+---
+title: Runtime API
+description: StudioPluginAPI, React hooks, and runtime type reference
+---
+
+The Runtime API is the imperative layer of the plugin system. While the manifest declares **what** a plugin contributes, the runtime API registers **how** — React components, action handlers, and icons.
+
+<Callout type="info">
+**Source:** `apps/studio/src/plugins/types.ts` and `apps/studio/src/plugins/hooks.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import type {
+  StudioPlugin,
+  StudioPluginAPI,
+  MetadataViewerProps,
+  ActionContext,
+  ResolvedViewer,
+  ResolvedAction,
+  ResolvedCommand,
+  ResolvedPanel,
+  ResolvedMetadataIcon,
+} from '@/plugins/types';
+
+import {
+  useMetadataViewer,
+  useMetadataViewers,
+  useAvailableModes,
+  useMetadataActions,
+  useCommands,
+  usePanels,
+  useMetadataIcon,
+  useAllMetadataIcons,
+  useSidebarGroups,
+} from '@/plugins/hooks';
+```
+
+---
+
+## StudioPlugin
+
+The primary interface that plugin authors implement. Combines a declarative manifest with imperative activation.
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **manifest** | `StudioPluginManifest` | ✅ | Declarative contribution points |
+| **activate** | `(api: StudioPluginAPI) => void \| Promise<void>` | ✅ | Called when the plugin is activated. Register runtime components here |
+| **deactivate** | `() => void` | optional | Called when the plugin is deactivated (cleanup) |
+
+### Example
+
+```tsx
+import { defineStudioPlugin } from '@objectstack/spec/studio';
+import type { StudioPlugin } from '@/plugins/types';
+
+export const myPlugin: StudioPlugin = {
+  manifest: defineStudioPlugin({
+    id: 'my-org.my-plugin',
+    name: 'My Plugin',
+    contributes: {
+      metadataViewers: [{
+        id: 'my-viewer',
+        metadataTypes: ['flows'],
+        label: 'My Viewer',
+        priority: 50,
+        modes: ['preview', 'code'],
+      }],
+    },
+  }),
+
+  activate(api) {
+    api.registerViewer('my-viewer', MyViewerComponent);
+  },
+
+  deactivate() {
+    console.log('Plugin deactivated');
+  },
+};
+```
+
+---
+
+## StudioPluginAPI
+
+The API object passed to `activate()`. Provides 5 registration methods.
+
+### registerViewer
+
+```typescript
+registerViewer(viewerId: string, component: ComponentType<MetadataViewerProps>): void
+```
+
+Register a React component as a metadata viewer. The `viewerId` must match a viewer declared in `contributes.metadataViewers`.
+
+### registerPanel
+
+```typescript
+registerPanel(panelId: string, component: ComponentType<any>): void
+```
+
+Register a React component as an auxiliary panel. The `panelId` must match a panel declared in `contributes.panels`.
+
+### registerAction
+
+```typescript
+registerAction(actionId: string, handler: (ctx: ActionContext) => void | Promise<void>): void
+```
+
+Register a handler for an action. The `actionId` must match an action declared in `contributes.actions`.
+
+### registerCommand
+
+```typescript
+registerCommand(commandId: string, handler: () => void | Promise<void>): void
+```
+
+Register a handler for a command. The `commandId` must match a command declared in `contributes.commands`.
+
+### registerMetadataIcon
+
+```typescript
+registerMetadataIcon(metadataType: string, icon: LucideIcon, label?: string): void
+```
+
+Register a Lucide icon component for a metadata type, used by the sidebar and breadcrumbs.
+
+---
+
+## MetadataViewerProps
+
+Props passed to every viewer component by the `PluginHost`.
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **metadataType** | `string` | ✅ | Metadata type (e.g., `"object"`, `"flow"`, `"agent"`) |
+| **metadataName** | `string` | ✅ | Metadata item name / identifier |
+| **data** | `any` | optional | Pre-loaded metadata payload |
+| **mode** | `ViewMode` | ✅ | Current view mode: `preview \| design \| code \| data` |
+
+---
+
+## ActionContext
+
+Context passed to action handlers when triggered.
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **metadataType** | `string` | ✅ | Current metadata type |
+| **metadataName** | `string` | ✅ | Current metadata item name |
+| **data** | `any` | optional | Metadata payload |
+
+---
+
+## Resolved Types
+
+The registry stores contributions with their runtime artifacts attached.
+
+### ResolvedViewer
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| **id** | `string` | Viewer identifier |
+| **pluginId** | `string` | Owning plugin ID |
+| **label** | `string` | Display label |
+| **metadataTypes** | `string[]` | Handled metadata types |
+| **modes** | `ViewMode[]` | Supported modes |
+| **priority** | `number` | Priority value |
+| **component** | `ComponentType<MetadataViewerProps>` | React component |
+
+### ResolvedAction
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| **id** | `string` | Action identifier |
+| **pluginId** | `string` | Owning plugin ID |
+| **label** | `string` | Display label |
+| **icon** | `string?` | Lucide icon name |
+| **location** | `'toolbar' \| 'contextMenu' \| 'commandPalette'` | UI location |
+| **metadataTypes** | `string[]` | Applicable types |
+| **handler** | `(ctx: ActionContext) => void \| Promise<void>` | Action handler |
+
+### ResolvedCommand
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| **id** | `string` | Command identifier |
+| **pluginId** | `string` | Owning plugin ID |
+| **label** | `string` | Display label |
+| **shortcut** | `string?` | Keyboard shortcut |
+| **icon** | `string?` | Lucide icon name |
+| **handler** | `() => void \| Promise<void>` | Command handler |
+
+### ResolvedPanel
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| **id** | `string` | Panel identifier |
+| **pluginId** | `string` | Owning plugin ID |
+| **label** | `string` | Display label |
+| **icon** | `string?` | Lucide icon name |
+| **location** | `'bottom' \| 'right' \| 'modal'` | Panel placement |
+| **component** | `ComponentType<any>` | React component |
+
+### ResolvedMetadataIcon
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| **metadataType** | `string` | Metadata type |
+| **label** | `string` | Display label |
+| **icon** | `LucideIcon` | Lucide icon component |
+
+---
+
+## React Hooks
+
+All hooks use `useSyncExternalStore` for efficient, reactive updates from the plugin registry.
+
+### useMetadataViewer
+
+```typescript
+useMetadataViewer(metadataType: string, mode: ViewMode): ResolvedViewer | undefined
+```
+
+Returns the highest-priority viewer matching the given type and mode.
+
+### useMetadataViewers
+
+```typescript
+useMetadataViewers(metadataType: string): ResolvedViewer[]
+```
+
+Returns all viewers matching the given type, sorted by priority (highest first).
+
+### useAvailableModes
+
+```typescript
+useAvailableModes(metadataType: string): ViewMode[]
+```
+
+Returns all view modes supported by viewers that match the given type.
+
+### useMetadataActions
+
+```typescript
+useMetadataActions(metadataType: string, location?: string): ResolvedAction[]
+```
+
+Returns actions matching the type and optional location filter.
+
+### useCommands
+
+```typescript
+useCommands(): ResolvedCommand[]
+```
+
+Returns all registered commands.
+
+### usePanels
+
+```typescript
+usePanels(location?: string): ResolvedPanel[]
+```
+
+Returns registered panels, optionally filtered by location.
+
+### useMetadataIcon
+
+```typescript
+useMetadataIcon(metadataType: string): ResolvedMetadataIcon | undefined
+```
+
+Returns the icon for a specific metadata type.
+
+### useAllMetadataIcons
+
+```typescript
+useAllMetadataIcons(): ResolvedMetadataIcon[]
+```
+
+Returns all registered metadata icons.
+
+### useSidebarGroups
+
+```typescript
+useSidebarGroups(): SidebarGroupContribution[]
+```
+
+Returns all sidebar groups, sorted by `order` (ascending).
+
+---
+
+## PluginRegistryProvider
+
+React context provider that manages the plugin lifecycle.
+
+```tsx
+import { PluginRegistryProvider } from '@/plugins/context';
+
+function App() {
+  return (
+    <PluginRegistryProvider plugins={allPlugins}>
+      <YourAppContent />
+    </PluginRegistryProvider>
+  );
+}
+```
+
+Shows a loading spinner while activating plugins, then renders children.
+
+---
+
+## PluginHost
+
+The main content area component that renders the active viewer with mode switching.
+
+```tsx
+import { PluginHost } from '@/plugins/plugin-host';
+
+<PluginHost
+  metadataType="object"
+  metadataName="project_task"
+/>
+```
+
+Features:
+- Selects the highest-priority viewer for the current metadata type
+- Mode switcher tabs (preview / design / code / data)
+- Viewer selector dropdown when multiple viewers are available
+- Toolbar action buttons
+- Plugin attribution badge

@@ -1,0 +1,125 @@
+---
+title: Plugin Manifest
+description: StudioPluginManifestSchema — the complete plugin declaration reference
+---
+
+The `StudioPluginManifestSchema` is the "package.json" equivalent for Studio plugins. It defines the plugin identity and all declarative contribution points.
+
+<Callout type="info">
+**Source:** `packages/spec/src/studio/plugin.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import {
+  StudioPluginManifestSchema,
+  defineStudioPlugin,
+} from '@objectstack/spec/studio';
+
+import type {
+  StudioPluginManifest,
+  StudioPluginContributions,
+  ViewMode,
+} from '@objectstack/spec/studio';
+
+// Parse & validate
+const manifest = StudioPluginManifestSchema.parse(data);
+
+// Helper (parse + type inference)
+const manifest = defineStudioPlugin({
+  id: 'my-org.my-plugin',
+  name: 'My Plugin',
+  version: '1.0.0',
+  contributes: { ... },
+});
+```
+
+---
+
+## StudioPluginManifest
+
+### Properties
+
+| Property | Type | Required | Default | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | — | Plugin ID in dot-separated lowercase (e.g., `my-org.object-designer`). Must match `/^[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)*$/` |
+| **name** | `string` | ✅ | — | Human-readable plugin name |
+| **version** | `string` | optional | `"0.0.1"` | Semantic version |
+| **description** | `string` | optional | — | Plugin description |
+| **author** | `string` | optional | — | Author name |
+| **contributes** | `StudioPluginContributions` | optional | `{}` | Declarative contribution points (see below) |
+| **activationEvents** | `string[]` | optional | `["*"]` | Events that trigger plugin activation |
+
+### ID Format
+
+Plugin IDs use reverse-domain notation to avoid collisions:
+
+```
+objectstack.object-designer   ✅  Built-in
+my-org.flow-canvas             ✅  Third-party
+acme.report-builder            ✅  Organization-scoped
+my-plugin                      ❌  No namespace
+My.Plugin                      ❌  Uppercase not allowed
+```
+
+### Activation Events
+
+Patterns for lazy loading:
+
+| Pattern | Description |
+| :--- | :--- |
+| `*` | Activate immediately (eager — the default) |
+| `onMetadataType:object` | Activate when a specific metadata type is loaded |
+| `onCommand:myPlugin.doSomething` | Activate when a command is invoked |
+| `onView:myPlugin.myPanel` | Activate when a panel is opened |
+
+---
+
+## ViewMode
+
+An enum of supported viewer modes:
+
+```typescript
+export const ViewModeSchema = z.enum(['preview', 'design', 'code', 'data']);
+```
+
+| Value | Purpose |
+| :--- | :--- |
+| `preview` | Read-only visualization |
+| `design` | Visual editing / drag-and-drop |
+| `code` | Raw JSON / YAML source view |
+| `data` | Live data table / record browser |
+
+---
+
+## defineStudioPlugin()
+
+Type-safe helper function that validates the manifest at definition time:
+
+```typescript
+function defineStudioPlugin(
+  input: z.input<typeof StudioPluginManifestSchema>
+): StudioPluginManifest;
+```
+
+**Usage:**
+
+```typescript
+const manifest = defineStudioPlugin({
+  id: 'objectstack.flow-designer',
+  name: 'Flow Designer',
+  version: '1.0.0',
+  contributes: {
+    metadataViewers: [{
+      id: 'flow-canvas',
+      metadataTypes: ['flows'],
+      label: 'Flow Canvas',
+      priority: 100,
+      modes: ['design', 'code'],
+    }],
+  },
+});
+```
+
+This calls `StudioPluginManifestSchema.parse(input)` internally, so invalid manifests throw a `ZodError` at import time rather than at runtime.

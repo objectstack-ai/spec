@@ -4,6 +4,7 @@
     "concept",
     "layout-dsl",
     "widget-contract",
-    "actions"
+    "actions",
+    "studio-plugins"
   ]
 }

@@ -1,0 +1,226 @@
+---
+title: Studio Plugin System
+description: VS Code-like extension model for ObjectStack Studio — each metadata type can have custom viewers, designers, and actions
+---
+
+import { Blocks, Code, Zap, Package, Eye, PenTool, Bot, Workflow, Globe, Shield, BarChart3 } from 'lucide-react';
+
+# Studio Plugin System
+
+ObjectStack Studio uses a **VS Code-like plugin architecture** where every metadata type's preview, designer, and actions are provided by **plugins**. The core Studio shell knows nothing about specific metadata types — it delegates all rendering to the plugin registry.
+
+<Callout type="info">
+  **Design Philosophy:** Studio itself is just a host. All metadata-specific functionality — from the Object schema inspector to the Flow designer — lives in plugins. This makes the system infinitely extensible.
+</Callout>
+
+## Why Plugins?
+
+<Cards>
+  <Card
+    icon={<Blocks />}
+    title="Every Type Is Extensible"
+    description="Objects, Flows, Agents, Dashboards — each metadata type gets its own viewer, designer, and actions through plugins."
+  />
+  <Card
+    icon={<Eye />}
+    title="Multiple Viewers per Type"
+    description="A single metadata type can have multiple viewers. Switch between JSON inspector, visual designer, and code editor for the same item."
+  />
+  <Card
+    icon={<Zap />}
+    title="Priority-Based Resolution"
+    description="When multiple plugins handle the same type, the highest-priority viewer wins. Override built-in viewers with your own."
+  />
+  <Card
+    icon={<Package />}
+    title="Self-Contained Modules"
+    description="Each plugin bundles its manifest (declarative) and activation logic (imperative). Install, enable, disable independently."
+  />
+</Cards>
+
+## Architecture Overview
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                       Studio Host                            │
+│                                                              │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │                  Plugin Registry                       │  │
+│  │                                                        │  │
+│  │  ┌────────────┐ ┌────────────┐ ┌────────────┐        │  │
+│  │  │  Object    │ │  Default   │ │  UI/AI/... │  ...   │  │
+│  │  │  Designer  │ │  Inspector │ │  Protocol  │        │  │
+│  │  │ priority:  │ │ priority:  │ │  (icons &  │        │  │
+│  │  │    100     │ │    -1      │ │  groups)   │        │  │
+│  │  └────────────┘ └────────────┘ └────────────┘        │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                                                              │
+│  ┌─── Sidebar ────┐  ┌─── PluginHost ─────────────────────┐ │
+│  │ Plugin-provided │  │ [Preview] [Design] [Code] [Data]  │ │
+│  │ icons & groups  │  │                                    │ │
+│  │                 │  │  ┌──────────────────────────────┐  │ │
+│  │ ▸ Data          │  │  │  Active viewer component     │  │ │
+│  │   ▸ Objects     │  │  │  (from highest-priority      │  │ │
+│  │   ▸ Hooks       │  │  │   plugin for this type)      │  │ │
+│  │ ▸ Automation    │  │  └──────────────────────────────┘  │ │
+│  │   ▸ Flows       │  │                                    │ │
+│  └─────────────────┘  │  [Plugin Actions] [Plugin Badge]   │ │
+│                        └────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────────┘
+```
+
+## Two-Layer Plugin Model
+
+Like VS Code extensions, each Studio plugin has two layers:
+
+### Layer 1: Manifest (Declarative)
+
+The manifest is a JSON-serializable object that declares **what** the plugin contributes. It uses `defineStudioPlugin()` for type-safe construction and Zod validation.
+
+```typescript
+import { defineStudioPlugin } from '@objectstack/spec/studio';
+
+const manifest = defineStudioPlugin({
+  id: 'mycompany.flow-designer',
+  name: 'Flow Designer',
+  version: '1.0.0',
+  contributes: {
+    metadataViewers: [{
+      id: 'flow-canvas',
+      metadataTypes: ['flows'],
+      label: 'Visual Flow Designer',
+      priority: 50,
+      modes: ['preview', 'design'],
+    }],
+  },
+});
+```
+
+### Layer 2: Activation (Imperative)
+
+The `activate()` function is called at runtime and registers **React components** and **handlers** via the `StudioPluginAPI`:
+
+```tsx
+activate(api) {
+  // Register a React component for the declared viewer
+  api.registerViewer('flow-canvas', FlowDesignerComponent);
+
+  // Register action handlers
+  api.registerAction('validate-flow', async (ctx) => {
+    const result = await validateFlow(ctx.data);
+    alert(result.valid ? 'Valid ✅' : 'Invalid ❌');
+  });
+}
+```
+
+## 6 Contribution Points
+
+| Contribution | VS Code Equivalent | Purpose |
+| :--- | :--- | :--- |
+| `metadataViewers` | `views` | Register preview/designer components for metadata types |
+| `sidebarGroups` | `viewContainers` | Add sidebar navigation groups with icons |
+| `metadataIcons` | `icons` | Provide icons and labels for metadata types |
+| `actions` | `menus` | Toolbar / context menu / command palette actions |
+| `panels` | `panel` | Auxiliary panels (bottom/right/modal) |
+| `commands` | `commands` | Global commands with keyboard shortcuts |
+
+## View Modes
+
+Each viewer declares which **modes** it supports:
+
+| Mode | Icon | Purpose |
+| :--- | :--- | :--- |
+| `preview` | 👁 Eye | Read-only preview of metadata |
+| `design` | 🖊 Pen | Visual drag-and-drop designer |
+| `code` | `</>` Code | Raw JSON/YAML code editor |
+| `data` | 📊 Table | Data table (for objects with records) |
+
+The PluginHost toolbar shows only the modes that are available for the current metadata type, based on what plugins have registered.
+
+## Priority System
+
+When multiple plugins register viewers for the same metadata type and mode, the **highest priority** wins:
+
+| Priority | Usage |
+| :--- | :--- |
+| `-1` | Default fallback (JSON Inspector) |
+| `0` | Standard priority (default) |
+| `50` | Enhanced viewers |
+| `100` | Primary viewers (built-in Object Explorer) |
+
+```typescript
+// This viewer takes priority over the default JSON inspector
+metadataViewers: [{
+  id: 'my-viewer',
+  metadataTypes: ['flows'],
+  priority: 50,  // Higher than default (-1), lower than Object (100)
+  // ...
+}]
+```
+
+When multiple viewers exist for the same mode, users can switch between them via a dropdown in the toolbar.
+
+## Built-in Plugins
+
+Studio ships with 7 built-in plugins:
+
+| Plugin | ID | Types | Priority |
+| :--- | :--- | :--- | :--- |
+| Default Inspector | `objectstack.default-inspector` | `*` (all) | -1 |
+| Object Designer | `objectstack.object-designer` | `object`, `objects` | 100 |
+| UI Protocol | `objectstack.ui-protocol` | actions, views, pages, dashboards, reports, themes | — |
+| Automation Protocol | `objectstack.automation-protocol` | flows, workflows, approvals, webhooks | — |
+| Security Protocol | `objectstack.security-protocol` | roles, permissions, profiles, sharingRules, policies | — |
+| AI Protocol | `objectstack.ai-protocol` | agents, ragPipelines | — |
+| API Protocol | `objectstack.api-protocol` | apis, connectors | — |
+
+<Callout type="tip">
+  The protocol plugins (UI, Automation, Security, AI, API) only provide **sidebar groups** and **icons**. They don't register viewers — those metadata types fall through to the Default Inspector. This is by design: add a specialized viewer by writing a new plugin with a higher priority.
+</Callout>
+
+## Activation Events
+
+Plugins declare when they should be activated:
+
+```typescript
+activationEvents: [
+  '*',                          // Eager — activate immediately
+  'onMetadataType:object',      // Activate when "object" type is loaded
+  'onCommand:myPlugin.create',  // Activate when command is invoked
+  'onView:myPlugin.panel',      // Activate when panel is opened
+]
+```
+
+Default: `['*']` (eager activation).
+
+## Schema Reference
+
+All plugin types are defined as Zod schemas in `@objectstack/spec/studio`:
+
+| Schema | Purpose |
+| :--- | :--- |
+| `StudioPluginManifestSchema` | Root manifest with id, name, version, contributes |
+| `MetadataViewerContributionSchema` | Viewer declaration with types, modes, priority |
+| `SidebarGroupContributionSchema` | Sidebar group with key, label, icon, order |
+| `ActionContributionSchema` | Action with id, label, location, metadataTypes |
+| `MetadataIconContributionSchema` | Icon mapping for a metadata type |
+| `PanelContributionSchema` | Panel with id, label, location |
+| `CommandContributionSchema` | Command with id, label, shortcut |
+| `ViewModeSchema` | Enum: `preview`, `design`, `code`, `data` |
+| `StudioPluginContributionsSchema` | Union of all contribution arrays |
+
+```typescript
+import {
+  StudioPluginManifestSchema,
+  MetadataViewerContributionSchema,
+  defineStudioPlugin,
+  type StudioPluginManifest,
+  type ViewMode,
+} from '@objectstack/spec/studio';
+
+// Validate at runtime
+const manifest = StudioPluginManifestSchema.parse(rawConfig);
+
+// Type-safe helper (parse + return typed)
+const manifest = defineStudioPlugin({ ... });
+```

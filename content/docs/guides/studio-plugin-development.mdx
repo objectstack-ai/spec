@@ -1,0 +1,557 @@
+---
+title: Studio Plugin Development Guide
+description: Step-by-step guide to building custom Studio plugins with viewers, designers, actions, and panels
+---
+
+import { Blocks, Code, Zap, Package, Eye, PenTool, Settings, Terminal } from 'lucide-react';
+
+# Studio Plugin Development Guide
+
+This guide walks you through building a custom Studio plugin from scratch. By the end, you'll have a fully functional metadata viewer with custom actions and toolbar integration.
+
+## Prerequisites
+
+- Familiarity with React and TypeScript
+- ObjectStack Studio running (via `pnpm studio` or `pnpm dev`)
+- Understanding of [ObjectStack metadata types](/docs/protocol/objectql)
+
+## Quick Start: Your First Plugin in 5 Minutes
+
+### Step 1: Create the Viewer Component
+
+Every viewer receives standardized props from the PluginHost:
+
+```tsx
+// src/plugins/my-plugin/DashboardViewer.tsx
+import type { MetadataViewerProps } from '../types';
+
+export function DashboardViewer({ metadataType, metadataName, data, mode }: MetadataViewerProps) {
+  return (
+    <div className="p-6">
+      <h2 className="text-lg font-semibold">{metadataName}</h2>
+      <p className="text-sm text-muted-foreground">Type: {metadataType} | Mode: {mode}</p>
+
+      {mode === 'preview' && data && (
+        <div className="mt-4 grid grid-cols-2 gap-4">
+          {data.widgets?.map((widget: any) => (
+            <div key={widget.id} className="rounded-lg border p-4">
+              <h3 className="font-medium">{widget.label}</h3>
+              <p className="text-xs text-muted-foreground">{widget.type}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {mode === 'design' && (
+        <div className="mt-4 rounded-lg border-2 border-dashed border-primary/20 p-8 text-center">
+          <p className="text-sm text-muted-foreground">
+            🎨 Drag widgets here to build your dashboard
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+### Step 2: Define the Plugin
+
+A plugin has two parts: a **manifest** (declarative) and an **activate** function (imperative).
+
+```tsx
+// src/plugins/my-plugin/index.tsx
+import { defineStudioPlugin } from '@objectstack/spec/studio';
+import type { StudioPlugin } from '../types';
+import { BarChart3 } from 'lucide-react';
+import { DashboardViewer } from './DashboardViewer';
+
+export const dashboardPlugin: StudioPlugin = {
+  manifest: defineStudioPlugin({
+    id: 'mycompany.dashboard-designer',
+    name: 'Dashboard Designer',
+    version: '1.0.0',
+    description: 'Visual dashboard builder with drag-and-drop widgets.',
+
+    contributes: {
+      metadataViewers: [{
+        id: 'dashboard-viewer',
+        metadataTypes: ['dashboards'],
+        label: 'Dashboard Designer',
+        priority: 50,
+        modes: ['preview', 'design'],
+      }],
+      metadataIcons: [{
+        metadataType: 'dashboards',
+        label: 'Dashboards',
+        icon: 'bar-chart-3',
+      }],
+    },
+  }),
+
+  activate(api) {
+    api.registerViewer('dashboard-viewer', DashboardViewer);
+    api.registerMetadataIcon('dashboards', BarChart3, 'Dashboards');
+  },
+};
+```
+
+### Step 3: Register the Plugin
+
+Add your plugin to the app's plugin list:
+
+```tsx
+// src/App.tsx
+import { PluginRegistryProvider } from './plugins';
+import { builtInPlugins } from './plugins/built-in';
+import { dashboardPlugin } from './plugins/my-plugin';
+
+const allPlugins = [...builtInPlugins, dashboardPlugin];
+
+function App() {
+  return (
+    <PluginRegistryProvider plugins={allPlugins}>
+      {/* ... */}
+    </PluginRegistryProvider>
+  );
+}
+```
+
+That's it! When you select a Dashboard metadata item, Studio will render your `DashboardViewer` instead of the default JSON inspector.
+
+---
+
+## Deep Dive: `MetadataViewerProps`
+
+Every viewer component receives these props:
+
+```typescript
+interface MetadataViewerProps {
+  /** Metadata type (e.g., "object", "flows", "dashboards") */
+  metadataType: string;
+
+  /** Metadata item name / identifier */
+  metadataName: string;
+
+  /** Raw metadata payload loaded from API (may be undefined while loading) */
+  data?: any;
+
+  /** Current view mode selected by the user */
+  mode: ViewMode;  // 'preview' | 'design' | 'code' | 'data'
+}
+```
+
+<Callout type="tip">
+  Your component should handle all the `modes` declared in the manifest. Use a switch or conditional rendering to adapt the UI for each mode.
+</Callout>
+
+---
+
+## Deep Dive: `StudioPluginAPI`
+
+The API object passed to `activate()` has these methods:
+
+### `registerViewer(viewerId, component)`
+
+Registers a React component as a metadata viewer. The `viewerId` must match an ID declared in the manifest's `metadataViewers`.
+
+```tsx
+activate(api) {
+  api.registerViewer('my-viewer-id', MyViewerComponent);
+}
+```
+
+### `registerAction(actionId, handler)`
+
+Registers a handler for an action declared in the manifest. The handler receives an `ActionContext`:
+
+```tsx
+api.registerAction('export-json', async (ctx) => {
+  const json = JSON.stringify(ctx.data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  window.open(url);
+});
+```
+
+```typescript
+interface ActionContext {
+  metadataType: string;   // e.g., "flows"
+  metadataName: string;   // e.g., "approval_flow"
+  data?: any;             // Raw metadata payload
+}
+```
+
+### `registerCommand(commandId, handler)`
+
+Registers a global command handler:
+
+```tsx
+api.registerCommand('mycompany.create-flow', () => {
+  // Open creation dialog, navigate, etc.
+  console.log('Creating new flow...');
+});
+```
+
+### `registerPanel(panelId, component)`
+
+Registers a React component as an auxiliary panel:
+
+```tsx
+api.registerPanel('validation-panel', ValidationResultsPanel);
+```
+
+### `registerMetadataIcon(metadataType, icon, label?)`
+
+Registers a Lucide icon for a metadata type (used in sidebar and breadcrumbs):
+
+```tsx
+import { Workflow } from 'lucide-react';
+api.registerMetadataIcon('flows', Workflow, 'Flows');
+```
+
+---
+
+## Adding Custom Actions
+
+Actions appear in the toolbar, context menu, or command palette:
+
+```typescript
+contributes: {
+  actions: [
+    {
+      id: 'validate',
+      label: 'Validate',
+      icon: 'check-circle',
+      location: 'toolbar',          // 'toolbar' | 'contextMenu' | 'commandPalette'
+      metadataTypes: ['flows'],     // Empty array = applies to all types
+    },
+    {
+      id: 'export-yaml',
+      label: 'Export as YAML',
+      icon: 'download',
+      location: 'contextMenu',
+      metadataTypes: [],            // All types
+    },
+  ],
+}
+```
+
+Then register handlers:
+
+```tsx
+activate(api) {
+  api.registerAction('validate', async (ctx) => {
+    const result = await validateMetadata(ctx.metadataType, ctx.data);
+    showToast(result.valid ? 'Valid ✅' : `${result.errors.length} errors found`);
+  });
+
+  api.registerAction('export-yaml', async (ctx) => {
+    const yaml = toYAML(ctx.data);
+    await navigator.clipboard.writeText(yaml);
+    showToast('Copied to clipboard');
+  });
+}
+```
+
+---
+
+## Adding Sidebar Groups
+
+Plugins can organize metadata types into sidebar groups:
+
+```typescript
+contributes: {
+  sidebarGroups: [{
+    key: 'monitoring',
+    label: 'Monitoring',
+    icon: 'activity',
+    metadataTypes: ['metrics', 'alerts', 'dashboards'],
+    order: 70,  // Lower = higher in sidebar
+  }],
+}
+```
+
+If two plugins declare the same group `key`, their `metadataTypes` are **merged** automatically. The lower `order` value wins for display position.
+
+---
+
+## Adding Commands
+
+Commands can be invoked from the command palette or triggered by keyboard shortcuts:
+
+```typescript
+contributes: {
+  commands: [
+    {
+      id: 'mycompany.flow-designer.create',
+      label: 'Create New Flow',
+      shortcut: 'Ctrl+Shift+F',
+      icon: 'plus',
+    },
+    {
+      id: 'mycompany.flow-designer.import',
+      label: 'Import Flow from YAML',
+      icon: 'upload',
+    },
+  ],
+}
+```
+
+---
+
+## Using React Hooks
+
+Studio provides reactive hooks for reading plugin data in any component:
+
+### `useMetadataViewer(type, mode)`
+
+Get the best viewer for a metadata type and mode:
+
+```tsx
+import { useMetadataViewer } from './plugins';
+
+function MyComponent() {
+  const viewer = useMetadataViewer('flows', 'design');
+  if (viewer) {
+    const Viewer = viewer.component;
+    return <Viewer metadataType="flows" metadataName="my_flow" mode="design" />;
+  }
+  return <p>No viewer available</p>;
+}
+```
+
+### `useAvailableModes(type)`
+
+Get all view modes available for a type:
+
+```tsx
+const modes = useAvailableModes('object');
+// ['preview', 'data', 'code']  — from Object Designer plugin
+```
+
+### `useMetadataActions(type, location?)`
+
+Get actions applicable to a type:
+
+```tsx
+const actions = useMetadataActions('flows', 'toolbar');
+// [{ id: 'validate', label: 'Validate', handler: ... }]
+```
+
+### `useSidebarGroups()`
+
+Get merged sidebar groups from all plugins:
+
+```tsx
+const groups = useSidebarGroups();
+// [{ key: 'data', label: 'Data', metadataTypes: [...], order: 10 }, ...]
+```
+
+### `useAllMetadataIcons()`
+
+Get the icon map from all plugins:
+
+```tsx
+const icons = useAllMetadataIcons();
+const flowIcon = icons.get('flows');
+// { metadataType: 'flows', label: 'Flows', icon: WorkflowIcon }
+```
+
+---
+
+## Complete Example: Agent Viewer Plugin
+
+Here's a full example that creates a specialized viewer for AI Agent metadata:
+
+```tsx
+import { defineStudioPlugin } from '@objectstack/spec/studio';
+import type { StudioPlugin, MetadataViewerProps } from './plugins/types';
+import { Bot, Sparkles } from 'lucide-react';
+import { Badge } from './components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card';
+
+// ── Viewer Component ────────────────────────────────────────────────
+
+function AgentViewer({ metadataName, data, mode }: MetadataViewerProps) {
+  if (!data) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (mode === 'preview') {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Bot className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold">{data.label || metadataName}</h2>
+            <p className="text-sm text-muted-foreground">{data.description}</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Role</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs">{data.role || 'Not specified'}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Model</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Badge variant="outline">{data.model || 'default'}</Badge>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Tools</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-1">
+                {(data.tools || []).map((tool: string) => (
+                  <Badge key={tool} variant="secondary" className="text-xs">{tool}</Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {data.instructions && (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Sparkles className="h-4 w-4" /> System Instructions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <pre className="text-xs whitespace-pre-wrap bg-muted rounded-lg p-3">
+                {data.instructions}
+              </pre>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    );
+  }
+
+  // Code mode: raw JSON
+  return (
+    <pre className="p-6 text-xs overflow-auto">
+      {JSON.stringify(data, null, 2)}
+    </pre>
+  );
+}
+
+// ── Plugin Definition ───────────────────────────────────────────────
+
+export const agentViewerPlugin: StudioPlugin = {
+  manifest: defineStudioPlugin({
+    id: 'mycompany.agent-viewer',
+    name: 'Agent Viewer',
+    version: '1.0.0',
+    description: 'Rich preview for AI Agent metadata with role, model, tools display.',
+    contributes: {
+      metadataViewers: [{
+        id: 'agent-preview',
+        metadataTypes: ['agents'],
+        label: 'Agent Viewer',
+        priority: 50,
+        modes: ['preview', 'code'],
+      }],
+      actions: [{
+        id: 'test-agent',
+        label: '🧪 Test Agent',
+        icon: 'play',
+        location: 'toolbar',
+        metadataTypes: ['agents'],
+      }],
+    },
+  }),
+
+  activate(api) {
+    api.registerViewer('agent-preview', AgentViewer);
+    api.registerMetadataIcon('agents', Bot, 'Agents');
+    api.registerAction('test-agent', async (ctx) => {
+      console.log(`Testing agent: ${ctx.metadataName}`);
+      alert(`Agent "${ctx.metadataName}" test started!`);
+    });
+  },
+};
+```
+
+---
+
+## Overriding Built-in Viewers
+
+To replace the built-in Object Explorer with your own viewer, declare a higher priority:
+
+```typescript
+contributes: {
+  metadataViewers: [{
+    id: 'custom-object-viewer',
+    metadataTypes: ['object', 'objects'],
+    label: 'Custom Object Viewer',
+    priority: 200,  // Higher than built-in (100)
+    modes: ['preview', 'design', 'data', 'code'],
+  }],
+}
+```
+
+The built-in viewer will still be available in the viewer dropdown — users can switch between them.
+
+---
+
+## Plugin Lifecycle
+
+```
+register() → activate() → [running] → deactivate()
+    │              │                        │
+    │              ├─ registerViewer()       ├─ cleanup
+    │              ├─ registerAction()       │
+    │              ├─ registerCommand()      │
+    │              ├─ registerPanel()        │
+    │              └─ registerMetadataIcon() │
+    │                                       │
+    └── manifest parsed & validated         └── contributions removed
+```
+
+1. **Register:** Manifest is parsed and validated by Zod
+2. **Activate:** `activate(api)` is called — register components and handlers
+3. **Running:** Plugin responds to user interactions
+4. **Deactivate:** `deactivate()` is called — cleanup resources
+
+---
+
+## Best Practices
+
+<Cards>
+  <Card
+    icon={<Code />}
+    title="Declare Before Register"
+    description="Every viewer/action/command must be declared in the manifest before it can be registered in activate(). Undeclared registrations are silently rejected."
+  />
+  <Card
+    icon={<Package />}
+    title="Use Namespaced IDs"
+    description="Plugin IDs should use reverse-domain notation: 'mycompany.my-plugin'. Viewer/action IDs should be unique within the plugin."
+  />
+  <Card
+    icon={<Eye />}
+    title="Handle All Declared Modes"
+    description="If your manifest declares modes: ['preview', 'design'], your component must render meaningful UI for both modes."
+  />
+  <Card
+    icon={<Settings />}
+    title="Keep Manifests Serializable"
+    description="Manifests must be JSON-serializable (no functions, no React components). All runtime registrations happen in activate()."
+  />
+</Cards>

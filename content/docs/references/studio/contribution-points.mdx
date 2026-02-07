@@ -1,0 +1,234 @@
+---
+title: Contribution Points
+description: All 6 Studio plugin contribution point schemas
+---
+
+Contribution points are the declarative section of a plugin manifest. They tell Studio **what** a plugin provides, while the `activate()` function registers the **how** (runtime components and handlers).
+
+<Callout type="info">
+**Source:** `packages/spec/src/studio/plugin.zod.ts`
+</Callout>
+
+## StudioPluginContributions
+
+The top-level container for all contribution points:
+
+```typescript
+export const StudioPluginContributionsSchema = z.object({
+  metadataViewers: z.array(MetadataViewerContributionSchema).default([]),
+  sidebarGroups:   z.array(SidebarGroupContributionSchema).default([]),
+  actions:         z.array(ActionContributionSchema).default([]),
+  metadataIcons:   z.array(MetadataIconContributionSchema).default([]),
+  panels:          z.array(PanelContributionSchema).default([]),
+  commands:        z.array(CommandContributionSchema).default([]),
+});
+```
+
+All arrays default to `[]`, so you only declare the contribution points your plugin needs.
+
+---
+
+## 1. MetadataViewerContribution
+
+Declares a viewer/designer component for one or more metadata types.
+
+### Properties
+
+| Property | Type | Required | Default | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | — | Unique viewer identifier |
+| **metadataTypes** | `string[]` | ✅ | — | Metadata types this viewer handles (min 1). Use `['*']` for a catch-all |
+| **label** | `string` | ✅ | — | Human-readable label shown in the view switcher |
+| **priority** | `number` | optional | `0` | Higher priority wins as the default viewer. Built-in default is `-1` |
+| **modes** | `ViewMode[]` | optional | `['preview']` | Supported view modes: `preview`, `design`, `code`, `data` |
+
+### Example
+
+```typescript
+contributes: {
+  metadataViewers: [{
+    id: 'object-explorer',
+    metadataTypes: ['object', 'objects'],
+    label: 'Object Explorer',
+    priority: 100,
+    modes: ['preview', 'data', 'code'],
+  }],
+}
+```
+
+### Priority Resolution
+
+When multiple viewers match a metadata type, Studio selects the one with the **highest priority**:
+
+| Priority | Typical Use |
+| :--- | :--- |
+| `-1` | Fallback / default viewer |
+| `0` | Standard priority |
+| `50` | Enhanced viewer |
+| `100` | Primary / built-in viewer |
+| `200+` | Override / replacement viewer |
+
+---
+
+## 2. SidebarGroupContribution
+
+Declares a group in the metadata sidebar that organizes related metadata types.
+
+### Properties
+
+| Property | Type | Required | Default | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| **key** | `string` | ✅ | — | Unique group key |
+| **label** | `string` | ✅ | — | Display label |
+| **icon** | `string` | optional | — | Lucide icon name (e.g., `"database"`, `"workflow"`) |
+| **metadataTypes** | `string[]` | ✅ | — | Metadata types belonging to this group |
+| **order** | `number` | optional | `100` | Sort order — lower values appear first |
+
+### Example
+
+```typescript
+contributes: {
+  sidebarGroups: [{
+    key: 'automation',
+    label: 'Automation',
+    icon: 'play',
+    metadataTypes: ['flows', 'workflows', 'approvals', 'webhooks'],
+    order: 30,
+  }],
+}
+```
+
+### Built-in Groups
+
+| Group | Key | Order |
+| :--- | :--- | :--- |
+| Data | `data` | 10 |
+| UI | `ui` | 20 |
+| Automation | `automation` | 30 |
+| Security | `security` | 40 |
+| AI | `ai` | 50 |
+| API | `api` | 60 |
+
+---
+
+## 3. ActionContribution
+
+Declares an action (button, menu item) that can be triggered on metadata items.
+
+### Properties
+
+| Property | Type | Required | Default | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | — | Unique action identifier |
+| **label** | `string` | ✅ | — | Display label |
+| **icon** | `string` | optional | — | Lucide icon name |
+| **location** | `'toolbar' \| 'contextMenu' \| 'commandPalette'` | ✅ | — | Where this action appears in the UI |
+| **metadataTypes** | `string[]` | optional | `[]` | Applicable metadata types (empty = all types) |
+
+### Example
+
+```typescript
+contributes: {
+  actions: [
+    {
+      id: 'validate-flow',
+      label: '✅ Validate Flow',
+      icon: 'check-circle',
+      location: 'toolbar',
+      metadataTypes: ['flows'],
+    },
+    {
+      id: 'export-json',
+      label: 'Export JSON',
+      icon: 'download',
+      location: 'toolbar',
+      metadataTypes: [],  // all types
+    },
+  ],
+}
+```
+
+---
+
+## 4. MetadataIconContribution
+
+Declares an icon and label for a metadata type, used by the sidebar and breadcrumbs.
+
+### Properties
+
+| Property | Type | Required | Default | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| **metadataType** | `string` | ✅ | — | Metadata type this icon represents |
+| **label** | `string` | ✅ | — | Human-readable label |
+| **icon** | `string` | ✅ | — | Lucide icon name |
+
+### Example
+
+```typescript
+contributes: {
+  metadataIcons: [
+    { metadataType: 'agents', label: 'Agents', icon: 'bot' },
+    { metadataType: 'flows', label: 'Flows', icon: 'git-branch' },
+  ],
+}
+```
+
+<Callout type="warn">
+The `icon` field in the manifest is a string name for JSON-serializability. The actual `LucideIcon` component is registered in the `activate()` function via `api.registerMetadataIcon()`.
+</Callout>
+
+---
+
+## 5. PanelContribution
+
+Declares an auxiliary panel (similar to VS Code's Terminal, Problems, Output panels).
+
+### Properties
+
+| Property | Type | Required | Default | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | — | Unique panel identifier |
+| **label** | `string` | ✅ | — | Display label |
+| **icon** | `string` | optional | — | Lucide icon name |
+| **location** | `'bottom' \| 'right' \| 'modal'` | optional | `'bottom'` | Where the panel is placed |
+
+### Example
+
+```typescript
+contributes: {
+  panels: [{
+    id: 'validation-results',
+    label: 'Validation Results',
+    icon: 'shield-check',
+    location: 'bottom',
+  }],
+}
+```
+
+---
+
+## 6. CommandContribution
+
+Declares a command that can be invoked from the command palette or programmatically.
+
+### Properties
+
+| Property | Type | Required | Default | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | — | Unique command identifier (namespaced: `pluginId.commandName`) |
+| **label** | `string` | ✅ | — | Display label in command palette |
+| **shortcut** | `string` | optional | — | Keyboard shortcut (e.g., `"Ctrl+Shift+P"`) |
+| **icon** | `string` | optional | — | Lucide icon name |
+
+### Example
+
+```typescript
+contributes: {
+  commands: [{
+    id: 'flow-designer.create-flow',
+    label: 'Create New Flow',
+    shortcut: 'Ctrl+Shift+F',
+    icon: 'plus',
+  }],
+}
+```

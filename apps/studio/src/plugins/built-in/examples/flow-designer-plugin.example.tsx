@@ -23,7 +23,7 @@
  */
 
 import { defineStudioPlugin } from '@objectstack/spec/studio';
-import type { StudioPlugin, MetadataViewerProps } from '../types';
+import type { StudioPlugin, MetadataViewerProps, StudioPluginAPI, ActionContext } from '../../types';
 import { Workflow } from 'lucide-react';
 
 // ─── Step 1: Create your viewer component ────────────────────────────
@@ -126,12 +126,12 @@ export const flowDesignerPlugin: StudioPlugin = {
    * The activate function registers runtime components and handlers.
    * It receives the `StudioPluginAPI` — similar to VS Code's `vscode` module.
    */
-  activate(api) {
+  activate(api: StudioPluginAPI) {
     // Register the React component for our declared viewer
     api.registerViewer('flow-canvas', FlowDesignerComponent);
 
     // Register action handler
-    api.registerAction('validate-flow', async (ctx) => {
+    api.registerAction('validate-flow', async (ctx: ActionContext) => {
       console.log(`Validating flow: ${ctx.metadataName}`, ctx.data);
       // In a real plugin, this would validate the flow structure
       alert(`Flow "${ctx.metadataName}" is valid! ✅`);
