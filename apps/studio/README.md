@@ -1,10 +1,10 @@
-# ObjectStack Console
+# ObjectStack Studio
 
-The official **ObjectStack Platform Console** - a metadata-driven admin interface for managing data and configuration.
+The official **ObjectStack Studio** - a metadata-driven admin interface for managing data and configuration.
 
 ## 🎯 Overview
 
-ObjectStack Console provides a modern, responsive admin interface that:
+ObjectStack Studio provides a modern, responsive admin interface that:
 
 - **Auto-generates UI** from your metadata definitions
 - **CRUD Operations** with built-in validation
@@ -67,7 +67,7 @@ Copy `.env.example` to `.env.local` to customize:
 ## 📁 Project Structure
 
 ```
-apps/console/
+apps/studio/
 ├── src/
 │   ├── App.tsx              # Main application component
 │   ├── main.tsx             # Entry point with MSW bootstrap

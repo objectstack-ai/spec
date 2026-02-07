@@ -6,7 +6,7 @@
   "scripts": {
     "build": "turbo run build --filter=!@objectstack/docs",
     "dev": "turbo run dev --filter=@example/app-host",
-    "dev:console": "pnpm --filter @objectstack/console dev",
+    "dev:studio": "pnpm --filter @objectstack/studio dev",
     "studio": "pnpm --filter @objectstack/cli build && node packages/cli/bin/objectstack.js studio",
     "test": "turbo run test --filter=@objectstack/spec",
     "clean": "turbo run clean && rm -rf dist",

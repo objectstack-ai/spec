@@ -1,7 +1,7 @@
 /**
- * Console UI Integration Utilities
+ * Studio UI Integration Utilities
  *
- * Handles resolving, spawning, and proxying the @objectstack/console
+ * Handles resolving, spawning, and proxying the @objectstack/studio
  * frontend when the CLI is started with --ui or via the `studio` command.
  */
 import path from 'path';
@@ -21,17 +21,17 @@ const VITE_PORT_START = 24678;
 // ─── Path Resolution ────────────────────────────────────────────────
 
 /**
- * Resolve the filesystem path to the @objectstack/console package.
+ * Resolve the filesystem path to the @objectstack/studio package.
  * Searches workspace locations first, then falls back to node_modules.
  */
-export function resolveConsolePath(): string | null {
+export function resolveStudioPath(): string | null {
   const cwd = process.cwd();
 
   // Workspace candidates (monorepo layouts)
   const candidates = [
-    path.resolve(cwd, 'apps/console'),
-    path.resolve(cwd, '../../apps/console'),
-    path.resolve(cwd, '../apps/console'),
+    path.resolve(cwd, 'apps/studio'),
+    path.resolve(cwd, '../../apps/studio'),
+    path.resolve(cwd, '../apps/studio'),
   ];
 
   for (const candidate of candidates) {
@@ -39,7 +39,7 @@ export function resolveConsolePath(): string | null {
     if (fs.existsSync(pkgPath)) {
       try {
         const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
-        if (pkg.name === '@objectstack/console') return candidate;
+        if (pkg.name === '@objectstack/studio') return candidate;
       } catch {
         // Skip invalid package.json
       }
@@ -50,7 +50,7 @@ export function resolveConsolePath(): string | null {
   try {
     const { createRequire } = require('module');
     const req = createRequire(import.meta.url);
-    const resolved = req.resolve('@objectstack/console/package.json');
+    const resolved = req.resolve('@objectstack/studio/package.json');
     return path.dirname(resolved);
   } catch {
     return null;
@@ -58,10 +58,10 @@ export function resolveConsolePath(): string | null {
 }
 
 /**
- * Check whether the Console has a pre-built `dist/` directory.
+ * Check whether the Studio has a pre-built `dist/` directory.
  */
-export function hasConsoleDist(consolePath: string): boolean {
-  return fs.existsSync(path.join(consolePath, 'dist', 'index.html'));
+export function hasStudioDist(studioPath: string): boolean {
+  return fs.existsSync(path.join(studioPath, 'dist', 'index.html'));
 }
 
 // ─── Port Utilities ─────────────────────────────────────────────────
@@ -98,19 +98,19 @@ export interface ViteDevResult {
  * Sets environment variables so the Console runs in server mode and
  * connects to the ObjectStack API on the same origin.
  *
- * @param consolePath - Absolute path to the @objectstack/console package
+ * @param studioPath - Absolute path to the @objectstack/studio package
  * @param options.serverPort - The main ObjectStack server port (for display only)
  */
 export async function spawnViteDevServer(
-  consolePath: string,
+  studioPath: string,
   options: { serverPort?: number } = {},
 ): Promise<ViteDevResult> {
   const vitePort = await findAvailablePort(VITE_PORT_START);
 
-  // Resolve the Vite binary from the Console's own dependencies
+  // Resolve the Vite binary from the Studio's own dependencies
   const viteBinCandidates = [
-    path.join(consolePath, 'node_modules', '.bin', 'vite'),
-    path.join(consolePath, '..', '..', 'node_modules', '.bin', 'vite'),
+    path.join(studioPath, 'node_modules', '.bin', 'vite'),
+    path.join(studioPath, '..', '..', 'node_modules', '.bin', 'vite'),
   ];
 
   let viteBin: string | null = null;
@@ -127,7 +127,7 @@ export async function spawnViteDevServer(
     : ['vite', '--port', String(vitePort), '--strictPort'];
 
   const child = spawn(command, args, {
-    cwd: consolePath,
+    cwd: studioPath,
     env: {
       ...process.env,
       VITE_BASE: `${STUDIO_PATH}/`,
@@ -184,16 +184,16 @@ export async function spawnViteDevServer(
  * Create a lightweight kernel plugin that proxies `/_studio/*` requests
  * to the Vite dev server. Used in development mode.
  */
-export function createConsoleProxyPlugin(vitePort: number) {
+export function createStudioProxyPlugin(vitePort: number) {
   return {
-    name: 'com.objectstack.console-proxy',
+    name: 'com.objectstack.studio-proxy',
 
     init: async () => {},
 
     start: async (ctx: any) => {
       const httpServer = ctx.getService?.('http.server');
       if (!httpServer?.getRawApp) {
-        ctx.logger?.warn?.('Console proxy: http.server service not found — skipping');
+        ctx.logger?.warn?.('Studio proxy: http.server service not found — skipping');
         return;
       }
 
@@ -234,22 +234,22 @@ export function createConsoleProxyPlugin(vitePort: number) {
 }
 
 /**
- * Create a lightweight kernel plugin that serves the pre-built Console
+ * Create a lightweight kernel plugin that serves the pre-built Studio
  * static files at `/_studio/*`. Used in production mode.
  *
  * Uses Node.js built-in fs for static file serving to avoid external
  * bundling dependencies.
  */
-export function createConsoleStaticPlugin(distPath: string) {
+export function createStudioStaticPlugin(distPath: string) {
   return {
-    name: 'com.objectstack.console-static',
+    name: 'com.objectstack.studio-static',
 
     init: async () => {},
 
     start: async (ctx: any) => {
       const httpServer = ctx.getService?.('http.server');
       if (!httpServer?.getRawApp) {
-        ctx.logger?.warn?.('Console static: http.server service not found — skipping');
+        ctx.logger?.warn?.('Studio static: http.server service not found — skipping');
         return;
       }
 
@@ -258,7 +258,7 @@ export function createConsoleStaticPlugin(distPath: string) {
 
       const indexPath = path.join(absoluteDist, 'index.html');
       if (!fs.existsSync(indexPath)) {
-        ctx.logger?.warn?.(`Console static: dist not found at ${absoluteDist}`);
+        ctx.logger?.warn?.(`Studio static: dist not found at ${absoluteDist}`);
         return;
       }
 

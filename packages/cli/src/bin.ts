@@ -46,7 +46,7 @@ ${chalk.bold('Workflow:')}
   ${chalk.dim('$')} os generate object task       ${chalk.dim('# Add metadata')}
   ${chalk.dim('$')} os validate                   ${chalk.dim('# Check configuration')}
   ${chalk.dim('$')} os dev                        ${chalk.dim('# Start dev server')}
-  ${chalk.dim('$')} os studio                     ${chalk.dim('# Dev server + Console UI')}
+  ${chalk.dim('$')} os studio                     ${chalk.dim('# Dev server + Studio UI')}
   ${chalk.dim('$')} os compile                    ${chalk.dim('# Build for production')}
 
 ${chalk.dim('Aliases: objectstack | os')}

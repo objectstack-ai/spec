@@ -4,14 +4,14 @@ import { spawn } from 'child_process';
 import { printHeader, printKV, printStep } from '../utils/format.js';
 
 /**
- * `objectstack studio` — Launch the ObjectStack Console UI.
+ * `objectstack studio` — Launch the ObjectStack Studio UI.
  *
  * Alias for `objectstack serve --dev --ui`.
- * Starts the ObjectStack server in development mode with the Console
+ * Starts the ObjectStack server in development mode with the Studio
  * UI available at http://localhost:<port>/_studio/
  */
 export const studioCommand = new Command('studio')
-  .description('Launch Console UI with development server')
+  .description('Launch Studio UI with development server')
   .argument('[config]', 'Configuration file path', 'objectstack.config.ts')
   .option('-p, --port <port>', 'Server port', '3000')
   .action(async (configPath, options) => {

@@ -1,4 +1,4 @@
-# @objectstack/console
+# @objectstack/studio
 
 ## 0.9.16
 

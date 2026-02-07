@@ -148,7 +148,7 @@ os doctor            # Check environment health
 | Package | Description | Status |
 | :--- | :--- | :--- |
 | [`@objectstack/cli`](packages/cli) | CLI: init, dev, serve, studio, compile, validate, generate | 🟢 Active |
-| [`@objectstack/console`](apps/console) | Admin Console UI (Object Explorer, Schema Inspector) | 🟢 Active |
+| [`@objectstack/studio`](apps/studio) | Studio UI (Object Explorer, Schema Inspector) | 🟢 Active |
 | [`@objectstack/docs`](apps/docs) | Documentation site (Fumadocs + Next.js) | 🟢 Active |
 
 ### Examples

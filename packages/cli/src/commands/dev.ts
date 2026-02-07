@@ -9,7 +9,7 @@ export const devCommand = new Command('dev')
   .description('Start development mode with hot-reload')
   .argument('[package]', 'Package name or filter pattern', 'all')
   .option('-w, --watch', 'Enable watch mode (default)', true)
-  .option('--ui', 'Enable Console UI at /_studio/')
+  .option('--ui', 'Enable Studio UI at /_studio/')
   .option('-v, --verbose', 'Verbose output')
   .action(async (packageName, options) => {
     printHeader('Development Mode');

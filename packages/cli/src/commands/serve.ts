@@ -16,12 +16,12 @@ import {
 } from '../utils/format.js';
 import {
   STUDIO_PATH,
-  resolveConsolePath,
-  hasConsoleDist,
+  resolveStudioPath,
+  hasStudioDist,
   spawnViteDevServer,
-  createConsoleProxyPlugin,
-  createConsoleStaticPlugin,
-} from '../utils/console.js';
+  createStudioProxyPlugin,
+  createStudioStaticPlugin,
+} from '../utils/studio.js';
 
 // Helper to find available port
 const getAvailablePort = async (startPort: number): Promise<number> => {
@@ -53,7 +53,7 @@ export const serveCommand = new Command('serve')
   .argument('[config]', 'Configuration file path', 'objectstack.config.ts')
   .option('-p, --port <port>', 'Server port', '3000')
   .option('--dev', 'Run in development mode (load devPlugins)')
-  .option('--ui', 'Enable Console UI at /_studio/')
+  .option('--ui', 'Enable Studio UI at /_studio/')
   .option('--no-server', 'Skip starting HTTP server plugin')
   .action(async (configPath, options) => {
     let port = parseInt(options.port);
@@ -228,31 +228,31 @@ export const serveCommand = new Command('serve')
         }
       }
 
-      // ── Console UI (--ui) ───────────────────────────────────────────
+      // ── Studio UI (--ui) ────────────────────────────────────────────
       let viteProcess: import('child_process').ChildProcess | null = null;
 
       if (options.ui) {
-        const consolePath = resolveConsolePath();
-        if (!consolePath) {
-          console.warn(chalk.yellow(`  ⚠ @objectstack/console not found — skipping UI`));
+        const studioPath = resolveStudioPath();
+        if (!studioPath) {
+          console.warn(chalk.yellow(`  ⚠ @objectstack/studio not found — skipping UI`));
         } else if (isDev) {
           // Dev mode → spawn Vite dev server & proxy through Hono
           try {
-            const result = await spawnViteDevServer(consolePath, { serverPort: port });
+            const result = await spawnViteDevServer(studioPath, { serverPort: port });
             viteProcess = result.process;
-            await kernel.use(createConsoleProxyPlugin(result.port));
-            trackPlugin('ConsoleUI');
+            await kernel.use(createStudioProxyPlugin(result.port));
+            trackPlugin('StudioUI');
           } catch (e: any) {
             console.warn(chalk.yellow(`  ⚠ Console UI failed to start: ${e.message}`));
           }
         } else {
           // Production mode → serve pre-built static files
-          const distPath = path.join(consolePath, 'dist');
-          if (hasConsoleDist(consolePath)) {
-            await kernel.use(createConsoleStaticPlugin(distPath));
-            trackPlugin('ConsoleUI');
+          const distPath = path.join(studioPath, 'dist');
+          if (hasStudioDist(studioPath)) {
+            await kernel.use(createStudioStaticPlugin(distPath));
+            trackPlugin('StudioUI');
           } else {
-            console.warn(chalk.yellow(`  ⚠ Console dist not found — run "pnpm --filter @objectstack/console build" first`));
+            console.warn(chalk.yellow(`  ⚠ Studio dist not found — run "pnpm --filter @objectstack/studio build" first`));
           }
         }
       }

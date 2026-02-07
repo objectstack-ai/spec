@@ -188,7 +188,7 @@ export function printServerReady(opts: ServerReadyOptions) {
   console.log('');
   console.log(chalk.cyan('  ➜') + chalk.bold('  API:     ') + chalk.cyan(base + '/'));
   if (opts.uiEnabled && opts.studioPath) {
-    console.log(chalk.cyan('  ➜') + chalk.bold('  Console: ') + chalk.cyan(base + opts.studioPath + '/'));
+    console.log(chalk.cyan('  ➜') + chalk.bold('  Studio:  ') + chalk.cyan(base + opts.studioPath + '/'));
   }
   console.log('');
   console.log(chalk.dim(`  Config:  ${opts.configFile}`));

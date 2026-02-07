@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
   "installCommand": "cd ../.. && pnpm install",
-  "buildCommand": "cd ../.. && pnpm turbo run build --filter=@objectstack/console",
+  "buildCommand": "cd ../.. && pnpm turbo run build --filter=@objectstack/studio",
   "outputDirectory": "dist",
   "build": {
     "env": {

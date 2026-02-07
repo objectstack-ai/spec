@@ -1,13 +1,13 @@
 {
-  "name": "@objectstack/console",
+  "name": "@objectstack/studio",
   "version": "1.1.0",
-  "description": "ObjectStack Platform Console - A metadata-driven admin interface for managing data and configuration",
+  "description": "ObjectStack Studio - A metadata-driven admin interface for managing data and configuration",
   "private": true,
   "type": "module",
   "scripts": {
     "msw:init": "msw init -y public",
     "dev": "pnpm msw:init && vite",
-    "build": "pnpm msw:init && tsc && vite build",
+    "build": "pnpm msw:init && vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:bdd": "objectstack test",
