@@ -102,9 +102,9 @@ export const en: HomepageTranslations = {
     },
     cta: {
       primary: 'Get Started',
-      primaryHref: '/docs/developer',
+      primaryHref: '/docs/getting-started/quick-start',
       secondary: 'View Examples',
-      secondaryHref: '/docs/framework/examples',
+      secondaryHref: '/docs/getting-started/examples',
     },
     quickStart: {
       label: 'Terminal',
@@ -180,9 +180,9 @@ export const cn: HomepageTranslations = {
     },
     cta: {
       primary: '快速开始',
-      primaryHref: '/docs/developer',
+      primaryHref: '/docs/getting-started/quick-start',
       secondary: '查看示例',
-      secondaryHref: '/docs/framework/examples',
+      secondaryHref: '/docs/getting-started/examples',
     },
     quickStart: {
       label: '终端',

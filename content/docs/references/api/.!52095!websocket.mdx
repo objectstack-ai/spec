@@ -1,0 +1,262 @@
+---
+title: Websocket
+description: Websocket protocol schemas
+---
+
+WebSocket Event Protocol
+
+Defines the schema for WebSocket-based real-time communication in ObjectStack.
+
+Supports event subscriptions, filtering, presence tracking, and collaborative editing.
+
+Industry alignment: Firebase Realtime Database, Socket.IO, Pusher
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/websocket.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AckMessage, CursorMessage, CursorPosition, DocumentState, EditMessage, EditOperation, EditOperationType, ErrorMessage, EventFilter, EventFilterCondition, EventMessage, EventPattern, EventSubscription, FilterOperator, PingMessage, PongMessage, PresenceMessage, PresenceState, PresenceUpdate, SimpleCursorPosition, SimplePresenceState, SubscribeMessage, UnsubscribeMessage, UnsubscribeRequest, WebSocketConfig, WebSocketEvent, WebSocketMessage, WebSocketMessageType, WebSocketPresenceStatus, WebSocketServerConfig } from '@objectstack/spec/api';
+import type { AckMessage, CursorMessage, CursorPosition, DocumentState, EditMessage, EditOperation, EditOperationType, ErrorMessage, EventFilter, EventFilterCondition, EventMessage, EventPattern, EventSubscription, FilterOperator, PingMessage, PongMessage, PresenceMessage, PresenceState, PresenceUpdate, SimpleCursorPosition, SimplePresenceState, SubscribeMessage, UnsubscribeMessage, UnsubscribeRequest, WebSocketConfig, WebSocketEvent, WebSocketMessage, WebSocketMessageType, WebSocketPresenceStatus, WebSocketServerConfig } from '@objectstack/spec/api';
+
+// Validate data
+const result = AckMessage.parse(data);
+```
+
+---
+
+## AckMessage
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **messageId** | `string` | ✅ | Unique message identifier |
+| **type** | `string` | ✅ |  |
+| **timestamp** | `string` | ✅ | ISO 8601 datetime when message was sent |
+| **ackMessageId** | `string` | ✅ | ID of the message being acknowledged |
+| **success** | `boolean` | ✅ | Whether the operation was successful |
+| **error** | `string` | optional | Error message if operation failed |
+
+
+---
+
+## CursorMessage
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **messageId** | `string` | ✅ | Unique message identifier |
+| **type** | `string` | ✅ |  |
+| **timestamp** | `string` | ✅ | ISO 8601 datetime when message was sent |
+| **cursor** | `Object` | ✅ | Cursor position |
+
+
+---
+
+## CursorPosition
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **userId** | `string` | ✅ | User identifier |
+| **sessionId** | `string` | ✅ | Session identifier |
+| **documentId** | `string` | ✅ | Document identifier being edited |
+| **position** | `Object` | optional | Cursor position in document |
+| **selection** | `Object` | optional | Selection range (if text is selected) |
+| **color** | `string` | optional | Cursor color for visual representation |
+| **userName** | `string` | optional | Display name of user |
+| **lastUpdate** | `string` | ✅ | ISO 8601 datetime of last cursor update |
+
+
+---
+
+## DocumentState
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **documentId** | `string` | ✅ | Document identifier |
+| **version** | `integer` | ✅ | Current document version |
+| **content** | `string` | ✅ | Current document content |
+| **lastModified** | `string` | ✅ | ISO 8601 datetime of last modification |
+| **activeSessions** | `string[]` | ✅ | Active editing session IDs |
+| **checksum** | `string` | optional | Content checksum for integrity verification |
+
+
+---
+
+## EditMessage
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **messageId** | `string` | ✅ | Unique message identifier |
+| **type** | `string` | ✅ |  |
+| **timestamp** | `string` | ✅ | ISO 8601 datetime when message was sent |
+| **operation** | `Object` | ✅ | Edit operation |
+
+
+---
+
+## EditOperation
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **operationId** | `string` | ✅ | Unique operation identifier |
+| **documentId** | `string` | ✅ | Document identifier |
+| **userId** | `string` | ✅ | User who performed the edit |
+| **sessionId** | `string` | ✅ | Session identifier |
+| **type** | `Enum<'insert' \| 'delete' \| 'replace'>` | ✅ | Type of edit operation |
+| **position** | `Object` | ✅ | Starting position of the operation |
+| **endPosition** | `Object` | optional | Ending position (for delete/replace operations) |
+| **content** | `string` | optional | Content to insert/replace |
+| **version** | `integer` | ✅ | Document version before this operation |
+| **timestamp** | `string` | ✅ | ISO 8601 datetime when operation was created |
+| **baseOperationId** | `string` | optional | Previous operation ID this builds upon (for OT) |
+
+
+---
+
+## EditOperationType
+
+### Allowed Values
+
+* `insert`
+* `delete`
+* `replace`
+
+
+---
+
+## ErrorMessage
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **messageId** | `string` | ✅ | Unique message identifier |
+| **type** | `string` | ✅ |  |
+| **timestamp** | `string` | ✅ | ISO 8601 datetime when message was sent |
+| **code** | `string` | ✅ | Error code |
+| **message** | `string` | ✅ | Error message |
+| **details** | `any` | optional | Additional error details |
+
+
+---
+
+## EventFilter
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **conditions** | `Object[]` | optional | Array of filter conditions |
+| **and** | `any[]` | optional | AND logical combination of filters |
+| **or** | `any[]` | optional | OR logical combination of filters |
+| **not** | `any` | optional | NOT logical negation of filter |
+
+
+---
+
+## EventFilterCondition
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **field** | `string` | ✅ | Field path to filter on (supports dot notation, e.g., "user.email") |
+| **operator** | `Enum<'eq' \| 'ne' \| 'gt' \| 'gte' \| 'lt' \| 'lte' \| 'in' \| 'nin' \| 'contains' \| 'startsWith' \| 'endsWith' \| 'exists' \| 'regex'>` | ✅ | Comparison operator |
+| **value** | `any` | optional | Value to compare against (not needed for "exists" operator) |
+
+
+---
+
+## EventMessage
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **messageId** | `string` | ✅ | Unique message identifier |
+| **type** | `string` | ✅ |  |
+| **timestamp** | `string` | ✅ | ISO 8601 datetime when message was sent |
+| **subscriptionId** | `string` | ✅ | Subscription ID this event belongs to |
+| **eventName** | `string` | ✅ | Event name |
+| **object** | `string` | optional | Object name the event relates to |
+| **payload** | `any` | optional | Event payload data |
+| **userId** | `string` | optional | User who triggered the event |
+
+
+---
+
+## EventPattern
+
+Event pattern (supports wildcards like "record.*" or "*.created")
+
+
+---
+
+## EventSubscription
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **subscriptionId** | `string` | ✅ | Unique subscription identifier |
+| **events** | `string[]` | ✅ | Event patterns to subscribe to (supports wildcards, e.g., "record.*", "user.created") |
+| **objects** | `string[]` | optional | Object names to filter events by (e.g., ["account", "contact"]) |
+| **filters** | `Object` | optional | Advanced filter conditions for event payloads |
+| **channels** | `string[]` | optional | Channel names for scoped subscriptions |
+
+
+---
+
+## FilterOperator
+
+### Allowed Values
+
+* `eq`
+* `ne`
+* `gt`
+* `gte`
+* `lt`
+* `lte`
+* `in`
+* `nin`
+* `contains`
+* `startsWith`
+* `endsWith`
+* `exists`
+* `regex`
+
+
+---
+
+## PingMessage
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **messageId** | `string` | ✅ | Unique message identifier |
+| **type** | `string` | ✅ |  |
+| **timestamp** | `string` | ✅ | ISO 8601 datetime when message was sent |
+
+
+---
+
+## PongMessage
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :---

@@ -1,0 +1,24 @@
+---
+title: Protocol Specification
+description: The formal ObjectStack protocol for Data, UI, and System layers
+---
+
+import { Database, Layout, Cpu } from 'lucide-react';
+
+# Protocol Specification
+
+The ObjectStack Protocol defines three interconnected layers that together describe a complete enterprise application:
+
+<Cards>
+  <Card icon={<Database />} title="ObjectQL: Data Protocol" href="/docs/protocol/objectql" description="Schema definitions, field types, state machines, query syntax, and data security." />
+  <Card icon={<Layout />} title="ObjectUI: UI Protocol" href="/docs/protocol/objectui" description="Server-driven UI contracts for layouts, widgets, forms, and actions." />
+  <Card icon={<Cpu />} title="ObjectOS: System Protocol" href="/docs/protocol/objectos" description="Runtime lifecycle, HTTP/realtime protocols, plugins, configuration, and i18n." />
+</Cards>
+
+## Design Principles
+
+- **Zod-First** — All schemas are defined in Zod for runtime validation and TypeScript inference.
+- **Database-Agnostic** — The same object definition works across PostgreSQL, MongoDB, and SQLite.
+- **Declarative** — Business intent is expressed as structured data, not imperative code.
+
+For auto-generated API documentation of every schema, see the [Protocol Reference](/docs/references).
