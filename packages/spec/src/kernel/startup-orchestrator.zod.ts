@@ -147,7 +147,12 @@ export const PluginStartupResultSchema = z.object({
   /**
    * Error if startup failed
    */
-  error: z.instanceof(Error).optional().describe('Error object if startup failed'),
+  error: z.object({
+    name: z.string().describe('Error class name'),
+    message: z.string().describe('Error message'),
+    stack: z.string().optional().describe('Stack trace'),
+    code: z.string().optional().describe('Error code'),
+  }).optional().describe('Serializable error representation if startup failed'),
   
   /**
    * Health status after startup (if healthCheck enabled)

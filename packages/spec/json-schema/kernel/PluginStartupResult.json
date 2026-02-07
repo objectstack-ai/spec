@@ -30,7 +30,31 @@
           "description": "Time taken to start the plugin in milliseconds"
         },
         "error": {
-          "description": "Error object if startup failed"
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Error class name"
+            },
+            "message": {
+              "type": "string",
+              "description": "Error message"
+            },
+            "stack": {
+              "type": "string",
+              "description": "Stack trace"
+            },
+            "code": {
+              "type": "string",
+              "description": "Error code"
+            }
+          },
+          "required": [
+            "name",
+            "message"
+          ],
+          "additionalProperties": false,
+          "description": "Serializable error representation if startup failed"
         },
         "health": {
           "type": "object",

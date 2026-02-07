@@ -338,7 +338,21 @@ export const CustomValidatorSchema = BaseValidationSchema.extend({
 /**
  * 9. Master Validation Rule Schema
  */
-export const ValidationRuleSchema: z.ZodType<any> = z.lazy(() =>
+/** Base type for validation rules - used for z.lazy() recursive type annotation */
+export interface BaseValidationRuleShape {
+  type: string;
+  name: string;
+  message: string;
+  label?: string;
+  description?: string;
+  active?: boolean;
+  events?: ('insert' | 'update' | 'delete')[];
+  tags?: string[];
+  severity?: 'error' | 'warning' | 'info';
+  [key: string]: unknown;
+}
+
+export const ValidationRuleSchema: z.ZodType<BaseValidationRuleShape> = z.lazy(() =>
   z.discriminatedUnion('type', [
     ScriptValidationSchema,
     UniquenessValidationSchema,

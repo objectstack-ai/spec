@@ -95,7 +95,7 @@ describe('Startup Orchestrator Protocol', () => {
         },
         success: false,
         duration: 500,
-        error: new Error('Connection failed'),
+        error: { name: 'Error', message: 'Connection failed' },
       };
 
       const result = PluginStartupResultSchema.safeParse(failedResult);
@@ -166,7 +166,7 @@ describe('Startup Orchestrator Protocol', () => {
             plugin: { name: 'plugin2' },
             success: false,
             duration: 850,
-            error: new Error('Startup failed'),
+            error: { name: 'Error', message: 'Startup failed' },
           },
         ],
         totalDuration: 2050,

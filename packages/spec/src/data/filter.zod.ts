@@ -129,7 +129,7 @@ export const SpecialOperatorSchema = z.object({
   $null: z.boolean().optional(),
   
   /** Field exists check (primarily for NoSQL) - MongoDB: $exists */
-  $exist: z.boolean().optional(),
+  $exists: z.boolean().optional(),
 });
 
 // ============================================================================
@@ -166,7 +166,7 @@ export const FieldOperatorsSchema = z.object({
   
   // Special
   $null: z.boolean().optional(),
-  $exist: z.boolean().optional(),
+  $exists: z.boolean().optional(),
 });
 
 // ============================================================================
@@ -273,7 +273,7 @@ export type Filter<T = any> = {
         $startsWith?: T[K] extends string ? string : never;
         $endsWith?: T[K] extends string ? string : never;
         $null?: boolean;
-        $exist?: boolean;
+        $exists?: boolean;
       }
     | (T[K] extends object ? Filter<T[K]> : never);  // Nested relation
 } & {
@@ -351,7 +351,7 @@ export const FILTER_OPERATORS = [
   // String
   '$contains', '$startsWith', '$endsWith',
   // Special
-  '$null', '$exist',
+  '$null', '$exists',
 ] as const;
 
 /**

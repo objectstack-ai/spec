@@ -68,7 +68,7 @@ describe('Plugin Lifecycle Events Protocol', () => {
       const event = {
         pluginName: 'failing-plugin',
         timestamp: Date.now(),
-        error: new Error('Connection failed'),
+        error: { name: 'Error', message: 'Connection failed' },
         phase: 'start' as const,
         errorMessage: 'Connection failed',
       };
@@ -81,7 +81,7 @@ describe('Plugin Lifecycle Events Protocol', () => {
       const event = {
         pluginName: 'failing-plugin',
         timestamp: Date.now(),
-        error: new Error('Connection failed'),
+        error: { name: 'Error', message: 'Connection failed' },
         // missing phase
       };
 

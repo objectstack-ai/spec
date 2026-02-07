@@ -31,7 +31,4 @@ export const AuthConfigSchema = z.object({
     expiresIn: z.number().default(60 * 60 * 24 * 7).describe('Session duration in seconds'),
     updateAge: z.number().default(60 * 60 * 24).describe('Session update frequency'),
   }).optional(),
-  
-  // Custom auth properties
-  [z.string().regex(/^[^A-Z]+$/).toString()]: z.any().optional(),
-});
+}).catchall(z.unknown());

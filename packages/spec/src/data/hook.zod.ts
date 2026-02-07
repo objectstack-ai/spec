@@ -64,7 +64,7 @@ export const HookSchema = z.object({
    * Handler Logic
    * Reference to a registered function in the plugin system OR a direct function (runtime only).
    */
-  handler: z.union([z.string(), z.any()]).optional().describe('Function handler name or direct function'),
+  handler: z.union([z.string(), z.function()]).optional().describe('Handler function name (string) or inline function reference'),
 
   /**
    * Execution Order

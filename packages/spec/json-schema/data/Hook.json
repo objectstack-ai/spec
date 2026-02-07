@@ -58,10 +58,9 @@
           "anyOf": [
             {
               "type": "string"
-            },
-            {}
+            }
           ],
-          "description": "Function handler name or direct function"
+          "description": "Handler function name (string) or inline function reference"
         },
         "priority": {
           "type": "number",

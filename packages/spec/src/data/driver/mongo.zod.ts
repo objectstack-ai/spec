@@ -65,14 +65,13 @@ export const MongoDriverSpec = DriverDefinitionSchema.parse({
   capabilities: {
     transactions: true,
     // Query
+    queryFilters: true,
+    queryAggregations: true,
+    querySorting: true,
+    queryPagination: true,
     fullTextSearch: true,
-    geoSpatial: true,
-    aggregation: true,
     // Schema
-    mutableSchema: true,
-    jsonField: true,
-    // Relations
-    crossObjectJoin: true
+    dynamicSchema: true,
   }
 });
 

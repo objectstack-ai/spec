@@ -13,7 +13,31 @@
           "description": "Unix timestamp in milliseconds when event occurred"
         },
         "error": {
-          "description": "Error object"
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Error class name"
+            },
+            "message": {
+              "type": "string",
+              "description": "Error message"
+            },
+            "stack": {
+              "type": "string",
+              "description": "Stack trace"
+            },
+            "code": {
+              "type": "string",
+              "description": "Error code"
+            }
+          },
+          "required": [
+            "name",
+            "message"
+          ],
+          "additionalProperties": false,
+          "description": "Serializable error representation"
         },
         "phase": {
           "type": "string",

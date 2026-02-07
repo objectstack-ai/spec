@@ -138,4 +138,4 @@ export const DatasourceSchema = z.object({
 });
 
 export type Datasource = z.infer<typeof DatasourceSchema>;
-export type DatasourceConfig = z.infer<typeof DatasourceCapabilities>;
+export type DatasourceCapabilitiesType = z.infer<typeof DatasourceCapabilities>;
