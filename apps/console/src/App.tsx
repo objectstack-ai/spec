@@ -77,7 +77,14 @@ export default function App() {
     else if (detail) handleSelectObject(detail);
   }, [handleSelectView, handleSelectObject]);
 
-  if (!client) return null;
+  if (!client) return (
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="text-center space-y-2">
+        <div className="h-8 w-8 mx-auto animate-spin rounded-full border-4 border-muted border-t-primary" />
+        <p className="text-sm text-muted-foreground">Connecting to ObjectStack…</p>
+      </div>
+    </div>
+  );
 
   return (
     <ObjectStackProvider client={client}>
