@@ -99,14 +99,16 @@ const PKG_TYPE_ICONS: Record<string, LucideIcon> = {
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   selectedObject: string | null;
   onSelectObject: (name: string) => void;
+  selectedMeta?: { type: string; name: string } | null;
+  onSelectMeta?: (type: string, name: string) => void;
   packages: InstalledPackage[];
   selectedPackage: InstalledPackage | null;
   onSelectPackage: (pkg: InstalledPackage) => void;
   onSelectView?: (view: 'overview' | 'packages') => void;
-  selectedView?: 'overview' | 'packages' | 'object';
+  selectedView?: 'overview' | 'packages' | 'object' | 'metadata';
 }
 
-export function AppSidebar({ selectedObject, onSelectObject, packages, selectedPackage, onSelectPackage, onSelectView, selectedView, ...props }: AppSidebarProps) {
+export function AppSidebar({ selectedObject, onSelectObject, selectedMeta, onSelectMeta, packages, selectedPackage, onSelectPackage, onSelectView, selectedView, ...props }: AppSidebarProps) {
   const client = useClient();
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -335,12 +337,20 @@ export function AppSidebar({ selectedObject, onSelectObject, packages, selectedP
                     // Parse FQN: namespace__shortName
                     const fqnParts = itemName.includes('__') ? itemName.split('__') : [null, itemName];
                     const namespace = fqnParts.length === 2 && fqnParts[0] ? fqnParts[0] : null;
+
+                    const isActive = isObjectType
+                      ? selectedObject === itemName
+                      : selectedMeta?.type === type && selectedMeta?.name === itemName;
+
+                    const handleClick = isObjectType
+                      ? () => onSelectObject(itemName)
+                      : () => onSelectMeta?.(type, itemName);
                     
                     return (
                       <SidebarMenuItem key={itemName}>
                         <SidebarMenuButton
-                          isActive={isObjectType && selectedObject === itemName}
-                          onClick={isObjectType ? () => onSelectObject(itemName) : undefined}
+                          isActive={isActive}
+                          onClick={handleClick}
                           tooltip={`${itemName}${namespace ? ` (${namespace})` : ''}`}
                         >
                           <TypeIcon className="h-4 w-4" />
