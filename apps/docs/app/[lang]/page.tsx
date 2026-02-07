@@ -1,4 +1,4 @@
-import { Database, FileJson, Layers, ShieldCheck, Zap, Globe, Cpu, LayoutTemplate, Bot, LucideIcon } from 'lucide-react';
+import { Database, Monitor, HardDrive, ShieldCheck, Puzzle, Code2, Rocket, Users, Blocks, LucideIcon } from 'lucide-react';
 import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import { baseOptions } from '@/app/layout.config';
 import { getHomepageTranslations } from '@/lib/homepage-i18n';
@@ -17,76 +17,76 @@ export default async function HomePage({
 
   const features = [
     {
-      key: 'objectql',
-      icon: Database,
-      href: '/docs/references/data',
-      title: t.features.objectql.title,
-      description: t.features.objectql.description,
+      key: 'restApi',
+      icon: Rocket,
+      href: '/docs/developer',
+      title: t.features.restApi.title,
+      description: t.features.restApi.description,
     },
     {
-      key: 'objectui',
-      icon: Layers,
-      href: '/docs/references/ui',
-      title: t.features.objectui.title,
-      description: t.features.objectui.description,
+      key: 'studio',
+      icon: Monitor,
+      href: '/docs/framework/cli',
+      title: t.features.studio.title,
+      description: t.features.studio.description,
     },
     {
-      key: 'objectos',
-      icon: Zap,
-      href: '/docs/references/system',
-      title: t.features.objectos.title,
-      description: t.features.objectos.description,
+      key: 'multiDb',
+      icon: HardDrive,
+      href: '/docs/framework/driver-configuration',
+      title: t.features.multiDb.title,
+      description: t.features.multiDb.description,
     },
     {
-      key: 'security',
+      key: 'typeSafety',
       icon: ShieldCheck,
-      href: '/docs/references/security',
-      title: t.features.security.title,
-      description: t.features.security.description,
+      href: '/docs/references/data',
+      title: t.features.typeSafety.title,
+      description: t.features.typeSafety.description,
     },
     {
-      key: 'zodFirst',
-      icon: FileJson,
-      href: '/docs/references/data/validation',
-      title: t.features.zodFirst.title,
-      description: t.features.zodFirst.description,
+      key: 'namespace',
+      icon: Blocks,
+      href: '/docs/framework/core',
+      title: t.features.namespace.title,
+      description: t.features.namespace.description,
     },
     {
-      key: 'universal',
-      icon: Globe,
-      href: '/docs/references/data/driver',
-      title: t.features.universal.title,
-      description: t.features.universal.description,
+      key: 'plugins',
+      icon: Puzzle,
+      href: '/docs/framework/examples',
+      title: t.features.plugins.title,
+      description: t.features.plugins.description,
     },
   ];
 
   const personas = [
     {
-      key: 'architect',
-      icon: LayoutTemplate,
+      key: 'fullStack',
+      icon: Code2,
       color: 'text-blue-500',
-      href: '/docs/introduction',
-      title: t.personas.architect.title,
-      description: t.personas.architect.description,
-      action: t.personas.architect.action,
+      href: '/docs/developer',
+      title: t.personas.fullStack.title,
+      description: t.personas.fullStack.description,
+      action: t.personas.fullStack.action,
     },
     {
-      key: 'aiEngineer',
-      icon: Bot,
+      key: 'platformTeam',
+      icon: Users,
       color: 'text-purple-500',
-      href: '/docs/references/ai',
-      title: t.personas.aiEngineer.title,
-      description: t.personas.aiEngineer.description,
-      action: t.personas.aiEngineer.action,
+      href: '/docs/introduction',
+      title: t.personas.platformTeam.title,
+      description: t.personas.platformTeam.description,
+      action: t.personas.platformTeam.action,
     },
     {
-      key: 'frameworkBuilder',
-      icon: Cpu,
+      key: 'lowCode',
+      icon: Blocks,
       color: 'text-green-500',
-      href: '/docs/framework',
-      title: t.personas.frameworkBuilder.title,
-      description: t.personas.frameworkBuilder.description,
-      action: t.personas.frameworkBuilder.action,
+      href: '/docs/framework/examples',
+      title: t.personas.lowCode.title,
+      description: t.personas.lowCode.description,
+      action: t.personas.lowCode.action,
     },
   ];
 
@@ -100,10 +100,11 @@ export default async function HomePage({
           title={t.hero.title}
           subtitle={t.hero.subtitle}
           cta={t.hero.cta}
+          quickStart={t.hero.quickStart}
         />
 
         {/* Code Preview */}
-        <CodePreview filename={t.codePreview.filename} />
+        <CodePreview />
 
         {/* Grid Pattern Background */}
         <div className="absolute inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
