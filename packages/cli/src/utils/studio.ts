@@ -262,6 +262,15 @@ export function createStudioStaticPlugin(distPath: string) {
         return;
       }
 
+      // Read and rewrite index.html so asset paths respect the mount path.
+      // The dist may have been built with base '/' (absolute paths like
+      // /assets/...) which won't resolve when mounted under /_studio/.
+      const rawHtml = fs.readFileSync(indexPath, 'utf-8');
+      const rewrittenHtml = rawHtml.replace(
+        /(\s(?:href|src))="\/(?!\/)/g,
+        `$1="${STUDIO_PATH}/`,
+      );
+
       // Redirect bare path
       app.get(STUDIO_PATH, (c: any) => c.redirect(`${STUDIO_PATH}/`));
 
@@ -283,9 +292,8 @@ export function createStudioStaticPlugin(distPath: string) {
           });
         }
 
-        // SPA fallback: serve index.html for non-file routes
-        const html = fs.readFileSync(indexPath);
-        return new Response(html, {
+        // SPA fallback: serve rewritten index.html for non-file routes
+        return new Response(rewrittenHtml, {
           headers: { 'content-type': 'text/html; charset=utf-8' },
         });
       });

@@ -229,31 +229,32 @@ export const serveCommand = new Command('serve')
       }
 
       // ── Studio UI (--ui) ────────────────────────────────────────────
+      // Strategy: always prefer pre-built dist/ if it exists (fast, no
+      // extra process). Only fall back to Vite dev server when dist is
+      // missing AND we're in dev mode.
       let viteProcess: import('child_process').ChildProcess | null = null;
 
       if (options.ui) {
         const studioPath = resolveStudioPath();
         if (!studioPath) {
           console.warn(chalk.yellow(`  ⚠ @objectstack/studio not found — skipping UI`));
+        } else if (hasStudioDist(studioPath)) {
+          // Serve pre-built static files (works in both dev & production)
+          const distPath = path.join(studioPath, 'dist');
+          await kernel.use(createStudioStaticPlugin(distPath));
+          trackPlugin('StudioUI');
         } else if (isDev) {
-          // Dev mode → spawn Vite dev server & proxy through Hono
+          // Fallback: dist not built yet → spawn Vite dev server
           try {
             const result = await spawnViteDevServer(studioPath, { serverPort: port });
             viteProcess = result.process;
             await kernel.use(createStudioProxyPlugin(result.port));
             trackPlugin('StudioUI');
           } catch (e: any) {
-            console.warn(chalk.yellow(`  ⚠ Console UI failed to start: ${e.message}`));
+            console.warn(chalk.yellow(`  ⚠ Studio UI failed to start: ${e.message}`));
           }
         } else {
-          // Production mode → serve pre-built static files
-          const distPath = path.join(studioPath, 'dist');
-          if (hasStudioDist(studioPath)) {
-            await kernel.use(createStudioStaticPlugin(distPath));
-            trackPlugin('StudioUI');
-          } else {
-            console.warn(chalk.yellow(`  ⚠ Studio dist not found — run "pnpm --filter @objectstack/studio build" first`));
-          }
+          console.warn(chalk.yellow(`  ⚠ Studio dist not found — run "pnpm --filter @objectstack/studio build" first`));
         }
       }
 
