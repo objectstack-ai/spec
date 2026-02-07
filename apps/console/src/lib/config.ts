@@ -18,13 +18,6 @@ export interface ConsoleConfig {
    * - 'server': Connect to real ObjectStack server
    */
   mode: RuntimeMode;
-
-  /**
-   * Demo / playground mode.
-   * Enabled via VITE_DEMO_MODE env var (build-time) or ?demo=1 URL param (dev fallback).
-   * When enabled, the console forces MSW mode for an online demo.
-   */
-  demo: boolean;
   
   /**
    * Server base URL (used in 'server' mode)
@@ -50,66 +43,19 @@ function isEmbedded(): boolean {
 }
 
 /**
- * Get runtime mode from environment
+ * Get runtime mode from environment.
+ * Priority: ?mode= URL param → VITE_RUNTIME_MODE env → embedded detection → default 'msw'
  */
 function getRuntimeMode(): RuntimeMode {
-  // Demo mode always forces MSW
-  if (getDemoFlag()) {
-    return 'msw';
+  if (typeof window !== 'undefined') {
+    const urlMode = new URLSearchParams(window.location.search).get('mode');
+    if (urlMode === 'msw' || urlMode === 'server') return urlMode;
   }
 
-  const urlMode = getUrlRuntimeOverride();
-  if (urlMode) {
-    return urlMode;
-  }
+  if (import.meta.env.VITE_RUNTIME_MODE === 'server') return 'server';
+  if (isEmbedded()) return 'server';
 
-  const envMode = import.meta.env.VITE_RUNTIME_MODE;
-  
-  if (envMode === 'server') {
-    return 'server';
-  }
-  
-  // Auto-detect: embedded mode uses server mode
-  if (isEmbedded()) {
-    return 'server';
-  }
-  
-  // Default to MSW mode for standalone development
   return 'msw';
-}
-
-function isTruthyParam(value: string | null): boolean {
-  if (!value) return false;
-  return !['0', 'false', 'no', 'off'].includes(value.toLowerCase());
-}
-
-function getUrlRuntimeOverride(): RuntimeMode | null {
-  if (typeof window === 'undefined') return null;
-  const params = new URLSearchParams(window.location.search);
-  const mode = params.get('mode');
-  if (mode === 'msw' || mode === 'server') {
-    return mode;
-  }
-  const demo = params.get('demo');
-  if (isTruthyParam(demo)) {
-    return 'msw';
-  }
-  return null;
-}
-
-/**
- * Resolve demo mode: env var first, URL param as fallback.
- */
-function getDemoFlag(): boolean {
-  // Build-time env var (primary — used for playground.objectstack.ai)
-  const envDemo = import.meta.env.VITE_DEMO_MODE;
-  if (envDemo && !['0', 'false', 'no', 'off', ''].includes(envDemo.toLowerCase())) {
-    return true;
-  }
-  // URL param fallback (development / ad-hoc testing)
-  if (typeof window === 'undefined') return false;
-  const params = new URLSearchParams(window.location.search);
-  return isTruthyParam(params.get('demo'));
 }
 
 /**
@@ -136,7 +82,6 @@ const defaultConfig: ConsoleConfig = {
   mode: getRuntimeMode(),
   serverUrl: resolveServerUrl(),
   mswBasePath: '',  // Empty - client adds /api/v1/... internally
-  demo: getDemoFlag(),
 };
 
 /**
@@ -186,10 +131,7 @@ export function logConfig(): void {
     mode: config.mode,
     apiBaseUrl: getApiBaseUrl(),
     serverUrl: config.serverUrl,
-    demo: config.demo,
   });
 }
 
-export function isDemoMode(): boolean {
-  return config.demo;
-}
+
