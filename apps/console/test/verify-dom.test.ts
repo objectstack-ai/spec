@@ -17,8 +17,8 @@ describe('DOM Simulation', () => {
     it('simulates ObjectDataTable structure verifying columns exist', async () => {
         const { client } = env;
         
-        // 1. Fetch Definition
-        const result: any = await client.meta.getItem('object', 'todo_task');
+        // 1. Fetch Definition (use short name — resolves via registry fallback)
+        const result: any = await client.meta.getItem('object', 'task');
         const def = result.data || result;
         
         console.log('Definition Check:', {
@@ -27,11 +27,11 @@ describe('DOM Simulation', () => {
             fieldCount: Object.keys(def.fields || {}).length
         });
         
-        expect(def.name).toBe('todo_task');
+        expect(def.name).toBe('todo__task');
         expect(Object.keys(def.fields).length).toBeGreaterThan(0);
 
-        // 2. Fetch Data
-        const dataResult: any = await client.data.find('todo_task');
+        // 2. Fetch Data (short name resolves via engine.resolveObjectName)
+        const dataResult: any = await client.data.find('task');
         let records = [];
         if (dataResult.success && dataResult.data) records = dataResult.data;
         else if (Array.isArray(dataResult)) records = dataResult;
@@ -56,6 +56,6 @@ describe('DOM Simulation', () => {
 
         // Fail if no columns (would result in empty table body)
         expect(columns.length).toBeGreaterThan(0);
-        expect(headers).toContain('subject');  // Assuming Field.text({ label }) works or fallback uses key
+        expect(headers).toContain('Subject');  // Field label uses title case
     });
 });

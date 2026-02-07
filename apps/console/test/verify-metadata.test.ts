@@ -16,7 +16,8 @@ describe('Metadata Service Integration', () => {
     it('should fetch list of objects via client.meta.getItems("object")', async () => {
         const { client } = env;
         const response: any = await client.meta.getItems('object');
-        const objects = response.data || response;
+        // Response after unwrap: { type: 'object', items: [...] }
+        const objects = response.items || response.data || response;
         
         console.log('Fetched Objects:', objects.map((o: any) => o.name));
         
@@ -24,17 +25,19 @@ describe('Metadata Service Integration', () => {
         expect(Array.isArray(objects)).toBe(true);
         expect(objects.length).toBeGreaterThan(0);
         
-        const todoTask = objects.find((o: any) => o.name === 'todo_task');
+        // FQN uses double underscore: todo__task
+        const todoTask = objects.find((o: any) => o.name === 'todo__task');
         expect(todoTask).toBeDefined();
     });
 
     it('should fetch object details via client.meta.getItem("object", ...)', async () => {
         const { client } = env;
-        const response: any = await client.meta.getItem('object', 'todo_task');
+        // Use short name 'task' which resolves via registry fallback
+        const response: any = await client.meta.getItem('object', 'task');
         const def = response.data || response;
         
         expect(def).toBeDefined();
-        expect(def.name).toBe('todo_task');
+        expect(def.name).toBe('todo__task');
         expect(def.fields).toBeDefined();
         
         // Check if fields are parsed correctly (client might return Map or Object depending on version)
