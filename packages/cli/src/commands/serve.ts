@@ -83,7 +83,15 @@ export const serveCommand = new Command('serve')
 
     // Track loaded plugins for summary
     const loadedPlugins: string[] = [];
-    const trackPlugin = (name: string) => { loadedPlugins.push(name); };
+    const shortPluginName = (raw: string) => {
+      // Map verbose internal IDs to short display names
+      if (raw.includes('objectql')) return 'ObjectQL';
+      if (raw.includes('driver') && raw.includes('memory')) return 'MemoryDriver';
+      if (raw.startsWith('plugin.app.')) return raw.replace('plugin.app.', '').split('.').pop() || raw;
+      if (raw.includes('hono')) return 'HonoServer';
+      return raw;
+    };
+    const trackPlugin = (name: string) => { loadedPlugins.push(shortPluginName(name)); };
 
     // Save original console/stdout methods — we'll suppress noise during boot
     const originalConsoleLog = console.log;
@@ -98,11 +106,7 @@ export const serveCommand = new Command('serve')
       console.debug = originalConsoleDebug;
     };
 
-    if (parseInt(options.port) !== port) {
-      // port was shifted — we'll mention it in the summary
-    } else {
-      // port matches — nothing extra to show
-    }
+    const portShifted = parseInt(options.port) !== port;
 
     try {
       // ── Suppress ALL runtime noise during boot ────────────────────

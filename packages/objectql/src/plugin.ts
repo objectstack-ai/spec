@@ -23,7 +23,9 @@ export class ObjectQLPlugin implements Plugin {
 
   init = async (ctx: PluginContext) => {
     if (!this.ql) {
-        this.ql = new ObjectQL(this.hostContext);
+        // Pass kernel logger to engine to avoid creating a separate pino instance
+        const hostCtx = { ...this.hostContext, logger: ctx.logger };
+        this.ql = new ObjectQL(hostCtx);
     }
     
     // Register as provider for Core Kernel Services
