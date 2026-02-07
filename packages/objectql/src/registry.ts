@@ -114,7 +114,24 @@ function mergeObjectDefinitions(base: ServiceObject, extension: Partial<ServiceO
  *   Apps are extracted from packages during registration.
  * - A package may contain 0, 1, or many apps.
  */
+export type RegistryLogLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent';
+
 export class SchemaRegistry {
+  // ==========================================
+  // Logging control
+  // ==========================================
+
+  /** Controls verbosity of registry console messages. Default: 'info'. */
+  private static _logLevel: RegistryLogLevel = 'info';
+
+  static get logLevel(): RegistryLogLevel { return this._logLevel; }
+  static set logLevel(level: RegistryLogLevel) { this._logLevel = level; }
+
+  private static log(msg: string): void {
+    if (this._logLevel === 'silent' || this._logLevel === 'error' || this._logLevel === 'warn') return;
+    console.log(msg);
+  }
+
   // ==========================================
   // Object-specific storage (Ownership Model)
   // ==========================================
@@ -157,7 +174,7 @@ export class SchemaRegistry {
     }
     
     this.namespaceRegistry.set(namespace, packageId);
-    console.log(`[Registry] Registered namespace: ${namespace} → ${packageId}`);
+    this.log(`[Registry] Registered namespace: ${namespace} → ${packageId}`);
   }
 
   /**
@@ -167,7 +184,7 @@ export class SchemaRegistry {
     const existing = this.namespaceRegistry.get(namespace);
     if (existing === packageId) {
       this.namespaceRegistry.delete(namespace);
-      console.log(`[Registry] Unregistered namespace: ${namespace}`);
+      this.log(`[Registry] Unregistered namespace: ${namespace}`);
     }
   }
 
@@ -254,7 +271,7 @@ export class SchemaRegistry {
     // Invalidate merge cache
     this.mergedObjectCache.delete(fqn);
 
-    console.log(`[Registry] Registered object: ${fqn} (${ownership}, priority=${priority}) from ${packageId}`);
+    this.log(`[Registry] Registered object: ${fqn} (${ownership}, priority=${priority}) from ${packageId}`);
     return fqn;
   }
 
@@ -385,7 +402,7 @@ export class SchemaRegistry {
         const idx = contributors.indexOf(contrib);
         if (idx !== -1) {
           contributors.splice(idx, 1);
-          console.log(`[Registry] Removed ${contrib.ownership} contribution to ${fqn} from ${packageId}`);
+          this.log(`[Registry] Removed ${contrib.ownership} contribution to ${fqn} from ${packageId}`);
         }
       }
 
@@ -432,7 +449,7 @@ export class SchemaRegistry {
       console.warn(`[Registry] Overwriting ${type}: ${storageKey}`);
     }
     collection.set(storageKey, item);
-    console.log(`[Registry] Registered ${type}: ${storageKey}`);
+    this.log(`[Registry] Registered ${type}: ${storageKey}`);
   }
 
   /**
@@ -465,14 +482,14 @@ export class SchemaRegistry {
     }
     if (collection.has(name)) {
       collection.delete(name);
-      console.log(`[Registry] Unregistered ${type}: ${name}`);
+      this.log(`[Registry] Unregistered ${type}: ${name}`);
       return;
     }
     // Scan composite keys
     for (const key of collection.keys()) {
       if (key.endsWith(`:${name}`)) {
         collection.delete(key);
-        console.log(`[Registry] Unregistered ${type}: ${key}`);
+        this.log(`[Registry] Unregistered ${type}: ${key}`);
         return;
       }
     }
@@ -555,7 +572,7 @@ export class SchemaRegistry {
       console.warn(`[Registry] Overwriting package: ${manifest.id}`);
     }
     collection.set(manifest.id, pkg);
-    console.log(`[Registry] Installed package: ${manifest.id} (${manifest.name})`);
+    this.log(`[Registry] Installed package: ${manifest.id} (${manifest.name})`);
     return pkg;
   }
 
@@ -578,7 +595,7 @@ export class SchemaRegistry {
     const collection = this.metadata.get('package');
     if (collection) {
       collection.delete(id);
-      console.log(`[Registry] Uninstalled package: ${id}`);
+      this.log(`[Registry] Uninstalled package: ${id}`);
       return true;
     }
     return false;
@@ -599,7 +616,7 @@ export class SchemaRegistry {
       pkg.status = 'installed';
       pkg.statusChangedAt = new Date().toISOString();
       pkg.updatedAt = new Date().toISOString();
-      console.log(`[Registry] Enabled package: ${id}`);
+      this.log(`[Registry] Enabled package: ${id}`);
     }
     return pkg;
   }
@@ -611,7 +628,7 @@ export class SchemaRegistry {
       pkg.status = 'disabled';
       pkg.statusChangedAt = new Date().toISOString();
       pkg.updatedAt = new Date().toISOString();
-      console.log(`[Registry] Disabled package: ${id}`);
+      this.log(`[Registry] Disabled package: ${id}`);
     }
     return pkg;
   }
@@ -668,6 +685,6 @@ export class SchemaRegistry {
     this.mergedObjectCache.clear();
     this.namespaceRegistry.clear();
     this.metadata.clear();
-    console.log('[Registry] Reset complete');
+    this.log('[Registry] Reset complete');
   }
 }

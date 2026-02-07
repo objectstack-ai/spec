@@ -7,7 +7,7 @@
     "build": "turbo run build --filter=!@objectstack/docs",
     "dev": "turbo run dev --filter=@example/app-host",
     "dev:console": "pnpm --filter @objectstack/console dev",
-    "studio": "pnpm --filter @objectstack/cli build && node packages/cli/bin/objectstack.js studio examples/app-host/objectstack.config.ts",
+    "studio": "pnpm --filter @objectstack/cli build && node packages/cli/bin/objectstack.js studio",
     "test": "turbo run test --filter=@objectstack/spec",
     "clean": "turbo run clean && rm -rf dist",
     "doctor": "pnpm --filter @objectstack/cli build && node packages/cli/bin/objectstack.js doctor",
@@ -36,6 +36,11 @@
     "typescript": "^5.3.0"
   },
   "dependencies": {
+    "@objectstack/driver-memory": "workspace:*",
+    "@objectstack/objectql": "workspace:*",
+    "@objectstack/plugin-hono-server": "workspace:*",
+    "@objectstack/runtime": "workspace:*",
+    "@objectstack/spec": "workspace:*",
     "lucide-react": "^0.562.0"
   },
   "engines": {

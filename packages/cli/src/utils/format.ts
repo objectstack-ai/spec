@@ -169,6 +169,39 @@ export function collectMetadataStats(config: any): MetadataStats {
   };
 }
 
+// ─── Server Ready Banner ────────────────────────────────────────────
+
+export interface ServerReadyOptions {
+  port: number;
+  configFile: string;
+  isDev: boolean;
+  pluginCount: number;
+  pluginNames?: string[];
+  uiEnabled?: boolean;
+  studioPath?: string;
+}
+
+export function printServerReady(opts: ServerReadyOptions) {
+  const base = `http://localhost:${opts.port}`;
+  console.log('');
+  console.log(chalk.bold.green('  ✓ Server is ready'));
+  console.log('');
+  console.log(chalk.cyan('  ➜') + chalk.bold('  API:     ') + chalk.cyan(base + '/'));
+  if (opts.uiEnabled && opts.studioPath) {
+    console.log(chalk.cyan('  ➜') + chalk.bold('  Console: ') + chalk.cyan(base + opts.studioPath + '/'));
+  }
+  console.log('');
+  console.log(chalk.dim(`  Config:  ${opts.configFile}`));
+  console.log(chalk.dim(`  Mode:    ${opts.isDev ? 'development' : 'production'}`));
+  console.log(chalk.dim(`  Plugins: ${opts.pluginCount} loaded`));
+  if (opts.pluginNames && opts.pluginNames.length > 0) {
+    console.log(chalk.dim(`           ${opts.pluginNames.join(', ')}`));
+  }
+  console.log('');
+  console.log(chalk.dim('  Press Ctrl+C to stop'));
+  console.log('');
+}
+
 export function printMetadataStats(stats: MetadataStats) {
   const sections: Array<{ label: string; items: Array<[string, number]> }> = [
     {

@@ -8,6 +8,21 @@ importers:
 
   .:
     dependencies:
+      '@objectstack/driver-memory':
+        specifier: workspace:*
+        version: link:packages/plugins/driver-memory
+      '@objectstack/objectql':
+        specifier: workspace:*
+        version: link:packages/objectql
+      '@objectstack/plugin-hono-server':
+        specifier: workspace:*
+        version: link:packages/plugins/plugin-hono-server
+      '@objectstack/runtime':
+        specifier: workspace:*
+        version: link:packages/runtime
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:packages/spec
       lucide-react:
         specifier: ^0.562.0
         version: 0.562.0(react@19.2.4)
@@ -411,8 +426,8 @@ importers:
         specifier: ^4.7.1
         version: 4.21.0
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: ^3.24.1
+        version: 3.25.76
     devDependencies:
       '@types/node':
         specifier: ^25.1.0
@@ -501,8 +516,8 @@ importers:
         specifier: ^13.1.3
         version: 13.1.3
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: ^3.24.1
+        version: 3.25.76
     devDependencies:
       '@types/node':
         specifier: ^25.1.0
@@ -535,8 +550,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.1
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: ^3.24.1
+        version: 3.25.76
     devDependencies:
       '@types/js-yaml':
         specifier: ^4.0.9

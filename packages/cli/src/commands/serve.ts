@@ -12,6 +12,7 @@ import {
   printError,
   printStep,
   printInfo,
+  printServerReady,
 } from '../utils/format.js';
 import {
   STUDIO_PATH,
@@ -66,9 +67,9 @@ export const serveCommand = new Command('serve')
     }
 
     const isDev = options.dev || process.env.NODE_ENV === 'development';
-    printHeader(isDev ? 'Dev Server' : 'Serve');
 
     const absolutePath = path.resolve(process.cwd(), configPath);
+    const relativeConfig = path.relative(process.cwd(), absolutePath);
     
     if (!fs.existsSync(absolutePath)) {
       printError(`Configuration file not found: ${absolutePath}`);
@@ -76,18 +77,49 @@ export const serveCommand = new Command('serve')
       process.exit(1);
     }
 
-    printKV('Config', path.relative(process.cwd(), absolutePath));
-    if (parseInt(options.port) !== port) {
-      printKV('Port', `${port} ${chalk.yellow(`(${options.port} in use)`)}`);
-    } else {
-      printKV('Port', String(port));
-    }
-    if (isDev) printKV('Mode', 'development');
+    // Quiet loading — only show a single spinner line
     console.log('');
+    console.log(chalk.dim(`  Loading ${relativeConfig}...`));
+
+    // Track loaded plugins for summary
+    const loadedPlugins: string[] = [];
+    const trackPlugin = (name: string) => { loadedPlugins.push(name); };
+
+    // Save original console/stdout methods — we'll suppress noise during boot
+    const originalConsoleLog = console.log;
+    const originalConsoleDebug = console.debug;
+    const origStdoutWrite = process.stdout.write.bind(process.stdout);
+    let bootQuiet = false;
+
+    const restoreOutput = () => {
+      bootQuiet = false;
+      process.stdout.write = origStdoutWrite;
+      console.log = originalConsoleLog;
+      console.debug = originalConsoleDebug;
+    };
+
+    if (parseInt(options.port) !== port) {
+      // port was shifted — we'll mention it in the summary
+    } else {
+      // port matches — nothing extra to show
+    }
 
     try {
+      // ── Suppress ALL runtime noise during boot ────────────────────
+      // Multiple sources write to stdout during startup:
+      //   • Pino-pretty (direct process.stdout.write)
+      //   • ObjectLogger browser fallback (console.log)
+      //   • SchemaRegistry (console.log)
+      // We capture stdout entirely, then restore after runtime.start().
+      bootQuiet = true;
+      process.stdout.write = (chunk: any, ...rest: any[]) => {
+        if (bootQuiet) return true;  // swallow
+        return (origStdoutWrite as any)(chunk, ...rest);
+      };
+      console.log = (...args: any[]) => { if (!bootQuiet) originalConsoleLog(...args); };
+      console.debug = (...args: any[]) => { if (!bootQuiet) originalConsoleDebug(...args); };
+
       // Load configuration
-      printStep('Loading configuration...');
       const { mod } = await bundleRequire({
         filepath: absolutePath,
       });
@@ -98,16 +130,11 @@ export const serveCommand = new Command('serve')
         throw new Error(`No default export found in ${configPath}`);
       }
 
-      printSuccess('Configuration loaded');
-
       // Import ObjectStack runtime
       const { Runtime } = await import('@objectstack/runtime');
 
-      // Create runtime instance
-      printStep('Initializing runtime...');
-      
-      // Auto-configure pretty logging in development mode
-      const loggerConfig = isDev ? { format: 'pretty' as const } : undefined;
+      // Set kernel logger to 'silent' — the CLI manages its own output
+      const loggerConfig = { level: 'silent' as const };
 
       const runtime = new Runtime({
         kernel: {
@@ -121,7 +148,6 @@ export const serveCommand = new Command('serve')
 
       // Merge devPlugins if in dev mode
       if (options.dev && config.devPlugins) {
-        console.log(chalk.blue(`📦 Loading development plugins...`));
         plugins = [...plugins, ...config.devPlugins];
       }
 
@@ -129,12 +155,11 @@ export const serveCommand = new Command('serve')
       const hasObjectQL = plugins.some((p: any) => p.name?.includes('objectql') || p.constructor?.name?.includes('ObjectQL'));
       if (config.objects && !hasObjectQL) {
          try {
-           console.log(chalk.dim(`  Auto-injecting ObjectQL Engine...`));
            const { ObjectQLPlugin } = await import('@objectstack/objectql');
            await kernel.use(new ObjectQLPlugin());
-           console.log(chalk.green(`  ✓ Registered ObjectQL Plugin (auto-detected)`));
+           trackPlugin('ObjectQL');
          } catch (e: any) {
-           console.warn(chalk.yellow(`  ⚠ Could not auto-load ObjectQL: ${e.message}`));
+           // silent
          }
       }
 
@@ -142,14 +167,12 @@ export const serveCommand = new Command('serve')
       const hasDriver = plugins.some((p: any) => p.name?.includes('driver') || p.constructor?.name?.includes('Driver'));
       if (isDev && !hasDriver && config.objects) {
          try {
-           console.log(chalk.dim(`  Auto-injecting Memory Driver (Dev Mode)...`));
            const { DriverPlugin } = await import('@objectstack/runtime');
            const { InMemoryDriver } = await import('@objectstack/driver-memory');
            await kernel.use(new DriverPlugin(new InMemoryDriver()));
-           console.log(chalk.green(`  ✓ Registered Memory Driver (auto-detected)`));
+           trackPlugin('MemoryDriver');
          } catch (e: any) {
-           // Silent fail - maybe they don't want a driver or don't have the package
-           console.log(chalk.dim(`  ℹ No default driver loaded: ${e.message}`));
+           // silent
          }
       }
 
@@ -158,38 +181,33 @@ export const serveCommand = new Command('serve')
         try {
            const { AppPlugin } = await import('@objectstack/runtime');
            await kernel.use(new AppPlugin(config));
-           console.log(chalk.green(`  ✓ Registered App Plugin (auto-detected)`));
+           trackPlugin('App');
         } catch (e: any) {
-           console.warn(chalk.yellow(`  ⚠ Could not auto-load AppPlugin: ${e.message}`));
+           // silent
         }
       }
 
       
       if (plugins.length > 0) {
-        console.log(chalk.yellow(`📦 Loading ${plugins.length} plugin(s)...`));
-        
         for (const plugin of plugins) {
           try {
             let pluginToLoad = plugin;
 
             // Resolve string references (package names)
             if (typeof plugin === 'string') {
-              console.log(chalk.dim(`  Trying to resolve plugin: ${plugin}`));
               try {
-                // Try dynamic import for packages
                  const imported = await import(plugin);
                  pluginToLoad = imported.default || imported;
               } catch (importError: any) {
-                 // Fallback: try bundleRequire for local paths if needed, otherwise throw
                  throw new Error(`Failed to import plugin '${plugin}': ${importError.message}`);
               }
             }
 
             await kernel.use(pluginToLoad);
             const pluginName = plugin.name || plugin.constructor?.name || 'unnamed';
-            console.log(chalk.green(`  ✓ Registered plugin: ${pluginName}`));
+            trackPlugin(pluginName);
           } catch (e: any) {
-            console.error(chalk.red(`  ✗ Failed to register plugin: ${e.message}`));
+            console.error(chalk.red(`  ✗ Failed to load plugin: ${e.message}`));
           }
         }
       }
@@ -200,7 +218,7 @@ export const serveCommand = new Command('serve')
           const { HonoServerPlugin } = await import('@objectstack/plugin-hono-server');
           const serverPlugin = new HonoServerPlugin({ port });
           await kernel.use(serverPlugin);
-          console.log(chalk.green(`  ✓ Registered HTTP server plugin (port: ${port})`));
+          trackPlugin('HonoServer');
         } catch (e: any) {
           console.warn(chalk.yellow(`  ⚠ HTTP server plugin not available: ${e.message}`));
         }
@@ -212,45 +230,50 @@ export const serveCommand = new Command('serve')
       if (options.ui) {
         const consolePath = resolveConsolePath();
         if (!consolePath) {
-          console.log(chalk.yellow(`  ⚠ @objectstack/console not found — skipping UI`));
+          console.warn(chalk.yellow(`  ⚠ @objectstack/console not found — skipping UI`));
         } else if (isDev) {
           // Dev mode → spawn Vite dev server & proxy through Hono
           try {
-            printStep('Starting Console UI (dev)…');
             const result = await spawnViteDevServer(consolePath, { serverPort: port });
             viteProcess = result.process;
             await kernel.use(createConsoleProxyPlugin(result.port));
-            console.log(chalk.green(`  ✓ Console UI proxied from Vite :${result.port}`));
+            trackPlugin('ConsoleUI');
           } catch (e: any) {
-            console.log(chalk.yellow(`  ⚠ Console UI failed to start: ${e.message}`));
+            console.warn(chalk.yellow(`  ⚠ Console UI failed to start: ${e.message}`));
           }
         } else {
           // Production mode → serve pre-built static files
           const distPath = path.join(consolePath, 'dist');
           if (hasConsoleDist(consolePath)) {
             await kernel.use(createConsoleStaticPlugin(distPath));
-            console.log(chalk.green(`  ✓ Console UI served from ${chalk.dim(distPath)}`));
+            trackPlugin('ConsoleUI');
           } else {
-            console.log(chalk.yellow(`  ⚠ Console dist not found — run "pnpm --filter @objectstack/console build" first`));
+            console.warn(chalk.yellow(`  ⚠ Console dist not found — run "pnpm --filter @objectstack/console build" first`));
           }
         }
       }
 
       // Boot the runtime
-      printStep('Starting server...');
       await runtime.start();
 
-      console.log('');
-      printSuccess(`Server running on port ${chalk.bold(String(port))}`);
-      if (options.ui) {
-        console.log(chalk.cyan(`  ➜ Console: ${chalk.bold(`http://localhost:${port}${STUDIO_PATH}/`)}`));
-      }
-      console.log(chalk.dim('  Press Ctrl+C to stop'));
-      console.log('');
+      // Wait briefly for pino worker thread buffers to flush, then restore
+      await new Promise(r => setTimeout(r, 100));
+      restoreOutput();
+
+      // ── Clean startup summary ──────────────────────────────────────
+      printServerReady({
+        port,
+        configFile: relativeConfig,
+        isDev,
+        pluginCount: loadedPlugins.length,
+        pluginNames: loadedPlugins,
+        uiEnabled: !!options.ui,
+        studioPath: STUDIO_PATH,
+      });
 
       // Keep process alive
       process.on('SIGINT', async () => {
-        console.log(chalk.yellow(`\n\n⏹  Stopping server...`));
+        console.warn(chalk.yellow(`\n\n⏹  Stopping server...`));
         if (viteProcess) {
           viteProcess.kill();
           viteProcess = null;
@@ -261,6 +284,7 @@ export const serveCommand = new Command('serve')
       });
 
     } catch (error: any) {
+      restoreOutput();
       console.log('');
       printError(error.message || String(error));
       if (process.env.DEBUG) console.error(chalk.dim(error.stack));
