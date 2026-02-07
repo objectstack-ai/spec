@@ -4,6 +4,9 @@
  * Supports two runtime modes:
  * - MSW Mode: Uses Mock Service Worker with in-browser ObjectStack kernel
  * - Server Mode: Connects to a real ObjectStack server
+ * 
+ * Auto-detection: When served under /_studio/ (embedded in CLI via --ui),
+ * the console automatically switches to Server mode with same-origin API.
  */
 
 export type RuntimeMode = 'msw' | 'server';
@@ -19,6 +22,7 @@ export interface ConsoleConfig {
   /**
    * Server base URL (used in 'server' mode)
    * This should be the server root, not including /api/v1
+   * Empty string means same-origin (used in embedded mode)
    * @default 'http://localhost:3000'
    */
   serverUrl: string;
@@ -32,6 +36,13 @@ export interface ConsoleConfig {
 }
 
 /**
+ * Detect if running in embedded mode (served under /_studio/ by CLI)
+ */
+function isEmbedded(): boolean {
+  return typeof window !== 'undefined' && window.location.pathname.startsWith('/_studio');
+}
+
+/**
  * Get runtime mode from environment
  */
 function getRuntimeMode(): RuntimeMode {
@@ -41,8 +52,30 @@ function getRuntimeMode(): RuntimeMode {
     return 'server';
   }
   
-  // Default to MSW mode for development
+  // Auto-detect: embedded mode uses server mode
+  if (isEmbedded()) {
+    return 'server';
+  }
+  
+  // Default to MSW mode for standalone development
   return 'msw';
+}
+
+/**
+ * Resolve the server URL based on environment and context
+ */
+function resolveServerUrl(): string {
+  // Explicit env var takes priority (including empty string for same-origin)
+  if (import.meta.env.VITE_SERVER_URL != null) {
+    return import.meta.env.VITE_SERVER_URL;
+  }
+  
+  // Embedded mode: same-origin API
+  if (isEmbedded()) {
+    return '';
+  }
+  
+  return 'http://localhost:3000';
 }
 
 /**
@@ -50,7 +83,7 @@ function getRuntimeMode(): RuntimeMode {
  */
 const defaultConfig: ConsoleConfig = {
   mode: getRuntimeMode(),
-  serverUrl: import.meta.env.VITE_SERVER_URL || 'http://localhost:3000',
+  serverUrl: resolveServerUrl(),
   mswBasePath: '',  // Empty - client adds /api/v1/... internally
 };
 

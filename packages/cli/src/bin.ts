@@ -8,6 +8,7 @@ import { devCommand } from './commands/dev.js';
 import { doctorCommand } from './commands/doctor.js';
 import { createCommand } from './commands/create.js';
 import { serveCommand } from './commands/serve.js';
+import { studioCommand } from './commands/studio.js';
 import { testCommand } from './commands/test.js';
 import { validateCommand } from './commands/validate.js';
 import { initCommand } from './commands/init.js';
@@ -45,6 +46,7 @@ ${chalk.bold('Workflow:')}
   ${chalk.dim('$')} os generate object task       ${chalk.dim('# Add metadata')}
   ${chalk.dim('$')} os validate                   ${chalk.dim('# Check configuration')}
   ${chalk.dim('$')} os dev                        ${chalk.dim('# Start dev server')}
+  ${chalk.dim('$')} os studio                     ${chalk.dim('# Dev server + Console UI')}
   ${chalk.dim('$')} os compile                    ${chalk.dim('# Build for production')}
 
 ${chalk.dim('Aliases: objectstack | os')}
@@ -55,6 +57,7 @@ ${chalk.dim('Docs: https://objectstack.dev')}
 program.addCommand(initCommand);
 program.addCommand(devCommand);
 program.addCommand(serveCommand);
+program.addCommand(studioCommand);
 
 // ── Build & Validate ──
 program.addCommand(compileCommand);

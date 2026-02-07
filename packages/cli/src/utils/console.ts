@@ -1,0 +1,319 @@
+/**
+ * Console UI Integration Utilities
+ *
+ * Handles resolving, spawning, and proxying the @objectstack/console
+ * frontend when the CLI is started with --ui or via the `studio` command.
+ */
+import path from 'path';
+import fs from 'fs';
+import net from 'net';
+import { spawn, type ChildProcess } from 'child_process';
+import chalk from 'chalk';
+
+// ─── Constants ──────────────────────────────────────────────────────
+
+/** URL mount path for the Console UI inside the ObjectStack server */
+export const STUDIO_PATH = '/_studio';
+
+/** Internal port range start for the Vite dev server */
+const VITE_PORT_START = 24678;
+
+// ─── Path Resolution ────────────────────────────────────────────────
+
+/**
+ * Resolve the filesystem path to the @objectstack/console package.
+ * Searches workspace locations first, then falls back to node_modules.
+ */
+export function resolveConsolePath(): string | null {
+  const cwd = process.cwd();
+
+  // Workspace candidates (monorepo layouts)
+  const candidates = [
+    path.resolve(cwd, 'apps/console'),
+    path.resolve(cwd, '../../apps/console'),
+    path.resolve(cwd, '../apps/console'),
+  ];
+
+  for (const candidate of candidates) {
+    const pkgPath = path.join(candidate, 'package.json');
+    if (fs.existsSync(pkgPath)) {
+      try {
+        const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+        if (pkg.name === '@objectstack/console') return candidate;
+      } catch {
+        // Skip invalid package.json
+      }
+    }
+  }
+
+  // Fallback: resolve from node_modules
+  try {
+    const { createRequire } = require('module');
+    const req = createRequire(import.meta.url);
+    const resolved = req.resolve('@objectstack/console/package.json');
+    return path.dirname(resolved);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Check whether the Console has a pre-built `dist/` directory.
+ */
+export function hasConsoleDist(consolePath: string): boolean {
+  return fs.existsSync(path.join(consolePath, 'dist', 'index.html'));
+}
+
+// ─── Port Utilities ─────────────────────────────────────────────────
+
+/**
+ * Find the next available TCP port starting from `start`.
+ */
+export function findAvailablePort(start: number = VITE_PORT_START): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer();
+    server.once('error', () => {
+      // Port in use — try next
+      findAvailablePort(start + 1).then(resolve, reject);
+    });
+    server.once('listening', () => {
+      server.close(() => resolve(start));
+    });
+    server.listen(start);
+  });
+}
+
+// ─── Vite Dev Server ────────────────────────────────────────────────
+
+export interface ViteDevResult {
+  /** Port the Vite dev server is listening on */
+  port: number;
+  /** Child process handle */
+  process: ChildProcess;
+}
+
+/**
+ * Spawn a Vite dev server for the Console application.
+ *
+ * Sets environment variables so the Console runs in server mode and
+ * connects to the ObjectStack API on the same origin.
+ *
+ * @param consolePath - Absolute path to the @objectstack/console package
+ * @param options.serverPort - The main ObjectStack server port (for display only)
+ */
+export async function spawnViteDevServer(
+  consolePath: string,
+  options: { serverPort?: number } = {},
+): Promise<ViteDevResult> {
+  const vitePort = await findAvailablePort(VITE_PORT_START);
+
+  // Resolve the Vite binary from the Console's own dependencies
+  const viteBinCandidates = [
+    path.join(consolePath, 'node_modules', '.bin', 'vite'),
+    path.join(consolePath, '..', '..', 'node_modules', '.bin', 'vite'),
+  ];
+
+  let viteBin: string | null = null;
+  for (const candidate of viteBinCandidates) {
+    if (fs.existsSync(candidate)) {
+      viteBin = candidate;
+      break;
+    }
+  }
+
+  const command = viteBin || 'npx';
+  const args = viteBin
+    ? ['--port', String(vitePort), '--strictPort']
+    : ['vite', '--port', String(vitePort), '--strictPort'];
+
+  const child = spawn(command, args, {
+    cwd: consolePath,
+    env: {
+      ...process.env,
+      VITE_BASE: `${STUDIO_PATH}/`,
+      VITE_PORT: String(vitePort),
+      VITE_HMR_PORT: String(vitePort),
+      VITE_RUNTIME_MODE: 'server',
+      VITE_SERVER_URL: '',             // Same-origin API
+      NODE_ENV: 'development',
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  // Accumulate stderr for error reporting
+  let stderr = '';
+  child.stderr?.on('data', (data: Buffer) => {
+    stderr += data.toString();
+  });
+
+  // Wait for Vite to signal readiness
+  await new Promise<void>((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      child.kill();
+      reject(new Error(`Vite dev server timed out after 30 s.\n${stderr}`));
+    }, 30_000);
+
+    child.stdout?.on('data', (data: Buffer) => {
+      const output = data.toString();
+      // Vite prints "ready in Xms" or "Local: http://..." when ready
+      if (output.includes('Local:') || output.includes('ready in')) {
+        clearTimeout(timeout);
+        resolve();
+      }
+    });
+
+    child.on('error', (err) => {
+      clearTimeout(timeout);
+      reject(err);
+    });
+
+    child.on('exit', (code) => {
+      if (code !== 0 && code !== null) {
+        clearTimeout(timeout);
+        reject(new Error(`Vite exited with code ${code}.\n${stderr}`));
+      }
+    });
+  });
+
+  return { port: vitePort, process: child };
+}
+
+// ─── Console Plugin Factories ───────────────────────────────────────
+
+/**
+ * Create a lightweight kernel plugin that proxies `/_studio/*` requests
+ * to the Vite dev server. Used in development mode.
+ */
+export function createConsoleProxyPlugin(vitePort: number) {
+  return {
+    name: 'com.objectstack.console-proxy',
+
+    init: async () => {},
+
+    start: async (ctx: any) => {
+      const httpServer = ctx.getService?.('http.server');
+      if (!httpServer?.getRawApp) {
+        ctx.logger?.warn?.('Console proxy: http.server service not found — skipping');
+        return;
+      }
+
+      const app = httpServer.getRawApp();
+
+      // Redirect bare path to trailing-slash (SPA convention)
+      app.get(STUDIO_PATH, (c: any) => c.redirect(`${STUDIO_PATH}/`));
+
+      // Proxy all /_studio/* requests to the Vite dev server
+      app.all(`${STUDIO_PATH}/*`, async (c: any) => {
+        const targetUrl = `http://localhost:${vitePort}${c.req.path}`;
+
+        try {
+          const headers = new Headers(c.req.raw.headers);
+          headers.delete('host');
+
+          const isBodyAllowed = !['GET', 'HEAD'].includes(c.req.method);
+
+          const resp = await fetch(targetUrl, {
+            method: c.req.method,
+            headers,
+            body: isBodyAllowed ? c.req.raw.body : undefined,
+            // @ts-expect-error — duplex required for streaming request body
+            duplex: isBodyAllowed ? 'half' : undefined,
+          });
+
+          // Forward the full response (status, headers, body)
+          return new Response(resp.body, {
+            status: resp.status,
+            headers: resp.headers,
+          });
+        } catch {
+          return c.text('Console dev server is starting…', 502);
+        }
+      });
+    },
+  };
+}
+
+/**
+ * Create a lightweight kernel plugin that serves the pre-built Console
+ * static files at `/_studio/*`. Used in production mode.
+ *
+ * Uses Node.js built-in fs for static file serving to avoid external
+ * bundling dependencies.
+ */
+export function createConsoleStaticPlugin(distPath: string) {
+  return {
+    name: 'com.objectstack.console-static',
+
+    init: async () => {},
+
+    start: async (ctx: any) => {
+      const httpServer = ctx.getService?.('http.server');
+      if (!httpServer?.getRawApp) {
+        ctx.logger?.warn?.('Console static: http.server service not found — skipping');
+        return;
+      }
+
+      const app = httpServer.getRawApp();
+      const absoluteDist = path.resolve(distPath);
+
+      const indexPath = path.join(absoluteDist, 'index.html');
+      if (!fs.existsSync(indexPath)) {
+        ctx.logger?.warn?.(`Console static: dist not found at ${absoluteDist}`);
+        return;
+      }
+
+      // Redirect bare path
+      app.get(STUDIO_PATH, (c: any) => c.redirect(`${STUDIO_PATH}/`));
+
+      // Serve static files with SPA fallback
+      app.get(`${STUDIO_PATH}/*`, async (c: any) => {
+        const reqPath = c.req.path.substring(STUDIO_PATH.length) || '/';
+        const filePath = path.join(absoluteDist, reqPath);
+
+        // Security: prevent path traversal
+        if (!filePath.startsWith(absoluteDist)) {
+          return c.text('Forbidden', 403);
+        }
+
+        // Try serving the exact file
+        if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+          const content = fs.readFileSync(filePath);
+          return new Response(content, {
+            headers: { 'content-type': mimeType(filePath) },
+          });
+        }
+
+        // SPA fallback: serve index.html for non-file routes
+        const html = fs.readFileSync(indexPath);
+        return new Response(html, {
+          headers: { 'content-type': 'text/html; charset=utf-8' },
+        });
+      });
+    },
+  };
+}
+
+// ─── Helpers ────────────────────────────────────────────────────────
+
+const MIME_TYPES: Record<string, string> = {
+  '.html': 'text/html; charset=utf-8',
+  '.js':   'application/javascript; charset=utf-8',
+  '.mjs':  'application/javascript; charset=utf-8',
+  '.css':  'text/css; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.svg':  'image/svg+xml',
+  '.png':  'image/png',
+  '.jpg':  'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif':  'image/gif',
+  '.ico':  'image/x-icon',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf':  'font/ttf',
+  '.map':  'application/json',
+};
+
+function mimeType(filePath: string): string {
+  const ext = path.extname(filePath).toLowerCase();
+  return MIME_TYPES[ext] || 'application/octet-stream';
+}

@@ -13,6 +13,14 @@ import {
   printStep,
   printInfo,
 } from '../utils/format.js';
+import {
+  STUDIO_PATH,
+  resolveConsolePath,
+  hasConsoleDist,
+  spawnViteDevServer,
+  createConsoleProxyPlugin,
+  createConsoleStaticPlugin,
+} from '../utils/console.js';
 
 // Helper to find available port
 const getAvailablePort = async (startPort: number): Promise<number> => {
@@ -44,6 +52,7 @@ export const serveCommand = new Command('serve')
   .argument('[config]', 'Configuration file path', 'objectstack.config.ts')
   .option('-p, --port <port>', 'Server port', '3000')
   .option('--dev', 'Run in development mode (load devPlugins)')
+  .option('--ui', 'Enable Console UI at /_studio/')
   .option('--no-server', 'Skip starting HTTP server plugin')
   .action(async (configPath, options) => {
     let port = parseInt(options.port);
@@ -197,18 +206,55 @@ export const serveCommand = new Command('serve')
         }
       }
 
+      // ── Console UI (--ui) ───────────────────────────────────────────
+      let viteProcess: import('child_process').ChildProcess | null = null;
+
+      if (options.ui) {
+        const consolePath = resolveConsolePath();
+        if (!consolePath) {
+          console.log(chalk.yellow(`  ⚠ @objectstack/console not found — skipping UI`));
+        } else if (isDev) {
+          // Dev mode → spawn Vite dev server & proxy through Hono
+          try {
+            printStep('Starting Console UI (dev)…');
+            const result = await spawnViteDevServer(consolePath, { serverPort: port });
+            viteProcess = result.process;
+            await kernel.use(createConsoleProxyPlugin(result.port));
+            console.log(chalk.green(`  ✓ Console UI proxied from Vite :${result.port}`));
+          } catch (e: any) {
+            console.log(chalk.yellow(`  ⚠ Console UI failed to start: ${e.message}`));
+          }
+        } else {
+          // Production mode → serve pre-built static files
+          const distPath = path.join(consolePath, 'dist');
+          if (hasConsoleDist(consolePath)) {
+            await kernel.use(createConsoleStaticPlugin(distPath));
+            console.log(chalk.green(`  ✓ Console UI served from ${chalk.dim(distPath)}`));
+          } else {
+            console.log(chalk.yellow(`  ⚠ Console dist not found — run "pnpm --filter @objectstack/console build" first`));
+          }
+        }
+      }
+
       // Boot the runtime
       printStep('Starting server...');
       await runtime.start();
 
       console.log('');
       printSuccess(`Server running on port ${chalk.bold(String(port))}`);
+      if (options.ui) {
+        console.log(chalk.cyan(`  ➜ Console: ${chalk.bold(`http://localhost:${port}${STUDIO_PATH}/`)}`));
+      }
       console.log(chalk.dim('  Press Ctrl+C to stop'));
       console.log('');
 
       // Keep process alive
       process.on('SIGINT', async () => {
         console.log(chalk.yellow(`\n\n⏹  Stopping server...`));
+        if (viteProcess) {
+          viteProcess.kill();
+          viteProcess = null;
+        }
         await runtime.getKernel().shutdown();
         console.log(chalk.green(`✅ Server stopped`));
         process.exit(0);

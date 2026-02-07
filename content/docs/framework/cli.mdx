@@ -45,6 +45,7 @@ os compile
 | `os init [name]` | | Initialize a new ObjectStack project in the current directory |
 | `os dev [package]` | | Start development mode with hot reload |
 | `os serve [config]` | | Start the ObjectStack server with plugin auto-detection |
+| `os studio [config]` | | Launch dev server with Console UI at `/_studio/` |
 
 #### `os init`
 
@@ -76,6 +77,7 @@ Starts development mode. When run inside a directory with `objectstack.config.ts
 ```bash
 os dev              # Auto-detect: single package or monorepo
 os dev my-package   # Start specific workspace package
+os dev --ui         # Dev server with Console UI
 os dev -v           # Verbose output
 ```
 
@@ -92,13 +94,46 @@ Starts the ObjectStack server with automatic plugin discovery:
 os serve                   # Default: port 3000
 os serve -p 4000           # Custom port
 os serve --dev             # Development mode (pretty logs, devPlugins)
+os serve --dev --ui        # Dev mode with Console UI
 os serve --no-server       # Skip HTTP server (kernel only)
 ```
 
 **Options:**
 - `-p, --port <port>` — Server port (default: `3000`)
 - `--dev` — Development mode (loads devPlugins, pretty logging)
+- `--ui` — Enable Console UI at `/_studio/` (dev: Vite proxy, prod: static files)
 - `--no-server` — Skip starting HTTP server plugin
+
+#### `os studio`
+
+Launches the development server with the Console UI in one command. Equivalent to `os serve --dev --ui`.
+
+The Console UI is a metadata-driven admin interface that provides:
+- **Object Explorer** — Browse objects, view/edit data, inspect schemas
+- **Package Manager** — View installed plugins and applications
+- **Developer Overview** — Dashboard with runtime metadata summary
+
+```bash
+os studio                  # Default: port 3000
+os studio -p 4000          # Custom port
+```
+
+**Architecture:**
+
+```
+┌─────────────────────────────────────────┐
+│           os studio (:3000)             │
+├─────────────────────────────────────────┤
+│  Hono Server                            │
+│  ├─ /api/v1/*     → ObjectStack API     │
+│  ├─ /_studio/*    → Console SPA         │
+│  └─ /*            → custom routes       │
+└─────────────────────────────────────────┘
+```
+
+In development mode, `/_studio/*` requests are proxied to a Vite dev server
+(spawned automatically on an internal port) with full HMR support. In
+production, pre-built static files are served directly.
 
 ### Build & Validate
 

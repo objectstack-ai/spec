@@ -2,8 +2,14 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
+// HMR config for embedded mode (running inside CLI via --ui)
+const hmrConfig = process.env.VITE_HMR_PORT
+  ? { port: parseInt(process.env.VITE_HMR_PORT), clientPort: parseInt(process.env.VITE_HMR_PORT) }
+  : undefined;
+
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: process.env.VITE_BASE || '/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -38,7 +44,8 @@ export default defineConfig({
   },
   plugins: [react()],
   server: {
-    port: 3000,
+    port: parseInt(process.env.VITE_PORT || '3000'),
+    hmr: hmrConfig,
   },
   optimizeDeps: {
     include: [
