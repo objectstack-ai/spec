@@ -20,7 +20,8 @@ export interface ConsoleConfig {
   mode: RuntimeMode;
 
   /**
-   * Demo mode (URL-driven)
+   * Demo / playground mode.
+   * Enabled via VITE_DEMO_MODE env var (build-time) or ?demo=1 URL param (dev fallback).
    * When enabled, the console forces MSW mode for an online demo.
    */
   demo: boolean;
@@ -52,6 +53,11 @@ function isEmbedded(): boolean {
  * Get runtime mode from environment
  */
 function getRuntimeMode(): RuntimeMode {
+  // Demo mode always forces MSW
+  if (getDemoFlag()) {
+    return 'msw';
+  }
+
   const urlMode = getUrlRuntimeOverride();
   if (urlMode) {
     return urlMode;
@@ -91,7 +97,16 @@ function getUrlRuntimeOverride(): RuntimeMode | null {
   return null;
 }
 
-function getUrlDemoFlag(): boolean {
+/**
+ * Resolve demo mode: env var first, URL param as fallback.
+ */
+function getDemoFlag(): boolean {
+  // Build-time env var (primary — used for playground.objectstack.ai)
+  const envDemo = import.meta.env.VITE_DEMO_MODE;
+  if (envDemo && !['0', 'false', 'no', 'off', ''].includes(envDemo.toLowerCase())) {
+    return true;
+  }
+  // URL param fallback (development / ad-hoc testing)
   if (typeof window === 'undefined') return false;
   const params = new URLSearchParams(window.location.search);
   return isTruthyParam(params.get('demo'));
@@ -121,7 +136,7 @@ const defaultConfig: ConsoleConfig = {
   mode: getRuntimeMode(),
   serverUrl: resolveServerUrl(),
   mswBasePath: '',  // Empty - client adds /api/v1/... internally
-  demo: getUrlDemoFlag(),
+  demo: getDemoFlag(),
 };
 
 /**

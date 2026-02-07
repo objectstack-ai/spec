@@ -104,7 +104,7 @@ export const en: HomepageTranslations = {
       primary: 'Get Started',
       primaryHref: '/docs/getting-started/quick-start',
       secondary: 'Live Demo',
-      secondaryHref: 'https://playground.objectstack.ai/?demo=1',
+      secondaryHref: 'https://play.objectstack.ai',
     },
     quickStart: {
       label: 'Terminal',
@@ -182,7 +182,7 @@ export const cn: HomepageTranslations = {
       primary: '快速开始',
       primaryHref: '/docs/getting-started/quick-start',
       secondary: '在线演示',
-      secondaryHref: 'https://playground.objectstack.ai/?demo=1',
+      secondaryHref: 'https://playground.objectstack.ai',
     },
     quickStart: {
       label: '终端',
