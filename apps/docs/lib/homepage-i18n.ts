@@ -24,57 +24,58 @@ export interface HomepageTranslations {
     };
     cta: {
       primary: string;
+      primaryHref: string;
       secondary: string;
+      secondaryHref: string;
+    };
+    quickStart: {
+      label: string;
+      commands: string[];
     };
   };
-  
-  // Code Preview
-  codePreview: {
-    filename: string;
-  };
-  
+
   // Features Section
   features: {
-    objectql: {
+    restApi: {
       title: string;
       description: string;
     };
-    objectui: {
+    studio: {
       title: string;
       description: string;
     };
-    objectos: {
+    multiDb: {
       title: string;
       description: string;
     };
-    security: {
+    typeSafety: {
       title: string;
       description: string;
     };
-    zodFirst: {
+    namespace: {
       title: string;
       description: string;
     };
-    universal: {
+    plugins: {
       title: string;
       description: string;
     };
   };
-  
+
   // Personas Section
   personas: {
     heading: string;
-    architect: {
+    fullStack: {
       title: string;
       description: string;
       action: string;
     };
-    aiEngineer: {
+    platformTeam: {
       title: string;
       description: string;
       action: string;
     };
-    frameworkBuilder: {
+    lowCode: {
       title: string;
       description: string;
       action: string;
@@ -87,68 +88,75 @@ export interface HomepageTranslations {
  */
 export const en: HomepageTranslations = {
   badge: {
-    status: 'Protocol Specification',
+    status: 'Open Source',
     version: SPEC_VERSION,
   },
   hero: {
     title: {
-      line1: 'The ObjectStack',
-      line2: 'Protocol',
+      line1: 'Define Once,',
+      line2: 'Run Everywhere',
     },
     subtitle: {
-      line1: 'The Open Standard for Metadata-Driven Enterprise Software.',
-      line2: 'Validatable. Database-Agnostic. AI-Native.',
+      line1: 'A metadata-driven framework that turns object definitions into REST APIs, admin consoles, and database schemas.',
+      line2: 'No boilerplate. No code generation.',
     },
     cta: {
-      primary: 'Start Building',
-      secondary: 'Read Specification',
+      primary: 'Get Started',
+      primaryHref: '/docs/developer',
+      secondary: 'View Examples',
+      secondaryHref: '/docs/framework/examples',
     },
-  },
-  codePreview: {
-    filename: 'contract.zod.ts',
+    quickStart: {
+      label: 'Terminal',
+      commands: [
+        'npx @objectstack/cli init my-app',
+        'cd my-app',
+        'npx os studio',
+      ],
+    },
   },
   features: {
-    objectql: {
-      title: 'Data Protocol',
-      description: 'Strict JSON schemas for entities, fields, and relationships. It is the SQL you can send over the wire.',
+    restApi: {
+      title: 'Object → REST API',
+      description: 'Define your data objects and get fully typed CRUD endpoints automatically. No route files, no controllers.',
     },
-    objectui: {
-      title: 'UI Protocol',
-      description: 'Server-Driven UI protocol defining forms, grids, and dashboards. Decouples logic from the frontend implementation.',
+    studio: {
+      title: 'Built-in Console',
+      description: 'Run `os studio` to get a visual admin panel for browsing data, editing records, and inspecting your schema.',
     },
-    objectos: {
-      title: 'System Protocol',
-      description: 'The runtime contract for permissions, workflows, and automation. Stateless business logic execution.',
+    multiDb: {
+      title: 'Multi-Database',
+      description: 'PostgreSQL, MongoDB, SQLite — same object schema, any backend. Switch databases without changing a single line of code.',
     },
-    security: {
-      title: 'Zero-Trust Security',
-      description: 'Policy-as-Code. ACLs and Field Level Security are compiled into the database query engine.',
+    typeSafety: {
+      title: 'Full Type Safety',
+      description: 'Zod-first schema definitions with complete TypeScript inference. Catch errors at compile time, validate at runtime.',
     },
-    zodFirst: {
-      title: 'Zod-First Definition',
-      description: 'The entire protocol is defined in Zod. Runtime validation and static type inference come for free.',
+    namespace: {
+      title: 'Namespace Isolation',
+      description: 'Multi-tenant by design. Each plugin gets its own namespace — no field collisions, clean data boundaries.',
     },
-    universal: {
-      title: 'Universal Backend',
-      description: 'Protocol adapters for Postgres, MongoDB, REST and GraphQL. Write once, run on any infrastructure.',
+    plugins: {
+      title: 'Plugin System',
+      description: 'Compose applications from reusable plugins. CRM, BI, Auth — mix and match building blocks for your stack.',
     },
   },
   personas: {
-    heading: 'Built for Builders',
-    architect: {
-      title: 'Platform Architects',
-      description: 'Design scalable Internal Developer Platforms (IDP) that unify your data silos.',
-      action: 'Explore Patterns',
+    heading: 'Who Is It For?',
+    fullStack: {
+      title: 'Full-Stack Developers',
+      description: 'Build internal tools, admin dashboards, and CRUD apps in minutes with just object definitions.',
+      action: 'Developer Guide',
     },
-    aiEngineer: {
-      title: 'AI Engineers',
-      description: 'Feed LLMs with perfectly structured, deterministic JSON schemas they can actually understand.',
-      action: 'View Codex',
+    platformTeam: {
+      title: 'Platform Teams',
+      description: 'Standardize data models and APIs across microservices with a shared metadata protocol.',
+      action: 'Read Architecture',
     },
-    frameworkBuilder: {
-      title: 'Framework Builders',
-      description: 'Implement the protocol in your language. Write drivers for React, Vue, Flutter, or Go.',
-      action: 'Read Spec',
+    lowCode: {
+      title: 'Low-Code Builders',
+      description: 'Visual schema design via Console UI, with full code extensibility when you need it.',
+      action: 'Try Examples',
     },
   },
 };
@@ -158,68 +166,75 @@ export const en: HomepageTranslations = {
  */
 export const cn: HomepageTranslations = {
   badge: {
-    status: '协议规范',
+    status: '开源项目',
     version: SPEC_VERSION,
   },
   hero: {
     title: {
-      line1: 'ObjectStack',
-      line2: '协议',
+      line1: '定义一次，',
+      line2: '随处运行',
     },
     subtitle: {
-      line1: '元数据驱动企业软件的开放标准。',
-      line2: '可验证。数据库无关。AI 原生。',
+      line1: '元数据驱动框架，将对象定义自动转换为 REST API、管理控制台和数据库表结构。',
+      line2: '无模板代码。无代码生成。',
     },
     cta: {
-      primary: '开始构建',
-      secondary: '阅读规范',
+      primary: '快速开始',
+      primaryHref: '/docs/developer',
+      secondary: '查看示例',
+      secondaryHref: '/docs/framework/examples',
     },
-  },
-  codePreview: {
-    filename: 'contract.zod.ts',
+    quickStart: {
+      label: '终端',
+      commands: [
+        'npx @objectstack/cli init my-app',
+        'cd my-app',
+        'npx os studio',
+      ],
+    },
   },
   features: {
-    objectql: {
-      title: 'ObjectQL 数据层',
-      description: '严格的 JSON 模式定义实体、字段和关系。这是可以在网络上传输的 SQL。',
+    restApi: {
+      title: '对象 → REST API',
+      description: '定义数据对象，自动获得完整的 CRUD 接口。无需路由文件，无需控制器。',
     },
-    objectui: {
-      title: 'ObjectUI 视图层',
-      description: '定义表单、网格和仪表板的服务器驱动 UI 协议。将逻辑与前端实现解耦。',
+    studio: {
+      title: '内置管理控制台',
+      description: '运行 `os studio` 即可获得可视化管理面板，浏览数据、编辑记录、查看 Schema。',
     },
-    objectos: {
-      title: 'ObjectOS 内核',
-      description: '权限、工作流和自动化的运行时契约。无状态业务逻辑执行。',
+    multiDb: {
+      title: '多数据库支持',
+      description: 'PostgreSQL、MongoDB、SQLite — 同一套对象定义，任意数据库后端。切换数据库无需改一行代码。',
     },
-    security: {
-      title: '零信任安全',
-      description: '策略即代码。ACL 和字段级安全被编译到数据库查询引擎中。',
+    typeSafety: {
+      title: '完整类型安全',
+      description: 'Zod 优先的 Schema 定义，完整的 TypeScript 类型推断。编译时捕获错误，运行时验证数据。',
     },
-    zodFirst: {
-      title: 'Zod 优先定义',
-      description: '整个协议都用 Zod 定义。运行时验证和静态类型推断免费获得。',
+    namespace: {
+      title: '命名空间隔离',
+      description: '原生多租户设计。每个插件拥有独立命名空间 — 无字段冲突，干净的数据边界。',
     },
-    universal: {
-      title: '通用后端',
-      description: 'Postgres、MongoDB、REST 和 GraphQL 的协议适配器。一次编写，在任何基础设施上运行。',
+    plugins: {
+      title: '插件系统',
+      description: '用可复用插件组合应用。CRM、BI、认证 — 像积木一样自由搭建你的技术栈。',
     },
   },
   personas: {
-    heading: '为构建者而建',
-    architect: {
-      title: '平台架构师',
-      description: '设计可扩展的内部开发者平台（IDP），统一你的数据孤岛。',
-      action: '探索模式',
+    heading: '适合谁使用？',
+    fullStack: {
+      title: '全栈开发者',
+      description: '只需定义对象，几分钟内构建内部工具、管理面板和 CRUD 应用。',
+      action: '开发者指南',
     },
-    aiEngineer: {
-      title: 'AI 工程师',
-      description: '为 LLM 提供结构完美、确定性强的 JSON 模式，让它们能够真正理解。',
-      action: '查看代码库',
+    platformTeam: {
+      title: '平台团队',
+      description: '使用统一的元数据协议标准化微服务间的数据模型和 API。',
+      action: '阅读架构',
     },
-    frameworkBuilder: {
-      title: '框架构建者',
-      description: '用你的语言实现协议。为 React、Vue、Flutter 或 Go 编写驱动程序。',
-      action: '阅读规范',
+    lowCode: {
+      title: '低代码构建者',
+      description: '通过 Console UI 可视化设计 Schema，需要时可完全用代码扩展。',
+      action: '试用示例',
     },
   },
 };
