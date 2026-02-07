@@ -163,10 +163,27 @@ export function AppSidebar({ selectedObject, onSelectObject, packages, selectedP
 
   useEffect(() => { loadMetadata(); }, [loadMetadata]);
 
+  // Priority order for sidebar sections — lower index = higher up
+  const TYPE_PRIORITY: Record<string, number> = {
+    objects: 0, object: 0,
+    actions: 1,
+    flows: 2,
+    dashboards: 3,
+    reports: 4,
+    agents: 5,
+    apis: 6,
+    ragPipelines: 7,
+    profiles: 8,
+    sharingRules: 9,
+  };
+  const DEFAULT_PRIORITY = 100;
+
   // Filter visible types: only those with items, excluding hidden types
+  // Sort so Objects always appear first
   const visibleTypes = metaTypes
     .filter(t => !HIDDEN_TYPES.has(t))
-    .filter(t => (metaItems[t]?.length ?? 0) > 0);
+    .filter(t => (metaItems[t]?.length ?? 0) > 0)
+    .sort((a, b) => (TYPE_PRIORITY[a] ?? DEFAULT_PRIORITY) - (TYPE_PRIORITY[b] ?? DEFAULT_PRIORITY));
 
   // Apply search filter
   const matchesSearch = (label: string, name: string) =>
