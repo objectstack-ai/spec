@@ -6,13 +6,13 @@ description: Fast lookup table for all ObjectStack protocols
 
 # Quick Reference Guide
 
-Fast lookup for all 123 ObjectStack protocols organized by category.
+Fast lookup for all 139 ObjectStack protocols organized by category.
 
 <Callout type="info">
 Click on any protocol name to view its complete API reference.
 </Callout>
 
-## Data Protocol (16 protocols)
+## Data Protocol (18 schemas)
 
 Core business logic and data modeling schemas.
 
@@ -24,6 +24,8 @@ Core business logic and data modeling schemas.
 | **[Filter](./data/filter)** | `filter.zod.ts` | QueryFilter, FilterCondition | Advanced filtering operators |
 | **[Validation](./data/validation)** | `validation.zod.ts` | ValidationRule | Business validation rules |
 | **[Dataset](./data/dataset)** | `dataset.zod.ts` | Dataset, DatasetMode | Reusable dataset definitions |
+| **[Datasource](./data/datasource)** | `datasource.zod.ts` | Datasource, DatasourceType | Database connection configs |
+| **[Analytics](./data/analytics)** | `analytics.zod.ts` | Analytics | Data analytics and aggregation |
 | **[Mapping](./data/mapping)** | `mapping.zod.ts` | FieldMapping | Field transformation mappings |
 | **[Hook](./data/hook)** | `hook.zod.ts` | Hook, HookEvent | Lifecycle event hooks |
 | **[Data Engine](./data/data-engine)** | `data-engine.zod.ts` | DataEngine | Data engine configuration |
@@ -32,10 +34,10 @@ Core business logic and data modeling schemas.
 | **[NoSQL Driver](./data/driver-nosql)** | `driver-nosql.zod.ts` | NoSQLDriver | NoSQL-specific driver |
 | **[Document](./data/document)** | `document.zod.ts` | Document | Document-oriented data |
 | **[External Lookup](./data/external-lookup)** | `external-lookup.zod.ts` | ExternalLookup | External data lookups |
-| **[Postgres Driver](./driver/postgres)** | `driver/postgres.zod.ts` | PostgresConfig | PostgreSQL configuration |
-| **[Mongo Driver](./driver/mongo)** | `driver/mongo.zod.ts` | MongoConfig | MongoDB configuration |
+| **[Postgres Driver](./data/driver/postgres)** | `driver/postgres.zod.ts` | PostgresConfig | PostgreSQL configuration |
+| **[Mongo Driver](./data/driver/mongo)** | `driver/mongo.zod.ts` | MongoConfig | MongoDB configuration |
 
-## UI Protocol (10 protocols)
+## UI Protocol (10 schemas)
 
 Presentation layer - views, forms, dashboards, and themes.
 
@@ -48,78 +50,86 @@ Presentation layer - views, forms, dashboards, and themes.
 | **[Report](./ui/report)** | `report.zod.ts` | Report, ReportType | Report definitions |
 | **[Action](./ui/action)** | `action.zod.ts` | Action, ActionType | UI button actions |
 | **[Component](./ui/component)** | `component.zod.ts` | PageComponent variants | Reusable UI components |
-| **[Block](./ui/block)** | `block.zod.ts` | Block, BlockType | UI building blocks |
+| **[Chart](./ui/chart)** | `chart.zod.ts` | Chart, ChartType | Chart definitions |
 | **[Theme](./ui/theme)** | `theme.zod.ts` | Theme, ColorPalette | Theming and branding |
 | **[Widget](./ui/widget)** | `widget.zod.ts` | WidgetManifest | Custom widget definitions |
 
-## Automation Protocol (7 protocols)
+## Kernel Protocol (17 schemas)
 
-Workflows, flows, and integrations.
-
-| Protocol | Source File | Key Schemas | Purpose |
-|:---------|:-----------|:------------|:--------|
-| **[Flow](./automation/flow)** | `flow.zod.ts` | Flow, FlowNode | Visual workflow builder |
-| **[Workflow](./automation/workflow)** | `workflow.zod.ts` | WorkflowRule | Record-triggered automation |
-| **[Approval](./automation/approval)** | `approval.zod.ts` | ApprovalProcess | Multi-step approval flows |
-| **[Webhook](./automation/webhook)** | `webhook.zod.ts` | Webhook, WebhookEvent | Outbound webhooks |
-| **[ETL](./automation/etl)** | `etl.zod.ts` | ETLPipeline | Data transformation pipelines |
-| **[Sync](./automation/sync)** | `sync.zod.ts` | SyncConfig | Bi-directional data sync |
-| **[Connector](./automation/connector)** | `connector.zod.ts` | Connector, ConnectorType | External system connectors |
-
-## System Protocol (39 protocols)
-
-Core system configuration and runtime infrastructure.
+Plugin architecture, manifests, and kernel runtime.
 
 | Protocol | Source File | Key Schemas | Purpose |
 |:---------|:-----------|:------------|:--------|
-| **[Manifest](./system/manifest)** | `manifest.zod.ts` | Manifest | Package manifest (objectstack.config.ts) |
-| **[Datasource](./system/datasource)** | `datasource.zod.ts` | Datasource, DatasourceType | Database connection configs |
-| **[Context](./system/context)** | `context.zod.ts` | KernelContext | Runtime execution context |
-| **[Plugin](./system/plugin)** | `plugin.zod.ts` | Plugin, PluginHook | Plugin system interface |
-| **[Plugin Capability](./system/plugin-capability)** | `plugin-capability.zod.ts` | PluginCapability | Plugin capability declarations |
-| **[Plugin Lifecycle](./system/plugin-lifecycle-events)** | `plugin-lifecycle-events.zod.ts` | PluginLifecycleEvents | Plugin lifecycle events |
-| **[Plugin Validator](./system/plugin-validator)** | `plugin-validator.zod.ts` | PluginValidator | Plugin validation |
-| **[Startup Orchestrator](./system/startup-orchestrator)** | `startup-orchestrator.zod.ts` | StartupOrchestrator | System startup |
-| **[Service Registry](./system/service-registry)** | `service-registry.zod.ts` | ServiceRegistry | Service discovery |
-| **[Events](./system/events)** | `events.zod.ts` | Event, EventBus | System event bus |
-| **[Job](./system/job)** | `job.zod.ts` | Job, JobSchedule | Background job queue |
+| **[Manifest](./kernel/manifest)** | `manifest.zod.ts` | Manifest | Package manifest (objectstack.config.ts) |
+| **[Context](./kernel/context)** | `context.zod.ts` | KernelContext | Runtime execution context |
+| **[Plugin](./kernel/plugin)** | `plugin.zod.ts` | Plugin, PluginHook | Plugin system interface |
+| **[Plugin Capability](./kernel/plugin-capability)** | `plugin-capability.zod.ts` | PluginCapability | Plugin capability declarations |
+| **[Plugin Lifecycle](./kernel/plugin-lifecycle-events)** | `plugin-lifecycle-events.zod.ts` | PluginLifecycleEvents | Plugin lifecycle events |
+| **[Plugin Lifecycle Advanced](./kernel/plugin-lifecycle-advanced)** | `plugin-lifecycle-advanced.zod.ts` | PluginLifecycleAdvanced | Advanced lifecycle hooks |
+| **[Plugin Loading](./kernel/plugin-loading)** | `plugin-loading.zod.ts` | PluginLoading | Plugin loading and init |
+| **[Plugin Security](./kernel/plugin-security-advanced)** | `plugin-security-advanced.zod.ts` | PluginSecurityAdvanced | Plugin sandboxing |
+| **[Plugin Structure](./kernel/plugin-structure)** | `plugin-structure.zod.ts` | PluginStructure | Plugin file conventions |
+| **[Plugin Validator](./kernel/plugin-validator)** | `plugin-validator.zod.ts` | PluginValidator | Plugin validation |
+| **[Plugin Versioning](./kernel/plugin-versioning)** | `plugin-versioning.zod.ts` | PluginVersioning | Version compatibility |
+| **[Service Registry](./kernel/service-registry)** | `service-registry.zod.ts` | ServiceRegistry | Service discovery |
+| **[Startup Orchestrator](./kernel/startup-orchestrator)** | `startup-orchestrator.zod.ts` | StartupOrchestrator | System startup |
+| **[Events](./kernel/events)** | `events.zod.ts` | Event, EventBus | System event bus |
+| **[Feature](./kernel/feature)** | `feature.zod.ts` | FeatureFlag | Feature flags |
+| **[Metadata Loader](./kernel/metadata-loader)** | `metadata-loader.zod.ts` | MetadataLoader | Metadata loading |
+| **[Package Registry](./kernel/package-registry)** | `package-registry.zod.ts` | PackageRegistry | Package resolution |
+
+## System Protocol (22 schemas)
+
+Runtime environment, logging, jobs, caching, and observability.
+
+| Protocol | Source File | Key Schemas | Purpose |
+|:---------|:-----------|:------------|:--------|
 | **[Audit](./system/audit)** | `audit.zod.ts` | AuditLog, AuditEvent | Audit trail logging |
-| **[Logging](./system/logging)** | `logging.zod.ts` | LoggingConfig | Structured logging |
-| **[Metrics](./system/metrics)** | `metrics.zod.ts` | Metrics | Application metrics |
-| **[Tracing](./system/tracing)** | `tracing.zod.ts` | Tracing | Distributed tracing |
-| **[Translation](./system/translation)** | `translation.zod.ts` | Translation | i18n support |
-| **[Feature](./system/feature)** | `feature.zod.ts` | FeatureFlag | Feature flags |
+| **[Auth Config](./system/auth-config)** | `auth-config.zod.ts` | AuthConfig | Authentication configuration |
 | **[Cache](./system/cache)** | `cache.zod.ts` | CacheConfig | Caching layer |
-| **[Object Storage](./system/object-storage)** | `object-storage.zod.ts` | ObjectStorage | Object storage |
-| **[Message Queue](./system/message-queue)** | `message-queue.zod.ts` | MessageQueue | Message queuing |
-| **[Search Engine](./system/search-engine)** | `search-engine.zod.ts` | SearchEngine | Full-text search |
-| **[Encryption](./system/encryption)** | `encryption.zod.ts` | Encryption | Encryption & keys |
-| **[Compliance](./system/compliance)** | `compliance.zod.ts` | Compliance | Regulatory controls |
-| **[Masking](./system/masking)** | `masking.zod.ts` | Masking | Data masking |
-| **[Notification](./system/notification)** | `notification.zod.ts` | Notification | Notifications |
 | **[Change Management](./system/change-management)** | `change-management.zod.ts` | ChangeManagement | Change tracking |
 | **[Collaboration](./system/collaboration)** | `collaboration.zod.ts` | Collaboration | Real-time collab |
+| **[Compliance](./system/compliance)** | `compliance.zod.ts` | Compliance | Regulatory controls |
+| **[Encryption](./system/encryption)** | `encryption.zod.ts` | Encryption | Encryption & keys |
 | **[HTTP Server](./system/http-server)** | `http-server.zod.ts` | HTTPServer | HTTP server config |
+| **[Job](./system/job)** | `job.zod.ts` | Job, JobSchedule | Background job queue |
+| **[Logging](./system/logging)** | `logging.zod.ts` | LoggingConfig | Structured logging |
+| **[Masking](./system/masking)** | `masking.zod.ts` | Masking | Data masking |
+| **[Message Queue](./system/message-queue)** | `message-queue.zod.ts` | MessageQueue | Message queuing |
+| **[Metadata Persistence](./system/metadata-persistence)** | `metadata-persistence.zod.ts` | MetadataPersistence | Metadata storage |
+| **[Metrics](./system/metrics)** | `metrics.zod.ts` | Metrics | Application metrics |
+| **[Migration](./system/migration)** | `migration.zod.ts` | Migration | Schema migration |
+| **[Notification](./system/notification)** | `notification.zod.ts` | Notification | Notifications |
+| **[Object Storage](./system/object-storage)** | `object-storage.zod.ts` | ObjectStorage | Object storage |
+| **[Search Engine](./system/search-engine)** | `search-engine.zod.ts` | SearchEngine | Full-text search |
+| **[Service Registry](./system/service-registry)** | `service-registry.zod.ts` | ServiceRegistry | System services |
+| **[Tracing](./system/tracing)** | `tracing.zod.ts` | Tracing | Distributed tracing |
+| **[Translation](./system/translation)** | `translation.zod.ts` | Translation | i18n support |
+| **[Worker](./system/worker)** | `worker.zod.ts` | Worker | Background workers |
 
-## AI Protocol (9 protocols)
+## AI Protocol (13 schemas)
 
 AI/ML capabilities - agents, models, RAG, and cost tracking.
 
 | Protocol | Source File | Key Schemas | Purpose |
 |:---------|:-----------|:------------|:--------|
 | **[Agent](./ai/agent)** | `agent.zod.ts` | Agent, AITool | AI agent definitions |
+| **[Agent Action](./ai/agent-action)** | `agent-action.zod.ts` | AgentAction | Agent action definitions |
 | **[Model Registry](./ai/model-registry)** | `model-registry.zod.ts` | ModelRegistry, ModelProvider | LLM model management |
 | **[RAG Pipeline](./ai/rag-pipeline)** | `rag-pipeline.zod.ts` | RAGPipelineConfig | Retrieval augmented generation |
 | **[NLQ](./ai/nlq)** | `nlq.zod.ts` | NLQRequest, NLQResponse | Natural language to query |
 | **[Conversation](./ai/conversation)** | `conversation.zod.ts` | ConversationSession | Conversation management |
-| **[Agent Action](./ai/agent-action)** | `agent-action.zod.ts` | AgentAction | Agent action definitions |
 | **[Cost](./ai/cost)** | `cost.zod.ts` | CostEntry, BudgetLimit | AI cost tracking and budgets |
 | **[Predictive](./ai/predictive)** | `predictive.zod.ts` | PredictiveModel | Predictive ML models |
 | **[Orchestration](./ai/orchestration)** | `orchestration.zod.ts` | AIOrchestration | Multi-agent orchestration |
+| **[Feedback Loop](./ai/feedback-loop)** | `feedback-loop.zod.ts` | FeedbackLoop | AI feedback and learning |
+| **[DevOps Agent](./ai/devops-agent)** | `devops-agent.zod.ts` | DevOpsAgent | DevOps automation |
+| **[Plugin Development](./ai/plugin-development)** | `plugin-development.zod.ts` | PluginDevelopment | AI-assisted development |
+| **[Runtime Ops](./ai/runtime-ops)** | `runtime-ops.zod.ts` | RuntimeOps | AI runtime operations |
 
-## API Protocol (13 protocols)
+## API Protocol (20 schemas)
 
-REST/GraphQL endpoints and real-time subscriptions.
+REST/GraphQL endpoints, real-time subscriptions, and discovery.
 
 | Protocol | Source File | Key Schemas | Purpose |
 |:---------|:-----------|:------------|:--------|
@@ -134,35 +144,55 @@ REST/GraphQL endpoints and real-time subscriptions.
 | **[Batch](./api/batch)** | `batch.zod.ts` | BatchRequest | Batch API processing |
 | **[HTTP Cache](./api/http-cache)** | `http-cache.zod.ts` | CacheStrategy | HTTP caching |
 | **[Errors](./api/errors)** | `errors.zod.ts` | ErrorResponse | Error responses |
-| **[View Storage](./api/view-storage)** | `view-storage.zod.ts` | ViewStorage | View state storage |
 | **[Protocol](./api/protocol)** | `protocol.zod.ts` | ProtocolDefinition | Protocol definitions |
 | **[REST Server](./api/rest-server)** | `rest-server.zod.ts` | RESTServer | REST server config |
+| **[Auth](./api/auth)** | `auth.zod.ts` | Auth | API authentication |
+| **[Analytics](./api/analytics)** | `analytics.zod.ts` | Analytics | API usage analytics |
+| **[Documentation](./api/documentation)** | `documentation.zod.ts` | Documentation | API docs generation |
+| **[Hub](./api/hub)** | `hub.zod.ts` | Hub | API hub integration |
+| **[Metadata](./api/metadata)** | `metadata.zod.ts` | Metadata | API metadata endpoints |
+| **[Registry](./api/registry)** | `registry.zod.ts` | Registry | API registry |
+| **[Storage](./api/storage)** | `storage.zod.ts` | Storage | API storage operations |
 
-## Auth Protocol (6 protocols)
+## Automation Protocol (8 schemas)
 
-Authentication, authorization, and identity management.
-
-| Protocol | Source File | Key Schemas | Purpose |
-|:---------|:-----------|:------------|:--------|
-| **[Identity](./auth/identity)** | `identity.zod.ts` | Identity, User | User identity management |
-| **[Role](./auth/role)** | `role.zod.ts` | Role, Permission | Role-based access control |
-| **[Organization](./auth/organization)** | `organization.zod.ts` | Organization | Multi-organization support |
-| **[Policy](./auth/policy)** | `policy.zod.ts` | SecurityPolicy | Security policies |
-| **[Config](./auth/config)** | `config.zod.ts` | AuthConfig | OAuth/SAML/SSO configuration |
-| **[SCIM](./auth/scim)** | `scim.zod.ts` | SCIMUser, SCIMGroup | SCIM 2.0 provisioning |
-
-## Permission Protocol (4 protocols)
-
-Access control and row-level security.
+Workflows, flows, and integrations.
 
 | Protocol | Source File | Key Schemas | Purpose |
 |:---------|:-----------|:------------|:--------|
-| **[Permission](./permission/permission)** | `permission.zod.ts` | ObjectPermission | Object-level permissions |
-| **[Sharing](./permission/sharing)** | `sharing.zod.ts` | SharingRule | Record sharing rules |
-| **[RLS](./permission/rls)** | `rls.zod.ts` | RowLevelSecurity | Row-level security filters |
-| **[Territory](./permission/territory)** | `territory.zod.ts` | Territory | Territory-based access |
+| **[Flow](./automation/flow)** | `flow.zod.ts` | Flow, FlowNode | Visual workflow builder |
+| **[Workflow](./automation/workflow)** | `workflow.zod.ts` | WorkflowRule | Record-triggered automation |
+| **[Approval](./automation/approval)** | `approval.zod.ts` | ApprovalProcess | Multi-step approval flows |
+| **[State Machine](./automation/state-machine)** | `state-machine.zod.ts` | StateMachine | State machine definitions |
+| **[Webhook](./automation/webhook)** | `webhook.zod.ts` | Webhook, WebhookEvent | Outbound webhooks |
+| **[ETL](./automation/etl)** | `etl.zod.ts` | ETLPipeline | Data transformation pipelines |
+| **[Trigger Registry](./automation/trigger-registry)** | `trigger-registry.zod.ts` | TriggerRegistry | Event-driven triggers |
+| **[Sync](./automation/sync)** | `sync.zod.ts` | SyncConfig | Bi-directional data sync |
 
-## Hub Protocol (6 protocols)
+## Security Protocol (5 schemas)
+
+Access control, permissions, and row-level security.
+
+| Protocol | Source File | Key Schemas | Purpose |
+|:---------|:-----------|:------------|:--------|
+| **[Permission](./security/permission)** | `permission.zod.ts` | ObjectPermission | Object-level permissions |
+| **[Policy](./security/policy)** | `policy.zod.ts` | SecurityPolicy | Security policies |
+| **[RLS](./security/rls)** | `rls.zod.ts` | RowLevelSecurity | Row-level security filters |
+| **[Sharing](./security/sharing)** | `sharing.zod.ts` | SharingRule | Record sharing rules |
+| **[Territory](./security/territory)** | `territory.zod.ts` | Territory | Territory-based access |
+
+## Identity Protocol (4 schemas)
+
+User identity, organizations, and role management.
+
+| Protocol | Source File | Key Schemas | Purpose |
+|:---------|:-----------|:------------|:--------|
+| **[Identity](./identity/identity)** | `identity.zod.ts` | Identity, User | User identity management |
+| **[Organization](./identity/organization)** | `organization.zod.ts` | Organization | Multi-organization support |
+| **[Role](./identity/role)** | `role.zod.ts` | Role, Permission | Role-based access control |
+| **[SCIM](./identity/scim)** | `scim.zod.ts` | SCIMUser, SCIMGroup | SCIM 2.0 provisioning |
+
+## Hub Protocol (9 schemas)
 
 Marketplace, licensing, and multi-tenancy.
 
@@ -170,40 +200,46 @@ Marketplace, licensing, and multi-tenancy.
 |:---------|:-----------|:------------|:--------|
 | **[Marketplace](./hub/marketplace)** | `marketplace.zod.ts` | Package, PackageVersion | Plugin marketplace |
 | **[Plugin Registry](./hub/plugin-registry)** | `plugin-registry.zod.ts` | PluginRegistry | Plugin versioning |
+| **[Plugin Security](./hub/plugin-security)** | `plugin-security.zod.ts` | PluginSecurity | Plugin security policies |
 | **[Composer](./hub/composer)** | `composer.zod.ts` | Dependency | Dependency management |
 | **[License](./hub/license)** | `license.zod.ts` | License, LicenseType | Feature licensing |
 | **[Tenant](./hub/tenant)** | `tenant.zod.ts` | Tenant | Multi-tenancy isolation |
 | **[Space](./hub/space)** | `space.zod.ts` | Space, Workspace | Workspace management |
+| **[Hub Federation](./hub/hub-federation)** | `hub-federation.zod.ts` | HubFederation | Cross-instance federation |
+| **[Registry Config](./hub/registry-config)** | `registry-config.zod.ts` | RegistryConfig | Registry settings |
 
-## Integration Protocol (5 protocols)
+## Integration Protocol (7 schemas)
 
 External system connectors and adapters.
 
 | Protocol | Source File | Key Schemas | Purpose |
 |:---------|:-----------|:------------|:--------|
 | **[Connector](./integration/connector)** | `connector.zod.ts` | Connector | Generic connector interface |
-| **[SaaS Connector](./integration/connector)** | `connector/saas.zod.ts` | SaaSConnector | SaaS integrations |
-| **[Database Connector](./integration/connector)** | `connector/database.zod.ts` | DatabaseConnector | Database adapters |
-| **[File Storage](./integration/connector)** | `connector/file-storage.zod.ts` | FileStorageConnector | Cloud storage |
-| **[Message Queue](./integration/connector)** | `connector/message-queue.zod.ts` | MessageQueueConnector | Queue integrations |
+| **[SaaS Connector](./integration/connector/saas)** | `connector/saas.zod.ts` | SaaSConnector | SaaS integrations |
+| **[Database Connector](./integration/connector/database)** | `connector/database.zod.ts` | DatabaseConnector | Database adapters |
+| **[File Storage](./integration/connector/file-storage)** | `connector/file-storage.zod.ts` | FileStorageConnector | Cloud storage |
+| **[Message Queue](./integration/connector/message-queue)** | `connector/message-queue.zod.ts` | MessageQueueConnector | Queue integrations |
+| **[GitHub](./integration/connector/github)** | `connector/github.zod.ts` | GitHubConnector | GitHub API integration |
+| **[Vercel](./integration/connector/vercel)** | `connector/vercel.zod.ts` | VercelConnector | Vercel deployment |
 
-## Shared Protocol (3 protocols)
+## Shared Protocol (4 schemas)
 
 Common utilities used across all protocols.
 
 | Protocol | Source File | Key Schemas | Purpose |
 |:---------|:-----------|:------------|:--------|
-| **[Identifiers](./shared/identifiers)** | `identifiers.zod.ts` | ID formats | Standard ID patterns |
 | **[HTTP](./shared/http)** | `http.zod.ts` | HTTPRequest, HTTPResponse | HTTP utilities |
+| **[Identifiers](./shared/identifiers)** | `identifiers.zod.ts` | ID formats | Standard ID patterns |
 | **[Mapping](./shared/mapping)** | `mapping.zod.ts` | MappingRule | Field mapping utilities |
+| **[Connector Auth](./shared/connector-auth)** | `connector-auth.zod.ts` | ConnectorAuth | Connector auth patterns |
 
-## Stack Protocol (1 protocol)
+## QA Protocol (1 schema)
 
-Root stack definition.
+Testing and quality assurance.
 
 | Protocol | Source File | Key Schemas | Purpose |
 |:---------|:-----------|:------------|:--------|
-| **[Stack](../stack.zod.ts)** | `stack.zod.ts` | Stack, StackConfig | ObjectStack root definition |
+| **[Testing](./qa/testing)** | `testing.zod.ts` | TestSuite | Declarative test definitions |
 
 ---
 
@@ -250,8 +286,11 @@ import { FieldSchema, ObjectSchema, QuerySchema } from '@objectstack/spec/data';
 // UI protocols
 import { ViewSchema, AppSchema, DashboardSchema } from '@objectstack/spec/ui';
 
+// Kernel protocols
+import { ManifestSchema, PluginSchema } from '@objectstack/spec/kernel';
+
 // System protocols
-import { ManifestSchema, DatasourceSchema } from '@objectstack/spec/system';
+import { LoggingSchema, JobSchema } from '@objectstack/spec/system';
 
 // AI protocols
 import { AgentSchema, RAGPipelineConfigSchema } from '@objectstack/spec/ai';
