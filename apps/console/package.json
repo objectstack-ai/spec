@@ -10,7 +10,7 @@
     "build": "pnpm msw:init && tsc && vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:bdd": "objectstack test:run",
+    "test:bdd": "objectstack test",
     "preview": "vite preview"
   },
   "dependencies": {

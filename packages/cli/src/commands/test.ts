@@ -5,8 +5,8 @@ import fs from 'fs';
 import { QA as CoreQA } from '@objectstack/core';
 import { QA } from '@objectstack/spec';
 
-export const testCommand = new Command('test:run')
-  .description('Run Quality Protocol test scenarios')
+export const testCommand = new Command('test')
+  .description('Run Quality Protocol test scenarios against a running server')
   .argument('[files]', 'Glob pattern for test files (e.g. "qa/*.test.json")', 'qa/*.test.json')
   .option('--url <url>', 'Target base URL', 'http://localhost:3000')
   .option('--token <token>', 'Authentication token')

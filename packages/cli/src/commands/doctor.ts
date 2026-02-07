@@ -3,6 +3,7 @@ import chalk from 'chalk';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { printHeader, printSuccess, printWarning, printError } from '../utils/format.js';
 
 interface HealthCheckResult {
   name: string;
@@ -15,9 +16,7 @@ export const doctorCommand = new Command('doctor')
   .description('Check development environment health')
   .option('-v, --verbose', 'Show detailed information')
   .action(async (options) => {
-    console.log(chalk.bold(`\n🏥 ObjectStack Environment Health Check`));
-    console.log(chalk.dim(`-----------------------------------------`));
-    console.log('');
+    printHeader('Environment Health Check');
     
     const results: HealthCheckResult[] = [];
     
@@ -141,14 +140,19 @@ export const doctorCommand = new Command('doctor')
     let hasErrors = false;
     let hasWarnings = false;
     
+    console.log('');
     results.forEach((result) => {
-      const icon = result.status === 'ok' ? '✓' : result.status === 'warning' ? '⚠' : '✗';
-      const color = result.status === 'ok' ? chalk.green : result.status === 'warning' ? chalk.yellow : chalk.red;
+      const padded = result.name.padEnd(20);
+      if (result.status === 'ok') {
+        printSuccess(`${padded} ${result.message}`);
+      } else if (result.status === 'warning') {
+        printWarning(`${padded} ${result.message}`);
+      } else {
+        printError(`${padded} ${result.message}`);
+      }
       
-      console.log(color(`${icon} ${result.name.padEnd(20)} ${result.message}`));
-      
-      if (result.fix && options.verbose) {
-        console.log(chalk.dim(`  → ${result.fix}`));
+      if (result.fix && (options.verbose || result.status === 'error')) {
+        console.log(chalk.dim(`      → ${result.fix}`));
       }
       
       if (result.status === 'error') hasErrors = true;

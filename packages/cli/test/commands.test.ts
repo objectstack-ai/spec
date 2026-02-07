@@ -5,6 +5,10 @@ import { devCommand } from '../src/commands/dev';
 import { doctorCommand } from '../src/commands/doctor';
 import { createCommand } from '../src/commands/create';
 import { testCommand } from '../src/commands/test';
+import { validateCommand } from '../src/commands/validate';
+import { initCommand } from '../src/commands/init';
+import { infoCommand } from '../src/commands/info';
+import { generateCommand } from '../src/commands/generate';
 
 describe('CLI Commands', () => {
   it('should have compile command', () => {
@@ -33,7 +37,28 @@ describe('CLI Commands', () => {
   });
 
   it('should have test command', () => {
-    expect(testCommand.name()).toBe('test:run');
+    expect(testCommand.name()).toBe('test');
     expect(testCommand.description()).toContain('Quality Protocol');
+  });
+
+  it('should have validate command', () => {
+    expect(validateCommand.name()).toBe('validate');
+    expect(validateCommand.description()).toContain('Validate');
+  });
+
+  it('should have init command', () => {
+    expect(initCommand.name()).toBe('init');
+    expect(initCommand.description()).toContain('Initialize');
+  });
+
+  it('should have info command', () => {
+    expect(infoCommand.name()).toBe('info');
+    expect(infoCommand.description()).toContain('summary');
+  });
+
+  it('should have generate command with alias', () => {
+    expect(generateCommand.name()).toBe('generate');
+    expect(generateCommand.alias()).toBe('g');
+    expect(generateCommand.description()).toContain('Generate');
   });
 });

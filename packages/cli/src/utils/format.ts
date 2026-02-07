@@ -1,0 +1,228 @@
+import chalk from 'chalk';
+import type { ZodError } from 'zod';
+
+// ─── Constants ──────────────────────────────────────────────────────
+export const CLI_NAME = 'objectstack';
+export const CLI_ALIAS = 'os';
+
+// ─── Banner ─────────────────────────────────────────────────────────
+
+export function printBanner(version: string) {
+  console.log('');
+  console.log(chalk.bold.cyan('  ╔═══════════════════════════════════╗'));
+  console.log(chalk.bold.cyan('  ║') + chalk.bold('   ◆ ObjectStack CLI ') + chalk.dim(`v${version}`) + chalk.bold.cyan('        ║'));
+  console.log(chalk.bold.cyan('  ╚═══════════════════════════════════╝'));
+  console.log('');
+}
+
+// ─── Section Header ─────────────────────────────────────────────────
+
+export function printHeader(title: string) {
+  console.log(chalk.bold(`\n◆ ${title}`));
+  console.log(chalk.dim('─'.repeat(40)));
+}
+
+// ─── Key-Value Line ─────────────────────────────────────────────────
+
+export function printKV(key: string, value: string | number, icon?: string) {
+  const prefix = icon ? `${icon} ` : '  ';
+  console.log(`${prefix}${chalk.dim(key + ':')} ${chalk.white(String(value))}`);
+}
+
+// ─── Status Line ────────────────────────────────────────────────────
+
+export function printSuccess(msg: string) {
+  console.log(chalk.green(`  ✓ ${msg}`));
+}
+
+export function printWarning(msg: string) {
+  console.log(chalk.yellow(`  ⚠ ${msg}`));
+}
+
+export function printError(msg: string) {
+  console.log(chalk.red(`  ✗ ${msg}`));
+}
+
+export function printInfo(msg: string) {
+  console.log(chalk.blue(`  ℹ ${msg}`));
+}
+
+export function printStep(msg: string) {
+  console.log(chalk.yellow(`  → ${msg}`));
+}
+
+// ─── Timer ──────────────────────────────────────────────────────────
+
+export function createTimer() {
+  const start = Date.now();
+  return {
+    elapsed: () => Date.now() - start,
+    display: () => `${Date.now() - start}ms`,
+  };
+}
+
+// ─── Zod Error Formatting ───────────────────────────────────────────
+
+export function formatZodErrors(error: ZodError) {
+  const issues = error.issues || (error as any).errors || [];
+  
+  if (issues.length === 0) {
+    console.log(chalk.red('  Unknown validation error'));
+    return;
+  }
+
+  // Group by top-level path
+  const grouped = new Map<string, typeof issues>();
+  for (const issue of issues) {
+    const topPath = (issue as any).path?.[0] || '_root';
+    if (!grouped.has(String(topPath))) {
+      grouped.set(String(topPath), []);
+    }
+    grouped.get(String(topPath))!.push(issue);
+  }
+
+  for (const [section, sectionIssues] of grouped) {
+    console.log(chalk.bold.red(`\n  ${section}:`));
+    for (const issue of sectionIssues) {
+      const path = (issue as any).path?.join('.') || '';
+      const code = (issue as any).code || '';
+      const msg = (issue as any).message || '';
+      
+      console.log(chalk.red(`    ✗ ${path}`));
+      console.log(chalk.dim(`      ${code}: ${msg}`));
+      
+      // Show expected/received for type errors
+      if ((issue as any).expected) {
+        console.log(chalk.dim(`      expected: ${chalk.green((issue as any).expected)}`));
+      }
+      if ((issue as any).received) {
+        console.log(chalk.dim(`      received: ${chalk.red((issue as any).received)}`));
+      }
+    }
+  }
+  
+  console.log('');
+  console.log(chalk.dim(`  ${issues.length} validation error(s) total`));
+}
+
+// ─── Metadata Statistics ────────────────────────────────────────────
+
+export interface MetadataStats {
+  objects: number;
+  objectExtensions: number;
+  fields: number;
+  views: number;
+  pages: number;
+  apps: number;
+  dashboards: number;
+  reports: number;
+  actions: number;
+  flows: number;
+  workflows: number;
+  approvals: number;
+  agents: number;
+  apis: number;
+  roles: number;
+  permissions: number;
+  themes: number;
+  datasources: number;
+  translations: number;
+  plugins: number;
+  devPlugins: number;
+}
+
+export function collectMetadataStats(config: any): MetadataStats {
+  const count = (arr: any) => (Array.isArray(arr) ? arr.length : 0);
+  
+  // Count total fields across all objects
+  let fields = 0;
+  if (Array.isArray(config.objects)) {
+    for (const obj of config.objects) {
+      if (obj.fields && typeof obj.fields === 'object') {
+        fields += Object.keys(obj.fields).length;
+      }
+    }
+  }
+
+  return {
+    objects: count(config.objects),
+    objectExtensions: count(config.objectExtensions),
+    fields,
+    views: count(config.views),
+    pages: count(config.pages),
+    apps: count(config.apps),
+    dashboards: count(config.dashboards),
+    reports: count(config.reports),
+    actions: count(config.actions),
+    flows: count(config.flows),
+    workflows: count(config.workflows),
+    approvals: count(config.approvals),
+    agents: count(config.agents),
+    apis: count(config.apis),
+    roles: count(config.roles),
+    permissions: count(config.permissions),
+    themes: count(config.themes),
+    datasources: count(config.datasources),
+    translations: count(config.translations),
+    plugins: count(config.plugins),
+    devPlugins: count(config.devPlugins),
+  };
+}
+
+export function printMetadataStats(stats: MetadataStats) {
+  const sections: Array<{ label: string; items: Array<[string, number]> }> = [
+    {
+      label: 'Data',
+      items: [
+        ['Objects', stats.objects],
+        ['Fields', stats.fields],
+        ['Extensions', stats.objectExtensions],
+        ['Datasources', stats.datasources],
+      ],
+    },
+    {
+      label: 'UI',
+      items: [
+        ['Apps', stats.apps],
+        ['Views', stats.views],
+        ['Pages', stats.pages],
+        ['Dashboards', stats.dashboards],
+        ['Reports', stats.reports],
+        ['Actions', stats.actions],
+        ['Themes', stats.themes],
+      ],
+    },
+    {
+      label: 'Logic',
+      items: [
+        ['Flows', stats.flows],
+        ['Workflows', stats.workflows],
+        ['Approvals', stats.approvals],
+        ['Agents', stats.agents],
+        ['APIs', stats.apis],
+      ],
+    },
+    {
+      label: 'Security',
+      items: [
+        ['Roles', stats.roles],
+        ['Permissions', stats.permissions],
+      ],
+    },
+  ];
+
+  for (const section of sections) {
+    const nonZero = section.items.filter(([, v]) => v > 0);
+    if (nonZero.length === 0) continue;
+    
+    const line = nonZero.map(([k, v]) => `${chalk.white(v)} ${chalk.dim(k)}`).join('  ');
+    console.log(`  ${chalk.bold(section.label + ':')} ${line}`);
+  }
+
+  if (stats.plugins > 0 || stats.devPlugins > 0) {
+    const parts: string[] = [];
+    if (stats.plugins > 0) parts.push(`${stats.plugins} plugins`);
+    if (stats.devPlugins > 0) parts.push(`${stats.devPlugins} devPlugins`);
+    console.log(`  ${chalk.bold('Runtime:')} ${chalk.dim(parts.join(', '))}`);
+  }
+}

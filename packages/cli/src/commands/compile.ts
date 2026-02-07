@@ -1,75 +1,102 @@
 import { Command } from 'commander';
 import path from 'path';
 import fs from 'fs';
-import { pathToFileURL } from 'url';
 import chalk from 'chalk';
-import { bundleRequire } from 'bundle-require';
 import { ZodError } from 'zod';
 import { ObjectStackDefinitionSchema } from '@objectstack/spec';
+import { loadConfig } from '../utils/config.js';
+import {
+  printHeader,
+  printKV,
+  printSuccess,
+  printError,
+  printStep,
+  createTimer,
+  formatZodErrors,
+  collectMetadataStats,
+  printMetadataStats,
+} from '../utils/format.js';
 
 export const compileCommand = new Command('compile')
-  .description('Compile ObjectStack configuration to JSON definition')
-  .argument('[source]', 'Source configuration file', 'objectstack.config.ts')
-  .argument('[output]', 'Output JSON file', 'dist/objectstack.json')
-  .action(async (source, output) => {
-    const start = Date.now();
-    console.log(chalk.bold(`\n🔹 ObjectStack Compiler v0.1`));
-    console.log(chalk.dim(`------------------------------`));
-    console.log(`📂 Source: ${chalk.blue(source)}`);
-    
-    const absolutePath = path.resolve(process.cwd(), source);
-    if (!fs.existsSync(absolutePath)) {
-      console.error(chalk.red(`\n❌ Config file not found: ${absolutePath}`));
-      process.exit(1);
+  .description('Compile ObjectStack configuration to JSON artifact')
+  .argument('[config]', 'Source configuration file')
+  .option('-o, --output <path>', 'Output JSON file', 'dist/objectstack.json')
+  .option('--json', 'Output compile result as JSON (for CI)')
+  .action(async (configPath, options) => {
+    const timer = createTimer();
+
+    if (!options.json) {
+      printHeader('Compile');
     }
 
     try {
       // 1. Load Configuration
-      console.log(chalk.yellow(`📦 Bundling Configuration...`));
-      const { mod } = await bundleRequire({
-        filepath: absolutePath,
-      });
+      if (!options.json) printStep('Loading configuration...');
+      const { config, absolutePath, duration } = await loadConfig(configPath);
 
-      const config = mod.default || mod;
-
-      if (!config) {
-        throw new Error(`Default export not found in ${source}`);
+      if (!options.json) {
+        printKV('Config', path.relative(process.cwd(), absolutePath));
+        printKV('Load time', `${duration}ms`);
       }
 
       // 2. Validate against Protocol
-      console.log(chalk.yellow(`🔍 Validating Protocol Compliance...`));
+      if (!options.json) printStep('Validating protocol compliance...');
       const result = ObjectStackDefinitionSchema.safeParse(config);
 
       if (!result.success) {
-        console.error(chalk.red(`\n❌ Validation Failed!`));
-        
-        const error = result.error as unknown as ZodError;
-        error.issues.forEach((e: any) => {
-          console.error(chalk.red(`   - [${e.path.join('.')}] ${e.message}`));
-        });
-        
+        if (options.json) {
+          console.log(JSON.stringify({ success: false, errors: (result.error as unknown as ZodError).issues }));
+          process.exit(1);
+        }
+        console.log('');
+        printError('Validation failed');
+        formatZodErrors(result.error as unknown as ZodError);
         process.exit(1);
       }
 
       // 3. Generate Artifact
+      if (!options.json) printStep('Writing artifact...');
+      const output = options.output;
       const artifactPath = path.resolve(process.cwd(), output);
       const artifactDir = path.dirname(artifactPath);
-      
+
       if (!fs.existsSync(artifactDir)) {
         fs.mkdirSync(artifactDir, { recursive: true });
       }
-      
+
       const jsonContent = JSON.stringify(result.data, null, 2);
       fs.writeFileSync(artifactPath, jsonContent);
 
-      const size = (jsonContent.length / 1024).toFixed(2);
-      console.log(chalk.green(`\n✅ Build Success (${Date.now() - start}ms)`));
-      console.log(`📦 Artifact: ${chalk.blue(output)} (${size} KB)`);
-      console.log(chalk.magenta(`✨ Ready for Deployment`));
+      const sizeKB = (jsonContent.length / 1024).toFixed(1);
+      const stats = collectMetadataStats(config);
+
+      if (options.json) {
+        console.log(JSON.stringify({
+          success: true,
+          output: artifactPath,
+          size: jsonContent.length,
+          stats,
+          duration: timer.elapsed(),
+        }));
+        return;
+      }
+
+      // 4. Summary
+      console.log('');
+      printSuccess(`Build complete ${chalk.dim(`(${timer.display()})`)}`);
+      console.log('');
+      printMetadataStats(stats);
+      console.log('');
+      printKV('Artifact', `${output} ${chalk.dim(`(${sizeKB} KB`)})`);
+      console.log('');
 
     } catch (error: any) {
-      console.error(chalk.red(`\n❌ Compilation Error:`));
-      console.error(error.message || error);
+      if (options.json) {
+        console.log(JSON.stringify({ success: false, error: error.message }));
+        process.exit(1);
+      }
+      console.log('');
+      printError(error.message || String(error));
       process.exit(1);
     }
   });

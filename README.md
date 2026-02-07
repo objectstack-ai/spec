@@ -165,7 +165,7 @@ See **[DEVELOPMENT.md](./DEVELOPMENT.md)** for comprehensive development guide i
 
 | Package | Description | Key Features | Status |
 | :--- | :--- | :--- | :--- |
-| **[`@objectstack/cli`](packages/cli)** | Command-line interface and development tools | serve, dev, compile, doctor, create, test:run | 🟢 Active |
+| **[`@objectstack/cli`](packages/cli)** | Command-line interface and development tools | init, dev, serve, compile, validate, info, generate, create, test, doctor | 🟢 Active |
 | **[`@objectstack/docs`](apps/docs)** | Documentation site (Fumadocs + Next.js) | Interactive docs, API reference, Examples | 🟢 Active |
 
 ### Package Quick Links

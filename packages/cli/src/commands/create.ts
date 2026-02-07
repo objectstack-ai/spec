@@ -24,12 +24,12 @@ export const templates = {
         license: 'MIT',
         dependencies: {
           '@objectstack/spec': 'workspace:*',
-          zod: '^3.22.4',
+          zod: '^4.3.6',
         },
         devDependencies: {
-          '@types/node': '^20.10.0',
-          typescript: '^5.3.0',
-          vitest: '^2.1.8',
+          '@types/node': '^22.0.0',
+          typescript: '^5.8.0',
+          vitest: '^4.0.0',
         },
       }),
       'tsconfig.json': () => ({
@@ -108,13 +108,13 @@ MIT
         dependencies: {
           '@objectstack/spec': 'workspace:*',
           '@objectstack/cli': 'workspace:*',
-          zod: '^3.22.4',
+          zod: '^4.3.6',
         },
         devDependencies: {
-          '@types/node': '^20.10.0',
+          '@types/node': '^22.0.0',
           tsx: '^4.21.0',
-          typescript: '^5.3.0',
-          vitest: '^2.1.8',
+          typescript: '^5.8.0',
+          vitest: '^4.0.0',
         },
       }),
       'objectstack.config.ts': (name: string) => `import { defineStack } from '@objectstack/spec';

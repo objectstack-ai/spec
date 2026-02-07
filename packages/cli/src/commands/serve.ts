@@ -4,6 +4,15 @@ import fs from 'fs';
 import net from 'net';
 import chalk from 'chalk';
 import { bundleRequire } from 'bundle-require';
+import { loadConfig } from '../utils/config.js';
+import {
+  printHeader,
+  printKV,
+  printSuccess,
+  printError,
+  printStep,
+  printInfo,
+} from '../utils/format.js';
 
 // Helper to find available port
 const getAvailablePort = async (startPort: number): Promise<number> => {
@@ -44,30 +53,32 @@ export const serveCommand = new Command('serve')
         port = availablePort;
       }
     } catch (e) {
-      // Ignore error and try with original port, or let it fail later
+      // Ignore error and try with original port
     }
 
-    console.log(chalk.bold(`\n🚀 ObjectStack Server`));
-    console.log(chalk.dim(`------------------------`));
-    console.log(`📂 Config: ${chalk.blue(configPath)}`);
-    if (parseInt(options.port) !== port) {
-      console.log(`🌐 Port: ${chalk.blue(port)} ${chalk.yellow(`(requested: ${options.port} in use)`)}`);
-    } else {
-      console.log(`🌐 Port: ${chalk.blue(port)}`);
-    }
-    console.log('');
-
+    const isDev = options.dev || process.env.NODE_ENV === 'development';
+    printHeader(isDev ? 'Dev Server' : 'Serve');
 
     const absolutePath = path.resolve(process.cwd(), configPath);
     
     if (!fs.existsSync(absolutePath)) {
-      console.error(chalk.red(`\n❌ Configuration file not found: ${absolutePath}`));
+      printError(`Configuration file not found: ${absolutePath}`);
+      console.log(chalk.dim('  Hint: Run `objectstack init` to create a new project'));
       process.exit(1);
     }
 
+    printKV('Config', path.relative(process.cwd(), absolutePath));
+    if (parseInt(options.port) !== port) {
+      printKV('Port', `${port} ${chalk.yellow(`(${options.port} in use)`)}`);
+    } else {
+      printKV('Port', String(port));
+    }
+    if (isDev) printKV('Mode', 'development');
+    console.log('');
+
     try {
       // Load configuration
-      console.log(chalk.yellow(`📦 Loading configuration...`));
+      printStep('Loading configuration...');
       const { mod } = await bundleRequire({
         filepath: absolutePath,
       });
@@ -75,20 +86,19 @@ export const serveCommand = new Command('serve')
       const config = mod.default || mod;
 
       if (!config) {
-        throw new Error(`Default export not found in ${configPath}`);
+        throw new Error(`No default export found in ${configPath}`);
       }
 
-      console.log(chalk.green(`✓ Configuration loaded`));
+      printSuccess('Configuration loaded');
 
       // Import ObjectStack runtime
       const { Runtime } = await import('@objectstack/runtime');
-      
+
       // Create runtime instance
-      console.log(chalk.yellow(`🔧 Initializing ObjectStack runtime...`));
+      printStep('Initializing runtime...');
       
       // Auto-configure pretty logging in development mode
-      const isDev = options.dev || process.env.NODE_ENV === 'development';
-      const loggerConfig = isDev ? { format: 'pretty' } : undefined;
+      const loggerConfig = isDev ? { format: 'pretty' as const } : undefined;
 
       const runtime = new Runtime({
         kernel: {
@@ -188,11 +198,13 @@ export const serveCommand = new Command('serve')
       }
 
       // Boot the runtime
-      console.log(chalk.yellow(`\n🚀 Starting ObjectStack...`));
+      printStep('Starting server...');
       await runtime.start();
 
-      console.log(chalk.green(`\n✅ ObjectStack server is running!`));
-      console.log(chalk.dim(`   Press Ctrl+C to stop\n`));
+      console.log('');
+      printSuccess(`Server running on port ${chalk.bold(String(port))}`);
+      console.log(chalk.dim('  Press Ctrl+C to stop'));
+      console.log('');
 
       // Keep process alive
       process.on('SIGINT', async () => {
@@ -203,9 +215,9 @@ export const serveCommand = new Command('serve')
       });
 
     } catch (error: any) {
-      console.error(chalk.red(`\n❌ Server Error:`));
-      console.error(error.message || error);
-      console.error(error.stack);
+      console.log('');
+      printError(error.message || String(error));
+      if (process.env.DEBUG) console.error(chalk.dim(error.stack));
       process.exit(1);
     }
   });

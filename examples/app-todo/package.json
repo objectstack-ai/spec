@@ -14,7 +14,7 @@
     "start": "objectstack serve",
     "build": "objectstack compile",
     "typecheck": "tsc --noEmit",
-    "test": "objectstack test:run"
+    "test": "objectstack test"
   },
   "dependencies": {
     "@objectstack/client": "workspace:*",
