@@ -3,7 +3,9 @@ import { useClient } from '@objectstack/client-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Package, Power, PowerOff, Trash2, RefreshCw, AppWindow, Layers } from 'lucide-react';
+import { toast } from "@/hooks/use-toast";
 
 import type { InstalledPackage } from '@objectstack/spec/kernel';
 
@@ -12,6 +14,9 @@ export function PackageManager() {
   const [packages, setPackages] = useState<InstalledPackage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [installSpec, setInstallSpec] = useState('');
+  const [installing, setInstalling] = useState(false);
+  const [installError, setInstallError] = useState<string | null>(null);
 
   const loadPackages = useCallback(async () => {
     setLoading(true);
@@ -28,6 +33,75 @@ export function PackageManager() {
   }, [client]);
 
   useEffect(() => { loadPackages(); }, [loadPackages]);
+
+  const UNPKG_PATHS = ['objectstack.json', 'dist/objectstack.json'];
+
+  function normalizeManifest(payload: any): any {
+    if (!payload) return payload;
+    if (payload.bundle) {
+      return normalizeManifest(payload.bundle);
+    }
+    const hasRootId = Boolean(payload.id || payload.name);
+    if (!hasRootId && payload.manifest && (payload.manifest.id || payload.manifest.name)) {
+      const { manifest, ...rest } = payload;
+      return { ...manifest, ...rest };
+    }
+    return payload;
+  }
+
+  async function fetchJson(url: string) {
+    const res = await fetch(url, { headers: { Accept: 'application/json' } });
+    if (!res.ok) {
+      throw new Error(`Failed to fetch ${url} (${res.status})`);
+    }
+    return res.json();
+  }
+
+  async function loadManifestFromSpec(spec: string) {
+    const trimmed = spec.trim();
+    if (!trimmed) throw new Error('Please enter a package or URL.');
+
+    if (/^https?:\/\//i.test(trimmed)) {
+      const payload = await fetchJson(trimmed);
+      return normalizeManifest(payload);
+    }
+
+    const base = `https://unpkg.com/${trimmed.replace(/\/$/, '')}`;
+    let lastError: Error | null = null;
+    for (const path of UNPKG_PATHS) {
+      try {
+        const payload = await fetchJson(`${base}/${path}`);
+        return normalizeManifest(payload);
+      } catch (err: any) {
+        lastError = err instanceof Error ? err : new Error('Failed to fetch manifest');
+      }
+    }
+    throw lastError || new Error('Failed to resolve manifest from unpkg.');
+  }
+
+  async function handleInstall() {
+    setInstallError(null);
+    setInstalling(true);
+    try {
+      const manifest = await loadManifestFromSpec(installSpec);
+      if (!manifest || !manifest.id) {
+        throw new Error('Manifest missing required id field.');
+      }
+      const result = await client.packages.install(manifest, { enableOnInstall: true });
+      toast({
+        title: 'Package installed',
+        description: result?.package?.manifest?.name || result?.package?.manifest?.id || manifest.id,
+      });
+      setInstallSpec('');
+      await loadPackages();
+    } catch (err: any) {
+      const message = err?.message || 'Failed to install package';
+      setInstallError(message);
+      console.error('[PackageManager] Install failed:', err);
+    } finally {
+      setInstalling(false);
+    }
+  }
 
   async function handleToggle(pkg: InstalledPackage) {
     try {
@@ -87,6 +161,35 @@ export function PackageManager() {
           </CardContent>
         </Card>
       )}
+
+      {/* Install from Unpkg */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Install from unpkg</CardTitle>
+          <CardDescription className="text-xs">
+            Enter a package spec (for example: @objectstack/app-crm@1.0.0) or a direct URL to objectstack.json.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <Input
+              value={installSpec}
+              onChange={(event) => setInstallSpec(event.target.value)}
+              placeholder="@objectstack/app-crm@1.0.0"
+            />
+            <Button
+              onClick={handleInstall}
+              disabled={installing || !installSpec.trim()}
+              className="sm:w-28"
+            >
+              {installing ? 'Installing...' : 'Install'}
+            </Button>
+          </div>
+          {installError && (
+            <div className="text-xs text-destructive">{installError}</div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Package list */}
       {loading ? (

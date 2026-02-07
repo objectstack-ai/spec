@@ -266,8 +266,17 @@ export async function createKernel(options: KernelOptions) {
                     return { package: pkg };
                 }
                 if (method === 'install') {
-                    const pkg = SchemaRegistry.installPackage(params.manifest, params.settings);
-                    return { package: pkg, message: `Package ${params.manifest.id} installed successfully` };
+                    const manifest = params.manifest;
+                    const id = manifest?.id || manifest?.name;
+
+                    if (ql && typeof (ql as any).registerApp === 'function') {
+                        (ql as any).registerApp(manifest);
+                    } else {
+                        SchemaRegistry.installPackage(manifest, params.settings);
+                    }
+
+                    const pkg = id ? SchemaRegistry.getPackage(id) : null;
+                    return { package: pkg, message: `Package ${id || 'unknown'} installed successfully` };
                 }
                 if (method === 'uninstall') {
                     const success = SchemaRegistry.uninstallPackage(params.id);
