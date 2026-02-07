@@ -1,5 +1,15 @@
 # @objectstack/client-react
 
+## 1.0.12
+
+### Patch Changes
+
+- chore: add Vercel deployment configs, simplify console runtime configuration
+- Updated dependencies
+  - @objectstack/spec@1.0.12
+  - @objectstack/core@1.0.12
+  - @objectstack/client@1.0.12
+
 ## 1.0.11
 
 ### Patch Changes

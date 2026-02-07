@@ -1,5 +1,11 @@
 # @objectstack/spec
 
+## 1.0.12
+
+### Patch Changes
+
+- chore: add Vercel deployment configs, simplify console runtime configuration
+
 ## 1.0.11
 
 ## 1.0.10
