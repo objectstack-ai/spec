@@ -4,7 +4,6 @@
     "concept",
     "layout-dsl",
     "widget-contract",
-    "actions",
-    "reports"
+    "actions"
   ]
 }

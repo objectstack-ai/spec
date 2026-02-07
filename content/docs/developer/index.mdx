@@ -1,285 +1,141 @@
 ---
-title: CRM Application Guide
-description: A comprehensive, enterprise-grade Customer Relationship Management system demonstrating the full capabilities of the ObjectStack Protocol
+title: Developer Guide
+description: Learn to build enterprise applications with the ObjectStack Protocol — from data modeling to AI agents
 ---
 
-# ObjectStack CRM Application - Complete Guide
+# Developer Guide
 
-Welcome to the **ObjectStack CRM Application**, a comprehensive, enterprise-grade Customer Relationship Management system demonstrating the full capabilities of the ObjectStack Protocol.
+This guide teaches you how to **build real applications** using the ObjectStack Protocol. Each section is hands-on, with code examples derived from the [CRM example app](https://github.com/objectstack-ai/spec/tree/main/examples/app-crm).
 
-## 🎯 Overview
+<Callout type="tip">
+**New to ObjectStack?** Read the [Introduction](/docs/introduction) first to understand the protocol-driven architecture.
+</Callout>
 
-This CRM application showcases:
+## Learning Path
 
-- **128+ Protocol Modules** across 15 categories
-- **Enterprise-grade architecture** following Salesforce and ServiceNow best practices
-- **AI-powered automation** with agents and RAG pipelines
-- **Comprehensive security** with profiles, roles, and sharing rules
-- **Complete business process automation** with flows and workflows
+Follow these guides in order for the best experience:
 
-## 📚 Documentation Structure
+<Cards>
+  <Card
+    title="1. Data Modeling"
+    href="./data-modeling"
+    description="Design objects, fields, relationships, and validation rules. The foundation of every app."
+  />
+  <Card
+    title="2. Business Logic"
+    href="./business-logic"
+    description="Implement workflows, approval flows, triggers, and formulas to automate business processes."
+  />
+  <Card
+    title="3. Security Model"
+    href="./security"
+    description="Configure profiles, permissions, sharing rules, and row-level security for enterprise-grade access control."
+  />
+  <Card
+    title="4. AI Capabilities"
+    href="./ai-capabilities"
+    description="Add AI agents, RAG pipelines, natural language queries, and predictive analytics."
+  />
+  <Card
+    title="5. Development Standards"
+    href="./standards"
+    description="Naming conventions, project structure, testing strategies, and best practices."
+  />
+</Cards>
 
-This guide is organized into specialized sections:
+## Quick Start
 
-### 1. [Data Modeling](./data-modeling)
-Learn how to design robust data models with objects, fields, relationships, and validations.
-
-**Topics:**
-- Object schema design patterns
-- Field types and configurations
-- Relationship modeling (lookup, master-detail)
-- Validation rules and formulas
-- Database indexing strategies
-
-### 2. [Business Logic](./business-logic)
-Implement business rules, validations, and automated processes.
-
-**Topics:**
-- Validation rules (script, unique, required)
-- Workflow rules and field updates
-- Approval processes
-- Record triggers
-- Business process automation
-
-### 3. [Security Model](./security)
-Implement enterprise-grade security with fine-grained permissions.
-
-**Topics:**
-- Profiles and permission sets
-- Object and field-level security
-- Sharing rules and role hierarchy
-- Organization-wide defaults
-- Territory management
-
-### 4. [AI Capabilities](./ai-capabilities)
-Leverage AI agents and RAG pipelines for intelligent automation.
-
-**Topics:**
-- AI agent types (assistant, worker, analyst)
-- RAG pipeline configuration
-- Knowledge base integration
-- Natural language queries
-- Predictive analytics
-
-### 5. [Development Standards](./standards)
-Best practices and coding standards for developing enterprise applications.
-
-**Topics:**
-- Folder structure standards
-- Naming conventions
-- Code organization patterns
-- Testing strategies
-- Documentation guidelines
-
-## 🏗️ Application Architecture
-
-### Domain-Driven Design
-
-The CRM application is organized by business domains:
-
-```
-src/
-├── domains/
-│   ├── sales/           # Sales objects (Account, Opportunity, Lead, Quote, Contract)
-│   ├── service/         # Service objects (Case, Task)
-│   ├── marketing/       # Marketing objects (Campaign)
-│   ├── products/        # Product catalog
-│   └── analytics/       # Analytics and reporting
-├── ui/                  # User interface definitions
-│   ├── dashboards.ts    # Dashboard configurations
-│   ├── reports.ts       # Report definitions
-│   └── actions.ts       # Custom actions
-├── security/            # Security configurations
-│   ├── profiles.ts      # User profiles
-│   └── sharing-rules.ts # Sharing and permissions
-├── automation/          # Business process automation
-│   └── flows.ts         # Flow definitions
-├── ai/                  # AI and ML configurations
-│   ├── agents.ts        # AI agents
-│   └── rag-pipelines.ts # RAG pipelines
-└── integration/         # External integrations
-    └── connectors.ts    # API connectors
-```
-
-## 🚀 Quick Start
-
-### 1. Install Dependencies
+### 1. Scaffold a new project
 
 ```bash
-pnpm install
+npx @objectstack/cli init my-app
+cd my-app && pnpm install
 ```
 
-### 2. Build the Application
-
-```bash
-pnpm --filter @example/app-crm build
-```
-
-### 3. Run the Application
-
-```bash
-pnpm --filter @example/app-crm dev
-```
-
-### 4. Deploy to Production
-
-```bash
-pnpm --filter @example/app-crm deploy
-```
-
-## 📦 Core Objects
-
-### Sales Domain
-- **Account** - Companies and organizations
-- **Contact** - People at accounts
-- **Lead** - Prospective customers
-- **Opportunity** - Sales deals in progress
-- **Quote** - Price quotes for customers
-- **Contract** - Legal agreements
-
-### Service Domain
-- **Case** - Customer support tickets
-- **Task** - To-do items and activities
-
-### Marketing Domain
-- **Campaign** - Marketing campaigns and initiatives
-
-### Product Domain
-- **Product** - Product catalog
-
-## 🔧 Configuration
-
-The application is configured in `objectstack.config.ts`:
+### 2. Define your first object
 
 ```typescript
-export default defineStack({
-  manifest: {
-    id: 'com.example.crm',
-    version: '2.0.0',
-    type: 'app',
-    name: 'CRM App',
-  },
-  
-  objects: [...],
-  apis: [...],
-  actions: [...],
-  dashboards: [...],
-  reports: [...],
-  apps: [...],
-});
-```
-
-## 🎓 Best Practices
-
-### Naming Conventions
-
-1. **Configuration Keys (TypeScript Props):** Use `camelCase`
-   - `maxLength`, `referenceFilters`, `defaultValue`
-
-2. **Machine Names (Data Values):** Use `snake_case`
-   - `account_number`, `first_name`, `close_date`
-
-3. **Object Names:** Use `snake_case`
-   - `account`, `opportunity`, `case`
-
-4. **Field Names:** Use `snake_case`
-   - `account_number`, `annual_revenue`, `is_active`
-
-### Schema Design
-
-Always start with Zod schemas:
-
-```typescript
+// src/objects/customer.object.ts
 import { ObjectSchema, Field } from '@objectstack/spec/data';
 
-export const MyObject = ObjectSchema.create({
-  name: 'my_object',
-  label: 'My Object',
-  
+export const Customer = ObjectSchema.create({
+  name: 'customer',
+  label: 'Customer',
   fields: {
-    my_field: Field.text({
-      label: 'My Field',
-      required: true,
+    name: Field.text({ label: 'Name', required: true }),
+    industry: Field.select({
+      label: 'Industry',
+      options: [
+        { label: 'Technology', value: 'technology' },
+        { label: 'Finance', value: 'finance' },
+      ],
     }),
+    revenue: Field.currency({ label: 'Revenue' }),
   },
 });
 ```
 
-### Type Safety
+### 3. Validate and build
 
-Use type inference from Zod schemas:
-
-```typescript
-import { z } from 'zod';
-
-const MySchema = z.object({
-  name: z.string(),
-});
-
-type MyType = z.infer<typeof MySchema>;
+```bash
+npx objectstack validate   # Check schema correctness
+npx objectstack compile     # Generate TypeScript types
+npx objectstack dev         # Start dev server
 ```
 
-## 🔒 Security
+### 4. Add a view
 
-The application implements enterprise-grade security:
+```typescript
+// src/views/customer_list.view.ts
+import { ListView } from '@objectstack/spec/ui';
 
-- **5 User Profiles** (System Admin, Sales Manager, Sales Rep, Service Agent, Marketing User)
-- **Role Hierarchy** with 10 roles
-- **Sharing Rules** for account, opportunity, and case objects
-- **Territory Management** for geographic sales regions
-- **Field-Level Security** for sensitive data
+export const CustomerList = ListView({
+  object: 'customer',
+  type: 'grid',
+  columns: [
+    { field: 'name', width: 200 },
+    { field: 'industry' },
+    { field: 'revenue' },
+  ],
+});
+```
 
-## 🤖 AI Features
+## Project Structure
 
-### AI Agents
+A typical ObjectStack application:
 
-- **Sales Assistant** - Lead qualification and opportunity management
-- **Service Agent** - Customer support automation
-- **Lead Enrichment** - Automatic data enrichment
-- **Revenue Intelligence** - Pipeline analysis and forecasting
-- **Email Campaign** - Marketing email generation
+```
+my-app/
+├── objectstack.config.ts     # App manifest
+├── src/
+│   ├── objects/              # Data models (ObjectQL)
+│   │   ├── customer.object.ts
+│   │   └── opportunity.object.ts
+│   ├── views/                # UI definitions (ObjectUI)
+│   │   ├── customer_list.view.ts
+│   │   └── customer_form.view.ts
+│   ├── flows/                # Automation (Flows, Workflows)
+│   │   └── welcome_email.flow.ts
+│   ├── security/             # Permissions & Sharing
+│   │   └── profiles.ts
+│   └── ai/                   # AI agents & RAG
+│       └── sales_assistant.agent.ts
+└── test/                     # Tests
+```
 
-### RAG Pipelines
+## Key Concepts
 
-- **Sales Knowledge** - Sales playbook and best practices
-- **Support Knowledge** - Customer support knowledge base
-- **Product Information** - Product catalog and specs
-- **Competitive Intelligence** - Market research and competitive analysis
+| Concept | Protocol | You Define | ObjectStack Generates |
+| :--- | :--- | :--- | :--- |
+| Data Model | ObjectQL | Objects, Fields, Validation | CRUD APIs, database schema, type safety |
+| User Interface | ObjectUI | Views, Pages, Dashboards | React components, navigation, responsive layout |
+| Business Logic | Automation | Flows, Workflows, Triggers | Event handlers, approval chains, scheduled jobs |
+| Access Control | Security | Profiles, Permissions, Sharing | Middleware, RLS policies, field masking |
+| Intelligence | AI | Agents, RAG, Models | Chat interfaces, search indexes, predictions |
 
-## 📊 Analytics
+## Next Steps
 
-### Dashboards
-
-- **Sales Dashboard** - Pipeline metrics and trends
-- **Service Dashboard** - Support case analytics
-- **Executive Dashboard** - High-level business metrics
-
-### Reports
-
-- Opportunities by Stage
-- Won Opportunities by Owner
-- Accounts by Industry
-- Cases by Status and Priority
-- SLA Performance
-- Leads by Source
-- Contacts by Account
-- Tasks by Owner
-
-## 🔗 Resources
-
-- [ObjectStack Documentation](https://docs.objectstack.ai)
-- [API Reference](https://api.objectstack.ai)
-- [Community Forum](https://community.objectstack.ai)
-- [GitHub Repository](https://github.com/objectstack-ai/spec)
-
-## 📝 License
-
-This example application is part of the ObjectStack specification repository and is licensed under the MIT License.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please read our [Contributing Guide](https://github.com/objectstack-ai/spec/blob/main/CONTRIBUTING.md) for details.
-
----
-
-**Next:** Start with [Data Modeling →](./data-modeling)
+- [Data Modeling Guide →](./data-modeling) — Start building your data layer
+- [CLI Reference](/docs/framework/cli) — All available commands
+- [Protocol Reference](/docs/references) — Complete schema documentation
+- [Example: CRM App](https://github.com/objectstack-ai/spec/tree/main/examples/app-crm) — Full working example

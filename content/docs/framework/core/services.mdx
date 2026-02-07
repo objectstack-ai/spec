@@ -1,47 +1,125 @@
 ---
 title: Service Registry
-description: Dependency Injection mechanism in ObjectStack
+description: Dependency Injection mechanism for loose coupling between plugins
 ---
 
 # Service Registry
 
-ObjectStack uses a lightweight **Service Locator pattern** for Dependency Injection. Services are the primary way plugins interact.
+ObjectStack uses a lightweight **Service Locator pattern** for Dependency Injection. Services are the primary way plugins expose and consume functionality.
 
 ## Concepts
 
 - **Service Name**: A unique string identifier (e.g., `http-server`, `database`, `auth-provider`).
 - **Service Implementation**: Any JavaScript object, class instance, or function.
+- **Service Contract**: A TypeScript interface that defines the expected API surface.
 
 ## Registering Services
 
-Services should be registered during the `init` phase.
+Services should be registered during the `init` phase of your plugin:
 
 ```typescript
-// factory pattern (Lazy)
-// If you pass a Promise or Factory, usage needs await
+import type { Plugin } from '@objectstack/core';
+
+export const myPlugin: Plugin = {
+  name: 'my-cache-plugin',
+  
+  async init(ctx) {
+    // Register a service with a concrete implementation
+    ctx.registerService('cache', new RedisCacheProvider({
+      url: ctx.config.get('redis.url'),
+    }));
+  },
+};
 ```
 
-*Note: The current specific implementation details of factory/async/scoped services should be referenced from the `service-lifecycle` protocol.*
+### Factory Registration (Lazy)
+
+Use a factory function when the service requires async initialization:
+
+```typescript
+ctx.registerService('database', async () => {
+  const pool = await createPool(ctx.config.get('database'));
+  return new PostgresDriver(pool);
+});
+```
+
+The factory is called once on first access and the result is cached.
 
 ## Consuming Services
 
 ```typescript
 // Synchronous retrieval (if already initialized)
 const http = ctx.getService<IHttpServer>('http-server');
-
-// Using the service
 http.get('/hello', (c) => c.text('Hello'));
+
+// Async retrieval (for factory-registered services)
+const db = await ctx.getServiceAsync<IDatabaseDriver>('database');
+const users = await db.query('user', { filters: [['active', '=', true]] });
+```
+
+### Optional Services
+
+Check if a service exists before using it:
+
+```typescript
+if (ctx.hasService('analytics')) {
+  const analytics = ctx.getService<IAnalytics>('analytics');
+  analytics.track('page_view', { url: '/dashboard' });
+}
 ```
 
 ## Standard Services
 
-The core ecosystem defines several standard service contracts that you can implement or consume:
+The core ecosystem defines several standard service contracts:
 
-| Service Name | Interface | Description |
+| Service Name | Interface | Provider Example |
 | :--- | :--- | :--- |
-| `http-server` | `IHttpServer` | Validated by `plugin-hono-server` or `adapter-nextjs`. |
-| `database` | `IDatabaseDriver` | Implemented by `driver-postgres`, `driver-sqlite`. |
-| `protocol` | `IProtocolEngine` | The ObjectQL engine interface. |
-| `api-registry` | `ApiRegistry` | Central registry for REST/GraphQL endpoints. |
+| `http-server` | `IHttpServer` | `plugin-hono-server`, `adapter-nextjs` |
+| `database` | `IDatabaseDriver` | `driver-postgres`, `driver-sqlite`, `driver-mongo` |
+| `protocol` | `IProtocolEngine` | `@objectstack/objectql` |
+| `api-registry` | `IApiRegistry` | `@objectstack/core` |
+| `cache` | `ICacheProvider` | Redis, Memcached, or in-memory |
+| `logger` | `ILogger` | `@objectstack/core` (built-in) |
+| `event-bus` | `IEventBus` | `@objectstack/core` (built-in) |
 
-Replacing a core component (like the HTTP server) is as simple as removing the default plugin and registering your own that provides the same service name.
+## Replacing Core Services
+
+Swap any core component by providing an alternative plugin:
+
+```typescript
+// Replace the default HTTP server with a custom one
+export const customHttpPlugin: Plugin = {
+  name: 'custom-http',
+  provides: ['http-server'], // Declares what this plugin provides
+  
+  async init(ctx) {
+    ctx.registerService('http-server', new FastifyServer());
+  },
+};
+```
+
+The Kernel ensures only one plugin provides each service name. If multiple plugins declare the same service, the last-registered one wins (or an error is thrown in strict mode).
+
+## Service Lifecycle
+
+Services follow the plugin lifecycle:
+
+1. **`init`** — Register services
+2. **`start`** — Services are now available to all plugins
+3. **`stop`** — Clean up resources (close connections, flush buffers)
+
+```typescript
+export const dbPlugin: Plugin = {
+  name: 'database',
+  
+  async init(ctx) {
+    const pool = await createPool(ctx.config.get('database'));
+    ctx.registerService('database', new PostgresDriver(pool));
+  },
+  
+  async stop(ctx) {
+    const db = ctx.getService<PostgresDriver>('database');
+    await db.close(); // Clean shutdown
+  },
+};
+```

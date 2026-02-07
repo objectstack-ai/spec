@@ -546,7 +546,94 @@ The three protocols are **loosely coupled** but **tightly integrated**:
 
 ## Next Steps
 
-- [Object Model](/docs/core-concepts/object-model) - Deep dive into ObjectQL's universal object model
-- [ObjectQL Protocol](/docs/protocols/objectql) - Full data protocol specification
-- [ObjectOS Protocol](/docs/protocols/objectos) - Full control protocol specification
-- [ObjectUI Protocol](/docs/protocols/objectui) - Full view protocol specification
+- [ObjectQL: Data Protocol](/docs/objectql) - Full data protocol specification
+- [ObjectUI: UI Protocol](/docs/objectui) - Full view protocol specification
+- [ObjectOS: System Protocol](/docs/objectos) - Full control protocol specification
+- [Developer Guide](/docs/developer) - Build your first ObjectStack application
+
+---
+
+## Appendix: Protocol Dependencies
+
+Understanding the dependency chain helps you design applications correctly.
+
+### Data Layer (ObjectQL)
+
+```
+Field Protocol (Core)
+    ↓
+    ├→ Object Protocol (uses Fields)
+    ├→ Query Protocol (references Fields)
+    ├→ Filter Protocol (filters on Fields)
+    └→ Validation Protocol (validates Fields)
+         ↓
+         └→ Hook Protocol (extends validation with code)
+```
+
+### UI Layer (ObjectUI)
+
+```
+Theme Protocol (Foundation)
+    ↓
+View Protocol (uses Object, Query)
+    ├→ ListView (uses Query, Filter)
+    ├→ FormView (uses Object, Field)
+    └→ Dashboard (uses View, Widget)
+         ↓
+         ├→ Page Protocol (composes Views)
+         └→ App Protocol (organizes Pages)
+              ↓
+              └→ Action Protocol (UI interactions)
+```
+
+### System Layer (ObjectOS)
+
+```
+Driver Protocol (Database Abstraction)
+    ↓
+Datasource Protocol (Connection Config)
+    ↓
+    ├→ Context Protocol (Runtime State)
+    ├→ Events Protocol (Event Bus)
+    └→ Plugin Protocol (Extensibility)
+         ↓
+         ├→ Security Protocol (Access Control)
+         ├→ API Protocol (External Access)
+         └→ Automation Protocol (Workflows)
+              ↓
+              └→ AI Protocol (Intelligence)
+```
+
+## Appendix: Usage Patterns
+
+### Pattern 1: Data-Driven UI
+
+UI auto-generated from data definitions:
+
+```
+Object → Field → View → Page → App
+```
+
+### Pattern 2: Custom UI with Data Binding
+
+Custom UI connected to data:
+
+```
+Page → Component → View (Custom) → Query → Object
+```
+
+### Pattern 3: Automation & Integration
+
+Business logic automation:
+
+```
+Object → Hook → Flow → Automation → API/Webhook
+```
+
+### Pattern 4: AI-Enhanced Applications
+
+AI capabilities on top of data:
+
+```
+Object → RAG Pipeline → Agent → Conversation → UI
+```
