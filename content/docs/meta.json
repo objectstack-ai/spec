@@ -1,14 +1,11 @@
 {
   "title": "Documentation",
   "pages": [
-    "introduction",
-    "framework",
+    "getting-started",
+    "guides",
     "---",
-    "developer",
-    "---",
-    "objectql",
-    "objectui",
-    "objectos",
+    "concepts",
+    "protocol",
     "---",
     "references"
   ]

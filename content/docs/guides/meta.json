@@ -1,0 +1,4 @@
+{
+  "title": "Guides",
+  "pages": ["index", "data-modeling", "business-logic", "security", "ai-capabilities", "client-sdk", "driver-configuration", "standards"]
+}
