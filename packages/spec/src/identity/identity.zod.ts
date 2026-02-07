@@ -43,12 +43,12 @@ export const UserSchema = z.object({
   /**
    * Account creation timestamp
    */
-  createdAt: z.date().describe('Account creation timestamp'),
+  createdAt: z.string().datetime().describe('Account creation timestamp'),
   
   /**
    * Last update timestamp
    */
-  updatedAt: z.date().describe('Last update timestamp'),
+  updatedAt: z.string().datetime().describe('Last update timestamp'),
 });
 
 export type User = z.infer<typeof UserSchema>;
@@ -128,12 +128,12 @@ export const AccountSchema = z.object({
   /**
    * Account creation timestamp
    */
-  createdAt: z.date().describe('Account creation timestamp'),
+  createdAt: z.string().datetime().describe('Account creation timestamp'),
   
   /**
    * Last update timestamp
    */
-  updatedAt: z.date().describe('Last update timestamp'),
+  updatedAt: z.string().datetime().describe('Last update timestamp'),
 });
 
 export type Account = z.infer<typeof AccountSchema>;
@@ -167,17 +167,17 @@ export const SessionSchema = z.object({
   /**
    * Session expiry timestamp
    */
-  expires: z.date().describe('Session expiry timestamp'),
+  expires: z.string().datetime().describe('Session expiry timestamp'),
   
   /**
    * Session creation timestamp
    */
-  createdAt: z.date().describe('Session creation timestamp'),
+  createdAt: z.string().datetime().describe('Session creation timestamp'),
   
   /**
    * Last update timestamp
    */
-  updatedAt: z.date().describe('Last update timestamp'),
+  updatedAt: z.string().datetime().describe('Last update timestamp'),
   
   /**
    * IP address of the session
@@ -215,12 +215,12 @@ export const VerificationTokenSchema = z.object({
   /**
    * Token expiry timestamp
    */
-  expires: z.date().describe('Token expiry timestamp'),
+  expires: z.string().datetime().describe('Token expiry timestamp'),
   
   /**
    * Token creation timestamp
    */
-  createdAt: z.date().describe('Token creation timestamp'),
+  createdAt: z.string().datetime().describe('Token creation timestamp'),
 });
 
 export type VerificationToken = z.infer<typeof VerificationTokenSchema>;

@@ -30,7 +30,7 @@ export const MetadataStateSchema = z.enum([
  */
 export const MetadataRecordSchema = z.object({
   /** Primary Key (UUID) */
-  _id: z.string(),
+  id: z.string(),
   
   /** 
    * Machine Name 
@@ -76,10 +76,10 @@ export const MetadataRecordSchema = z.object({
   state: MetadataStateSchema.default('active'),
   
   /** Audit */
-  created_by: z.string().optional(),
-  created_at: z.date().optional(),
-  updated_by: z.string().optional(),
-  updated_at: z.date().optional(),
+  createdBy: z.string().optional(),
+  createdAt: z.string().datetime().optional().describe('Creation timestamp'),
+  updatedBy: z.string().optional(),
+  updatedAt: z.string().datetime().optional().describe('Last update timestamp'),
 });
 
 export type MetadataRecord = z.infer<typeof MetadataRecordSchema>;
@@ -101,10 +101,10 @@ export const MetadataFormatSchema = z.enum([
 export const MetadataStatsSchema = z.object({
   path: z.string().optional(),
   size: z.number().optional(),
-  mtime: z.date().optional(),
+  mtime: z.string().datetime().optional(),
   hash: z.string().optional(),
   etag: z.string().optional(), // Required by local cache
-  modifiedAt: z.date().optional(), // Alias for mtime
+  modifiedAt: z.string().datetime().optional(), // Alias for mtime
   format: MetadataFormatSchema.optional(), // Required for serialization
 });
 
@@ -198,7 +198,7 @@ export const MetadataWatchEventSchema = z.object({
   stats: MetadataStatsSchema.optional(),
   metadataType: z.string().optional(),
   data: z.any().optional(),
-  timestamp: z.date().optional(),
+  timestamp: z.string().datetime().optional(),
 });
 
 /**

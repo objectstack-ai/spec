@@ -1,0 +1,22 @@
+{
+  "$ref": "#/definitions/AggregationFunctionEnum",
+  "definitions": {
+    "AggregationFunctionEnum": {
+      "type": "string",
+      "enum": [
+        "count",
+        "sum",
+        "avg",
+        "min",
+        "max",
+        "count_distinct",
+        "percentile",
+        "median",
+        "stddev",
+        "variance"
+      ],
+      "description": "Standard aggregation functions"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

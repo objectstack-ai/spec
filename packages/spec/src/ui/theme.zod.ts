@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
 
 /**
  * Color Palette Schema
@@ -182,7 +183,7 @@ export const ThemeMode = z.enum(['light', 'dark', 'auto']);
  * Complete theme definition for brand customization.
  */
 export const ThemeSchema = z.object({
-  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Unique theme identifier (snake_case)'),
+  name: SnakeCaseIdentifierSchema.describe('Unique theme identifier (snake_case)'),
   label: z.string().describe('Human-readable theme name'),
   description: z.string().optional().describe('Theme description'),
   

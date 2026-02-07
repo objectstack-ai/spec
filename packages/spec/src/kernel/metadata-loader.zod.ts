@@ -27,7 +27,7 @@ export const MetadataStatsSchema = z.object({
   /**
    * Last modification timestamp
    */
-  modifiedAt: z.date().describe('Last modified date'),
+  modifiedAt: z.string().datetime().describe('Last modified date'),
   
   /**
    * ETag for cache validation
@@ -70,7 +70,7 @@ export const MetadataLoadOptionsSchema = z.object({
   /**
    * If-Modified-Since header for conditional loading
    */
-  ifModifiedSince: z.date().optional().describe('Only load if modified after this date'),
+  ifModifiedSince: z.string().datetime().optional().describe('Only load if modified after this date'),
   
   /**
    * Whether to validate against Zod schema
@@ -320,7 +320,7 @@ export const MetadataWatchEventSchema = z.object({
   /**
    * Timestamp
    */
-  timestamp: z.date().describe('Event timestamp'),
+  timestamp: z.string().datetime().describe('Event timestamp'),
 });
 
 /**
@@ -351,7 +351,7 @@ export const MetadataCollectionInfoSchema = z.object({
   /**
    * Last modified timestamp
    */
-  lastModified: z.date().optional().describe('Last modification date'),
+  lastModified: z.string().datetime().optional().describe('Last modification date'),
   
   /**
    * Collection location (path or URL)

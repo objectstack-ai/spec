@@ -1,13 +1,14 @@
 {
-  "$ref": "#/definitions/MetricType",
+  "$ref": "#/definitions/LicenseMetricType",
   "definitions": {
-    "MetricType": {
+    "LicenseMetricType": {
       "type": "string",
       "enum": [
         "boolean",
         "counter",
         "gauge"
-      ]
+      ],
+      "description": "License metric type"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

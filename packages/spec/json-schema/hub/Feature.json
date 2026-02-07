@@ -22,6 +22,7 @@
             "counter",
             "gauge"
           ],
+          "description": "License metric type",
           "default": "boolean"
         },
         "unit": {

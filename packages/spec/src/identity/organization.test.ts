@@ -20,8 +20,8 @@ describe('OrganizationSchema', () => {
         industry: 'Technology',
         size: 'Enterprise',
       },
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     expect(() => OrganizationSchema.parse(org)).not.toThrow();
@@ -32,8 +32,8 @@ describe('OrganizationSchema', () => {
       id: 'org_123',
       name: 'Acme Corporation',
       slug: 'acme-corp',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     expect(() => OrganizationSchema.parse(org)).not.toThrow();
@@ -53,8 +53,8 @@ describe('OrganizationSchema', () => {
         id: 'org_123',
         name: 'Test Org',
         slug,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
       expect(() => OrganizationSchema.parse(org)).not.toThrow();
     });
@@ -74,8 +74,8 @@ describe('OrganizationSchema', () => {
         id: 'org_123',
         name: 'Test Org',
         slug,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
       expect(() => OrganizationSchema.parse(org)).toThrow();
     });
@@ -87,8 +87,8 @@ describe('OrganizationSchema', () => {
       name: 'Acme Corporation',
       slug: 'acme-corp',
       logo: 'not-a-url',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     expect(() => OrganizationSchema.parse(org)).toThrow();
@@ -107,8 +107,8 @@ describe('OrganizationSchema', () => {
           key: 'value',
         },
       },
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     expect(() => OrganizationSchema.parse(org)).not.toThrow();
@@ -122,8 +122,8 @@ describe('MemberSchema', () => {
       organizationId: 'org_123',
       userId: 'user_123',
       role: 'admin',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     expect(() => MemberSchema.parse(member)).not.toThrow();
@@ -138,8 +138,8 @@ describe('MemberSchema', () => {
         organizationId: 'org_123',
         userId: 'user_123',
         role,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
       expect(() => MemberSchema.parse(member)).not.toThrow();
     });
@@ -150,8 +150,8 @@ describe('MemberSchema', () => {
       id: 'member_123',
       organizationId: 'org_123',
       // missing userId and role
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     expect(() => MemberSchema.parse(incompleteMember)).toThrow();
@@ -180,10 +180,10 @@ describe('InvitationSchema', () => {
       email: 'newuser@example.com',
       role: 'member',
       status: 'pending',
-      expiresAt: new Date(Date.now() + 86400000),
+      expiresAt: new Date(Date.now() + 86400000).toISOString(),
       inviterId: 'user_123',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     expect(() => InvitationSchema.parse(invitation)).not.toThrow();
@@ -195,10 +195,10 @@ describe('InvitationSchema', () => {
       organizationId: 'org_123',
       email: 'newuser@example.com',
       role: 'member',
-      expiresAt: new Date(),
+      expiresAt: new Date().toISOString(),
       inviterId: 'user_123',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     const result = InvitationSchema.parse(invitation);
@@ -220,10 +220,10 @@ describe('InvitationSchema', () => {
         email: 'newuser@example.com',
         role: 'member',
         status,
-        expiresAt: new Date(),
+        expiresAt: new Date().toISOString(),
         inviterId: 'user_123',
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
       expect(() => InvitationSchema.parse(invitation)).not.toThrow();
     });
@@ -235,10 +235,10 @@ describe('InvitationSchema', () => {
       organizationId: 'org_123',
       email: 'invalid-email',
       role: 'member',
-      expiresAt: new Date(),
+      expiresAt: new Date().toISOString(),
       inviterId: 'user_123',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     expect(() => InvitationSchema.parse(invitation)).toThrow();
@@ -253,10 +253,10 @@ describe('InvitationSchema', () => {
         organizationId: 'org_123',
         email: 'newuser@example.com',
         role,
-        expiresAt: new Date(),
+        expiresAt: new Date().toISOString(),
         inviterId: 'user_123',
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
       expect(() => InvitationSchema.parse(invitation)).not.toThrow();
     });
@@ -267,8 +267,8 @@ describe('InvitationSchema', () => {
       id: 'invite_123',
       organizationId: 'org_123',
       // missing email, role, expiresAt, inviterId
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     expect(() => InvitationSchema.parse(incompleteInvitation)).toThrow();
@@ -281,8 +281,8 @@ describe('Type inference', () => {
       id: 'org_123',
       name: 'Acme Corporation',
       slug: 'acme-corp',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     // This test passes if TypeScript compiles without errors
@@ -297,8 +297,8 @@ describe('Type inference', () => {
       organizationId: 'org_123',
       userId: 'user_123',
       role: 'admin',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     // This test passes if TypeScript compiles without errors
@@ -313,10 +313,10 @@ describe('Type inference', () => {
       email: 'newuser@example.com',
       role: 'member',
       status: 'pending',
-      expiresAt: new Date(),
+      expiresAt: new Date().toISOString(),
       inviterId: 'user_123',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     // This test passes if TypeScript compiles without errors

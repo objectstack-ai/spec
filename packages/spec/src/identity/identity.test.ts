@@ -18,8 +18,8 @@ describe('UserSchema', () => {
       emailVerified: true,
       name: 'Test User',
       image: 'https://example.com/avatar.jpg',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     expect(() => UserSchema.parse(user)).not.toThrow();
@@ -29,8 +29,8 @@ describe('UserSchema', () => {
     const user = {
       id: 'user_123',
       email: 'test@example.com',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     const result = UserSchema.parse(user);
@@ -41,8 +41,8 @@ describe('UserSchema', () => {
     const user = {
       id: 'user_123',
       email: 'invalid-email',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     expect(() => UserSchema.parse(user)).toThrow();
@@ -53,8 +53,8 @@ describe('UserSchema', () => {
       id: 'user_123',
       email: 'test@example.com',
       image: 'not-a-url',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     expect(() => UserSchema.parse(user)).toThrow();
@@ -64,8 +64,8 @@ describe('UserSchema', () => {
     const user = {
       id: 'user_123',
       email: 'test@example.com',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     expect(() => UserSchema.parse(user)).not.toThrow();
@@ -85,8 +85,8 @@ describe('AccountSchema', () => {
       expiresAt: Date.now() + 3600000,
       tokenType: 'Bearer',
       scope: 'openid profile email',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     expect(() => AccountSchema.parse(account)).not.toThrow();
@@ -99,8 +99,8 @@ describe('AccountSchema', () => {
       type: 'email',
       provider: 'email',
       providerAccountId: 'email_user_123',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     expect(() => AccountSchema.parse(account)).not.toThrow();
@@ -116,8 +116,8 @@ describe('AccountSchema', () => {
         type,
         provider: 'provider',
         providerAccountId: 'provider_account_123',
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
       expect(() => AccountSchema.parse(account)).not.toThrow();
     });
@@ -130,8 +130,8 @@ describe('AccountSchema', () => {
       type: 'invalid',
       provider: 'provider',
       providerAccountId: 'provider_account_123',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     expect(() => AccountSchema.parse(account)).toThrow();
@@ -144,9 +144,9 @@ describe('SessionSchema', () => {
       id: 'session_123',
       sessionToken: 'session_token_xyz',
       userId: 'user_123',
-      expires: new Date(Date.now() + 86400000),
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      expires: new Date(Date.now() + 86400000).toISOString(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       ipAddress: '192.168.1.1',
       userAgent: 'Mozilla/5.0',
       fingerprint: 'fingerprint_xyz',
@@ -160,9 +160,9 @@ describe('SessionSchema', () => {
       id: 'session_123',
       sessionToken: 'session_token_xyz',
       userId: 'user_123',
-      expires: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      expires: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     expect(() => SessionSchema.parse(session)).not.toThrow();
@@ -173,9 +173,9 @@ describe('SessionSchema', () => {
       id: 'session_123',
       sessionToken: 'session_token_xyz',
       userId: 'user_123',
-      expires: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      expires: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       ipAddress: '10.0.0.1',
       userAgent: 'Chrome/120.0.0.0',
       fingerprint: 'device_fingerprint',
@@ -190,9 +190,9 @@ describe('SessionSchema', () => {
       sessionToken: 'session_token_xyz',
       userId: 'user_123',
       activeOrganizationId: 'org_123',
-      expires: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      expires: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     expect(() => SessionSchema.parse(session)).not.toThrow();
@@ -203,9 +203,9 @@ describe('SessionSchema', () => {
       id: 'session_123',
       sessionToken: 'session_token_xyz',
       userId: 'user_123',
-      expires: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      expires: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     expect(() => SessionSchema.parse(session)).not.toThrow();
@@ -217,8 +217,8 @@ describe('VerificationTokenSchema', () => {
     const token: VerificationToken = {
       identifier: 'test@example.com',
       token: 'verification_token_xyz',
-      expires: new Date(Date.now() + 3600000),
-      createdAt: new Date(),
+      expires: new Date(Date.now() + 3600000).toISOString(),
+      createdAt: new Date().toISOString(),
     };
 
     expect(() => VerificationTokenSchema.parse(token)).not.toThrow();
@@ -228,8 +228,8 @@ describe('VerificationTokenSchema', () => {
     const token = {
       identifier: '+1234567890',
       token: 'verification_token_xyz',
-      expires: new Date(),
-      createdAt: new Date(),
+      expires: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
     };
 
     expect(() => VerificationTokenSchema.parse(token)).not.toThrow();
@@ -239,8 +239,8 @@ describe('VerificationTokenSchema', () => {
     const token = {
       identifier: 'user@example.com',
       token: 'reset_password_token',
-      expires: new Date(),
-      createdAt: new Date(),
+      expires: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
     };
 
     expect(() => VerificationTokenSchema.parse(token)).not.toThrow();
@@ -253,8 +253,8 @@ describe('Type inference', () => {
       id: 'user_123',
       email: 'test@example.com',
       emailVerified: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     // This test passes if TypeScript compiles without errors
@@ -269,8 +269,8 @@ describe('Type inference', () => {
       type: 'oauth',
       provider: 'google',
       providerAccountId: 'google_123',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     // This test passes if TypeScript compiles without errors
@@ -283,9 +283,9 @@ describe('Type inference', () => {
       id: 'session_123',
       sessionToken: 'token_xyz',
       userId: 'user_123',
-      expires: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      expires: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     // This test passes if TypeScript compiles without errors
@@ -297,8 +297,8 @@ describe('Type inference', () => {
     const token: VerificationToken = {
       identifier: 'test@example.com',
       token: 'token_xyz',
-      expires: new Date(),
-      createdAt: new Date(),
+      expires: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
     };
 
     // This test passes if TypeScript compiles without errors

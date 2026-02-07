@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { FilterConditionSchema } from '../data/filter.zod';
 import { ChartTypeSchema, ChartConfigSchema } from './chart.zod';
+import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
 
 /**
  * Dashboard Widget Schema
@@ -80,7 +81,7 @@ export const DashboardWidgetSchema = z.object({
  */
 export const DashboardSchema = z.object({
   /** Machine name */
-  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Dashboard unique name'),
+  name: SnakeCaseIdentifierSchema.describe('Dashboard unique name'),
   
   /** Display label */
   label: z.string().describe('Dashboard label'),

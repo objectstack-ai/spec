@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { QuerySchema } from '../data/query.zod';
+import { IsolationLevelEnum } from '../shared/enums.zod';
 
 /**
  * Common Driver Options
@@ -104,12 +105,7 @@ export const DriverCapabilitiesSchema = z.object({
   /**
    * Supported transaction isolation levels.
    */
-  isolationLevels: z.array(z.enum([
-    'read-uncommitted',
-    'read-committed',
-    'repeatable-read',
-    'serializable',
-  ])).optional().describe('Supported transaction isolation levels'),
+  isolationLevels: z.array(IsolationLevelEnum).optional().describe('Supported isolation levels'),
 
   // ============================================================================
   // Query Operations
@@ -551,7 +547,7 @@ export const DriverInterfaceSchema = z.object({
    */
   beginTransaction: z.function()
     .args(z.object({
-      isolationLevel: z.enum(['READ UNCOMMITTED', 'READ COMMITTED', 'REPEATABLE READ', 'SERIALIZABLE', 'SNAPSHOT']).optional()
+      isolationLevel: IsolationLevelEnum.optional()
     }).optional())
     .returns(z.promise(z.any()))
     .describe('Start transaction'),

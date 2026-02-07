@@ -3,11 +3,12 @@ import { z } from 'zod';
 /**
  * Metric Type Classification
  */
-export const MetricType = z.enum([
+export const LicenseMetricType = z.enum([
   'boolean',   // Feature Flag (Enabled/Disabled)
   'counter',   // Usage Count (e.g. API Calls, Records Created) - Accumulates
   'gauge',     // Current Level (e.g. Storage Used, Users Active) - Point in time
-]);
+]).describe('License metric type');
+export type LicenseMetricType = z.infer<typeof LicenseMetricType>;
 
 /**
  * Feature/Limit Definition Schema
@@ -18,7 +19,7 @@ export const FeatureSchema = z.object({
   label: z.string(),
   description: z.string().optional(),
   
-  type: MetricType.default('boolean'),
+  type: LicenseMetricType.default('boolean'),
   
   /** For counters/gauges */
   unit: z.enum(['count', 'bytes', 'seconds', 'percent']).optional(),

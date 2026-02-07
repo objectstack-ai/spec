@@ -1,0 +1,17 @@
+{
+  "$ref": "#/definitions/IsolationLevelEnum",
+  "definitions": {
+    "IsolationLevelEnum": {
+      "type": "string",
+      "enum": [
+        "read_uncommitted",
+        "read_committed",
+        "repeatable_read",
+        "serializable",
+        "snapshot"
+      ],
+      "description": "Transaction isolation levels (snake_case standard)"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

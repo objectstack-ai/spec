@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { FieldSchema } from '../data/field.zod';
+import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
 
 /**
  * Widget Lifecycle Hooks Schema
@@ -266,8 +267,7 @@ export const WidgetManifestSchema = z.object({
   /**
    * Widget identifier (snake_case)
    */
-  name: z.string()
-    .regex(/^[a-z_][a-z0-9_]*$/)
+  name: SnakeCaseIdentifierSchema
     .describe('Widget identifier (snake_case)'),
 
   /**
