@@ -289,4 +289,5 @@ export const ManifestSchema = z.object({
  * Use this type for type-safe manifest handling in TypeScript code.
  */
 export type ObjectStackManifest = z.infer<typeof ManifestSchema>;
+export type ObjectStackManifestInput = z.input<typeof ManifestSchema>;
 

@@ -297,7 +297,7 @@
                   },
                   "formula": {
                     "type": "string",
-                    "description": "Deprecated: Use expression"
+                    "description": "DEPRECATED: Use `expression` field instead. Scheduled for removal in v2.0.0"
                   },
                   "summaryOperations": {
                     "type": "object",
@@ -726,7 +726,8 @@
                     "properties": {
                       "enabled": {
                         "type": "boolean",
-                        "default": false
+                        "default": false,
+                        "description": "Enable field-level encryption"
                       },
                       "algorithm": {
                         "type": "string",
@@ -735,7 +736,8 @@
                           "aes-256-cbc",
                           "chacha20-poly1305"
                         ],
-                        "default": "aes-256-gcm"
+                        "default": "aes-256-gcm",
+                        "description": "Encryption algorithm"
                       },
                       "keyManagement": {
                         "type": "object",
@@ -748,39 +750,47 @@
                               "azure-key-vault",
                               "gcp-kms",
                               "hashicorp-vault"
-                            ]
+                            ],
+                            "description": "Key management service provider"
                           },
                           "keyId": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Key identifier in the provider"
                           },
                           "rotationPolicy": {
                             "type": "object",
                             "properties": {
                               "enabled": {
                                 "type": "boolean",
-                                "default": false
+                                "default": false,
+                                "description": "Enable automatic key rotation"
                               },
                               "frequencyDays": {
                                 "type": "number",
                                 "minimum": 1,
-                                "default": 90
+                                "default": 90,
+                                "description": "Rotation frequency in days"
                               },
                               "retainOldVersions": {
                                 "type": "number",
-                                "default": 3
+                                "default": 3,
+                                "description": "Number of old key versions to retain"
                               },
                               "autoRotate": {
                                 "type": "boolean",
-                                "default": true
+                                "default": true,
+                                "description": "Automatically rotate without manual approval"
                               }
                             },
-                            "additionalProperties": false
+                            "additionalProperties": false,
+                            "description": "Key rotation policy"
                           }
                         },
                         "required": [
                           "provider"
                         ],
-                        "additionalProperties": false
+                        "additionalProperties": false,
+                        "description": "Key management configuration"
                       },
                       "scope": {
                         "type": "string",
@@ -789,7 +799,8 @@
                           "record",
                           "table",
                           "database"
-                        ]
+                        ],
+                        "description": "Encryption scope level"
                       },
                       "deterministicEncryption": {
                         "type": "boolean",
@@ -950,6 +961,15 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Read-only in UI"
+                  },
+                  "sortable": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether field is sortable in list views"
+                  },
+                  "inlineHelpText": {
+                    "type": "string",
+                    "description": "Help text displayed below the field in forms"
                   },
                   "encryption": {
                     "type": "boolean",
@@ -3115,7 +3135,7 @@
                 "states"
               ],
               "additionalProperties": false,
-              "description": "Single state machine for record lifecycle (shorthand)"
+              "description": "DEPRECATED: Use stateMachines (plural). Single state machine shorthand."
             },
             "stateMachines": {
               "type": "object",
@@ -3735,6 +3755,23 @@
               },
               "additionalProperties": false,
               "description": "Enabled system features modules"
+            },
+            "recordTypes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Record type names for this object"
+            },
+            "sharingModel": {
+              "type": "string",
+              "enum": [
+                "private",
+                "read",
+                "read_write",
+                "full"
+              ],
+              "description": "Default sharing model"
             }
           },
           "required": [

@@ -77,8 +77,8 @@ export const OpsFilePathSchema = z.string().superRefine((path, ctx) => {
  * Represents the contents of a domain folder.
  */
 export const OpsDomainModuleSchema = z.object({
-  name: z.string().regex(SNAKE_CASE_REGEX),
-  files: z.array(z.string()),
+  name: z.string().regex(SNAKE_CASE_REGEX).describe('Module name (snake_case)'),
+  files: z.array(z.string()).describe('List of files in this module'),
 }).superRefine((module, ctx) => {
   // Rule: Must have an index.ts
   if (!module.files.includes('index.ts')) {
@@ -93,7 +93,7 @@ export const OpsDomainModuleSchema = z.object({
  * Schema for a full Plugin Project Layout
  */
 export const OpsPluginStructureSchema = z.object({
-  root: z.string(),
+  root: z.string().describe('Root directory path of the plugin project'),
   files: z.array(z.string()).describe('List of all file paths relative to root'),
 }).superRefine((project, ctx) => {
   // Check for configuration file
@@ -114,3 +114,7 @@ export const OpsPluginStructureSchema = z.object({
       }
   });
 });
+
+export type OpsFilePath = z.infer<typeof OpsFilePathSchema>;
+export type OpsDomainModule = z.infer<typeof OpsDomainModuleSchema>;
+export type OpsPluginStructure = z.infer<typeof OpsPluginStructureSchema>;

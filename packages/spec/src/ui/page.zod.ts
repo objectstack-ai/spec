@@ -116,3 +116,4 @@ export const PageSchema = z.object({
 export type Page = z.infer<typeof PageSchema>;
 export type PageComponent = z.infer<typeof PageComponentSchema>;
 export type PageRegion = z.infer<typeof PageRegionSchema>;
+export type PageVariable = z.infer<typeof PageVariableSchema>;

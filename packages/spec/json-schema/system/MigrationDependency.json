@@ -5,10 +5,12 @@
       "type": "object",
       "properties": {
         "migrationId": {
-          "type": "string"
+          "type": "string",
+          "description": "ID of the migration this depends on"
         },
         "package": {
-          "type": "string"
+          "type": "string",
+          "description": "Package that owns the dependency migration"
         }
       },
       "required": [

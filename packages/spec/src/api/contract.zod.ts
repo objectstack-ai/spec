@@ -166,3 +166,17 @@ export const StandardApiContracts = {
     output: BulkResponseSchema
   }
 };
+
+export type ApiError = z.infer<typeof ApiErrorSchema>;
+export type BaseResponse = z.infer<typeof BaseResponseSchema>;
+export type RecordData = z.infer<typeof RecordDataSchema>;
+export type CreateRequest = z.infer<typeof CreateRequestSchema>;
+export type UpdateRequest = z.infer<typeof UpdateRequestSchema>;
+export type BulkRequest = z.infer<typeof BulkRequestSchema>;
+export type ExportRequest = z.infer<typeof ExportRequestSchema>;
+export type SingleRecordResponse = z.infer<typeof SingleRecordResponseSchema>;
+export type ListRecordResponse = z.infer<typeof ListRecordResponseSchema>;
+export type IdRequest = z.infer<typeof IdRequestSchema>;
+export type ModificationResult = z.infer<typeof ModificationResultSchema>;
+export type BulkResponse = z.infer<typeof BulkResponseSchema>;
+export type DeleteResponse = z.infer<typeof DeleteResponseSchema>;

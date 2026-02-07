@@ -6,44 +6,44 @@ import { ObjectSchema } from '../data/object.zod';
 
 export const AddFieldOperation = z.object({
   type: z.literal('add_field'),
-  objectName: z.string(),
-  fieldName: z.string(),
+  objectName: z.string().describe('Target object name'),
+  fieldName: z.string().describe('Name of the field to add'),
   field: FieldSchema
 });
 
 export const ModifyFieldOperation = z.object({
   type: z.literal('modify_field'),
-  objectName: z.string(),
-  fieldName: z.string(),
-  changes: z.record(z.string(), z.unknown()) // Partial field definition updates
+  objectName: z.string().describe('Target object name'),
+  fieldName: z.string().describe('Name of the field to modify'),
+  changes: z.record(z.string(), z.unknown()).describe('Partial field definition updates')
 });
 
 export const RemoveFieldOperation = z.object({
   type: z.literal('remove_field'),
-  objectName: z.string(),
-  fieldName: z.string()
+  objectName: z.string().describe('Target object name'),
+  fieldName: z.string().describe('Name of the field to remove')
 });
 
 export const CreateObjectOperation = z.object({
   type: z.literal('create_object'),
-  object: ObjectSchema
+  object: ObjectSchema.describe('Full object definition to create')
 });
 
 export const RenameObjectOperation = z.object({
   type: z.literal('rename_object'),
-  oldName: z.string(),
-  newName: z.string()
+  oldName: z.string().describe('Current object name'),
+  newName: z.string().describe('New object name')
 });
 
 export const DeleteObjectOperation = z.object({
   type: z.literal('delete_object'),
-  objectName: z.string()
+  objectName: z.string().describe('Name of the object to delete')
 });
 
 export const ExecuteSqlOperation = z.object({
   type: z.literal('execute_sql'),
-  sql: z.string(),
-  description: z.string().optional()
+  sql: z.string().describe('Raw SQL statement to execute'),
+  description: z.string().optional().describe('Human-readable description of the SQL')
 });
 
 // Union of all possible operations
@@ -60,8 +60,8 @@ export const MigrationOperationSchema = z.discriminatedUnion('type', [
 // --- Migration & ChangeSet ---
 
 export const MigrationDependencySchema = z.object({
-  migrationId: z.string(),
-  package: z.string().optional()
+  migrationId: z.string().describe('ID of the migration this depends on'),
+  package: z.string().optional().describe('Package that owns the dependency migration')
 });
 
 export const ChangeSetSchema = z.object({

@@ -6,20 +6,24 @@
       "properties": {
         "enabled": {
           "type": "boolean",
-          "default": false
+          "default": false,
+          "description": "Enable automatic key rotation"
         },
         "frequencyDays": {
           "type": "number",
           "minimum": 1,
-          "default": 90
+          "default": 90,
+          "description": "Rotation frequency in days"
         },
         "retainOldVersions": {
           "type": "number",
-          "default": 3
+          "default": 3,
+          "description": "Number of old key versions to retain"
         },
         "autoRotate": {
           "type": "boolean",
-          "default": true
+          "default": true,
+          "description": "Automatically rotate without manual approval"
         }
       },
       "additionalProperties": false

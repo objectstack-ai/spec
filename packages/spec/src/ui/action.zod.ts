@@ -88,6 +88,7 @@ export const ActionSchema = z.object({
 
 export type Action = z.infer<typeof ActionSchema>;
 export type ActionParam = z.infer<typeof ActionParamSchema>;
+export type ActionInput = z.input<typeof ActionSchema>;
 
 /**
  * Action Factory Helper

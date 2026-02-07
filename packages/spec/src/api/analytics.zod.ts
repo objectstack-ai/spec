@@ -77,3 +77,7 @@ export const AnalyticsSqlResponseSchema = BaseResponseSchema.extend({
     params: z.array(z.unknown()),
   }),
 });
+
+export type AnalyticsEndpoint = z.infer<typeof AnalyticsEndpoint>;
+export type AnalyticsMetadataResponse = z.infer<typeof AnalyticsMetadataResponseSchema>;
+export type AnalyticsSqlResponse = z.infer<typeof AnalyticsSqlResponseSchema>;

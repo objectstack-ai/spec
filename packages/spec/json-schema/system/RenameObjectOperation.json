@@ -9,10 +9,12 @@
           "const": "rename_object"
         },
         "oldName": {
-          "type": "string"
+          "type": "string",
+          "description": "Current object name"
         },
         "newName": {
-          "type": "string"
+          "type": "string",
+          "description": "New object name"
         }
       },
       "required": [

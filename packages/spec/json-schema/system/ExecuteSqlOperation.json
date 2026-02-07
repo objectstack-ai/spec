@@ -9,10 +9,12 @@
           "const": "execute_sql"
         },
         "sql": {
-          "type": "string"
+          "type": "string",
+          "description": "Raw SQL statement to execute"
         },
         "description": {
-          "type": "string"
+          "type": "string",
+          "description": "Human-readable description of the SQL"
         }
       },
       "required": [

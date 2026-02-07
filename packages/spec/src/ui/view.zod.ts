@@ -215,6 +215,13 @@ export const ListViewSchema = z.object({
   kanban: KanbanConfigSchema.optional(),
   calendar: CalendarConfigSchema.optional(),
   gantt: GanttConfigSchema.optional(),
+
+  /** Empty State */
+  emptyState: z.object({
+    title: z.string().optional(),
+    message: z.string().optional(),
+    icon: z.string().optional(),
+  }).optional().describe('Empty state configuration when no records found'),
 });
 
 /**

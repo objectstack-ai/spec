@@ -14,23 +14,23 @@ import { z } from 'zod';
 export const TranslationDataSchema = z.object({
   /** Object translations */
   objects: z.record(z.string(), z.object({
-    label: z.string(),
-    pluralLabel: z.string().optional(),
+    label: z.string().describe('Translated singular label'),
+    pluralLabel: z.string().optional().describe('Translated plural label'),
     fields: z.record(z.string(), z.object({
-      label: z.string().optional(),
-      help: z.string().optional(),
-      options: z.record(z.string(), z.string()).optional(), // Option value -> Label map
-    })).optional(),
-  })).optional(),
+      label: z.string().optional().describe('Translated field label'),
+      help: z.string().optional().describe('Translated help text'),
+      options: z.record(z.string(), z.string()).optional().describe('Option value to translated label map'),
+    })).optional().describe('Field-level translations'),
+  })).optional().describe('Object translations keyed by object name'),
   
   /** App/Menu translations */
   apps: z.record(z.string(), z.object({
-    label: z.string(),
-    description: z.string().optional(),
-  })).optional(),
+    label: z.string().describe('Translated app label'),
+    description: z.string().optional().describe('Translated app description'),
+  })).optional().describe('App translations keyed by app name'),
 
   /** UI Messages */
-  messages: z.record(z.string(), z.string()).optional(),
+  messages: z.record(z.string(), z.string()).optional().describe('UI message translations keyed by message ID'),
 });
 
 export const LocaleSchema = z.string().describe('BCP-47 Language Tag (e.g. en-US, zh-CN)');

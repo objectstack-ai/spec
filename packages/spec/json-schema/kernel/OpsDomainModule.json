@@ -6,13 +6,15 @@
       "properties": {
         "name": {
           "type": "string",
-          "pattern": "^[a-z][a-z0-9_]*$"
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Module name (snake_case)"
         },
         "files": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "description": "List of files in this module"
         }
       },
       "required": [

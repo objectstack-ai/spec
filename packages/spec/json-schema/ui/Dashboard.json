@@ -508,6 +508,10 @@
             "additionalProperties": false
           },
           "description": "Widgets to display"
+        },
+        "refreshInterval": {
+          "type": "number",
+          "description": "Auto-refresh interval in seconds"
         }
       },
       "required": [

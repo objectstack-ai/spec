@@ -35,32 +35,32 @@ export const CacheStrategySchema = z.enum([
 export type CacheStrategy = z.infer<typeof CacheStrategySchema>;
 
 export const CacheTierSchema = z.object({
-  name: z.string(),
-  type: z.enum(['memory', 'redis', 'memcached', 'cdn']),
+  name: z.string().describe('Unique cache tier name'),
+  type: z.enum(['memory', 'redis', 'memcached', 'cdn']).describe('Cache backend type'),
   maxSize: z.number().optional().describe('Max size in MB'),
   ttl: z.number().default(300).describe('Default TTL in seconds'),
-  strategy: CacheStrategySchema.default('lru'),
-  warmup: z.boolean().default(false),
+  strategy: CacheStrategySchema.default('lru').describe('Eviction strategy'),
+  warmup: z.boolean().default(false).describe('Pre-populate cache on startup'),
 });
 
 export type CacheTier = z.infer<typeof CacheTierSchema>;
 
 export const CacheInvalidationSchema = z.object({
-  trigger: z.enum(['create', 'update', 'delete', 'manual']),
-  scope: z.enum(['key', 'pattern', 'tag', 'all']),
-  pattern: z.string().optional(),
-  tags: z.array(z.string()).optional(),
+  trigger: z.enum(['create', 'update', 'delete', 'manual']).describe('Event that triggers invalidation'),
+  scope: z.enum(['key', 'pattern', 'tag', 'all']).describe('Invalidation scope'),
+  pattern: z.string().optional().describe('Key pattern for pattern-based invalidation'),
+  tags: z.array(z.string()).optional().describe('Cache tags to invalidate'),
 });
 
 export type CacheInvalidation = z.infer<typeof CacheInvalidationSchema>;
 
 export const CacheConfigSchema = z.object({
-  enabled: z.boolean().default(false),
-  tiers: z.array(CacheTierSchema),
-  invalidation: z.array(CacheInvalidationSchema),
-  prefetch: z.boolean().default(false),
-  compression: z.boolean().default(false),
-  encryption: z.boolean().default(false),
+  enabled: z.boolean().default(false).describe('Enable application-level caching'),
+  tiers: z.array(CacheTierSchema).describe('Ordered cache tier hierarchy'),
+  invalidation: z.array(CacheInvalidationSchema).describe('Cache invalidation rules'),
+  prefetch: z.boolean().default(false).describe('Enable cache prefetching'),
+  compression: z.boolean().default(false).describe('Enable data compression in cache'),
+  encryption: z.boolean().default(false).describe('Enable encryption for cached data'),
 });
 
 export type CacheConfig = z.infer<typeof CacheConfigSchema>;

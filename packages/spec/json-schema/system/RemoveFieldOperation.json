@@ -9,10 +9,12 @@
           "const": "remove_field"
         },
         "objectName": {
-          "type": "string"
+          "type": "string",
+          "description": "Target object name"
         },
         "fieldName": {
-          "type": "string"
+          "type": "string",
+          "description": "Name of the field to remove"
         }
       },
       "required": [

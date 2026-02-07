@@ -91,9 +91,13 @@ export const DashboardSchema = z.object({
   
   /** Collection of widgets */
   widgets: z.array(DashboardWidgetSchema).describe('Widgets to display'),
+
+  /** Auto-refresh */
+  refreshInterval: z.number().optional().describe('Auto-refresh interval in seconds'),
 });
 
 export type Dashboard = z.infer<typeof DashboardSchema>;
+export type DashboardInput = z.input<typeof DashboardSchema>;
 export type DashboardWidget = z.infer<typeof DashboardWidgetSchema>;
 
 /**

@@ -203,12 +203,16 @@ export const AppSchema = z.object({
   apis: z.array(z.unknown()).optional().describe('Custom APIs belonging to this app'),
 });
 
-export const App = Object.assign(AppSchema, {
+/**
+ * App Factory Helper
+ */
+export const App = {
   create: <T extends z.input<typeof AppSchema>>(config: T) => config,
-});
+} as const;
 
 // Main Types
 export type App = z.infer<typeof AppSchema>;
+export type AppInput = z.input<typeof AppSchema>;
 export type AppBranding = z.infer<typeof AppBrandingSchema>;
 export type NavigationItem = z.infer<typeof NavigationItemSchema>;
 
