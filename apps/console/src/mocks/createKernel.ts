@@ -33,15 +33,14 @@ export async function createKernel(options: KernelOptions) {
         console.log('[KernelFactory] Loading app:', appConfig.manifest?.id || appConfig.name || 'unknown');
         await kernel.use(new AppPlugin(appConfig));
     }
-    
-    // MSW Plugin
-    await kernel.use(new MSWPlugin({
-        enableBrowser: enableBrowser,
-        baseUrl: '/api/v1',
-        logRequests: true
-    }));
 
-    // --- BROKER SHIM START ---
+    // Protocol service is registered automatically by ObjectQLPlugin.init()
+    // via ObjectStackProtocolImplementation (which uses SchemaRegistry internally).
+    // Do NOT manually set 'protocol' on kernel.services — it would conflict with
+    // ObjectQLPlugin's ctx.registerService('protocol', ...) during bootstrap.
+    console.log('[KernelFactory] Protocol service will be registered by ObjectQLPlugin');
+
+    // --- BROKER SHIM (MUST be registered BEFORE MSWPlugin) ---
     // HttpDispatcher requires a broker to function. We inject a shim.
     (kernel as any).broker = {
         call: async (action: string, params: any, _opts: any) => {
@@ -290,6 +289,13 @@ export async function createKernel(options: KernelOptions) {
         }
     };
     // --- BROKER SHIM END ---
+
+    // MSW Plugin (AFTER protocol service and broker shim are registered)
+    await kernel.use(new MSWPlugin({
+        enableBrowser: enableBrowser,
+        baseUrl: '/api/v1',
+        logRequests: true
+    }));
     
     await kernel.bootstrap();
 
@@ -318,21 +324,6 @@ export async function createKernel(options: KernelOptions) {
                 }
             }
         }
-    }
-
-    // --- PROTOCOL SERVICE MOCK ---
-    if ((kernel as any).services instanceof Map) {
-         (kernel as any).services.set('protocol', {
-             getUiView: async ({ object, type }: any) => {
-                 return {
-                     type: type || 'list',
-                     name: 'default',
-                     object: object,
-                     title: object,
-                     body: []
-                 };
-             }
-         });
     }
 
     return kernel;

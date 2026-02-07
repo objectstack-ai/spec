@@ -232,7 +232,8 @@ export class HttpDispatcher {
             if (protocol && typeof protocol.getMetaItems === 'function') {
                 try {
                     const data = await protocol.getMetaItems({ type: typeOrName, packageId });
-                    if (data && ((data.items && data.items.length > 0) || (Array.isArray(data) && data.length > 0))) {
+                    // Return any valid response from protocol (including empty items arrays)
+                    if (data && (data.items !== undefined || Array.isArray(data))) {
                         return { handled: true, response: this.success(data) };
                     }
                 } catch {
