@@ -189,6 +189,26 @@ export function createHonoApp(options: ObjectStackHonoOptions) {
     }
   });
 
+  // --- 9. Package Management Endpoints ---
+  app.all(`${prefix}/packages*`, async (c) => {
+    try {
+      const packagesIndex = c.req.path.indexOf('/packages');
+      const path = c.req.path.substring(packagesIndex + 9); // length of '/packages'
+      const method = c.req.method;
+
+      let body = {};
+      if (method === 'POST' || method === 'PATCH' || method === 'PUT') {
+        body = await c.req.json().catch(() => ({}));
+      }
+      const query = c.req.query();
+
+      const result = await dispatcher.handlePackages(path, method, body, query, { request: c.req.raw });
+      return normalizeResponse(c, result);
+    } catch (err: any) {
+      return c.json({ success: false, error: { message: err.message, code: err.statusCode || 500 } }, err.statusCode || 500);
+    }
+  });
+
   return app;
 }
 
