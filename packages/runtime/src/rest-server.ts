@@ -290,7 +290,8 @@ export class RestServer {
                 path: `${metaPath}/:type`,
                 handler: async (req: any, res: any) => {
                     try {
-                        const items = await this.protocol.getMetaItems({ type: req.params.type });
+                        const packageId = req.query?.package || undefined;
+                        const items = await this.protocol.getMetaItems({ type: req.params.type, packageId });
                         res.json(items);
                     } catch (error: any) {
                         res.status(404).json({ error: error.message });

@@ -404,25 +404,43 @@ export class HttpDispatcher {
      * - PATCH  /packages/:id/enable  → enable a package
      * - PATCH  /packages/:id/disable → disable a package
      * 
-     * Protocol: Uses broker actions package.list, package.get, package.install,
-     *           package.uninstall, package.enable, package.disable
+     * Uses ObjectQL SchemaRegistry directly (via the 'objectql' service)
+     * with broker fallback for backward compatibility.
      */
     async handlePackages(path: string, method: string, body: any, query: any, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
-        const broker = this.ensureBroker();
         const m = method.toUpperCase();
         const parts = path.replace(/^\/+/, '').split('/').filter(Boolean);
+
+        // Try to get SchemaRegistry from the ObjectQL service
+        const qlService = this.getObjectQLService();
+        const registry = qlService?.registry;
+
+        // If no registry available, try broker as fallback
+        if (!registry) {
+            if (this.kernel.broker) {
+                return this.handlePackagesViaBroker(parts, m, body, query, context);
+            }
+            return { handled: true, response: this.error('Package service not available', 503) };
+        }
 
         try {
             // GET /packages → list packages
             if (parts.length === 0 && m === 'GET') {
-                const result = await broker.call('package.list', query || {}, { request: context.request });
-                return { handled: true, response: this.success(result) };
+                let packages = registry.getAllPackages();
+                // Apply optional filters
+                if (query?.status) {
+                    packages = packages.filter((p: any) => p.status === query.status);
+                }
+                if (query?.type) {
+                    packages = packages.filter((p: any) => p.manifest?.type === query.type);
+                }
+                return { handled: true, response: this.success({ packages, total: packages.length }) };
             }
 
             // POST /packages → install package
             if (parts.length === 0 && m === 'POST') {
-                const result = await broker.call('package.install', body, { request: context.request });
-                const res = this.success(result);
+                const pkg = registry.installPackage(body.manifest || body, body.settings);
+                const res = this.success(pkg);
                 res.status = 201;
                 return { handled: true, response: res };
             }
@@ -430,25 +448,72 @@ export class HttpDispatcher {
             // PATCH /packages/:id/enable
             if (parts.length === 2 && parts[1] === 'enable' && m === 'PATCH') {
                 const id = decodeURIComponent(parts[0]);
-                const result = await broker.call('package.enable', { id }, { request: context.request });
-                return { handled: true, response: this.success(result) };
+                const pkg = registry.enablePackage(id);
+                if (!pkg) return { handled: true, response: this.error(`Package '${id}' not found`, 404) };
+                return { handled: true, response: this.success(pkg) };
             }
 
             // PATCH /packages/:id/disable
             if (parts.length === 2 && parts[1] === 'disable' && m === 'PATCH') {
                 const id = decodeURIComponent(parts[0]);
-                const result = await broker.call('package.disable', { id }, { request: context.request });
-                return { handled: true, response: this.success(result) };
+                const pkg = registry.disablePackage(id);
+                if (!pkg) return { handled: true, response: this.error(`Package '${id}' not found`, 404) };
+                return { handled: true, response: this.success(pkg) };
             }
 
             // GET /packages/:id → get package
             if (parts.length === 1 && m === 'GET') {
                 const id = decodeURIComponent(parts[0]);
-                const result = await broker.call('package.get', { id }, { request: context.request });
-                return { handled: true, response: this.success(result) };
+                const pkg = registry.getPackage(id);
+                if (!pkg) return { handled: true, response: this.error(`Package '${id}' not found`, 404) };
+                return { handled: true, response: this.success(pkg) };
             }
 
             // DELETE /packages/:id → uninstall package
+            if (parts.length === 1 && m === 'DELETE') {
+                const id = decodeURIComponent(parts[0]);
+                const success = registry.uninstallPackage(id);
+                if (!success) return { handled: true, response: this.error(`Package '${id}' not found`, 404) };
+                return { handled: true, response: this.success({ success: true }) };
+            }
+        } catch (e: any) {
+            return { handled: true, response: this.error(e.message, e.statusCode || 500) };
+        }
+
+        return { handled: false };
+    }
+
+    /**
+     * Fallback: handle packages via broker (for backward compatibility)
+     */
+    private async handlePackagesViaBroker(parts: string[], m: string, body: any, query: any, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
+        const broker = this.kernel.broker;
+        try {
+            if (parts.length === 0 && m === 'GET') {
+                const result = await broker.call('package.list', query || {}, { request: context.request });
+                return { handled: true, response: this.success(result) };
+            }
+            if (parts.length === 0 && m === 'POST') {
+                const result = await broker.call('package.install', body, { request: context.request });
+                const res = this.success(result);
+                res.status = 201;
+                return { handled: true, response: res };
+            }
+            if (parts.length === 2 && parts[1] === 'enable' && m === 'PATCH') {
+                const id = decodeURIComponent(parts[0]);
+                const result = await broker.call('package.enable', { id }, { request: context.request });
+                return { handled: true, response: this.success(result) };
+            }
+            if (parts.length === 2 && parts[1] === 'disable' && m === 'PATCH') {
+                const id = decodeURIComponent(parts[0]);
+                const result = await broker.call('package.disable', { id }, { request: context.request });
+                return { handled: true, response: this.success(result) };
+            }
+            if (parts.length === 1 && m === 'GET') {
+                const id = decodeURIComponent(parts[0]);
+                const result = await broker.call('package.get', { id }, { request: context.request });
+                return { handled: true, response: this.success(result) };
+            }
             if (parts.length === 1 && m === 'DELETE') {
                 const id = decodeURIComponent(parts[0]);
                 const result = await broker.call('package.uninstall', { id }, { request: context.request });
@@ -457,7 +522,6 @@ export class HttpDispatcher {
         } catch (e: any) {
             return { handled: true, response: this.error(e.message, e.statusCode || 500) };
         }
-
         return { handled: false };
     }
 
@@ -656,6 +720,31 @@ export class HttpDispatcher {
         }
         const services = this.getServicesMap();
         return services[name];
+    }
+
+    /**
+     * Get the ObjectQL service which provides access to SchemaRegistry.
+     * Tries multiple access patterns since kernel structure varies.
+     */
+    private getObjectQLService(): any {
+        // 1. Try via kernel.getService
+        if (typeof this.kernel.getService === 'function') {
+            try {
+                const svc = this.kernel.getService('objectql');
+                if (svc?.registry) return svc;
+            } catch { /* ignore */ }
+        }
+        // 2. Try via kernel context
+        if (this.kernel?.context?.getService) {
+            try {
+                const svc = this.kernel.context.getService('objectql');
+                if (svc?.registry) return svc;
+            } catch { /* ignore */ }
+        }
+        // 3. Try via services map
+        const services = this.getServicesMap();
+        if (services['objectql']?.registry) return services['objectql'];
+        return null;
     }
 
     private capitalize(s: string) {

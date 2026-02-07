@@ -12,6 +12,7 @@ import type { InstalledPackage } from '@objectstack/spec/kernel';
 
 interface DeveloperOverviewProps {
   packages: InstalledPackage[];
+  selectedPackage?: InstalledPackage | null;
   onNavigate: (view: string, detail?: string) => void;
 }
 
@@ -21,7 +22,7 @@ interface SystemStats {
   loading: boolean;
 }
 
-export function DeveloperOverview({ packages, onNavigate }: DeveloperOverviewProps) {
+export function DeveloperOverview({ packages, selectedPackage, onNavigate }: DeveloperOverviewProps) {
   const client = useClient();
   const [stats, setStats] = useState<SystemStats>({
     packages: { total: 0, enabled: 0, disabled: 0, byType: {} },
@@ -36,11 +37,14 @@ export function DeveloperOverview({ packages, onNavigate }: DeveloperOverviewPro
       const typesResult = await client.meta.getTypes();
       const types: string[] = typesResult?.types || (Array.isArray(typesResult) ? typesResult : []);
 
+      // Package scope: filter metadata by selected package
+      const packageId = selectedPackage?.manifest?.id;
+
       // Fetch counts for each type
       const countEntries = await Promise.all(
         types.map(async (type) => {
           try {
-            const result = await client.meta.getItems(type);
+            const result = await client.meta.getItems(type, packageId ? { packageId } : undefined);
             const items = result?.items || (Array.isArray(result) ? result : []);
             return [type, items.length] as const;
           } catch {
@@ -67,7 +71,7 @@ export function DeveloperOverview({ packages, onNavigate }: DeveloperOverviewPro
       console.error('[DeveloperOverview] Failed to load stats:', err);
       setStats(prev => ({ ...prev, loading: false }));
     }
-  }, [client, packages]);
+  }, [client, packages, selectedPackage]);
 
   useEffect(() => { loadStats(); }, [loadStats]);
 
@@ -201,7 +205,11 @@ export function DeveloperOverview({ packages, onNavigate }: DeveloperOverviewPro
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Metadata Registry</CardTitle>
-            <CardDescription>All registered metadata types and item counts</CardDescription>
+            <CardDescription>
+              {selectedPackage
+                ? `Metadata from ${selectedPackage.manifest?.name || selectedPackage.manifest?.id}`
+                : 'All registered metadata types and item counts'}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-1.5">

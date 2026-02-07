@@ -38,7 +38,9 @@ export default function App() {
     async function loadPackages() {
       try {
         const result = await client!.packages.list();
-        const items: InstalledPackage[] = result?.packages || [];
+        const all: InstalledPackage[] = result?.packages || [];
+        // Filter out the root dev-workspace — it's the monorepo aggregator, not a real package
+        const items = all.filter((p) => p.manifest?.version !== '0.0.0' && p.manifest?.id !== 'dev-workspace');
         console.log('[App] Fetched packages:', items.map((p) => p.manifest?.name || p.manifest?.id));
         if (mounted && items.length > 0) {
           setPackages(items);
@@ -110,7 +112,7 @@ export default function App() {
           onSelectView={handleSelectView}
           selectedView={selectedView}
         />
-        <main className="flex min-w-0 flex-1 flex-col bg-background">
+        <main className="flex min-w-0 flex-1 flex-col h-svh overflow-hidden bg-background">
           <SiteHeader
             selectedObject={selectedObject}
             selectedMeta={selectedMeta}
@@ -129,6 +131,7 @@ export default function App() {
             ) : (
               <DeveloperOverview
                 packages={packages}
+                selectedPackage={selectedPackage}
                 onNavigate={handleNavigate}
               />
             )}
