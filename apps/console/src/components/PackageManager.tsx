@@ -1,29 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ObjectStackClient } from '@objectstack/client';
+import { useClient } from '@objectstack/client-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Package, Power, PowerOff, Trash2, RefreshCw, AppWindow, Layers } from 'lucide-react';
 
-interface InstalledPackage {
-  manifest: {
-    id: string;
-    name: string;
-    version: string;
-    type: string;
-    description?: string;
-  };
-  status: string;
-  enabled: boolean;
-  installedAt?: string;
-  updatedAt?: string;
-}
+import type { InstalledPackage } from '@objectstack/spec/kernel';
 
-interface PackageManagerProps {
-  client: ObjectStackClient;
-}
-
-export function PackageManager({ client }: PackageManagerProps) {
+export function PackageManager() {
+  const client = useClient();
   const [packages, setPackages] = useState<InstalledPackage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

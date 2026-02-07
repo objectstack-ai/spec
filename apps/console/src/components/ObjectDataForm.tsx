@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ObjectStackClient } from '@objectstack/client';
+import { useClient } from '@objectstack/client-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,14 +12,14 @@ import { Badge } from "@/components/ui/badge";
 import { Save, Loader2, AlertCircle } from "lucide-react";
 
 interface ObjectDataFormProps {
-    client: ObjectStackClient;
     objectApiName: string;
     record?: any;
     onSuccess: () => void;
     onCancel: () => void;
 }
 
-export function ObjectDataForm({ client, objectApiName, record, onSuccess, onCancel }: ObjectDataFormProps) {
+export function ObjectDataForm({ objectApiName, record, onSuccess, onCancel }: ObjectDataFormProps) {
+    const client = useClient();
     const [def, setDef] = useState<any>(null);
     const [formData, setFormData] = useState<any>({});
     const [loading, setLoading] = useState(false);

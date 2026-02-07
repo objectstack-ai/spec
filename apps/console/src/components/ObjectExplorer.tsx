@@ -1,20 +1,35 @@
 import { useState } from 'react';
-import { ObjectStackClient } from '@objectstack/client';
 import { ObjectDataTable } from './ObjectDataTable';
 import { ObjectSchemaInspector } from './ObjectSchemaInspector';
+import { ObjectDataForm } from './ObjectDataForm';
 import { Badge } from "@/components/ui/badge";
 import { Database, Code2, Table2, Globe } from 'lucide-react';
 
 type ObjectTab = 'schema' | 'data' | 'api';
 
 interface ObjectExplorerProps {
-  client: ObjectStackClient;
   objectApiName: string;
-  onEdit: (record: any) => void;
 }
 
-export function ObjectExplorer({ client, objectApiName, onEdit }: ObjectExplorerProps) {
+export function ObjectExplorer({ objectApiName }: ObjectExplorerProps) {
   const [activeTab, setActiveTab] = useState<ObjectTab>('schema');
+  const [editingRecord, setEditingRecord] = useState<any>(null);
+  const [showForm, setShowForm] = useState(false);
+
+  function handleEdit(record: any) {
+    setEditingRecord(record);
+    setShowForm(true);
+  }
+
+  function handleFormSuccess() {
+    setShowForm(false);
+    setEditingRecord(null);
+    // Force data tab re-fetch by toggling activeTab
+    if (activeTab === 'data') {
+      setActiveTab('schema');
+      setTimeout(() => setActiveTab('data'), 0);
+    }
+  }
 
   const tabs: { id: ObjectTab; label: string; icon: React.ElementType }[] = [
     { id: 'schema', label: 'Schema', icon: Code2 },
@@ -57,15 +72,25 @@ export function ObjectExplorer({ client, objectApiName, onEdit }: ObjectExplorer
       {/* Tab content */}
       <div className="flex-1 overflow-auto p-4">
         {activeTab === 'schema' && (
-          <ObjectSchemaInspector client={client} objectApiName={objectApiName} />
+          <ObjectSchemaInspector objectApiName={objectApiName} />
         )}
         {activeTab === 'data' && (
-          <ObjectDataTable client={client} objectApiName={objectApiName} onEdit={onEdit} />
+          <ObjectDataTable objectApiName={objectApiName} onEdit={handleEdit} />
         )}
         {activeTab === 'api' && (
           <ObjectApiReference objectApiName={objectApiName} />
         )}
       </div>
+
+      {/* Form Dialog */}
+      {showForm && (
+        <ObjectDataForm
+          objectApiName={objectApiName}
+          record={editingRecord && Object.keys(editingRecord).length > 0 ? editingRecord : undefined}
+          onSuccess={handleFormSuccess}
+          onCancel={() => { setShowForm(false); setEditingRecord(null); }}
+        />
+      )}
     </div>
   );
 }

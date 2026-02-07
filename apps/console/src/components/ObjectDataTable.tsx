@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ObjectStackClient } from '@objectstack/client';
+import { useClient } from '@objectstack/client-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface ObjectDataTableProps {
-    client: ObjectStackClient;
     objectApiName: string;
     onEdit: (record: any) => void;
 }
@@ -77,7 +76,8 @@ function TableSkeleton({ cols }: { cols: number }) {
     );
 }
 
-export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTableProps) {
+export function ObjectDataTable({ objectApiName, onEdit }: ObjectDataTableProps) {
+    const client = useClient();
     const [def, setDef] = useState<any>(null);
     const [records, setRecords] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
