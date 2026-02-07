@@ -1,52 +1,115 @@
 ---
 title: Events & Hooks
-description: System-wide event bus
+description: System-wide event bus for loose coupling between plugins
 ---
 
 # Events & Hooks
 
-The Kernel provides a high-performance, typed Event Bus for loose coupling.
+The Kernel provides a high-performance, typed Event Bus for loose coupling between plugins and the core system.
 
 ## Lifecycle Events
 
-These events are emitted by the Kernel itself during the bootstrap process.
+Emitted by the Kernel during the bootstrap process:
 
 | Event | Description |
 | :--- | :--- |
 | `kernel:init` | The kernel has started initialization. |
 | `kernel:ready` | All plugins have successfully started. System is live. |
-| `kernel:shutdown` | Shutdown signal received. |
+| `kernel:shutdown` | Shutdown signal received. Plugins should clean up resources. |
+| `kernel:error` | A fatal error occurred during startup or runtime. |
 
 ## Data Events
 
-The Data Engine emits events for record mutations.
+The Data Engine emits events for record mutations. Every mutation triggers a `before` and `after` hook.
 
-| Event | Payload |
-| :--- | :--- |
-| `data:beforeCreate` | `{ object, record }` - Can modify record or throw error to cancel. |
-| `data:afterCreate` | `{ object, record, id }` - Post-processing. |
-| `data:beforeUpdate` | `{ object, id, record }` |
-| `data:afterUpdate` | ... |
+| Event | Payload | Cancelable |
+| :--- | :--- | :---: |
+| `data:beforeCreate` | `{ object, record }` | ✅ |
+| `data:afterCreate` | `{ object, record, id }` | ❌ |
+| `data:beforeUpdate` | `{ object, id, changes, previous }` | ✅ |
+| `data:afterUpdate` | `{ object, id, record }` | ❌ |
+| `data:beforeDelete` | `{ object, id }` | ✅ |
+| `data:afterDelete` | `{ object, id }` | ❌ |
+
+<Callout type="info">
+**Cancelable** events can be aborted by throwing an error in the hook handler. This prevents the operation from proceeding.
+</Callout>
 
 ## Usage
 
 ### Listening to Events
 
 ```typescript
+// Lifecycle hook — runs once when system is ready
 ctx.hook('kernel:ready', async () => {
-    ctx.logger.info("System is ready! Sending startup notification...");
+  ctx.logger.info('System is ready! Sending startup notification...');
 });
 
+// Data hook — runs on every record creation
 ctx.hook('data:beforeCreate', async ({ object, record }) => {
-    if (object === 'order' && record.amount > 10000) {
-        ctx.logger.warn('Large order detected!');
-    }
+  if (object === 'order' && record.amount > 10000) {
+    ctx.logger.warn('Large order detected!');
+    // Optionally enrich the record
+    record.requires_approval = true;
+  }
 });
 ```
 
-### Emitting Events
+### Emitting Custom Events
+
+Plugins can emit their own namespaced events for inter-plugin communication:
 
 ```typescript
-// Custom business event
-ctx.emit('order:shipped', { orderId: '123' });
+// Emit a custom business event
+ctx.emit('order:shipped', { orderId: '123', carrier: 'fedex' });
+
+// Another plugin listens
+ctx.hook('order:shipped', async ({ orderId, carrier }) => {
+  await sendTrackingEmail(orderId, carrier);
+});
 ```
+
+### Wildcard Listeners
+
+Use wildcards to listen to all events in a namespace:
+
+```typescript
+// Listen to all data events
+ctx.hook('data:*', async (event) => {
+  ctx.logger.debug(`Data event: ${event.type}`, event.payload);
+});
+```
+
+### Error Handling in Hooks
+
+Errors in `before` hooks cancel the operation. Errors in `after` hooks are logged but don't roll back:
+
+```typescript
+ctx.hook('data:beforeCreate', async ({ object, record }) => {
+  if (object === 'invoice' && !record.customer_id) {
+    throw new Error('Invoice must have a customer'); // Cancels the create
+  }
+});
+
+ctx.hook('data:afterCreate', async ({ object, id }) => {
+  // This runs after the record is saved
+  // Errors here are logged but don't affect the saved record
+  await notifyWebhook(object, id);
+});
+```
+
+## Event Ordering
+
+Hooks execute in plugin registration order. Use `priority` to control execution:
+
+```typescript
+ctx.hook('data:beforeCreate', async (event) => {
+  // Validation runs first
+}, { priority: 100 });
+
+ctx.hook('data:beforeCreate', async (event) => {
+  // Enrichment runs after validation
+}, { priority: 50 });
+```
+
+Higher priority values execute first (default: `0`).

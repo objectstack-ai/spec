@@ -5,26 +5,30 @@ description: Configuration reference for supported database drivers
 
 # Database Drivers
 
-ObjectStack supports multiple database backends through a unified driver configurations.
+ObjectStack supports multiple database backends through a unified driver interface. Configure your data source in `objectstack.config.ts`:
 
-## MongoDB
+```typescript
+import { defineStack } from '@objectstack/spec';
 
-Configuration properties for the MongoDB driver.
+export default defineStack({
+  manifest: { /* ... */ },
+  datasources: {
+    default: {
+      driver: 'postgres',
+      url: process.env.DATABASE_URL,
+    },
+  },
+});
+```
 
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **url** | `string` | optional | Connection URI |
-| **database** | `string` | ✅ | Database Name |
-| **host** | `string` | optional | Host address |
-| **port** | `number` | optional | Port number |
-| **username** | `string` | optional | Auth User |
-| **password** | `string` | optional | Auth Password |
-| **authSource** | `string` | optional | Authentication Database |
-| **ssl** | `boolean` | optional | Enable SSL |
-| **replicaSet** | `string` | optional | Replica Set Name |
-| **readPreference** | `Enum` | optional | Read Preference ('primary', 'secondary', etc.) |
-| **maxPoolSize** | `number` | optional | Max Connection Pool Size |
-| **minPoolSize** | `number` | optional | Min Connection Pool Size |
+## Supported Drivers
+
+| Driver | Package | Use Case |
+| :--- | :--- | :--- |
+| **PostgreSQL** | `@objectstack/driver-postgres` | Production, enterprise workloads |
+| **MongoDB** | `@objectstack/driver-mongo` | Document-oriented, flexible schema |
+| **SQLite** | `@objectstack/driver-sqlite` | Local development, embedded apps |
+| **Memory** | `@objectstack/driver-memory` | Testing, prototyping |
 
 ## PostgreSQL
 
@@ -32,14 +36,120 @@ Configuration properties for the PostgreSQL driver (node-postgres / pg).
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **url** | `string` | optional | Connection URI |
+| **url** | `string` | optional | Connection URI (e.g., `postgres://user:pass@host:5432/db`) |
 | **database** | `string` | ✅ | Database Name |
-| **host** | `string` | optional | Host address |
-| **port** | `number` | optional | Port number |
+| **host** | `string` | optional | Host address (default: `localhost`) |
+| **port** | `number` | optional | Port number (default: `5432`) |
 | **username** | `string` | optional | Auth User |
 | **password** | `string` | optional | Auth Password |
-| **schema** | `string` | optional | Default Schema (defaults to 'public') |
+| **schema** | `string` | optional | Default Schema (default: `public`) |
 | **ssl** | `boolean \| object` | optional | Enable SSL |
 | **applicationName** | `string` | optional | Application Name |
-| **max** | `number` | optional | Max Pool Size |
-| **min** | `number` | optional | Min Pool Size |
+| **max** | `number` | optional | Max Pool Size (default: `10`) |
+| **min** | `number` | optional | Min Pool Size (default: `2`) |
+
+**Example:**
+
+```typescript
+datasources: {
+  default: {
+    driver: 'postgres',
+    url: 'postgres://admin:secret@db.example.com:5432/myapp',
+    schema: 'public',
+    ssl: true,
+    max: 20,
+  },
+}
+```
+
+## MongoDB
+
+Configuration properties for the MongoDB driver.
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **url** | `string` | optional | Connection URI (e.g., `mongodb://host:27017/db`) |
+| **database** | `string` | ✅ | Database Name |
+| **host** | `string` | optional | Host address (default: `localhost`) |
+| **port** | `number` | optional | Port number (default: `27017`) |
+| **username** | `string` | optional | Auth User |
+| **password** | `string` | optional | Auth Password |
+| **authSource** | `string` | optional | Authentication Database (default: `admin`) |
+| **ssl** | `boolean` | optional | Enable SSL |
+| **replicaSet** | `string` | optional | Replica Set Name |
+| **readPreference** | `Enum` | optional | Read Preference (`primary`, `secondary`, `nearest`) |
+| **maxPoolSize** | `number` | optional | Max Connection Pool Size (default: `10`) |
+| **minPoolSize** | `number` | optional | Min Connection Pool Size (default: `0`) |
+
+**Example:**
+
+```typescript
+datasources: {
+  default: {
+    driver: 'mongo',
+    url: 'mongodb+srv://admin:secret@cluster.mongodb.net/myapp',
+    readPreference: 'nearest',
+    maxPoolSize: 50,
+  },
+}
+```
+
+## SQLite
+
+SQLite is ideal for local-first development and embedded applications.
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **filename** | `string` | ✅ | Path to the SQLite database file |
+| **mode** | `string` | optional | `readwrite` (default), `readonly`, or `memory` |
+
+**Example:**
+
+```typescript
+datasources: {
+  default: {
+    driver: 'sqlite',
+    filename: './data/app.db',
+  },
+}
+```
+
+## Memory Driver
+
+The in-memory driver stores data in a JavaScript `Map`. Data is lost when the process exits.
+
+```typescript
+datasources: {
+  default: {
+    driver: 'memory',
+  },
+}
+```
+
+<Callout type="tip">
+Use the memory driver for unit tests. It requires no setup and runs instantly.
+</Callout>
+
+## Multi-Datasource
+
+ObjectStack supports multiple data sources. Objects can target specific datasources:
+
+```typescript
+export default defineStack({
+  datasources: {
+    primary: { driver: 'postgres', url: process.env.PG_URL },
+    analytics: { driver: 'postgres', url: process.env.ANALYTICS_URL },
+    cache: { driver: 'mongo', url: process.env.MONGO_URL },
+  },
+});
+```
+
+Then in your object definition:
+
+```typescript
+export const AuditLog = ObjectSchema.create({
+  name: 'audit_log',
+  datasource: 'analytics', // Routes to the analytics database
+  fields: { /* ... */ },
+});
+```
