@@ -3,27 +3,49 @@ title: ObjectStack Protocol
 description: The Metadata-Driven Protocol for the Post-SaaS Era.
 ---
 
-import { Book, Compass, FileText, Layers, Database, Layout, Cpu, Code2, Bot, Workflow, Shield, Globe } from 'lucide-react';
+import { Book, Compass, FileText, Layers, Database, Layout, Cpu, Code2, Bot, Workflow, Shield, Globe, Rocket, Terminal, FolderOpen } from 'lucide-react';
 
 **ObjectStack** is a **Metadata-Driven Protocol** for building enterprise architecture.
 It standardizes how we define Data, UI, Automation, and AI Agents as structured JSON/YAML, decoupling *Business Intent* from *Technical Execution*.
 
 This documentation is the authoritative specification for the ObjectStack ecosystem.
 
+## Quick Start
+
+```bash
+npx @objectstack/cli init my-app   # Scaffold a project
+cd my-app
+os studio                           # Launch dev server + Console UI
+```
+
+Open [http://localhost:3000/_studio/](http://localhost:3000/_studio/) to browse your objects, test the API, and inspect metadata.
+
 ## Getting Started
 
 <Cards>
+  <Card
+    icon={<Rocket />}
+    title="Developer Guide"
+    href="/docs/developer"
+    description="Quick Start tutorial: create a project, define objects, launch the Studio."
+  />
+  <Card
+    icon={<FolderOpen />}
+    title="Example Apps"
+    href="/docs/framework/examples"
+    description="Run the built-in Todo, CRM, and BI examples to learn hands-on."
+  />
+  <Card
+    icon={<Terminal />}
+    title="CLI Reference"
+    href="/docs/framework/cli"
+    description="All 11 commands: init, generate, serve, studio, compile, validate, and more."
+  />
   <Card
     icon={<Compass />}
     title="Introduction"
     href="/docs/introduction"
     description="Understand the philosophy: 'Intent over Implementation' and Metadata-Driven Architecture."
-  />
-  <Card
-    icon={<Code2 />}
-    title="Framework Guide"
-    href="/docs/framework"
-    description="Guides for writing plugins, CLI tools, and extending the platform."
   />
 </Cards>
 
