@@ -369,7 +369,7 @@ export const SandboxConfigSchema = z.object({
  * Security Vulnerability
  * Represents a known security vulnerability
  */
-export const SecurityVulnerabilitySchema = z.object({
+export const KernelSecurityVulnerabilitySchema = z.object({
   /**
    * CVE identifier
    */
@@ -460,7 +460,7 @@ export const SecurityVulnerabilitySchema = z.object({
  * Security Scan Result
  * Result of security scanning
  */
-export const SecurityScanResultSchema = z.object({
+export const KernelSecurityScanResultSchema = z.object({
   /**
    * Scan timestamp
    */
@@ -482,7 +482,7 @@ export const SecurityScanResultSchema = z.object({
   /**
    * Vulnerabilities found
    */
-  vulnerabilities: z.array(SecurityVulnerabilitySchema).optional(),
+  vulnerabilities: z.array(KernelSecurityVulnerabilitySchema).optional(),
   
   /**
    * Code quality issues
@@ -502,7 +502,7 @@ export const SecurityScanResultSchema = z.object({
   dependencyVulnerabilities: z.array(z.object({
     package: z.string(),
     version: z.string(),
-    vulnerability: SecurityVulnerabilitySchema,
+    vulnerability: KernelSecurityVulnerabilitySchema,
   })).optional(),
   
   /**
@@ -534,7 +534,7 @@ export const SecurityScanResultSchema = z.object({
  * Security Policy
  * Defines security policies for plugin
  */
-export const SecurityPolicySchema = z.object({
+export const KernelSecurityPolicySchema = z.object({
   /**
    * Content Security Policy
    */
@@ -633,17 +633,17 @@ export const PluginSecurityManifestSchema = z.object({
   /**
    * Security policy
    */
-  policy: SecurityPolicySchema.optional(),
+  policy: KernelSecurityPolicySchema.optional(),
   
   /**
    * Security scan results
    */
-  scanResults: z.array(SecurityScanResultSchema).optional(),
+  scanResults: z.array(KernelSecurityScanResultSchema).optional(),
   
   /**
    * Known vulnerabilities
    */
-  vulnerabilities: z.array(SecurityVulnerabilitySchema).optional(),
+  vulnerabilities: z.array(KernelSecurityVulnerabilitySchema).optional(),
   
   /**
    * Code signing
@@ -694,8 +694,8 @@ export type Permission = z.infer<typeof PermissionSchema>;
 export type PermissionSet = z.infer<typeof PermissionSetSchema>;
 export type RuntimeConfig = z.infer<typeof RuntimeConfigSchema>;
 export type SandboxConfig = z.infer<typeof SandboxConfigSchema>;
-export type SecurityVulnerability = z.infer<typeof SecurityVulnerabilitySchema>;
-export type SecurityScanResult = z.infer<typeof SecurityScanResultSchema>;
-export type SecurityPolicy = z.infer<typeof SecurityPolicySchema>;
+export type KernelSecurityVulnerability = z.infer<typeof KernelSecurityVulnerabilitySchema>;
+export type KernelSecurityScanResult = z.infer<typeof KernelSecurityScanResultSchema>;
+export type KernelSecurityPolicy = z.infer<typeof KernelSecurityPolicySchema>;
 export type PluginTrustLevel = z.infer<typeof PluginTrustLevelSchema>;
 export type PluginSecurityManifest = z.infer<typeof PluginSecurityManifestSchema>;

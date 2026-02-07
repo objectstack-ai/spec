@@ -52,26 +52,26 @@ export type Subscription = z.infer<typeof SubscriptionSchema>;
  * Presence Status Enum
  * User online/offline status
  */
-export const PresenceStatus = z.enum([
+export const RealtimePresenceStatus = z.enum([
   'online',
   'away',
   'offline',
 ]);
 
-export type PresenceStatus = z.infer<typeof PresenceStatus>;
+export type RealtimePresenceStatus = z.infer<typeof RealtimePresenceStatus>;
 
 /**
  * Presence Schema
  * Tracks user online status and metadata
  */
-export const PresenceSchema = z.object({
+export const RealtimePresenceSchema = z.object({
   userId: z.string().describe('User identifier'),
-  status: PresenceStatus.describe('Current presence status'),
+  status: RealtimePresenceStatus.describe('Current presence status'),
   lastSeen: z.string().datetime().describe('ISO 8601 datetime of last activity'),
   metadata: z.record(z.string(), z.any()).optional().describe('Custom presence data (e.g., current page, custom status)'),
 });
 
-export type Presence = z.infer<typeof PresenceSchema>;
+export type RealtimePresence = z.infer<typeof RealtimePresenceSchema>;
 
 /**
  * Realtime Action Enum

@@ -4,7 +4,7 @@ import {
   SandboxConfigSchema,
   PermissionSchema,
   PermissionSetSchema,
-  SecurityPolicySchema,
+  KernelSecurityPolicySchema,
   PluginSecurityManifestSchema,
 } from './plugin-security-advanced.zod';
 
@@ -218,7 +218,7 @@ describe('Plugin Security Advanced Schemas', () => {
     });
   });
 
-  describe('SecurityPolicySchema', () => {
+  describe('KernelSecurityPolicySchema', () => {
     it('should validate comprehensive security policy', () => {
       const policy = {
         csp: {
@@ -257,7 +257,7 @@ describe('Plugin Security Advanced Schemas', () => {
           retention: 90,
         },
       };
-      const result = SecurityPolicySchema.parse(policy);
+      const result = KernelSecurityPolicySchema.parse(policy);
       expect(result.rateLimit?.enabled).toBe(true);
       expect(result.authentication?.required).toBe(true);
       expect(result.encryption?.dataAtRest).toBe(true);

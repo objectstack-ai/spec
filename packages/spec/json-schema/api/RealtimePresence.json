@@ -1,7 +1,7 @@
 {
-  "$ref": "#/definitions/Presence",
+  "$ref": "#/definitions/RealtimePresence",
   "definitions": {
-    "Presence": {
+    "RealtimePresence": {
       "type": "object",
       "properties": {
         "userId": {

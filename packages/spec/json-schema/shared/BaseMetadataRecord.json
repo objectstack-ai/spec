@@ -1,0 +1,42 @@
+{
+  "$ref": "#/definitions/BaseMetadataRecord",
+  "definitions": {
+    "BaseMetadataRecord": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique metadata record identifier"
+        },
+        "type": {
+          "type": "string",
+          "description": "Metadata type (e.g. \"object\", \"view\", \"flow\")"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Machine name (snake_case)"
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "yaml",
+            "json",
+            "typescript",
+            "javascript"
+          ],
+          "description": "Source file format"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "name"
+      ],
+      "additionalProperties": false,
+      "description": "Base metadata record fields shared across kernel and system"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

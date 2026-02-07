@@ -1,7 +1,7 @@
 {
-  "$ref": "#/definitions/SecurityScanResult",
+  "$ref": "#/definitions/KernelSecurityScanResult",
   "definitions": {
-    "SecurityScanResult": {
+    "KernelSecurityScanResult": {
       "type": "object",
       "properties": {
         "timestamp": {

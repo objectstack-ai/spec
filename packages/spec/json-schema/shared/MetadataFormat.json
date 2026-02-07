@@ -1,0 +1,16 @@
+{
+  "$ref": "#/definitions/MetadataFormat",
+  "definitions": {
+    "MetadataFormat": {
+      "type": "string",
+      "enum": [
+        "yaml",
+        "json",
+        "typescript",
+        "javascript"
+      ],
+      "description": "Metadata file format"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

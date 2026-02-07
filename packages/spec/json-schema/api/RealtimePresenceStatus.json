@@ -1,7 +1,7 @@
 {
-  "$ref": "#/definitions/PresenceStatus",
+  "$ref": "#/definitions/RealtimePresenceStatus",
   "definitions": {
-    "PresenceStatus": {
+    "RealtimePresenceStatus": {
       "type": "string",
       "enum": [
         "online",
