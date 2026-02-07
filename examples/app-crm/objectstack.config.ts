@@ -24,6 +24,7 @@ import {
 export default defineStack({
   manifest: {
     id: 'com.example.crm',
+    namespace: 'crm',
     version: '3.0.0',
     type: 'app',
     name: 'Enterprise CRM',

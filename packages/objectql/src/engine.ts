@@ -150,28 +150,51 @@ export class ObjectQL implements IDataEngine {
    */
   registerApp(manifest: any) {
       const id = manifest.id || manifest.name;
-      this.logger.debug('Registering package manifest', { id });
+      const namespace = manifest.namespace as string | undefined;
+      this.logger.debug('Registering package manifest', { id, namespace });
 
       // 1. Register the Package (manifest + lifecycle state)
       SchemaRegistry.installPackage(manifest);
-      this.logger.debug('Installed Package', { id: manifest.id, name: manifest.name });
+      this.logger.debug('Installed Package', { id: manifest.id, name: manifest.name, namespace });
 
-      // 2. Register objects
+      // 2. Register owned objects
       if (manifest.objects) {
           if (Array.isArray(manifest.objects)) {
              this.logger.debug('Registering objects from manifest (Array)', { id, objectCount: manifest.objects.length });
              for (const objDef of manifest.objects) {
-                SchemaRegistry.registerObject(objDef, id);
-                this.logger.debug('Registered Object', { object: objDef.name, from: id });
+                const fqn = SchemaRegistry.registerObject(objDef, id, namespace, 'own');
+                this.logger.debug('Registered Object', { fqn, from: id });
              }
           } else {
              this.logger.debug('Registering objects from manifest (Map)', { id, objectCount: Object.keys(manifest.objects).length });
              for (const [name, objDef] of Object.entries(manifest.objects)) {
                 // Ensure name in definition matches key
                 (objDef as any).name = name;
-                SchemaRegistry.registerObject(objDef as any, id);
-                this.logger.debug('Registered Object', { object: name, from: id });
+                const fqn = SchemaRegistry.registerObject(objDef as any, id, namespace, 'own');
+                this.logger.debug('Registered Object', { fqn, from: id });
              }
+          }
+      }
+
+      // 2b. Register object extensions (fields added to objects owned by other packages)
+      if (Array.isArray(manifest.objectExtensions) && manifest.objectExtensions.length > 0) {
+          this.logger.debug('Registering object extensions', { id, count: manifest.objectExtensions.length });
+          for (const ext of manifest.objectExtensions) {
+              const targetFqn = ext.extend;
+              const priority = ext.priority ?? 200;
+              // Create a partial object definition for the extension
+              const extDef = {
+                  name: targetFqn, // Use the target FQN as name
+                  fields: ext.fields,
+                  label: ext.label,
+                  pluralLabel: ext.pluralLabel,
+                  description: ext.description,
+                  validations: ext.validations,
+                  indexes: ext.indexes,
+              };
+              // Register as extension (namespace is undefined since we're targeting by FQN)
+              SchemaRegistry.registerObject(extDef as any, id, undefined, 'extend', priority);
+              this.logger.debug('Registered Object Extension', { target: targetFqn, priority, from: id });
           }
       }
 

@@ -1,5 +1,13 @@
 // Export Registry
-export { SchemaRegistry } from './registry.js';
+export { 
+  SchemaRegistry,
+  computeFQN,
+  parseFQN,
+  RESERVED_NAMESPACES,
+  DEFAULT_OWNER_PRIORITY,
+  DEFAULT_EXTENDER_PRIORITY,
+} from './registry.js';
+export type { ObjectContributor } from './registry.js';
 
 // Export Protocol Implementation
 export { ObjectStackProtocolImplementation } from './protocol.js';

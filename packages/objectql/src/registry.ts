@@ -1,10 +1,111 @@
-import { ServiceObject, ObjectSchema } from '@objectstack/spec/data';
+import { ServiceObject, ObjectSchema, ObjectOwnership } from '@objectstack/spec/data';
 import { ObjectStackManifest, ManifestSchema, InstalledPackage, InstalledPackageSchema } from '@objectstack/spec/kernel';
 import { AppSchema } from '@objectstack/spec/ui';
 
 /**
+ * Reserved namespaces that do not get FQN prefix applied.
+ * Objects in these namespaces keep their short names (e.g., "user" not "base__user").
+ */
+export const RESERVED_NAMESPACES = new Set(['base', 'system']);
+
+/**
+ * Default priorities for ownership types.
+ */
+export const DEFAULT_OWNER_PRIORITY = 100;
+export const DEFAULT_EXTENDER_PRIORITY = 200;
+
+/**
+ * Contributor Record
+ * Tracks how a package contributes to an object (own or extend).
+ */
+export interface ObjectContributor {
+  packageId: string;
+  namespace: string;
+  ownership: ObjectOwnership;
+  priority: number;
+  definition: ServiceObject;
+}
+
+/**
+ * Compute Fully Qualified Name (FQN) for an object.
+ * 
+ * @param namespace - The package namespace (e.g., "crm", "todo")
+ * @param shortName - The object's short name (e.g., "task", "account")
+ * @returns FQN string (e.g., "crm__task") or just shortName for reserved namespaces
+ * 
+ * @example
+ * computeFQN('crm', 'account')  // => 'crm__account'
+ * computeFQN('base', 'user')    // => 'user' (reserved, no prefix)
+ * computeFQN(undefined, 'task') // => 'task' (legacy, no namespace)
+ */
+export function computeFQN(namespace: string | undefined, shortName: string): string {
+  if (!namespace || RESERVED_NAMESPACES.has(namespace)) {
+    return shortName;
+  }
+  return `${namespace}__${shortName}`;
+}
+
+/**
+ * Parse FQN back to namespace and short name.
+ * 
+ * @param fqn - Fully qualified name (e.g., "crm__account" or "user")
+ * @returns { namespace, shortName } - namespace is undefined for unprefixed names
+ */
+export function parseFQN(fqn: string): { namespace: string | undefined; shortName: string } {
+  const idx = fqn.indexOf('__');
+  if (idx === -1) {
+    return { namespace: undefined, shortName: fqn };
+  }
+  return {
+    namespace: fqn.slice(0, idx),
+    shortName: fqn.slice(idx + 2),
+  };
+}
+
+/**
+ * Deep merge two ServiceObject definitions.
+ * Fields are merged additively. Other props: later value wins.
+ */
+function mergeObjectDefinitions(base: ServiceObject, extension: Partial<ServiceObject>): ServiceObject {
+  const merged = { ...base };
+
+  // Merge fields additively
+  if (extension.fields) {
+    merged.fields = { ...base.fields, ...extension.fields };
+  }
+
+  // Merge validations additively
+  if (extension.validations) {
+    merged.validations = [...(base.validations || []), ...extension.validations];
+  }
+
+  // Merge indexes additively
+  if (extension.indexes) {
+    merged.indexes = [...(base.indexes || []), ...extension.indexes];
+  }
+
+  // Override scalar props (last writer wins)
+  if (extension.label !== undefined) merged.label = extension.label;
+  if (extension.pluralLabel !== undefined) merged.pluralLabel = extension.pluralLabel;
+  if (extension.description !== undefined) merged.description = extension.description;
+
+  return merged;
+}
+
+/**
  * Global Schema Registry
  * Unified storage for all metadata types (Objects, Apps, Flows, Layouts, etc.)
+ * 
+ * ## Namespace & Ownership Model
+ * 
+ * Objects use a namespace-based FQN system:
+ * - `namespace`: Short identifier from package manifest (e.g., "crm", "todo")
+ * - `FQN`: `{namespace}__{short_name}` (e.g., "crm__account")
+ * - Reserved namespaces (`base`, `system`) don't get prefixed
+ * 
+ * Ownership modes:
+ * - `own`: One package owns the object (creates the table, defines base schema)
+ * - `extend`: Multiple packages can extend an object (add fields, merge by priority)
  * 
  * ## Package vs App Distinction
  * - **Package**: The unit of installation, stored under type 'package'.
@@ -14,15 +115,296 @@ import { AppSchema } from '@objectstack/spec/ui';
  * - A package may contain 0, 1, or many apps.
  */
 export class SchemaRegistry {
-  // Nested Map: Type -> Name/ID -> MetadataItem
+  // ==========================================
+  // Object-specific storage (Ownership Model)
+  // ==========================================
+  
+  /** FQN → Contributor[] (all packages that own/extend this object) */
+  private static objectContributors = new Map<string, ObjectContributor[]>();
+  
+  /** FQN → Merged ServiceObject (cached, invalidated on changes) */
+  private static mergedObjectCache = new Map<string, ServiceObject>();
+  
+  /** Namespace → PackageId (ensures namespace uniqueness) */
+  private static namespaceRegistry = new Map<string, string>();
+
+  // ==========================================
+  // Generic metadata storage (non-object types)
+  // ==========================================
+  
+  /** Type → Name/ID → MetadataItem */
   private static metadata = new Map<string, Map<string, any>>();
 
+  // ==========================================
+  // Namespace Management
+  // ==========================================
+
   /**
-   * Universal Register Method
-   * @param type The category of metadata (e.g., 'object', 'package', 'apps')
-   * @param item The metadata item itself
-   * @param keyField The property to use as the unique key (default: 'name')
-   * @param packageId Optional: the owning package ID for scoped queries
+   * Register a namespace for a package.
+   * Enforces namespace uniqueness within the instance.
+   * 
+   * @throws Error if namespace is already registered to a different package
+   */
+  static registerNamespace(namespace: string, packageId: string): void {
+    if (!namespace) return;
+    
+    const existing = this.namespaceRegistry.get(namespace);
+    if (existing && existing !== packageId) {
+      throw new Error(
+        `Namespace "${namespace}" is already registered to package "${existing}". ` +
+        `Package "${packageId}" cannot use the same namespace.`
+      );
+    }
+    
+    this.namespaceRegistry.set(namespace, packageId);
+    console.log(`[Registry] Registered namespace: ${namespace} → ${packageId}`);
+  }
+
+  /**
+   * Unregister a namespace when a package is uninstalled.
+   */
+  static unregisterNamespace(namespace: string, packageId: string): void {
+    const existing = this.namespaceRegistry.get(namespace);
+    if (existing === packageId) {
+      this.namespaceRegistry.delete(namespace);
+      console.log(`[Registry] Unregistered namespace: ${namespace}`);
+    }
+  }
+
+  /**
+   * Get the package that owns a namespace.
+   */
+  static getNamespaceOwner(namespace: string): string | undefined {
+    return this.namespaceRegistry.get(namespace);
+  }
+
+  // ==========================================
+  // Object Registration (Ownership Model)
+  // ==========================================
+
+  /**
+   * Register an object with ownership semantics.
+   * 
+   * @param schema - The object definition
+   * @param packageId - The owning package ID
+   * @param namespace - The package namespace (for FQN computation)
+   * @param ownership - 'own' (single owner) or 'extend' (additive merge)
+   * @param priority - Merge priority (lower applied first, higher wins on conflict)
+   * 
+   * @throws Error if trying to 'own' an object that already has an owner
+   */
+  static registerObject(
+    schema: ServiceObject,
+    packageId: string,
+    namespace?: string,
+    ownership: ObjectOwnership = 'own',
+    priority: number = ownership === 'own' ? DEFAULT_OWNER_PRIORITY : DEFAULT_EXTENDER_PRIORITY
+  ): string {
+    const shortName = schema.name;
+    const fqn = computeFQN(namespace, shortName);
+
+    // Ensure namespace is registered
+    if (namespace) {
+      this.registerNamespace(namespace, packageId);
+    }
+
+    // Get or create contributor list
+    let contributors = this.objectContributors.get(fqn);
+    if (!contributors) {
+      contributors = [];
+      this.objectContributors.set(fqn, contributors);
+    }
+
+    // Validate ownership rules
+    if (ownership === 'own') {
+      const existingOwner = contributors.find(c => c.ownership === 'own');
+      if (existingOwner && existingOwner.packageId !== packageId) {
+        throw new Error(
+          `Object "${fqn}" is already owned by package "${existingOwner.packageId}". ` +
+          `Package "${packageId}" cannot claim ownership. Use 'extend' to add fields.`
+        );
+      }
+      // Remove existing owner contribution from same package (re-registration)
+      const idx = contributors.findIndex(c => c.packageId === packageId && c.ownership === 'own');
+      if (idx !== -1) {
+        contributors.splice(idx, 1);
+        console.warn(`[Registry] Re-registering owned object: ${fqn} from ${packageId}`);
+      }
+    } else {
+      // extend mode: remove existing extension from same package
+      const idx = contributors.findIndex(c => c.packageId === packageId && c.ownership === 'extend');
+      if (idx !== -1) {
+        contributors.splice(idx, 1);
+      }
+    }
+
+    // Add new contributor
+    const contributor: ObjectContributor = {
+      packageId,
+      namespace: namespace || '',
+      ownership,
+      priority,
+      definition: { ...schema, name: fqn }, // Store with FQN as name
+    };
+    contributors.push(contributor);
+
+    // Sort by priority (ascending: lower priority applied first)
+    contributors.sort((a, b) => a.priority - b.priority);
+
+    // Invalidate merge cache
+    this.mergedObjectCache.delete(fqn);
+
+    console.log(`[Registry] Registered object: ${fqn} (${ownership}, priority=${priority}) from ${packageId}`);
+    return fqn;
+  }
+
+  /**
+   * Resolve an object by FQN, merging all contributions.
+   * Returns the merged object or undefined if not found.
+   */
+  static resolveObject(fqn: string): ServiceObject | undefined {
+    // Check cache first
+    const cached = this.mergedObjectCache.get(fqn);
+    if (cached) return cached;
+
+    const contributors = this.objectContributors.get(fqn);
+    if (!contributors || contributors.length === 0) {
+      return undefined;
+    }
+
+    // Find owner (must exist for a valid object)
+    const ownerContrib = contributors.find(c => c.ownership === 'own');
+    if (!ownerContrib) {
+      console.warn(`[Registry] Object "${fqn}" has extenders but no owner. Skipping.`);
+      return undefined;
+    }
+
+    // Start with owner's definition
+    let merged = { ...ownerContrib.definition };
+
+    // Apply extensions in priority order (already sorted)
+    for (const contrib of contributors) {
+      if (contrib.ownership === 'extend') {
+        merged = mergeObjectDefinitions(merged, contrib.definition);
+      }
+    }
+
+    // Cache the result
+    this.mergedObjectCache.set(fqn, merged);
+    return merged;
+  }
+
+  /**
+   * Get object by name (FQN or short name with fallback scan).
+   * For compatibility, tries exact match first, then scans for suffix match.
+   */
+  static getObject(name: string): ServiceObject | undefined {
+    // Direct FQN lookup
+    const direct = this.resolveObject(name);
+    if (direct) return direct;
+
+    // Fallback: scan for objects ending with the short name
+    // This handles legacy code that doesn't use FQN
+    for (const fqn of this.objectContributors.keys()) {
+      const { shortName } = parseFQN(fqn);
+      if (shortName === name) {
+        return this.resolveObject(fqn);
+      }
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Get all registered objects (merged).
+   * 
+   * @param packageId - Optional filter: only objects contributed by this package
+   */
+  static getAllObjects(packageId?: string): ServiceObject[] {
+    const results: ServiceObject[] = [];
+
+    for (const fqn of this.objectContributors.keys()) {
+      // If filtering by package, check if this package contributes
+      if (packageId) {
+        const contributors = this.objectContributors.get(fqn);
+        const hasContribution = contributors?.some(c => c.packageId === packageId);
+        if (!hasContribution) continue;
+      }
+
+      const merged = this.resolveObject(fqn);
+      if (merged) {
+        // Tag with contributor info for UI
+        (merged as any)._packageId = this.getObjectOwner(fqn)?.packageId;
+        results.push(merged);
+      }
+    }
+
+    return results;
+  }
+
+  /**
+   * Get all contributors for an object.
+   */
+  static getObjectContributors(fqn: string): ObjectContributor[] {
+    return this.objectContributors.get(fqn) || [];
+  }
+
+  /**
+   * Get the owner contributor for an object.
+   */
+  static getObjectOwner(fqn: string): ObjectContributor | undefined {
+    const contributors = this.objectContributors.get(fqn);
+    return contributors?.find(c => c.ownership === 'own');
+  }
+
+  /**
+   * Unregister all objects contributed by a package.
+   * 
+   * @throws Error if trying to uninstall an owner that has extenders
+   */
+  static unregisterObjectsByPackage(packageId: string, force: boolean = false): void {
+    for (const [fqn, contributors] of this.objectContributors.entries()) {
+      // Find this package's contributions
+      const packageContribs = contributors.filter(c => c.packageId === packageId);
+      
+      for (const contrib of packageContribs) {
+        if (contrib.ownership === 'own' && !force) {
+          // Check if there are extenders from other packages
+          const otherExtenders = contributors.filter(
+            c => c.packageId !== packageId && c.ownership === 'extend'
+          );
+          if (otherExtenders.length > 0) {
+            throw new Error(
+              `Cannot uninstall package "${packageId}": object "${fqn}" is extended by ` +
+              `${otherExtenders.map(c => c.packageId).join(', ')}. Uninstall extenders first.`
+            );
+          }
+        }
+
+        // Remove contribution
+        const idx = contributors.indexOf(contrib);
+        if (idx !== -1) {
+          contributors.splice(idx, 1);
+          console.log(`[Registry] Removed ${contrib.ownership} contribution to ${fqn} from ${packageId}`);
+        }
+      }
+
+      // Clean up empty contributor lists
+      if (contributors.length === 0) {
+        this.objectContributors.delete(fqn);
+      }
+
+      // Invalidate cache
+      this.mergedObjectCache.delete(fqn);
+    }
+  }
+
+  // ==========================================
+  // Generic Metadata (Non-Object Types)
+  // ==========================================
+
+  /**
+   * Universal Register Method for non-object metadata.
    */
   static registerItem<T>(type: string, item: T, keyField: keyof T = 'name' as keyof T, packageId?: string) {
     if (!this.metadata.has(type)) {
@@ -30,6 +412,7 @@ export class SchemaRegistry {
     }
     const collection = this.metadata.get(type)!;
     const baseName = String(item[keyField]);
+    
     // Tag item with owning package for scoped queries
     if (packageId) {
       (item as any)._packageId = packageId;
@@ -37,15 +420,12 @@ export class SchemaRegistry {
 
     // Validation Hook
     try {
-        this.validate(type, item);
+      this.validate(type, item);
     } catch (e: any) {
-        console.error(`[Registry] Validation failed for ${type} ${baseName}: ${e.message}`);
-        // For now, warn but don't crash, allowing partial/legacy loads
-        // throw e; 
+      console.error(`[Registry] Validation failed for ${type} ${baseName}: ${e.message}`);
     }
 
-    // Use composite key (packageId:name) when packageId is provided,
-    // so same-named items from different packages can coexist.
+    // Use composite key (packageId:name) when packageId is provided
     const storageKey = packageId ? `${packageId}:${baseName}` : baseName;
 
     if (collection.has(storageKey)) {
@@ -59,25 +439,23 @@ export class SchemaRegistry {
    * Validate Metadata against Spec Zod Schemas
    */
   static validate(type: string, item: any) {
-      if (type === 'object') {
-          return ObjectSchema.parse(item);
-      }
-      if (type === 'apps') {
-          return AppSchema.parse(item);
-      }
-      if (type === 'package') {
-          return InstalledPackageSchema.parse(item);
-      }
-      if (type === 'plugin') {
-          return ManifestSchema.parse(item);
-      }
-      // Add more validations as needed
-      return true;
+    if (type === 'object') {
+      return ObjectSchema.parse(item);
+    }
+    if (type === 'apps') {
+      return AppSchema.parse(item);
+    }
+    if (type === 'package') {
+      return InstalledPackageSchema.parse(item);
+    }
+    if (type === 'plugin') {
+      return ManifestSchema.parse(item);
+    }
+    return true;
   }
 
   /**
    * Universal Unregister Method
-   * Supports both simple and composite keys.
    */
   static unregisterItem(type: string, name: string) {
     const collection = this.metadata.get(type);
@@ -85,7 +463,6 @@ export class SchemaRegistry {
       console.warn(`[Registry] Attempted to unregister non-existent ${type}: ${name}`);
       return;
     }
-    // Direct key
     if (collection.has(name)) {
       collection.delete(name);
       console.log(`[Registry] Unregistered ${type}: ${name}`);
@@ -104,16 +481,13 @@ export class SchemaRegistry {
 
   /**
    * Universal Get Method
-   * Looks up by exact key first, then falls back to scanning by item name
-   * to handle composite keys (packageId:name).
    */
   static getItem<T>(type: string, name: string): T | undefined {
     const collection = this.metadata.get(type);
     if (!collection) return undefined;
-    // Direct lookup (works for items registered without packageId)
     const direct = collection.get(name);
     if (direct) return direct as T;
-    // Scan for composite keys ending with :name
+    // Scan for composite keys
     for (const [key, item] of collection) {
       if (key.endsWith(`:${name}`)) return item as T;
     }
@@ -122,8 +496,6 @@ export class SchemaRegistry {
 
   /**
    * Universal List Method
-   * @param type The metadata type to list
-   * @param packageId Optional: filter items belonging to a specific package
    */
   static listItems<T>(type: string, packageId?: string): T[] {
     const items = Array.from(this.metadata.get(type)?.values() || []) as T[];
@@ -137,36 +509,17 @@ export class SchemaRegistry {
    * Get all registered metadata types (Kinds)
    */
   static getRegisteredTypes(): string[] {
-    return Array.from(this.metadata.keys());
+    const types = Array.from(this.metadata.keys());
+    // Always include 'object' even if stored separately
+    if (!types.includes('object') && this.objectContributors.size > 0) {
+      types.push('object');
+    }
+    return types;
   }
 
   // ==========================================
-  // Typed Helper Methods (Shortcuts)
+  // Package Management
   // ==========================================
-
-  /**
-   * Object Helpers
-   */
-  static registerObject(schema: ServiceObject, packageId?: string) {
-    this.registerItem('object', schema, 'name', packageId);
-  }
-
-  static getObject(name: string): ServiceObject | undefined {
-    return this.getItem<ServiceObject>('object', name);
-  }
-
-  static getAllObjects(packageId?: string): ServiceObject[] {
-    return this.listItems<ServiceObject>('object', packageId);
-  }
-
-  /**
-   * Package Helpers — The unit of installation
-   * Packages are keyed by manifest.id
-   */
-  static registerPackage(pkg: InstalledPackage) {
-    this.registerItem('package', pkg, 'manifest' as any);
-    // Actually we need to key by manifest.id, so use a wrapper
-  }
 
   static installPackage(manifest: ObjectStackManifest, settings?: Record<string, any>): InstalledPackage {
     const now = new Date().toISOString();
@@ -178,7 +531,12 @@ export class SchemaRegistry {
       updatedAt: now,
       settings,
     };
-    // Store keyed by manifest.id
+    
+    // Register namespace if present
+    if (manifest.namespace) {
+      this.registerNamespace(manifest.namespace, manifest.id);
+    }
+    
     if (!this.metadata.has('package')) {
       this.metadata.set('package', new Map());
     }
@@ -192,13 +550,27 @@ export class SchemaRegistry {
   }
 
   static uninstallPackage(id: string): boolean {
+    const pkg = this.getPackage(id);
+    if (!pkg) {
+      console.warn(`[Registry] Package not found for uninstall: ${id}`);
+      return false;
+    }
+
+    // Unregister namespace
+    if (pkg.manifest.namespace) {
+      this.unregisterNamespace(pkg.manifest.namespace, id);
+    }
+
+    // Unregister objects (will throw if extenders exist)
+    this.unregisterObjectsByPackage(id);
+
+    // Remove package record
     const collection = this.metadata.get('package');
-    if (collection && collection.has(id)) {
+    if (collection) {
       collection.delete(id);
       console.log(`[Registry] Uninstalled package: ${id}`);
       return true;
     }
-    console.warn(`[Registry] Package not found for uninstall: ${id}`);
     return false;
   }
 
@@ -234,10 +606,10 @@ export class SchemaRegistry {
     return pkg;
   }
 
-  /**
-   * App Helpers — UI navigation shells extracted from packages
-   * @deprecated Use registerItem('apps', app, 'name') instead of registerApp for clarity
-   */
+  // ==========================================
+  // App Helpers
+  // ==========================================
+
   static registerApp(app: any, packageId?: string) {
     this.registerItem('apps', app, 'name', packageId);
   }
@@ -250,9 +622,10 @@ export class SchemaRegistry {
     return this.listItems('apps');
   }
 
-  /**
-   * Plugin Helpers
-   */
+  // ==========================================
+  // Plugin Helpers
+  // ==========================================
+
   static registerPlugin(manifest: ObjectStackManifest) {
     this.registerItem('plugin', manifest, 'id');
   }
@@ -261,14 +634,30 @@ export class SchemaRegistry {
     return this.listItems<ObjectStackManifest>('plugin');
   }
 
-  /**
-   * Kind (Metadata Type) Helpers
-   */
+  // ==========================================
+  // Kind Helpers
+  // ==========================================
+
   static registerKind(kind: { id: string, globs: string[] }) {
     this.registerItem('kind', kind, 'id');
   }
   
   static getAllKinds(): { id: string, globs: string[] }[] {
     return this.listItems('kind');
+  }
+
+  // ==========================================
+  // Reset (for testing)
+  // ==========================================
+
+  /**
+   * Clear all registry state. Use only for testing.
+   */
+  static reset(): void {
+    this.objectContributors.clear();
+    this.mergedObjectCache.clear();
+    this.namespaceRegistry.clear();
+    this.metadata.clear();
+    console.log('[Registry] Reset complete');
   }
 }

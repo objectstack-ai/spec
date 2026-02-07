@@ -14,6 +14,11 @@
               "type": "string",
               "description": "Unique package identifier (reverse domain style)"
             },
+            "namespace": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]{1,19}$",
+              "description": "Short namespace identifier for metadata scoping (e.g. \"crm\", \"todo\")"
+            },
             "version": {
               "type": "string",
               "pattern": "^\\d+\\.\\d+\\.\\d+$",

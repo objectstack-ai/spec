@@ -9,7 +9,13 @@ vi.mock('./registry', () => {
   return {
     SchemaRegistry: {
       getObject: vi.fn((name) => mockObjects.get(name)),
-      registerObject: vi.fn((obj) => mockObjects.set(obj.name, obj)),
+      resolveObject: vi.fn((name) => mockObjects.get(name)),
+      registerObject: vi.fn((obj, packageId, namespace, ownership, priority) => {
+        const fqn = namespace ? `${namespace}__${obj.name}` : obj.name;
+        mockObjects.set(fqn, { ...obj, name: fqn });
+        return fqn;
+      }),
+      registerNamespace: vi.fn(),
       registerKind: vi.fn(),
       registerItem: vi.fn(),
       registerApp: vi.fn(),
@@ -19,6 +25,7 @@ vi.mock('./registry', () => {
         enabled: true,
         installedAt: new Date().toISOString(),
       })),
+      reset: vi.fn(() => mockObjects.clear()),
       metadata: {
         get: vi.fn(() => mockObjects) // Expose for verification if needed
       }
@@ -79,16 +86,58 @@ describe('ObjectQL Engine', () => {
     });
 
     describe('Metadata Registration', () => {
-        it('should register objects from app manifest', () => {
+        it('should register objects from app manifest with namespace', () => {
             const manifest = {
                 id: 'com.example.app',
+                namespace: 'example',
                 objects: [
                     { name: 'task', fields: {} }
                 ]
             };
             
             engine.registerApp(manifest);
-            expect(SchemaRegistry.registerObject).toHaveBeenCalledWith(expect.objectContaining({ name: 'task' }), 'com.example.app');
+            expect(SchemaRegistry.registerObject).toHaveBeenCalledWith(
+                expect.objectContaining({ name: 'task' }), 
+                'com.example.app',
+                'example',
+                'own'
+            );
+        });
+
+        it('should register objects without namespace (legacy)', () => {
+            const manifest = {
+                id: 'com.legacy.app',
+                objects: [
+                    { name: 'item', fields: {} }
+                ]
+            };
+            
+            engine.registerApp(manifest);
+            expect(SchemaRegistry.registerObject).toHaveBeenCalledWith(
+                expect.objectContaining({ name: 'item' }), 
+                'com.legacy.app',
+                undefined,
+                'own'
+            );
+        });
+
+        it('should register object extensions', () => {
+            const manifest = {
+                id: 'com.extender.app',
+                namespace: 'ext',
+                objectExtensions: [
+                    { extend: 'base__contact', fields: { custom_field: { type: 'text' } }, priority: 250 }
+                ]
+            };
+            
+            engine.registerApp(manifest);
+            expect(SchemaRegistry.registerObject).toHaveBeenCalledWith(
+                expect.objectContaining({ name: 'base__contact' }),
+                'com.extender.app',
+                undefined,
+                'extend',
+                250
+            );
         });
 
         it('should register kinds from app manifest', () => {

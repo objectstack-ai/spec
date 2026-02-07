@@ -11,6 +11,7 @@ import * as apps from './src/apps';
 export default defineStack({
   manifest: {
     id: 'com.example.todo',
+    namespace: 'todo',
     version: '2.0.0',
     type: 'app',
     name: 'Todo Manager',
