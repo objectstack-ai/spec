@@ -38,7 +38,9 @@ export default function App() {
     async function loadPackages() {
       try {
         const result = await client!.packages.list();
-        const items: InstalledPackage[] = result?.packages || [];
+        const all: InstalledPackage[] = result?.packages || [];
+        // Filter out the root dev-workspace — it's the monorepo aggregator, not a real package
+        const items = all.filter((p) => p.manifest?.version !== '0.0.0' && p.manifest?.id !== 'dev-workspace');
         console.log('[App] Fetched packages:', items.map((p) => p.manifest?.name || p.manifest?.id));
         if (mounted && items.length > 0) {
           setPackages(items);
