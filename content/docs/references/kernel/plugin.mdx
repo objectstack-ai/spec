@@ -29,6 +29,11 @@ const result = Plugin.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
+| **onInstall** | `any` | optional |  |
+| **onEnable** | `any` | optional |  |
+| **onDisable** | `any` | optional |  |
+| **onUninstall** | `any` | optional |  |
+| **onUpgrade** | `any` | optional |  |
 | **id** | `string` | optional | Unique Plugin ID (e.g. com.example.crm) |
 | **type** | `Enum<'standard' \| 'ui' \| 'driver' \| 'server' \| 'app' \| 'theme' \| 'agent' \| 'objectql'>` | optional | Plugin Type categorization for runtime behavior |
 | **staticPath** | `string` | optional | Absolute path to static assets (Required for type="ui-plugin") |
@@ -67,6 +72,11 @@ const result = Plugin.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
+| **onInstall** | `any` | optional |  |
+| **onEnable** | `any` | optional |  |
+| **onDisable** | `any` | optional |  |
+| **onUninstall** | `any` | optional |  |
+| **onUpgrade** | `any` | optional |  |
 
 
 ---

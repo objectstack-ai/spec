@@ -16,6 +16,7 @@
     "identity",
     "metadata",
     "odata",
+    "package-registry",
     "protocol",
     "realtime",
     "registry",

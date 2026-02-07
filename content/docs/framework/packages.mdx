@@ -5,7 +5,7 @@ description: Complete reference of all ObjectStack packages in the monorepo
 
 # Package Reference
 
-ObjectStack is distributed as a monorepo containing **10 packages** organized into core packages and plugins.
+ObjectStack is distributed as a monorepo containing **15 packages** organized into core packages, adapters, and plugins.
 
 > **Note for AI Agents**: Each package's `README.md` contains a specific "AI Development Context" section describing its architectural role and usage rules.
 
@@ -13,10 +13,11 @@ ObjectStack is distributed as a monorepo containing **10 packages** organized in
 
 | Category | Count | Description |
 | :--- | :---: | :--- |
-| [Core Packages](#core-packages) | 7 | Essential runtime, protocols, and client SDKs |
-| [Plugin Packages](#plugin-packages) | 3 | Drivers and adapters for extending ObjectStack |
+| [Core Packages](#core-packages) | 9 | Essential runtime, protocols, client SDKs, and CLI |
+| [Adapter Packages](#adapter-packages) | 3 | Framework adapters (Hono, NestJS, Next.js) |
+| [Plugin Packages](#plugin-packages) | 3 | Drivers and server plugins |
 
-**Total: 10 packages**
+**Total: 15 packages**
 
 ---
 
@@ -41,7 +42,7 @@ ObjectStack is distributed as a monorepo containing **10 packages** organized in
 - `Integration` - Integration protocol schemas
 - `Shared` - Shared utilities and identifiers
 
-**Protocol Count:** 123 Zod schemas
+**Protocol Count:** 139 Zod schemas
 
 **Learn more:** [Protocol Reference](/docs/references)
 
@@ -204,28 +205,37 @@ ObjectStack is distributed as a monorepo containing **10 packages** organized in
 
 **Description:** Command Line Interface for ObjectStack Development
 
-**Purpose:** Developer tools for scaffolding, building, and managing ObjectStack applications.
+**Purpose:** Complete developer tools for scaffolding, building, validating, and managing ObjectStack applications.
 
 **Commands:**
-- `compile` - Bundle & validate `objectstack.config.ts` against schema
-- `serve` - Start ObjectStack server from config (supports --dev mode)
-- `dev` - Development mode orchestrator (single package or monorepo)
-- `doctor` - Environment health check (Node.js, pnpm, dependencies)
-- `create` - Project scaffolding
-- `test` - Test runner
+
+| Category | Commands |
+| :--- | :--- |
+| Development | `init`, `dev`, `serve` |
+| Build & Validate | `compile`, `validate`, `info` |
+| Scaffolding | `generate` (alias: `g`), `create` |
+| Quality | `test`, `doctor` |
 
 **Key Features:**
-- **Config Compilation**: Zod validation against `ObjectStackDefinitionSchema`
-- **Development Server**: Automatic port discovery, handles port conflicts
-- **Hot Reload**: Watch mode for config changes
-- **Monorepo Support**: pnpm workspace integration
-- **Health Checks**: Environment validation and diagnostics
+- **Project Initialization**: `os init` creates projects from templates (app, plugin, empty)
+- **Code Generation**: `os generate` scaffolds objects, views, actions, flows, agents, dashboards, apps
+- **Schema Validation**: `os validate` checks config against `ObjectStackDefinitionSchema` with `--strict` and `--json` modes
+- **Metadata Introspection**: `os info` displays metadata summary without compilation
+- **Config Compilation**: `os compile` bundles config to deployable JSON artifact with metadata stats
+- **Development Server**: `os serve --dev` with auto-plugin detection, port conflict resolution
+- **CI/CD Integration**: All output commands support `--json` for machine-readable output
+- **Shared Utilities**: Unified formatting, config loading, and error handling across all commands
+- **Monorepo Support**: pnpm workspace integration via `os dev`
+- **Environment Diagnostics**: `os doctor` validates Node.js, pnpm, TypeScript, dependencies
 
 **Use Cases:**
-- Project scaffolding
-- Metadata validation
-- Development workflows
+- Project scaffolding and initialization
+- Metadata generation and validation
+- Development workflows with hot-reload
+- CI/CD pipeline integration
 - Environment diagnostics
+
+**Learn more:** [CLI Guide](/docs/framework/cli)
 
 **Implementation Status:** ✅ **FULLY IMPLEMENTED** - Production ready
 
@@ -257,6 +267,76 @@ ObjectStack is distributed as a monorepo containing **10 packages** organized in
 - Managing metadata lifecycle
 
 **Implementation Status:** ✅ **FULLY IMPLEMENTED** - Production ready
+
+---
+
+### @objectstack/types
+
+**Description:** Shared Runtime Type Definitions
+
+**Purpose:** Provides core TypeScript interfaces used across all ObjectStack packages at runtime.
+
+**Key Exports:**
+- `IKernel` - Kernel interface
+- `RuntimePlugin` - Plugin base interface
+- `RuntimeContext` - Runtime context type
+- Other shared runtime types
+
+**Use Cases:**
+- Building plugins that need kernel interfaces
+- Implementing custom runtimes
+- Type-safe cross-package integration
+
+**Implementation Status:** ✅ **FULLY IMPLEMENTED** - Production ready
+
+---
+
+## Adapter Packages
+
+Framework adapters that bridge ObjectStack's unified `HttpDispatcher` to specific HTTP frameworks.
+
+### @objectstack/hono
+
+**Description:** Hono Framework Adapter
+
+**Purpose:** Converts ObjectStack's standard HTTP dispatch interface to Hono routes.
+
+**Key Features:**
+- Maps standard routes to Hono handlers
+- Supports Hono's middleware chain
+- Works with Node.js, Bun, Deno, Cloudflare Workers
+
+**Implementation Status:** ✅ **FULLY IMPLEMENTED**
+
+---
+
+### @objectstack/nestjs
+
+**Description:** NestJS Framework Adapter
+
+**Purpose:** Integrates ObjectStack as a NestJS module with automatic controller generation.
+
+**Key Features:**
+- NestJS module registration
+- Automatic controller generation from metadata
+- Dependency injection integration
+
+**Implementation Status:** 🔄 **IN PROGRESS**
+
+---
+
+### @objectstack/nextjs
+
+**Description:** Next.js Framework Adapter
+
+**Purpose:** Integrates ObjectStack with Next.js App Router and API routes.
+
+**Key Features:**
+- App Router integration
+- API route handlers
+- Server-side data access
+
+**Implementation Status:** 🔄 **IN PROGRESS**
 
 ---
 
@@ -351,21 +431,26 @@ ObjectStack is distributed as a monorepo containing **10 packages** organized in
 ```
 @objectstack/spec (no dependencies)
     ↓
+    ├─→ @objectstack/types (shared runtime interfaces)
     ├─→ @objectstack/core (uses spec contracts)
     ├─→ @objectstack/metadata (uses spec system schemas)
     ├─→ @objectstack/objectql (implements spec protocols)
     │       ↓
     │       └─→ @objectstack/runtime (uses objectql engine)
     │               ↓
-    │               └─→ @objectstack/client (consumes runtime APIs)
-    │                       ↓
-    │                       └─→ @objectstack/client-react (wraps client)
+    │               ├─→ @objectstack/client (consumes runtime APIs)
+    │               │       ↓
+    │               │       └─→ @objectstack/client-react (wraps client)
+    │               └─→ Adapters:
+    │                       ├─→ @objectstack/hono (Hono routes)
+    │                       ├─→ @objectstack/nestjs (NestJS modules)
+    │                       └─→ @objectstack/nextjs (Next.js routes)
     └─→ @objectstack/cli (validates against spec schemas)
 
 Plugins (depend on core packages):
     ├─→ @objectstack/driver-memory (implements driver interface)
-    ├─→ @objectstack/plugin-hono-server (implements HTTP server)
-    └─→ @objectstack/plugin-msw (mocks for testing)
+    ├─→ @objectstack/plugin-hono-server (HTTP server via @objectstack/hono)
+    └─→ @objectstack/plugin-msw (mocks for testing via runtime)
 ```
 
 ### Installation
@@ -404,7 +489,7 @@ All packages in the monorepo are versioned together and released simultaneously 
 
 | Package Version | Node.js | TypeScript | React (for client-react) |
 | :--- | :--- | :--- | :--- |
-| 0.6.x | ≥18.0.0 | ≥5.3.0 | ≥18.0.0 |
+| 1.0.x | ≥18.0.0 | ≥5.3.0 | ≥18.0.0 |
 
 ---
 
@@ -414,7 +499,7 @@ All packages in the monorepo are versioned together and released simultaneously 
   <Card 
     href="/docs/references" 
     title="Protocol Reference"
-    description="Explore the 109 protocol schemas"
+    description="Explore the 139 protocol schemas"
   />
   <Card 
     href="/docs/developers" 

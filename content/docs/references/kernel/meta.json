@@ -6,6 +6,7 @@
     "feature",
     "manifest",
     "metadata-persistence",
+    "package-registry",
     "permission",
     "plugin",
     "plugin-capability",

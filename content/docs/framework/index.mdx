@@ -7,7 +7,7 @@ description: The reference implementation of the ObjectStack Protocol
 
 While the **Protocol** (`@objectstack/spec`) defines the "DNA" of the system, the **Framework** is the actual software implementation that executes these protocols.
 
-The Framework provides the kernels, runtimes, engines, and drivers necessary to build a running application from your metadata definitions.
+The Framework provides the kernels, runtimes, engines, drivers, and developer tools necessary to build a running application from your metadata definitions.
 
 ## Key Components
 
@@ -20,14 +20,24 @@ The `@objectstack/core` package is the microkernel that provides:
 ### 2. The Runtime Support
 The `@objectstack/runtime` package implements the universal `HttpDispatcher` and server logic:
 - **Unified Dispatcher**: Handles Data, UI, and Auth requests via a standard interface.
-- **Protocol Adapter**: Adapts HTTP requests (Hono, Next.js) to internal protocol calls.
+- **Protocol Adapter**: Adapts HTTP requests (Hono, Next.js, NestJS) to internal protocol calls.
 
-### 3. The Client Ecosystem
-- **Local Development**: `@objectstack/cli` for scaffolding and running apps.
+### 3. The Developer Toolchain
+The `@objectstack/cli` provides a complete development workflow:
+- **Scaffolding**: `os init` and `os generate` for project and metadata creation.
+- **Validation**: `os validate` for schema checking with `--strict` and `--json` modes.
+- **Introspection**: `os info` for metadata summary and `os doctor` for environment health.
+- **Build**: `os compile` for production artifact generation.
+- **Server**: `os serve` and `os dev` for development with auto-plugin detection.
+
+### 4. The Client Ecosystem
 - **Frontend Integration**: `@objectstack/client` and `@objectstack/client-react` for building UIs.
+- **Query Builder**: Type-safe query construction with `QueryBuilder` and `FilterBuilder`.
 
 ## Documentation Structure
 
-- **[Packages](./packages)**: Detailed reference of all npm packages in the monorepo.
-- **[CLI](./cli)**: Command-line interface usage guide.
+- **[Core (Microkernel)](./core)**: Architecture, plugins, services, and events.
+- **[Packages](./packages)**: Detailed reference of all 15 npm packages in the monorepo.
+- **[CLI](./cli)**: Command-line interface usage guide with all 10 commands.
 - **[Client SDK](./client-sdk)**: TypeScript client and React hooks documentation.
+- **[Driver Configuration](./driver-configuration)**: Database driver setup and configuration.

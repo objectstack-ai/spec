@@ -83,10 +83,12 @@ const result = DeadLetterQueueEntry.parse(data);
 | :--- | :--- | :--- | :--- |
 | **id** | `string` | optional | Unique handler identifier |
 | **eventName** | `string` | ✅ | Name of event to handle (supports wildcards like user.*) |
+| **handler** | `any` | optional | Handler function |
 | **priority** | `integer` | optional | Execution priority (lower numbers execute first) |
 | **async** | `boolean` | optional | Execute in background (true) or block (false) |
 | **retry** | `Object` | optional | Retry policy for failed handlers |
 | **timeoutMs** | `integer` | optional | Handler timeout in milliseconds |
+| **filter** | `any` | optional | Optional filter to determine if handler should execute |
 
 
 ---
@@ -152,6 +154,7 @@ const result = DeadLetterQueueEntry.parse(data);
 | :--- | :--- | :--- | :--- |
 | **enabled** | `boolean` | optional | Enable event persistence |
 | **retention** | `integer` | ✅ | Days to retain persisted events |
+| **filter** | `any` | optional | Optional filter function to select which events to persist |
 | **storage** | `Enum<'database' \| 'file' \| 's3' \| 'custom'>` | optional | Storage backend for persisted events |
 
 
@@ -209,6 +212,7 @@ const result = DeadLetterQueueEntry.parse(data);
 | :--- | :--- | :--- | :--- |
 | **from** | `string` | ✅ | Source event pattern (supports wildcards, e.g., user.* or *.created) |
 | **to** | `string[]` | ✅ | Target event names to route to |
+| **transform** | `any` | optional | Optional function to transform payload |
 
 
 ---
@@ -259,6 +263,7 @@ const result = DeadLetterQueueEntry.parse(data);
 | **authentication** | `Object` | optional | Authentication configuration |
 | **retryPolicy** | `Object` | optional | Retry policy |
 | **timeoutMs** | `integer` | optional | Request timeout in milliseconds |
+| **transform** | `any` | optional | Transform event before sending |
 | **enabled** | `boolean` | optional | Whether webhook is enabled |
 
 

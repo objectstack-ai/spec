@@ -332,8 +332,13 @@ Object.entries(CATEGORIES).forEach(([category, title]) => {
 });
 
 // 3. Update root meta.json
-// Collect categories
-const categoryDirs = Object.keys(CATEGORIES).sort();
+// Collect categories that have actual generated content (non-empty zod files)
+const categoryDirs = Object.keys(CATEGORIES)
+  .filter(cat => {
+    const zodFiles = categoryZodFiles.get(cat);
+    return zodFiles && zodFiles.size > 0;
+  })
+  .sort();
 
 // Collect other root files (if any exist, like implementation-status.mdx)
 const rootFiles = fs.readdirSync(DOCS_ROOT)

@@ -1,11 +1,11 @@
 ---
 title: Command Line Interface
-description: Guide for using the ObjectStack CLI
+description: Complete guide for using the ObjectStack CLI to build metadata-driven applications
 ---
 
 # @objectstack/cli
 
-Command Line Interface for developing and managing ObjectStack applications.
+Command Line Interface for building metadata-driven applications with the ObjectStack Protocol.
 
 ## Installation
 
@@ -13,32 +13,359 @@ Command Line Interface for developing and managing ObjectStack applications.
 pnpm add -D @objectstack/cli
 ```
 
+The CLI is available as `objectstack` or the shorter alias `os`.
+
+## Quick Start
+
+```bash
+# Initialize a new project
+os init my-app
+
+# Generate metadata
+os generate object task
+os generate view task
+os generate flow task
+
+# Validate configuration
+os validate
+
+# Start development server
+os dev
+
+# Compile for production
+os compile
+```
+
 ## Commands
 
 ### Development
 
-- **`os serve`**: Start the backend server.
-  - Auto-detects configuration.
-  - Auto-loads `ObjectQL` and `InMemoryDriver` if not specified.
-- **`os dev`**: Start in development mode (with watch).
-- **`os doctor`**: Check environment health.
+| Command | Alias | Description |
+|---------|-------|-------------|
+| `os init [name]` | | Initialize a new ObjectStack project in the current directory |
+| `os dev [package]` | | Start development mode with hot reload |
+| `os serve [config]` | | Start the ObjectStack server with plugin auto-detection |
+
+#### `os init`
+
+Scaffolds a new ObjectStack project with configuration, TypeScript setup, and initial metadata files.
+
+```bash
+os init my-app                    # Create with default "app" template
+os init my-plugin -t plugin       # Create a plugin project
+os init blank -t empty            # Minimal config only
+os init my-app --no-install       # Skip dependency installation
+```
+
+**Options:**
+- `-t, --template <template>` — Template: `app` (default), `plugin`, `empty`
+- `--no-install` — Skip automatic `pnpm install`
+
+**Templates:**
+
+| Template | What it creates |
+|----------|-----------------|
+| `app` | Full application with objects, views, barrel imports |
+| `plugin` | Reusable plugin package with objects |
+| `empty` | Minimal project with just `objectstack.config.ts` |
+
+#### `os dev`
+
+Starts development mode. When run inside a directory with `objectstack.config.ts`, it delegates to `os serve --dev`. When run from a monorepo root, it orchestrates all packages.
+
+```bash
+os dev              # Auto-detect: single package or monorepo
+os dev my-package   # Start specific workspace package
+os dev -v           # Verbose output
+```
+
+#### `os serve`
+
+Starts the ObjectStack server with automatic plugin discovery:
+
+- Auto-loads **ObjectQL Engine** when objects are defined
+- Auto-loads **InMemory Driver** in dev mode
+- Auto-loads **App Plugin** for metadata
+- Auto-loads **Hono HTTP Server** for REST APIs
+
+```bash
+os serve                   # Default: port 3000
+os serve -p 4000           # Custom port
+os serve --dev             # Development mode (pretty logs, devPlugins)
+os serve --no-server       # Skip HTTP server (kernel only)
+```
+
+**Options:**
+- `-p, --port <port>` — Server port (default: `3000`)
+- `--dev` — Development mode (loads devPlugins, pretty logging)
+- `--no-server` — Skip starting HTTP server plugin
+
+### Build & Validate
+
+| Command | Description |
+|---------|-------------|
+| `os compile [config]` | Compile configuration to a JSON artifact (`dist/objectstack.json`) |
+| `os validate [config]` | Validate configuration against the ObjectStack Protocol schema |
+| `os info [config]` | Display metadata summary (objects, fields, apps, agents, etc.) |
+
+#### `os compile`
+
+Bundles and validates your `objectstack.config.ts` against the `ObjectStackDefinitionSchema`, then outputs a deployable JSON artifact.
+
+```bash
+os compile                           # Default output: dist/objectstack.json
+os compile -o build/stack.json       # Custom output path
+os compile --json                    # JSON output for CI pipelines
+```
+
+**Options:**
+- `-o, --output <path>` — Output path (default: `dist/objectstack.json`)
+- `--json` — Output compile result as JSON (for CI)
+
+**Output example:**
+```
+◆ Compile
+────────────────────────────────────────
+  → Loading configuration...
+  Config: objectstack.config.ts
+  Load time: 104ms
+  → Validating protocol compliance...
+  → Writing artifact...
+
+  ✓ Build complete (312ms)
+
+  Data: 10 Objects  217 Fields
+  UI: 1 Apps  3 Dashboards  8 Reports  10 Actions
+  Logic: 5 Flows  5 Agents  2 APIs
+
+  Artifact: dist/objectstack.json (48.2 KB)
+```
+
+#### `os validate`
+
+Standalone schema validation with rich error output. Use to check your configuration without compiling.
+
+```bash
+os validate                  # Validate current directory
+os validate --strict         # Warnings as errors
+os validate --json           # JSON output for CI
+os validate path/to/config   # Validate specific file
+```
+
+**Options:**
+- `--strict` — Treat warnings as errors (exit code 1)
+- `--json` — Output results as JSON
+
+**Warnings checked:**
+- Missing `manifest.id` (required for deployment)
+- Missing `manifest.namespace` (required for multi-app hosting)
+- No objects defined
+- No apps or plugins defined
+
+#### `os info`
+
+Displays a summary of your metadata without compilation or validation:
+
+```bash
+os info                # Show metadata summary
+os info --json         # JSON output for tooling
+```
+
+**Output example:**
+```
+◆ Info
+────────────────────────────────────────
+
+  Enterprise CRM v3.0.0
+  com.example.crm
+  Namespace: crm
+  Type: app
+
+  Data: 10 Objects  217 Fields
+  UI: 1 Apps  3 Dashboards  8 Reports  10 Actions
+  Logic: 5 Flows  5 Agents  2 APIs
+
+  Objects:
+    account (16 fields, own) — Account
+    contact (24 fields, own) — Contact
+    ...
+
+  Loaded in 90ms
+```
 
 ### Scaffolding
 
-- **`os create`**: Scaffold new projects.
+| Command | Alias | Description |
+|---------|-------|-------------|
+| `os generate <type> <name>` | `os g` | Generate metadata files |
+| `os create <type> [name]` | | Create a new package from template |
+
+#### `os generate` (alias: `os g`)
+
+Generates properly typed metadata files with barrel index management.
+
+```bash
+os g object customer        # Generate a Customer object
+os g view customer          # Generate a Customer list view
+os g action approve         # Generate an action
+os g flow customer          # Generate an automation flow
+os g agent support          # Generate an AI agent
+os g dashboard sales        # Generate a dashboard
+os g app crm                # Generate an app definition
+
+os g object task -d lib/    # Override target directory
+os g object task --dry-run  # Preview without writing
+```
+
+**Available types:**
+
+| Type | Default Directory | Description |
+|------|------------------|-------------|
+| `object` | `src/objects/` | Business data object with fields |
+| `view` | `src/views/` | List or form view definition |
+| `action` | `src/actions/` | Button or batch action |
+| `flow` | `src/flows/` | Automation flow |
+| `agent` | `src/agents/` | AI agent |
+| `dashboard` | `src/dashboards/` | Analytics dashboard |
+| `app` | `src/apps/` | Application navigation |
+
+**Options:**
+- `-d, --dir <directory>` — Override target directory
+- `--dry-run` — Preview without writing files
+
+**What it does:**
+1. Creates a typed TypeScript file using `Data.Object`, `UI.View`, `Automation.Flow`, etc.
+2. Creates or updates the barrel `index.ts` in the target directory
+3. Shows a hint to run `objectstack validate`
+
+#### `os create`
+
+Creates new packages from built-in templates (for monorepo-level scaffolding):
+
+```bash
+os create plugin analytics    # Create packages/plugins/plugin-analytics
+os create example my-app      # Create examples/my-app
+```
+
+### Quality
+
+| Command | Description |
+|---------|-------------|
+| `os test [files]` | Run Quality Protocol test scenarios against a running server |
+| `os doctor` | Check development environment health |
+
+#### `os test`
+
+Runs Quality Protocol test scenarios (JSON-based BDD) against a running ObjectStack server.
+
+```bash
+os test                               # Default: qa/*.test.json
+os test qa/my-test.json               # Specific test file
+os test --url http://localhost:4000    # Custom server URL
+os test --token my-api-key            # With authentication
+```
+
+#### `os doctor`
+
+Checks your development environment and reports issues:
+
+```bash
+os doctor           # Check health
+os doctor -v        # Show fix suggestions for warnings
+```
+
+**Checks performed:**
+- Node.js version (≥18 required)
+- pnpm installation
+- TypeScript availability
+- Dependencies installed
+- `@objectstack/spec` build status
+- Git availability
 
 ## Configuration
 
-The CLI automatically looks for `objectstack.config.ts` in the current directory to load the runtime configuration.
+The CLI looks for `objectstack.config.ts` (or `.js`, `.mjs`) in the current directory:
 
 ```typescript
-// objectstack.config.ts
-export default {
-    metadata: { 
-        // ... 
-    },
-    plugins: [ 
-        // ... 
-    ]
-}
+import { defineStack } from '@objectstack/spec';
+import * as objects from './src/objects';
+import * as actions from './src/actions';
+
+export default defineStack({
+  manifest: {
+    id: 'com.example.my-app',
+    namespace: 'my_app',
+    version: '1.0.0',
+    type: 'app',
+    name: 'My App',
+    description: 'My ObjectStack application',
+  },
+
+  objects: Object.values(objects),
+  actions: Object.values(actions),
+});
+```
+
+### Config File Auto-Detection
+
+The CLI searches for configuration files in this order:
+1. `objectstack.config.ts`
+2. `objectstack.config.js`
+3. `objectstack.config.mjs`
+
+You can also specify a path explicitly:
+
+```bash
+os compile path/to/my-config.ts
+```
+
+## Typical Workflow
+
+```bash
+# 1. Create project
+os init my-crm
+
+# 2. Define your data model
+os g object account
+os g object contact
+os g object opportunity
+
+# 3. Add UI definitions
+os g view account
+os g view contact
+os g dashboard sales
+
+# 4. Add business logic
+os g flow lead-qualification
+os g agent sales-assistant
+
+# 5. Validate everything
+os validate
+
+# 6. Start development
+os dev
+
+# 7. Build for production
+os compile
+```
+
+## CI/CD Integration
+
+All commands that produce output support `--json` for machine-readable output:
+
+```bash
+# In CI pipeline
+os validate --json --strict
+os compile --json -o dist/objectstack.json
+os info --json
+```
+
+Example GitHub Actions step:
+
+```yaml
+- name: Validate ObjectStack Config
+  run: npx objectstack validate --strict --json
+
+- name: Build ObjectStack Artifact
+  run: npx objectstack compile --json
 ```
