@@ -88,8 +88,9 @@ export function createHonoApp(options: ObjectStackHonoOptions) {
             body = {};
           }
       }
+      const query = c.req.query();
 
-      const result = await dispatcher.handleMetadata(path, { request: c.req.raw }, method, body);
+      const result = await dispatcher.handleMetadata(path, { request: c.req.raw }, method, body, query);
       return normalizeResponse(c, result);
     } catch (err: any) {
       return c.json({ success: false, error: { message: err.message, code: err.statusCode || 500 } }, err.statusCode || 500);

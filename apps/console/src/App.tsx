@@ -129,6 +129,7 @@ export default function App() {
             ) : (
               <DeveloperOverview
                 packages={packages}
+                selectedPackage={selectedPackage}
                 onNavigate={handleNavigate}
               />
             )}
