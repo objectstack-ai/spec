@@ -176,6 +176,7 @@ export function AppSidebar({ client, selectedObject, onSelectObject, packages, s
     name.toLowerCase().includes(searchQuery.toLowerCase());
 
   const SelectedPkgIcon = selectedPackage ? (PKG_TYPE_ICONS[selectedPackage.manifest?.type] || Package) : Sparkles;
+  const selectedNamespace = selectedPackage?.manifest?.namespace;
 
   return (
     <Sidebar {...props}>
@@ -188,8 +189,13 @@ export function AppSidebar({ client, selectedObject, onSelectObject, packages, s
                 <SelectedPkgIcon className="h-4 w-4" />
               </div>
               <div className="flex flex-1 flex-col gap-0.5 leading-none overflow-hidden">
-                <span className="truncate font-semibold text-sm">
+                <span className="truncate font-semibold text-sm flex items-center gap-1.5">
                   {selectedPackage ? (selectedPackage.manifest?.name || selectedPackage.manifest?.id) : 'ObjectStack'}
+                  {selectedNamespace && (
+                    <span className="text-xs font-mono text-muted-foreground bg-muted px-1 rounded">
+                      {selectedNamespace}
+                    </span>
+                  )}
                 </span>
                 <span className="truncate text-xs text-muted-foreground">
                   {selectedPackage ? `v${selectedPackage.manifest?.version} · ${selectedPackage.manifest?.type}` : 'Loading packages...'}
@@ -204,6 +210,7 @@ export function AppSidebar({ client, selectedObject, onSelectObject, packages, s
             {packages.map((pkg) => {
               const Icon = PKG_TYPE_ICONS[pkg.manifest?.type] || Package;
               const isSelected = selectedPackage?.manifest?.id === pkg.manifest?.id;
+              const namespace = pkg.manifest?.namespace;
               return (
                 <DropdownMenuItem
                   key={pkg.manifest?.id}
@@ -214,7 +221,14 @@ export function AppSidebar({ client, selectedObject, onSelectObject, packages, s
                     <Icon className="h-3.5 w-3.5" />
                   </div>
                   <div className="flex flex-1 flex-col leading-tight">
-                    <span className="text-sm font-medium">{pkg.manifest?.name || pkg.manifest?.id}</span>
+                    <span className="text-sm font-medium flex items-center gap-1.5">
+                      {pkg.manifest?.name || pkg.manifest?.id}
+                      {namespace && (
+                        <span className="text-xs font-mono text-muted-foreground bg-muted px-1 rounded">
+                          {namespace}
+                        </span>
+                      )}
+                    </span>
                     <span className="text-xs text-muted-foreground">
                       v{pkg.manifest?.version} · {pkg.manifest?.type}
                       {!pkg.enabled && ' · disabled'}
@@ -302,15 +316,24 @@ export function AppSidebar({ client, selectedObject, onSelectObject, packages, s
                   {filtered.map((item: any) => {
                     const itemName = item.name || item.id || 'unknown';
                     const itemLabel = item.label || item.name || 'Untitled';
+                    // Parse FQN: namespace__shortName
+                    const fqnParts = itemName.includes('__') ? itemName.split('__') : [null, itemName];
+                    const namespace = fqnParts.length === 2 && fqnParts[0] ? fqnParts[0] : null;
+                    
                     return (
                       <SidebarMenuItem key={itemName}>
                         <SidebarMenuButton
                           isActive={isObjectType && selectedObject === itemName}
                           onClick={isObjectType ? () => onSelectObject(itemName) : undefined}
-                          tooltip={itemName}
+                          tooltip={`${itemName}${namespace ? ` (${namespace})` : ''}`}
                         >
                           <TypeIcon className="h-4 w-4" />
-                          <span>{itemLabel}</span>
+                          <span className="flex items-center gap-1.5">
+                            {namespace && (
+                              <span className="text-xs text-muted-foreground font-mono">{namespace}__</span>
+                            )}
+                            <span>{itemLabel}</span>
+                          </span>
                         </SidebarMenuButton>
                         {isObjectType && item.fields && (
                           <SidebarMenuBadge>

@@ -244,12 +244,12 @@ export function useMutation<TData = any, TVariables = any>(
 
       switch (operation) {
         case 'create':
-          result = await client.data.create<TData>(object, variables as any);
+          result = (await client.data.create(object, variables as any)) as TData;
           break;
         case 'update':
           // Expect variables to be { id: string, data: Partial<T> }
           const updateVars = variables as any;
-          result = await client.data.update<TData>(object, updateVars.id, updateVars.data);
+          result = (await client.data.update(object, updateVars.id, updateVars.data)) as TData;
           break;
         case 'delete':
           // Expect variables to be { id: string }
@@ -544,7 +544,7 @@ export function useInfiniteQuery<T = any>(
       }
 
       // Determine if there's a next page
-      const fetchedCount = result.value.length;
+      const fetchedCount = result.value?.length ?? 0;
       const hasMore = fetchedCount === pageSize;
       setHasNextPage(hasMore);
 
@@ -578,7 +578,7 @@ export function useInfiniteQuery<T = any>(
     await fetchPage(0);
   }, [fetchPage]);
 
-  const flatData = pages.flatMap(page => page.value);
+  const flatData = pages.flatMap(page => page.value ?? []);
 
   return {
     data: pages,

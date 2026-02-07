@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Search, Copy, Check, Key, Hash, Type, ToggleLeft,
-  List, Link, Calculator, Calendar, FileText, CircleDot, Code2
+  List, Link, Calculator, Calendar, FileText, CircleDot, Code2, Database
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -126,6 +126,14 @@ export function ObjectSchemaInspector({ client, objectApiName }: ObjectSchemaIns
     sortOrder: f.sortOrder,
   }));
 
+  // Parse FQN: namespace__shortName
+  const objectName = def.name || objectApiName;
+  const hasFQN = objectName.includes('__');
+  const [namespace, shortName] = hasFQN ? objectName.split('__') : [null, objectName];
+  
+  // Package info from _packageId tag
+  const ownerPackageId = def._packageId;
+
   const filtered = searchQuery
     ? fieldEntries.filter(f =>
         f.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -143,16 +151,39 @@ export function ObjectSchemaInspector({ client, objectApiName }: ObjectSchemaIns
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <CardTitle className="text-xl">{def.label}</CardTitle>
-                <Badge variant="outline" className="font-mono text-xs">{def.name}</Badge>
+                {namespace && (
+                  <Badge variant="secondary" className="font-mono text-xs">{namespace}</Badge>
+                )}
               </div>
-              <CardDescription className="flex items-center gap-3">
-                <span>{fieldEntries.length} fields</span>
+              <CardDescription className="flex items-center gap-3 flex-wrap">
+                <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">
+                  {objectName}
+                </code>
                 <span>·</span>
-                <span className="font-mono text-xs">GET /api/v1/data/{def.name}</span>
+                <span>{fieldEntries.length} fields</span>
+                {ownerPackageId && (
+                  <>
+                    <span>·</span>
+                    <span className="text-xs">owned by <code className="font-mono">{ownerPackageId}</code></span>
+                  </>
+                )}
               </CardDescription>
             </div>
           </div>
         </CardHeader>
+        {/* Namespace info banner for FQN objects */}
+        {namespace && (
+          <CardContent className="pt-0 pb-3">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded-md px-3 py-2">
+              <Database className="h-3.5 w-3.5" />
+              <span>
+                Namespace: <strong>{namespace}</strong> · 
+                Short name: <strong>{shortName}</strong> · 
+                Table: <code className="font-mono bg-muted px-1 rounded">{objectName}</code>
+              </span>
+            </div>
+          </CardContent>
+        )}
       </Card>
 
       {/* Field search + table */}
