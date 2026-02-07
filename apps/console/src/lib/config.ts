@@ -18,6 +18,12 @@ export interface ConsoleConfig {
    * - 'server': Connect to real ObjectStack server
    */
   mode: RuntimeMode;
+
+  /**
+   * Demo mode (URL-driven)
+   * When enabled, the console forces MSW mode for an online demo.
+   */
+  demo: boolean;
   
   /**
    * Server base URL (used in 'server' mode)
@@ -46,6 +52,11 @@ function isEmbedded(): boolean {
  * Get runtime mode from environment
  */
 function getRuntimeMode(): RuntimeMode {
+  const urlMode = getUrlRuntimeOverride();
+  if (urlMode) {
+    return urlMode;
+  }
+
   const envMode = import.meta.env.VITE_RUNTIME_MODE;
   
   if (envMode === 'server') {
@@ -59,6 +70,31 @@ function getRuntimeMode(): RuntimeMode {
   
   // Default to MSW mode for standalone development
   return 'msw';
+}
+
+function isTruthyParam(value: string | null): boolean {
+  if (!value) return false;
+  return !['0', 'false', 'no', 'off'].includes(value.toLowerCase());
+}
+
+function getUrlRuntimeOverride(): RuntimeMode | null {
+  if (typeof window === 'undefined') return null;
+  const params = new URLSearchParams(window.location.search);
+  const mode = params.get('mode');
+  if (mode === 'msw' || mode === 'server') {
+    return mode;
+  }
+  const demo = params.get('demo');
+  if (isTruthyParam(demo)) {
+    return 'msw';
+  }
+  return null;
+}
+
+function getUrlDemoFlag(): boolean {
+  if (typeof window === 'undefined') return false;
+  const params = new URLSearchParams(window.location.search);
+  return isTruthyParam(params.get('demo'));
 }
 
 /**
@@ -85,6 +121,7 @@ const defaultConfig: ConsoleConfig = {
   mode: getRuntimeMode(),
   serverUrl: resolveServerUrl(),
   mswBasePath: '',  // Empty - client adds /api/v1/... internally
+  demo: getUrlDemoFlag(),
 };
 
 /**
@@ -134,5 +171,10 @@ export function logConfig(): void {
     mode: config.mode,
     apiBaseUrl: getApiBaseUrl(),
     serverUrl: config.serverUrl,
+    demo: config.demo,
   });
+}
+
+export function isDemoMode(): boolean {
+  return config.demo;
 }

@@ -11,7 +11,7 @@ import {
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Badge } from "@/components/ui/badge"
 import { Cpu, Terminal } from 'lucide-react'
-import { config } from '@/lib/config'
+import { config, isDemoMode } from '@/lib/config'
 
 interface SiteHeaderProps {
   selectedObject: string | null;
@@ -84,6 +84,11 @@ export function SiteHeader({ selectedObject, selectedMeta, selectedView, package
         </Breadcrumb>
       </div>
       <div className="flex items-center gap-2">
+        {isDemoMode() && (
+          <Badge variant="outline" className="text-[10px] gap-1 font-mono border-amber-300 text-amber-600 bg-amber-50">
+            DEMO
+          </Badge>
+        )}
         {selectedView === 'object' && selectedObject && (
           <Badge variant="outline" className="font-mono text-[10px] gap-1 hidden sm:flex">
             /api/v1/data/{selectedObject}

@@ -103,8 +103,8 @@ export const en: HomepageTranslations = {
     cta: {
       primary: 'Get Started',
       primaryHref: '/docs/getting-started/quick-start',
-      secondary: 'View Examples',
-      secondaryHref: '/docs/getting-started/examples',
+      secondary: 'Live Demo',
+      secondaryHref: 'https://playground.objectstack.ai/?demo=1',
     },
     quickStart: {
       label: 'Terminal',
@@ -181,8 +181,8 @@ export const cn: HomepageTranslations = {
     cta: {
       primary: '快速开始',
       primaryHref: '/docs/getting-started/quick-start',
-      secondary: '查看示例',
-      secondaryHref: '/docs/getting-started/examples',
+      secondary: '在线演示',
+      secondaryHref: 'https://playground.objectstack.ai/?demo=1',
     },
     quickStart: {
       label: '终端',
