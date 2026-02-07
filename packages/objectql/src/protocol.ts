@@ -58,10 +58,10 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         };
     }
 
-    async getMetaItems(request: { type: string }) {
+    async getMetaItems(request: { type: string; packageId?: string }) {
         return {
             type: request.type,
-            items: SchemaRegistry.listItems(request.type)
+            items: SchemaRegistry.listItems(request.type, request.packageId)
         };
     }
 
