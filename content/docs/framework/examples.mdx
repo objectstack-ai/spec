@@ -1,0 +1,363 @@
+---
+title: Example Apps
+description: Run and explore the built-in example applications to learn ObjectStack hands-on
+---
+
+import { CheckSquare, Building2, BarChart3, Server } from 'lucide-react';
+
+# Example Apps
+
+The monorepo includes 4 ready-to-run examples that progressively demonstrate ObjectStack features — from a simple Todo app to a full enterprise CRM.
+
+<Cards>
+  <Card
+    icon={<CheckSquare />}
+    title="app-todo"
+    description="The simplest starting point. One object, basic CRUD, dashboards, seed data."
+  />
+  <Card
+    icon={<Building2 />}
+    title="app-crm"
+    description="Full-featured CRM: 10+ objects, AI agents, flows, security, sharing rules."
+  />
+  <Card
+    icon={<BarChart3 />}
+    title="plugin-bi"
+    description="A reusable plugin template. Shows how to package metadata for distribution."
+  />
+  <Card
+    icon={<Server />}
+    title="app-host"
+    description="Platform server that loads multiple apps. Demonstrates multi-app composition."
+  />
+</Cards>
+
+---
+
+## Quick Run
+
+The fastest way to explore all examples at once:
+
+```bash
+git clone https://github.com/nickstenning/spec.git
+cd spec
+pnpm install
+pnpm studio
+```
+
+Open [http://localhost:3000/_studio/](http://localhost:3000/_studio/) — the root `objectstack.config.ts` aggregates Todo + CRM + BI into one dev workspace.
+
+---
+
+## app-todo — Your First App
+
+**Path:** `examples/app-todo/`
+
+The simplest complete ObjectStack application. Perfect for understanding the basics.
+
+### What's Inside
+
+```
+examples/app-todo/
+├── objectstack.config.ts      # App manifest + metadata wiring
+├── src/
+│   ├── objects/
+│   │   └── task.object.ts     # Task object: 10 fields, validations, indexes
+│   ├── actions/
+│   │   └── task.actions.ts    # Complete, Start, Defer, Delete batch
+│   ├── apps/
+│   │   └── todo.app.ts        # Navigation: Tasks, Analytics
+│   ├── dashboards/
+│   │   └── task.dashboard.ts  # Widget grid: stats, charts, lists
+│   ├── reports/
+│   │   └── task.report.ts     # Tabular + summary reports
+│   └── flows/
+│       └── task.flow.ts       # Auto-assignment automation
+```
+
+### Key Concepts Demonstrated
+
+| Concept | File | What You'll Learn |
+|:--------|:-----|:------------------|
+| Object & Fields | `task.object.ts` | `Field.text()`, `Field.select()`, field options, indexes |
+| Seed Data | `objectstack.config.ts` | `data` array with upsert mode, 8 sample records |
+| Actions | `task.actions.ts` | Script actions, modal actions with params |
+| App Navigation | `todo.app.ts` | Navigation groups, object links, dashboard links |
+| Automation | `task.flow.ts` | Autolaunched flow with record-triggered logic |
+
+### Run It
+
+<Tabs items={['Standalone', 'From Root']}>
+<Tab value="Standalone">
+```bash
+cd examples/app-todo
+pnpm dev
+```
+</Tab>
+<Tab value="From Root">
+```bash
+# Already included in root objectstack.config.ts
+pnpm studio
+```
+</Tab>
+</Tabs>
+
+### Code Walkthrough
+
+**1. Define an object** — `src/objects/task.object.ts`:
+
+```typescript
+import { ObjectSchema, Field } from '@objectstack/spec/data';
+
+export const Task = ObjectSchema.create({
+  name: 'task',
+  label: 'Task',
+  pluralLabel: 'Tasks',
+  icon: 'check-square',
+
+  fields: {
+    subject: Field.text({
+      label: 'Subject',
+      required: true,
+      searchable: true,
+    }),
+    status: {
+      type: 'select',
+      label: 'Status',
+      required: true,
+      options: [
+        { label: 'Not Started', value: 'not_started', default: true },
+        { label: 'In Progress', value: 'in_progress' },
+        { label: 'Completed', value: 'completed' },
+      ],
+    },
+    due_date: Field.date({ label: 'Due Date' }),
+    priority: {
+      type: 'select',
+      label: 'Priority',
+      options: [
+        { label: 'Low', value: 'low' },
+        { label: 'Normal', value: 'normal' },
+        { label: 'High', value: 'high' },
+        { label: 'Urgent', value: 'urgent' },
+      ],
+    },
+  },
+});
+```
+
+**2. Wire it up** — `objectstack.config.ts`:
+
+```typescript
+import { defineStack } from '@objectstack/spec';
+import * as objects from './src/objects';
+import * as actions from './src/actions';
+import * as apps from './src/apps';
+
+export default defineStack({
+  manifest: {
+    id: 'com.example.todo',
+    namespace: 'todo',
+    version: '2.0.0',
+    type: 'app',
+    name: 'Todo Manager',
+  },
+
+  objects: Object.values(objects),
+  actions: Object.values(actions),
+  apps: Object.values(apps),
+
+  // Seed data loaded at startup
+  data: [{
+    object: 'task',
+    mode: 'upsert',
+    externalId: 'subject',
+    records: [
+      { subject: 'Learn ObjectStack', status: 'completed', priority: 'high' },
+      { subject: 'Build a cool app', status: 'in_progress', priority: 'normal' },
+    ],
+  }],
+});
+```
+
+**3. The server auto-detects** what you need: ObjectQL engine → InMemory driver → Hono HTTP server → REST API at `/api/v1/task`.
+
+---
+
+## app-crm — Enterprise Scale
+
+**Path:** `examples/app-crm/`
+
+A production-grade CRM demonstrating every ObjectStack feature. Use this as a reference for building real enterprise apps.
+
+### What's Inside
+
+```
+examples/app-crm/
+├── objectstack.config.ts
+├── src/
+│   ├── objects/          # 10 objects: Account, Contact, Lead, Opportunity, ...
+│   ├── actions/          # 15+ actions per domain
+│   ├── agents/           # 5 AI agents: Sales, Service, Lead Enrichment, ...
+│   ├── apis/             # Custom REST endpoints: lead-convert, pipeline-stats
+│   ├── apps/             # CRM app with full navigation tree
+│   ├── dashboards/       # Executive, Sales, Service dashboards
+│   ├── data/             # Seed data for all objects
+│   ├── flows/            # 5 automation flows: case escalation, approval, ...
+│   ├── profiles/         # 5 security profiles: admin, sales rep, manager, ...
+│   ├── rag/              # 4 RAG pipelines: product info, competitive intel, ...
+│   ├── reports/          # 7 reports with tabular, summary, matrix formats
+│   └── sharing/          # Sharing rules, role hierarchy, org defaults
+```
+
+### Features Showcased
+
+| Feature | Description |
+|:--------|:------------|
+| **10 Business Objects** | Account, Contact, Lead, Opportunity, Case, Campaign, Product, Quote, Contract, Task |
+| **State Machine** | Lead lifecycle: `new → contacted → qualified → converted` with `Lead.state.ts` |
+| **AI Agents** | Sales Assistant, Service Agent, Revenue Intelligence, Email Campaign, Lead Enrichment |
+| **RAG Pipelines** | Product info, competitive intel, sales knowledge, support knowledge |
+| **Security Model** | 5 profiles (Admin, Manager, Rep, Agent, Marketing), sharing rules, role hierarchy |
+| **Automation** | Lead conversion, case escalation, opportunity approval, campaign enrollment, quote generation |
+| **Custom APIs** | `POST /lead-convert`, `GET /pipeline-stats` |
+| **Seed Data** | 50+ realistic records across all objects |
+
+### Run It
+
+```bash
+cd examples/app-crm
+pnpm dev        # Starts with auto-detected plugins
+```
+
+Or inspect its metadata without starting a server:
+
+```bash
+cd examples/app-crm
+os info          # Show object/field/flow/agent counts
+os validate      # Check schema correctness
+os compile       # Build to dist/objectstack.json
+```
+
+---
+
+## plugin-bi — Reusable Plugin
+
+**Path:** `examples/plugin-bi/`
+
+A minimal plugin template showing how to package metadata for distribution. Plugins use `type: 'plugin'` in their manifest and can be composed into any host app.
+
+```typescript
+// examples/plugin-bi/objectstack.config.ts
+import { defineStack } from '@objectstack/spec';
+
+export default defineStack({
+  manifest: {
+    id: 'com.example.bi',
+    namespace: 'bi',
+    version: '1.0.0',
+    type: 'plugin',        // ← Plugin, not app
+    name: 'BI Plugin',
+    description: 'Business Intelligence dashboards and analytics',
+  },
+  objects: [],
+  dashboards: [],
+});
+```
+
+**Key difference from apps:** Plugins don't run standalone — they're loaded by a host app via `AppPlugin`:
+
+```typescript
+import BiPlugin from '../plugin-bi/objectstack.config';
+new AppPlugin(BiPlugin)  // Load into host
+```
+
+---
+
+## app-host — Multi-App Composition
+
+**Path:** `examples/app-host/`
+
+Demonstrates the **Platform Server** pattern: one host loading multiple apps and plugins. This is how you'd run ObjectStack in production with multiple teams' apps.
+
+```typescript
+// examples/app-host/objectstack.config.ts
+import { defineStack } from '@objectstack/spec';
+import { AppPlugin, DriverPlugin } from '@objectstack/runtime';
+import { ObjectQLPlugin } from '@objectstack/objectql';
+import { InMemoryDriver } from '@objectstack/driver-memory';
+import CrmApp from '../app-crm/objectstack.config';
+import TodoApp from '../app-todo/objectstack.config';
+import BiPlugin from '../plugin-bi/objectstack.config';
+
+export default defineStack({
+  manifest: {
+    id: 'app-host',
+    version: '1.0.0',
+    type: 'app',
+  },
+  plugins: [
+    new ObjectQLPlugin(),
+    new DriverPlugin(new InMemoryDriver()),
+    new AppPlugin(CrmApp),      // CRM objects get namespace: crm__account, crm__lead, ...
+    new AppPlugin(TodoApp),     // Todo objects get namespace: todo__task
+    new AppPlugin(BiPlugin),    // BI plugin objects get namespace: bi__*
+  ],
+});
+```
+
+### Namespace Isolation
+
+Each app declares a `namespace` in its manifest. When loaded by a host, object names become **Fully Qualified Names (FQN)**:
+
+| App | Namespace | Object → FQN |
+|:----|:----------|:-------------|
+| Todo | `todo` | `task` → `todo__task` |
+| CRM | `crm` | `account` → `crm__account` |
+| BI | `bi` | `report` → `bi__report` |
+
+The double-underscore `__` separator prevents collisions when multiple apps define objects with the same short name.
+
+### Run It
+
+```bash
+cd examples/app-host
+pnpm dev        # Loads all 3 apps on one server
+```
+
+---
+
+## Project Structure Conventions
+
+All examples follow the same pattern. When you run `os init`, you get this structure:
+
+```
+my-app/
+├── objectstack.config.ts     # ← Entry point: manifest + metadata wiring
+├── package.json
+├── tsconfig.json
+├── src/
+│   ├── objects/              # Data models (required)
+│   │   ├── index.ts          # Barrel export
+│   │   └── *.object.ts       # One file per object
+│   ├── actions/              # Buttons, batch operations (optional)
+│   ├── flows/                # Automation logic (optional)
+│   ├── apps/                 # Navigation definitions (optional)
+│   ├── dashboards/           # Analytics dashboards (optional)
+│   ├── reports/              # Report definitions (optional)
+│   ├── agents/               # AI agents (optional)
+│   └── rag/                  # RAG pipelines (optional)
+└── test/                     # Tests
+```
+
+**Naming conventions:**
+- **Directories:** plural (`objects/`, `actions/`, `flows/`)
+- **Files:** `{name}.object.ts`, `{name}.actions.ts`, `{name}.flow.ts`
+- **Object names:** `snake_case` (`task`, `sales_order`, `crm__account`)
+- **Config keys:** `camelCase` (`maxLength`, `defaultValue`, `pluralLabel`)
+
+## What's Next
+
+- [CLI Reference](/docs/framework/cli) — All available commands
+- [Data Modeling Guide](/docs/developer/data-modeling) — Deep dive into objects and fields
+- [Developer Guide](/docs/developer) — Full learning path from objects to AI agents

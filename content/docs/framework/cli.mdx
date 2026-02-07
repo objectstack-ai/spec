@@ -15,26 +15,47 @@ pnpm add -D @objectstack/cli
 
 The CLI is available as `objectstack` or the shorter alias `os`.
 
-## Quick Start
+## Your First App in 2 Minutes
+
+<Steps>
+
+### Create a project
 
 ```bash
-# Initialize a new project
-os init my-app
-
-# Generate metadata
-os generate object task
-os generate view task
-os generate flow task
-
-# Validate configuration
-os validate
-
-# Start development server
-os dev
-
-# Compile for production
-os compile
+npx @objectstack/cli init my-app
+cd my-app
 ```
+
+This scaffolds a working project with `objectstack.config.ts`, a sample object, and all dependencies installed.
+
+### Add more metadata
+
+```bash
+os generate object customer    # Add a Customer object
+os generate action approve     # Add an action
+os generate flow onboarding    # Add an automation flow
+```
+
+### Launch the Studio
+
+```bash
+os studio
+```
+
+Open [http://localhost:3000/_studio/](http://localhost:3000/_studio/) — you'll see the Console UI with a data browser, metadata explorer, and API documentation.
+
+### Validate & Build
+
+```bash
+os validate          # Check schema correctness
+os compile           # Build production artifact → dist/objectstack.json
+```
+
+</Steps>
+
+<Callout type="tip">
+`os studio` = `os serve --dev --ui`. It starts a dev server with the Console UI, auto-loads ObjectQL, InMemory driver, and Hono HTTP server — zero config needed.
+</Callout>
 
 ## Commands
 
@@ -358,31 +379,32 @@ os compile path/to/my-config.ts
 
 ```bash
 # 1. Create project
-os init my-crm
+os init my-crm && cd my-crm
 
 # 2. Define your data model
 os g object account
 os g object contact
 os g object opportunity
 
-# 3. Add UI definitions
-os g view account
-os g view contact
-os g dashboard sales
-
-# 4. Add business logic
+# 3. Add business logic
 os g flow lead-qualification
 os g agent sales-assistant
 
-# 5. Validate everything
+# 4. Validate everything
 os validate
 
-# 6. Start development
-os dev
+# 5. Start development with Console UI
+os studio
 
-# 7. Build for production
+# 6. Build for production
 os compile
 ```
+
+## Next Steps
+
+- [Examples Guide](/docs/framework/examples) — Run the built-in example apps (Todo, CRM, BI)
+- [Developer Guide](/docs/developer) — Learn data modeling, security, and automation
+- [Protocol Reference](/docs/references) — Complete schema documentation
 
 ## CI/CD Integration
 
