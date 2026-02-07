@@ -285,6 +285,24 @@ export class ObjectQL implements IDataEngine {
   }
 
   /**
+   * Resolve an object name to its Fully Qualified Name (FQN).
+   * 
+   * Short names like 'task' are resolved to FQN like 'todo__task'
+   * via SchemaRegistry lookup. If no match is found, the name is
+   * returned as-is (for ad-hoc / unregistered objects).
+   * 
+   * This ensures that all driver operations use a consistent key
+   * regardless of whether the caller uses the short name or FQN.
+   */
+  private resolveObjectName(name: string): string {
+    const schema = SchemaRegistry.getObject(name);
+    if (schema) {
+      return schema.name; // FQN from registry (e.g., 'todo__task')
+    }
+    return name; // Ad-hoc object, keep as-is
+  }
+
+  /**
    * Helper to get the target driver
    */
   private getDriver(objectName: string): DriverInterface {
@@ -393,6 +411,7 @@ export class ObjectQL implements IDataEngine {
   // ============================================
 
   async find(object: string, query?: DataEngineQueryOptions): Promise<any[]> {
+    object = this.resolveObjectName(object);
     this.logger.debug('Find operation starting', { object, query });
     const driver = this.getDriver(object);
     const ast = this.toQueryAST(object, query);
@@ -420,6 +439,7 @@ export class ObjectQL implements IDataEngine {
   }
 
   async findOne(objectName: string, query?: DataEngineQueryOptions): Promise<any> {
+    objectName = this.resolveObjectName(objectName);
     this.logger.debug('FindOne operation', { objectName });
     const driver = this.getDriver(objectName);
     const ast = this.toQueryAST(objectName, query);
@@ -431,6 +451,7 @@ export class ObjectQL implements IDataEngine {
   }
 
   async insert(object: string, data: any | any[], options?: DataEngineInsertOptions): Promise<any> {
+    object = this.resolveObjectName(object);
     this.logger.debug('Insert operation starting', { object, isBatch: Array.isArray(data) });
     const driver = this.getDriver(object);
 
@@ -468,6 +489,7 @@ export class ObjectQL implements IDataEngine {
   }
 
   async update(object: string, data: any, options?: DataEngineUpdateOptions): Promise<any> {
+     object = this.resolveObjectName(object);
      // NOTE: This signature is tricky because Driver expects (obj, id, data) usually.
      // DataEngine protocol puts filter in options.
      this.logger.debug('Update operation starting', { object });
@@ -515,6 +537,7 @@ export class ObjectQL implements IDataEngine {
   }
 
   async delete(object: string, options?: DataEngineDeleteOptions): Promise<any> {
+    object = this.resolveObjectName(object);
     this.logger.debug('Delete operation starting', { object });
     const driver = this.getDriver(object);
 
@@ -556,6 +579,7 @@ export class ObjectQL implements IDataEngine {
   }
 
   async count(object: string, query?: DataEngineCountOptions): Promise<number> {
+     object = this.resolveObjectName(object);
      const driver = this.getDriver(object);
      if (driver.count) {
          const ast = this.toQueryAST(object, { filter: query?.filter });
@@ -567,6 +591,7 @@ export class ObjectQL implements IDataEngine {
   }
 
   async aggregate(object: string, query: DataEngineAggregateOptions): Promise<any[]> {
+      object = this.resolveObjectName(object);
       const driver = this.getDriver(object);
       this.logger.debug(`Aggregate on ${object} using ${driver.name}`, query);
       // Driver needs support for raw aggregation or mapped aggregation

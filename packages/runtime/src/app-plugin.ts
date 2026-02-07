@@ -112,21 +112,32 @@ export class AppPlugin implements Plugin {
         if (manifest && Array.isArray(manifest.data)) {
             seedDatasets.push(...manifest.data);
         }
+
+        // Resolve short object names to FQN using the package's namespace.
+        // e.g., seed `object: 'task'` in namespace 'todo' → 'todo__task'
+        // Reserved namespaces ('base', 'system') are not prefixed.
+        const namespace = (this.bundle.manifest || this.bundle)?.namespace as string | undefined;
+        const RESERVED_NS = new Set(['base', 'system']);
+        const toFQN = (name: string) => {
+            if (name.includes('__') || !namespace || RESERVED_NS.has(namespace)) return name;
+            return `${namespace}__${name}`;
+        };
         
         if (seedDatasets.length > 0) {
              ctx.logger.info(`[AppPlugin] Found ${seedDatasets.length} seed datasets for ${appId}`);
              for (const dataset of seedDatasets) {
                  if (dataset.object && Array.isArray(dataset.records)) {
-                     ctx.logger.info(`[Seeder] Seeding ${dataset.records.length} records for ${dataset.object}`);
+                     const objectFQN = toFQN(dataset.object);
+                     ctx.logger.info(`[Seeder] Seeding ${dataset.records.length} records for ${objectFQN}`);
                      for (const record of dataset.records) {
                           try {
                               // Use ObjectQL engine to insert data
                               // This ensures driver resolution and hook execution
                               // Use 'insert' which corresponds to 'create' in driver
-                              await ql.insert(dataset.object, record);
+                              await ql.insert(objectFQN, record);
                           } catch (err: any) {
                               // Ignore duplicate errors if needed, or log/warn
-                              ctx.logger.warn(`[Seeder] Failed to insert ${dataset.object} record:`, { error: err.message });
+                              ctx.logger.warn(`[Seeder] Failed to insert ${objectFQN} record:`, { error: err.message });
                           }
                      }
                  }

@@ -303,8 +303,17 @@ export async function createKernel(options: KernelOptions) {
     // FORCE SYNC SEED: Guarantees data availability for both Browser and Tests
     const ql = (kernel as any).context?.getService('objectql');
     if (ql) {
+        // Helper: resolve short object name to FQN using namespace
+        const RESERVED_NS = new Set(['base', 'system']);
+        const toFQN = (name: string, namespace?: string) => {
+            if (name.includes('__') || !namespace || RESERVED_NS.has(namespace)) return name;
+            return `${namespace}__${name}`;
+        };
+
         // Seed data for all app configs
         for (const appConfig of allConfigs) {
+            const namespace = (appConfig.manifest || appConfig)?.namespace as string | undefined;
+            
             // Collect datasets from all locations:
             // 1. Top-level `data` (new standard)
             // 2. `manifest.data` (legacy/backward compat)
@@ -319,17 +328,19 @@ export async function createKernel(options: KernelOptions) {
             for (const dataset of seedDatasets) {
                 if (!dataset.records || !dataset.object) continue;
                 
+                const objectFQN = toFQN(dataset.object, namespace);
+                
                 // Check if data already seeded
-                let existing = await ql.find(dataset.object);
+                let existing = await ql.find(objectFQN);
                 if (existing && (existing as any).value) existing = (existing as any).value;
                 
                 if (!existing || existing.length === 0) {
-                    console.log(`[KernelFactory] Manual Seeding ${dataset.records.length} records for ${dataset.object}`);
+                    console.log(`[KernelFactory] Manual Seeding ${dataset.records.length} records for ${objectFQN}`);
                     for (const record of dataset.records) {
-                        await ql.insert(dataset.object, record);
+                        await ql.insert(objectFQN, record);
                     }
                 } else {
-                    console.log(`[KernelFactory] Data verified present for ${dataset.object}: ${existing.length} records.`);
+                    console.log(`[KernelFactory] Data verified present for ${objectFQN}: ${existing.length} records.`);
                 }
             }
         }
