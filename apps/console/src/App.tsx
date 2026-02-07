@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ObjectStackClient } from '@objectstack/client';
 import { ObjectStackProvider } from '@objectstack/client-react';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { AppSidebar } from "./components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarProvider } from "@/components/ui/sidebar"
@@ -80,6 +81,7 @@ export default function App() {
 
   return (
     <ObjectStackProvider client={client}>
+      <ErrorBoundary>
       <SidebarProvider>
         <AppSidebar 
           selectedObject={selectedObject} 
@@ -111,6 +113,7 @@ export default function App() {
         </main>
         <Toaster />
       </SidebarProvider>
+      </ErrorBoundary>
     </ObjectStackProvider>
   );
 }

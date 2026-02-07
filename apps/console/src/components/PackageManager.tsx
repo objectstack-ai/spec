@@ -32,9 +32,9 @@ export function PackageManager() {
   async function handleToggle(pkg: InstalledPackage) {
     try {
       if (pkg.enabled) {
-        await client.packages.disable(pkg.manifest.id);
+        await client.packages.disable(pkg.manifest?.id);
       } else {
-        await client.packages.enable(pkg.manifest.id);
+        await client.packages.enable(pkg.manifest?.id);
       }
       await loadPackages();
     } catch (err: any) {
@@ -43,9 +43,9 @@ export function PackageManager() {
   }
 
   async function handleUninstall(pkg: InstalledPackage) {
-    if (!confirm(`Uninstall "${pkg.manifest.name}"? This cannot be undone.`)) return;
+    if (!confirm(`Uninstall "${pkg.manifest?.name}"? This cannot be undone.`)) return;
     try {
-      await client.packages.uninstall(pkg.manifest.id);
+      await client.packages.uninstall(pkg.manifest?.id);
       await loadPackages();
     } catch (err: any) {
       console.error('[PackageManager] Uninstall failed:', err);
@@ -111,32 +111,32 @@ export function PackageManager() {
         <div className="grid gap-4 md:grid-cols-2">
           {packages.map((pkg) => (
             <Card 
-              key={pkg.manifest.id}
+              key={pkg.manifest?.id || String(Math.random())}
               className={!pkg.enabled ? 'opacity-60' : ''}
             >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    {pkg.manifest.type === 'app' ? (
+                    {pkg.manifest?.type === 'app' ? (
                       <AppWindow className="h-5 w-5 shrink-0 text-blue-500" />
                     ) : (
                       <Package className="h-5 w-5 shrink-0 text-purple-500" />
                     )}
                     <CardTitle className="text-base truncate">
-                      {pkg.manifest.name}
+                      {pkg.manifest?.name || pkg.manifest?.id || 'Unknown'}
                     </CardTitle>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
                     <Badge variant="outline" className="text-xs font-mono">
-                      v{pkg.manifest.version}
+                      v{pkg.manifest?.version || '?'}
                     </Badge>
-                    <Badge className={`text-xs ${typeColors[pkg.manifest.type] || typeColors.module}`}>
-                      {pkg.manifest.type}
+                    <Badge className={`text-xs ${typeColors[pkg.manifest?.type || 'module'] || typeColors.module}`}>
+                      {pkg.manifest?.type || 'unknown'}
                     </Badge>
                   </div>
                 </div>
                 <CardDescription className="text-xs mt-1">
-                  {pkg.manifest.description || pkg.manifest.id}
+                  {pkg.manifest?.description || pkg.manifest?.id || 'No description'}
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-0">

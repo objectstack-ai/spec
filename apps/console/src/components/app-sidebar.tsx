@@ -116,7 +116,6 @@ export function AppSidebar({ selectedObject, onSelectObject, packages, selectedP
 
   /** Load all metadata types and their items from the server */
   const loadMetadata = useCallback(async () => {
-    if (!client) return;
     setLoading(true);
     try {
       // 1. Discover all registered metadata types (spec: GetMetaTypesResponse)

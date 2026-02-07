@@ -180,6 +180,7 @@ export async function createKernel(options: KernelOptions) {
                     }
 
                     // --- Skip/Top ---
+                    const totalCount = all.length; // Capture total BEFORE pagination
                     const skip = parseInt(queryOptions.skip) || 0;
                     const top = parseInt(queryOptions.top); // undefined is fine
 
@@ -190,9 +191,9 @@ export async function createKernel(options: KernelOptions) {
                         all = all.slice(0, top);
                     }
                     
-                    console.log(`[BrokerShim] find/query(${params.object}) -> count: ${all.length}`);
+                    console.log(`[BrokerShim] find/query(${params.object}) -> count: ${all.length}, total: ${totalCount}`);
                     // Spec: FindDataResponse = { object, records, total?, hasMore? }
-                    return { object: params.object, records: all, total: all.length };
+                    return { object: params.object, records: all, total: totalCount };
                 }
             }
             
