@@ -195,7 +195,7 @@ export const CrossFieldValidationSchema = BaseValidationSchema.extend({
 export const JSONValidationSchema = BaseValidationSchema.extend({
   type: z.literal('json_schema'),
   field: z.string().describe('JSON field to validate'),
-  schema: z.record(z.string(), z.any()).describe('JSON Schema object definition'),
+  schema: z.record(z.string(), z.unknown()).describe('JSON Schema object definition'),
 });
 
 /**
@@ -322,7 +322,7 @@ export const AsyncValidationSchema = BaseValidationSchema.extend({
   validatorFunction: z.string().optional().describe('Reference to custom validator function'),
   timeout: z.number().optional().default(5000).describe('Timeout in milliseconds'),
   debounce: z.number().optional().describe('Debounce delay in milliseconds'),
-  params: z.record(z.string(), z.any()).optional().describe('Additional parameters to pass to validator'),
+  params: z.record(z.string(), z.unknown()).optional().describe('Additional parameters to pass to validator'),
 });
 
 /**
@@ -332,7 +332,7 @@ export const AsyncValidationSchema = BaseValidationSchema.extend({
 export const CustomValidatorSchema = BaseValidationSchema.extend({
   type: z.literal('custom'),
   handler: z.string().describe('Name of the custom validation function registered in the system'),
-  params: z.record(z.string(), z.any()).optional().describe('Parameters passed to the custom handler'),
+  params: z.record(z.string(), z.unknown()).optional().describe('Parameters passed to the custom handler'),
 });
 
 /**

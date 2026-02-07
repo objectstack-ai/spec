@@ -23,7 +23,7 @@ export const DriverDefinitionSchema = z.object({
    * Describes the structure of the `config` object needed for this driver.
    * Used by the UI to generate the connection form.
    */
-  configSchema: z.record(z.string(), z.any()).describe('JSON Schema for connection configuration'),
+  configSchema: z.record(z.string(), z.unknown()).describe('JSON Schema for connection configuration'),
   
   /**
    * Default Capabilities
@@ -104,7 +104,7 @@ export const DatasourceSchema = z.object({
    * Specific to the driver (e.g., host, port, user, password, bucket, etc.)
    * Stored securely (passwords usually interpolated from ENV).
    */
-  config: z.record(z.string(), z.any()).describe('Driver specific configuration'),
+  config: z.record(z.string(), z.unknown()).describe('Driver specific configuration'),
   
   /**
    * Connection Pool Configuration
@@ -122,7 +122,7 @@ export const DatasourceSchema = z.object({
    * Optional list of duplicate configurations for read-only operations.
    * Useful for scaling read throughput.
    */
-  readReplicas: z.array(z.record(z.string(), z.any())).optional().describe('Read-only replica configurations'),
+  readReplicas: z.array(z.record(z.string(), z.unknown())).optional().describe('Read-only replica configurations'),
 
   /**
    * Capability Overrides

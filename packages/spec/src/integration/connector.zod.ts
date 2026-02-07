@@ -98,7 +98,7 @@ export const FieldTransformSchema = z.object({
     'custom',
   ]).describe('Transformation type'),
   
-  params: z.record(z.string(), z.any()).optional().describe('Transformation parameters'),
+  params: z.record(z.string(), z.unknown()).optional().describe('Transformation parameters'),
   
   function: z.string().optional().describe('Custom JavaScript function for transformation'),
 });
@@ -225,7 +225,7 @@ export const DataSyncConfigSchema = z.object({
   /**
    * Filter criteria for selective sync
    */
-  filters: z.record(z.string(), z.any()).optional().describe('Filter criteria for selective sync'),
+  filters: z.record(z.string(), z.unknown()).optional().describe('Filter criteria for selective sync'),
 });
 
 export type DataSyncConfig = z.infer<typeof DataSyncConfigSchema>;
@@ -435,8 +435,8 @@ export const ConnectorActionSchema = z.object({
   key: z.string().describe('Action key (machine name)'),
   label: z.string().describe('Human readable label'),
   description: z.string().optional(),
-  inputSchema: z.record(z.string(), z.any()).optional().describe('Input parameters schema (JSON Schema)'),
-  outputSchema: z.record(z.string(), z.any()).optional().describe('Output schema (JSON Schema)'),
+  inputSchema: z.record(z.string(), z.unknown()).optional().describe('Input parameters schema (JSON Schema)'),
+  outputSchema: z.record(z.string(), z.unknown()).optional().describe('Output schema (JSON Schema)'),
 });
 
 /**
@@ -538,7 +538,7 @@ export const ConnectorSchema = z.object({
   /**
    * Custom metadata
    */
-  metadata: z.record(z.string(), z.any()).optional().describe('Custom connector metadata'),
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Custom connector metadata'),
 });
 
 export type Connector = z.infer<typeof ConnectorSchema>;

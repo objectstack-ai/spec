@@ -117,7 +117,7 @@ export const DocumentSchemaValidationSchema = z.object({
   enabled: z.boolean().default(false).describe('Enable schema validation'),
   validationLevel: z.enum(['strict', 'moderate', 'off']).optional().describe('Validation strictness'),
   validationAction: z.enum(['error', 'warn']).optional().describe('Action on validation failure'),
-  jsonSchema: z.record(z.string(), z.any()).optional().describe('JSON Schema for validation'),
+  jsonSchema: z.record(z.string(), z.unknown()).optional().describe('JSON Schema for validation'),
 });
 
 export type DocumentSchemaValidation = z.infer<typeof DocumentSchemaValidationSchema>;
@@ -375,7 +375,7 @@ export const AggregationStageSchema = z.object({
   /**
    * Stage parameters/options
    */
-  options: z.record(z.string(), z.any()).describe('Stage-specific options'),
+  options: z.record(z.string(), z.unknown()).describe('Stage-specific options'),
 });
 
 export type AggregationStage = z.infer<typeof AggregationStageSchema>;
@@ -445,7 +445,7 @@ export const NoSQLIndexSchema = z.object({
   /**
    * Partial index filter
    */
-  partialFilterExpression: z.record(z.string(), z.any()).optional().describe('Partial index filter'),
+  partialFilterExpression: z.record(z.string(), z.unknown()).optional().describe('Partial index filter'),
   
   /**
    * Background index creation

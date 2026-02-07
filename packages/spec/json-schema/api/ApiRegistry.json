@@ -159,6 +159,7 @@
                                   },
                                   "enum": {
                                     "type": "array",
+                                    "items": {},
                                     "description": "Allowed values"
                                   },
                                   "default": {
@@ -709,6 +710,7 @@
                                     },
                                     "enum": {
                                       "type": "array",
+                                      "items": {},
                                       "description": "Allowed values"
                                     },
                                     "default": {
@@ -1266,6 +1268,7 @@
                                     },
                                     "enum": {
                                       "type": "array",
+                                      "items": {},
                                       "description": "Allowed values"
                                     },
                                     "default": {

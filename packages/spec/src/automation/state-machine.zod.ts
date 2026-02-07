@@ -17,7 +17,7 @@ export const ActionRefSchema = z.union([
   z.string().describe('Action Name'),
   z.object({
     type: z.string(), // e.g., 'xstate.assign', 'log', 'email'
-    params: z.record(z.string(), z.any()).optional()
+    params: z.record(z.string(), z.unknown()).optional()
   })
 ]);
 
@@ -29,7 +29,7 @@ export const GuardRefSchema = z.union([
   z.string().describe('Guard Name (e.g., "isManager", "amountGT1000")'),
   z.object({
     type: z.string(),
-    params: z.record(z.string(), z.any()).optional()
+    params: z.record(z.string(), z.unknown()).optional()
   })
 ]);
 
@@ -52,7 +52,7 @@ export const TransitionSchema = z.object({
 export const EventSchema = z.object({
   type: z.string().describe('Event Type (e.g. "APPROVE", "REJECT", "Submit")'),
   // Payload validation schema could go here if we want deep validation
-  schema: z.record(z.string(), z.any()).optional().describe('Expected event payload structure'),
+  schema: z.record(z.string(), z.unknown()).optional().describe('Expected event payload structure'),
 });
 
 export type ActionRef = z.infer<typeof ActionRefSchema>;
@@ -117,7 +117,7 @@ export const StateMachineSchema = z.object({
   description: z.string().optional(),
   
   /** Context (Memory) Schema */
-  contextSchema: z.record(z.string(), z.any()).optional().describe('Zod Schema for the machine context/memory'),
+  contextSchema: z.record(z.string(), z.unknown()).optional().describe('Zod Schema for the machine context/memory'),
   
   /** Initial State */
   initial: z.string().describe('Initial State ID'),

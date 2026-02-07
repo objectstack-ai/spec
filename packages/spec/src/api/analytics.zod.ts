@@ -37,7 +37,7 @@ export const AnalyticsQueryRequestSchema = z.object({
  */
 export const AnalyticsResultResponseSchema = BaseResponseSchema.extend({
   data: z.object({
-    rows: z.array(z.record(z.string(), z.any())).describe('Result rows'),
+    rows: z.array(z.record(z.string(), z.unknown())).describe('Result rows'),
     fields: z.array(z.object({
       name: z.string(),
       type: z.string(),
@@ -74,6 +74,6 @@ export const AnalyticsMetadataResponseSchema = BaseResponseSchema.extend({
 export const AnalyticsSqlResponseSchema = BaseResponseSchema.extend({
   data: z.object({
     sql: z.string(),
-    params: z.array(z.any()),
+    params: z.array(z.unknown()),
   }),
 });

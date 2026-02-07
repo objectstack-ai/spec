@@ -184,7 +184,7 @@ export const ListViewSchema = z.object({
     z.array(z.string()), // Legacy: simple field names
     z.array(ListColumnSchema), // Enhanced: detailed column config
   ]).describe('Fields to display as columns'),
-  filter: z.array(z.any()).optional().describe('Filter criteria (JSON Rules)'),
+  filter: z.array(z.unknown()).optional().describe('Filter criteria (JSON Rules)'),
   sort: z.union([
     z.string(), //Legacy "field desc"
     z.array(z.object({

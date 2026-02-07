@@ -241,6 +241,7 @@
             },
             "filter": {
               "type": "array",
+              "items": {},
               "description": "Filter criteria (JSON Rules)"
             },
             "sort": {
@@ -1047,6 +1048,7 @@
               },
               "filter": {
                 "type": "array",
+                "items": {},
                 "description": "Filter criteria (JSON Rules)"
               },
               "sort": {

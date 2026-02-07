@@ -152,7 +152,7 @@ export const AuditEventTargetSchema = z.object({
   /**
    * Additional metadata about the target
    */
-  metadata: z.record(z.string(), z.any()).optional().describe('Target metadata'),
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Target metadata'),
 });
 
 export type AuditEventTarget = z.infer<typeof AuditEventTargetSchema>;
@@ -170,12 +170,12 @@ export const AuditEventChangeSchema = z.object({
   /**
    * Value before the change
    */
-  oldValue: z.any().optional().describe('Previous value'),
+  oldValue: z.unknown().optional().describe('Previous value'),
   
   /**
    * Value after the change
    */
-  newValue: z.any().optional().describe('New value'),
+  newValue: z.unknown().optional().describe('New value'),
 });
 
 export type AuditEventChange = z.infer<typeof AuditEventChangeSchema>;
@@ -248,7 +248,7 @@ export const AuditEventSchema = z.object({
   /**
    * Additional context and metadata
    */
-  metadata: z.record(z.string(), z.any()).optional().describe('Additional metadata'),
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Additional metadata'),
   
   /**
    * Geographic location (if available)
@@ -287,7 +287,7 @@ export const AuditRetentionPolicySchema = z.object({
     endpoint: z.string().optional().describe('Storage endpoint URL'),
     bucket: z.string().optional().describe('Storage bucket/container name'),
     path: z.string().optional().describe('Storage path prefix'),
-    credentials: z.record(z.string(), z.any()).optional().describe('Storage credentials'),
+    credentials: z.record(z.string(), z.unknown()).optional().describe('Storage credentials'),
   }).optional().describe('Archive storage configuration'),
   
   /**
@@ -357,7 +357,7 @@ export const SuspiciousActivityRuleSchema = z.object({
     /**
      * Additional filters
      */
-    filters: z.record(z.string(), z.any()).optional().describe('Additional filters'),
+    filters: z.record(z.string(), z.unknown()).optional().describe('Additional filters'),
   }).describe('Detection condition'),
   
   /**
@@ -427,7 +427,7 @@ export const AuditStorageConfigSchema = z.object({
   /**
    * Storage configuration
    */
-  config: z.record(z.string(), z.any()).optional().describe('Storage-specific configuration'),
+  config: z.record(z.string(), z.unknown()).optional().describe('Storage-specific configuration'),
   
   /**
    * Whether to enable buffering/batching
@@ -498,7 +498,7 @@ export const AuditEventFilterSchema = z.object({
   /**
    * Custom filters
    */
-  customFilters: z.record(z.string(), z.any()).optional().describe('Custom filters'),
+  customFilters: z.record(z.string(), z.unknown()).optional().describe('Custom filters'),
 });
 
 export type AuditEventFilter = z.infer<typeof AuditEventFilterSchema>;

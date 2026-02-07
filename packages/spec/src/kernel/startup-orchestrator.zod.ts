@@ -58,7 +58,7 @@ export const StartupOptionsSchema = z.object({
   /**
    * Custom context to pass to plugin lifecycle methods
    */
-  context: z.any().optional().describe('Custom context object to pass to plugin lifecycle methods'),
+  context: z.unknown().optional().describe('Custom context object to pass to plugin lifecycle methods'),
 });
 
 export type StartupOptions = z.infer<typeof StartupOptionsSchema>;
@@ -96,7 +96,7 @@ export const HealthStatusSchema = z.object({
   /**
    * Optional health details (plugin-specific)
    */
-  details: z.record(z.string(), z.any()).optional().describe('Optional plugin-specific health details'),
+  details: z.record(z.string(), z.unknown()).optional().describe('Optional plugin-specific health details'),
   
   /**
    * Optional error message if unhealthy

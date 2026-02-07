@@ -50,13 +50,13 @@ import type {
 
 export const AutomationTriggerRequestSchema = z.object({
   trigger: z.string(),
-  payload: z.record(z.any())
+  payload: z.record(z.string(), z.unknown())
 });
 
 export const AutomationTriggerResponseSchema = z.object({
   success: z.boolean(),
   jobId: z.string().optional(),
-  result: z.any().optional()
+  result: z.unknown().optional()
 });
 
 /**
@@ -123,7 +123,7 @@ export const GetMetaItemsRequestSchema = z.object({
  */
 export const GetMetaItemsResponseSchema = z.object({
   type: z.string().describe('Metadata type name'),
-  items: z.array(z.any()).describe('Array of metadata items'),
+  items: z.array(z.unknown()).describe('Array of metadata items'),
 });
 
 /**
@@ -141,7 +141,7 @@ export const GetMetaItemRequestSchema = z.object({
 export const GetMetaItemResponseSchema = z.object({
   type: z.string().describe('Metadata type name'),
   name: z.string().describe('Item name'),
-  item: z.any().describe('Metadata item definition'),
+  item: z.unknown().describe('Metadata item definition'),
 });
 
 /**
@@ -151,7 +151,7 @@ export const GetMetaItemResponseSchema = z.object({
 export const SaveMetaItemRequestSchema = z.object({
   type: z.string().describe('Metadata type name'),
   name: z.string().describe('Item name'),
-  item: z.any().describe('Metadata item definition'),
+  item: z.unknown().describe('Metadata item definition'),
 });
 
 /**
@@ -223,7 +223,7 @@ export const FindDataRequestSchema = z.object({
  */
 export const FindDataResponseSchema = z.object({
   object: z.string().describe('The object name for the returned records.'),
-  records: z.array(z.record(z.string(), z.any())).describe('The list of matching records.'),
+  records: z.array(z.record(z.string(), z.unknown())).describe('The list of matching records.'),
   total: z.number().optional().describe('Total number of records matching the filter (if requested).'),
   hasMore: z.boolean().optional().describe('True if there are more records available (pagination).'),
 });
@@ -249,7 +249,7 @@ export const GetDataRequestSchema = z.object({
 export const GetDataResponseSchema = z.object({
   object: z.string().describe('The object name.'),
   id: z.string().describe('The record ID.'),
-  record: z.record(z.string(), z.any()).describe('The complete record data.'),
+  record: z.record(z.string(), z.unknown()).describe('The complete record data.'),
 });
 
 /**
@@ -268,7 +268,7 @@ export const GetDataResponseSchema = z.object({
  */
 export const CreateDataRequestSchema = z.object({
   object: z.string().describe('The object name.'),
-  data: z.record(z.string(), z.any()).describe('The dictionary of field values to insert.'),
+  data: z.record(z.string(), z.unknown()).describe('The dictionary of field values to insert.'),
 });
 
 /**
@@ -277,7 +277,7 @@ export const CreateDataRequestSchema = z.object({
 export const CreateDataResponseSchema = z.object({
   object: z.string().describe('The object name.'),
   id: z.string().describe('The ID of the newly created record.'),
-  record: z.record(z.string(), z.any()).describe('The created record, including server-generated fields (created_at, owner).'),
+  record: z.record(z.string(), z.unknown()).describe('The created record, including server-generated fields (created_at, owner).'),
 });
 
 /**
@@ -297,7 +297,7 @@ export const CreateDataResponseSchema = z.object({
 export const UpdateDataRequestSchema = z.object({
   object: z.string().describe('The object name.'),
   id: z.string().describe('The ID of the record to update.'),
-  data: z.record(z.string(), z.any()).describe('The fields to update (partial update).'),
+  data: z.record(z.string(), z.unknown()).describe('The fields to update (partial update).'),
 });
 
 /**
@@ -306,7 +306,7 @@ export const UpdateDataRequestSchema = z.object({
 export const UpdateDataResponseSchema = z.object({
   object: z.string().describe('Object name'),
   id: z.string().describe('Updated record ID'),
-  record: z.record(z.string(), z.any()).describe('Updated record'),
+  record: z.record(z.string(), z.unknown()).describe('Updated record'),
 });
 
 /**
@@ -349,7 +349,7 @@ export const BatchDataResponseSchema = BatchUpdateResponseSchema;
  */
 export const CreateManyDataRequestSchema = z.object({
   object: z.string().describe('Object name'),
-  records: z.array(z.record(z.string(), z.any())).describe('Array of records to create'),
+  records: z.array(z.record(z.string(), z.unknown())).describe('Array of records to create'),
 });
 
 /**
@@ -357,7 +357,7 @@ export const CreateManyDataRequestSchema = z.object({
  */
 export const CreateManyDataResponseSchema = z.object({
   object: z.string().describe('Object name'),
-  records: z.array(z.record(z.string(), z.any())).describe('Created records'),
+  records: z.array(z.record(z.string(), z.unknown())).describe('Created records'),
   count: z.number().describe('Number of records created'),
 });
 
@@ -368,7 +368,7 @@ export const UpdateManyDataRequestSchema = z.object({
   object: z.string().describe('Object name'),
   records: z.array(z.object({
     id: z.string().describe('Record ID'),
-    data: z.record(z.string(), z.any()).describe('Fields to update'),
+    data: z.record(z.string(), z.unknown()).describe('Fields to update'),
   })).describe('Array of updates'),
   options: BatchOptionsSchema.optional().describe('Update options'),
 });

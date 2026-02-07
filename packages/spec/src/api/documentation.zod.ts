@@ -84,10 +84,10 @@ export const OpenApiSecuritySchemeSchema = z.object({
   
   /** OAuth flows */
   flows: z.object({
-    implicit: z.any().optional(),
-    password: z.any().optional(),
-    clientCredentials: z.any().optional(),
-    authorizationCode: z.any().optional(),
+    implicit: z.unknown().optional(),
+    password: z.unknown().optional(),
+    clientCredentials: z.unknown().optional(),
+    authorizationCode: z.unknown().optional(),
   }).optional().describe('OAuth2 flows'),
   
   /** OpenID Connect URL */
@@ -148,19 +148,19 @@ export const OpenApiSpecSchema = z.object({
   servers: z.array(OpenApiServerSchema).optional().default([]).describe('API servers'),
   
   /** API paths */
-  paths: z.record(z.string(), z.any()).describe('API paths and operations'),
+  paths: z.record(z.string(), z.unknown()).describe('API paths and operations'),
   
   /** Reusable components */
   components: z.object({
-    schemas: z.record(z.string(), z.any()).optional(),
-    responses: z.record(z.string(), z.any()).optional(),
-    parameters: z.record(z.string(), z.any()).optional(),
-    examples: z.record(z.string(), z.any()).optional(),
-    requestBodies: z.record(z.string(), z.any()).optional(),
-    headers: z.record(z.string(), z.any()).optional(),
+    schemas: z.record(z.string(), z.unknown()).optional(),
+    responses: z.record(z.string(), z.unknown()).optional(),
+    parameters: z.record(z.string(), z.unknown()).optional(),
+    examples: z.record(z.string(), z.unknown()).optional(),
+    requestBodies: z.record(z.string(), z.unknown()).optional(),
+    headers: z.record(z.string(), z.unknown()).optional(),
     securitySchemes: z.record(z.string(), OpenApiSecuritySchemeSchema).optional(),
-    links: z.record(z.string(), z.any()).optional(),
-    callbacks: z.record(z.string(), z.any()).optional(),
+    links: z.record(z.string(), z.unknown()).optional(),
+    callbacks: z.record(z.string(), z.unknown()).optional(),
   }).optional().describe('Reusable components'),
   
   /** Security requirements */
@@ -321,16 +321,16 @@ export const ApiTestRequestSchema = z.object({
     .optional().default({}).describe('Query parameters'),
   
   /** Request body */
-  body: z.any().optional().describe('Request body'),
+  body: z.unknown().optional().describe('Request body'),
   
   /** Environment variables */
-  variables: z.record(z.string(), z.any()).optional().default({})
+  variables: z.record(z.string(), z.unknown()).optional().default({})
     .describe('Template variables'),
   
   /** Expected response */
   expectedResponse: z.object({
     statusCode: z.number().int(),
-    body: z.any().optional(),
+    body: z.unknown().optional(),
   }).optional().describe('Expected response for validation'),
 });
 
@@ -362,7 +362,7 @@ export const ApiTestCollectionSchema = z.object({
   description: z.string().optional().describe('Collection description'),
   
   /** Collection variables */
-  variables: z.record(z.string(), z.any()).optional().default({})
+  variables: z.record(z.string(), z.unknown()).optional().default({})
     .describe('Shared variables'),
   
   /** Test requests */

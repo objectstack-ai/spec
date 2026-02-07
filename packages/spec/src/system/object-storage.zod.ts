@@ -488,7 +488,7 @@ export const ObjectStorageConfigSchema = z.object({
   /**
    * Provider-specific options
    */
-  options: z.record(z.string(), z.any()).optional().describe('Provider-specific configuration options'),
+  options: z.record(z.string(), z.unknown()).optional().describe('Provider-specific configuration options'),
   
   enabled: z.boolean().default(true).describe('Enable this storage configuration'),
   description: z.string().optional().describe('Configuration description'),

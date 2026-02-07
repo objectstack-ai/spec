@@ -48,7 +48,7 @@ export const MetadataStatsSchema = z.object({
   /**
    * Additional metadata provider-specific properties
    */
-  metadata: z.record(z.string(), z.any()).optional().describe('Provider-specific metadata'),
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Provider-specific metadata'),
 });
 
 /**
@@ -225,7 +225,7 @@ export const MetadataLoadResultSchema = z.object({
   /**
    * Loaded data
    */
-  data: z.any().nullable().describe('Loaded metadata'),
+  data: z.unknown().nullable().describe('Loaded metadata'),
   
   /**
    * Whether data came from cache (304 Not Modified)
@@ -315,7 +315,7 @@ export const MetadataWatchEventSchema = z.object({
   /**
    * Loaded item data (for added/changed events)
    */
-  data: z.any().optional().describe('Item data'),
+  data: z.unknown().optional().describe('Item data'),
   
   /**
    * Timestamp
@@ -453,7 +453,7 @@ export const MetadataManagerConfigSchema = z.object({
   /**
    * Loader-specific options
    */
-  loaderOptions: z.record(z.string(), z.any()).optional().describe('Loader-specific configuration'),
+  loaderOptions: z.record(z.string(), z.unknown()).optional().describe('Loader-specific configuration'),
 });
 
 // Export types

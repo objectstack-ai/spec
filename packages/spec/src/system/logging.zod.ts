@@ -98,8 +98,8 @@ export const LogEntrySchema = z.object({
   timestamp: z.string().datetime().describe('ISO 8601 timestamp'),
   level: LogLevel,
   message: z.string().describe('Log message'),
-  context: z.record(z.string(), z.any()).optional().describe('Structured context data'),
-  error: z.record(z.string(), z.any()).optional().describe('Error object if present'),
+  context: z.record(z.string(), z.unknown()).optional().describe('Structured context data'),
+  error: z.record(z.string(), z.unknown()).optional().describe('Error object if present'),
   
   /** Tracing */
   traceId: z.string().optional().describe('Distributed trace ID'),
@@ -332,7 +332,7 @@ export const ExternalServiceDestinationConfigSchema = z.object({
   /**
    * Service-specific configuration
    */
-  config: z.record(z.string(), z.any()).optional(),
+  config: z.record(z.string(), z.unknown()).optional(),
 }).describe('External service destination configuration');
 
 export type ExternalServiceDestinationConfig = z.infer<typeof ExternalServiceDestinationConfigSchema>;
@@ -405,7 +405,7 @@ export const LogEnrichmentConfigSchema = z.object({
   /**
    * Static fields to add to all logs
    */
-  staticFields: z.record(z.string(), z.any()).optional().describe('Static fields added to every log'),
+  staticFields: z.record(z.string(), z.unknown()).optional().describe('Static fields added to every log'),
 
   /**
    * Dynamic field enrichers (runtime only)
@@ -472,7 +472,7 @@ export const StructuredLogEntrySchema = z.object({
   /**
    * Structured context data
    */
-  context: z.record(z.string(), z.any()).optional().describe('Structured context'),
+  context: z.record(z.string(), z.unknown()).optional().describe('Structured context'),
 
   /**
    * Error information
@@ -482,7 +482,7 @@ export const StructuredLogEntrySchema = z.object({
     message: z.string().optional(),
     stack: z.string().optional(),
     code: z.string().optional(),
-    details: z.record(z.string(), z.any()).optional(),
+    details: z.record(z.string(), z.unknown()).optional(),
   }).optional().describe('Error details'),
 
   /**
@@ -548,7 +548,7 @@ export const StructuredLogEntrySchema = z.object({
   /**
    * Additional metadata
    */
-  metadata: z.record(z.string(), z.any()).optional().describe('Additional metadata'),
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Additional metadata'),
 }).describe('Structured log entry');
 
 export type StructuredLogEntry = z.infer<typeof StructuredLogEntrySchema>;

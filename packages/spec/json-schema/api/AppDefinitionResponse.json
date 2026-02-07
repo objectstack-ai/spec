@@ -354,10 +354,12 @@
             },
             "objects": {
               "type": "array",
+              "items": {},
               "description": "Objects belonging to this app"
             },
             "apis": {
               "type": "array",
+              "items": {},
               "description": "Custom APIs belonging to this app"
             }
           },

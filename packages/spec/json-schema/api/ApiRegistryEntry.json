@@ -139,6 +139,7 @@
                             },
                             "enum": {
                               "type": "array",
+                              "items": {},
                               "description": "Allowed values"
                             },
                             "default": {

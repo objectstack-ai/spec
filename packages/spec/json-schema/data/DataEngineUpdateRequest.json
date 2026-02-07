@@ -16,6 +16,10 @@
           "additionalProperties": {}
         },
         "id": {
+          "type": [
+            "string",
+            "number"
+          ],
           "description": "ID for single update, or use filter in options"
         },
         "options": {

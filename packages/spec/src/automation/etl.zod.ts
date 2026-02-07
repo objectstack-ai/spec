@@ -123,7 +123,7 @@ export const ETLSourceSchema = z.object({
    * @example For API: { endpoint: '/api/users', method: 'GET' }
    * @example For file: { path: 's3://bucket/data.csv', format: 'csv' }
    */
-  config: z.record(z.string(), z.any()).describe('Source configuration'),
+  config: z.record(z.string(), z.unknown()).describe('Source configuration'),
 
   /**
    * Incremental sync configuration
@@ -132,7 +132,7 @@ export const ETLSourceSchema = z.object({
   incremental: z.object({
     enabled: z.boolean().default(false),
     cursorField: z.string().describe('Field to track progress (e.g., updated_at)'),
-    cursorValue: z.any().optional().describe('Last processed value'),
+    cursorValue: z.unknown().optional().describe('Last processed value'),
   }).optional().describe('Incremental extraction config'),
 });
 
@@ -155,7 +155,7 @@ export const ETLDestinationSchema = z.object({
   /**
    * Destination-specific configuration
    */
-  config: z.record(z.string(), z.any()).describe('Destination configuration'),
+  config: z.record(z.string(), z.unknown()).describe('Destination configuration'),
 
   /**
    * Write mode
@@ -214,7 +214,7 @@ export const ETLTransformationSchema = z.object({
    * @example For filter: { condition: 'status == "active"' }
    * @example For script: { language: 'javascript', code: '...' }
    */
-  config: z.record(z.string(), z.any()).describe('Transformation config'),
+  config: z.record(z.string(), z.unknown()).describe('Transformation config'),
 
   /**
    * Whether to continue on error
@@ -319,7 +319,7 @@ export const ETLPipelineSchema = z.object({
   /**
    * Custom metadata
    */
-  metadata: z.record(z.string(), z.any()).optional().describe('Custom metadata'),
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Custom metadata'),
 });
 
 export type ETLPipeline = z.infer<typeof ETLPipelineSchema>;
@@ -390,7 +390,7 @@ export const ETLPipelineRunSchema = z.object({
   error: z.object({
     message: z.string().describe('Error message'),
     code: z.string().optional().describe('Error code'),
-    details: z.any().optional().describe('Error details'),
+    details: z.unknown().optional().describe('Error details'),
   }).optional().describe('Error information'),
 
   /**

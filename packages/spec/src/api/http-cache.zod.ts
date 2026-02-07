@@ -144,7 +144,7 @@ export type MetadataCacheRequest = z.infer<typeof MetadataCacheRequestSchema>;
  * }
  */
 export const MetadataCacheResponseSchema = z.object({
-  data: z.any().optional().describe('Metadata payload (omitted for 304 Not Modified)'),
+  data: z.unknown().optional().describe('Metadata payload (omitted for 304 Not Modified)'),
   etag: ETagSchema.optional().describe('ETag for this resource version'),
   lastModified: z.string().datetime().optional().describe('Last modification timestamp'),
   cacheControl: CacheControlSchema.optional().describe('Cache control directives'),

@@ -94,13 +94,13 @@ export const PromptVariableSchema = z.object({
   name: z.string().describe('Variable name (e.g., "user_name", "context")'),
   type: z.enum(['string', 'number', 'boolean', 'object', 'array']).default('string'),
   required: z.boolean().default(false),
-  defaultValue: z.any().optional(),
+  defaultValue: z.unknown().optional(),
   description: z.string().optional(),
   validation: z.object({
     minLength: z.number().optional(),
     maxLength: z.number().optional(),
     pattern: z.string().optional(),
-    enum: z.array(z.any()).optional(),
+    enum: z.array(z.unknown()).optional(),
   }).optional(),
 });
 
@@ -136,7 +136,7 @@ export const PromptTemplateSchema = z.object({
   category: z.string().optional().describe('Template category (e.g., "code_generation", "support")'),
   tags: z.array(z.string()).optional(),
   examples: z.array(z.object({
-    input: z.record(z.string(), z.any()).describe('Example variable values'),
+    input: z.record(z.string(), z.unknown()).describe('Example variable values'),
     output: z.string().describe('Expected output'),
   })).optional(),
 });

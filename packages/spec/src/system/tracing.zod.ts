@@ -321,7 +321,7 @@ export const TraceSamplingConfigSchema = z.object({
   composite: z.array(z.object({
     strategy: SamplingStrategyType.describe('Strategy type'),
     ratio: z.number().min(0).max(1).optional(),
-    condition: z.record(z.string(), z.any()).optional().describe('Condition for this strategy'),
+    condition: z.record(z.string(), z.unknown()).optional().describe('Condition for this strategy'),
   })).optional(),
 
   /**
@@ -350,7 +350,7 @@ export const TraceSamplingConfigSchema = z.object({
       /**
        * Attribute filters
        */
-      attributes: z.record(z.string(), z.any()).optional(),
+      attributes: z.record(z.string(), z.unknown()).optional(),
     }).optional(),
 
     /**

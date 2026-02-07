@@ -66,7 +66,7 @@ export type FilterOperator = z.infer<typeof FilterOperator>;
 export const EventFilterCondition = z.object({
   field: z.string().describe('Field path to filter on (supports dot notation, e.g., "user.email")'),
   operator: FilterOperator.describe('Comparison operator'),
-  value: z.any().optional().describe('Value to compare against (not needed for "exists" operator)'),
+  value: z.unknown().optional().describe('Value to compare against (not needed for "exists" operator)'),
 });
 
 export type EventFilterCondition = z.infer<typeof EventFilterCondition>;
@@ -156,7 +156,7 @@ export const PresenceStateSchema = z.object({
   currentLocation: z.string().optional().describe('Current page/route user is viewing'),
   device: z.enum(['desktop', 'mobile', 'tablet', 'other']).optional().describe('Device type'),
   customStatus: z.string().optional().describe('Custom user status message'),
-  metadata: z.record(z.string(), z.any()).optional().describe('Additional custom presence data'),
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Additional custom presence data'),
 });
 
 export type PresenceState = z.infer<typeof PresenceStateSchema>;
@@ -169,7 +169,7 @@ export const PresenceUpdateSchema = z.object({
   status: WebSocketPresenceStatus.optional().describe('Updated presence status'),
   currentLocation: z.string().optional().describe('Updated current location'),
   customStatus: z.string().optional().describe('Updated custom status message'),
-  metadata: z.record(z.string(), z.any()).optional().describe('Updated metadata'),
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Updated metadata'),
 });
 
 export type PresenceUpdate = z.infer<typeof PresenceUpdateSchema>;
@@ -306,7 +306,7 @@ export const EventMessageSchema = BaseWebSocketMessage.extend({
   subscriptionId: z.string().uuid().describe('Subscription ID this event belongs to'),
   eventName: EventNameSchema.describe('Event name'),
   object: z.string().optional().describe('Object name the event relates to'),
-  payload: z.any().describe('Event payload data'),
+  payload: z.unknown().describe('Event payload data'),
   userId: z.string().optional().describe('User who triggered the event'),
 });
 
@@ -366,7 +366,7 @@ export const ErrorMessageSchema = BaseWebSocketMessage.extend({
   type: z.literal('error'),
   code: z.string().describe('Error code'),
   message: z.string().describe('Error message'),
-  details: z.any().optional().describe('Additional error details'),
+  details: z.unknown().optional().describe('Additional error details'),
 });
 
 export type ErrorMessage = z.infer<typeof ErrorMessageSchema>;
@@ -472,7 +472,7 @@ export const WebSocketEventSchema = z.object({
     'error',           // Error message
   ]).describe('Event type'),
   channel: z.string().describe('Channel identifier (e.g., "record.account.123", "user.456")'),
-  payload: z.any().describe('Event payload data'),
+  payload: z.unknown().describe('Event payload data'),
   timestamp: z.number().describe('Unix timestamp in milliseconds'),
 });
 
@@ -503,7 +503,7 @@ export const SimplePresenceStateSchema = z.object({
   userName: z.string().describe('User display name'),
   status: z.enum(['online', 'away', 'offline']).describe('User presence status'),
   lastSeen: z.number().describe('Unix timestamp of last activity in milliseconds'),
-  metadata: z.record(z.string(), z.any()).optional().describe('Additional presence metadata (e.g., current page, custom status)'),
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Additional presence metadata (e.g., current page, custom status)'),
 });
 
 export type SimplePresenceState = z.infer<typeof SimplePresenceStateSchema>;

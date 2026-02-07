@@ -71,7 +71,7 @@ export const WebhookSchema = z.object({
   headers: z.record(z.string(), z.string()).optional().describe('Custom HTTP headers'),
   
   /** Body/Payload */
-  body: z.any().optional().describe('Request body payload (if not using default record data)'),
+  body: z.unknown().optional().describe('Request body payload (if not using default record data)'),
   
   /** Payload Configuration */
   payloadFields: z.array(z.string()).optional().describe('Fields to include. Empty = All'),

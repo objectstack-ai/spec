@@ -32,7 +32,7 @@ export const FieldMappingSchema = z.object({
   /** Configuration for transform */
   params: z.object({
     // Constant
-    value: z.any().optional(),
+    value: z.unknown().optional(),
     
     // Lookup
     object: z.string().optional(), // Lookup Object
@@ -41,7 +41,7 @@ export const FieldMappingSchema = z.object({
     autoCreate: z.boolean().optional(), // Create if missing
     
     // Map
-    valueMap: z.record(z.string(), z.any()).optional(), // { "Open": "draft" }
+    valueMap: z.record(z.string(), z.unknown()).optional(), // { "Open": "draft" }
     
     // Split/Join
     separator: z.string().optional()

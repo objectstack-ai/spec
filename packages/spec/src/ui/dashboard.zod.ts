@@ -47,7 +47,7 @@ export const DashboardWidgetSchema = z.object({
   }).describe('Grid layout position'),
   
   /** Widget specific options (colors, legend, etc.) */
-  options: z.any().optional().describe('Widget specific configuration'),
+  options: z.unknown().optional().describe('Widget specific configuration'),
 });
 
 /**

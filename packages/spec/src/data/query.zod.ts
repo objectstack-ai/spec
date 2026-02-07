@@ -493,7 +493,7 @@ const BaseQuerySchema = z.object({
   limit: z.number().optional().describe('Max records to return (LIMIT)'),
   offset: z.number().optional().describe('Records to skip (OFFSET)'),
   top: z.number().optional().describe('Alias for limit (OData compatibility)'),
-  cursor: z.record(z.string(), z.any()).optional().describe('Cursor for keyset pagination'),
+  cursor: z.record(z.string(), z.unknown()).optional().describe('Cursor for keyset pagination'),
   
   /** Joins */
   joins: z.array(JoinNodeSchema).optional().describe('Explicit Table Joins'),

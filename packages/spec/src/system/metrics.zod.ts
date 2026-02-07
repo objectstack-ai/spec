@@ -347,7 +347,7 @@ export const MetricAggregationConfigSchema = z.object({
   /**
    * Filters
    */
-  filters: z.record(z.string(), z.any()).optional().describe('Filter criteria'),
+  filters: z.record(z.string(), z.unknown()).optional().describe('Filter criteria'),
 }).describe('Metric aggregation configuration');
 
 export type MetricAggregationConfig = z.infer<typeof MetricAggregationConfigSchema>;
@@ -598,7 +598,7 @@ export const MetricExportConfigSchema = z.object({
   /**
    * Additional configuration
    */
-  config: z.record(z.string(), z.any()).optional().describe('Additional configuration'),
+  config: z.record(z.string(), z.unknown()).optional().describe('Additional configuration'),
 }).describe('Metric export configuration');
 
 export type MetricExportConfig = z.infer<typeof MetricExportConfigSchema>;

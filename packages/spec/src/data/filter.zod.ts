@@ -201,7 +201,7 @@ export type FilterCondition = {
  * Uses z.lazy() to handle recursive structure.
  */
 export const FilterConditionSchema: z.ZodType<FilterCondition> = z.lazy(() =>
-  z.record(z.string(), z.any()).and(
+  z.record(z.string(), z.unknown()).and(
     z.object({
       $and: z.array(FilterConditionSchema).optional(),
       $or: z.array(FilterConditionSchema).optional(),

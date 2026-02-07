@@ -122,19 +122,19 @@ export const HookContextSchema = z.object({
    * - updateMany: { query: QueryAST, doc: Record, options: DriverOptions }
    * - deleteMany: { query: QueryAST, options: DriverOptions }
    */
-  input: z.record(z.string(), z.any()).describe('Mutable input parameters'),
+  input: z.record(z.string(), z.unknown()).describe('Mutable input parameters'),
 
   /** 
    * Operation Result (Mutable)
    * Available in 'after*' events. Modify this to transform the output.
    */
-  result: z.any().optional().describe('Operation result (After hooks only)'),
+  result: z.unknown().optional().describe('Operation result (After hooks only)'),
 
   /**
    * Data Snapshot
    * The state of the record BEFORE the operation (for update/delete).
    */
-  previous: z.record(z.string(), z.any()).optional().describe('Record state before operation'),
+  previous: z.record(z.string(), z.unknown()).optional().describe('Record state before operation'),
 
   /**
    * Execution Session
@@ -151,7 +151,7 @@ export const HookContextSchema = z.object({
    * Transaction Handle
    * If the operation is part of a transaction, use this handle for side-effects.
    */
-  transaction: z.any().optional().describe('Database transaction handle'),
+  transaction: z.unknown().optional().describe('Database transaction handle'),
 
   /**
    * Engine Access

@@ -124,7 +124,7 @@ export const RegistryConfigSchema = z.object({
     /**
      * Credentials
      */
-    credentials: z.record(z.string(), z.any()).optional(),
+    credentials: z.record(z.string(), z.unknown()).optional(),
   }).optional(),
   
   /**

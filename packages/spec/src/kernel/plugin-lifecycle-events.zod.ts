@@ -241,7 +241,7 @@ export const HookTriggeredEventSchema = z.object({
   /**
    * Arguments passed to the hook
    */
-  args: z.array(z.any()).describe('Arguments passed to the hook handlers'),
+  args: z.array(z.unknown()).describe('Arguments passed to the hook handlers'),
   
   /**
    * Number of handlers that will handle this event

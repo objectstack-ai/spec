@@ -53,7 +53,7 @@ export const DatasetSchema = z.object({
    * The Payload
    * Array of raw JSON objects matching the Object Schema.
    */
-  records: z.array(z.record(z.string(), z.any())).describe('Data records'),
+  records: z.array(z.record(z.string(), z.unknown())).describe('Data records'),
 });
 
 /** Parsed/output type — all defaults are applied (env, mode, externalId always present) */

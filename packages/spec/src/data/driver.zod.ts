@@ -11,7 +11,7 @@ export const DriverOptionsSchema = z.object({
    * Transaction handle/identifier.
    * If provided, the operation must run within this transaction.
    */
-  transaction: z.any().optional().describe('Transaction handle'),
+  transaction: z.unknown().optional().describe('Transaction handle'),
 
   /**
    * Operation timeout in milliseconds.
@@ -343,8 +343,8 @@ export const DriverInterfaceSchema = z.object({
    * await driver.execute({ aggregate: 'orders', pipeline: [...] });
    */
   execute: z.function()
-    .args(z.any(), z.array(z.any()).optional(), DriverOptionsSchema.optional())
-    .returns(z.promise(z.any()))
+    .args(z.unknown(), z.array(z.unknown()).optional(), DriverOptionsSchema.optional())
+    .returns(z.promise(z.unknown()))
     .describe('Execute raw command'),
 
   // ============================================================================
@@ -371,7 +371,7 @@ export const DriverInterfaceSchema = z.object({
    */
   find: z.function()
     .args(z.string(), QuerySchema, DriverOptionsSchema.optional())
-    .returns(z.promise(z.array(z.record(z.string(), z.any()))))
+    .returns(z.promise(z.array(z.record(z.string(), z.unknown()))))
     .describe('Find records'),
 
   /**
@@ -385,7 +385,7 @@ export const DriverInterfaceSchema = z.object({
    */
   findStream: z.function()
     .args(z.string(), QuerySchema, DriverOptionsSchema.optional())
-    .returns(z.any())
+    .returns(z.unknown())
     .describe('Stream records (AsyncIterable)'),
 
   /**
@@ -400,7 +400,7 @@ export const DriverInterfaceSchema = z.object({
    */
   findOne: z.function()
     .args(z.string(), QuerySchema, DriverOptionsSchema.optional())
-    .returns(z.promise(z.record(z.string(), z.any()).nullable()))
+    .returns(z.promise(z.record(z.string(), z.unknown()).nullable()))
     .describe('Find one record'),
 
   /**
@@ -413,8 +413,8 @@ export const DriverInterfaceSchema = z.object({
    *          MUST return `id` as string. MUST NOT return implementation details like `_id`.
    */
   create: z.function()
-    .args(z.string(), z.record(z.string(), z.any()), DriverOptionsSchema.optional())
-    .returns(z.promise(z.record(z.string(), z.any())))
+    .args(z.string(), z.record(z.string(), z.unknown()), DriverOptionsSchema.optional())
+    .returns(z.promise(z.record(z.string(), z.unknown())))
     .describe('Create record'),
 
   /**
@@ -428,8 +428,8 @@ export const DriverInterfaceSchema = z.object({
    *          MUST return `id` as string. MUST NOT return implementation details like `_id`.
    */
   update: z.function()
-    .args(z.string(), z.string().or(z.number()), z.record(z.string(), z.any()), DriverOptionsSchema.optional())
-    .returns(z.promise(z.record(z.string(), z.any())))
+    .args(z.string(), z.string().or(z.number()), z.record(z.string(), z.unknown()), DriverOptionsSchema.optional())
+    .returns(z.promise(z.record(z.string(), z.unknown())))
     .describe('Update record'),
 
   /**
@@ -442,8 +442,8 @@ export const DriverInterfaceSchema = z.object({
    * @returns The created or updated record.
    */
   upsert: z.function()
-    .args(z.string(), z.record(z.string(), z.any()), z.array(z.string()).optional(), DriverOptionsSchema.optional())
-    .returns(z.promise(z.record(z.string(), z.any())))
+    .args(z.string(), z.record(z.string(), z.unknown()), z.array(z.string()).optional(), DriverOptionsSchema.optional())
+    .returns(z.promise(z.record(z.string(), z.unknown())))
     .describe('Upsert record'),
 
   /**
@@ -485,8 +485,8 @@ export const DriverInterfaceSchema = z.object({
    * @returns Array of created records.
    */
   bulkCreate: z.function()
-    .args(z.string(), z.array(z.record(z.string(), z.any())), DriverOptionsSchema.optional())
-    .returns(z.promise(z.array(z.record(z.string(), z.any())))),
+    .args(z.string(), z.array(z.record(z.string(), z.unknown())), DriverOptionsSchema.optional())
+    .returns(z.promise(z.array(z.record(z.string(), z.unknown())))),
 
   /**
    * Update multiple records in a single batch.
@@ -496,8 +496,8 @@ export const DriverInterfaceSchema = z.object({
    * @returns Array of updated records.
    */
   bulkUpdate: z.function()
-    .args(z.string(), z.array(z.object({ id: z.string().or(z.number()), data: z.record(z.string(), z.any()) })), DriverOptionsSchema.optional())
-    .returns(z.promise(z.array(z.record(z.string(), z.any())))),
+    .args(z.string(), z.array(z.object({ id: z.string().or(z.number()), data: z.record(z.string(), z.unknown()) })), DriverOptionsSchema.optional())
+    .returns(z.promise(z.array(z.record(z.string(), z.unknown())))),
 
   /**
    * Delete multiple records in a single batch.
@@ -519,7 +519,7 @@ export const DriverInterfaceSchema = z.object({
    * @returns Count of modified records.
    */
   updateMany: z.function()
-    .args(z.string(), QuerySchema, z.record(z.string(), z.any()), DriverOptionsSchema.optional())
+    .args(z.string(), QuerySchema, z.record(z.string(), z.unknown()), DriverOptionsSchema.optional())
     .returns(z.promise(z.number()))
     .optional(),
 
@@ -549,7 +549,7 @@ export const DriverInterfaceSchema = z.object({
     .args(z.object({
       isolationLevel: IsolationLevelEnum.optional()
     }).optional())
-    .returns(z.promise(z.any()))
+    .returns(z.promise(z.unknown()))
     .describe('Start transaction'),
 
   /**
@@ -557,7 +557,7 @@ export const DriverInterfaceSchema = z.object({
    * @param transaction - The transaction handle.
    */
   commit: z.function()
-    .args(z.any())
+    .args(z.unknown())
     .returns(z.promise(z.void()))
     .describe('Commit transaction'),
 
@@ -566,7 +566,7 @@ export const DriverInterfaceSchema = z.object({
    * @param transaction - The transaction handle.
    */
   rollback: z.function()
-    .args(z.any())
+    .args(z.unknown())
     .returns(z.promise(z.void()))
     .describe('Rollback transaction'),
 
@@ -584,7 +584,7 @@ export const DriverInterfaceSchema = z.object({
    * @param options - Driver options.
    */
   syncSchema: z.function()
-    .args(z.string(), z.any(), DriverOptionsSchema.optional())
+    .args(z.string(), z.unknown(), DriverOptionsSchema.optional())
     .returns(z.promise(z.void()))
     .describe('Sync object schema to DB'),
   
@@ -608,7 +608,7 @@ export const DriverInterfaceSchema = z.object({
    */
   explain: z.function()
     .args(z.string(), QuerySchema, DriverOptionsSchema.optional())
-    .returns(z.promise(z.any()))
+    .returns(z.promise(z.unknown()))
     .optional(),
 });
 

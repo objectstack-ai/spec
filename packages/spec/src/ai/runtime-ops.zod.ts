@@ -122,7 +122,7 @@ export const SelfHealingActionSchema = z.object({
   /**
    * Action parameters
    */
-  parameters: z.record(z.string(), z.any()).optional(),
+  parameters: z.record(z.string(), z.unknown()).optional(),
   
   /**
    * Maximum number of attempts
@@ -386,7 +386,7 @@ export const RootCauseAnalysisRequestSchema = z.object({
   /**
    * Context information
    */
-  context: z.record(z.string(), z.any()).optional(),
+  context: z.record(z.string(), z.unknown()).optional(),
 });
 
 /**
@@ -663,7 +663,7 @@ export const AIOpsAgentConfigSchema = z.object({
      */
     notifications: z.array(z.object({
       channel: z.enum(['email', 'slack', 'webhook', 'sms']),
-      config: z.record(z.string(), z.any()),
+      config: z.record(z.string(), z.unknown()),
     })).optional(),
   }).optional(),
 });

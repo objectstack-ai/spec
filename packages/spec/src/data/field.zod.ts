@@ -352,7 +352,7 @@ export const FieldSchema = z.object({
   searchable: z.boolean().default(false).describe('Is searchable'),
   multiple: z.boolean().default(false).describe('Allow multiple values (Stores as Array/JSON). Applicable for select, lookup, file, image.'),
   unique: z.boolean().default(false).describe('Is unique constraint'),
-  defaultValue: z.any().optional().describe('Default value'),
+  defaultValue: z.unknown().optional().describe('Default value'),
   
   /** Text/String Constraints */
   maxLength: z.number().optional().describe('Max character length'),

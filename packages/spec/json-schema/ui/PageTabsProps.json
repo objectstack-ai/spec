@@ -34,6 +34,7 @@
               },
               "children": {
                 "type": "array",
+                "items": {},
                 "description": "Child components"
               }
             },

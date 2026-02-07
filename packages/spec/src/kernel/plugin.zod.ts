@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
-// We use z.any() for services that are interfaces with methods, 
+// We use z.any() for service methods that are interfaces with function signatures,
 // as Zod cannot easily validate function signatures at runtime.
+// Generic data fields use z.unknown() for type safety.
 export const PluginContextSchema = z.object({
   ql: z.object({
     object: z.any(), // Return any to allow method chaining
@@ -31,8 +32,8 @@ export const PluginContextSchema = z.object({
     getLocale: z.any(),
   }).passthrough().describe('Internationalization Interface'),
 
-  metadata: z.record(z.string(), z.any()),
-  events: z.record(z.string(), z.any()),
+  metadata: z.record(z.string(), z.unknown()),
+  events: z.record(z.string(), z.unknown()),
   
   app: z.object({
     router: z.object({

@@ -639,7 +639,7 @@ export const PluginLoadingEventSchema = z.object({
   /**
    * Additional metadata
    */
-  metadata: z.record(z.string(), z.any()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
   
   /**
    * Error if event represents a failure

@@ -22,7 +22,7 @@ import { SortNodeSchema } from './query.zod';
  * Supports simple key-value map or complex Logic/Field expressions (DSL)
  */
 export const DataEngineFilterSchema = z.union([
-  z.record(z.string(), z.any()),
+  z.record(z.string(), z.unknown()),
   FilterConditionSchema
 ]).describe('Data Engine query filter conditions');
 
@@ -167,23 +167,23 @@ export const DataEngineCountOptionsSchema = z.object({
 export const DataEngineContractSchema = z.object({
   find: z.function()
     .args(z.string(), DataEngineQueryOptionsSchema.optional())
-    .returns(z.promise(z.array(z.any()))),
+    .returns(z.promise(z.array(z.unknown()))),
     
   findOne: z.function()
     .args(z.string(), DataEngineQueryOptionsSchema.optional())
-    .returns(z.promise(z.any())),
+    .returns(z.promise(z.unknown())),
     
   insert: z.function()
-    .args(z.string(), z.union([z.record(z.string(), z.any()), z.array(z.record(z.string(), z.any()))]), DataEngineInsertOptionsSchema.optional())
-    .returns(z.promise(z.any())),
+    .args(z.string(), z.union([z.record(z.string(), z.unknown()), z.array(z.record(z.string(), z.unknown()))]), DataEngineInsertOptionsSchema.optional())
+    .returns(z.promise(z.unknown())),
     
   update: z.function()
-    .args(z.string(), z.record(z.string(), z.any()), DataEngineUpdateOptionsSchema.optional())
-    .returns(z.promise(z.any())),
+    .args(z.string(), z.record(z.string(), z.unknown()), DataEngineUpdateOptionsSchema.optional())
+    .returns(z.promise(z.unknown())),
     
   delete: z.function()
     .args(z.string(), DataEngineDeleteOptionsSchema.optional())
-    .returns(z.promise(z.any())),
+    .returns(z.promise(z.unknown())),
     
   count: z.function()
     .args(z.string(), DataEngineCountOptionsSchema.optional())
@@ -191,7 +191,7 @@ export const DataEngineContractSchema = z.object({
     
   aggregate: z.function()
     .args(z.string(), DataEngineAggregateOptionsSchema)
-    .returns(z.promise(z.array(z.any())))
+    .returns(z.promise(z.array(z.unknown())))
 }).describe('Standard Data Engine Contract');
 
 // ==========================================================================
@@ -223,22 +223,22 @@ export const DataEngineFindOneRequestSchema = z.object({
 export const DataEngineInsertRequestSchema = z.object({
   method: z.literal('insert'),
   object: z.string(),
-  data: z.union([z.record(z.string(), z.any()), z.array(z.record(z.string(), z.any()))]),
+  data: z.union([z.record(z.string(), z.unknown()), z.array(z.record(z.string(), z.unknown()))]),
   options: DataEngineInsertOptionsSchema.optional()
 });
 
 export const DataEngineUpdateRequestSchema = z.object({
   method: z.literal('update'),
   object: z.string(),
-  data: z.record(z.string(), z.any()),
-  id: z.any().optional().describe('ID for single update, or use filter in options'),
+  data: z.record(z.string(), z.unknown()),
+  id: z.union([z.string(), z.number()]).optional().describe('ID for single update, or use filter in options'),
   options: DataEngineUpdateOptionsSchema.optional()
 });
 
 export const DataEngineDeleteRequestSchema = z.object({
   method: z.literal('delete'),
   object: z.string(),
-  id: z.any().optional().describe('ID for single delete, or use filter in options'),
+  id: z.union([z.string(), z.number()]).optional().describe('ID for single delete, or use filter in options'),
   options: DataEngineDeleteOptionsSchema.optional()
 });
 
@@ -261,9 +261,9 @@ export const DataEngineAggregateRequestSchema = z.object({
 export const DataEngineExecuteRequestSchema = z.object({
   method: z.literal('execute'),
   /** The abstract command (string SQL, or JSON object) */
-  command: z.any(),
+  command: z.unknown(),
   /** Optional options */
-  options: z.record(z.string(), z.any()).optional()
+  options: z.record(z.string(), z.unknown()).optional()
 });
 
 /**

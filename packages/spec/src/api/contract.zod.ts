@@ -9,7 +9,7 @@ export const ApiErrorSchema = z.object({
   code: z.string().describe('Error code (e.g. validation_error)'),
   message: z.string().describe('Readable error message'),
   category: z.string().optional().describe('Error category (e.g. validation, authorization)'),
-  details: z.any().optional().describe('Additional error context (e.g. field validation errors)'),
+  details: z.unknown().optional().describe('Additional error context (e.g. field validation errors)'),
   requestId: z.string().optional().describe('Request ID for tracking'),
 });
 
@@ -28,7 +28,7 @@ export const BaseResponseSchema = z.object({
 // 2. Request Payloads (Inputs)
 // ==========================================
 
-export const RecordDataSchema = z.record(z.string(), z.any()).describe('Key-value map of record data');
+export const RecordDataSchema = z.record(z.string(), z.unknown()).describe('Key-value map of record data');
 
 /**
  * Standard Create Request
@@ -103,7 +103,7 @@ export const ModificationResultSchema = z.object({
   success: z.boolean(),
   errors: z.array(ApiErrorSchema).optional(),
   index: z.number().optional().describe('Index in original request'),
-  data: z.any().optional().describe('Result data (e.g. created record)'),
+  data: z.unknown().optional().describe('Result data (e.g. created record)'),
 });
 
 /**

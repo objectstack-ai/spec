@@ -56,7 +56,7 @@ export const FlowNodeSchema = z.object({
   label: z.string().describe('Node label'),
   
   /** Node Configuration Options (Specific to type) */
-  config: z.record(z.string(), z.any()).optional().describe('Node configuration'),
+  config: z.record(z.string(), z.unknown()).optional().describe('Node configuration'),
   
   /** 
    * Connector Action Configuration
@@ -65,7 +65,7 @@ export const FlowNodeSchema = z.object({
   connectorConfig: z.object({
     connectorId: z.string(),
     actionId: z.string(),
-    input: z.record(z.string(), z.any()).describe('Mapped inputs for the action'),
+    input: z.record(z.string(), z.unknown()).describe('Mapped inputs for the action'),
   }).optional(),
 
   /** UI Position (for the canvas) */

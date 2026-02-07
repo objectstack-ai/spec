@@ -15,6 +15,7 @@
         },
         "items": {
           "type": "array",
+          "items": {},
           "description": "Array of items to process"
         },
         "batchSize": {

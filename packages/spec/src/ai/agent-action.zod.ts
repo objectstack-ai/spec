@@ -168,7 +168,7 @@ export type NavigationActionParams = z.infer<typeof NavigationActionParamsSchema
  */
 export const ViewActionParamsSchema = z.object({
   viewMode: z.enum(['list', 'kanban', 'calendar', 'gantt', 'pivot']).optional(),
-  filters: z.record(z.string(), z.any()).optional().describe('Filter conditions'),
+  filters: z.record(z.string(), z.unknown()).optional().describe('Filter conditions'),
   sort: z.array(z.object({
     field: z.string(),
     order: z.enum(['asc', 'desc']),
@@ -187,9 +187,9 @@ export type ViewActionParams = z.infer<typeof ViewActionParamsSchema>;
 export const FormActionParamsSchema = z.object({
   object: z.string().optional().describe('Object name'),
   recordId: z.string().optional().describe('Record ID (for edit/delete)'),
-  fieldValues: z.record(z.string(), z.any()).optional().describe('Field name-value pairs'),
+  fieldValues: z.record(z.string(), z.unknown()).optional().describe('Field name-value pairs'),
   fieldName: z.string().optional().describe('Specific field to fill/clear'),
-  fieldValue: z.any().optional().describe('Value to set'),
+  fieldValue: z.unknown().optional().describe('Value to set'),
   validateOnly: z.boolean().optional().describe('Validate without saving'),
 });
 
@@ -200,8 +200,8 @@ export type FormActionParams = z.infer<typeof FormActionParamsSchema>;
  */
 export const DataActionParamsSchema = z.object({
   recordIds: z.array(z.string()).optional().describe('Record IDs to select/operate on'),
-  filters: z.record(z.string(), z.any()).optional().describe('Filter for bulk operations'),
-  updateData: z.record(z.string(), z.any()).optional().describe('Data for bulk update'),
+  filters: z.record(z.string(), z.unknown()).optional().describe('Filter for bulk operations'),
+  updateData: z.record(z.string(), z.unknown()).optional().describe('Data for bulk update'),
   exportFormat: z.enum(['csv', 'xlsx', 'pdf', 'json']).optional(),
 });
 
@@ -219,9 +219,9 @@ export const WorkflowActionParamsSchema = z.object({
   recipients: z.array(z.string()).optional().describe('Email recipients'),
   subject: z.string().optional().describe('Email subject'),
   message: z.string().optional().describe('Notification/email message'),
-  taskData: z.record(z.string(), z.any()).optional().describe('Task creation data'),
+  taskData: z.record(z.string(), z.unknown()).optional().describe('Task creation data'),
   scheduleTime: z.string().optional().describe('Schedule time (ISO 8601)'),
-  contextData: z.record(z.string(), z.any()).optional().describe('Additional context data'),
+  contextData: z.record(z.string(), z.unknown()).optional().describe('Additional context data'),
 });
 
 export type WorkflowActionParams = z.infer<typeof WorkflowActionParamsSchema>;
@@ -233,7 +233,7 @@ export const ComponentActionParamsSchema = z.object({
   componentId: z.string().optional().describe('Component ID'),
   modalConfig: z.object({
     title: z.string().optional(),
-    content: z.any().optional(),
+    content: z.unknown().optional(),
     size: z.enum(['small', 'medium', 'large', 'fullscreen']).optional(),
   }).optional(),
   notificationConfig: z.object({
@@ -244,7 +244,7 @@ export const ComponentActionParamsSchema = z.object({
   sidebarConfig: z.object({
     position: z.enum(['left', 'right']).optional(),
     width: z.string().optional(),
-    content: z.any().optional(),
+    content: z.unknown().optional(),
   }).optional(),
 });
 
@@ -424,7 +424,7 @@ export const AgentActionResultSchema = z.object({
   /**
    * Result data
    */
-  data: z.any().optional().describe('Action result data'),
+  data: z.unknown().optional().describe('Action result data'),
   
   /**
    * Error information
@@ -432,7 +432,7 @@ export const AgentActionResultSchema = z.object({
   error: z.object({
     code: z.string(),
     message: z.string(),
-    details: z.any().optional(),
+    details: z.unknown().optional(),
   }).optional().describe('Error details if status is "error"'),
   
   /**
@@ -519,7 +519,7 @@ export const IntentActionMappingSchema = z.object({
   paramExtraction: z.record(z.string(), z.object({
     type: z.enum(['entity', 'slot', 'context']),
     required: z.boolean().default(false),
-    default: z.any().optional(),
+    default: z.unknown().optional(),
   })).optional().describe('Rules for extracting parameters from user input'),
   
   /**

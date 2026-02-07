@@ -25,7 +25,7 @@ export const PageTabsProps = z.object({
   items: z.array(z.object({
     label: z.string(),
     icon: z.string().optional(),
-    children: z.array(z.any()).describe('Child components')
+    children: z.array(z.unknown()).describe('Child components')
   }))
 });
 
@@ -34,9 +34,9 @@ export const PageCardProps = z.object({
   bordered: z.boolean().default(true),
   actions: z.array(z.string()).optional(),
   /** Slot for nested content in the Card body */
-  body: z.array(z.any()).optional().describe('Card content components (slot)'),
+  body: z.array(z.unknown()).optional().describe('Card content components (slot)'),
   /** Slot for footer content */
-  footer: z.array(z.any()).optional().describe('Card footer components (slot)'),
+  footer: z.array(z.unknown()).optional().describe('Card footer components (slot)'),
 });
 
 /**

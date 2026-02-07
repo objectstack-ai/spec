@@ -34,7 +34,7 @@ export const OTComponentSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('insert'),
     text: z.string().describe('Text to insert'),
-    attributes: z.record(z.string(), z.any()).optional().describe('Text formatting attributes (e.g., bold, italic)'),
+    attributes: z.record(z.string(), z.unknown()).optional().describe('Text formatting attributes (e.g., bold, italic)'),
   }),
   z.object({
     type: z.literal('delete'),
@@ -43,7 +43,7 @@ export const OTComponentSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('retain'),
     count: z.number().int().positive().describe('Number of characters to retain'),
-    attributes: z.record(z.string(), z.any()).optional().describe('Attribute changes to apply'),
+    attributes: z.record(z.string(), z.unknown()).optional().describe('Attribute changes to apply'),
   }),
 ]);
 
@@ -62,7 +62,7 @@ export const OTOperationSchema = z.object({
   components: z.array(OTComponentSchema).describe('Operation components'),
   baseVersion: z.number().int().nonnegative().describe('Document version this operation is based on'),
   timestamp: z.string().datetime().describe('ISO 8601 datetime when operation was created'),
-  metadata: z.record(z.string(), z.any()).optional().describe('Additional operation metadata'),
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Additional operation metadata'),
 });
 
 export type OTOperation = z.infer<typeof OTOperationSchema>;
@@ -117,7 +117,7 @@ export type VectorClock = z.infer<typeof VectorClockSchema>;
  */
 export const LWWRegisterSchema = z.object({
   type: z.literal('lww-register'),
-  value: z.any().describe('Current register value'),
+  value: z.unknown().describe('Current register value'),
   timestamp: z.string().datetime().describe('ISO 8601 datetime of last write'),
   replicaId: z.string().describe('ID of replica that performed last write'),
   vectorClock: VectorClockSchema.optional().describe('Optional vector clock for causality tracking'),
@@ -165,7 +165,7 @@ export type PNCounter = z.infer<typeof PNCounterSchema>;
  * Element in an Observed-Remove Set
  */
 export const ORSetElementSchema = z.object({
-  value: z.any().describe('Element value'),
+  value: z.unknown().describe('Element value'),
   timestamp: z.string().datetime().describe('Addition timestamp'),
   replicaId: z.string().describe('Replica that added the element'),
   uid: z.string().uuid().describe('Unique identifier for this addition'),
@@ -317,7 +317,7 @@ export const CollaborativeCursorSchema = z.object({
   style: CursorStyleSchema.describe('Visual style for this cursor'),
   isTyping: z.boolean().optional().default(false).describe('Whether user is currently typing'),
   lastUpdate: z.string().datetime().describe('ISO 8601 datetime of last cursor update'),
-  metadata: z.record(z.string(), z.any()).optional().describe('Additional cursor metadata'),
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Additional cursor metadata'),
 });
 
 export type CollaborativeCursor = z.infer<typeof CollaborativeCursorSchema>;
@@ -333,7 +333,7 @@ export const CursorUpdateSchema = z.object({
   }).optional().describe('Updated cursor position'),
   selection: CursorSelectionSchema.optional().describe('Updated selection'),
   isTyping: z.boolean().optional().describe('Updated typing state'),
-  metadata: z.record(z.string(), z.any()).optional().describe('Updated metadata'),
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Updated metadata'),
 });
 
 export type CursorUpdate = z.infer<typeof CursorUpdateSchema>;
@@ -370,7 +370,7 @@ export const AwarenessUserStateSchema = z.object({
   lastActivity: z.string().datetime().describe('ISO 8601 datetime of last activity'),
   joinedAt: z.string().datetime().describe('ISO 8601 datetime when user joined session'),
   permissions: z.array(z.string()).optional().describe('User permissions in this session'),
-  metadata: z.record(z.string(), z.any()).optional().describe('Additional user state metadata'),
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Additional user state metadata'),
 });
 
 export type AwarenessUserState = z.infer<typeof AwarenessUserStateSchema>;
@@ -385,7 +385,7 @@ export const AwarenessSessionSchema = z.object({
   users: z.array(AwarenessUserStateSchema).describe('Active users in session'),
   startedAt: z.string().datetime().describe('ISO 8601 datetime when session started'),
   lastUpdate: z.string().datetime().describe('ISO 8601 datetime of last update'),
-  metadata: z.record(z.string(), z.any()).optional().describe('Session metadata'),
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Session metadata'),
 });
 
 export type AwarenessSession = z.infer<typeof AwarenessSessionSchema>;
@@ -398,7 +398,7 @@ export const AwarenessUpdateSchema = z.object({
   status: UserActivityStatus.optional().describe('Updated status'),
   currentDocument: z.string().optional().describe('Updated current document'),
   currentView: z.string().optional().describe('Updated current view'),
-  metadata: z.record(z.string(), z.any()).optional().describe('Updated metadata'),
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Updated metadata'),
 });
 
 export type AwarenessUpdate = z.infer<typeof AwarenessUpdateSchema>;
@@ -419,7 +419,7 @@ export const AwarenessEventSchema = z.object({
   ]).describe('Type of awareness event'),
   userId: z.string().optional().describe('User involved in event'),
   timestamp: z.string().datetime().describe('ISO 8601 datetime of event'),
-  payload: z.any().describe('Event payload'),
+  payload: z.unknown().describe('Event payload'),
 });
 
 export type AwarenessEvent = z.infer<typeof AwarenessEventSchema>;

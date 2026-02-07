@@ -158,8 +158,8 @@ export const FieldErrorSchema = z.object({
   field: z.string().describe('Field path (supports dot notation)'),
   code: StandardErrorCode.describe('Error code for this field'),
   message: z.string().describe('Human-readable error message'),
-  value: z.any().optional().describe('The invalid value that was provided'),
-  constraint: z.any().optional().describe('The constraint that was violated (e.g., max length)'),
+  value: z.unknown().optional().describe('The invalid value that was provided'),
+  constraint: z.unknown().optional().describe('The constraint that was violated (e.g., max length)'),
 });
 
 export type FieldError = z.infer<typeof FieldErrorSchema>;
@@ -222,7 +222,7 @@ export const EnhancedApiErrorSchema = z.object({
   retryable: z.boolean().default(false).describe('Whether the request can be retried'),
   retryStrategy: RetryStrategy.optional().describe('Recommended retry strategy'),
   retryAfter: z.number().optional().describe('Seconds to wait before retrying'),
-  details: z.any().optional().describe('Additional error context'),
+  details: z.unknown().optional().describe('Additional error context'),
   fieldErrors: z.array(FieldErrorSchema).optional().describe('Field-specific validation errors'),
   timestamp: z.string().datetime().optional().describe('When the error occurred'),
   requestId: z.string().optional().describe('Request ID for tracking'),
