@@ -28,16 +28,16 @@ The codebase is **well-structured and professionally documented**, with excellen
 
 ---
 
-## Part I: Protocol Architecture Evaluation (协议架构评估)
+## Part I: Protocol Architecture Evaluation
 
-> 以下从**顶级企业管理软件架构师**和**AI Agent 架构师**的双重视角，评估 ObjectStack 协议的设计合理性、完备性与行业竞争力。
+> The following evaluates the design rationality, completeness, and industry competitiveness of the ObjectStack protocol from the dual perspectives of a **top-tier enterprise management software architect** and an **AI Agent architect**.
 
-### 0. 协议全景图
+### 0. Protocol Panorama
 
 ```
                          ┌────────────────────────────┐
-                         │    ObjectStackDefinition    │  ← stack.zod.ts (全栈蓝图)
-                         │   (Project ≡ Plugin 统一)   │
+                         │    ObjectStackDefinition    │  ← stack.zod.ts (Full-Stack Blueprint)
+                         │   (Project ≡ Plugin Unified)│
                          └──────────┬─────────────────┘
                                     │
         ┌───────────────────────────┼───────────────────────────┐
@@ -63,304 +63,304 @@ The codebase is **well-structured and professionally documented**, with excellen
 
 ---
 
-### 1. 核心数据协议评估 (Data Protocol)
+### 1. Data Protocol Evaluation
 
-**评级: A-** — 联邦查询能力超越行业水平，但字段类型建模有结构性缺陷。
+**Rating: A-** — Federated query capabilities exceed industry standards, but field type modeling has structural deficiencies.
 
-#### 1.1 架构决策评审
+#### 1.1 Architecture Decision Review
 
-| 决策 | 分析 | 评价 |
+| Decision | Analysis | Verdict |
 |:---|:---|:---:|
-| **Field 采用平坦 z.object() 而非 discriminatedUnion** | 46 种字段类型共享同一结构，`vectorConfig`/`currencyConfig` 等作为可选属性挂载。无法静态阻止 `type: 'text'` 搭配 `vectorConfig` 的非法组合 | ⚠️ |
-| **Object.fields 使用 `z.record()` 而非数组** | 键即字段名，`Field.name` 变为冗余。比 Salesforce XML 紧凑，但查找模型与全栈定义的 `objects[]` 数组形式不一致 | ✅ |
-| **QuerySchema 作为数据库无关 AST** | 统一 SQL/NoSQL/SaaS 为单一查询语言，含 Window Functions、Full-Text Search。SQL 偏向但 capability-driven 下推 | ✅✅ |
-| **Capabilities-driven Query Planning** | 引擎根据 `DatasourceCapabilities` 判断下推 vs 内存计算，类似 Calcite/Trino 联邦查询 | ✅✅ |
-| **Own/Extend 所有权模型** | 任何包可声明 `extend` 向其他包的对象注入字段，优先级系统控制合并 | ✅✅ |
-| **Filter DSL 使用 MongoDB 风格 `$` 前缀** | 灵活但 `FilterConditionSchema` 使用 `z.record(z.string(), z.any())` 使运行时验证几乎为零 | ⚠️ |
+| **Field uses flat z.object() instead of discriminatedUnion** | 46 field types share a single structure; `vectorConfig`/`currencyConfig` etc. are mounted as optional properties. Cannot statically prevent illegal combinations like `type: 'text'` with `vectorConfig` | ⚠️ |
+| **Object.fields uses `z.record()` instead of array** | Key is the field name, making `Field.name` redundant. More compact than Salesforce XML, but lookup model is inconsistent with `objects[]` array form in stack definition | ✅ |
+| **QuerySchema as database-agnostic AST** | Unifies SQL/NoSQL/SaaS into a single query language with Window Functions and Full-Text Search. SQL-biased but capability-driven pushdown | ✅✅ |
+| **Capabilities-driven Query Planning** | Engine uses `DatasourceCapabilities` to decide pushdown vs in-memory computation, similar to Calcite/Trino federated query | ✅✅ |
+| **Own/Extend ownership model** | Any package can declare `extend` to inject fields into other packages' objects, with priority system controlling merge | ✅✅ |
+| **Filter DSL uses MongoDB-style `$` prefix** | Flexible but `FilterConditionSchema` uses `z.record(z.string(), z.any())`, making runtime validation nearly zero | ⚠️ |
 
-#### 1.2 与行业领导者差距
+#### 1.2 Gaps vs Industry Leaders
 
-| 缺失概念 | 影响度 | 说明 |
+| Missing Concept | Impact | Description |
 |:---|:---:|:---|
-| **Record Type** | 🔴 高 | Salesforce 核心概念——同一对象按记录类型显示不同布局/验证/选项值。这是构建复杂业务应用的基础 |
-| **Polymorphic Lookup** | 🟡 中 | Salesforce 的 `WhoId`/`WhatId` 可指向多个对象。当前 `reference` 只支持单一目标 |
-| **Object Inheritance** | 🟡 中 | ServiceNow Table Inheritance 是其核心特性。当前有 `abstract` 标记但无 `extends` 继承链 |
-| **Compound Fields** | 🟡 中 | Name (First+Last)、Address (structured) 等组合字段的声明缺失 |
-| **Dependent Picklist** | 🟡 中 | 选项列表级联依赖（如「国家」控制「省份」选项） |
-| **CTE / UNION / Subquery** | 🟢 低 | 复杂分析查询的 SQL 操作缺失，但可通过 analytics 层补充 |
-| **Governor Limits** | 🟡 中 | 缺少查询配额/限制声明（Salesforce SOQL Limits 是治理基础） |
-| **Field 通用扩展点** | 🟡 中 | 无 `metadata`/`extensions` record 让插件注入自定义字段属性 |
+| **Record Type** | 🔴 High | Core Salesforce concept — same object displays different layouts/validations/picklist values per record type. Foundational for building complex business apps |
+| **Polymorphic Lookup** | 🟡 Medium | Salesforce's `WhoId`/`WhatId` can point to multiple objects. Current `reference` only supports a single target |
+| **Object Inheritance** | 🟡 Medium | ServiceNow Table Inheritance is a core feature. Current has `abstract` flag but no `extends` inheritance chain |
+| **Compound Fields** | 🟡 Medium | Structured composite fields like Name (First+Last), Address are missing |
+| **Dependent Picklist** | 🟡 Medium | Cascading picklist dependencies (e.g., "Country" controls "State" options) |
+| **CTE / UNION / Subquery** | 🟢 Low | Complex analytical SQL operations missing, but can be supplemented via analytics layer |
+| **Governor Limits** | 🟡 Medium | Missing query quota/limit declarations (Salesforce SOQL Limits are a governance foundation) |
+| **Field Generic Extension Point** | 🟡 Medium | No `metadata`/`extensions` record for plugins to inject custom field properties |
 
-#### 1.3 突出优势
+#### 1.3 Key Strengths
 
-- **联邦数据架构**: 多数据源 + capability 驱动查询规划，超越所有传统低代码平台
-- **事件溯源内置**: Object 级 `versioning: 'event_sourcing'` 模式声明
-- **向量字段一等公民**: `type: 'vector'` + `vectorConfig`，为 AI-native 而生
-- **Hook 优先级分层**: 0-99 系统级、100-999 应用级、1000+ 用户级，对标 K8s Admission Controller
+- **Federated Data Architecture**: Multi-datasource + capability-driven query planning, surpasses all traditional low-code platforms
+- **Built-in Event Sourcing**: Object-level `versioning: 'event_sourcing'` mode declaration
+- **Vector Fields as First-Class Citizens**: `type: 'vector'` + `vectorConfig`, built for AI-native
+- **Hook Priority Layering**: 0-99 system-level, 100-999 application-level, 1000+ user-level, aligned with K8s Admission Controller
 
 ---
 
-### 2. AI Agent 协议评估 (AI Protocol)
+### 2. AI Agent Protocol Evaluation
 
-**评级: B** — 单 Agent 能力业界领先，但多 Agent 协作和安全护栏是关键短板。
+**Rating: B** — Single-agent capabilities are industry-leading, but multi-agent collaboration and safety guardrails are critical shortcomings.
 
-#### 2.1 架构能力矩阵
+#### 2.1 Architecture Capability Matrix
 
-| 维度 | 评分 | 说明 |
+| Dimension | Score | Description |
 |:---|:---:|:---|
-| **Agent 定义** | 9/10 | 声明式 Agent + 角色/指令/模型/工具/知识/生命周期状态机。超越 OpenAI Assistants |
-| **UI Action Protocol** | 9/10 | 40+ 原子动作覆盖导航/表单/数据/工作流/组件操作，业界领先 |
-| **RAG Pipeline** | 9/10 | 10 种向量存储 + 4 种分块策略 + 4 种检索策略 + 重排序，企业就绪 |
-| **Model Registry** | 9/10 | 完整的模型生命周期 + 降级 + 选择策略 + Prompt Template。正确的企业选择 |
-| **Conversation Memory** | 8/10 | 多模态 + 5 种裁剪策略 + 向量嵌入。OpenAI 兼容的 Tool Call 协议 |
-| **Tool Binding** | 5/10 | 松耦合 name 引用，**缺少 `inputSchema`/`outputSchema` 参数声明**。Agent 编译时不知工具签名 |
-| **单 Agent 编排** | 6/10 | 10 种 AI 任务类型 + 批量执行，但仅支持任务级并行，非 Agent 级 |
-| **多 Agent 协作** | 2/10 | **完全缺失**: 无 AgentTeam、Routing、Handoff、Supervisor 模式 |
-| **Flow ↔ AI 集成** | 4/10 | Agent → Flow(✅) 但 Flow → Agent(❌)。Flow 节点无 `ai_task`/`agent_call` 类型 |
-| **安全护栏** | 5/10 | 有确认/置信度/状态机约束，但缺 PII 检测、Prompt Injection 防护、内容安全策略 |
+| **Agent Definition** | 9/10 | Declarative Agent + role/instructions/model/tools/knowledge/lifecycle state machine. Surpasses OpenAI Assistants |
+| **UI Action Protocol** | 9/10 | 40+ atomic actions covering navigation/form/data/workflow/component operations, industry-leading |
+| **RAG Pipeline** | 9/10 | 10 vector stores + 4 chunking strategies + 4 retrieval strategies + reranking, enterprise-ready |
+| **Model Registry** | 9/10 | Full model lifecycle + fallback + selection strategies + Prompt Template. Correct enterprise choice |
+| **Conversation Memory** | 8/10 | Multimodal + 5 pruning strategies + vector embedding. OpenAI-compatible Tool Call protocol |
+| **Tool Binding** | 5/10 | Loosely-coupled name references, **missing `inputSchema`/`outputSchema` parameter declarations**. Agent cannot know tool signatures at compile time |
+| **Single-Agent Orchestration** | 6/10 | 10 AI task types + batch execution, but only task-level parallelism, not agent-level |
+| **Multi-Agent Collaboration** | 2/10 | **Completely missing**: No AgentTeam, Routing, Handoff, Supervisor patterns |
+| **Flow ↔ AI Integration** | 4/10 | Agent → Flow(✅) but Flow → Agent(❌). Flow nodes have no `ai_task`/`agent_call` type |
+| **Safety Guardrails** | 5/10 | Has confirmation/confidence/state-machine constraints, but lacks PII detection, Prompt Injection defense, content safety policy |
 
-#### 2.2 关键架构缺陷
+#### 2.2 Key Architecture Deficiencies
 
-**缺陷 1: Flow 与 AI 是两个平行系统**
+**Deficiency 1: Flow and AI are two parallel systems**
 
 ```
-当前:  Agent ──→ Flow   (单向调用)
-       Flow  ──✘ Agent  (Flow 无法调用 AI)
+Current:  Agent ──→ Flow   (one-way invocation)
+          Flow  ──✘ Agent  (Flow cannot invoke AI)
 
-理想:  Agent ←──→ Flow  (双向集成)
-       Flow 节点: [start, decision, ..., ai_task, agent_call, human_in_loop]
+Ideal:    Agent ←──→ Flow  (bidirectional integration)
+          Flow nodes: [start, decision, ..., ai_task, agent_call, human_in_loop]
 ```
 
-Flow 的 14 种节点类型中没有 `ai_task` 或 `agent_call`。这意味着自动化流程无法在中间步骤调用 AI 分类/提取/生成——必须用 `script` 节点做 escape hatch。
+None of the Flow's 14 node types include `ai_task` or `agent_call`. This means automation flows cannot invoke AI classification/extraction/generation at intermediate steps — they must use `script` nodes as an escape hatch.
 
-**缺陷 2: Tool 绑定缺乏参数声明**
+**Deficiency 2: Tool binding lacks parameter declarations**
 
 ```typescript
-// 当前: Agent 只知道工具名和描述
+// Current: Agent only knows tool name and description
 AIToolSchema = { type, name, description }
 
-// 缺失: 工具参数签名 (对标 OpenAI function calling)
+// Missing: Tool parameter signatures (aligned with OpenAI function calling)
 AIToolSchema = { type, name, description, inputSchema, outputSchema }
 ```
 
-没有 `inputSchema`/`outputSchema`，Agent 无法在编译时验证工具调用参数，LLM 也无法获得结构化的参数约束。
+Without `inputSchema`/`outputSchema`, Agent cannot validate tool call parameters at compile time, and LLMs cannot receive structured parameter constraints.
 
-**缺陷 3: Agent 无法感知 Object Schema**
+**Deficiency 3: Agent is unaware of Object Schema**
 
-Agent 通过 `tools[].name` 字符串引用数据操作，但**不知道目标对象有哪些字段**。对比 Salesforce Einstein 的 "Object-Aware" 设计，Agent 需要 `objectBindings` 显式关联到 Object，使其能推理字段含义和数据约束。
+Agent references data operations via `tools[].name` strings but **does not know which fields the target object has**. Compared to Salesforce Einstein's "Object-Aware" design, Agent needs `objectBindings` to explicitly associate with Object schemas, enabling it to reason about field semantics and data constraints.
 
-**缺陷 4: 缺少企业 AI 安全层**
+**Deficiency 4: Missing enterprise AI safety layer**
 
-| 缺失 | 说明 |
+| Missing | Description |
 |:---|:---|
-| PII 检测/掩码 | 输入输出内容过滤 |
-| Prompt Injection 防护 | 注入检测规则 |
-| Agent 行为审计日志 | 全量操作记录 |
-| Per-agent 速率限制 | 只有 model-level rateLimit |
-| Content Safety Policy | 有害内容过滤规则 |
+| PII Detection/Masking | Input/output content filtering |
+| Prompt Injection Defense | Injection detection rules |
+| Agent Behavior Audit Log | Full operation recording |
+| Per-agent Rate Limiting | Only model-level rateLimit exists |
+| Content Safety Policy | Harmful content filtering rules |
 
-#### 2.3 行业对标
+#### 2.3 Industry Benchmarking
 
-| 维度 | ObjectStack | OpenAI Assistants | LangGraph | AutoGen | Salesforce Einstein | ServiceNow Now Assist |
+| Dimension | ObjectStack | OpenAI Assistants | LangGraph | AutoGen | Salesforce Einstein | ServiceNow Now Assist |
 |:---|:---:|:---:|:---:|:---:|:---:|:---:|
-| Agent 定义 | ✅ 声明式 | ✅ API | ✅ Code | ✅ Code | ✅ 配置 | ✅ 配置 |
-| Tool Binding | ⚠️ name引用 | ✅ JSON Schema | ✅ Python 函数 | ✅ Python 函数 | ✅ Action+Topic | ✅ Skill |
-| Multi-Agent | ❌ | ❌ | ✅✅ | ✅✅✅ | ✅ Topic路由 | ⚠️ |
+| Agent Definition | ✅ Declarative | ✅ API | ✅ Code | ✅ Code | ✅ Config | ✅ Config |
+| Tool Binding | ⚠️ name ref | ✅ JSON Schema | ✅ Python func | ✅ Python func | ✅ Action+Topic | ✅ Skill |
+| Multi-Agent | ❌ | ❌ | ✅✅ | ✅✅✅ | ✅ Topic routing | ⚠️ |
 | State Machine | ✅✅ XState | ❌ | ✅ Graph | ❌ | ❌ | ❌ |
-| RAG Pipeline | ✅✅✅ | ✅ File Search | ⚠️ 需自建 | ⚠️ 需自建 | ✅ Data Cloud | ✅ |
+| RAG Pipeline | ✅✅✅ | ✅ File Search | ⚠️ DIY | ⚠️ DIY | ✅ Data Cloud | ✅ |
 | UI Action | ✅✅✅ 40+ | ❌ | ❌ | ❌ | ✅ Quick Action | ✅ |
-| Flow-AI 集成 | ⚠️ 单向 | ❌ | ✅ 原生 | ⚠️ | ✅✅ | ✅ |
-| 成本追踪 | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Guardrails | ⚠️ 中等 | ⚠️ | ⚠️ | ⚠️ | ✅ Trust Layer | ✅ |
+| Flow-AI Integration | ⚠️ One-way | ❌ | ✅ Native | ⚠️ | ✅✅ | ✅ |
+| Cost Tracking | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Guardrails | ⚠️ Moderate | ⚠️ | ⚠️ | ⚠️ | ✅ Trust Layer | ✅ |
 
 ---
 
-### 3. 安全协议评估 (Security Protocol)
+### 3. Security Protocol Evaluation
 
-**评级: A-** — RLS 业界领先，Permission Set 模型成熟，但缺少数据分类和动态脱敏。
+**Rating: A-** — RLS is industry-leading, Permission Set model is mature, but data classification and dynamic masking are missing.
 
-#### 3.1 安全模型：混合 RBAC + ABAC + PBAC
+#### 3.1 Security Model: Hybrid RBAC + ABAC + PBAC
 
-ObjectStack 融合了四种安全范式：
+ObjectStack fuses four security paradigms:
 
-| 模型 | 来源 | 说明 |
+| Model | Source | Description |
 |:---|:---|:---|
-| **RBAC** | role.zod.ts | 角色层级，经理看到下属数据 |
-| **PBAC** | permission.zod.ts | Profile + Permission Set 双层（Salesforce 模式） |
-| **ABAC** | rls.zod.ts | RLS `using` 子句引用 `current_user.*` 上下文属性 |
+| **RBAC** | role.zod.ts | Role hierarchy, managers can see subordinate data |
+| **PBAC** | permission.zod.ts | Profile + Permission Set dual-layer (Salesforce pattern) |
+| **ABAC** | rls.zod.ts | RLS `using` clause references `current_user.*` context attributes |
 | **OWD** | sharing.zod.ts | private / public_read / public_read_write / controlled_by_parent |
 
-#### 3.2 安全层次评估
+#### 3.2 Security Layer Assessment
 
-| 安全层 | 评分 | 说明 |
+| Security Layer | Rating | Description |
 |:---|:---:|:---|
-| 对象权限 (CRUD+) | ★★★★★ | 超越 Salesforce — `allowPurge`(GDPR硬删) + `allowRestore`(回收站) |
-| 字段安全 (FLS) | ★★★☆☆ | 读/写双维度，但缺数据分类标签和动态脱敏 |
-| 行级安全 (RLS) | ★★★★★ | **业界领先** — PostgreSQL RLS + Salesforce Sharing 融合，含审计/缓存/工厂 |
-| 共享规则 | ★★★★☆ | Criteria + Owner Based，但缺 Manual Sharing 和 Programmatic Sharing |
-| 安全策略 | ★★★★☆ | 密码/网络/会话/审计四维，但缺 Device Trust 和 OAuth Scope |
-| 区域管理 | ★★★★☆ | 完整复刻 Salesforce ETM 2.0 |
-| 身份 / SCIM | ★★★★★ | 完整 RFC 7643/7644，Okta/Azure AD 就绪 |
+| Object Permissions (CRUD+) | ★★★★★ | Surpasses Salesforce — `allowPurge` (GDPR hard delete) + `allowRestore` (recycle bin) |
+| Field-Level Security (FLS) | ★★★☆☆ | Read/write dual dimensions, but lacks data classification labels and dynamic masking |
+| Row-Level Security (RLS) | ★★★★★ | **Industry-leading** — PostgreSQL RLS + Salesforce Sharing fusion, includes audit/cache/factory |
+| Sharing Rules | ★★★★☆ | Criteria + Owner Based, but lacks Manual Sharing and Programmatic Sharing |
+| Security Policies | ★★★★☆ | Password/Network/Session/Audit four dimensions, but lacks Device Trust and OAuth Scope |
+| Territory Management | ★★★★☆ | Full replica of Salesforce ETM 2.0 |
+| Identity / SCIM | ★★★★★ | Full RFC 7643/7644, Okta/Azure AD ready |
 
-#### 3.3 关键安全缺口
+#### 3.3 Key Security Gaps
 
-| # | 缺失 | 严重度 | 对标 |
+| # | Missing | Severity | Benchmark |
 |:---|:---|:---:|:---|
-| GAP-1 | **数据分类标签** (PII/PHI/PCI) | 🔴 高 | Salesforce Shield, AWS Macie — 无法通过 HIPAA/PCI-DSS 合规 |
-| GAP-2 | **动态数据脱敏** | 🔴 高 | SQL Server DDM, Oracle VPD |
-| GAP-3 | **字段级加密策略** | 🔴 高 | Salesforce Shield Platform Encryption |
-| GAP-4 | **Permission Registry** | 🟡 中 | `manifest.permissions` 是字符串数组，无权限注册表枚举 |
-| GAP-5 | **OAuth Scope 绑定** | 🟡 中 | Endpoint 不声明所需 scope |
-| GAP-6 | **Plugin 沙箱** | 🟡 中 | 插件上下文未按 manifest permissions 裁剪能力 |
-| GAP-7 | **Manual/Programmatic Sharing** | 🟡 中 | 单条记录级手动共享和代码驱动共享 |
-| GAP-8 | **权限委托/临时提权** | 🟢 低 | AWS STS AssumeRole |
+| GAP-1 | **Data Classification Labels** (PII/PHI/PCI) | 🔴 High | Salesforce Shield, AWS Macie — Cannot pass HIPAA/PCI-DSS compliance |
+| GAP-2 | **Dynamic Data Masking** | 🔴 High | SQL Server DDM, Oracle VPD |
+| GAP-3 | **Field-Level Encryption Policy** | 🔴 High | Salesforce Shield Platform Encryption |
+| GAP-4 | **Permission Registry** | 🟡 Medium | `manifest.permissions` is a string array with no permission registry enumeration |
+| GAP-5 | **OAuth Scope Binding** | 🟡 Medium | Endpoints do not declare required scopes |
+| GAP-6 | **Plugin Sandbox** | 🟡 Medium | Plugin context does not trim capabilities per manifest permissions |
+| GAP-7 | **Manual/Programmatic Sharing** | 🟡 Medium | Per-record manual sharing and code-driven sharing |
+| GAP-8 | **Permission Delegation / Temporary Elevation** | 🟢 Low | AWS STS AssumeRole |
 
 ---
 
-### 4. UI 协议评估 (UI Protocol)
+### 4. UI Protocol Evaluation
 
-**评级: A-** — View/Form 声明能力超越 Salesforce Lightning，但响应式和实时协作是断层。
+**Rating: A-** — View/Form declarative capabilities surpass Salesforce Lightning, but responsive layout and real-time collaboration are significant gaps.
 
-#### 4.1 范式判定：元数据驱动 + 组件组合 + 逃生舱口
+#### 4.1 Paradigm: Metadata-Driven + Component Composition + Escape Hatch
 
-ObjectStack UI 协议提供三条路径：
+ObjectStack UI protocol provides three paths:
 
-| 路径 | 场景 | 覆盖率 |
+| Path | Scenario | Coverage |
 |:---|:---|:---|
-| **快速路径 (View)** | 标准 CRUD 列表/表单 | ~80% 企业场景 |
-| **高级路径 (Page)** | 自定义布局（仪表盘、审批页、AI 对话） | ~15% |
-| **逃生舱口 (Widget)** | 完全自定义 UI（npm/Module Federation/inline） | ~5% |
+| **Fast Path (View)** | Standard CRUD list/form | ~80% enterprise scenarios |
+| **Advanced Path (Page)** | Custom layouts (dashboards, approval pages, AI conversations) | ~15% |
+| **Escape Hatch (Widget)** | Fully custom UI (npm/Module Federation/inline) | ~5% |
 
-#### 4.2 能力矩阵
+#### 4.2 Capability Matrix
 
-| 维度 | 评分 | 说明 |
+| Dimension | Rating | Description |
 |:---|:---:|:---|
-| CRUD 列表/表单 | **A** | 7 种列表 + 6 种表单 + 3 种数据源 + 7 种导航模式 |
-| 仪表盘/报表 | **A** | 30+ 图表类型 + React-Grid-Layout + 4 种报表类型 |
-| 操作/工作流 | **A-** | Action → Flow/API/Script，含确认/参数/刷新完整链路 |
-| 页面组合 | **B+** | 模板+区域+组件树，但 `z.any()` 削弱 Props 安全 |
-| 主题/品牌 | **A** | 完整 Design Token + 暗色模式 + 主题继承 |
-| 自定义组件 | **A** | npm + Module Federation + inline，7 个生命周期，DOM 事件 |
-| **移动端适配** | **C** | Breakpoints 存在但 View/Page 无法消费，响应式断层 |
-| **实时协作** | **D** | 无 Presence/CRDT/Optimistic Update 声明 |
-| **国际化** | **D** | UI 层无 i18n key 引用机制 |
+| CRUD List/Form | **A** | 7 list types + 6 form types + 3 data sources + 7 navigation modes |
+| Dashboards/Reports | **A** | 30+ chart types + React-Grid-Layout + 4 report types |
+| Actions/Workflows | **A-** | Action → Flow/API/Script, with confirmation/parameters/refresh complete chain |
+| Page Composition | **B+** | Templates + regions + component tree, but `z.any()` weakens Props safety |
+| Theming/Branding | **A** | Full Design Token + dark mode + theme inheritance |
+| Custom Components | **A** | npm + Module Federation + inline, 7 lifecycle hooks, DOM events |
+| **Mobile Responsiveness** | **C** | Breakpoints exist but View/Page cannot consume them, responsive gap |
+| **Real-time Collaboration** | **D** | No Presence/CRDT/Optimistic Update declarations |
+| **Internationalization** | **D** | No i18n key reference mechanism in UI layer |
 
-#### 4.3 行业对标差距
+#### 4.3 Industry Benchmark Gaps
 
-| vs Salesforce Lightning | 严重度 | 说明 |
+| vs Salesforce Lightning | Severity | Description |
 |:---|:---:|:---|
-| Record Type → Layout 映射 | 🔴 高 | 同一对象按记录类型显示不同表单布局 |
-| Compact Layout | 🟡 中 | lookup 预览的精简视图 |
-| 响应式布局 | 🔴 高 | 断点定义了但无消费协议 |
+| Record Type → Layout mapping | 🔴 High | Same object shows different form layouts per record type |
+| Compact Layout | 🟡 Medium | Compact preview for lookup fields |
+| Responsive Layout | 🔴 High | Breakpoints defined but no consumption protocol |
 
-| vs Retool/Appsmith | 严重度 | 说明 |
+| vs Retool/Appsmith | Severity | Description |
 |:---|:---:|:---|
-| 组件级 Query Binding | 🟡 中 | Page 组件依赖父级上下文而非独立数据绑定 |
-| 组件级响应式 | 🔴 高 | 无组件级断点折叠 |
+| Component-level Query Binding | 🟡 Medium | Page components depend on parent context rather than independent data binding |
+| Component-level Responsiveness | 🔴 High | No component-level breakpoint collapsing |
 
-| vs ServiceNow UI Builder | 严重度 | 说明 |
+| vs ServiceNow UI Builder | Severity | Description |
 |:---|:---:|:---|
-| 页面级 Data Resources | 🟡 中 | `variables[]` 只是本地状态，无声明式数据获取 |
+| Page-level Data Resources | 🟡 Medium | `variables[]` is only local state, no declarative data fetching |
 
 ---
 
-### 5. 跨域协议一致性评估
+### 5. Cross-Domain Protocol Consistency Evaluation
 
-#### 5.1 数据结构一致性
+#### 5.1 Data Structure Consistency
 
-| 问题 | 位置 | 影响 |
+| Issue | Location | Impact |
 |:---|:---|:---|
-| **Array vs Map 不一致** | `Object.fields` 用 `z.record()`，`StackDefinition.objects/views/roles` 用 `z.array()` | 查找语义不统一 |
-| **标识符验证二元化** | 4 个 UI 文件用 `SnakeCaseIdentifierSchema`，4 个用 inline regex | 约束强度不一致 |
-| **隔离级别枚举碎片化** | driver.zod.ts L101 kebab-case vs L570 SQL 大写 | 同一概念两种表达 |
+| **Array vs Map inconsistency** | `Object.fields` uses `z.record()`, `StackDefinition.objects/views/roles` uses `z.array()` | Inconsistent lookup semantics |
+| **Identifier validation bifurcation** | 4 UI files use `SnakeCaseIdentifierSchema`, 4 use inline regex | Inconsistent constraint strength |
+| **Isolation level enum fragmentation** | driver.zod.ts L101 kebab-case vs L570 SQL uppercase | Same concept with two representations |
 
-#### 5.2 AI ↔ Data 连接断裂
+#### 5.2 AI ↔ Data Connection Gaps
 
-| 断裂点 | 说明 | 影响 |
+| Gap | Description | Impact |
 |:---|:---|:---|
-| Agent 不感知 Object Schema | Agent 只知道 tool name，不知道字段定义 | AI 无法基于数据结构推理 |
-| RAG 索引弱引用 | `knowledge.indexes` 是字符串数组，不引用 `RAGPipelineConfig.name` | 配置可能无效 |
-| Flow 无 AI 节点 | Flow 的 14 种节点中没有 `ai_task`/`agent_call` | 自动化无法调用 AI |
+| Agent unaware of Object Schema | Agent only knows tool name, does not know field definitions | AI cannot reason based on data structure |
+| RAG index weak references | `knowledge.indexes` is a string array, does not reference `RAGPipelineConfig.name` | Configuration may be invalid |
+| Flow lacks AI nodes | None of Flow's 14 node types include `ai_task`/`agent_call` | Automation cannot invoke AI |
 
-#### 5.3 Security ↔ UI 连接断裂
+#### 5.3 Security ↔ UI Connection Gaps
 
-| 断裂点 | 说明 | 影响 |
+| Gap | Description | Impact |
 |:---|:---|:---|
-| View 不引用 Permission | ListView/FormView 无 `requiredPermission` 声明 | 安全靠运行时而非声明式 |
-| Action 无权限绑定 | ActionSchema 有 `visible` 表达式但无 permission 引用 | 操作按钮无法声明式权限门控 |
+| View does not reference Permission | ListView/FormView have no `requiredPermission` declaration | Security relies on runtime rather than declarative |
+| Action has no permission binding | ActionSchema has `visible` expressions but no permission reference | Action buttons cannot be declaratively permission-gated |
 
-#### 5.4 UI ↔ Data 连接质量
+#### 5.4 UI ↔ Data Connection Quality
 
-| 连接 | 状态 | 说明 |
+| Connection | Status | Description |
 |:---|:---:|:---|
 | View → Object | ✅ 🟢 | `ViewDataSchema` provider='object' + objectName |
 | Action → Flow | ✅ 🟢 | `type: 'flow'` + target |
-| Dashboard → Filter | ✅ 🟢 | 导入 `FilterConditionSchema` |
-| **View → Filter** | ❌ 🔴 | `view.filter` 用 `z.array(z.any())` 而非 `FilterConditionSchema` |
-| **Page → Data** | ⚠️ 🟡 | Page 无声明式数据获取，组件 props 全是 `z.any()` |
+| Dashboard → Filter | ✅ 🟢 | Imports `FilterConditionSchema` |
+| **View → Filter** | ❌ 🔴 | `view.filter` uses `z.array(z.any())` instead of `FilterConditionSchema` |
+| **Page → Data** | ⚠️ 🟡 | Page has no declarative data fetching, component props are all `z.any()` |
 
 ---
 
-### 6. 全局评分总表
+### 6. Global Score Summary
 
-| 协议域 | 设计成熟度 | 行业对标 | 评分 |
+| Protocol Domain | Design Maturity | Industry Benchmark | Rating |
 |:---|:---|:---|:---:|
-| **Data — Object/Field** | 联邦查询超越行业，但 Field 结构需 discriminatedUnion | 超越 Salesforce(查询), 落后(RecordType) | **A-** |
-| **Data — Query/Filter** | 窗口函数/全文搜索/游标分页，接近 BI 级 | 超越低代码, 接近 Trino | **A** |
-| **AI — Agent/RAG** | 40+ UI Action 业界领先，RAG 企业就绪 | 超越 OpenAI, 落后 LangGraph(多Agent) | **B** |
-| **AI — Orchestration** | 单 Agent 编排，缺多 Agent 和 Flow 双向 | 落后 LangGraph/AutoGen | **C+** |
-| **Security — RLS/Sharing** | PostgreSQL RLS + Salesforce Sharing 融合 | 对等 Salesforce, 部分超越 | **A** |
-| **Security — 合规** | 缺数据分类 + 动态脱敏 + 字段加密 | 落后 Salesforce Shield | **B-** |
-| **UI — View/Form** | 7 视图 + 6 表单 + 7 导航 + 3 数据源 | 超越 Salesforce Lightning(80%) | **A-** |
-| **UI — 响应式/协作** | 断点定义有但无消费，无实时协议 | 落后 Retool/ServiceNow | **D+** |
-| **Automation — Flow** | DAG 图 + 14 节点 + 5 触发器 | 对等 Salesforce Flow | **B+** |
-| **Kernel — Plugin** | Manifest + Own/Extend + Priority 合并 | 超越 Salesforce Managed Package | **A-** |
-| **System — Identity** | SCIM 2.0 + 多租户 + 角色层级 | 对等行业最佳 | **A** |
+| **Data — Object/Field** | Federated query surpasses industry, but Field structure needs discriminatedUnion | Surpasses Salesforce (query), behind (RecordType) | **A-** |
+| **Data — Query/Filter** | Window functions/full-text search/cursor pagination, BI-grade | Surpasses low-code, approaches Trino | **A** |
+| **AI — Agent/RAG** | 40+ UI Actions industry-leading, RAG enterprise-ready | Surpasses OpenAI, behind LangGraph (multi-agent) | **B** |
+| **AI — Orchestration** | Single-agent orchestration, missing multi-agent and bidirectional Flow | Behind LangGraph/AutoGen | **C+** |
+| **Security — RLS/Sharing** | PostgreSQL RLS + Salesforce Sharing fusion | On par with Salesforce, partially surpasses | **A** |
+| **Security — Compliance** | Missing data classification + dynamic masking + field encryption | Behind Salesforce Shield | **B-** |
+| **UI — View/Form** | 7 views + 6 forms + 7 navigation + 3 data sources | Surpasses Salesforce Lightning (80%) | **A-** |
+| **UI — Responsive/Collaboration** | Breakpoints defined but not consumed, no real-time protocol | Behind Retool/ServiceNow | **D+** |
+| **Automation — Flow** | DAG graph + 14 nodes + 5 triggers | On par with Salesforce Flow | **B+** |
+| **Kernel — Plugin** | Manifest + Own/Extend + Priority merge | Surpasses Salesforce Managed Package | **A-** |
+| **System — Identity** | SCIM 2.0 + multi-tenant + role hierarchy | On par with industry best | **A** |
 
-**总体架构评级: B+/A-** — 一个有清晰愿景和专业执行的协议体系，离企业 SaaS 生产力平台差 3 个关键补齐。
+**Overall Architecture Rating: B+/A-** — A protocol system with clear vision and professional execution, 3 key additions away from an enterprise SaaS productivity platform.
 
 ---
 
-### 7. 优先级路线图: 从 B+ 到 A
+### 7. Priority Roadmap: From B+ to A
 
-#### Tier 1 — 架构性补齐 (必须，影响市场竞争力)
+#### Tier 1 — Architectural Additions (Must-have, impacts market competitiveness)
 
-| # | 行动 | 新增文件/字段 | 对标 |
+| # | Action | New Files/Fields | Benchmark |
 |:---|:---|:---|:---|
-| **T1-1** | **Flow 增加 AI 节点** — `ai_task`, `agent_call`, `human_in_loop` | `automation/flow.zod.ts` 新增 3 种节点 | LangGraph, Salesforce Einstein |
-| **T1-2** | **AITool 增加参数声明** — `inputSchema`, `outputSchema` (JSON Schema) | `ai/agent.zod.ts` AIToolSchema | OpenAI function calling |
-| **T1-3** | **新建多 Agent 协议** — AgentTeam, Routing, Handoff, Supervisor | 新文件 `ai/multi-agent.zod.ts` | AutoGen, LangGraph |
-| **T1-4** | **新建 AI 安全护栏** — PII filter, prompt injection, content safety, audit | 新文件 `ai/guardrails.zod.ts` | Salesforce Trust Layer |
-| **T1-5** | **数据分类 + 动态脱敏协议** | `security/classification.zod.ts` + `security/masking.zod.ts` | Salesforce Shield, AWS Macie |
+| **T1-1** | **Add AI nodes to Flow** — `ai_task`, `agent_call`, `human_in_loop` | `automation/flow.zod.ts` add 3 node types | LangGraph, Salesforce Einstein |
+| **T1-2** | **Add parameter declarations to AITool** — `inputSchema`, `outputSchema` (JSON Schema) | `ai/agent.zod.ts` AIToolSchema | OpenAI function calling |
+| **T1-3** | **Create multi-agent protocol** — AgentTeam, Routing, Handoff, Supervisor | New file `ai/multi-agent.zod.ts` | AutoGen, LangGraph |
+| **T1-4** | **Create AI safety guardrails** — PII filter, prompt injection, content safety, audit | New file `ai/guardrails.zod.ts` | Salesforce Trust Layer |
+| **T1-5** | **Data classification + dynamic masking protocol** | `security/classification.zod.ts` + `security/masking.zod.ts` | Salesforce Shield, AWS Macie |
 
-#### Tier 2 — 能力性补齐 (重要，影响企业客户准入)
+#### Tier 2 — Capability Additions (Important, impacts enterprise customer readiness)
 
-| # | 行动 | 影响域 |
+| # | Action | Affected Domain |
 |:---|:---|:---|
-| **T2-1** | **Record Type 协议** — 同一对象多种布局/验证/选项值 | data + ui |
-| **T2-2** | **Field discriminatedUnion** — 按类型特化字段属性 | data/field.zod.ts |
-| **T2-3** | **响应式布局消费** — View/Page 引用断点，组件级 responsive 声明 | ui |
-| **T2-4** | **Page-level Data Fetching** — 声明式数据获取（类似 Remix loader） | ui/page.zod.ts |
-| **T2-5** | **Agent objectBindings** — Agent 显式关联 Object Schema | ai/agent.zod.ts |
-| **T2-6** | **Governor Limits 协议** — 查询配额/限制声明（SOQL Limits 等价） | data/query.zod.ts |
-| **T2-7** | **字段级加密策略 + Permission Registry** | security |
+| **T2-1** | **Record Type protocol** — same object with multiple layouts/validations/picklist values | data + ui |
+| **T2-2** | **Field discriminatedUnion** — type-specific field properties | data/field.zod.ts |
+| **T2-3** | **Responsive layout consumption** — View/Page references breakpoints, component-level responsive declarations | ui |
+| **T2-4** | **Page-level Data Fetching** — declarative data fetching (similar to Remix loader) | ui/page.zod.ts |
+| **T2-5** | **Agent objectBindings** — Agent explicitly associates with Object Schema | ai/agent.zod.ts |
+| **T2-6** | **Governor Limits protocol** — query quota/limit declarations (SOQL Limits equivalent) | data/query.zod.ts |
+| **T2-7** | **Field-level encryption policy + Permission Registry** | security |
 
-#### Tier 3 — 完善性优化 (持续改进)
+#### Tier 3 — Refinement (Continuous improvement)
 
-| # | 行动 |
+| # | Action |
 |:---|:---|
-| T3-1 | Field 通用扩展点 (`extensions: z.record()`) |
+| T3-1 | Field generic extension point (`extensions: z.record()`) |
 | T3-2 | Polymorphic Lookup / Dependent Picklist / Compound Fields |
 | T3-3 | Manual/Programmatic Sharing |
-| T3-4 | UI 国际化 key 引用机制 |
-| T3-5 | 实时协作协议 (Presence/CRDT) |
-| T3-6 | 地理空间查询操作符 (`$near`/`$within`) |
+| T3-4 | UI internationalization key reference mechanism |
+| T3-5 | Real-time collaboration protocol (Presence/CRDT) |
+| T3-6 | Geospatial query operators (`$near`/`$within`) |
 
 ---
 
-## Part II: Zod Schema Code Quality Audit (代码质量审计)
+## Part II: Zod Schema Code Quality Audit
 
-> 以下是对 139 个 `.zod.ts` 文件的代码级审计结果。
+> The following presents the code-level audit results for all 139 `.zod.ts` files.
 
 ## Per-Directory Statistics
 
