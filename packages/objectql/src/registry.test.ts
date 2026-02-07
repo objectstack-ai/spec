@@ -368,4 +368,91 @@ describe('SchemaRegistry', () => {
             expect(SchemaRegistry.listItems('actions')).toHaveLength(0);
         });
     });
+
+    // ==========================================
+    // listItems/getItem for 'object' type Tests
+    // ==========================================
+    describe('listItems and getItem for object type', () => {
+        it('listItems("object") should return all registered objects', () => {
+            SchemaRegistry.registerObject(
+                { name: 'account', label: 'Account', fields: {} } as any,
+                'com.crm',
+                'crm',
+                'own'
+            );
+            SchemaRegistry.registerObject(
+                { name: 'contact', label: 'Contact', fields: {} } as any,
+                'com.crm',
+                'crm',
+                'own'
+            );
+            
+            const objects = SchemaRegistry.listItems('object');
+            expect(objects).toHaveLength(2);
+            expect(objects.map((o: any) => o.name).sort()).toEqual(['crm__account', 'crm__contact']);
+        });
+
+        it('listItems("objects") should return all registered objects (plural alias)', () => {
+            SchemaRegistry.registerObject(
+                { name: 'task', label: 'Task', fields: {} } as any,
+                'com.todo',
+                'todo',
+                'own'
+            );
+            
+            const objects = SchemaRegistry.listItems('objects');
+            expect(objects).toHaveLength(1);
+            expect((objects[0] as any).name).toBe('todo__task');
+        });
+
+        it('getItem("object", fqn) should return object by FQN', () => {
+            SchemaRegistry.registerObject(
+                { name: 'lead', label: 'Lead', fields: { status: { type: 'text' } } } as any,
+                'com.crm',
+                'crm',
+                'own'
+            );
+            
+            const obj = SchemaRegistry.getItem('object', 'crm__lead');
+            expect(obj).toBeDefined();
+            expect((obj as any).name).toBe('crm__lead');
+            expect((obj as any).label).toBe('Lead');
+        });
+
+        it('getItem("object", shortName) should return object by short name fallback', () => {
+            SchemaRegistry.registerObject(
+                { name: 'opportunity', label: 'Opportunity', fields: {} } as any,
+                'com.crm',
+                'crm',
+                'own'
+            );
+            
+            const obj = SchemaRegistry.getItem('object', 'opportunity');
+            expect(obj).toBeDefined();
+            expect((obj as any).name).toBe('crm__opportunity');
+        });
+
+        it('listItems("object", packageId) should filter by package', () => {
+            SchemaRegistry.registerObject(
+                { name: 'account', fields: {} } as any,
+                'com.crm',
+                'crm',
+                'own'
+            );
+            SchemaRegistry.registerObject(
+                { name: 'task', fields: {} } as any,
+                'com.todo',
+                'todo',
+                'own'
+            );
+            
+            const crmObjects = SchemaRegistry.listItems('object', 'com.crm');
+            expect(crmObjects).toHaveLength(1);
+            expect((crmObjects[0] as any).name).toBe('crm__account');
+
+            const todoObjects = SchemaRegistry.listItems('object', 'com.todo');
+            expect(todoObjects).toHaveLength(1);
+            expect((todoObjects[0] as any).name).toBe('todo__task');
+        });
+    });
 });

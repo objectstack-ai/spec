@@ -483,6 +483,11 @@ export class SchemaRegistry {
    * Universal Get Method
    */
   static getItem<T>(type: string, name: string): T | undefined {
+    // Special handling for 'object' and 'objects' types - use objectContributors
+    if (type === 'object' || type === 'objects') {
+      return this.getObject(name) as unknown as T | undefined;
+    }
+    
     const collection = this.metadata.get(type);
     if (!collection) return undefined;
     const direct = collection.get(name);
@@ -498,6 +503,11 @@ export class SchemaRegistry {
    * Universal List Method
    */
   static listItems<T>(type: string, packageId?: string): T[] {
+    // Special handling for 'object' and 'objects' types - use objectContributors
+    if (type === 'object' || type === 'objects') {
+      return this.getAllObjects(packageId) as unknown as T[];
+    }
+    
     const items = Array.from(this.metadata.get(type)?.values() || []) as T[];
     if (packageId) {
       return items.filter((item: any) => item._packageId === packageId);
