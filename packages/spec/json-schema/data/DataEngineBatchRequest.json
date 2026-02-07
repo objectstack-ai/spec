@@ -325,6 +325,10 @@
                     "additionalProperties": {}
                   },
                   "id": {
+                    "type": [
+                      "string",
+                      "number"
+                    ],
                     "description": "ID for single update, or use filter in options"
                   },
                   "options": {
@@ -396,6 +400,10 @@
                     "type": "string"
                   },
                   "id": {
+                    "type": [
+                      "string",
+                      "number"
+                    ],
                     "description": "ID for single delete, or use filter in options"
                   },
                   "options": {

@@ -32,13 +32,13 @@ export const SessionUserSchema = z.object({
   tenantId: z.string().optional().describe('Current tenant ID'),
   language: z.string().default('en').describe('Preferred language'),
   timezone: z.string().optional().describe('Preferred timezone'),
-  createdAt: z.date().optional(),
-  updatedAt: z.date().optional(),
+  createdAt: z.string().datetime().optional(),
+  updatedAt: z.string().datetime().optional(),
 });
 
 export const SessionSchema = z.object({
   id: z.string(),
-  expiresAt: z.date(),
+  expiresAt: z.string().datetime(),
   token: z.string().optional(),
   ipAddress: z.string().optional(),
   userAgent: z.string().optional(),

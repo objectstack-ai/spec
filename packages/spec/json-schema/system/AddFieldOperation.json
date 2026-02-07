@@ -9,10 +9,12 @@
           "const": "add_field"
         },
         "objectName": {
-          "type": "string"
+          "type": "string",
+          "description": "Target object name"
         },
         "fieldName": {
-          "type": "string"
+          "type": "string",
+          "description": "Name of the field to add"
         },
         "field": {
           "type": "object",
@@ -194,7 +196,7 @@
             },
             "formula": {
               "type": "string",
-              "description": "Deprecated: Use expression"
+              "description": "DEPRECATED: Use `expression` field instead. Scheduled for removal in v2.0.0"
             },
             "summaryOperations": {
               "type": "object",
@@ -623,7 +625,8 @@
               "properties": {
                 "enabled": {
                   "type": "boolean",
-                  "default": false
+                  "default": false,
+                  "description": "Enable field-level encryption"
                 },
                 "algorithm": {
                   "type": "string",
@@ -632,7 +635,8 @@
                     "aes-256-cbc",
                     "chacha20-poly1305"
                   ],
-                  "default": "aes-256-gcm"
+                  "default": "aes-256-gcm",
+                  "description": "Encryption algorithm"
                 },
                 "keyManagement": {
                   "type": "object",
@@ -645,39 +649,47 @@
                         "azure-key-vault",
                         "gcp-kms",
                         "hashicorp-vault"
-                      ]
+                      ],
+                      "description": "Key management service provider"
                     },
                     "keyId": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "Key identifier in the provider"
                     },
                     "rotationPolicy": {
                       "type": "object",
                       "properties": {
                         "enabled": {
                           "type": "boolean",
-                          "default": false
+                          "default": false,
+                          "description": "Enable automatic key rotation"
                         },
                         "frequencyDays": {
                           "type": "number",
                           "minimum": 1,
-                          "default": 90
+                          "default": 90,
+                          "description": "Rotation frequency in days"
                         },
                         "retainOldVersions": {
                           "type": "number",
-                          "default": 3
+                          "default": 3,
+                          "description": "Number of old key versions to retain"
                         },
                         "autoRotate": {
                           "type": "boolean",
-                          "default": true
+                          "default": true,
+                          "description": "Automatically rotate without manual approval"
                         }
                       },
-                      "additionalProperties": false
+                      "additionalProperties": false,
+                      "description": "Key rotation policy"
                     }
                   },
                   "required": [
                     "provider"
                   ],
-                  "additionalProperties": false
+                  "additionalProperties": false,
+                  "description": "Key management configuration"
                 },
                 "scope": {
                   "type": "string",
@@ -686,7 +698,8 @@
                     "record",
                     "table",
                     "database"
-                  ]
+                  ],
+                  "description": "Encryption scope level"
                 },
                 "deterministicEncryption": {
                   "type": "boolean",
@@ -847,6 +860,15 @@
               "type": "boolean",
               "default": false,
               "description": "Read-only in UI"
+            },
+            "sortable": {
+              "type": "boolean",
+              "default": true,
+              "description": "Whether field is sortable in list views"
+            },
+            "inlineHelpText": {
+              "type": "string",
+              "description": "Help text displayed below the field in forms"
             },
             "encryption": {
               "type": "boolean",

@@ -64,12 +64,12 @@ export const AITaskSchema = z.object({
   
   /** Input Configuration */
   inputFields: z.array(z.string()).describe('Source fields to process (e.g., ["description", "comments"])'),
-  inputSchema: z.record(z.string(), z.any()).optional().describe('Validation schema for inputs'),
-  inputContext: z.record(z.string(), z.any()).optional().describe('Additional context for the AI model'),
+  inputSchema: z.record(z.string(), z.unknown()).optional().describe('Validation schema for inputs'),
+  inputContext: z.record(z.string(), z.unknown()).optional().describe('Additional context for the AI model'),
   
   /** Output Configuration */
   outputField: z.string().describe('Target field to store the result'),
-  outputSchema: z.record(z.string(), z.any()).optional().describe('Validation schema for output'),
+  outputSchema: z.record(z.string(), z.unknown()).optional().describe('Validation schema for output'),
   outputFormat: z.enum(['text', 'json', 'number', 'boolean', 'array']).optional().default('text'),
   
   /** Classification-specific options */
@@ -77,14 +77,14 @@ export const AITaskSchema = z.object({
   multiClass: z.boolean().optional().default(false).describe('Allow multiple classes to be selected'),
   
   /** Extraction-specific options */
-  extractionSchema: z.record(z.string(), z.any()).optional().describe('JSON schema for structured extraction'),
+  extractionSchema: z.record(z.string(), z.unknown()).optional().describe('JSON schema for structured extraction'),
   
   /** Generation-specific options */
   maxLength: z.number().optional().describe('Maximum length for generated content'),
   temperature: z.number().min(0).max(2).optional().describe('Model temperature override'),
   
   /** Error Handling */
-  fallbackValue: z.any().optional().describe('Fallback value if AI task fails'),
+  fallbackValue: z.unknown().optional().describe('Fallback value if AI task fails'),
   retryAttempts: z.number().int().min(0).max(5).optional().default(1),
   
   /** Conditional Execution */
@@ -102,7 +102,7 @@ export const AITaskSchema = z.object({
 export const WorkflowFieldConditionSchema = z.object({
   field: z.string().describe('Field name to monitor'),
   operator: z.enum(['changed', 'changed_to', 'changed_from', 'is', 'is_not']).optional().default('changed'),
-  value: z.any().optional().describe('Value to compare against (for changed_to/changed_from/is/is_not)'),
+  value: z.unknown().optional().describe('Value to compare against (for changed_to/changed_from/is/is_not)'),
 });
 
 /**
@@ -126,7 +126,7 @@ export const WorkflowScheduleSchema = z.object({
 export const PostProcessingActionSchema = z.object({
   type: z.enum(['field_update', 'send_email', 'create_record', 'update_related', 'trigger_flow', 'webhook']),
   name: z.string().describe('Action name'),
-  config: z.record(z.string(), z.any()).describe('Action-specific configuration'),
+  config: z.record(z.string(), z.unknown()).describe('Action-specific configuration'),
   condition: z.string().optional().describe('Execute only if condition is TRUE'),
 });
 
@@ -216,7 +216,7 @@ export const AIOrchestrationExecutionResultSchema = z.object({
     taskId: z.string().optional(),
     taskName: z.string(),
     status: z.enum(['success', 'failed', 'skipped']),
-    output: z.any().optional(),
+    output: z.unknown().optional(),
     error: z.string().optional(),
     executionTime: z.number().optional().describe('Task execution time in milliseconds'),
     modelUsed: z.string().optional(),

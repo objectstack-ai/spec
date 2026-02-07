@@ -23,23 +23,23 @@ export const KeyManagementProviderSchema = z.enum([
 export type KeyManagementProvider = z.infer<typeof KeyManagementProviderSchema>;
 
 export const KeyRotationPolicySchema = z.object({
-  enabled: z.boolean().default(false),
-  frequencyDays: z.number().min(1).default(90),
-  retainOldVersions: z.number().default(3),
-  autoRotate: z.boolean().default(true),
+  enabled: z.boolean().default(false).describe('Enable automatic key rotation'),
+  frequencyDays: z.number().min(1).default(90).describe('Rotation frequency in days'),
+  retainOldVersions: z.number().default(3).describe('Number of old key versions to retain'),
+  autoRotate: z.boolean().default(true).describe('Automatically rotate without manual approval'),
 });
 
 export type KeyRotationPolicy = z.infer<typeof KeyRotationPolicySchema>;
 
 export const EncryptionConfigSchema = z.object({
-  enabled: z.boolean().default(false),
-  algorithm: EncryptionAlgorithmSchema.default('aes-256-gcm'),
+  enabled: z.boolean().default(false).describe('Enable field-level encryption'),
+  algorithm: EncryptionAlgorithmSchema.default('aes-256-gcm').describe('Encryption algorithm'),
   keyManagement: z.object({
-    provider: KeyManagementProviderSchema,
-    keyId: z.string().optional(),
-    rotationPolicy: KeyRotationPolicySchema.optional(),
-  }),
-  scope: z.enum(['field', 'record', 'table', 'database']),
+    provider: KeyManagementProviderSchema.describe('Key management service provider'),
+    keyId: z.string().optional().describe('Key identifier in the provider'),
+    rotationPolicy: KeyRotationPolicySchema.optional().describe('Key rotation policy'),
+  }).describe('Key management configuration'),
+  scope: z.enum(['field', 'record', 'table', 'database']).describe('Encryption scope level'),
   deterministicEncryption: z.boolean().default(false).describe('Allows equality queries on encrypted data'),
   searchableEncryption: z.boolean().default(false).describe('Allows search on encrypted data'),
 });
@@ -47,9 +47,9 @@ export const EncryptionConfigSchema = z.object({
 export type EncryptionConfig = z.infer<typeof EncryptionConfigSchema>;
 
 export const FieldEncryptionSchema = z.object({
-  fieldName: z.string(),
-  encryptionConfig: EncryptionConfigSchema,
-  indexable: z.boolean().default(false),
+  fieldName: z.string().describe('Name of the field to encrypt'),
+  encryptionConfig: EncryptionConfigSchema.describe('Encryption settings for this field'),
+  indexable: z.boolean().default(false).describe('Allow indexing on encrypted field'),
 });
 
 export type FieldEncryption = z.infer<typeof FieldEncryptionSchema>;

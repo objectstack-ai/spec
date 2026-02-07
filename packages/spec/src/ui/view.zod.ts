@@ -184,7 +184,7 @@ export const ListViewSchema = z.object({
     z.array(z.string()), // Legacy: simple field names
     z.array(ListColumnSchema), // Enhanced: detailed column config
   ]).describe('Fields to display as columns'),
-  filter: z.array(z.any()).optional().describe('Filter criteria (JSON Rules)'),
+  filter: z.array(z.unknown()).optional().describe('Filter criteria (JSON Rules)'),
   sort: z.union([
     z.string(), //Legacy "field desc"
     z.array(z.object({
@@ -215,6 +215,13 @@ export const ListViewSchema = z.object({
   kanban: KanbanConfigSchema.optional(),
   calendar: CalendarConfigSchema.optional(),
   gantt: GanttConfigSchema.optional(),
+
+  /** Empty State */
+  emptyState: z.object({
+    title: z.string().optional(),
+    message: z.string().optional(),
+    icon: z.string().optional(),
+  }).optional().describe('Empty state configuration when no records found'),
 });
 
 /**

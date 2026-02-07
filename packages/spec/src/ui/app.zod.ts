@@ -61,7 +61,7 @@ export const DashboardNavItemSchema = BaseNavItemSchema.extend({
 export const PageNavItemSchema = BaseNavItemSchema.extend({
   type: z.literal('page'),
   pageName: z.string().describe('Target custom page component name'),
-  params: z.record(z.string(), z.any()).optional().describe('Parameters passed to the page context'),
+  params: z.record(z.string(), z.unknown()).optional().describe('Parameters passed to the page context'),
 });
 
 /**
@@ -199,16 +199,20 @@ export const AppSchema = z.object({
    * Package Components (For config file convenience)
    * In a real monorepo these might be auto-discovered, but here we allow explicit registration.
    */
-  objects: z.array(z.any()).optional().describe('Objects belonging to this app'),
-  apis: z.array(z.any()).optional().describe('Custom APIs belonging to this app'),
+  objects: z.array(z.unknown()).optional().describe('Objects belonging to this app'),
+  apis: z.array(z.unknown()).optional().describe('Custom APIs belonging to this app'),
 });
 
-export const App = Object.assign(AppSchema, {
+/**
+ * App Factory Helper
+ */
+export const App = {
   create: <T extends z.input<typeof AppSchema>>(config: T) => config,
-});
+} as const;
 
 // Main Types
 export type App = z.infer<typeof AppSchema>;
+export type AppInput = z.input<typeof AppSchema>;
 export type AppBranding = z.infer<typeof AppBrandingSchema>;
 export type NavigationItem = z.infer<typeof NavigationItemSchema>;
 

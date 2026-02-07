@@ -6,7 +6,8 @@
       "properties": {
         "name": {
           "type": "string",
-          "pattern": "^[a-z_][a-z0-9_]*$",
+          "minLength": 2,
+          "pattern": "^[a-z][a-z0-9_]*$",
           "description": "Unique theme identifier (snake_case)"
         },
         "label": {

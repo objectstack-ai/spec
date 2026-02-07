@@ -135,7 +135,7 @@ describe('ObjectMetadataSchema', () => {
       contentLanguage: 'en-US',
       cacheControl: 'max-age=3600',
       etag: '"abc123def456"',
-      lastModified: new Date('2024-01-01'),
+      lastModified: '2024-01-01T00:00:00.000Z',
       versionId: 'v1.0',
       storageClass: 'standard',
       encryption: {

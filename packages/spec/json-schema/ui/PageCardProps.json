@@ -19,10 +19,12 @@
         },
         "body": {
           "type": "array",
+          "items": {},
           "description": "Card content components (slot)"
         },
         "footer": {
           "type": "array",
+          "items": {},
           "description": "Card footer components (slot)"
         }
       },

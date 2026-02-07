@@ -67,7 +67,8 @@
               "type": "string"
             },
             "params": {
-              "type": "array"
+              "type": "array",
+              "items": {}
             }
           },
           "required": [

@@ -159,5 +159,6 @@ export const AnalyticsQuerySchema = z.object({
 
 export type Metric = z.infer<typeof MetricSchema>;
 export type Dimension = z.infer<typeof DimensionSchema>;
+export type CubeJoin = z.infer<typeof CubeJoinSchema>;
 export type Cube = z.infer<typeof CubeSchema>;
 export type AnalyticsQuery = z.infer<typeof AnalyticsQuerySchema>;

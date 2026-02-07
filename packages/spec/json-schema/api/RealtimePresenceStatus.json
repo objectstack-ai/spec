@@ -1,12 +1,12 @@
 {
-  "$ref": "#/definitions/MetricType",
+  "$ref": "#/definitions/RealtimePresenceStatus",
   "definitions": {
-    "MetricType": {
+    "RealtimePresenceStatus": {
       "type": "string",
       "enum": [
-        "boolean",
-        "counter",
-        "gauge"
+        "online",
+        "away",
+        "offline"
       ]
     }
   },

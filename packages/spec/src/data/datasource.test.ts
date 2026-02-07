@@ -5,7 +5,7 @@ import {
   DriverDefinitionSchema,
   DriverType,
   type Datasource,
-  type DatasourceConfig,
+  type DatasourceCapabilitiesType,
 } from './datasource.zod';
 
 describe('DriverType', () => {

@@ -122,7 +122,7 @@ export const DatabaseConnectorSchema = ConnectorSchema.extend({
     database: z.string().describe('Database name'),
     username: z.string().describe('Database username'),
     password: z.string().describe('Database password (typically from ENV)'),
-    options: z.record(z.string(), z.any()).optional().describe('Driver-specific connection options'),
+    options: z.record(z.string(), z.unknown()).optional().describe('Driver-specific connection options'),
   }).describe('Database connection configuration'),
   
   /**

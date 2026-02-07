@@ -70,7 +70,8 @@
                     "type": "string"
                   },
                   "enum": {
-                    "type": "array"
+                    "type": "array",
+                    "items": {}
                   }
                 },
                 "additionalProperties": false

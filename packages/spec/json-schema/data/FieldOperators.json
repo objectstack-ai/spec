@@ -175,7 +175,7 @@
         "$null": {
           "type": "boolean"
         },
-        "$exist": {
+        "$exists": {
           "type": "boolean"
         }
       },

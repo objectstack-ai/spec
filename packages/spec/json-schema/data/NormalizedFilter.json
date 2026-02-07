@@ -184,7 +184,7 @@
                     "$null": {
                       "type": "boolean"
                     },
-                    "$exist": {
+                    "$exists": {
                       "type": "boolean"
                     }
                   },
@@ -375,7 +375,7 @@
                     "$null": {
                       "type": "boolean"
                     },
-                    "$exist": {
+                    "$exists": {
                       "type": "boolean"
                     }
                   },
@@ -564,7 +564,7 @@
                   "$null": {
                     "type": "boolean"
                   },
-                  "$exist": {
+                  "$exists": {
                     "type": "boolean"
                   }
                 },

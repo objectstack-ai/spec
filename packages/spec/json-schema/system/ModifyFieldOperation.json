@@ -9,14 +9,17 @@
           "const": "modify_field"
         },
         "objectName": {
-          "type": "string"
+          "type": "string",
+          "description": "Target object name"
         },
         "fieldName": {
-          "type": "string"
+          "type": "string",
+          "description": "Name of the field to modify"
         },
         "changes": {
           "type": "object",
-          "additionalProperties": {}
+          "additionalProperties": {},
+          "description": "Partial field definition updates"
         }
       },
       "required": [

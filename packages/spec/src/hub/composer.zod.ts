@@ -22,7 +22,7 @@ export const DependencyRequirementSchema = z.object({
    * Tenant-specific settings that override plugin defaults.
    * Example: { "currency": "USD", "apiKey": "..." }
    */
-  configuration: z.record(z.string(), z.any()).optional().describe('Configuration overrides'),
+  configuration: z.record(z.string(), z.unknown()).optional().describe('Configuration overrides'),
   
   /**
    * Feature Flags

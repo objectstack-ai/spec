@@ -124,9 +124,9 @@ describe('SpecialOperatorSchema', () => {
     expect(() => SpecialOperatorSchema.parse({ $null: false })).not.toThrow();
   });
 
-  it('should accept $exist operator', () => {
-    expect(() => SpecialOperatorSchema.parse({ $exist: true })).not.toThrow();
-    expect(() => SpecialOperatorSchema.parse({ $exist: false })).not.toThrow();
+  it('should accept $exists operator', () => {
+    expect(() => SpecialOperatorSchema.parse({ $exists: true })).not.toThrow();
+    expect(() => SpecialOperatorSchema.parse({ $exists: false })).not.toThrow();
   });
 });
 
@@ -158,7 +158,7 @@ describe('FieldOperatorsSchema', () => {
       $startsWith: 'prefix',
       $endsWith: 'suffix',
       $null: false,
-      $exist: true,
+      $exists: true,
     };
     expect(() => FieldOperatorsSchema.parse(filter)).not.toThrow();
   });
@@ -367,7 +367,7 @@ describe('QueryFilterSchema - Complete Examples', () => {
         
         // Special
         deletedAt: { $null: true },
-        metadata: { $exist: true },
+        metadata: { $exists: true },
         
         // Logical
         $or: [
@@ -472,7 +472,7 @@ describe('Filter Operator Constants', () => {
     expect(FILTER_OPERATORS).toContain('$startsWith');
     expect(FILTER_OPERATORS).toContain('$endsWith');
     expect(FILTER_OPERATORS).toContain('$null');
-    expect(FILTER_OPERATORS).toContain('$exist');
+    expect(FILTER_OPERATORS).toContain('$exists');
   });
 
   it('should export all logical operators', () => {

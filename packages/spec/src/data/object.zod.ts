@@ -296,7 +296,8 @@ const ObjectSchemaBase = z.object({
    * @example Single: stateMachine: { id: 'lifecycle', initial: 'draft', states: {...} }
    * @example Multiple: stateMachines: { lifecycle: {...}, payment: {...}, approval: {...} }
    */
-  stateMachine: StateMachineSchema.optional().describe('Single state machine for record lifecycle (shorthand)'),
+  /** @deprecated Use `stateMachines` (plural) instead. Will be removed in v2.0.0 */
+  stateMachine: StateMachineSchema.optional().describe('DEPRECATED: Use stateMachines (plural). Single state machine shorthand.'),
   stateMachines: z.record(z.string(), StateMachineSchema).optional().describe('Named state machines for parallel lifecycles (e.g., status, payment, approval)'),
 
   /** 
@@ -314,6 +315,12 @@ const ObjectSchemaBase = z.object({
    * System Capabilities 
    */
   enable: ObjectCapabilities.optional().describe('Enabled system features modules'),
+
+  /** Record Types */
+  recordTypes: z.array(z.string()).optional().describe('Record type names for this object'),
+
+  /** Sharing Model */
+  sharingModel: z.enum(['private', 'read', 'read_write', 'full']).optional().describe('Default sharing model'),
 });
 
 /**
@@ -324,6 +331,7 @@ export const ObjectSchema = Object.assign(ObjectSchemaBase, {
 });
 
 export type ServiceObject = z.infer<typeof ObjectSchemaBase>;
+export type ServiceObjectInput = z.input<typeof ObjectSchemaBase>;
 export type ObjectCapabilities = z.infer<typeof ObjectCapabilities>;
 export type ObjectIndex = z.infer<typeof IndexSchema>;
 export type TenancyConfig = z.infer<typeof TenancyConfigSchema>;

@@ -186,7 +186,7 @@ export const MiddlewareConfigSchema = z.object({
   /**
    * Middleware-specific configuration
    */
-  config: z.record(z.string(), z.any()).optional().describe('Middleware configuration object'),
+  config: z.record(z.string(), z.unknown()).optional().describe('Middleware configuration object'),
   
   /**
    * Path patterns to apply middleware to
@@ -236,7 +236,7 @@ export const ServerEventSchema = z.object({
   /**
    * Event payload
    */
-  data: z.record(z.string(), z.any()).optional().describe('Event-specific data'),
+  data: z.record(z.string(), z.unknown()).optional().describe('Event-specific data'),
 });
 
 export type ServerEvent = z.infer<typeof ServerEventSchema>;

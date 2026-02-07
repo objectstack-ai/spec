@@ -140,7 +140,7 @@ export const PermissionSetSchema = z.object({
    * }
    * ```
    */
-  contextVariables: z.record(z.string(), z.any()).optional().describe('Context variables for RLS evaluation'),
+  contextVariables: z.record(z.string(), z.unknown()).optional().describe('Context variables for RLS evaluation'),
 });
 
 export type PermissionSet = z.infer<typeof PermissionSetSchema>;

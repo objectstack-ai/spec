@@ -142,7 +142,7 @@ export const DataSourceConfigSchema = z.object({
    * Filter conditions
    * Only sync records matching these filters
    */
-  filters: z.any().optional().describe('Filter conditions'),
+  filters: z.unknown().optional().describe('Filter conditions'),
 
   /**
    * Fields to include
@@ -354,7 +354,7 @@ export const DataSyncConfigSchema = z.object({
   /**
    * Custom metadata
    */
-  metadata: z.record(z.string(), z.any()).optional().describe('Custom metadata'),
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Custom metadata'),
 });
 
 export type DataSyncConfig = z.infer<typeof DataSyncConfigSchema>;

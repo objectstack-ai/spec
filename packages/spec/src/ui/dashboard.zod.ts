@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { FilterConditionSchema } from '../data/filter.zod';
 import { ChartTypeSchema, ChartConfigSchema } from './chart.zod';
+import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
 
 /**
  * Dashboard Widget Schema
@@ -46,7 +47,7 @@ export const DashboardWidgetSchema = z.object({
   }).describe('Grid layout position'),
   
   /** Widget specific options (colors, legend, etc.) */
-  options: z.any().optional().describe('Widget specific configuration'),
+  options: z.unknown().optional().describe('Widget specific configuration'),
 });
 
 /**
@@ -80,7 +81,7 @@ export const DashboardWidgetSchema = z.object({
  */
 export const DashboardSchema = z.object({
   /** Machine name */
-  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Dashboard unique name'),
+  name: SnakeCaseIdentifierSchema.describe('Dashboard unique name'),
   
   /** Display label */
   label: z.string().describe('Dashboard label'),
@@ -90,9 +91,13 @@ export const DashboardSchema = z.object({
   
   /** Collection of widgets */
   widgets: z.array(DashboardWidgetSchema).describe('Widgets to display'),
+
+  /** Auto-refresh */
+  refreshInterval: z.number().optional().describe('Auto-refresh interval in seconds'),
 });
 
 export type Dashboard = z.infer<typeof DashboardSchema>;
+export type DashboardInput = z.input<typeof DashboardSchema>;
 export type DashboardWidget = z.infer<typeof DashboardWidgetSchema>;
 
 /**

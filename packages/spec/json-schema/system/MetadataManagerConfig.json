@@ -5,7 +5,8 @@
       "type": "object",
       "properties": {
         "loaders": {
-          "type": "array"
+          "type": "array",
+          "items": {}
         },
         "watch": {
           "type": "boolean"

@@ -352,7 +352,7 @@ export const FieldSchema = z.object({
   searchable: z.boolean().default(false).describe('Is searchable'),
   multiple: z.boolean().default(false).describe('Allow multiple values (Stores as Array/JSON). Applicable for select, lookup, file, image.'),
   unique: z.boolean().default(false).describe('Is unique constraint'),
-  defaultValue: z.any().optional().describe('Default value'),
+  defaultValue: z.unknown().optional().describe('Default value'),
   
   /** Text/String Constraints */
   maxLength: z.number().optional().describe('Max character length'),
@@ -375,7 +375,9 @@ export const FieldSchema = z.object({
 
   /** Calculation */
   expression: z.string().optional().describe('Formula expression'),
-  formula: z.string().optional().describe('Deprecated: Use expression'),
+  /** @deprecated Use `expression` instead. Will be removed in v2.0.0 */
+  formula: z.string().optional()
+    .describe('DEPRECATED: Use `expression` field instead. Scheduled for removal in v2.0.0'),
   summaryOperations: z.object({
     object: z.string(),
     field: z.string(),
@@ -451,6 +453,8 @@ export const FieldSchema = z.object({
   /** Security & Visibility */
   hidden: z.boolean().default(false).describe('Hidden from default UI'),
   readonly: z.boolean().default(false).describe('Read-only in UI'),
+  sortable: z.boolean().optional().default(true).describe('Whether field is sortable in list views'),
+  inlineHelpText: z.string().optional().describe('Help text displayed below the field in forms'),
   encryption: z.boolean().default(false).describe('Deprecated: Use encryptionConfig for enhanced encryption features. Simple flag for backward compatibility.'),
   
   /** Indexing */

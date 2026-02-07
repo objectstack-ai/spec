@@ -1,7 +1,7 @@
 {
-  "$ref": "#/definitions/SecurityPolicy",
+  "$ref": "#/definitions/KernelSecurityPolicy",
   "definitions": {
-    "SecurityPolicy": {
+    "KernelSecurityPolicy": {
       "type": "object",
       "properties": {
         "csp": {

@@ -130,7 +130,7 @@ export const TaskSchema = z.object({
   /**
    * Task payload data
    */
-  payload: z.any().describe('Task payload data'),
+  payload: z.unknown().describe('Task payload data'),
   
   /**
    * Queue name
@@ -202,7 +202,7 @@ export const TaskExecutionResultSchema = z.object({
   /**
    * Execution result data
    */
-  result: z.any().optional().describe('Execution result data'),
+  result: z.unknown().optional().describe('Execution result data'),
   
   /**
    * Error information
@@ -330,7 +330,7 @@ export const BatchTaskSchema = z.object({
   /**
    * Items to process
    */
-  items: z.array(z.any()).describe('Array of items to process'),
+  items: z.array(z.unknown()).describe('Array of items to process'),
   
   /**
    * Batch size (items per task)

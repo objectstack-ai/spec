@@ -32,7 +32,7 @@ export type RealtimeEventType = z.infer<typeof RealtimeEventType>;
 export const SubscriptionEventSchema = z.object({
   type: RealtimeEventType.describe('Type of event to subscribe to'),
   object: z.string().optional().describe('Object name to subscribe to'),
-  filters: z.any().optional().describe('Filter conditions'),
+  filters: z.unknown().optional().describe('Filter conditions'),
 });
 
 /**
@@ -52,26 +52,26 @@ export type Subscription = z.infer<typeof SubscriptionSchema>;
  * Presence Status Enum
  * User online/offline status
  */
-export const PresenceStatus = z.enum([
+export const RealtimePresenceStatus = z.enum([
   'online',
   'away',
   'offline',
 ]);
 
-export type PresenceStatus = z.infer<typeof PresenceStatus>;
+export type RealtimePresenceStatus = z.infer<typeof RealtimePresenceStatus>;
 
 /**
  * Presence Schema
  * Tracks user online status and metadata
  */
-export const PresenceSchema = z.object({
+export const RealtimePresenceSchema = z.object({
   userId: z.string().describe('User identifier'),
-  status: PresenceStatus.describe('Current presence status'),
+  status: RealtimePresenceStatus.describe('Current presence status'),
   lastSeen: z.string().datetime().describe('ISO 8601 datetime of last activity'),
-  metadata: z.record(z.string(), z.any()).optional().describe('Custom presence data (e.g., current page, custom status)'),
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Custom presence data (e.g., current page, custom status)'),
 });
 
-export type Presence = z.infer<typeof PresenceSchema>;
+export type RealtimePresence = z.infer<typeof RealtimePresenceSchema>;
 
 /**
  * Realtime Action Enum
@@ -94,7 +94,7 @@ export const RealtimeEventSchema = z.object({
   type: z.string().describe('Event type (e.g., record.created, record.updated)'),
   object: z.string().optional().describe('Object name the event relates to'),
   action: RealtimeAction.optional().describe('Action performed'),
-  payload: z.record(z.string(), z.any()).describe('Event payload data'),
+  payload: z.record(z.string(), z.unknown()).describe('Event payload data'),
   timestamp: z.string().datetime().describe('ISO 8601 datetime when event occurred'),
   userId: z.string().optional().describe('User who triggered the event'),
   sessionId: z.string().optional().describe('Session identifier'),

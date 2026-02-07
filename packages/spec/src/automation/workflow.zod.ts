@@ -26,7 +26,7 @@ export const FieldUpdateActionSchema = z.object({
   name: z.string().describe('Action name'),
   type: z.literal('field_update'),
   field: z.string().describe('Field to update'),
-  value: z.any().describe('Value or Formula to set'),
+  value: z.unknown().describe('Value or Formula to set'),
 });
 
 /**
@@ -68,7 +68,7 @@ export const ConnectorActionRefSchema = z.object({
   type: z.literal('connector_action'),
   connectorId: z.string().describe('Target Connector ID (e.g. slack, twilio)'),
   actionId: z.string().describe('Target Action ID (e.g. send_message)'),
-  input: z.record(z.string(), z.any()).describe('Input parameters matching the action schema'),
+  input: z.record(z.string(), z.unknown()).describe('Input parameters matching the action schema'),
 });
 
 /**
@@ -114,7 +114,7 @@ export const TaskCreationActionSchema = z.object({
   dueDate: z.string().optional().describe('Due date (ISO string or formula)'),
   priority: z.string().optional().describe('Task priority'),
   relatedTo: z.string().optional().describe('Related record ID or field reference'),
-  additionalFields: z.record(z.string(), z.any()).optional().describe('Additional custom fields'),
+  additionalFields: z.record(z.string(), z.unknown()).optional().describe('Additional custom fields'),
 });
 
 /**
@@ -126,7 +126,7 @@ export const PushNotificationActionSchema = z.object({
   title: z.string().describe('Notification title'),
   body: z.string().describe('Notification body text'),
   recipients: z.array(z.string()).describe('User IDs or device tokens'),
-  data: z.record(z.string(), z.any()).optional().describe('Additional data payload'),
+  data: z.record(z.string(), z.unknown()).optional().describe('Additional data payload'),
   badge: z.number().optional().describe('Badge count (iOS)'),
   sound: z.string().optional().describe('Notification sound'),
   clickAction: z.string().optional().describe('Action/URL when notification is clicked'),
@@ -141,7 +141,7 @@ export const CustomScriptActionSchema = z.object({
   language: z.enum(['javascript', 'typescript', 'python']).default('javascript').describe('Script language'),
   code: z.string().describe('Script code to execute'),
   timeout: z.number().default(30000).describe('Execution timeout in milliseconds'),
-  context: z.record(z.string(), z.any()).optional().describe('Additional context variables'),
+  context: z.record(z.string(), z.unknown()).optional().describe('Additional context variables'),
 });
 
 /**

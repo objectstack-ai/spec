@@ -9,7 +9,8 @@
           "const": "delete_object"
         },
         "objectName": {
-          "type": "string"
+          "type": "string",
+          "description": "Name of the object to delete"
         }
       },
       "required": [

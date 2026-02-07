@@ -6,7 +6,8 @@
       "properties": {
         "enabled": {
           "type": "boolean",
-          "default": false
+          "default": false,
+          "description": "Enable application-level caching"
         },
         "tiers": {
           "type": "array",
@@ -14,7 +15,8 @@
             "type": "object",
             "properties": {
               "name": {
-                "type": "string"
+                "type": "string",
+                "description": "Unique cache tier name"
               },
               "type": {
                 "type": "string",
@@ -23,7 +25,8 @@
                   "redis",
                   "memcached",
                   "cdn"
-                ]
+                ],
+                "description": "Cache backend type"
               },
               "maxSize": {
                 "type": "number",
@@ -43,11 +46,13 @@
                   "ttl",
                   "adaptive"
                 ],
-                "default": "lru"
+                "default": "lru",
+                "description": "Eviction strategy"
               },
               "warmup": {
                 "type": "boolean",
-                "default": false
+                "default": false,
+                "description": "Pre-populate cache on startup"
               }
             },
             "required": [
@@ -55,7 +60,8 @@
               "type"
             ],
             "additionalProperties": false
-          }
+          },
+          "description": "Ordered cache tier hierarchy"
         },
         "invalidation": {
           "type": "array",
@@ -69,7 +75,8 @@
                   "update",
                   "delete",
                   "manual"
-                ]
+                ],
+                "description": "Event that triggers invalidation"
               },
               "scope": {
                 "type": "string",
@@ -78,16 +85,19 @@
                   "pattern",
                   "tag",
                   "all"
-                ]
+                ],
+                "description": "Invalidation scope"
               },
               "pattern": {
-                "type": "string"
+                "type": "string",
+                "description": "Key pattern for pattern-based invalidation"
               },
               "tags": {
                 "type": "array",
                 "items": {
                   "type": "string"
-                }
+                },
+                "description": "Cache tags to invalidate"
               }
             },
             "required": [
@@ -95,19 +105,23 @@
               "scope"
             ],
             "additionalProperties": false
-          }
+          },
+          "description": "Cache invalidation rules"
         },
         "prefetch": {
           "type": "boolean",
-          "default": false
+          "default": false,
+          "description": "Enable cache prefetching"
         },
         "compression": {
           "type": "boolean",
-          "default": false
+          "default": false,
+          "description": "Enable data compression in cache"
         },
         "encryption": {
           "type": "boolean",
-          "default": false
+          "default": false,
+          "description": "Enable encryption for cached data"
         }
       },
       "required": [

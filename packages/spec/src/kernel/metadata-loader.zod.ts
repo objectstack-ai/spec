@@ -27,7 +27,7 @@ export const MetadataStatsSchema = z.object({
   /**
    * Last modification timestamp
    */
-  modifiedAt: z.date().describe('Last modified date'),
+  modifiedAt: z.string().datetime().describe('Last modified date'),
   
   /**
    * ETag for cache validation
@@ -48,7 +48,7 @@ export const MetadataStatsSchema = z.object({
   /**
    * Additional metadata provider-specific properties
    */
-  metadata: z.record(z.string(), z.any()).optional().describe('Provider-specific metadata'),
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Provider-specific metadata'),
 });
 
 /**
@@ -70,7 +70,7 @@ export const MetadataLoadOptionsSchema = z.object({
   /**
    * If-Modified-Since header for conditional loading
    */
-  ifModifiedSince: z.date().optional().describe('Only load if modified after this date'),
+  ifModifiedSince: z.string().datetime().optional().describe('Only load if modified after this date'),
   
   /**
    * Whether to validate against Zod schema
@@ -225,7 +225,7 @@ export const MetadataLoadResultSchema = z.object({
   /**
    * Loaded data
    */
-  data: z.any().nullable().describe('Loaded metadata'),
+  data: z.unknown().nullable().describe('Loaded metadata'),
   
   /**
    * Whether data came from cache (304 Not Modified)
@@ -315,12 +315,12 @@ export const MetadataWatchEventSchema = z.object({
   /**
    * Loaded item data (for added/changed events)
    */
-  data: z.any().optional().describe('Item data'),
+  data: z.unknown().optional().describe('Item data'),
   
   /**
    * Timestamp
    */
-  timestamp: z.date().describe('Event timestamp'),
+  timestamp: z.string().datetime().describe('Event timestamp'),
 });
 
 /**
@@ -351,7 +351,7 @@ export const MetadataCollectionInfoSchema = z.object({
   /**
    * Last modified timestamp
    */
-  lastModified: z.date().optional().describe('Last modification date'),
+  lastModified: z.string().datetime().optional().describe('Last modification date'),
   
   /**
    * Collection location (path or URL)
@@ -453,7 +453,7 @@ export const MetadataManagerConfigSchema = z.object({
   /**
    * Loader-specific options
    */
-  loaderOptions: z.record(z.string(), z.any()).optional().describe('Loader-specific configuration'),
+  loaderOptions: z.record(z.string(), z.unknown()).optional().describe('Loader-specific configuration'),
 });
 
 // Export types

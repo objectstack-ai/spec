@@ -241,6 +241,7 @@
             },
             "filter": {
               "type": "array",
+              "items": {},
               "description": "Filter criteria (JSON Rules)"
             },
             "sort": {
@@ -450,6 +451,22 @@
                 "titleField"
               ],
               "additionalProperties": false
+            },
+            "emptyState": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "icon": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false,
+              "description": "Empty state configuration when no records found"
             }
           },
           "required": [
@@ -1047,6 +1064,7 @@
               },
               "filter": {
                 "type": "array",
+                "items": {},
                 "description": "Filter criteria (JSON Rules)"
               },
               "sort": {
@@ -1256,6 +1274,22 @@
                   "titleField"
                 ],
                 "additionalProperties": false
+              },
+              "emptyState": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "icon": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "Empty state configuration when no records found"
               }
             },
             "required": [

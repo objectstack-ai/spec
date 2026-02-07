@@ -45,7 +45,7 @@ export const MongoConfigSchema = z.object({
    * Connection Options
    * Passthrough options to the underlying MongoDB driver (e.g. valid certs, timeouts)
    */
-  options: z.record(z.string(), z.any()).describe('Extra driver options (ssl, poolSize, etc)').optional(),
+  options: z.record(z.string(), z.unknown()).describe('Extra driver options (ssl, poolSize, etc)').optional(),
 }).describe('MongoDB Connection Configuration');
 
 // ==========================================================================
@@ -65,14 +65,13 @@ export const MongoDriverSpec = DriverDefinitionSchema.parse({
   capabilities: {
     transactions: true,
     // Query
+    queryFilters: true,
+    queryAggregations: true,
+    querySorting: true,
+    queryPagination: true,
     fullTextSearch: true,
-    geoSpatial: true,
-    aggregation: true,
     // Schema
-    mutableSchema: true,
-    jsonField: true,
-    // Relations
-    crossObjectJoin: true
+    dynamicSchema: true,
   }
 });
 

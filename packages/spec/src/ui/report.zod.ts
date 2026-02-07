@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { FilterConditionSchema } from '../data/filter.zod';
 import { ChartConfigSchema } from './chart.zod';
+import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
 
 /**
  * Report Type Enum
@@ -47,7 +48,7 @@ export const ReportChartSchema = ChartConfigSchema.extend({
  */
 export const ReportSchema = z.object({
   /** Identity */
-  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Report unique name'),
+  name: SnakeCaseIdentifierSchema.describe('Report unique name'),
   label: z.string().describe('Report label'),
   description: z.string().optional(),
   

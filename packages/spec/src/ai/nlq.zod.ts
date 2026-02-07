@@ -30,7 +30,7 @@ export const QueryIntentSchema = z.enum([
 export const EntitySchema = z.object({
   type: z.enum(['object', 'field', 'value', 'operator', 'function', 'timeframe']),
   text: z.string().describe('Original text from query'),
-  value: z.any().describe('Normalized value'),
+  value: z.unknown().describe('Normalized value'),
   confidence: z.number().min(0).max(1).describe('Confidence score'),
   span: z.tuple([z.number(), z.number()]).optional().describe('Character span in query'),
 });
@@ -109,7 +109,7 @@ export const NLQParseResultSchema = z.object({
   timeframe: TimeframeSchema.optional(),
   
   /** Query AST */
-  ast: z.record(z.string(), z.any()).describe('Generated ObjectQL AST'),
+  ast: z.record(z.string(), z.unknown()).describe('Generated ObjectQL AST'),
   
   /** Metadata */
   confidence: z.number().min(0).max(1).describe('Overall confidence'),
@@ -123,7 +123,7 @@ export const NLQParseResultSchema = z.object({
   alternatives: z.array(z.object({
     interpretation: z.string(),
     confidence: z.number(),
-    ast: z.any(),
+    ast: z.unknown(),
   })).optional(),
 });
 
@@ -155,7 +155,7 @@ export const NLQResponseSchema = z.object({
   parseResult: NLQParseResultSchema,
   
   /** Query Results (if executeQuery = true) */
-  results: z.array(z.record(z.string(), z.any())).optional().describe('Query results'),
+  results: z.array(z.record(z.string(), z.unknown())).optional().describe('Query results'),
   totalCount: z.number().int().optional(),
   
   /** Execution Metadata */
@@ -181,7 +181,7 @@ export const NLQTrainingExampleSchema = z.object({
   /** Expected Output */
   expectedIntent: QueryIntentSchema,
   expectedObject: z.string().optional(),
-  expectedAST: z.record(z.string(), z.any()).describe('Expected ObjectQL AST'),
+  expectedAST: z.record(z.string(), z.unknown()).describe('Expected ObjectQL AST'),
   
   /** Metadata */
   category: z.string().optional().describe('Example category'),
@@ -285,7 +285,7 @@ export const QueryTemplateSchema = z.object({
   })),
   
   /** Generated AST */
-  astTemplate: z.record(z.string(), z.any()).describe('AST template with variable placeholders'),
+  astTemplate: z.record(z.string(), z.unknown()).describe('AST template with variable placeholders'),
   
   /** Metadata */
   category: z.string().optional(),

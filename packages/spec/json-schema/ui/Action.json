@@ -43,7 +43,9 @@
           ],
           "description": "Visual component override"
         },
-        "location": {},
+        "location": {
+          "description": "DEPRECATED: Use `locations` field instead. Scheduled for removal in v2.0.0"
+        },
         "type": {
           "type": "string",
           "enum": [

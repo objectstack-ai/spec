@@ -184,3 +184,5 @@ export const ChartConfigSchema = z.object({
 export type ChartConfig = z.infer<typeof ChartConfigSchema>;
 export type ChartAxis = z.infer<typeof ChartAxisSchema>;
 export type ChartSeries = z.infer<typeof ChartSeriesSchema>;
+export type ChartAnnotation = z.infer<typeof ChartAnnotationSchema>;
+export type ChartInteraction = z.infer<typeof ChartInteractionSchema>;

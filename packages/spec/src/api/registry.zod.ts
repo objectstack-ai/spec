@@ -144,7 +144,7 @@ export type ObjectQLReference = z.infer<typeof ObjectQLReferenceSchema>;
  * to manually sync API schemas with data models.
  */
 export const SchemaDefinition = z.union([
-  z.any().describe('Static JSON Schema definition'),
+  z.unknown().describe('Static JSON Schema definition'),
   z.object({
     $ref: ObjectQLReferenceSchema.describe('Dynamic reference to ObjectQL object'),
   }).describe('Dynamic ObjectQL reference'),
@@ -210,10 +210,10 @@ export const ApiParameterSchema = z.object({
     z.object({
       type: z.enum(['string', 'number', 'integer', 'boolean', 'array', 'object']).describe('Parameter type'),
       format: z.string().optional().describe('Format (e.g., date-time, email, uuid)'),
-      enum: z.array(z.any()).optional().describe('Allowed values'),
-      default: z.any().optional().describe('Default value'),
-      items: z.any().optional().describe('Array item schema'),
-      properties: z.record(z.string(), z.any()).optional().describe('Object properties'),
+      enum: z.array(z.unknown()).optional().describe('Allowed values'),
+      default: z.unknown().optional().describe('Default value'),
+      items: z.unknown().optional().describe('Array item schema'),
+      properties: z.record(z.string(), z.unknown()).optional().describe('Object properties'),
     }).describe('Static JSON Schema'),
     z.object({
       $ref: ObjectQLReferenceSchema,
@@ -221,7 +221,7 @@ export const ApiParameterSchema = z.object({
   ]).describe('Parameter schema definition'),
   
   /** Example value */
-  example: z.any().optional().describe('Example value'),
+  example: z.unknown().optional().describe('Example value'),
 });
 
 export type ApiParameter = z.infer<typeof ApiParameterSchema>;
@@ -261,7 +261,7 @@ export const ApiResponseSchema = z.object({
   
   /** Response schema - supports static or dynamic (ObjectQL) schemas */
   schema: z.union([
-    z.any().describe('Static JSON Schema'),
+    z.unknown().describe('Static JSON Schema'),
     z.object({
       $ref: ObjectQLReferenceSchema,
     }).describe('Dynamic ObjectQL reference'),
@@ -270,11 +270,11 @@ export const ApiResponseSchema = z.object({
   /** Response headers */
   headers: z.record(z.string(), z.object({
     description: z.string().optional(),
-    schema: z.any(),
+    schema: z.unknown(),
   })).optional().describe('Response headers'),
   
   /** Example response */
-  example: z.any().optional().describe('Example response'),
+  example: z.unknown().optional().describe('Example response'),
 });
 
 export type ApiResponse = z.infer<typeof ApiResponseSchema>;
@@ -367,8 +367,8 @@ export const ApiEndpointRegistrationSchema = z.object({
     description: z.string().optional(),
     required: z.boolean().default(false),
     contentType: z.string().default('application/json'),
-    schema: z.any().optional(),
-    example: z.any().optional(),
+    schema: z.unknown().optional(),
+    example: z.unknown().optional(),
   }).optional().describe('Request body specification'),
   
   /** Response definitions */
@@ -511,7 +511,7 @@ export const ApiEndpointRegistrationSchema = z.object({
    * }
    * ```
    */
-  protocolConfig: z.record(z.string(), z.any()).optional()
+  protocolConfig: z.record(z.string(), z.unknown()).optional()
     .describe('Protocol-specific configuration for custom protocols (gRPC, tRPC, etc.)'),
   
   /** Deprecation flag */
@@ -551,7 +551,7 @@ export const ApiMetadataSchema = z.object({
   pluginSource: z.string().optional().describe('Source plugin name'),
   
   /** Custom metadata */
-  custom: z.record(z.string(), z.any()).optional().describe('Custom metadata fields'),
+  custom: z.record(z.string(), z.unknown()).optional().describe('Custom metadata fields'),
 });
 
 export type ApiMetadata = z.infer<typeof ApiMetadataSchema>;
@@ -619,7 +619,7 @@ export const ApiRegistryEntrySchema = z.object({
   endpoints: z.array(ApiEndpointRegistrationSchema).describe('Registered endpoints'),
   
   /** OpenAPI/GraphQL/OData specific configuration */
-  config: z.record(z.string(), z.any()).optional().describe('Protocol-specific configuration'),
+  config: z.record(z.string(), z.unknown()).optional().describe('Protocol-specific configuration'),
   
   /** API metadata */
   metadata: ApiMetadataSchema.optional().describe('Additional metadata'),

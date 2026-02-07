@@ -75,7 +75,7 @@ export const EventMetadataSchema = z.object({
 export const EventTypeDefinitionSchema = z.object({
   name: EventNameSchema.describe('Event type name (lowercase with dots)'),
   version: z.string().default('1.0.0').describe('Event schema version'),
-  schema: z.any().optional().describe('JSON Schema for event payload validation'),
+  schema: z.unknown().optional().describe('JSON Schema for event payload validation'),
   description: z.string().optional().describe('Event type description'),
   deprecated: z.boolean().optional().default(false).describe('Whether this event type is deprecated'),
   tags: z.array(z.string()).optional().describe('Event type tags'),
@@ -104,7 +104,7 @@ export const EventSchema = z.object({
   /**
    * Event payload
    */
-  payload: z.any().describe('Event payload schema'),
+  payload: z.unknown().describe('Event payload schema'),
   
   /**
    * Event metadata
@@ -136,7 +136,7 @@ export const EventHandlerSchema = z.object({
   /**
    * Handler function
    */
-  handler: z.any()
+  handler: z.unknown()
     .describe('Handler function'),
   
   /**
@@ -166,7 +166,7 @@ export const EventHandlerSchema = z.object({
   /**
    * Filter function
    */
-  filter: z.any()
+  filter: z.unknown()
     .optional()
     .describe('Optional filter to determine if handler should execute'),
 });
@@ -180,7 +180,7 @@ export type EventHandler = z.infer<typeof EventHandlerSchema>;
 export const EventRouteSchema = z.object({
   from: z.string().describe('Source event pattern (supports wildcards, e.g., user.* or *.created)'),
   to: z.array(z.string()).describe('Target event names to route to'),
-  transform: z.any().optional().describe('Optional function to transform payload'),
+  transform: z.unknown().optional().describe('Optional function to transform payload'),
 });
 
 export type EventRoute = z.infer<typeof EventRouteSchema>;
@@ -192,7 +192,7 @@ export type EventRoute = z.infer<typeof EventRouteSchema>;
 export const EventPersistenceSchema = z.object({
   enabled: z.boolean().default(false).describe('Enable event persistence'),
   retention: z.number().int().positive().describe('Days to retain persisted events'),
-  filter: z.any().optional().describe('Optional filter function to select which events to persist'),
+  filter: z.unknown().optional().describe('Optional filter function to select which events to persist'),
   storage: z.enum(['database', 'file', 's3', 'custom']).default('database')
     .describe('Storage backend for persisted events'),
 });
@@ -287,7 +287,7 @@ export const EventReplayConfigSchema = z.object({
   /**
    * Event filters
    */
-  filters: z.record(z.string(), z.any()).optional().describe('Additional filters for event selection'),
+  filters: z.record(z.string(), z.unknown()).optional().describe('Additional filters for event selection'),
   
   /**
    * Replay speed multiplier
@@ -356,7 +356,7 @@ export const EventSourcingConfigSchema = z.object({
   storage: z.object({
     type: z.enum(['database', 'file', 's3', 'eventstore']).default('database')
       .describe('Storage backend'),
-    options: z.record(z.string(), z.any()).optional().describe('Storage-specific options'),
+    options: z.record(z.string(), z.unknown()).optional().describe('Storage-specific options'),
   }).optional().describe('Event store configuration'),
 });
 
@@ -525,7 +525,7 @@ export const EventWebhookConfigSchema = z.object({
   /**
    * Event transformation
    */
-  transform: z.any()
+  transform: z.unknown()
     .optional()
     .describe('Transform event before sending'),
   
@@ -652,7 +652,7 @@ export const RealTimeNotificationConfigSchema = z.object({
   channels: z.array(z.object({
     name: z.string().describe('Channel name'),
     eventPattern: z.string().describe('Event pattern for channel'),
-    filter: z.any()
+    filter: z.unknown()
       .optional()
       .describe('Additional filter function'),
   })).optional().describe('Named channels for event broadcasting'),

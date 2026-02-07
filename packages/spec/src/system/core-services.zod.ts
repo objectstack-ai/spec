@@ -109,5 +109,5 @@ export const KernelServiceMapSchema = z.record(
 export const ServiceConfigSchema = z.object({
   id: z.string(),
   name: CoreServiceName,
-  options: z.record(z.string(), z.any()).optional(),
+  options: z.record(z.string(), z.unknown()).optional(),
 });

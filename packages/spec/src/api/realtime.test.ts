@@ -4,12 +4,12 @@ import {
   RealtimeEventType,
   SubscriptionEventSchema,
   SubscriptionSchema,
-  PresenceStatus,
-  PresenceSchema,
+  RealtimePresenceStatus,
+  RealtimePresenceSchema,
   RealtimeAction,
   RealtimeEventSchema,
   type Subscription,
-  type Presence,
+  type RealtimePresence,
   type RealtimeEvent,
 } from './realtime.zod';
 
@@ -190,29 +190,29 @@ describe('SubscriptionSchema', () => {
   });
 });
 
-describe('PresenceStatus', () => {
+describe('RealtimePresenceStatus', () => {
   it('should accept valid presence statuses', () => {
-    expect(() => PresenceStatus.parse('online')).not.toThrow();
-    expect(() => PresenceStatus.parse('away')).not.toThrow();
-    expect(() => PresenceStatus.parse('offline')).not.toThrow();
+    expect(() => RealtimePresenceStatus.parse('online')).not.toThrow();
+    expect(() => RealtimePresenceStatus.parse('away')).not.toThrow();
+    expect(() => RealtimePresenceStatus.parse('offline')).not.toThrow();
   });
 
   it('should reject invalid presence statuses', () => {
-    expect(() => PresenceStatus.parse('busy')).toThrow();
-    expect(() => PresenceStatus.parse('idle')).toThrow();
-    expect(() => PresenceStatus.parse('')).toThrow();
+    expect(() => RealtimePresenceStatus.parse('busy')).toThrow();
+    expect(() => RealtimePresenceStatus.parse('idle')).toThrow();
+    expect(() => RealtimePresenceStatus.parse('')).toThrow();
   });
 });
 
-describe('PresenceSchema', () => {
+describe('RealtimePresenceSchema', () => {
   it('should accept valid minimal presence', () => {
-    const presence: Presence = {
+    const presence: RealtimePresence = {
       userId: 'user-123',
       status: 'online',
       lastSeen: '2024-01-15T10:30:00Z',
     };
 
-    expect(() => PresenceSchema.parse(presence)).not.toThrow();
+    expect(() => RealtimePresenceSchema.parse(presence)).not.toThrow();
   });
 
   it('should accept presence with metadata', () => {
@@ -227,13 +227,13 @@ describe('PresenceSchema', () => {
       },
     };
 
-    const parsed = PresenceSchema.parse(presence);
+    const parsed = RealtimePresenceSchema.parse(presence);
     expect(parsed.metadata).toBeDefined();
     expect(parsed.metadata?.currentPage).toBe('/dashboard');
   });
 
   it('should accept all presence statuses', () => {
-    const statuses: Array<Presence['status']> = ['online', 'away', 'offline'];
+    const statuses: Array<RealtimePresence['status']> = ['online', 'away', 'offline'];
 
     statuses.forEach(status => {
       const presence = {
@@ -242,19 +242,19 @@ describe('PresenceSchema', () => {
         lastSeen: '2024-01-15T10:30:00Z',
       };
 
-      const parsed = PresenceSchema.parse(presence);
+      const parsed = RealtimePresenceSchema.parse(presence);
       expect(parsed.status).toBe(status);
     });
   });
 
   it('should validate datetime format', () => {
-    expect(() => PresenceSchema.parse({
+    expect(() => RealtimePresenceSchema.parse({
       userId: 'user-123',
       status: 'online',
       lastSeen: 'not-a-datetime',
     })).toThrow();
 
-    expect(() => PresenceSchema.parse({
+    expect(() => RealtimePresenceSchema.parse({
       userId: 'user-123',
       status: 'online',
       lastSeen: '2024-01-15T10:30:00Z',
@@ -262,17 +262,17 @@ describe('PresenceSchema', () => {
   });
 
   it('should reject presence without required fields', () => {
-    expect(() => PresenceSchema.parse({
+    expect(() => RealtimePresenceSchema.parse({
       status: 'online',
       lastSeen: '2024-01-15T10:30:00Z',
     })).toThrow();
 
-    expect(() => PresenceSchema.parse({
+    expect(() => RealtimePresenceSchema.parse({
       userId: 'user-123',
       lastSeen: '2024-01-15T10:30:00Z',
     })).toThrow();
 
-    expect(() => PresenceSchema.parse({
+    expect(() => RealtimePresenceSchema.parse({
       userId: 'user-123',
       status: 'online',
     })).toThrow();

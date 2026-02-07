@@ -36,9 +36,7 @@ export * from './notification.zod';
 export * from './translation.zod';
 export * from './collaboration.zod';
 export * from './metadata-persistence.zod';
-export * from './service-registry.zod';
+export * from './core-services.zod';
 
 // Types
 export * from './types';
-export * from './service-registry.zod';
-export * from './service-registry.zod';

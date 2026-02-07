@@ -11,7 +11,8 @@
             "update",
             "delete",
             "manual"
-          ]
+          ],
+          "description": "Event that triggers invalidation"
         },
         "scope": {
           "type": "string",
@@ -20,16 +21,19 @@
             "pattern",
             "tag",
             "all"
-          ]
+          ],
+          "description": "Invalidation scope"
         },
         "pattern": {
-          "type": "string"
+          "type": "string",
+          "description": "Key pattern for pattern-based invalidation"
         },
         "tags": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "description": "Cache tags to invalidate"
         }
       },
       "required": [

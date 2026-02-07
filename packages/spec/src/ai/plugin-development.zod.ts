@@ -309,7 +309,7 @@ export const PluginScaffoldingTemplateSchema = z.object({
     description: z.string(),
     type: z.enum(['string', 'number', 'boolean', 'array', 'object']),
     required: z.boolean().default(true),
-    default: z.any().optional(),
+    default: z.unknown().optional(),
     validation: z.string().optional().describe('Validation regex or rule'),
   })),
   
@@ -480,7 +480,7 @@ export const PluginCompositionResultSchema = z.object({
     pluginId: z.string(),
     version: z.string(),
     role: z.string().describe('Role in the composition'),
-    configuration: z.record(z.string(), z.any()).optional(),
+    configuration: z.record(z.string(), z.unknown()).optional(),
   })),
   
   /**
@@ -495,7 +495,7 @@ export const PluginCompositionResultSchema = z.object({
     /**
      * Configuration
      */
-    config: z.record(z.string(), z.any()).optional(),
+    config: z.record(z.string(), z.unknown()).optional(),
     
     /**
      * Initialization order

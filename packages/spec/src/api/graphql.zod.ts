@@ -151,7 +151,7 @@ export const GraphQLTypeConfigSchema = z.object({
   /** Custom directives */
   directives: z.array(z.object({
     name: z.string().describe('Directive name'),
-    args: z.record(z.string(), z.any()).optional().describe('Directive arguments'),
+    args: z.record(z.string(), z.unknown()).optional().describe('Directive arguments'),
   })).optional().describe('GraphQL directives'),
 });
 
@@ -183,7 +183,7 @@ export const GraphQLQueryConfigSchema = z.object({
   args: z.record(z.string(), z.object({
     type: z.string().describe('GraphQL type (e.g., "ID!", "String", "Int")'),
     description: z.string().optional().describe('Argument description'),
-    defaultValue: z.any().optional().describe('Default value'),
+    defaultValue: z.unknown().optional().describe('Default value'),
   })).optional().describe('Query arguments'),
   
   /** Filtering configuration */
@@ -524,7 +524,7 @@ export const GraphQLDirectiveConfigSchema = z.object({
   args: z.record(z.string(), z.object({
     type: z.string().describe('Argument type'),
     description: z.string().optional().describe('Argument description'),
-    defaultValue: z.any().optional().describe('Default value'),
+    defaultValue: z.unknown().optional().describe('Default value'),
   })).optional().describe('Directive arguments'),
   
   /** Is repeatable */

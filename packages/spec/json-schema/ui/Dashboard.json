@@ -6,7 +6,8 @@
       "properties": {
         "name": {
           "type": "string",
-          "pattern": "^[a-z_][a-z0-9_]*$",
+          "minLength": 2,
+          "pattern": "^[a-z][a-z0-9_]*$",
           "description": "Dashboard unique name"
         },
         "label": {
@@ -507,6 +508,10 @@
             "additionalProperties": false
           },
           "description": "Widgets to display"
+        },
+        "refreshInterval": {
+          "type": "number",
+          "description": "Auto-refresh interval in seconds"
         }
       },
       "required": [

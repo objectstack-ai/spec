@@ -102,7 +102,12 @@ export const PluginErrorEventSchema = PluginEventBaseSchema.extend({
   /**
    * Error object
    */
-  error: z.instanceof(Error).describe('Error object'),
+  error: z.object({
+    name: z.string().describe('Error class name'),
+    message: z.string().describe('Error message'),
+    stack: z.string().optional().describe('Stack trace'),
+    code: z.string().optional().describe('Error code'),
+  }).describe('Serializable error representation'),
   
   /**
    * Lifecycle phase where error occurred
@@ -236,7 +241,7 @@ export const HookTriggeredEventSchema = z.object({
   /**
    * Arguments passed to the hook
    */
-  args: z.array(z.any()).describe('Arguments passed to the hook handlers'),
+  args: z.array(z.unknown()).describe('Arguments passed to the hook handlers'),
   
   /**
    * Number of handlers that will handle this event

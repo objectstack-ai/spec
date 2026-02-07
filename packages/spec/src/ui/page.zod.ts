@@ -41,7 +41,7 @@ export const PageComponentSchema = z.object({
   
   /** Configuration */
   label: z.string().optional(),
-  properties: z.record(z.string(), z.any()).describe('Component props passed to the widget. See component.zod.ts for schemas.'),
+  properties: z.record(z.string(), z.unknown()).describe('Component props passed to the widget. See component.zod.ts for schemas.'),
   
   /** 
    * Event Handlers 
@@ -66,7 +66,7 @@ export const PageComponentSchema = z.object({
 export const PageVariableSchema = z.object({
   name: z.string().describe('Variable name'),
   type: z.enum(['string', 'number', 'boolean', 'object', 'array']).default('string'),
-  defaultValue: z.any().optional(),
+  defaultValue: z.unknown().optional(),
 });
 
 /**
@@ -116,3 +116,4 @@ export const PageSchema = z.object({
 export type Page = z.infer<typeof PageSchema>;
 export type PageComponent = z.infer<typeof PageComponentSchema>;
 export type PageRegion = z.infer<typeof PageRegionSchema>;
+export type PageVariable = z.infer<typeof PageVariableSchema>;

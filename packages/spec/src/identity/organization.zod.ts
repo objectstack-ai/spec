@@ -41,17 +41,17 @@ export const OrganizationSchema = z.object({
    * Custom metadata for the organization
    * Can store additional configuration, settings, or custom fields
    */
-  metadata: z.record(z.string(), z.any()).optional().describe('Custom metadata'),
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Custom metadata'),
   
   /**
    * Organization creation timestamp
    */
-  createdAt: z.date().describe('Organization creation timestamp'),
+  createdAt: z.string().datetime().describe('Organization creation timestamp'),
   
   /**
    * Last update timestamp
    */
-  updatedAt: z.date().describe('Last update timestamp'),
+  updatedAt: z.string().datetime().describe('Last update timestamp'),
 });
 
 export type Organization = z.infer<typeof OrganizationSchema>;
@@ -86,12 +86,12 @@ export const MemberSchema = z.object({
   /**
    * Member creation timestamp
    */
-  createdAt: z.date().describe('Member creation timestamp'),
+  createdAt: z.string().datetime().describe('Member creation timestamp'),
   
   /**
    * Last update timestamp
    */
-  updatedAt: z.date().describe('Last update timestamp'),
+  updatedAt: z.string().datetime().describe('Last update timestamp'),
 });
 
 export type Member = z.infer<typeof MemberSchema>;
@@ -137,7 +137,7 @@ export const InvitationSchema = z.object({
   /**
    * Invitation expiration timestamp
    */
-  expiresAt: z.date().describe('Invitation expiry timestamp'),
+  expiresAt: z.string().datetime().describe('Invitation expiry timestamp'),
   
   /**
    * User ID of the person who sent the invitation
@@ -147,12 +147,12 @@ export const InvitationSchema = z.object({
   /**
    * Invitation creation timestamp
    */
-  createdAt: z.date().describe('Invitation creation timestamp'),
+  createdAt: z.string().datetime().describe('Invitation creation timestamp'),
   
   /**
    * Last update timestamp
    */
-  updatedAt: z.date().describe('Last update timestamp'),
+  updatedAt: z.string().datetime().describe('Last update timestamp'),
 });
 
 export type Invitation = z.infer<typeof InvitationSchema>;

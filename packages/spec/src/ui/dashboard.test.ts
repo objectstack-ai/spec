@@ -174,12 +174,12 @@ describe('DashboardSchema', () => {
   });
 
   it('should enforce snake_case for dashboard name', () => {
-    const validNames = ['sales_dashboard', 'revenue_overview', 'my_metrics', '_internal'];
+    const validNames = ['sales_dashboard', 'revenue_overview', 'my_metrics'];
     validNames.forEach(name => {
       expect(() => DashboardSchema.parse({ name, label: 'Test', widgets: [] })).not.toThrow();
     });
 
-    const invalidNames = ['salesDashboard', 'Sales-Dashboard', '123dashboard'];
+    const invalidNames = ['salesDashboard', 'Sales-Dashboard', '123dashboard', '_internal'];
     invalidNames.forEach(name => {
       expect(() => DashboardSchema.parse({ name, label: 'Test', widgets: [] })).toThrow();
     });

@@ -375,7 +375,7 @@ export const PluginInstallConfigSchema = z.object({
   /**
    * Plugin-specific configuration values
    */
-  config: z.record(z.string(), z.any()).optional(),
+  config: z.record(z.string(), z.unknown()).optional(),
   
   /**
    * Whether to auto-update

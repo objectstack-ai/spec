@@ -86,7 +86,7 @@ export const InstalledPackageSchema = z.object({
    * Configuration values set by the user for this package.
    * Keys correspond to the package's `configuration.properties`.
    */
-  settings: z.record(z.string(), z.any()).optional(),
+  settings: z.record(z.string(), z.unknown()).optional(),
 });
 export type InstalledPackage = z.infer<typeof InstalledPackageSchema>;
 
@@ -143,7 +143,7 @@ export const InstallPackageRequestSchema = z.object({
   /** The package manifest to install */
   manifest: ManifestSchema,
   /** Optional: user-provided settings at install time */
-  settings: z.record(z.string(), z.any()).optional(),
+  settings: z.record(z.string(), z.unknown()).optional(),
   /** Whether to enable immediately after install (default: true) */
   enableOnInstall: z.boolean().default(true),
 });

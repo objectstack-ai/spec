@@ -63,8 +63,9 @@ export const ActionSchema = z.object({
     'action:group'   // Button Group
   ]).optional().describe('Visual component override'),
   
-  /** Legacy location support */
-  location: z.any().optional(),
+  /** @deprecated Use `locations` instead. Will be removed in v2.0.0 */
+  location: z.unknown().optional()
+    .describe('DEPRECATED: Use `locations` field instead. Scheduled for removal in v2.0.0'),
 
   /** What type of interaction? */
   type: z.enum(['script', 'url', 'modal', 'flow', 'api']).default('script').describe('Action functionality type'),
@@ -87,6 +88,7 @@ export const ActionSchema = z.object({
 
 export type Action = z.infer<typeof ActionSchema>;
 export type ActionParam = z.infer<typeof ActionParamSchema>;
+export type ActionInput = z.input<typeof ActionSchema>;
 
 /**
  * Action Factory Helper

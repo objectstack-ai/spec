@@ -42,7 +42,7 @@ import { z } from 'zod';
 export const TransformTypeSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('constant'),
-    value: z.any().describe('Constant value to use'),
+    value: z.unknown().describe('Constant value to use'),
   }).describe('Set a constant value'),
   
   z.object({
@@ -64,7 +64,7 @@ export const TransformTypeSchema = z.discriminatedUnion('type', [
   
   z.object({
     type: z.literal('map'),
-    mappings: z.record(z.string(), z.any()).describe('Value mappings (e.g., {"Active": "active"})'),
+    mappings: z.record(z.string(), z.unknown()).describe('Value mappings (e.g., {"Active": "active"})'),
   }).describe('Map values using a dictionary'),
 ]);
 
@@ -108,7 +108,7 @@ export const FieldMappingSchema = z.object({
   /**
    * Default value if source is null/undefined
    */
-  defaultValue: z.any().optional().describe('Default if source is null/undefined'),
+  defaultValue: z.unknown().optional().describe('Default if source is null/undefined'),
 });
 
 export type FieldMapping = z.infer<typeof FieldMappingSchema>;

@@ -36,14 +36,14 @@ export const MessageContentTypeSchema = z.enum([
 export const TextContentSchema = z.object({
   type: z.literal('text'),
   text: z.string().describe('Text content'),
-  metadata: z.record(z.string(), z.any()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const ImageContentSchema = z.object({
   type: z.literal('image'),
   imageUrl: z.string().url().describe('Image URL'),
   detail: z.enum(['low', 'high', 'auto']).optional().default('auto'),
-  metadata: z.record(z.string(), z.any()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const FileContentSchema = z.object({
@@ -51,14 +51,14 @@ export const FileContentSchema = z.object({
   fileUrl: z.string().url().describe('File attachment URL'),
   mimeType: z.string().describe('MIME type'),
   fileName: z.string().optional(),
-  metadata: z.record(z.string(), z.any()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const CodeContentSchema = z.object({
   type: z.literal('code'),
   text: z.string().describe('Code snippet'),
   language: z.string().optional().default('text'),
-  metadata: z.record(z.string(), z.any()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const MessageContentSchema = z.union([
@@ -114,7 +114,7 @@ export const ConversationMessageSchema = z.object({
   embedding: z.array(z.number()).optional().describe('Vector embedding for semantic search'),
   
   /** Annotations */
-  metadata: z.record(z.string(), z.any()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 /**
@@ -190,13 +190,13 @@ export const ConversationContextSchema = z.object({
   /** Context Data */
   object: z.string().optional().describe('Related object (e.g., "case", "project")'),
   recordId: z.string().optional().describe('Related record ID'),
-  scope: z.record(z.string(), z.any()).optional().describe('Additional context scope'),
+  scope: z.record(z.string(), z.unknown()).optional().describe('Additional context scope'),
   
   /** System Instructions */
   systemMessage: z.string().optional().describe('System prompt/instructions'),
   
   /** Metadata */
-  metadata: z.record(z.string(), z.any()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 /**
@@ -227,7 +227,7 @@ export const ConversationSessionSchema = z.object({
   createdAt: z.string().datetime().describe('ISO 8601 timestamp'),
   updatedAt: z.string().datetime().describe('ISO 8601 timestamp'),
   expiresAt: z.string().datetime().optional().describe('ISO 8601 timestamp'),
-  metadata: z.record(z.string(), z.any()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 /**

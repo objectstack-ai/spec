@@ -170,7 +170,7 @@ describe('SQLDriverConfigSchema', () => {
         bulkDelete: true,
         transactions: true,
         savepoints: true,
-        isolationLevels: ['read-committed', 'repeatable-read', 'serializable'],
+        isolationLevels: ['read_committed', 'repeatable_read', 'serializable'],
         queryFilters: true,
         queryAggregations: true,
         querySorting: true,

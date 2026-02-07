@@ -4,7 +4,7 @@
     "MetadataRecord": {
       "type": "object",
       "properties": {
-        "_id": {
+        "id": {
           "type": "string"
         },
         "name": {
@@ -55,23 +55,25 @@
           ],
           "default": "active"
         },
-        "created_by": {
+        "createdBy": {
           "type": "string"
         },
-        "created_at": {
+        "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "description": "Creation timestamp"
         },
-        "updated_by": {
+        "updatedBy": {
           "type": "string"
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "description": "Last update timestamp"
         }
       },
       "required": [
-        "_id",
+        "id",
         "name",
         "type",
         "metadata"

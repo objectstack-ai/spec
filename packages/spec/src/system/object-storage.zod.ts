@@ -149,7 +149,7 @@ export const ObjectMetadataSchema = z.object({
   contentLanguage: z.string().optional().describe('Content language'),
   cacheControl: z.string().optional().describe('Cache control directives'),
   etag: z.string().optional().describe('Entity tag for versioning/caching'),
-  lastModified: z.date().optional().describe('Last modification timestamp'),
+  lastModified: z.string().datetime().optional().describe('Last modification timestamp'),
   versionId: z.string().optional().describe('Object version identifier'),
   storageClass: StorageClassSchema.optional().describe('Storage class/tier'),
   encryption: z.object({
@@ -488,7 +488,7 @@ export const ObjectStorageConfigSchema = z.object({
   /**
    * Provider-specific options
    */
-  options: z.record(z.string(), z.any()).optional().describe('Provider-specific configuration options'),
+  options: z.record(z.string(), z.unknown()).optional().describe('Provider-specific configuration options'),
   
   enabled: z.boolean().default(true).describe('Enable this storage configuration'),
   description: z.string().optional().describe('Configuration description'),

@@ -30,7 +30,7 @@ export const ApprovalActionType = z.enum([
 export const ApprovalActionSchema = z.object({
   type: ApprovalActionType,
   name: z.string().describe('Action name'),
-  config: z.record(z.string(), z.any()).describe('Action configuration'),
+  config: z.record(z.string(), z.unknown()).describe('Action configuration'),
   
   /** For connector actions */
   connectorId: z.string().optional(),

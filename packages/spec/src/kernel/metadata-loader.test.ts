@@ -33,7 +33,7 @@ describe('MetadataLoaderProtocol', () => {
     it('should validate metadata statistics', () => {
       const stats = {
         size: 1024,
-        modifiedAt: new Date('2026-01-31T00:00:00Z'),
+        modifiedAt: '2026-01-31T00:00:00.000Z',
         etag: '"abc123"',
         format: 'json' as const,
       };
@@ -47,7 +47,7 @@ describe('MetadataLoaderProtocol', () => {
     it('should allow optional fields', () => {
       const stats = {
         size: 2048,
-        modifiedAt: new Date(),
+        modifiedAt: new Date().toISOString(),
         etag: '"xyz789"',
         format: 'yaml' as const,
         path: '/metadata/objects/customer.object.yaml',
@@ -62,7 +62,7 @@ describe('MetadataLoaderProtocol', () => {
     it('should reject negative size', () => {
       const stats = {
         size: -100,
-        modifiedAt: new Date(),
+        modifiedAt: new Date().toISOString(),
         etag: '"abc"',
         format: 'json' as const,
       };
@@ -85,7 +85,7 @@ describe('MetadataLoaderProtocol', () => {
       const options = {
         patterns: ['**/*.object.ts', '**/*.object.json'],
         ifNoneMatch: '"etag123"',
-        ifModifiedSince: new Date('2026-01-01T00:00:00Z'),
+        ifModifiedSince: '2026-01-01T00:00:00.000Z',
         validate: false,
         useCache: false,
         filter: '(item) => item.name.startsWith("sys_")',
@@ -222,7 +222,7 @@ describe('MetadataLoaderProtocol', () => {
         etag: '"abc123"',
         stats: {
           size: 512,
-          modifiedAt: new Date(),
+          modifiedAt: new Date().toISOString(),
           etag: '"abc123"',
           format: 'typescript' as const,
         },
@@ -273,21 +273,21 @@ describe('MetadataLoaderProtocol', () => {
           name: 'customer',
           path: '/objects/customer.object.ts',
           data: { name: 'customer' },
-          timestamp: new Date(),
+          timestamp: new Date().toISOString(),
         },
         {
           type: 'changed' as const,
           metadataType: 'view',
           name: 'customer_list',
           path: '/views/customer_list.view.ts',
-          timestamp: new Date(),
+          timestamp: new Date().toISOString(),
         },
         {
           type: 'deleted' as const,
           metadataType: 'app',
           name: 'old_app',
           path: '/apps/old_app.ts',
-          timestamp: new Date(),
+          timestamp: new Date().toISOString(),
         },
       ];
       
@@ -318,7 +318,7 @@ describe('MetadataLoaderProtocol', () => {
         count: 15,
         formats: ['yaml'] as const,
         totalSize: 51200,
-        lastModified: new Date('2026-01-31T00:00:00Z'),
+        lastModified: '2026-01-31T00:00:00.000Z',
         location: '/metadata/views',
       };
       

@@ -146,7 +146,7 @@ export const ManifestSchema = z.object({
     title: z.string().optional(),
     properties: z.record(z.string(), z.object({
        type: z.enum(['string', 'number', 'boolean', 'array', 'object']).describe('Data type of the setting'),
-       default: z.any().optional().describe('Default value'),
+       default: z.unknown().optional().describe('Default value'),
        description: z.string().optional().describe('Tooltip description'),
        required: z.boolean().optional().describe('Is this setting required?'),
        secret: z.boolean().optional().describe('If true, value is encrypted/masked (e.g. API Keys)'),
@@ -211,8 +211,8 @@ export const ManifestSchema = z.object({
        name: z.string().describe('Unique action name'),
        label: z.string().optional(),
        description: z.string().optional(),
-       input: z.any().optional().describe('Input validation schema'),
-       output: z.any().optional().describe('Output schema'),
+       input: z.unknown().optional().describe('Input validation schema'),
+       output: z.unknown().optional().describe('Output schema'),
     })).optional().describe('Exposed server actions'),
 
     /**
@@ -273,7 +273,7 @@ export const ManifestSchema = z.object({
    * Extension points contributed by this package.
    * Allows packages to extend UI components, add functionality, etc.
    */
-  extensions: z.record(z.string(), z.any()).optional().describe('Extension points and contributions'),
+  extensions: z.record(z.string(), z.unknown()).optional().describe('Extension points and contributions'),
 
   /**
    * Plugin Loading Configuration.
@@ -289,4 +289,5 @@ export const ManifestSchema = z.object({
  * Use this type for type-safe manifest handling in TypeScript code.
  */
 export type ObjectStackManifest = z.infer<typeof ManifestSchema>;
+export type ObjectStackManifestInput = z.input<typeof ManifestSchema>;
 

@@ -30,7 +30,7 @@ export const MetadataStateSchema = z.enum([
  */
 export const MetadataRecordSchema = z.object({
   /** Primary Key (UUID) */
-  _id: z.string(),
+  id: z.string(),
   
   /** 
    * Machine Name 
@@ -60,7 +60,7 @@ export const MetadataRecordSchema = z.object({
    * Stores the actual configuration JSON.
    * This field holds the value of `ViewSchema`, `ObjectSchema`, etc.
    */
-  metadata: z.record(z.string(), z.any()),
+  metadata: z.record(z.string(), z.unknown()),
 
   /**
    * Extension / Merge Strategy
@@ -76,10 +76,10 @@ export const MetadataRecordSchema = z.object({
   state: MetadataStateSchema.default('active'),
   
   /** Audit */
-  created_by: z.string().optional(),
-  created_at: z.date().optional(),
-  updated_by: z.string().optional(),
-  updated_at: z.date().optional(),
+  createdBy: z.string().optional(),
+  createdAt: z.string().datetime().optional().describe('Creation timestamp'),
+  updatedBy: z.string().optional(),
+  updatedAt: z.string().datetime().optional().describe('Last update timestamp'),
 });
 
 export type MetadataRecord = z.infer<typeof MetadataRecordSchema>;
@@ -101,10 +101,10 @@ export const MetadataFormatSchema = z.enum([
 export const MetadataStatsSchema = z.object({
   path: z.string().optional(),
   size: z.number().optional(),
-  mtime: z.date().optional(),
+  mtime: z.string().datetime().optional(),
   hash: z.string().optional(),
   etag: z.string().optional(), // Required by local cache
-  modifiedAt: z.date().optional(), // Alias for mtime
+  modifiedAt: z.string().datetime().optional(), // Alias for mtime
   format: MetadataFormatSchema.optional(), // Required for serialization
 });
 
@@ -149,7 +149,7 @@ export const MetadataLoadOptionsSchema = z.object({
  * Metadata Load Result
  */
 export const MetadataLoadResultSchema = z.object({
-  data: z.any(),
+  data: z.unknown(),
   stats: MetadataStatsSchema.optional(),
   format: MetadataFormatSchema.optional(),
   source: z.string().optional(), // File path or URL
@@ -197,8 +197,8 @@ export const MetadataWatchEventSchema = z.object({
   name: z.string().optional(),
   stats: MetadataStatsSchema.optional(),
   metadataType: z.string().optional(),
-  data: z.any().optional(),
-  timestamp: z.date().optional(),
+  data: z.unknown().optional(),
+  timestamp: z.string().datetime().optional(),
 });
 
 /**
@@ -230,13 +230,13 @@ export const MetadataImportOptionsSchema = z.object({
  * Metadata Manager Config
  */
 export const MetadataManagerConfigSchema = z.object({
-  loaders: z.array(z.any()).optional(),
+  loaders: z.array(z.unknown()).optional(),
   watch: z.boolean().optional(),
   cache: z.boolean().optional(),
   basePath: z.string().optional(),
   rootDir: z.string().optional(),
   formats: z.array(MetadataFormatSchema).optional(),
-  watchOptions: z.any().optional(), // Chokidar options
+  watchOptions: z.unknown().optional(), // Chokidar options
 });
 
 export type MetadataFormat = z.infer<typeof MetadataFormatSchema>;

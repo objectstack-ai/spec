@@ -119,7 +119,7 @@ export const PluginHealthReportSchema = z.object({
     name: z.string().describe('Check name'),
     status: z.enum(['passed', 'failed', 'warning']),
     message: z.string().optional(),
-    data: z.record(z.string(), z.any()).optional(),
+    data: z.record(z.string(), z.unknown()).optional(),
   })).optional(),
   
   /**
@@ -182,7 +182,7 @@ export const DistributedStateConfigSchema = z.object({
   /**
    * Custom provider configuration
    */
-  customConfig: z.record(z.string(), z.any()).optional()
+  customConfig: z.record(z.string(), z.unknown()).optional()
     .describe('Provider-specific configuration'),
 });
 
@@ -409,7 +409,7 @@ export const PluginStateSnapshotSchema = z.object({
   /**
    * Serialized state data
    */
-  state: z.record(z.string(), z.any()),
+  state: z.record(z.string(), z.unknown()),
   
   /**
    * State metadata

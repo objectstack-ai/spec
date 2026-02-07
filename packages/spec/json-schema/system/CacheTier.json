@@ -5,7 +5,8 @@
       "type": "object",
       "properties": {
         "name": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique cache tier name"
         },
         "type": {
           "type": "string",
@@ -14,7 +15,8 @@
             "redis",
             "memcached",
             "cdn"
-          ]
+          ],
+          "description": "Cache backend type"
         },
         "maxSize": {
           "type": "number",
@@ -34,11 +36,13 @@
             "ttl",
             "adaptive"
           ],
-          "default": "lru"
+          "default": "lru",
+          "description": "Eviction strategy"
         },
         "warmup": {
           "type": "boolean",
-          "default": false
+          "default": false,
+          "description": "Pre-populate cache on startup"
         }
       },
       "required": [
