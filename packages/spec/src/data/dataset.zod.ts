@@ -56,5 +56,10 @@ export const DatasetSchema = z.object({
   records: z.array(z.record(z.string(), z.any())).describe('Data records'),
 });
 
+/** Parsed/output type — all defaults are applied (env, mode, externalId always present) */
 export type Dataset = z.infer<typeof DatasetSchema>;
+
+/** Input type — fields with defaults (env, mode, externalId) are optional */
+export type DatasetInput = z.input<typeof DatasetSchema>;
+
 export type DatasetImportMode = z.infer<typeof DatasetMode>;

@@ -99,11 +99,23 @@ export class AppPlugin implements Plugin {
         }
 
         // Data Seeding
-        // Check for 'data' in manifest (Legacy or Stack Definition)
+        // Collect seed data from multiple locations (top-level `data` preferred, `manifest.data` for backward compat)
+        const seedDatasets: any[] = [];
+        
+        // 1. Top-level `data` field (new standard location on ObjectStackDefinition)
+        if (Array.isArray(this.bundle.data)) {
+            seedDatasets.push(...this.bundle.data);
+        }
+        
+        // 2. Legacy: `manifest.data` (backward compatibility)
         const manifest = this.bundle.manifest || this.bundle;
         if (manifest && Array.isArray(manifest.data)) {
-             ctx.logger.info(`[AppPlugin] Found initial data for ${appId}`, { count: manifest.data.length });
-             for (const dataset of manifest.data) {
+            seedDatasets.push(...manifest.data);
+        }
+        
+        if (seedDatasets.length > 0) {
+             ctx.logger.info(`[AppPlugin] Found ${seedDatasets.length} seed datasets for ${appId}`);
+             for (const dataset of seedDatasets) {
                  if (dataset.object && Array.isArray(dataset.records)) {
                      ctx.logger.info(`[Seeder] Seeding ${dataset.records.length} records for ${dataset.object}`);
                      for (const record of dataset.records) {

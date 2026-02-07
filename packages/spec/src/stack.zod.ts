@@ -6,6 +6,7 @@ import { TranslationBundleSchema } from './system/translation.zod';
 
 // Data Protocol
 import { ObjectSchema, ObjectExtensionSchema } from './data/object.zod';
+import { DatasetSchema } from './data/dataset.zod';
 
 // UI Protocol
 import { AppSchema } from './ui/app.zod';
@@ -115,6 +116,34 @@ export const ObjectStackDefinitionSchema = z.object({
    * ObjectAI: Artificial Intelligence Layer
    */
   agents: z.array(AgentSchema).optional().describe('AI Agents and Assistants'),
+
+  /**
+   * Data Seeding Protocol
+   * 
+   * Declarative seed data for bootstrapping, demos, and testing.
+   * Each entry targets a specific object and provides records to load
+   * using the specified conflict resolution strategy.
+   * 
+   * Uses the standard DatasetSchema which supports:
+   * - `externalId`: Idempotency key for upsert matching (default: 'name')
+   * - `mode`: Conflict resolution (upsert, insert, ignore, replace)
+   * - `env`: Environment scoping (prod, dev, test)
+   * 
+   * @example
+   * ```ts
+   * data: [
+   *   {
+   *     object: 'account',
+   *     mode: 'upsert',
+   *     externalId: 'name',
+   *     records: [
+   *       { name: 'Acme Corp', type: 'customer', industry: 'technology' },
+   *     ]
+   *   }
+   * ]
+   * ```
+   */
+  data: z.array(DatasetSchema).optional().describe('Seed Data / Fixtures for bootstrapping'),
 
   /**
    * Plugins: External Capabilities

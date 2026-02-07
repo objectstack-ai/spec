@@ -235,6 +235,17 @@ export class ObjectQL implements IDataEngine {
           }
       }
 
+      // 6. Register seed data as metadata (keyed by target object name)
+      const seedData = (manifest as any).data;
+      if (Array.isArray(seedData) && seedData.length > 0) {
+          this.logger.debug('Registering seed data datasets', { id, count: seedData.length });
+          for (const dataset of seedData) {
+              if (dataset.object) {
+                  SchemaRegistry.registerItem('data', dataset, 'object' as any, id);
+              }
+          }
+      }
+
       // 6. Register contributions
        if (manifest.contributes?.kinds) {
           this.logger.debug('Registering kinds from manifest', { id, kindCount: manifest.contributes.kinds.length });

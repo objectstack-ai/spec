@@ -305,23 +305,31 @@ export async function createKernel(options: KernelOptions) {
     if (ql) {
         // Seed data for all app configs
         for (const appConfig of allConfigs) {
-            const manifestData = appConfig.data || (appConfig.manifest && appConfig.manifest.data);
-            if (manifestData && Array.isArray(manifestData)) {
-                for (const dataset of manifestData) {
-                    if (!dataset.records || !dataset.object) continue;
-                    
-                    // Check if data already seeded
-                    let existing = await ql.find(dataset.object);
-                    if (existing && (existing as any).value) existing = (existing as any).value;
-                    
-                    if (!existing || existing.length === 0) {
-                        console.log(`[KernelFactory] Manual Seeding ${dataset.records.length} records for ${dataset.object}`);
-                        for (const record of dataset.records) {
-                            await ql.insert(dataset.object, record);
-                        }
-                    } else {
-                        console.log(`[KernelFactory] Data verified present for ${dataset.object}: ${existing.length} records.`);
+            // Collect datasets from all locations:
+            // 1. Top-level `data` (new standard)
+            // 2. `manifest.data` (legacy/backward compat)
+            const seedDatasets: any[] = [];
+            if (Array.isArray(appConfig.data)) {
+                seedDatasets.push(...appConfig.data);
+            }
+            if (appConfig.manifest && Array.isArray(appConfig.manifest.data)) {
+                seedDatasets.push(...appConfig.manifest.data);
+            }
+            
+            for (const dataset of seedDatasets) {
+                if (!dataset.records || !dataset.object) continue;
+                
+                // Check if data already seeded
+                let existing = await ql.find(dataset.object);
+                if (existing && (existing as any).value) existing = (existing as any).value;
+                
+                if (!existing || existing.length === 0) {
+                    console.log(`[KernelFactory] Manual Seeding ${dataset.records.length} records for ${dataset.object}`);
+                    for (const record of dataset.records) {
+                        await ql.insert(dataset.object, record);
                     }
+                } else {
+                    console.log(`[KernelFactory] Data verified present for ${dataset.object}: ${existing.length} records.`);
                 }
             }
         }

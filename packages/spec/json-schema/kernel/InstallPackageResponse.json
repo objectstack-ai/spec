@@ -365,7 +365,42 @@
                     "properties": {
                       "object": {
                         "type": "string",
+                        "pattern": "^[a-z_][a-z0-9_]*$",
                         "description": "Target Object Name"
+                      },
+                      "externalId": {
+                        "type": "string",
+                        "default": "name",
+                        "description": "Field match for uniqueness check"
+                      },
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "insert",
+                          "update",
+                          "upsert",
+                          "replace",
+                          "ignore"
+                        ],
+                        "default": "upsert",
+                        "description": "Conflict resolution strategy"
+                      },
+                      "env": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "prod",
+                            "dev",
+                            "test"
+                          ]
+                        },
+                        "default": [
+                          "prod",
+                          "dev",
+                          "test"
+                        ],
+                        "description": "Applicable environments"
                       },
                       "records": {
                         "type": "array",
@@ -373,17 +408,7 @@
                           "type": "object",
                           "additionalProperties": {}
                         },
-                        "description": "List of records to insert"
-                      },
-                      "mode": {
-                        "type": "string",
-                        "enum": [
-                          "upsert",
-                          "insert",
-                          "ignore"
-                        ],
-                        "default": "upsert",
-                        "description": "Seeding mode"
+                        "description": "Data records"
                       }
                     },
                     "required": [
@@ -392,7 +417,7 @@
                     ],
                     "additionalProperties": false
                   },
-                  "description": "Initial seed data"
+                  "description": "Initial seed data (prefer top-level data field)"
                 },
                 "capabilities": {
                   "type": "object",
