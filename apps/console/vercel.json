@@ -4,6 +4,11 @@
   "installCommand": "cd ../.. && pnpm install",
   "buildCommand": "cd ../.. && pnpm turbo run build --filter=@objectstack/console",
   "outputDirectory": "dist",
+  "build": {
+    "env": {
+      "VITE_RUNTIME_MODE": "msw"
+    }
+  },
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
