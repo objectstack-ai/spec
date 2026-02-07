@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { PluginCapabilityManifestSchema } from './plugin-capability.zod';
 import { PluginLoadingConfigSchema } from './plugin-loading.zod';
 import { CORE_PLUGIN_TYPES } from './plugin.zod';
+import { DatasetSchema } from '../data/dataset.zod';
 
 /**
  * Schema for the ObjectStack Manifest.
@@ -249,12 +250,16 @@ export const ManifestSchema = z.object({
   /** 
    * Initial data seeding configuration.
    * Defines default records to be inserted when the package is installed.
+   * 
+   * Uses the standard DatasetSchema which supports idempotent upsert via
+   * `externalId`, environment scoping via `env`, and multiple conflict
+   * resolution modes.
+   * 
+   * @deprecated Prefer using the top-level `data` field on the Stack Definition
+   * (defineStack({ data: [...] })) for better visibility and metadata registration.
+   * This field is retained for backward compatibility with manifest-only packages.
    */
-  data: z.array(z.object({
-    object: z.string().describe('Target Object Name'),
-    records: z.array(z.record(z.string(), z.any())).describe('List of records to insert'),
-    mode: z.enum(['upsert', 'insert', 'ignore']).default('upsert').describe('Seeding mode')
-  })).optional().describe('Initial seed data'),
+  data: z.array(DatasetSchema).optional().describe('Initial seed data (prefer top-level data field)'),
 
   /**
    * Plugin Capability Manifest.

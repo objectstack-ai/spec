@@ -11,6 +11,7 @@ import * as agents from './src/agents';
 import * as ragPipelines from './src/rag';
 import * as profiles from './src/profiles';
 import * as apps from './src/apps';
+import { CrmSeedData } from './src/data';
 
 // ─── Sharing & Security (special: mixed single/array values) ───────
 import {
@@ -42,6 +43,9 @@ export default defineStack({
   ragPipelines: Object.values(ragPipelines),
   profiles: Object.values(profiles),
   apps: Object.values(apps),
+
+  // Seed Data (top-level, registered as metadata)
+  data: CrmSeedData,
 
   // Sharing & security (requires explicit wiring)
   sharingRules: [

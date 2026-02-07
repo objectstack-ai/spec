@@ -30,6 +30,7 @@ const META_TYPE_LABELS: Record<string, string> = {
   ragPipelines: 'RAG Pipelines',
   profiles: 'Profiles',
   sharingRules: 'Sharing Rules',
+  data: 'Seed Data',
 };
 
 export function SiteHeader({ selectedObject, selectedMeta, selectedView, packageLabel }: SiteHeaderProps) {

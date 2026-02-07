@@ -61,6 +61,7 @@ const META_TYPE_HINTS: Record<string, { label: string; icon: LucideIcon }> = {
   ragPipelines: { label: 'RAG Pipelines', icon: BookOpen },
   profiles:     { label: 'Profiles',      icon: Shield },
   sharingRules: { label: 'Sharing Rules', icon: Shield },
+  data:         { label: 'Seed Data',     icon: Database },
   plugin:       { label: 'Plugins',       icon: Layers },
   plugins:      { label: 'Plugins',       icon: Layers },
   kind:         { label: 'Kinds',         icon: Database },
