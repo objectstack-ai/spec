@@ -21,7 +21,7 @@ import {
   type LucideIcon,
 } from "lucide-react"
 import { useState, useEffect, useCallback } from "react"
-import { ObjectStackClient } from '@objectstack/client';
+import { useClient } from '@objectstack/client-react';
 import type { InstalledPackage } from '@objectstack/spec/kernel';
 
 import {
@@ -97,7 +97,6 @@ const PKG_TYPE_ICONS: Record<string, LucideIcon> = {
 };
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  client: ObjectStackClient | null;
   selectedObject: string | null;
   onSelectObject: (name: string) => void;
   packages: InstalledPackage[];
@@ -107,7 +106,8 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   selectedView?: 'overview' | 'packages' | 'object';
 }
 
-export function AppSidebar({ client, selectedObject, onSelectObject, packages, selectedPackage, onSelectPackage, onSelectView, selectedView, ...props }: AppSidebarProps) {
+export function AppSidebar({ selectedObject, onSelectObject, packages, selectedPackage, onSelectPackage, onSelectView, selectedView, ...props }: AppSidebarProps) {
+  const client = useClient();
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   // Dynamic metadata: type -> items[]
@@ -116,7 +116,6 @@ export function AppSidebar({ client, selectedObject, onSelectObject, packages, s
 
   /** Load all metadata types and their items from the server */
   const loadMetadata = useCallback(async () => {
-    if (!client) return;
     setLoading(true);
     try {
       // 1. Discover all registered metadata types (spec: GetMetaTypesResponse)

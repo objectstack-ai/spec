@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ObjectStackClient } from '@objectstack/client';
+import { useClient } from '@objectstack/client-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,6 @@ import { config } from '@/lib/config';
 import type { InstalledPackage } from '@objectstack/spec/kernel';
 
 interface DeveloperOverviewProps {
-  client: ObjectStackClient;
   packages: InstalledPackage[];
   onNavigate: (view: string, detail?: string) => void;
 }
@@ -22,7 +21,8 @@ interface SystemStats {
   loading: boolean;
 }
 
-export function DeveloperOverview({ client, packages, onNavigate }: DeveloperOverviewProps) {
+export function DeveloperOverview({ packages, onNavigate }: DeveloperOverviewProps) {
+  const client = useClient();
   const [stats, setStats] = useState<SystemStats>({
     packages: { total: 0, enabled: 0, disabled: 0, byType: {} },
     metadata: { types: [], counts: {} },

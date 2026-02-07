@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ObjectStackClient } from '@objectstack/client';
+import { useClient } from '@objectstack/client-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,14 +12,14 @@ import { Badge } from "@/components/ui/badge";
 import { Save, Loader2, AlertCircle } from "lucide-react";
 
 interface ObjectDataFormProps {
-    client: ObjectStackClient;
     objectApiName: string;
     record?: any;
     onSuccess: () => void;
     onCancel: () => void;
 }
 
-export function ObjectDataForm({ client, objectApiName, record, onSuccess, onCancel }: ObjectDataFormProps) {
+export function ObjectDataForm({ objectApiName, record, onSuccess, onCancel }: ObjectDataFormProps) {
+    const client = useClient();
     const [def, setDef] = useState<any>(null);
     const [formData, setFormData] = useState<any>({});
     const [loading, setLoading] = useState(false);
@@ -28,7 +28,6 @@ export function ObjectDataForm({ client, objectApiName, record, onSuccess, onCan
     useEffect(() => {
         let mounted = true;
         async function loadDef() {
-            if (!client) return;
             try {
                 const found: any = await client.meta.getItem('object', objectApiName);
                 if (mounted && found) {
@@ -90,7 +89,21 @@ export function ObjectDataForm({ client, objectApiName, record, onSuccess, onCan
         }));
     };
 
-    if (!def) return <div>Loading form...</div>;
+    if (!def) {
+        return (
+            <Dialog open={true} onOpenChange={(open) => !open && onCancel()}>
+                <DialogContent className="sm:max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>Loading...</DialogTitle>
+                        <DialogDescription>Fetching object definition</DialogDescription>
+                    </DialogHeader>
+                    <div className="flex items-center justify-center py-8">
+                        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                    </div>
+                </DialogContent>
+            </Dialog>
+        );
+    }
 
     const fields = def.fields || {};
     const fieldKeys = Object.keys(fields).filter(k => {

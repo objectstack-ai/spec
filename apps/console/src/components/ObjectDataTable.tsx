@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ObjectStackClient } from '@objectstack/client';
+import { useClient } from '@objectstack/client-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface ObjectDataTableProps {
-    client: ObjectStackClient;
     objectApiName: string;
     onEdit: (record: any) => void;
 }
@@ -77,7 +76,8 @@ function TableSkeleton({ cols }: { cols: number }) {
     );
 }
 
-export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTableProps) {
+export function ObjectDataTable({ objectApiName, onEdit }: ObjectDataTableProps) {
+    const client = useClient();
     const [def, setDef] = useState<any>(null);
     const [records, setRecords] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
@@ -90,7 +90,6 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
     useEffect(() => {
         let mounted = true;
         async function loadDef() {
-            if (!client) return;
             try {
                 const found: any = await client.meta.getItem('object', objectApiName);
                 if (mounted && found) {
@@ -110,7 +109,6 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
     useEffect(() => {
         let mounted = true;
         async function loadData() {
-            if (!client) return;
             setLoading(true);
             try {
                 const result: any = await client.data.find(objectApiName, {
@@ -142,15 +140,18 @@ export function ObjectDataTable({ client, objectApiName, onEdit }: ObjectDataTab
         if (!confirm('Are you sure you want to delete this record?')) return;
         try {
             await client.data.delete(objectApiName, id);
-            const result = await client.data.find(objectApiName, {
+            const result: any = await client.data.find(objectApiName, {
                 filters: {
                     top: pageSize,
-                    skip: (page - 1) * pageSize
+                    skip: (page - 1) * pageSize,
+                    count: true
                 }
             });
             // Spec: FindDataResponse = { object, records, total? }
             const records = result?.records || result?.value || (Array.isArray(result) ? result : []);
             setRecords(records);
+            if (typeof result?.total === 'number') setTotal(result.total);
+            else if (typeof result?.count === 'number') setTotal(result.count);
         } catch (err) {
             alert('Failed to delete: ' + err);
         }

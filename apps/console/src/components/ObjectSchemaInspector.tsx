@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ObjectStackClient } from '@objectstack/client';
+import { useClient } from '@objectstack/client-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -13,7 +13,6 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ObjectSchemaInspectorProps {
-  client: ObjectStackClient;
   objectApiName: string;
 }
 
@@ -63,7 +62,8 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
-export function ObjectSchemaInspector({ client, objectApiName }: ObjectSchemaInspectorProps) {
+export function ObjectSchemaInspector({ objectApiName }: ObjectSchemaInspectorProps) {
+  const client = useClient();
   const [def, setDef] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
