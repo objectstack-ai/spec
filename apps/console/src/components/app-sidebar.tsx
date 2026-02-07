@@ -350,11 +350,11 @@ export function AppSidebar({ selectedObject, onSelectObject, selectedMeta, onSel
                           tooltip={`${itemName}${namespace ? ` (${namespace})` : ''}`}
                         >
                           <TypeIcon className="h-4 w-4" />
-                          <span className="flex items-center gap-1.5">
+                          <span className="truncate">
                             {namespace && (
                               <span className="text-xs text-muted-foreground font-mono">{namespace}__</span>
                             )}
-                            <span>{itemLabel}</span>
+                            {itemLabel}
                           </span>
                         </SidebarMenuButton>
                         {isObjectType && item.fields && (
