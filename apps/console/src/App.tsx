@@ -7,18 +7,20 @@ import { SiteHeader } from "@/components/site-header"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { DeveloperOverview } from './components/DeveloperOverview';
 import { ObjectExplorer } from './components/ObjectExplorer';
+import { MetadataInspector } from './components/MetadataInspector';
 import { PackageManager } from './components/PackageManager';
 import { Toaster } from "@/components/ui/toaster"
 import { getApiBaseUrl, config } from './lib/config';
 import type { InstalledPackage } from '@objectstack/spec/kernel';
 
-type ViewType = 'overview' | 'packages' | 'object';
+type ViewType = 'overview' | 'packages' | 'object' | 'metadata';
 
 export default function App() {
   const [client, setClient] = useState<ObjectStackClient | null>(null);
   const [packages, setPackages] = useState<InstalledPackage[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<InstalledPackage | null>(null);
   const [selectedObject, setSelectedObject] = useState<string | null>(null);
+  const [selectedMeta, setSelectedMeta] = useState<{ type: string; name: string } | null>(null);
   const [selectedView, setSelectedView] = useState<ViewType>('overview');
 
   // 1. Create client once
@@ -70,6 +72,13 @@ export default function App() {
   const handleSelectView = useCallback((view: ViewType) => {
     setSelectedView(view);
     setSelectedObject(null);
+    setSelectedMeta(null);
+  }, []);
+
+  const handleSelectMeta = useCallback((type: string, name: string) => {
+    setSelectedMeta({ type, name });
+    setSelectedObject(null);
+    setSelectedView('metadata');
   }, []);
 
   const handleNavigate = useCallback((view: string, detail?: string) => {
@@ -77,7 +86,14 @@ export default function App() {
     else if (detail) handleSelectObject(detail);
   }, [handleSelectView, handleSelectObject]);
 
-  if (!client) return null;
+  if (!client) return (
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="text-center space-y-2">
+        <div className="h-8 w-8 mx-auto animate-spin rounded-full border-4 border-muted border-t-primary" />
+        <p className="text-sm text-muted-foreground">Connecting to ObjectStack…</p>
+      </div>
+    </div>
+  );
 
   return (
     <ObjectStackProvider client={client}>
@@ -86,6 +102,8 @@ export default function App() {
         <AppSidebar 
           selectedObject={selectedObject} 
           onSelectObject={handleSelectObject}
+          selectedMeta={selectedMeta}
+          onSelectMeta={handleSelectMeta}
           packages={packages}
           selectedPackage={selectedPackage}
           onSelectPackage={handleSelectPackage}
@@ -95,12 +113,17 @@ export default function App() {
         <main className="flex min-w-0 flex-1 flex-col bg-background">
           <SiteHeader
             selectedObject={selectedObject}
+            selectedMeta={selectedMeta}
             selectedView={selectedView}
             packageLabel={selectedPackage?.manifest?.name || selectedPackage?.manifest?.id}
           />
           <div className="flex flex-1 flex-col overflow-hidden">
             {selectedView === 'object' && selectedObject ? (
               <ObjectExplorer objectApiName={selectedObject} />
+            ) : selectedView === 'metadata' && selectedMeta ? (
+              <div className="flex-1 overflow-auto p-4">
+                <MetadataInspector metaType={selectedMeta.type} metaName={selectedMeta.name} />
+              </div>
             ) : selectedView === 'packages' ? (
               <PackageManager />
             ) : (

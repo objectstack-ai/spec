@@ -25,7 +25,12 @@ async function bootstrap() {
   // Only start MSW in MSW mode
   if (isMswMode()) {
     console.log('[Console] Starting in MSW mode (in-browser kernel)');
-    await startMockServer();
+    try {
+      await startMockServer();
+    } catch (err) {
+      console.error('[Console] ❌ Failed to start MSW mock server:', err);
+      // Render anyway so the user sees the error boundary or at least some UI
+    }
   } else {
     console.log('[Console] Starting in Server mode');
   }
@@ -38,4 +43,18 @@ async function bootstrap() {
   );
 }
 
-bootstrap();
+bootstrap().catch((err) => {
+  console.error('[Console] ❌ Fatal bootstrap error:', err);
+  // Last-resort: render error message directly to DOM
+  const root = document.getElementById('root');
+  if (root) {
+    root.innerHTML = `
+      <div style="padding:2rem;font-family:system-ui;color:#ef4444">
+        <h1>Failed to start</h1>
+        <pre style="background:#1e1e2e;color:#cdd6f4;padding:1rem;border-radius:8px;overflow:auto">${
+          err instanceof Error ? err.stack || err.message : String(err)
+        }</pre>
+      </div>
+    `;
+  }
+});

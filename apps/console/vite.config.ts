@@ -11,7 +11,10 @@ const hmrConfig = process.env.VITE_HMR_PORT
 export default defineConfig({
   base: process.env.VITE_BASE || '/',
   resolve: {
+    dedupe: ['react', 'react-dom'],
     alias: {
+      'react': path.resolve(__dirname, './node_modules/react'),
+      'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
       '@': path.resolve(__dirname, './src'),
       'node:fs/promises': path.resolve(__dirname, './mocks/node-polyfills.ts'),
       'node:fs': path.resolve(__dirname, './mocks/node-polyfills.ts'),

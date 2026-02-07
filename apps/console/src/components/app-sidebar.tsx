@@ -1,10 +1,8 @@
 import {
-  Settings,
   Database,
   Package,
   LayoutDashboard,
   ChevronsUpDown,
-  LogOut,
   Sparkles,
   Search,
   Check,
@@ -36,15 +34,12 @@ import {
   SidebarMenuBadge,
   SidebarMenuSkeleton,
   SidebarHeader,
-  SidebarFooter,
   SidebarSeparator,
   SidebarInput,
 } from "@/components/ui/sidebar"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -99,14 +94,16 @@ const PKG_TYPE_ICONS: Record<string, LucideIcon> = {
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   selectedObject: string | null;
   onSelectObject: (name: string) => void;
+  selectedMeta?: { type: string; name: string } | null;
+  onSelectMeta?: (type: string, name: string) => void;
   packages: InstalledPackage[];
   selectedPackage: InstalledPackage | null;
   onSelectPackage: (pkg: InstalledPackage) => void;
   onSelectView?: (view: 'overview' | 'packages') => void;
-  selectedView?: 'overview' | 'packages' | 'object';
+  selectedView?: 'overview' | 'packages' | 'object' | 'metadata';
 }
 
-export function AppSidebar({ selectedObject, onSelectObject, packages, selectedPackage, onSelectPackage, onSelectView, selectedView, ...props }: AppSidebarProps) {
+export function AppSidebar({ selectedObject, onSelectObject, selectedMeta, onSelectMeta, packages, selectedPackage, onSelectPackage, onSelectView, selectedView, ...props }: AppSidebarProps) {
   const client = useClient();
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -163,10 +160,27 @@ export function AppSidebar({ selectedObject, onSelectObject, packages, selectedP
 
   useEffect(() => { loadMetadata(); }, [loadMetadata]);
 
+  // Priority order for sidebar sections — lower index = higher up
+  const TYPE_PRIORITY: Record<string, number> = {
+    objects: 0, object: 0,
+    actions: 1,
+    flows: 2,
+    dashboards: 3,
+    reports: 4,
+    agents: 5,
+    apis: 6,
+    ragPipelines: 7,
+    profiles: 8,
+    sharingRules: 9,
+  };
+  const DEFAULT_PRIORITY = 100;
+
   // Filter visible types: only those with items, excluding hidden types
+  // Sort so Objects always appear first
   const visibleTypes = metaTypes
     .filter(t => !HIDDEN_TYPES.has(t))
-    .filter(t => (metaItems[t]?.length ?? 0) > 0);
+    .filter(t => (metaItems[t]?.length ?? 0) > 0)
+    .sort((a, b) => (TYPE_PRIORITY[a] ?? DEFAULT_PRIORITY) - (TYPE_PRIORITY[b] ?? DEFAULT_PRIORITY));
 
   // Apply search filter
   const matchesSearch = (label: string, name: string) =>
@@ -318,12 +332,20 @@ export function AppSidebar({ selectedObject, onSelectObject, packages, selectedP
                     // Parse FQN: namespace__shortName
                     const fqnParts = itemName.includes('__') ? itemName.split('__') : [null, itemName];
                     const namespace = fqnParts.length === 2 && fqnParts[0] ? fqnParts[0] : null;
+
+                    const isActive = isObjectType
+                      ? selectedObject === itemName
+                      : selectedMeta?.type === type && selectedMeta?.name === itemName;
+
+                    const handleClick = isObjectType
+                      ? () => onSelectObject(itemName)
+                      : () => onSelectMeta?.(type, itemName);
                     
                     return (
                       <SidebarMenuItem key={itemName}>
                         <SidebarMenuButton
-                          isActive={isObjectType && selectedObject === itemName}
-                          onClick={isObjectType ? () => onSelectObject(itemName) : undefined}
+                          isActive={isActive}
+                          onClick={handleClick}
                           tooltip={`${itemName}${namespace ? ` (${namespace})` : ''}`}
                         >
                           <TypeIcon className="h-4 w-4" />
@@ -371,71 +393,10 @@ export function AppSidebar({ selectedObject, onSelectObject, packages, selectedP
                     <span>Packages</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton tooltip="Settings">
-                    <Settings className="h-4 w-4" />
-                    <span>Settings</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
              </SidebarMenu>
            </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-
-      <SidebarFooter className="border-t">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-                  <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarFallback className="rounded-lg bg-primary/10 text-primary text-xs font-semibold">
-                      OS
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">Admin User</span>
-                    <span className="truncate text-xs text-muted-foreground">admin@objectstack.dev</span>
-                  </div>
-                  <ChevronsUpDown className="ml-auto h-4 w-4" />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                side="bottom"
-                align="end"
-                sideOffset={4}
-              >
-                <DropdownMenuLabel className="p-0 font-normal">
-                  <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                    <Avatar className="h-8 w-8 rounded-lg">
-                      <AvatarFallback className="rounded-lg bg-primary/10 text-primary text-xs font-semibold">
-                        OS
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-semibold">Admin User</span>
-                      <span className="truncate text-xs text-muted-foreground">admin@objectstack.dev</span>
-                    </div>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Log out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
     </Sidebar>
   )
 }

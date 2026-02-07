@@ -15,15 +15,29 @@ import { config } from '@/lib/config'
 
 interface SiteHeaderProps {
   selectedObject: string | null;
-  selectedView: 'overview' | 'packages' | 'object';
+  selectedMeta?: { type: string; name: string } | null;
+  selectedView: 'overview' | 'packages' | 'object' | 'metadata';
   packageLabel?: string;
 }
 
-export function SiteHeader({ selectedObject, selectedView, packageLabel }: SiteHeaderProps) {
+const META_TYPE_LABELS: Record<string, string> = {
+  actions: 'Actions',
+  dashboards: 'Dashboards',
+  reports: 'Reports',
+  flows: 'Flows',
+  agents: 'Agents',
+  apis: 'APIs',
+  ragPipelines: 'RAG Pipelines',
+  profiles: 'Profiles',
+  sharingRules: 'Sharing Rules',
+};
+
+export function SiteHeader({ selectedObject, selectedMeta, selectedView, packageLabel }: SiteHeaderProps) {
   const viewLabels: Record<string, string> = {
     overview: 'Overview',
     packages: 'Package Manager',
     object: selectedObject || 'Object',
+    metadata: selectedMeta ? (META_TYPE_LABELS[selectedMeta.type] || selectedMeta.type) : 'Metadata',
   };
 
   return (
@@ -55,6 +69,16 @@ export function SiteHeader({ selectedObject, selectedView, packageLabel }: SiteH
                 </BreadcrumbItem>
               </>
             )}
+            {selectedView === 'metadata' && selectedMeta && (
+              <>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>
+                    <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">{selectedMeta.name}</code>
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              </>
+            )}
           </BreadcrumbList>
         </Breadcrumb>
       </div>
@@ -62,6 +86,11 @@ export function SiteHeader({ selectedObject, selectedView, packageLabel }: SiteH
         {selectedView === 'object' && selectedObject && (
           <Badge variant="outline" className="font-mono text-[10px] gap-1 hidden sm:flex">
             /api/v1/data/{selectedObject}
+          </Badge>
+        )}
+        {selectedView === 'metadata' && selectedMeta && (
+          <Badge variant="outline" className="font-mono text-[10px] gap-1 hidden sm:flex">
+            /api/v1/meta/{selectedMeta.type}/{selectedMeta.name}
           </Badge>
         )}
         <Badge variant="secondary" className="text-[10px] gap-1 font-mono">
