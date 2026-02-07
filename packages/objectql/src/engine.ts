@@ -219,8 +219,20 @@ export class ObjectQL implements IDataEngine {
 
       // 5. Register all other metadata types generically
       const metadataArrayKeys = [
-        'actions', 'dashboards', 'reports', 'flows', 'agents',
-        'apis', 'ragPipelines', 'profiles', 'sharingRules'
+        // UI Protocol
+        'actions', 'views', 'pages', 'dashboards', 'reports', 'themes',
+        // Automation Protocol
+        'flows', 'workflows', 'approvals', 'webhooks',
+        // Security Protocol
+        'roles', 'permissions', 'profiles', 'sharingRules', 'policies',
+        // AI Protocol
+        'agents', 'ragPipelines',
+        // API Protocol
+        'apis',
+        // Data Extensions
+        'hooks', 'mappings', 'analyticsCubes',
+        // Integration Protocol
+        'connectors',
       ];
       for (const key of metadataArrayKeys) {
           const items = (manifest as any)[key];

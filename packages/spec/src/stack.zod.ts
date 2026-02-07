@@ -25,6 +25,8 @@ import { FlowSchema } from './automation/flow.zod';
 // Security Protocol
 import { RoleSchema } from './identity/role.zod';
 import { PermissionSetSchema } from './security/permission.zod';
+import { SharingRuleSchema } from './security/sharing.zod';
+import { PolicySchema } from './security/policy.zod';
 
 import { ApiEndpointSchema } from './api/endpoint.zod';
 import { ApiCapabilitiesSchema } from './api/discovery.zod';
@@ -32,6 +34,18 @@ import { FeatureFlagSchema } from './kernel/feature.zod';
 
 // AI Protocol
 import { AgentSchema } from './ai/agent.zod';
+import { RAGPipelineConfigSchema } from './ai/rag-pipeline.zod';
+
+// Data Protocol (additional)
+import { HookSchema } from './data/hook.zod';
+import { MappingSchema } from './data/mapping.zod';
+import { CubeSchema } from './data/analytics.zod';
+
+// Automation Protocol (additional)
+import { WebhookSchema } from './automation/webhook.zod';
+
+// Integration Protocol
+import { ConnectorSchema } from './integration/connector.zod';
 
 /**
  * ObjectStack Ecosystem Definition
@@ -106,16 +120,33 @@ export const ObjectStackDefinitionSchema = z.object({
    */
   roles: z.array(RoleSchema).optional().describe('User Roles hierarchy'),
   permissions: z.array(PermissionSetSchema).optional().describe('Permission Sets and Profiles'),
+  sharingRules: z.array(SharingRuleSchema).optional().describe('Record Sharing Rules'),
+  policies: z.array(PolicySchema).optional().describe('Security & Compliance Policies'),
 
   /**
    * ObjectAPI: API Layer
    */
   apis: z.array(ApiEndpointSchema).optional().describe('API Endpoints'),
+  webhooks: z.array(WebhookSchema).optional().describe('Outbound Webhooks'),
 
   /**
    * ObjectAI: Artificial Intelligence Layer
    */
   agents: z.array(AgentSchema).optional().describe('AI Agents and Assistants'),
+  ragPipelines: z.array(RAGPipelineConfigSchema).optional().describe('RAG Pipelines'),
+
+  /**
+   * ObjectQL: Data Extensions
+   * Hooks, mappings, and analytics cubes.
+   */
+  hooks: z.array(HookSchema).optional().describe('Object Lifecycle Hooks'),
+  mappings: z.array(MappingSchema).optional().describe('Data Import/Export Mappings'),
+  analyticsCubes: z.array(CubeSchema).optional().describe('Analytics Semantic Layer Cubes'),
+
+  /**
+   * Integration Protocol
+   */
+  connectors: z.array(ConnectorSchema).optional().describe('External System Connectors'),
 
   /**
    * Data Seeding Protocol

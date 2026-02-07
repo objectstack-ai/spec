@@ -16,6 +16,17 @@ import {
   Shield,
   AppWindow,
   Layers,
+  Eye,
+  FileCode,
+  Palette,
+  CheckSquare,
+  Webhook,
+  Lock,
+  Link2,
+  Map,
+  PieChart,
+  Anchor,
+  UserCog,
   type LucideIcon,
 } from "lucide-react"
 import { useState, useEffect, useCallback } from "react"
@@ -48,23 +59,51 @@ import {
 
 /** Icon & label hints for well-known metadata types */
 const META_TYPE_HINTS: Record<string, { label: string; icon: LucideIcon }> = {
-  object:       { label: 'Objects',       icon: Package },
-  objects:      { label: 'Objects',       icon: Package },
-  app:          { label: 'Apps',          icon: AppWindow },
-  apps:         { label: 'Apps',          icon: AppWindow },
-  actions:      { label: 'Actions',       icon: Zap },
-  dashboards:   { label: 'Dashboards',    icon: BarChart3 },
-  reports:      { label: 'Reports',       icon: FileText },
-  flows:        { label: 'Flows',         icon: Workflow },
-  agents:       { label: 'Agents',        icon: Bot },
-  apis:         { label: 'APIs',          icon: Globe },
-  ragPipelines: { label: 'RAG Pipelines', icon: BookOpen },
-  profiles:     { label: 'Profiles',      icon: Shield },
-  sharingRules: { label: 'Sharing Rules', icon: Shield },
-  data:         { label: 'Seed Data',     icon: Database },
-  plugin:       { label: 'Plugins',       icon: Layers },
-  plugins:      { label: 'Plugins',       icon: Layers },
-  kind:         { label: 'Kinds',         icon: Database },
+  // Data Protocol
+  object:         { label: 'Objects',         icon: Package },
+  objects:        { label: 'Objects',         icon: Package },
+  hooks:          { label: 'Hooks',           icon: Anchor },
+  mappings:       { label: 'Mappings',        icon: Map },
+  analyticsCubes: { label: 'Analytics Cubes', icon: PieChart },
+  data:           { label: 'Seed Data',       icon: Database },
+
+  // UI Protocol
+  app:            { label: 'Apps',            icon: AppWindow },
+  apps:           { label: 'Apps',            icon: AppWindow },
+  actions:        { label: 'Actions',         icon: Zap },
+  views:          { label: 'Views',           icon: Eye },
+  pages:          { label: 'Pages',           icon: FileCode },
+  dashboards:     { label: 'Dashboards',      icon: BarChart3 },
+  reports:        { label: 'Reports',         icon: FileText },
+  themes:         { label: 'Themes',          icon: Palette },
+
+  // Automation Protocol
+  flows:          { label: 'Flows',           icon: Workflow },
+  workflows:      { label: 'Workflows',       icon: Workflow },
+  approvals:      { label: 'Approvals',       icon: CheckSquare },
+  webhooks:       { label: 'Webhooks',        icon: Webhook },
+
+  // Security Protocol
+  roles:          { label: 'Roles',           icon: UserCog },
+  permissions:    { label: 'Permissions',     icon: Lock },
+  profiles:       { label: 'Profiles',        icon: Shield },
+  sharingRules:   { label: 'Sharing Rules',   icon: Shield },
+  policies:       { label: 'Policies',        icon: Shield },
+
+  // AI Protocol
+  agents:         { label: 'Agents',          icon: Bot },
+  ragPipelines:   { label: 'RAG Pipelines',   icon: BookOpen },
+
+  // API Protocol
+  apis:           { label: 'APIs',            icon: Globe },
+
+  // Integration Protocol
+  connectors:     { label: 'Connectors',      icon: Link2 },
+
+  // Internal
+  plugin:         { label: 'Plugins',         icon: Layers },
+  plugins:        { label: 'Plugins',         icon: Layers },
+  kind:           { label: 'Kinds',           icon: Database },
 };
 
 function getTypeLabel(type: string): string {
@@ -163,16 +202,38 @@ export function AppSidebar({ selectedObject, onSelectObject, selectedMeta, onSel
 
   // Priority order for sidebar sections — lower index = higher up
   const TYPE_PRIORITY: Record<string, number> = {
+    // Data
     objects: 0, object: 0,
-    actions: 1,
-    flows: 2,
-    dashboards: 3,
-    reports: 4,
-    agents: 5,
-    apis: 6,
-    ragPipelines: 7,
-    profiles: 8,
-    sharingRules: 9,
+    hooks: 1,
+    // UI
+    actions: 10,
+    views: 11,
+    pages: 12,
+    dashboards: 13,
+    reports: 14,
+    themes: 15,
+    // Automation
+    flows: 20,
+    workflows: 21,
+    approvals: 22,
+    webhooks: 23,
+    // Security
+    roles: 30,
+    permissions: 31,
+    profiles: 32,
+    sharingRules: 33,
+    policies: 34,
+    // AI
+    agents: 40,
+    ragPipelines: 41,
+    // API
+    apis: 50,
+    // Integration
+    connectors: 51,
+    // Data Extensions
+    mappings: 60,
+    analyticsCubes: 61,
+    data: 70,
   };
   const DEFAULT_PRIORITY = 100;
 
