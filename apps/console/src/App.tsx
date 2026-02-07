@@ -112,7 +112,7 @@ export default function App() {
           onSelectView={handleSelectView}
           selectedView={selectedView}
         />
-        <main className="flex min-w-0 flex-1 flex-col bg-background">
+        <main className="flex min-w-0 flex-1 flex-col h-svh overflow-hidden bg-background">
           <SiteHeader
             selectedObject={selectedObject}
             selectedMeta={selectedMeta}
