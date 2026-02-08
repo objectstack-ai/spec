@@ -1,0 +1,192 @@
+{
+  "$ref": "#/definitions/DependencyGraph",
+  "definitions": {
+    "DependencyGraph": {
+      "type": "object",
+      "properties": {
+        "root": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Identifier of the root package"
+            },
+            "version": {
+              "type": "string",
+              "description": "Version of the root package"
+            }
+          },
+          "required": [
+            "id",
+            "version"
+          ],
+          "additionalProperties": false,
+          "description": "Root package of the dependency graph"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Unique identifier of the package"
+              },
+              "version": {
+                "type": "string",
+                "description": "Resolved version of the package"
+              },
+              "dependencies": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Package name or identifier"
+                    },
+                    "versionConstraint": {
+                      "type": "string",
+                      "description": "Semver range (e.g., `^1.0.0`, `>=2.0.0 <3.0.0`)"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "required",
+                        "optional",
+                        "peer",
+                        "dev"
+                      ],
+                      "default": "required",
+                      "description": "Category of the dependency relationship"
+                    },
+                    "resolvedVersion": {
+                      "type": "string",
+                      "description": "Concrete version resolved during dependency resolution"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "versionConstraint"
+                  ],
+                  "additionalProperties": false,
+                  "description": "A package dependency with its version constraint"
+                },
+                "default": [],
+                "description": "Dependencies required by this package"
+              },
+              "depth": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Depth level in the dependency tree (0 = root)"
+              },
+              "isDirect": {
+                "type": "boolean",
+                "description": "Whether this is a direct (top-level) dependency"
+              },
+              "metadata": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Display name of the package"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Short description of the package"
+                  },
+                  "license": {
+                    "type": "string",
+                    "description": "SPDX license identifier of the package"
+                  },
+                  "homepage": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Homepage URL of the package"
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false,
+                "description": "Additional metadata about the package"
+              }
+            },
+            "required": [
+              "id",
+              "version",
+              "depth",
+              "isDirect"
+            ],
+            "additionalProperties": false,
+            "description": "A node in the dependency graph representing a resolved package"
+          },
+          "description": "All resolved package nodes in the dependency graph"
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "from": {
+                "type": "string",
+                "description": "Package ID"
+              },
+              "to": {
+                "type": "string",
+                "description": "Package ID"
+              },
+              "constraint": {
+                "type": "string",
+                "description": "Version constraint"
+              }
+            },
+            "required": [
+              "from",
+              "to",
+              "constraint"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Directed edges representing dependency relationships"
+        },
+        "stats": {
+          "type": "object",
+          "properties": {
+            "totalDependencies": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Total number of resolved dependencies"
+            },
+            "directDependencies": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of direct (top-level) dependencies"
+            },
+            "maxDepth": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Maximum depth of the dependency tree"
+            }
+          },
+          "required": [
+            "totalDependencies",
+            "directDependencies",
+            "maxDepth"
+          ],
+          "additionalProperties": false,
+          "description": "Summary statistics for the dependency graph"
+        }
+      },
+      "required": [
+        "root",
+        "nodes",
+        "edges",
+        "stats"
+      ],
+      "additionalProperties": false,
+      "description": "Complete dependency graph for a package and its transitive dependencies"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

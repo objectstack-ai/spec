@@ -1,0 +1,11 @@
+{
+  "$ref": "#/definitions/HttpUrlString",
+  "definitions": {
+    "HttpUrlString": {
+      "type": "string",
+      "pattern": "^https?:\\/\\/.+$",
+      "description": "HTTP/HTTPS URL"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

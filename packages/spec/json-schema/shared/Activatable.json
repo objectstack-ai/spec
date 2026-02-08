@@ -1,0 +1,27 @@
+{
+  "$ref": "#/definitions/Activatable",
+  "definitions": {
+    "Activatable": {
+      "type": "object",
+      "properties": {
+        "active": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the entity is currently active/enabled"
+        },
+        "activatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the entity was last activated"
+        },
+        "deactivatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the entity was last deactivated"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

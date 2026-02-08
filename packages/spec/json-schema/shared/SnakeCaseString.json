@@ -1,0 +1,11 @@
+{
+  "$ref": "#/definitions/SnakeCaseString",
+  "definitions": {
+    "SnakeCaseString": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "Snake case identifier"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

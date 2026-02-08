@@ -1,0 +1,17 @@
+{
+  "$ref": "#/definitions/MetadataContainer",
+  "definitions": {
+    "MetadataContainer": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Extensible metadata container for custom properties. Use type narrowing to access values."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

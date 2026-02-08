@@ -1,0 +1,11 @@
+{
+  "$ref": "#/definitions/HexColorString",
+  "definitions": {
+    "HexColorString": {
+      "type": "string",
+      "pattern": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$",
+      "description": "Hex color code"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

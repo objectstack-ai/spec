@@ -1,0 +1,11 @@
+{
+  "$ref": "#/definitions/EmailString",
+  "definitions": {
+    "EmailString": {
+      "type": "string",
+      "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+      "description": "Email address"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
