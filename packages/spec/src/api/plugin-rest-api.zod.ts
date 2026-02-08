@@ -992,6 +992,777 @@ export const DEFAULT_PERMISSION_ROUTES: RestApiRouteRegistration = {
 };
 
 // ==========================================
+// View Management Routes
+// ==========================================
+
+/**
+ * Default View Management Routes
+ * Standard routes for UI view CRUD operations
+ */
+export const DEFAULT_VIEW_ROUTES: RestApiRouteRegistration = {
+  prefix: '/api/v1/ui',
+  service: 'ui',
+  category: 'ui',
+  methods: ['listViews', 'getView', 'createView', 'updateView', 'deleteView'],
+  authRequired: true,
+  endpoints: [
+    {
+      method: 'GET',
+      path: '/views/:object',
+      handler: 'listViews',
+      category: 'ui',
+      public: false,
+      summary: 'List views for an object',
+      description: 'Returns all views (list, form) for the specified object',
+      tags: ['Views', 'UI'],
+      responseSchema: 'ListViewsResponseSchema',
+      cacheable: true,
+      cacheTtl: 1800,
+    },
+    {
+      method: 'GET',
+      path: '/views/:object/:viewId',
+      handler: 'getView',
+      category: 'ui',
+      public: false,
+      summary: 'Get a specific view',
+      description: 'Returns a specific view definition by object and view ID',
+      tags: ['Views', 'UI'],
+      responseSchema: 'GetViewResponseSchema',
+      cacheable: true,
+      cacheTtl: 1800,
+    },
+    {
+      method: 'POST',
+      path: '/views/:object',
+      handler: 'createView',
+      category: 'ui',
+      public: false,
+      summary: 'Create a new view',
+      description: 'Creates a new view definition for the specified object',
+      tags: ['Views', 'UI'],
+      requestSchema: 'CreateViewRequestSchema',
+      responseSchema: 'CreateViewResponseSchema',
+      permissions: ['ui.view.create'],
+      cacheable: false,
+    },
+    {
+      method: 'PATCH',
+      path: '/views/:object/:viewId',
+      handler: 'updateView',
+      category: 'ui',
+      public: false,
+      summary: 'Update a view',
+      description: 'Updates an existing view definition',
+      tags: ['Views', 'UI'],
+      requestSchema: 'UpdateViewRequestSchema',
+      responseSchema: 'UpdateViewResponseSchema',
+      permissions: ['ui.view.update'],
+      cacheable: false,
+    },
+    {
+      method: 'DELETE',
+      path: '/views/:object/:viewId',
+      handler: 'deleteView',
+      category: 'ui',
+      public: false,
+      summary: 'Delete a view',
+      description: 'Deletes a view definition',
+      tags: ['Views', 'UI'],
+      responseSchema: 'DeleteViewResponseSchema',
+      permissions: ['ui.view.delete'],
+      cacheable: false,
+    },
+  ],
+  middleware: [
+    { name: 'auth', type: 'authentication', enabled: true, order: 10 },
+    { name: 'validation', type: 'validation', enabled: true, order: 20 },
+    { name: 'response_envelope', type: 'transformation', enabled: true, order: 100 },
+  ],
+};
+
+// ==========================================
+// Workflow Routes
+// ==========================================
+
+/**
+ * Default Workflow Routes
+ * Standard routes for workflow state management and transitions
+ */
+export const DEFAULT_WORKFLOW_ROUTES: RestApiRouteRegistration = {
+  prefix: '/api/v1/workflow',
+  service: 'workflow',
+  category: 'workflow',
+  methods: ['getWorkflowConfig', 'getWorkflowState', 'workflowTransition', 'workflowApprove', 'workflowReject'],
+  authRequired: true,
+  endpoints: [
+    {
+      method: 'GET',
+      path: '/:object/config',
+      handler: 'getWorkflowConfig',
+      category: 'workflow',
+      public: false,
+      summary: 'Get workflow configuration',
+      description: 'Returns workflow rules and state machine configuration for an object',
+      tags: ['Workflow'],
+      responseSchema: 'GetWorkflowConfigResponseSchema',
+      cacheable: true,
+      cacheTtl: 3600,
+    },
+    {
+      method: 'GET',
+      path: '/:object/:recordId/state',
+      handler: 'getWorkflowState',
+      category: 'workflow',
+      public: false,
+      summary: 'Get workflow state',
+      description: 'Returns current workflow state and available transitions for a record',
+      tags: ['Workflow'],
+      responseSchema: 'GetWorkflowStateResponseSchema',
+      cacheable: false,
+    },
+    {
+      method: 'POST',
+      path: '/:object/:recordId/transition',
+      handler: 'workflowTransition',
+      category: 'workflow',
+      public: false,
+      summary: 'Execute workflow transition',
+      description: 'Transitions a record to a new workflow state',
+      tags: ['Workflow'],
+      requestSchema: 'WorkflowTransitionRequestSchema',
+      responseSchema: 'WorkflowTransitionResponseSchema',
+      permissions: ['workflow.transition'],
+      cacheable: false,
+    },
+    {
+      method: 'POST',
+      path: '/:object/:recordId/approve',
+      handler: 'workflowApprove',
+      category: 'workflow',
+      public: false,
+      summary: 'Approve workflow step',
+      description: 'Approves a pending workflow approval step',
+      tags: ['Workflow'],
+      requestSchema: 'WorkflowApproveRequestSchema',
+      responseSchema: 'WorkflowApproveResponseSchema',
+      permissions: ['workflow.approve'],
+      cacheable: false,
+    },
+    {
+      method: 'POST',
+      path: '/:object/:recordId/reject',
+      handler: 'workflowReject',
+      category: 'workflow',
+      public: false,
+      summary: 'Reject workflow step',
+      description: 'Rejects a pending workflow approval step',
+      tags: ['Workflow'],
+      requestSchema: 'WorkflowRejectRequestSchema',
+      responseSchema: 'WorkflowRejectResponseSchema',
+      permissions: ['workflow.reject'],
+      cacheable: false,
+    },
+  ],
+  middleware: [
+    { name: 'auth', type: 'authentication', enabled: true, order: 10 },
+    { name: 'validation', type: 'validation', enabled: true, order: 20 },
+    { name: 'response_envelope', type: 'transformation', enabled: true, order: 100 },
+    { name: 'error_handler', type: 'error', enabled: true, order: 200 },
+  ],
+};
+
+// ==========================================
+// Realtime Routes
+// ==========================================
+
+/**
+ * Default Realtime Routes
+ * Standard routes for realtime connection management and subscriptions
+ */
+export const DEFAULT_REALTIME_ROUTES: RestApiRouteRegistration = {
+  prefix: '/api/v1/realtime',
+  service: 'realtime',
+  category: 'realtime',
+  methods: ['realtimeConnect', 'realtimeDisconnect', 'realtimeSubscribe', 'realtimeUnsubscribe', 'setPresence', 'getPresence'],
+  authRequired: true,
+  endpoints: [
+    {
+      method: 'POST',
+      path: '/connect',
+      handler: 'realtimeConnect',
+      category: 'realtime',
+      public: false,
+      summary: 'Establish realtime connection',
+      description: 'Negotiates a realtime connection (WebSocket/SSE) and returns connection details',
+      tags: ['Realtime'],
+      requestSchema: 'RealtimeConnectRequestSchema',
+      responseSchema: 'RealtimeConnectResponseSchema',
+      cacheable: false,
+    },
+    {
+      method: 'POST',
+      path: '/disconnect',
+      handler: 'realtimeDisconnect',
+      category: 'realtime',
+      public: false,
+      summary: 'Close realtime connection',
+      description: 'Closes an active realtime connection',
+      tags: ['Realtime'],
+      requestSchema: 'RealtimeDisconnectRequestSchema',
+      responseSchema: 'RealtimeDisconnectResponseSchema',
+      cacheable: false,
+    },
+    {
+      method: 'POST',
+      path: '/subscribe',
+      handler: 'realtimeSubscribe',
+      category: 'realtime',
+      public: false,
+      summary: 'Subscribe to channel',
+      description: 'Subscribes to a realtime channel for receiving events',
+      tags: ['Realtime'],
+      requestSchema: 'RealtimeSubscribeRequestSchema',
+      responseSchema: 'RealtimeSubscribeResponseSchema',
+      cacheable: false,
+    },
+    {
+      method: 'POST',
+      path: '/unsubscribe',
+      handler: 'realtimeUnsubscribe',
+      category: 'realtime',
+      public: false,
+      summary: 'Unsubscribe from channel',
+      description: 'Unsubscribes from a realtime channel',
+      tags: ['Realtime'],
+      requestSchema: 'RealtimeUnsubscribeRequestSchema',
+      responseSchema: 'RealtimeUnsubscribeResponseSchema',
+      cacheable: false,
+    },
+    {
+      method: 'PUT',
+      path: '/presence/:channel',
+      handler: 'setPresence',
+      category: 'realtime',
+      public: false,
+      summary: 'Set presence state',
+      description: 'Sets the current user\'s presence state in a channel',
+      tags: ['Realtime'],
+      requestSchema: 'SetPresenceRequestSchema',
+      responseSchema: 'SetPresenceResponseSchema',
+      cacheable: false,
+    },
+    {
+      method: 'GET',
+      path: '/presence/:channel',
+      handler: 'getPresence',
+      category: 'realtime',
+      public: false,
+      summary: 'Get channel presence',
+      description: 'Returns all active members and their presence state in a channel',
+      tags: ['Realtime'],
+      responseSchema: 'GetPresenceResponseSchema',
+      cacheable: false,
+    },
+  ],
+  middleware: [
+    { name: 'auth', type: 'authentication', enabled: true, order: 10 },
+    { name: 'response_envelope', type: 'transformation', enabled: true, order: 100 },
+  ],
+};
+
+// ==========================================
+// Notification Routes
+// ==========================================
+
+/**
+ * Default Notification Routes
+ * Standard routes for notification management (device registration, preferences, listing)
+ */
+export const DEFAULT_NOTIFICATION_ROUTES: RestApiRouteRegistration = {
+  prefix: '/api/v1/notifications',
+  service: 'notification',
+  category: 'notification',
+  methods: [
+    'registerDevice', 'unregisterDevice',
+    'getNotificationPreferences', 'updateNotificationPreferences',
+    'listNotifications', 'markNotificationsRead', 'markAllNotificationsRead',
+  ],
+  authRequired: true,
+  endpoints: [
+    {
+      method: 'POST',
+      path: '/devices',
+      handler: 'registerDevice',
+      category: 'notification',
+      public: false,
+      summary: 'Register device for push notifications',
+      description: 'Registers a device token for receiving push notifications',
+      tags: ['Notifications'],
+      requestSchema: 'RegisterDeviceRequestSchema',
+      responseSchema: 'RegisterDeviceResponseSchema',
+      cacheable: false,
+    },
+    {
+      method: 'DELETE',
+      path: '/devices/:deviceId',
+      handler: 'unregisterDevice',
+      category: 'notification',
+      public: false,
+      summary: 'Unregister device',
+      description: 'Removes a device from push notification registration',
+      tags: ['Notifications'],
+      responseSchema: 'UnregisterDeviceResponseSchema',
+      cacheable: false,
+    },
+    {
+      method: 'GET',
+      path: '/preferences',
+      handler: 'getNotificationPreferences',
+      category: 'notification',
+      public: false,
+      summary: 'Get notification preferences',
+      description: 'Returns current user notification preferences',
+      tags: ['Notifications'],
+      responseSchema: 'GetNotificationPreferencesResponseSchema',
+      cacheable: false,
+    },
+    {
+      method: 'PATCH',
+      path: '/preferences',
+      handler: 'updateNotificationPreferences',
+      category: 'notification',
+      public: false,
+      summary: 'Update notification preferences',
+      description: 'Updates user notification preferences',
+      tags: ['Notifications'],
+      requestSchema: 'UpdateNotificationPreferencesRequestSchema',
+      responseSchema: 'UpdateNotificationPreferencesResponseSchema',
+      cacheable: false,
+    },
+    {
+      method: 'GET',
+      path: '',
+      handler: 'listNotifications',
+      category: 'notification',
+      public: false,
+      summary: 'List notifications',
+      description: 'Returns paginated list of notifications for the current user',
+      tags: ['Notifications'],
+      responseSchema: 'ListNotificationsResponseSchema',
+      cacheable: false,
+    },
+    {
+      method: 'POST',
+      path: '/read',
+      handler: 'markNotificationsRead',
+      category: 'notification',
+      public: false,
+      summary: 'Mark notifications as read',
+      description: 'Marks specific notifications as read by their IDs',
+      tags: ['Notifications'],
+      requestSchema: 'MarkNotificationsReadRequestSchema',
+      responseSchema: 'MarkNotificationsReadResponseSchema',
+      cacheable: false,
+    },
+    {
+      method: 'POST',
+      path: '/read/all',
+      handler: 'markAllNotificationsRead',
+      category: 'notification',
+      public: false,
+      summary: 'Mark all notifications as read',
+      description: 'Marks all notifications as read for the current user',
+      tags: ['Notifications'],
+      responseSchema: 'MarkAllNotificationsReadResponseSchema',
+      cacheable: false,
+    },
+  ],
+  middleware: [
+    { name: 'auth', type: 'authentication', enabled: true, order: 10 },
+    { name: 'validation', type: 'validation', enabled: true, order: 20 },
+    { name: 'response_envelope', type: 'transformation', enabled: true, order: 100 },
+  ],
+};
+
+// ==========================================
+// AI Routes
+// ==========================================
+
+/**
+ * Default AI Routes
+ * Standard routes for AI operations (NLQ, Chat, Suggest, Insights)
+ */
+export const DEFAULT_AI_ROUTES: RestApiRouteRegistration = {
+  prefix: '/api/v1/ai',
+  service: 'ai',
+  category: 'ai',
+  methods: ['aiNlq', 'aiChat', 'aiSuggest', 'aiInsights'],
+  authRequired: true,
+  endpoints: [
+    {
+      method: 'POST',
+      path: '/nlq',
+      handler: 'aiNlq',
+      category: 'ai',
+      public: false,
+      summary: 'Natural language query',
+      description: 'Converts a natural language query to a structured query AST',
+      tags: ['AI'],
+      requestSchema: 'AiNlqRequestSchema',
+      responseSchema: 'AiNlqResponseSchema',
+      timeout: 30000,
+      cacheable: false,
+    },
+    {
+      method: 'POST',
+      path: '/chat',
+      handler: 'aiChat',
+      category: 'ai',
+      public: false,
+      summary: 'AI chat interaction',
+      description: 'Sends a message to the AI assistant and receives a response',
+      tags: ['AI'],
+      requestSchema: 'AiChatRequestSchema',
+      responseSchema: 'AiChatResponseSchema',
+      timeout: 60000,
+      cacheable: false,
+    },
+    {
+      method: 'POST',
+      path: '/suggest',
+      handler: 'aiSuggest',
+      category: 'ai',
+      public: false,
+      summary: 'Get AI-powered suggestions',
+      description: 'Returns AI-generated field value suggestions based on context',
+      tags: ['AI'],
+      requestSchema: 'AiSuggestRequestSchema',
+      responseSchema: 'AiSuggestResponseSchema',
+      timeout: 15000,
+      cacheable: false,
+    },
+    {
+      method: 'POST',
+      path: '/insights',
+      handler: 'aiInsights',
+      category: 'ai',
+      public: false,
+      summary: 'Get AI-generated insights',
+      description: 'Returns AI-generated insights (summaries, trends, anomalies, recommendations)',
+      tags: ['AI'],
+      requestSchema: 'AiInsightsRequestSchema',
+      responseSchema: 'AiInsightsResponseSchema',
+      timeout: 60000,
+      cacheable: false,
+    },
+  ],
+  middleware: [
+    { name: 'auth', type: 'authentication', enabled: true, order: 10 },
+    { name: 'validation', type: 'validation', enabled: true, order: 20 },
+    { name: 'response_envelope', type: 'transformation', enabled: true, order: 100 },
+    { name: 'error_handler', type: 'error', enabled: true, order: 200 },
+  ],
+};
+
+// ==========================================
+// i18n Routes
+// ==========================================
+
+/**
+ * Default i18n Routes
+ * Standard routes for internationalization operations
+ */
+export const DEFAULT_I18N_ROUTES: RestApiRouteRegistration = {
+  prefix: '/api/v1/i18n',
+  service: 'i18n',
+  category: 'i18n',
+  methods: ['getLocales', 'getTranslations', 'getFieldLabels'],
+  authRequired: true,
+  endpoints: [
+    {
+      method: 'GET',
+      path: '/locales',
+      handler: 'getLocales',
+      category: 'i18n',
+      public: false,
+      summary: 'Get available locales',
+      description: 'Returns all available locales with their metadata',
+      tags: ['i18n'],
+      responseSchema: 'GetLocalesResponseSchema',
+      cacheable: true,
+      cacheTtl: 86400, // 24 hours — locales change very rarely
+    },
+    {
+      method: 'GET',
+      path: '/translations/:locale',
+      handler: 'getTranslations',
+      category: 'i18n',
+      public: false,
+      summary: 'Get translations for a locale',
+      description: 'Returns translation strings for the specified locale and optional namespace',
+      tags: ['i18n'],
+      responseSchema: 'GetTranslationsResponseSchema',
+      cacheable: true,
+      cacheTtl: 3600,
+    },
+    {
+      method: 'GET',
+      path: '/labels/:object/:locale',
+      handler: 'getFieldLabels',
+      category: 'i18n',
+      public: false,
+      summary: 'Get translated field labels',
+      description: 'Returns translated field labels, help text, and option labels for an object',
+      tags: ['i18n'],
+      responseSchema: 'GetFieldLabelsResponseSchema',
+      cacheable: true,
+      cacheTtl: 3600,
+    },
+  ],
+  middleware: [
+    { name: 'auth', type: 'authentication', enabled: true, order: 10 },
+    { name: 'response_envelope', type: 'transformation', enabled: true, order: 100 },
+  ],
+};
+
+// ==========================================
+// Analytics Routes
+// ==========================================
+
+/**
+ * Default Analytics Routes
+ * Standard routes for analytics and BI operations
+ */
+export const DEFAULT_ANALYTICS_ROUTES: RestApiRouteRegistration = {
+  prefix: '/api/v1/analytics',
+  service: 'analytics',
+  category: 'analytics',
+  methods: ['analyticsQuery', 'getAnalyticsMeta'],
+  authRequired: true,
+  endpoints: [
+    {
+      method: 'POST',
+      path: '/query',
+      handler: 'analyticsQuery',
+      category: 'analytics',
+      public: false,
+      summary: 'Execute analytics query',
+      description: 'Executes a structured analytics query against the semantic layer',
+      tags: ['Analytics'],
+      requestSchema: 'AnalyticsQueryRequestSchema',
+      responseSchema: 'AnalyticsResultResponseSchema',
+      permissions: ['analytics.query'],
+      timeout: 120000, // 2 minutes for analytics queries
+      cacheable: false,
+    },
+    {
+      method: 'GET',
+      path: '/meta',
+      handler: 'getAnalyticsMeta',
+      category: 'analytics',
+      public: false,
+      summary: 'Get analytics metadata',
+      description: 'Returns available cubes, dimensions, measures, and segments',
+      tags: ['Analytics'],
+      responseSchema: 'AnalyticsMetadataResponseSchema',
+      cacheable: true,
+      cacheTtl: 3600,
+    },
+  ],
+  middleware: [
+    { name: 'auth', type: 'authentication', enabled: true, order: 10 },
+    { name: 'validation', type: 'validation', enabled: true, order: 20 },
+    { name: 'response_envelope', type: 'transformation', enabled: true, order: 100 },
+    { name: 'error_handler', type: 'error', enabled: true, order: 200 },
+  ],
+};
+
+// ==========================================
+// Hub / Package Management Routes
+// ==========================================
+
+/**
+ * Default Hub Routes
+ * Standard routes for hub management and package lifecycle
+ */
+export const DEFAULT_HUB_ROUTES: RestApiRouteRegistration = {
+  prefix: '/api/v1/hub',
+  service: 'hub',
+  category: 'hub',
+  methods: [
+    'listSpaces', 'createSpace', 'installPlugin',
+    'listPackages', 'getPackage', 'installPackage', 'uninstallPackage',
+    'enablePackage', 'disablePackage',
+  ],
+  authRequired: true,
+  endpoints: [
+    {
+      method: 'GET',
+      path: '/spaces',
+      handler: 'listSpaces',
+      category: 'hub',
+      public: false,
+      summary: 'List spaces',
+      description: 'Returns all hub spaces accessible to the current user',
+      tags: ['Hub'],
+      cacheable: true,
+      cacheTtl: 300,
+    },
+    {
+      method: 'POST',
+      path: '/spaces',
+      handler: 'createSpace',
+      category: 'hub',
+      public: false,
+      summary: 'Create space',
+      description: 'Creates a new hub space',
+      tags: ['Hub'],
+      requestSchema: 'CreateSpaceRequestSchema',
+      responseSchema: 'SpaceResponseSchema',
+      permissions: ['hub.space.create'],
+      cacheable: false,
+    },
+    {
+      method: 'POST',
+      path: '/plugins/install',
+      handler: 'installPlugin',
+      category: 'hub',
+      public: false,
+      summary: 'Install plugin into space',
+      description: 'Installs a plugin into the current space',
+      tags: ['Hub'],
+      requestSchema: 'InstallPluginRequestSchema',
+      responseSchema: 'InstallPluginResponseSchema',
+      permissions: ['hub.plugin.install'],
+      cacheable: false,
+    },
+    {
+      method: 'GET',
+      path: '/packages',
+      handler: 'listPackages',
+      category: 'hub',
+      public: false,
+      summary: 'List installed packages',
+      description: 'Returns all installed packages with optional status filter',
+      tags: ['Hub', 'Packages'],
+      responseSchema: 'ListPackagesResponseSchema',
+      cacheable: false,
+    },
+    {
+      method: 'GET',
+      path: '/packages/:id',
+      handler: 'getPackage',
+      category: 'hub',
+      public: false,
+      summary: 'Get package details',
+      description: 'Returns details of a specific installed package',
+      tags: ['Hub', 'Packages'],
+      responseSchema: 'GetPackageResponseSchema',
+      cacheable: false,
+    },
+    {
+      method: 'POST',
+      path: '/packages',
+      handler: 'installPackage',
+      category: 'hub',
+      public: false,
+      summary: 'Install package',
+      description: 'Installs a new package from manifest or registry',
+      tags: ['Hub', 'Packages'],
+      requestSchema: 'InstallPackageRequestSchema',
+      responseSchema: 'InstallPackageResponseSchema',
+      permissions: ['hub.package.install'],
+      cacheable: false,
+    },
+    {
+      method: 'DELETE',
+      path: '/packages/:id',
+      handler: 'uninstallPackage',
+      category: 'hub',
+      public: false,
+      summary: 'Uninstall package',
+      description: 'Removes an installed package',
+      tags: ['Hub', 'Packages'],
+      responseSchema: 'UninstallPackageResponseSchema',
+      permissions: ['hub.package.uninstall'],
+      cacheable: false,
+    },
+    {
+      method: 'POST',
+      path: '/packages/:id/enable',
+      handler: 'enablePackage',
+      category: 'hub',
+      public: false,
+      summary: 'Enable package',
+      description: 'Enables a disabled package',
+      tags: ['Hub', 'Packages'],
+      responseSchema: 'EnablePackageResponseSchema',
+      permissions: ['hub.package.manage'],
+      cacheable: false,
+    },
+    {
+      method: 'POST',
+      path: '/packages/:id/disable',
+      handler: 'disablePackage',
+      category: 'hub',
+      public: false,
+      summary: 'Disable package',
+      description: 'Disables an installed package without removing it',
+      tags: ['Hub', 'Packages'],
+      responseSchema: 'DisablePackageResponseSchema',
+      permissions: ['hub.package.manage'],
+      cacheable: false,
+    },
+  ],
+  middleware: [
+    { name: 'auth', type: 'authentication', enabled: true, order: 10 },
+    { name: 'validation', type: 'validation', enabled: true, order: 20 },
+    { name: 'response_envelope', type: 'transformation', enabled: true, order: 100 },
+    { name: 'error_handler', type: 'error', enabled: true, order: 200 },
+  ],
+};
+
+// ==========================================
+// Automation Routes
+// ==========================================
+
+/**
+ * Default Automation Routes
+ * Standard routes for automation triggers
+ */
+export const DEFAULT_AUTOMATION_ROUTES: RestApiRouteRegistration = {
+  prefix: '/api/v1/automation',
+  service: 'automation',
+  category: 'automation',
+  methods: ['triggerAutomation'],
+  authRequired: true,
+  endpoints: [
+    {
+      method: 'POST',
+      path: '/trigger',
+      handler: 'triggerAutomation',
+      category: 'automation',
+      public: false,
+      summary: 'Trigger automation',
+      description: 'Triggers an automation flow or script by name',
+      tags: ['Automation'],
+      requestSchema: 'AutomationTriggerRequestSchema',
+      responseSchema: 'AutomationTriggerResponseSchema',
+      permissions: ['automation.trigger'],
+      timeout: 120000, // 2 minutes for long-running automations
+      cacheable: false,
+    },
+  ],
+  middleware: [
+    { name: 'auth', type: 'authentication', enabled: true, order: 10 },
+    { name: 'validation', type: 'validation', enabled: true, order: 20 },
+    { name: 'response_envelope', type: 'transformation', enabled: true, order: 100 },
+    { name: 'error_handler', type: 'error', enabled: true, order: 200 },
+  ],
+};
+
+// ==========================================
 // Helper Functions
 // ==========================================
 
@@ -1010,7 +1781,24 @@ export const RestApiRouteRegistration = Object.assign(RestApiRouteRegistrationSc
 });
 
 /**
- * Get all default route registrations
+ * Get all default route registrations.
+ * Returns the complete set of standard REST API routes covering all protocol namespaces.
+ * 
+ * Route groups (13 total):
+ * 1. Discovery - API capabilities and routing info
+ * 2. Metadata - Object/field schema CRUD
+ * 3. Data CRUD - Record operations
+ * 4. Batch - Bulk operations
+ * 5. Permission - Authorization checks
+ * 6. Views - UI view CRUD
+ * 7. Workflow - State machine transitions
+ * 8. Realtime - WebSocket/SSE connections
+ * 9. Notification - Push notifications and preferences
+ * 10. AI - NLQ, chat, suggestions, insights
+ * 11. i18n - Locales and translations
+ * 12. Analytics - BI queries and metadata
+ * 13. Hub - Space and package management
+ * 14. Automation - Trigger flows and scripts
  */
 export function getDefaultRouteRegistrations(): RestApiRouteRegistration[] {
   return [
@@ -1019,5 +1807,14 @@ export function getDefaultRouteRegistrations(): RestApiRouteRegistration[] {
     DEFAULT_DATA_CRUD_ROUTES,
     DEFAULT_BATCH_ROUTES,
     DEFAULT_PERMISSION_ROUTES,
+    DEFAULT_VIEW_ROUTES,
+    DEFAULT_WORKFLOW_ROUTES,
+    DEFAULT_REALTIME_ROUTES,
+    DEFAULT_NOTIFICATION_ROUTES,
+    DEFAULT_AI_ROUTES,
+    DEFAULT_I18N_ROUTES,
+    DEFAULT_ANALYTICS_ROUTES,
+    DEFAULT_HUB_ROUTES,
+    DEFAULT_AUTOMATION_ROUTES,
   ];
 }

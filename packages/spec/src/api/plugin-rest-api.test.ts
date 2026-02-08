@@ -14,6 +14,15 @@ import {
   DEFAULT_DATA_CRUD_ROUTES,
   DEFAULT_BATCH_ROUTES,
   DEFAULT_PERMISSION_ROUTES,
+  DEFAULT_VIEW_ROUTES,
+  DEFAULT_WORKFLOW_ROUTES,
+  DEFAULT_REALTIME_ROUTES,
+  DEFAULT_NOTIFICATION_ROUTES,
+  DEFAULT_AI_ROUTES,
+  DEFAULT_I18N_ROUTES,
+  DEFAULT_ANALYTICS_ROUTES,
+  DEFAULT_HUB_ROUTES,
+  DEFAULT_AUTOMATION_ROUTES,
   getDefaultRouteRegistrations,
 } from './plugin-rest-api.zod';
 
@@ -510,15 +519,157 @@ describe('plugin-rest-api.zod', () => {
       expect(DEFAULT_PERMISSION_ROUTES.endpoints).toHaveLength(3);
     });
 
-    it('should return all default registrations', () => {
+    it('should validate DEFAULT_VIEW_ROUTES', () => {
+      expect(DEFAULT_VIEW_ROUTES.prefix).toBe('/api/v1/ui');
+      expect(DEFAULT_VIEW_ROUTES.service).toBe('ui');
+      expect(DEFAULT_VIEW_ROUTES.category).toBe('ui');
+      expect(DEFAULT_VIEW_ROUTES.methods).toContain('listViews');
+      expect(DEFAULT_VIEW_ROUTES.methods).toContain('getView');
+      expect(DEFAULT_VIEW_ROUTES.methods).toContain('createView');
+      expect(DEFAULT_VIEW_ROUTES.methods).toContain('updateView');
+      expect(DEFAULT_VIEW_ROUTES.methods).toContain('deleteView');
+      expect(DEFAULT_VIEW_ROUTES.endpoints).toHaveLength(5);
+    });
+
+    it('should validate DEFAULT_WORKFLOW_ROUTES', () => {
+      expect(DEFAULT_WORKFLOW_ROUTES.prefix).toBe('/api/v1/workflow');
+      expect(DEFAULT_WORKFLOW_ROUTES.service).toBe('workflow');
+      expect(DEFAULT_WORKFLOW_ROUTES.category).toBe('workflow');
+      expect(DEFAULT_WORKFLOW_ROUTES.methods).toContain('getWorkflowConfig');
+      expect(DEFAULT_WORKFLOW_ROUTES.methods).toContain('getWorkflowState');
+      expect(DEFAULT_WORKFLOW_ROUTES.methods).toContain('workflowTransition');
+      expect(DEFAULT_WORKFLOW_ROUTES.methods).toContain('workflowApprove');
+      expect(DEFAULT_WORKFLOW_ROUTES.methods).toContain('workflowReject');
+      expect(DEFAULT_WORKFLOW_ROUTES.endpoints).toHaveLength(5);
+    });
+
+    it('should validate DEFAULT_REALTIME_ROUTES', () => {
+      expect(DEFAULT_REALTIME_ROUTES.prefix).toBe('/api/v1/realtime');
+      expect(DEFAULT_REALTIME_ROUTES.service).toBe('realtime');
+      expect(DEFAULT_REALTIME_ROUTES.category).toBe('realtime');
+      expect(DEFAULT_REALTIME_ROUTES.methods).toContain('realtimeConnect');
+      expect(DEFAULT_REALTIME_ROUTES.methods).toContain('realtimeDisconnect');
+      expect(DEFAULT_REALTIME_ROUTES.methods).toContain('realtimeSubscribe');
+      expect(DEFAULT_REALTIME_ROUTES.methods).toContain('realtimeUnsubscribe');
+      expect(DEFAULT_REALTIME_ROUTES.methods).toContain('setPresence');
+      expect(DEFAULT_REALTIME_ROUTES.methods).toContain('getPresence');
+      expect(DEFAULT_REALTIME_ROUTES.endpoints).toHaveLength(6);
+    });
+
+    it('should validate DEFAULT_NOTIFICATION_ROUTES', () => {
+      expect(DEFAULT_NOTIFICATION_ROUTES.prefix).toBe('/api/v1/notifications');
+      expect(DEFAULT_NOTIFICATION_ROUTES.service).toBe('notification');
+      expect(DEFAULT_NOTIFICATION_ROUTES.category).toBe('notification');
+      expect(DEFAULT_NOTIFICATION_ROUTES.methods).toContain('registerDevice');
+      expect(DEFAULT_NOTIFICATION_ROUTES.methods).toContain('listNotifications');
+      expect(DEFAULT_NOTIFICATION_ROUTES.methods).toContain('markNotificationsRead');
+      expect(DEFAULT_NOTIFICATION_ROUTES.methods).toContain('markAllNotificationsRead');
+      expect(DEFAULT_NOTIFICATION_ROUTES.endpoints).toHaveLength(7);
+    });
+
+    it('should validate DEFAULT_AI_ROUTES', () => {
+      expect(DEFAULT_AI_ROUTES.prefix).toBe('/api/v1/ai');
+      expect(DEFAULT_AI_ROUTES.service).toBe('ai');
+      expect(DEFAULT_AI_ROUTES.category).toBe('ai');
+      expect(DEFAULT_AI_ROUTES.methods).toContain('aiNlq');
+      expect(DEFAULT_AI_ROUTES.methods).toContain('aiChat');
+      expect(DEFAULT_AI_ROUTES.methods).toContain('aiSuggest');
+      expect(DEFAULT_AI_ROUTES.methods).toContain('aiInsights');
+      expect(DEFAULT_AI_ROUTES.endpoints).toHaveLength(4);
+      // AI endpoints should have extended timeouts
+      const chatEndpoint = DEFAULT_AI_ROUTES.endpoints?.find(e => e.handler === 'aiChat');
+      expect(chatEndpoint?.timeout).toBe(60000);
+    });
+
+    it('should validate DEFAULT_I18N_ROUTES', () => {
+      expect(DEFAULT_I18N_ROUTES.prefix).toBe('/api/v1/i18n');
+      expect(DEFAULT_I18N_ROUTES.service).toBe('i18n');
+      expect(DEFAULT_I18N_ROUTES.category).toBe('i18n');
+      expect(DEFAULT_I18N_ROUTES.methods).toContain('getLocales');
+      expect(DEFAULT_I18N_ROUTES.methods).toContain('getTranslations');
+      expect(DEFAULT_I18N_ROUTES.methods).toContain('getFieldLabels');
+      expect(DEFAULT_I18N_ROUTES.endpoints).toHaveLength(3);
+      // i18n endpoints should be cacheable
+      DEFAULT_I18N_ROUTES.endpoints?.forEach(endpoint => {
+        expect(endpoint.cacheable).toBe(true);
+      });
+    });
+
+    it('should validate DEFAULT_ANALYTICS_ROUTES', () => {
+      expect(DEFAULT_ANALYTICS_ROUTES.prefix).toBe('/api/v1/analytics');
+      expect(DEFAULT_ANALYTICS_ROUTES.service).toBe('analytics');
+      expect(DEFAULT_ANALYTICS_ROUTES.category).toBe('analytics');
+      expect(DEFAULT_ANALYTICS_ROUTES.methods).toContain('analyticsQuery');
+      expect(DEFAULT_ANALYTICS_ROUTES.methods).toContain('getAnalyticsMeta');
+      expect(DEFAULT_ANALYTICS_ROUTES.endpoints).toHaveLength(2);
+      // Analytics query should have extended timeout
+      const queryEndpoint = DEFAULT_ANALYTICS_ROUTES.endpoints?.find(e => e.handler === 'analyticsQuery');
+      expect(queryEndpoint?.timeout).toBe(120000);
+    });
+
+    it('should validate DEFAULT_HUB_ROUTES', () => {
+      expect(DEFAULT_HUB_ROUTES.prefix).toBe('/api/v1/hub');
+      expect(DEFAULT_HUB_ROUTES.service).toBe('hub');
+      expect(DEFAULT_HUB_ROUTES.category).toBe('hub');
+      expect(DEFAULT_HUB_ROUTES.methods).toContain('listSpaces');
+      expect(DEFAULT_HUB_ROUTES.methods).toContain('createSpace');
+      expect(DEFAULT_HUB_ROUTES.methods).toContain('installPlugin');
+      expect(DEFAULT_HUB_ROUTES.methods).toContain('listPackages');
+      expect(DEFAULT_HUB_ROUTES.methods).toContain('installPackage');
+      expect(DEFAULT_HUB_ROUTES.methods).toContain('uninstallPackage');
+      expect(DEFAULT_HUB_ROUTES.methods).toContain('enablePackage');
+      expect(DEFAULT_HUB_ROUTES.methods).toContain('disablePackage');
+      expect(DEFAULT_HUB_ROUTES.endpoints).toHaveLength(9);
+    });
+
+    it('should validate DEFAULT_AUTOMATION_ROUTES', () => {
+      expect(DEFAULT_AUTOMATION_ROUTES.prefix).toBe('/api/v1/automation');
+      expect(DEFAULT_AUTOMATION_ROUTES.service).toBe('automation');
+      expect(DEFAULT_AUTOMATION_ROUTES.category).toBe('automation');
+      expect(DEFAULT_AUTOMATION_ROUTES.methods).toContain('triggerAutomation');
+      expect(DEFAULT_AUTOMATION_ROUTES.endpoints).toHaveLength(1);
+      // Automation trigger should have extended timeout
+      expect(DEFAULT_AUTOMATION_ROUTES.endpoints?.[0].timeout).toBe(120000);
+    });
+
+    it('should return all 14 default registrations', () => {
       const registrations = getDefaultRouteRegistrations();
       
-      expect(registrations).toHaveLength(5);
+      expect(registrations).toHaveLength(14);
       expect(registrations[0]).toBe(DEFAULT_DISCOVERY_ROUTES);
       expect(registrations[1]).toBe(DEFAULT_METADATA_ROUTES);
       expect(registrations[2]).toBe(DEFAULT_DATA_CRUD_ROUTES);
       expect(registrations[3]).toBe(DEFAULT_BATCH_ROUTES);
       expect(registrations[4]).toBe(DEFAULT_PERMISSION_ROUTES);
+      expect(registrations[5]).toBe(DEFAULT_VIEW_ROUTES);
+      expect(registrations[6]).toBe(DEFAULT_WORKFLOW_ROUTES);
+      expect(registrations[7]).toBe(DEFAULT_REALTIME_ROUTES);
+      expect(registrations[8]).toBe(DEFAULT_NOTIFICATION_ROUTES);
+      expect(registrations[9]).toBe(DEFAULT_AI_ROUTES);
+      expect(registrations[10]).toBe(DEFAULT_I18N_ROUTES);
+      expect(registrations[11]).toBe(DEFAULT_ANALYTICS_ROUTES);
+      expect(registrations[12]).toBe(DEFAULT_HUB_ROUTES);
+      expect(registrations[13]).toBe(DEFAULT_AUTOMATION_ROUTES);
+    });
+
+    it('should cover all protocol categories', () => {
+      const registrations = getDefaultRouteRegistrations();
+      const categories = registrations.map(r => r.category);
+      
+      expect(categories).toContain('discovery');
+      expect(categories).toContain('metadata');
+      expect(categories).toContain('data');
+      expect(categories).toContain('batch');
+      expect(categories).toContain('permission');
+      expect(categories).toContain('ui');
+      expect(categories).toContain('workflow');
+      expect(categories).toContain('realtime');
+      expect(categories).toContain('notification');
+      expect(categories).toContain('ai');
+      expect(categories).toContain('i18n');
+      expect(categories).toContain('analytics');
+      expect(categories).toContain('hub');
+      expect(categories).toContain('automation');
     });
   });
 
