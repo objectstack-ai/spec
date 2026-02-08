@@ -410,6 +410,12 @@ export type DependencyGraph = z.infer<typeof DependencyGraphSchema>;
 
 /**
  * Dependency Conflict
+ * 
+ * Hub-level dependency conflict detected during plugin resolution.
+ * Focuses on package version conflicts across the marketplace/registry.
+ * 
+ * @see kernel/plugin-versioning.zod.ts DependencyConflictSchema for kernel-level plugin conflicts
+ *      which models plugin-to-plugin conflicts with richer resolution strategies.
  */
 export const DependencyConflictSchema = z.object({
   /**

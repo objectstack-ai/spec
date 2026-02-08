@@ -3,7 +3,6 @@ import { z } from 'zod';
 import {
   // Field Mapping
   FieldMappingSchema,
-  FieldTransformSchema,
   
   // Data Sync
   DataSyncConfigSchema,
@@ -22,14 +21,12 @@ import {
   ConnectorSchema,
   ConnectorTypeSchema,
   ConnectorStatusSchema,
-  AuthenticationSchema,
   
   // Types
   type Connector,
   type FieldMapping,
   type DataSyncConfig,
   type WebhookConfig,
-  type Authentication,
 } from './connector.zod';
 
 // Import shared auth schemas from canonical source
@@ -128,7 +125,7 @@ describe('OAuth2Schema', () => {
   });
 });
 
-describe('AuthenticationSchema', () => {
+describe('ConnectorAuthConfigSchema (Authentication)', () => {
   it('should accept all authentication types via discriminated union', () => {
     const keyAuth = { type: 'api-key' as const, key: 'key' };
     const oauth2Auth = { 
@@ -141,10 +138,10 @@ describe('AuthenticationSchema', () => {
     const basicAuth = { type: 'basic' as const, username: 'user', password: 'pass' };
     const noAuth = { type: 'none' as const };
     
-    expect(() => AuthenticationSchema.parse(keyAuth)).not.toThrow();
-    expect(() => AuthenticationSchema.parse(oauth2Auth)).not.toThrow();
-    expect(() => AuthenticationSchema.parse(basicAuth)).not.toThrow();
-    expect(() => AuthenticationSchema.parse(noAuth)).not.toThrow();
+    expect(() => AuthConfigSchema.parse(keyAuth)).not.toThrow();
+    expect(() => AuthConfigSchema.parse(oauth2Auth)).not.toThrow();
+    expect(() => AuthConfigSchema.parse(basicAuth)).not.toThrow();
+    expect(() => AuthConfigSchema.parse(noAuth)).not.toThrow();
   });
 });
 

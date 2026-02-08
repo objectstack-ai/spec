@@ -236,7 +236,11 @@ export const PluginCompatibilityMatrixSchema = z.object({
 
 /**
  * Dependency Conflict
- * Represents a conflict in plugin dependencies
+ * Represents a conflict in plugin dependencies at the kernel level.
+ * Models plugin-to-plugin dependency conflicts with typed conflict categories.
+ * 
+ * @see hub/plugin-security.zod.ts DependencyConflictSchema for hub-level package version conflicts
+ *      which focuses on marketplace registry resolution.
  */
 export const DependencyConflictSchema = z.object({
   /**

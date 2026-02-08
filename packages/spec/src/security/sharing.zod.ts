@@ -90,7 +90,7 @@ export const OwnerSharingRuleSchema = BaseSharingRuleSchema.extend({
 /**
  * Master Sharing Rule Schema
  */
-export const SharingRuleSchema: z.ZodType<any> = z.discriminatedUnion('type', [
+export const SharingRuleSchema = z.discriminatedUnion('type', [
   CriteriaSharingRuleSchema,
   OwnerSharingRuleSchema
 ]);

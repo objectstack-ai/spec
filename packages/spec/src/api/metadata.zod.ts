@@ -42,3 +42,7 @@ export const ConceptListResponseSchema = BaseResponseSchema.extend({
     description: z.string().optional(),
   })).describe('List of available concepts (Objects, Apps, Flows)'),
 });
+
+export type ObjectDefinitionResponse = z.infer<typeof ObjectDefinitionResponseSchema>;
+export type AppDefinitionResponse = z.infer<typeof AppDefinitionResponseSchema>;
+export type ConceptListResponse = z.infer<typeof ConceptListResponseSchema>;
