@@ -391,7 +391,7 @@ export const FieldWidgetPropsSchema = z.object({
    * @param newValue - The new value to set
    */
   onChange: z.function()
-    .args(z.any())
+    .args(z.unknown())
     .returns(z.void())
     .describe('Callback to update field value'),
 

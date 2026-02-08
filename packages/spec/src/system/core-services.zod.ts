@@ -95,7 +95,7 @@ export const ServiceStatusSchema = z.object({
  */
 export const KernelServiceMapSchema = z.record(
   CoreServiceName, 
-  z.any().describe('Service Instance implementing the protocol interface')
+  z.unknown().describe('Service Instance implementing the protocol interface')
 );
 
 // ==========================================

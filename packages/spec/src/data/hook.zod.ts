@@ -157,7 +157,7 @@ export const HookContextSchema = z.object({
    * Engine Access
    * Reference to the ObjectQL engine for performing side effects.
    */
-  ql: z.any().describe('ObjectQL Engine Reference'),
+  ql: z.unknown().describe('ObjectQL Engine Reference'),
 });
 
 export type Hook = z.input<typeof HookSchema>;
