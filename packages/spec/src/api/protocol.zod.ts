@@ -444,92 +444,92 @@ export {
  */
 export const ObjectStackProtocolSchema = z.object({
   // Discovery & Metadata
-  getDiscovery: z.any()
+  getDiscovery: z.function()
     .describe('Get API discovery information'),
 
-  getMetaTypes: z.any()
+  getMetaTypes: z.function()
     .describe('Get available metadata types'),
 
-  getMetaItems: z.any()
+  getMetaItems: z.function()
     .describe('Get all items of a metadata type'),
 
-  getMetaItem: z.any()
+  getMetaItem: z.function()
     .describe('Get a specific metadata item'),
-  saveMetaItem: z.any()
+  saveMetaItem: z.function()
     .describe('Save metadata item'),
-  getMetaItemCached: z.any()
+  getMetaItemCached: z.function()
     .describe('Get a metadata item with cache validation'),
 
-  getUiView: z.any()
+  getUiView: z.function()
     .describe('Get UI view definition'),
 
   // Analytics Operations
-  analyticsQuery: z.any()
+  analyticsQuery: z.function()
     .describe('Execute analytics query'),
 
-  getAnalyticsMeta: z.any()
+  getAnalyticsMeta: z.function()
     .describe('Get analytics metadata (cubes)'),
 
   // Automation Operations
-  triggerAutomation: z.any()
+  triggerAutomation: z.function()
     .describe('Trigger an automation flow or script'),
 
   // Hub Operations
-  listSpaces: z.any()
+  listSpaces: z.function()
     .describe('List Hub Spaces'),
   
-  createSpace: z.any()
+  createSpace: z.function()
     .describe('Create Hub Space'),
 
-  installPlugin: z.any()
+  installPlugin: z.function()
     .describe('Install Plugin into Space'),
 
   // Package Management Operations
-  listPackages: z.any()
+  listPackages: z.function()
     .describe('List installed packages with optional filters'),
 
-  getPackage: z.any()
+  getPackage: z.function()
     .describe('Get a specific installed package by ID'),
 
-  installPackage: z.any()
+  installPackage: z.function()
     .describe('Install a new package from manifest'),
 
-  uninstallPackage: z.any()
+  uninstallPackage: z.function()
     .describe('Uninstall a package by ID'),
 
-  enablePackage: z.any()
+  enablePackage: z.function()
     .describe('Enable a disabled package'),
 
-  disablePackage: z.any()
+  disablePackage: z.function()
     .describe('Disable an installed package'),
 
   // Data Operations
-  findData: z.any()
+  findData: z.function()
     .describe('Find data records'),
 
-  getData: z.any()
+  getData: z.function()
     .describe('Get single data record'),
 
-  createData: z.any()
+  createData: z.function()
     .describe('Create a data record'),
 
-  updateData: z.any()
+  updateData: z.function()
     .describe('Update a data record'),
 
-  deleteData: z.any()
+  deleteData: z.function()
     .describe('Delete a data record'),
 
   // Batch Operations
-  batchData: z.any()
+  batchData: z.function()
     .describe('Perform batch operations'),
 
-  createManyData: z.any()
+  createManyData: z.function()
     .describe('Create multiple records'),
 
-  updateManyData: z.any()
+  updateManyData: z.function()
     .describe('Update multiple records'),
 
-  deleteManyData: z.any()
+  deleteManyData: z.function()
     .describe('Delete multiple records'),
 });
 

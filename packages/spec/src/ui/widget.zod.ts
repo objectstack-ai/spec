@@ -263,6 +263,8 @@ export const WidgetSourceSchema = z.discriminatedUnion('type', [
   }),
 ]);
 
+export type WidgetSource = z.infer<typeof WidgetSourceSchema>;
+
 export const WidgetManifestSchema = z.object({
   /**
    * Widget identifier (snake_case)
@@ -391,7 +393,7 @@ export const FieldWidgetPropsSchema = z.object({
    * @param newValue - The new value to set
    */
   onChange: z.function()
-    .args(z.any())
+    .args(z.unknown())
     .returns(z.void())
     .describe('Callback to update field value'),
 

@@ -1,35 +1,34 @@
 import { z } from 'zod';
 
-// We use z.any() for service methods that are interfaces with function signatures,
-// as Zod cannot easily validate function signatures at runtime.
+// Service method interfaces use z.function() instead of z.any() for type safety.
 // Generic data fields use z.unknown() for type safety.
 export const PluginContextSchema = z.object({
   ql: z.object({
-    object: z.any(), // Return any to allow method chaining
-    query: z.any(),
+    object: z.function().describe('Get object handle for method chaining'),
+    query: z.function().describe('Execute a query'),
   }).passthrough().describe('ObjectQL Engine Interface'),
 
   os: z.object({
-    getCurrentUser: z.any(),
-    getConfig: z.any(),
+    getCurrentUser: z.function().describe('Get the current authenticated user'),
+    getConfig: z.function().describe('Get platform configuration'),
   }).passthrough().describe('ObjectStack Kernel Interface'),
 
   logger: z.object({
-    debug: z.any(),
-    info: z.any(),
-    warn: z.any(),
-    error: z.any(),
+    debug: z.function().describe('Log debug message'),
+    info: z.function().describe('Log info message'),
+    warn: z.function().describe('Log warning message'),
+    error: z.function().describe('Log error message'),
   }).passthrough().describe('Logger Interface'),
 
   storage: z.object({
-    get: z.any(),
-    set: z.any(),
-    delete: z.any(),
+    get: z.function().describe('Get a value from storage'),
+    set: z.function().describe('Set a value in storage'),
+    delete: z.function().describe('Delete a value from storage'),
   }).passthrough().describe('Storage Interface'),
 
   i18n: z.object({
-    t: z.any(),
-    getLocale: z.any(),
+    t: z.function().describe('Translate a key'),
+    getLocale: z.function().describe('Get current locale'),
   }).passthrough().describe('Internationalization Interface'),
 
   metadata: z.record(z.string(), z.unknown()),
@@ -37,14 +36,14 @@ export const PluginContextSchema = z.object({
   
   app: z.object({
     router: z.object({
-      get: z.any(),
-      post: z.any(),
-      use: z.any(),
+      get: z.function().describe('Register GET route handler'),
+      post: z.function().describe('Register POST route handler'),
+      use: z.function().describe('Register middleware'),
     }).passthrough()
   }).passthrough().describe('App Framework Interface'),
 
   drivers: z.object({
-    register: z.any(),
+    register: z.function().describe('Register a driver'),
   }).passthrough().describe('Driver Registry'),
 });
 
@@ -52,15 +51,15 @@ export type PluginContextData = z.infer<typeof PluginContextSchema>;
 export type PluginContext = PluginContextData;
 
 export const PluginLifecycleSchema = z.object({
-  onInstall: z.any().optional(),
+  onInstall: z.function().optional().describe('Called when plugin is installed'),
   
-  onEnable: z.any().optional(),
+  onEnable: z.function().optional().describe('Called when plugin is enabled'),
   
-  onDisable: z.any().optional(),
+  onDisable: z.function().optional().describe('Called when plugin is disabled'),
   
-  onUninstall: z.any().optional(),
+  onUninstall: z.function().optional().describe('Called when plugin is uninstalled'),
   
-  onUpgrade: z.any().optional(),
+  onUpgrade: z.function().optional().describe('Called when plugin is upgraded'),
 });
 
 export type PluginLifecycleHooks = z.infer<typeof PluginLifecycleSchema>;

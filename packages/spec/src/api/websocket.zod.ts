@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { EventNameSchema } from '../shared/identifiers.zod';
+import { RealtimePresenceStatus } from './realtime.zod';
 
 /**
  * WebSocket Event Protocol
@@ -133,14 +134,9 @@ export type UnsubscribeRequest = z.infer<typeof UnsubscribeRequestSchema>;
 
 /**
  * Presence Status Enum
- * User availability status for presence tracking
+ * Re-exported from realtime.zod.ts for backward compatibility
  */
-export const WebSocketPresenceStatus = z.enum([
-  'online',      // User is actively online
-  'away',        // User is idle/away
-  'busy',        // User is busy (do not disturb)
-  'offline',     // User is offline
-]);
+export const WebSocketPresenceStatus = RealtimePresenceStatus;
 
 export type WebSocketPresenceStatus = z.infer<typeof WebSocketPresenceStatus>;
 
