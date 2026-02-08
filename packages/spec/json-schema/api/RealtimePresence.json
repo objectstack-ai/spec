@@ -13,6 +13,7 @@
           "enum": [
             "online",
             "away",
+            "busy",
             "offline"
           ],
           "description": "Current presence status"
