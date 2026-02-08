@@ -64,18 +64,21 @@
           "type": "object",
           "properties": {
             "sql": {
-              "type": "string"
+              "type": "string",
+              "description": "Generated SQL query"
             },
             "params": {
               "type": "array",
-              "items": {}
+              "items": {},
+              "description": "Query parameters"
             }
           },
           "required": [
             "sql",
             "params"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "SQL dry-run result"
         }
       },
       "required": [

@@ -8,7 +8,8 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
+              "type": "string",
+              "description": "Unique identifier for this issue"
             },
             "severity": {
               "type": "string",
@@ -17,51 +18,65 @@
                 "error",
                 "warning",
                 "info"
-              ]
+              ],
+              "description": "Issue severity level"
             },
             "message": {
-              "type": "string"
+              "type": "string",
+              "description": "Human-readable error or issue description"
             },
             "stackTrace": {
-              "type": "string"
+              "type": "string",
+              "description": "Full stack trace if available"
             },
             "timestamp": {
               "type": "string",
-              "format": "date-time"
+              "format": "date-time",
+              "description": "When the issue occurred (ISO 8601)"
             },
             "userId": {
-              "type": "string"
+              "type": "string",
+              "description": "User who encountered the issue"
             },
             "context": {
               "type": "object",
-              "additionalProperties": {}
+              "additionalProperties": {},
+              "description": "Runtime context snapshot at the time of the issue"
             },
             "source": {
               "type": "object",
               "properties": {
                 "file": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Source file path where the metadata is defined"
                 },
                 "line": {
-                  "type": "number"
+                  "type": "number",
+                  "description": "Line number in the source file"
                 },
                 "column": {
-                  "type": "number"
+                  "type": "number",
+                  "description": "Column number in the source file"
                 },
                 "package": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Package name containing the metadata"
                 },
                 "object": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "ObjectQL object name if applicable"
                 },
                 "field": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Field name if the issue is field-specific"
                 },
                 "component": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Specific UI component or flow node identifier"
                 }
               },
-              "additionalProperties": false
+              "additionalProperties": false,
+              "description": "Source location of the suspected problematic metadata"
             }
           },
           "required": [
@@ -70,7 +85,8 @@
             "message",
             "timestamp"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "The runtime issue that triggered this feedback loop"
         },
         "analysis": {
           "type": "string",
@@ -82,7 +98,8 @@
             "type": "object",
             "properties": {
               "issueId": {
-                "type": "string"
+                "type": "string",
+                "description": "Reference to the issue being resolved"
               },
               "reasoning": {
                 "type": "string",
@@ -91,7 +108,8 @@
               "confidence": {
                 "type": "number",
                 "minimum": 0,
-                "maximum": 1
+                "maximum": 1,
+                "description": "AI confidence score (0.0-1.0) for this resolution"
               },
               "fix": {
                 "anyOf": [
@@ -9760,7 +9778,7 @@
                           "operations"
                         ],
                         "additionalProperties": false,
-                        "description": "A versioned set of atomic schema migration operations"
+                        "description": "Automated metadata changes to resolve the issue"
                       }
                     },
                     "required": [
@@ -9777,7 +9795,8 @@
                         "const": "manual_intervention"
                       },
                       "instructions": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Step-by-step instructions for manual resolution"
                       }
                     },
                     "required": [
@@ -9786,7 +9805,8 @@
                     ],
                     "additionalProperties": false
                   }
-                ]
+                ],
+                "description": "Proposed fix action (automated or manual)"
               }
             },
             "required": [
@@ -9796,7 +9816,8 @@
               "fix"
             ],
             "additionalProperties": false
-          }
+          },
+          "description": "Proposed resolutions ranked by confidence"
         },
         "status": {
           "type": "string",
@@ -9806,7 +9827,8 @@
             "resolved",
             "ignored"
           ],
-          "default": "open"
+          "default": "open",
+          "description": "Current status of the feedback loop"
         }
       },
       "required": [

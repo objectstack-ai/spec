@@ -5,7 +5,8 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique service instance identifier"
         },
         "name": {
           "type": "string",
@@ -28,11 +29,13 @@
             "i18n",
             "ui",
             "workflow"
-          ]
+          ],
+          "description": "Service type identifier"
         },
         "options": {
           "type": "object",
-          "additionalProperties": {}
+          "additionalProperties": {},
+          "description": "Service-specific configuration options"
         }
       },
       "required": [

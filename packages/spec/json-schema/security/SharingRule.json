@@ -25,7 +25,8 @@
             },
             "active": {
               "type": "boolean",
-              "default": true
+              "default": true,
+              "description": "Whether the sharing rule is currently active"
             },
             "accessLevel": {
               "type": "string",
@@ -34,6 +35,7 @@
                 "edit",
                 "full"
               ],
+              "description": "Level of access granted",
               "default": "read"
             },
             "sharedWith": {
@@ -47,7 +49,8 @@
                     "role",
                     "role_and_subordinates",
                     "guest"
-                  ]
+                  ],
+                  "description": "Type of recipient"
                 },
                 "value": {
                   "type": "string",
@@ -67,7 +70,7 @@
             },
             "condition": {
               "type": "string",
-              "description": "Formula condition (e.g. \"department = 'Sales'\")"
+              "description": "Formula condition determining which records to share (e.g. \"department = 'Sales'\")"
             }
           },
           "required": [
@@ -101,7 +104,8 @@
             },
             "active": {
               "type": "boolean",
-              "default": true
+              "default": true,
+              "description": "Whether the sharing rule is currently active"
             },
             "accessLevel": {
               "type": "string",
@@ -110,6 +114,7 @@
                 "edit",
                 "full"
               ],
+              "description": "Level of access granted",
               "default": "read"
             },
             "sharedWith": {
@@ -123,7 +128,8 @@
                     "role",
                     "role_and_subordinates",
                     "guest"
-                  ]
+                  ],
+                  "description": "Type of recipient"
                 },
                 "value": {
                   "type": "string",
@@ -152,10 +158,12 @@
                     "role",
                     "role_and_subordinates",
                     "guest"
-                  ]
+                  ],
+                  "description": "Type of owner"
                 },
                 "value": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "ID or Code of the owner"
                 }
               },
               "required": [
@@ -163,7 +171,7 @@
                 "value"
               ],
               "additionalProperties": false,
-              "description": "Source group/role whose records are being shared"
+              "description": "Source group/role whose owned records are being shared"
             }
           },
           "required": [

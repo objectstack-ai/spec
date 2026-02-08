@@ -5,13 +5,16 @@
       "type": "object",
       "properties": {
         "$contains": {
-          "type": "string"
+          "type": "string",
+          "description": "String contains the specified substring"
         },
         "$startsWith": {
-          "type": "string"
+          "type": "string",
+          "description": "String starts with the specified prefix"
         },
         "$endsWith": {
-          "type": "string"
+          "type": "string",
+          "description": "String ends with the specified suffix"
         }
       },
       "additionalProperties": false

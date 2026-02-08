@@ -6,7 +6,8 @@
       "enum": [
         "owner",
         "criteria"
-      ]
+      ],
+      "description": "Type of sharing rule (owner-based or criteria-based)"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

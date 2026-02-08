@@ -16,11 +16,11 @@
         },
         "modelId": {
           "type": "string",
-          "description": "Belongs to which Territory Model"
+          "description": "Reference to the Territory Model this territory belongs to"
         },
         "parent": {
           "type": "string",
-          "description": "Parent Territory"
+          "description": "Parent Territory for hierarchical organization"
         },
         "type": {
           "type": "string",
@@ -30,17 +30,19 @@
             "named_account",
             "product_line"
           ],
+          "description": "Territory type classification",
           "default": "geography"
         },
         "assignmentRule": {
           "type": "string",
-          "description": "Criteria based assignment rule"
+          "description": "Formula/criteria for automatic account assignment to this territory"
         },
         "assignedUsers": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "description": "User IDs assigned to manage this territory"
         },
         "accountAccess": {
           "type": "string",
@@ -48,7 +50,8 @@
             "read",
             "edit"
           ],
-          "default": "read"
+          "default": "read",
+          "description": "Access level for accounts in this territory"
         },
         "opportunityAccess": {
           "type": "string",
@@ -56,7 +59,8 @@
             "read",
             "edit"
           ],
-          "default": "read"
+          "default": "read",
+          "description": "Access level for opportunities in this territory"
         },
         "caseAccess": {
           "type": "string",
@@ -64,7 +68,8 @@
             "read",
             "edit"
           ],
-          "default": "read"
+          "default": "read",
+          "description": "Access level for cases in this territory"
         }
       },
       "required": [

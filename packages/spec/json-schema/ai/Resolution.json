@@ -5,7 +5,8 @@
       "type": "object",
       "properties": {
         "issueId": {
-          "type": "string"
+          "type": "string",
+          "description": "Reference to the issue being resolved"
         },
         "reasoning": {
           "type": "string",
@@ -14,7 +15,8 @@
         "confidence": {
           "type": "number",
           "minimum": 0,
-          "maximum": 1
+          "maximum": 1,
+          "description": "AI confidence score (0.0-1.0) for this resolution"
         },
         "fix": {
           "anyOf": [
@@ -9683,7 +9685,7 @@
                     "operations"
                   ],
                   "additionalProperties": false,
-                  "description": "A versioned set of atomic schema migration operations"
+                  "description": "Automated metadata changes to resolve the issue"
                 }
               },
               "required": [
@@ -9700,7 +9702,8 @@
                   "const": "manual_intervention"
                 },
                 "instructions": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Step-by-step instructions for manual resolution"
                 }
               },
               "required": [
@@ -9709,7 +9712,8 @@
               ],
               "additionalProperties": false
             }
-          ]
+          ],
+          "description": "Proposed fix action (automated or manual)"
         }
       },
       "required": [

@@ -414,8 +414,8 @@
                             "replace",
                             "ignore"
                           ],
-                          "default": "upsert",
-                          "description": "Conflict resolution strategy"
+                          "description": "Conflict resolution strategy",
+                          "default": "upsert"
                         },
                         "env": {
                           "type": "array",

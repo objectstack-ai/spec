@@ -4,8 +4,12 @@
     "EqualityOperator": {
       "type": "object",
       "properties": {
-        "$eq": {},
-        "$ne": {}
+        "$eq": {
+          "description": "Equal to comparison operator"
+        },
+        "$ne": {
+          "description": "Not equal to comparison operator"
+        }
       },
       "additionalProperties": false
     }

@@ -6,7 +6,8 @@
       "properties": {
         "logRetentionDays": {
           "type": "number",
-          "default": 180
+          "default": 180,
+          "description": "Number of days to retain audit logs"
         },
         "sensitiveFields": {
           "type": "array",
@@ -18,7 +19,7 @@
         "captureRead": {
           "type": "boolean",
           "default": false,
-          "description": "Log read access (High volume!)"
+          "description": "Log read access events (generates high volume!)"
         }
       },
       "required": [

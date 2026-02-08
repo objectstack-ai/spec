@@ -15,13 +15,16 @@
             "active",
             "archived"
           ],
-          "default": "planning"
+          "default": "planning",
+          "description": "Current state of the territory model"
         },
         "startDate": {
-          "type": "string"
+          "type": "string",
+          "description": "Effective start date for this model"
         },
         "endDate": {
-          "type": "string"
+          "type": "string",
+          "description": "Effective end date for this model"
         }
       },
       "required": [

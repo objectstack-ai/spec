@@ -16,10 +16,11 @@
         },
         "parent": {
           "type": "string",
-          "description": "Parent Role ID (Reports To)"
+          "description": "Parent Role ID for hierarchical reporting structure (Reports To)"
         },
         "description": {
-          "type": "string"
+          "type": "string",
+          "description": "Detailed description of the role and its responsibilities"
         }
       },
       "required": [

@@ -9,11 +9,13 @@
           "description": "Plan code (e.g. pro_v1)"
         },
         "label": {
-          "type": "string"
+          "type": "string",
+          "description": "Human-readable plan name"
         },
         "active": {
           "type": "boolean",
-          "default": true
+          "default": true,
+          "description": "Whether this plan is currently available for purchase"
         },
         "features": {
           "type": "array",
@@ -31,13 +33,16 @@
         },
         "currency": {
           "type": "string",
-          "default": "USD"
+          "default": "USD",
+          "description": "Currency code for pricing"
         },
         "priceMonthly": {
-          "type": "number"
+          "type": "number",
+          "description": "Monthly subscription price"
         },
         "priceYearly": {
-          "type": "number"
+          "type": "number",
+          "description": "Yearly subscription price"
         }
       },
       "required": [

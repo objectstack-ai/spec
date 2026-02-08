@@ -66,16 +66,20 @@
             "type": "object",
             "properties": {
               "name": {
-                "type": "string"
+                "type": "string",
+                "description": "Concept machine name (snake_case)"
               },
               "label": {
-                "type": "string"
+                "type": "string",
+                "description": "Human-readable label"
               },
               "icon": {
-                "type": "string"
+                "type": "string",
+                "description": "Icon identifier or URL"
               },
               "description": {
-                "type": "string"
+                "type": "string",
+                "description": "Short description of the concept"
               }
             },
             "required": [

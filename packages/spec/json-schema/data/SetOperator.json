@@ -5,10 +5,12 @@
       "type": "object",
       "properties": {
         "$in": {
-          "type": "array"
+          "type": "array",
+          "description": "Value is in the specified list"
         },
         "$nin": {
-          "type": "array"
+          "type": "array",
+          "description": "Value is not in the specified list"
         }
       },
       "additionalProperties": false

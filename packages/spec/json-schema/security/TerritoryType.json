@@ -8,7 +8,8 @@
         "industry",
         "named_account",
         "product_line"
-      ]
+      ],
+      "description": "Type of territory segmentation strategy"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

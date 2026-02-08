@@ -24,7 +24,8 @@
                 "$not": {}
               }
             }
-          ]
+          ],
+          "description": "Filter conditions for the query"
         }
       },
       "additionalProperties": false

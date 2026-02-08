@@ -26,7 +26,8 @@
               ],
               "additionalProperties": false
             }
-          ]
+          ],
+          "description": "Greater than comparison operator"
         },
         "$gte": {
           "anyOf": [
@@ -50,7 +51,8 @@
               ],
               "additionalProperties": false
             }
-          ]
+          ],
+          "description": "Greater than or equal to comparison operator"
         },
         "$lt": {
           "anyOf": [
@@ -74,7 +76,8 @@
               ],
               "additionalProperties": false
             }
-          ]
+          ],
+          "description": "Less than comparison operator"
         },
         "$lte": {
           "anyOf": [
@@ -98,7 +101,8 @@
               ],
               "additionalProperties": false
             }
-          ]
+          ],
+          "description": "Less than or equal to comparison operator"
         }
       },
       "additionalProperties": false

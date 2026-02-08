@@ -15,7 +15,8 @@
           "description": "Display label"
         },
         "description": {
-          "type": "string"
+          "type": "string",
+          "description": "Description of the feature and its purpose"
         },
         "enabled": {
           "type": "boolean",
@@ -31,6 +32,7 @@
             "group",
             "custom"
           ],
+          "description": "Strategy for feature rollout",
           "default": "boolean"
         },
         "conditions": {
@@ -39,26 +41,30 @@
             "percentage": {
               "type": "number",
               "minimum": 0,
-              "maximum": 100
+              "maximum": 100,
+              "description": "Percentage of users to enable (0-100)"
             },
             "users": {
               "type": "array",
               "items": {
                 "type": "string"
-              }
+              },
+              "description": "Specific user IDs to enable"
             },
             "groups": {
               "type": "array",
               "items": {
                 "type": "string"
-              }
+              },
+              "description": "Specific groups/roles to enable"
             },
             "expression": {
               "type": "string",
-              "description": "Custom formula expression"
+              "description": "Custom formula expression for complex targeting"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Strategy-specific configuration parameters"
         },
         "environment": {
           "type": "string",
@@ -69,12 +75,12 @@
             "all"
           ],
           "default": "all",
-          "description": "Environment validity"
+          "description": "Environment where this flag is valid"
         },
         "expiresAt": {
           "type": "string",
           "format": "date-time",
-          "description": "Feature flag expiration date"
+          "description": "Feature flag expiration date (auto-disable after)"
         }
       },
       "required": [
