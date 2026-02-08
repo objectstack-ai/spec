@@ -116,3 +116,66 @@ To help AI understand the "intent" of a file, use a standard JSDoc header.
  */
 export const LeadObject = ...
 ```
+
+---
+
+## 5. Plugin Runtime Capabilities
+
+The microkernel architecture provides the following runtime capabilities for plugins. The Zod schemas governing each capability live in `src/kernel/`.
+
+### 5.1 Hot Reload (`plugin-loading.zod.ts` → `PluginHotReloadSchema`)
+
+Hot reload supports **development, staging, and production** environments. The `environment` field controls the safety level:
+
+| Environment | Behavior |
+| :--- | :--- |
+| `development` | Fast reload with file watchers, no health validation required |
+| `staging` | Production-like reload with validation but relaxed rollback |
+| `production` | Full safety: health validation, auto-rollback, connection draining |
+
+Production safety features (`productionSafety`):
+- **Health validation** — run health checks after reload before accepting traffic
+- **Rollback on failure** — auto-rollback if reloaded plugin fails health check
+- **Connection draining** — gracefully drain active requests before reloading
+- **Concurrency control** — limit concurrent reloads (`maxConcurrentReloads`)
+- **Reload cooldown** — minimum interval between reloads of the same plugin (≥1s)
+
+### 5.2 Plugin Isolation (`plugin-loading.zod.ts` → `PluginSandboxingSchema`)
+
+Sandboxing supports configurable **scope** and **isolation level**:
+
+| Scope | Description |
+| :--- | :--- |
+| `automation-only` | Sandbox automation/scripting plugins only (default) |
+| `untrusted-only` | Sandbox plugins below a trust threshold |
+| `all-plugins` | Sandbox all plugins for maximum isolation |
+
+Isolation levels: `none`, `process`, `vm`, `iframe`, `web-worker`.
+
+**Inter-Plugin Communication (IPC):** Isolated plugins communicate with the kernel and other plugins via configurable IPC:
+- Transports: `message-port`, `unix-socket`, `tcp`, `memory`
+- Configurable message size limit, timeout, and service ACL (`allowedServices`)
+
+### 5.3 Dynamic Loading (`plugin-runtime.zod.ts`)
+
+Plugins can be loaded and unloaded at runtime **without restarting the kernel**:
+
+- **`DynamicLoadRequestSchema`** — Load a plugin from `npm`, `local`, `url`, `registry`, or `git` sources with optional integrity verification
+- **`DynamicUnloadRequestSchema`** — Graceful/forceful/drain unload with dependency awareness (`cascade`, `warn`, or `block` dependents)
+- **`ActivationEventSchema`** — Lazy activation triggers: `onCommand`, `onRoute`, `onObject`, `onEvent`, `onService`, `onSchedule`, `onStartup`
+- **`PluginDiscoveryConfigSchema`** — Runtime discovery from registries and local directories with polling and trust filtering
+- **`DynamicLoadingConfigSchema`** — Subsystem configuration: max dynamic plugins, default sandbox policy, allowed sources, integrity requirements
+
+### 5.4 Plugin System Assessment Summary
+
+| Capability | Status | Schema / Details |
+| :--- | :--- | :--- |
+| Plugin Registration | ✅ | `manifest.zod.ts` — `objectstack.config.ts` plugin array, ordered initialization |
+| Lifecycle Hooks | ✅ | `plugin.zod.ts` — `init()` → `start()` → `healthCheck()` → `destroy()` |
+| Service Registry | ✅ | `service-registry.zod.ts` — 17 services across 13 plugins via `ctx.registerService()` |
+| Event Bus | ✅ | `events.zod.ts` — Pub/sub with pattern matching |
+| Dependency Resolution | ✅ | `plugin-loading.zod.ts` — Declared dependencies with conflict resolution |
+| Health Checks | ✅ | `plugin-lifecycle-advanced.zod.ts` — Per-plugin health + system aggregation |
+| Hot Reload | ✅ | `plugin-loading.zod.ts` — Dev + production-safe with rollback and draining |
+| Plugin Isolation | ✅ | `plugin-loading.zod.ts` — Configurable scope + IPC for process boundaries |
+| Dynamic Loading | ✅ | `plugin-runtime.zod.ts` — Runtime load/unload with activation events and discovery |
