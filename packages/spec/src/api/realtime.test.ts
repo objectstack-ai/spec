@@ -198,9 +198,12 @@ describe('RealtimePresenceStatus', () => {
   });
 
   it('should reject invalid presence statuses', () => {
-    expect(() => RealtimePresenceStatus.parse('busy')).toThrow();
     expect(() => RealtimePresenceStatus.parse('idle')).toThrow();
     expect(() => RealtimePresenceStatus.parse('')).toThrow();
+  });
+
+  it('should accept busy status', () => {
+    expect(() => RealtimePresenceStatus.parse('busy')).not.toThrow();
   });
 });
 

@@ -13,14 +13,14 @@ Based on the full audit of 139 `.zod.ts` files (43,746 LOC, 1,089 schemas), the 
 
 ### Key Metrics Baseline
 
-| Metric | Current | Phase 2 Target | Phase 4 Target |
+| Metric | Original | Current | Phase 4 Target |
 |---|---|---|---|
-| `z.any()` usages | 397 | < 100 | < 30 |
-| `z.unknown()` usages | 8 | > 200 | > 350 |
-| `z.infer` coverage | 93% (1,011/1,089) | 98% | 100% |
-| `.describe()` annotations | 5,026 | 5,300 | 5,600 |
-| Schema duplications | 13+ pairs | 3 | 0 |
-| Runtime logic violations | 2 files | 0 | 0 |
+| `z.any()` usages | 397 | 8 | 8 (filter operators only) |
+| `z.unknown()` usages | 8 | 340 | > 350 |
+| `z.infer` coverage | 93% (1,011/1,089) | ~98% | 100% |
+| `.describe()` annotations | 5,026 | 5,300+ | 5,600 |
+| Schema duplications | 13+ pairs | 1 | 0 |
+| Runtime logic violations | 2 files | 2 files | 0 |
 | Naming violations | 3 | 0 | 0 |
 
 ---
@@ -120,14 +120,14 @@ error: z.object({
 
 | # | Task | File(s) | Status |
 |---|---|---|---|
-| 1.1 | Fix z.any() in handler union | `data/hook.zod.ts` | ⬜ |
-| 1.2 | Fix ValidationRuleSchema type-safety | `data/validation.zod.ts` | ⬜ |
-| 1.3 | Fix invalid computed key syntax | `system/auth-config.zod.ts` | ⬜ |
-| 1.4 | Fix Mongo capabilities key names | `data/driver/mongo.zod.ts` | ⬜ |
-| 1.5 | Fix DatasourceConfig alias | `data/datasource.zod.ts` | ⬜ |
-| 1.6 | Replace z.instanceof(Error) | `kernel/plugin-lifecycle-events.zod.ts`, `kernel/startup-orchestrator.zod.ts` | ⬜ |
-| 1.7 | Fix `$exist` → `$exists` typo | `data/filter.zod.ts` | ⬜ |
-| 1.8 | Run full test suite, verify build | — | ⬜ |
+| 1.1 | Fix z.any() in handler union | `data/hook.zod.ts` | ✅ |
+| 1.2 | Fix ValidationRuleSchema type-safety | `data/validation.zod.ts` | ✅ |
+| 1.3 | Fix invalid computed key syntax | `system/auth-config.zod.ts` | ✅ |
+| 1.4 | Fix Mongo capabilities key names | `data/driver/mongo.zod.ts` | ✅ |
+| 1.5 | Fix DatasourceConfig alias | `data/datasource.zod.ts` | ✅ |
+| 1.6 | Replace z.instanceof(Error) | `kernel/plugin-lifecycle-events.zod.ts`, `kernel/startup-orchestrator.zod.ts` | ✅ |
+| 1.7 | Fix `$exist` → `$exists` typo | `data/filter.zod.ts` | ✅ |
+| 1.8 | Run full test suite, verify build | — | ✅ |
 
 ---
 
@@ -272,17 +272,17 @@ Replace `z.date()` with `z.string().datetime()` in serializable schemas:
 
 | # | Task | File(s) | Status |
 |---|---|---|---|
-| 2.1 | Create `shared/enums.zod.ts` + update consumers | 8+ files | ⬜ |
-| 2.2 | Create `shared/metadata-types.zod.ts` | 3 files | ⬜ |
-| 2.3 | Deduplicate security schemas | 4 files | ⬜ |
-| 2.4 | Rename `MetricType` in license.zod.ts | `hub/license.zod.ts` | ⬜ |
-| 2.5 | Unify SnakeCaseIdentifierSchema usage | 4 UI files | ⬜ |
-| 2.6 | Fix snake_case property keys | `system/metadata-persistence.zod.ts` | ⬜ |
-| 2.7 | Replace z.date() with z.string().datetime() | 6 files | ⬜ |
-| 2.8 | Unify isolation level enum | `data/driver.zod.ts` | ⬜ |
-| 2.9 | Rename system/service-registry.zod.ts | 1 file + index | ⬜ |
-| 2.10 | Deduplicate Presence schemas (realtime/websocket) | 2 files | ⬜ |
-| 2.11 | Run full test suite, update index.ts re-exports | — | ⬜ |
+| 2.1 | Create `shared/enums.zod.ts` + update consumers | 8+ files | ✅ |
+| 2.2 | Create `shared/metadata-types.zod.ts` | 3 files | ✅ |
+| 2.3 | Deduplicate security schemas | 4 files | ✅ (Kernel uses Kernel-prefixed variants) |
+| 2.4 | Rename `MetricType` in license.zod.ts | `hub/license.zod.ts` | ✅ |
+| 2.5 | Unify SnakeCaseIdentifierSchema usage | 4 UI files | ✅ |
+| 2.6 | Fix snake_case property keys | `system/metadata-persistence.zod.ts` | ✅ |
+| 2.7 | Replace z.date() with z.string().datetime() | 6 files | ✅ |
+| 2.8 | Unify isolation level enum | `data/driver.zod.ts` | ✅ |
+| 2.9 | Rename system/service-registry.zod.ts | 1 file + index | ✅ |
+| 2.10 | Deduplicate Presence schemas (realtime/websocket) | 2 files | ✅ |
+| 2.11 | Run full test suite, update index.ts re-exports | — | ✅ |
 
 ---
 
@@ -387,18 +387,20 @@ Already replaced by `locations` array. Remove the deprecated field.
 
 | # | Task | Scope | z.any() Reduction | Status |
 |---|---|---|---|---|
-| 3.1 | Bulk metadata/config z.any() → z.unknown() | ~88 files | -140 | ⬜ |
-| 3.2 | Tighten id fields | 2 files | -2 | ⬜ |
-| 3.3a | Harden kernel/plugin.zod.ts | 1 file | -20 | ⬜ |
-| 3.3b | Harden data/driver.zod.ts | 1 file | -10 | ⬜ |
-| 3.3c | Harden data/data-engine.zod.ts | 1 file | -8 | ⬜ |
-| 3.3d | Harden kernel/events.zod.ts | 1 file | -8 | ⬜ |
-| 3.3e | Harden kernel/manifest.zod.ts | 1 file | -7 | ⬜ |
-| 3.4 | Fix UI z.any() with proper imports | 4 files | -6 | ⬜ |
-| 3.5 | Remove deprecated action.location | 1 file | -1 | ⬜ |
-| 3.6 | Run full test suite | — | — | ⬜ |
+| 3.1 | Bulk metadata/config z.any() → z.unknown() | ~88 files | -140 | ✅ |
+| 3.2 | Tighten id fields | 2 files | -2 | ✅ |
+| 3.3a | Harden kernel/plugin.zod.ts | 1 file | -23 | ✅ |
+| 3.3b | Harden data/driver.zod.ts | 1 file | -10 | ✅ |
+| 3.3c | Harden data/data-engine.zod.ts | 1 file | -8 | ✅ |
+| 3.3d | Harden kernel/events.zod.ts | 1 file | -8 | ✅ |
+| 3.3e | Harden kernel/manifest.zod.ts | 1 file | -7 | ✅ |
+| 3.4 | Fix UI z.any() with proper imports | 4 files | -6 | ✅ |
+| 3.5 | Remove deprecated action.location | 1 file | -1 | ✅ |
+| 3.6 | Replace z.any() in api/protocol.zod.ts | 1 file | -28 | ✅ |
+| 3.7 | Replace z.any() in hook, core-services, widget | 3 files | -3 | ✅ |
+| 3.8 | Run full test suite | — | — | ✅ |
 
-**Expected total reduction:** 397 → ~95 (`z.any()`)
+**Actual total reduction:** 397 → 8 (`z.any()`) — remaining 8 are legitimate filter operators ($eq/$ne/$in/$nin)
 
 ---
 
@@ -513,7 +515,7 @@ formula: z.string().optional()
 
 | # | Task | Scope | Status |
 |---|---|---|---|
-| 4.1 | Add missing z.infer exports | 14 files | ⬜ |
+| 4.1 | Add missing z.infer exports | 14 files | ✅ (1 remaining: WidgetSource added) |
 | 4.2 | Add z.input<> exports for transform schemas | ~20 files | ⬜ |
 | 4.3 | Improve .describe() coverage | 9 files | ⬜ |
 | 4.4 | Move runtime logic to core/runtime | 3 files | ⬜ |

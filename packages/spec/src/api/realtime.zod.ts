@@ -55,6 +55,7 @@ export type Subscription = z.infer<typeof SubscriptionSchema>;
 export const RealtimePresenceStatus = z.enum([
   'online',
   'away',
+  'busy',
   'offline',
 ]);
 

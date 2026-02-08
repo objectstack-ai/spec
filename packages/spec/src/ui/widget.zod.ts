@@ -263,6 +263,8 @@ export const WidgetSourceSchema = z.discriminatedUnion('type', [
   }),
 ]);
 
+export type WidgetSource = z.infer<typeof WidgetSourceSchema>;
+
 export const WidgetManifestSchema = z.object({
   /**
    * Widget identifier (snake_case)
