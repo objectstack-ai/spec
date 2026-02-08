@@ -1,0 +1,22 @@
+{
+  "$ref": "#/definitions/MarkNotificationsReadRequest",
+  "definitions": {
+    "MarkNotificationsReadRequest": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Notification IDs to mark as read"
+        }
+      },
+      "required": [
+        "ids"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

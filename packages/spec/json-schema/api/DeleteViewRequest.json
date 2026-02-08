@@ -1,0 +1,24 @@
+{
+  "$ref": "#/definitions/DeleteViewRequest",
+  "definitions": {
+    "DeleteViewRequest": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "Object name (snake_case)"
+        },
+        "viewId": {
+          "type": "string",
+          "description": "View identifier to delete"
+        }
+      },
+      "required": [
+        "object",
+        "viewId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

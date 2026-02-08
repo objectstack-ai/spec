@@ -1,0 +1,27 @@
+{
+  "$ref": "#/definitions/ListViewsRequest",
+  "definitions": {
+    "ListViewsRequest": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "Object name (snake_case)"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "list",
+            "form"
+          ],
+          "description": "Filter by view type"
+        }
+      },
+      "required": [
+        "object"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

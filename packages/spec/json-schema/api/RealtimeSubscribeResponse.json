@@ -1,0 +1,24 @@
+{
+  "$ref": "#/definitions/RealtimeSubscribeResponse",
+  "definitions": {
+    "RealtimeSubscribeResponse": {
+      "type": "object",
+      "properties": {
+        "subscriptionId": {
+          "type": "string",
+          "description": "Unique subscription identifier"
+        },
+        "channel": {
+          "type": "string",
+          "description": "Subscribed channel name"
+        }
+      },
+      "required": [
+        "subscriptionId",
+        "channel"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

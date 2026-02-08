@@ -1,0 +1,19 @@
+{
+  "$ref": "#/definitions/RealtimeUnsubscribeRequest",
+  "definitions": {
+    "RealtimeUnsubscribeRequest": {
+      "type": "object",
+      "properties": {
+        "subscriptionId": {
+          "type": "string",
+          "description": "Subscription ID to cancel"
+        }
+      },
+      "required": [
+        "subscriptionId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

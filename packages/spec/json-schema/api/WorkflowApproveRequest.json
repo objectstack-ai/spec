@@ -1,0 +1,33 @@
+{
+  "$ref": "#/definitions/WorkflowApproveRequest",
+  "definitions": {
+    "WorkflowApproveRequest": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "Object name"
+        },
+        "recordId": {
+          "type": "string",
+          "description": "Record ID"
+        },
+        "comment": {
+          "type": "string",
+          "description": "Approval comment"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Additional data"
+        }
+      },
+      "required": [
+        "object",
+        "recordId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

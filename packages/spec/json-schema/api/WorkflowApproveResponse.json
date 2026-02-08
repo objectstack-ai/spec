@@ -1,0 +1,118 @@
+{
+  "$ref": "#/definitions/WorkflowApproveResponse",
+  "definitions": {
+    "WorkflowApproveResponse": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "Object name"
+        },
+        "recordId": {
+          "type": "string",
+          "description": "Record ID"
+        },
+        "success": {
+          "type": "boolean",
+          "description": "Whether the approval succeeded"
+        },
+        "state": {
+          "type": "object",
+          "properties": {
+            "currentState": {
+              "type": "string",
+              "description": "Current workflow state name"
+            },
+            "availableTransitions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Transition name"
+                  },
+                  "targetState": {
+                    "type": "string",
+                    "description": "Target state after transition"
+                  },
+                  "label": {
+                    "type": "string",
+                    "description": "Display label"
+                  },
+                  "requiresApproval": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether transition requires approval"
+                  }
+                },
+                "required": [
+                  "name",
+                  "targetState"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Available transitions from current state"
+            },
+            "history": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "fromState": {
+                    "type": "string",
+                    "description": "Previous state"
+                  },
+                  "toState": {
+                    "type": "string",
+                    "description": "New state"
+                  },
+                  "action": {
+                    "type": "string",
+                    "description": "Action that triggered the transition"
+                  },
+                  "userId": {
+                    "type": "string",
+                    "description": "User who performed the action"
+                  },
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the transition occurred"
+                  },
+                  "comment": {
+                    "type": "string",
+                    "description": "Optional comment"
+                  }
+                },
+                "required": [
+                  "fromState",
+                  "toState",
+                  "action",
+                  "userId",
+                  "timestamp"
+                ],
+                "additionalProperties": false
+              },
+              "description": "State transition history"
+            }
+          },
+          "required": [
+            "currentState",
+            "availableTransitions"
+          ],
+          "additionalProperties": false,
+          "description": "New workflow state after approval"
+        }
+      },
+      "required": [
+        "object",
+        "recordId",
+        "success",
+        "state"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

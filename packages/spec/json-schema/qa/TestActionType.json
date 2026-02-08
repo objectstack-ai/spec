@@ -12,7 +12,8 @@
         "api_call",
         "run_script",
         "wait"
-      ]
+      ],
+      "description": "Type of test action to perform"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

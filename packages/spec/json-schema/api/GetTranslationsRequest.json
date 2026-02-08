@@ -1,0 +1,30 @@
+{
+  "$ref": "#/definitions/GetTranslationsRequest",
+  "definitions": {
+    "GetTranslationsRequest": {
+      "type": "object",
+      "properties": {
+        "locale": {
+          "type": "string",
+          "description": "BCP-47 locale code"
+        },
+        "namespace": {
+          "type": "string",
+          "description": "Translation namespace (e.g., objects, apps, messages)"
+        },
+        "keys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Specific translation keys to fetch"
+        }
+      },
+      "required": [
+        "locale"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

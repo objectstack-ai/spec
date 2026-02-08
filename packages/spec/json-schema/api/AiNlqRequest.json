@@ -1,0 +1,27 @@
+{
+  "$ref": "#/definitions/AiNlqRequest",
+  "definitions": {
+    "AiNlqRequest": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Natural language query string"
+        },
+        "object": {
+          "type": "string",
+          "description": "Target object context"
+        },
+        "conversationId": {
+          "type": "string",
+          "description": "Conversation ID for multi-turn queries"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
