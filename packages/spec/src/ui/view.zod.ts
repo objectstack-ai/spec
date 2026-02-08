@@ -84,6 +84,8 @@ export const KanbanConfigSchema = z.object({
   columns: z.array(z.string()).describe('Fields to show on cards'),
 });
 
+export type KanbanConfig = z.infer<typeof KanbanConfigSchema>;
+
 /**
  * Calendar Settings
  */
@@ -93,6 +95,8 @@ export const CalendarConfigSchema = z.object({
   titleField: z.string(),
   colorField: z.string().optional(),
 });
+
+export type CalendarConfig = z.infer<typeof CalendarConfigSchema>;
 
 /**
  * Gantt Settings
@@ -104,6 +108,8 @@ export const GanttConfigSchema = z.object({
   progressField: z.string().optional(),
   dependenciesField: z.string().optional(),
 });
+
+export type GanttConfig = z.infer<typeof GanttConfigSchema>;
 
 /**
  * Navigation Mode Enum
@@ -118,6 +124,8 @@ export const NavigationModeSchema = z.enum([
   'new_window', // Open in new browser tab/window
   'none'        // No navigation (read-only list)
 ]);
+
+export type NavigationMode = z.infer<typeof NavigationModeSchema>;
 
 /**
  * Navigation Configuration Schema
