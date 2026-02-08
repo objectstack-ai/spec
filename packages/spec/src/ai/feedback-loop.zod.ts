@@ -13,6 +13,8 @@ export const MetadataSourceSchema = z.object({
   component: z.string().optional() // specific UI component or flow node
 });
 
+export type MetadataSource = z.infer<typeof MetadataSourceSchema>;
+
 // The Runtime Issue
 export const IssueSchema = z.object({
   id: z.string(),

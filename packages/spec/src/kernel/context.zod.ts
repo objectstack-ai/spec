@@ -48,3 +48,4 @@ export const KernelContextSchema = z.object({
 });
 
 export type KernelContext = z.infer<typeof KernelContextSchema>;
+export type KernelContextInput = z.input<typeof KernelContextSchema>;
