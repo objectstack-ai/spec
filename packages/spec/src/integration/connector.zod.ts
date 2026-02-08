@@ -67,43 +67,14 @@ import { FieldMappingSchema as BaseFieldMappingSchema } from '../shared/mapping.
 
 // ============================================================================
 // Authentication Schemas - IMPORTED FROM CANONICAL SOURCE
-// For backward compatibility, we re-export the auth types from auth/config.zod.ts
+// Use ConnectorAuthConfigSchema from shared/connector-auth.zod.ts
 // ============================================================================
-
-/**
- * @deprecated Use ConnectorAuthConfigSchema from auth/config.zod instead
- * Kept for backward compatibility
- */
-export const AuthenticationSchema = ConnectorAuthConfigSchema;
-export type Authentication = z.infer<typeof ConnectorAuthConfigSchema>;
 
 // ============================================================================
 // Field Mapping Schema
 // Uses the canonical field mapping protocol from shared/mapping.zod.ts
 // Extended with connector-specific features
 // ============================================================================
-
-/**
- * Field Transformation Function (Connector-specific)
- * 
- * @deprecated Use TransformTypeSchema from shared/mapping.zod.ts instead
- */
-export const FieldTransformSchema = z.object({
-  type: z.enum([
-    'uppercase',
-    'lowercase',
-    'trim',
-    'date_format',
-    'number_format',
-    'custom',
-  ]).describe('Transformation type'),
-  
-  params: z.record(z.string(), z.unknown()).optional().describe('Transformation parameters'),
-  
-  function: z.string().optional().describe('Custom JavaScript function for transformation'),
-});
-
-export type FieldTransform = z.infer<typeof FieldTransformSchema>;
 
 /**
  * Connector Field Mapping Configuration
@@ -483,7 +454,7 @@ export const ConnectorSchema = z.object({
   /**
    * Authentication configuration
    */
-  authentication: AuthenticationSchema.describe('Authentication configuration'),
+  authentication: ConnectorAuthConfigSchema.describe('Authentication configuration'),
 
   /** Zapier-style Capabilities */
   actions: z.array(ConnectorActionSchema).optional(),

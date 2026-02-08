@@ -14,14 +14,14 @@ export const TestActionTypeSchema = z.enum([
   'api_call',
   'run_script',
   'wait' // Testing async processes
-]);
+]).describe('Type of test action to perform');
 
 export const TestActionSchema = z.object({
-  type: TestActionTypeSchema,
+  type: TestActionTypeSchema.describe('The action type to execute'),
   target: z.string().describe('Target Object, API Endpoint, or Function Name'),
   payload: z.record(z.string(), z.unknown()).optional().describe('Data to send or use'),
-  user: z.string().optional().describe('Run as specific user/role') // Impersonation
-});
+  user: z.string().optional().describe('Run as specific user/role for impersonation testing')
+}).describe('A single test action to execute against the system');
 
 // Assertion Types
 export const TestAssertionTypeSchema = z.enum([
@@ -36,46 +36,46 @@ export const TestAssertionTypeSchema = z.enum([
   'lt',
   'lte',
   'error' // Expecting an error
-]);
+]).describe('Comparison operator for test assertions');
 
 export const TestAssertionSchema = z.object({
   field: z.string().describe('Field path in the result to check (e.g. "body.data.0.status")'),
-  operator: TestAssertionTypeSchema,
-  expectedValue: z.unknown()
-});
+  operator: TestAssertionTypeSchema.describe('Comparison operator to use'),
+  expectedValue: z.unknown().describe('Expected value to compare against')
+}).describe('A test assertion that validates the result of a test action');
 
 // --- Test Structure ---
 
 export const TestStepSchema = z.object({
-  name: z.string(),
-  description: z.string().optional(),
-  action: TestActionSchema,
-  assertions: z.array(TestAssertionSchema).optional(),
+  name: z.string().describe('Step name for identification in test reports'),
+  description: z.string().optional().describe('Human-readable description of what this step tests'),
+  action: TestActionSchema.describe('The action to execute in this step'),
+  assertions: z.array(TestAssertionSchema).optional().describe('Assertions to validate after the action completes'),
   // Capture outputs to variables for subsequent steps
   capture: z.record(z.string(), z.string()).optional().describe('Map result fields to context variables: { "newId": "body._id" }')
-});
+}).describe('A single step in a test scenario, consisting of an action and optional assertions');
 
 export const TestScenarioSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string().optional(),
-  tags: z.array(z.string()).optional(), // e.g. "critical", "regression", "crm"
+  id: z.string().describe('Unique scenario identifier'),
+  name: z.string().describe('Scenario name for test reports'),
+  description: z.string().optional().describe('Detailed description of the test scenario'),
+  tags: z.array(z.string()).optional().describe('Tags for filtering and categorization (e.g. "critical", "regression", "crm")'),
   
-  setup: z.array(TestStepSchema).optional().describe('Steps to run before main test'),
-  steps: z.array(TestStepSchema).describe('Main test sequence'),
-  teardown: z.array(TestStepSchema).optional().describe('Steps to cleanup'),
+  setup: z.array(TestStepSchema).optional().describe('Steps to run before main test (preconditions)'),
+  steps: z.array(TestStepSchema).describe('Main test sequence to execute'),
+  teardown: z.array(TestStepSchema).optional().describe('Steps to cleanup after test execution'),
   
   // Environment requirements
   requires: z.object({
-    params: z.array(z.string()).optional(), // Required env vars or params
-    plugins: z.array(z.string()).optional()
-  }).optional()
-});
+    params: z.array(z.string()).optional().describe('Required environment variables or parameters'),
+    plugins: z.array(z.string()).optional().describe('Required plugins that must be loaded')
+  }).optional().describe('Environment requirements for this scenario')
+}).describe('A complete test scenario with setup, execution steps, and teardown');
 
 export const TestSuiteSchema = z.object({
-  name: z.string(),
-  scenarios: z.array(TestScenarioSchema)
-});
+  name: z.string().describe('Test suite name'),
+  scenarios: z.array(TestScenarioSchema).describe('List of test scenarios in this suite')
+}).describe('A collection of test scenarios grouped into a test suite');
 
 export type TestSuite = z.infer<typeof TestSuiteSchema>;
 export type TestScenario = z.infer<typeof TestScenarioSchema>;
