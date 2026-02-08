@@ -79,6 +79,7 @@ export const OpsFilePathSchema = z.string().describe('Validates a file path agai
 export const OpsDomainModuleSchema = z.object({
   name: z.string().regex(SNAKE_CASE_REGEX).describe('Module name (snake_case)'),
   files: z.array(z.string()).describe('List of files in this module'),
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Custom metadata key-value pairs for extensibility'),
 }).describe('Scanned domain module representing a plugin folder').superRefine((module, ctx) => {
   // Rule: Must have an index.ts
   if (!module.files.includes('index.ts')) {
@@ -95,6 +96,7 @@ export const OpsDomainModuleSchema = z.object({
 export const OpsPluginStructureSchema = z.object({
   root: z.string().describe('Root directory path of the plugin project'),
   files: z.array(z.string()).describe('List of all file paths relative to root'),
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Custom metadata key-value pairs for extensibility'),
 }).describe('Full plugin project layout validated against OPS conventions').superRefine((project, ctx) => {
   // Check for configuration file
   if (!project.files.includes('objectstack.config.ts')) {
