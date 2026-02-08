@@ -1,0 +1,51 @@
+{
+  "$ref": "#/definitions/DynamicUnloadRequest",
+  "definitions": {
+    "DynamicUnloadRequest": {
+      "type": "object",
+      "properties": {
+        "pluginId": {
+          "type": "string",
+          "description": "Plugin to unload"
+        },
+        "strategy": {
+          "type": "string",
+          "enum": [
+            "graceful",
+            "forceful",
+            "drain"
+          ],
+          "default": "graceful",
+          "description": "How to handle in-flight work during unload"
+        },
+        "timeout": {
+          "type": "integer",
+          "minimum": 1000,
+          "default": 30000,
+          "description": "Maximum time to complete unloading in ms"
+        },
+        "cleanupCache": {
+          "type": "boolean",
+          "default": false,
+          "description": "Remove cached code and assets after unload"
+        },
+        "dependentAction": {
+          "type": "string",
+          "enum": [
+            "cascade",
+            "warn",
+            "block"
+          ],
+          "default": "block",
+          "description": "How to handle plugins that depend on this one"
+        }
+      },
+      "required": [
+        "pluginId"
+      ],
+      "additionalProperties": false,
+      "description": "Request to dynamically unload a plugin at runtime"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

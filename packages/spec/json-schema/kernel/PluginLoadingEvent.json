@@ -17,7 +17,10 @@
             "preload-completed",
             "cache-hit",
             "cache-miss",
-            "hot-reload"
+            "hot-reload",
+            "dynamic-load",
+            "dynamic-unload",
+            "dynamic-discover"
           ]
         },
         "pluginId": {
