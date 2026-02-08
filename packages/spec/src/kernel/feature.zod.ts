@@ -50,3 +50,4 @@ export const FeatureFlag = Object.assign(FeatureFlagSchema, {
 });
 
 export type FeatureFlag = z.infer<typeof FeatureFlagSchema>;
+export type FeatureFlagInput = z.input<typeof FeatureFlagSchema>;

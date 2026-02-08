@@ -56,3 +56,4 @@ export const ApiEndpoint = Object.assign(ApiEndpointSchema, {
 });
 
 export type ApiEndpoint = z.infer<typeof ApiEndpointSchema>;
+export type ApiEndpointInput = z.input<typeof ApiEndpointSchema>;

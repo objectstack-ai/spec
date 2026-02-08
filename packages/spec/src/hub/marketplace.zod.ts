@@ -126,4 +126,5 @@ export const MarketplacePluginSchema = z.object({
 
 export type PluginAuthor = z.infer<typeof PluginAuthorSchema>;
 export type MarketplacePlugin = z.infer<typeof MarketplacePluginSchema>;
+export type MarketplacePluginInput = z.input<typeof MarketplacePluginSchema>;
 export type MarketplaceListing = MarketplacePlugin; // Alias for backwards compatibility

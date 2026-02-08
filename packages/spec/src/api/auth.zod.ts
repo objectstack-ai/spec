@@ -89,9 +89,11 @@ export const UserProfileResponseSchema = BaseResponseSchema.extend({
 
 export type AuthProvider = z.infer<typeof AuthProvider>;
 export type SessionUser = z.infer<typeof SessionUserSchema>;
+export type SessionUserInput = z.input<typeof SessionUserSchema>;
 export type Session = z.infer<typeof SessionSchema>;
 export type LoginType = z.infer<typeof LoginType>;
 export type LoginRequest = z.infer<typeof LoginRequestSchema>;
+export type LoginRequestInput = z.input<typeof LoginRequestSchema>;
 export type RegisterRequest = z.infer<typeof RegisterRequestSchema>;
 export type RefreshTokenRequest = z.infer<typeof RefreshTokenRequestSchema>;
 export type SessionResponse = z.infer<typeof SessionResponseSchema>;

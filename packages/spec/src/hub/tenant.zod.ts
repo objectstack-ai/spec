@@ -212,6 +212,7 @@ export const RowLevelIsolationStrategySchema = z.object({
 });
 
 export type RowLevelIsolationStrategy = z.infer<typeof RowLevelIsolationStrategySchema>;
+export type RowLevelIsolationStrategyInput = z.input<typeof RowLevelIsolationStrategySchema>;
 
 /**
  * Schema-Level Isolation Strategy (isolated_schema)
@@ -329,6 +330,7 @@ export const SchemaLevelIsolationStrategySchema = z.object({
 });
 
 export type SchemaLevelIsolationStrategy = z.infer<typeof SchemaLevelIsolationStrategySchema>;
+export type SchemaLevelIsolationStrategyInput = z.input<typeof SchemaLevelIsolationStrategySchema>;
 
 /**
  * Database-Level Isolation Strategy (isolated_db)
@@ -483,6 +485,7 @@ export const DatabaseLevelIsolationStrategySchema = z.object({
 });
 
 export type DatabaseLevelIsolationStrategy = z.infer<typeof DatabaseLevelIsolationStrategySchema>;
+export type DatabaseLevelIsolationStrategyInput = z.input<typeof DatabaseLevelIsolationStrategySchema>;
 
 /**
  * Tenant Isolation Configuration Schema
@@ -592,3 +595,4 @@ export const TenantSecurityPolicySchema = z.object({
 });
 
 export type TenantSecurityPolicy = z.infer<typeof TenantSecurityPolicySchema>;
+export type TenantSecurityPolicyInput = z.input<typeof TenantSecurityPolicySchema>;

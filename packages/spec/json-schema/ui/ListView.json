@@ -449,6 +449,66 @@
           ],
           "additionalProperties": false
         },
+        "rowActions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Actions available for individual row items"
+        },
+        "bulkActions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Actions available when multiple rows are selected"
+        },
+        "virtualScroll": {
+          "type": "boolean",
+          "description": "Enable virtual scrolling for large datasets"
+        },
+        "conditionalFormatting": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "condition": {
+                "type": "string",
+                "description": "Condition expression to evaluate"
+              },
+              "style": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "CSS styles to apply when condition is true"
+              }
+            },
+            "required": [
+              "condition",
+              "style"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Conditional formatting rules for list rows"
+        },
+        "inlineEdit": {
+          "type": "boolean",
+          "description": "Allow inline editing of records directly in the list view"
+        },
+        "exportOptions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "csv",
+              "xlsx",
+              "pdf",
+              "json"
+            ]
+          },
+          "description": "Available export format options"
+        },
         "emptyState": {
           "type": "object",
           "properties": {

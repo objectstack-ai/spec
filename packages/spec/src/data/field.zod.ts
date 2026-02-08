@@ -470,10 +470,14 @@ export type SelectOption = z.infer<typeof SelectOptionSchema>;
 export type LocationCoordinates = z.infer<typeof LocationCoordinatesSchema>;
 export type Address = z.infer<typeof AddressSchema>;
 export type CurrencyConfig = z.infer<typeof CurrencyConfigSchema>;
+export type CurrencyConfigInput = z.input<typeof CurrencyConfigSchema>;
 export type CurrencyValue = z.infer<typeof CurrencyValueSchema>;
 export type VectorConfig = z.infer<typeof VectorConfigSchema>;
+export type VectorConfigInput = z.input<typeof VectorConfigSchema>;
 export type FileAttachmentConfig = z.infer<typeof FileAttachmentConfigSchema>;
+export type FileAttachmentConfigInput = z.input<typeof FileAttachmentConfigSchema>;
 export type DataQualityRules = z.infer<typeof DataQualityRulesSchema>;
+export type DataQualityRulesInput = z.input<typeof DataQualityRulesSchema>;
 export type ComputedFieldCache = z.infer<typeof ComputedFieldCacheSchema>;
 
 /**

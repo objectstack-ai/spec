@@ -72,6 +72,31 @@
           "default": false,
           "description": "Run specifically as fire-and-forget"
         },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of what this hook does"
+        },
+        "retryPolicy": {
+          "type": "object",
+          "properties": {
+            "maxRetries": {
+              "type": "number",
+              "default": 3,
+              "description": "Maximum retry attempts on failure"
+            },
+            "backoffMs": {
+              "type": "number",
+              "default": 1000,
+              "description": "Backoff delay between retries in milliseconds"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Retry policy for failed hook executions"
+        },
+        "timeout": {
+          "type": "number",
+          "description": "Maximum execution time in milliseconds before the hook is aborted"
+        },
         "onError": {
           "type": "string",
           "enum": [

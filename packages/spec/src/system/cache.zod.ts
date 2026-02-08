@@ -44,6 +44,7 @@ export const CacheTierSchema = z.object({
 });
 
 export type CacheTier = z.infer<typeof CacheTierSchema>;
+export type CacheTierInput = z.input<typeof CacheTierSchema>;
 
 export const CacheInvalidationSchema = z.object({
   trigger: z.enum(['create', 'update', 'delete', 'manual']).describe('Event that triggers invalidation'),
@@ -64,3 +65,4 @@ export const CacheConfigSchema = z.object({
 });
 
 export type CacheConfig = z.infer<typeof CacheConfigSchema>;
+export type CacheConfigInput = z.input<typeof CacheConfigSchema>;

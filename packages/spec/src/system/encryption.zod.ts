@@ -30,6 +30,7 @@ export const KeyRotationPolicySchema = z.object({
 });
 
 export type KeyRotationPolicy = z.infer<typeof KeyRotationPolicySchema>;
+export type KeyRotationPolicyInput = z.input<typeof KeyRotationPolicySchema>;
 
 export const EncryptionConfigSchema = z.object({
   enabled: z.boolean().default(false).describe('Enable field-level encryption'),
@@ -45,6 +46,7 @@ export const EncryptionConfigSchema = z.object({
 });
 
 export type EncryptionConfig = z.infer<typeof EncryptionConfigSchema>;
+export type EncryptionConfigInput = z.input<typeof EncryptionConfigSchema>;
 
 export const FieldEncryptionSchema = z.object({
   fieldName: z.string().describe('Name of the field to encrypt'),
@@ -53,3 +55,4 @@ export const FieldEncryptionSchema = z.object({
 });
 
 export type FieldEncryption = z.infer<typeof FieldEncryptionSchema>;
+export type FieldEncryptionInput = z.input<typeof FieldEncryptionSchema>;

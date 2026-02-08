@@ -78,5 +78,7 @@ export const LicenseSchema = z.object({
 });
 
 export type Feature = z.infer<typeof FeatureSchema>;
+export type FeatureInput = z.input<typeof FeatureSchema>;
 export type Plan = z.infer<typeof PlanSchema>;
+export type PlanInput = z.input<typeof PlanSchema>;
 export type License = z.infer<typeof LicenseSchema>;

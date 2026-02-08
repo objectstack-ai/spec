@@ -113,6 +113,7 @@ export const RestApiConfigSchema = z.object({
 });
 
 export type RestApiConfig = z.infer<typeof RestApiConfigSchema>;
+export type RestApiConfigInput = z.input<typeof RestApiConfigSchema>;
 
 // ==========================================
 // CRUD Endpoint Configuration
@@ -203,6 +204,7 @@ export const CrudEndpointsConfigSchema = z.object({
 });
 
 export type CrudEndpointsConfig = z.infer<typeof CrudEndpointsConfigSchema>;
+export type CrudEndpointsConfigInput = z.input<typeof CrudEndpointsConfigSchema>;
 
 // ==========================================
 // Metadata Endpoint Configuration
@@ -251,6 +253,7 @@ export const MetadataEndpointsConfigSchema = z.object({
 });
 
 export type MetadataEndpointsConfig = z.infer<typeof MetadataEndpointsConfigSchema>;
+export type MetadataEndpointsConfigInput = z.input<typeof MetadataEndpointsConfigSchema>;
 
 // ==========================================
 // Batch Operation Endpoint Configuration
@@ -300,6 +303,7 @@ export const BatchEndpointsConfigSchema = z.object({
 });
 
 export type BatchEndpointsConfig = z.infer<typeof BatchEndpointsConfigSchema>;
+export type BatchEndpointsConfigInput = z.input<typeof BatchEndpointsConfigSchema>;
 
 // ==========================================
 // Route Generation Configuration
@@ -340,6 +344,7 @@ export const RouteGenerationConfigSchema = z.object({
 });
 
 export type RouteGenerationConfig = z.infer<typeof RouteGenerationConfigSchema>;
+export type RouteGenerationConfigInput = z.input<typeof RouteGenerationConfigSchema>;
 
 // ==========================================
 // Complete REST Server Configuration
@@ -401,6 +406,7 @@ export const RestServerConfigSchema = z.object({
 });
 
 export type RestServerConfig = z.infer<typeof RestServerConfigSchema>;
+export type RestServerConfigInput = z.input<typeof RestServerConfigSchema>;
 
 // ==========================================
 // Endpoint Registry

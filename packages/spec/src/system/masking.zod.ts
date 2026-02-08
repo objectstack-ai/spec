@@ -26,6 +26,7 @@ export const MaskingRuleSchema = z.object({
 });
 
 export type MaskingRule = z.infer<typeof MaskingRuleSchema>;
+export type MaskingRuleInput = z.input<typeof MaskingRuleSchema>;
 
 export const MaskingConfigSchema = z.object({
   enabled: z.boolean().default(false),
@@ -34,3 +35,4 @@ export const MaskingConfigSchema = z.object({
 });
 
 export type MaskingConfig = z.infer<typeof MaskingConfigSchema>;
+export type MaskingConfigInput = z.input<typeof MaskingConfigSchema>;

@@ -27,6 +27,7 @@ export const GDPRConfigSchema = z.object({
 });
 
 export type GDPRConfig = z.infer<typeof GDPRConfigSchema>;
+export type GDPRConfigInput = z.input<typeof GDPRConfigSchema>;
 
 export const HIPAAConfigSchema = z.object({
   enabled: z.boolean(),
@@ -40,6 +41,7 @@ export const HIPAAConfigSchema = z.object({
 });
 
 export type HIPAAConfig = z.infer<typeof HIPAAConfigSchema>;
+export type HIPAAConfigInput = z.input<typeof HIPAAConfigSchema>;
 
 export const PCIDSSConfigSchema = z.object({
   enabled: z.boolean(),
@@ -51,6 +53,7 @@ export const PCIDSSConfigSchema = z.object({
 });
 
 export type PCIDSSConfig = z.infer<typeof PCIDSSConfigSchema>;
+export type PCIDSSConfigInput = z.input<typeof PCIDSSConfigSchema>;
 
 export const AuditLogConfigSchema = z.object({
   enabled: z.boolean().default(true),
@@ -71,6 +74,7 @@ export const AuditLogConfigSchema = z.object({
 });
 
 export type AuditLogConfig = z.infer<typeof AuditLogConfigSchema>;
+export type AuditLogConfigInput = z.input<typeof AuditLogConfigSchema>;
 
 export const ComplianceConfigSchema = z.object({
   gdpr: GDPRConfigSchema.optional(),
@@ -80,3 +84,4 @@ export const ComplianceConfigSchema = z.object({
 });
 
 export type ComplianceConfig = z.infer<typeof ComplianceConfigSchema>;
+export type ComplianceConfigInput = z.input<typeof ComplianceConfigSchema>;

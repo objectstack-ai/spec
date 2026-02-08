@@ -1017,6 +1017,18 @@
                                           "type": "string",
                                           "description": "Help text displayed below the field in forms"
                                         },
+                                        "trackFeedHistory": {
+                                          "type": "boolean",
+                                          "description": "Track field changes in Chatter/activity feed (Salesforce pattern)"
+                                        },
+                                        "caseSensitive": {
+                                          "type": "boolean",
+                                          "description": "Whether text comparisons are case-sensitive"
+                                        },
+                                        "autonumberFormat": {
+                                          "type": "string",
+                                          "description": "Auto-number display format pattern (e.g., \"CASE-{0000}\")"
+                                        },
                                         "encryption": {
                                           "type": "boolean",
                                           "default": false,
@@ -2016,6 +2028,18 @@
                                               "inlineHelpText": {
                                                 "type": "string",
                                                 "description": "Help text displayed below the field in forms"
+                                              },
+                                              "trackFeedHistory": {
+                                                "type": "boolean",
+                                                "description": "Track field changes in Chatter/activity feed (Salesforce pattern)"
+                                              },
+                                              "caseSensitive": {
+                                                "type": "boolean",
+                                                "description": "Whether text comparisons are case-sensitive"
+                                              },
+                                              "autonumberFormat": {
+                                                "type": "string",
+                                                "description": "Auto-number display format pattern (e.g., \"CASE-{0000}\")"
                                               },
                                               "encryption": {
                                                 "type": "boolean",
@@ -4818,6 +4842,11 @@
                                             "full"
                                           ],
                                           "description": "Default sharing model"
+                                        },
+                                        "keyPrefix": {
+                                          "type": "string",
+                                          "maxLength": 5,
+                                          "description": "Short prefix for record IDs (e.g., \"001\" for Account)"
                                         }
                                       },
                                       "required": [
@@ -5773,6 +5802,18 @@
                                           "type": "string",
                                           "description": "Help text displayed below the field in forms"
                                         },
+                                        "trackFeedHistory": {
+                                          "type": "boolean",
+                                          "description": "Track field changes in Chatter/activity feed (Salesforce pattern)"
+                                        },
+                                        "caseSensitive": {
+                                          "type": "boolean",
+                                          "description": "Whether text comparisons are case-sensitive"
+                                        },
+                                        "autonumberFormat": {
+                                          "type": "string",
+                                          "description": "Auto-number display format pattern (e.g., \"CASE-{0000}\")"
+                                        },
                                         "encryption": {
                                           "type": "boolean",
                                           "default": false,
@@ -6772,6 +6813,18 @@
                                               "inlineHelpText": {
                                                 "type": "string",
                                                 "description": "Help text displayed below the field in forms"
+                                              },
+                                              "trackFeedHistory": {
+                                                "type": "boolean",
+                                                "description": "Track field changes in Chatter/activity feed (Salesforce pattern)"
+                                              },
+                                              "caseSensitive": {
+                                                "type": "boolean",
+                                                "description": "Whether text comparisons are case-sensitive"
+                                              },
+                                              "autonumberFormat": {
+                                                "type": "string",
+                                                "description": "Auto-number display format pattern (e.g., \"CASE-{0000}\")"
                                               },
                                               "encryption": {
                                                 "type": "boolean",
@@ -9574,6 +9627,11 @@
                                             "full"
                                           ],
                                           "description": "Default sharing model"
+                                        },
+                                        "keyPrefix": {
+                                          "type": "string",
+                                          "maxLength": 5,
+                                          "description": "Short prefix for record IDs (e.g., \"001\" for Account)"
                                         }
                                       },
                                       "required": [

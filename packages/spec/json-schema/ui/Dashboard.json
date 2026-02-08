@@ -512,6 +512,37 @@
         "refreshInterval": {
           "type": "number",
           "description": "Auto-refresh interval in seconds"
+        },
+        "globalFilters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string",
+                "description": "Field name to filter on"
+              },
+              "label": {
+                "type": "string",
+                "description": "Display label for the filter"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "text",
+                  "select",
+                  "date",
+                  "number"
+                ],
+                "description": "Filter input type"
+              }
+            },
+            "required": [
+              "field"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Global filters that apply to all widgets in the dashboard"
         }
       },
       "required": [
