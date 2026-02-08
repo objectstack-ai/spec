@@ -33,10 +33,10 @@ export const RoleSchema = z.object({
   label: z.string().describe('Display label (e.g. VP of Sales)'),
   
   /** Hierarchy */
-  parent: z.string().optional().describe('Parent Role ID (Reports To)'),
+  parent: z.string().optional().describe('Parent Role ID for hierarchical reporting structure (Reports To)'),
   
   /** Description */
-  description: z.string().optional(),
+  description: z.string().optional().describe('Detailed description of the role and its responsibilities'),
 });
 
 export type Role = z.infer<typeof RoleSchema>;
