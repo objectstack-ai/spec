@@ -6,27 +6,32 @@
       "properties": {
         "scanId": {
           "type": "string",
-          "format": "uuid"
+          "format": "uuid",
+          "description": "Unique identifier for this security scan"
         },
         "plugin": {
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
+              "type": "string",
+              "description": "Plugin identifier"
             },
             "version": {
-              "type": "string"
+              "type": "string",
+              "description": "Plugin version that was scanned"
             }
           },
           "required": [
             "id",
             "version"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Plugin that was scanned"
         },
         "scannedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when the scan was performed"
         },
         "scanner": {
           "type": "object",
@@ -36,14 +41,16 @@
               "description": "Scanner name (e.g., snyk, osv, trivy)"
             },
             "version": {
-              "type": "string"
+              "type": "string",
+              "description": "Version of the scanner tool"
             }
           },
           "required": [
             "name",
             "version"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Information about the scanner tool used"
         },
         "status": {
           "type": "string",
@@ -51,7 +58,8 @@
             "passed",
             "failed",
             "warning"
-          ]
+          ],
+          "description": "Overall result status of the security scan"
         },
         "vulnerabilities": {
           "type": "array",
@@ -68,10 +76,12 @@
                 "description": "Vulnerability ID"
               },
               "title": {
-                "type": "string"
+                "type": "string",
+                "description": "Short title summarizing the vulnerability"
               },
               "description": {
-                "type": "string"
+                "type": "string",
+                "description": "Detailed description of the vulnerability"
               },
               "severity": {
                 "type": "string",
@@ -81,31 +91,37 @@
                   "medium",
                   "low",
                   "info"
-                ]
+                ],
+                "description": "Severity level of this vulnerability"
               },
               "cvss": {
                 "type": "number",
                 "minimum": 0,
-                "maximum": 10
+                "maximum": 10,
+                "description": "CVSS score ranging from 0 to 10"
               },
               "package": {
                 "type": "object",
                 "properties": {
                   "name": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Name of the affected package"
                   },
                   "version": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Version of the affected package"
                   },
                   "ecosystem": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Package ecosystem (e.g., npm, pip, maven)"
                   }
                 },
                 "required": [
                   "name",
                   "version"
                 ],
-                "additionalProperties": false
+                "additionalProperties": false,
+                "description": "Affected package information"
               },
               "vulnerableVersions": {
                 "type": "string",
@@ -127,11 +143,13 @@
                         "article",
                         "report",
                         "web"
-                      ]
+                      ],
+                      "description": "Type of reference source"
                     },
                     "url": {
                       "type": "string",
-                      "format": "uri"
+                      "format": "uri",
+                      "description": "URL of the reference"
                     }
                   },
                   "required": [
@@ -140,21 +158,25 @@
                   ],
                   "additionalProperties": false
                 },
-                "default": []
+                "default": [],
+                "description": "External references related to the vulnerability"
               },
               "cwe": {
                 "type": "array",
                 "items": {
                   "type": "string"
                 },
-                "default": []
+                "default": [],
+                "description": "CWE identifiers associated with this vulnerability"
               },
               "publishedAt": {
                 "type": "string",
-                "format": "date-time"
+                "format": "date-time",
+                "description": "ISO 8601 date when the vulnerability was published"
               },
               "mitigation": {
-                "type": "string"
+                "type": "string",
+                "description": "Recommended steps to mitigate the vulnerability"
               }
             },
             "required": [
@@ -165,8 +187,10 @@
               "package",
               "vulnerableVersions"
             ],
-            "additionalProperties": false
-          }
+            "additionalProperties": false,
+            "description": "A known security vulnerability in a package dependency"
+          },
+          "description": "List of vulnerabilities discovered during the scan"
         },
         "summary": {
           "type": "object",
@@ -174,35 +198,42 @@
             "critical": {
               "type": "integer",
               "minimum": 0,
-              "default": 0
+              "default": 0,
+              "description": "Count of critical severity vulnerabilities"
             },
             "high": {
               "type": "integer",
               "minimum": 0,
-              "default": 0
+              "default": 0,
+              "description": "Count of high severity vulnerabilities"
             },
             "medium": {
               "type": "integer",
               "minimum": 0,
-              "default": 0
+              "default": 0,
+              "description": "Count of medium severity vulnerabilities"
             },
             "low": {
               "type": "integer",
               "minimum": 0,
-              "default": 0
+              "default": 0,
+              "description": "Count of low severity vulnerabilities"
             },
             "info": {
               "type": "integer",
               "minimum": 0,
-              "default": 0
+              "default": 0,
+              "description": "Count of informational severity vulnerabilities"
             },
             "total": {
               "type": "integer",
               "minimum": 0,
-              "default": 0
+              "default": 0,
+              "description": "Total count of all vulnerabilities"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Summary counts of vulnerabilities by severity"
         },
         "licenseIssues": {
           "type": "array",
@@ -210,13 +241,16 @@
             "type": "object",
             "properties": {
               "package": {
-                "type": "string"
+                "type": "string",
+                "description": "Name of the package with a license issue"
               },
               "license": {
-                "type": "string"
+                "type": "string",
+                "description": "License identifier of the package"
               },
               "reason": {
-                "type": "string"
+                "type": "string",
+                "description": "Reason the license is flagged"
               },
               "severity": {
                 "type": "string",
@@ -224,7 +258,8 @@
                   "error",
                   "warning",
                   "info"
-                ]
+                ],
+                "description": "Severity of the license compliance issue"
               }
             },
             "required": [
@@ -235,7 +270,8 @@
             ],
             "additionalProperties": false
           },
-          "default": []
+          "default": [],
+          "description": "License compliance issues found during the scan"
         },
         "codeQuality": {
           "type": "object",
@@ -243,7 +279,8 @@
             "score": {
               "type": "number",
               "minimum": 0,
-              "maximum": 100
+              "maximum": 100,
+              "description": "Overall code quality score from 0 to 100"
             },
             "issues": {
               "type": "array",
@@ -256,7 +293,8 @@
                       "security",
                       "quality",
                       "style"
-                    ]
+                    ],
+                    "description": "Category of the code quality issue"
                   },
                   "severity": {
                     "type": "string",
@@ -264,16 +302,20 @@
                       "error",
                       "warning",
                       "info"
-                    ]
+                    ],
+                    "description": "Severity of the code quality issue"
                   },
                   "message": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Description of the code quality issue"
                   },
                   "file": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "File path where the issue was found"
                   },
                   "line": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "Line number where the issue was found"
                   }
                 },
                 "required": [
@@ -283,14 +325,17 @@
                 ],
                 "additionalProperties": false
               },
-              "default": []
+              "default": [],
+              "description": "List of individual code quality issues"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Code quality analysis results"
         },
         "nextScanAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "description": "ISO 8601 timestamp for the next scheduled scan"
         }
       },
       "required": [
@@ -302,7 +347,8 @@
         "vulnerabilities",
         "summary"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Result of a security scan performed on a plugin"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

@@ -5,29 +5,35 @@
       "type": "object",
       "properties": {
         "pluginId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier of the plugin"
         },
         "version": {
-          "type": "string"
+          "type": "string",
+          "description": "Version of the plugin artifact"
         },
         "build": {
           "type": "object",
           "properties": {
             "timestamp": {
               "type": "string",
-              "format": "date-time"
+              "format": "date-time",
+              "description": "ISO 8601 timestamp when the build was produced"
             },
             "environment": {
               "type": "object",
               "properties": {
                 "os": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Operating system used for the build"
                 },
                 "arch": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "CPU architecture used for the build"
                 },
                 "nodeVersion": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Node.js version used for the build"
                 }
               },
               "required": [
@@ -35,53 +41,63 @@
                 "arch",
                 "nodeVersion"
               ],
-              "additionalProperties": false
+              "additionalProperties": false,
+              "description": "Environment details where the build was executed"
             },
             "source": {
               "type": "object",
               "properties": {
                 "repository": {
                   "type": "string",
-                  "format": "uri"
+                  "format": "uri",
+                  "description": "URL of the source repository"
                 },
                 "commit": {
                   "type": "string",
-                  "pattern": "^[a-f0-9]{40}$"
+                  "pattern": "^[a-f0-9]{40}$",
+                  "description": "Full SHA-1 commit hash of the source"
                 },
                 "branch": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Branch name the build was produced from"
                 },
                 "tag": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Git tag associated with the build"
                 }
               },
               "required": [
                 "repository",
                 "commit"
               ],
-              "additionalProperties": false
+              "additionalProperties": false,
+              "description": "Source repository information for the build"
             },
             "builder": {
               "type": "object",
               "properties": {
                 "name": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Name of the person or system that produced the build"
                 },
                 "email": {
                   "type": "string",
-                  "format": "email"
+                  "format": "email",
+                  "description": "Email address of the builder"
                 }
               },
               "required": [
                 "name"
               ],
-              "additionalProperties": false
+              "additionalProperties": false,
+              "description": "Identity of the builder who produced the artifact"
             }
           },
           "required": [
             "timestamp"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Build provenance information"
         },
         "artifacts": {
           "type": "array",
@@ -89,14 +105,17 @@
             "type": "object",
             "properties": {
               "filename": {
-                "type": "string"
+                "type": "string",
+                "description": "Name of the artifact file"
               },
               "sha256": {
-                "type": "string"
+                "type": "string",
+                "description": "SHA-256 hash of the artifact"
               },
               "size": {
                 "type": "integer",
-                "exclusiveMinimum": 0
+                "exclusiveMinimum": 0,
+                "description": "Size of the artifact in bytes"
               }
             },
             "required": [
@@ -105,7 +124,8 @@
               "size"
             ],
             "additionalProperties": false
-          }
+          },
+          "description": "List of build artifacts with integrity hashes"
         },
         "signatures": {
           "type": "array",
@@ -118,20 +138,25 @@
                   "rsa",
                   "ecdsa",
                   "ed25519"
-                ]
+                ],
+                "description": "Cryptographic algorithm used for signing"
               },
               "publicKey": {
-                "type": "string"
+                "type": "string",
+                "description": "Public key used to verify the signature"
               },
               "signature": {
-                "type": "string"
+                "type": "string",
+                "description": "Digital signature value"
               },
               "signedBy": {
-                "type": "string"
+                "type": "string",
+                "description": "Identity of the signer"
               },
               "timestamp": {
                 "type": "string",
-                "format": "date-time"
+                "format": "date-time",
+                "description": "ISO 8601 timestamp when the signature was created"
               }
             },
             "required": [
@@ -143,7 +168,8 @@
             ],
             "additionalProperties": false
           },
-          "default": []
+          "default": [],
+          "description": "Cryptographic signatures for the plugin artifact"
         },
         "attestations": {
           "type": "array",
@@ -157,22 +183,26 @@
                   "security-scan",
                   "test-results",
                   "ci-build"
-                ]
+                ],
+                "description": "Type of attestation"
               },
               "status": {
                 "type": "string",
                 "enum": [
                   "passed",
                   "failed"
-                ]
+                ],
+                "description": "Result status of the attestation"
               },
               "url": {
                 "type": "string",
-                "format": "uri"
+                "format": "uri",
+                "description": "URL with details about the attestation"
               },
               "timestamp": {
                 "type": "string",
-                "format": "date-time"
+                "format": "date-time",
+                "description": "ISO 8601 timestamp when the attestation was issued"
               }
             },
             "required": [
@@ -182,7 +212,8 @@
             ],
             "additionalProperties": false
           },
-          "default": []
+          "default": [],
+          "description": "Verification attestations for the plugin"
         }
       },
       "required": [
@@ -191,7 +222,8 @@
         "build",
         "artifacts"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Verifiable provenance and chain of custody for a plugin artifact"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

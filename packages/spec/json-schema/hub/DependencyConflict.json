@@ -5,7 +5,8 @@
       "type": "object",
       "properties": {
         "package": {
-          "type": "string"
+          "type": "string",
+          "description": "Name of the package with conflicting version requirements"
         },
         "conflicts": {
           "type": "array",
@@ -13,7 +14,8 @@
             "type": "object",
             "properties": {
               "version": {
-                "type": "string"
+                "type": "string",
+                "description": "Conflicting version of the package"
               },
               "requestedBy": {
                 "type": "array",
@@ -23,7 +25,8 @@
                 "description": "Packages that require this version"
               },
               "constraint": {
-                "type": "string"
+                "type": "string",
+                "description": "Semver constraint that produced this version requirement"
               }
             },
             "required": [
@@ -32,7 +35,8 @@
               "constraint"
             ],
             "additionalProperties": false
-          }
+          },
+          "description": "List of conflicting version requirements"
         },
         "resolution": {
           "type": "object",
@@ -43,19 +47,23 @@
                 "pick-highest",
                 "pick-lowest",
                 "manual"
-              ]
+              ],
+              "description": "Strategy used to resolve the conflict"
             },
             "version": {
-              "type": "string"
+              "type": "string",
+              "description": "Resolved version selected by the strategy"
             },
             "reason": {
-              "type": "string"
+              "type": "string",
+              "description": "Explanation of why this resolution was chosen"
             }
           },
           "required": [
             "strategy"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Suggested resolution for the conflict"
         },
         "severity": {
           "type": "string",
@@ -63,7 +71,8 @@
             "error",
             "warning",
             "info"
-          ]
+          ],
+          "description": "Severity level of the dependency conflict"
         }
       },
       "required": [
@@ -71,7 +80,8 @@
         "conflicts",
         "severity"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "A detected conflict between dependency version requirements"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

@@ -5,7 +5,8 @@
       "type": "object",
       "properties": {
         "name": {
-          "type": "string"
+          "type": "string",
+          "description": "Package name or identifier"
         },
         "versionConstraint": {
           "type": "string",
@@ -19,17 +20,20 @@
             "peer",
             "dev"
           ],
-          "default": "required"
+          "default": "required",
+          "description": "Category of the dependency relationship"
         },
         "resolvedVersion": {
-          "type": "string"
+          "type": "string",
+          "description": "Concrete version resolved during dependency resolution"
         }
       },
       "required": [
         "name",
         "versionConstraint"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "A package dependency with its version constraint"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

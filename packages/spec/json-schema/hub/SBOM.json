@@ -10,22 +10,27 @@
             "spdx",
             "cyclonedx"
           ],
-          "default": "cyclonedx"
+          "default": "cyclonedx",
+          "description": "SBOM standard format used"
         },
         "version": {
-          "type": "string"
+          "type": "string",
+          "description": "Version of the SBOM specification"
         },
         "plugin": {
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
+              "type": "string",
+              "description": "Plugin identifier"
             },
             "version": {
-              "type": "string"
+              "type": "string",
+              "description": "Plugin version"
             },
             "name": {
-              "type": "string"
+              "type": "string",
+              "description": "Human-readable plugin name"
             }
           },
           "required": [
@@ -33,7 +38,8 @@
             "version",
             "name"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Metadata about the plugin this SBOM describes"
         },
         "components": {
           "type": "array",
@@ -41,45 +47,54 @@
             "type": "object",
             "properties": {
               "name": {
-                "type": "string"
+                "type": "string",
+                "description": "Name of the software component"
               },
               "version": {
-                "type": "string"
+                "type": "string",
+                "description": "Version of the software component"
               },
               "purl": {
                 "type": "string",
                 "description": "Package URL identifier"
               },
               "license": {
-                "type": "string"
+                "type": "string",
+                "description": "SPDX license identifier of the component"
               },
               "hashes": {
                 "type": "object",
                 "properties": {
                   "sha256": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "SHA-256 hash of the component artifact"
                   },
                   "sha512": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "SHA-512 hash of the component artifact"
                   }
                 },
-                "additionalProperties": false
+                "additionalProperties": false,
+                "description": "Cryptographic hashes for integrity verification"
               },
               "supplier": {
                 "type": "object",
                 "properties": {
                   "name": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Name of the component supplier"
                   },
                   "url": {
                     "type": "string",
-                    "format": "uri"
+                    "format": "uri",
+                    "description": "URL of the component supplier"
                   }
                 },
                 "required": [
                   "name"
                 ],
-                "additionalProperties": false
+                "additionalProperties": false,
+                "description": "Supplier information for the component"
               },
               "externalRefs": {
                 "type": "array",
@@ -93,11 +108,13 @@
                         "repository",
                         "documentation",
                         "issue-tracker"
-                      ]
+                      ],
+                      "description": "Type of external reference"
                     },
                     "url": {
                       "type": "string",
-                      "format": "uri"
+                      "format": "uri",
+                      "description": "URL of the external reference"
                     }
                   },
                   "required": [
@@ -106,35 +123,42 @@
                   ],
                   "additionalProperties": false
                 },
-                "default": []
+                "default": [],
+                "description": "External references related to the component"
               }
             },
             "required": [
               "name",
               "version"
             ],
-            "additionalProperties": false
-          }
+            "additionalProperties": false,
+            "description": "A single entry in a Software Bill of Materials"
+          },
+          "description": "List of software components included in the plugin"
         },
         "generatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when the SBOM was generated"
         },
         "generator": {
           "type": "object",
           "properties": {
             "name": {
-              "type": "string"
+              "type": "string",
+              "description": "Name of the SBOM generator tool"
             },
             "version": {
-              "type": "string"
+              "type": "string",
+              "description": "Version of the SBOM generator tool"
             }
           },
           "required": [
             "name",
             "version"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Tool used to generate this SBOM"
         }
       },
       "required": [
@@ -143,7 +167,8 @@
         "components",
         "generatedAt"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Software Bill of Materials for a plugin"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
