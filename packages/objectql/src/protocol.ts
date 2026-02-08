@@ -59,17 +59,29 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
     }
 
     async getMetaItems(request: { type: string; packageId?: string }) {
+        let items = SchemaRegistry.listItems(request.type, request.packageId);
+        // Normalize singular/plural: REST uses singular ('app') but registry may store as plural ('apps')
+        if (items.length === 0) {
+            const alt = request.type.endsWith('s') ? request.type.slice(0, -1) : request.type + 's';
+            items = SchemaRegistry.listItems(alt, request.packageId);
+        }
         return {
             type: request.type,
-            items: SchemaRegistry.listItems(request.type, request.packageId)
+            items
         };
     }
 
     async getMetaItem(request: { type: string, name: string }) {
+        let item = SchemaRegistry.getItem(request.type, request.name);
+        // Normalize singular/plural
+        if (item === undefined) {
+            const alt = request.type.endsWith('s') ? request.type.slice(0, -1) : request.type + 's';
+            item = SchemaRegistry.getItem(alt, request.name);
+        }
         return {
             type: request.type,
             name: request.name,
-            item: SchemaRegistry.getItem(request.type, request.name)
+            item
         };
     }
 
