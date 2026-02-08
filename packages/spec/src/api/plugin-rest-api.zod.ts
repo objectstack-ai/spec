@@ -680,7 +680,8 @@ export const DEFAULT_DISCOVERY_ROUTES: RestApiRouteRegistration = {
     description: 'Returns API version, capabilities, and available routes',
     tags: ['Discovery'],
     responseSchema: 'GetDiscoveryResponseSchema',
-    cacheable: false,
+    cacheable: true,
+    cacheTtl: 3600, // Cache for 1 hour as discovery info rarely changes
   }],
   middleware: [
     { name: 'response_envelope', type: 'transformation', enabled: true, order: 100 },
@@ -690,12 +691,15 @@ export const DEFAULT_DISCOVERY_ROUTES: RestApiRouteRegistration = {
 /**
  * Default Metadata Routes
  * Standard routes for metadata operations
+ * 
+ * Note: getMetaItemCached is not a separate endpoint - it's handled by the getMetaItem
+ * endpoint with HTTP cache headers (ETag, If-None-Match, etc.) for conditional requests.
  */
 export const DEFAULT_METADATA_ROUTES: RestApiRouteRegistration = {
   prefix: '/api/v1/meta',
   service: 'metadata',
   category: 'metadata',
-  methods: ['getMetaTypes', 'getMetaItems', 'getMetaItem', 'saveMetaItem', 'getMetaItemCached'],
+  methods: ['getMetaTypes', 'getMetaItems', 'getMetaItem', 'saveMetaItem'],
   authRequired: true,
   endpoints: [
     {
