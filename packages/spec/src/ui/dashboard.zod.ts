@@ -94,6 +94,13 @@ export const DashboardSchema = z.object({
 
   /** Auto-refresh */
   refreshInterval: z.number().optional().describe('Auto-refresh interval in seconds'),
+
+  /** Global Filters */
+  globalFilters: z.array(z.object({
+    field: z.string().describe('Field name to filter on'),
+    label: z.string().optional().describe('Display label for the filter'),
+    type: z.enum(['text', 'select', 'date', 'number']).optional().describe('Filter input type'),
+  })).optional().describe('Global filters that apply to all widgets in the dashboard'),
 });
 
 export type Dashboard = z.infer<typeof DashboardSchema>;

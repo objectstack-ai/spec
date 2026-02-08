@@ -84,6 +84,16 @@ export const ActionSchema = z.object({
   
   /** Access */
   visible: z.string().optional().describe('Formula returning boolean'),
+  disabled: z.union([z.boolean(), z.string()]).optional().describe('Whether the action is disabled, or a condition expression string'),
+
+  /** Keyboard Shortcut */
+  shortcut: z.string().optional().describe('Keyboard shortcut to trigger this action (e.g., "Ctrl+S")'),
+
+  /** Bulk Operations */
+  bulkEnabled: z.boolean().optional().describe('Whether this action can be applied to multiple selected records'),
+
+  /** Execution */
+  timeout: z.number().optional().describe('Maximum execution time in milliseconds for the action'),
 });
 
 export type Action = z.infer<typeof ActionSchema>;
