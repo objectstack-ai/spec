@@ -103,7 +103,7 @@ export class RemoteLoader implements MetadataLoader {
 
     return {
       size: Number(response.headers.get('content-length') || 0),
-      mtime: new Date(response.headers.get('last-modified') || Date.now()),
+      mtime: new Date(response.headers.get('last-modified') || Date.now()).toISOString(),
       format: 'json',
     };
   }

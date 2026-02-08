@@ -67,7 +67,7 @@ export class MemoryLoader implements MetadataLoader {
     if (await this.exists(type, name)) {
       return {
         size: 0, // In-memory
-        mtime: new Date(),
+        mtime: new Date().toISOString(),
         format: 'json',
       };
     }

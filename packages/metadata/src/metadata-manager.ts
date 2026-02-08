@@ -91,7 +91,7 @@ export class MetadataManager {
         try {
             const result = await loader.load(type, name, options);
             if (result.data) {
-                return result.data;
+                return result.data as T;
             }
         } catch (e) {
             this.logger.warn(`Loader ${loader.contract.name} failed to load ${type}:${name}`, { error: e });
