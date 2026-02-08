@@ -1,0 +1,42 @@
+{
+  "$ref": "#/definitions/MCPCapability",
+  "definitions": {
+    "MCPCapability": {
+      "type": "object",
+      "properties": {
+        "resources": {
+          "type": "boolean",
+          "default": false,
+          "description": "Supports resource listing and retrieval"
+        },
+        "resourceTemplates": {
+          "type": "boolean",
+          "default": false,
+          "description": "Supports dynamic resource templates"
+        },
+        "tools": {
+          "type": "boolean",
+          "default": false,
+          "description": "Supports tool/function calling"
+        },
+        "prompts": {
+          "type": "boolean",
+          "default": false,
+          "description": "Supports prompt templates"
+        },
+        "sampling": {
+          "type": "boolean",
+          "default": false,
+          "description": "Supports sampling from LLMs"
+        },
+        "logging": {
+          "type": "boolean",
+          "default": false,
+          "description": "Supports logging and debugging"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

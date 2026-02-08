@@ -1,10 +1,15 @@
 {
-  "$ref": "#/definitions/ServiceStatus",
+  "$ref": "#/definitions/DispatcherRoute",
   "definitions": {
-    "ServiceStatus": {
+    "DispatcherRoute": {
       "type": "object",
       "properties": {
-        "name": {
+        "prefix": {
+          "type": "string",
+          "pattern": "^\\/",
+          "description": "URL path prefix for routing (e.g. /api/v1/data)"
+        },
+        "service": {
           "type": "string",
           "enum": [
             "metadata",
@@ -25,39 +30,35 @@
             "i18n",
             "ui",
             "workflow"
-          ]
+          ],
+          "description": "Target core service name"
         },
-        "enabled": {
-          "type": "boolean"
+        "authRequired": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether authentication is required"
         },
-        "status": {
+        "criticality": {
           "type": "string",
           "enum": [
-            "running",
-            "stopped",
-            "degraded",
-            "initializing"
-          ]
+            "required",
+            "core",
+            "optional"
+          ],
+          "default": "optional",
+          "description": "Service criticality level for unavailability handling"
         },
-        "version": {
-          "type": "string"
-        },
-        "provider": {
-          "type": "string",
-          "description": "Implementation provider (e.g. \"s3\" for storage)"
-        },
-        "features": {
+        "permissions": {
           "type": "array",
           "items": {
             "type": "string"
           },
-          "description": "List of supported sub-features"
+          "description": "Required permissions for this route namespace"
         }
       },
       "required": [
-        "name",
-        "enabled",
-        "status"
+        "prefix",
+        "service"
       ],
       "additionalProperties": false
     }

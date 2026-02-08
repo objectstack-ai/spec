@@ -75,6 +75,7 @@ This document serves as the **Grand Map** of the ObjectStack specification. It l
 | :--- | :--- | :--- |
 | [`agent.zod.ts`](src/ai/agent.zod.ts) | ⭐ | **AI Agent**. Attributes of an AI assistant (role, personality, model). |
 | [`agent-action.zod.ts`](src/ai/agent-action.zod.ts) | ⭐ | **Tools & Actions**. Capabilities exposed to the AI (Function Calling). |
+| [`mcp.zod.ts`](src/ai/mcp.zod.ts) | ⭐ | **Model Context Protocol (MCP)**. Standard protocol for connecting AI to tools, resources, and data sources. |
 | [`rag-pipeline.zod.ts`](src/ai/rag-pipeline.zod.ts) | ⭐ | **RAG**. Retrieval Augmented Generation configurations. |
 | [`model-registry.zod.ts`](src/ai/model-registry.zod.ts) | | **LLM Registry**. Configuration for model providers (OpenAI, Anthropic). |
 | [`conversation.zod.ts`](src/ai/conversation.zod.ts) | | **Chat Session**. History and context management for AI chats. |

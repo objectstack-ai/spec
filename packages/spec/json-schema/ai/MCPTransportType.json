@@ -1,0 +1,15 @@
+{
+  "$ref": "#/definitions/MCPTransportType",
+  "definitions": {
+    "MCPTransportType": {
+      "type": "string",
+      "enum": [
+        "stdio",
+        "http",
+        "websocket",
+        "grpc"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

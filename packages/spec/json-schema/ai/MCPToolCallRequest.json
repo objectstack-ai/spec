@@ -1,0 +1,52 @@
+{
+  "$ref": "#/definitions/MCPToolCallRequest",
+  "definitions": {
+    "MCPToolCallRequest": {
+      "type": "object",
+      "properties": {
+        "toolName": {
+          "type": "string",
+          "description": "Tool to invoke"
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Tool parameters"
+        },
+        "timeout": {
+          "type": "integer",
+          "exclusiveMinimum": 0
+        },
+        "confirmationProvided": {
+          "type": "boolean",
+          "description": "User confirmation for tools that require it"
+        },
+        "context": {
+          "type": "object",
+          "properties": {
+            "userId": {
+              "type": "string"
+            },
+            "sessionId": {
+              "type": "string"
+            },
+            "agentName": {
+              "type": "string"
+            },
+            "metadata": {
+              "type": "object",
+              "additionalProperties": {}
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "toolName",
+        "parameters"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
