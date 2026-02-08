@@ -155,6 +155,8 @@ This document serves as the **Grand Map** of the ObjectStack specification. It l
 | File | Status | Description |
 | :--- | :--- | :--- |
 | [`protocol.zod.ts`](src/api/protocol.zod.ts) | ⭐ | **Stack Protocol**. valid requests and responses for the platform. |
+| [`dispatcher.zod.ts`](src/api/dispatcher.zod.ts) | ⭐ | **HttpDispatcher**. Route-to-service mapping for API routing. |
+| [`discovery.zod.ts`](src/api/discovery.zod.ts) | ⭐ | **Service Discovery**. Service registration and API routes discovery. |
 | [`endpoint.zod.ts`](src/api/endpoint.zod.ts) | | **API Endpoints**. REST API route definitions. |
 | [`graphql.zod.ts`](src/api/graphql.zod.ts) | | **GraphQL**. Schema and resolver configuration. |
 | [`rest-server.zod.ts`](src/api/rest-server.zod.ts) | | **REST Server**. REST-specific server settings. |
@@ -166,7 +168,6 @@ This document serves as the **Grand Map** of the ObjectStack specification. It l
 | [`router.zod.ts`](src/api/router.zod.ts) | | **Routing**. API Gateway routing rules. |
 | [`http-cache.zod.ts`](src/api/http-cache.zod.ts) | | **HTTP Cache**. Cache-Control headers and CDNs. |
 | [`errors.zod.ts`](src/api/errors.zod.ts) | | **Error Handling**. Standard error response formats. |
-| [`discovery.zod.ts`](src/api/discovery.zod.ts) | | **Service Discovery**. Service registration for microservices. |
 | [`metadata.zod.ts`](src/api/metadata.zod.ts) | | **Metadata API**. Endpoints for schema retrieval. |
 | [`odata.zod.ts`](src/api/odata.zod.ts) | | **OData**. OData protocol support. |
 | [`batch.zod.ts`](src/api/batch.zod.ts) | | **Batch API**. Bulk request processing. |
