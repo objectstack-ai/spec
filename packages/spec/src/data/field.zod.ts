@@ -455,6 +455,9 @@ export const FieldSchema = z.object({
   readonly: z.boolean().default(false).describe('Read-only in UI'),
   sortable: z.boolean().optional().default(true).describe('Whether field is sortable in list views'),
   inlineHelpText: z.string().optional().describe('Help text displayed below the field in forms'),
+  trackFeedHistory: z.boolean().optional().describe('Track field changes in Chatter/activity feed (Salesforce pattern)'),
+  caseSensitive: z.boolean().optional().describe('Whether text comparisons are case-sensitive'),
+  autonumberFormat: z.string().optional().describe('Auto-number display format pattern (e.g., "CASE-{0000}")'),
   encryption: z.boolean().default(false).describe('Deprecated: Use encryptionConfig for enhanced encryption features. Simple flag for backward compatibility.'),
   
   /** Indexing */

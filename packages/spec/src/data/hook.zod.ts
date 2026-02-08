@@ -84,6 +84,24 @@ export const HookSchema = z.object({
   async: z.boolean().default(false).describe('Run specifically as fire-and-forget'),
 
   /**
+   * Human-readable description
+   */
+  description: z.string().optional().describe('Human-readable description of what this hook does'),
+
+  /**
+   * Retry Policy
+   */
+  retryPolicy: z.object({
+    maxRetries: z.number().default(3).describe('Maximum retry attempts on failure'),
+    backoffMs: z.number().default(1000).describe('Backoff delay between retries in milliseconds'),
+  }).optional().describe('Retry policy for failed hook executions'),
+
+  /**
+   * Execution Timeout
+   */
+  timeout: z.number().optional().describe('Maximum execution time in milliseconds before the hook is aborted'),
+
+  /**
    * Error Policy
    * What to do if the hook throws an exception?
    * - abort: Rollback transaction (if blocking)
