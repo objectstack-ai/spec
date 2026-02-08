@@ -10,13 +10,8 @@ import {
   GetAnalyticsMetaRequestSchema, 
   AnalyticsMetadataResponseSchema 
 } from './analytics.zod';
-import {
-  ListSpacesRequest,
-  SpaceResponse,
-  CreateSpaceRequest,
-  InstallPluginRequest,
-  InstallPluginResponse
-} from './hub.zod';
+// Hub management types (marketplace, spaces, etc.) have been migrated to the cloud project.
+// listSpaces, createSpace, installPlugin operations are defined in the cloud API layer.
 import { RealtimePresenceSchema, TransportProtocol } from './realtime.zod';
 import { ObjectPermissionSchema, FieldPermissionSchema } from '../security/permission.zod';
 import { WorkflowRuleSchema } from '../automation/workflow.zod';
@@ -910,16 +905,6 @@ export const ObjectStackProtocolSchema = z.object({
   triggerAutomation: z.function()
     .describe('Trigger an automation flow or script'),
 
-  // Hub Operations
-  listSpaces: z.function()
-    .describe('List Hub Spaces'),
-  
-  createSpace: z.function()
-    .describe('Create Hub Space'),
-
-  installPlugin: z.function()
-    .describe('Install Plugin into Space'),
-
   // Package Management Operations
   listPackages: z.function()
     .describe('List installed packages with optional filters'),
@@ -1219,10 +1204,6 @@ export interface IObjectStackProtocolLegacy {
   getAnalyticsMeta(request: GetAnalyticsMetaRequest): Promise<GetAnalyticsMetaResponse>;
 
   triggerAutomation(request: AutomationTriggerRequest): Promise<AutomationTriggerResponse>;
-
-  listSpaces(request: ListSpacesRequest): Promise<any>;
-  createSpace(request: CreateSpaceRequest): Promise<SpaceResponse>;
-  installPlugin(request: InstallPluginRequest): Promise<InstallPluginResponse>;
 
   // Package Management
   listPackages(request: ListPackagesRequest): Promise<ListPackagesResponse>;

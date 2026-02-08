@@ -18,6 +18,8 @@
     "plugin-validator",
     "plugin-versioning",
     "service-registry",
-    "startup-orchestrator"
+    "startup-orchestrator",
+    "plugin-registry",
+    "plugin-security"
   ]
 }

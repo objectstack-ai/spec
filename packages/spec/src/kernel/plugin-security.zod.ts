@@ -417,7 +417,7 @@ export type DependencyGraph = z.infer<typeof DependencyGraphSchema>;
  * @see kernel/plugin-versioning.zod.ts DependencyConflictSchema for kernel-level plugin conflicts
  *      which models plugin-to-plugin conflicts with richer resolution strategies.
  */
-export const DependencyConflictSchema = z.object({
+export const PackageDependencyConflictSchema = z.object({
   /**
    * Package with conflict
    */
@@ -447,12 +447,12 @@ export const DependencyConflictSchema = z.object({
   severity: z.enum(['error', 'warning', 'info']).describe('Severity level of the dependency conflict'),
 }).describe('A detected conflict between dependency version requirements');
 
-export type DependencyConflict = z.infer<typeof DependencyConflictSchema>;
+export type PackageDependencyConflict = z.infer<typeof PackageDependencyConflictSchema>;
 
 /**
  * Dependency Resolution Result
  */
-export const DependencyResolutionResultSchema = z.object({
+export const PackageDependencyResolutionResultSchema = z.object({
   /**
    * Resolution status
    */
@@ -466,7 +466,7 @@ export const DependencyResolutionResultSchema = z.object({
   /**
    * Conflicts detected
    */
-  conflicts: z.array(DependencyConflictSchema).default([]).describe('List of dependency conflicts detected during resolution'),
+  conflicts: z.array(PackageDependencyConflictSchema).default([]).describe('List of dependency conflicts detected during resolution'),
   
   /**
    * Errors encountered
@@ -487,7 +487,7 @@ export const DependencyResolutionResultSchema = z.object({
   resolvedIn: z.number().int().min(0).optional().describe('Time taken to resolve dependencies in milliseconds'),
 }).describe('Result of a dependency resolution process');
 
-export type DependencyResolutionResult = z.infer<typeof DependencyResolutionResultSchema>;
+export type PackageDependencyResolutionResult = z.infer<typeof PackageDependencyResolutionResultSchema>;
 
 // ============================================================================
 // Supply Chain Security
@@ -758,8 +758,8 @@ export const PluginSecurityProtocol = {
   PackageDependency: PackageDependencySchema,
   DependencyGraphNode: DependencyGraphNodeSchema,
   DependencyGraph: DependencyGraphSchema,
-  DependencyConflict: DependencyConflictSchema,
-  DependencyResolutionResult: DependencyResolutionResultSchema,
+  DependencyConflict: PackageDependencyConflictSchema,
+  DependencyResolutionResult: PackageDependencyResolutionResultSchema,
   SBOMEntry: SBOMEntrySchema,
   SBOM: SBOMSchema,
   PluginProvenance: PluginProvenanceSchema,

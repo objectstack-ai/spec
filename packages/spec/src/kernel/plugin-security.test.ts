@@ -4,7 +4,7 @@ import {
   SecurityScanResultSchema,
   SecurityPolicySchema,
   DependencyGraphSchema,
-  DependencyResolutionResultSchema,
+  PackageDependencyResolutionResultSchema,
   SBOMSchema,
   PluginProvenanceSchema,
   PluginTrustScoreSchema,
@@ -164,7 +164,7 @@ describe('Plugin Security Protocol', () => {
     });
   });
 
-  describe('DependencyResolutionResult', () => {
+  describe('PackageDependencyResolutionResult', () => {
     it('should validate successful resolution', () => {
       const validResult = {
         status: 'success' as const,
@@ -187,7 +187,7 @@ describe('Plugin Security Protocol', () => {
         resolvedIn: 150,
       };
 
-      const result = DependencyResolutionResultSchema.safeParse(validResult);
+      const result = PackageDependencyResolutionResultSchema.safeParse(validResult);
       expect(result.success).toBe(true);
     });
 
@@ -221,7 +221,7 @@ describe('Plugin Security Protocol', () => {
         installOrder: [],
       };
 
-      const result = DependencyResolutionResultSchema.safeParse(validResult);
+      const result = PackageDependencyResolutionResultSchema.safeParse(validResult);
       expect(result.success).toBe(true);
     });
   });

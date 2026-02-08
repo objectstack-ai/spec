@@ -24,14 +24,14 @@ Features:
 - Trust and verification workflows
 
 <Callout type="info">
-**Source:** `packages/spec/src/hub/plugin-security.zod.ts`
+**Source:** `packages/spec/src/kernel/plugin-security.zod.ts`
 </Callout>
 
 ## TypeScript Usage
 
 ```typescript
-import { DependencyGraph, DependencyGraphNode, PackageDependency, PluginProvenance, PluginTrustScore, SBOM, SBOMEntry, VulnerabilitySeverity } from '@objectstack/spec/hub';
-import type { DependencyGraph, DependencyGraphNode, PackageDependency, PluginProvenance, PluginTrustScore, SBOM, SBOMEntry, VulnerabilitySeverity } from '@objectstack/spec/hub';
+import { DependencyGraph, DependencyGraphNode, PackageDependency, PluginProvenance, PluginTrustScore, SBOM, SBOMEntry, VulnerabilitySeverity } from '@objectstack/spec/kernel';
+import type { DependencyGraph, DependencyGraphNode, PackageDependency, PluginProvenance, PluginTrustScore, SBOM, SBOMEntry, VulnerabilitySeverity } from '@objectstack/spec/kernel';
 
 // Validate data
 const result = DependencyGraph.parse(data);

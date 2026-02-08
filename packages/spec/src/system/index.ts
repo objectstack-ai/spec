@@ -38,5 +38,10 @@ export * from './collaboration.zod';
 export * from './metadata-persistence.zod';
 export * from './core-services.zod';
 
+// Multi-Tenant & Licensing
+export * from './tenant.zod';
+export * from './license.zod';
+export * from './registry-config.zod';
+
 // Types
 export * from './types';

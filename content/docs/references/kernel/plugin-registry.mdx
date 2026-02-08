@@ -12,14 +12,14 @@ This enables plugins from different vendors to be discovered, validated,
 and composed together in the ObjectStack ecosystem.
 
 <Callout type="info">
-**Source:** `packages/spec/src/hub/plugin-registry.zod.ts`
+**Source:** `packages/spec/src/kernel/plugin-registry.zod.ts`
 </Callout>
 
 ## TypeScript Usage
 
 ```typescript
-import { PluginInstallConfig, PluginQualityMetrics, PluginRegistryEntry, PluginSearchFilters, PluginStatistics, PluginVendor } from '@objectstack/spec/hub';
-import type { PluginInstallConfig, PluginQualityMetrics, PluginRegistryEntry, PluginSearchFilters, PluginStatistics, PluginVendor } from '@objectstack/spec/hub';
+import { PluginInstallConfig, PluginQualityMetrics, PluginRegistryEntry, PluginSearchFilters, PluginStatistics, PluginVendor } from '@objectstack/spec/kernel';
+import type { PluginInstallConfig, PluginQualityMetrics, PluginRegistryEntry, PluginSearchFilters, PluginStatistics, PluginVendor } from '@objectstack/spec/kernel';
 
 // Validate data
 const result = PluginInstallConfig.parse(data);

@@ -22,6 +22,9 @@
     "service-registry",
     "tracing",
     "translation",
-    "worker"
+    "worker",
+    "tenant",
+    "license",
+    "registry-config"
   ]
 }

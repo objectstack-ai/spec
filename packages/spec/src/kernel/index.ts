@@ -16,3 +16,5 @@ export * from './plugin-versioning.zod';
 export * from './plugin.zod';
 export * from './service-registry.zod';
 export * from './startup-orchestrator.zod';
+export * from './plugin-registry.zod';
+export * from './plugin-security.zod';

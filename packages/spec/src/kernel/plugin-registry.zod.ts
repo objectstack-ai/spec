@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PluginCapabilityManifestSchema } from '../kernel/plugin-capability.zod';
+import { PluginCapabilityManifestSchema } from './plugin-capability.zod';
 
 /**
  * # Plugin Registry Protocol
