@@ -31,10 +31,10 @@ export const TranslationDataSchema = z.object({
 
   /** UI Messages */
   messages: z.record(z.string(), z.string()).optional().describe('UI message translations keyed by message ID'),
-});
+}).describe('Translation data for objects, apps, and UI messages');
 
 export const LocaleSchema = z.string().describe('BCP-47 Language Tag (e.g. en-US, zh-CN)');
 
-export const TranslationBundleSchema = z.record(LocaleSchema, TranslationDataSchema);
+export const TranslationBundleSchema = z.record(LocaleSchema, TranslationDataSchema).describe('Map of locale codes to translation data');
 
 export type TranslationBundle = z.infer<typeof TranslationBundleSchema>;

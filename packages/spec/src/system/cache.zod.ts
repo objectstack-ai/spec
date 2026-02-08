@@ -30,7 +30,7 @@ export const CacheStrategySchema = z.enum([
   'fifo',         // First In First Out
   'ttl',          // Time To Live only
   'adaptive',     // Dynamic strategy selection
-]);
+]).describe('Cache eviction strategy');
 
 export type CacheStrategy = z.infer<typeof CacheStrategySchema>;
 
@@ -41,7 +41,7 @@ export const CacheTierSchema = z.object({
   ttl: z.number().default(300).describe('Default TTL in seconds'),
   strategy: CacheStrategySchema.default('lru').describe('Eviction strategy'),
   warmup: z.boolean().default(false).describe('Pre-populate cache on startup'),
-});
+}).describe('Configuration for a single cache tier in the hierarchy');
 
 export type CacheTier = z.infer<typeof CacheTierSchema>;
 export type CacheTierInput = z.input<typeof CacheTierSchema>;
@@ -51,7 +51,7 @@ export const CacheInvalidationSchema = z.object({
   scope: z.enum(['key', 'pattern', 'tag', 'all']).describe('Invalidation scope'),
   pattern: z.string().optional().describe('Key pattern for pattern-based invalidation'),
   tags: z.array(z.string()).optional().describe('Cache tags to invalidate'),
-});
+}).describe('Rule defining when and how cached entries are invalidated');
 
 export type CacheInvalidation = z.infer<typeof CacheInvalidationSchema>;
 
@@ -62,7 +62,7 @@ export const CacheConfigSchema = z.object({
   prefetch: z.boolean().default(false).describe('Enable cache prefetching'),
   compression: z.boolean().default(false).describe('Enable data compression in cache'),
   encryption: z.boolean().default(false).describe('Enable encryption for cached data'),
-});
+}).describe('Top-level application cache configuration');
 
 export type CacheConfig = z.infer<typeof CacheConfigSchema>;
 export type CacheConfigInput = z.input<typeof CacheConfigSchema>;

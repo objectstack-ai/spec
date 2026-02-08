@@ -27,7 +27,7 @@ const OPS_FILE_SUFFIX_REGEX = /\.(object|field|trigger|function|view|page|dashbo
  * - "src/CRM/LeadObject.ts" (PascalCase)
  * - "src/utils/helper.js" (Wrong extension)
  */
-export const OpsFilePathSchema = z.string().superRefine((path, ctx) => {
+export const OpsFilePathSchema = z.string().describe('Validates a file path against OPS naming conventions').superRefine((path, ctx) => {
   // 1. Must be in src/
   if (!path.startsWith('src/')) {
     // Non-source files (package.json, config) are ignored by this specific validator
@@ -79,7 +79,7 @@ export const OpsFilePathSchema = z.string().superRefine((path, ctx) => {
 export const OpsDomainModuleSchema = z.object({
   name: z.string().regex(SNAKE_CASE_REGEX).describe('Module name (snake_case)'),
   files: z.array(z.string()).describe('List of files in this module'),
-}).superRefine((module, ctx) => {
+}).describe('Scanned domain module representing a plugin folder').superRefine((module, ctx) => {
   // Rule: Must have an index.ts
   if (!module.files.includes('index.ts')) {
     ctx.addIssue({
@@ -95,7 +95,7 @@ export const OpsDomainModuleSchema = z.object({
 export const OpsPluginStructureSchema = z.object({
   root: z.string().describe('Root directory path of the plugin project'),
   files: z.array(z.string()).describe('List of all file paths relative to root'),
-}).superRefine((project, ctx) => {
+}).describe('Full plugin project layout validated against OPS conventions').superRefine((project, ctx) => {
   // Check for configuration file
   if (!project.files.includes('objectstack.config.ts')) {
     ctx.addIssue({
