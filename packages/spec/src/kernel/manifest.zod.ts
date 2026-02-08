@@ -245,6 +245,26 @@ export const ManifestSchema = z.object({
       args: z.array(z.string()).optional().describe('Argument types'),
       returnType: z.string().optional(),
     })).optional().describe('Query Function contributions'),
+
+    /**
+      * Register API Route Namespaces.
+      * Declares the API endpoints this plugin provides to the HttpDispatcher.
+      * The kernel routes matching prefixes to this plugin's handler.
+      * 
+      * @example
+      * routes: [
+      *   { prefix: '/api/v1/ai', service: 'ai', methods: ['aiNlq', 'aiChat'] }
+      * ]
+      */
+    routes: z.array(z.object({
+      /** URL path prefix (e.g. "/api/v1/ai") */
+      prefix: z.string().regex(/^\//).describe('API path prefix'),
+      /** Service name this plugin provides */
+      service: z.string().describe('Service name this plugin provides'),
+      /** Protocol method names implemented */
+      methods: z.array(z.string()).optional()
+        .describe('Protocol method names implemented (e.g. ["aiNlq", "aiChat"])'),
+    })).optional().describe('API route contributions to HttpDispatcher'),
   }).optional().describe('Platform contributions'),
 
   /** 

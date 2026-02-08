@@ -34,6 +34,10 @@ export const CoreServiceName = z.enum([
   'realtime',       // WebSocket & PubSub
   'job',            // Background Job Manager
   'notification',   // Email/Push/SMS
+  'ai',             // AI Engine (NLQ, Chat, Suggest, Insights)
+  'i18n',           // Internationalization Service
+  'ui',             // UI Metadata Service (View CRUD)
+  'workflow',       // Workflow State Machine Engine
 ]);
 
 export type CoreServiceName = z.infer<typeof CoreServiceName>;
@@ -71,6 +75,10 @@ export const ServiceRequirementDef = {
   hub: 'optional',
   realtime: 'optional',
   notification: 'optional',
+  ai: 'optional',
+  i18n: 'optional',
+  ui: 'optional',
+  workflow: 'optional',
 } as const;
 
 // ==========================================
