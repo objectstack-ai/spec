@@ -31,6 +31,11 @@ ObjectStack is a metadata-driven platform built on three foundational protocols:
   - [CLI Guide](./content/docs/framework/cli.mdx) — `init`, `dev`, `serve`, `studio`, `compile`, `validate`
   - [Quick Reference](./content/docs/references/quick-reference.mdx) — Fast protocol lookup
 
+- **Planning & Roadmap:**
+  - 🗺️ [Development Roadmap](./DEVELOPMENT_ROADMAP.md) — Complete ecosystem development plan (1300+ lines)
+  - 📊 [Product Matrix (中文)](./PRODUCT_MATRIX_CN.md) — Product status and quarterly milestones
+  - 🏗️ [Architecture Guide](./ARCHITECTURE.md) — Microkernel architecture deep dive
+
 - **Protocol References:**
   - [Protocol Reference](./content/docs/references/) — All protocol specifications (139 Zod schemas)
   - [ObjectQL](./content/docs/objectql/) — Data layer documentation
