@@ -208,12 +208,13 @@ This document serves as the **Grand Map** of the ObjectStack specification. It l
 | [`feature.zod.ts`](src/kernel/feature.zod.ts) | | **Feature Flags**. Toggleable system features. |
 | [`service-registry.zod.ts`](src/kernel/service-registry.zod.ts) | | **Service Registry**. Internal dependency injection. |
 | [`metadata-loader.zod.ts`](src/kernel/metadata-loader.zod.ts) | | **Loader**. Logic for loading definitions from disk/DB. |
-| [`plugin-loading.zod.ts`](src/kernel/plugin-loading.zod.ts) | | **Plugin Loading**. Phases of plugin initialization. |
+| [`plugin-loading.zod.ts`](src/kernel/plugin-loading.zod.ts) | ⭐ | **Plugin Loading**. Loading strategies, production-safe hot reload (`environment`, `productionSafety`), full plugin sandboxing (`scope`, `ipc`), code splitting, caching, and performance monitoring. |
+| [`plugin-runtime.zod.ts`](src/kernel/plugin-runtime.zod.ts) | ⭐ | **Dynamic Loading**. Runtime load/unload of plugins (`DynamicLoadRequest`, `DynamicUnloadRequest`), activation events, plugin discovery from registries/directories, and source resolution (npm/local/url/registry/git). |
 | [`plugin-versioning.zod.ts`](src/kernel/plugin-versioning.zod.ts) | | **Versioning**. Semantic versioning rules for plugins. |
 | [`plugin-validator.zod.ts`](src/kernel/plugin-validator.zod.ts) | | **Validation**. Integrity checks for plugins. |
 | [`plugin-structure.zod.ts`](src/kernel/plugin-structure.zod.ts) | | **Structure**. Zod rules for folder layout and file naming. |
 | [`plugin-capability.zod.ts`](src/kernel/plugin-capability.zod.ts) | | **Capabilities**. What a plugin can do. |
 | [`plugin-lifecycle-events.zod.ts`](src/kernel/plugin-lifecycle-events.zod.ts) | | **Lifecycle Events**. Hooks for plugin state changes. |
-| [`plugin-lifecycle-advanced.zod.ts`](src/kernel/plugin-lifecycle-advanced.zod.ts) | | **Advanced Lifecycle**. Deep lifecycle hooks. |
-| [`plugin-security-advanced.zod.ts`](src/kernel/plugin-security-advanced.zod.ts) | | **Advanced Security**. Sandboxing and isolation. |
+| [`plugin-lifecycle-advanced.zod.ts`](src/kernel/plugin-lifecycle-advanced.zod.ts) | | **Advanced Lifecycle**. Health monitoring, hot reload state management, graceful degradation, and update strategies. |
+| [`plugin-security-advanced.zod.ts`](src/kernel/plugin-security-advanced.zod.ts) | | **Advanced Security**. Permission system, sandbox configuration (V8/WASM/container/process), security scanning, and trust levels. |
 | [`startup-orchestrator.zod.ts`](src/kernel/startup-orchestrator.zod.ts) | | **Startup**. Boot sequence orchestration. |
