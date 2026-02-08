@@ -1,0 +1,45 @@
+{
+  "$ref": "#/definitions/SoftDeletable",
+  "definitions": {
+    "SoftDeletable": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when the entity was created"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when the entity was last updated"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "User ID or system identifier who created the entity"
+        },
+        "updatedBy": {
+          "type": "string",
+          "description": "User ID or system identifier who last updated the entity"
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when the entity was soft-deleted. Null if not deleted."
+        },
+        "deletedBy": {
+          "type": "string",
+          "description": "User ID who soft-deleted the entity. Null if not deleted."
+        }
+      },
+      "required": [
+        "createdAt",
+        "updatedAt",
+        "createdBy",
+        "updatedBy"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

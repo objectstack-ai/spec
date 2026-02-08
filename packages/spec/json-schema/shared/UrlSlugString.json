@@ -1,0 +1,11 @@
+{
+  "$ref": "#/definitions/UrlSlugString",
+  "definitions": {
+    "UrlSlugString": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "description": "URL-friendly slug"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

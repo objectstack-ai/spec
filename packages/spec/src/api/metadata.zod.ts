@@ -36,10 +36,10 @@ export const AppDefinitionResponseSchema = BaseResponseSchema.extend({
  */
 export const ConceptListResponseSchema = BaseResponseSchema.extend({
   data: z.array(z.object({
-    name: z.string(),
-    label: z.string(),
-    icon: z.string().optional(),
-    description: z.string().optional(),
+    name: z.string().describe('Concept machine name (snake_case)'),
+    label: z.string().describe('Human-readable label'),
+    icon: z.string().optional().describe('Icon identifier or URL'),
+    description: z.string().optional().describe('Short description of the concept'),
   })).describe('List of available concepts (Objects, Apps, Flows)'),
 });
 

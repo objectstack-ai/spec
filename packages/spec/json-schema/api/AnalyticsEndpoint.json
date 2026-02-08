@@ -7,7 +7,8 @@
         "/api/v1/analytics/query",
         "/api/v1/analytics/meta",
         "/api/v1/analytics/sql"
-      ]
+      ],
+      "description": "Available analytics API endpoints"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

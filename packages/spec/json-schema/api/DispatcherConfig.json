@@ -50,8 +50,8 @@
                   "core",
                   "optional"
                 ],
-                "default": "optional",
-                "description": "Service criticality level for unavailability handling"
+                "description": "Service criticality level for unavailability handling",
+                "default": "optional"
               },
               "permissions": {
                 "type": "array",

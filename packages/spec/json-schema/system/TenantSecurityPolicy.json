@@ -1,0 +1,115 @@
+{
+  "$ref": "#/definitions/TenantSecurityPolicy",
+  "definitions": {
+    "TenantSecurityPolicy": {
+      "type": "object",
+      "properties": {
+        "encryption": {
+          "type": "object",
+          "properties": {
+            "atRest": {
+              "type": "boolean",
+              "default": true,
+              "description": "Require encryption at rest"
+            },
+            "inTransit": {
+              "type": "boolean",
+              "default": true,
+              "description": "Require encryption in transit"
+            },
+            "fieldLevel": {
+              "type": "boolean",
+              "default": false,
+              "description": "Require field-level encryption"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Encryption requirements"
+        },
+        "accessControl": {
+          "type": "object",
+          "properties": {
+            "requireMFA": {
+              "type": "boolean",
+              "default": false,
+              "description": "Require MFA"
+            },
+            "requireSSO": {
+              "type": "boolean",
+              "default": false,
+              "description": "Require SSO"
+            },
+            "ipWhitelist": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Allowed IP addresses"
+            },
+            "sessionTimeout": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 3600,
+              "description": "Session timeout"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Access control requirements"
+        },
+        "compliance": {
+          "type": "object",
+          "properties": {
+            "standards": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "sox",
+                  "hipaa",
+                  "gdpr",
+                  "pci_dss",
+                  "iso_27001",
+                  "fedramp"
+                ]
+              },
+              "description": "Compliance standards"
+            },
+            "requireAuditLog": {
+              "type": "boolean",
+              "default": true,
+              "description": "Require audit logging"
+            },
+            "auditRetentionDays": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 365,
+              "description": "Audit retention days"
+            },
+            "dataResidency": {
+              "type": "object",
+              "properties": {
+                "region": {
+                  "type": "string",
+                  "description": "Required region (e.g., US, EU, APAC)"
+                },
+                "excludeRegions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Prohibited regions"
+                }
+              },
+              "additionalProperties": false,
+              "description": "Data residency requirements"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Compliance requirements"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

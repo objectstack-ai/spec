@@ -57,7 +57,8 @@
                 }
               ]
             }
-          ]
+          ],
+          "description": "Value is between min and max (inclusive)"
         }
       },
       "additionalProperties": false

@@ -9,7 +9,8 @@
         "upsert",
         "replace",
         "ignore"
-      ]
+      ],
+      "description": "Strategy for handling conflicts when importing dataset records"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

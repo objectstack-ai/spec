@@ -7,30 +7,35 @@
         "name": {
           "type": "string",
           "pattern": "^[a-z_][a-z0-9_]*$",
-          "description": "Policy Name"
+          "description": "Policy Name (snake_case)"
         },
         "password": {
           "type": "object",
           "properties": {
             "minLength": {
               "type": "number",
-              "default": 8
+              "default": 8,
+              "description": "Minimum password length"
             },
             "requireUppercase": {
               "type": "boolean",
-              "default": true
+              "default": true,
+              "description": "Require at least one uppercase letter"
             },
             "requireLowercase": {
               "type": "boolean",
-              "default": true
+              "default": true,
+              "description": "Require at least one lowercase letter"
             },
             "requireNumbers": {
               "type": "boolean",
-              "default": true
+              "default": true,
+              "description": "Require at least one numeric digit"
             },
             "requireSymbols": {
               "type": "boolean",
-              "default": false
+              "default": false,
+              "description": "Require at least one special symbol"
             },
             "expirationDays": {
               "type": "number",
@@ -42,7 +47,8 @@
               "description": "Prevent reusing last X passwords"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Password complexity and rotation rules"
         },
         "network": {
           "type": "object",
@@ -61,13 +67,15 @@
             },
             "vpnRequired": {
               "type": "boolean",
-              "default": false
+              "default": false,
+              "description": "Require VPN connection for access"
             }
           },
           "required": [
             "trustedRanges"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "IP whitelisting and network access rules"
         },
         "session": {
           "type": "object",
@@ -88,14 +96,16 @@
               "description": "Require 2FA for all users"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Session timeout and MFA requirements"
         },
         "audit": {
           "type": "object",
           "properties": {
             "logRetentionDays": {
               "type": "number",
-              "default": 180
+              "default": 180,
+              "description": "Number of days to retain audit logs"
             },
             "sensitiveFields": {
               "type": "array",
@@ -107,13 +117,14 @@
             "captureRead": {
               "type": "boolean",
               "default": false,
-              "description": "Log read access (High volume!)"
+              "description": "Log read access events (generates high volume!)"
             }
           },
           "required": [
             "sensitiveFields"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Audit log retention and capture settings"
         },
         "isDefault": {
           "type": "boolean",
@@ -125,7 +136,7 @@
           "items": {
             "type": "string"
           },
-          "description": "Apply to specific profiles"
+          "description": "Apply to specific user profiles"
         }
       },
       "required": [

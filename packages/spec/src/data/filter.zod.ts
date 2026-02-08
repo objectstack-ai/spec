@@ -47,11 +47,13 @@ export type FieldReference = z.infer<typeof FieldReferenceSchema>;
  */
 export const EqualityOperatorSchema = z.object({
   /** Equal to (default) - SQL: = | MongoDB: $eq */
-  $eq: z.any().optional(),
+  $eq: z.any().optional().describe('Equal to comparison operator'),
   
   /** Not equal to - SQL: <> or != | MongoDB: $ne */
-  $ne: z.any().optional(),
+  $ne: z.any().optional().describe('Not equal to comparison operator'),
 });
+
+export type EqualityOperator = z.infer<typeof EqualityOperatorSchema>;
 
 /**
  * Comparison operators for numeric and date comparisons.
@@ -59,17 +61,19 @@ export const EqualityOperatorSchema = z.object({
  */
 export const ComparisonOperatorSchema = z.object({
   /** Greater than - SQL: > | MongoDB: $gt */
-  $gt: z.union([z.number(), z.date(), FieldReferenceSchema]).optional(),
+  $gt: z.union([z.number(), z.date(), FieldReferenceSchema]).optional().describe('Greater than comparison operator'),
   
   /** Greater than or equal to - SQL: >= | MongoDB: $gte */
-  $gte: z.union([z.number(), z.date(), FieldReferenceSchema]).optional(),
+  $gte: z.union([z.number(), z.date(), FieldReferenceSchema]).optional().describe('Greater than or equal to comparison operator'),
   
   /** Less than - SQL: < | MongoDB: $lt */
-  $lt: z.union([z.number(), z.date(), FieldReferenceSchema]).optional(),
+  $lt: z.union([z.number(), z.date(), FieldReferenceSchema]).optional().describe('Less than comparison operator'),
   
   /** Less than or equal to - SQL: <= | MongoDB: $lte */
-  $lte: z.union([z.number(), z.date(), FieldReferenceSchema]).optional(),
+  $lte: z.union([z.number(), z.date(), FieldReferenceSchema]).optional().describe('Less than or equal to comparison operator'),
 });
+
+export type ComparisonOperator = z.infer<typeof ComparisonOperatorSchema>;
 
 // ============================================================================
 // 3.2 Set & Range Operators
@@ -80,11 +84,13 @@ export const ComparisonOperatorSchema = z.object({
  */
 export const SetOperatorSchema = z.object({
   /** In list - SQL: IN (?, ?, ?) | MongoDB: $in */
-  $in: z.array(z.any()).optional(),
+  $in: z.array(z.any()).optional().describe('Value is in the specified list'),
   
   /** Not in list - SQL: NOT IN (...) | MongoDB: $nin */
-  $nin: z.array(z.any()).optional(),
+  $nin: z.array(z.any()).optional().describe('Value is not in the specified list'),
 });
+
+export type SetOperator = z.infer<typeof SetOperatorSchema>;
 
 /**
  * Range operator for interval checks (closed interval).
@@ -95,8 +101,10 @@ export const RangeOperatorSchema = z.object({
   $between: z.tuple([
     z.union([z.number(), z.date(), FieldReferenceSchema]),
     z.union([z.number(), z.date(), FieldReferenceSchema])
-  ]).optional(),
+  ]).optional().describe('Value is between min and max (inclusive)'),
 });
+
+export type RangeOperator = z.infer<typeof RangeOperatorSchema>;
 
 // ============================================================================
 // 3.3 String-Specific Operators
@@ -108,14 +116,16 @@ export const RangeOperatorSchema = z.object({
  */
 export const StringOperatorSchema = z.object({
   /** Contains substring - SQL: LIKE %?% | MongoDB: $regex */
-  $contains: z.string().optional(),
+  $contains: z.string().optional().describe('String contains the specified substring'),
   
   /** Starts with prefix - SQL: LIKE ?% | MongoDB: $regex */
-  $startsWith: z.string().optional(),
+  $startsWith: z.string().optional().describe('String starts with the specified prefix'),
   
   /** Ends with suffix - SQL: LIKE %? | MongoDB: $regex */
-  $endsWith: z.string().optional(),
+  $endsWith: z.string().optional().describe('String ends with the specified suffix'),
 });
+
+export type StringOperator = z.infer<typeof StringOperatorSchema>;
 
 // ============================================================================
 // 3.5 Special Operators
@@ -126,10 +136,10 @@ export const StringOperatorSchema = z.object({
  */
 export const SpecialOperatorSchema = z.object({
   /** Is null check - SQL: IS NULL (true) / IS NOT NULL (false) | MongoDB: field: null */
-  $null: z.boolean().optional(),
+  $null: z.boolean().optional().describe('Check if value is null (true) or not null (false)'),
   
   /** Field exists check (primarily for NoSQL) - MongoDB: $exists */
-  $exists: z.boolean().optional(),
+  $exists: z.boolean().optional().describe('Check if field exists in the document (NoSQL databases)'),
 });
 
 // ============================================================================
@@ -142,31 +152,31 @@ export const SpecialOperatorSchema = z.object({
  */
 export const FieldOperatorsSchema = z.object({
   // Equality
-  $eq: z.any().optional(),
-  $ne: z.any().optional(),
+  $eq: z.any().optional().describe('Equal to comparison operator'),
+  $ne: z.any().optional().describe('Not equal to comparison operator'),
   
   // Comparison (numeric/date)
-  $gt: z.union([z.number(), z.date(), FieldReferenceSchema]).optional(),
-  $gte: z.union([z.number(), z.date(), FieldReferenceSchema]).optional(),
-  $lt: z.union([z.number(), z.date(), FieldReferenceSchema]).optional(),
-  $lte: z.union([z.number(), z.date(), FieldReferenceSchema]).optional(),
+  $gt: z.union([z.number(), z.date(), FieldReferenceSchema]).optional().describe('Greater than comparison operator'),
+  $gte: z.union([z.number(), z.date(), FieldReferenceSchema]).optional().describe('Greater than or equal to comparison operator'),
+  $lt: z.union([z.number(), z.date(), FieldReferenceSchema]).optional().describe('Less than comparison operator'),
+  $lte: z.union([z.number(), z.date(), FieldReferenceSchema]).optional().describe('Less than or equal to comparison operator'),
   
   // Set & Range
-  $in: z.array(z.any()).optional(),
-  $nin: z.array(z.any()).optional(),
+  $in: z.array(z.any()).optional().describe('Value is in the specified list'),
+  $nin: z.array(z.any()).optional().describe('Value is not in the specified list'),
   $between: z.tuple([
     z.union([z.number(), z.date(), FieldReferenceSchema]),
     z.union([z.number(), z.date(), FieldReferenceSchema])
-  ]).optional(),
+  ]).optional().describe('Value is between min and max (inclusive)'),
   
   // String-specific
-  $contains: z.string().optional(),
-  $startsWith: z.string().optional(),
-  $endsWith: z.string().optional(),
+  $contains: z.string().optional().describe('String contains the specified substring'),
+  $startsWith: z.string().optional().describe('String starts with the specified prefix'),
+  $endsWith: z.string().optional().describe('String ends with the specified suffix'),
   
   // Special
-  $null: z.boolean().optional(),
-  $exists: z.boolean().optional(),
+  $null: z.boolean().optional().describe('Check if value is null (true) or not null (false)'),
+  $exists: z.boolean().optional().describe('Check if field exists in the document (NoSQL databases)'),
 });
 
 // ============================================================================
@@ -236,7 +246,7 @@ export const FilterConditionSchema: z.ZodType<FilterCondition> = z.lazy(() =>
  * ```
  */
 export const QueryFilterSchema = z.object({
-  where: FilterConditionSchema.optional(),
+  where: FilterConditionSchema.optional().describe('Filter conditions for the query'),
 });
 
 // ============================================================================

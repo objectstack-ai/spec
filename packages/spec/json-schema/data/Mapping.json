@@ -11,7 +11,8 @@
           "description": "Mapping unique name (lowercase snake_case)"
         },
         "label": {
-          "type": "string"
+          "type": "string",
+          "description": "Human-readable label for the mapping"
         },
         "sourceFormat": {
           "type": "string",
@@ -21,7 +22,8 @@
             "xml",
             "sql"
           ],
-          "default": "csv"
+          "default": "csv",
+          "description": "Format of the source data"
         },
         "targetObject": {
           "type": "string",
@@ -71,33 +73,43 @@
                   "javascript",
                   "map"
                 ],
+                "description": "Type of transformation to apply",
                 "default": "none"
               },
               "params": {
                 "type": "object",
                 "properties": {
-                  "value": {},
+                  "value": {
+                    "description": "Constant value to use (for constant transform)"
+                  },
                   "object": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Lookup object name (for lookup transform)"
                   },
                   "fromField": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Field to match on in lookup object (e.g. \"name\")"
                   },
                   "toField": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Field value to retrieve from lookup (e.g. \"_id\")"
                   },
                   "autoCreate": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Create record if lookup fails"
                   },
                   "valueMap": {
                     "type": "object",
-                    "additionalProperties": {}
+                    "additionalProperties": {},
+                    "description": "Value mapping dictionary (e.g. {\"Open\": \"draft\"})"
                   },
                   "separator": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Separator character for split/join operations"
                   }
                 },
-                "additionalProperties": false
+                "additionalProperties": false,
+                "description": "Transform-specific parameters"
               }
             },
             "required": [
@@ -105,7 +117,8 @@
               "target"
             ],
             "additionalProperties": false
-          }
+          },
+          "description": "Array of field mapping configurations"
         },
         "mode": {
           "type": "string",
@@ -114,7 +127,8 @@
             "update",
             "upsert"
           ],
-          "default": "insert"
+          "default": "insert",
+          "description": "Import mode for handling existing records"
         },
         "upsertKey": {
           "type": "array",
@@ -629,11 +643,13 @@
             "abort",
             "retry"
           ],
-          "default": "skip"
+          "default": "skip",
+          "description": "How to handle errors during import"
         },
         "batchSize": {
           "type": "number",
-          "default": 1000
+          "default": 1000,
+          "description": "Number of records to process per batch"
         }
       },
       "required": [

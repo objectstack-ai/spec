@@ -5,25 +5,32 @@
       "type": "object",
       "properties": {
         "file": {
-          "type": "string"
+          "type": "string",
+          "description": "Source file path where the metadata is defined"
         },
         "line": {
-          "type": "number"
+          "type": "number",
+          "description": "Line number in the source file"
         },
         "column": {
-          "type": "number"
+          "type": "number",
+          "description": "Column number in the source file"
         },
         "package": {
-          "type": "string"
+          "type": "string",
+          "description": "Package name containing the metadata"
         },
         "object": {
-          "type": "string"
+          "type": "string",
+          "description": "ObjectQL object name if applicable"
         },
         "field": {
-          "type": "string"
+          "type": "string",
+          "description": "Field name if the issue is field-specific"
         },
         "component": {
-          "type": "string"
+          "type": "string",
+          "description": "Specific UI component or flow node identifier"
         }
       },
       "additionalProperties": false

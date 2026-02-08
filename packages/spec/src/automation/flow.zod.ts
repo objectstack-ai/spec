@@ -32,6 +32,9 @@ export const FlowVariableSchema = z.object({
   isOutput: z.boolean().default(false).describe('Is output parameter'),
 });
 
+export type FlowVariable = z.infer<typeof FlowVariableSchema>;
+export type FlowVariableInput = z.input<typeof FlowVariableSchema>;
+
 /**
  * Flow Node Schema
  * A single step in the visual logic graph.

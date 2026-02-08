@@ -23,7 +23,8 @@
         },
         "active": {
           "type": "boolean",
-          "default": true
+          "default": true,
+          "description": "Whether the sharing rule is currently active"
         },
         "accessLevel": {
           "type": "string",
@@ -32,6 +33,7 @@
             "edit",
             "full"
           ],
+          "description": "Level of access granted",
           "default": "read"
         },
         "sharedWith": {
@@ -45,7 +47,8 @@
                 "role",
                 "role_and_subordinates",
                 "guest"
-              ]
+              ],
+              "description": "Type of recipient"
             },
             "value": {
               "type": "string",
@@ -65,7 +68,7 @@
         },
         "condition": {
           "type": "string",
-          "description": "Formula condition (e.g. \"department = 'Sales'\")"
+          "description": "Formula condition determining which records to share (e.g. \"department = 'Sales'\")"
         }
       },
       "required": [

@@ -1,0 +1,101 @@
+{
+  "$ref": "#/definitions/VersionNegotiationResponse",
+  "definitions": {
+    "VersionNegotiationResponse": {
+      "type": "object",
+      "properties": {
+        "current": {
+          "type": "string",
+          "description": "Current recommended API version"
+        },
+        "requested": {
+          "type": "string",
+          "description": "Version requested by the client"
+        },
+        "resolved": {
+          "type": "string",
+          "description": "Resolved API version for this request"
+        },
+        "supported": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "All supported version identifiers"
+        },
+        "deprecated": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Deprecated version identifiers"
+        },
+        "versions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "string",
+                "description": "Version identifier (e.g., \"v1\", \"v2beta1\", \"2025-01-01\")"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "preview",
+                  "current",
+                  "supported",
+                  "deprecated",
+                  "retired"
+                ],
+                "description": "Lifecycle status of this version"
+              },
+              "releasedAt": {
+                "type": "string",
+                "description": "Release date (ISO 8601, e.g., \"2025-01-15\")"
+              },
+              "deprecatedAt": {
+                "type": "string",
+                "description": "Deprecation date (ISO 8601). Only set for deprecated/retired versions"
+              },
+              "sunsetAt": {
+                "type": "string",
+                "description": "Sunset date (ISO 8601). After this date, the version returns 410 Gone"
+              },
+              "migrationGuide": {
+                "type": "string",
+                "format": "uri",
+                "description": "URL to migration guide for upgrading from this version"
+              },
+              "description": {
+                "type": "string",
+                "description": "Human-readable description or release notes summary"
+              },
+              "breakingChanges": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "List of breaking changes (for preview/new versions)"
+              }
+            },
+            "required": [
+              "version",
+              "status",
+              "releasedAt"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Full version definitions with lifecycle metadata"
+        }
+      },
+      "required": [
+        "current",
+        "resolved",
+        "supported"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -5,10 +5,12 @@
       "type": "object",
       "properties": {
         "$null": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Check if value is null (true) or not null (false)"
         },
         "$exists": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Check if field exists in the document (NoSQL databases)"
         }
       },
       "additionalProperties": false

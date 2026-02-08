@@ -25,10 +25,12 @@
             "i18n",
             "ui",
             "workflow"
-          ]
+          ],
+          "description": "Service identifier"
         },
         "enabled": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Whether the service is enabled in the configuration"
         },
         "status": {
           "type": "string",
@@ -37,10 +39,12 @@
             "stopped",
             "degraded",
             "initializing"
-          ]
+          ],
+          "description": "Current operational status"
         },
         "version": {
-          "type": "string"
+          "type": "string",
+          "description": "Service implementation version"
         },
         "provider": {
           "type": "string",

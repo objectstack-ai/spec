@@ -17,7 +17,7 @@ export const AnalyticsEndpoint = z.enum([
   '/api/v1/analytics/query', // Execute analysis
   '/api/v1/analytics/meta',  // Discover cubes/metrics
   '/api/v1/analytics/sql',   // Dry-run SQL generation
-]);
+]).describe('Available analytics API endpoints');
 
 // ==========================================
 // 2. Query Execution
@@ -39,11 +39,11 @@ export const AnalyticsResultResponseSchema = BaseResponseSchema.extend({
   data: z.object({
     rows: z.array(z.record(z.string(), z.unknown())).describe('Result rows'),
     fields: z.array(z.object({
-      name: z.string(),
-      type: z.string(),
+      name: z.string().describe('Column name'),
+      type: z.string().describe('Data type'),
     })).describe('Column metadata'),
     sql: z.string().optional().describe('Executed SQL (if debug enabled)'),
-  }),
+  }).describe('Analytics query result data'),
 });
 
 // ==========================================
@@ -64,7 +64,7 @@ export const GetAnalyticsMetaRequestSchema = z.object({
 export const AnalyticsMetadataResponseSchema = BaseResponseSchema.extend({
   data: z.object({
     cubes: z.array(CubeSchema).describe('Available cubes'),
-  }),
+  }).describe('Analytics metadata including cubes, metrics, and dimensions'),
 });
 
 // ==========================================
@@ -73,9 +73,9 @@ export const AnalyticsMetadataResponseSchema = BaseResponseSchema.extend({
 
 export const AnalyticsSqlResponseSchema = BaseResponseSchema.extend({
   data: z.object({
-    sql: z.string(),
-    params: z.array(z.unknown()),
-  }),
+    sql: z.string().describe('Generated SQL query'),
+    params: z.array(z.unknown()).describe('Query parameters'),
+  }).describe('SQL dry-run result'),
 });
 
 export type AnalyticsEndpoint = z.infer<typeof AnalyticsEndpoint>;

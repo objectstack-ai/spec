@@ -1,0 +1,102 @@
+{
+  "$ref": "#/definitions/DependencyGraphNode",
+  "definitions": {
+    "DependencyGraphNode": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the package"
+        },
+        "version": {
+          "type": "string",
+          "description": "Resolved version of the package"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Package name or identifier"
+              },
+              "versionConstraint": {
+                "type": "string",
+                "description": "Semver range (e.g., `^1.0.0`, `>=2.0.0 <3.0.0`)"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "required",
+                  "optional",
+                  "peer",
+                  "dev"
+                ],
+                "default": "required",
+                "description": "Category of the dependency relationship"
+              },
+              "resolvedVersion": {
+                "type": "string",
+                "description": "Concrete version resolved during dependency resolution"
+              }
+            },
+            "required": [
+              "name",
+              "versionConstraint"
+            ],
+            "additionalProperties": false,
+            "description": "A package dependency with its version constraint"
+          },
+          "default": [],
+          "description": "Dependencies required by this package"
+        },
+        "depth": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Depth level in the dependency tree (0 = root)"
+        },
+        "isDirect": {
+          "type": "boolean",
+          "description": "Whether this is a direct (top-level) dependency"
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Display name of the package"
+            },
+            "description": {
+              "type": "string",
+              "description": "Short description of the package"
+            },
+            "license": {
+              "type": "string",
+              "description": "SPDX license identifier of the package"
+            },
+            "homepage": {
+              "type": "string",
+              "format": "uri",
+              "description": "Homepage URL of the package"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false,
+          "description": "Additional metadata about the package"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "depth",
+        "isDirect"
+      ],
+      "additionalProperties": false,
+      "description": "A node in the dependency graph representing a resolved package"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

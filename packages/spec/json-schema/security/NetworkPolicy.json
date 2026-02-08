@@ -18,7 +18,8 @@
         },
         "vpnRequired": {
           "type": "boolean",
-          "default": false
+          "default": false,
+          "description": "Require VPN connection for access"
         }
       },
       "required": [

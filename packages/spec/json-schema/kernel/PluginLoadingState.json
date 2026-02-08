@@ -16,7 +16,9 @@
             "initializing",
             "ready",
             "failed",
-            "reloading"
+            "reloading",
+            "unloading",
+            "unloaded"
           ]
         },
         "progress": {

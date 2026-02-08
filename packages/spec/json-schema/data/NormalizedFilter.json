@@ -13,8 +13,12 @@
                 "additionalProperties": {
                   "type": "object",
                   "properties": {
-                    "$eq": {},
-                    "$ne": {},
+                    "$eq": {
+                      "description": "Equal to comparison operator"
+                    },
+                    "$ne": {
+                      "description": "Not equal to comparison operator"
+                    },
                     "$gt": {
                       "anyOf": [
                         {
@@ -37,7 +41,8 @@
                           ],
                           "additionalProperties": false
                         }
-                      ]
+                      ],
+                      "description": "Greater than comparison operator"
                     },
                     "$gte": {
                       "anyOf": [
@@ -61,7 +66,8 @@
                           ],
                           "additionalProperties": false
                         }
-                      ]
+                      ],
+                      "description": "Greater than or equal to comparison operator"
                     },
                     "$lt": {
                       "anyOf": [
@@ -85,7 +91,8 @@
                           ],
                           "additionalProperties": false
                         }
-                      ]
+                      ],
+                      "description": "Less than comparison operator"
                     },
                     "$lte": {
                       "anyOf": [
@@ -109,13 +116,16 @@
                           ],
                           "additionalProperties": false
                         }
-                      ]
+                      ],
+                      "description": "Less than or equal to comparison operator"
                     },
                     "$in": {
-                      "type": "array"
+                      "type": "array",
+                      "description": "Value is in the specified list"
                     },
                     "$nin": {
-                      "type": "array"
+                      "type": "array",
+                      "description": "Value is not in the specified list"
                     },
                     "$between": {
                       "type": "array",
@@ -170,22 +180,28 @@
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "description": "Value is between min and max (inclusive)"
                     },
                     "$contains": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "String contains the specified substring"
                     },
                     "$startsWith": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "String starts with the specified prefix"
                     },
                     "$endsWith": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "String ends with the specified suffix"
                     },
                     "$null": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "description": "Check if value is null (true) or not null (false)"
                     },
                     "$exists": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "description": "Check if field exists in the document (NoSQL databases)"
                     }
                   },
                   "additionalProperties": false
@@ -204,8 +220,12 @@
                 "additionalProperties": {
                   "type": "object",
                   "properties": {
-                    "$eq": {},
-                    "$ne": {},
+                    "$eq": {
+                      "description": "Equal to comparison operator"
+                    },
+                    "$ne": {
+                      "description": "Not equal to comparison operator"
+                    },
                     "$gt": {
                       "anyOf": [
                         {
@@ -228,7 +248,8 @@
                           ],
                           "additionalProperties": false
                         }
-                      ]
+                      ],
+                      "description": "Greater than comparison operator"
                     },
                     "$gte": {
                       "anyOf": [
@@ -252,7 +273,8 @@
                           ],
                           "additionalProperties": false
                         }
-                      ]
+                      ],
+                      "description": "Greater than or equal to comparison operator"
                     },
                     "$lt": {
                       "anyOf": [
@@ -276,7 +298,8 @@
                           ],
                           "additionalProperties": false
                         }
-                      ]
+                      ],
+                      "description": "Less than comparison operator"
                     },
                     "$lte": {
                       "anyOf": [
@@ -300,13 +323,16 @@
                           ],
                           "additionalProperties": false
                         }
-                      ]
+                      ],
+                      "description": "Less than or equal to comparison operator"
                     },
                     "$in": {
-                      "type": "array"
+                      "type": "array",
+                      "description": "Value is in the specified list"
                     },
                     "$nin": {
-                      "type": "array"
+                      "type": "array",
+                      "description": "Value is not in the specified list"
                     },
                     "$between": {
                       "type": "array",
@@ -361,22 +387,28 @@
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "description": "Value is between min and max (inclusive)"
                     },
                     "$contains": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "String contains the specified substring"
                     },
                     "$startsWith": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "String starts with the specified prefix"
                     },
                     "$endsWith": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "String ends with the specified suffix"
                     },
                     "$null": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "description": "Check if value is null (true) or not null (false)"
                     },
                     "$exists": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "description": "Check if field exists in the document (NoSQL databases)"
                     }
                   },
                   "additionalProperties": false
@@ -393,8 +425,12 @@
               "additionalProperties": {
                 "type": "object",
                 "properties": {
-                  "$eq": {},
-                  "$ne": {},
+                  "$eq": {
+                    "description": "Equal to comparison operator"
+                  },
+                  "$ne": {
+                    "description": "Not equal to comparison operator"
+                  },
                   "$gt": {
                     "anyOf": [
                       {
@@ -417,7 +453,8 @@
                         ],
                         "additionalProperties": false
                       }
-                    ]
+                    ],
+                    "description": "Greater than comparison operator"
                   },
                   "$gte": {
                     "anyOf": [
@@ -441,7 +478,8 @@
                         ],
                         "additionalProperties": false
                       }
-                    ]
+                    ],
+                    "description": "Greater than or equal to comparison operator"
                   },
                   "$lt": {
                     "anyOf": [
@@ -465,7 +503,8 @@
                         ],
                         "additionalProperties": false
                       }
-                    ]
+                    ],
+                    "description": "Less than comparison operator"
                   },
                   "$lte": {
                     "anyOf": [
@@ -489,13 +528,16 @@
                         ],
                         "additionalProperties": false
                       }
-                    ]
+                    ],
+                    "description": "Less than or equal to comparison operator"
                   },
                   "$in": {
-                    "type": "array"
+                    "type": "array",
+                    "description": "Value is in the specified list"
                   },
                   "$nin": {
-                    "type": "array"
+                    "type": "array",
+                    "description": "Value is not in the specified list"
                   },
                   "$between": {
                     "type": "array",
@@ -550,22 +592,28 @@
                           }
                         ]
                       }
-                    ]
+                    ],
+                    "description": "Value is between min and max (inclusive)"
                   },
                   "$contains": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "String contains the specified substring"
                   },
                   "$startsWith": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "String starts with the specified prefix"
                   },
                   "$endsWith": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "String ends with the specified suffix"
                   },
                   "$null": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Check if value is null (true) or not null (false)"
                   },
                   "$exists": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Check if field exists in the document (NoSQL databases)"
                   }
                 },
                 "additionalProperties": false

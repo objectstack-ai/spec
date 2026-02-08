@@ -29,6 +29,8 @@ export const FieldUpdateActionSchema = z.object({
   value: z.unknown().describe('Value or Formula to set'),
 });
 
+export type FieldUpdateAction = z.infer<typeof FieldUpdateActionSchema>;
+
 /**
  * Schema for Workflow Email Alert Action
  * @example
@@ -45,6 +47,8 @@ export const EmailAlertActionSchema = z.object({
   template: z.string().describe('Email template ID/DevName'),
   recipients: z.array(z.string()).describe('List of recipient emails or user IDs'),
 });
+
+export type EmailAlertAction = z.infer<typeof EmailAlertActionSchema>;
 
 /**
  * Schema for Connector Action Reference
@@ -71,6 +75,8 @@ export const ConnectorActionRefSchema = z.object({
   input: z.record(z.string(), z.unknown()).describe('Input parameters matching the action schema'),
 });
 
+export type ConnectorActionRef = z.infer<typeof ConnectorActionRefSchema>;
+
 /**
  * Schema for HTTP Callout Action
  * Makes a REST API call to an external service.
@@ -92,6 +98,9 @@ export const HttpCallActionSchema = z.object({
   headers: z.record(z.string(), z.string()).optional().describe('HTTP Headers'),
   body: z.string().optional().describe('Request body (JSON or text)'),
 });
+
+export type HttpCallAction = z.infer<typeof HttpCallActionSchema>;
+export type HttpCallActionInput = z.input<typeof HttpCallActionSchema>;
 
 /**
  * Schema for Workflow Task Creation Action
@@ -117,6 +126,8 @@ export const TaskCreationActionSchema = z.object({
   additionalFields: z.record(z.string(), z.unknown()).optional().describe('Additional custom fields'),
 });
 
+export type TaskCreationAction = z.infer<typeof TaskCreationActionSchema>;
+
 /**
  * Schema for Workflow Push Notification Action
  */
@@ -132,6 +143,8 @@ export const PushNotificationActionSchema = z.object({
   clickAction: z.string().optional().describe('Action/URL when notification is clicked'),
 });
 
+export type PushNotificationAction = z.infer<typeof PushNotificationActionSchema>;
+
 /**
  * Schema for Workflow Custom Script Action
  */
@@ -143,6 +156,9 @@ export const CustomScriptActionSchema = z.object({
   timeout: z.number().default(30000).describe('Execution timeout in milliseconds'),
   context: z.record(z.string(), z.unknown()).optional().describe('Additional context variables'),
 });
+
+export type CustomScriptAction = z.infer<typeof CustomScriptActionSchema>;
+export type CustomScriptActionInput = z.input<typeof CustomScriptActionSchema>;
 
 /**
  * Universal Workflow Action Schema

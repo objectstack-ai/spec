@@ -1,0 +1,84 @@
+{
+  "$ref": "#/definitions/PluginStatistics",
+  "definitions": {
+    "PluginStatistics": {
+      "type": "object",
+      "properties": {
+        "downloads": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "downloadsLastMonth": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "activeInstallations": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "ratings": {
+          "type": "object",
+          "properties": {
+            "average": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 5,
+              "default": 0
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "distribution": {
+              "type": "object",
+              "properties": {
+                "1": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "default": 0
+                },
+                "2": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "default": 0
+                },
+                "3": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "default": 0
+                },
+                "4": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "default": 0
+                },
+                "5": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "default": 0
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "stars": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "dependents": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

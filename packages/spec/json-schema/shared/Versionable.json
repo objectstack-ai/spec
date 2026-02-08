@@ -1,0 +1,52 @@
+{
+  "$ref": "#/definitions/Versionable",
+  "definitions": {
+    "Versionable": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-z0-9.]+)?$",
+          "description": "Semantic version number (e.g., \"1.2.3\" or \"2.0.0-beta.1\")"
+        },
+        "versionHistory": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "string",
+                "description": "Version number"
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time",
+                "description": "When this version was created"
+              },
+              "author": {
+                "type": "string",
+                "description": "Who created this version"
+              },
+              "changelog": {
+                "type": "string",
+                "description": "Description of changes"
+              }
+            },
+            "required": [
+              "version",
+              "timestamp",
+              "author"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Historical record of all versions"
+        }
+      },
+      "required": [
+        "version"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -37,6 +37,8 @@ export const ApprovalActionSchema = z.object({
   actionId: z.string().optional(),
 });
 
+export type ApprovalAction = z.infer<typeof ApprovalActionSchema>;
+
 /**
  * Approval Process Step
  */

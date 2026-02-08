@@ -77,10 +77,12 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Column name"
                   },
                   "type": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Data type"
                   }
                 },
                 "required": [
@@ -100,7 +102,8 @@
             "rows",
             "fields"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Analytics query result data"
         }
       },
       "required": [

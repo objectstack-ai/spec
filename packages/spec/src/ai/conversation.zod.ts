@@ -39,12 +39,17 @@ export const TextContentSchema = z.object({
   metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
+export type TextContent = z.infer<typeof TextContentSchema>;
+
 export const ImageContentSchema = z.object({
   type: z.literal('image'),
   imageUrl: z.string().url().describe('Image URL'),
   detail: z.enum(['low', 'high', 'auto']).optional().default('auto'),
   metadata: z.record(z.string(), z.unknown()).optional(),
 });
+
+export type ImageContent = z.infer<typeof ImageContentSchema>;
+export type ImageContentInput = z.input<typeof ImageContentSchema>;
 
 export const FileContentSchema = z.object({
   type: z.literal('file'),
@@ -54,12 +59,17 @@ export const FileContentSchema = z.object({
   metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
+export type FileContent = z.infer<typeof FileContentSchema>;
+
 export const CodeContentSchema = z.object({
   type: z.literal('code'),
   text: z.string().describe('Code snippet'),
   language: z.string().optional().default('text'),
   metadata: z.record(z.string(), z.unknown()).optional(),
 });
+
+export type CodeContent = z.infer<typeof CodeContentSchema>;
+export type CodeContentInput = z.input<typeof CodeContentSchema>;
 
 export const MessageContentSchema = z.union([
   TextContentSchema,

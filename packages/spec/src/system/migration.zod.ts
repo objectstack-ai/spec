@@ -11,6 +11,8 @@ export const AddFieldOperation = z.object({
   field: FieldSchema.describe('Full field definition to add')
 }).describe('Add a new field to an existing object');
 
+export type AddFieldOperation = z.infer<typeof AddFieldOperation>;
+
 export const ModifyFieldOperation = z.object({
   type: z.literal('modify_field'),
   objectName: z.string().describe('Target object name'),
@@ -18,16 +20,22 @@ export const ModifyFieldOperation = z.object({
   changes: z.record(z.string(), z.unknown()).describe('Partial field definition updates')
 }).describe('Modify properties of an existing field');
 
+export type ModifyFieldOperation = z.infer<typeof ModifyFieldOperation>;
+
 export const RemoveFieldOperation = z.object({
   type: z.literal('remove_field'),
   objectName: z.string().describe('Target object name'),
   fieldName: z.string().describe('Name of the field to remove')
 }).describe('Remove a field from an existing object');
 
+export type RemoveFieldOperation = z.infer<typeof RemoveFieldOperation>;
+
 export const CreateObjectOperation = z.object({
   type: z.literal('create_object'),
   object: ObjectSchema.describe('Full object definition to create')
 }).describe('Create a new object');
+
+export type CreateObjectOperation = z.infer<typeof CreateObjectOperation>;
 
 export const RenameObjectOperation = z.object({
   type: z.literal('rename_object'),
@@ -35,16 +43,22 @@ export const RenameObjectOperation = z.object({
   newName: z.string().describe('New object name')
 }).describe('Rename an existing object');
 
+export type RenameObjectOperation = z.infer<typeof RenameObjectOperation>;
+
 export const DeleteObjectOperation = z.object({
   type: z.literal('delete_object'),
   objectName: z.string().describe('Name of the object to delete')
 }).describe('Delete an existing object');
+
+export type DeleteObjectOperation = z.infer<typeof DeleteObjectOperation>;
 
 export const ExecuteSqlOperation = z.object({
   type: z.literal('execute_sql'),
   sql: z.string().describe('Raw SQL statement to execute'),
   description: z.string().optional().describe('Human-readable description of the SQL')
 }).describe('Execute a raw SQL statement');
+
+export type ExecuteSqlOperation = z.infer<typeof ExecuteSqlOperation>;
 
 // Union of all possible operations
 export const MigrationOperationSchema = z.discriminatedUnion('type', [
@@ -63,6 +77,8 @@ export const MigrationDependencySchema = z.object({
   migrationId: z.string().describe('ID of the migration this depends on'),
   package: z.string().optional().describe('Package that owns the dependency migration')
 }).describe('Dependency reference to another migration that must run first');
+
+export type MigrationDependency = z.infer<typeof MigrationDependencySchema>;
 
 export const ChangeSetSchema = z.object({
   id: z.string().uuid().describe('Unique identifier for this change set'),

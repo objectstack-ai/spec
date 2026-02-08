@@ -38,7 +38,7 @@ export const CoreServiceName = z.enum([
   'i18n',           // Internationalization Service
   'ui',             // UI Metadata Service (View CRUD)
   'workflow',       // Workflow State Machine Engine
-]);
+]).describe('Built-in core service identifiers for the ObjectStack kernel');
 
 export type CoreServiceName = z.infer<typeof CoreServiceName>;
 
@@ -50,7 +50,7 @@ export const ServiceCriticalitySchema = z.enum([
   'required', // System fails to start if missing (Exit Code 1)
   'core',     // System warns if missing, functionality degraded (Warn)
   'optional', // System ignores if missing, feature disabled (Info)
-]);
+]).describe('Service criticality level determining kernel startup behavior');
 
 /**
  * Service Requirement Definition
@@ -89,10 +89,10 @@ export const ServiceRequirementDef = {
  * Describes the availability and health of a service
  */
 export const ServiceStatusSchema = z.object({
-  name: CoreServiceName,
-  enabled: z.boolean(),
-  status: z.enum(['running', 'stopped', 'degraded', 'initializing']),
-  version: z.string().optional(),
+  name: CoreServiceName.describe('Service identifier'),
+  enabled: z.boolean().describe('Whether the service is enabled in the configuration'),
+  status: z.enum(['running', 'stopped', 'degraded', 'initializing']).describe('Current operational status'),
+  version: z.string().optional().describe('Service implementation version'),
   provider: z.string().optional().describe('Implementation provider (e.g. "s3" for storage)'),
   features: z.array(z.string()).optional().describe('List of supported sub-features'),
 });
@@ -115,7 +115,7 @@ export const KernelServiceMapSchema = z.record(
 
 // e.g.
 export const ServiceConfigSchema = z.object({
-  id: z.string(),
-  name: CoreServiceName,
-  options: z.record(z.string(), z.unknown()).optional(),
+  id: z.string().describe('Unique service instance identifier'),
+  name: CoreServiceName.describe('Service type identifier'),
+  options: z.record(z.string(), z.unknown()).optional().describe('Service-specific configuration options'),
 });

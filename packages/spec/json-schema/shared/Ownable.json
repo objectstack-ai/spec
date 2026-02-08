@@ -1,0 +1,33 @@
+{
+  "$ref": "#/definitions/Ownable",
+  "definitions": {
+    "Ownable": {
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "description": "User ID of the entity owner"
+        },
+        "ownerType": {
+          "type": "string",
+          "enum": [
+            "user",
+            "team",
+            "organization"
+          ],
+          "default": "user",
+          "description": "Type of owner (user, team, or organization)"
+        },
+        "groupId": {
+          "type": "string",
+          "description": "Optional group/team ID for shared ownership"
+        }
+      },
+      "required": [
+        "ownerId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -46,6 +46,7 @@ export const DatabasePoolConfigSchema = z.object({
 });
 
 export type DatabasePoolConfig = z.infer<typeof DatabasePoolConfigSchema>;
+export type DatabasePoolConfigInput = z.input<typeof DatabasePoolConfigSchema>;
 
 /**
  * SSL/TLS Configuration
@@ -59,6 +60,7 @@ export const SslConfigSchema = z.object({
 });
 
 export type SslConfig = z.infer<typeof SslConfigSchema>;
+export type SslConfigInput = z.input<typeof SslConfigSchema>;
 
 /**
  * Change Data Capture (CDC) Configuration
@@ -85,6 +87,7 @@ export const CdcConfigSchema = z.object({
 });
 
 export type CdcConfig = z.infer<typeof CdcConfigSchema>;
+export type CdcConfigInput = z.input<typeof CdcConfigSchema>;
 
 /**
  * Database Table Configuration
@@ -101,6 +104,7 @@ export const DatabaseTableSchema = z.object({
 });
 
 export type DatabaseTable = z.infer<typeof DatabaseTableSchema>;
+export type DatabaseTableInput = z.input<typeof DatabaseTableSchema>;
 
 /**
  * Database Connector Configuration Schema

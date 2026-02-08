@@ -1,0 +1,11 @@
+{
+  "$ref": "#/definitions/DotNotationString",
+  "definitions": {
+    "DotNotationString": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.]*$",
+      "description": "Dot notation identifier"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

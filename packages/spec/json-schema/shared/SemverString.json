@@ -1,0 +1,11 @@
+{
+  "$ref": "#/definitions/SemverString",
+  "definitions": {
+    "SemverString": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-z0-9.]+)?$",
+      "description": "Semantic version number"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

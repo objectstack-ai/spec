@@ -11,7 +11,8 @@
         "join",
         "javascript",
         "map"
-      ]
+      ],
+      "description": "Type of transformation to apply during field mapping"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

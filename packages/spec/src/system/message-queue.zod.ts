@@ -24,6 +24,7 @@ export const TopicConfigSchema = z.object({
 }).describe('Configuration for a message queue topic');
 
 export type TopicConfig = z.infer<typeof TopicConfigSchema>;
+export type TopicConfigInput = z.input<typeof TopicConfigSchema>;
 
 export const ConsumerConfigSchema = z.object({
   groupId: z.string().describe('Consumer group identifier'),
@@ -33,6 +34,7 @@ export const ConsumerConfigSchema = z.object({
 }).describe('Consumer group configuration for topic consumption');
 
 export type ConsumerConfig = z.infer<typeof ConsumerConfigSchema>;
+export type ConsumerConfigInput = z.input<typeof ConsumerConfigSchema>;
 
 export const DeadLetterQueueSchema = z.object({
   enabled: z.boolean().default(false).describe('Enable dead letter queue for failed messages'),
@@ -41,6 +43,7 @@ export const DeadLetterQueueSchema = z.object({
 }).describe('Dead letter queue configuration for unprocessable messages');
 
 export type DeadLetterQueue = z.infer<typeof DeadLetterQueueSchema>;
+export type DeadLetterQueueInput = z.input<typeof DeadLetterQueueSchema>;
 
 export const MessageQueueConfigSchema = z.object({
   provider: MessageQueueProviderSchema.describe('Message queue backend provider'),
@@ -56,3 +59,4 @@ export const MessageQueueConfigSchema = z.object({
 }).describe('Top-level message queue configuration');
 
 export type MessageQueueConfig = z.infer<typeof MessageQueueConfigSchema>;
+export type MessageQueueConfigInput = z.input<typeof MessageQueueConfigSchema>;

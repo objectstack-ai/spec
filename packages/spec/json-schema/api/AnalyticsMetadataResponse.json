@@ -266,7 +266,8 @@
           "required": [
             "cubes"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Analytics metadata including cubes, metrics, and dimensions"
         }
       },
       "required": [

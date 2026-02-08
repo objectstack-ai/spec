@@ -1,0 +1,17 @@
+{
+  "$ref": "#/definitions/DynamicPluginOperation",
+  "definitions": {
+    "DynamicPluginOperation": {
+      "type": "string",
+      "enum": [
+        "load",
+        "unload",
+        "reload",
+        "enable",
+        "disable"
+      ],
+      "description": "Runtime plugin operation type"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
