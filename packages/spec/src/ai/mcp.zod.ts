@@ -149,7 +149,7 @@ export const MCPResourceTemplateSchema = z.object({
  * MCP Tool Parameter Schema
  * Defines parameters for MCP tool functions
  */
-export const MCPToolParameterSchema = z.object({
+export const MCPToolParameterSchema: z.ZodType<MCPToolParameter> = z.object({
   name: z.string().describe('Parameter name'),
   type: z.enum(['string', 'number', 'boolean', 'object', 'array']),
   description: z.string().describe('Parameter description for AI consumption'),
@@ -168,6 +168,25 @@ export const MCPToolParameterSchema = z.object({
   properties: z.record(z.string(), z.lazy(() => MCPToolParameterSchema)).optional().describe('Properties for object types'),
   items: z.lazy(() => MCPToolParameterSchema).optional().describe('Item schema for array types'),
 });
+
+/**
+ * MCP Tool Parameter Type (inferred before schema to avoid circular reference)
+ */
+export type MCPToolParameter = {
+  name: string;
+  type: 'string' | 'number' | 'boolean' | 'object' | 'array';
+  description: string;
+  required?: boolean;
+  default?: unknown;
+  enum?: unknown[];
+  pattern?: string;
+  minimum?: number;
+  maximum?: number;
+  minLength?: number;
+  maxLength?: number;
+  properties?: Record<string, MCPToolParameter>;
+  items?: MCPToolParameter;
+};
 
 /**
  * MCP Tool Schema
@@ -466,7 +485,7 @@ export type MCPTransportConfig = z.infer<typeof MCPTransportConfigSchema>;
 export type MCPResourceType = z.infer<typeof MCPResourceTypeSchema>;
 export type MCPResource = z.infer<typeof MCPResourceSchema>;
 export type MCPResourceTemplate = z.infer<typeof MCPResourceTemplateSchema>;
-export type MCPToolParameter = z.infer<typeof MCPToolParameterSchema>;
+// MCPToolParameter type is exported above with the schema
 export type MCPTool = z.infer<typeof MCPToolSchema>;
 export type MCPPromptArgument = z.infer<typeof MCPPromptArgumentSchema>;
 export type MCPPromptMessage = z.infer<typeof MCPPromptMessageSchema>;
