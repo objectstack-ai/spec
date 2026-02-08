@@ -70,60 +70,72 @@
                   "type": "object",
                   "properties": {
                     "total": {
-                      "type": "integer"
+                      "type": "integer",
+                      "description": "Total number of spaces"
                     },
                     "active": {
-                      "type": "integer"
+                      "type": "integer",
+                      "description": "Number of active spaces"
                     },
                     "created_last_30d": {
-                      "type": "integer"
+                      "type": "integer",
+                      "description": "Spaces created in the last 30 days"
                     }
                   },
                   "required": [
                     "total",
                     "active"
                   ],
-                  "additionalProperties": false
+                  "additionalProperties": false,
+                  "description": "Space-related metrics"
                 },
                 "tenants": {
                   "type": "object",
                   "properties": {
                     "total": {
-                      "type": "integer"
+                      "type": "integer",
+                      "description": "Total number of tenants"
                     },
                     "active": {
-                      "type": "integer"
+                      "type": "integer",
+                      "description": "Number of active tenants"
                     }
                   },
                   "required": [
                     "total",
                     "active"
                   ],
-                  "additionalProperties": false
+                  "additionalProperties": false,
+                  "description": "Tenant-related metrics"
                 },
                 "plugins": {
                   "type": "object",
                   "properties": {
                     "total": {
-                      "type": "integer"
+                      "type": "integer",
+                      "description": "Total number of plugins"
                     },
                     "published_last_30d": {
-                      "type": "integer"
+                      "type": "integer",
+                      "description": "Plugins published in the last 30 days"
                     },
                     "total_downloads": {
-                      "type": "integer"
+                      "type": "integer",
+                      "description": "Cumulative plugin downloads"
                     }
                   },
                   "required": [
                     "total"
                   ],
-                  "additionalProperties": false
+                  "additionalProperties": false,
+                  "description": "Plugin-related metrics"
                 },
                 "api": {
                   "type": "object",
                   "properties": {
                     "requests_per_minute": {
-                      "type": "number"
+                      "type": "number",
+                      "description": "Current API request rate per minute"
                     },
                     "avg_response_time": {
                       "type": "number",
@@ -132,7 +144,8 @@
                     "error_rate": {
                       "type": "number",
                       "minimum": 0,
-                      "maximum": 1
+                      "maximum": 1,
+                      "description": "Ratio of failed API requests"
                     }
                   },
                   "required": [
@@ -140,28 +153,33 @@
                     "avg_response_time",
                     "error_rate"
                   ],
-                  "additionalProperties": false
+                  "additionalProperties": false,
+                  "description": "API performance metrics"
                 }
               },
-              "additionalProperties": false
+              "additionalProperties": false,
+              "description": "Aggregated hub metrics"
             },
             "timestamp": {
               "type": "string",
-              "format": "date-time"
+              "format": "date-time",
+              "description": "Timestamp when metrics were collected"
             }
           },
           "required": [
             "metrics",
             "timestamp"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Hub metrics data"
         }
       },
       "required": [
         "success",
         "data"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Response containing hub operational metrics"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

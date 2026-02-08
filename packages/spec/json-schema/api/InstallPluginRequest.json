@@ -26,7 +26,8 @@
         "spaceId",
         "pluginId"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Request payload for installing a plugin into a space"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

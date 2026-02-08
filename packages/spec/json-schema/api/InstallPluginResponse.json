@@ -60,12 +60,15 @@
           "additionalProperties": false,
           "description": "Response metadata"
         },
-        "data": {}
+        "data": {
+          "description": "Installation status or installed plugin instance"
+        }
       },
       "required": [
         "success"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Response containing plugin installation result"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

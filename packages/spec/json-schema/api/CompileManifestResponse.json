@@ -1606,14 +1606,16 @@
             "timestamp",
             "duration"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Compilation result"
         }
       },
       "required": [
         "success",
         "data"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Response containing the compiled manifest result"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

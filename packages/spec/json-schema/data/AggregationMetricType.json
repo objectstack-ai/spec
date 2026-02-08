@@ -1,7 +1,7 @@
 {
-  "$ref": "#/definitions/MetricType",
+  "$ref": "#/definitions/AggregationMetricType",
   "definitions": {
-    "MetricType": {
+    "AggregationMetricType": {
       "type": "string",
       "enum": [
         "count",

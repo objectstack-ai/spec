@@ -64,7 +64,8 @@
           "type": "object",
           "properties": {
             "buildId": {
-              "type": "string"
+              "type": "string",
+              "description": "Unique build identifier"
             },
             "status": {
               "type": "string",
@@ -73,7 +74,8 @@
                 "in_progress",
                 "success",
                 "failed"
-              ]
+              ],
+              "description": "Current build status"
             },
             "progress": {
               "type": "number",
@@ -83,11 +85,13 @@
             },
             "startedAt": {
               "type": "string",
-              "format": "date-time"
+              "format": "date-time",
+              "description": "Timestamp when the build started"
             },
             "completedAt": {
               "type": "string",
-              "format": "date-time"
+              "format": "date-time",
+              "description": "Timestamp when the build completed"
             },
             "duration": {
               "type": "number",
@@ -100,7 +104,8 @@
                 "properties": {
                   "timestamp": {
                     "type": "string",
-                    "format": "date-time"
+                    "format": "date-time",
+                    "description": "Log entry timestamp"
                   },
                   "level": {
                     "type": "string",
@@ -109,10 +114,12 @@
                       "info",
                       "warn",
                       "error"
-                    ]
+                    ],
+                    "description": "Log severity level"
                   },
                   "message": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Log message content"
                   }
                 },
                 "required": [
@@ -120,11 +127,14 @@
                   "level",
                   "message"
                 ],
-                "additionalProperties": false
-              }
+                "additionalProperties": false,
+                "description": "Build log entry"
+              },
+              "description": "Build log entries"
             },
             "error": {
-              "type": "string"
+              "type": "string",
+              "description": "Error message if the build failed"
             }
           },
           "required": [
@@ -132,14 +142,16 @@
             "status",
             "progress"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Build status details"
         }
       },
       "required": [
         "success",
         "data"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Response containing build status information"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

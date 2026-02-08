@@ -64,7 +64,8 @@
           "type": "object",
           "properties": {
             "pluginId": {
-              "type": "string"
+              "type": "string",
+              "description": "Plugin identifier"
             },
             "versions": {
               "type": "array",
@@ -72,15 +73,18 @@
                 "type": "object",
                 "properties": {
                   "version": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Semantic version string"
                   },
                   "publishedAt": {
                     "type": "string",
-                    "format": "date-time"
+                    "format": "date-time",
+                    "description": "Timestamp when this version was published"
                   },
                   "deprecated": {
                     "type": "boolean",
-                    "default": false
+                    "default": false,
+                    "description": "Whether this version is deprecated"
                   },
                   "yanked": {
                     "type": "boolean",
@@ -88,15 +92,18 @@
                     "description": "Whether this version was removed"
                   },
                   "changelog": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Release notes for this version"
                   }
                 },
                 "required": [
                   "version",
                   "publishedAt"
                 ],
-                "additionalProperties": false
-              }
+                "additionalProperties": false,
+                "description": "Version metadata for a plugin release"
+              },
+              "description": "List of available versions"
             },
             "latest": {
               "type": "string",
@@ -112,14 +119,16 @@
             "versions",
             "latest"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Plugin version listing"
         }
       },
       "required": [
         "success",
         "data"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Response containing plugin version information"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

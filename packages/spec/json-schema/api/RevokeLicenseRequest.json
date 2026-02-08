@@ -5,16 +5,19 @@
       "type": "object",
       "properties": {
         "spaceId": {
-          "type": "string"
+          "type": "string",
+          "description": "Space ID whose license should be revoked"
         },
         "reason": {
-          "type": "string"
+          "type": "string",
+          "description": "Reason for revoking the license"
         }
       },
       "required": [
         "spaceId"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Request payload for revoking a license"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

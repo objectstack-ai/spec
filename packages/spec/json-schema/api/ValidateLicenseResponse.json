@@ -64,7 +64,8 @@
           "type": "object",
           "properties": {
             "valid": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Whether the license is valid"
             },
             "license": {
               "type": "object",
@@ -123,34 +124,39 @@
                 "issuedAt",
                 "status"
               ],
-              "additionalProperties": false
+              "additionalProperties": false,
+              "description": "License details if found"
             },
             "errors": {
               "type": "array",
               "items": {
                 "type": "string"
               },
-              "default": []
+              "default": [],
+              "description": "Validation error messages"
             },
             "warnings": {
               "type": "array",
               "items": {
                 "type": "string"
               },
-              "default": []
+              "default": [],
+              "description": "Validation warning messages"
             }
           },
           "required": [
             "valid"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "License validation result"
         }
       },
       "required": [
         "success",
         "data"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Response containing license validation results"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

@@ -15,6 +15,11 @@
             "type": "string"
           },
           "description": "List of files in this module"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Custom metadata key-value pairs for extensibility"
         }
       },
       "required": [
