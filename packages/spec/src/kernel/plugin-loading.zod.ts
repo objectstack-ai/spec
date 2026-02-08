@@ -306,9 +306,9 @@ export const PluginHotReloadSchema = z.object({
    * Target environment for hot reload behavior
    */
   environment: z.enum([
-    'development',   // Fast reload with relaxed safety (file watchers, no health gates)
+    'development',   // Fast reload with relaxed safety (file watchers, no health validation)
     'staging',       // Production-like reload with validation but relaxed rollback
-    'production',    // Full safety: health gates, rollback, connection draining
+    'production',    // Full safety: health validation, rollback, connection draining
   ]).default('development').describe('Target environment controlling safety level'),
   
   /**
@@ -404,7 +404,7 @@ export const PluginHotReloadSchema = z.object({
     /**
      * Minimum interval between reloads of the same plugin (ms)
      */
-    minReloadInterval: z.number().int().min(0).default(5000)
+    minReloadInterval: z.number().int().min(1000).default(5000)
       .describe('Cooldown period between reloads of the same plugin'),
   }).optional(),
 }).describe('Plugin hot reload configuration');
