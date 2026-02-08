@@ -22,7 +22,7 @@ export const TerritoryType = z.enum([
   'industry',       // Vertical
   'named_account',  // Key Accounts
   'product_line'    // Product Specialty
-]);
+]).describe('Type of territory segmentation strategy');
 
 /**
  * Territory Model Schema
@@ -31,9 +31,9 @@ export const TerritoryType = z.enum([
  */
 export const TerritoryModelSchema = z.object({
   name: z.string().describe('Model Name (e.g. FY24 Planning)'),
-  state: z.enum(['planning', 'active', 'archived']).default('planning'),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
+  state: z.enum(['planning', 'active', 'archived']).default('planning').describe('Current state of the territory model'),
+  startDate: z.string().optional().describe('Effective start date for this model'),
+  endDate: z.string().optional().describe('Effective end date for this model'),
 });
 
 /**
@@ -59,27 +59,27 @@ export const TerritorySchema = z.object({
   label: z.string().describe('Territory Label (e.g. "West Coast")'),
   
   /** Structure */
-  modelId: z.string().describe('Belongs to which Territory Model'),
-  parent: z.string().optional().describe('Parent Territory'),
-  type: TerritoryType.default('geography'),
+  modelId: z.string().describe('Reference to the Territory Model this territory belongs to'),
+  parent: z.string().optional().describe('Parent Territory for hierarchical organization'),
+  type: TerritoryType.default('geography').describe('Territory type classification'),
   
   /** 
    * Assignment Rules (The "Magic")
    * How do accounts automatically fall into this territory?
    * e.g. "BillingCountry = 'US' AND BillingState = 'CA'"
    */
-  assignmentRule: z.string().optional().describe('Criteria based assignment rule'),
+  assignmentRule: z.string().optional().describe('Formula/criteria for automatic account assignment to this territory'),
   
   /**
    * User Assignment
    * Users assigned to work this territory.
    */
-  assignedUsers: z.array(z.string()).optional(),
+  assignedUsers: z.array(z.string()).optional().describe('User IDs assigned to manage this territory'),
   
   /** Access Level */
-  accountAccess: z.enum(['read', 'edit']).default('read'),
-  opportunityAccess: z.enum(['read', 'edit']).default('read'),
-  caseAccess: z.enum(['read', 'edit']).default('read'),
+  accountAccess: z.enum(['read', 'edit']).default('read').describe('Access level for accounts in this territory'),
+  opportunityAccess: z.enum(['read', 'edit']).default('read').describe('Access level for opportunities in this territory'),
+  caseAccess: z.enum(['read', 'edit']).default('read').describe('Access level for cases in this territory'),
 });
 
 export type Territory = z.infer<typeof TerritorySchema>;

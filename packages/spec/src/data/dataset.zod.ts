@@ -10,7 +10,7 @@ export const DatasetMode = z.enum([
   'upsert',    // Create new or Update existing (Standard)
   'replace',   // Delete ALL records in object then insert (Dangerous - use for cache tables)
   'ignore'     // Try to insert, silently skip duplicates
-]);
+]).describe('Strategy for handling conflicts when importing dataset records');
 
 /**
  * Dataset Schema (Seed Data / Fixtures)
