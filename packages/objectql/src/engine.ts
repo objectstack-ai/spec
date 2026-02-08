@@ -437,13 +437,13 @@ export class ObjectQL implements IDataEngine {
     await this.triggerHooks('beforeFind', hookContext);
 
     try {
-        const result = await driver.find(object, hookContext.input.ast, hookContext.input.options);
+        const result = await driver.find(object, hookContext.input.ast as QueryAST, hookContext.input.options as any);
         
         hookContext.event = 'afterFind';
         hookContext.result = result;
         await this.triggerHooks('afterFind', hookContext);
         
-        return hookContext.result;
+        return hookContext.result as any[];
     } catch (e) {
         this.logger.error('Find operation failed', e as Error, { object });
         throw e;
@@ -480,13 +480,13 @@ export class ObjectQL implements IDataEngine {
       if (Array.isArray(hookContext.input.data)) {
         // Bulk Create
         if (driver.bulkCreate) {
-             result = await driver.bulkCreate(object, hookContext.input.data, hookContext.input.options);
+             result = await driver.bulkCreate(object, hookContext.input.data as any[], hookContext.input.options as any);
         } else {
              // Fallback loop
-             result = await Promise.all(hookContext.input.data.map((item: any) => driver.create(object, item, hookContext.input.options)));
+             result = await Promise.all((hookContext.input.data as any[]).map((item: any) => driver.create(object, item, hookContext.input.options as any)));
         }
       } else {
-        result = await driver.create(object, hookContext.input.data, hookContext.input.options);
+        result = await driver.create(object, hookContext.input.data, hookContext.input.options as any);
       }
 
       hookContext.event = 'afterInsert';
@@ -529,11 +529,11 @@ export class ObjectQL implements IDataEngine {
          let result;
          if (hookContext.input.id) {
              // Single update by ID
-             result = await driver.update(object, hookContext.input.id, hookContext.input.data, hookContext.input.options);
+             result = await driver.update(object, hookContext.input.id as string, hookContext.input.data, hookContext.input.options as any);
          } else if (options?.multi && driver.updateMany) {
              // Bulk update by Query
              const ast = this.toQueryAST(object, { filter: options.filter });
-             result = await driver.updateMany(object, ast, hookContext.input.data, hookContext.input.options);
+             result = await driver.updateMany(object, ast, hookContext.input.data, hookContext.input.options as any);
          } else {
              throw new Error('Update requires an ID or options.multi=true');
          }
@@ -572,10 +572,10 @@ export class ObjectQL implements IDataEngine {
     try {
         let result;
         if (hookContext.input.id) {
-            result = await driver.delete(object, hookContext.input.id, hookContext.input.options);
+            result = await driver.delete(object, hookContext.input.id as string, hookContext.input.options as any);
         } else if (options?.multi && driver.deleteMany) {
              const ast = this.toQueryAST(object, { filter: options.filter });
-             result = await driver.deleteMany(object, ast, hookContext.input.options);
+             result = await driver.deleteMany(object, ast, hookContext.input.options as any);
         } else {
              throw new Error('Delete requires an ID or options.multi=true');
         }

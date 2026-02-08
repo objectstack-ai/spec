@@ -1,6 +1,6 @@
 import type { 
-  SecurityVulnerability,
-  SecurityScanResult
+  KernelSecurityVulnerability,
+  KernelSecurityScanResult
 } from '@objectstack/spec/kernel';
 import type { ObjectLogger } from '../logger.js';
 
@@ -42,10 +42,10 @@ export class PluginSecurityScanner {
   private logger: ObjectLogger;
   
   // Known vulnerabilities database (CVE cache)
-  private vulnerabilityDb = new Map<string, SecurityVulnerability>();
+  private vulnerabilityDb = new Map<string, KernelSecurityVulnerability>();
   
   // Scan results cache
-  private scanResults = new Map<string, SecurityScanResult>();
+  private scanResults = new Map<string, KernelSecurityScanResult>();
 
   private passThreshold: number = 70;
 
@@ -59,7 +59,7 @@ export class PluginSecurityScanner {
   /**
    * Perform a comprehensive security scan on a plugin
    */
-  async scan(target: ScanTarget): Promise<SecurityScanResult> {
+  async scan(target: ScanTarget): Promise<KernelSecurityScanResult> {
     this.logger.info('Starting security scan', { 
       pluginId: target.pluginId,
       version: target.version 
@@ -91,7 +91,7 @@ export class PluginSecurityScanner {
       // Calculate security score (0-100, higher is better)
       const score = this.calculateSecurityScore(issues);
 
-      const result: SecurityScanResult = {
+      const result: KernelSecurityScanResult = {
         timestamp: new Date().toISOString(),
         scanner: { name: 'ObjectStack Security Scanner', version: '1.0.0' },
         status: score >= this.passThreshold ? 'passed' : 'failed',
@@ -309,7 +309,7 @@ export class PluginSecurityScanner {
   addVulnerability(
     packageName: string,
     version: string,
-    vulnerability: SecurityVulnerability
+    vulnerability: KernelSecurityVulnerability
   ): void {
     const key = `${packageName}@${version}`;
     this.vulnerabilityDb.set(key, vulnerability);
@@ -324,7 +324,7 @@ export class PluginSecurityScanner {
   /**
    * Get scan result from cache
    */
-  getScanResult(pluginId: string, version: string): SecurityScanResult | undefined {
+  getScanResult(pluginId: string, version: string): KernelSecurityScanResult | undefined {
     return this.scanResults.get(`${pluginId}:${version}`);
   }
 
