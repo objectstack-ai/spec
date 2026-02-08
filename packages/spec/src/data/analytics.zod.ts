@@ -11,10 +11,10 @@ import { z } from 'zod';
  */
 
 /**
- * Metric Type
- * The mathematical operation to perform.
+ * Aggregation Metric Type
+ * The mathematical operation to perform on a metric.
  */
-export const MetricType = z.enum([
+export const AggregationMetricType = z.enum([
   'count', 
   'sum', 
   'avg', 
@@ -54,7 +54,7 @@ export const MetricSchema = z.object({
   label: z.string().describe('Human readable label'),
   description: z.string().optional(),
   
-  type: MetricType,
+  type: AggregationMetricType,
   
   /** Source Calculation */
   sql: z.string().describe('SQL expression or field reference'),

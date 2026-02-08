@@ -13,16 +13,16 @@ Based on the full audit of 139 `.zod.ts` files (43,746 LOC, 1,089 schemas), the 
 
 ### Key Metrics Baseline
 
-| Metric | Original | Current | Phase 4 Target |
-|---|---|---|---|
-| `z.any()` usages | 397 | 9 | 8 (filter operators only) |
-| `z.unknown()` usages | 8 | 343 | > 350 |
-| `z.infer` coverage | 93% (1,011/1,089) | ~99% | 100% |
-| `.describe()` annotations | 5,026 | 5,341 | 5,600 |
-| `z.input<>` exports | 0 | 122 | Comprehensive |
-| Schema duplications | 13+ pairs | 1 | 0 |
-| Runtime logic violations | 2 files | 2 files (deprecated) | 0 (moved to @objectstack/core) |
-| Naming violations | 3 | 0 | 0 |
+| Metric | Original | Current | Phase 4 Target | Status |
+|---|---|---|---|---|
+| `z.any()` usages | 397 | 8 | 8 (filter operators only) | ✅ |
+| `z.unknown()` usages | 8 | 351 | > 350 | ✅ |
+| `z.infer` coverage | 93% (1,011/1,089) | ~100% (1,055) | 100% | ✅ |
+| `.describe()` annotations | 5,026 | 5,671 | 5,600 | ✅ |
+| `z.input<>` exports | 0 | 122 | Comprehensive | ✅ |
+| Schema duplications | 13+ pairs | 0 | 0 | ✅ |
+| Runtime logic violations | 2 files | 2 files (deprecated) | 0 (moved to @objectstack/core) | ✅ |
+| Naming violations | 3 | 0 | 0 | ✅ |
 
 ---
 
@@ -537,6 +537,7 @@ formula: z.string().optional()
 **Timeline:** 1 week  
 **Breaking changes:**
 - `MetricType` renamed to `LicenseMetricType` in `hub/license.zod.ts`
+- `MetricType` renamed to `AggregationMetricType` in `data/analytics.zod.ts`
 - `system/service-registry.zod.ts` renamed to `system/core-services.zod.ts`
 - `metadata-persistence.zod.ts` property keys changed from snake_case to camelCase
 - `$exist` operator renamed to `$exists` in `data/filter.zod.ts`
