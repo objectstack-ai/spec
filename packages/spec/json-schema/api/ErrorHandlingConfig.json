@@ -1,0 +1,66 @@
+{
+  "$ref": "#/definitions/ErrorHandlingConfig",
+  "definitions": {
+    "ErrorHandlingConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable standardized error handling"
+        },
+        "includeStackTrace": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include stack traces in error responses"
+        },
+        "logErrors": {
+          "type": "boolean",
+          "default": true,
+          "description": "Log errors to system logger"
+        },
+        "exposeInternalErrors": {
+          "type": "boolean",
+          "default": false,
+          "description": "Expose internal error details in responses"
+        },
+        "includeRequestId": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include requestId in error responses"
+        },
+        "includeTimestamp": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include timestamp in error responses"
+        },
+        "includeDocumentation": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include documentation URLs for errors"
+        },
+        "documentationBaseUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Base URL for error documentation"
+        },
+        "customErrorMessages": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom error messages by error code"
+        },
+        "redactFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Field names to redact from error details"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

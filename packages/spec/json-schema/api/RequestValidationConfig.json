@@ -1,0 +1,60 @@
+{
+  "$ref": "#/definitions/RequestValidationConfig",
+  "definitions": {
+    "RequestValidationConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable automatic request validation"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "strict",
+            "permissive",
+            "strip"
+          ],
+          "default": "strict",
+          "description": "How to handle validation errors"
+        },
+        "validateBody": {
+          "type": "boolean",
+          "default": true,
+          "description": "Validate request body against schema"
+        },
+        "validateQuery": {
+          "type": "boolean",
+          "default": true,
+          "description": "Validate query string parameters"
+        },
+        "validateParams": {
+          "type": "boolean",
+          "default": true,
+          "description": "Validate URL path parameters"
+        },
+        "validateHeaders": {
+          "type": "boolean",
+          "default": false,
+          "description": "Validate request headers"
+        },
+        "includeFieldErrors": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include field-level error details in response"
+        },
+        "errorPrefix": {
+          "type": "string",
+          "description": "Custom prefix for validation error messages"
+        },
+        "schemaRegistry": {
+          "type": "string",
+          "description": "Schema registry name to use for validation"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -8,6 +8,8 @@
  * - Batch operations
  * - Metadata caching
  * - Hub Management APIs
+ * - HttpDispatcher routing
+ * - API versioning
  */
 
 export * from './contract.zod';
@@ -27,6 +29,7 @@ export * from './hub.zod';
 export * from './registry.zod';
 export * from './documentation.zod';
 export * from './analytics.zod';
+export * from './versioning.zod';
 
 // Legacy interface export (deprecated)
 // export type { IObjectStackProtocol } from './protocol';
@@ -35,3 +38,4 @@ export * from './auth.zod';
 export * from './storage.zod';
 export * from './metadata.zod';
 export * from './dispatcher.zod';
+export * from './plugin-rest-api.zod';

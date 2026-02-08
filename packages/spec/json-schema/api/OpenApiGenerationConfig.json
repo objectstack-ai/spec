@@ -1,0 +1,165 @@
+{
+  "$ref": "#/definitions/OpenApiGenerationConfig",
+  "definitions": {
+    "OpenApiGenerationConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable automatic OpenAPI documentation generation"
+        },
+        "version": {
+          "type": "string",
+          "enum": [
+            "3.0.0",
+            "3.0.1",
+            "3.0.2",
+            "3.0.3",
+            "3.1.0"
+          ],
+          "default": "3.0.3",
+          "description": "OpenAPI specification version"
+        },
+        "title": {
+          "type": "string",
+          "default": "ObjectStack API",
+          "description": "API title"
+        },
+        "description": {
+          "type": "string",
+          "description": "API description"
+        },
+        "apiVersion": {
+          "type": "string",
+          "default": "1.0.0",
+          "description": "API version"
+        },
+        "outputPath": {
+          "type": "string",
+          "default": "/api/docs/openapi.json",
+          "description": "URL path to serve OpenAPI JSON"
+        },
+        "uiPath": {
+          "type": "string",
+          "default": "/api/docs",
+          "description": "URL path to serve documentation UI"
+        },
+        "uiFramework": {
+          "type": "string",
+          "enum": [
+            "swagger-ui",
+            "redoc",
+            "rapidoc",
+            "elements"
+          ],
+          "default": "swagger-ui",
+          "description": "Documentation UI framework"
+        },
+        "includeInternal": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include internal endpoints in documentation"
+        },
+        "generateSchemas": {
+          "type": "boolean",
+          "default": true,
+          "description": "Auto-generate schemas from Zod definitions"
+        },
+        "includeExamples": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include request/response examples"
+        },
+        "servers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "description": "Server URL"
+              },
+              "description": {
+                "type": "string",
+                "description": "Server description"
+              }
+            },
+            "required": [
+              "url"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Server URLs for API"
+        },
+        "contact": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "email": {
+              "type": "string",
+              "format": "email"
+            }
+          },
+          "additionalProperties": false,
+          "description": "API contact information"
+        },
+        "license": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "License name"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "description": "License URL"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false,
+          "description": "API license information"
+        },
+        "securitySchemes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "apiKey",
+                  "http",
+                  "oauth2",
+                  "openIdConnect"
+                ]
+              },
+              "scheme": {
+                "type": "string"
+              },
+              "bearerFormat": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Security scheme definitions"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,52 @@
+{
+  "$ref": "#/definitions/ResponseEnvelopeConfig",
+  "definitions": {
+    "ResponseEnvelopeConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable automatic response envelope wrapping"
+        },
+        "includeMetadata": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include meta object in responses"
+        },
+        "includeTimestamp": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include timestamp in response metadata"
+        },
+        "includeRequestId": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include requestId in response metadata"
+        },
+        "includeDuration": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include request duration in ms"
+        },
+        "includeTraceId": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include distributed traceId"
+        },
+        "customMetadata": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Additional metadata fields to include"
+        },
+        "skipIfWrapped": {
+          "type": "boolean",
+          "default": true,
+          "description": "Skip wrapping if response already has success field"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
