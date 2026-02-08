@@ -4,11 +4,6 @@
     "Plugin": {
       "type": "object",
       "properties": {
-        "onInstall": {},
-        "onEnable": {},
-        "onDisable": {},
-        "onUninstall": {},
-        "onUpgrade": {},
         "id": {
           "type": "string",
           "minLength": 1,

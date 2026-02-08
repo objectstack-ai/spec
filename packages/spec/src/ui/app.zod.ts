@@ -207,7 +207,7 @@ export const AppSchema = z.object({
  * App Factory Helper
  */
 export const App = {
-  create: <T extends z.input<typeof AppSchema>>(config: T) => config,
+  create: (config: z.input<typeof AppSchema>): App => AppSchema.parse(config),
 } as const;
 
 // Main Types

@@ -455,7 +455,11 @@ export const FieldSchema = z.object({
   readonly: z.boolean().default(false).describe('Read-only in UI'),
   sortable: z.boolean().optional().default(true).describe('Whether field is sortable in list views'),
   inlineHelpText: z.string().optional().describe('Help text displayed below the field in forms'),
-  encryption: z.boolean().default(false).describe('Deprecated: Use encryptionConfig for enhanced encryption features. Simple flag for backward compatibility.'),
+  trackFeedHistory: z.boolean().optional().describe('Track field changes in Chatter/activity feed (Salesforce pattern)'),
+  caseSensitive: z.boolean().optional().describe('Whether text comparisons are case-sensitive'),
+  autonumberFormat: z.string().optional().describe('Auto-number display format pattern (e.g., "CASE-{0000}")'),
+  /** @deprecated Use `encryptionConfig` instead. Will be removed in v2.0.0 */
+  encryption: z.boolean().default(false).describe('DEPRECATED: Use `encryptionConfig` for enhanced encryption features. Scheduled for removal in v2.0.0'),
   
   /** Indexing */
   index: z.boolean().default(false).describe('Create standard database index'),
@@ -467,10 +471,14 @@ export type SelectOption = z.infer<typeof SelectOptionSchema>;
 export type LocationCoordinates = z.infer<typeof LocationCoordinatesSchema>;
 export type Address = z.infer<typeof AddressSchema>;
 export type CurrencyConfig = z.infer<typeof CurrencyConfigSchema>;
+export type CurrencyConfigInput = z.input<typeof CurrencyConfigSchema>;
 export type CurrencyValue = z.infer<typeof CurrencyValueSchema>;
 export type VectorConfig = z.infer<typeof VectorConfigSchema>;
+export type VectorConfigInput = z.input<typeof VectorConfigSchema>;
 export type FileAttachmentConfig = z.infer<typeof FileAttachmentConfigSchema>;
+export type FileAttachmentConfigInput = z.input<typeof FileAttachmentConfigSchema>;
 export type DataQualityRules = z.infer<typeof DataQualityRulesSchema>;
+export type DataQualityRulesInput = z.input<typeof DataQualityRulesSchema>;
 export type ComputedFieldCache = z.infer<typeof ComputedFieldCacheSchema>;
 
 /**

@@ -98,6 +98,7 @@ export const TaskRetryPolicySchema = z.object({
 });
 
 export type TaskRetryPolicy = z.infer<typeof TaskRetryPolicySchema>;
+export type TaskRetryPolicyInput = z.input<typeof TaskRetryPolicySchema>;
 
 /**
  * Task Schema
@@ -179,6 +180,7 @@ export const TaskSchema = z.object({
 });
 
 export type Task = z.infer<typeof TaskSchema>;
+export type TaskInput = z.input<typeof TaskSchema>;
 
 // ==========================================
 // Task Execution Result
@@ -298,6 +300,7 @@ export const QueueConfigSchema = z.object({
 });
 
 export type QueueConfig = z.infer<typeof QueueConfigSchema>;
+export type QueueConfigInput = z.input<typeof QueueConfigSchema>;
 
 // ==========================================
 // Batch Processing
@@ -378,6 +381,7 @@ export const BatchTaskSchema = z.object({
 });
 
 export type BatchTask = z.infer<typeof BatchTaskSchema>;
+export type BatchTaskInput = z.input<typeof BatchTaskSchema>;
 
 /**
  * Batch Progress Schema
@@ -427,6 +431,7 @@ export const BatchProgressSchema = z.object({
 });
 
 export type BatchProgress = z.infer<typeof BatchProgressSchema>;
+export type BatchProgressInput = z.input<typeof BatchProgressSchema>;
 
 // ==========================================
 // Worker Configuration
@@ -481,6 +486,7 @@ export const WorkerConfigSchema = z.object({
 });
 
 export type WorkerConfig = z.infer<typeof WorkerConfigSchema>;
+export type WorkerConfigInput = z.input<typeof WorkerConfigSchema>;
 
 // ==========================================
 // Worker Stats

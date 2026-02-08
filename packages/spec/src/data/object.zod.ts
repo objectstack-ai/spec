@@ -321,6 +321,9 @@ const ObjectSchemaBase = z.object({
 
   /** Sharing Model */
   sharingModel: z.enum(['private', 'read', 'read_write', 'full']).optional().describe('Default sharing model'),
+
+  /** Key Prefix */
+  keyPrefix: z.string().max(5).optional().describe('Short prefix for record IDs (e.g., "001" for Account)'),
 });
 
 /**

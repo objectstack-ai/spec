@@ -156,6 +156,7 @@ export const GraphQLTypeConfigSchema = z.object({
 });
 
 export type GraphQLTypeConfig = z.infer<typeof GraphQLTypeConfigSchema>;
+export type GraphQLTypeConfigInput = z.input<typeof GraphQLTypeConfigSchema>;
 
 // ==========================================
 // 2. Query Generation Configuration
@@ -240,6 +241,7 @@ export const GraphQLQueryConfigSchema = z.object({
 });
 
 export type GraphQLQueryConfig = z.infer<typeof GraphQLQueryConfigSchema>;
+export type GraphQLQueryConfigInput = z.input<typeof GraphQLQueryConfigSchema>;
 
 // ==========================================
 // 3. Mutation Generation Configuration
@@ -312,6 +314,7 @@ export const GraphQLMutationConfigSchema = z.object({
 });
 
 export type GraphQLMutationConfig = z.infer<typeof GraphQLMutationConfigSchema>;
+export type GraphQLMutationConfigInput = z.input<typeof GraphQLMutationConfigSchema>;
 
 // ==========================================
 // 4. Subscription Configuration
@@ -366,6 +369,7 @@ export const GraphQLSubscriptionConfigSchema = z.object({
 });
 
 export type GraphQLSubscriptionConfig = z.infer<typeof GraphQLSubscriptionConfigSchema>;
+export type GraphQLSubscriptionConfigInput = z.input<typeof GraphQLSubscriptionConfigSchema>;
 
 // ==========================================
 // 5. Resolver Configuration
@@ -410,6 +414,7 @@ export const GraphQLResolverConfigSchema = z.object({
 });
 
 export type GraphQLResolverConfig = z.infer<typeof GraphQLResolverConfigSchema>;
+export type GraphQLResolverConfigInput = z.input<typeof GraphQLResolverConfigSchema>;
 
 // ==========================================
 // 6. DataLoader Configuration
@@ -468,6 +473,7 @@ export const GraphQLDataLoaderConfigSchema = z.object({
 });
 
 export type GraphQLDataLoaderConfig = z.infer<typeof GraphQLDataLoaderConfigSchema>;
+export type GraphQLDataLoaderConfigInput = z.input<typeof GraphQLDataLoaderConfigSchema>;
 
 // ==========================================
 // 7. GraphQL Directive Schema
@@ -541,6 +547,7 @@ export const GraphQLDirectiveConfigSchema = z.object({
 });
 
 export type GraphQLDirectiveConfig = z.infer<typeof GraphQLDirectiveConfigSchema>;
+export type GraphQLDirectiveConfigInput = z.input<typeof GraphQLDirectiveConfigSchema>;
 
 // ==========================================
 // 8. GraphQL Security - Query Depth Limiting
@@ -569,6 +576,7 @@ export const GraphQLQueryDepthLimitSchema = z.object({
 });
 
 export type GraphQLQueryDepthLimit = z.infer<typeof GraphQLQueryDepthLimitSchema>;
+export type GraphQLQueryDepthLimitInput = z.input<typeof GraphQLQueryDepthLimitSchema>;
 
 // ==========================================
 // 9. GraphQL Security - Query Complexity
@@ -616,6 +624,7 @@ export const GraphQLQueryComplexitySchema = z.object({
 });
 
 export type GraphQLQueryComplexity = z.infer<typeof GraphQLQueryComplexitySchema>;
+export type GraphQLQueryComplexityInput = z.input<typeof GraphQLQueryComplexitySchema>;
 
 // ==========================================
 // 10. GraphQL Security - Rate Limiting
@@ -683,6 +692,7 @@ export const GraphQLRateLimitSchema = z.object({
 });
 
 export type GraphQLRateLimit = z.infer<typeof GraphQLRateLimitSchema>;
+export type GraphQLRateLimitInput = z.input<typeof GraphQLRateLimitSchema>;
 
 // ==========================================
 // 11. GraphQL Security - Persisted Queries
@@ -758,6 +768,7 @@ export const GraphQLPersistedQuerySchema = z.object({
 });
 
 export type GraphQLPersistedQuery = z.infer<typeof GraphQLPersistedQuerySchema>;
+export type GraphQLPersistedQueryInput = z.input<typeof GraphQLPersistedQuerySchema>;
 
 // ==========================================
 // 12. Complete GraphQL Configuration
@@ -829,6 +840,7 @@ export const GraphQLConfig = Object.assign(GraphQLConfigSchema, {
 });
 
 export type GraphQLConfig = z.infer<typeof GraphQLConfigSchema>;
+export type GraphQLConfigInput = z.input<typeof GraphQLConfigSchema>;
 
 // ==========================================
 // Helper Functions

@@ -107,3 +107,4 @@ export const ComponentPropsMap = {
  * Type Helper to extract props from map
  */
 export type ComponentProps<T extends keyof typeof ComponentPropsMap> = z.infer<typeof ComponentPropsMap[T]>;
+export type ComponentPropsInput<T extends keyof typeof ComponentPropsMap> = z.input<typeof ComponentPropsMap[T]>;

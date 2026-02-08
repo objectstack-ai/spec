@@ -13,7 +13,8 @@
             "redis-pubsub",
             "google-pubsub",
             "azure-service-bus"
-          ]
+          ],
+          "description": "Message queue backend provider"
         },
         "topics": {
           "type": "array",
@@ -21,18 +22,22 @@
             "type": "object",
             "properties": {
               "name": {
-                "type": "string"
+                "type": "string",
+                "description": "Topic name identifier"
               },
               "partitions": {
                 "type": "number",
-                "default": 1
+                "default": 1,
+                "description": "Number of partitions for parallel consumption"
               },
               "replicationFactor": {
                 "type": "number",
-                "default": 1
+                "default": 1,
+                "description": "Number of replicas for fault tolerance"
               },
               "retentionMs": {
-                "type": "number"
+                "type": "number",
+                "description": "Message retention period in milliseconds"
               },
               "compressionType": {
                 "type": "string",
@@ -42,14 +47,17 @@
                   "snappy",
                   "lz4"
                 ],
-                "default": "none"
+                "default": "none",
+                "description": "Message compression algorithm"
               }
             },
             "required": [
               "name"
             ],
-            "additionalProperties": false
-          }
+            "additionalProperties": false,
+            "description": "Configuration for a message queue topic"
+          },
+          "description": "List of topic configurations"
         },
         "consumers": {
           "type": "array",
@@ -57,7 +65,8 @@
             "type": "object",
             "properties": {
               "groupId": {
-                "type": "string"
+                "type": "string",
+                "description": "Consumer group identifier"
               },
               "autoOffsetReset": {
                 "type": "string",
@@ -65,46 +74,56 @@
                   "earliest",
                   "latest"
                 ],
-                "default": "latest"
+                "default": "latest",
+                "description": "Where to start reading when no offset exists"
               },
               "enableAutoCommit": {
                 "type": "boolean",
-                "default": true
+                "default": true,
+                "description": "Automatically commit consumed offsets"
               },
               "maxPollRecords": {
                 "type": "number",
-                "default": 500
+                "default": 500,
+                "description": "Maximum records returned per poll"
               }
             },
             "required": [
               "groupId"
             ],
-            "additionalProperties": false
-          }
+            "additionalProperties": false,
+            "description": "Consumer group configuration for topic consumption"
+          },
+          "description": "Consumer group configurations"
         },
         "deadLetterQueue": {
           "type": "object",
           "properties": {
             "enabled": {
               "type": "boolean",
-              "default": false
+              "default": false,
+              "description": "Enable dead letter queue for failed messages"
             },
             "maxRetries": {
               "type": "number",
-              "default": 3
+              "default": 3,
+              "description": "Maximum delivery attempts before sending to DLQ"
             },
             "queueName": {
-              "type": "string"
+              "type": "string",
+              "description": "Name of the dead letter queue"
             }
           },
           "required": [
             "queueName"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Dead letter queue for failed messages"
         },
         "ssl": {
           "type": "boolean",
-          "default": false
+          "default": false,
+          "description": "Enable SSL/TLS for broker connections"
         },
         "sasl": {
           "type": "object",
@@ -115,13 +134,16 @@
                 "plain",
                 "scram-sha-256",
                 "scram-sha-512"
-              ]
+              ],
+              "description": "SASL authentication mechanism"
             },
             "username": {
-              "type": "string"
+              "type": "string",
+              "description": "SASL username"
             },
             "password": {
-              "type": "string"
+              "type": "string",
+              "description": "SASL password"
             }
           },
           "required": [
@@ -129,14 +151,16 @@
             "username",
             "password"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "SASL authentication configuration"
         }
       },
       "required": [
         "provider",
         "topics"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Top-level message queue configuration"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

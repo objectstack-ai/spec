@@ -11,48 +11,48 @@ export const MessageQueueProviderSchema = z.enum([
   'redis-pubsub',
   'google-pubsub',
   'azure-service-bus',
-]);
+]).describe('Supported message queue backend provider');
 
 export type MessageQueueProvider = z.infer<typeof MessageQueueProviderSchema>;
 
 export const TopicConfigSchema = z.object({
-  name: z.string(),
-  partitions: z.number().default(1),
-  replicationFactor: z.number().default(1),
-  retentionMs: z.number().optional(),
-  compressionType: z.enum(['none', 'gzip', 'snappy', 'lz4']).default('none'),
-});
+  name: z.string().describe('Topic name identifier'),
+  partitions: z.number().default(1).describe('Number of partitions for parallel consumption'),
+  replicationFactor: z.number().default(1).describe('Number of replicas for fault tolerance'),
+  retentionMs: z.number().optional().describe('Message retention period in milliseconds'),
+  compressionType: z.enum(['none', 'gzip', 'snappy', 'lz4']).default('none').describe('Message compression algorithm'),
+}).describe('Configuration for a message queue topic');
 
 export type TopicConfig = z.infer<typeof TopicConfigSchema>;
 
 export const ConsumerConfigSchema = z.object({
-  groupId: z.string(),
-  autoOffsetReset: z.enum(['earliest', 'latest']).default('latest'),
-  enableAutoCommit: z.boolean().default(true),
-  maxPollRecords: z.number().default(500),
-});
+  groupId: z.string().describe('Consumer group identifier'),
+  autoOffsetReset: z.enum(['earliest', 'latest']).default('latest').describe('Where to start reading when no offset exists'),
+  enableAutoCommit: z.boolean().default(true).describe('Automatically commit consumed offsets'),
+  maxPollRecords: z.number().default(500).describe('Maximum records returned per poll'),
+}).describe('Consumer group configuration for topic consumption');
 
 export type ConsumerConfig = z.infer<typeof ConsumerConfigSchema>;
 
 export const DeadLetterQueueSchema = z.object({
-  enabled: z.boolean().default(false),
-  maxRetries: z.number().default(3),
-  queueName: z.string(),
-});
+  enabled: z.boolean().default(false).describe('Enable dead letter queue for failed messages'),
+  maxRetries: z.number().default(3).describe('Maximum delivery attempts before sending to DLQ'),
+  queueName: z.string().describe('Name of the dead letter queue'),
+}).describe('Dead letter queue configuration for unprocessable messages');
 
 export type DeadLetterQueue = z.infer<typeof DeadLetterQueueSchema>;
 
 export const MessageQueueConfigSchema = z.object({
-  provider: MessageQueueProviderSchema,
-  topics: z.array(TopicConfigSchema),
-  consumers: z.array(ConsumerConfigSchema).optional(),
-  deadLetterQueue: DeadLetterQueueSchema.optional(),
-  ssl: z.boolean().default(false),
+  provider: MessageQueueProviderSchema.describe('Message queue backend provider'),
+  topics: z.array(TopicConfigSchema).describe('List of topic configurations'),
+  consumers: z.array(ConsumerConfigSchema).optional().describe('Consumer group configurations'),
+  deadLetterQueue: DeadLetterQueueSchema.optional().describe('Dead letter queue for failed messages'),
+  ssl: z.boolean().default(false).describe('Enable SSL/TLS for broker connections'),
   sasl: z.object({
-    mechanism: z.enum(['plain', 'scram-sha-256', 'scram-sha-512']),
-    username: z.string(),
-    password: z.string(),
-  }).optional(),
-});
+    mechanism: z.enum(['plain', 'scram-sha-256', 'scram-sha-512']).describe('SASL authentication mechanism'),
+    username: z.string().describe('SASL username'),
+    password: z.string().describe('SASL password'),
+  }).optional().describe('SASL authentication configuration'),
+}).describe('Top-level message queue configuration');
 
 export type MessageQueueConfig = z.infer<typeof MessageQueueConfigSchema>;

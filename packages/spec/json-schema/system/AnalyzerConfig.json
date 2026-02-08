@@ -13,28 +13,33 @@
             "keyword",
             "pattern",
             "language"
-          ]
+          ],
+          "description": "Text analyzer type"
         },
         "language": {
-          "type": "string"
+          "type": "string",
+          "description": "Language for language-specific analysis"
         },
         "stopwords": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "description": "Custom stopwords to filter during analysis"
         },
         "customFilters": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "description": "Additional token filter names to apply"
         }
       },
       "required": [
         "type"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Text analyzer configuration for index tokenization and normalization"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

@@ -216,6 +216,25 @@ export const ListViewSchema = z.object({
   calendar: CalendarConfigSchema.optional(),
   gantt: GanttConfigSchema.optional(),
 
+  /** Row & Bulk Actions */
+  rowActions: z.array(z.string()).optional().describe('Actions available for individual row items'),
+  bulkActions: z.array(z.string()).optional().describe('Actions available when multiple rows are selected'),
+
+  /** Performance */
+  virtualScroll: z.boolean().optional().describe('Enable virtual scrolling for large datasets'),
+
+  /** Conditional Formatting */
+  conditionalFormatting: z.array(z.object({
+    condition: z.string().describe('Condition expression to evaluate'),
+    style: z.record(z.string(), z.string()).describe('CSS styles to apply when condition is true'),
+  })).optional().describe('Conditional formatting rules for list rows'),
+
+  /** Inline Edit */
+  inlineEdit: z.boolean().optional().describe('Allow inline editing of records directly in the list view'),
+
+  /** Export */
+  exportOptions: z.array(z.enum(['csv', 'xlsx', 'pdf', 'json'])).optional().describe('Available export format options'),
+
   /** Empty State */
   emptyState: z.object({
     title: z.string().optional(),

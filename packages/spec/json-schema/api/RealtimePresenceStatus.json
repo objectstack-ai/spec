@@ -6,6 +6,7 @@
       "enum": [
         "online",
         "away",
+        "busy",
         "offline"
       ]
     }

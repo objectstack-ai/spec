@@ -81,8 +81,10 @@
             "description": "UI message translations keyed by message ID"
           }
         },
-        "additionalProperties": false
-      }
+        "additionalProperties": false,
+        "description": "Translation data for objects, apps, and UI messages"
+      },
+      "description": "Map of locale codes to translation data"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

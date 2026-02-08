@@ -6,19 +6,23 @@
       "properties": {
         "enabled": {
           "type": "boolean",
-          "default": true
+          "default": true,
+          "description": "Enable audit logging"
         },
         "retentionDays": {
           "type": "number",
-          "default": 365
+          "default": 365,
+          "description": "Number of days to retain audit logs"
         },
         "immutable": {
           "type": "boolean",
-          "default": true
+          "default": true,
+          "description": "Prevent modification or deletion of audit logs"
         },
         "signLogs": {
           "type": "boolean",
-          "default": false
+          "default": false,
+          "description": "Cryptographically sign log entries for tamper detection"
         },
         "events": {
           "type": "array",
@@ -35,13 +39,15 @@
               "logout",
               "failed-login"
             ]
-          }
+          },
+          "description": "Event types to capture in the audit log"
         }
       },
       "required": [
         "events"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Audit log configuration for compliance and security monitoring"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

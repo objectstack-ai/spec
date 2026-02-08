@@ -175,6 +175,25 @@
         "visible": {
           "type": "string",
           "description": "Formula returning boolean"
+        },
+        "disabled": {
+          "type": [
+            "boolean",
+            "string"
+          ],
+          "description": "Whether the action is disabled, or a condition expression string"
+        },
+        "shortcut": {
+          "type": "string",
+          "description": "Keyboard shortcut to trigger this action (e.g., \"Ctrl+S\")"
+        },
+        "bulkEnabled": {
+          "type": "boolean",
+          "description": "Whether this action can be applied to multiple selected records"
+        },
+        "timeout": {
+          "type": "number",
+          "description": "Maximum execution time in milliseconds for the action"
         }
       },
       "required": [

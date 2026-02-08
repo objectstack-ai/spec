@@ -3,13 +3,7 @@
   "definitions": {
     "PluginLifecycle": {
       "type": "object",
-      "properties": {
-        "onInstall": {},
-        "onEnable": {},
-        "onDisable": {},
-        "onUninstall": {},
-        "onUpgrade": {}
-      },
+      "properties": {},
       "additionalProperties": false
     }
   },

@@ -21,7 +21,8 @@
         "name",
         "files"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Scanned domain module representing a plugin folder"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

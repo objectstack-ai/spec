@@ -130,6 +130,21 @@ export const DatasourceSchema = z.object({
    */
   capabilities: DatasourceCapabilities.optional().describe('Capability overrides'),
   
+  /** Health Check */
+  healthCheck: z.object({
+    enabled: z.boolean().default(true).describe('Enable health check endpoint'),
+    intervalMs: z.number().default(30000).describe('Health check interval in milliseconds'),
+    timeoutMs: z.number().default(5000).describe('Health check timeout in milliseconds'),
+  }).optional().describe('Datasource health check configuration'),
+
+  /** Retry Policy */
+  retryPolicy: z.object({
+    maxRetries: z.number().default(3).describe('Maximum number of retry attempts'),
+    baseDelayMs: z.number().default(1000).describe('Base delay between retries in milliseconds'),
+    maxDelayMs: z.number().default(30000).describe('Maximum delay between retries in milliseconds'),
+    backoffMultiplier: z.number().default(2).describe('Exponential backoff multiplier'),
+  }).optional().describe('Connection retry policy for transient failures'),
+
   /** Description */
   description: z.string().optional().describe('Internal description'),
   

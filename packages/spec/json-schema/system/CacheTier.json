@@ -36,8 +36,8 @@
             "ttl",
             "adaptive"
           ],
-          "default": "lru",
-          "description": "Eviction strategy"
+          "description": "Eviction strategy",
+          "default": "lru"
         },
         "warmup": {
           "type": "boolean",
@@ -49,7 +49,8 @@
         "name",
         "type"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Configuration for a single cache tier in the hierarchy"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

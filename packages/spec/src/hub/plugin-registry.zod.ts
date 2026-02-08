@@ -405,8 +405,14 @@ export const PluginInstallConfigSchema = z.object({
 
 // Export types
 export type PluginVendor = z.infer<typeof PluginVendorSchema>;
+export type PluginVendorInput = z.input<typeof PluginVendorSchema>;
 export type PluginQualityMetrics = z.infer<typeof PluginQualityMetricsSchema>;
+export type PluginQualityMetricsInput = z.input<typeof PluginQualityMetricsSchema>;
 export type PluginStatistics = z.infer<typeof PluginStatisticsSchema>;
+export type PluginStatisticsInput = z.input<typeof PluginStatisticsSchema>;
 export type PluginRegistryEntry = z.infer<typeof PluginRegistryEntrySchema>;
+export type PluginRegistryEntryInput = z.input<typeof PluginRegistryEntrySchema>;
 export type PluginSearchFilters = z.infer<typeof PluginSearchFiltersSchema>;
+export type PluginSearchFiltersInput = z.input<typeof PluginSearchFiltersSchema>;
 export type PluginInstallConfig = z.infer<typeof PluginInstallConfigSchema>;
+export type PluginInstallConfigInput = z.input<typeof PluginInstallConfigSchema>;

@@ -80,6 +80,7 @@ export const HttpServerConfigSchema = z.object({
 });
 
 export type HttpServerConfig = z.infer<typeof HttpServerConfigSchema>;
+export type HttpServerConfigInput = z.input<typeof HttpServerConfigSchema>;
 
 // ==========================================
 // Route Registration
@@ -126,6 +127,7 @@ export const RouteHandlerMetadataSchema = z.object({
 });
 
 export type RouteHandlerMetadata = z.infer<typeof RouteHandlerMetadataSchema>;
+export type RouteHandlerMetadataInput = z.input<typeof RouteHandlerMetadataSchema>;
 
 // ==========================================
 // Middleware Configuration
@@ -198,6 +200,7 @@ export const MiddlewareConfigSchema = z.object({
 });
 
 export type MiddlewareConfig = z.infer<typeof MiddlewareConfigSchema>;
+export type MiddlewareConfigInput = z.input<typeof MiddlewareConfigSchema>;
 
 // ==========================================
 // Server Lifecycle Events
@@ -292,6 +295,7 @@ export const ServerCapabilitiesSchema = z.object({
 });
 
 export type ServerCapabilities = z.infer<typeof ServerCapabilitiesSchema>;
+export type ServerCapabilitiesInput = z.input<typeof ServerCapabilitiesSchema>;
 
 // ==========================================
 // Server Status & Metrics
