@@ -11,6 +11,10 @@ export const ApiCapabilitiesSchema = z.object({
   files: z.boolean().default(true),
   analytics: z.boolean().default(false).describe('Is the Analytics/BI engine enabled?'),
   hub: z.boolean().default(false).describe('Is Hub management enabled?'),
+  ai: z.boolean().default(false).describe('Is the AI engine enabled?'),
+  workflow: z.boolean().default(false).describe('Is the Workflow engine enabled?'),
+  notifications: z.boolean().default(false).describe('Is the Notification service enabled?'),
+  i18n: z.boolean().default(false).describe('Is the i18n service enabled?'),
 });
 
 /**
@@ -20,31 +24,49 @@ export const ApiCapabilitiesSchema = z.object({
  */
 export const ApiRoutesSchema = z.object({
   /** Base URL for Object CRUD (Data Protocol) */
-  data: z.string().describe('e.g. /api/data'),
+  data: z.string().describe('e.g. /api/v1/data'),
   
   /** Base URL for Schema Definitions (Metadata Protocol) */
-  metadata: z.string().describe('e.g. /api/meta'),
+  metadata: z.string().describe('e.g. /api/v1/meta'),
 
   /** Base URL for UI Configurations (Views, Menus) */
-  ui: z.string().optional().describe('e.g. /api/ui'),
+  ui: z.string().optional().describe('e.g. /api/v1/ui'),
   
   /** Base URL for Authentication */
-  auth: z.string().describe('e.g. /api/auth'),
+  auth: z.string().describe('e.g. /api/v1/auth'),
   
   /** Base URL for Automation (Flows/Scripts) */
-  automation: z.string().optional().describe('e.g. /api/automation'),
+  automation: z.string().optional().describe('e.g. /api/v1/automation'),
   
   /** Base URL for File/Storage operations */
-  storage: z.string().optional().describe('e.g. /api/storage'),
+  storage: z.string().optional().describe('e.g. /api/v1/storage'),
   
   /** Base URL for Analytics/BI operations */
-  analytics: z.string().optional().describe('e.g. /api/analytics'),
+  analytics: z.string().optional().describe('e.g. /api/v1/analytics'),
   
   /** Base URL for Hub Management (Multi-tenant/Marketplace) */
-  hub: z.string().optional().describe('e.g. /api/hub'),
+  hub: z.string().optional().describe('e.g. /api/v1/hub'),
 
   /** GraphQL Endpoint (if enabled) */
   graphql: z.string().optional().describe('e.g. /graphql'),
+
+  /** Base URL for Package Management */
+  packages: z.string().optional().describe('e.g. /api/v1/packages'),
+
+  /** Base URL for Workflow Engine */
+  workflow: z.string().optional().describe('e.g. /api/v1/workflow'),
+
+  /** Base URL for Realtime (WebSocket/SSE) */
+  realtime: z.string().optional().describe('e.g. /api/v1/realtime'),
+
+  /** Base URL for Notification Service */
+  notifications: z.string().optional().describe('e.g. /api/v1/notifications'),
+
+  /** Base URL for AI Engine (NLQ, Chat, Suggest) */
+  ai: z.string().optional().describe('e.g. /api/v1/ai'),
+
+  /** Base URL for Internationalization */
+  i18n: z.string().optional().describe('e.g. /api/v1/i18n'),
 });
 
 /**
